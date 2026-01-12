@@ -6,6 +6,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/group_provider.dart';
 
 import 'face_to_face_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class FaceToFaceLogic extends GetxController {
   final FaceToFaceState state = FaceToFaceState();
@@ -22,7 +23,7 @@ class FaceToFaceLogic extends GetxController {
         state.longitude.value == "0.0" ||
         state.longitude.value == "null") {
       error =
-          "${'failedGetLatLong'.tr}，${'notTurnedLocationService'.tr}，${'or'.tr} ${'notAuthorizedLatLong'.tr}";
+          "${t.failedGetLatLong}，${t.notTurnedLocationService}，${t.or} ${t.notAuthorizedLatLong}";
       return {'error': error};
     }
 

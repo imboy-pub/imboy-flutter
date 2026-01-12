@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 enum NetworkType { wifi, mobile, ethernet, none, unknown }
@@ -99,20 +99,16 @@ class NetworkMonitorService extends GetxService {
         iPrint('用户未登录，取消WebSocket重连');
         return;
       }
-      
-      // 检查WebSocket服务是否已注册
-      if (!Get.isRegistered<WebSocketService>()) {
-        iPrint('WebSocket服务未注册，跳过重连');
-        return;
-      }
-      
+
+      // 【解耦】通过事件总线发布 WebSocket 重连请求，而不是直接调用 WebSocketService
+      // Decoupling: publish WebSocket reconnect request via event bus instead of directly calling WebSocketService
       try {
-        if (WebSocketService.to.status.value.name != 'connected') {
-          WebSocketService.to.openSocket(from: 'network-type-change');
-          iPrint('因网络类型变化触发WebSocket重连');
-        }
+        AppEventBus.fire(WebSocketReconnectRequestEvent(
+          source: 'network-type-change',
+        ));
+        iPrint('因网络类型变化触发WebSocket重连请求');
       } catch (e) {
-        iPrint('WebSocket重连失败: $e');
+        iPrint('发布WebSocket重连请求失败: $e');
       }
     });
   }

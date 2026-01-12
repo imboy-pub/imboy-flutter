@@ -18,6 +18,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = <ContactModel>[].obs;
@@ -48,7 +49,7 @@ class ContactLogic extends GetxController {
     final List<ContactModel> topList = [
       ContactModel(
         peerId: 'people_nearby',
-        nickname: 'findNearbyPeople'.tr,
+        nickname: t.findNearbyPeople,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: const Center(
@@ -64,7 +65,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'new_friend',
-        nickname: 'newFriend'.tr,
+        nickname: t.newFriend,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: Obx(
@@ -98,7 +99,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'group',
-        nickname: 'groupChat'.tr,
+        nickname: t.groupChat,
         nameIndex: '↑',
         bgColor: Colors.green,
         iconData: const Icon(Icons.people, size: 24, color: Colors.white),
@@ -112,7 +113,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'tag',
-        nickname: 'tags'.tr,
+        nickname: t.tags,
         nameIndex: '↑',
         bgColor: Colors.blue,
         iconData: const Icon(

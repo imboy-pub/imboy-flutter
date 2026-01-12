@@ -142,9 +142,12 @@ class SqliteService {
 
   /// 数据库升级回调
   /// Called when upgrading database version
-  /// 
+  ///
   /// 注意：实际的升级逻辑由 MigrationService 处理
   /// SqliteService 只负责调用 MigrationService
+  ///
+  /// 事务保证：onUpgrade 回调已经在 SQLite 的事务中执行（由 sqflite 自动处理）
+  /// 如果迁移失败，SQLite 会自动回滚整个事务，确保数据库不会处于不一致状态
   Future<void> _onUpgrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
 
@@ -154,7 +157,8 @@ class SqliteService {
     }
 
     // 调用 MigrationService 执行升级
-    // MigrationService 会自动处理备份、恢复、事务等逻辑
+    // MigrationService 会自动处理备份、恢复、数据完整性检查等逻辑
+    // 注意：迁移操作在当前事务中执行，失败会自动回滚
     final result = await MigrationService.to.migrate(
       db: db,
       fromVersion: oldVsn,
@@ -171,14 +175,18 @@ class SqliteService {
 
   /// 数据库降级回调
   /// Called when downgrading database version
-  /// 
+  ///
   /// 注意：实际的降级逻辑由 MigrationService 处理
   /// SqliteService 只负责调用 MigrationService
+  ///
+  /// 事务保证：onDowngrade 回调已经在 SQLite 的事务中执行（由 sqflite 自动处理）
+  /// 如果迁移失败，SQLite 会自动回滚整个事务，确保数据库不会处于不一致状态
   Future<void> _onDowngrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
 
     // 调用 MigrationService 执行降级
-    // MigrationService 会自动处理备份、恢复、事务等逻辑
+    // MigrationService 会自动处理备份、恢复、数据完整性检查等逻辑
+    // 注意：迁移操作在当前事务中执行，失败会自动回滚
     final result = await MigrationService.to.migrate(
       db: db,
       fromVersion: oldVsn,
@@ -193,21 +201,33 @@ class SqliteService {
     iPrint("✅ Downgrade completed successfully: v${result.fromVersion} → v${result.toVersion}");
   }
 
-  /// 插入数据（带重试机制）
-  /// Insert data (with retry logic)
-  Future<int> insert(String table, Map<String, dynamic> data, {int retries = 3}) async {
+  /// 插入数据（带重试机制和超时控制）
+  /// Insert data (with retry logic and timeout control)
+  ///
+  /// 参数 (Parameters):
+  /// - table: 表名
+  /// - data: 要插入的数据
+  /// - retries: 重试次数，默认 3
+  /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
+  Future<int> insert(String table, Map<String, dynamic> data, {int retries = 3, int timeoutMs = 5000}) async {
     final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
           if (db == null) return 0;
-          return await db.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
+          return await db.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace).timeout(
+            Duration(milliseconds: timeoutMs),
+            onTimeout: () {
+              AppLogger.warning('Insert timeout: table=$table');
+              return 0; // 超时返回 0
+            },
+          );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
             continue;
           }
-          AppLogger.error('Insert error: $e');
+          AppLogger.error('Insert error: table=$table, error=$e');
           rethrow;
         }
       }
@@ -222,8 +242,17 @@ class SqliteService {
     return result;
   }
 
-  /// 更新数据（带重试机制）
-  /// Update data (with retry logic)
+  /// 更新数据（带重试机制和超时控制）
+  /// Update data (with retry logic and timeout control)
+  ///
+  /// 参数 (Parameters):
+  /// - table: 表名
+  /// - values: 要更新的值
+  /// - where: WHERE 子句
+  /// - whereArgs: WHERE 参数
+  /// - conflictAlgorithm: 冲突算法
+  /// - retries: 重试次数，默认 3
+  /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
   Future<int> update(
       String table,
       Map<String, Object?> values, {
@@ -231,6 +260,7 @@ class SqliteService {
         List<Object?>? whereArgs,
         ConflictAlgorithm? conflictAlgorithm,
         int retries = 3,
+        int timeoutMs = 5000,
       }) async {
     final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
@@ -243,13 +273,19 @@ class SqliteService {
             where: where,
             whereArgs: whereArgs,
             conflictAlgorithm: conflictAlgorithm,
+          ).timeout(
+            Duration(milliseconds: timeoutMs),
+            onTimeout: () {
+              AppLogger.warning('Update timeout: table=$table, where=$where');
+              return 0; // 超时返回 0
+            },
           );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
             continue;
           }
-          AppLogger.error('Update error: $e');
+          AppLogger.error('Update error: table=$table, error=$e');
           rethrow;
         }
       }
@@ -264,25 +300,44 @@ class SqliteService {
     return result;
   }
 
-  /// 执行原始查询（带缓存）
+  /// 执行原始查询（带缓存和超时控制）
+  /// Execute raw query (with cache and timeout control)
+  ///
+  /// 参数 (Parameters):
+  /// - sql: SQL 查询语句
+  /// - arguments: 查询参数
+  /// - useCache: 是否使用缓存，默认 true
+  /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
   Future<List<Map<String, Object?>>> rawQuery(
     String sql, [
     List<Object?>? arguments,
     bool useCache = true,
+    int timeoutMs = 5000,
   ]) async {
     final db = await this.db;
     if (db == null) return [];
 
-    return await _cacheService.cachedQuery(
-      db,
-      sql,
-      arguments: arguments,
-      useCache: useCache,
-    );
+    try {
+      return await _cacheService.cachedQuery(
+        db,
+        sql,
+        arguments: arguments,
+        useCache: useCache,
+      ).timeout(
+        Duration(milliseconds: timeoutMs),
+        onTimeout: () {
+          AppLogger.warning('SQL query timeout: $sql');
+          return []; // 超时返回空结果
+        },
+      );
+    } catch (e) {
+      AppLogger.error('SQL query error: $sql, error: $e');
+      rethrow;
+    }
   }
 
   /// 执行原始查询（不带缓存的版本，用于兼容性）
-  @deprecated
+  @Deprecated('使用 rawQuery(sql, arguments, false) 代替。此方法将在 v2.0.0 版本移除。')
   Future<List<Map<String, Object?>>> rawQueryNoCache(
     String sql, [
     List<Object?>? arguments,
@@ -312,8 +367,21 @@ class SqliteService {
     });
   }
 
-  /// 执行查询操作
-  /// Perform a query
+  /// 执行查询操作（带超时控制）
+  /// Perform a query (with timeout control)
+  ///
+  /// 参数 (Parameters):
+  /// - table: 表名
+  /// - distinct: 是否去重
+  /// - columns: 查询的列
+  /// - where: WHERE 子句
+  /// - whereArgs: WHERE 参数
+  /// - groupBy: GROUP BY 子句
+  /// - having: HAVING 子句
+  /// - orderBy: ORDER BY 子句
+  /// - limit: 限制返回数量
+  /// - offset: 偏移量
+  /// - timeoutMs: 超时时间（毫秒），默认 10000ms (10秒)
   Future<List<Map<String, dynamic>>> query(
       String table, {
         bool? distinct,
@@ -325,21 +393,34 @@ class SqliteService {
         String? orderBy,
         int? limit,
         int? offset,
+        int timeoutMs = 10000,
       }) async {
     final db = await this.db;
     if (db == null) return [];
-    return await db.query(
-      table,
-      distinct: distinct,
-      columns: columns,
-      where: where,
-      whereArgs: whereArgs,
-      groupBy: groupBy,
-      having: having,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-    );
+
+    try {
+      return await db.query(
+        table,
+        distinct: distinct,
+        columns: columns,
+        where: where,
+        whereArgs: whereArgs,
+        groupBy: groupBy,
+        having: having,
+        orderBy: orderBy,
+        limit: limit,
+        offset: offset,
+      ).timeout(
+        Duration(milliseconds: timeoutMs),
+        onTimeout: () {
+          AppLogger.warning('SQL query timeout: table=$table, where=$where');
+          return []; // 超时返回空结果
+        },
+      );
+    } catch (e) {
+      AppLogger.error('SQL query error: table=$table, error=$e');
+      rethrow;
+    }
   }
 
   /// 执行标量查询，返回首行首列值

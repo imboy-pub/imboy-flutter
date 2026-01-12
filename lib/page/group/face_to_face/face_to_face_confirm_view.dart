@@ -6,12 +6,13 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_logic.dart';
-import 'package:imboy/store/model/chat_extend_model.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class FaceToFaceConfirmPage extends StatefulWidget {
   final String gid;
@@ -60,7 +61,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
 
     // 接收到新的消息订阅
     ssMsg ??=
-        eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+        AppEventBus.on<ChatExtendEvent>().listen((ChatExtendEvent obj) async {
       // 监听新成员加入
       if (obj.type == 'join_group') {
         final i = memberList.indexWhere((e) =>
@@ -99,7 +100,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
             _buildNumberWidget(context, widget.code),
             const SizedBox(height: 8),
             Text(
-              'createGroupF2fConfirmTips'.tr,
+              t.createGroupF2fConfirmTips,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.85),
@@ -125,9 +126,9 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: Text('enterTheGroup'.tr, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary)),
+                child: Text(t.enterTheGroup, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary)),
                 onPressed: () async {
-                   EasyLoading.show(status: 'loading'.tr);
+                   EasyLoading.show(status: t.loading);
                    try {
                      Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
                          .faceToFaceSave(widget.gid, widget.code);

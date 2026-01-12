@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -59,7 +59,71 @@ class MessageRepo {
 
   final String tableName;
 
-  MessageRepo({required this.tableName});
+  MessageRepo({required this.tableName}) {
+    // 验证表名是否合法
+    if (!_isTableAllowed(tableName)) {
+      throw ArgumentError('Invalid table name: $tableName');
+    }
+  }
+
+  // 数据验证：验证必填字段
+  bool _validateMessageData(MessageModel msg) {
+    // 验证 ID 不为空
+    if (msg.id == null || msg.id!.isEmpty) {
+      debugPrint('MessageRepo: 消息 ID 不能为空');
+      return false;
+    }
+
+    // 验证 ID 长度不超过数据库限制 (假设 varchar(255))
+    if (msg.id!.length > 255) {
+      debugPrint('MessageRepo: 消息 ID 长度超过限制');
+      return false;
+    }
+
+    // 验证 fromId 和 toId
+    if (msg.fromId == null || msg.fromId!.isEmpty) {
+      debugPrint('MessageRepo: 发送者 ID 不能为空');
+      return false;
+    }
+
+    if (msg.toId == null || msg.toId!.isEmpty) {
+      debugPrint('MessageRepo: 接收者 ID 不能为空');
+      return false;
+    }
+
+    // 验证 conversationUk3
+    if (msg.conversationUk3.isEmpty) {
+      debugPrint('MessageRepo: 会话 UK3 不能为空');
+      return false;
+    }
+
+    // 验证时间戳在合理范围内 (2000-01-01 到 2100-01-01)
+    if (msg.createdAt < 946684800000 || msg.createdAt > 4102444800000) {
+      debugPrint('MessageRepo: 消息时间戳不在合理范围内');
+      return false;
+    }
+
+    // 验证状态值
+    if (msg.status != null && (msg.status! < 0 || msg.status! > 100)) {
+      debugPrint('MessageRepo: 消息状态值不在有效范围内');
+      return false;
+    }
+
+    return true;
+  }
+
+  // 允许的表名白名单
+  static final Set<String> _allowedTables = {
+    MessageRepo.c2cTable,
+    MessageRepo.c2gTable,
+    MessageRepo.c2sTable,
+    MessageRepo.s2cTable,
+  };
+
+  // 验证表名是否在白名单中
+  static bool _isTableAllowed(String tableName) {
+    return _allowedTables.contains(tableName);
+  }
 
   static String getTableName(String type) {
     String tb = '';
@@ -107,11 +171,22 @@ class MessageRepo {
         tb = MessageRepo.c2gTable;
         break;
     }
+
+    // 验证返回的表名是否在白名单中
+    if (!_isTableAllowed(tb)) {
+      throw ArgumentError('Invalid table name: $tb');
+    }
+
     return tb;
   }
 
   // 插入一条数据
   Future<MessageModel> insert(MessageModel msg, {Transaction? txn}) async {
+    // 数据验证
+    if (!_validateMessageData(msg)) {
+      throw ArgumentError('Invalid message data');
+    }
+
     int? count;
     if (txn != null) {
       count = await txn.rawQuery(
@@ -172,6 +247,7 @@ class MessageRepo {
       );
     } else {
       return await _db.update(
+        tableName,
         updateData,
         where: '${MessageRepo.id} = ?',
         whereArgs: [data[MessageRepo.id]],
@@ -317,13 +393,9 @@ class MessageRepo {
     if (strNoEmpty(kwd)) {
       kwd = kwd!.trim();
       String pattern = "%$kwd%";
-      // 搜索 payload 中的 text 字段，同时支持直接搜索 payload 字符串（处理非JSON或格式问题）
-      where = """
-        $where AND (
-          json_extract(payload, '\$.text') LIKE ?
-        )
-      """;
-      whereArgs.addAll([pattern]);
+      // 搜索 payload 中的 text 字段，使用参数化查询防止 SQL 注入
+      where = "$where AND json_extract(payload, '\$.text') LIKE ?";
+      whereArgs.add(pattern);
     }
 
     if (strNoEmpty(conversationUk3)) {
@@ -716,9 +788,9 @@ class MessageRepo {
       }
     } catch (e) {
       iPrint("批量插入离线消息失败: $e");
-    return ackMsgIds;
-      rethrow;
+      return ackMsgIds;
     }
+    return null;
   }
 
   static int _parseCreatedAt(dynamic raw) {
@@ -811,7 +883,7 @@ class MessageRepo {
       }
 
       // 触发会话列表刷新 - 多重保障
-      eventBus.fire(conv); // 全局事件
+      AppEventBus.fireData(conv); // 全局事件
 
       // 更新会话逻辑中的内存映射
       if (conversationLogic != null) {
@@ -830,7 +902,7 @@ class MessageRepo {
       for (final msg in inserted) {
         if (msg.conversationUk3 != currentConversationUk3) continue;
         try {
-          eventBus.fire(await msg.toMessageModel().toTypeMessage());
+          AppEventBus.fireData(await msg.toMessageModel().toTypeMessage(), 'Message');
         } catch (_) {}
       }
     }

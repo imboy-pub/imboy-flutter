@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 // ignore: depend_on_referenced_packages
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart' show formatBytes;
 import 'package:imboy/component/ui/image_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class QuoteTipsWidget extends StatelessWidget {
@@ -69,7 +69,7 @@ class QuoteTipsWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "[${'file'.tr}] (${formatBytes(fileMsg.size!.truncate())})",
+                  "[${t.file}] (${formatBytes(fileMsg.size!.truncate())})",
                   style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
                 ),
               ),
@@ -103,7 +103,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${'voiceMessage'.tr}]",
+            "[${t.voiceMessage}]",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ],
@@ -123,7 +123,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${'quote'.tr}] $txt",
+              "[${t.quote}] $txt",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -142,7 +142,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${'voiceMessage'.tr}] ${durationMS.toStringAsFixed(1)}''",
+            "[${t.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ],
@@ -158,7 +158,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${'location'.tr}] ${message?.metadata?['title'] ?? ''}",
+              "[${t.location}] ${message?.metadata?['title'] ?? ''}",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -176,7 +176,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${'video'.tr}] ",
+            "[${t.video}] ",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
           const SizedBox(width: 4),
@@ -209,7 +209,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${'businessCard'.tr}] ${message?.metadata?['title'] ?? ''}",
+              "[${t.businessCard}] ${message?.metadata?['title'] ?? ''}",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -227,7 +227,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-  '${'messageRevoked'.tr}',
+  t.messageRevoked,
             style: TextStyle(
               color: Theme.of(context).colorScheme.tertiary,
               fontStyle: FontStyle.italic,

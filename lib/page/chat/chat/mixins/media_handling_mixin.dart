@@ -44,10 +44,10 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
     try {
       // 请求相册权限
       bool hasPermission = await requestPhotoPermission();
-      if (!hasPermission) {
+      if (!hasPermission || !context.mounted) {
         return;
       }
-      
+
       // 选择图片
       final List<AssetEntity>? result = await PickMethod.cameraAndStay(maxAssetsCount: 9).method(context, []);
       if (result != null) {
@@ -105,10 +105,10 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
     try {
       // 请求相册权限
       bool hasPermission = await requestPhotoPermission();
-      if (!hasPermission) {
+      if (!hasPermission || !context.mounted) {
         return;
       }
-      
+
       // 选择视频
       final List<AssetEntity>? result = await PickMethod.cameraAndStay(maxAssetsCount: 9).method(context, []);
       if (result != null) {
@@ -473,71 +473,6 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
     } catch (e, stack) {
       debugPrint("_addMessage error: $e : $stack");
       return false;
-    }
-  }
-
-  /// 发送位置消息
-  void _sendLocationMessage(Map<String, dynamic> location) {
-    try {
-      // 创建位置消息（自定义消息）
-      final message = CustomMessage(
-        id: '',
-        authorId: currentUserId,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
-        metadata: {
-          'custom_type': 'location',
-          'latitude': location['latitude'],
-          'longitude': location['longitude'],
-          'address': location['address'] ?? '',
-          'name': location['name'] ?? '',
-        },
-        status: MessageStatus.sending,
-      );
-      
-      // 添加消息到聊天
-      logic.addMessage(
-        UserRepoLocal.to.currentUid,
-        peerId,
-        widget is MediaHandlingMixinState ? (widget as MediaHandlingMixinState).peerAvatar : '',
-        widget is MediaHandlingMixinState ? (widget as MediaHandlingMixinState).peerTitle : '',
-        chatType == 'null' ? 'C2C' : chatType,
-        message,
-      );
-    } catch (e) {
-      iPrint('_sendLocationMessage error: $e');
-      EasyLoading.showToast('发送位置失败');
-    }
-  }
-
-  /// 发送名片消息
-  void _sendVisitCardMessage(Map<String, dynamic> user) {
-    try {
-      // 创建名片消息（自定义消息）
-      final message = CustomMessage(
-        id: '',
-        authorId: currentUserId,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
-        metadata: {
-          'custom_type': 'visit_card',
-          'uid': user['id'],
-          'nickname': user['nickname'] ?? '',
-          'avatar': user['avatar'] ?? '',
-        },
-        status: MessageStatus.sending,
-      );
-      
-      // 添加消息到聊天
-      logic.addMessage(
-        UserRepoLocal.to.currentUid,
-        peerId,
-        widget is MediaHandlingMixinState ? (widget as MediaHandlingMixinState).peerAvatar : '',
-        widget is MediaHandlingMixinState ? (widget as MediaHandlingMixinState).peerTitle : '',
-        chatType == 'null' ? 'C2C' : chatType,
-        message,
-      );
-    } catch (e) {
-      iPrint('_sendVisitCardMessage error: $e');
-      EasyLoading.showToast('发送名片失败');
     }
   }
 

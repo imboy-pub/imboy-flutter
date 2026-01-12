@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/mine/setting/setting_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 
 class FriendsPermissionsPage extends StatelessWidget {
@@ -26,7 +27,7 @@ class FriendsPermissionsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: GlassAppBar(
           automaticallyImplyLeading: true,
-          title: 'friendPermissions'.tr,
+          title: t.friendPermissions,
         ),
         body: SingleChildScrollView(child: Column(children: const [])));
   }

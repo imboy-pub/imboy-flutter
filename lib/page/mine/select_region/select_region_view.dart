@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'select_region_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class SelectRegionPage extends StatelessWidget {
@@ -40,7 +41,7 @@ class SelectRegionPage extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'setParam'.trArgs(['region'.tr]),
+                t.setParam.replaceAll('{s}', t.region),
                 textAlign: TextAlign.center,
                 // style: AppStyle.navAppBarTitleStyle,
               ),
@@ -48,7 +49,7 @@ class SelectRegionPage extends StatelessWidget {
             ),
             Obx(
               () => RoundedElevatedButton(
-                  text: 'buttonAccomplish'.tr,
+                  text: t.buttonAccomplish,
                   highlighted: logic.valueChanged.isTrue,
                   onPressed: () async {
                     var nav = Navigator.of(context);
@@ -75,7 +76,7 @@ class SelectRegionPage extends StatelessWidget {
             height: 40.0,
             child: Obx(() => Text(
                   logic.selectedVal.value.isEmpty
-                      ? 'all'.tr
+                      ? t.all
                       : logic.selectedVal.value,
                   style: const TextStyle(fontSize: 12),
                 )),

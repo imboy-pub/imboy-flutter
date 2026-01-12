@@ -7,6 +7,7 @@ import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 import 'recently_registered_user_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class RecentlyRegisteredUserLogic extends GetxController {
   final RecentlyRegisteredUserState state = RecentlyRegisteredUserState();
@@ -24,7 +25,7 @@ class RecentlyRegisteredUserLogic extends GetxController {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      String msg = 'tipConnectDesc'.tr;
+      String msg = t.tipConnectDesc;
       EasyLoading.showError(' $msg        ');
       return [];
     }

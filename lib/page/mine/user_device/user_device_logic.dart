@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/store/provider/user_device_provider.dart';
 import 'package:imboy/store/repository/user_device_repo_sqlite.dart';
@@ -114,17 +114,23 @@ class UserDeviceLogic extends GetxController {
       return false;
     }
     String name = await getDeviceName(deviceId);
-    return WebSocketService.to.sendMessage(
-      json.encode({
-        "id": "device_force_offline",
-        "type": "S2C",
-        "msg_type": "device_force_offline",
-        "payload": {
-          "by_did": deviceId,
-          "by_name": name.isEmpty ? '其他设备' : name, //
-        },
-      }),
-      null,
-    );
+
+    final message = {
+      "id": "device_force_offline",
+      "type": "S2C",
+      "msg_type": "device_force_offline",
+      "payload": {
+        "by_did": deviceId,
+        "by_name": name.isEmpty ? '其他设备' : name,
+      },
+    };
+
+    // 解耦：通过事件发送消息
+    AppEventBus.fire(WebSocketMessageSendRequestEvent(
+      message: json.encode(message),
+      messageId: message['id']?.toString(),
+    ));
+
+    return true;
   }
 }

@@ -2,7 +2,6 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -15,6 +14,7 @@ import 'package:imboy/service/websocket.dart'
 import 'package:imboy/component/ui/glass_bottom_bar.dart'; // Import custom widget
 
 import 'bottom_navigation_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class BottomNavigationPage extends StatefulWidget {
   const BottomNavigationPage({super.key});
@@ -92,7 +92,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             GlassBottomBarItem(
               icon: Icons.chat_bubble_outline,
               activeIcon: Icons.chat_bubble,
-              label: 'titleMessage'.tr,
+              label: t.titleMessage,
               iconBuilder: (isSelected) => Obx(
                 () => badges.Badge(
                   showBadge: conversationLogic.chatMsgRemindCounter.value > 0,
@@ -122,7 +122,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             GlassBottomBarItem(
               icon: Icons.perm_contact_cal_outlined,
               activeIcon: Icons.perm_contact_cal,
-              label: 'titleContact'.tr,
+              label: t.titleContact,
               iconBuilder: (isSelected) => Obx(
                 () => badges.Badge(
                   showBadge: logic.newFriendRemindCounter.isNotEmpty,
@@ -153,7 +153,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             GlassBottomBarItem(
               icon: Icons.person_outline,
               activeIcon: Icons.person,
-              label: 'titleMine'.tr,
+              label: t.titleMine,
               iconBuilder: (isSelected) => Obx(
                 () => badges.Badge(
                   showBadge: true,

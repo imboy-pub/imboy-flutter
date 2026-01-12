@@ -10,7 +10,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
-import 'package:audio_session/audio_session.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_controller.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:sqflite/sqflite.dart';
@@ -21,7 +20,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
@@ -29,7 +27,7 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -39,6 +37,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
 import 'chat_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 聊天业务逻辑控制器
 /// 处理消息发送、接收、状态更新等核心业务逻辑
@@ -448,7 +447,7 @@ class ChatLogic extends GetxController {
 
       final updated = await repo.findById(conversation.id);
       if (updated != null) {
-        eventBus.fire(updated);
+        AppEventBus.fireData(updated);
       }
     } catch (_) {}
   }
@@ -461,7 +460,6 @@ class ChatLogic extends GetxController {
     try {
       final tb = MessageRepo.getTableName(conversation.type);
       final repo = MessageRepo(tableName: tb);
-      final nowMs = deletedAtMs ?? DateTimeHelper.millisecond();
 
       final m = await repo.find(messageId);
       if (m == null) {
@@ -503,50 +501,6 @@ class ChatLogic extends GetxController {
     } catch (_) {}
   }
 
-  void _scheduleBurnPurge({
-    required ConversationModel conversation,
-    required String messageId,
-  }) {
-    _burnPurgeTimers[messageId]?.cancel();
-    _burnPurgeTimers[messageId] = Timer(
-      const Duration(milliseconds: _burnTombstoneRetentionMs),
-      () async {
-        await _purgeBurnTombstone(conversation, messageId);
-      },
-    );
-  }
-
-  Future<void> _purgeBurnTombstone(
-    ConversationModel conversation,
-    String messageId,
-  ) async {
-    try {
-      final tb = MessageRepo.getTableName(conversation.type);
-      final repo = MessageRepo(tableName: tb);
-      final m = await repo.find(messageId);
-      if (m == null) return;
-      final payload = m.payload;
-      if (!_isBurnTombstonePayload(payload)) return;
-
-      final nowMs = DateTimeHelper.millisecond();
-      final deletedAt = _burnDeletedAtMsFromPayload(payload);
-      if (deletedAt <= 0) return;
-      if (nowMs - deletedAt < _burnTombstoneRetentionMs) return;
-
-      // 从重试队列中移除该消息
-      if (Get.isRegistered<MessageRetry>()) {
-        MessageRetry.to.removeFromRetryQueue(messageId);
-      }
-      await repo.delete(messageId);
-      await _updateConversationLastMessageAfterBurnHidden(
-        conversation,
-        repo,
-        hiddenMessageId: messageId,
-      );
-    } catch (_) {}
-    _burnPurgeTimers.remove(messageId)?.cancel();
-  }
-
   Future<void> markBurnReadAt(
     ConversationModel conversation,
     String messageId, {
@@ -582,7 +536,7 @@ class ChatLogic extends GetxController {
 
       final updated = await repo.find(messageId);
       if (updated != null) {
-        eventBus.fire([await updated.toTypeMessage()]);
+        AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
       }
     } catch (_) {}
   }
@@ -685,7 +639,7 @@ class ChatLogic extends GetxController {
 
   /// 获取群组标题，格式为"群组名称(人数)"
   Future<String> groupTitle(String gid, String prefix, int num) async {
-    String prefix2 = strNoEmpty(prefix) ? prefix : 'groupChat'.tr;
+    String prefix2 = strNoEmpty(prefix) ? prefix : t.groupChat;
     if (num > 0) {
       return "$prefix2($num)";
     } else {
@@ -912,49 +866,31 @@ class ChatLogic extends GetxController {
     return await _sendWithRetry(obj.id!, msg);
   }
 
-  /// 带重试机制的消息发送（按照项目规范：指数退避，最大3次）
+  /// 带重试机制的消息发送（使用 MessageRetry 服务）
   Future<bool> _sendWithRetry(
     String messageId,
     Map<String, dynamic> msg,
   ) async {
-    const maxRetries = 3;
-    int attempt = 0;
+    try {
+      iPrint('消息发送（使用重试机制）: $messageId');
 
-    while (attempt < maxRetries) {
-      try {
-        iPrint('消息发送尝试 ${attempt + 1}/$maxRetries: $messageId');
+      // 解耦：通过事件发送消息
+      AppEventBus.fire(WebSocketMessageSendRequestEvent(
+        message: json.encode(msg),
+        messageId: messageId,
+      ));
 
-        bool success = await WebSocketService.to.sendMessage(
-          json.encode(msg),
-          messageId,
-        );
+      // 添加到重试队列
+      final type = msg['type']?.toString() ?? 'C2C';
+      MessageRetry.to.addToRetryQueue(messageId, type);
 
-        if (success) {
-          iPrint('消息发送成功: $messageId');
-          await _updateMessageStatus(messageId, IMBoyMessageStatus.sent);
-          return true;
-        }
-
-        throw Exception('发送失败');
-      } catch (e) {
-        attempt++;
-        iPrint('消息发送失败 ($attempt/$maxRetries): $messageId, 错误: $e');
-
-        if (attempt >= maxRetries) {
-          // 最终失败，标记为错误状态
-          await _updateMessageStatus(messageId, IMBoyMessageStatus.error);
-          iPrint('消息发送最终失败: $messageId');
-          return false;
-        }
-
-        // 指数退避等待：1s, 2s, 4s
-        final delay = Duration(seconds: 1 << (attempt - 1));
-        iPrint('等待 ${delay.inSeconds}秒 后重试...');
-        await Future.delayed(delay);
-      }
+      iPrint('消息已提交到重试队列: $messageId');
+      return true;
+    } catch (e) {
+      iPrint('消息发送失败: $messageId, 错误: $e');
+      await _updateMessageStatus(messageId, IMBoyMessageStatus.error);
+      return false;
     }
-
-    return false;
   }
 
   /// 更新消息状态
@@ -972,7 +908,7 @@ class ChatLogic extends GetxController {
           // 通知UI更新
           msg.status = status;
           final updatedMessage = await msg.toTypeMessage();
-          eventBus.fire([updatedMessage]);
+          AppEventBus.fireData([updatedMessage], 'List<Message>');
           break;
         }
       }
@@ -1097,7 +1033,7 @@ class ChatLogic extends GetxController {
     await (MessageRepo(tableName: tb)).insert(obj);
 
     // 通知会话更新
-    eventBus.fire(conversation);
+    AppEventBus.fireData(conversation);
     iPrint(
       "sendMessage $sendToServer : ${message.id}, type: $type, toId: $toId",
     );
@@ -1212,7 +1148,7 @@ class ChatLogic extends GetxController {
           iPrint('会话状态更新成功: ${updatedConversation.id}');
           iPrint('触发会话更新事件总线[本端]');
           // 重新启用事件触发，确保会话列表更新
-          eventBus.fire(updatedConversation);
+          AppEventBus.fireData(updatedConversation);
         }
       } else {
         iPrint('撤回的消息不是会话的最后一条消息，无需更新会话');
@@ -1326,7 +1262,7 @@ class ChatLogic extends GetxController {
       ConversationModel? cm2 = await repo.findById(cm.id);
       if (cm2 != null) {
         iPrint('removeMessage - 触发会话更新事件: ${cm2.id}');
-        eventBus.fire(cm2);
+        AppEventBus.fireData(cm2);
       } else {
         iPrint('removeMessage - 未找到更新后的会话');
       }
@@ -1362,19 +1298,26 @@ class ChatLogic extends GetxController {
     }
 
     iPrint('ChatLogic.sendMessage: ${json.encode(msg)}');
-    iPrint('WebSocket连接状态: ${WebSocketService.to.status.value}');
-    bool result = await WebSocketService.to.sendMessage(
-      json.encode(msg),
-      msg['id'],
-    );
-    iPrint('ChatLogic.sendMessage结果: $result');
+    iPrint('WebSocket连接状态: ${MessageService.to.isOnline.value ? "connected" : "disconnected"}');
 
-    // 🔍 追踪撤回消息发送结果
-    if (messageType.contains('REVOKE')) {
-      iPrint('🔍 ChatLogic撤回消息追踪: 发送结果: $result');
+    // 解耦：通过事件发送消息（fire-and-forget）
+    AppEventBus.fire(WebSocketMessageSendRequestEvent(
+      message: json.encode(msg),
+      messageId: msg['id']?.toString(),
+    ));
+
+    // 添加到重试队列（如果消息ID存在）
+    final msgId = msg['id']?.toString();
+    if (msgId != null && msgId.isNotEmpty) {
+      // 提取消息类型
+      final type = msg['type']?.toString() ?? 'C2C';
+      MessageRetry.to.addToRetryQueue(msgId, type);
     }
 
-    return result;
+    iPrint('ChatLogic.sendMessage已提交: ${msg['id']}');
+
+    // 返回 true 表示已提交（实际结果由重试机制处理）
+    return true;
   }
 
   /// 标记消息为已读
@@ -1453,7 +1396,7 @@ class ChatLogic extends GetxController {
         updated.add(await m.toTypeMessage());
       }
       if (updated.isNotEmpty) {
-        eventBus.fire(updated);
+        AppEventBus.fireData(updated);
       }
     } catch (_) {}
   }
@@ -1521,20 +1464,24 @@ class ChatLogic extends GetxController {
       final items = decoded.cast<dynamic>().toList();
       if (items.isEmpty) return;
 
-      final remaining = <dynamic>[];
       for (final it in items) {
         if (it is! Map) continue;
         final map = it.cast<String, dynamic>();
         final messageId = map['id']?.toString() ?? Xid().toString();
-        final ok = await WebSocketService.to.sendMessage(
-          json.encode(map),
-          messageId,
-        );
-        if (!ok) {
-          remaining.add(map);
-        }
+
+        // 解耦：通过事件发送消息（fire-and-forget）
+        AppEventBus.fire(WebSocketMessageSendRequestEvent(
+          message: json.encode(map),
+          messageId: messageId,
+        ));
+
+        // 添加到重试队列
+        final type = map['type']?.toString() ?? 'C2C';
+        MessageRetry.to.addToRetryQueue(messageId, type);
       }
-      await sp.setString(key, jsonEncode(remaining));
+
+      // 清空队列（全部已提交）
+      await sp.setString(key, '[]');
     } catch (_) {}
   }
 
@@ -1580,7 +1527,7 @@ class ChatLogic extends GetxController {
 
       final updatedMsg = await repo.find(messageId);
       if (updatedMsg != null) {
-        eventBus.fire([await updatedMsg.toTypeMessage()]);
+        AppEventBus.fireData([await updatedMsg.toTypeMessage()], 'List<Message>');
       }
 
       final now = DateTimeHelper.millisecond();
@@ -1600,13 +1547,16 @@ class ChatLogic extends GetxController {
         },
         'created_at': now,
       };
-      final ok = await WebSocketService.to.sendMessage(
-        json.encode(actionMessage),
-        actionMessage['id'],
-      );
-      if (!ok) {
-        await enqueueReactionAction(actionMessage);
-      }
+
+      // 解耦：通过事件发送消息
+      AppEventBus.fire(WebSocketMessageSendRequestEvent(
+        message: json.encode(actionMessage),
+        messageId: actionMessage['id']?.toString(),
+      ));
+
+      // 添加到重试队列
+      MessageRetry.to.addToRetryQueue(actionMessage['id'].toString(), chatType);
+
       return isAdd;
     } catch (_) {
       return null;
@@ -1616,9 +1566,9 @@ class ChatLogic extends GetxController {
   /// 解析系统提示信息
   String parseSysPrompt(String sysPrompt) {
     if (sysPrompt == 'in_denylist') {
-      sysPrompt = 'sendMsgRejected'.tr;
+      sysPrompt = t.sendMsgRejected;
     } else if (sysPrompt == 'not_a_friend') {
-      sysPrompt = 'sendMsgNotFriendTips'.tr;
+      sysPrompt = t.sendMsgNotFriendTips;
     }
     return sysPrompt;
   }
@@ -1647,7 +1597,7 @@ class ChatLogic extends GetxController {
     msg.payload = payload;
 
     // 通知消息状态更新
-    eventBus.fire([await msg.toTypeMessage()]);
+    AppEventBus.fireData([await msg.toTypeMessage()], 'List<Message>');
 
     // 更新会话状态
     Get.find<ConversationLogic>().updateConversationByMsgId(msgId, {
@@ -1673,7 +1623,7 @@ class ChatLogic extends GetxController {
     if (canCopy) {
       items.add(
         popupmenu.MenuItem(
-          title: 'buttonCopy'.tr,
+          title: t.buttonCopy,
           userInfo: {"id": "copy", "msg": message},
           textAlign: TextAlign.center,
           // textStyle: TextStyle(
@@ -1701,7 +1651,7 @@ class ChatLogic extends GetxController {
     if (canSave) {
       items.add(
         popupmenu.MenuItem(
-          title: 'buttonSave'.tr,
+          title: t.buttonSave,
           userInfo: {"id": "save", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1717,7 +1667,7 @@ class ChatLogic extends GetxController {
     if (canCollect) {
       items.add(
         popupmenu.MenuItem(
-          title: 'favorites'.tr,
+          title: t.favorites,
           userInfo: {"id": "collect", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1742,7 +1692,7 @@ class ChatLogic extends GetxController {
     if (!isRevoked) {
       items.add(
         popupmenu.MenuItem(
-          title: 'forward'.tr,
+          title: t.forward,
           userInfo: {"id": "transpond", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(fontSize: 10.0, color: Color(0xffc5c5c5)),
@@ -1751,7 +1701,7 @@ class ChatLogic extends GetxController {
       );
       items.add(
         popupmenu.MenuItem(
-          title: 'quote'.tr,
+          title: t.quote,
           userInfo: {"id": "quote", "msg": message},
           textAlign: TextAlign.center,
           // textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: AppTextSize.small),
@@ -1768,7 +1718,7 @@ class ChatLogic extends GetxController {
     if (message.authorId == UserRepoLocal.to.currentUid && !isRevoked) {
       items.add(
         popupmenu.MenuItem(
-          title: 'revoke'.tr,
+          title: t.revoke,
           userInfo: {"id": "revoke", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1784,7 +1734,7 @@ class ChatLogic extends GetxController {
     // 添加删除菜单项
     items.add(
       popupmenu.MenuItem(
-        title: 'buttonDelete'.tr,
+        title: t.buttonDelete,
         userInfo: {"id": "delete", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1814,7 +1764,7 @@ class ChatLogic extends GetxController {
     );
 
     if (path != null) {
-      EasyLoading.showToast('saveSuccess'.tr);
+      EasyLoading.showToast(t.saveSuccess);
     }
   }
 
@@ -2068,8 +2018,9 @@ class ChatLogic extends GetxController {
     try {
       iPrint('开始重试消息: $messageId');
 
-      // 使用MessageService的重试功能
-      final success = await MessageService.to.retryMessage(
+      // 直接使用 MessageRetry 的重试功能（解耦）
+      // Use MessageRetry's retry functionality directly (decoupled)
+      final success = await MessageRetry.to.retryMessage(
         messageId,
         messageType,
       );
@@ -2111,7 +2062,7 @@ class ChatLogic extends GetxController {
 
           // 更新UI
           final updatedMessage = await msg.toTypeMessage();
-          eventBus.fire([updatedMessage]);
+          AppEventBus.fireData([updatedMessage], 'List<Message>');
 
           iPrint('消息发送超时，标记为失败: ${msg.id}');
         } else {
@@ -2121,18 +2072,6 @@ class ChatLogic extends GetxController {
       }
     } catch (e) {
       iPrint('检查发送中消息异常: $e');
-    }
-  }
-
-  /// 初始化全局音频会话（获取音频焦点）
-  Future<void> _initGlobalPlayerController() async {
-    try {
-      final session = await AudioSession.instance;
-      await session.configure(AudioSessionConfiguration.music());
-      await session.setActive(true);
-      iPrint('AudioSession configured and activated');
-    } catch (e) {
-      iPrint('AudioSession configuration failed: $e');
     }
   }
 

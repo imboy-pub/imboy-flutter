@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/password.dart';
 import 'package:imboy/page/mine/language/language_logic.dart';
 import 'package:imboy/page/single/markdown.dart';
@@ -13,6 +12,7 @@ import 'login_view.dart';
 import 'signup_continue_view.dart';
 import 'widget/bezier_container.dart';
 import 'passport_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -115,7 +115,7 @@ class SignupPageState extends State<SignupPage>
                                 border: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 enabledBorder: InputBorder.none,
-                                hintText: 'nickname'.tr,
+                                hintText: t.nickname,
                                 hintStyle: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 16,
@@ -169,7 +169,7 @@ class SignupPageState extends State<SignupPage>
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 16),
                                       child: InternationalPhoneNumberInput(
-                                        locale: sysLang(
+                                        locale: LocaleHelper.sysLang(
                                           'intl_phone_number_input',
                                         ),
                                         countries: langLogic.regionCodeList(
@@ -184,15 +184,13 @@ class SignupPageState extends State<SignupPage>
                                           leadingPadding: 0,
                                         ),
                                         searchBoxDecoration: InputDecoration(
-                                          labelText: 'regionSearchTips'.tr,
+                                          labelText: t.regionSearchTips,
                                         ),
                                         inputDecoration: InputDecoration(
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           enabledBorder: InputBorder.none,
-                                          hintText: 'pleaseInputParam'.trArgs(
-                                            ['mobile'.tr],
-                                          ),
+                                          hintText: t.pleaseInputParam.replaceAll('{param}', t.mobile),
                                           hintStyle: TextStyle(
                                             color: Colors.grey.shade600,
                                             fontSize: 16,
@@ -285,9 +283,7 @@ class SignupPageState extends State<SignupPage>
                                         border: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                         enabledBorder: InputBorder.none,
-                                        hintText: 'pleaseInputParam'.trArgs([
-                                          'email'.tr,
-                                        ]),
+                                        hintText: t.pleaseInputParam.replaceAll('{param}', t.email),
                                         hintStyle: TextStyle(
                                           color: Colors.grey.shade600,
                                           fontSize: 16,
@@ -345,7 +341,7 @@ class SignupPageState extends State<SignupPage>
                           child: Obx(
                             () => PasswordTextField(
                               obscureText: state.newPwdObscure.value,
-                              hintText: 'password'.tr,
+                              hintText: t.password,
                               onTap: () {
                                 state.newPwdObscure.value =
                                     !state.newPwdObscure.value;
@@ -433,7 +429,7 @@ class SignupPageState extends State<SignupPage>
                                         logic.checkSignupContinue();
                                       },
                                       child: Text(
-                                        'readAgreeParam'.trArgs([''.tr]),
+                                        t.readAgreeParam.replaceAll('{param}', ''),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -445,7 +441,7 @@ class SignupPageState extends State<SignupPage>
                                       onTap: () {
                                         Get.dialog(
                                           MarkdownPage(
-                                            title: 'licenseAgreement'.tr,
+                                            title: t.licenseAgreement,
                                             url: logic.licenseAgreementUrl(),
                                             leading: IconButton(
                                               icon: const Icon(
@@ -461,7 +457,7 @@ class SignupPageState extends State<SignupPage>
                                         );
                                       },
                                       child: Text(
-                                        'licenseAgreement'.tr,
+                                        t.licenseAgreement,
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -550,10 +546,16 @@ class SignupPageState extends State<SignupPage>
                                       if (state.showSignupContinue.isFalse) {
                                         // 类型化的格式错误提示
                                         final label = accountType == 'email'
-                                            ? 'email'.tr
-                                            : 'mobile'.tr;
+                                            ? t.email
+                                            : t.mobile;
                                         logic.snackBar(
-                                          'paramFormatError'.trArgs([label]),
+                                          Text(
+                                            t.paramFormatError.replaceAll('{param}', label),
+                                            style: const TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 20,
+                                            ),
+                                          ),
                                         );
                                         return;
                                       }
@@ -568,9 +570,7 @@ class SignupPageState extends State<SignupPage>
                                         if (res == null) {
                                           logic.snackBar(
                                             Text(
-                                              'codeSentToParam'.trArgs([
-                                                account,
-                                              ]),
+                                              t.codeSentToParam.replaceAll('{param}', account),
                                               style: const TextStyle(
                                                 color: Colors.green,
                                                 fontSize: 20,
@@ -594,15 +594,27 @@ class SignupPageState extends State<SignupPage>
                                         } else {
                                           if (res == 'param_already_exist') {
                                             final label = accountType == 'email'
-                                                ? 'email'.tr
-                                                : 'mobile'.tr;
+                                                ? t.email
+                                                : t.mobile;
                                             logic.snackBar(
-                                              'paramAlreadyExist'.trArgs([
-                                                label,
-                                              ]),
+                                              Text(
+                                                t.paramAlreadyExist.replaceAll('{param}', label),
+                                                style: const TextStyle(
+                                                  color: Colors.green,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
                                             );
                                           } else {
-                                            logic.snackBar(res.tr);
+                                            logic.snackBar(
+                                              Text(
+                                                res,
+                                                style: const TextStyle(
+                                                  color: Colors.green,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                            );
                                           }
                                         }
                                       }
@@ -635,7 +647,7 @@ class SignupPageState extends State<SignupPage>
                                           ),
                                         ),
                                       Text(
-                                        'agreeContinue'.tr,
+                                        t.agreeContinue,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
@@ -700,7 +712,7 @@ class SignupPageState extends State<SignupPage>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'siginQ'.tr,
+                              t.siginQ,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -709,7 +721,7 @@ class SignupPageState extends State<SignupPage>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'login'.tr,
+                              t.login,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -778,8 +790,8 @@ class SignupPageState extends State<SignupPage>
             logic.checkSignupContinue();
           },
           tabs: [
-            Tab(text: 'mobile'.tr),
-            Tab(text: 'email'.tr),
+            Tab(text: t.mobile),
+            Tab(text: t.email),
           ],
         ),
       ),

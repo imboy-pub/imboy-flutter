@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:get/get.dart';
@@ -6,6 +5,7 @@ import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dar
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'apply_friend_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ApplyFriendPage extends StatelessWidget {
@@ -344,7 +344,7 @@ class ApplyFriendPage extends StatelessWidget {
           onChanged: (val) {
             switchValue.value = val;
           },
-          activeColor: Theme.of(context).colorScheme.primary,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -355,17 +355,17 @@ class ApplyFriendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _msgController.text = "${'iAm'.tr} ${UserRepoLocal.to.current.nickname}";
+    _msgController.text = "${t.iAm} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
         titleWidget: Text(
-          'applyAddFriend'.tr,
+          t.applyAddFriend,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -390,7 +390,7 @@ class ApplyFriendPage extends StatelessWidget {
               // 验证消息输入
               _buildInputCard(
                 context: context,
-                title: 'sendFriendRequest'.tr,
+                title: t.sendFriendRequest,
                 hint: '请输入验证消息',
                 controller: _msgController,
                 icon: Icons.message_outlined,
@@ -402,7 +402,7 @@ class ApplyFriendPage extends StatelessWidget {
               // 备注设置
               _buildInputCard(
                 context: context,
-                title: 'setParam'.trArgs(['remark'.tr]),
+                title: t.setParam.replaceAll('{s}', t.remark),
                 hint: '请输入备注名',
                 controller: _remarkController,
                 icon: Icons.edit_outlined,
@@ -412,8 +412,8 @@ class ApplyFriendPage extends StatelessWidget {
               // 标签设置
               _buildSettingCard(
                 context: context,
-                title: 'tags'.tr,
-                subtitle: logic.peerTag.isEmpty ? 'addTag'.tr : logic.peerTag.value,
+                title: t.tags,
+                subtitle: logic.peerTag.isEmpty ? t.addTag : logic.peerTag.value,
                 icon: Icons.local_offer_outlined,
                 onTap: () {
                   Get.to(
@@ -437,11 +437,11 @@ class ApplyFriendPage extends StatelessWidget {
               // 朋友圈权限设置
               _buildOptionCard(
                 context: context,
-                title: 'setParam'.trArgs(['moment'.tr]),
+                title: t.setParam.replaceAll('{s}', t.moment),
                 icon: Icons.photo_library_outlined,
                 children: [
-                  _buildRadioOption(context, 'chatMomentSportDataEtc'.tr, 'all', false),
-                  _buildRadioOption(context, 'justChat'.tr, 'just_chat', true),
+                  _buildRadioOption(context, t.chatMomentSportDataEtc, 'all', false),
+                  _buildRadioOption(context, t.justChat, 'just_chat', true),
                 ],
               ),
               
@@ -449,11 +449,11 @@ class ApplyFriendPage extends StatelessWidget {
               if (logic.visibilityLook.isTrue)
                 _buildOptionCard(
                   context: context,
-                  title: 'momentStatus'.tr,
+                  title: t.momentStatus,
                   icon: Icons.visibility_outlined,
                   children: [
-                    _buildSwitchOption(context, 'notLetHimSee'.tr, logic.donotlethimlook, false),
-                    _buildSwitchOption(context, 'notSeeHim'.tr, logic.donotlookhim, true),
+                    _buildSwitchOption(context, t.notLetHimSee, logic.donotlethimlook, false),
+                    _buildSwitchOption(context, t.notSeeHim, logic.donotlookhim, true),
                   ],
                 ),
               
@@ -515,7 +515,7 @@ class ApplyFriendPage extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'buttonSend'.tr,
+                t.buttonSend,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

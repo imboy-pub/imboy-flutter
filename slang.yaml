@@ -1,0 +1,7 @@
+base_locale: zh-CN
+input_directory: lib/i18n
+output_directory: lib/i18n
+input_file_pattern: .i18n.yaml
+output_localization_file: strings.g.dart
+output_class_name: AppStrings
+enum_name: AppLocale

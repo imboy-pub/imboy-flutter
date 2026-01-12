@@ -5,7 +5,6 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/password.dart';
-import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/mine/language/language_logic.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
@@ -15,6 +14,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 
 import 'forgot_password_view.dart';
 import 'passport_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LoginMobilePage extends StatefulWidget {
   const LoginMobilePage({super.key, this.account, this.refUid});
@@ -117,7 +117,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 16),
                         child: InternationalPhoneNumberInput(
-                          locale: sysLang('intl_phone_number_input'),
+                          locale: LocaleHelper.sysLang('intl_phone_number_input'),
                           countries: langLogic.regionCodeList(
                             'intl_phone_number_input',
                           ),
@@ -130,7 +130,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                             leadingPadding: 0,
                           ),
                           searchBoxDecoration: InputDecoration(
-                            labelText: 'regionSearchTips'.tr,
+                            labelText: t.regionSearchTips,
                           ),
                           autoFocus: true,
                           focusNode: _mobileFocus,
@@ -149,7 +149,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                             border: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             enabledBorder: InputBorder.none,
-                            hintText: 'pleaseInputParam'.trArgs(['mobile'.tr]),
+                            hintText: t.pleaseInputParam.replaceAll('{param}', t.mobile),
                             hintStyle: TextStyle(
                               color: Colors.grey[400],
                               fontSize: 16,
@@ -252,7 +252,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                     child: Obx(
                       () => PasswordTextField(
                         obscureText: state.loginPwdObscure.value,
-                        hintText: 'password'.tr,
+                        hintText: t.password,
                         style: const TextStyle(
                           color: Colors.black87,
                           fontSize: 16,
@@ -306,7 +306,15 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (state.mobileValidated.isFalse) {
-                        logic.snackBar('errorInvalid'.trArgs(['mobile'.tr]));
+                        logic.snackBar(
+                          Text(
+                            t.errorInvalid.replaceAll('{param}', t.mobile),
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontSize: 20,
+                            ),
+                          ),
+                        );
                         return;
                       }
                       String? err2 = logic.passwordValidator(
@@ -322,7 +330,15 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                         state.loginPwd.value,
                       );
                       if (err3 != null) {
-                        logic.snackBar(err3.tr);
+                        logic.snackBar(
+                          Text(
+                            err3,
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontSize: 20,
+                            ),
+                          ),
+                        );
                         return;
                       }
                       final user = UserRepoLocal.to.current;
@@ -344,7 +360,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                       shadowColor: Colors.transparent,
                     ),
                     child: Text(
-                      'login'.tr,
+                      t.login,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -373,7 +389,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                     },
                     style: TextButton.styleFrom(foregroundColor: Colors.grey),
                     child: Text(
-                      'forgotPassword'.tr,
+                      t.forgotPassword,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,

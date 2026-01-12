@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
-import 'package:imboy/component/locales/locales.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';
 
 import 'language_state.dart';
@@ -11,13 +11,15 @@ class LanguageLogic extends GetxController {
   final state = LanguageState();
 
   void changeLanguage(String lang) async {
-    // Jiffy 已移除，使用 intl 包的内置语言支持
+    // 保存语言设置到本地存储
     StorageService.to.setString(Keys.currentLang, lang);
     state.valueChanged.value = false;
     state.currentLanguage.value = lang;
 
-    List<String> code = lang.split("_");
-    Get.updateLocale(Locale(code[0], code[1]));
+    // 使用 slang 的 LocaleSettings.setLocale 方法切换语言
+    // AppLocaleUtils.parse 会自动将 'zh_CN' 转换为 AppLocale.zhCn
+    AppLocale locale = AppLocaleUtils.parse(lang);
+    await LocaleSettings.setLocale(locale);
   }
 
   /// context 上下文

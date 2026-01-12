@@ -7,7 +7,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/service/message.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -24,6 +24,10 @@ class MessageWebrtc extends GetxService {
   // 缓存常用仓库实例，避免重复 new。
   // Cache repository instances to avoid repeated instantiation.
   final ContactRepo _contactRepo = ContactRepo();
+
+  /// 添加消息锁，防止重复添加
+  /// Lock to prevent duplicate message addition
+  bool _addMessageLock = false;
 
   /// 正在进行的 WebRTC 消息 ID 集合，用于去重和批量操作
   /// Track ongoing WebRTC message IDs for dedupe and batch state changes.
@@ -79,7 +83,7 @@ class MessageWebrtc extends GetxService {
         gTimer = null;
         p2pCallScreenOn = false;
       }
-      eventBus.fire(msgModel);
+      AppEventBus.fireData(msgModel);
     }
   }
 
@@ -92,8 +96,8 @@ class MessageWebrtc extends GetxService {
     required ContactModel peer,
   }) async {
     if (msgId.isEmpty || peer.peerId == UserRepoLocal.to.currentUid) return;
-    if (MessageService.to.addMessageLock) return;
-    MessageService.to.addMessageLock = true;
+    if (_addMessageLock) return;
+    _addMessageLock = true;
     try {
       User author;
       if (caller) {
@@ -136,7 +140,7 @@ class MessageWebrtc extends GetxService {
       iPrint('addLocalMsg error: $e; $s');
       rethrow;
     } finally {
-      MessageService.to.addMessageLock = false;
+      _addMessageLock = false;
     }
   }
 
@@ -171,9 +175,9 @@ class MessageWebrtc extends GetxService {
       msg.payload = metadata;
       final updated = await msg.toTypeMessage();
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([updated]);
+      AppEventBus.fireData([updated], 'List<Message>');
       if (endAt >= 0 || state > 0) {
-        eventBus.fire(updated);
+        AppEventBus.fireData(updated, 'Message');
       }
     }
   }

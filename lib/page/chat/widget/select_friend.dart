@@ -12,6 +12,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class SelectFriendPage extends StatefulWidget {
@@ -100,7 +101,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   void sendToDialog(ContactModel model) {
     Get.defaultDialog(
-      title: 'sendTo'.tr,
+      title: t.sendTo,
       backgroundColor: Get.isDarkMode
           ? const Color.fromRGBO(80, 80, 80, 1)
           : const Color.fromRGBO(240, 240, 240, 1),
@@ -110,7 +111,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
           Get.close();
         },
         child: Text(
-          'buttonCancel'.tr,
+          t.buttonCancel,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onPrimary,
@@ -124,7 +125,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
           nav.pop(model);
         },
         child: Text(
-          'buttonSend'.tr,
+          t.buttonSend,
           textAlign: TextAlign.center,
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         ),
@@ -184,8 +185,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
               child: Text(
                 // visit_card
                 widget.peerIsReceiver
-                    ? "[${'personalCard'.tr}]${widget.peer['nickname']}"
-                    : "[${'personalCard'.tr}]${model.nickname}",
+                    ? "[${t.personalCard}]${widget.peer['nickname']}"
+                    : "[${t.personalCard}]${model.nickname}",
                 style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               ),
             ),
@@ -253,7 +254,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: 'selectFriends'.tr,
+        title: t.selectFriends,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
@@ -271,10 +272,10 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         //     ),
         //     onTap: () {
         //       if (!listNoEmpty(selects)) {
-        //         Get.snackbar('', 'pleaseSelectMembersForAdd'.tr);
+        //         Get.snackbar('', t.pleaseSelectMembersForAdd);
         //       }
         //     },
-        //     text: 'buttonConfirm'.tr,
+        //     text: t.buttonConfirm,
         //   ),
         // ],
       ),
@@ -287,7 +288,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                 // 检查网络状态
                 var connectivityResult = await Connectivity().checkConnectivity();
                 if (connectivityResult.contains(ConnectivityResult.none)) {
-                  String msg = 'tipConnectDesc'.tr;
+                  String msg = t.tipConnectDesc;
                   EasyLoading.showInfo(' $msg        ');
                   return;
                 }

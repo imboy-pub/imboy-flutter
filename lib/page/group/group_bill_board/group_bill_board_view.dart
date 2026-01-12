@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'group_bill_board_logic.dart';
 import 'group_bill_board_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class GroupBillBoardPage extends StatefulWidget {
   final String? groupOwner;
@@ -65,11 +66,11 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: GlassAppBar(
-        title: 'groupAnnouncement'.tr,
+        title: t.groupAnnouncement,
         rightDMActions: [
           TextButton(
             onPressed: _canSave ? _saveNotice : null,
-            child: Text('buttonAccomplish'.tr),
+            child: Text(t.buttonAccomplish),
           ),
         ],
       ),
@@ -77,7 +78,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
         padding: const EdgeInsets.all(8.0),
         child: TextField(
           decoration: InputDecoration(
-            hintText: 'hintEditGroupAnnouncement'.tr,
+            hintText: t.hintEditGroupAnnouncement,
             border: InputBorder.none,
             filled: true,
             fillColor: theme.cardColor,

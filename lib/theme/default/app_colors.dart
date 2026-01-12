@@ -8,22 +8,22 @@ class AppColors {
   AppColors._();
 
   // ============ Material 3 主色调系统 ============
-  /// 主绿色 - Material 3 Primary
-  static const Color primaryGreen = Color(0xFF07C160);
+  /// 主绿色 - Material 3 Primary - Emerald 600
+  static const Color primaryGreen = Color(0xFF059669);
   
-  /// 主绿色 - 浅色版本 - Material 3 Primary Light
+  /// 主绿色 - 浅色版本 - Material 3 Primary Light - Emerald 50
   /// 优化理由：调整为更适合深色模式的主色调（更柔和/低饱和度），避免刺眼
-  static const Color primaryGreenLight = Color(0xFF8CD69A);
+  static const Color primaryGreenLight = Color(0xFFECFDF5);
   
-  /// 主绿色 - 深色版本 - Material 3 Primary Dark
+  /// 主绿色 - 深色版本 - Material 3 Primary Dark - Emerald 700
   /// 优化理由：保持深绿色用于深色模式的容器或强调
-  static const Color primaryGreenDark = Color(0xFF003822);
+  static const Color primaryGreenDark = Color(0xFF047857);
   
   /// 绿色容器背景 - Material 3 Primary Container
-  static const Color greenContainer = Color(0xFFE8F5E8);
+  static const Color greenContainer = Color(0xFFD1FAE5); // Emerald 100
   
   /// 绿色容器上的文本 - Material 3 On Primary Container
-  static const Color onGreenContainer = Color(0xFF002114);
+  static const Color onGreenContainer = Color(0xFF064E3B); // Emerald 900
   
   // ============ Material 3 次要色系统 ============
   /// 次要色 - Material 3 Secondary

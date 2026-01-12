@@ -9,6 +9,7 @@ import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'recently_registered_user_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class RecentlyRegisteredUserPage extends StatelessWidget {
   RecentlyRegisteredUserPage({super.key});
@@ -44,7 +45,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('noMoreData'.tr);
+          EasyLoading.showToast(t.noMoreData);
         }
       }
     });
@@ -206,7 +207,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(60),
             ),
             child: Icon(
@@ -243,10 +244,10 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'newlyRegisteredPeople'.tr,
+        title: t.newlyRegisteredPeople,
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       body: SlidableAutoCloseBehavior(

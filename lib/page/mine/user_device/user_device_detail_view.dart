@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import 'change_name_view.dart';
 import 'user_device_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // 设备详情页面
 
@@ -32,7 +33,7 @@ class UserDeviceDetailPage extends StatelessWidget {
       backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'deviceDetails'.tr,
+        title: t.deviceDetails,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -154,7 +155,7 @@ class UserDeviceDetailPage extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                model.online ? 'online'.tr : 'offline'.tr,
+                model.online ? t.online : t.offline,
                 style: TextStyle(
                   color: model.online
                       ? AppColors.onlineIndicator
@@ -200,7 +201,7 @@ class UserDeviceDetailPage extends StatelessWidget {
             () => _buildDetailItem(
               context,
               icon: Icons.edit_outlined,
-              title: 'deviceName'.tr,
+              title: t.deviceName,
               value: state.deviceName.value,
               onTap: () => _editDeviceName(context),
               showArrow: true,
@@ -213,7 +214,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           _buildDetailItem(
             context,
             icon: Icons.devices_outlined,
-            title: 'deviceType'.tr,
+            title: t.deviceType,
             value: model.showType,
           ),
 
@@ -223,7 +224,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           _buildDetailItem(
             context,
             icon: Icons.access_time_outlined,
-            title: 'lastActiveTime'.tr,
+            title: t.lastActiveTime,
             value: _formatLastActiveTime(),
           ),
         ],
@@ -334,7 +335,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'lastActiveTips'.tr,
+              t.lastActiveTips,
               style: TextStyle(
                 color: isDark 
                     ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)
@@ -355,7 +356,7 @@ class UserDeviceDetailPage extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () => _showDeleteDialog(context),
         icon: const Icon(Icons.delete_outline),
-        label: Text('deleteThisDevice'.tr),
+        label: Text(t.deleteThisDevice),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.lightError.withValues(alpha: 0.1),
           foregroundColor: AppColors.lightError,
@@ -417,7 +418,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                           TextButton(
                             onPressed: () => Navigator.of(ctx).pop(false),
                             child: Text(
-                              'buttonCancel'.tr,
+                              t.buttonCancel,
                               style: TextStyle(
                                 color: Theme.of(
                                   context,
@@ -467,23 +468,23 @@ class UserDeviceDetailPage extends StatelessWidget {
     );
   }
 
-  /// 下发“强制下线”S2C 指令
+  /// 下发"强制下线"S2C 指令
   /// 用途：调用逻辑层 forceOffline 请求服务端对目标设备发送下线消息
-  /// 成功：提示“已发送下线指令”，不移除设备
+  /// 成功：提示"已发送下线指令"，不移除设备
   /// 失败：统一失败提示
   Future<void> _forceOffline() async {
-    EasyLoading.show(status: '处理中...'.tr);
+    EasyLoading.show(status: t.processing);
     try {
       final ok = await logic.forceOffline(model.deviceId);
       EasyLoading.dismiss();
       if (ok) {
-        EasyLoading.showSuccess('已发送下线指令');
+        EasyLoading.showSuccess(t.forceOfflineCommandSent);
       } else {
-        EasyLoading.showError('操作失败'.tr);
+        EasyLoading.showError(t.tipFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('操作失败'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
 
@@ -511,7 +512,7 @@ class UserDeviceDetailPage extends StatelessWidget {
   /// 格式化最后活跃时间
   String _formatLastActiveTime() {
     if (model.lastActiveAt <= 0) {
-      return '未知';
+      return t.unknown;
     }
     final dt = DateTime.fromMillisecondsSinceEpoch(
       model.lastActiveAt,
@@ -523,7 +524,7 @@ class UserDeviceDetailPage extends StatelessWidget {
   void _editDeviceName(BuildContext context) {
     Get.to(
       () => ChangeNamePage(
-        title: 'setParam'.trArgs(['deviceName'.tr]),
+        title: t.setParam.replaceAll('{param}', t.deviceName),
         value: model.deviceName,
         field: 'input',
         callback: (newName) async {
@@ -564,13 +565,13 @@ class UserDeviceDetailPage extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              'deleteThisDevice'.tr,
+              t.deleteThisDevice,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ],
         ),
         content: Text(
-          'deleteThisDeviceTips'.tr,
+          t.deleteThisDeviceTips,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -582,7 +583,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -611,7 +612,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            child: Text('buttonDelete'.tr),
+            child: Text(t.buttonDelete),
           ),
         ],
       ),
@@ -622,21 +623,21 @@ class UserDeviceDetailPage extends StatelessWidget {
   Future<void> _deleteDevice(BuildContext context) async {
     Navigator.of(context).pop(); // 关闭对话框
 
-    EasyLoading.show(status: '处理中...'.tr);
+    EasyLoading.show(status: t.processing);
     try {
       bool res = await logic.deleteDevice(model.deviceId);
       EasyLoading.dismiss();
 
       if (res) {
         state.deviceList.removeWhere((e) => e.deviceId == model.deviceId);
-        EasyLoading.showSuccess('tipSuccess'.tr);
+        EasyLoading.showSuccess(t.tipSuccess);
         Get.back(); // 返回设备列表页
       } else {
-        EasyLoading.showError('tipFailed'.tr);
+        EasyLoading.showError(t.tipFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('tipFailed'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
 }

@@ -37,4 +37,7 @@ final class EnvLocal implements Env, EnvField {
   @override
   @EnviedField(varName: 'JPUSH_APPKEY', obfuscate: false)
   final String jiguangAppKey = _Env.jiguangAppKey;
+
+  @override
+  String? get wsUrl => null; // 从服务器配置获取
 }

@@ -11,7 +11,8 @@ import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
 
-import 'package:imboy/config/init.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
@@ -19,6 +20,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
 import 'p2p_call_screen_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class P2pCallScreenPage extends StatefulWidget {
@@ -159,13 +161,13 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateNew:
           if (mounted) {
             setState(() {
-              stateTips = 'waitingPeerAccept'.tr;
+              stateTips = t.waitingPeerAccept;
             });
           }
           answerTimer = Timer(const Duration(seconds: 60), () {
             if (mounted) {
               setState(() {
-                stateTips = 'peerNoResponse'.tr;
+                stateTips = t.peerNoResponse;
               });
             }
             Future.delayed(const Duration(seconds: 2), () {
@@ -177,7 +179,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           // 呼入= Ringing
           if (widget.caller && mounted) {
             setState(() {
-              stateTips = 'ringing'.tr;
+              stateTips = t.ringing;
             });
           }
           break;
@@ -185,7 +187,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           if (mounted) {
             setState(() {
               counter.cleanUp();
-              stateTips = 'peerHasHungUp'.tr;
+              stateTips = t.peerHasHungUp;
             });
           }
 
@@ -201,7 +203,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateBusy:
           if (mounted) {
             setState(() {
-              stateTips = 'busyTryAgainLater'.tr;
+              stateTips = t.busyTryAgainLater;
             });
           }
           Future.delayed(const Duration(seconds: 2), () {
@@ -263,10 +265,10 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     );
 
     // 接收到新的消息订阅
-    subscription = eventBus.on<WebRTCSignalingModel>().listen((
-      WebRTCSignalingModel obj,
+    subscription = AppEventBus.on<WebRTCSignalingEvent>().listen((
+      WebRTCSignalingEvent obj,
     ) async {
-      await logic?.onMessageP2P(widget.session, obj);
+      await logic?.onMessageP2P(widget.session, WebRTCSignalingModel.fromJson(obj.data));
     });
 
     debugPrint("> rtc view widget.caller ${widget.caller} ${DateTime.now()}");
@@ -347,7 +349,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               // 麦克风
               FloatingActionButton(
                 heroTag: 'microphone',
-                tooltip: 'microphone'.tr,
+                tooltip: t.microphone,
                 onPressed: () {
                   var res = logic?.turnMicrophone();
                   if (res != null) {
@@ -365,7 +367,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               if (media == 'audio')
                 FloatingActionButton(
                   heroTag: 'hangup',
-                  tooltip: 'hangup'.tr,
+                  tooltip: t.hangup,
                   onPressed: () {
                     _hangUp(
                       state: connected ? 1 : 4,
@@ -378,7 +380,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               // 扬声器开关
               FloatingActionButton(
                 heroTag: 'loudspeaker',
-                tooltip: 'loudspeaker'.tr,
+                tooltip: t.loudspeaker,
                 onPressed: () {
                   if (mounted) {
                     setState(() {
@@ -404,7 +406,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               padding: const EdgeInsets.only(left: 72, top: 20),
               child: FloatingActionButton(
                 heroTag: "hangup",
-                tooltip: 'hangup'.tr,
+                tooltip: t.hangup,
                 onPressed: () {
                   _hangUp(
                     state: connected ? 1 : 4,
@@ -460,7 +462,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                     style: const TextStyle(color: Colors.green),
                   ),
                   Text(
-                    'calling'.tr,
+                    t.calling,
                     style: const TextStyle(color: Colors.green),
                   ),
                 ],

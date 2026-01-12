@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class UpgradePage extends StatefulWidget {
   /// apk更新url
@@ -58,16 +59,16 @@ class UpgradePageState extends State<UpgradePage> {
         // 更新进度条
         if (info.status == DownloadStatus.STATUS_PAUSED) {
           // STATUS_PAUSED 下载已暂停
-          positiveBtn = 'continueDownloading'.tr;
+          positiveBtn = t.continueDownloading;
           positiveCallback = upgradeWithId;
         } else if (info.status == DownloadStatus.STATUS_PENDING) {
           //  STATUS_PENDING等待下载
-          positiveBtn = 'waitingDownload'.tr;
+          positiveBtn = t.waitingDownload;
           positiveCallback = pause;
           progress = 0;
         } else if (info.status == DownloadStatus.STATUS_RUNNING) {
           // STATUS_RUNNING下载中
-          positiveBtn = 'pauseDownloading'.tr;
+          positiveBtn = t.pauseDownloading;
           positiveCallback = pause;
           progress = (info.percent ?? 0) / 100;
           maxLength = info.maxLength!;
@@ -76,12 +77,12 @@ class UpgradePageState extends State<UpgradePage> {
           planTime = info.planTime;
         } else if (info.status == DownloadStatus.STATUS_SUCCESSFUL) {
           // STATUS_SUCCESSFUL下载成功
-          positiveBtn = 'installNow'.tr;
+          positiveBtn = t.installNow;
           progress = 1;
           positiveCallback = install;
         } else if (info.status == DownloadStatus.STATUS_FAILED) {
           //   STATUS_FAILED下载失败
-          positiveBtn = 'continueDownloading'.tr;
+          positiveBtn = t.continueDownloading;
           positiveCallback = upgradeWithId;
         }
         // STATUS_CANCEL下载取消
@@ -108,10 +109,10 @@ class UpgradePageState extends State<UpgradePage> {
   // 初始化弹框文案
   void initGeneral() {
     _upgradeCard?.updateProgress(
-      title: 'newVersionDetected'.tr + widget.version,
+      title: t.newVersionDetected + widget.version,
       message: widget.message,
-      positiveBtn: 'updateNow'.tr,
-      negativeBtn: 'remindMeLater'.tr,
+      positiveBtn: t.updateNow,
+      negativeBtn: t.remindMeLater,
       hasLinearProgress: true,
       progress: 0,
     );
@@ -176,7 +177,7 @@ class UpgradePageState extends State<UpgradePage> {
         upgradeFromAppStore();
       }
     } else {
-      EasyLoading.showError('permissionAcquisitionFailed'.tr);
+      EasyLoading.showError(t.permissionAcquisitionFailed);
     }
   }
 
@@ -222,7 +223,7 @@ class UpgradePageState extends State<UpgradePage> {
     );
     if (isSuccess == false) {
       EasyLoading.showError(
-        'iosAppIdUnknown'.trArgs([Env().iosAppId]),
+        t.iosAppIdUnknown.replaceAll('{s}', Env().iosAppId),
       );
       return;
     }
@@ -284,10 +285,10 @@ class UpgradePageState extends State<UpgradePage> {
       return _upgradeCard!;
     }
     return _upgradeCard = UpgradeCard(
-      title: 'newVersionDetected'.tr + widget.version,
+      title: t.newVersionDetected + widget.version,
       message: widget.message,
-      positiveBtn: 'updateNow'.tr,
-      negativeBtn: widget.isForce ? '' : 'remindMeLater'.tr,
+      positiveBtn: t.updateNow,
+      negativeBtn: widget.isForce ? '' : t.remindMeLater,
       positiveCallback: () => _updateApplication(),
       // positiveCallback: () => getAndroidStores(),
       negativeCallback: () => closeCallback(),
@@ -473,7 +474,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                     child: SelectableText.rich(
                       TextSpan(
                         text: widget.message.isEmpty
-                            ? 'noUpdateDescription'.tr
+                            ? t.noUpdateDescription
                             : widget.message,
                         // style: const TextStyle(
                         //   color: Colors.black,
@@ -497,18 +498,18 @@ class UpgradeCardState extends State<UpgradeCard> {
                         Row(
                           children: [
                             Text(
-                                "${'packageSize'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                                "${t.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
                             const Spacer(),
                             Text(
-                                "${'stillNeeded'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
+                                "${t.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}秒"),
                           ],
                         ),
                         Row(
                           children: [
                             Text(
-                                "${'downloaded'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                                "${t.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
                             const Spacer(),
-                            Text('speed'.tr + widget.speed!),
+                            Text(t.speed + widget.speed!),
                           ],
                         ),
                       ],

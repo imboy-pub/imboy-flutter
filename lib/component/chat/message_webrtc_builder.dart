@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-import 'package:get/get.dart';
 import 'package:imboy/component/webrtc/func.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class WebRTCMessageBuilder extends StatelessWidget {
   const WebRTCMessageBuilder({
@@ -102,21 +102,21 @@ class WebRTCMessageBuilder extends StatelessWidget {
     }
     String title = '';
     if (state == 0) {
-      title = 'cancelled'.tr;
+      title = t.cancelled;
     } else if (state == 1) {
       // 已连接
     } else if (state == 2) {
-      title = 'unanswered'.tr; // 发送者收到未应答
+      title = t.unanswered; // 发送者收到未应答
     } else if (state == 3) {
-      title = 'peerHasHungUp'.tr;
+      title = t.peerHasHungUp;
     } else if (state == 4) {
-      title = 'cancelled'.tr;
+      title = t.cancelled;
     } else if (state == 5) {
-      title = 'unanswered'.tr; // 接收人未应答
+      title = t.unanswered; // 接收人未应答
     }
 
     if (title.isEmpty && callCuration.isNotEmpty) {
-      title = "${'callDuration'.tr} $callCuration";
+      title = "${t.callDuration} $callCuration";
     }
     // iPrint("message_webrtc_builder $title; $state; $customType;");
     if (title.isEmpty) {

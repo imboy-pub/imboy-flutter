@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 import '../page/conversation/conversation_logic.dart';
@@ -12,6 +16,30 @@ import 'message_s2c.dart';
 /// 离线消息处理服务
 class MessageOfflineService {
   static MessageOfflineService get to => Get.find();
+
+  /// 离线消息拉取请求事件的订阅
+  StreamSubscription<OfflineMessagesPullRequestedEvent>? _pullRequestedSubscription;
+
+  /// 初始化服务（订阅事件）
+  void onInit() {
+    // 订阅离线消息拉取请求事件（解耦：通过事件总线接收拉取请求）
+    _pullRequestedSubscription = AppEventBus.on<OfflineMessagesPullRequestedEvent>().listen((event) {
+      // 异步处理，避免阻塞事件总线
+      Future.microtask(() async {
+        try {
+          await pullOfflineMessages();
+          iPrint("离线消息处理完成，来源: ${event.source}");
+        } catch (e) {
+          iPrint("离线消息处理失败: $e");
+        }
+      });
+    });
+  }
+
+  /// 释放资源（取消订阅）
+  void onDispose() {
+    _pullRequestedSubscription?.cancel();
+  }
 
   /// 拉取离线消息
   Future<bool> pullOfflineMessages() async {

@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:get/get.dart';
 import 'package:imboy/service/app_logger.dart';
-import 'package:imboy/service/message.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -15,7 +15,6 @@ import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart' show defaultHeaders;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -50,18 +49,14 @@ class WebSocketService extends GetxService {
   void onInit() {
     super.onInit();
 
-    // 监听网络类型变化
-    NetworkMonitorService.to.addNetworkChangeListener((oldType, newType) {
-      iPrint('WebSocket服务检测到网络类型变化: ${oldType.name} -> ${newType.name}');
-      if (newType != NetworkType.none) {
-        // 网络类型变化时延迟重连
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (_shouldReconnect()) {
-            openSocket(from: 'network-type-change');
-          }
-        });
-      }
-    });
+    // 订阅消息发送请求事件（解耦：MessageService 通过事件请求发送消息）
+    AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(_handleMessageSendRequest);
+
+    // 订阅强制关闭事件（解耦：MessageS2C 通过事件强制关闭连接）
+    AppEventBus.on<WebSocketForceCloseEvent>().listen(_handleForceClose);
+
+    // 订阅重连请求事件（解耦：NetworkMonitor 通过事件请求重连）
+    AppEventBus.on<WebSocketReconnectRequestEvent>().listen(_handleReconnectRequest);
 
     // 初始化连接（应用启动时调用）
     if (_shouldReconnect()) {
@@ -69,19 +64,49 @@ class WebSocketService extends GetxService {
     }
   }
 
+  /// 处理消息发送请求事件
+  void _handleMessageSendRequest(WebSocketMessageSendRequestEvent event) {
+    sendMessage(event.message, event.messageId);
+  }
+
+  /// 处理强制关闭事件
+  void _handleForceClose(WebSocketForceCloseEvent event) {
+    iPrint('> ws: 收到强制关闭请求，permanent=${event.permanent}');
+    closeSocket(permanent: event.permanent);
+  }
+
+  /// 处理重连请求事件
+  void _handleReconnectRequest(WebSocketReconnectRequestEvent event) {
+    iPrint('> ws: 收到重连请求，source=${event.source}');
+    if (event.force || _shouldReconnect()) {
+      // 延迟重连以避免频繁重连
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (_shouldReconnect()) {
+          openSocket(from: event.source);
+        }
+      });
+    }
+  }
+
   @override
   void onClose() {
-    // 移除网络变化监听
-    NetworkMonitorService.to.removeNetworkChangeListener((oldType, newType) {});
     _cleanupResources();
     super.onClose();
   }
 
-  
+
   /// 统一状态更新方法
   void _updateStatus(SocketStatus newStatus) {
     if (status.value != newStatus) {
+      final oldStatus = status.value;
       status.value = newStatus;
+
+      // 发布状态变化事件（解耦：MessageService 等通过事件监听状态）
+      AppEventBus.fire(WebSocketStatusChangedEvent(
+        status: newStatus.name,
+      ));
+
+      iPrint('> ws: 状态变化: ${oldStatus.name} -> ${newStatus.name}');
     }
   }
 
@@ -130,7 +155,7 @@ class WebSocketService extends GetxService {
       }
 
       _channel = IOWebSocketChannel.connect(
-        Env.wsUrl ?? 'wss://pro.imboy.pub/ws/',
+        Env.effectiveWsUrl ?? 'wss://pro.imboy.pub/ws/',
         headers: {...await defaultHeaders(), Keys.tokenKey: token},
         protocols: ['text', 'sip'],
         pingInterval: _pingInterval,
@@ -157,14 +182,16 @@ class WebSocketService extends GetxService {
         },
         cancelOnError: true,
       );
-      AppLogger.info('WebSocket 连接成功: ${Env.wsUrl}');
+      AppLogger.info('WebSocket 连接成功: ${Env.effectiveWsUrl}');
 
       // 连接成功后重置重连计数器
       _backoff.reset();
       _cancelReconnectTimer();
     } catch (e, s) {
-      AppLogger.error('WebSocket 连接失败: ${Env.wsUrl}', e, s);
+      AppLogger.error('WebSocket 连接失败: ${Env.effectiveWsUrl}', e, s);
       _handleConnectionFailure(e);
+      // 【修复】异常发生时确保清理 WebSocket 资源
+      _cancelStream();
     } finally {
       _connecting = false;
     }
@@ -240,11 +267,14 @@ class WebSocketService extends GetxService {
           );
         }
 
-        // ⚡ 非阻塞处理：立即返回，后台异步处理
-        // Non-blocking processing: return immediately, process in background
-        MessageService.to.processMessage(type, msg);
+        // ⚡ 非阻塞处理：通过事件总线发布消息，解耦 WebSocket 和 MessageService
+        // Non-blocking processing: publish message via event bus to decouple WebSocket and MessageService
+        AppEventBus.fire(WebSocketMessageReceivedEvent(
+          type: type,
+          data: msg,
+        ));
       } catch (e, s) {
-        iPrint('Error processing message: $e - $s');
+        iPrint('Error dispatching message event: $e - $s');
       }
 
     } catch (e) {
@@ -292,7 +322,7 @@ class WebSocketService extends GetxService {
   /// 处理原始消息（当JSON解析失败时）
   void _handleRawMessage(dynamic rawMessage) {
     try {
-      eventBus.fire({
+      AppEventBus.fireData({
         'type': 'RAW_MESSAGE',
         'data': rawMessage,
         'timestamp': DateTimeHelper.millisecond(),
@@ -457,30 +487,31 @@ class WebSocketService extends GetxService {
 
   /// 真实网络连通性测试
   Future<bool> _testRealNetworkConnectivity() async {
+    // 【修复】确保 HttpClient 在所有情况下都被关闭
+    HttpClient? client;
     try {
       // 使用系统的 HTTP 客户端进行轻量级测试
-      final client = HttpClient();
+      client = HttpClient();
       client.connectionTimeout = const Duration(seconds: 5);
-      
+
       // 测试多个可靠的服务
       final testUrls = [
         'https://www.baidu.com',
         'https://dns.alidns.com',
         'https://1.1.1.1',
       ];
-      
+
       for (final url in testUrls) {
         try {
           final uri = Uri.parse(url);
           final request = await client.getUrl(uri);
           request.headers.set('User-Agent', 'IMBoy-NetworkTest/1.0');
-          
+
           final response = await request.close().timeout(
             const Duration(seconds: 3),
           );
-          
+
           if (response.statusCode >= 200 && response.statusCode < 400) {
-            client.close();
             iPrint('> ws: 网络连通性测试成功 ($url)');
             return true;
           }
@@ -489,12 +520,14 @@ class WebSocketService extends GetxService {
           continue;
         }
       }
-      
-      client.close();
+
       return false;
     } catch (e) {
       iPrint('> ws: 网络测试异常: $e');
       return false; // 测试异常时返回 false
+    } finally {
+      // 【修复】确保 HttpClient 被关闭
+      client?.close();
     }
   }
 
@@ -502,7 +535,11 @@ class WebSocketService extends GetxService {
   Future<void> closeSocket({bool permanent = false}) async {
     iPrint('> ws: 手动关闭连接');
     _updateStatus(SocketStatus.disconnected);
-    _cleanupResources();
+    // 【修复】确保在关闭时清理所有资源
+    _cancelStream();
+    _cancelReconnectTimer();
+    // 清理待确认消息
+    _pendingMessages.clear();
     if (permanent) Get.delete<WebSocketService>();
   }
 
@@ -604,7 +641,7 @@ class WebSocketService extends GetxService {
   /// 通知消息发送结果
   void _notifyMessageSendResult(String messageId, bool success) {
     // 通过事件总线通知消息发送结果
-    eventBus.fire({
+    AppEventBus.fireData({
       'type': 'MESSAGE_SEND_RESULT',
       'messageId': messageId,
       'success': success,
@@ -646,7 +683,7 @@ class WebSocketService extends GetxService {
   /// 获取WebSocket URL
   /// Get WebSocket URL
   String? getWebSocketUrl() {
-    return Env.wsUrl;
+    return Env.effectiveWsUrl;
   }
 
   /// 获取消息队列大小

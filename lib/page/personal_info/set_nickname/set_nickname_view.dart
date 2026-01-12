@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'set_nickname_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 设置昵称页面
 ///
@@ -78,7 +78,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'setNickname'.tr,
+        title: t.setNickname,
         rightDMActions: [
           Obx(
             () => Container(
@@ -125,7 +125,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                             ),
                           )
                         : Text(
-                            'buttonSave'.tr,
+                            t.buttonSave,
                             style: ThemeManager.instance.getTextStyle(
                               FontSizeType.small,
                               fontWeight: FontWeight.w600,
@@ -170,7 +170,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'nickname'.tr,
+                    t.nickname,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.getTextColor(
@@ -181,8 +181,8 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                   ),
                   SizedBox(height: ThemeManager.instance.mainSpace * 0.8),
                   Semantics(
-                    label: '${'nickname'.tr} - ${'nicknameHint'.tr}',
-                    hint: 'nicknameHint'.tr,
+                    label: '${t.nickname} - ${t.nicknameHint}',
+                    hint: t.nicknameHint,
                     textField: true,
                     child: TextField(
                       controller: logic.nicknameController,
@@ -200,7 +200,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                         ),
                       ),
                       decoration: InputDecoration(
-                        hintText: 'nicknameHint'.tr,
+                        hintText: t.nicknameHint,
                         hintStyle: ThemeManager.instance.getTextStyle(
                           FontSizeType.medium,
                           color: AppColors.getTextColor(
@@ -243,7 +243,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                           if (error.isEmpty) return const SizedBox.shrink();
 
                           return Semantics(
-                            label: '${'warning'.tr}: $error',
+                            label: '${t.warning}: $error',
                             liveRegion: true,
                             child: Text(
                               error,
@@ -263,14 +263,12 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                         final isOverLimit = current > 24;
 
                         return Semantics(
-                          label: 'nicknameCharsRemaining'.trArgs([
-                            remaining.toString(),
-                          ]),
+                          label: t.nicknameCharsRemaining
+                              .replaceAll('{s}', remaining.toString()),
                           liveRegion: true,
                           child: Text(
-                            'nicknameCharsRemaining'.trArgs([
-                              remaining.toString(),
-                            ]),
+                            t.nicknameCharsRemaining
+                                .replaceAll('{s}', remaining.toString()),
                             style: ThemeManager.instance.getTextStyle(
                               FontSizeType.small,
                               color: isOverLimit
@@ -304,7 +302,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'tipTips'.tr,
+                          t.tipTips,
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             fontWeight: FontWeight.w600,

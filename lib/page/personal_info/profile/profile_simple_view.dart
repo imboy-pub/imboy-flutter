@@ -102,8 +102,6 @@ class _ProfileSimplePageState extends State<ProfileSimplePage>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),

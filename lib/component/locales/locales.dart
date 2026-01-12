@@ -1,20 +1,14 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/config/const.dart';
 
-import 'package:imboy/component/locales/locales.g.dart';
 import 'package:imboy/service/storage.dart';
 
-class IMBoyTranslations extends Translations {
-  @override
-  Map<String, Map<String, String>> get keys => AppTranslation.translations;
-
-  static List langList = [];
-}
+// GetX 翻译类已被 slang 替换，保留此文件仅为兼容性
+// 实际翻译功能已迁移至 lib/i18n/strings.g.dart
 
 /* 使用window.locale读取系统语言
 en-US ,en代表英语区， US 美国。前面为小写，后面为大写，区分地区和方言用的。

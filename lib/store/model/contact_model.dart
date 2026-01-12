@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 String getSourceTr(String? source) {
   debugPrint("getSourceTr $source");
@@ -18,19 +19,19 @@ String getSourceTr(String? source) {
   // 通过群聊添加
   switch (source.toLowerCase()) {
     case 'visit_card':
-      sourceTr = 'personalCard'.tr;
+      sourceTr = t.personalCard;
       break;
     case 'qrcode':
-      sourceTr = 'sourceQrcode'.tr;
+      sourceTr = t.sourceQrcode;
       break;
     case 'people_nearby':
-      sourceTr = 'peopleNearby'.tr;
+      sourceTr = t.peopleNearby;
       break;
     case 'recently_user':
-      sourceTr = 'newlyRegisteredPeople'.tr;
+      sourceTr = t.newlyRegisteredPeople;
       break;
     case 'user_search':
-      sourceTr = 'search'.tr;
+      sourceTr = t.search;
       break;
     case 'null':
       sourceTr = '';

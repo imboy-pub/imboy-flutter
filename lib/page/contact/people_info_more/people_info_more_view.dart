@@ -3,11 +3,10 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/theme/default/app_text_size.dart' show AppTextSize;
 
 import 'people_info_more_logic.dart';
 import 'people_info_same_group_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class PeopleInfoMorePage extends StatelessWidget {
@@ -163,7 +162,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: state.groupCount.value > 0 
                         ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
-                        : Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.5),
+                        : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
@@ -183,7 +182,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'mutualGroupsWithHer'.tr,
+                        t.mutualGroupsWithHer,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -192,8 +191,8 @@ class PeopleInfoMorePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        state.groupCount.value > 0 
-                            ? 'numUnit'.trArgs(['${state.groupCount.value}'])
+                        state.groupCount.value > 0
+                            ? t.numUnit.replaceAll('{s}', '${state.groupCount.value}')
                             : '暂无共同群组',
                         style: TextStyle(
                           fontSize: 14,
@@ -252,7 +251,7 @@ class PeopleInfoMorePage extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -295,7 +294,7 @@ class PeopleInfoMorePage extends StatelessWidget {
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'socialProfile'.tr,
+        title: t.socialProfile,
       ),
       body: SingleChildScrollView(
         child: Obx(() {
@@ -315,7 +314,7 @@ class PeopleInfoMorePage extends StatelessWidget {
               if (hasSignature)
                 _buildInfoCard(
                   context: context,
-                  title: 'signature'.tr,
+                  title: t.signature,
                   content: state.sign.value,
                   icon: Icons.format_quote_outlined,
                   maxLines: 8,
@@ -325,7 +324,7 @@ class PeopleInfoMorePage extends StatelessWidget {
               if (hasSource)
                 _buildInfoCard(
                   context: context,
-                  title: 'source'.tr,
+                  title: t.source,
                   content: '${state.sourcePrefix.value} ${state.source.value}',
                   icon: Icons.source_outlined,
                   maxLines: 3,

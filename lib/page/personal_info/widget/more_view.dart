@@ -7,6 +7,7 @@ import '../personal_info/personal_info_logic.dart';
 import '../update/update_view.dart';
 import '../set_gender/set_gender_view.dart';
 import '../set_region/set_region_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class MoreView extends StatelessWidget {
   const MoreView({super.key});
@@ -24,7 +25,7 @@ class MoreView extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
-        title: 'moreInfo'.tr,
+        title: t.moreInfo,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
@@ -41,7 +42,7 @@ class MoreView extends StatelessWidget {
                 context: context,
                 icon: Icons.person_outline,
                 iconColor: const Color(0xFF007AFF),
-                title: 'gender'.tr,
+                title: t.gender,
                 trailing: Obx(() => Text(
                       logic.genderTitle.value,
                       style: TextStyle(
@@ -57,7 +58,7 @@ class MoreView extends StatelessWidget {
                 context: context,
                 icon: Icons.location_on_outlined,
                 iconColor: const Color(0xFF34C759),
-                title: 'region'.tr,
+                title: t.region,
                 trailing: Obx(() => Text(
                       _formatRegion(logic.region.value),
                       style: TextStyle(
@@ -73,10 +74,10 @@ class MoreView extends StatelessWidget {
                 context: context,
                 icon: Icons.edit_outlined,
                 iconColor: const Color(0xFFFF9500),
-                title: 'signature'.tr,
+                title: t.signature,
                 trailing: Expanded(
                   child: Obx(() => Text(
-                        logic.sign.value.isEmpty ? 'notFilled'.tr : logic.sign.value,
+                        logic.sign.value.isEmpty ? t.notFilled : logic.sign.value,
                         textAlign: TextAlign.right,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -192,7 +193,7 @@ class MoreView extends StatelessWidget {
 
   /// 格式化地区显示
   String _formatRegion(String region) {
-    if (region.isEmpty) return 'notFilled'.tr;
+    if (region.isEmpty) return t.notFilled;
     // 简单处理，如果太长可以截断
     if (region.length > 10) {
       return '${region.substring(0, 9)}...';
@@ -213,7 +214,7 @@ class MoreView extends StatelessWidget {
   void _handleRegionUpdate(PersonalInfoLogic logic) async {
     final result = await Get.to(
       () => SetRegionPage(
-        title: 'region'.tr,
+        title: t.region,
         currentValue: logic.region.value,
         onSave: (val) async {
           return await logic.changeInfo({
@@ -232,7 +233,7 @@ class MoreView extends StatelessWidget {
   void _handleSignatureUpdate(PersonalInfoLogic logic) async {
     final result = await Get.to(
       () => UpdatePage(
-        title: 'signature'.tr,
+        title: t.signature,
         value: logic.sign.value,
         field: 'input',
         maxLength: 200, // 签名通常可以长一点

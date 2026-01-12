@@ -8,6 +8,7 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'people_info_more_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class PeopleInfoMoreLogic extends GetxController {
   final state = PeopleInfoMoreState();
@@ -18,7 +19,7 @@ class PeopleInfoMoreLogic extends GetxController {
     state.sign.value = model!.sign;
     state.source.value = model.sourceTr;
     // other_party 对方
-    state.sourcePrefix.value = model.isFrom == 1 ? '' : 'otherParty'.tr;
+    state.sourcePrefix.value = model.isFrom == 1 ? '' : t.otherParty;
     debugPrint(
         "PeopleInfoMorePage initData ${state.source}, ${state.sourcePrefix} , sign ${state.sign}");
     // if (state.sameGroupList.value.isEmpty) {

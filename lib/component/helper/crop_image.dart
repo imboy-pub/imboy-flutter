@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_crop/image_crop.dart';
 
 import 'package:imboy/store/provider/attachment_provider.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class CropImageRoute extends StatefulWidget {
@@ -63,7 +64,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                       Get.close();
                     },
                     child: Text(
-                      'buttonCancel'.tr,
+                      t.buttonCancel,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         //color: Colors.white,
@@ -82,7 +83,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        'buttonAccomplish'.tr,
+                        t.buttonAccomplish,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           //color: Colors.white,

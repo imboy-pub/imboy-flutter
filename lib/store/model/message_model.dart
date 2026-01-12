@@ -83,12 +83,12 @@ class MessageModel {
     }
 
     return MessageModel(
-      data[MessageRepo.id],
+      data[MessageRepo.id] ?? '',
       autoId: data[MessageRepo.autoId] ?? 0,
-      type: data[MessageRepo.type],
+      type: data[MessageRepo.type] ?? 'C2C',
       status: int.parse('${data[MessageRepo.status] ?? 0}'),
       fromId: data[MessageRepo.from] ?? '',
-      toId: data[MessageRepo.to],
+      toId: data[MessageRepo.to] ?? '',
       payload: p,
       createdAt: DateTimeHelper.parseTimestamp(data[MessageRepo.createdAt], defaultValue: 0),
       isAuthor: data[MessageRepo.isAuthor] ?? 0,
@@ -227,16 +227,6 @@ class MessageModel {
     if (!payload.containsKey('msg_type') || payload.isEmpty) {
       iPrint('⚠️ toTypeMessage: payload 无效或为空，id=$id, payload=$payload');
       // 返回一个带有错误信息的文本消息，而不是无效的 CustomMessage
-      String nickname = '';
-      String avatar = '';
-      if (fromId == UserRepoLocal.to.currentUid) {
-        nickname = UserRepoLocal.to.current.nickname;
-        avatar = UserRepoLocal.to.current.avatar;
-      } else {
-        ContactModel? cm = await ContactRepo().findByUid(fromId!);
-        nickname = cm?.nickname ?? '';
-        avatar = cm?.avatar ?? '';
-      }
       return TextMessage(
         authorId: fromId!,
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),

@@ -10,6 +10,7 @@ import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'people_nearby_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class PeopleNearbyPage extends StatelessWidget {
@@ -76,7 +77,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
           // 标题 - 居中显示
           Text(
-            'findNearbyPeople'.tr,
+            t.findNearbyPeople,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -90,7 +91,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
           // 描述文字 - 居中显示
           Text(
-            'nearbyPeopleTips'.tr,
+            t.nearbyPeopleTips,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -118,7 +119,7 @@ class PeopleNearbyPage extends StatelessWidget {
             _showVisibilityDialog(context, logic);
           } else {
             logic.makeMyselfUnVisible();
-            EasyLoading.showSuccess('已隐藏您的位置'.tr);
+            EasyLoading.showSuccess(t.locationHidden);
           }
         },
         child: Padding(
@@ -163,8 +164,8 @@ class PeopleNearbyPage extends StatelessWidget {
                 child: Obx(
                   () => Text(
                     state.peopleNearbyVisible.isFalse
-                        ? 'makeYourselfVisible'.tr
-                        : 'makeYourselfInvisible'.tr,
+                        ? t.makeYourselfVisible
+                        : t.makeYourselfInvisible,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -413,7 +414,7 @@ class PeopleNearbyPage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            '暂无附近的人',
+            t.noNearbyPeople,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -422,7 +423,7 @@ class PeopleNearbyPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '点击上方的搜索按钮查找附近的人',
+            t.clickSearchButtonToFind,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -472,7 +473,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
               // 标题
               Text(
-                'displayProfile'.tr,
+                t.displayProfile,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -484,7 +485,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
               // 内容
               Text(
-                'nearbyPeopleExplain'.tr,
+                t.nearbyPeopleExplain,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -509,7 +510,7 @@ class PeopleNearbyPage extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'buttonCancel'.tr,
+                        t.buttonCancel,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -523,7 +524,7 @@ class PeopleNearbyPage extends StatelessWidget {
                       onPressed: () {
                         logic.makeMyselfVisible();
                         Get.close();
-                        EasyLoading.showSuccess('已显示您的位置'.tr);
+                        EasyLoading.showSuccess(t.locationVisible);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
@@ -535,7 +536,7 @@ class PeopleNearbyPage extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'buttonConfirm'.tr,
+                        t.buttonConfirm,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -561,7 +562,7 @@ class PeopleNearbyPage extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: GlassAppBar(title: 'peopleNearby'.tr),
+      appBar: GlassAppBar(title: t.peopleNearby),
       body: SlidableAutoCloseBehavior(
         child: Column(
           children: [

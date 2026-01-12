@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 import 'dark_model_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 深色模式页面
 class DarkModelPage extends StatelessWidget {
@@ -22,7 +21,7 @@ class DarkModelPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'darkModel'.tr,
+        title: t.darkModel,
       ),
       backgroundColor: colorScheme.surface,
       body: ListView(
@@ -35,11 +34,11 @@ class DarkModelPage extends StatelessWidget {
               color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             title: Text(
-              'followSystem'.tr,
+              t.followSystem,
               style: const TextStyle(fontSize: 16),
             ),
             subtitle: Text(
-              'followSystemTips'.tr,
+              t.followSystemTips,
               style: TextStyle(
                 fontSize: 14,
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -83,7 +82,7 @@ class DarkModelPage extends StatelessWidget {
                               : colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         title: Text(
-                          'normalModel'.tr,
+                          t.normalModel,
                           style: TextStyle(
                             fontSize: 16,
                             color: state.selectIndex.value == 2
@@ -113,7 +112,7 @@ class DarkModelPage extends StatelessWidget {
                               : colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         title: Text(
-                          'darkModel'.tr,
+                          t.darkModel,
                           style: TextStyle(
                             fontSize: 16,
                             color: state.selectIndex.value == 3
@@ -134,105 +133,6 @@ class DarkModelPage extends StatelessWidget {
                     ],
                   ),
           ),
-
-          // OLED模式和护眼模式设置
-          /*
-          Obx(
-            () => state.selectIndex.value == 3
-                ? Column(
-                    children: [
-                      const SizedBox(height: 24),
-                      
-                      // 分隔线
-                      Divider(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // 深色模式增强选项标题
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '深色模式增强',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // OLED优化模式
-                      ListTile(
-                        leading: Icon(
-                          Icons.smartphone,
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        title: const Text(
-                          'OLED优化模式',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        subtitle: Text(
-                          '为OLED屏幕优化，使用纯黑背景节省电量',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        trailing: Obx(
-                             () {
-                               final themeManager = Get.find<ThemeManager>();
-                               return CupertinoSwitch(
-                                 value: themeManager.themeSettings.isOLEDMode,
-                                 onChanged: (value) {
-                                   themeManager.toggleOLEDMode();
-                                 },
-                               );
-                             },
-                           ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      
-                      const SizedBox(height: 8),
-                      
-                      // 护眼模式
-                      ListTile(
-                        leading: Icon(
-                          Icons.remove_red_eye_outlined,
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        title: const Text(
-                          '护眼模式',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        subtitle: Text(
-                          '减少蓝光，使用暖色调保护视力',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        trailing: Obx(
-                             () {
-                               final themeManager = Get.find<ThemeManager>();
-                               return CupertinoSwitch(
-                                 value: themeManager.themeSettings.isEyeCareMode,
-                                 onChanged: (value) {
-                                   themeManager.toggleEyeCareMode();
-                                 },
-                               );
-                             },
-                           ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(),
-          ),
-          */
         ],
       ),
     );

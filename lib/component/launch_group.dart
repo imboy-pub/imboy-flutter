@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/page/group/group_select/group_select_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LaunchGroupItem extends StatelessWidget {
   final String item;
@@ -79,7 +80,7 @@ class LaunchSearch extends StatelessWidget {
             controller: searchC,
             style: const TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
-              hintText: 'search'.tr,
+              hintText: t.search,
               border: InputBorder.none,
             ),
             onChanged: onChanged,

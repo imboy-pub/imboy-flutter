@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/message.dart';
+import 'package:imboy/service/events/events.dart';
 
 /// 输入状态管理器
 /// 处理对方正在输入状态的显示和隐藏
@@ -83,15 +84,22 @@ class InputStateManager extends GetxController {
   
   /// 发送自己正在输入的状态
   void sendTypingStatus(String conversationId, bool isTyping) {
-    if (WebSocketService.to.status.value == SocketStatus.connected) {
-      final message = {
-        'type': 'typing',
-        'conversation_id': conversationId,
-        'is_typing': isTyping,
-        'timestamp': DateTimeHelper.millisecond(),
-      };
-      WebSocketService.to.sendMessage(jsonEncode(message), null);
+    // 解耦：使用 MessageService 的在线状态
+    if (!MessageService.to.isOnline.value) {
+      return;
     }
+
+    final message = {
+      'type': 'typing',
+      'conversation_id': conversationId,
+      'is_typing': isTyping,
+      'timestamp': DateTimeHelper.millisecond(),
+    };
+
+    // 解耦：通过事件总线发送消息
+    AppEventBus.fire(WebSocketMessageSendRequestEvent(
+      message: jsonEncode(message),
+    ));
   }
   
   /// 清理指定会话的输入状态

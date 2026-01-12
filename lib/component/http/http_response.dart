@@ -1,7 +1,7 @@
-import 'package:get/get.dart';
 
 import 'http_exceptions.dart';
 import 'package:imboy/component/helper/ntp.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class IMBoyHttpResponse {
   late bool ok;
@@ -49,7 +49,7 @@ class IMBoyHttpResponse {
       {HttpException? error, int? errCode, String? errMsg}) {
     error = error ?? UnknownException();
     code = errCode ?? 1;
-    msg = errMsg ?? 'errorUnexpected'.tr;
+    msg = errMsg ?? t.errorUnexpected;
     ok = false;
   }
 }

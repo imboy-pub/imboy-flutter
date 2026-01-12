@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'storage_space_logic.dart';
 import 'storage_space_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class StorageSpacePage extends StatelessWidget {
   StorageSpacePage({super.key});
@@ -23,7 +24,7 @@ class StorageSpacePage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'storageSpace'.tr,
+        title: t.storageSpace,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -137,16 +138,16 @@ class StorageSpacePage extends StatelessWidget {
               children: [
                 _buildLegendItem(
                   AppColors.primaryGreen,
-                  '$appName${'usedSpace'.tr}${formatBytes(state.appAllBytes.value, num: 1000)}',
+                  '$appName${t.usedSpace}${formatBytes(state.appAllBytes.value, num: 1000)}',
                 ),
                 _buildLegendItem(
                   Colors.amber,
-                  'deviceUsedSpace'.tr +
+                  t.deviceUsedSpace +
                       formatBytes(state.usedDiskSpace.value, num: 1000),
                 ),
                 _buildLegendItem(
                   Colors.grey,
-                  'deviceAvailableSpace'.tr +
+                  t.deviceAvailableSpace +
                       formatBytes(state.freeDiskSpace.value, num: 1000),
                 ),
               ],
@@ -180,6 +181,7 @@ class StorageSpacePage extends StatelessWidget {
 
   Widget _buildAppUsageSection(BuildContext context) {
     return Container(
+      width: Get.width,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -197,7 +199,7 @@ class StorageSpacePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              appName + 'usedSpace'.tr,
+              appName + t.usedSpace,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -213,14 +215,14 @@ class StorageSpacePage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'tipDeviceSpace'.trArgs([
-                state.totalDiskSpace.value > 0
-                    ? ((state.appAllBytes.value / state.totalDiskSpace.value) *
-                              1000)
-                          .toStringAsFixed(3)
-                    : '0',
-                formatBytes(state.totalDiskSpace.value, num: 1000),
-              ]),
+              t.tipDeviceSpace.replaceAll('{s}',
+                  state.totalDiskSpace.value > 0
+                      ? ((state.appAllBytes.value / state.totalDiskSpace.value) *
+                                1000)
+                            .toStringAsFixed(3)
+                      : '0')
+                  .replaceAll('{s}',
+                      formatBytes(state.totalDiskSpace.value, num: 1000)),
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -237,9 +239,9 @@ class StorageSpacePage extends StatelessWidget {
         children: [
           _buildStorageCard(
             context,
-            title: appName + 'cache'.tr,
+            title: appName + t.cache,
             value: state.cacheBytes.value,
-            description: 'cacheTips'.tr,
+            description: t.cacheTips,
             icon: Icons.cached_rounded,
             iconColor: AppColors.warning,
             action: Container(
@@ -260,9 +262,9 @@ class StorageSpacePage extends StatelessWidget {
                   onTap: () async {
                     bool res = await logic.clearAllCache();
                     if (res) {
-                      EasyLoading.showSuccess('tipSuccess'.tr);
+                      EasyLoading.showSuccess(t.tipSuccess);
                     } else {
-                      EasyLoading.showError('tipFailed'.tr);
+                      EasyLoading.showError(t.tipFailed);
                     }
                   },
                   borderRadius: BorderRadius.circular(20),
@@ -272,7 +274,7 @@ class StorageSpacePage extends StatelessWidget {
                       vertical: 8,
                     ),
                     child: Text(
-                      'clean'.tr,
+                      t.clean,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -287,18 +289,18 @@ class StorageSpacePage extends StatelessWidget {
           const SizedBox(height: 12),
           _buildStorageCard(
             context,
-            title: 'userData'.tr,
+            title: t.userData,
             value: state.dataBytes.value,
-            description: 'userDataTips'.tr,
+            description: t.userDataTips,
             icon: Icons.folder_rounded,
             iconColor: AppColors.info,
           ),
           const SizedBox(height: 12),
           _buildStorageCard(
             context,
-            title: 'appSize'.tr,
+            title: t.appSize,
             value: state.appBytes.value,
-            description: 'appSizeTips'.tr,
+            description: t.appSizeTips,
             icon: Icons.apps_rounded,
             iconColor: AppColors.success,
           ),

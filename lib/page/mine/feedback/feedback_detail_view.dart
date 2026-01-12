@@ -10,6 +10,7 @@ import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'feedback_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 反馈详情页面
 //ignore: must_be_immutable
@@ -41,7 +42,7 @@ class FeedbackDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'feedbackDetails'.tr,
+        title: t.feedbackDetails,
       ),
       backgroundColor: colorScheme.surface,
       body: SingleChildScrollView(
@@ -50,7 +51,7 @@ class FeedbackDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            
+
             // 反馈基本信息卡片
             Card(
               elevation: 2,
@@ -95,7 +96,11 @@ class FeedbackDetailPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                model.type.tr,
+                                model.type == 'bug_report'
+                                    ? t.bugReport
+                                    : model.type == 'feature_request'
+                                    ? t.featureRequest
+                                    : model.type,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
@@ -104,7 +109,7 @@ class FeedbackDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${'submittedAt'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
+                                '${t.submittedAt} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: colorScheme.onSurface.withAlpha(179),
@@ -119,7 +124,10 @@ class FeedbackDetailPage extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(context, model.statusDesc).withAlpha(51),
+                            color: _getStatusColor(
+                              context,
+                              model.statusDesc,
+                            ).withAlpha(51),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -133,9 +141,9 @@ class FeedbackDetailPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // 操作按钮行
                     Row(
                       children: [
@@ -153,7 +161,8 @@ class FeedbackDetailPage extends StatelessWidget {
                                   vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: colorScheme.secondaryContainer.withAlpha(128),
+                                  color: colorScheme.secondaryContainer
+                                      .withAlpha(128),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -166,7 +175,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'viewAttachments'.tr,
+                                      t.viewAttachments,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -185,9 +194,9 @@ class FeedbackDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // 评分信息卡片（如果有评分）
             if (model.rating.isNotEmpty)
               Card(
@@ -203,14 +212,10 @@ class FeedbackDetailPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
+                          Icon(Icons.star, color: Colors.amber, size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            'rating'.tr,
+                            t.rating,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -236,7 +241,9 @@ class FeedbackDetailPage extends StatelessWidget {
                           allowHalfRating: true,
                           itemCount: 5,
                           itemSize: 32,
-                          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          itemPadding: const EdgeInsets.symmetric(
+                            horizontal: 4.0,
+                          ),
                           itemBuilder: (context, _) =>
                               const Icon(Icons.star, color: Colors.amber),
                           onRatingUpdate: (rating) {},
@@ -247,9 +254,9 @@ class FeedbackDetailPage extends StatelessWidget {
                   ),
                 ),
               ),
-            
+
             if (model.rating.isNotEmpty) const SizedBox(height: 16),
-            
+
             // 反馈内容卡片
             Card(
               elevation: 2,
@@ -271,7 +278,7 @@ class FeedbackDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '反馈内容',
+                          t.feedbackContent,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -285,7 +292,9 @@ class FeedbackDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withAlpha(128),
+                        color: colorScheme.surfaceContainerHighest.withAlpha(
+                          128,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -301,9 +310,9 @@ class FeedbackDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // 回复列表卡片
             Card(
               elevation: 2,
@@ -325,7 +334,7 @@ class FeedbackDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '官方回复',
+                          t.officialReply,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -335,24 +344,24 @@ class FeedbackDetailPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // 回复列表
                     Container(
-                      constraints: BoxConstraints(
-                        maxHeight: Get.height * 0.4,
-                      ),
+                      constraints: BoxConstraints(maxHeight: Get.height * 0.4),
                       child: Obx(() {
                         return state.pageReplyList.isEmpty
                             ? SizedBox(
                                 height: 120,
-                                child: NoDataView(text: 'noReply'.tr),
+                                child: NoDataView(text: t.noReply),
                               )
                             : ListView.separated(
                                 shrinkWrap: true,
                                 itemCount: state.pageReplyList.length,
-                                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 12),
                                 itemBuilder: (BuildContext context, int index) {
-                                  FeedbackReplyModel replyModel = state.pageReplyList[index];
+                                  FeedbackReplyModel replyModel =
+                                      state.pageReplyList[index];
                                   return _buildReplyItem(context, replyModel);
                                 },
                               );
@@ -362,7 +371,7 @@ class FeedbackDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
           ],
         ),
@@ -373,15 +382,13 @@ class FeedbackDetailPage extends StatelessWidget {
   /// 构建回复项组件
   Widget _buildReplyItem(BuildContext context, FeedbackReplyModel replyModel) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withAlpha(51),
-        ),
+        border: Border.all(color: colorScheme.outline.withAlpha(51)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -403,7 +410,7 @@ class FeedbackDetailPage extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${'repliedAt'.tr} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
+                '${t.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -412,12 +419,12 @@ class FeedbackDetailPage extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(context, replyModel.statusDesc).withAlpha(51),
+                  color: _getStatusColor(
+                    context,
+                    replyModel.statusDesc,
+                  ).withAlpha(51),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -431,9 +438,9 @@ class FeedbackDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 回复内容
           Container(
             width: double.infinity,

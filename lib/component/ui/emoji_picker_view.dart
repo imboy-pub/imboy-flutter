@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: implementation_imports, unnecessary_import
 import 'package:emoji_picker_flutter/src/category_view/category_emoji.dart'
@@ -174,7 +175,7 @@ class EmojiSearchViewState extends SearchViewState {
                       focusNode: focusNode,
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: 'search'.tr,
+                        hintText: t.search,
                         hintStyle: const TextStyle(
                           fontWeight: FontWeight.normal,
                         ),

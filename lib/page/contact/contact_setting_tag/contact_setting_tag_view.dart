@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'contact_setting_tag_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ContactSettingTagPage extends StatelessWidget {
@@ -53,7 +54,7 @@ class ContactSettingTagPage extends StatelessWidget {
       () => Scaffold(
         backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
         appBar: GlassAppBar(
-          title: 'setParam'.trArgs(['remarksTags'.tr]),
+          title: t.setParam.replaceAll('{s}', t.remarksTags),
           automaticallyImplyLeading: true,
           rightDMActions: [
             TextButton(
@@ -63,7 +64,7 @@ class ContactSettingTagPage extends StatelessWidget {
                       if (trimmedText.isNotEmpty) {
                         bool res = await logic.changeRemark(peerId, trimmedText);
                         if (res) {
-                          EasyLoading.showSuccess('tipSuccess'.tr);
+                          EasyLoading.showSuccess(t.tipSuccess);
                           peerRemark = trimmedText;
                           Get.back(result: trimmedText);
                         }
@@ -71,7 +72,7 @@ class ContactSettingTagPage extends StatelessWidget {
                     }
                   : null, // 如果 valueChanged 为 false，则禁用按钮
               child: Text(
-                'buttonAccomplish'.tr,
+                t.buttonAccomplish,
                 style: TextStyle(
                   color: logic.valueChanged.isTrue
                       ? AppColors.primaryGreen
@@ -102,7 +103,7 @@ class ContactSettingTagPage extends StatelessWidget {
               ),
               child: TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'remark'.tr,
+                  labelText: t.remark,
                   border: InputBorder.none,
                   labelStyle: TextStyle(
                     color: colorScheme.primary,
@@ -135,7 +136,7 @@ class ContactSettingTagPage extends StatelessWidget {
               ),
               child: ListTile(
                 title: Text(
-                  'tags'.tr,
+                  t.tags,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -175,7 +176,7 @@ class ContactSettingTagPage extends StatelessWidget {
                   children: [
                     if (peerTag.isEmpty)
                       Text(
-                        'addTag'.tr,
+                        t.addTag,
                         style: TextStyle(
                           fontSize: 14,
                           color: colorScheme.outline,

@@ -8,6 +8,7 @@ import 'package:imboy/page/personal_info/personal_info/personal_info_logic.dart'
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'set_nickname_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 设置昵称页面逻辑控制器
 /// 
@@ -77,7 +78,7 @@ class SetNicknameLogic extends GetxController {
   /// 加载当前昵称
   /// 用途：从本地用户信息中获取当前昵称并初始化界面
   /// 参数：无
-  /// 返回：Future<void>
+  /// 返回：\`Future<void>\`
   /// 异常：捕获并记录加载失败
   Future<void> _loadCurrentNickname() async {
     try {
@@ -146,37 +147,37 @@ class SetNicknameLogic extends GetxController {
   /// 昵称输入校验
   /// 用途：对输入的昵称进行完整性校验
   /// 参数：nickname 待校验的昵称
-  /// 返回：String 错误信息，空字符串表示校验通过
+  /// 返回：\`String\` 错误信息，空字符串表示校验通过
   /// 异常：无
   String _validateNickname(String nickname) {
     final trimmed = nickname.trim();
     
     // 1. 长度校验
     if (trimmed.isEmpty) {
-      return 'nicknameEmptyError'.tr;
+      return t.nicknameEmptyError;
     }
     
     if (trimmed.length < 2) {
-      return 'nicknameLengthError'.tr;
+      return t.nicknameLengthError;
     }
     
     if (nickname.length > 24) {
-      return 'nicknameLengthError'.tr;
+      return t.nicknameLengthError;
     }
     
     // 2. 空白字符校验
     if (trimmed != nickname || trimmed.isEmpty) {
-      return 'nicknameWhitespaceError'.tr;
+      return t.nicknameWhitespaceError;
     }
     
     // 3. 仅表情符号校验（简单检测）
     if (_isOnlyEmojis(trimmed)) {
-      return 'nicknameEmojiOnlyError'.tr;
+      return t.nicknameEmojiOnlyError;
     }
     
     // 4. 敏感词校验
     if (_containsSensitiveWords(trimmed)) {
-      return 'nicknameSensitiveWordError'.tr;
+      return t.nicknameSensitiveWordError;
     }
     
     return '';
@@ -185,7 +186,7 @@ class SetNicknameLogic extends GetxController {
   /// 检测是否仅包含表情符号
   /// 用途：简单检测昵称是否仅由表情符号组成
   /// 参数：text 待检测文本
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 异常：无
   bool _isOnlyEmojis(String text) {
     // 简单的表情符号检测：如果去除所有 Unicode 表情符号后为空，则认为仅包含表情
@@ -196,7 +197,7 @@ class SetNicknameLogic extends GetxController {
   /// 检测是否包含敏感词
   /// 用途：本地敏感词检测，可扩展为服务器端检测
   /// 参数：text 待检测文本
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 异常：无
   bool _containsSensitiveWords(String text) {
     final lowerText = text.toLowerCase();
@@ -206,7 +207,7 @@ class SetNicknameLogic extends GetxController {
   /// 保存昵称（支持 macOS 回车提交）
   /// 用途：提交昵称修改请求，处理各种错误情况并提供用户反馈
   /// 参数：无
-  /// 返回：Future<void>
+  /// 返回：\`Future<void>\`
   /// 异常：捕获网络异常、服务器错误等并提供相应提示
   Future<void> saveNickname() async {
     if (!canSave.value || isSaving.value) return;
@@ -216,7 +217,7 @@ class SetNicknameLogic extends GetxController {
     // 最终校验
     final validation = _validateNickname(nicknameController.text);
     if (validation.isNotEmpty) {
-      Get.snackbar('tipTips'.tr, validation);
+      Get.snackbar(t.tipTips, validation);
       return;
     }
 
@@ -234,7 +235,7 @@ class SetNicknameLogic extends GetxController {
         originalNickname = nickname;
         _updateState();
         
-        Get.snackbar('tipSuccess'.tr, 'nicknameUpdateSuccess'.tr);
+        Get.snackbar(t.tipSuccess, t.nicknameUpdateSuccess);
         Get.back(result: true);
       } else {
         // 根据错误类型提供不同的提示
@@ -243,7 +244,7 @@ class SetNicknameLogic extends GetxController {
     } catch (e) {
       iPrint('保存昵称失败: $e');
       await _revertToOriginal();
-      Get.snackbar('tipFailed'.tr, 'nicknameNetworkError'.tr);
+      Get.snackbar(t.tipFailed, t.nicknameNetworkError);
     } finally {
       isSaving.value = false;
     }
@@ -252,7 +253,7 @@ class SetNicknameLogic extends GetxController {
   /// 更新本地用户信息
   /// 用途：保存成功后同步更新本地缓存的用户信息
   /// 参数：nickname 新昵称
-  /// 返回：Future<void>
+  /// 返回：\`Future<void>\`
   /// 异常：捕获并记录更新失败
   Future<void> _updateLocalUserInfo(String nickname) async {
     try {
@@ -273,26 +274,26 @@ class SetNicknameLogic extends GetxController {
   /// 参数：
   /// - errorCode 错误代码
   /// - errorMessage 错误消息
-  /// 返回：Future<void>
+  /// 返回：\`Future<void>\`
   /// 异常：无
   Future<void> _handleSaveError(String errorCode, String errorMessage) async {
     await _revertToOriginal();
     
     switch (errorCode) {
       case 'NICKNAME_CONFLICT':
-        Get.snackbar('tipFailed'.tr, 'nicknameConflictError'.tr);
+        Get.snackbar(t.tipFailed, t.nicknameConflictError);
         break;
       case 'NICKNAME_SENSITIVE':
-        Get.snackbar('tipFailed'.tr, 'nicknameSensitiveWordError'.tr);
+        Get.snackbar(t.tipFailed, t.nicknameSensitiveWordError);
         break;
       case 'NICKNAME_INVALID':
-        Get.snackbar('tipFailed'.tr, 'nicknameLengthError'.tr);
+        Get.snackbar(t.tipFailed, t.nicknameLengthError);
         break;
       case 'SERVER_ERROR':
-        Get.snackbar('tipFailed'.tr, 'nicknameServerError'.tr);
+        Get.snackbar(t.tipFailed, t.nicknameServerError);
         break;
       default:
-        Get.snackbar('tipFailed'.tr, 'nicknameUpdateFailed'.tr);
+        Get.snackbar(t.tipFailed, t.nicknameUpdateFailed);
         break;
     }
   }
@@ -300,7 +301,7 @@ class SetNicknameLogic extends GetxController {
   /// 回滚到原始昵称
   /// 用途：保存失败时恢复到进入页面前的昵称，保持数据一致性
   /// 参数：无
-  /// 返回：Future<void>
+  /// 返回：\`Future<void>\`
   /// 异常：无
   Future<void> _revertToOriginal() async {
     nicknameController.text = originalNickname;
@@ -319,7 +320,7 @@ class SetNicknameLogic extends GetxController {
   /// 调用API更新昵称
   /// 用途：发送昵称更新请求到服务器
   /// 参数：nickname 新昵称
-  /// 返回：Future<_ApiResult> API调用结果
+  /// 返回：\`Future<bool>\` API调用结果
   /// 异常：网络异常时抛出
   Future<bool> _updateNicknameAPI(String nickname) async {
     bool ok = await Get.find<PersonalInfoLogic>().changeInfo({

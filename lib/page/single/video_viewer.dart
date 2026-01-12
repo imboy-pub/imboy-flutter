@@ -12,6 +12,7 @@ import 'package:imboy/component/video/video_controller.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class VideoViewerPage extends StatefulWidget {
   final String url;
@@ -157,9 +158,9 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
   Widget buildVideo(BuildContext context) {
     return MergeSemantics(
       child: Semantics(
-        label: 'play'.tr,
+        label: t.play,
         image: true,
-        onTapHint: 'play'.tr,
+        onTapHint: t.play,
         sortKey: const OrdinalSortKey(1),
         child: Stack(
           children: [
@@ -254,7 +255,7 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
                   children: [
                     const CircularProgressIndicator(),
                     const SizedBox(height: 8),
-                    Text("${'loading'.tr}..."),
+                    Text("${t.loading}..."),
                   ],
                 ),
               ),

@@ -20,6 +20,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 
 import 'launch_chat_logic.dart';
 import 'launch_chat_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 发起聊天页面
 class LaunchChatPage extends StatelessWidget {
@@ -120,7 +121,7 @@ class LaunchChatPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
-        title: 'selectContacts'.tr,
+        title: t.selectContacts,
         leadingWidth: 72,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -129,7 +130,7 @@ class LaunchChatPage extends StatelessWidget {
               Navigator.of(context).pop();
             },
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -144,10 +145,10 @@ class LaunchChatPage extends StatelessWidget {
             () => Padding(
               padding: const EdgeInsets.only(right: 16),
               child: RoundedElevatedButton(
-                text: '${'buttonAccomplish'.tr}${logic.state.selectsTips.value}',
+                text: '${t.buttonAccomplish}${logic.state.selectsTips.value}',
                 highlighted: logic.state.selects.isNotEmpty,
                 onPressed: () async {
-                  EasyLoading.show(status: 'loading'.tr);
+                  EasyLoading.show(status: t.loading);
                   int memberCount = logic.state.selects.length;
                   iPrint(
                     "logic.state.selects $memberCount ${logic.state.selects.toJson()}",
@@ -171,11 +172,11 @@ class LaunchChatPage extends StatelessWidget {
                       );
                     } else {
                       EasyLoading.dismiss();
-                      EasyLoading.showError('tipFailed'.tr);
+                      EasyLoading.showError(t.tipFailed);
                     }
                   } catch (e) {
                     EasyLoading.dismiss();
-                    EasyLoading.showError('${'tipFailed'.tr}: $e');
+                    EasyLoading.showError('${t.tipFailed}: $e');
                     debugPrint("groupAdd error: $e");
                   }
                 },
@@ -210,7 +211,7 @@ class LaunchChatPage extends StatelessWidget {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     title: Text(
-                      'selectAGroup'.tr,
+                      t.selectAGroup,
                       style: TextStyle(
                         fontSize: 16,
                         color: colorScheme.onSurface,
@@ -240,7 +241,7 @@ class LaunchChatPage extends StatelessWidget {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     title: Text(
-                      'createGroupF2f'.tr,
+                      t.createGroupF2f,
                       style: TextStyle(
                         fontSize: 16,
                         color: colorScheme.onSurface,
@@ -271,7 +272,7 @@ class LaunchChatPage extends StatelessWidget {
               child: SlidableAutoCloseBehavior(
                 child: Obx(() {
                   return logic.state.items.isEmpty
-                      ? NoDataView(text: 'noData'.tr)
+                      ? NoDataView(text: t.noData)
                       : AzListView(
                           data: logic.state.items,
                           itemCount: logic.state.items.length,

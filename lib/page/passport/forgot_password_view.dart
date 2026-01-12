@@ -8,6 +8,7 @@ import 'widget/bezier_container.dart';
 import 'widget/fadeanimation.dart';
 import 'forgot_password_pin_code_view.dart';
 import 'passport_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 enum FormData { Email, SMSCode }
 
@@ -93,7 +94,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           FadeAnimation(
                             delay: 1,
                             child: Text(
-                              'recoverPassword'.tr,
+                              t.recoverPassword,
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
@@ -149,7 +150,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                       minWidth: 44,
                                       minHeight: 44,
                                     ),
-                                    hintText: accountType.tr,
+                                    hintText: accountType == 'email' ? t.email : t.mobile,
                                     hintStyle: TextStyle(
                                       color: Colors.grey.shade600,
                                       fontSize: 16,
@@ -176,12 +177,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                                   if (account.isEmpty) {
                                     logic.snackBar(
-                                        'pleaseInputParam'.trArgs(['email'.tr]));
+                                      Text(
+                                        t.pleaseInputParam.replaceAll('{param}', t.email),
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    );
                                     return;
                                   }
                                   if (isEmail(account) == false) {
                                     logic.snackBar(
-                                        'paramFormatError'.trArgs(['emial'.tr]));
+                                      Text(
+                                        t.paramFormatError.replaceAll('{param}', t.email),
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    );
                                     return;
                                   }
                                   String? res = await logic.sendCode(
@@ -199,7 +214,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                       popGesture: true, // 右滑，返回上一页
                                     );
                                   } else {
-                                    logic.snackBar(res.tr);
+                                    logic.snackBar(
+                                      Text(
+                                        res,
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    );
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -211,7 +234,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ),
                                 ),
                                 child: Text(
-                                  'buttonContinue'.tr,
+                                  t.buttonContinue,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -230,7 +253,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('tryAgainQ'.tr,
+                          Text(t.tryAgainQ,
                               style: const TextStyle(
                                 color: Colors.white,
                                 letterSpacing: 0.5,
@@ -243,7 +266,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 popGesture: true, // 右滑，返回上一页
                               );
                             },
-                            child: Text('login'.tr,
+                            child: Text(t.login,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontWeight: FontWeight.bold,

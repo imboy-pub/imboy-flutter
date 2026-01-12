@@ -11,6 +11,7 @@ import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LocationMessageBuilder extends StatefulWidget {
   final User user;
@@ -90,7 +91,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                   color: Theme.of(Get.context!).colorScheme.surface,
                   child: availableMaps.isEmpty
                       ? Center(
-                    child: Text('notInstallAnyMapApp'.tr),
+                    child: Text(t.notInstallAnyMapApp),
                   )
                       : SingleChildScrollView(
                     child: Wrap(

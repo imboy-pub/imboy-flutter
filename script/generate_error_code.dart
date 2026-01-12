@@ -9,7 +9,6 @@
 ///
 
 import 'dart:io';
-import 'dart:convert';
 
 void main(List<String> args) async {
   print('🔄 开始生成错误码文件...\n');

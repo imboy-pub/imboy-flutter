@@ -22,6 +22,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'setting_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 设置页面 - 使用优化后的主题系统
 class SettingPage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface, // 使用主题表面色
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: 'setting'.tr),
+      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.setting),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -67,7 +68,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 账户安全
                   _buildSettingItem(
                     context,
-                    title: 'accountSecurity'.tr,
+                    title: t.accountSecurity,
                     leadingIcon: Icons.security,
                     leadingIconColor: AppColors.warning,
                     onTap: () {
@@ -84,7 +85,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 语言设置
                   _buildSettingItem(
                     context,
-                    title: 'languageSetting'.tr,
+                    title: t.languageSetting,
                     leadingIcon: Icons.language,
                     leadingIconColor: AppColors.info,
                     onTap: () {
@@ -101,7 +102,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 深色模式
                   _buildSettingItem(
                     context,
-                    title: 'darkModel'.tr,
+                    title: t.darkModel,
                     value: logic.themeTypeTips(),
                     leadingIcon: Icons.dark_mode,
                     leadingIconColor: AppColors.textSecondary,
@@ -158,7 +159,7 @@ class _SettingPageState extends State<SettingPage> {
                   Obx(
                     () => _buildSwitchItem(
                       context,
-                      title: 'allowSearchMe'.tr,
+                      title: t.allowSearchMe,
                       subtitle: '其他用户可以通过搜索找到我',
                       value: logic.allowSearch.value,
                       leadingIcon: Icons.search,
@@ -204,13 +205,13 @@ class _SettingPageState extends State<SettingPage> {
                   // 更新日志
                   _buildSettingItem(
                     context,
-                    title: 'updateLog'.tr,
+                    title: t.updateLog,
                     leadingIcon: Icons.update,
                     leadingIconColor: AppColors.success,
                     onTap: () {
                       Get.to(
                         () => MarkdownPage(
-                          title: 'updateLog'.tr,
+                          title: t.updateLog,
                           url:
                               "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                         ),
@@ -225,13 +226,13 @@ class _SettingPageState extends State<SettingPage> {
                   // 帮助文档
                   _buildSettingItem(
                     context,
-                    title: 'helpDocument'.tr,
+                    title: t.helpDocument,
                     leadingIcon: Icons.help_outline,
                     leadingIconColor: AppColors.info,
                     onTap: () {
                       Get.to(
                         () => MarkdownPage(
-                          title: 'helpDocument'.tr,
+                          title: t.helpDocument,
                           url:
                               "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/help_document.md",
                         ),
@@ -246,8 +247,8 @@ class _SettingPageState extends State<SettingPage> {
                   // 关于应用
                   _buildSettingItem(
                     context,
-                    title: 'aboutApp'.tr,
-                    value: "${'version'.tr} $appVsn",
+                    title: t.aboutApp,
+                    value: "${t.version} $appVsn",
                     leadingIcon: Icons.info_outline,
                     leadingIconColor: AppColors.primaryGreen,
                     onTap: () {
@@ -259,7 +260,7 @@ class _SettingPageState extends State<SettingPage> {
                             bottom: 10,
                           ),
                           child: RoundedElevatedButton(
-                            text: 'checkForUpdates'.tr,
+                            text: t.checkForUpdates,
                             highlighted: true,
                             onPressed: () async {
                               final AppVersionProvider p = AppVersionProvider();
@@ -287,7 +288,7 @@ class _SettingPageState extends State<SettingPage> {
                                   ),
                                 );
                               } else {
-                                EasyLoading.showInfo('nowNewVersion'.tr);
+                                EasyLoading.showInfo(t.nowNewVersion);
                               }
                             },
                           ),
@@ -295,7 +296,7 @@ class _SettingPageState extends State<SettingPage> {
                       ];
                       Get.to(
                         () => MarkdownPage(
-                          title: "${'about'.tr} $appName",
+                          title: "${t.about} $appName",
                           rightDMActions: rightDMActions,
                           url:
                               "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
@@ -329,7 +330,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 child: _buildSettingItem(
                   context,
-                  title: 'switchEnvironment'.tr,
+                  title: t.switchEnvironment,
                   leadingIcon: Icons.developer_mode,
                   leadingIconColor: AppColors.lightError,
                   trailing: Container(

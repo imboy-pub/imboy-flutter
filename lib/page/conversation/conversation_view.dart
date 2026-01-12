@@ -9,11 +9,12 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/conversation/widget/right_button.dart'
     show RightButton;
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -21,6 +22,7 @@ import 'package:imboy/service/sqlite.dart';
 
 import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ConversationPage extends StatefulWidget {
   const ConversationPage({super.key});
@@ -55,7 +57,7 @@ class _ConversationPageState extends State<ConversationPage> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       // ignore: prefer_interpolation_to_compose_strings
-      logic.connectDesc.value = '(' + 'tipConnectDesc'.tr + ')';
+      logic.connectDesc.value = '(' + t.tipConnectDesc + ')';
     } else {
       logic.connectDesc.value = '';
     }
@@ -63,14 +65,15 @@ class _ConversationPageState extends State<ConversationPage> {
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        logic.connectDesc.value = '(${'tipConnectDesc'.tr})';
+        logic.connectDesc.value = '(${t.tipConnectDesc})';
       } else {
         logic.connectDesc.value = '';
       }
     });
 
     // 监听会话消息
-    ssMsg = eventBus.on<ConversationModel>().listen((obj) async {
+    ssMsg = AppEventBus.on<DataWrapperEvent>().listen((event) async {
+      final ConversationModel obj = event.data as ConversationModel;
       obj.title = await logic.computeTitle(obj);
       // 更新会话
       await logic.replace(obj);
@@ -86,7 +89,7 @@ class _ConversationPageState extends State<ConversationPage> {
     return Scaffold(
       appBar: GlassAppBar(
         leading: const SizedBox.shrink(),
-        title: 'titleMessage'.tr + logic.connectDesc.value,
+        title: t.titleMessage + logic.connectDesc.value,
         rightDMActions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
@@ -106,7 +109,7 @@ class _ConversationPageState extends State<ConversationPage> {
             child: SlidableAutoCloseBehavior(
               child: Obx(() {
                 return logic.conversations.isEmpty
-                    ? NoDataView(text: 'noConversationMessages'.tr)
+                    ? NoDataView(text: t.noConversationMessages)
                     : ListView.builder(
                         itemCount: logic.conversations.length,
                         itemBuilder: (BuildContext context, int index) {
@@ -211,7 +214,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       // 通知 UI 更新（GetX 会自动响应）
                                       logic.update();
                                     },
-                                    label: 'notShow'.tr,
+                                    label: t.notShow,
                                     spacing: 1,
                                   ),
                                   SlidableAction(
@@ -233,7 +236,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       // 通知 UI 更新（GetX 会自动响应）
                                       logic.update();
                                     },
-                                    label: 'buttonDelete'.tr,
+                                    label: t.buttonDelete,
                                     spacing: 1,
                                   ),
                                 ],

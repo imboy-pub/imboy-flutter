@@ -1,6 +1,7 @@
 /// 消息管理服务
 ///
 /// 负责消息的批量操作、搜索、统计、导出和自动清理
+library;
 
 import 'dart:convert';
 import 'dart:io';

@@ -9,13 +9,12 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/message_retry.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/config/init.dart';
 
 /// MessageActions
 /// 消息操作功能，包含撤回、编辑等操作
@@ -40,7 +39,7 @@ class MessageActions extends GetxService {
   /// 处理基于action的消息
   Future<void> handleActionMessage(String action, Map data) async {
     iPrint("🔄 处理action消息: action=$action, msgId=${data['id']}, type=${data['type']}");
-    
+
     try {
       switch (action) {
         case 'message_read':
@@ -62,10 +61,10 @@ class MessageActions extends GetxService {
           await _handleEditAction(data, isAck: true);
           break;
         default:
-          iPrint('未知的action类型: $action');
+          iPrint('⚠️ [handleActionMessage] 未知的action类型: $action');
       }
-    } catch (e) {
-      iPrint('处理action消息异常: $e');
+    } catch (e, s) {
+      iPrint('❌ [handleActionMessage] 处理action消息异常: action=$action, error=$e\nstacktrace=$s');
     }
   }
 
@@ -82,7 +81,10 @@ class MessageActions extends GetxService {
       final idsRaw = payload['msg_ids'];
       final ids = idsRaw is List ? idsRaw.map((e) => e.toString()).toList() : <String>[];
       if (ids.isEmpty) {
-        MessageService.to.sendAckMsg(msgType, msgId);
+        AppEventBus.fire(AckSendRequestedEvent(
+          messageType: msgType,
+          messageId: msgId,
+        ));
         return;
       }
 
@@ -92,8 +94,15 @@ class MessageActions extends GetxService {
       final conversationRepo = ConversationRepo();
       final nowMs = DateTimeHelper.millisecond();
       for (final id in ids) {
-        final m = await MessageService.to.updateStatus(repo, id, IMBoyMessageStatus.seen);
-        if (m != null) {
+        // 发布状态更新事件
+        AppEventBus.fire(MessageStatusUpdateRequestedEvent(
+          messageId: id,
+          messageType: msgType,
+          newStatus: IMBoyMessageStatus.seen,
+        ));
+        // 注意：原代码使用了返回值，这里需要从 repo 重新获取
+        final m = await repo.find(id);
+        if (m != null && m.status == IMBoyMessageStatus.seen) {
           try {
             if (chatLogic.isBurnPayload(m.payload)) {
               final toId = m.toId ?? '';
@@ -104,16 +113,23 @@ class MessageActions extends GetxService {
                 }
               }
             }
-          } catch (_) {}
+          } catch (e) {
+            iPrint('⚠️ [_handleReadAction] 标记阅后即焚失败: msgId=$id, error=$e');
+          }
           updated.add(await m.toTypeMessage());
         }
       }
       if (updated.isNotEmpty) {
-        eventBus.fire(updated);
+        AppEventBus.fireData(updated);
       }
 
-      MessageService.to.sendAckMsg(msgType, msgId);
-    } catch (_) {}
+      AppEventBus.fire(AckSendRequestedEvent(
+        messageType: msgType,
+        messageId: msgId,
+      ));
+    } catch (e, s) {
+      iPrint('❌ [_handleReadAction] 处理已读消息失败: error=$e\nstacktrace=$s');
+    }
   }
 
   Future<void> _handleReactionAction(Map data) async {
@@ -128,14 +144,20 @@ class MessageActions extends GetxService {
       final reactorId = payload['user_id']?.toString() ?? data['from']?.toString() ?? '';
 
       if (originalMsgId.isEmpty || emoji.isEmpty || reactorId.isEmpty) {
-        MessageService.to.sendAckMsg(msgType, msgId);
+        AppEventBus.fire(AckSendRequestedEvent(
+          messageType: msgType,
+          messageId: msgId,
+        ));
         return;
       }
 
       final repo = MessageService.to.getMessageRepo(msgType);
       final msg = await repo.find(originalMsgId);
       if (msg == null) {
-        MessageService.to.sendAckMsg(msgType, msgId);
+        AppEventBus.fire(AckSendRequestedEvent(
+          messageType: msgType,
+          messageId: msgId,
+        ));
         return;
       }
 
@@ -167,11 +189,16 @@ class MessageActions extends GetxService {
 
       final updated = await repo.find(originalMsgId);
       if (updated != null) {
-        eventBus.fire([await updated.toTypeMessage()]);
+        AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
       }
 
-      MessageService.to.sendAckMsg(msgType, msgId);
-    } catch (_) {}
+      AppEventBus.fire(AckSendRequestedEvent(
+        messageType: msgType,
+        messageId: msgId,
+      ));
+    } catch (e, s) {
+      iPrint('❌ [_handleReactionAction] 处理消息表情失败: error=$e\nstacktrace=$s');
+    }
   }
 
   /// Handle revoke action messages
@@ -203,7 +230,11 @@ class MessageActions extends GetxService {
     // 【重要】从重试队列中移除撤回消息
     final revokeMsgId = data['id'] as String? ?? '';
     if (revokeMsgId.isNotEmpty && Get.isRegistered<MessageRetry>()) {
-      MessageRetry.to.removeFromRetryQueue(revokeMsgId);
+      AppEventBus.fire(RemoveFromRetryQueueRequestedEvent(
+        messageId: revokeMsgId,
+        messageType: msgType,
+        reason: 'revoked',
+      ));
       iPrint('✅ [REVOKE_ACK] 已从重试队列移除撤回消息: revokeMsgId=$revokeMsgId');
     }
 
@@ -235,7 +266,7 @@ class MessageActions extends GetxService {
       final updatedMsg = await repo.find(originalMsgId);
       if (updatedMsg != null) {
         final updatedMessage = await updatedMsg.toTypeMessage();
-        eventBus.fire([updatedMessage]);
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
         await _updateConversationAfterRevoke(updatedMsg, 'my_revoked');
       }
     } else {
@@ -244,7 +275,10 @@ class MessageActions extends GetxService {
     }
 
     // 发送ACK
-    MessageService.to.sendAckMsg(msgType, data['id']);
+    AppEventBus.fire(AckSendRequestedEvent(
+      messageType: msgType,
+      messageId: data['id'],
+    ));
   }
 
   /// Process revoke request
@@ -287,7 +321,10 @@ class MessageActions extends GetxService {
     };
     
     iPrint('🔄 发送撤回确认ACK: ${json.encode(ackMessage)}');
-    WebSocketService.to.sendMessage(json.encode(ackMessage), data['id']);
+    AppEventBus.fire(WebSocketMessageSendRequestEvent(
+      message: json.encode(ackMessage),
+      messageId: data['id'],
+    ));
   }
 
   /// Handle edit action messages
@@ -320,7 +357,11 @@ class MessageActions extends GetxService {
     // 【重要】从重试队列中移除编辑消息
     final editMsgId = data['id'] as String? ?? '';
     if (editMsgId.isNotEmpty && Get.isRegistered<MessageRetry>()) {
-      MessageRetry.to.removeFromRetryQueue(editMsgId);
+      AppEventBus.fire(RemoveFromRetryQueueRequestedEvent(
+        messageId: editMsgId,
+        messageType: msgType,
+        reason: 'edited',
+      ));
       iPrint('✅ [EDIT_ACK] 已从重试队列移除编辑消息: editMsgId=$editMsgId');
     }
 
@@ -352,7 +393,7 @@ class MessageActions extends GetxService {
       final updatedMsg = await repo.find(originalMsgId);
       if (updatedMsg != null) {
         final updatedMessage = await updatedMsg.toTypeMessage();
-        eventBus.fire([updatedMessage]);
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
         await _updateConversationAfterEdit(updatedMsg, newContent);
       }
     } else {
@@ -361,7 +402,10 @@ class MessageActions extends GetxService {
     }
 
     // 发送ACK
-    MessageService.to.sendAckMsg(msgType, data['id']);
+    AppEventBus.fire(AckSendRequestedEvent(
+      messageType: msgType,
+      messageId: data['id'],
+    ));
   }
 
   /// Process edit request
@@ -405,7 +449,10 @@ class MessageActions extends GetxService {
     };
     
     iPrint('🔄 发送编辑确认ACK: ${json.encode(ackMessage)}');
-    WebSocketService.to.sendMessage(json.encode(ackMessage), data['id']);
+    AppEventBus.fire(WebSocketMessageSendRequestEvent(
+      message: json.encode(ackMessage),
+      messageId: data['id'],
+    ));
   }
 
   /// Process peer edit
@@ -440,7 +487,7 @@ class MessageActions extends GetxService {
         iPrint('🔄 触发编辑消息更新事件: msgId=${updatedMsg.id}');
         
         // 更新UI
-        eventBus.fire([updatedMessage]);
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
         
         // 更新会话
         await _updateConversationAfterEdit(updatedMsg, newContent);
@@ -502,7 +549,7 @@ class MessageActions extends GetxService {
         final updatedConv = await _conversationRepo.findById(conv.id);
         if (updatedConv != null) {
           iPrint('触发会话更新事件: ${updatedConv.id}');
-          eventBus.fire(updatedConv);
+          AppEventBus.fireData(updatedConv);
         }
       } else {
         iPrint('编辑的消息不是会话的最后一条消息，无需更新会话');
@@ -558,7 +605,7 @@ class MessageActions extends GetxService {
         
         // 更新UI - 这是关键步骤
         iPrint('🔄 准备触发UI更新事件...');
-        eventBus.fire([updatedMessage]);
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
         iPrint('🔄 UI更新事件已触发');
         
         // 更新会话
@@ -625,7 +672,7 @@ class MessageActions extends GetxService {
         final updatedConv = await _conversationRepo.findById(conv.id);
         if (updatedConv != null) {
           iPrint('触发会话更新事件: ${updatedConv.id}');
-          eventBus.fire(updatedConv);
+          AppEventBus.fireData(updatedConv);
         }
       } else {
         iPrint('撤回的消息不是会话的最后一条消息，无需更新会话');
@@ -667,17 +714,17 @@ class MessageActions extends GetxService {
       };
       
       iPrint('🔄 发送撤回消息请求: ${json.encode(revokeMessage)}');
-      final success = await WebSocketService.to.sendMessage(
-        json.encode(revokeMessage),
-        revokeMessage['id'].toString()
-      );
 
-      if (success) {
-        // 添加到重试队列
-        _messageRetry.addToRetryQueue(revokeMessage['id'].toString(), messageType);
-      }
-      
-      return success;
+      // 先添加到重试队列（确保消息会被重试）
+      _messageRetry.addToRetryQueue(revokeMessage['id'].toString(), messageType);
+
+      // 通过事件发送消息（fire-and-forget）
+      AppEventBus.fire(WebSocketMessageSendRequestEvent(
+        message: json.encode(revokeMessage),
+        messageId: revokeMessage['id'].toString(),
+      ));
+
+      return true; // 返回 true 表示已提交发送请求
     } catch (e, s) {
       iPrint('❌ 发送撤回消息异常: $e; $s');
       return false;
@@ -717,17 +764,17 @@ class MessageActions extends GetxService {
       };
       
       iPrint('🔄 发送编辑消息请求: ${json.encode(editMessage)}');
-      final success = await WebSocketService.to.sendMessage(
-        json.encode(editMessage),
-        editMessage['id'].toString()
-      );
 
-      if (success) {
-        // 添加到重试队列
-        _messageRetry.addToRetryQueue(editMessage['id'].toString(), messageType);
-      }
-      
-      return success;
+      // 先添加到重试队列（确保消息会被重试）
+      _messageRetry.addToRetryQueue(editMessage['id'].toString(), messageType);
+
+      // 通过事件发送消息（fire-and-forget）
+      AppEventBus.fire(WebSocketMessageSendRequestEvent(
+        message: json.encode(editMessage),
+        messageId: editMessage['id'].toString(),
+      ));
+
+      return true; // 返回 true 表示已提交发送请求
     } catch (e, s) {
       iPrint("❌ 发送编辑消息异常: $e; $s");
       return false;

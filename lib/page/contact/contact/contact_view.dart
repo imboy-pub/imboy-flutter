@@ -9,6 +9,7 @@ import 'package:imboy/page/contact/new_friend/add_friend_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
 import 'contact_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ContactPage extends StatelessWidget {
@@ -33,7 +34,7 @@ class ContactPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         leading: const SizedBox.shrink(),
-        titleWidget: Text('titleContact'.tr),
+        titleWidget: Text(t.titleContact),
         rightDMActions: [
           IconButton(
             onPressed: () {
@@ -60,7 +61,7 @@ class ContactPage extends StatelessWidget {
               // 检查网络状态
               var connectivityResult = await Connectivity().checkConnectivity();
               if (connectivityResult.contains(ConnectivityResult.none)) {
-                String msg = 'tipConnectDesc'.tr;
+                String msg = t.tipConnectDesc;
                 EasyLoading.showInfo(' $msg        ');
                 return;
               }
@@ -160,7 +161,7 @@ class ContactPage extends StatelessWidget {
             () => Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: contactIsEmpty.isTrue
-                  ? NoDataView(text: 'noContacts'.tr)
+                  ? NoDataView(text: t.noContacts)
                   : const SizedBox.shrink(),
             ),
           ),

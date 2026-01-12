@@ -13,13 +13,11 @@ import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class AddMemberPage extends StatefulWidget {
   final String groupId;
@@ -34,7 +32,6 @@ class AddMemberPageState extends State<AddMemberPage> {
   final LaunchChatLogic logic = Get.put(LaunchChatLogic());
   final LaunchChatState state = Get.find<LaunchChatLogic>().state;
 
-  final int _itemHeight = 60;
   RxList memberUserIds = [].obs;
 
   @override
@@ -165,7 +162,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                     if (isMember) ...[
                       const SizedBox(height: 2),
                       Text(
-                        'alreadyMember'.tr,
+                        t.alreadyMember,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.outline,
@@ -184,7 +181,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'selected'.tr,
+                    t.selected,
                     style: TextStyle(
                       fontSize: 10,
                       color: Theme.of(context).colorScheme.onPrimary,
@@ -211,7 +208,7 @@ class AddMemberPageState extends State<AddMemberPage> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: 'selectContacts'.tr,
+        title: t.selectContacts,
         rightDMActions: [
           Obx(
             () => Padding(
@@ -221,7 +218,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                 child: ElevatedButton(
                   onPressed: logic.state.selects.isNotEmpty ? () async {
                     var nav = Navigator.of(context);
-                    EasyLoading.show(status: 'loading'.tr);
+                    EasyLoading.show(status: t.loading);
                     int memberCount = logic.state.selects.length;
                     iPrint("logic.state.selects $memberCount ${logic.state.selects.toJson()}");
                     bool res = await logic.joinGroup(
@@ -248,7 +245,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                     elevation: logic.state.selects.isNotEmpty ? 2 : 0,
                   ),
                   child: Text(
-                    '${'buttonAccomplish'.tr}${logic.state.selectsTips.value}',
+                    '${t.buttonAccomplish}${logic.state.selectsTips.value}',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -268,8 +265,8 @@ class AddMemberPageState extends State<AddMemberPage> {
             margin: const EdgeInsets.all(16),
             child: searchBar(
               context,
-              searchLabel: 'search'.tr,
-              hintText: 'search'.tr,
+              searchLabel: t.search,
+              hintText: t.search,
               queryTips: '',
               doSearch: ((query) async {
                 debugPrint("launch_chat_view doSearch ${query.toString()}");
@@ -308,7 +305,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'selectedCount'.trParams({'count': '${logic.state.selects.length}'}),
+                        t.selectedCount.replaceAll('{count}', '${logic.state.selects.length}'),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -333,7 +330,7 @@ class AddMemberPageState extends State<AddMemberPage> {
               child: SlidableAutoCloseBehavior(
                 child: Obx(() {
                   return logic.state.items.isEmpty
-                      ? NoDataView(text: 'noData'.tr)
+                      ? NoDataView(text: t.noData)
                       : AzListView(
                           data: logic.state.items,
                           itemCount: logic.state.items.length,

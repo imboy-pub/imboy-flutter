@@ -11,6 +11,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import '../new_friend/new_friend_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class AddFriendPage extends StatelessWidget {
@@ -28,7 +29,7 @@ class AddFriendPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
-        title: 'addFriend'.tr,
+        title: t.addFriend,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
@@ -66,7 +67,7 @@ class AddFriendPage extends StatelessWidget {
                           onTap: () => controller.openView(),
                           onChanged: (_) => controller.openView(),
                           leading: const Icon(Icons.search),
-                          hintText: 'hintLoginAccount'.tr,
+                          hintText: t.hintLoginAccount,
                           elevation: const WidgetStatePropertyAll<double>(0),
                           backgroundColor: WidgetStatePropertyAll<Color>(
                             isDark
@@ -79,8 +80,9 @@ class AddFriendPage extends StatelessWidget {
                           SearchController controller) async {
                         final results =
                             await logic.userSearch(kwd: controller.text);
+                        if (!context.mounted) return [];
                         return [
-                          await logic.doBuildUserSearchResults(context, results)
+                          logic.doBuildUserSearchResults(context, results)
                         ];
                       },
                     ),
@@ -91,7 +93,7 @@ class AddFriendPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "${'myAccount'.tr}：",
+                          "${t.myAccount}：",
                           style: TextStyle(
                             color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
@@ -146,8 +148,8 @@ class AddFriendPage extends StatelessWidget {
                     context,
                     icon: Icons.explore_rounded,
                     iconColor: Colors.lightBlue,
-                    title: 'peopleNearby'.tr,
-                    subtitle: 'nearbyPeopleTips'.tr,
+                    title: t.peopleNearby,
+                    subtitle: t.nearbyPeopleTips,
                     onTap: () => Get.to(() => PeopleNearbyPage()),
                     showDivider: true,
                   ),
@@ -155,8 +157,8 @@ class AddFriendPage extends StatelessWidget {
                     context,
                     icon: Icons.group,
                     iconColor: Colors.purple,
-                    title: 'createGroupF2f'.tr,
-                    subtitle: 'enterSameGroup'.tr,
+                    title: t.createGroupF2f,
+                    subtitle: t.enterSameGroup,
                     onTap: () => Get.to(() => FaceToFacePage()),
                     showDivider: true,
                   ),
@@ -164,8 +166,8 @@ class AddFriendPage extends StatelessWidget {
                     context,
                     icon: Icons.qr_code_scanner_outlined,
                     iconColor: Colors.blue,
-                    title: 'scanQrCode'.tr,
-                    subtitle: 'scanQrCodeBusinessCard'.tr,
+                    title: t.scanQrCode,
+                    subtitle: t.scanQrCodeBusinessCard,
                     onTap: () => Get.to(() => const ScannerPage()),
                     showDivider: true,
                   ),
@@ -173,8 +175,8 @@ class AddFriendPage extends StatelessWidget {
                     context,
                     icon: Icons.person,
                     iconColor: Colors.lightGreen,
-                    title: 'newlyRegisteredPeople'.tr,
-                    subtitle: 'allowedBeSearched'.tr,
+                    title: t.newlyRegisteredPeople,
+                    subtitle: t.allowedBeSearched,
                     onTap: () => Get.to(() => RecentlyRegisteredUserPage()),
                     showDivider: false,
                   ),

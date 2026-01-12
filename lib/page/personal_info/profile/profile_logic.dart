@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,7 +8,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/store/model/user_model.dart';
 
 import 'profile_state.dart';
 
@@ -328,8 +326,4 @@ class ProfileLogic extends GetxController {
     return suggestions;
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

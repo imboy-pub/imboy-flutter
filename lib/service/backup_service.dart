@@ -1,6 +1,7 @@
 /// 备份服务
 ///
 /// 负责数据备份和恢复
+library;
 
 import 'dart:convert';
 import 'dart:io';

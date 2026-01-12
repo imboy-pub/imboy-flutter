@@ -12,6 +12,7 @@ import 'package:imboy/page/search/search_chat_view.dart';
 
 import 'chat_setting_logic.dart';
 import 'chat_setting_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ChatSettingPage extends StatefulWidget {
@@ -152,7 +153,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.of(ctx).pop(),
-                          child: Text('buttonCancel'.tr),
+                          child: Text(t.buttonCancel),
                         ),
                         const Spacer(),
                         TextButton(
@@ -160,9 +161,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                             Navigator.of(ctx).pop();
                             setState(() => _burnAfterMs = options[tempIndex]);
                             await _persistBurnSetting();
-                            EasyLoading.showToast('tipSuccess'.tr);
+                            EasyLoading.showToast(t.tipSuccess);
                           },
-                          child: Text('buttonConfirm'.tr),
+                          child: Text(t.buttonConfirm),
                         ),
                       ],
                     ),
@@ -260,7 +261,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                     if (subtitle != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        subtitle!,
+                        subtitle,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 12,
@@ -303,7 +304,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         child: CupertinoSwitch(
           value: value,
           onChanged: onChanged,
-          activeColor: Theme.of(context).colorScheme.primary,
+          activeTrackColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       onTap: () => onChanged(!value),
@@ -415,7 +416,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       ),
                     ),
                     child: Text(
-                      'buttonCancel'.tr,
+                      t.buttonCancel,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
@@ -436,7 +437,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       });
                       await _persistVisibilityReadSetting();
                       if (ctx.mounted) Navigator.of(ctx).pop();
-                      EasyLoading.showSuccess('tipSuccess'.tr);
+                      EasyLoading.showSuccess(t.tipSuccess);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -445,7 +446,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text('buttonConfirm'.tr),
+                    child: Text(t.buttonConfirm),
                   ),
                 ],
               ),
@@ -453,7 +454,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           },
         ),
       _buildSettingTile(
-        title: 'searchChatRecord'.tr,
+        title: t.searchChatRecord,
         icon: Icons.search,
         isFirst: true,
         onTap: () {
@@ -472,12 +473,12 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         },
       ),
       _buildSettingTile(
-        title: 'clearChatRecord'.tr,
+        title: t.clearChatRecord,
         icon: Icons.delete_sweep_outlined,
         isDestructive: true,
         isFirst: true,
         onTap: () {
-          String tips = 'confirmDeleteChatRecord'.tr;
+          String tips = t.confirmDeleteChatRecord;
           showDialog(
             context: Get.context!,
             barrierDismissible: true,
@@ -487,7 +488,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Text(
-                'warning'.tr,
+                t.warning,
                 style: TextStyle(
                   color: Theme.of(dialogContext).colorScheme.error,
                   fontWeight: FontWeight.w600,
@@ -501,7 +502,6 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
               ),
               actions: [
                 TextButton(
-                  child: Text('buttonCancel'.tr),
                   onPressed: () => Navigator.of(dialogContext).pop(),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -509,9 +509,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: Text(t.buttonCancel),
                 ),
                 ElevatedButton(
-                  child: Text('buttonConfirm'.tr),
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
                     int cid = await logic.cleanMessageByPeerId(
@@ -522,9 +522,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       backDoRefresh = true;
                       await Get.find<ConversationLogic>().hideConversation(cid);
                       await Get.find<ConversationLogic>().conversationsList();
-                      EasyLoading.showSuccess('tipSuccess'.tr);
+                      EasyLoading.showSuccess(t.tipSuccess);
                     } else {
-                      EasyLoading.showError('tipFailed'.tr);
+                      EasyLoading.showError(t.tipFailed);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -534,6 +534,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: Text(t.buttonConfirm),
                 ),
               ],
             ),
@@ -568,7 +569,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           },
         ),
         titleWidget: Text(
-          'chatSettings'.tr,
+          t.chatSettings,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,

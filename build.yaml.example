@@ -1,0 +1,67 @@
+# Slang 国际化配置
+#
+# 将此文件内容合并到项目根目录的 build.yaml 中
+# 或直接重命名此文件为 build.yaml
+
+targets:
+  $default:
+    builders:
+      # Slang 配置
+      slang:
+        options:
+          # 基础语言环境
+          base_locale: zh_CN
+
+          # 输入目录（翻译文件所在位置）
+          input_directory: lib/i18n
+
+          # 输出目录（生成的代码位置）
+          output_directory: lib/i18n
+
+          # 生成的本地化文件名
+          output_localization_file: strings.g.dart
+
+          # 主类名（用于访问翻译）
+          output_class_name: AppStrings
+
+          # 枚举类名（用于表示语言）
+          enum_name: AppLocale
+
+          # 类型定义
+          typedefs:
+            AppLocale: String
+
+          # 命名策略
+          # strategy: enum  # 使用枚举风格
+          # strategy: underscore  # 使用下划线风格
+          strategy: enum
+
+          # 是否在缺失翻译时抛出错误
+          # 建议在开发环境设为 false，生产环境设为 true
+          fail_on_missing: false
+
+          # 是否在编译时生成详细错误信息
+          verbose_error: true
+
+          # 扁平化输出（推荐 false，以支持命名空间）
+          flat: false
+
+          # 上下文分隔符
+          context_delimiter: "_"
+
+          # 字符串插值方法
+          interpolation:
+            # 使用默认的 {variable} 语法
+            use_enhanced_extraction: true
+
+          # 生成类型安全的访问方法
+          types:
+            # 自动推断参数类型
+            use_auto_key: false
+
+            # 生成枚举用于选择语言
+            enum:
+              name: AppLocale
+              output: lib/i18n/locales.g.dart
+
+# 其他构建配置可以继续添加...

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/user_online_time_helper.dart';
+import 'package:imboy/i18n/tr.dart';
 
 class UserOnlineStatusWidget extends StatelessWidget {
   final bool isOnline;
@@ -120,9 +120,7 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
         if (status.lastSeenAt != null && !status.isOnline) ...[
           const SizedBox(height: 4),
           Text(
-            'lastSeenExactTime'.trParams({
-              'time': UserOnlineTimeHelper.formatExactTime(status.lastSeenAt!),
-            }),
+            t.lastSeenExactTime.replaceAll('{s}', UserOnlineTimeHelper.formatExactTime(status.lastSeenAt!)),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Colors.grey,
             ),

@@ -6,6 +6,7 @@ import 'package:imboy/store/model/feedback_reply_model.dart';
 import 'package:imboy/store/provider/feedback_provider.dart';
 
 import 'feedback_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class FeedbackLogic extends GetxController {
   final FeedbackState state = FeedbackState();
@@ -20,7 +21,7 @@ class FeedbackLogic extends GetxController {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showToast(
-        'networkExceptionPlaseNeedNetworkToViewData'.tr,
+        t.networkExceptionPlaseNeedNetworkToViewData,
       );
       // list = await repo.page(limit: size, offset: offset);
     }
@@ -65,7 +66,7 @@ class FeedbackLogic extends GetxController {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showToast(
-          'networkExceptionPlaseNeedNetworkToViewData'.tr);
+          t.networkExceptionPlaseNeedNetworkToViewData);
       // list = await repo.page(limit: size, offset: offset);
     }
     if (list.isNotEmpty) {

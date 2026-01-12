@@ -12,6 +12,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -144,12 +145,12 @@ class ExtraItemsState extends State<ExtraItems> {
       // 第一页
       _buildItemsGrid([
         ExtraItem(
-          title: 'album'.tr,
+          title: t.album,
           image: const Icon(Icons.photo_library_outlined, size: iconSize),
           onPressed: widget.handleImageSelection,
         ),
         ExtraItem(
-          title: 'camera'.tr,
+          title: t.camera,
           image: const Icon(Icons.camera_alt_outlined, size: iconSize),
           onPressed: () {
             if (widget.handlePickerSelection != null) {
@@ -158,7 +159,7 @@ class ExtraItemsState extends State<ExtraItems> {
           },
         ),
         ExtraItem(
-          title: 'location'.tr,
+          title: t.location,
           image: const Icon(Icons.location_on_outlined, size: iconSize),
           onPressed: () async {
             AMapPosition? l = await AMapHelper().startLocation();
@@ -179,7 +180,7 @@ class ExtraItemsState extends State<ExtraItems> {
               ).then((value) {
                 if (value != null) {
                   if (value["image"] == null) {
-                    EasyLoading.showError('failedGetMapTryAgain'.tr);
+                    EasyLoading.showError(t.failedGetMapTryAgain);
                     FocusScope.of(Get.context!).requestFocus(FocusNode());
                     return;
                   }
@@ -200,13 +201,13 @@ class ExtraItemsState extends State<ExtraItems> {
           },
         ),
         ExtraItem(
-          title: 'personalCard'.tr,
+          title: t.personalCard,
           image: const Icon(Icons.person_outline, size: iconSize),
           onPressed: widget.handleVisitCardSelection,
         ),
         if (widget.type != 'C2G')
           ExtraItem(
-            title: 'voiceCall'.tr,
+            title: t.voiceCall,
             image: const Icon(Icons.phone_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -222,7 +223,7 @@ class ExtraItemsState extends State<ExtraItems> {
           ),
         if (widget.type != 'C2G')
           ExtraItem(
-            title: 'videoCall'.tr,
+            title: t.videoCall,
             image: const Icon(Icons.videocam_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -237,7 +238,7 @@ class ExtraItemsState extends State<ExtraItems> {
             },
           ),
         ExtraItem(
-          title: 'favorites'.tr,
+          title: t.favorites,
           image: const Icon(
             Icons.collections_bookmark_outlined,
             size: iconSize,
@@ -245,7 +246,7 @@ class ExtraItemsState extends State<ExtraItems> {
           onPressed: widget.handleCollectSelection,
         ),
         ExtraItem(
-          title: 'file'.tr,
+          title: t.file,
           image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
           onPressed: widget.handleFileSelection,
         ),

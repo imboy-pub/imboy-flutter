@@ -3,7 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -14,6 +13,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/single/markdown.dart';
 
 import 'logout_account_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class LogoutAccountPage extends StatelessWidget {
@@ -26,7 +26,7 @@ class LogoutAccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String code = sysLang('').toLowerCase();
+    String code = LocaleHelper.sysLang('').toLowerCase();
     // notice_of_cancellation 目前只配置 cn ru en 3个文件
     if (code.contains('en')) {
       lang = 'en';
@@ -39,7 +39,7 @@ class LogoutAccountPage extends StatelessWidget {
           LimitedBox(
             maxHeight: Get.height - 110, // 设置最大高度限制
             child: MarkdownPage(
-              title: 'logoutAccount'.tr,
+              title: t.logoutAccount,
               url:
                   "https://imboy.pub/doc/notice_of_cancellation_$lang.md?vsn=$appVsn",
             ),
@@ -62,7 +62,7 @@ class LogoutAccountPage extends StatelessWidget {
                 width: 220,
                 child: InkWell(
                   child: Text(
-                    'readAgreeParam'.trArgs(['logoutNotice'.tr]),
+                    t.readAgreeParam.replaceAll('{s}', t.logoutNotice),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.left,
@@ -78,7 +78,7 @@ class LogoutAccountPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               RoundedElevatedButton(
-                text: 'applyParam'.trArgs(['buttonLogout'.tr]),
+                text: t.applyParam.replaceAll('{s}', t.buttonLogout),
                 highlighted: true,
                 size: Size(Get.width - 200, 48),
                 onPressed: () async {
@@ -86,7 +86,7 @@ class LogoutAccountPage extends StatelessWidget {
                   if (state.selectedValue.value != 'read_and_agree') {
                     iPrint("> 用户未同意退出协议，selectedValue: ${state.selectedValue.value}");
                     EasyLoading.showInfo(
-                      '${'readAgreeParam'.trArgs(['logoutNotice'.tr])} ?',
+                      '${t.readAgreeParam.replaceAll('{s}', t.logoutNotice)} ?',
                     );
                     return;
                   }

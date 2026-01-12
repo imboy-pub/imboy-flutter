@@ -8,6 +8,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'people_nearby_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class PeopleNearbyLogic extends GetxController {
   final PeopleNearbyState state = PeopleNearbyState();
@@ -39,7 +40,7 @@ class PeopleNearbyLogic extends GetxController {
     }
     if (state.longitude.value.isEmpty || state.longitude.value == "null") {
       EasyLoading.showInfo(
-          "${'failedGetLatLong'.tr}\n${'notTurnedLocationService'.tr}\n${'or'.tr} ${'notAuthorizedLatLong'.tr}");
+          "${t.failedGetLatLong}\n${t.notTurnedLocationService}\n${t.or} ${t.notAuthorizedLatLong}");
       return;
     }
     // debugPrint("PeopleNearbyLogic peopleNearby ${state.longitude.value.isEmpty} = ${state.longitude.value} ");

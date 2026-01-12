@@ -12,6 +12,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class P2pCallScreenLogic {
   var cameraOff = false.obs;
@@ -730,7 +731,7 @@ class P2pCallScreenLogic {
     Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
     debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
     if (turnCredential.isEmpty && from == 'openCallScreen') {
-      EasyLoading.showError('failedRequestPleaseCheckNetwork'.tr);
+      EasyLoading.showError(t.failedRequestPleaseCheckNetwork);
       return null;
     } else if (turnCredential.isEmpty) {
       return null;

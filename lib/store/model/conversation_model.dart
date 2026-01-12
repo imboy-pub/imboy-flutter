@@ -8,6 +8,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ConversationModel {
   int id;
@@ -78,32 +79,32 @@ class ConversationModel {
     String draftKey = "draft${type}_$peerId";
     String? draft = StorageService.to.getString(draftKey);
     if (strNoEmpty(draft)) {
-      return "[${'tipDraft'.tr}]_color_red_$draft";
+      return "[${t.tipDraft}]_color_red_$draft";
     }
 
-    String str = 'unknownMessage'.tr;
+    String str = t.unknownMessage;
     if (msgType == 'text' || msgType == '') {
       return subtitle;
     } else if (msgType == 'quote') {
       return subtitle;
     } else if (msgType == 'image') {
-      str = 'image'.tr;
+      str = t.image;
     } else if (msgType == 'file') {
       // str = '文件';
-      str = 'file'.tr;
+      str = t.file;
     } else if (msgType == 'audio') {
-      str = 'voiceMessage'.tr;
+      str = t.voiceMessage;
     } else if (msgType == 'video') {
-      str = 'video'.tr;
+      str = t.video;
     } else if (msgType == 'webrtc_audio') {
-      str = 'voiceCall'.tr;
+      str = t.voiceCall;
     } else if (msgType == 'webrtc_video') {
-      str = 'videoCall'.tr;
+      str = t.videoCall;
     } else if (msgType == 'visit_card') {
-      str = 'personalCard'.tr;
+      str = t.personalCard;
       return "[$str]$subtitle";
     } else if (msgType == 'location') {
-      str = 'location'.tr;
+      str = t.location;
       return "[$str]$subtitle";
     } else if (msgType == 'peer_revoked') {
       if (title.isEmpty) {
@@ -114,9 +115,9 @@ class ConversationModel {
         title = title.substring(0, 12);
         suffix = '...';
       }
-      return '"$title$suffix" ${'messageWasWithdrawn'.tr}';
+      return '"$title$suffix" ${t.messageWasWithdrawn}';
     } else if (msgType == 'my_revoked') {
-      return 'youWithdrewAMessage'.tr;
+      return t.youWithdrewAMessage;
     } else if (msgType == 'custom') {
       str = subtitle;
     } else if (msgType == 'empty') {

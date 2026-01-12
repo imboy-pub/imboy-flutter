@@ -19,6 +19,7 @@ import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
 import 'message_visit_card_builder.dart';
 import 'message_webrtc_builder.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// Material 3消息圆角半径 - Medium圆角 (16dp)
 /// @deprecated 请使用 MessageSpacing.bubbleBorderRadius
@@ -182,7 +183,7 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
     case 'quote':
       final txt = msg.metadata?['quote_text'] ?? '';
       content = Text(
-        "[${'quote'.tr}] $txt",
+        "[${t.quote}] $txt",
         style: textStyle,
         maxLines: 4,
         overflow: TextOverflow.ellipsis,
@@ -210,7 +211,7 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
                 Icon(Icons.insert_drive_file, size: 16, color: txtColor),
                 const SizedBox(width: 8),
                 Text(
-                  "[${'file'.tr}] $sizeStr",
+                  "[${t.file}] $sizeStr",
                   style: TextStyle(color: txtColor, fontSize: 12.0),
                 ),
               ],
@@ -283,15 +284,15 @@ void confirmOpenFile(String uri) {
     builder: (context) => AlertDialog(
       content: SizedBox(
         height: 40,
-        child: Center(child: Text('sureOpenTheFile'.tr)),
+        child: Center(child: Text(t.sureOpenTheFile)),
       ),
       actions: [
         TextButton(
-          child: Text('buttonCancel'.tr),
+          child: Text(t.buttonCancel),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text('buttonConfirm'.tr),
+          child: Text(t.buttonConfirm),
           onPressed: () async {
             Navigator.of(context).pop();
             final tmpF = await IMBoyCacheManager().getSingleFile(

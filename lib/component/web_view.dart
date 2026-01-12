@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class WebViewPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class WebViewPageState extends State<WebViewPage> {
             if (widget.title.isEmpty) {
               EasyLoading.showProgress(
                 progress / 100,
-                status: 'webpageLoading'.tr,
+                status: t.webpageLoading,
               );
             }
             // debugPrint('> WebView is loading (progress : $progress%)');

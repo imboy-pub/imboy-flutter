@@ -5,6 +5,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
@@ -66,7 +67,7 @@ class ContactCard extends StatelessWidget {
       items.add(
         Padding(
           padding: const EdgeInsets.only(top: 3.0),
-          child: Text("${'nickname'.tr}：$nickname", style: labelStyle),
+          child: Text("${t.nickname}：$nickname", style: labelStyle),
         ),
       );
     }
@@ -74,12 +75,12 @@ class ContactCard extends StatelessWidget {
       items.add(
         Padding(
           padding: const EdgeInsets.only(top: 3.0),
-          child: Text("${'account'.tr}：$account", style: labelStyle),
+          child: Text("${t.account}：$account", style: labelStyle),
         ),
       );
     }
     if (strNoEmpty(region) && region != 'null') {
-      items.add(Text("${'region'.tr}：$region", style: labelStyle));
+      items.add(Text("${t.region}：$region", style: labelStyle));
     }
     return Container(
       decoration: BoxDecoration(
@@ -109,7 +110,7 @@ class ContactCard extends StatelessWidget {
               if (isNetWorkImg(avatar!)) {
                 zoomInPhotoView(avatar!);
               } else {
-                Get.snackbar('', 'noAvatar'.tr);
+                Get.snackbar('', t.noAvatar);
               }
             },
           ),

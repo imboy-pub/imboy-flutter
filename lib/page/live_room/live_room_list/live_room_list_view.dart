@@ -12,6 +12,7 @@ import 'package:imboy/store/model/live_room_model.dart';
 
 
 import 'live_room_list_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LiveRoomListPage extends StatelessWidget {
   final logic = Get.put(LiveRoomListLogic());
@@ -44,7 +45,7 @@ class LiveRoomListPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'myLive'.tr,
+        title: t.myLive,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -59,7 +60,7 @@ class LiveRoomListPage extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 15, right: 10),
                 child: Obx(() {
                   return state.items.isEmpty
-                      ? NoDataView(text: 'noData'.tr)
+                      ? NoDataView(text: t.noData)
                       : ListView.builder(
                           itemCount: state.items.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -70,12 +71,12 @@ class LiveRoomListPage extends StatelessWidget {
                                 contentPadding: const EdgeInsets.only(left: 0),
                                 title: Row(
                                   children: [
-                                  Text('liveBroadcast'.tr),
+                                  Text(t.liveBroadcast),
                                   const Space(width: 10),
                                 ]),
                                 subtitle: Row(
                                   children: [
-                                  Text('PublisherPage'.tr),
+                                  Text(t.publisherPage),
                                 ]),
                                 trailing: navigateNextIcon,
                                 onTap: () {
@@ -102,12 +103,12 @@ class LiveRoomListPage extends StatelessWidget {
                                 contentPadding: const EdgeInsets.only(left: 0),
                                 title: Row(
                                   children: [
-                                  Text('liveBroadcast'.tr),
+                                  Text(t.liveBroadcast),
                                   const Space(width: 10),
                                 ]),
                                 subtitle: Row(
                                   children: [
-                                  Text('Subscriber'.tr),
+                                  Text(t.subscriber),
                                 ]),
                                 trailing: navigateNextIcon,
                                 onTap: () {

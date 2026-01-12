@@ -5,12 +5,14 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/theme_manager.dart';
+
+// 导出语言辅助工具，方便其他文件使用
+export 'locale_helper.dart';
 
 void iPrint(String str) {
   return debugPrint("iPrint $str");
@@ -430,22 +432,30 @@ String formatBytes(int size, {int fractionDigits = 2, int num = 1024}) {
   ][multiple]}';
 }
 
-/// 获取本地 主题配置
-/// 0 白色
-/// 1 黑色
-/// 2 跟随系统
+/// 获取本地主题配置
+/// 使用 ThemeManager 获取当前主题模式
 ThemeMode getLocalProfileAboutThemeModel({
   bool isUserCache = true,
   int themeType = 0,
 }) {
-  int type =
-      isUserCache ? StorageService.to.getInt(Keys.themeType) ?? 0 : themeType;
-  iPrint("getLocalProfileAboutThemeModel $type");
-  if (type == 0) {
+  // 优先使用 ThemeManager 的状态
+  final themeManager = ThemeManager.instance;
+
+  if (isUserCache) {
+    // 从 ThemeManager 获取当前主题模式
+    if (themeManager.followSystemTheme) {
+      return ThemeMode.system;
+    }
+    return themeManager.isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  // 使用传入的 themeType 参数（兼容旧代码）
+  iPrint("getLocalProfileAboutThemeModel $themeType");
+  if (themeType == 0) {
     return ThemeMode.light;
-  } else if (type == 1) {
+  } else if (themeType == 1) {
     return ThemeMode.dark;
-  } else if (type == 2) {
+  } else if (themeType == 2) {
     return ThemeMode.system;
   } else {
     return ThemeMode.system;

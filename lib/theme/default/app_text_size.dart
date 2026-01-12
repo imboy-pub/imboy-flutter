@@ -1,5 +1,4 @@
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 /// 应用文本大小常量类
 /// 提供向后兼容的字体大小常量，内部使用新的字体系统

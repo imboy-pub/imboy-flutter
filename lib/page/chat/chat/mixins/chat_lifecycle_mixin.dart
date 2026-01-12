@@ -11,13 +11,9 @@ import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/chat/chat_state.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/model/chat_extend_model.dart';
-import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/service/message.dart';
-import 'package:imboy/config/init.dart' as config;
+import 'package:imboy/service/event_bus.dart';
 
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:get/get.dart' as getx;
@@ -167,7 +163,7 @@ mixin ChatLifecycleMixin<T extends StatefulWidget> on State<T> {
     );
     
     if (showConversation) {
-      config.eventBus.fire(conversation);
+      AppEventBus.fireData(conversation);
     }
     
     state.nextAutoId.value = 0;
@@ -198,7 +194,7 @@ mixin ChatLifecycleMixin<T extends StatefulWidget> on State<T> {
   void _setupEventListeners() {
     try {
       // 监听聊天扩展事件
-      state.ssMsgExt = config.eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+      state.ssMsgExt = AppEventBus.on<ChatExtendEvent>().listen((ChatExtendEvent obj) async {
         try {
           final chatPage = widget as ChatPage;
           
@@ -251,7 +247,7 @@ mixin ChatLifecycleMixin<T extends StatefulWidget> on State<T> {
       });
       
       // 监听新消息
-      state.ssMsg = config.eventBus.on<Message>().listen((Message msg) async {
+      state.ssMsg = AppEventBus.on<DataWrapperEvent>().listen((event) async { final Message msg = event.data as Message;
         try {
           final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
           if (conversationUk3 != conversation.uk3 || msgIds.contains(msg.id)) {
@@ -284,7 +280,7 @@ mixin ChatLifecycleMixin<T extends StatefulWidget> on State<T> {
       });
       
       // 监听消息状态更新
-      state.ssMsgState = config.eventBus.on<List<Message>>().listen((e) {
+      state.ssMsgState = AppEventBus.on<DataWrapperEvent>().listen((event) { final List<Message> e = (event.data as List).cast<Message>();
         try {
           if (e.isEmpty) return;
           Message msg = e.first;
@@ -359,23 +355,6 @@ mixin ChatLifecycleMixin<T extends StatefulWidget> on State<T> {
       iPrint('消息定位完成: $messageId');
     } catch (e) {
       iPrint('滚动到目标消息失败: $messageId, 错误: $e');
-    }
-  }
-
-  /// 标记消息为已读
-  Future<void> _markMessagesAsRead(List<Message> items) async {
-    final chatPage = widget as ChatPage;
-    final unreadMsgIds = items
-        .where((msg) => 
-            msg.authorId != UserRepoLocal.to.currentUid &&
-            msg.status != MessageStatus.seen)
-        .map((msg) => msg.id)
-        .toList();
-    
-    if (unreadMsgIds.isEmpty) {
-      conversationLogic.recalculateConversationRemind(conversation);
-    } else {
-      await logic.markAsRead(chatPage.type, chatPage.peerId, unreadMsgIds);
     }
   }
 

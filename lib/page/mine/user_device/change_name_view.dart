@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/mine/user_device/user_device_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // 修改名称页面
 // ignore: must_be_immutable
@@ -53,7 +54,7 @@ class ChangeNamePage extends StatelessWidget {
             ),
             Obx(
                   () => RoundedElevatedButton(
-                  text: 'buttonAccomplish'.tr,
+                  text: t.buttonAccomplish,
                   highlighted: valueChanged.isTrue,
                   onPressed: () async {
                     if (field == "input") {

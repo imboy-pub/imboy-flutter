@@ -162,6 +162,10 @@ class MigrationService {
   }
 
   /// 执行迁移（由 SqliteService 调用）
+  ///
+  /// 注意：此方法在 SqliteService 的 onUpgrade/onDowngrade 回调中被调用，
+  /// 这些回调已经在事务中执行，因此不需要额外创建事务。
+  /// 如果迁移失败，SQLite 会自动回滚整个事务。
   Future<MigrationResult> migrate({
     required Database db,
     required int fromVersion,
@@ -171,8 +175,13 @@ class MigrationService {
     String? snapshotPath;
 
     try {
-      // 创建快照
+      // 创建快照（在事务外执行）
       snapshotPath = await _createSnapshot(db);
+
+      // 数据完整性检查：迁移前验证数据库状态
+      if (!await _verifyDatabaseIntegrity(db)) {
+        throw Exception('Database integrity check failed before migration');
+      }
 
       // 获取并执行 SQL
       final scripts = isUpgrade
@@ -189,7 +198,7 @@ class MigrationService {
 
       _logger.i('Executing ${scripts.length} migration scripts...');
 
-      // 执行迁移（已在事务中，由 SqliteService 调用）
+      // 执行迁移（已在事务中，由 SqliteService 的 onUpgrade/onDowngrade 回调保证）
       for (int i = 0; i < scripts.length; i++) {
         final script = scripts[i];
         _logger.i('Progress: ${i + 1}/${scripts.length} - v${script.version} → v${script.targetVersion}');
@@ -197,6 +206,11 @@ class MigrationService {
         for (final sql in script.sqlStatements) {
           await db.execute(sql);
           _logger.d('Executed: ${sql.substring(0, 50)}...');
+        }
+
+        // 每个脚本执行后进行完整性检查
+        if (!await _verifyDatabaseIntegrity(db)) {
+          throw Exception('Database integrity check failed after v${script.targetVersion}');
         }
       }
 
@@ -212,7 +226,8 @@ class MigrationService {
     } catch (e, stackTrace) {
       _logger.e('Migration failed', error: e, stackTrace: stackTrace);
 
-      // 尝试恢复
+      // 注意：由于此方法在 SQLite 事务中执行，失败会自动回滚
+      // 快照恢复只在事务回滚失败时作为备用方案
       if (snapshotPath != null) {
         try {
           await _restoreFromSnapshot(db, snapshotPath);
@@ -228,6 +243,30 @@ class MigrationService {
         toVersion: toVersion,
         snapshotPath: snapshotPath,
       );
+    }
+  }
+
+  /// 数据完整性检查
+  Future<bool> _verifyDatabaseIntegrity(Database db) async {
+    try {
+      // 执行 SQLite 完整性检查
+      final result = await db.rawQuery('PRAGMA integrity_check');
+      if (result.isNotEmpty && result.first.values.first != 'ok') {
+        _logger.e('Database integrity check failed: ${result.first.values.first}');
+        return false;
+      }
+
+      // 检查外键约束
+      final foreignKeyCheck = await db.rawQuery('PRAGMA foreign_key_check');
+      if (foreignKeyCheck.isNotEmpty) {
+        _logger.e('Foreign key check failed: $foreignKeyCheck');
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      _logger.e('Error during integrity check: $e');
+      return false;
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 
 import 'package:imboy/page/single/network_failure_guidance.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class NetworkFailureTips extends StatelessWidget {
@@ -38,7 +39,7 @@ class NetworkFailureTips extends StatelessWidget {
             Expanded(
               child: Text(
                 // '当前网络不可用，请检查你的网络设置。',
-                "${'networkNotAvailable'.tr}${'pleaseCheckNetwork'.tr}",
+                "${t.networkNotAvailable}${t.pleaseCheckNetwork}",
                 // '当前网络不可用，请检查你的网络设置。当前网络不可用，请检查你的网络设置。当前网络不可用，请检查你的网络设置。',
                 style: const TextStyle(color: Colors.red),
               ),

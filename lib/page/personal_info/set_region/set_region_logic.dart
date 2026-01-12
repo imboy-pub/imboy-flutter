@@ -8,6 +8,7 @@ import 'package:imboy/service/cache/region_cache.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 地区选择逻辑控制器（支持省/市/区三级联动与搜索）
 ///
@@ -94,7 +95,7 @@ class SetRegionLogic extends GetxController {
   /// 加载 assets/data/region.json
   /// 用途：为顶层列表提供数据源
   /// 参数：无
-  /// 返回：Future<void>
+  /// 返回：\`Future<void>\`
   /// 异常：读取/解析失败将打印日志
   /// 复杂度：O(n)
   Future<void> loadRegionData() async {
@@ -111,7 +112,7 @@ class SetRegionLogic extends GetxController {
 
   /// 判断某个名称是否已被选中（用于高亮）
   /// 参数：regionName 待判断的地区名
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 复杂度：O(k)，k为名称长度
   bool isRegionSelected(String regionName) {
     final parts = selectedRegion.value.split(' ').where((e) => e.trim().isNotEmpty).toList();
@@ -121,7 +122,7 @@ class SetRegionLogic extends GetxController {
   /// 校验地区数据结构是否合法（递归）
   /// 用途：保证每一层为 Map{title, children: List} 或 String
   /// 参数：list 待校验列表
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 复杂度：O(n)
   bool _isValidRegionStructure(List<dynamic> list) {
     try {
@@ -156,7 +157,7 @@ class SetRegionLogic extends GetxController {
   /// 参数：
   /// - cached: 缓存的列表
   /// - full: 全量列表
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 复杂度：O(n)
   bool _isRegionListConsistent(List<dynamic> cached, List<dynamic> full) {
     if (cached.length != full.length) {
@@ -270,7 +271,7 @@ class SetRegionLogic extends GetxController {
   /// 参数：
   /// - regionName: 当前点击项标题
   /// - children: 子级（可能为空）
-  /// - context: BuildContext
+  /// - context: \`BuildContext\`
   /// - onSave: 顶部保存回调，由页面传入
   /// 返回：void
   /// 异常：无
@@ -293,7 +294,7 @@ class SetRegionLogic extends GetxController {
   /// 参数：
   /// - parentName: 父级标题
   /// - children: 子级列表
-  /// - context: BuildContext
+  /// - context: \`BuildContext\`
   /// - onSave: 保存回调
   /// 返回：void
   /// 异常：无
@@ -333,7 +334,7 @@ class SetRegionLogic extends GetxController {
   /// 构建单一链路路径
   /// 用途：确保从顶层到当前选择项形成唯一路径，避免分支路径
   /// 参数：currentSelection 当前选择的项目名称
-  /// 返回：List<String> 单一链路路径
+  /// 返回：\`List<String>\` 单一链路路径
   /// 复杂度：O(n)
   List<String> _buildSingleChainPath(String currentSelection) {
     final currentPath = List<String>.from(regionPath);
@@ -364,7 +365,7 @@ class SetRegionLogic extends GetxController {
   /// 参数：
   /// - currentPath: 当前路径
   /// - nextSelection: 下一级选择
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 复杂度：O(n*m)
   bool _isValidNextLevel(List<String> currentPath, String nextSelection) {
     if (currentPath.isEmpty) return true;
@@ -422,7 +423,7 @@ class SetRegionLogic extends GetxController {
   /// 验证完整路径是否有效
   /// 用途：确保选择的路径在数据结构中存在且连续
   /// 参数：path 待验证的路径
-  /// 返回：bool
+  /// 返回：\`bool\`
   /// 复杂度：O(n*m)
   bool _isValidPath(List<String> path) {
     if (path.isEmpty) return true;
@@ -519,10 +520,10 @@ class SetRegionLogic extends GetxController {
   /// 更新地区数据（后端对接占位方法）
   /// 用途：从后端获取最新的地区数据并更新本地缓存
   /// 参数：无
-  /// 返回：Future<bool> 更新是否成功
+  /// 返回：\`Future<bool>\` 更新是否成功
   /// 异常：网络异常时返回 false
   /// 复杂度：O(n) 取决于数据量大小
-  /// 
+  ///
   /// TODO: 待后端接口确认后实现真实的网络请求
   Future<bool> updateRegionDataFromServer() async {
     try {
@@ -566,10 +567,10 @@ class SetRegionLogic extends GetxController {
   /// 用途：将用户选择的地区信息同步到服务器
   /// 参数：
   /// - selectedRegionStr: 选择的地区字符串（如"中国大陆 北京 朝阳区"）
-  /// 返回：Future<bool> 同步是否成功
+  /// 返回：\`Future<bool>\` 同步是否成功
   /// 异常：网络异常时返回 false
   /// 复杂度：O(1)
-  /// 
+  ///
   /// TODO: 待后端接口确认后实现真实的网络请求
   Future<bool> syncSelectedRegionToServer(String selectedRegionStr) async {
     try {
@@ -612,10 +613,10 @@ class SetRegionLogic extends GetxController {
   /// 检查地区数据版本（后端对接占位方法）
   /// 用途：检查本地地区数据是否为最新版本
   /// 参数：无
-  /// 返回：Future<bool> 是否需要更新
+  /// 返回：\`Future<bool>\` 是否需要更新
   /// 异常：网络异常时返回 false
   /// 复杂度：O(1)
-  /// 
+  ///
   /// TODO: 待后端接口确认后实现真实的版本检查
   Future<bool> checkRegionDataVersion() async {
     try {
@@ -828,7 +829,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
   /// 参数：
   /// - currentPath: 当前路径
   /// - newItem: 新增项
-  /// 返回：List<String> 一致的路径
+  /// 返回：\`List<String>\` 一致的路径
   /// 复杂度：O(n)
   List<String> _buildConsistentPath(List<String> currentPath, String newItem) {
     final result = List<String>.from(currentPath);
@@ -855,7 +856,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
   /// 处理键盘事件（子页）
   /// 用途：↑/↓ 移动高亮、Enter 选择当前项、Esc 返回、Tab 焦点切换
   /// 参数：node 当前焦点节点；event 键盘事件
-  /// 返回：KeyEventResult
+  /// 返回：\`KeyEventResult\`
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
@@ -955,12 +956,14 @@ class _SubRegionPageState extends State<_SubRegionPage> {
               onPressed: enable
                   ? () async {
                       final ok = await widget.onSave(logic.selectedRegion.value);
-                      if (ok && mounted) {
-                        Navigator.of(context).pop();
+                      if (ok) {
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
                       } else {
-                        if (mounted) {
+                        if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('operationFailedAgainLater'.tr)),
+                            SnackBar(content: Text(t.operationFailedAgainLater)),
                           );
                           logic.revertToInitial();
                         }
@@ -968,7 +971,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                     }
                   : null,
               child: Text(
-                'buttonAccomplish'.tr,
+                t.buttonAccomplish,
                 style: TextStyle(
                   color: enable
                       ? Theme.of(context).colorScheme.primary
@@ -992,15 +995,15 @@ class _SubRegionPageState extends State<_SubRegionPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Semantics(
-              label: '${'searchRegion'.tr} - ${'regionSearchHint'.tr}',
-              hint: 'regionSearchHint'.tr,
+              label: '${t.searchRegion} - ${t.regionSearchHint}',
+              hint: t.regionSearchHint,
               textField: true,
               child: TextField(
                 controller: _searchC,
                 focusNode: _searchF,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: 'regionSearchHint'.tr,
+                  hintText: t.regionSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   border: const OutlineInputBorder(),
                   isDense: true,
@@ -1013,7 +1016,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
             child: ListView.separated(
               controller: _scrollC,
               itemCount: _list.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _i) => Divider(
                 height: 0.5,
                 color: Theme.of(context)
                     .colorScheme
@@ -1035,13 +1038,13 @@ class _SubRegionPageState extends State<_SubRegionPage> {
 
                 return Semantics(
                   label: hasChildren 
-                      ? '$title - ${children.length} ${'region'.tr}'
+                      ? '$title - ${children.length} ${t.region}'
                       : title,
                   hint: hasChildren 
-                      ? '${'buttonContinue'.tr}${'searchRegion'.tr}'
+                      ? '${t.buttonContinue}${t.searchRegion}'
                       : selected 
-                          ? '${'selected'.tr}${'region'.tr}'
-                          : '${'buttonConfirm'.tr}${'region'.tr}',
+                          ? '${t.selected}${t.region}'
+                          : '${t.buttonConfirm}${t.region}',
                   button: true,
                   selected: selected,
                   focusable: true,
@@ -1060,13 +1063,13 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                           ? Icon(
                               Icons.navigate_next, 
                               size: 20,
-                              semanticLabel: 'buttonContinue'.tr,
+                              semanticLabel: t.buttonContinue,
                             )
                           : (selected
                               ? Icon(
                                   Icons.check,
                                   color: Theme.of(context).colorScheme.primary,
-                                  semanticLabel: 'selected'.tr,
+                                  semanticLabel: t.selected,
                                 )
                               : null),
                       onTap: () => _onTap(item, widget.parentPath),

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'group_announcement_logic.dart';
 
 class GroupAnnouncementView extends StatelessWidget {
   final logic = Get.find<GroupAnnouncementLogic>();
   final state = Get.find<GroupAnnouncementLogic>().state;
 
-  GroupAnnouncementView({Key? key}) : super(key: key);
+  GroupAnnouncementView({super.key});
 
   @override
   Widget build(BuildContext context) {

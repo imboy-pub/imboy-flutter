@@ -7,14 +7,17 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
 import 'group_select_logic.dart';
 import 'group_select_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class GroupSelectPage extends StatelessWidget {
   final GroupSelectLogic logic = Get.put(GroupSelectLogic());
   final GroupSelectState state = Get.find<GroupSelectLogic>().state;
+  final GroupListLogic groupListLogic = Get.find<GroupListLogic>();
 
   GroupSelectPage({super.key});
 
@@ -30,13 +33,13 @@ class GroupSelectPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
-        title: 'selectGroup'.tr,
+        title: t.selectGroup,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         child: Obx(() {
           return state.items.isEmpty
-              ? NoDataView(text: 'noData'.tr)
+              ? NoDataView(text: t.noData)
               : ListView.builder(
             shrinkWrap: true,
             itemCount: state.items.length,
@@ -48,6 +51,7 @@ class GroupSelectPage extends StatelessWidget {
                     leading: SmartGroupAvatar(
                       avatar: model.avatar,
                       groupId: model.peerId,
+                      avatarLoader: groupListLogic.computeAvatar,
                     ),
                     contentPadding: const EdgeInsets.only(
                       left: 10,

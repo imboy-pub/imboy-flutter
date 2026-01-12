@@ -5,16 +5,15 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/service/message.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 /// MessageRetry
 /// 消息重试机制，处理失败消息的重试逻辑
 /// Message retry mechanism for handling failed message retries
-class MessageRetry extends GetxService {
+class MessageRetry extends GetxService with EventSubscriptionManager {
   static MessageRetry get to => Get.find();
 
   /// 消息重试队列，存储发送失败的消息
@@ -25,35 +24,58 @@ class MessageRetry extends GetxService {
   /// Retry timer.
   Timer? _retryTimer;
 
+  /// 网络在线状态
+  /// Network online status.
+  final RxBool isOnline = true.obs;
+
   @override
   void onInit() {
     super.onInit();
     // 启动消息重试机制
     startRetryTimer();
 
-    // 延迟监听网络状态变化，避免循环依赖
-    Future.microtask(() {
-      if (Get.isRegistered<MessageService>()) {
-        try {
-          ever(MessageService.to.isOnline, (bool online) {
-            if (online) {
-              // 网络恢复时重试失败的消息
-              retryFailedMessages();
-            }
-          });
-        } catch (e) {
-          iPrint('MessageRetry 初始化网络监听失败: $e');
+    // 订阅网络连接状态事件（解耦：使用事件总线而非直接监听 MessageService）
+    // Subscribe to network connection status event (decoupling: use event bus instead of directly listening to MessageService)
+    subscribeTo(
+      AppEventBus.on<NetworkConnectionEvent>().listen((event) {
+        isOnline.value = event.isConnected;
+        if (event.isConnected) {
+          // 网络恢复时重试失败的消息
+          // Retry failed messages when network recovers
+          retryFailedMessages();
         }
-      }
-    });
+      }),
+    );
+
+    // 订阅重试消息请求事件（解耦：通过事件总线接收重试请求）
+    // Subscribe to retry messages request event (decoupling: receive retry requests via event bus)
+    subscribeTo(
+      AppEventBus.on<RetryMessagesRequestedEvent>().listen((event) {
+        retryFailedMessages();
+        iPrint('🔄 [RETRY_QUEUE] 触发消息重试: source=${event.source}, reason=${event.reason}');
+      }),
+    );
 
     // 【新增】应用启动时扫描失败消息并添加到重试队列
     _scanAndRetryFailedMessages();
+
+    // 【新增】订阅从重试队列移除请求事件（解耦：通过事件总线接收移除请求）
+    // Subscribe to remove from retry queue request event (decoupling: receive removal requests via event bus)
+    // 使用 EventSubscriptionManager 管理
+    subscribeTo(
+      AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().listen((event) {
+        removeFromRetryQueue(event.messageId);
+        iPrint('🗑️ [RETRY_QUEUE] 从重试队列移除: messageId=${event.messageId}, reason=${event.reason}');
+      }),
+    );
   }
 
   @override
   void onClose() {
     _retryTimer?.cancel();
+    // 【新增】使用 EventSubscriptionManager 统一取消所有事件订阅
+    // Cancel all event subscriptions using EventSubscriptionManager
+    cancelAllSubscriptions();
     super.onClose();
   }
 
@@ -64,6 +86,11 @@ class MessageRetry extends GetxService {
       retryFailedMessages();
     });
   }
+
+  /// 获取消息仓库（内联方法，避免依赖 MessageService）
+  /// Get message repository (inlined method to avoid dependency on MessageService)
+  MessageRepo getMessageRepo(String type) =>
+      MessageRepo(tableName: MessageRepo.getTableName(type));
 
   /// 【新增】扫描数据库中的失败消息并添加到重试队列
   /// Scan failed messages from database and add to retry queue.
@@ -85,7 +112,7 @@ class MessageRetry extends GetxService {
 
       for (final table in tables) {
         try {
-          final repo = MessageRepo(tableName: table);
+          final repo = getMessageRepo(table);
 
           for (final status in statusesToRetry) {
             // 查询该状态下最近的消息（限制最近100条）
@@ -123,7 +150,7 @@ class MessageRetry extends GetxService {
       iPrint('📊 [RETRY_SCAN] 扫描完成: 发现 $totalFound 条失败消息，添加 $totalAdded 条到重试队列');
 
       // 如果网络已连接，立即尝试重试
-      if (MessageService.to.isOnline.value && totalAdded > 0) {
+      if (isOnline.value && totalAdded > 0) {
         iPrint('🚀 [RETRY_SCAN] 网络已连接，立即重试失败消息...');
         await retryFailedMessages();
       }
@@ -155,13 +182,7 @@ class MessageRetry extends GetxService {
   /// 重试失败的消息
   /// Retry failed messages.
   Future<void> retryFailedMessages() async {
-    // 安全检查：确保 MessageService 已注册
-    if (!Get.isRegistered<MessageService>()) {
-      iPrint('MessageService 未注册，跳过消息重试');
-      return;
-    }
-
-    if (!MessageService.to.isOnline.value || _retryQueue.isEmpty) return;
+    if (!isOnline.value || _retryQueue.isEmpty) return;
 
     final now = DateTimeHelper.millisecond();
 
@@ -186,7 +207,7 @@ class MessageRetry extends GetxService {
       }
 
       // 检查消息状态，如果已经是 sent 则跳过
-      final repo = MessageService.to.getMessageRepo(info.type);
+      final repo = getMessageRepo(info.type);
       final msg = await repo.find(info.messageId);
 
       if (msg == null) {
@@ -220,14 +241,8 @@ class MessageRetry extends GetxService {
   /// Retry single message.
   Future<void> _retryMessage(MessageRetryInfo info) async {
     try {
-      // 安全检查：确保 MessageService 已注册
-      if (!Get.isRegistered<MessageService>()) {
-        iPrint('MessageService 未注册，跳过重试消息: ${info.messageId}');
-        return;
-      }
-
       // 从数据库读取消息数据
-      final repo = MessageService.to.getMessageRepo(info.type);
+      final repo = getMessageRepo(info.type);
       final msg = await repo.find(info.messageId);
 
       if (msg == null) {
@@ -261,42 +276,21 @@ class MessageRetry extends GetxService {
         'created_at': msg.createdAt,
       };
 
-      // 发送消息
-      final success = await WebSocketService.to.sendMessage(json.encode(messageData), info.messageId);
+      // 【解耦】通过事件总线发送消息重试请求，而不是直接调用 WebSocketService
+      AppEventBus.fire(WebSocketMessageSendRequestEvent(
+        message: json.encode(messageData),
+        messageId: info.messageId,
+      ));
 
-      if (success) {
-        // 发送成功，从重试队列中移除
-        _retryQueue.remove(info.messageId);
-        iPrint('消息重试成功: ${info.messageId}');
+      // 【调整】从重试队列中移除（假设发送成功，失败时会通过其他机制重新加入队列）
+      _retryQueue.remove(info.messageId);
+      iPrint('消息重试已提交: ${info.messageId}');
 
-        // 更新UI状态
-        final updatedMsg = await repo.find(info.messageId);
-        if (updatedMsg != null) {
-          final updatedMessage = await updatedMsg.toTypeMessage();
-          eventBus.fire([updatedMessage]);
-        }
-      } else {
-        // 发送失败，更新重试信息
-        info.retryCount++;
-        info.lastRetryTime = DateTimeHelper.millisecond();
-
-        if (info.retryCount >= 4) {
-          // 超过最大重试次数，标记为失败
-          await repo.update({
-            'id': info.messageId,
-            'status': IMBoyMessageStatus.error,
-          });
-          _retryQueue.remove(info.messageId);
-
-          // 更新UI状态
-          final updatedMsg = await repo.find(info.messageId);
-          if (updatedMsg != null) {
-            final updatedMessage = await updatedMsg.toTypeMessage();
-            eventBus.fire([updatedMessage]);
-          }
-
-          iPrint('消息重试失败，超过最大重试次数: ${info.messageId}');
-        }
+      // 更新UI状态
+      final updatedMsg = await repo.find(info.messageId);
+      if (updatedMsg != null) {
+        final updatedMessage = await updatedMsg.toTypeMessage();
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
       }
     } catch (e) {
       iPrint('重试消息错误: ${info.messageId}, $e');
@@ -309,13 +303,7 @@ class MessageRetry extends GetxService {
   /// Manually retry message.
   Future<bool> retryMessage(String messageId, String type) async {
     try {
-      // 安全检查：确保 MessageService 已注册
-      if (!Get.isRegistered<MessageService>()) {
-        iPrint('MessageService 未注册，无法重试消息');
-        return false;
-      }
-
-      final repo = MessageService.to.getMessageRepo(type);
+      final repo = getMessageRepo(type);
       final msg = await repo.find(messageId);
       if (msg == null) {
         iPrint('⚠️ [MANUAL_RETRY] 消息不存在: $messageId');
@@ -348,30 +336,24 @@ class MessageRetry extends GetxService {
         'created_at': msg.createdAt,
       };
 
-      // 发送消息
-      final success = await WebSocketService.to.sendMessage(json.encode(messageData), messageId);
+      // 【解耦】通过事件总线发送消息重试请求，而不是直接调用 WebSocketService
+      AppEventBus.fire(WebSocketMessageSendRequestEvent(
+        message: json.encode(messageData),
+        messageId: messageId,
+      ));
 
-      if (success) {
-        // 从重试队列中移除（如果存在）
-        _retryQueue.remove(messageId);
-        iPrint('手动重试成功: $messageId');
-      } else {
-        // 失败时添加到重试队列
-        addToRetryQueue(messageId, type);
-        await repo.update({
-          'id': messageId,
-          'status': IMBoyMessageStatus.error,
-        });
-      }
+      // 从重试队列中移除（假设发送成功）
+      _retryQueue.remove(messageId);
+      iPrint('手动重试已提交: $messageId');
 
       // 更新UI状态
       final updatedMsg = await repo.find(messageId);
       if (updatedMsg != null) {
         final updatedMessage = await updatedMsg.toTypeMessage();
-        eventBus.fire([updatedMessage]);
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
       }
 
-      return success;
+      return true;
     } catch (e) {
       iPrint('手动重试消息错误: $messageId, $e');
       return false;

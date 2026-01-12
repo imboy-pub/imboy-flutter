@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:intl/intl.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 enum LastSeenStatus {
   online, // 在线
@@ -48,21 +48,21 @@ class UserOnlineTimeHelper {
     if (hideOnlineStatus) {
       return UserOnlineStatus(
         status: LastSeenStatus.hidden,
-        statusText: 'lastSeenHide'.tr,
+        statusText: t.lastSeenHide,
       );
     }
 
     if (isOnline) {
       return UserOnlineStatus(
         status: LastSeenStatus.online,
-        statusText: 'online'.tr,
+        statusText: t.online,
       );
     }
 
     if (lastSeenTimestamp == null || lastSeenTimestamp == 0) {
       return UserOnlineStatus(
         status: LastSeenStatus.longTimeAgo,
-        statusText: 'lastSeenNever'.tr,
+        statusText: t.lastSeenNever,
       );
     }
 
@@ -74,7 +74,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.justNow,
         lastSeenAt: lastSeen,
-        statusText: 'lastSeenJustNow'.tr,
+        statusText: t.lastSeenJustNow,
       );
     }
 
@@ -82,9 +82,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMinutes,
         lastSeenAt: lastSeen,
-        statusText: 'lastSeenMinutesAgo'.trParams({
-          'count': difference.inMinutes.toString(),
-        }),
+        statusText: t.lastSeenMinutesAgo.replaceAll('{s}', difference.inMinutes.toString()),
         timeValue: difference.inMinutes,
       );
     }
@@ -93,9 +91,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinHours,
         lastSeenAt: lastSeen,
-        statusText: 'lastSeenHoursAgo'.trParams({
-          'count': difference.inHours.toString(),
-        }),
+        statusText: t.lastSeenHoursAgo.replaceAll('{s}', difference.inHours.toString()),
         timeValue: difference.inHours,
       );
     }
@@ -104,9 +100,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinDays,
         lastSeenAt: lastSeen,
-        statusText: 'lastSeenDaysAgo'.trParams({
-          'count': difference.inDays.toString(),
-        }),
+        statusText: t.lastSeenDaysAgo.replaceAll('{s}', difference.inDays.toString()),
         timeValue: difference.inDays,
       );
     }
@@ -116,9 +110,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinWeeks,
         lastSeenAt: lastSeen,
-        statusText: 'lastSeenWeeksAgo'.trParams({
-          'count': weeks.toString(),
-        }),
+        statusText: t.lastSeenWeeksAgo.replaceAll('{s}', weeks.toString()),
         timeValue: weeks,
       );
     }
@@ -128,9 +120,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMonths,
         lastSeenAt: lastSeen,
-        statusText: 'lastSeenMonthsAgo'.trParams({
-          'count': months.toString(),
-        }),
+        statusText: t.lastSeenMonthsAgo.replaceAll('{s}', months.toString()),
         timeValue: months,
       );
     }
@@ -138,7 +128,7 @@ class UserOnlineTimeHelper {
     return UserOnlineStatus(
       status: LastSeenStatus.longTimeAgo,
       lastSeenAt: lastSeen,
-      statusText: 'lastSeenLongTimeAgo'.tr,
+      statusText: t.lastSeenLongTimeAgo,
     );
   }
 
@@ -149,7 +139,7 @@ class UserOnlineTimeHelper {
     if (difference.inDays == 0) {
       return DateFormat('HH:mm').format(dateTime);
     } else if (difference.inDays == 1) {
-      return '${'yesterday'.tr} ${DateFormat('HH:mm').format(dateTime)}';
+      return '${t.yesterday} ${DateFormat('HH:mm').format(dateTime)}';
     } else if (difference.inDays < 7) {
       return DateFormat('EEEE HH:mm').format(dateTime);
     } else {

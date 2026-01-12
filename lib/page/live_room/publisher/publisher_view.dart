@@ -1,12 +1,9 @@
 import 'dart:core';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 // import 'publisher_logic.dart';
 
@@ -21,10 +18,8 @@ class PublisherPage extends StatefulWidget {
 }
 
 class _PublisherPageState extends State<PublisherPage> {
-  MediaStream? _localStream;
   final _localRenderer = RTCVideoRenderer();
   String stateStr = 'init';
-  bool _connecting = false;
   // late WHIP _whip;
 
   final TextEditingController _serverController = TextEditingController();
@@ -55,10 +50,6 @@ class _PublisherPageState extends State<PublisherPage> {
       _localRenderer.srcObject = null;
       _localRenderer.dispose();
     }
-  }
-
-  void _saveSettings() {
-    _preferences.setString('pushServer', _serverController.text);
   }
 
   void initRenderers() async {

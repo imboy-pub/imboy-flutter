@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class NetworkFailureGuidancePage extends StatelessWidget {
   const NetworkFailureGuidancePage({super.key});
@@ -10,7 +10,7 @@ class NetworkFailureGuidancePage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'networkException'.tr,
+        title: t.networkException,
       ),
       body: Card(
         color: Theme.of(context).colorScheme.surface,

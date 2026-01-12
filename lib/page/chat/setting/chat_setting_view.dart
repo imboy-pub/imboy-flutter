@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:get/get.dart';
 import 'chat_setting_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ChatSettingView extends StatelessWidget {
   final logic = Get.find<ChatSettingLogic>();
   final state = Get.find<ChatSettingLogic>().state;
 
-  ChatSettingView({Key? key}) : super(key: key);
+  ChatSettingView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        titleWidget: Text('chatSettings'.tr),
+        titleWidget: Text(t.chatSettings),
       ),
       body: Obx(() => _buildContent()),
     );
@@ -30,15 +31,15 @@ class ChatSettingView extends StatelessWidget {
           children: [
             _buildSwitchTile(
               icon: Icons.push_pin,
-              title: 'chatSettingPin'.tr,
-              subtitle: 'chatSettingPinDesc'.tr,
+              title: t.chatSettingPin,
+              subtitle: t.chatSettingPinDesc,
               value: state.isPinned.value,
               onChanged: (_) => logic.togglePin(),
             ),
             _buildSwitchTile(
               icon: Icons.notifications_off,
-              title: 'chatSettingMute'.tr,
-              subtitle: 'chatSettingMuteDesc'.tr,
+              title: t.chatSettingMute,
+              subtitle: t.chatSettingMuteDesc,
               value: state.isMuted.value,
               onChanged: (_) => logic.toggleMute(),
             ),
@@ -48,14 +49,14 @@ class ChatSettingView extends StatelessWidget {
           children: [
             _buildNavigationTile(
               icon: Icons.image,
-              title: 'chatSettingBackground'.tr,
+              title: t.chatSettingBackground,
               subtitle: state.chatBackground.value.isEmpty
-                  ? 'chatSettingBackgroundDefault'.tr
-                  : 'chatSettingBackgroundCustom'.tr,
+                  ? t.chatSettingBackgroundDefault
+                  : t.chatSettingBackgroundCustom,
               onTap: () {
                 Get.snackbar(
-                  'tipTips'.tr,
-                  'chatSettingBackgroundSelectorTip'.tr,
+                  t.tipTips,
+                  t.chatSettingBackgroundSelectorTip,
                   snackPosition: SnackPosition.bottom,
                 );
               },
@@ -66,8 +67,8 @@ class ChatSettingView extends StatelessWidget {
           children: [
             _buildActionTile(
               icon: Icons.delete_outline,
-              title: 'chatSettingClearHistory'.tr,
-              subtitle: 'chatSettingClearHistoryDesc'.tr,
+              title: t.chatSettingClearHistory,
+              subtitle: t.chatSettingClearHistoryDesc,
               textColor: Colors.red,
               onTap: () => logic.clearChatHistory(),
             ),

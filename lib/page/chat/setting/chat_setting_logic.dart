@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 part 'chat_setting_state.dart';
 
@@ -58,13 +59,13 @@ class ChatSettingLogic extends GetxController {
       // );
       state.isPinned.value = newValue;
       Get.snackbar(
-        newValue ? 'chatSettingPinnedSuccess'.tr : 'chatSettingUnpinnedSuccess'.tr,
+        newValue ? t.chatSettingPinnedSuccess : t.chatSettingUnpinnedSuccess,
         '',
         snackPosition: SnackPosition.bottom,
       );
     } catch (e) {
       Get.snackbar(
-        'tipFailed'.tr,
+        t.tipFailed,
         e.toString(),
         snackPosition: SnackPosition.bottom,
       );
@@ -82,13 +83,13 @@ class ChatSettingLogic extends GetxController {
       // );
       state.isMuted.value = newValue;
       Get.snackbar(
-        newValue ? 'chatSettingMuted'.tr : 'chatSettingUnmuted'.tr,
+        newValue ? t.chatSettingMuted : t.chatSettingUnmuted,
         '',
         snackPosition: SnackPosition.bottom,
       );
     } catch (e) {
       Get.snackbar(
-        'tipFailed'.tr,
+        t.tipFailed,
         e.toString(),
         snackPosition: SnackPosition.bottom,
       );
@@ -105,13 +106,13 @@ class ChatSettingLogic extends GetxController {
       // );
       state.chatBackground.value = imagePath;
       Get.snackbar(
-        'chatSettingBackgroundSuccess'.tr,
+        t.chatSettingBackgroundSuccess,
         '',
         snackPosition: SnackPosition.bottom,
       );
     } catch (e) {
       Get.snackbar(
-        'tipFailed'.tr,
+        t.tipFailed,
         e.toString(),
         snackPosition: SnackPosition.bottom,
       );
@@ -122,16 +123,16 @@ class ChatSettingLogic extends GetxController {
   Future<void> clearChatHistory() async {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
-        title: Text('chatSettingClearHistory'.tr),
-        content: Text('chatSettingClearHistoryConfirm'.tr),
+        title: Text(t.chatSettingClearHistory),
+        content: Text(t.chatSettingClearHistoryConfirm),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('buttonCancel'.tr),
+            child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: Text('buttonOk'.tr),
+            child: Text(t.buttonOk),
           ),
         ],
       ),
@@ -140,15 +141,11 @@ class ChatSettingLogic extends GetxController {
     if (confirmed == true) {
       // TODO: 实现清空聊天记录逻辑
       Get.snackbar(
-        'chatSettingClearedSuccess'.tr,
+        t.chatSettingClearedSuccess,
         '',
         snackPosition: SnackPosition.bottom,
       );
     }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

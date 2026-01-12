@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 class FontSizePage extends StatefulWidget {
   const FontSizePage({super.key});
@@ -31,13 +28,11 @@ class _FontSizePageState extends State<FontSizePage> {
 
   Future<void> _changeFontSize(FontSizeOption option) async {
     try {
+      // ThemeManager 会自动保存设置，无需重复持久化
       await ThemeManager.instance.updateFontSizeOption(option);
 
-      final setting = UserRepoLocal.to.setting;
-      setting.fontSize = option.name;
-      await UserRepoLocal.to.changeSetting(setting);
-
-      currentFontSize.value = option.name;
+      // 更新全局变量（兼容旧代码）
+      currentFontSize.value = option.value;
 
       _currentOption = option;
       _previewOption = option;

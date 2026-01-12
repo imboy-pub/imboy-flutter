@@ -12,12 +12,13 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/service/message.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class NewFriendLogic extends GetxController {
   FocusNode searchF = FocusNode();
@@ -67,13 +68,16 @@ class NewFriendLogic extends GetxController {
     replaceItems(NewFriendModel.fromJson(saveData));
     bottomLogic.newFriendRemindCounter.add(from);
     bottomLogic.update([bottomLogic.newFriendRemindCounter]);
-    // 使用统一的 ACK 发送方法
+    // 使用事件总线发送 ACK
     final msgId = data['id'];
     if (msgId == null || msgId.isEmpty) {
       debugPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK: data=${data.toString()}");
       return;
     }
-    MessageService.to.sendAckMsg('S2C', msgId);
+    AppEventBus.fire(AckSendRequestedEvent(
+      messageType: 'S2C',
+      messageId: msgId,
+    ));
   }
 
   /// 确认添加朋友，对端消息通知
@@ -96,13 +100,16 @@ class NewFriendLogic extends GetxController {
       replaceItems(obj);
     }
     if (ack) {
-      // 使用统一的 ACK 发送方法
+      // 使用事件总线发送 ACK
       final msgId = data['id'];
       if (msgId == null || msgId.isEmpty) {
         debugPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK: data=${data.toString()}");
         return;
       }
-      MessageService.to.sendAckMsg('S2C', msgId);
+      AppEventBus.fire(AckSendRequestedEvent(
+        messageType: 'S2C',
+        messageId: msgId,
+      ));
     }
   }
 
@@ -153,7 +160,7 @@ class NewFriendLogic extends GetxController {
     if (items.isNotEmpty) {
       PeopleModel model = items[0];
       if (model.id == UserRepoLocal.to.currentUid) {
-        EasyLoading.showInfo('canNotAddYourselfFriend'.tr);
+        EasyLoading.showInfo(t.canNotAddYourselfFriend);
       } else {
         return Container(
             margin:
@@ -177,8 +184,8 @@ class NewFriendLogic extends GetxController {
                 width: 80,
                 alignment: Alignment.centerRight,
                 child: (model.isFriend ?? false)
-                    ? Text('added'.tr)
-                    : Text('buttonAdd'.tr),
+                    ? Text(t.added)
+                    : Text(t.buttonAdd),
               ),
               onTap: () {
                 Get.to(
@@ -204,7 +211,7 @@ class NewFriendLogic extends GetxController {
             color: Get.isDarkMode ? Colors.black87 : Colors.white,
             child: Center(
               child: Text(
-                'userNotExist'.tr,
+                t.userNotExist,
                 style: const TextStyle(fontSize: 18),
               ),
             ),
@@ -234,7 +241,7 @@ class NewFriendLogic extends GetxController {
             ),
             title: Row(
               children: [
-                Text('search'.tr),
+                Text(t.search),
                 const Space(width: 10),
                 Expanded(
                   child: Text(

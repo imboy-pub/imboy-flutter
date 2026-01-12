@@ -10,7 +10,6 @@ class PrivacySettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logic = Get.find<ProfileLogic>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: GlassAppBar(
@@ -230,7 +229,7 @@ class PrivacySettingsPage extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Get.theme.primaryColor,
+            activeThumbColor: Get.theme.primaryColor,
           ),
         ],
       ),

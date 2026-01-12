@@ -77,6 +77,18 @@ cp ./example.env ./.env.pro
 
 # 复制主入口文件
 cp example_main.dart main.dart
+
+
+#命令行运行
+
+## 办公室本地环境
+flutter run --dart-define=APP_ENV=local_office
+
+## 其他环境
+flutter run --dart-define=APP_ENV=dev
+flutter run --dart-define=APP_ENV=pro
+flutter run --dart-define=APP_ENV=local_home
+
 ```
 
 

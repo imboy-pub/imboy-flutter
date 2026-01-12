@@ -6,7 +6,6 @@ import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
@@ -21,10 +20,12 @@ import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/scanner/scanner_view.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'qrcode_logic.dart';
 import 'qrcode_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class UserQrCodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
@@ -39,7 +40,6 @@ class UserQrCodePage extends StatelessWidget {
 
     int gender = UserRepoLocal.to.current.gender;
     String filename = "${UserRepoLocal.to.currentUid}_qrcode";
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(
@@ -47,7 +47,7 @@ class UserQrCodePage extends StatelessWidget {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: '我的二维码'.tr,
+        title: t.myQrcode,
         backgroundColor: AppColors.getBackgroundColor(
           Theme.of(context).brightness,
         ),
@@ -200,7 +200,7 @@ class UserQrCodePage extends StatelessWidget {
 
                           // 提示文字
                           Text(
-                            'scanQrCodeAddFriend'.tr,
+                            t.scanQrcodeAddFriend,
                             style: ThemeManager.instance.getTextStyle(
                               FontSizeType.normal,
                               color: AppColors.lightTextSecondary,
@@ -223,7 +223,7 @@ class UserQrCodePage extends StatelessWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: 'saveQrCode'.tr,
+                    text: t.saveQrCode,
                     onPressed: () => _saveQrCode(context, globalKey, filename),
                   ),
                 ),
@@ -234,7 +234,7 @@ class UserQrCodePage extends StatelessWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.share,
-                    text: 'share'.tr,
+                    text: t.share,
                     onPressed: () => _shareQrCode(context, globalKey),
                   ),
                 ),
@@ -253,8 +253,6 @@ class UserQrCodePage extends StatelessWidget {
     required String text,
     required VoidCallback onPressed,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       height: 52,
       decoration: BoxDecoration(
@@ -371,7 +369,7 @@ class UserQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.share,
-                text: 'share'.tr,
+                text: t.share,
                 onTap: () {
                   Get.back();
                   _shareQrCode(context, globalKey);
@@ -382,7 +380,7 @@ class UserQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: 'saveQrCode'.tr,
+                text: t.saveQrCode,
                 onTap: () {
                   Get.back();
                   _saveQrCode(context, globalKey, filename);
@@ -393,7 +391,7 @@ class UserQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: 'scanQrCode'.tr,
+                text: t.scanQrCode,
                 onTap: () {
                   Get.back();
                   Get.to(
@@ -418,7 +416,7 @@ class UserQrCodePage extends StatelessWidget {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: 'buttonCancel'.tr,
+                text: t.buttonCancel,
                 onTap: () => Get.back(),
                 isCancel: true,
               ),
@@ -493,7 +491,7 @@ class UserQrCodePage extends StatelessWidget {
         final result = await SharePlus.instance.share(
           ShareParams(
             files: [XFile.fromData(res, mimeType: 'png')],
-            text: 'scanQrCodeAddFriend'.tr,
+            text: t.scanQrcodeAddFriend,
           ),
         );
         if (result.status == ShareResultStatus.success) {
@@ -520,7 +518,7 @@ class UserQrCodePage extends StatelessWidget {
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess('saveSuccess'.tr);
+        EasyLoading.showSuccess(t.saveSuccess);
       }
     });
   }
@@ -536,6 +534,7 @@ class GroupQrCodePage extends StatelessWidget {
 
   final QrCodeLogic logic = Get.put(QrCodeLogic());
   final QrCodeState state = Get.find<QrCodeLogic>().state;
+  final GroupListLogic groupListLogic = Get.find<GroupListLogic>();
 
   Future<void> _initData() async {
     // API_BASE_URL=https://dev.imboy.pub
@@ -562,7 +561,6 @@ class GroupQrCodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _initData();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(
@@ -570,7 +568,7 @@ class GroupQrCodePage extends StatelessWidget {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: '群二维码'.tr,
+        title: t.groupQrcode,
         backgroundColor: AppColors.getBackgroundColor(
           Theme.of(context).brightness,
         ),
@@ -616,6 +614,7 @@ class GroupQrCodePage extends StatelessWidget {
                       SmartGroupAvatar(
                         avatar: group.avatar,
                         groupId: group.groupId,
+                        avatarLoader: groupListLogic.computeAvatar,
                       ),
 
                       SizedBox(height: ThemeManager.instance.mainSpace * 1.2),
@@ -626,7 +625,7 @@ class GroupQrCodePage extends StatelessWidget {
                           horizontal: ThemeManager.instance.mainSpace * 2,
                         ),
                         child: Text(
-                          "${'groupChat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
+                          "${t.groupChat}: ${group.title.isEmpty ? group.computeTitle : group.title}",
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.large,
                             fontWeight: FontWeight.w600,
@@ -674,14 +673,14 @@ class GroupQrCodePage extends StatelessWidget {
                           ThemeManager.instance.mainSpace * 2,
                         ),
                         child: Text(
-                          'groupQrcodeTips'.trArgs([
-                            dayNum.toString(),
-                            DateFormat('y-MM-dd').format(
+                          t.groupQrcodeTips
+                                .replaceAll('{days}', dayNum.toString())
+                                .replaceAll('{date}', DateFormat('y-MM-dd').format(
                               DateTime.fromMillisecondsSinceEpoch(
                                 state.expiredAt.value,
                               ),
                             ),
-                          ]),
+                          ),
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             color: AppColors.lightTextSecondary,
@@ -704,7 +703,7 @@ class GroupQrCodePage extends StatelessWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: 'saveQrCode'.tr,
+                    text: t.saveQrCode,
                     onPressed: () => _saveGroupQrCode(context),
                   ),
                 ),
@@ -715,7 +714,7 @@ class GroupQrCodePage extends StatelessWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.share,
-                    text: 'share'.tr,
+                    text: t.share,
                     onPressed: () => _shareGroupQrCode(context),
                   ),
                 ),
@@ -734,8 +733,6 @@ class GroupQrCodePage extends StatelessWidget {
     required String text,
     required VoidCallback onPressed,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       height: 52,
       decoration: BoxDecoration(
@@ -848,7 +845,7 @@ class GroupQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.share,
-                text: 'share'.tr,
+                text: t.share,
                 onTap: () {
                   Get.back();
                   _shareGroupQrCode(context);
@@ -859,7 +856,7 @@ class GroupQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: 'saveQrCode'.tr,
+                text: t.saveQrCode,
                 onTap: () {
                   Get.back();
                   _saveGroupQrCode(context);
@@ -870,7 +867,7 @@ class GroupQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: 'scanQrCode'.tr,
+                text: t.scanQrCode,
                 onTap: () {
                   Get.back();
                   Get.to(
@@ -895,7 +892,7 @@ class GroupQrCodePage extends StatelessWidget {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: 'buttonCancel'.tr,
+                text: t.buttonCancel,
                 onTap: () => Get.back(),
                 isCancel: true,
               ),
@@ -967,13 +964,13 @@ class GroupQrCodePage extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().image(context, globalKey);
       if (res != null) {
-        final txt = 'groupQrcodeTips'.trArgs([
-          dayNum.toString(),
-          DateTimeHelper.lastTimeFmt(
+        final txt = t.groupQrcodeTips
+            .replaceAll('{days}', dayNum.toString())
+            .replaceAll('{date}', DateTimeHelper.lastTimeFmt(
             state.expiredAt.value,
             pattern: 'y-MM-dd',
           ),
-        ]);
+        );
         final result = await SharePlus.instance.share(
           ShareParams(
             files: [XFile.fromData(res, mimeType: 'png')],
@@ -1001,7 +998,7 @@ class GroupQrCodePage extends StatelessWidget {
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess('saveSuccess'.tr);
+        EasyLoading.showSuccess(t.saveSuccess);
       }
     });
   }

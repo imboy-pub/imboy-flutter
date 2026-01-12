@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
+import 'package:imboy/config/init.dart';
 
 /// dio 配置项
 class HttpConfig {
@@ -31,9 +32,16 @@ class HttpConfig {
 class GlobalHttpOverrides extends io.HttpOverrides {
   @override
   io.HttpClient createHttpClient(io.SecurityContext? context) {
-    // 全局忽略Https证书验证
+    // 安全的证书验证：仅开发环境允许自签名证书
     return super.createHttpClient(context)
       ..badCertificateCallback =
-          (io.X509Certificate cert, String host, int port) => true;
+          (io.X509Certificate cert, String host, int port) {
+            // 仅在开发环境接受自签名证书
+            if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
+              return true;
+            }
+            // 生产环境进行严格验证
+            return false;
+          };
   }
 }

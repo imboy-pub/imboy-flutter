@@ -4,10 +4,10 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'user_device_detail_view.dart';
 import 'user_device_logic.dart';
@@ -37,7 +37,7 @@ class UserDevicePage extends StatelessWidget {
       backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'loginDeviceManagement'.tr,
+        title: t.loginDeviceManagement,
       ),
       body: Column(
         children: [
@@ -79,7 +79,7 @@ class UserDevicePage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'loginDeviceManagementTips'.tr,
+              t.loginDeviceManagementTips,
               style: TextStyle(
                 color: isDark 
                     ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)
@@ -117,7 +117,7 @@ class UserDevicePage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'noData'.tr,
+            t.noData,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
@@ -161,7 +161,7 @@ class UserDevicePage extends StatelessWidget {
                 ? Colors.white
                 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             icon: Icons.power_settings_new,
-            label: '下线',
+            label: t.forceOffline,
             borderRadius: BorderRadius.circular(12),
           ),
           SlidableAction(
@@ -169,7 +169,7 @@ class UserDevicePage extends StatelessWidget {
             backgroundColor: AppColors.lightError,
             foregroundColor: Colors.white,
             icon: Icons.delete_outline,
-            label: 'buttonDelete'.tr,
+            label: t.buttonDelete,
             borderRadius: BorderRadius.circular(12),
           ),
         ],
@@ -188,9 +188,9 @@ class UserDevicePage extends StatelessWidget {
               : null, // 亮色模式下去掉边框，仅用阴影
           boxShadow: [
             BoxShadow(
-              color: isDark 
-                  ? Colors.transparent 
-                  : Colors.black.withOpacity(0.04),
+              color: isDark
+                  ? Colors.transparent
+                  : Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -261,7 +261,7 @@ class UserDevicePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'currentDevice'.tr,
+                                  t.currentDevice,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.primaryGreen,
@@ -289,7 +289,7 @@ class UserDevicePage extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              model.online ? 'online'.tr : 'offline'.tr,
+                              model.online ? t.online : t.offline,
                               style: TextStyle(
                                 color: model.online 
                                     ? AppColors.onlineIndicator
@@ -361,13 +361,13 @@ class UserDevicePage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         title: Text(
-          'buttonDelete'.tr,
+          t.buttonDelete,
           style: TextStyle(
             fontWeight: FontWeight.w600,
           ),
         ),
         content: Text(
-          'deleteThisDeviceTips'.tr,
+          t.deleteThisDeviceTips,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
             height: 1.4,
@@ -377,7 +377,7 @@ class UserDevicePage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -396,7 +396,7 @@ class UserDevicePage extends StatelessWidget {
               ),
             ),
             child: Text(
-              'buttonDelete'.tr,
+              t.buttonDelete,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
               ),
@@ -409,20 +409,20 @@ class UserDevicePage extends StatelessWidget {
 
   /// 删除设备
   Future<void> _deleteDevice(UserDeviceModel model) async {
-    EasyLoading.show(status: '处理中...'.tr);
+    EasyLoading.show(status: t.processing);
     try {
       bool res = await logic.deleteDevice(model.deviceId);
       EasyLoading.dismiss();
-      
+
       if (res) {
         state.deviceList.removeWhere((e) => e.deviceId == model.deviceId);
-        EasyLoading.showSuccess('tipSuccess'.tr);
+        EasyLoading.showSuccess(t.tipSuccess);
       } else {
-        EasyLoading.showError('tipFailed'.tr);
+        EasyLoading.showError(t.tipFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('tipFailed'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
 
@@ -436,13 +436,13 @@ class UserDevicePage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         title: Text(
-          '让该设备下线',
+          t.forceDeviceOffline,
           style: TextStyle(
             fontWeight: FontWeight.w600,
           ),
         ),
         content: Text(
-          '将向该设备发送下线指令，确认继续？',
+          t.forceDeviceOfflineConfirm,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
             height: 1.4,
@@ -452,7 +452,7 @@ class UserDevicePage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -471,7 +471,7 @@ class UserDevicePage extends StatelessWidget {
               ),
             ),
             child: Text(
-              '确认下线',
+              t.confirmForceOffline,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
               ),
@@ -482,21 +482,21 @@ class UserDevicePage extends StatelessWidget {
     );
   }
 
-  /// 调用后端接口下发“强制下线”S2C 指令
-  /// 成功仅提示“已发送下线指令”，不从列表移除设备
+  /// 调用后端接口下发"强制下线"S2C 指令
+  /// 成功仅提示"已发送下线指令"，不从列表移除设备
   Future<void> _forceOffline(UserDeviceModel model) async {
-    EasyLoading.show(status: '处理中...'.tr);
+    EasyLoading.show(status: t.processing);
     try {
       final ok = await logic.forceOffline(model.deviceId);
       EasyLoading.dismiss();
       if (ok) {
-        EasyLoading.showSuccess('已发送下线指令');
+        EasyLoading.showSuccess(t.forceOfflineCommandSent);
       } else {
-        EasyLoading.showError('操作失败'.tr);
+        EasyLoading.showError(t.tipFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('操作失败'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
 }

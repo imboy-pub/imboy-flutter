@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 import 'set_gender_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 设置性别页面
 class SetGenderPage extends StatelessWidget {
@@ -20,15 +20,15 @@ class SetGenderPage extends StatelessWidget {
 
     // 性别选项列表
     final genderOptions = [
-      {'id': '1', 'title': 'male'.tr, 'icon': Icons.male},
-      {'id': '2', 'title': 'female'.tr, 'icon': Icons.female},
-      {'id': '3', 'title': 'keepSecret'.tr, 'icon': Icons.help_outline},
+      {'id': '1', 'title': t.male, 'icon': Icons.male},
+      {'id': '2', 'title': t.female, 'icon': Icons.female},
+      {'id': '3', 'title': t.keepSecret, 'icon': Icons.help_outline},
     ];
 
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
-        title: 'gender'.tr,
+        title: t.gender,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(

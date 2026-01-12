@@ -5,25 +5,30 @@ import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class PeopleInfoSameGroupPage extends StatelessWidget {
   final List<GroupModel> groupList;
+  late final GroupListLogic groupListLogic;
 
-  const PeopleInfoSameGroupPage({
+  PeopleInfoSameGroupPage({
     super.key,
     required this.groupList,
-  });
+  }) {
+    groupListLogic = Get.find<GroupListLogic>();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'mutualGroupsWithHer'.tr,
+        title: t.mutualGroupsWithHer,
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -34,7 +39,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 10),
                 child: SlidableAutoCloseBehavior(
                   child: groupList.isEmpty
-                      ? NoDataView(text: 'noData'.tr)
+                      ? NoDataView(text: t.noData)
                       : ListView.builder(
                     shrinkWrap: true,
                     itemCount: groupList.length,
@@ -46,6 +51,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
                             leading: SmartGroupAvatar(
                               avatar: model.avatar,
                               groupId: model.groupId,
+                              avatarLoader: groupListLogic.computeAvatar,
                             ),
                             contentPadding:
                             const EdgeInsets.only(left: 10, right: 10),
@@ -93,7 +99,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 8),
-            child: Text('numUnit'.trArgs(['${groupList.length}'])),
+            child: Text(t.numUnit.replaceAll('{s}', '${groupList.length}')),
           ),
         ],
       ),

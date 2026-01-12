@@ -1,23 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/list.dart';
-import 'package:imboy/component/search.dart';
-import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/theme/default/app_text_size.dart' show AppTextSize;
 
-import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 import 'send_to_logic.dart';
 
@@ -43,8 +30,6 @@ class _SendToPageState extends State<SendToPage> {
       logic.searchResults.assignAll(logic.state.conversations);
     });
   }
-
-  final int _itemHeight = 60;
 
   void initData() async {
     await logic.conversationsList();
@@ -107,7 +92,7 @@ class _SendToPageState extends State<SendToPage> {
                     size: textTheme.bodyMedium?.fontSize ?? 14, // 使用主题字体大小
                   ),
                   filled: true,
-                  fillColor: colorScheme.surfaceVariant, // 应用主题表面颜色
+                  fillColor: colorScheme.surfaceContainerHighest, // 应用主题表面颜色
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,
@@ -141,19 +126,9 @@ class _SendToPageState extends State<SendToPage> {
                     final contact = logic.searchResults[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundImage: contact.avatar != null
-                            ? cachedImageProvider(contact.avatar!)
-                            : null,
+                        backgroundImage: cachedImageProvider(contact.avatar),
                         backgroundColor: colorScheme.primaryContainer, // 应用主题容器颜色
-                        child: contact.avatar == null
-                            ? Text(
-                                contact.title.substring(0, 1),
-                                style: TextStyle(
-                                  color: colorScheme.onPrimaryContainer, // 应用主题文本颜色
-                                  fontSize: textTheme.bodyMedium?.fontSize ?? 14, // 使用主题字体大小
-                                ),
-                              )
-                            : null,
+                        child: null,
                       ),
                       title: Text(
                         contact.title,

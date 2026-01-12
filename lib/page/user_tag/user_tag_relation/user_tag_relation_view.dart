@@ -18,6 +18,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
 import 'user_tag_relation_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class UserTagRelationPage extends StatelessWidget {
@@ -68,7 +69,7 @@ class UserTagRelationPage extends StatelessWidget {
       state.tagItems.value = state.tagController.getTags! as List<String>;
       logic.valueOnChange(diff);
       if (diff) {
-        state.tagController.setError = 'needSubmitEffect'.tr;
+        state.tagController.setError = t.needSubmitEffect;
       }
     });
   }
@@ -95,12 +96,12 @@ class UserTagRelationPage extends StatelessWidget {
         logic.valueOnChange(diff);
         if (tag.length > 14) {
           // 最最最最最最最最最最最最最最1
-          return 'upToWords'.trArgs(['14']);
+          return t.upToWords.replaceAll('{s}', '14');
         }
         if (state.tagController.getTags != null &&
             state.tagController.getTags!.contains(tag)) {
           // return 'you already entered that';
-          return 'alreadyEntered'.tr;
+          return t.alreadyEntered;
         }
         return null;
       },
@@ -133,13 +134,13 @@ class UserTagRelationPage extends StatelessWidget {
             decoration: InputDecoration(
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
-              // helperText: 'allTags'.tr,
+              // helperText: t.allTags,
               helperStyle: TextStyle(
                 color: tagSelectedBackgroundColor,
               ),
               hintText: inputFieldValues.tags.isNotEmpty
                   ? ''
-                  : 'selectOrEnterTag'.tr,
+                  : t.selectOrEnterTag,
               hintStyle: TextStyle(
                 color: colorScheme.outline.withValues(alpha: 0.5),
               ),
@@ -220,16 +221,16 @@ class UserTagRelationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
-        title: title ?? 'addTag'.tr,
+        title: title ?? t.addTag,
         automaticallyImplyLeading: true,
       ),
       body: SizedBox(
         height: Get.height - 40,
         child: Obx(() => state.loaded.isTrue
             ? FilterListWidget<String>(
-                resetButtonText: 'buttonSetEmpty'.tr,
-                applyButtonText: 'buttonConfirm'.tr,
-                selectedItemsText: 'selectedItems'.trArgs(['']).trim(),
+                resetButtonText: t.buttonSetEmpty,
+                applyButtonText: t.buttonConfirm,
+                selectedItemsText: t.selectedItems.replaceAll('{s}', '').trim(),
                 // hideHeader: true,
                 header: _buildHeader(context),
                 enableOnlySingleSelection: false,

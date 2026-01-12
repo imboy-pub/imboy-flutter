@@ -323,21 +323,6 @@ class VideoCompressManager {
     }
   }
 
-  /// 生成输出文件路径
-  Future<String> _generateOutputPath(
-    String inputPath,
-    VideoCompressConfig config,
-  ) async {
-    final tempDir = await getTemporaryDirectory();
-    final inputFile = File(inputPath);
-    final fileName = inputFile.uri.pathSegments.last;
-    final nameWithoutExtension = fileName.split('.').first;
-    final extension = config.outputFormat ?? 'mp4';
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    
-    return '${tempDir.path}/${nameWithoutExtension}_compressed_$timestamp.$extension';
-  }
-
   /// 映射质量枚举到VideoCompress的质量枚举
   VideoQuality _mapQualityToVideoQuality(VideoCompressQuality quality) {
     switch (quality) {

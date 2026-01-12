@@ -8,9 +8,9 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 import 'update_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class UpdatePage extends StatelessWidget {
@@ -122,7 +122,7 @@ class UpdatePage extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'buttonAccomplish'.tr,
+                        t.buttonAccomplish,
                         style: ThemeManager.instance.getTextStyle(
                           FontSizeType.small,
                           fontWeight: FontWeight.w600,
@@ -259,7 +259,7 @@ class UpdatePage extends StatelessWidget {
               ),
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(16),
-                // hintText: 'signaturePlaceholder'.tr,
+                // hintText: t.signaturePlaceholder,
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: isDark
@@ -300,7 +300,7 @@ class UpdatePage extends StatelessWidget {
           // Padding(
           //   padding: const EdgeInsets.only(top: 12),
           //   child: Text(
-          //     'signatureTips'.tr,
+          //     t.signatureTips,
           //     style: TextStyle(
           //       fontSize: 12,
           //       color: isDark
@@ -344,7 +344,7 @@ class UpdatePage extends StatelessWidget {
             IMBoyRadioListTile(
               value: '1',
             title: Text(
-              'male'.tr,
+              t.male,
               style: TextStyle(
                 fontSize: logic.val.value == '1' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -369,7 +369,7 @@ class UpdatePage extends StatelessWidget {
           IMBoyRadioListTile(
             value: '2',
             title: Text(
-              'female'.tr,
+              t.female,
               style: TextStyle(
                 fontSize: logic.val.value == '2' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -394,7 +394,7 @@ class UpdatePage extends StatelessWidget {
           IMBoyRadioListTile(
             value: '3',
             title: Text(
-              'keepSecret'.tr,
+              t.keepSecret,
               style: TextStyle(
                 fontSize: logic.val.value == '3' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onSurface,

@@ -13,6 +13,7 @@ import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 
 import 'contact_tag_list_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ContactTagListPage extends StatelessWidget {
@@ -47,7 +48,7 @@ class ContactTagListPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('noMoreData'.tr);
+          EasyLoading.showToast(t.noMoreData);
         }
       }
     });
@@ -74,7 +75,7 @@ class ContactTagListPage extends StatelessWidget {
                     : const Color.fromRGBO(240, 240, 240, 1),
               );
             },
-            label: 'changeParam'.trArgs(['name'.tr]),
+            label: t.changeParam.replaceAll('{s}', t.name),
             spacing: 1,
           ),
           SlidableAction(
@@ -92,7 +93,7 @@ class ContactTagListPage extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Text(
-                            'deleteTagTips'.tr,
+                            t.deleteTagTips,
                             textAlign: TextAlign.center,
                             style: Get.context!.textStyle(
                               FontSizeType.normal,
@@ -113,13 +114,13 @@ class ContactTagListPage extends StatelessWidget {
                             );
                             if (res) {
                               Get.closeAllBottomSheets();
-                              EasyLoading.showSuccess('tipSuccess'.tr);
+                              EasyLoading.showSuccess(t.tipSuccess);
                             } else {
-                              EasyLoading.showError('tipFailed'.tr);
+                              EasyLoading.showError(t.tipFailed);
                             }
                           },
                           child: Text(
-                            'buttonDelete'.tr,
+                            t.buttonDelete,
                             textAlign: TextAlign.center,
                             style: Get.context!.textStyle(
                               FontSizeType.normal,
@@ -134,7 +135,7 @@ class ContactTagListPage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () => Get.close(),
                           child: Text(
-                            'buttonCancel'.tr,
+                            t.buttonCancel,
                             textAlign: TextAlign.center,
                             style: Get.context!.textStyle(
                               FontSizeType.normal,
@@ -157,7 +158,7 @@ class ContactTagListPage extends StatelessWidget {
                 ),
               );
             },
-            label: 'buttonDelete'.tr,
+            label: t.buttonDelete,
             spacing: 1,
           ),
         ],
@@ -211,7 +212,7 @@ class ContactTagListPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'contactTags'.tr,
+        title: t.contactTags,
         rightDMActions: <Widget>[
           InkWell(
             child: const SizedBox(
@@ -275,8 +276,8 @@ class ContactTagListPage extends StatelessWidget {
                           ),
                         ],
                   controller: state.searchController,
-                  searchLabel: 'search'.tr,
-                  hintText: 'search'.tr,
+                  searchLabel: t.search,
+                  hintText: t.search,
                   onChanged: ((query) async {
                     state.kwd.value = query;
                     debugPrint(
@@ -291,7 +292,7 @@ class ContactTagListPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: SlidableAutoCloseBehavior(
                     child: state.items.isEmpty
-                        ? NoDataView(text: 'noData'.tr)
+                        ? NoDataView(text: t.noData)
                         : ListView.builder(
                             controller: controller,
                             physics: const AlwaysScrollableScrollPhysics(),

@@ -16,6 +16,7 @@ import 'signup_view.dart';
 import 'forgot_password_view.dart';
 import 'manage_account_view.dart';
 import 'widget/bezier_container.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, this.account, this.refUid});
@@ -62,14 +63,14 @@ class LoginPageState extends State<LoginPage>
 
     Connectivity().checkConnectivity().then((r) {
       if (r.contains(ConnectivityResult.none)) {
-        state.connectDesc.value = 'tipConnectDesc'.tr;
+        state.connectDesc.value = t.tipConnectDesc;
       } else {
         state.connectDesc.value = '';
       }
     });
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
-        state.connectDesc.value = 'tipConnectDesc'.tr;
+        state.connectDesc.value = t.tipConnectDesc;
       } else {
         state.connectDesc.value = '';
       }
@@ -209,8 +210,8 @@ class LoginPageState extends State<LoginPage>
             );
           },
           tabs: [
-            Tab(text: 'paramLogin'.trArgs(['account'.tr])),
-            Tab(text: 'paramLogin'.trArgs(['mobile'.tr])),
+            Tab(text: t.paramLogin.replaceAll('{param}', t.account)),
+            Tab(text: t.paramLogin.replaceAll('{param}', t.mobile)),
           ],
         ),
       ),
@@ -295,7 +296,7 @@ class LoginPageState extends State<LoginPage>
               ),
               const SizedBox(width: 8),
               Text(
-                'mobileQuickLogin'.tr,
+                t.mobileQuickLogin,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -336,7 +337,7 @@ class LoginPageState extends State<LoginPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'noSiginQ'.tr,
+              t.noSiginQ,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white.withValues(alpha: 0.9),
@@ -344,7 +345,7 @@ class LoginPageState extends State<LoginPage>
             ),
             const SizedBox(width: 6),
             Text(
-              'signup'.tr,
+              t.signup,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -399,7 +400,7 @@ class LoginPageState extends State<LoginPage>
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      hintText: 'hintLoginAccount'.tr,
+                      hintText: t.hintLoginAccount,
                       hintStyle: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 16,
@@ -493,7 +494,7 @@ class LoginPageState extends State<LoginPage>
                 child: Obx(
                   () => PasswordTextField(
                     obscureText: state.loginPwdObscure.value,
-                    hintText: 'password'.tr,
+                    hintText: t.password,
                     style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 16,
@@ -568,7 +569,15 @@ class LoginPageState extends State<LoginPage>
                           state.loginPwd.value,
                         );
                         if (err3 != null) {
-                          logic.snackBar(err3.tr);
+                          logic.snackBar(
+                            Text(
+                              err3,
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 20,
+                              ),
+                            ),
+                          );
                           return;
                         }
                         final user = UserRepoLocal.to.current;
@@ -584,7 +593,7 @@ class LoginPageState extends State<LoginPage>
                       splashColor: Colors.green.withValues(alpha: .1),
                       child: Center(
                         child: Text(
-                          'login'.tr,
+                          t.login,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -619,7 +628,7 @@ class LoginPageState extends State<LoginPage>
                       foregroundColor: Colors.white.withValues(alpha: 0.8),
                     ),
                     child: Text(
-                      'forgotPassword'.tr,
+                      t.forgotPassword,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,

@@ -15,6 +15,7 @@ import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class RemoveMemberPage extends StatefulWidget {
   final String groupId;
@@ -134,7 +135,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                             Expanded(
                                 flex: 1,
                                 child: IconButton(
-                              // tooltip: 'info'.tr,
+                              // tooltip: t.info,
                               icon: const Icon(
                                 Icons.info_outline,
                                 // color: Theme.of(Get.context!).colorScheme.onPrimary,
@@ -169,7 +170,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
-        title: 'removeMember'.tr,
+        title: t.removeMember,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: TextButton(
@@ -178,7 +179,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
               Get.back(result: null);
             },
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               style: TextStyle(
                   color: Theme.of(Get.context!).colorScheme.onPrimary),
             ),
@@ -190,14 +191,14 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
         ),
         rightDMActions: <Widget>[
           RoundedElevatedButton(
-              text: '${'buttonAccomplish'.tr}$selectsTips',
+              text: '${t.buttonAccomplish}$selectsTips',
               highlighted: selects.isNotEmpty,
               onPressed: () async {
                 // var nav = Navigator.of(context);
                 if (selects.isEmpty) {
                   return;
                 }
-                EasyLoading.show(status: 'loading'.tr);
+                EasyLoading.show(status: t.loading);
                 int memberCount = selects.length;
                 iPrint("selects $memberCount ${selects.toList().toString()}");
                 bool res = await logic.leaveGroup(widget.groupId, selects);
@@ -207,7 +208,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                   // nav.pop();
                   Get.back(result: selects);
                 } else {
-                  EasyLoading.showError('tipFailed'.tr);
+                  EasyLoading.showError(t.tipFailed);
                 }
               }),
           const SizedBox(width: 10)
@@ -226,8 +227,8 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                     padding: const EdgeInsets.only(left: 8, top: 0, right: 8, bottom: 10),
                     child: searchBar(
                       context,
-                      searchLabel: 'search'.tr,
-                      hintText: 'search'.tr,
+                      searchLabel: t.search,
+                      hintText: t.search,
                       queryTips: '',
                       doSearch: ((query) async {
                         debugPrint("launch_chat_view doSearch ${query.toString()}");
@@ -268,7 +269,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                           Expanded(
                             child: SlidableAutoCloseBehavior(
                               child: groupMemberList.isEmpty
-                                  ? NoDataView(text: 'noData'.tr)
+                                  ? NoDataView(text: t.noData)
                                   : ListView.builder(
                                       shrinkWrap: true,
                                       // data: groupMemberList,

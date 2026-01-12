@@ -12,6 +12,7 @@ import 'package:imboy/config/const.dart';
 import 'login_view.dart';
 import 'signup_view.dart';
 import 'passport_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key, this.title});
@@ -40,7 +41,7 @@ class WelcomePageState extends State<WelcomePage> {
     Connectivity().checkConnectivity().then((r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        state.connectDesc.value = 'tipConnectDesc'.tr;
+        state.connectDesc.value = t.tipConnectDesc;
       } else {
         state.connectDesc.value = '';
       }
@@ -49,7 +50,7 @@ class WelcomePageState extends State<WelcomePage> {
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        state.connectDesc.value = 'tipConnectDesc'.tr;
+        state.connectDesc.value = t.tipConnectDesc;
       } else {
         state.connectDesc.value = '';
       }
@@ -64,35 +65,6 @@ class WelcomePageState extends State<WelcomePage> {
     langLogic.state.valueChanged.value = false;
   }
 
-  /*
-  Widget _label() {
-    return Container(
-        margin: const EdgeInsets.only(top: 40, bottom: 20),
-        child: Column(
-          children: <Widget>[
-            Text(
-              'Quick login with Touch ID'.tr,
-              style: const TextStyle(color: Colors.white, fontSize: 17),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Icon(Icons.fingerprint, size: 90, color: Colors.white),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Touch ID'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ],
-        ));
-  }
-  */
   @override
   Widget build(BuildContext context) {
     final height = Get.height;
@@ -173,7 +145,7 @@ class WelcomePageState extends State<WelcomePage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'languageSetting'.tr,
+                                    t.languageSetting,
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
@@ -209,7 +181,7 @@ class WelcomePageState extends State<WelcomePage> {
                                             vertical: 8,
                                           ),
                                           child: Text(
-                                            'buttonAccomplish'.tr,
+                                            t.buttonAccomplish,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -289,7 +261,7 @@ class WelcomePageState extends State<WelcomePage> {
                       child: Padding(
                           padding: const EdgeInsets.only(left: 10, right: 10),
                           child: Text(
-                            'mobileQuickLogin'.tr,
+                            t.mobileQuickLogin,
                             textAlign: TextAlign.center,
                           )),
                     )),
@@ -310,7 +282,7 @@ class WelcomePageState extends State<WelcomePage> {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8, right: 8),
                               child: Text(
-                                'signup'.tr,
+                                t.signup,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(fontSize: 20),
                               ),
@@ -332,7 +304,7 @@ class WelcomePageState extends State<WelcomePage> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             child: Text(
-                              'paramLogin'.trArgs(['account'.tr]),
+                              t.paramLogin.replaceAll('{param}', t.account),
                               textAlign: TextAlign.center,
                             ),
                           )),

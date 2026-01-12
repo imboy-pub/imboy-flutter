@@ -9,6 +9,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 
 import 'change_password_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ChangePasswordLogic extends GetxController {
   final ChangePasswordState state = ChangePasswordState();
@@ -16,14 +17,13 @@ class ChangePasswordLogic extends GetxController {
   /// 密码格式验证
   String? passwordValidator(String? val) {
     if (strEmpty(val)) {
-      return 'errorEmptyDirectory'.trArgs(['password'.tr]);
+      return t.errorEmptyDirectory.replaceAll('{s}', t.password);
     }
     if (val!.length < 4 || val.length > 32) {
-      return 'errorLengthBetween'.trArgs([
-        'password'.tr,
-        '4',
-        '32',
-      ]);
+      return t.errorLengthBetween
+          .replaceAll('{s}', t.password)
+          .replaceAll('{s}', '4')
+          .replaceAll('{s}', '32');
     }
     return null;
   }
@@ -33,7 +33,7 @@ class ChangePasswordLogic extends GetxController {
       required String rePwd,
       required String existingPwd}) async {
     if (strEmpty(existingPwd)) {
-      EasyLoading.showError('errorRequired'.trArgs(['existingPassword'.tr]));
+      EasyLoading.showError(t.errorRequired.replaceAll('{s}', t.existingPassword));
       return false;
     }
     String? error = passwordValidator(newPwd);
@@ -42,16 +42,17 @@ class ChangePasswordLogic extends GetxController {
       return false;
     }
     if (strEmpty(newPwd)) {
-      EasyLoading.showError('errorRequired'.trArgs(['newPassword'.tr]));
+      EasyLoading.showError(t.errorRequired.replaceAll('{s}', t.newPassword));
       return false;
     }
     if (rePwd != newPwd) {
-      EasyLoading.showError('errorRetypePassword'.tr);
+      EasyLoading.showError(t.errorRetypePassword);
       return false;
     }
     if (newPwd == existingPwd) {
-      EasyLoading.showError(
-          'errorSame'.trArgs(['existingPassword'.tr, 'newPassword'.tr]));
+      EasyLoading.showError(t.errorSame
+          .replaceAll('{s}', t.existingPassword)
+          .replaceAll('{s}', t.newPassword));
       return false;
     }
 
@@ -79,11 +80,11 @@ class ChangePasswordLogic extends GetxController {
       return false;
     }
     if (strEmpty(newPwd)) {
-      EasyLoading.showError('errorRequired'.trArgs(['newPassword'.tr]));
+      EasyLoading.showError(t.errorRequired.replaceAll('{s}', t.newPassword));
       return false;
     }
     if (rePwd != newPwd) {
-      EasyLoading.showError('errorRetypePassword'.tr);
+      EasyLoading.showError(t.errorRetypePassword);
       return false;
     }
 

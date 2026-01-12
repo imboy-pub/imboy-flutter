@@ -13,6 +13,7 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 
 import '../../contact/contact/contact_logic.dart';
 import '../new_friend/new_friend_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ConfirmNewFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
@@ -54,7 +55,7 @@ class ConfirmNewFriendLogic extends GetxController {
     };
 
     EasyLoading.show(
-      status: 'sending'.tr,
+      status: t.sending,
     );
     IMBoyHttpResponse resp = await HttpClient.client.post(
       "${Env().apiBaseUrl}${API.confirmFriend}",
@@ -64,7 +65,7 @@ class ConfirmNewFriendLogic extends GetxController {
       ),
     );
     if (resp.ok) {
-      EasyLoading.showSuccess('sent'.tr);
+      EasyLoading.showSuccess(t.sent);
       // 修正好友申请状态
       newFriendLogic.receivedConfirmFriend(false, {
         "from": to,
@@ -82,7 +83,7 @@ class ConfirmNewFriendLogic extends GetxController {
       });
       Get.back(times: 1);
     } else {
-      EasyLoading.showError('networkFailureTryAgain'.tr);
+      EasyLoading.showError(t.networkFailureTryAgain);
     }
   }
 }

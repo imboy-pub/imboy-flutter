@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:imboy/theme/theme_manager.dart';
-import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
@@ -26,6 +25,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'passport_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 认证登录逻辑控制器
 class PassportLogic extends GetxController {
@@ -93,7 +93,7 @@ class PassportLogic extends GetxController {
               child: const Icon(Icons.keyboard_arrow_left, color: Colors.white),
             ),
             Text(
-              'back'.tr,
+              t.buttonBack,
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white,
@@ -109,14 +109,14 @@ class PassportLogic extends GetxController {
   /// 账号验证
   String? userValidator(String accountType, String value) {
     if (value.isEmpty) {
-      return 'errorEmptyDirectory'.trArgs(['hintLoginAccount'.tr]);
+      return t.errorEmptyDirectory.replaceAll('{s}', t.hintLoginAccount);
     }
     if (accountType == 'mobile' && !isPhone(value)) {
-      return 'errorInvalid'.trArgs(['mobile'.tr]);
+      return t.errorInvalid.replaceAll('{s}', t.mobile);
     } else if (accountType == 'email' && !isEmail(value)) {
-      return 'errorInvalid'.trArgs(['email'.tr]);
+      return t.errorInvalid.replaceAll('{s}', t.email);
     } else if (accountType == 'account' && value.length < 5) {
-      return 'errorInvalid'.trArgs(['account'.tr]);
+      return t.errorInvalid.replaceAll('{s}', t.account);
     }
     return null;
   }
@@ -124,10 +124,14 @@ class PassportLogic extends GetxController {
   /// 密码格式验证
   String? passwordValidator(String? val) {
     if (strEmpty(val)) {
-      return 'errorEmptyDirectory'.trArgs(['password'.tr]);
+      return t.errorEmptyDirectory.replaceAll('{s}', t.password);
     }
     if (val!.length < 4 || val.length > 32) {
-      return 'errorLengthBetween'.trArgs(['password'.tr, '4', '32']);
+      // errorLengthBetween: "{s}长度为{s}-{s}的任意字符"
+      return t.errorLengthBetween
+          .replaceAll('{s}', t.password)
+          .replaceAll('{s}', '4')
+          .replaceAll('{s}', '32');
     }
     return null;
   }
@@ -147,7 +151,7 @@ class PassportLogic extends GetxController {
         return null;
       } else if (status == 2) {
         Get.defaultDialog(
-          title: 'cancelLogoutTitle'.tr,
+          title: t.cancelLogoutTitle,
           backgroundColor: ThemeManager.instance.isDarkMode
               ? const Color.fromRGBO(80, 80, 80, 1)
               : const Color.fromRGBO(240, 240, 240, 1),
@@ -157,7 +161,7 @@ class PassportLogic extends GetxController {
               Get.close();
             },
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(Get.context!).colorScheme.onPrimary,
@@ -170,7 +174,7 @@ class PassportLogic extends GetxController {
               Get.off(() => BottomNavigationPage());
             },
             child: Text(
-              'login'.tr,
+              t.login,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(Get.context!).colorScheme.onPrimary,
@@ -186,7 +190,7 @@ class PassportLogic extends GetxController {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      'cancelLogoutBody'.tr,
+                      t.cancelLogoutBody,
                       // style:  TextStyle(
                       //   fontSize: AppTextSize.medium,
                       //   fontWeight: FontWeight.normal,
@@ -201,7 +205,7 @@ class PassportLogic extends GetxController {
           ),
         );
 
-        return 'cancelLogoutTitle'.tr;
+        return t.cancelLogoutTitle;
       } else {
         return state.error.value;
       }
@@ -265,7 +269,7 @@ class PassportLogic extends GetxController {
         data: postData,
       );
       if (!resp2.ok) {
-        state.error.value = resp2.error!.message.tr;
+        state.error.value = resp2.error!.message;
         return 0;
       } else {
         int status = (resp2.payload['status'] ?? 1).toInt();
@@ -318,7 +322,8 @@ class PassportLogic extends GetxController {
       "sys_version": Platform.operatingSystemVersion,
       "ref_uid": "",
     };
-    iPrint("post_data ${data.toString()}");
+    // 安全日志：不输出完整数据，包含密码等敏感信息
+    debugPrint("post_data account=${data['account']}, rsa_encrypt=${data['rsa_encrypt']}");
     IMBoyHttpResponse resp2 = await HttpClient.client.post(
       API.signup,
       data: data,
@@ -326,7 +331,7 @@ class PassportLogic extends GetxController {
     if (resp2.ok) {
       return null;
     } else {
-      state.error.value = resp2.error?.message ?? 'unknown'.tr;
+      state.error.value = resp2.error?.message ?? t.unknown;
       return state.error.value;
     }
   }
@@ -363,7 +368,7 @@ class PassportLogic extends GetxController {
     required String rePwd,
   }) async {
     if (strEmpty(newPwd)) {
-      return 'errorRequired'.trArgs(['newPassword'.tr]);
+      return t.errorRequired.replaceAll('{s}', t.newPassword);
     }
 
     String? error = passwordValidator(newPwd);
@@ -371,7 +376,7 @@ class PassportLogic extends GetxController {
       return error;
     }
     if (rePwd != newPwd) {
-      return 'errorRetypePassword'.tr;
+      return t.errorRetypePassword;
     }
     try {
       Map<String, dynamic> result = await _encryptPassword(newPwd);
@@ -462,7 +467,7 @@ class PassportLogic extends GetxController {
     iPrint("checkVerifyEnable_res ${res.toString()}");
     bool result = res[fResultKey];
     if (result == false) {
-      snackBar('当前网络环境不支持，或者手机没有绑定电话卡'.tr);
+      snackBar('当前网络环境不支持，或者手机没有绑定电话卡');
       return null;
     }
 
@@ -502,7 +507,7 @@ class PassportLogic extends GetxController {
     uiConfig.logBtnHeight = 50;
     uiConfig.logBtnOffsetY = isiOS ? 20 : 280;
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
-    uiConfig.logBtnText = 'mobileQuickLogin'.tr;
+    uiConfig.logBtnText = t.mobileQuickLogin;
     uiConfig.logBtnTextColor = isiOS
         ? Colors.black.value
         : Colors.white.value;
@@ -521,7 +526,7 @@ class PassportLogic extends GetxController {
     uiConfig.privacyOffsetX = 10;
     uiConfig.privacyOffsetY = 10;
     uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
-    uiConfig.clauseName = 'licenseAgreement'.tr;
+    uiConfig.clauseName = t.licenseAgreement;
     uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
     uiConfig.clauseBaseColor = Colors.black87.value;
 
@@ -529,7 +534,7 @@ class PassportLogic extends GetxController {
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
       JVPrivacy(
-        'licenseAgreement'.tr.replaceAll('《', '').replaceAll('》', ''),
+        t.licenseAgreement.replaceAll('《', '').replaceAll('》', ''),
         licenseAgreementUrl(ext: 'html'),
         beforeName: "==",
         afterName: "++",
@@ -590,7 +595,7 @@ class PassportLogic extends GetxController {
   /// ext md | html
   String licenseAgreementUrl({String ext = 'md'}) {
     String lang = 'cn';
-    String code = sysLang('').toLowerCase();
+    String code = LocaleHelper.sysLang('').toLowerCase();
     // license_agreement 目前只配置 cn ru en 3个文件
     if (code.contains('en')) {
       lang = 'en';

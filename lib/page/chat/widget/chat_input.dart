@@ -7,11 +7,8 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/image_button.dart' show ImageButton;
-import 'package:imboy/config/init.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/store/model/message_model.dart';
 
 /// 键盘高度观察者
 class _KeyboardObserver with WidgetsBindingObserver {
@@ -113,9 +110,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   late String draftKey; // 草稿key
   Timer? _debounceTimer;
 
-  // 用于外部控制消息区/输入区高度实现丝滑动画
-  late RxDouble _composerHeight;
-
   final _emojiShowing = ValueNotifier<bool>(false); // 是否显示表情面板
   final _inputType = ValueNotifier<InputType>(InputType.text); // 当前输入类型
   final _sendButtonVisible = ValueNotifier<bool>(false); // 发送按钮可见性
@@ -145,8 +139,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     draftKey = "draft${widget.type}_${widget.peerId}";
-    // 如果外部传入了 composerHeight，则使用外部的；否则自己新建一个
-    _composerHeight = widget.composerHeight;
 
     _initTextController();
     _initAnimationController();
@@ -281,7 +273,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     // 找到@符号的位置
     final atIndex = currentText.lastIndexOf('@', selection.extentOffset - 1);
     if (atIndex != -1) {
-      final newText = currentText.substring(0, atIndex) + '@$username ' + currentText.substring(selection.extentOffset);
+      final newText = '${currentText.substring(0, atIndex)}@$username ${currentText.substring(selection.extentOffset)}';
       final newCursorPosition = atIndex + username.length + 2;
       
       _textController.value = TextEditingValue(
@@ -496,7 +488,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     FocusScope.of(context).unfocus();
     _inputType.value = InputType.text;
     _emojiShowing.value = false;
-    _composerHeight = widget.composerHeight;
   }
 
   /// 对外提供unfocus方法，用于收起输入框和面板
@@ -543,77 +534,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // 触发重新构建，让 ChatInputHeightListener 检测到高度变化并执行动画
       setState(() {});
     }
-  }
-
-  /// 构建语音按钮（支持长按录音，松开发送，带动画效果）
-  Widget _buildVoiceButton(BuildContext context) {
-    return GestureDetector(
-      onLongPressStart: (details) {
-        // 开始录音
-        _startVoiceRecording();
-      },
-      onLongPressEnd: (details) {
-        // 结束录音并发送
-        _stopAndSendVoiceRecording();
-      },
-      onLongPressMoveUpdate: (details) {
-        // 滑动取消录音
-        final globalPosition = details.globalPosition;
-        final box = context.findRenderObject() as RenderBox?;
-        if (box != null) {
-          final localPosition = box.globalToLocal(globalPosition);
-          if (!box.size.contains(localPosition)) {
-            // 手指移出按钮区域，取消录音
-            _cancelVoiceRecording();
-          }
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: double.infinity,
-        height: 36,
-        decoration: BoxDecoration(
-          color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: ThemeManager.instance.getThemeColor('primary'),
-            width: 1,
-          ),
-        ),
-        child: Center(
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 200),
-            opacity: 1.0,
-            child: Text(
-              'chatHoldDownTalk'.tr,
-              style: TextStyle(
-                color: ThemeManager.instance.getThemeColor('primary'),
-                fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 开始语音录制
-  void _startVoiceRecording() {
-    // TODO: 实现语音录制逻辑
-    Get.snackbar('提示', '开始录音...');
-  }
-
-  /// 停止并发送语音录制
-  void _stopAndSendVoiceRecording() {
-    // TODO: 实现语音发送逻辑
-    Get.snackbar('提示', '录音完成，准备发送');
-  }
-
-  /// 取消语音录制
-  void _cancelVoiceRecording() {
-    // TODO: 实现取消录音逻辑
-    Get.snackbar('提示', '录音已取消');
   }
 
   /// 构建底部容器（emoji/扩展面板，带动画）—— 丝滑高度逻辑
@@ -926,11 +846,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     // 即使在键盘未弹出时，iPhone X+ 机型也有底部安全区域（通常34px）
     // 这会导致输入框和键盘之间出现空隙，因为 bottomInset 包含了这个安全区域
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    
+
     // 修正后的 bottomInset：减去安全区域高度，但不能小于0
     // 当键盘弹出时，viewInsets.bottom 包含键盘高度 + 安全区域（某些情况下）或仅键盘高度
-    // 我们主要关注的是键盘带来的“额外”高度
-    double effectiveBottomInset = bottomInset;
+    // 我们主要关注的是键盘带来的"额外"高度
     if (Platform.isIOS && bottomInset > 0) {
       // 在 iOS 上，键盘弹出时的 viewInsets.bottom 通常已经处理了安全区域
       // 但在某些机型（如 iPhone 16E）上可能存在差异

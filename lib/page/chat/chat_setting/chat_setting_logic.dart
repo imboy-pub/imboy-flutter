@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_retry.dart';
-import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -43,7 +43,7 @@ class ChatSettingLogic extends GetxController {
     // 删除数据库中的消息
     await repo.deleteByConversationId(model.uk3);
 
-    eventBus.fire(ChatExtendModel(type: 'clean_msg', payload: {
+    AppEventBus.fire(ChatExtendEvent(type: 'clean_msg', payload: {
       'uk3': model.uk3,
     }));
     return model.id;

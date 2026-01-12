@@ -10,12 +10,12 @@ import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/search/search_chat_view.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/page/qrcode/qrcode_view.dart';
-import 'package:imboy/store/model/chat_extend_model.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/group/group_member/group_member_view.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/easy_dialog.dart';
@@ -31,6 +31,7 @@ import 'change_info_view.dart';
 import 'group_detail_logic.dart';
 import 'remove_member_view.dart';
 import 'add_member_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class GroupDetailPage extends StatefulWidget {
   final String groupId;
@@ -154,8 +155,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     // title = g!.title;
 
     setState(() {});
-    ssMsgExt ??= eventBus.on<ChatExtendModel>().listen((
-      ChatExtendModel obj,
+    ssMsgExt ??= AppEventBus.on<ChatExtendEvent>().listen((
+      ChatExtendEvent obj,
     ) async {
       iPrint("face_to_face_confirm widget.gid ${obj.toString()}");
       // if (obj.groupId == widget.groupId && obj.isFirst) {
@@ -224,7 +225,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             Get.back(result: {'memberCount': memberCount});
           },
         ),
-        title: "${title.isEmpty ? 'chatMessage'.tr : title} ($memberCount)",
+        title: "${title.isEmpty ? t.chatMessage : title} ($memberCount)",
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -251,7 +252,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'groupMembers'.tr,
+                    t.groupMembers,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.medium,
                       fontWeight: FontWeight.w600,
@@ -313,7 +314,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         label: Text(
-                          'viewAllGroupMember'.tr,
+                          t.viewAllGroupMember,
                           style: TextStyle(
                             fontSize: 14,
                             color: Theme.of(context).colorScheme.primary,
@@ -354,16 +355,16 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 群名称
                   _buildModernListTile(
                     context: context,
-                    title: 'groupName'.tr,
-                    value: title.isEmpty ? 'unnamed'.tr : title,
+                    title: t.groupName,
+                    value: title.isEmpty ? t.unnamed : title,
                     icon: Icons.group_outlined,
                     onTap: () async {
                       GroupModel group = (await logic.find(widget.groupId))!;
                       Get.to(
                         () => ChangeInfoPage(
                           group: group,
-                          title: 'changeParam'.trArgs(['groupName'.tr]),
-                          subtitle: 'changeGroupChatName'.tr,
+                          title: t.changeParam.replaceAll('{param}', t.groupName),
+                          subtitle: t.changeGroupChatName,
                         ),
                         transition: Transition.rightToLeft,
                         popGesture: true,
@@ -385,7 +386,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 群二维码
                   _buildModernListTile(
                     context: context,
-                    title: 'groupQrcode'.tr,
+                    title: t.groupQrcode,
                     icon: Icons.qr_code_2_outlined,
                     onTap: () async {
                       GroupModel group = (await logic.find(widget.groupId))!;
@@ -405,7 +406,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 群公告
                   _buildModernListTile(
                     context: context,
-                    title: 'groupAnnouncement'.tr,
+                    title: t.groupAnnouncement,
                     value: groupNotification ?? '',
                     icon: Icons.announcement_outlined,
                     onTap: () {
@@ -421,8 +422,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             /* TODO 2024-08-15 15:22:59 群公告、备注、
             n.ListTile(
               title: n.Row([
-                Text('群公告'.tr),
-                Text(strEmpty(groupNotification) ? 'notSet'.tr : '')
+                Text(t.groupAnnouncement),
+                Text(strEmpty(groupNotification) ? t.notSet : '')
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -459,7 +460,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child:Text('groupManagement'.tr)),
+                      Expanded(child:Text(t.groupManagement)),
                     ],
                   ),
                   trailing: navigateNextIcon,
@@ -482,7 +483,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               child: ListTile(
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text('remark'.tr), Text(strEmpty(groupRemark) ? ''.tr : '')],
+                  children: [Text(t.remark), Text(strEmpty(groupRemark) ? '' : '')],
                 ),
                 trailing: navigateNextIcon,
                 onTap: () {
@@ -513,7 +514,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: 'searchChatContent'.tr,
+                title: t.searchChatContent,
                 icon: Icons.search_outlined,
                 onTap: () {
                   Get.to(
@@ -540,7 +541,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('messageMute'.tr),
+                  Text(t.messageMute),
                 ],
               ),
               trailing: CupertinoSwitch(
@@ -569,7 +570,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('pinChat'.tr),
+                  Text(t.pinChat),
                 ],
               ),
               trailing: CupertinoSwitch(
@@ -598,7 +599,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('groupAddLocal'.tr),
+                  Text(t.groupAddLocal),
                 ],
               ),
               trailing: CupertinoSwitch(
@@ -637,7 +638,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: 'groupAlias'.tr,
+                title: t.groupAlias,
                 value: strEmpty(myGroupAlias) ? UserRepoLocal.to.current.nickname : myGroupAlias,
                 icon: Icons.edit_note_outlined,
                 onTap: () {
@@ -667,7 +668,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               color: Theme.of(Get.context!).colorScheme.onPrimary,
             ),
 
-            // GroupItem(title: 'setChatBackground'.tr),
+            // GroupItem(title: t.setChatBackground),
 
             // HorizontalLine(
             //   height: 10,
@@ -693,25 +694,25 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 清空聊天记录
                   _buildModernListTile(
                     context: context,
-                    title: 'clearChatRecord'.tr,
+                    title: t.clearChatRecord,
                     icon: Icons.delete_sweep_outlined,
                     onTap: () {
-                      String tips = 'confirmDeleteChatRecord'.tr;
+                      String tips = t.confirmDeleteChatRecord;
                       EasyDialog.showWarning(
                         context: context,
-                        title: 'warning'.tr,
+                        title: t.warning,
                         content: Text(tips),
-                        confirmText: 'buttonConfirm'.tr,
-                        cancelText: 'buttonCancel'.tr,
+                        confirmText: t.buttonConfirm,
+                        cancelText: t.buttonCancel,
                         onConfirm: () async {
                           int cid = await logic.cleanMessageByPeerId('C2G', widget.groupId);
                           if (cid > 0) {
                             backDoRefresh = true;
                             await Get.find<ConversationLogic>().hideConversation(cid);
                             await Get.find<ConversationLogic>().conversationsList();
-                            EasyLoading.showSuccess('tipSuccess'.tr);
+                            EasyLoading.showSuccess(t.tipSuccess);
                           } else {
-                            EasyLoading.showError('tipFailed'.tr);
+                            EasyLoading.showError(t.tipFailed);
                           }
                         },
                       );
@@ -739,7 +740,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: 'complaint'.tr,
+                title: t.complaint,
                 icon: Icons.flag_outlined,
                 onTap: () {
                   // TODO: 实现投诉功能
@@ -768,14 +769,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    String tips = "${role == 4 ? 'sureToDissolveGroup'.tr : 'sureToLeaveGroup'.tr}\n${'sureDeleteGroupChatRecord'.tr}";
+                    String tips = "${role == 4 ? t.sureToDissolveGroup : t.sureToLeaveGroup}\n${t.sureDeleteGroupChatRecord}";
 
                     EasyDialog.showWarning(
                       context: context,
-                      title: 'tipTips'.tr,
+                      title: t.tipTips,
                       content: Text(tips),
-                      confirmText: 'buttonConfirm'.tr,
-                      cancelText: 'buttonCancel'.tr,
+                      confirmText: t.buttonConfirm,
+                      cancelText: t.buttonCancel,
                       onConfirm: () async {
                         var nav = Navigator.of(context);
                         bool res = false;
@@ -785,7 +786,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                           res = await logic.leave(widget.groupId);
                         }
                         if (res) {
-                          EasyLoading.showSuccess('tipSuccess'.tr);
+                          EasyLoading.showSuccess(t.tipSuccess);
                           Get.close();
                           nav.pop();
                           nav.pop();
@@ -802,7 +803,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                     ),
                   ),
                   child: Text(
-                    role == 4 ? 'groupDissolve'.tr : 'groupLeave'.tr,
+                    role == 4 ? t.groupDissolve : t.groupLeave,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.w600,

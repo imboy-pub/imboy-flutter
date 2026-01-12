@@ -9,6 +9,7 @@ import 'package:imboy/store/model/denylist_model.dart';
 
 import '../contact_setting_tag/contact_setting_tag_view.dart';
 import 'contact_setting_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ContactSettingPage extends StatelessWidget {
@@ -146,7 +147,7 @@ class ContactSettingPage extends StatelessWidget {
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
             ),
           ],
         ),
@@ -251,7 +252,7 @@ class ContactSettingPage extends StatelessWidget {
               
               // 标题
               Text(
-                'deleteContact'.tr,
+                t.deleteContact,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -265,7 +266,7 @@ class ContactSettingPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
-                  'tipDeleteContact'.trArgs([peerRemark.isEmpty ? peerNickname : peerRemark]),
+                  t.tipDeleteContact.replaceAll('{s}', peerRemark.isEmpty ? peerNickname : peerRemark),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -289,14 +290,14 @@ class ContactSettingPage extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () async {
                           Get.back(); // 先关闭底部弹窗
-                          EasyLoading.show(status: '删除中...'.tr);
+                          EasyLoading.show(status: t.deleting);
                           bool res = await logic.deleteContact(peerId);
                           EasyLoading.dismiss();
                           if (res) {
-                            EasyLoading.showSuccess("操作成功".tr);
+                            EasyLoading.showSuccess(t.tipSuccess);
                             Get.offAll(() => BottomNavigationPage(), arguments: {'index': 1});
                           } else {
-                            EasyLoading.showError("操作失败".tr);
+                            EasyLoading.showError(t.operationFailed);
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -306,7 +307,7 @@ class ContactSettingPage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'deleteContact'.tr,
+                          t.deleteContact,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -329,7 +330,7 @@ class ContactSettingPage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'buttonCancel'.tr,
+                          t.buttonCancel,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -359,7 +360,7 @@ class ContactSettingPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         titleWidget: Text(
-          'profileSettings'.tr,
+          t.profileSettings,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -383,7 +384,7 @@ class ContactSettingPage extends StatelessWidget {
             // 设置备注和标签
             _buildSettingCard(
               context: context,
-              title: 'setParam'.trArgs(['remarksTags'.tr]),
+              title: t.setParam.replaceAll('{s}', t.remarksTags),
               icon: Icons.edit_outlined,
               onTap: () {
                 Get.to(
@@ -413,11 +414,11 @@ class ContactSettingPage extends StatelessWidget {
             // 推荐给朋友
             _buildSettingCard(
               context: context,
-              title: 'recommendToFriend'.tr,
+              title: t.recommendToFriend,
               icon: Icons.share_outlined,
               onTap: () async {
                 // 推荐给朋友的逻辑
-                EasyLoading.showInfo('功能开发中...'.tr);
+                EasyLoading.showInfo(t.featureInDevelopment);
               },
             ),
             
@@ -427,13 +428,13 @@ class ContactSettingPage extends StatelessWidget {
             Obx(
               () => _buildSwitchCard(
                 context: context,
-                title: 'addToDenylist'.tr,
+                title: t.addToDenylist,
                 icon: Icons.block_outlined,
                 iconColor: inDenylist.value ? colorScheme.error : colorScheme.onSurfaceVariant,
                 value: inDenylist.value,
                 // 切换开关：true 加入黑名单；false 移出黑名单
                 onChanged: (val) async {
-                  EasyLoading.show(status: '处理中...'.tr);
+                  EasyLoading.show(status: t.processing);
                   bool res;
                   if (val) {
                     // 加入黑名单
@@ -457,9 +458,9 @@ class ContactSettingPage extends StatelessWidget {
                   EasyLoading.dismiss();
                   if (res) {
                     inDenylist.value = val;
-                    EasyLoading.showSuccess(val ? '已加入黑名单'.tr : '已移出黑名单'.tr);
+                    EasyLoading.showSuccess(val ? t.addedToDenylist : t.removedFromDenylist);
                   } else {
-                    EasyLoading.showError('操作失败'.tr);
+                    EasyLoading.showError(t.operationFailed);
                   }
                 },
               ),
@@ -470,7 +471,7 @@ class ContactSettingPage extends StatelessWidget {
             // 删除联系人按钮
             _buildDangerButton(
               context: context,
-              title: 'deleteContact'.tr,
+              title: t.deleteContact,
               icon: Icons.person_remove_outlined,
               onTap: () => _showDeleteConfirmation(context),
             ),

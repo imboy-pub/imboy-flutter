@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/page/group/group_list/group_list_logic.dart'
-    show GroupListLogic;
 
 import 'package:imboy/component/helper/func.dart';
 
@@ -19,6 +17,7 @@ class SmartGroupAvatar extends StatefulWidget {
   final String? avatar;
   final double size;
   final VoidCallback? onTap;
+  final Future<List<String>> Function(String groupId)? avatarLoader;
 
   const SmartGroupAvatar({
     super.key,
@@ -26,6 +25,7 @@ class SmartGroupAvatar extends StatefulWidget {
     this.avatar,
     this.size = 50,
     this.onTap,
+    this.avatarLoader,
   });
 
   @override
@@ -56,12 +56,15 @@ class _SmartGroupAvatarState extends State<SmartGroupAvatar> {
       return;
     }
 
-    _membersFuture = GroupListLogic().computeAvatar(widget.groupId).then((
-      avatars,
-    ) {
-      _avatarCache[widget.groupId] = avatars;
-      return avatars;
-    });
+    // 使用传入的回调函数加载头像，如果没有提供则返回空列表
+    if (widget.avatarLoader != null) {
+      _membersFuture = widget.avatarLoader!(widget.groupId).then((avatars) {
+        _avatarCache[widget.groupId] = avatars;
+        return avatars;
+      });
+    } else {
+      _membersFuture = Future.value([]);
+    }
   }
 
   @override

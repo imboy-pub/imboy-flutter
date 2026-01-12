@@ -8,6 +8,7 @@ import 'package:imboy/service/storage.dart';
 
 import 'language_logic.dart';
 import 'language_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LanguagePage extends StatelessWidget {
   final LanguageLogic logic = Get.put(LanguageLogic());
@@ -27,7 +28,7 @@ class LanguagePage extends StatelessWidget {
 
     return Scaffold(
       appBar: GlassAppBar(
-        title: 'languageSetting'.tr,
+        title: t.languageSetting,
         automaticallyImplyLeading: true,
         rightDMActions: [
           Obx(
@@ -38,7 +39,7 @@ class LanguagePage extends StatelessWidget {
                     }
                   : null,
               child: Text(
-                'buttonAccomplish'.tr,
+                t.buttonAccomplish,
                 style: TextStyle(
                   color: state.valueChanged.isTrue
                       ? AppColors.primaryGreen

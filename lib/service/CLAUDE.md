@@ -36,6 +36,7 @@
 
 | 服务文件 | 职责描述 | 依赖 |
 |---------|---------|------|
+| `event_bus.dart` | 事件总线服务（服务间解耦通信） | event_bus, get |
 | `websocket.dart` | WebSocket 连接管理 | MessageService, NetworkMonitorService |
 | `message.dart` | 消息核心服务 | WebSocketService, MessageRepo |
 | `message_actions.dart` | 消息操作处理 | MessageService |

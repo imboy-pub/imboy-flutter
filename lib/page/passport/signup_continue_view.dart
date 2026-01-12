@@ -11,6 +11,7 @@ import 'manage_account_view.dart';
 import 'passport_logic.dart';
 import 'widget/bezier_container.dart';
 import 'widget/fadeanimation.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class SignupContinuePage extends StatefulWidget {
   final String account;
@@ -99,8 +100,9 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                               ),
                               child: RichText(
                                 text: TextSpan(
-                                  text: 'code_sent_to_param'
-                                      .trArgs([widget.accountType.tr]),
+                                  text: widget.accountType == 'email'
+                                      ? t.codeSentToEmail
+                                      : t.codeSentToMobile,
                                   children: [
                                     TextSpan(
                                       text: widget.account,
@@ -139,7 +141,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                 animationType: AnimationType.fade,
                                 validator: (v) {
                                   if (v == null || v.trim().isEmpty) {
-                                    return 'confirmCodeError'.tr;
+                                    return t.confirmCodeError;
                                   }
                                   return null;
                                 },
@@ -189,7 +191,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0),
                               child: Text(
-                                hasError ? 'pinCodeFillTips'.tr : '',
+                                hasError ? t.pinCodeFillTips : '',
                                 style: const TextStyle(
                                     color: Colors.red,
                                     fontSize: 12,
@@ -201,7 +203,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                               children: [
                                 Expanded(
                                     child: Text(
-                                  'notReceiveCoeQ'.tr,
+                                  t.notReceiveCoeQ,
                                   style: const TextStyle(
                                       color: Colors.black54, fontSize: 15),
                                 )),
@@ -216,7 +218,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                     if (res == null) {
                                       logic.snackBar(
                                         Text(
-                                          'codeSentToParam'.trArgs([widget.account]),
+                                          t.codeSentToParam.replaceAll('{param}', widget.account),
                                           style: const TextStyle(
                                             color: Colors.green,
                                             fontSize: 20,
@@ -229,15 +231,31 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                       );
                                     } else {
                                       if (res == 'param_already_exist') {
-                                        final label = widget.accountType == 'email' ? 'email'.tr : 'mobile'.tr;
-                                        logic.snackBar('paramAlreadyExist'.trArgs([label]));
+                                        final label = widget.accountType == 'email' ? t.email : t.mobile;
+                                        logic.snackBar(
+                                          Text(
+                                            t.paramAlreadyExist.replaceAll('{param}', label),
+                                            style: const TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        );
                                       } else {
-                                        logic.snackBar(res.tr);
+                                        logic.snackBar(
+                                          Text(
+                                            res,
+                                            style: const TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        );
                                       }
                                     }
                                   },
                                   child: Text(
-                                    'resendCode'.tr,
+                                    t.resendCode,
                                     style: const TextStyle(
                                         color: Colors.green,
                                         fontWeight: FontWeight.bold,
@@ -260,7 +278,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                 if (res == null) {
                                   logic.snackBar(
                                     Text(
-                                      'tipSuccess'.trArgs([widget.account]),
+                                      t.tipSuccess,
                                       style: const TextStyle(
                                         color: Colors.green,
                                         fontSize: 20,
@@ -274,7 +292,15 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                   // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
                                   Get.offAll(() => ManageAccountPage());
                                 } else {
-                                  logic.snackBar(res.tr);
+                                  logic.snackBar(
+                                    Text(
+                                      res,
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  );
                                 }
                               },
                               style: state.showSignupContinue.isTrue
@@ -283,7 +309,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                               child: Padding(
                                   padding: const EdgeInsets.only(left: 10, right: 10),
                                   child: Text(
-                                    'signup'.tr,
+                                    t.signup,
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(fontSize: 20),
                                   )),
@@ -302,7 +328,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('tryAgainQ'.tr,
+                          Text(t.tryAgainQ,
                               style: const TextStyle(
                                 color: Colors.white,
                                 letterSpacing: 0.5,
@@ -316,7 +342,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                               );
                             },
                             child: Text(
-                              'login'.tr,
+                              t.login,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.9),
                                 fontWeight: FontWeight.bold,

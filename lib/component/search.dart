@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 搜索栏组件 - 使用新的主题系统
 Widget searchBar(
@@ -144,7 +144,7 @@ class SearchBarDelegate extends SearchDelegate {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      tooltip: 'buttonBack'.tr,
+      tooltip: t.buttonBack,
       icon: Icon(
         Icons.arrow_back_ios,
         size: 20,
@@ -196,7 +196,7 @@ class SearchBarDelegate extends SearchDelegate {
             if (items.isEmpty) {
               return Center(
                 child: Text(
-                  'searchNoFound'.tr,
+                  t.searchNoFound,
                   style: ThemeManager.instance
                       .getTextStyle(FontSizeType.medium, context: context)
                       .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),

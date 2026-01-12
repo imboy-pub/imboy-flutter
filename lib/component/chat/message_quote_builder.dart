@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:intl/intl.dart';
 
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/chat/message.dart';
@@ -99,9 +98,9 @@ class QuoteMessageBuilder extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: MessageSpacing.quoteContentPaddingAll,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
                       InkWell(
                         onTap: () async {
                           debugPrint("> on quoteMsg_onTap: ${quoteMsg.id}");
@@ -206,6 +205,7 @@ class QuoteMessageBuilder extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ],
     );
   }

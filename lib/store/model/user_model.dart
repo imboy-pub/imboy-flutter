@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class UserSettingModel {
   // allow_search 用户允许被搜索 1 是  2 否
@@ -96,13 +96,13 @@ class UserModel {
 
   String get genderTitle {
     if (gender == 1) {
-      return 'male'.tr;
+      return t.male;
     } else if (gender == 2) {
-      return 'female'.tr;
+      return t.female;
     } else if (gender == 3) {
-      return 'keepSecret'.tr;
+      return t.keepSecret;
     }
-    return 'unknown'.tr;
+    return t.unknown;
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

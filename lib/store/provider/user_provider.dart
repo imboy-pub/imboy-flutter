@@ -146,7 +146,7 @@ class UserProvider extends HttpClient {
     if (resp.ok) {
       return true;
     }
-    EasyLoading.showError(resp.msg.tr);
+    EasyLoading.showError(resp.msg);
     return false;
   }
 
@@ -163,7 +163,7 @@ class UserProvider extends HttpClient {
     if (resp.msg == 'have_set') {
       StorageService.to.remove(Keys.needSetPwd);
     }
-    EasyLoading.showError(resp.msg.tr);
+    EasyLoading.showError(resp.msg);
     return false;
   }
 
@@ -173,7 +173,7 @@ class UserProvider extends HttpClient {
       iPrint("> on UserProvider/applyLogout resp: ${resp.payload.toString()}");
       if (!resp.ok) {
         iPrint("> on UserProvider/applyLogout failed: ${resp.msg}, code: ${resp.code}");
-        EasyLoading.showError(resp.msg.tr);
+        EasyLoading.showError(resp.msg);
         return false;
       }
       return true;

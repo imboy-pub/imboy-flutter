@@ -8,12 +8,18 @@ import 'const.dart';
 import 'env_pro.dart';
 import 'env_dev.dart';
 import 'env_field.dart';
-import 'env_local.dart';
+import 'env_local_home.dart';
+import 'env_local_office.dart';
 
+/// 环境映射配置
+/// 可用环境: pro, dev, local_home, local_office
 final envMap = {
   'pro': EnvPro(),
-  'local': EnvLocal(),
   'dev': EnvDev(),
+  'local_home': EnvLocalHome(),
+  'local_office': EnvLocalOffice(),
+  // 保留 'local' 作为向后兼容，默认使用 local_office
+  'local': EnvLocalOffice(),
 };
 
 abstract interface class Env implements EnvField {
@@ -33,8 +39,17 @@ abstract interface class Env implements EnvField {
     return key;
   }
 
-  @EnviedField(defaultValue: '')
-  static String? wsUrl = StorageService.to.getString(Keys.wsUrl);
+  /// WebSocket URL - 优先从环境配置读取，如果没有则从本地存储读取
+  /// Environment-specific WebSocket URL, falls back to cached value
+  static String? get effectiveWsUrl {
+    // 优先使用环境配置中的 wsUrl
+    final envWsUrl = _to.wsUrl;
+    if (envWsUrl != null && envWsUrl.isNotEmpty) {
+      return envWsUrl;
+    }
+    // 降级到本地存储的缓存值
+    return StorageService.to.getString(Keys.wsUrl);
+  }
 
   @EnviedField(defaultValue: '')
   static String? apiPublicKey = StorageService.to.getString(Keys.apiPublicKey);

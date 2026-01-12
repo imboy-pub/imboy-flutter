@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 // import 'package:get/get.dart';
 // import 'subscriber_logic.dart';
@@ -20,7 +18,6 @@ class SubscriberPage extends StatefulWidget {
 
 class _SubscriberPageState extends State<SubscriberPage> {
   final _remoteRenderer = RTCVideoRenderer();
-  bool _connecting = false;
   // late WHIP _whip;
   String stateStr = 'init';
 
@@ -48,10 +45,6 @@ class _SubscriberPageState extends State<SubscriberPage> {
   void deactivate() {
     super.deactivate();
     _remoteRenderer.dispose();
-  }
-
-  void _saveSettings() {
-    _preferences.setString('pullServer', _serverController.text);
   }
 
   void initRenderers() async {

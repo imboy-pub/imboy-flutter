@@ -92,8 +92,7 @@ class ChatBackgroundManager extends GetxController {
   /// 获取当前背景装饰
   BoxDecoration getCurrentBackgroundDecoration() {
     final theme = ThemeManager.instance;
-    final isDark = theme.isDarkMode;
-    
+
     switch (_currentBackground.value) {
       case 'pattern_1':
         return BoxDecoration(
@@ -438,7 +437,7 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('选择颜色'),
-        content: Container(
+        content: SizedBox(
           width: 300,
           height: 200,
           child: GridView.builder(

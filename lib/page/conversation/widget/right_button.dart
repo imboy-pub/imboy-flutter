@@ -7,6 +7,7 @@ import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/qrcode/qrcode_view.dart';
 
 import 'package:popover/popover.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class RightButton extends StatelessWidget {
   const RightButton({super.key});
@@ -55,7 +56,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.chat_bubble_outline,
-          title: 'initiateChat'.tr,
+          title: t.initiateChat,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -69,7 +70,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.person_add_alt_1,
-          title: 'addFriend'.tr,
+          title: t.addFriend,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -83,7 +84,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.person,
-          title: 'newlyRegisteredPeople'.tr,
+          title: t.newlyRegisteredPeople,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -97,7 +98,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.qr_code_2,
-          title: 'myQrcode'.tr,
+          title: t.myQrcode,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -111,7 +112,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.qr_code_scanner_outlined,
-          title: 'scanQrCode'.tr,
+          title: t.scanQrCode,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(

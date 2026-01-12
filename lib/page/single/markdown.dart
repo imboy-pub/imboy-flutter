@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/service/encrypter.dart';
 
 // ignore: must_be_immutable
 class MarkdownPage extends StatelessWidget {

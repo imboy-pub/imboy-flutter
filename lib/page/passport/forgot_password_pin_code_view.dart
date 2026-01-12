@@ -12,6 +12,7 @@ import 'package:imboy/page/passport/login_view.dart';
 import 'passport_logic.dart';
 import 'widget/bezier_container.dart';
 import 'widget/fadeanimation.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class PinCodeVerificationPage extends StatefulWidget {
   final String account;
@@ -98,8 +99,9 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                               ),
                               child: RichText(
                                 text: TextSpan(
-                                  text: 'code_sent_to_param'
-                                      .trArgs([widget.accountType.tr]),
+                                  text: widget.accountType == 'email'
+                                      ? t.codeSentToEmail
+                                      : t.codeSentToMobile,
                                   children: [
                                     TextSpan(
                                       text: widget.account,
@@ -183,7 +185,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0),
                               child: Text(
-                                hasError ? 'pinCodeFillTips'.tr : '',
+                                hasError ? t.pinCodeFillTips : '',
                                 style: const TextStyle(
                                     color: Colors.red,
                                     fontSize: 12,
@@ -194,7 +196,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                               children: [
                                 Expanded(
                                     child: Text(
-                                      'notReceiveCoeQ'.tr,
+                                      t.notReceiveCoeQ,
                                       style: const TextStyle(
                                           color: Colors.black54, fontSize: 15),
                                     )),
@@ -209,7 +211,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                         if (res == null) {
                                           logic.snackBar(
                                             Text(
-                                              'codeSentToParam'.trArgs([widget.account]),
+                                              t.codeSentToParam.replaceAll('{param}', widget.account),
                                               style: const TextStyle(
                                                 color: Colors.green,
                                                 fontSize: 20,
@@ -221,11 +223,19 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                             ),
                                           );
                                         } else {
-                                          logic.snackBar(res.tr);
+                                          logic.snackBar(
+                                            Text(
+                                              res,
+                                              style: const TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          );
                                         }
                                       },
                                       child: Text(
-                                        'resendCode'.tr,
+                                        t.resendCode,
                                         style: const TextStyle(
                                             color: Colors.green,
                                             fontWeight: FontWeight.bold,
@@ -248,7 +258,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                   ),
                                   child: Obx(() => PasswordTextField(
                                     obscureText: state.newPwdObscure.value,
-                                    hintText: 'newPassword'.tr,
+                                    hintText: t.newPassword,
                                     onTap: () {
                                       state.newPwdObscure.value =
                                       !state.newPwdObscure.value;
@@ -272,7 +282,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                       BorderRadius.all(Radius.circular(5))),
                                   child: Obx(() => PasswordTextField(
                                     obscureText: state.retypePwdObscure.value,
-                                    hintText: 'retypePassword'.tr,
+                                    hintText: t.retypePassword,
                                     onTap: () {
                                       state.retypePwdObscure.value =
                                       !state.retypePwdObscure.value;
@@ -306,7 +316,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                         rePwd: state.retypePwd.value);
                                     if (res == null) {
                                       EasyLoading.showSuccess(
-                                          'confirmRecoverSuccess'.tr);
+                                          t.confirmRecoverSuccess);
                                       Get.to(
                                             () => const LoginPage(),
                                         transition: Transition.rightToLeft,
@@ -316,7 +326,15 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                       setState(
                                             () {
                                           hasError = false;
-                                          logic.snackBar(res.tr);
+                                          logic.snackBar(
+                                            Text(
+                                              res,
+                                              style: const TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          );
                                         },
                                       );
                                     }
@@ -332,7 +350,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    'setParam'.trArgs(['password'.tr]),
+                                    t.setParam.replaceAll('{param}', t.password),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       letterSpacing: 0.5,
@@ -352,7 +370,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('tryAgainQ'.tr,
+                          Text(t.tryAgainQ,
                               style: const TextStyle(
                                 color: Colors.white,
                                 letterSpacing: 0.5,
@@ -366,7 +384,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                               );
                             },
                             child: Text(
-                              'login'.tr,
+                              t.login,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

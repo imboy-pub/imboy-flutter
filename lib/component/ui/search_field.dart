@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 搜索字段组件 - 使用优化后的主题系统
 // ignore: must_be_immutable
@@ -86,7 +87,7 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.transparent, // 使用透明背景，让容器背景显示
-                  hintText: 'search'.tr,
+                  hintText: t.search,
                   hintStyle: ThemeManager.instance.getTextStyle(
                     FontSizeType.normal,
                     color: AppColors.textSecondary.withValues(
@@ -165,7 +166,7 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             child: Text(
-              'buttonCancel'.tr,
+              t.buttonCancel,
               style: ThemeManager.instance.getTextStyle(
                 FontSizeType.normal,
                 color: AppColors.primaryGreen, // 使用主题主色

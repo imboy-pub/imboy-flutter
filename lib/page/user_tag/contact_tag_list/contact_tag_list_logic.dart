@@ -11,6 +11,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 
 import 'contact_tag_list_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ContactTagListLogic extends GetxController {
   final ContactTagListState state = ContactTagListState();
@@ -41,7 +42,7 @@ class ContactTagListLogic extends GetxController {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      String msg = 'tipConnectDesc'.tr;
+      String msg = t.tipConnectDesc;
       EasyLoading.showError(' $msg        ');
       return [];
     }

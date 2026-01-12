@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
 
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class VisitCardMessageBuilder extends StatefulWidget {
   const VisitCardMessageBuilder({
@@ -109,7 +110,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    'personalCard'.tr,
+                    t.personalCard,
                     // style: TextStyle(
                     //   fontSize: 12,
                     //   color: userIsAuthor ? Colors.black87 : textColor,

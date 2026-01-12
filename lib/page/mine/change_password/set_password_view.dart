@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/password.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'change_password_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 设置密码页面
 class SetPasswordPage extends StatelessWidget {
@@ -27,7 +28,7 @@ class SetPasswordPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'setParam'.trArgs(['password'.tr]),
+        title: t.setPassword,
       ),
       backgroundColor: colorScheme.surface,
       body: SingleChildScrollView(
@@ -36,7 +37,7 @@ class SetPasswordPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            
+
             // 安全说明卡片
             Card(
               elevation: 2,
@@ -80,7 +81,7 @@ class SetPasswordPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '设置登录密码',
+                                t.setLoginPassword,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -89,7 +90,7 @@ class SetPasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '提升账号安全性',
+                                t.enhanceAccountSecurity,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: colorScheme.onSurface.withAlpha(179),
@@ -104,14 +105,16 @@ class SetPasswordPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withAlpha(128),
+                        color: colorScheme.surfaceContainerHighest.withAlpha(
+                          128,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。'.tr,
+                            t.setPasswordSecurityTips,
                             style: TextStyle(
                               fontSize: 14,
                               color: colorScheme.onSurface.withAlpha(204),
@@ -120,11 +123,7 @@ class SetPasswordPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'errorLengthBetween'.trArgs([
-                              'password'.tr,
-                              '4',
-                              '32',
-                            ]),
+                            t.passwordLengthRequirement,
                             style: TextStyle(
                               fontSize: 13,
                               color: colorScheme.primary,
@@ -138,9 +137,9 @@ class SetPasswordPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // 密码设置表单卡片
             Card(
               elevation: 2,
@@ -174,7 +173,7 @@ class SetPasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                '新密码',
+                                t.newPassword,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -184,24 +183,27 @@ class SetPasswordPage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Obx(() => PasswordTextField(
-                            obscureText: state.newPwdObscure.value,
-                            hintText: 'pleaseInputParam'.trArgs(['password'.tr]),
-                            onTap: () {
-                              state.newPwdObscure.value = !state.newPwdObscure.value;
-                            },
-                            onChanged: (String? val) {
-                              if (strNoEmpty(val)) {
-                                state.newPwd.value = val!.trim();
-                              }
-                            },
-                          )),
+                          Obx(
+                            () => PasswordTextField(
+                              obscureText: state.newPwdObscure.value,
+                              hintText: t.pleaseEnterPassword,
+                              onTap: () {
+                                state.newPwdObscure.value =
+                                    !state.newPwdObscure.value;
+                              },
+                              onChanged: (String? val) {
+                                if (strNoEmpty(val)) {
+                                  state.newPwd.value = val!.trim();
+                                }
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // 确认密码输入
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -224,7 +226,7 @@ class SetPasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'retypePassword'.tr,
+                                t.retypePassword,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -234,19 +236,21 @@ class SetPasswordPage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Obx(() => PasswordTextField(
-                            obscureText: state.retypePwdObscure.value,
-                            hintText: 'retypePassword'.tr,
-                            onTap: () {
-                              state.retypePwdObscure.value =
-                                  !state.retypePwdObscure.value;
-                            },
-                            onChanged: (String? val) {
-                              if (strNoEmpty(val)) {
-                                state.retypePwd.value = val!.trim();
-                              }
-                            },
-                          )),
+                          Obx(
+                            () => PasswordTextField(
+                              obscureText: state.retypePwdObscure.value,
+                              hintText: t.retypePassword,
+                              onTap: () {
+                                state.retypePwdObscure.value =
+                                    !state.retypePwdObscure.value;
+                              },
+                              onChanged: (String? val) {
+                                if (strNoEmpty(val)) {
+                                  state.retypePwd.value = val!.trim();
+                                }
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -254,9 +258,9 @@ class SetPasswordPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // 确认按钮
             Container(
               padding: EdgeInsets.only(
@@ -264,16 +268,17 @@ class SetPasswordPage extends StatelessWidget {
               ),
               width: double.infinity,
               child: RoundedElevatedButton(
-                text: 'buttonConfirm'.tr,
+                text: t.buttonConfirm,
                 onPressed: () async {
                   bool res = await logic.setPassword(
                     newPwd: state.newPwd.value,
                     rePwd: state.retypePwd.value,
                   );
                   if (res) {
-                    EasyLoading.showSuccess('confirmRecoverSuccess'.tr);
+                    EasyLoading.showSuccess(t.confirmRecoverSuccess);
                     final user = UserRepoLocal.to.current;
-                    final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
+                    final needGuide =
+                        (user.email.isEmpty || user.mobile.isEmpty);
                     if (needGuide) {
                       Get.offAll(() => const ManageAccountPage());
                     } else {

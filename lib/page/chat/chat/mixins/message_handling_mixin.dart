@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -17,6 +16,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/chat/message_status_indicator.dart';
 import 'package:xid/xid.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 消息处理相关的Mixin
 /// 负责消息的发送、上传、状态管理等功能
@@ -128,7 +128,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
   /// 转换消息状态
   MessageStatusType convertMessageStatus(MessageStatus? status) {
     if (status == null) return MessageStatusType.sending;
-    
+
     // 根据 flutter_chat_core 的 MessageStatus 转换为本地的 MessageStatusType
     switch (status) {
       case MessageStatus.sending:
@@ -141,8 +141,6 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
         return MessageStatusType.seen;
       case MessageStatus.error:
         return MessageStatusType.failed;
-      default:
-        return MessageStatusType.sending;
     }
   }
 
@@ -374,7 +372,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
   /// 复制消息文本
   void copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
-    EasyLoading.showToast('copied'.tr);
+    EasyLoading.showToast(t.copied);
   }
 
   /// 保存消息内容
@@ -401,7 +399,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     debugPrint("collectMessage: 收藏结果: $res");
     
     EasyLoading.showToast(
-      res ? 'collected'.tr : 'operationFailedAgainLater'.tr,
+      res ? t.collected : t.operationFailedAgainLater,
     );
   }
 
@@ -444,78 +442,6 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// 更新消息为撤回状态
-  Future<void> _updateMessageAsRevoked(Message originalMessage) async {
-    try {
-      // 保存原始消息内容（如果是文本消息）
-      final originalText = (originalMessage is TextMessage) ? originalMessage.text : '';
-      
-      // 构建新的payload
-      final newPayload = <String, dynamic>{
-        'msg_type': 'custom',
-        'custom_type': 'my_revoked',
-        'text': originalText, // 保留原始文本内容
-        'original_type': originalMessage.runtimeType.toString(),
-        'revoke_time': DateTimeHelper.millisecond(),
-        'revoke_user': UserRepoLocal.to.currentUid,
-      };
-
-      // 更新数据库中的消息状态
-      final tb = MessageRepo.getTableName(chatType);
-      final repo = MessageRepo(tableName: tb);
-
-      final updateResult = await repo.update({
-        'id': originalMessage.id,
-        'payload': json.encode(newPayload),
-        'status': IMBoyMessageStatus.sent, // 使用标准状态值
-      });
-
-      iPrint('数据库更新结果: $updateResult, 消息ID: ${originalMessage.id}');
-
-      // 重新获取更新后的消息
-      final updatedMsg = await repo.find(originalMessage.id);
-      if (updatedMsg != null) {
-        iPrint('重新获取更新后的消息成功: ${updatedMsg.toJson()}');
-        
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        iPrint('my_revoked消息转换结果: ${updatedMessage.runtimeType}');
-        
-        // 更新UI中的消息
-        if (mounted) {
-          try {
-            final chatController = logic.chatController;
-            if (chatController != null) {
-              final index = chatController.messages.indexWhere((e) => e.id == originalMessage.id);
-              if (index > -1) {
-                iPrint('更新UI撤回消息: ${originalMessage.id}');
-                chatController.updateMessage(
-                  chatController.messages[index],
-                  updatedMessage
-                );
-              } else {
-                iPrint('未在当前消息列表中找到要撤回的消息: ${originalMessage.id}');
-              }
-            }
-          } catch (e, stack) {
-            iPrint('更新UI消息异常: $e\n$stack');
-          }
-        }
-        
-        // 更新会话状态（如果撤回的是最后一条消息）
-        if (conversation.lastMsgId == originalMessage.id) {
-          iPrint('更新会话状态: ${originalMessage.id} 是会话的最后一条消息');
-          // 使用ChatLogic中的方法更新会话
-          await logic.updateConversationAfterRevoke(conversation, updatedMessage, 'my_revoked');
-        }
-      }
-
-      iPrint('本地消息撤回状态更新完成: ${originalMessage.id}');
-    } catch (e, stack) {
-      iPrint('更新消息撤回状态失败: $e\n$stack');
-      // 即使更新失败也不影响主要功能
-    }
-  }
-
   /// 转发消息
   void forwardMessage(Message msg) {
     getx.Get.bottomSheet(
@@ -553,9 +479,9 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     final res = await addMessage(msg);
     if (res) {
       getx.Get.find<UserCollectLogic>().change(collect.kindId);
-      EasyLoading.showSuccess('tipSuccess'.tr);
+      EasyLoading.showSuccess(t.tipSuccess);
     } else {
-      EasyLoading.showError('tipFailed'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
 
@@ -575,9 +501,9 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     );
     final res = await addMessage(message);
     if (res) {
-      EasyLoading.showSuccess('tipSuccess'.tr);
+      EasyLoading.showSuccess(t.tipSuccess);
     } else {
-      EasyLoading.showError('tipFailed'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
 

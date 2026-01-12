@@ -21,6 +21,7 @@ import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
 import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/config/chat_theme_config.dart';
 import 'package:image/image.dart' as img;
@@ -32,7 +33,6 @@ import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -43,6 +43,7 @@ import 'package:imboy/component/chat/performance_monitor.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
@@ -66,6 +67,7 @@ import '../widget/select_friend.dart';
 import 'chat_logic.dart';
 import 'mixins/ui_event_handler_mixin.dart';
 import 'sqlite_chat_controller.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // 聊天页面主Widget
 // ignore: must_be_immutable
@@ -245,7 +247,7 @@ class ChatPageState extends State<ChatPage>
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        // state.connected.value = '(${'tipConnectDesc'.tr})';
+        // state.connected.value = '(${t.tipConnectDesc})';
         state.connected.value = false;
       } else {
         state.connected.value = true;
@@ -275,7 +277,7 @@ class ChatPageState extends State<ChatPage>
       lastTime: showConversation ? DateTimeHelper.millisecond() : 0,
     );
     if (showConversation) {
-      eventBus.fire(conversation);
+      AppEventBus.fireData(conversation);
     }
     state.nextAutoId.value = 0;
   }
@@ -340,8 +342,8 @@ class ChatPageState extends State<ChatPage>
   void _setupEventListeners() {
     try {
       // 一些异步操作事件的监听
-      state.ssMsgExt = eventBus.on<ChatExtendModel>().listen((
-          ChatExtendModel obj,
+      state.ssMsgExt = AppEventBus.on<ChatExtendEvent>().listen((
+          ChatExtendEvent obj,
           ) async {
         try {
           // 监听新成员加入
@@ -372,7 +374,7 @@ class ChatPageState extends State<ChatPage>
       });
       
       // 接收到新的消息订阅 for c2c c2g
-      state.ssMsg = eventBus.on<Message>().listen((Message msg) async {
+      state.ssMsg = AppEventBus.on<DataWrapperEvent>().listen((event) async { final Message msg = event.data as Message;
         try {
           final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
           if (conversationUk3 != conversation.uk3 || msgIds.contains(msg.id)) {
@@ -400,7 +402,7 @@ class ChatPageState extends State<ChatPage>
       });
       
       // 消息状态更新订阅, 这里无需用锁 for c2g
-      state.ssMsgState = eventBus.on<List<Message>>().listen((e) {
+      state.ssMsgState = AppEventBus.on<DataWrapperEvent>().listen((event) { final List<Message> e = (event.data as List).cast<Message>();
         try {
           if (e.isEmpty) return;
           Message msg = e.first;
@@ -431,7 +433,7 @@ class ChatPageState extends State<ChatPage>
       });
 
       // 监听重新编辑消息事件
-      state.ssReEdit = eventBus.on<ReEditMessage>().listen((msg) async {
+      state.ssReEdit = AppEventBus.on<ReEditMessageEvent>().listen((msg) async {
         try {
           if (msg.messageId != null && msg.messageId!.isNotEmpty) {
             // 设置当前正在编辑的消息ID
@@ -790,9 +792,9 @@ class ChatPageState extends State<ChatPage>
     final res = await _addMessage(msg);
     if (res) {
       getx.Get.find<UserCollectLogic>().change(collect.kindId);
-      EasyLoading.showSuccess('tipSuccess'.tr);
+      EasyLoading.showSuccess(t.tipSuccess);
     } else {
-      EasyLoading.showError('tipFailed'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
   // 发送个人名片
@@ -826,9 +828,9 @@ class ChatPageState extends State<ChatPage>
     );
     final res = await _addMessage(message);
     if (res) {
-      EasyLoading.showSuccess('tipSuccess'.tr);
+      EasyLoading.showSuccess(t.tipSuccess);
     } else {
-      EasyLoading.showError('tipFailed'.tr);
+      EasyLoading.showError(t.tipFailed);
     }
   }
   // 发送位置消息
@@ -1243,7 +1245,7 @@ class ChatPageState extends State<ChatPage>
           final quoteText = message.metadata?['quote_text'] ?? '';
           if (quoteText.isNotEmpty) {
             Clipboard.setData(ClipboardData(text: quoteText));
-            EasyLoading.showToast('copied'.tr);
+            EasyLoading.showToast(t.copied);
           }
         }
       },
@@ -1383,7 +1385,7 @@ class ChatPageState extends State<ChatPage>
   // 复制消息文本
   void _copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
-    EasyLoading.showToast('copied'.tr);
+    EasyLoading.showToast(t.copied);
   }
   // 保存消息内容
   Future<void> _saveMessageContent(Message msg) async {
@@ -1401,7 +1403,7 @@ class ChatPageState extends State<ChatPage>
     final collectLogic = UserCollectLogic();
     bool res = await collectLogic.add(tb: tb, msg: msg);
     EasyLoading.showToast(
-      res ? 'collected'.tr : 'operationFailedAgainLater'.tr,
+      res ? t.collected : t.operationFailedAgainLater,
     );
   }
   // 撤回消息
@@ -1694,7 +1696,7 @@ class ChatPageState extends State<ChatPage>
             return const Center(child: CircularProgressIndicator());
           }
           if (!state.hasMoreMessage.value && (logic.chatController?.messages.isEmpty ?? true)) {
-            return EmptyChatList(text: '暂无消息'.tr);
+            return EmptyChatList(text: t.noData);
           }
           return const SizedBox.shrink();
         }),

@@ -12,6 +12,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'search_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class SearchLogic extends GetxController {
   final state = SearchState();
@@ -196,7 +197,7 @@ class SearchLogic extends GetxController {
       }
 
       if (results.isEmpty && !loadMore) {
-        state.errorMessage.value = 'searchNoFound'.tr;
+        state.errorMessage.value = t.searchNoFound;
       }
 
       // 缓存结果
@@ -211,7 +212,7 @@ class SearchLogic extends GetxController {
       state.currentPage.value++;
     } catch (e) {
       if (!_isCancelled) {
-        state.errorMessage.value = 'searchError'.tr;
+        state.errorMessage.value = t.searchError;
         debugPrint('Search error: $e');
         
         // 如果是网络相关错误，可以提供用户友好的提示

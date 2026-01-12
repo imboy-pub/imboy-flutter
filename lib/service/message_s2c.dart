@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showDialog, AlertDialog, TextButton;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_events.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:get/get.dart';
@@ -12,9 +12,11 @@ import 'package:get/get.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/page/passport/login_view.dart';
-import 'package:imboy/store/model/chat_extend_model.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/people_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -32,20 +34,18 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-import 'message.dart';
-import 'message_offline.dart';
-
 class MessageS2CService {
   static Future<void> switchS2C(Map data) async {
-    iPrint("switchS2C ${data.toString()}");
+    // 安全日志：只输出消息类型，不输出完整数据
     var payload = data['payload'] ?? {};
     if (payload is String) {
       payload = json.decode(payload);
     }
+    String msgType = payload['msg_type'] ?? '';
+    debugPrint("switchS2C msgType=$msgType");
     String msgId = data['id'] ?? '';
     String from = data['from'];
     String to = data['to'];
-    String msgType = payload['msg_type'] ?? '';
     bool autoAck = true;
     try {
       switch (msgType.toString().toLowerCase()) {
@@ -53,15 +53,12 @@ class MessageS2CService {
           // 拉取离线消息
           iPrint("pull_offline_msg 收到离线消息拉取指令，开始处理离线消息");
 
-          // 异步处理离线消息，避免阻塞 S2C 消息确认
-          Future.microtask(() async {
-            try {
-              await MessageOfflineService.to.pullOfflineMessages();
-              iPrint("离线消息处理完成");
-            } catch (e) {
-              iPrint("离线消息处理失败: $e");
-            }
-          });
+          // 发布离线消息拉取事件，由 MessageOfflineService 订阅处理
+          // 异步处理，避免阻塞 S2C 消息确认
+          AppEventBus.fire(OfflineMessagesPullRequestedEvent(
+            source: 'S2C',
+            reason: '服务端通知拉取离线消息',
+          ));
 
           break;
         case 'c2c_revoke':
@@ -73,7 +70,8 @@ class MessageS2CService {
 
           // 验证必需的字段
           if (revokeMsgId.isEmpty) {
-            iPrint("❌ [S2C_C2C_REVOKE] old_msg_id 为空，跳过处理: data=${data.toString()}");
+            // 安全日志：不输出完整 data
+            debugPrint("❌ [S2C_C2C_REVOKE] old_msg_id 为空，跳过处理");
             break;
           }
 
@@ -117,7 +115,7 @@ class MessageS2CService {
                   iPrint("撤回消息更新成功: ${updatedMsg.toJson()}");
                   
                   // 触发UI更新事件
-                  eventBus.fire(ChatExtendModel(type: 'revoke_msg', payload: {
+                  AppEventBus.fire(ChatExtendEvent(type: 'revoke_msg', payload: {
                     'conversation': conversation,
                     'msgId': revokeMsgId,
                     'revokeUser': from,
@@ -149,8 +147,8 @@ class MessageS2CService {
             tableName: MessageRepo.c2cTable,
           );
           MessageModel? oldMsg = await messageRepo.find(oldMsgId);
-          iPrint("switchS2C m ${m?.toJson().toString()} ;");
-          iPrint("switchS2C oldMsg ${oldMsg?.toJson().toString()} ;");
+          // 安全日志：不输出完整的消息数据
+          debugPrint("switchS2C conversation found: ${m != null}, oldMsg found: ${oldMsg != null}");
           if (m == null || oldMsg == null) {
             break;
           }
@@ -161,7 +159,7 @@ class MessageS2CService {
           // 删除消息
           bool res = await logic.removeMessage(m, msg);
           if (res) {
-            eventBus.fire(ChatExtendModel(type: 'delete_msg', payload: {
+            AppEventBus.fire(ChatExtendEvent(type: 'delete_msg', payload: {
               'conversation': m,
               'msg': msg,
             }));
@@ -188,7 +186,7 @@ class MessageS2CService {
           // 删除消息
           bool res = await logic.removeMessage(m, msg);
           if (res) {
-            eventBus.fire(ChatExtendModel(type: 'delete_msg', payload: {
+            AppEventBus.fire(ChatExtendEvent(type: 'delete_msg', payload: {
               'conversation': m,
               'msg': msg,
             }));
@@ -207,8 +205,8 @@ class MessageS2CService {
           Map<String, dynamic>? joinRes = await Get.find<GroupListLogic>()
               .memberJoin(groupId: gid, userId: userId, userIdSum: userIdSum);
 
-          eventBus.fire(
-            ChatExtendModel(
+          AppEventBus.fire(
+            ChatExtendEvent(
               type: 'join_group',
               payload: {
                 'groupId': gid,
@@ -223,7 +221,7 @@ class MessageS2CService {
               },
             ),
           );
-          // eventBus.fire(JoinGroupModel(
+          // AppEventBus.fire(JoinGroupModel(
           //   groupId: gid,
           //   userId: userId,
           //   isFirst: joinRes?['isFirst'] ?? false,
@@ -249,8 +247,8 @@ class MessageS2CService {
             userId: userId,
             userIdSum: userIdSum,
           );
-          eventBus.fire(
-            ChatExtendModel(
+          AppEventBus.fire(
+            ChatExtendEvent(
               type: 'leave_group',
               payload: {
                 'groupId': gid,
@@ -259,7 +257,7 @@ class MessageS2CService {
               },
             ),
           );
-          // eventBus.fire(LeaveGroupModel(
+          // AppEventBus.fire(LeaveGroupModel(
           //   groupId: gid,
           //   userId: userId,
           //   people: PeopleModel(
@@ -364,7 +362,12 @@ class MessageS2CService {
         case 'please_refresh_token': // 服务端通知客户端刷新token
           iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
           autoAck = false;
-          MessageService.to.sendAckMsg('S2C', msgId);
+          // 发布 ACK 发送请求事件
+          AppEventBus.fire(AckSendRequestedEvent(
+            messageType: 'S2C',
+            messageId: msgId,
+            ackType: 'received',
+          ));
           String rtk = await UserRepoLocal.to.refreshToken;
 
           await (UserProvider()).refreshAccessTokenApi(
@@ -405,12 +408,12 @@ class MessageS2CService {
                   context: Get.context!,
                   barrierDismissible: true,
                   builder: (ctx) => AlertDialog(
-                    title: Text('下线通知'.tr),
-                    content: Text('您已被设备【$byName】强制下线'.tr),
+                    title: const Text('下线通知'),
+                    content: Text('您已被设备【$byName】强制下线'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(ctx).pop(true),
-                        child: Text('buttonOk'.tr),
+                        child: Text(t.buttonOk),
                       ),
                     ],
                   ),
@@ -420,10 +423,10 @@ class MessageS2CService {
 
             // 统一执行退登与清理
             try {
-              WebSocketService.to.closeSocket(permanent: true);
+              AppEventBus.fire(WebSocketForceCloseEvent(permanent: true));
             } catch (_) {}
 
-            EasyLoading.showSuccess('confirmRecoverSuccess'.tr);
+            EasyLoading.showSuccess(t.confirmRecoverSuccess);
             await UserRepoLocal.to.quitLogin();
             Get.offAll(
               () => const LoginPage(),
@@ -450,7 +453,12 @@ class MessageS2CService {
       // 确认消息
      if (autoAck) {
        iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
-       MessageService.to.sendAckMsg('S2C', msgId);
+       // 发布 ACK 发送请求事件
+       AppEventBus.fire(AckSendRequestedEvent(
+         messageType: 'S2C',
+         messageId: msgId,
+         ackType: 'received',
+       ));
      }
     } catch (e, s) {
       iPrint("switchS2C error: $e, $s");

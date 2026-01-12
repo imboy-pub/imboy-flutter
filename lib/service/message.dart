@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'dart:async';
 
 import 'package:imboy/config/error_code.dart';
-import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -11,16 +10,16 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/passport/login_view.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/event_subscription_manager.dart';
 
 import 'message_actions.dart';
 import 'message_s2c.dart';
@@ -29,22 +28,106 @@ import 'message_webrtc.dart';
 /// MessageService
 /// 负责消息处理的核心服务，包括可靠传递、状态同步、UI 通知。
 /// Core service for message handling: reliable delivery, state sync, UI updates.
-/// 
-/// 此文件已重构为模块化架构，原有功能已拆分到以下文件：
-/// This file has been refactored into a modular architecture, original functionality split into:
-/// - message_core.dart: 核心服务，基础初始化和事件分发
-/// - message_handler.dart: 消息处理器，处理不同类型消息
-/// - message_actions.dart: 消息操作，撤回、编辑等功能
-/// - message_webrtc.dart: WebRTC 消息处理
-/// - message_retry.dart: 消息重试机制
-class MessageService extends GetxService {
+///
+/// ## 架构说明 (Architecture Notes)
+///
+/// 此服务采用**模块化架构**，原有功能已拆分到以下文件：
+/// This service uses a **modular architecture**, original functionality split into:
+/// - `message_core.dart`: 核心服务，基础初始化和事件分发
+/// - `message_handler.dart`: 消息处理器，处理不同类型消息
+/// - `message_actions.dart`: 消息操作，撤回、编辑等功能
+/// - `message_webrtc.dart`: WebRTC 消息处理
+/// - `message_retry.dart`: 消息重试机制
+///
+/// ## 当前设计权衡 (Current Design Trade-offs)
+///
+/// ### 单例模式的权衡
+/// **优点**:
+/// - 全局访问便利，简化消息传递流程
+/// - 避免重复创建仓储实例，节省内存
+/// - 统一的消息状态管理
+///
+/// **缺点**:
+/// - 作为单例持有大量仓储实例（缓存优化）
+/// - 与 WebSocketService 存在循环依赖（已通过延迟初始化缓解）
+/// - 测试时可能需要特殊处理
+///
+/// ### 循环依赖处理
+/// - **MessageService** 依赖 **WebSocketService** 发送消息
+/// - **WebSocketService** 依赖 **MessageService** 处理接收的消息
+/// - **解决方案**: 使用 `Future.microtask` 延迟初始化网络监控，避免在服务注册阶段访问其他服务
+/// - **未来优化建议**: 引入事件总线（如 GetX EventBus）完全解耦，或使用依赖注入容器
+///
+/// ### 仓储实例缓存
+/// 当前缓存的仓储实例：
+/// - `ConversationRepo`: 会话数据仓库
+/// - `ContactRepo`: 联系人数据仓库
+///
+/// 这些实例在服务初始化时创建，避免重复 new 操作，提升性能。
+///
+/// ## 职责范围 (Responsibilities)
+///
+/// ### 核心职责：
+/// 1. **消息接收与分发**：处理来自 WebSocket 的消息（C2C、C2G、C2S、S2C）
+/// 2. **消息状态管理**：更新消息状态（待发送、已发送、已送达、已读）
+/// 3. **UI 通知**：通过 EventBus 通知 UI 层更新
+/// 4. **消息去重**：防止重复消息显示
+/// 5. **网络状态监控**：监听 WebSocket 连接状态，处理离线/在线切换
+///
+/// ### 委托的职责：
+/// - **撤回/编辑**：委托给 `MessageActions`
+/// - **WebRTC**：委托给 `MessageWebrtc`
+/// - **消息重试**：委托给 `MessageRetry`
+/// - **ACK 发送**：委托给 `AckManager`
+///
+/// ## 使用示例 (Usage Examples)
+///
+/// ```dart
+/// // 获取服务实例
+/// final msgService = MessageService.to;
+///
+/// // 发送消息（实际由 MessageService 内部处理）
+/// // 通常通过 ChatLogic 调用
+///
+/// // 处理接收到的消息（由 WebSocketService 自动调用）
+/// await msgService.processMessage('C2C', data);
+///
+/// // 更新消息状态
+/// await msgService.changeStatus('message_table', msgId, IMBoyMessageStatus.seen);
+///
+/// // 发送 ACK
+/// msgService.sendAckMsg('C2C', msgId);
+/// ```
+///
+/// ## 未来优化方向 (Future Optimization)
+///
+/// 1. **拆分服务职责**：
+///    - 将网络状态监控独立为 `MessageNetworkService`
+///    - 将 UI 通知逻辑独立为 `MessageNotificationService`
+///
+/// 2. **解耦循环依赖**：
+///    - 引入事件总线模式，使用 `eventBus.fire()` 完全解耦
+///    - 或使用依赖注入容器（如 GetX 的 Bindings）
+///
+/// 3. **仓储实例管理**：
+///    - 考虑使用仓储工厂模式，统一管理所有仓储实例
+///    - 或引入仓储缓存层，避免在 Service 中直接持有
+///
+/// ## 相关服务 (Related Services)
+///
+/// - `WebSocketService`: WebSocket 连接管理
+/// - `MessageActions`: 消息操作（撤回、编辑）
+/// - `MessageRetry`: 消息重试机制
+/// - `AckManager`: ACK 确认管理
+/// - `MessageOfflineService`: 离线消息处理
+///
+class MessageService extends GetxService with EventSubscriptionManager {
   static MessageService get to => Get.find();
 
   // 委托给各个模块
   // Delegate to each module
   MessageActions get actions => MessageActions.to;
   MessageWebrtc get webrtc => MessageWebrtc.to;
-  MessageRetry get retry => MessageRetry.to;
 
 
   final MessageActions _messageActions = MessageActions.to;
@@ -75,6 +158,9 @@ class MessageService extends GetxService {
   /// Message sending progress tracking.
   final Map<String, double> sendingProgress = {};
 
+  /// 【修复】Timer 用于定期清理过期的内容哈希缓存
+  Timer? _cleanupTimer;
+
   @override
   void onInit() {
     super.onInit();
@@ -82,35 +168,81 @@ class MessageService extends GetxService {
     // 延迟初始化网络监控，避免在服务注册阶段访问其他服务
     // Delay network monitoring initialization to avoid accessing services during registration phase
     Future.microtask(() {
-      if (Get.isRegistered<WebSocketService>()) {
-        initNetworkMonitoring();
-      }
+      // 通过事件总线订阅 WebSocket 状态，不再直接依赖 WebSocketService
+      // Subscribe to WebSocket status via event bus, no longer directly depends on WebSocketService
+      initNetworkMonitoring();
     });
 
     // 所有子模块现在都在 init.dart 中使用 lazyPut 注册
     // All sub-modules are now registered using lazyPut in init.dart
 
-    // 定期清理过期的内容哈希缓存
+    // 【修复】定期清理过期的内容哈希缓存 - 跟踪 Timer
     // Periodically clean up expired content hash cache
-    Timer.periodic(const Duration(seconds: 60), (_) {
+    _cleanupTimer = Timer.periodic(const Duration(seconds: 60), (_) {
       _cleanupExpiredContentHashes();
     });
+
+    // 【新增】订阅 WebSocket 消息接收事件（解耦：通过事件总线接收消息而不是直接被 WebSocketService 调用）
+    // Subscribe to WebSocket message received event (decoupling: receive messages via event bus instead of direct calls)
+    // 使用 EventSubscriptionManager 管理
+    subscribeTo(
+      AppEventBus.on<WebSocketMessageReceivedEvent>().listen((event) {
+        processMessage(event.type, event.data);
+      }),
+    );
+
+    // 【新增】订阅 ACK 发送请求事件（解耦：通过事件总线接收 ACK 发送请求）
+    // Subscribe to ACK send request event (decoupling: receive ACK send requests via event bus)
+    // 使用 EventSubscriptionManager 管理
+    subscribeTo(
+      AppEventBus.on<AckSendRequestedEvent>().listen((event) {
+        sendAckMsg(event.messageType, event.messageId);
+      }),
+    );
+
+    // 【新增】订阅消息状态更新请求事件（解耦：通过事件总线接收状态更新请求）
+    // Subscribe to message status update request event (decoupling: receive status update requests via event bus)
+    // 使用 EventSubscriptionManager 管理
+    subscribeTo(
+      AppEventBus.on<MessageStatusUpdateRequestedEvent>().listen((event) {
+        _handleStatusUpdateRequest(event);
+      }),
+    );
+  }
+
+  @override
+  void onClose() {
+    // 【修复】取消清理 Timer
+    _cleanupTimer?.cancel();
+
+    // 【新增】使用 EventSubscriptionManager 统一取消所有事件订阅
+    // Cancel all event subscriptions using EventSubscriptionManager
+    cancelAllSubscriptions();
+
+    super.onClose();
   }
 
 
   /// 初始化网络状态监控
   /// Initialize network status monitoring.
   void initNetworkMonitoring() {
-    // 监听WebSocket连接状态
-    ever(WebSocketService.to.status, (SocketStatus status) {
-      isOnline.value = status == SocketStatus.connected;
-      if (isOnline.value) {
-        // 网络恢复时重试失败的消息
-        if (Get.isRegistered<MessageRetry>()) {
-          MessageRetry.to.retryFailedMessages();
+    // 监听WebSocket连接状态变化事件（解耦：通过事件总线订阅而不是直接依赖 WebSocketService）
+    // Subscribe to WebSocket connection status change event (decoupling: subscribe via event bus instead of directly depending on WebSocketService)
+    // 使用 EventSubscriptionManager 管理
+    subscribeTo(
+      AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
+        final isConnected = event.status == 'connected';
+        isOnline.value = isConnected;
+        if (isConnected) {
+          // 网络恢复时重试失败的消息（解耦：通过事件总线触发）
+          // Retry failed messages when network recovers (decoupling: trigger via event bus)
+          AppEventBus.fire(RetryMessagesRequestedEvent(
+            source: 'WebSocketConnected',
+            reason: 'WebSocket 连接恢复',
+          ));
         }
-      }
-    });
+      }),
+    );
   }
 
   /// Send reliable ACK back to server/peer
@@ -126,11 +258,36 @@ class MessageService extends GetxService {
       // AckManager 内部已处理 deviceId 检查，generateAckMessage 会验证参数
       try {
         final ackMsg = AckManager.to.generateAckMessage(type, msgId);
-        WebSocketService.to.sendMessage(ackMsg, null);
+        // 解耦：通过事件总线发送消息，而不是直接调用 WebSocketService
+        AppEventBus.fire(WebSocketMessageSendRequestEvent(
+          message: ackMsg,
+          messageId: msgId,
+        ));
         iPrint('⚠️ [ACK_SEND] 降级发送成功: type=$type, msgId=$msgId');
       } catch (e2) {
         iPrint('❌ [ACK_SEND] 降级发送也失败: type=$type, msgId=$msgId, error=$e2');
       }
+    }
+  }
+
+  /// 处理消息状态更新请求事件
+  /// Handle message status update request event
+  void _handleStatusUpdateRequest(MessageStatusUpdateRequestedEvent event) async {
+    try {
+      final repo = getMessageRepo(event.messageType);
+      await updateStatus(repo, event.messageId, event.newStatus);
+
+      // 如果需要通知 UI 更新
+      if (event.notifyUI) {
+        // 触发 UI 更新（通过现有的 data wrapper 机制）
+        final updatedMsg = await repo.find(event.messageId);
+        if (updatedMsg != null) {
+          final typeMessage = await updatedMsg.toTypeMessage();
+          AppEventBus.fireData([typeMessage], 'List<Message>');
+        }
+      }
+    } catch (e) {
+      iPrint('❌ [STATUS_UPDATE] 更新消息状态失败: messageId=${event.messageId}, status=${event.newStatus}, error=$e');
     }
   }
 
@@ -169,7 +326,7 @@ class MessageService extends GetxService {
   void updateSendingProgress(String messageId, double progress) {
     sendingProgress[messageId] = progress;
     // 通知UI更新进度
-    eventBus.fire({'progress_update': messageId, 'progress': progress});
+    AppEventBus.fireData({'progress_update': messageId, 'progress': progress}, 'ProgressUpdate');
   }
 
   /// 清理发送进度
@@ -280,7 +437,8 @@ class MessageService extends GetxService {
       // 如果服务器发送了相同消息但不同 msg_id，直接跳过
       return;
     }
-    _recentMessageContents[contentHash] = msgId;
+    // 使用 LRU 缓存策略
+    _addToContentHashCache(contentHash, msgId);
 
     // 快速检查消息是否已存在（仅检查内存缓存，不阻塞UI）
     // Quick duplicate check using in-memory set only (non-blocking)
@@ -389,8 +547,15 @@ class MessageService extends GetxService {
   }
 
   /// 最近接收的消息内容哈希（用于检测内容重复但 msg_id 不同的消息）
+  /// 使用 LRU 缓存策略，限制最大大小
   /// Map: contentHash -> msgId
   final Map<String, String> _recentMessageContents = <String, String>{};
+
+  /// LRU 缓存访问顺序记录
+  final List<String> _contentHashLRU = [];
+
+  /// 缓存最大大小
+  static const int _maxContentHashCacheSize = 1000;
 
   /// 生成消息内容的哈希值（用于去重）
   /// Generate content hash for deduplication
@@ -410,10 +575,34 @@ class MessageService extends GetxService {
     return '$from:$to:$type:$msgType:$createdAt:$clientSendTs';
   }
 
+  /// 添加到 LRU 缓存
+  void _addToContentHashCache(String hash, String msgId) {
+    // 如果已存在，先移除旧的位置
+    if (_recentMessageContents.containsKey(hash)) {
+      _contentHashLRU.remove(hash);
+    }
+
+    // 添加到缓存
+    _recentMessageContents[hash] = msgId;
+    _contentHashLRU.add(hash);
+
+    // 如果缓存超过限制，移除最旧的条目
+    if (_contentHashLRU.length > _maxContentHashCacheSize) {
+      final oldestHash = _contentHashLRU.removeAt(0);
+      _recentMessageContents.remove(oldestHash);
+    }
+  }
+
   /// 清理过期的内容哈希缓存
   /// Clean up expired content hash cache
   void _cleanupExpiredContentHashes() {
-    _recentMessageContents.clear();
+    // 只清理一半的缓存，而不是全部清理
+    // 这样可以保留最近的缓存项
+    final removeCount = (_contentHashLRU.length / 2).ceil();
+    for (int i = 0; i < removeCount && _contentHashLRU.isNotEmpty; i++) {
+      final oldestHash = _contentHashLRU.removeAt(0);
+      _recentMessageContents.remove(oldestHash);
+    }
   }
 
   /// 群组信息内存缓存（用于快速显示，减少网络请求）
@@ -501,9 +690,9 @@ class MessageService extends GetxService {
 
       // 再次触发 UI 更新以显示完整的 peer 信息
       // Trigger UI update again to show complete peer info
-      eventBus.fire(savedConv);
+      AppEventBus.fireData(savedConv);
       final tMsg = await msg.toTypeMessage();
-      eventBus.fire(tMsg);
+      AppEventBus.fireData(tMsg);
 
       iPrint('✅ 消息后台处理完成: $msgId, peer: ${peerInfo['title']}');
     } catch (e, stack) {
@@ -538,12 +727,12 @@ class MessageService extends GetxService {
 
       // 触发 UI 删除该消息
       // Trigger UI to delete this message
-      eventBus.fire(deleteEvent);
+      AppEventBus.fireData(deleteEvent);
 
       // 如果这是最后一条消息，需要回退会话信息
       // If this was the last message, need to rollback conversation
       // 这里发送一个特殊事件让会话列表更新
-      eventBus.fire({
+      AppEventBus.fireData({
         'action': 'rollback_conversation',
         'peer_id': tempConv.peerId,
         'type': msgType,
@@ -559,7 +748,7 @@ class MessageService extends GetxService {
   /// 公共方法：手动从 UI 移除指定消息（供 UI 层调用）
   /// Public method: manually remove message from UI (for UI layer to call)
   void removeMessageFromUI(String msgId, String conversationUk3) {
-    eventBus.fire({
+    AppEventBus.fireData({
       'action': 'delete_message',
       'msg_id': msgId,
       'conversation_uk3': conversationUk3,
@@ -645,11 +834,14 @@ class MessageService extends GetxService {
     // 【改进】添加SERVER_ACK接收日志
     iPrint('📥 [SERVER_ACK] 收到服务端ACK: msgId=$msgId, type=$type');
 
-    // 【重要】从重试队列中移除该消息，避免重复发送
-    if (Get.isRegistered<MessageRetry>()) {
-      MessageRetry.to.removeFromRetryQueue(msgId);
-      iPrint('✅ [SERVER_ACK] 已从重试队列移除: msgId=$msgId');
-    }
+    // 【重要】从重试队列中移除该消息，避免重复发送（解耦：通过事件总线）
+    // Remove from retry queue to avoid duplicate sending (decoupling: via event bus)
+    AppEventBus.fire(RemoveFromRetryQueueRequestedEvent(
+      messageId: msgId,
+      messageType: type,
+      reason: 'server_ack',
+    ));
+    iPrint('✅ [SERVER_ACK] 请求从重试队列移除: msgId=$msgId');
 
     final repo = to.getMessageRepo(type);
     final msg = await to.updateStatus(repo, msgId, IMBoyMessageStatus.sent);
@@ -659,7 +851,7 @@ class MessageService extends GetxService {
       iPrint('✅ [SERVER_ACK] 消息状态已更新为 sent: msgId=$msgId');
 
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([await msg.toTypeMessage()]);
+      AppEventBus.fireData([await msg.toTypeMessage()], 'List<Message>');
 
       // 确保会话列表中的lastMsgStatus也得到更新
       await _conversationLogic.updateConversationByMsgId(msgId, {
@@ -735,15 +927,6 @@ class MessageService extends GetxService {
     startAt: startAt,
     endAt: endAt,
   );
-
-  /// 将消息添加到重试队列
-  /// Add message to retry queue.
-  void addToRetryQueue(String messageId, String type) =>
-      retry.addToRetryQueue(messageId, type);
-  /// 手动重试消息
-  /// Manually retry message.
-  Future<bool> retryMessage(String messageId, String type) =>
-      retry.retryMessage(messageId, type);
 
   /// 发送撤回消息请求
   /// Send revoke message request.

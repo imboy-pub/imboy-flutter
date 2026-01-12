@@ -93,7 +93,7 @@ class ErrorHandler {
     // 显示错误提示
     if (showSnackbar) {
       getx.Get.snackbar(
-        'error'.tr,
+        '错误', // 错误标题
         message,
         snackPosition: getx.SnackPosition.bottom,
         backgroundColor: getx.Get.theme.colorScheme.error.withValues(

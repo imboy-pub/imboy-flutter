@@ -20,6 +20,7 @@ dependencies:
   ##############################################
   cupertino_icons: ^1.0.8 # iOS style icons
   flutter_screenutil: ^5.9.3 # Screen adaptation
+  google_fonts: ^6.1.0    # Google Fonts
   flutter_animate: ^4.5.2  # Animation library
   octo_image: ^2.1.0      # 多功能 Flutter 图像小部件
   flutter_svg: ^2.2.3     # SVG rendering
@@ -156,10 +157,13 @@ dependencies:
   # Utilities
   ##############################################
   logger: ^2.6.2          # Logging
-  event_bus: ^2.0.1       # Event bus
+  event_bus_plus: ^0.7.0  # Event bus with progress tracking
   jose: ^0.3.5            # JWT handling
   pointycastle: ^4.0.0    # 一个基于 Dart 语言的库，实现了加密算法和原语，其设计灵感来源于 BouncyCastle 库
   asn1lib: ^1.6.5        # ASN.1 encoding/decoding library
+  crypto: ^3.0.6         # Cryptographic hashing (used by video_thumbnail)
+  convert: ^3.1.2        # Data conversion utilities (used by encrypter)
+  image_picker_platform_interface: ^2.10.0 # Image picker platform interface
   permission_handler: ^12.0.1 # Permissions
   path_provider: ^2.1.5   # File system paths
   file_saver: ^0.3.1
@@ -214,6 +218,8 @@ dependencies:
   characters: ^1.4.0
   provider: ^6.1.5+1
   visibility_detector: ^0.4.0+2
+  slang: ^4.11.2
+  slang_flutter: ^4.11.0
   #archive: ^4.0.7
   #dart_duckdb: ^1.2.2
 
@@ -268,6 +274,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   envied_generator: ^1.3.2
+  slang_flutter: ^4.11.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -291,6 +298,7 @@ flutter:
     - assets/images/splash_bg.png
     - assets/images/index_bar_bubble_gray.png
     - assets/images/pattern.png
+    - assets/icons/
     # 数据管理模块 - 数据库迁移脚本
     - assets/migrations/upgrade.sql
     - assets/migrations/downgrade.sql

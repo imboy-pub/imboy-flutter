@@ -1,21 +1,13 @@
-import 'dart:io';
 import 'dart:ui';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
-import 'package:imboy/component/helper/crop_image.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'profile_logic.dart';
-import 'profile_state.dart';
 import 'widgets/avatar_editor_view.dart';
 import 'widgets/profile_completion_widget.dart';
 import 'widgets/privacy_settings_view.dart';
@@ -70,8 +62,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),

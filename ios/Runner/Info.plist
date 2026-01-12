@@ -126,5 +126,9 @@
 		<true/>
 		<key>UIFileSharingEnabled</key>
 		<true/>
-	</dict>
+			<key>CFBundleLocalizations</key>
+		<array>
+
+		</array>
+</dict>
 </plist>

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ImageView extends StatelessWidget {
   final String uri;
@@ -77,7 +78,7 @@ class ImageView extends StatelessWidget {
           borderRadius: BorderRadius.circular(4.0),
           color: Colors.black26.withValues(alpha: 0.1),
         ),
-        child: Text('noData'.tr),
+        child: Text(t.noData),
       );
     }
     if (isRadius) {

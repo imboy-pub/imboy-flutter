@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'confirm_new_friend_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ConfirmNewFriendPage extends StatelessWidget {
@@ -87,7 +87,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -149,7 +149,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'setParam'.trArgs(['remark'.tr]),
+                    t.setParam.replaceAll('{s}', t.remark),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -410,7 +410,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
           onChanged: (val) {
             switchValue.value = val;
           },
-          activeColor: Theme.of(context).colorScheme.primary,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -426,9 +426,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
-        title: 'acceptFriendRequest'.tr,
+        title: t.acceptFriendRequest,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
@@ -452,8 +452,8 @@ class ConfirmNewFriendPage extends StatelessWidget {
               // 标签设置
               _buildSettingCard(
                 context: context,
-                title: 'tags'.tr,
-                subtitle: logic.peerTag.isEmpty ? 'addTag'.tr : logic.peerTag.value,
+                title: t.tags,
+                subtitle: logic.peerTag.isEmpty ? t.addTag : logic.peerTag.value,
                 icon: Icons.local_offer_outlined,
                 onTap: () {
                   Get.to(
@@ -477,11 +477,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
               // 朋友圈权限设置
               _buildOptionCard(
                 context: context,
-                title: 'setParam'.trArgs(['moment'.tr]),
+                title: t.setParam.replaceAll('{s}', t.moment),
                 icon: Icons.photo_library_outlined,
                 children: [
-                  _buildRadioOption(context, 'chatMomentSportDataEtc'.tr, 'all', false),
-                  _buildRadioOption(context, 'justChat'.tr, 'just_chat', true),
+                  _buildRadioOption(context, t.chatMomentSportDataEtc, 'all', false),
+                  _buildRadioOption(context, t.justChat, 'just_chat', true),
                 ],
               ),
               
@@ -489,11 +489,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
               if (logic.visibilityLook.isTrue)
                 _buildOptionCard(
                   context: context,
-                  title: 'momentStatus'.tr,
+                  title: t.momentStatus,
                   icon: Icons.visibility_outlined,
                   children: [
-                    _buildSwitchOption(context, 'notLetHimSee'.tr, logic.donotlethimlook, false),
-                    _buildSwitchOption(context, 'notSeeHim'.tr, logic.donotlookhim, true),
+                    _buildSwitchOption(context, t.notLetHimSee, logic.donotlethimlook, false),
+                    _buildSwitchOption(context, t.notSeeHim, logic.donotlookhim, true),
                   ],
                 ),
               
@@ -544,7 +544,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'buttonAccomplish'.tr,
+                t.buttonAccomplish,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

@@ -16,6 +16,7 @@ import 'package:imboy/store/provider/feedback_provider.dart'
     show FeedbackProvider;
 
 import 'feedback_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 意见反馈页面
 //ignore: must_be_immutable
@@ -41,7 +42,7 @@ class FeedbackPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'feedback'.tr,
+        title: t.feedback,
         rightDMActions: [
           Container(
             margin: const EdgeInsets.only(right: 8),
@@ -52,7 +53,7 @@ class FeedbackPage extends StatelessWidget {
                 onTap: () {
                   BetterFeedback.of(context).show((UserFeedback feedback) async {
                     if (feedback.text.isEmpty) {
-                      EasyLoading.showError('feedbackContentRequired'.tr);
+                      EasyLoading.showError(t.feedbackContentRequired);
                       return;
                     }
 
@@ -81,10 +82,10 @@ class FeedbackPage extends StatelessWidget {
                         };
                         bool res = await p.add(data);
                         if (res) {
-                          EasyLoading.showSuccess('feedbackSuccessMsg'.tr);
+                          EasyLoading.showSuccess(t.feedbackSuccessMsg);
                           initData(); // 刷新列表
                         } else {
-                          EasyLoading.showError('tipFailed'.tr);
+                          EasyLoading.showError(t.tipFailed);
                         }
                       },
                       (Error error) {
@@ -159,7 +160,7 @@ class FeedbackPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '意见反馈',
+                            t.feedback,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -168,7 +169,7 @@ class FeedbackPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '您的建议是我们改进的动力',
+                            t.feedbackSlogan,
                             style: TextStyle(
                               fontSize: 14,
                               color: colorScheme.onSurface.withAlpha(179),
@@ -184,7 +185,7 @@ class FeedbackPage extends StatelessWidget {
                         onTap: () {
                           BetterFeedback.of(context).show((UserFeedback feedback) async {
                             if (feedback.text.isEmpty) {
-                              EasyLoading.showError('feedbackContentRequired'.tr);
+                              EasyLoading.showError(t.feedbackContentRequired);
                               return;
                             }
 
@@ -213,10 +214,10 @@ class FeedbackPage extends StatelessWidget {
                                 };
                                 bool res = await p.add(data);
                                 if (res) {
-                                  EasyLoading.showSuccess('feedbackSuccessMsg'.tr);
+                                  EasyLoading.showSuccess(t.feedbackSuccessMsg);
                                   initData();
                                 } else {
-                                  EasyLoading.showError('tipFailed'.tr);
+                                  EasyLoading.showError(t.tipFailed);
                                 }
                               },
                               (Error error) {
@@ -236,7 +237,7 @@ class FeedbackPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '新建反馈',
+                            t.newFeedback,
                             style: TextStyle(
                               color: colorScheme.onPrimary,
                               fontSize: 14,
@@ -273,7 +274,7 @@ class FeedbackPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '反馈历史',
+                          t.feedbackHistory,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -293,7 +294,7 @@ class FeedbackPage extends StatelessWidget {
                         return state.itemList.isEmpty
                             ? SizedBox(
                                 height: 200,
-                                child: NoDataView(text: 'noData'.tr),
+                                child: NoDataView(text: t.noData),
                               )
                             : ListView.separated(
                                 shrinkWrap: true,
@@ -318,7 +319,7 @@ class FeedbackPage extends StatelessWidget {
                                           onPressed: (_) async {
                                             _showDeleteDialog(context, model, index);
                                           },
-                                          label: 'buttonDelete'.tr,
+                                          label: t.buttonDelete,
                                           spacing: 1,
                                         ),
                                       ],
@@ -381,7 +382,7 @@ class FeedbackPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      model.type.tr,
+                      model.type,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -437,7 +438,7 @@ class FeedbackPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${'submittedAt'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
+                    '${t.submittedAt} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
                     style: TextStyle(
                       fontSize: 13,
                       color: colorScheme.onSurface.withAlpha(179),
@@ -476,7 +477,7 @@ class FeedbackPage extends StatelessWidget {
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, FeedbackModel model, int index) {
     final colorScheme = Theme.of(context).colorScheme;
-    String tips = 'sureDeleteData'.tr;
+    String tips = t.sureDeleteData;
     
     showDialog(
       context: context,
@@ -493,7 +494,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              '确认删除',
+              t.confirmDelete,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -517,7 +518,7 @@ class FeedbackPage extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: colorScheme.onSurface.withAlpha(179),
             ),
-            child: Text('buttonCancel'.tr),
+            child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -529,15 +530,15 @@ class FeedbackPage extends StatelessWidget {
                     (e) => e.feedbackId == model.feedbackId,
                   ),
                 );
-                EasyLoading.showSuccess('tipSuccess'.tr);
+                EasyLoading.showSuccess(t.tipSuccess);
               } else {
-                EasyLoading.showError('tipFailed'.tr);
+                EasyLoading.showError(t.tipFailed);
               }
             },
             style: TextButton.styleFrom(
               foregroundColor: colorScheme.error,
             ),
-            child: Text('buttonDelete'.tr),
+            child: Text(t.buttonDelete),
           ),
         ],
       ),

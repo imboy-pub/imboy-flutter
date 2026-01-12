@@ -16,6 +16,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:xid/xid.dart';
 
 import 'user_collect_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class UserCollectDetailPage extends StatelessWidget {
@@ -37,7 +38,7 @@ class UserCollectDetailPage extends StatelessWidget {
       Center(
         child: TextButton(
           child: Text(
-            'forwardToFriend'.tr,
+            t.forwardToFriend,
             textAlign: TextAlign.center,
             // style: TextStyle(
             //   fontSize: AppTextSize.medium,
@@ -85,7 +86,7 @@ class UserCollectDetailPage extends StatelessWidget {
                 peerId: obj.kindId,
                 peerTag: obj.tag,
                 scene: 'collect',
-                title: 'editTag'.tr,
+                title: t.editTag,
               ),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
@@ -100,7 +101,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            'editTag'.tr,
+            t.editTag,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,
@@ -120,7 +121,7 @@ class UserCollectDetailPage extends StatelessWidget {
             Get.closeAllBottomSheets();
             Get.to(
               () => UpdatePage(
-                  title: 'setParam'.trArgs(['remark'.tr]),
+                  title: t.setParam.replaceAll('{s}', t.remark),
                   value: obj.remark,
                   field: 'text',
                   maxLength: 100,
@@ -145,7 +146,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            'setParam'.trArgs(['remark'.tr]),
+            t.setParam.replaceAll('{s}', t.remark),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,
@@ -170,7 +171,7 @@ class UserCollectDetailPage extends StatelessWidget {
             }
           },
           child: Text(
-            'buttonDelete'.tr,
+            t.buttonDelete,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.red,
@@ -185,7 +186,7 @@ class UserCollectDetailPage extends StatelessWidget {
         child: TextButton(
           onPressed: () => Get.close(),
           child: Text(
-            'buttonCancel'.tr,
+            t.buttonCancel,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,
@@ -205,7 +206,7 @@ class UserCollectDetailPage extends StatelessWidget {
         Center(
           child: TextButton(
             child: Text(
-              'buttonCopy'.tr,
+              t.buttonCopy,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(txt).colorScheme.onPrimary,
@@ -219,7 +220,7 @@ class UserCollectDetailPage extends StatelessWidget {
               final String txt = obj.info['payload']['text'] ?? '';
               if (txt.isNotEmpty) {
                 Clipboard.setData(ClipboardData(text: txt));
-                EasyLoading.showToast('copied'.tr);
+                EasyLoading.showToast(t.copied);
               }
             },
           ),
@@ -281,14 +282,14 @@ class UserCollectDetailPage extends StatelessWidget {
               _buildActionButton(
                 context: context,
                 icon: Icons.copy,
-                title: 'buttonCopy'.tr,
+                title: t.buttonCopy,
                 subtitle: '复制文本内容',
                 onTap: () async {
                   Get.closeAllBottomSheets();
                   final String txt = obj.info['payload']['text'] ?? '';
                   if (txt.isNotEmpty) {
                     Clipboard.setData(ClipboardData(text: txt));
-                    EasyLoading.showToast('copied'.tr);
+                    EasyLoading.showToast(t.copied);
                   }
                 },
                 iconColor: Theme.of(context).colorScheme.primary,
@@ -298,7 +299,7 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.share,
-              title: 'forwardToFriend'.tr,
+              title: t.forwardToFriend,
               subtitle: '分享给其他好友',
               onTap: () async {
                 Get.closeAllBottomSheets();
@@ -319,7 +320,7 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.local_offer,
-              title: 'editTag'.tr,
+              title: t.editTag,
               subtitle: '为收藏添加标签',
               onTap: () {
                 Get.closeAllBottomSheets();
@@ -328,7 +329,7 @@ class UserCollectDetailPage extends StatelessWidget {
                     peerId: obj.kindId,
                     peerTag: obj.tag,
                     scene: 'collect',
-                    title: 'editTag'.tr,
+                    title: t.editTag,
                   ),
                   transition: Transition.rightToLeft,
                   popGesture: true,
@@ -347,13 +348,13 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.edit_note,
-              title: 'setParam'.trArgs(['remark'.tr]),
+              title: t.setParam.replaceAll('{s}', t.remark),
               subtitle: '为收藏添加备注',
               onTap: () {
                 Get.closeAllBottomSheets();
                 Get.to(
                   () => UpdatePage(
-                    title: 'setParam'.trArgs(['remark'.tr]),
+                    title: t.setParam.replaceAll('{s}', t.remark),
                     value: obj.remark,
                     field: 'text',
                     maxLength: 100,
@@ -377,7 +378,7 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.delete_outline,
-              title: 'buttonDelete'.tr,
+              title: t.buttonDelete,
               subtitle: '删除此收藏',
               onTap: () async {
                 Get.closeAllBottomSheets();
@@ -406,7 +407,7 @@ class UserCollectDetailPage extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'buttonCancel'.tr,
+                  t.buttonCancel,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -497,7 +498,7 @@ class UserCollectDetailPage extends StatelessWidget {
       backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'details'.tr,
+        title: t.details,
         rightDMActions: [
           Container(
             width: 48,
@@ -561,7 +562,7 @@ class UserCollectDetailPage extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
+                      "${t.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
@@ -604,7 +605,7 @@ class UserCollectDetailPage extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "${'remark'.tr}:",
+                              "${t.remark}:",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

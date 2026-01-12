@@ -4,10 +4,11 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart' show UserRepoLocal;
 
 class RevokedMessageBuilder extends StatelessWidget {
@@ -48,7 +49,7 @@ class RevokedMessageBuilder extends StatelessWidget {
         ? GestureDetector(
             onTap: () {
               iPrint("触发重新编辑: msgId=${message.id}, text=$text");
-              eventBus.fire(ReEditMessage(text: text, messageId: message.id));
+              AppEventBus.fire(ReEditMessageEvent(text: text, messageId: message.id));
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -57,7 +58,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'reEdit'.tr,
+                t.reEdit,
                 style: TextStyle(
                   height: 1.5,
                   color: Theme.of(context).colorScheme.primary,
@@ -87,7 +88,7 @@ class RevokedMessageBuilder extends StatelessWidget {
           }
         } else if (isMyRevoked) {
           // 我撤回的消息
-          nickname = 'you'.tr;
+          nickname = t.you;
         } else {
           // 兼容旧的撤回类型
           // 对于 custom_type == 'revoked' 的情况，需要根据 revoke_user 来判断撤回方
@@ -106,7 +107,7 @@ class RevokedMessageBuilder extends StatelessWidget {
             }
           } else {
             // 否则认为是自己撤回的
-            nickname = 'you'.tr;
+            nickname = t.you;
           }
         }
 
@@ -124,7 +125,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                       ? const EdgeInsets.only(right: 10, left: 0)
                       : const EdgeInsets.only(left: 50),
                   child: Text(
-                    "$nickname ${'messageWasWithdrawn'.tr}",
+                    "$nickname ${t.messageWasWithdrawn}",
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 13,

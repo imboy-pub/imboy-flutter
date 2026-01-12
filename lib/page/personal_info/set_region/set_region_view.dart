@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'set_region_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class SetRegionPage extends StatefulWidget {
   final String title;
@@ -213,13 +213,14 @@ class _SetRegionPageState extends State<SetRegionPage> {
                           bool success = await widget.onSave(
                             logic.selectedRegion.value,
                           );
+                          if (!context.mounted) return;
                           if (success) {
                             Get.back();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'operationFailedAgainLater'.tr,
+                                  t.operationFailedAgainLater,
                                 ),
                               ),
                             );
@@ -233,7 +234,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'buttonAccomplish'.tr,
+                      t.buttonAccomplish,
                       style: ThemeManager.instance.getTextStyle(
                         FontSizeType.small,
                         fontWeight: FontWeight.w600,
@@ -280,7 +281,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'selectedRegion'.tr,
+                    t.selectedRegion,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.getTextColor(
@@ -293,7 +294,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                   Obx(
                     () => Text(
                       logic.selectedRegion.value.isEmpty
-                          ? 'pleaseSelect'.tr
+                          ? t.pleaseSelect
                           : logic.selectedRegion.value,
                       style: ThemeManager.instance.getTextStyle(
                         FontSizeType.medium,
@@ -312,8 +313,8 @@ class _SetRegionPageState extends State<SetRegionPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Semantics(
-                label: '${'searchRegion'.tr} - ${'regionSearchHint'.tr}',
-                hint: 'regionSearchHint'.tr,
+                label: '${t.searchRegion} - ${t.regionSearchHint}',
+                hint: t.regionSearchHint,
                 textField: true,
                 child: TextField(
                   controller: _searchC,
@@ -323,7 +324,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
                     isDense: true,
-                  ).copyWith(hintText: 'regionSearchHint'.tr),
+                  ).copyWith(hintText: t.regionSearchHint),
                   onSubmitted: (_) => _onTopQueryChanged(),
                 ),
               ),
@@ -371,13 +372,13 @@ class _SetRegionPageState extends State<SetRegionPage> {
 
                       return Semantics(
                         label: hasChildren
-                            ? '$title - ${children.length} ${'region'.tr}'
+                            ? '$title - ${children.length} ${t.region}'
                             : title,
                         hint: hasChildren
-                            ? '${'buttonContinue'.tr}${'searchRegion'.tr}'
+                            ? '${t.buttonContinue}${t.searchRegion}'
                             : isSelected
-                            ? '${'selected'.tr}${'region'.tr}'
-                            : '${'buttonConfirm'.tr}${'region'.tr}',
+                            ? '${t.selected}${t.region}'
+                            : '${t.buttonConfirm}${t.region}',
                         button: true,
                         selected: isSelected,
                         focusable: true,
@@ -456,14 +457,14 @@ class _SetRegionPageState extends State<SetRegionPage> {
                                         isSecondary: true,
                                       ),
                                       size: 20,
-                                      semanticLabel: 'buttonContinue'.tr,
+                                      semanticLabel: t.buttonContinue,
                                     )
                                   else if (isSelected)
                                     Icon(
                                       Icons.check,
                                       color: AppColors.primaryGreen,
                                       size: 20,
-                                      semanticLabel: 'selected'.tr,
+                                      semanticLabel: t.selected,
                                     ),
                                 ],
                               ),

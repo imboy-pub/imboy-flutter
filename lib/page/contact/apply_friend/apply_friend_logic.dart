@@ -13,6 +13,7 @@ import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ApplyFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
@@ -53,7 +54,7 @@ class ApplyFriendLogic extends GetxController {
     };
 
     EasyLoading.show(
-      status: 'sending'.tr,
+      status: t.sending,
     );
 
     IMBoyHttpResponse resp = await HttpClient.client.post(
@@ -77,9 +78,9 @@ class ApplyFriendLogic extends GetxController {
       };
       // debugPrint("> on receivedAddFriend ${saveData.toString()}");
       (NewFriendRepo()).save(saveData);
-      EasyLoading.showSuccess('sent'.tr);
+      EasyLoading.showSuccess(t.sent);
     } else {
-      EasyLoading.showError('networkFailureTryAgain'.tr);
+      EasyLoading.showError(t.networkFailureTryAgain);
     }
   }
 }

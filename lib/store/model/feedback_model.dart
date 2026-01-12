@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/feedback_builder.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class FeedbackModel {
   int feedbackId;
@@ -81,11 +81,11 @@ class FeedbackModel {
   String get statusDesc {
     // 1 启用 (待回复）  2 已回复  3 已完结
     if (status == 1) {
-      return 'awaitingReply'.tr;
+      return t.awaitingReply;
     } else if (status == 2) {
-      return 'replied'.tr;
+      return t.replied;
     } else if (status == 3) {
-      return 'completed'.tr;
+      return t.completed;
     } else {
       return '';
     }

@@ -5,7 +5,6 @@ import './config/text_theme.dart';
 import './font_types.dart';
 
 import 'app_colors.dart';
-import 'icon_theme.dart' show IMBoyIconTheme;
 import '../dynamic_color_manager.dart';
 
 /// 应用主题配置类
@@ -13,33 +12,7 @@ import '../dynamic_color_manager.dart';
 class AppTheme {
   AppTheme._(); // 私有构造函数，防止实例化
 
-  // ==================== Material 3 形状系统配置 ====================
-  /// Material 3 形状系统配置
-  ///
-  /// 定义统一的圆角半径规范
-  static const ShapeBorder _mediumShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-  );
-
   // ==================== 私有辅助方法 ====================
-
-  /// 创建Chip主题
-  static ChipThemeData _createChipTheme({
-    required Color backgroundColor,
-    required Color selectedColor,
-    required Color labelColor,
-  }) {
-    return ChipThemeData(
-      backgroundColor: backgroundColor,
-      selectedColor: selectedColor,
-      labelStyle: TextStyle(color: labelColor, fontFamily: 'PingFang SC'),
-    );
-  }
-
-  /// 创建进度指示器主题
-  static ProgressIndicatorThemeData _createProgressTheme(Color color) {
-    return ProgressIndicatorThemeData(color: color);
-  }
 
   // ==================== 动态主题方法 ====================
 

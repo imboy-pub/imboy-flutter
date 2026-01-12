@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class LanguageState {
   RxBool valueChanged = false.obs;
@@ -23,67 +24,67 @@ class LanguageState {
       "id": "zh_CN",
       "languageCode": "zh",
       "regionCode": "CN",
-      "title": 'zhCn'.tr // 简体中文
+      "title": t.zhCn // 简体中文
     },
     {
       "id": "zh_TW",
       "languageCode": "zh",
       "regionCode": "TW",
-      "title": 'zhHant'.tr, // 繁体中文
+      "title": t.zhHant, // 繁体中文
     },
     {
       "id": "ru_RU",
       "languageCode": "ru",
       "regionCode": "RU",
-      "title": 'ruRu'.tr, // 俄罗斯俄语
+      "title": t.ruRu, // 俄罗斯俄语
     },
     // {
     //   "id": "en_GB",
     //   "languageCode": "en",
     //   "regionCode": "GB",
-    //   "title": 'enGb'.tr "英国英语"
+    //   "title": t.enGb "英国英语"
     // },
     {
       "id": "en_US",
       "languageCode": "en",
       "regionCode": "US",
-      "title": 'enUs'.tr //美国英语
+      "title": t.enUs //美国英语
     },
     {
       "id": "fr_FR",
       "languageCode": "fr",
       "regionCode": "FR",
-      "title": 'frFr'.tr // 法语
+      "title": t.frFr // 法语
     },
     {
       "id": "de_DE",
       "languageCode": "de",
       "regionCode": "DE",
-      "title": 'deDd'.tr // 德语
+      "title": t.deDd // 德语
     },
     {
       "id": "ja_JP",
       "languageCode": "ja",
       "regionCode": "JP",
-      "title": 'jaJp'.tr // 日语
+      "title": t.jaJp // 日语
     },
     {
       "id": "ko_KR",
       "languageCode": "ko",
       "regionCode": "KR",
-      "title": 'koKr'.tr // 韩语
+      "title": t.koKr // 韩语
     },
     {
       "id": "ar_SA",
       "languageCode": "ar",
       "regionCode": "SA",
-      "title": 'arSa'.tr // 阿拉伯语
+      "title": t.arSa // 阿拉伯语
     },
     {
       "id": "it_IT",
       "languageCode": "it",
       "regionCode": "IT",
-      "title": 'itIt'.tr // 意大利语
+      "title": t.itIt // 意大利语
     }
   ];
 

@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/store/model/group_model.dart';
 
 import 'group_detail_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ChangeInfoPage extends StatefulWidget {
   const ChangeInfoPage({
@@ -26,6 +28,7 @@ class ChangeInfoPage extends StatefulWidget {
 
 class ChangeInfoPageState extends State<ChangeInfoPage> {
   final logic = Get.put(GroupDetailLogic());
+  final GroupListLogic groupListLogic = Get.find<GroupListLogic>();
 
   final FocusNode _inputFocusNode = FocusNode();
   final TextEditingController _textController = TextEditingController();
@@ -121,6 +124,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                     avatar: widget.group.avatar,
                     groupId: widget.group.groupId,
                     size: 44,
+                    avatarLoader: groupListLogic.computeAvatar,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -137,7 +141,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                       decoration: InputDecoration(
                         counterText: '',
                         border: InputBorder.none,
-                        hintText: widget.group.title.isEmpty ? 'unnamed'.tr : '',
+                        hintText: widget.group.title.isEmpty ? t.unnamed : '',
                         hintStyle: TextStyle(
                           color: colorScheme.outline.withValues(alpha: 0.5),
                         ),
@@ -170,7 +174,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
             const SizedBox(height: 40),
             Obx(
               () => RoundedElevatedButton(
-                text: 'buttonAccomplish'.tr,
+                text: t.buttonAccomplish,
                 highlighted: valueChanged.isTrue,
                 onPressed: () async {
                   String trimmedText = _textController.text.trim();
@@ -179,7 +183,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                       'title': trimmedText,
                     });
                     if (g != null) {
-                      EasyLoading.showSuccess('tipSuccess'.tr);
+                      EasyLoading.showSuccess(t.tipSuccess);
                       Get.back(result: g);
                     }
                   }

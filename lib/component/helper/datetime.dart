@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/ntp.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class DateTimeHelper {
   /// 通用日期时间格式化
@@ -29,16 +29,16 @@ class DateTimeHelper {
     final diffMs = nowMs - timestampMs;
 
     if (diffMs < 60 * 1000) {
-      return 'timeJustNow'.tr;
+      return t.timeJustNow;
     } else if (diffMs < 3600 * 1000) {
       final minutes = (diffMs / (60 * 1000)).floor();
-      return 'timeMinutesAgo'.trArgs([minutes.toString()]);
+      return t.timeMinutesAgo.replaceAll('{s}', minutes.toString());
     } else if (diffMs < 24 * 3600 * 1000) {
       final hours = (diffMs / (3600 * 1000)).floor();
-      return 'timeHoursAgo'.trArgs([hours.toString()]);
+      return t.timeHoursAgo.replaceAll('{s}', hours.toString());
     } else {
       final days = (diffMs / (24 * 3600 * 1000)).floor();
-      return 'timeDaysAgo'.trArgs([days.toString()]);
+      return t.timeDaysAgo.replaceAll('{s}', days.toString());
     }
   }
 

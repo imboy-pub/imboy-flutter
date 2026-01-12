@@ -16,6 +16,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'people_info_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class PeopleInfoPage extends StatelessWidget {
@@ -180,7 +181,7 @@ class PeopleInfoPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        state.tag.value.isEmpty ? 'remarksTags'.tr : 'tags'.tr,
+                        state.tag.value.isEmpty ? t.remarksTags : t.tags,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -244,7 +245,7 @@ class PeopleInfoPage extends StatelessWidget {
           ),
         ),
         child: Text(
-          'addToContacts'.tr,
+          t.addToContacts,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -277,7 +278,7 @@ class PeopleInfoPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'addedToDenylistTips'.tr,
+              t.addedToDenylistTips,
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -424,7 +425,7 @@ class PeopleInfoPage extends StatelessWidget {
               if (state.isFriend.value == 1 || scene == 'denylist')
                 _buildActionCard(
                   context: context,
-                  title: 'moreInfo'.tr,
+                  title: t.moreInfo,
                   icon: Icons.info_outline,
                   isDark: isDark,
                   onTap: () => Navigator.push(
@@ -443,7 +444,7 @@ class PeopleInfoPage extends StatelessWidget {
                 if (!isSelf)
                   _buildActionCard(
                     context: context,
-                    title: 'messageCall'.tr,
+                    title: t.messageCall,
                     icon: Icons.message_outlined,
                     isDark: isDark,
                     onTap: () {
@@ -472,7 +473,7 @@ class PeopleInfoPage extends StatelessWidget {
                 if (state.isFriend.value == 1 && !isSelf)
                   _buildActionCard(
                     context: context,
-                    title: 'voiceCall'.tr,
+                    title: t.voiceCall,
                     icon: Icons.call_outlined,
                     isDark: isDark,
                     onTap: () {
@@ -492,7 +493,7 @@ class PeopleInfoPage extends StatelessWidget {
                 if (state.isFriend.value == 1 && !isSelf)
                   _buildActionCard(
                     context: context,
-                    title: 'videoCall'.tr,
+                    title: t.videoCall,
                     icon: Icons.videocam_outlined,
                     isDark: isDark,
                     onTap: () {

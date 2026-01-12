@@ -1,5 +1,5 @@
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class FeedbackReplyModel {
   int feedbackReplyId;
@@ -55,11 +55,11 @@ class FeedbackReplyModel {
   String get statusDesc {
     // 状态: -1 删除  0 禁用  1 启用
     if (status == 1) {
-      return 'enable'.tr;
+      return t.enable;
     } else if (status == 0) {
-      return 'disable'.tr;
+      return t.disable;
     } else if (status == -1) {
-      return 'buttonDelete'.tr;
+      return t.buttonDelete;
     } else {
       return '';
     }

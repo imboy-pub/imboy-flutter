@@ -9,4 +9,8 @@ abstract interface class EnvField {
   abstract final String aMapAndroidKey;
   abstract final String aMapWebKey;
   abstract final String jiguangAppKey;
+
+  /// WebSocket URL (optional, for development environments)
+  /// If null, will be fetched from server config
+  String? get wsUrl;
 }

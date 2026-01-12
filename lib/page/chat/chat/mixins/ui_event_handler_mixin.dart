@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
@@ -142,7 +141,7 @@ mixin UIEventHandlerMixin<T extends StatefulWidget> on State<T> {
     }
     
     final imageMessages = chatController.messages
-        .where((msg) => msg is ImageMessage)
+        .whereType<ImageMessage>()
         .cast<ImageMessage>()
         .toList();
     
@@ -244,7 +243,7 @@ mixin UIEventHandlerMixin<T extends StatefulWidget> on State<T> {
   void _handleTextMessage(BuildContext context, TextMessage message) {
     // 检查文本中是否包含链接
     final text = message.text;
-    if (text != null && _containsUrl(text)) {
+    if (_containsUrl(text)) {
       // 如果包含链接，显示打开链接的选项
       _showLinkOptions(context, text);
     }
@@ -384,40 +383,6 @@ mixin UIEventHandlerMixin<T extends StatefulWidget> on State<T> {
     //     ),
     //   );
     // }
-  }
-
-  /// 显示自定义消息详情
-  void _showCustomMessageDetails(BuildContext context, CustomMessage message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('消息详情'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('消息类型: ${message.metadata?['custom_type'] ?? '未知'}'),
-            Text('消息ID: ${message.id}'),
-            Text('发送时间: ${message.createdAt != null ? DateTimeHelper.dateTimeFmt(message.createdAt!) : '未知'}'),
-            if (message.metadata?.isNotEmpty == true)
-              const SizedBox(height: 10),
-            if (message.metadata?.isNotEmpty == true)
-              const Text('消息内容:'),
-            if (message.metadata?.isNotEmpty == true)
-              Text(
-                message.metadata.toString(),
-                style: const TextStyle(fontSize: 12),
-              ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
-          ),
-        ],
-      ),
-    );
   }
 
   /// 检查文本是否包含URL

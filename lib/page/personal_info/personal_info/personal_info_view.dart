@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
@@ -11,16 +10,14 @@ import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/page/mine/account_security/account_security_logic.dart'
-    show AccountSecurityLogic;
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-import '../update/update_view.dart';
 import '../set_nickname/set_nickname_view.dart';
 import 'personal_info_logic.dart';
 import 'personal_info_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({super.key});
@@ -42,7 +39,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     var res = await Connectivity().checkConnectivity();
     if (res.contains(ConnectivityResult.none)) {
       Get.close();
-      Get.snackbar('tipTips'.tr, 'networkException'.tr);
+      Get.snackbar(t.tipTips, t.networkException);
       return;
     }
     try {
@@ -119,7 +116,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 // 标题
                 Expanded(
                   child: Text(
-                    'avatar'.tr,
+                    t.avatar,
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w400,
@@ -325,7 +322,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               // 拍照选项
               _buildBottomSheetOption(
                 context: context,
-                title: 'buttonTakingPictures'.tr,
+                title: t.buttonTakingPictures,
                 onTap: () => getImageFromSource(ImageSource.camera),
               ),
 
@@ -343,7 +340,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               // 相册选项
               _buildBottomSheetOption(
                 context: context,
-                title: 'chooseFromAlbum'.tr,
+                title: t.chooseFromAlbum,
                 onTap: () => getImageFromSource(ImageSource.gallery),
               ),
 
@@ -361,7 +358,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               // 取消选项
               _buildBottomSheetOption(
                 context: context,
-                title: 'buttonCancel'.tr,
+                title: t.buttonCancel,
                 onTap: () => Get.back(),
                 isCancel: true,
               ),
@@ -416,7 +413,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
-        title: 'personalInformation'.tr,
+        title: t.personalInformation,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
@@ -429,7 +426,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             _buildInfoGroup(context, [
               _buildInfoItem(
                 context: context,
-                title: 'nickname'.tr,
+                title: t.nickname,
                 value: UserRepoLocal.to.current.nickname,
                 onTap: () async {
                   final result = await Get.to(
@@ -447,7 +444,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
               _buildInfoItem(
                 context: context,
-                title: 'account'.tr,
+                title: t.account,
                 value: UserRepoLocal.to.current.account,
                 onTap: () {},
                 showArrow: false,
@@ -457,7 +454,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               if (UserRepoLocal.to.current.email.isNotEmpty)
                 _buildInfoItem(
                   context: context,
-                  title: 'loginEmail'.tr,
+                  title: t.loginEmail,
                   value: UserRepoLocal.to.current.email,
                   onTap: () {},
                   showArrow: false,
@@ -472,7 +469,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             _buildInfoGroup(context, [
               _buildInfoItem(
                 context: context,
-                title: 'myQrcode'.tr,
+                title: t.myQrcode,
                 value: Icon(
                   Icons.qr_code_2,
                   color: Get.isDarkMode ? Colors.white70 : Colors.black,
@@ -483,7 +480,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
               _buildInfoItem(
                 context: context,
-                title: 'moreInfo'.tr,
+                title: t.moreInfo,
                 value: ' ',
                 onTap: () => logic.labelOnPressed('more'),
               ),

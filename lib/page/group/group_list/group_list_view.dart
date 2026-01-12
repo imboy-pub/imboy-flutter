@@ -5,13 +5,13 @@ import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
 import 'group_list_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class GroupListPage extends StatelessWidget {
   GroupListPage({super.key});
@@ -48,7 +48,7 @@ class GroupListPage extends StatelessWidget {
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
         titleWidget: Obx(() => Text(
-          "${'groupChat'.tr}(${state.groupList.length})",
+          "${t.groupChat}(${state.groupList.length})",
         )),
         automaticallyImplyLeading: true,
       ),
@@ -75,9 +75,9 @@ class GroupListPage extends StatelessWidget {
               ),
               child: searchBar(
                 context,
-                searchLabel: 'search'.tr,
-                hintText: 'search'.tr,
-                queryTips: 'groupSearchTips'.tr,
+                searchLabel: t.search,
+                hintText: t.search,
+                queryTips: t.groupSearchTips,
                 doSearch: ((query) => GroupRepo().search(kwd: query)),
                 onTapForItem: (model) {
                   if (model is GroupModel) {
@@ -104,7 +104,7 @@ class GroupListPage extends StatelessWidget {
             child: SlidableAutoCloseBehavior(
               child: Obx(() {
                 if (state.groupList.isEmpty) {
-                  return NoDataView(text: 'noData'.tr);
+                  return NoDataView(text: t.noData);
                 }
                 
                 return ListView.builder(
@@ -133,6 +133,7 @@ class GroupListPage extends StatelessWidget {
                         leading: SmartGroupAvatar(
                           avatar: model.avatar,
                           groupId: model.groupId,
+                          avatarLoader: logic.computeAvatar,
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         title: Text(

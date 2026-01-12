@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart' show ContactModel;
@@ -31,6 +31,9 @@ class ConversationLogic extends GetxController {
   final Map<String, Timer> _debounceTimers = {};
 
   late final GroupListLogic _groupListLogic;
+
+  /// 公共 getter 用于访问 groupListLogic
+  GroupListLogic get groupListLogic => _groupListLogic;
 
   @override
   void onInit() {
@@ -298,7 +301,7 @@ class ConversationLogic extends GetxController {
       List<ConversationModel> items = await updateLastMsg(msgId, data);
       for (var item in items) {
         await replace(item);
-        eventBus.fire(item);
+        AppEventBus.fireData(item);
         iPrint('updateConversationByMsgId: 更新会话 ${item.uk3} 的 lastMsgStatus 为 ${item.lastMsgStatus}');
       }
     } catch (e, s) {

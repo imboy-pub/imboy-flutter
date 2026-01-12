@@ -7,6 +7,8 @@
 /// @since 2026-01-09
 library;
 
+import 'package:flutter/material.dart';
+
 /// 消息组件统一间距系统
 ///
 /// 设计原则：

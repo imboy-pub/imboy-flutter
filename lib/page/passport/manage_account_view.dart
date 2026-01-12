@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/mine/account_security/account_security_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'widget/bezier_container.dart';
 
@@ -48,7 +49,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '提升账户安全'.tr,
+                    t.accountSecurityEnhance,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 26,
@@ -57,7 +58,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '绑定手机号和邮箱，让您的账户更安全'.tr,
+                    t.bindMobileAndEmailTips,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.9),
@@ -75,8 +76,8 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                       children: [
                         _buildPage(
                           icon: Icons.phone_iphone,
-                          title: '绑定手机号'.tr,
-                          subtitle: '用于登录、找回密码和接收重要通知'.tr,
+                          title: t.bindMobile,
+                          subtitle: t.bindMobileFor,
                           onTap: () async {
                             // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
                             Get.off(
@@ -89,8 +90,8 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                         ),
                         _buildPage(
                           icon: Icons.alternate_email,
-                          title: '关联邮箱'.tr,
-                          subtitle: '用于登录、身份验证和接收账单'.tr,
+                          title: t.linkEmail,
+                          subtitle: t.linkEmailFor,
                           onTap: () async {
                             // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
                             Get.off(
@@ -128,7 +129,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                       ),
                       child: Center(
                         child: Text(
-                          '完成'.tr,
+                          t.buttonAccomplish,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -143,7 +144,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                       Get.off(() => BottomNavigationPage());
                     },
                     child: Text(
-                      '以后再说'.tr,
+                      t.later,
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
@@ -217,7 +218,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
             ),
             child: Text(
-              '立即绑定'.tr,
+              t.bindNow,
               style: const TextStyle(fontSize: 14),
             ),
           ),

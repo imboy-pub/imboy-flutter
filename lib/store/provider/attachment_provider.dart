@@ -17,11 +17,11 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart' as getx;
 
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class AttachmentProvider {
   static Future<void> _upload(
@@ -46,16 +46,16 @@ class AttachmentProvider {
     data['v'] = authData['v'];
     data['a'] = authData['a'];
     data['s'] = authData['s'];
-    // debugPrint("> on upload param ${data.toString()}");
-    debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
-    debugPrint("> on upload param ${data.toString()}");
+    // 安全日志：只输出文件名，不输出完整的认证参数
+    debugPrint("> on upload filename: ${(data['file'] as MultipartFile).filename}");
     FormData formData = FormData.fromMap(data);
     String baseUrl = Env.uploadUrl;
     if (strEmpty(baseUrl)) {
       await AppInitializer.initConfig();
       baseUrl = StorageService.to.getString(Keys.uploadUrl)!;
     }
-    debugPrint("> on upload UPLOAD_BASE_URL $baseUrl ;");
+    // 安全日志：脱敏输出上传 URL
+    debugPrint("> on upload URL configured");
     var options = BaseOptions(
       baseUrl: baseUrl,
       contentType: 'application/x-www-form-urlencoded',
@@ -71,7 +71,7 @@ class AttachmentProvider {
         if (process) {
           EasyLoading.showProgress(
             sent / total,
-            status: 'uploading'.tr,
+            status: t.uploading,
           );
           if (sent == total) {
             Future.delayed(const Duration(milliseconds: 2000), () {
@@ -81,11 +81,12 @@ class AttachmentProvider {
         }
       },
     ).then((response) {
-      debugPrint("> on upload response ${response.toString()}");
+      // 安全日志：不输出完整响应数据，可能包含敏感信息
+      debugPrint("> on upload completed with status ${response.statusCode}");
       Map<String, dynamic> resp = json.decode(response.data);
       callback(resp, AssetsService.viewUrl(resp['data']['url']).toString());
     }).catchError((e) {
-      debugPrint("> on upload err ${e.toString()}");
+      debugPrint("> on upload error ${e.toString()}");
       errorCallback(e);
     });
   }
@@ -294,7 +295,7 @@ class AttachmentProvider {
     } else if (file is File) {
       path = file.path;
     } else {
-      throw Exception('unsupportedFileType'.tr);
+      throw Exception(t.unsupportedFileType);
     }
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
@@ -321,7 +322,8 @@ class AttachmentProvider {
     Map<String, dynamic> data = {
       'file': MultipartFile.fromBytes(file, filename: name),
     };
-    debugPrint("> on uploadBytes name: $name, ext: $ext, ${data.toString()}");
+    // 安全日志：不输出完整数据，只输出文件信息
+    debugPrint("> on uploadBytes name: $name, ext: $ext");
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 }

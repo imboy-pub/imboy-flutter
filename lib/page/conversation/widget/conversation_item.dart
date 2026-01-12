@@ -5,7 +5,6 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/common.dart';
 
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -135,6 +134,7 @@ class ConversationItem extends StatelessWidget {
                                 groupId: model.peerId,
                                 onTap: onTapAvatar,
                                 size: 52, // Slightly larger avatar
+                                avatarLoader: logic.groupListLogic.computeAvatar,
                               )
                             : Avatar(imgUri: model.avatar, width: 52, height: 52),
                       ),

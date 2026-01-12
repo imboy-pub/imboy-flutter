@@ -3,7 +3,6 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 
 /// 聊天主题配置类
 /// 专门用于配置聊天界面的主题，与 flutter_chat_core 完美集成

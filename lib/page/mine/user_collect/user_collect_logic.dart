@@ -22,6 +22,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/chat/message_audio_builder.dart' as audio;
 
 import 'user_collect_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class UserCollectLogic extends GetxController {
   final UserCollectState state = UserCollectState();
@@ -403,7 +404,7 @@ class UserCollectLogic extends GetxController {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        "${'fileSize'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                        "${t.fileSize}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
                         style: TextStyle(
                           color: Theme.of(
                             Get.context!,
@@ -592,7 +593,7 @@ class UserCollectLogic extends GetxController {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'personalCard'.tr,
+                          t.personalCard,
                           style: TextStyle(color: AppColors.primaryGreen),
                         ),
                       ],

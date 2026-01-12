@@ -13,10 +13,11 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/service/message.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 
 /// 发送WebRTC消息
@@ -40,7 +41,14 @@ Future<bool> sendWebRTCMsg(
   request["from"] = UserRepoLocal.to.currentUid;
   request["type"] = "webrtc_$event";
   request["payload"] = payload;
-  return WebSocketService.to.sendMessage(json.encode(request), msgId);
+
+  // 解耦：通过事件发送消息
+  AppEventBus.fire(WebSocketMessageSendRequestEvent(
+    message: json.encode(request),
+    messageId: msgId,
+  ));
+
+  return true;
 }
 
 /// 生成会话ID
@@ -116,9 +124,8 @@ Future<void> incomingCallScreen(
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    'incomingCall'.trArgs([
-                      option['media'] == 'video' ? 'video'.tr : 'audio'.tr,
-                    ]),
+                    t.incomingCall.replaceAll('{s}',
+                        option['media'] == 'video' ? t.video : t.audio),
                     style: TextStyle(
                       color: ThemeManager.instance.getThemeColor('textPrimary'),
                       fontSize: 12,
@@ -137,7 +144,9 @@ Future<void> incomingCallScreen(
                 await Get.find<ChatLogic>().markAsRead('C2C', peer.peerId, [
                   msgId,
                 ]);
-              } catch (e) {}
+              } catch (e) {
+                // Ignore marking error, continue with call rejection
+              }
               MessageService.to.changeLocalMsgState(msgId, 5);
               gTimer?.cancel();
               gTimer = null;
@@ -157,7 +166,9 @@ Future<void> incomingCallScreen(
                 await Get.find<ChatLogic>().markAsRead('C2C', peer.peerId, [
                   msgId,
                 ]);
-              } catch (e) {}
+              } catch (e) {
+                // Ignore marking error, continue with call acceptance
+              }
               gTimer?.cancel();
               gTimer = null;
               Get.closeAllDialogs();

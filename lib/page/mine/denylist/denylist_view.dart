@@ -7,10 +7,10 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/denylist_model.dart';
-import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 
 import 'denylist_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class DenylistPage extends StatelessWidget {
@@ -51,29 +51,29 @@ class DenylistPage extends StatelessWidget {
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text('确认移出'.tr),
-              content: Text('确认将此用户移出黑名单？'.tr),
+              title: Text(t.confirmRemove),
+              content: Text(t.confirmRemoveFromDenylist),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: Text('取消'.tr),
+                  child: Text(t.buttonCancel),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: Text('移出'.tr),
+                  child: Text(t.buttonRemove),
                 ),
               ],
             ),
           ) ?? false;
           if (confirmed) {
-            EasyLoading.show(status: '处理中...'.tr);
+            EasyLoading.show(status: t.processing);
             final res = await logic.removeDenylist(model.deniedUid);
             EasyLoading.dismiss();
             if (res) {
-              EasyLoading.showSuccess('已移出黑名单'.tr);
+              EasyLoading.showSuccess(t.removedFromDenylist);
               logic.items.removeWhere((e) => e.deniedUid == model.deniedUid);
             } else {
-              EasyLoading.showError('操作失败'.tr);
+              EasyLoading.showError(t.tipFailed);
             }
           }
         },
@@ -158,7 +158,7 @@ class DenylistPage extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'blocked'.tr,
+                                  t.blocked,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
@@ -208,7 +208,7 @@ class DenylistPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'denylistEmpty'.tr,
+            t.denylistEmpty,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -217,7 +217,7 @@ class DenylistPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'denylistEmptyDesc'.tr,
+            t.denylistEmptyDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -256,7 +256,7 @@ class DenylistPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'denylistNoteTitle'.tr,
+                  t.denylistNoteTitle,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -265,7 +265,7 @@ class DenylistPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'denylistNoteDesc'.tr,
+                  t.denylistNoteDesc,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -285,7 +285,7 @@ class DenylistPage extends StatelessWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'denylist'.tr,
+        title: t.denylist,
       ),
       body: Column(
         children: [
@@ -302,9 +302,9 @@ class DenylistPage extends StatelessWidget {
             ),
             child: searchBar(
               context,
-              searchLabel: 'search'.tr,
-              hintText: 'search'.tr,
-              queryTips: 'searchFriendsTips'.tr,
+              searchLabel: t.search,
+              hintText: t.search,
+              queryTips: t.searchFriendsTips,
               doSearch: ((query) {
                 return UserDenylistRepo().search(kwd: query);
               }),
@@ -356,7 +356,7 @@ class DenylistPage extends StatelessWidget {
                                 Icon(Icons.remove_circle_outline, color: Theme.of(context).colorScheme.onError),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '移出'.tr,
+                                  t.buttonRemove,
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.onError,
                                     fontWeight: FontWeight.w600,
@@ -366,14 +366,14 @@ class DenylistPage extends StatelessWidget {
                             ),
                           ),
                           confirmDismiss: (direction) async {
-                            EasyLoading.show(status: '处理中...'.tr);
+                            EasyLoading.show(status: t.processing);
                             bool res = await logic.removeDenylist(model.deniedUid);
                             EasyLoading.dismiss();
                             if (res) {
-                              EasyLoading.showSuccess('已移出黑名单'.tr);
+                              EasyLoading.showSuccess(t.removedFromDenylist);
                               return true; // 允许滑动删除
                             } else {
-                              EasyLoading.showError('操作失败'.tr);
+                              EasyLoading.showError(t.tipFailed);
                               return false; // 阻止删除
                             }
                           },

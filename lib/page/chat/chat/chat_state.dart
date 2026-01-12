@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
 
 /// 聊天页面状态管理
 /// 管理消息列表、滚动控制器、网络状态等

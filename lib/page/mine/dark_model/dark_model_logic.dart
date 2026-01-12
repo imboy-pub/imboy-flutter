@@ -2,28 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'dark_model_state.dart';
 
 class DarkModelLogic extends GetxController {
   final DarkModelState state = DarkModelState();
+  final ThemeManager _themeManager = ThemeManager.instance;
 
   /// 配置本地主题配置
   void configLocalTheme() {
-    ThemeMode themeMode = getLocalProfileAboutThemeModel();
-    if (themeMode == ThemeMode.system) {
-      state.switchValue.value = true;
-    } else {
-      state.switchValue.value = false;
-      if (themeMode == ThemeMode.light) {
-        state.selectIndex.value = 2;
-      } else if (themeMode == ThemeMode.dark) {
-        state.selectIndex.value = 3;
-      }
+    final followSystem = _themeManager.followSystemTheme;
+    final isDark = _themeManager.isDarkMode;
+
+    state.switchValue.value = followSystem;
+
+    if (!followSystem) {
+      state.selectIndex.value = isDark ? 3 : 2;
     }
   }
 
@@ -55,33 +51,32 @@ class DarkModelLogic extends GetxController {
   /// 2 系统跟随
   Future<void> changeTheme({
     int type = 0,
-    bool isUserCache = false,
   }) async {
-    ThemeMode mode = getLocalProfileAboutThemeModel(
-      isUserCache: isUserCache,
-      themeType: type,
-    );
-    ThemeData themeData = getLocalProfileAboutThemeData(
-      isUserCache: isUserCache,
-      themeType: type,
-    );
-    iPrint(mode.toString());
-    iPrint(themeData.toString());
-    EasyLoadingStyle easyLoadingStyle = EasyLoadingStyle.dark;
-    if (mode == ThemeMode.dark) {
-      easyLoadingStyle = EasyLoadingStyle.light;
-    } else if (mode == ThemeMode.system) {
-      if (!Get.isDarkMode) {
-        easyLoadingStyle = EasyLoadingStyle.light;
-      }
+    // 更新 ThemeManager 的状态（会自动保存）
+    if (type == 2) {
+      // 跟随系统
+      await _themeManager.updateFollowSystemTheme(true);
+      _themeManager.applySystemTheme();
+    } else {
+      // 固定主题
+      await _themeManager.updateFollowSystemTheme(false);
+      await _themeManager.toggleTheme(isDark: type == 1);
     }
-    EasyLoading.instance.loadingStyle = easyLoadingStyle;
-    Get.changeThemeMode(mode);
-    Get.changeTheme(themeData);
+
+    // 更新 EasyLoading 样式
+    _updateEasyLoadingStyle();
+
+    // 强制更新 UI
     updateTheme();
-    if (!isUserCache) {
-      saveThemeType(type);
-    }
+  }
+
+  /// 更新 EasyLoading 样式
+  void _updateEasyLoadingStyle() {
+    final isDark = _themeManager.isDarkMode;
+    EasyLoadingStyle easyLoadingStyle = isDark
+        ? EasyLoadingStyle.light
+        : EasyLoadingStyle.dark;
+    EasyLoading.instance.loadingStyle = easyLoadingStyle;
   }
 
   void updateTheme() {
@@ -90,35 +85,36 @@ class DarkModelLogic extends GetxController {
     });
   }
 
-  /// 取主题
+  /// 取主题类型（兼容旧代码）
   /// 0 白色
   /// 1 黑色
   /// 2 跟随系统
   int getThemeType() {
-    return StorageService.to.getInt(Keys.themeType) ?? 0;
+    if (_themeManager.followSystemTheme) {
+      return 2;
+    }
+    return _themeManager.isDarkMode ? 1 : 0;
   }
 
-  void saveThemeType(int type) {
-    StorageService.to.setInt(Keys.themeType, type);
-  }
-
+  /// 获取主题数据
   ThemeData getLocalProfileAboutThemeData({
     bool isUserCache = true,
     int themeType = 0,
   }) {
     int type = isUserCache ? getThemeType() : themeType;
     if (type == 0) {
-      return ThemeManager.instance.lightTheme;
+      return _themeManager.lightTheme;
     } else if (type == 1) {
-      return ThemeManager.instance.darkTheme;
+      return _themeManager.darkTheme;
     } else if (type == 2) {
+      // 跟随系统
       if (!Get.isDarkMode) {
-        return ThemeManager.instance.darkTheme;
+        return _themeManager.darkTheme;
       } else {
-        return ThemeManager.instance.lightTheme;
+        return _themeManager.lightTheme;
       }
     } else {
-      return ThemeManager.instance.lightTheme;
+      return _themeManager.lightTheme;
     }
   }
 }

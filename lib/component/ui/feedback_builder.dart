@@ -1,7 +1,7 @@
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:get/get.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// A data type holding user feedback consisting of a feedback type, free from
 /// feedback text, and a sentiment rating.
@@ -39,15 +39,15 @@ class IMBoyFeedback {
 
   String get ratingDesc {
     if (double.parse(rating) == 5.0) {
-      return 'great'.tr;
+      return t.great;
     } else if (double.parse(rating) >= 4.0) {
-      return 'good'.tr;
+      return t.good;
     } else if (double.parse(rating) >= 3.0) {
-      return 'notBad'.tr;
+      return t.notBad;
     } else if (double.parse(rating) >= 2.0) {
-      return 'needContinueWorkHard'.tr;
+      return t.needContinueWorkHard;
     } else {
-      return 'tooBad'.tr;
+      return t.tooBad;
     }
   }
 }
@@ -92,7 +92,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                     0,
                   ),
                   children: [
-                    Text('leaveYourSuggestions'.tr),
+                    Text(t.leaveYourSuggestions),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -111,12 +111,9 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                                   (type) => DropdownMenuItem<FeedbackType>(
                                     value: type,
                                     child: Text(
-                                      type
-                                          .toString()
-                                          .split('.')
-                                          .last
-                                          .replaceAll('_', ' ')
-                                          .tr,
+                                      type == FeedbackType.bugReport
+                                          ? t.bugReport
+                                          : t.featureRequest,
                                     ),
                                   ),
                                 )
@@ -138,7 +135,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                             style: TextStyle(color: Colors.red),
                           ),
                         ),
-                        Text('whatYourFeedback'.tr),
+                        Text(t.whatYourFeedback),
                       ],
                     ),
                     TextField(
@@ -158,7 +155,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                           _feedback.feedbackText = newFeedback,
                     ),
                     const SizedBox(height: 16),
-                    Text('yourContactInformation'.tr),
+                    Text(t.yourContactInformation),
                     TextField(
                       decoration: const InputDecoration(
                         filled: true,
@@ -173,13 +170,13 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                       onChanged: (val) => _feedback.contactDetail = val,
                     ),
                     const SizedBox(height: 16),
-                    Text('yourFeel'.tr),
+                    Text(t.yourFeel),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('rating'.tr),
+                          Text(t.rating),
                           Text(': ${_feedback.rating}    '),
                           Text(_feedback.ratingDesc),
                         ],
@@ -219,7 +216,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                     );
                   }
                 : null,
-            child: Text('buttonSubmit'.tr),
+            child: Text(t.buttonSubmit),
           ),
           const SizedBox(height: 4),
         ],

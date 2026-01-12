@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
 
 import 'scanner_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ScannerResultPage extends StatelessWidget {
@@ -23,7 +24,7 @@ class ScannerResultPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
           automaticallyImplyLeading: true,
-          title: 'scanResult'.tr
+          title: t.scanResult
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: SizedBox(
@@ -37,7 +38,7 @@ class ScannerResultPage extends StatelessWidget {
                 const Space(width: 40),
                 FloatingActionButton(
                   heroTag: "back",
-                  tooltip: 'buttonBack'.tr,
+                  tooltip: t.buttonBack,
                   onPressed: () {
                     Get.back();
                   },
@@ -47,18 +48,18 @@ class ScannerResultPage extends StatelessWidget {
                 // copy
                 FloatingActionButton(
                   heroTag: 'copy',
-                  tooltip: 'buttonCopy'.tr,
+                  tooltip: t.buttonCopy,
                   onPressed: () {
                     // 已复制
                     Clipboard.setData(ClipboardData(text: scanResult));
-                    EasyLoading.showToast('copied'.tr);
+                    EasyLoading.showToast(t.copied);
                   },
                   child: const Icon(Icons.copy_all),
                 ),
                 // open in browser
                 FloatingActionButton(
                   heroTag: "open_in_browser",
-                  tooltip: 'openInBrowser'.tr,
+                  tooltip: t.openInBrowser,
                   backgroundColor: isUrl(scanResult) ? null : Colors.grey,
                   onPressed: () {
                     if (isUrl(scanResult)) {

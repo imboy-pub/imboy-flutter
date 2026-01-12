@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -174,7 +174,7 @@ class ContactRepo {
       return ContactModel.fromMap({
         ContactRepo.peerId: uid,
         ContactRepo.account: '',
-        ContactRepo.nickname: uid.tr,
+        ContactRepo.nickname: t.botQianFan,
         ContactRepo.sign: '',
         ContactRepo.avatar: '',
       });

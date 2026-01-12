@@ -5,10 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 class SettingLogic extends GetxController {
   RxBool allowSearch = true.obs;
@@ -19,16 +20,22 @@ class SettingLogic extends GetxController {
     allowSearch.value = UserRepoLocal.to.setting.allowSearch;
   }
 
+  /// 获取主题类型提示文字
   String themeTypeTips() {
-    int themeType = StorageService.to.getInt(Keys.themeType) ?? 0;
-    if (themeType == 2) {
-      return 'followSystem'.tr;
-    } else if (themeType == 1) {
-      return 'on'.tr;
-    } else if (themeType == 0) {
-      return 'off'.tr;
+    final themeManager = ThemeManager.instance;
+
+    // 跟随系统
+    if (themeManager.followSystemTheme) {
+      return t.followSystem;
     }
-    return '';
+
+    // 深色模式
+    if (themeManager.isDarkMode) {
+      return t.on;
+    }
+
+    // 浅色模式
+    return t.off;
   }
 
   Future<void> switchEnvironment(String env) async {
@@ -55,7 +62,7 @@ class SettingLogic extends GetxController {
             actions: <Widget>[
               TextButton(
                 child: Text(
-                  'buttonConfirm'.tr,
+                  t.buttonConfirm,
                   // style: TextStyle(
                   //   color: ThemeManager.instance.getThemeColor('textPrimary'),
                   // ),

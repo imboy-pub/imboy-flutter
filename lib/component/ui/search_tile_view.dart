@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class SearchTileView extends StatelessWidget {
   final String? text;
@@ -28,7 +29,7 @@ class SearchTileView extends StatelessWidget {
               size: 50.0,
             ),
           ),
-          Text("${'search'.tr}："),
+          Text("${t.search}："),
           Text(
             text!,
             style: const TextStyle(color: Colors.green),

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 
 // import 'package:fvp/fvp.dart';
@@ -49,6 +48,7 @@ import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
@@ -72,9 +72,12 @@ OverlayEntry? p2pEntry;
 // ice 配置信息
 // Map<String, dynamic>? iceConfiguration;
 
-/// The global [EventBus] object.
-/// sync 不要设置为 true
-EventBus eventBus = EventBus();
+/// 全局事件总线对象（原始 EventBus 实例）
+///
+/// 提供 eventBus.fire() 和 eventBus.on<>() 方法
+/// 推荐使用静态方法: AppEventBus.fire() / AppEventBus.on<>()
+@Deprecated('推荐使用静态方法 AppEventBus.fire() / AppEventBus.on<>()')
+dynamic eventBus = AppEventBus.i;
 // 全局timer
 Timer? gTimer;
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -184,7 +187,7 @@ class AppInitializer {
 
     await StorageService.to.setString('env', currentEnv);
     logger.i(
-      "Running in environment: $currentEnv, Env().apiBaseUrl: ${Env().apiBaseUrl}, wsUrl: ${Env.wsUrl};",
+      "Running in environment: $currentEnv, Env().apiBaseUrl: ${Env().apiBaseUrl}, wsUrl: ${Env.effectiveWsUrl};",
     );
   }
 
@@ -234,7 +237,8 @@ class AppInitializer {
 
   static Future<Map<String, dynamic>> initConfig() async {
     IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
-    debugPrint("initConfig ${resp1.payload.toString()}");
+    // 安全日志：不输出完整配置数据，可能包含敏感信息
+    debugPrint("initConfig completed with code ${resp1.code}");
     if (!resp1.ok) {
       return {"error": "网络故障或服务故障"};
     }
@@ -260,7 +264,8 @@ class AppInitializer {
     if (payload.containsKey('error')) {
       return payload;
     }
-    iPrint("initConfig_payload ${payload.toString()}");
+    // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
+    debugPrint("initConfig_payload received ${payload.keys.length} config items");
     await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
     await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
     await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
@@ -279,6 +284,10 @@ class AppInitializer {
 
   static Future<void> _initializeServices() async {
     // UserRepoLocal 已在 _initializeCore() 中提前注册
+
+    // AppEventBus 已改为静态方法封装，无需注册
+    // 提供统一的事件发布/订阅机制，用于服务间解耦通信
+    iPrint('✅ [INIT] AppEventBus 使用静态方法模式');
 
     // 初始化网络监控服务（必须在HttpClient使用之前初始化）
     Get.put(NetworkMonitorService());
@@ -319,6 +328,8 @@ class AppInitializer {
       () => MessageOfflineService(),
       fenix: true,
     );
+    // 初始化 MessageOfflineService 的事件订阅
+    MessageOfflineService.to.onInit();
     Get.lazyPut<MessageRetry>(() => MessageRetry(), fenix: true);
 
     // 初始化各种逻辑控制器

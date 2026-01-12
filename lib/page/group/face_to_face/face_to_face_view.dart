@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'face_to_face_confirm_view.dart';
 import 'face_to_face_logic.dart';
 import 'package:imboy/theme/default/app_text_size.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class FaceToFacePage extends StatelessWidget {
   final logic = Get.put(FaceToFaceLogic());
@@ -25,7 +26,7 @@ class FaceToFacePage extends StatelessWidget {
 
     return Scaffold(
       appBar: GlassAppBar(
-        title: 'createGroupF2f'.tr,
+        title: t.createGroupF2f,
       ),
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       body: Column(
@@ -48,7 +49,7 @@ class FaceToFacePage extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'createGroupF2fTips'.tr,
+                              t.createGroupF2fTips,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: isDark
                                     ? Colors.white.withValues(alpha: 0.9)

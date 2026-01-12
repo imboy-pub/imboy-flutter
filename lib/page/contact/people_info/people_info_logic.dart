@@ -3,6 +3,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 import 'people_info_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class PeopleInfoLogic extends GetxController {
   final PeopleInfoState state = PeopleInfoState();
@@ -44,7 +45,7 @@ class PeopleInfoLogic extends GetxController {
         state.source.value = '';
       } else if (scene == 'group_member') {
       } else if (scene == 'user_search') {
-        state.source.value = 'search'.tr;
+        state.source.value = t.search;
         // } else if (scene == '') {
         // } else if (scene == '') {
         // } else if (scene == '') {

@@ -4,6 +4,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'set_gender_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 设置性别页面逻辑控制器
 ///
@@ -48,7 +49,7 @@ class SetGenderLogic extends GetxController {
 
   /// 选择性别（入口）
   /// 用途：处理用户点击性别选项的流程（节流 -> 调用 API -> 同步本地 -> 回滚/提示）
-  /// 参数：gender String 性别 id（'1' 男 / '2' 女 / '3' 保密 / '0' 未知）
+  /// 参数：gender \`String\` 性别 id（'1' 男 / '2' 女 / '3' 保密 / '0' 未知）
   /// 返回：void
   void selectGender(String gender) async {
     // 若正在提交或选择相同值，忽略
@@ -70,7 +71,7 @@ class SetGenderLogic extends GetxController {
         selectedGender.value = gender;
         originalGender = gender;
 
-        Get.snackbar('tipSuccess'.tr, 'genderUpdateSuccess'.tr);
+        Get.snackbar(t.tipSuccess, t.genderUpdateSuccess);
         Get.back(result: true);
       } else {
         // 根据错误码做差异化提示并回滚
@@ -80,7 +81,7 @@ class SetGenderLogic extends GetxController {
       iPrint('设置性别失败: $e');
       // 网络异常回滚并提示
       await _revertToOriginal();
-      Get.snackbar('tipFailed'.tr, 'genderNetworkError'.tr);
+      Get.snackbar(t.tipFailed, t.genderNetworkError);
     } finally {
       // 清理 pending 与保存状态
       pendingGender.value = '';
@@ -110,16 +111,16 @@ class SetGenderLogic extends GetxController {
 
     switch (errorCode) {
       case 'GENDER_CONFLICT':
-        Get.snackbar('tipFailed'.tr, 'genderConflictError'.tr);
+        Get.snackbar(t.tipFailed, t.genderConflictError);
         break;
       case 'GENDER_INVALID':
-        Get.snackbar('tipFailed'.tr, 'genderUpdateFailed'.tr);
+        Get.snackbar(t.tipFailed, t.genderUpdateFailed);
         break;
       case 'GENDER_SENSITIVE':
-        Get.snackbar('tipFailed'.tr, 'genderUpdateFailed'.tr);
+        Get.snackbar(t.tipFailed, t.genderUpdateFailed);
         break;
       default:
-        Get.snackbar('tipFailed'.tr, 'genderUpdateFailed'.tr);
+        Get.snackbar(t.tipFailed, t.genderUpdateFailed);
         break;
     }
   }

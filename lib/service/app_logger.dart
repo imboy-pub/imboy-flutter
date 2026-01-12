@@ -10,7 +10,7 @@ import 'package:logger/logger.dart';
 /// - 可维护性：统一的日志格式和配置
 class AppLogger {
   /// 是否为调试模式
-  static bool _isDebugMode = kDebugMode;
+  static final bool _isDebugMode = kDebugMode;
 
   /// Logger 实例
   static Logger? _logger;

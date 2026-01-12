@@ -130,5 +130,9 @@
 		<true/>
 		<key>com.apple.security.files.downloads.read-write</key>
 		<true/>
-	</dict>
+			<key>CFBundleLocalizations</key>
+		<array>
+
+		</array>
+</dict>
 </plist>

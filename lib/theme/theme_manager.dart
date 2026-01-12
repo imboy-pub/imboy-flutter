@@ -37,7 +37,7 @@ class ThemeManager extends GetxController {
   final _followSystemTheme = false.obs;
   bool get followSystemTheme => _followSystemTheme.value;
 
-  // 是否使用动态颜色
+  // 是否使用动态颜色（暂未实现，预留用于未来版本）
   final _useDynamicColor = false.obs;
   bool get useDynamicColor => _useDynamicColor.value;
 
@@ -49,12 +49,12 @@ class ThemeManager extends GetxController {
   final _isThemeChanging = false.obs;
   bool get isThemeChanging => _isThemeChanging.value;
 
-  /// 获取亮色主题（支持动态字体缩放和动态颜色）
+  /// 获取亮色主题（支持动态字体缩放）
   ThemeData get lightTheme {
     return AppTheme.getLightThemeFromOption(fontSizeOption);
   }
 
-  /// 获取暗色主题（支持动态字体缩放和动态颜色）
+  /// 获取暗色主题（支持动态字体缩放）
   ThemeData get darkTheme {
     return AppTheme.getDarkThemeFromOption(fontSizeOption);
   }
@@ -62,20 +62,6 @@ class ThemeManager extends GetxController {
   /// 获取当前主题
   ThemeData get currentTheme {
     return isDarkMode ? darkTheme : lightTheme;
-  }
-
-  /// 构建亮色主题（使用 AppTheme 配置）
-  ThemeData _buildLightTheme() {
-    // 注意：动态颜色主题需要异步获取，这里返回静态主题
-    // 动态颜色主题通过 updateDynamicColor 方法异步应用
-    return AppTheme.getLightThemeFromOption(fontSizeOption);
-  }
-
-  /// 构建暗色主题（使用 AppTheme 配置）
-  ThemeData _buildDarkTheme() {
-    // 注意：动态颜色主题需要异步获取，这里返回静态主题
-    // 动态颜色主题通过 updateDynamicColor 方法异步应用
-    return AppTheme.getDarkThemeFromOption(fontSizeOption);
   }
 
   /// 切换主题（带动画效果）
@@ -90,13 +76,11 @@ class ThemeManager extends GetxController {
       // 更新主题模式
       _isDarkMode.value = targetDarkMode;
 
-      // 应用主题切换（仅在非测试环境）
-      try {
-        Get.changeTheme(targetDarkMode ? darkTheme : lightTheme);
-      } catch (e) {
-        // 在测试环境中忽略 GetX 错误
-        debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-      }
+      // 应用主题切换
+      _safeChangeTheme(targetDarkMode ? darkTheme : lightTheme);
+
+      // 保存主题设置
+      _saveThemePreference();
 
       // 等待动画完成
       final animationDuration = duration ?? const Duration(milliseconds: 300);
@@ -117,29 +101,33 @@ class ThemeManager extends GetxController {
     }
   }
 
-  /// 切换OLED优化模式
-  Future<void> toggleOLEDMode({bool? enabled}) async {
-    final targetOLEDMode = enabled ?? false;
+  // ==================== 私有辅助方法 ====================
 
-    // 如果状态没有变化，直接返回
-    if (targetOLEDMode == false) return;
-
-    // OLED 模式已移除
-    debugPrint('ThemeManager: OLED 模式已移除');
+  /// 安全地应用主题切换（处理测试环境中的 GetX 未初始化问题）
+  void _safeChangeTheme(ThemeData theme) {
+    try {
+      Get.changeTheme(theme);
+    } catch (e) {
+      debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
+    }
   }
 
-  /// 切换护眼模式
-  Future<void> toggleEyeCareMode({bool? enabled}) async {
-    final targetEyeCareMode = enabled ?? false;
-
-    // 如果状态没有变化，直接返回
-    if (targetEyeCareMode == false) return;
-
-    // 护眼模式已移除
-    debugPrint('ThemeManager: 护眼模式已移除');
+  /// 保存主题设置到本地存储
+  Future<void> _saveThemePreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('theme_is_dark_mode', isDarkMode);
+      await prefs.setString('theme_font_size', fontSizeOption.value);
+      await prefs.setBool('theme_follow_system', followSystemTheme);
+      await prefs.setBool('theme_use_dynamic_color', useDynamicColor);
+    } catch (e) {
+      debugPrint('ThemeManager: 保存主题设置失败 - $e');
+    }
   }
 
-  /// 获取当前主题的颜色（支持OLED和护眼模式）
+  // ==================== 颜色获取方法 ====================
+
+  /// 获取当前主题的颜色
   Color getThemeColor(String colorKey) {
     switch (colorKey) {
       case 'primary':
@@ -201,7 +189,7 @@ class ThemeManager extends GetxController {
 
   /// 获取字体大小（支持动态缩放）
   double getFontSize(FontSizeType type, {BuildContext? context}) {
-    return _calculateFontSize(type, context);
+    return getScaledFontSize(type, context: context);
   }
 
   /// 获取缩放后的字体大小
@@ -249,26 +237,18 @@ class ThemeManager extends GetxController {
         FontSizeOption.fromValue(fontSizeValue) ?? FontSizeOption.normal;
     _fontSizeOption.value = option;
 
-    // 应用新主题到 GetX（仅在非测试环境）
-    try {
-      Get.changeTheme(currentTheme);
-    } catch (e) {
-      // 在测试环境中忽略 GetX 错误
-      debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-    }
+    // 应用新主题并保存
+    _safeChangeTheme(currentTheme);
+    await _saveThemePreference();
   }
 
   /// 更新字体大小选项
   Future<void> updateFontSizeOption(FontSizeOption option) async {
     _fontSizeOption.value = option;
 
-    // 应用新主题到 GetX（仅在非测试环境）
-    try {
-      Get.changeTheme(currentTheme);
-    } catch (e) {
-      // 在测试环境中忽略 GetX 错误
-      debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-    }
+    // 应用新主题并保存
+    _safeChangeTheme(currentTheme);
+    await _saveThemePreference();
   }
 
   /// 获取当前字体大小的字符串值（兼容旧版本）
@@ -303,19 +283,10 @@ class ThemeManager extends GetxController {
     );
   }
 
-  /// 计算响应式字体大小（使用新的缩放逻辑）
-  double _calculateFontSize(FontSizeType type, BuildContext? context) {
-    return FontScaleCalculator.calculateFinalSize(
-      type,
-      fontSizeOption,
-      context: context,
-    );
-  }
-
   // ==================== 性能监控方法 ====================
 
-  /// 获取性能统计信息
-  Map<String, dynamic> getPerformanceStats() {
+  /// 获取当前主题设置（用于调试和监控）
+  Map<String, dynamic> getThemeSettings() {
     return {
       'isDarkMode': isDarkMode,
       'fontSizeOption': fontSizeOption.value,
@@ -325,14 +296,24 @@ class ThemeManager extends GetxController {
     };
   }
 
+  /// 获取性能统计信息（兼容旧版本，建议使用 getThemeSettings）
+  @Deprecated('使用 getThemeSettings() 替代')
+  Map<String, dynamic> getPerformanceStats() => getThemeSettings();
+
+  /// 获取缓存统计信息（兼容旧版本，建议使用 getThemeSettings）
+  @Deprecated('使用 getThemeSettings() 替代')
+  Map<String, dynamic> getCacheStats() => getThemeSettings();
+
   /// 更新跟随系统主题设置
   Future<void> updateFollowSystemTheme(bool followSystem) async {
     _followSystemTheme.value = followSystem;
+    await _saveThemePreference();
   }
 
   /// 更新动态颜色设置
   Future<void> updateUseDynamicColor(bool useDynamic) async {
     _useDynamicColor.value = useDynamic;
+    await _saveThemePreference();
   }
 
   /// 检测动态颜色支持
@@ -359,39 +340,28 @@ class ThemeManager extends GetxController {
     return await DynamicColorManager.instance.getDynamicColorInfo();
   }
 
-  /// 应用动态颜色主题（内部方法）
-  Future<void> _applyDynamicColorTheme() async {
-    try {
-      final dynamicTheme = isDarkMode 
-          ? await AppTheme.getDarkThemeWithDynamicColor(fontScale: fontSizeOption.scale)
-          : await AppTheme.getLightThemeWithDynamicColor(fontScale: fontSizeOption.scale);
-      
-      Get.changeTheme(dynamicTheme);
-    } catch (e) {
-      debugPrint('ThemeManager: 应用动态颜色主题失败 - $e');
-    }
-  }
-
   /// 从本地存储加载主题设置
   Future<void> loadThemePreference() async {
     try {
-      // 使用 SharedPreferences 加载主题设置
-      // 简化实现，只加载暗色模式设置
-      final prefs = Get.find<SharedPreferences>();
-      final isDarkMode = prefs.getBool('theme_is_dark_mode') ?? false;
-      _isDarkMode.value = isDarkMode;
+      final prefs = await SharedPreferences.getInstance();
 
-      // 应用加载的主题（仅在非测试环境）
-      try {
-        Get.changeTheme(isDarkMode ? darkTheme : lightTheme);
-      } catch (e) {
-        // 在测试环境中忽略 GetX 错误
-        debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-      }
+      // 加载所有主题设置
+      _isDarkMode.value = prefs.getBool('theme_is_dark_mode') ?? false;
+      final fontSizeValue = prefs.getString('theme_font_size') ?? 'normal';
+      _fontSizeOption.value =
+          FontSizeOption.fromValue(fontSizeValue) ?? FontSizeOption.normal;
+      _followSystemTheme.value = prefs.getBool('theme_follow_system') ?? false;
+      _useDynamicColor.value = prefs.getBool('theme_use_dynamic_color') ?? false;
+
+      // 应用加载的主题
+      _safeChangeTheme(isDarkMode ? darkTheme : lightTheme);
     } catch (e) {
       debugPrint('ThemeManager: 加载主题设置失败 - $e');
       // 使用默认设置
       _isDarkMode.value = false;
+      _fontSizeOption.value = FontSizeOption.normal;
+      _followSystemTheme.value = false;
+      _useDynamicColor.value = false;
     }
   }
 
@@ -399,17 +369,6 @@ class ThemeManager extends GetxController {
   static void resetInstance() {
     _instance?.dispose();
     _instance = null;
-  }
-
-  /// 获取缓存统计信息
-  Map<String, dynamic> getCacheStats() {
-    return {
-      'isDarkMode': isDarkMode,
-      'fontSizeOption': fontSizeOption.value,
-      'followSystemTheme': followSystemTheme,
-      'useDynamicColor': useDynamicColor,
-      'isDynamicColorSupported': isDynamicColorSupported,
-    };
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/main_input.dart';
 import 'package:imboy/config/enum.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class GroupRemarkPage extends StatefulWidget {
   final GroupInfoType? groupInfoType;
@@ -28,7 +29,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
   void handle() {
     if (widget.groupInfoType == GroupInfoType.name) {
       if (!strNoEmpty(_textController.text)) {
-        Get.snackbar('tipTips'.tr, "请输入内容");
+        Get.snackbar(t.tipTips, "请输入内容");
         return;
       }
       Navigator.pop(context, _textController.text);
@@ -36,7 +37,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
       // 允许为空，为空时显示昵称
       Navigator.pop(context, _textController.text);
     } else {
-      Get.snackbar('tipTips'.tr, "敬请期待");
+      Get.snackbar(t.tipTips, "敬请期待");
     }
   }
 
@@ -48,21 +49,21 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   String get label {
     if (widget.groupInfoType == GroupInfoType.name) {
-      return 'changeParam'.trArgs(['groupName'.tr]); // 修改群聊名称
+      return t.changeParam.replaceAll('{s}', t.groupName); // 修改群聊名称
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
-      return 'groupAlias'.tr;
+      return t.groupAlias;
     } else {
-      return 'remark'.tr;
+      return t.remark;
     }
   }
 
   String get des {
     if (widget.groupInfoType == GroupInfoType.name) {
-      return 'changeGroupChatName'.tr;
+      return t.changeGroupChatName;
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
-      return 'nicknameChangeVisibility'.tr;
+      return t.nicknameChangeVisibility;
     } else {
-      return 'groupRemarkVisibility'.tr;
+      return t.groupRemarkVisibility;
     }
   }
 
@@ -80,7 +81,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
             TextButton(
               onPressed: () => handle(),
               child: Text(
-                'buttonSave'.tr,
+                t.buttonSave,
                 style: TextStyle(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -135,10 +136,10 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                   ),
                   decoration: InputDecoration(
                     hintText: widget.groupInfoType == GroupInfoType.name
-                        ? 'groupName'.tr
+                        ? t.groupName
                         : (widget.groupInfoType == GroupInfoType.cardName
-                            ? 'groupAlias'.tr
-                            : 'remark'.tr),
+                            ? t.groupAlias
+                            : t.remark),
                     hintStyle: TextStyle(
                       color: colorScheme.outline.withValues(alpha: 0.5),
                     ),

@@ -7,6 +7,7 @@ import 'package:imboy/page/mine/account_security/account_security_logic.dart';
 import 'package:imboy/page/passport/passport_logic.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class BindEmailPage extends GetView<BindEmailController> {
   const BindEmailPage({super.key});
@@ -28,7 +29,7 @@ class BindEmailPage extends GetView<BindEmailController> {
       backgroundColor: cs.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: hasBound ? '修改邮箱' : '绑定邮箱',
+        title: hasBound ? t.changeEmail : t.bindEmail,
       ),
       body: SafeArea(
         child: ListView(
@@ -66,12 +67,12 @@ class BindEmailPage extends GetView<BindEmailController> {
                     size: 24,
                   ),
                 ),
-                title: const Text(
-                  '当前邮箱',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                title: Text(
+                  t.currentEmail,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  hasBound ? _maskEmail(currentEmail) : '未绑定',
+                  hasBound ? _maskEmail(currentEmail) : t.notBound,
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
@@ -86,7 +87,7 @@ class BindEmailPage extends GetView<BindEmailController> {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    hasBound ? '已绑定' : '未绑定',
+                    hasBound ? t.bound : t.notBound,
                     style: TextStyle(
                       fontSize: 12,
                       color: hasBound
@@ -108,7 +109,7 @@ class BindEmailPage extends GetView<BindEmailController> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 8),
                   child: Text(
-                    hasBound ? '新邮箱地址' : '邮箱地址',
+                    hasBound ? t.newEmailAddress : t.emailAddress,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -138,7 +139,7 @@ class BindEmailPage extends GetView<BindEmailController> {
                     enableSuggestions: false,
                     style: const TextStyle(fontSize: 16),
                     decoration: InputDecoration(
-                      hintText: '请输入邮箱地址',
+                      hintText: t.enterEmailAddress,
                       hintStyle: TextStyle(color: Colors.grey[400]),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
@@ -162,8 +163,8 @@ class BindEmailPage extends GetView<BindEmailController> {
                 // Length status
                 Obx(
                   () => _StatusRow(
-                    label: '格式检查',
-                    value: controller.emailOk.value ? '正确' : '待输入',
+                    label: t.formatCheck,
+                    value: controller.emailOk.value ? t.correct : t.pendingInput,
                     ok: controller.emailOk.value,
                   ),
                 ),
@@ -174,11 +175,11 @@ class BindEmailPage extends GetView<BindEmailController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4, bottom: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, bottom: 8),
                       child: Text(
-                        '验证码',
-                        style: TextStyle(
+                        t.verificationCode,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -230,8 +231,8 @@ class BindEmailPage extends GetView<BindEmailController> {
                                     const SizedBox(width: 6),
                                     Text(
                                       controller.seconds.value > 0
-                                          ? '重新发送 (${controller.seconds.value}s)'
-                                          : '获取验证码',
+                                          ? '${t.resendCode} (${controller.seconds.value}s)'
+                                          : t.getVerificationCode,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
@@ -285,7 +286,7 @@ class BindEmailPage extends GetView<BindEmailController> {
                 // Length status
                 Obx(
                   () => _StatusRow(
-                    label: '长度检查',
+                    label: t.lengthCheck,
                     value: '${controller.codeLength.value} / 6',
                     ok: controller.codeOk.value,
                   ),
@@ -321,7 +322,7 @@ class BindEmailPage extends GetView<BindEmailController> {
                               ),
                             )
                           : Text(
-                              hasBound ? '确认更换' : '立即绑定',
+                              hasBound ? t.confirmChange : t.bindNow,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -334,7 +335,7 @@ class BindEmailPage extends GetView<BindEmailController> {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    '验证码将发送至该邮箱，请在有效期内完成验证',
+                    t.verificationCodeSentToEmail,
                     style: TextStyle(color: Colors.grey[500], fontSize: 13),
                   ),
                 ),
@@ -359,8 +360,8 @@ class BindEmailController extends GetxController {
   final RxInt codeLength = 0.obs;
   final RxBool emailOk = false.obs;
   final RxBool codeOk = false.obs;
-  final RxString emailError = '请输入正确的邮箱地址'.obs;
-  final RxString codeError = '请输入 6 位验证码'.obs;
+  final RxString emailError = t.pleaseEnterCorrectEmailAddress.obs;
+  final RxString codeError = t.pleaseEnter6DigitVerificationCode.obs;
 
   final RxInt seconds = 0.obs;
   final RxBool isSendingCode = false.obs;
@@ -442,7 +443,7 @@ class BindEmailController extends GetxController {
       final res = await passportLogic.sendCode('email', email.value, 'signup');
       if (res == null) {
         Get.snackbar(
-          '验证码已发送',
+          t.verificationCodeSent,
           '已发送至 ${_maskEmail(email.value)}',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.inverseSurface,
@@ -453,8 +454,8 @@ class BindEmailController extends GetxController {
         _startCountdown();
       } else {
         Get.snackbar(
-          '发送失败',
-          res.tr,
+          t.sendFailed,
+          res,
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.errorContainer,
           colorText: Get.theme.colorScheme.onErrorContainer,
@@ -476,8 +477,8 @@ class BindEmailController extends GetxController {
       final currentEmail = UserRepoLocal.to.current.email;
       if (currentEmail.isNotEmpty && email.value == currentEmail) {
         Get.snackbar(
-          '无需修改',
-          '新邮箱与当前绑定一致',
+          t.noChangeNeeded,
+          t.newEmailSameAsCurrent,
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.surfaceContainerHighest,
           colorText: Get.theme.colorScheme.onSurface,
@@ -508,8 +509,8 @@ class BindEmailController extends GetxController {
         Get.back();
       } else {
         Get.snackbar(
-          '提交失败',
-          '请检查验证码或稍后重试',
+          t.submissionFailed,
+          t.checkVerificationCodeOrRetry,
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.errorContainer,
           colorText: Get.theme.colorScheme.onErrorContainer,

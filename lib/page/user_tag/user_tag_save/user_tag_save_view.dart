@@ -9,6 +9,7 @@ import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart
 import 'package:imboy/store/model/user_tag_model.dart';
 
 import 'user_tag_save_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class UserTagSavePage extends StatelessWidget {
@@ -42,7 +43,7 @@ class UserTagSavePage extends StatelessWidget {
           },
           child: const Icon(Icons.close),
         ),
-        title: tag == null ? 'addTag'.tr : 'changeParam'.trArgs(['tags'.tr]),
+        title: tag == null ? t.addTag : t.changeParam.replaceAll('{s}', t.tags),
         // rightDMActions: [],
       ),
       body: SizedBox(
@@ -119,7 +120,7 @@ class UserTagSavePage extends StatelessWidget {
               children: [
                 Obx(
                   () => RoundedElevatedButton(
-                    text: 'buttonAccomplish'.tr,
+                    text: t.buttonAccomplish,
                     highlighted: state.valueChanged.isTrue,
                     onPressed: () async {
                       String trimmedText = state.textController.text.trim();
@@ -160,7 +161,7 @@ class UserTagSavePage extends StatelessWidget {
                           } catch (e) {
                             //
                           }
-                          EasyLoading.showSuccess('tipSuccess'.tr);
+                          EasyLoading.showSuccess(t.tipSuccess);
 
                           if (Get.isBottomSheetOpen ?? false) {
                             Get.closeAllBottomSheets();

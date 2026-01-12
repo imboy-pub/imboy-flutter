@@ -19,6 +19,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'account_security_logic.dart';
 import 'package:imboy/page/mine/account_security/bind_email_view.dart';
 import 'package:imboy/page/mine/account_security/bind_mobile_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 账户安全页面
 class AccountSecurityPage extends StatelessWidget {
@@ -34,7 +35,7 @@ class AccountSecurityPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'accountSecurity'.tr,
+        title: t.accountSecurity,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -63,7 +64,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 账户号码
                   _buildSettingItem(
                     context,
-                    title: 'account'.tr,
+                    title: t.account,
                     value: UserRepoLocal.to.current.account,
                     leadingIcon: Icons.badge,
                     leadingIconColor: AppColors.info,
@@ -74,9 +75,9 @@ class AccountSecurityPage extends StatelessWidget {
                   // 手机号
                   _buildSettingItem(
                     context,
-                    title: 'mobile'.tr,
+                    title: t.mobile,
                     value: UserRepoLocal.to.current.mobile.isEmpty
-                        ? 'notBound'.tr
+                        ? t.notBound
                         : hiddenPhone(UserRepoLocal.to.current.mobile),
                     leadingIcon: Icons.phone_iphone,
                     leadingIconColor: AppColors.info,
@@ -94,9 +95,9 @@ class AccountSecurityPage extends StatelessWidget {
                   // 邮箱
                   _buildSettingItem(
                     context,
-                    title: 'email'.tr,
+                    title: t.email,
                     value: UserRepoLocal.to.current.email.isEmpty
-                        ? 'notBound'.tr
+                        ? t.notBound
                         : UserRepoLocal.to.current.email.replaceRange(
                             4,
                             UserRepoLocal.to.current.email.length - 8,
@@ -138,8 +139,8 @@ class AccountSecurityPage extends StatelessWidget {
                   // 密码设置
                   _buildSettingItem(
                     context,
-                    title: 'password'.tr,
-                    value: needSet == false ? 'haveSet'.tr : '未设置',
+                    title: t.password,
+                    value: needSet == false ? t.haveSet : '未设置',
                     leadingIcon: Icons.lock_outline,
                     leadingIconColor: AppColors.success,
                     onTap: () {
@@ -158,7 +159,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 安全中心
                   _buildSettingItem(
                     context,
-                    title: 'securityCenter'.tr,
+                    title: t.securityCenter,
                     subtitle: '查看安全帮助',
                     leadingIcon: Icons.shield_outlined,
                     leadingIconColor: AppColors.warning,
@@ -166,7 +167,7 @@ class AccountSecurityPage extends StatelessWidget {
                       Get.to(
                         () => WebViewPage(
                           "https://weixin110.qq.com/security/newreadtemplate?t=w_security_center_website/newindex",
-                          'securityCenter'.tr,
+                          t.securityCenter,
                         ),
                         transition: Transition.rightToLeft,
                         popGesture: true,
@@ -199,7 +200,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 退出登录
                   _buildSettingItem(
                     context,
-                    title: 'logOut'.tr,
+                    title: t.logOut,
                     leadingIcon: Icons.logout,
                     leadingIconColor: AppColors.lightError,
                     isDestructive: true,
@@ -216,7 +217,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 注销账户
                   _buildSettingItem(
                     context,
-                    title: 'logoutAccount'.tr,
+                    title: t.logoutAccount,
                     leadingIcon: Icons.delete_forever,
                     leadingIconColor: AppColors.lightError,
                     isDestructive: true,

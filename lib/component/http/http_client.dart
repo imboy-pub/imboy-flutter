@@ -25,7 +25,20 @@ import 'http_config.dart';
 import 'http_parse.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
+import 'http_retry_interceptor.dart';
 import 'package:imboy/config/error_code.dart';
+import 'package:imboy/i18n/strings.g.dart';
+
+/// 安全的证书验证回调
+/// 生产环境严格验证证书，开发环境允许自签名证书
+bool _certificateValidationCallback(X509Certificate cert) {
+  // 仅在开发环境接受自签名证书
+  if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
+    return true;
+  }
+  // 生产环境进行严格验证
+  return false;
+}
 
 Future<Map<String, dynamic>> defaultHeaders() async {
   String key = await Env.signKey();
@@ -68,6 +81,12 @@ class HttpClient {
 
     _dio = Dio(options);
 
+    // 添加重试拦截器（在日志拦截器之前添加，优先级更高）
+    final retryConfig = currentEnv == 'dev'
+        ? HttpRetryConfig.devConfig
+        : HttpRetryConfig.prodConfig;
+    _dio.interceptors.add(createRetryInterceptor(retryConfig));
+
     if (RECORD_LOG) {
       _dio.interceptors.add(LogInterceptor(
           responseBody: true,
@@ -83,7 +102,8 @@ class HttpClient {
     _dio.httpClientAdapter = Http2Adapter(
       ConnectionManager(
         idleTimeout: const Duration(seconds: 10),
-        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
+        onClientCreate: (_, config) =>
+            config.onBadCertificate = _certificateValidationCallback,
       ),
     );
 
@@ -97,7 +117,7 @@ class HttpClient {
       ConnectionManager(
         idleTimeout: const Duration(seconds: 10),
         onClientCreate: (_, config) {
-          config.onBadCertificate = (_) => true;
+          config.onBadCertificate = _certificateValidationCallback;
           config.proxy = Uri.parse(proxy);
         },
       ),
@@ -133,7 +153,8 @@ class HttpClient {
       _dio.options.headers[Keys.tokenKey] = tk;
     }
     Map<String, dynamic> headers = await defaultHeaders();
-    iPrint("_setDefaultConfig headers: ${headers.toString()}");
+    // 安全日志：不输出包含敏感信息的完整 headers
+    debugPrint("_setDefaultConfig: Adding ${headers.length} default headers");
     _dio.options.headers.addAll(headers);
   }
 
@@ -162,7 +183,7 @@ class HttpClient {
       if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
         return handleException(
           uri,
-          NetworkException(message: 'tipConnectDesc'.tr),
+          NetworkException(message: t.tipConnectDesc),
         );
       }
       // iPrint("http_client/get $uri ?   queryParameters ${queryParameters.toString()}");
@@ -219,14 +240,14 @@ class HttpClient {
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
     if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
-      // EasyLoading.showError('tipConnectDesc'.tr);
+      // EasyLoading.showError(t.tipConnectDesc);
       return handleException(
         uri,
-        NetworkException(message: 'tipConnectDesc'.tr),
+        NetworkException(message: t.tipConnectDesc),
       );
     }
     try {
-      debugPrint("http_post $uri request ${queryParameters.toString()}");
+      debugPrint("http_post $uri");
       await _setDefaultConfig();
       var response = await _dio.post(
         uri,
@@ -237,7 +258,8 @@ class HttpClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      debugPrint("http_post response ${response.toString()}");
+      // 安全日志：不输出完整响应数据，可能包含敏感信息
+      debugPrint("http_post $uri completed with status ${response.statusCode}");
       IMBoyHttpResponse resp = handleResponse(
         response,
         uri: uri,
@@ -245,7 +267,7 @@ class HttpClient {
       );
       return resp;
     } on Exception catch (e) {
-      debugPrint("$uri http_post e ${e.toString()}");
+      debugPrint("$uri http_post error: ${e.toString()}");
       return handleException(uri, e);
     }
   }
@@ -260,10 +282,10 @@ class HttpClient {
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
     if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError('tipConnectDesc'.tr);
+      EasyLoading.showError(t.tipConnectDesc);
       return handleException(
         uri,
-        NetworkException(message: 'tipConnectDesc'.tr),
+        NetworkException(message: t.tipConnectDesc),
       );
     }
     try {
@@ -298,10 +320,10 @@ class HttpClient {
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
     if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError('tipConnectDesc'.tr);
+      EasyLoading.showError(t.tipConnectDesc);
       return handleException(
         uri,
-        NetworkException(message: 'tipConnectDesc'.tr),
+        NetworkException(message: t.tipConnectDesc),
       );
     }
     try {
@@ -332,10 +354,10 @@ class HttpClient {
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
     if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError('tipConnectDesc'.tr);
+      EasyLoading.showError(t.tipConnectDesc);
       return handleException(
         uri,
-        NetworkException(message: 'tipConnectDesc'.tr),
+        NetworkException(message: t.tipConnectDesc),
       );
     }
     try {

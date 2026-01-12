@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:flutter/foundation.dart';
 
 import 'http_response.dart';
 
@@ -11,7 +11,8 @@ abstract class HttpTransformer {
 class DefaultHttpTransformer extends HttpTransformer {
   @override
   IMBoyHttpResponse parse(Response response, String uri) {
-    iPrint("uri $uri, response.data_status: ${response.data.toString()};");
+    // 安全日志：不输出完整响应数据
+    debugPrint("uri $uri, statusCode: ${response.statusCode}");
     if (response.data is! Map) {
       return IMBoyHttpResponse.failure();
     }

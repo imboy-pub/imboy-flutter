@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -78,7 +79,8 @@ class TextThemeConfig {
     // 应用安全的字体缩放
     final safeScale = FontScaleCalculator.getSafeScale(fontScale);
 
-    return TextTheme(
+    // 基础 TextTheme
+    final baseTextTheme = TextTheme(
       // Material 3 Display 样式 - 大标题
       displayLarge: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
@@ -88,7 +90,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.12, // Material 3 行高
         letterSpacing: -0.25,
       ),
@@ -100,7 +101,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.16, // Material 3 行高
         letterSpacing: 0,
       ),
@@ -112,7 +112,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.22, // Material 3 行高
         letterSpacing: 0,
       ),
@@ -126,7 +125,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.25, // Material 3 行高
         letterSpacing: 0,
       ),
@@ -138,7 +136,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.29, // Material 3 行高
         letterSpacing: 0,
       ),
@@ -150,7 +147,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.33, // Material 3 行高
         letterSpacing: 0,
       ),
@@ -164,7 +160,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.27, // Material 3 行高
         letterSpacing: 0,
       ),
@@ -176,7 +171,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w500, // Material 3 Medium
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.50, // Material 3 行高
         letterSpacing: 0.15,
       ),
@@ -188,7 +182,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w500, // Material 3 Medium
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.43, // Material 3 行高
         letterSpacing: 0.1,
       ),
@@ -202,7 +195,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.50, // Material 3 行高
         letterSpacing: 0.5,
       ),
@@ -214,7 +206,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.43, // Material 3 行高
         letterSpacing: 0.25,
       ),
@@ -226,7 +217,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w400, // Material 3 Regular
         color: secondaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.33, // Material 3 行高
         letterSpacing: 0.4,
       ),
@@ -240,7 +230,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w500, // Material 3 Medium
         color: primaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.43, // Material 3 行高
         letterSpacing: 0.1,
       ),
@@ -252,7 +241,6 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w500, // Material 3 Medium
         color: secondaryColor,
-        fontFamily: 'PingFang SC',
         height: 1.33, // Material 3 行高
         letterSpacing: 0.5,
       ),
@@ -264,11 +252,13 @@ class TextThemeConfig {
         ),
         fontWeight: FontWeight.w500, // Material 3 Medium
         color: disabledColor,
-        fontFamily: 'PingFang SC',
         height: 1.45, // Material 3 行高
         letterSpacing: 0.5,
       ),
     );
+
+    // 使用 Google Fonts 的 Inter 字体
+    return GoogleFonts.interTextTheme(baseTextTheme);
   }
 
   /// 使用 copyWith 方法动态调整现有 TextTheme 的字体大小

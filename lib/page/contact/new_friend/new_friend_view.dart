@@ -14,6 +14,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import '../confirm_new_friend/confirm_new_friend_view.dart';
 import 'add_friend_view.dart';
 import 'new_friend_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class NewFriendPage extends StatelessWidget {
@@ -51,9 +52,9 @@ class NewFriendPage extends StatelessWidget {
         padding: const EdgeInsets.all(4.0),
         child: searchBar(
           context,
-          hintText: 'hintLoginAccount'.tr,
-          queryTips: 'hintLoginAccount'.tr,
-          searchLabel: 'hintLoginAccount'.tr,
+          hintText: t.hintLoginAccount,
+          queryTips: t.hintLoginAccount,
+          searchLabel: t.hintLoginAccount,
           doSearch: ((query) async {
             return logic.userSearch(kwd: query);
           }),
@@ -110,7 +111,7 @@ class NewFriendPage extends StatelessWidget {
                 await logic.delete(model.from, model.to);
               },
               icon: Icons.delete_outline,
-              label: 'buttonDelete'.tr,
+              label: t.buttonDelete,
             ),
           ],
         ),
@@ -227,11 +228,11 @@ class NewFriendPage extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          'awaitingVerification'.tr,
+          t.awaitingVerification,
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -267,7 +268,7 @@ class NewFriendPage extends StatelessWidget {
             ),
           ),
           child: Text(
-            'accept'.tr,
+            t.accept,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -293,7 +294,7 @@ class NewFriendPage extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              'added'.tr,
+              t.added,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.primary,
@@ -321,7 +322,7 @@ class NewFriendPage extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              'expired'.tr,
+              t.expired,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.error,
@@ -347,7 +348,7 @@ class NewFriendPage extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -358,7 +359,7 @@ class NewFriendPage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'noNewFriends'.tr,
+            t.noNewFriends,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -385,10 +386,10 @@ class NewFriendPage extends StatelessWidget {
     initData();
     
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: 'newFriend'.tr,
+        title: t.newFriend,
         backgroundColor: Theme.of(context).colorScheme.surface,
         rightDMActions: [
           Container(

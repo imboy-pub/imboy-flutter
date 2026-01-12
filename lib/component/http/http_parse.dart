@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/error_code.dart';
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 IMBoyHttpResponse handleResponse(Response? response,
     {required String uri, HttpTransformer? httpTransformer}) {
@@ -68,61 +68,61 @@ HttpException _parseException(Exception error) {
             case ErrorCode.BAD_REQUEST:
               // 请求语法错误
               return BadRequestException(
-                message: 'errorRequestSyntax'.tr,
+                message: t.errorRequestSyntax,
                 code: errCode,
               );
             case ErrorCode.UNAUTHORIZED:
               // 没有权限
               return UnauthorisedException(
-                message: 'noPermission'.tr,
+                message: t.noPermission,
                 code: errCode,
               );
             case ErrorCode.FORBIDDEN:
               // 服务器拒绝执行
               return BadRequestException(
-                message: 'errorServerRefused'.tr,
+                message: t.errorServerRefused,
                 code: errCode,
               );
             case ErrorCode.NOT_FOUND:
               // 无法连接服务器
               return BadRequestException(
-                message: 'errorFailedConnectServer'.tr,
+                message: t.errorFailedConnectServer,
                 code: errCode,
               );
             case ErrorCode.METHOD_NOT_ALLOWED:
               // 请求方法被禁止
               return BadRequestException(
-                message: 'errorRequestForbidden'.tr,
+                message: t.errorRequestForbidden,
                 code: errCode,
               );
             case ErrorCode.TOO_MANY_REQUESTS:
               return BadRequestException(
-                message: 'errorManyRequest'.tr,
+                message: t.errorManyRequest,
                 code: errCode,
               );
 
             case ErrorCode.INTERNAL_SERVER_ERROR:
               // 服务器内部错误
               return BadServiceException(
-                message: 'errorInternalServer'.tr,
+                message: t.errorInternalServer,
                 code: errCode,
               );
             case ErrorCode.BAD_GATEWAY:
               // 无效的请求
               return BadServiceException(
-                message: 'errorInvalidRequest'.tr,
+                message: t.errorInvalidRequest,
                 code: errCode,
               );
             case ErrorCode.SERVICE_UNAVAILABLE:
               // 服务器挂了
               return BadServiceException(
-                message: 'errorServerDown'.tr,
+                message: t.errorServerDown,
                 code: errCode,
               );
             case 505:
               // 不支持HTTP协议请求
               return UnauthorisedException(
-                message: 'errorHttpNotSupported'.tr,
+                message: t.errorHttpNotSupported,
                 code: errCode,
               );
             default:

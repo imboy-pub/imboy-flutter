@@ -13,6 +13,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'scanner_logic.dart';
 import 'scanner_result_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -101,10 +102,10 @@ class _ScannerPageState extends State<ScannerPage>
           popGesture: true, // 右滑，返回上一页
         );
       } else if (result == 'user_not_exist') {
-        await logic.showResult('userNotExist'.tr, 2);
+        await logic.showResult(t.userNotExist, 2);
       } else if (result == 'user_is_disabled_or_deleted') {
         // 用户被禁用或已删除
-        await logic.showResult('userDisabledOrDeleted'.tr, 2);
+        await logic.showResult(t.userDisabledOrDeleted, 2);
       }
     } else {
       Get.to(
@@ -200,8 +201,8 @@ class _ScannerPageState extends State<ScannerPage>
                           height: 20,
                           child: FittedBox(
                             child: Text(
-                              // barcode ?? 'scanQrCode'.tr,
-                              'scanQrCode'.tr,
+                              // barcode ?? t.scanQrCode,
+                              t.scanQrCode,
                               // overflow: TextOverflow.fade,
                               style: const TextStyle(
                                 color: Colors.white,
@@ -257,14 +258,14 @@ class _ScannerPageState extends State<ScannerPage>
                           if (res == null) {
                             state.showSnackBar(
                               SnackBar(
-                                content: Text('No barcode found!'.tr),
+                                content: Text(t.noBarcodeFound),
                                 backgroundColor: Colors.red,
                               ),
                             );
                           } else {
                             state.showSnackBar(
                               SnackBar(
-                                content: Text('Barcode found!'.tr),
+                                content: Text(t.barcodeFound),
                                 backgroundColor: Colors.green,
                               ),
                             );

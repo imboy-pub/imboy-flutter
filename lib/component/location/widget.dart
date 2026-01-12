@@ -4,10 +4,10 @@ import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_map_plus/amap_flutter_map_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/config/env.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'amap_helper.dart'; // 确保这个文件中没有使用 niku
+import 'amap_helper.dart';
+import 'package:imboy/i18n/strings.g.dart'; // 确保这个文件中没有使用 niku
 
 class SearchBarStyle {
   final Color backgroundColor;
@@ -228,7 +228,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                           ),
                         ),
                         child: Text(
-                          'buttonSend'.tr,
+                          t.buttonSend,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
@@ -342,7 +342,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                         ),
                                         border: InputBorder.none,
                                         // 搜索地点
-                                        hintText: 'searchLocation'.tr,
+                                        hintText: t.searchLocation,
                                       ),
                                     ),
                                   ),
@@ -367,7 +367,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                       context,
                                     ).colorScheme.surface,
                                     child: Center(
-                                      child: Text('buttonCancel'.tr),
+                                      child: Text(t.buttonCancel),
                                     ),
                                   ),
                                 ),
@@ -528,7 +528,8 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       10,
       page,
     );
-    debugPrint("> on amap_search ${response.toString()}");
+    // 安全日志：不输出完整响应数据
+    debugPrint("> amap_search completed with status ${response.statusCode}");
     // on amap_search {"count":"10","infocode":"10000","pois":[
     // {"parent":"",
     // "address":"宝田一路与臣田三路交叉口东南100米","distance":"22","pcode":"440000","adcode":"440306","pname":"广东省","cityname":"深圳市",

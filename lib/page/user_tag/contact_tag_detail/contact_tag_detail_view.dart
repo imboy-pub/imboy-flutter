@@ -21,6 +21,7 @@ import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'contact_tag_detail_logic.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // ignore: must_be_immutable
 class ContactTagDetailPage extends StatelessWidget {
@@ -68,7 +69,7 @@ class ContactTagDetailPage extends StatelessWidget {
                       Center(
                         child: TextButton(
                           child: Text(
-                            'changeParam'.trArgs(['tags'.tr]),
+                            t.changeParam.replaceAll('{s}', t.tags),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
@@ -98,7 +99,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 16),
                                         child: Text(
-                                          'deleteTagTips'.tr,
+                                          t.deleteTagTips,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             fontSize: 16.0,
@@ -141,13 +142,13 @@ class ContactTagDetailPage extends StatelessWidget {
                                             Get.closeAllBottomSheets();
                                             Get.back();
                                             EasyLoading.showSuccess(
-                                                'tipSuccess'.tr);
+                                                t.tipSuccess);
                                           } else {
-                                            EasyLoading.showError('tipFailed'.tr);
+                                            EasyLoading.showError(t.tipFailed);
                                           }
                                         },
                                         child: Text(
-                                          'buttonDelete'.tr,
+                                          t.buttonDelete,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             color: Colors.red,
@@ -162,7 +163,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                       child: TextButton(
                                         onPressed: () => Get.close(),
                                         child: Text(
-                                          'buttonCancel'.tr,
+                                          t.buttonCancel,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             fontSize: 16.0,
@@ -186,7 +187,7 @@ class ContactTagDetailPage extends StatelessWidget {
                             );
                           },
                           child: Text(
-                            'buttonDelete'.tr,
+                            t.buttonDelete,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.red,
@@ -200,7 +201,7 @@ class ContactTagDetailPage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () => Get.close(),
                           child: Text(
-                            'buttonCancel'.tr,
+                            t.buttonCancel,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
@@ -274,8 +275,8 @@ class ContactTagDetailPage extends StatelessWidget {
                             )
                           ],
                     controller: state.searchController,
-                    searchLabel: 'search'.tr,
-                    hintText: 'search'.tr,
+                    searchLabel: t.search,
+                    hintText: t.search,
                     onChanged: ((query) {
                       state.kwd.value = query;
                       logic.doSearch(
@@ -376,14 +377,14 @@ class ContactTagDetailPage extends StatelessWidget {
                                                       }
                                                       Get.back(times: 1);
                                                       EasyLoading.showSuccess(
-                                                          'tipSuccess'.tr);
+                                                          t.tipSuccess);
                                                     } else {
                                                       EasyLoading.showError(
-                                                          'tipFailed'.tr);
+                                                          t.tipFailed);
                                                     }
                                                   },
                                                   child: Text(
-                                                    'removeContactFromTag'.tr,
+                                                    t.removeContactFromTag,
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       color: Colors.red,
@@ -398,7 +399,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                                 child: TextButton(
                                                   onPressed: () => Get.close(),
                                                   child: Text(
-                                                    'buttonCancel'.tr,
+                                                    t.buttonCancel,
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       fontSize: 16.0,
@@ -422,7 +423,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    label: 'buttonDelete'.tr,
+                                    label: t.buttonDelete,
                                     spacing: 1,
                                   ),
                                 ],
@@ -482,7 +483,7 @@ class ContactTagDetailPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (tag.refererTime == 0)
-                      NoDataView(text: 'noMembersInCurrentTag'.tr),
+                      NoDataView(text: t.noMembersInCurrentTag),
                     ElevatedButton(
                       onPressed: () async {
                         addContact(context);
@@ -499,7 +500,7 @@ class ContactTagDetailPage extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Text(
-                          'buttonAdd'.tr,
+                          t.buttonAdd,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16.0,
@@ -637,7 +638,7 @@ class SelectFriendPage extends StatelessWidget {
     loadData();
     return Scaffold(
       appBar: GlassAppBar(
-        title: 'selectFriends'.tr,
+        title: t.selectFriends,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
@@ -652,7 +653,7 @@ class SelectFriendPage extends StatelessWidget {
             () => Padding(
               padding: const EdgeInsets.all(8.0),
               child: RoundedElevatedButton(
-                text: 'buttonAdd'.tr +
+                text: t.buttonAdd +
                     (selectedContact.isEmpty
                         ? ""
                         : " (${selectedContact.length})    "),
@@ -674,9 +675,9 @@ class SelectFriendPage extends StatelessWidget {
                         selectedContact;
                     Get.find<ContactTagDetailLogic>().state.refererTime.value =
                         selectedContact.length;
-                    EasyLoading.showSuccess('tipSuccess'.tr);
+                    EasyLoading.showSuccess(t.tipSuccess);
                   } else {
-                    EasyLoading.showError('tipFailed'.tr);
+                    EasyLoading.showError(t.tipFailed);
                   }
                 },
               ),

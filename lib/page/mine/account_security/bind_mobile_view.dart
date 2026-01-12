@@ -9,7 +9,7 @@ import 'package:imboy/page/mine/language/language_logic.dart';
 import 'package:imboy/page/passport/passport_logic.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/component/locales/locales.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class BindMobilePage extends GetView<BindMobileController> {
   const BindMobilePage({super.key});
@@ -31,7 +31,7 @@ class BindMobilePage extends GetView<BindMobileController> {
       backgroundColor: cs.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: hasBound ? '更换手机号' : '绑定手机号',
+        title: hasBound ? t.changeMobile : t.bindMobile,
       ),
       body: SafeArea(
         child: ListView(
@@ -69,12 +69,12 @@ class BindMobilePage extends GetView<BindMobileController> {
                     size: 24,
                   ),
                 ),
-                title: const Text(
-                  '当前手机号',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                title: Text(
+                  t.currentMobile,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  hasBound ? hiddenPhone(currentMobile) : '未绑定',
+                  hasBound ? hiddenPhone(currentMobile) : t.notBound,
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
@@ -89,7 +89,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    hasBound ? '已绑定' : '未绑定',
+                    hasBound ? t.bound : t.notBound,
                     style: TextStyle(
                       fontSize: 12,
                       color: hasBound
@@ -111,7 +111,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 8),
                   child: Text(
-                    hasBound ? '新手机号' : '手机号',
+                    hasBound ? t.newMobile : t.mobile,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -136,7 +136,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 12),
                     child: InternationalPhoneNumberInput(
-                      locale: sysLang('intl_phone_number_input'),
+                      locale: LocaleHelper.sysLang('intl_phone_number_input'),
                       countries: controller.langLogic.regionCodeList(
                         'intl_phone_number_input',
                       ),
@@ -167,7 +167,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                       ),
                       inputBorder: InputBorder.none,
                       inputDecoration: InputDecoration(
-                        hintText: '请输入手机号',
+                        hintText: t.enterMobileHint,
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.only(
@@ -182,8 +182,8 @@ class BindMobilePage extends GetView<BindMobileController> {
                 // Simple status
                 Obx(
                   () => _StatusRow(
-                    label: '格式检查',
-                    value: controller.mobileOk.value ? '正确' : '待输入',
+                    label: t.formatCheck,
+                    value: controller.mobileOk.value ? t.correct : t.pendingInput,
                     ok: controller.mobileOk.value,
                   ),
                 ),
@@ -194,11 +194,11 @@ class BindMobilePage extends GetView<BindMobileController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4, bottom: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, bottom: 8),
                       child: Text(
-                        '验证码',
-                        style: TextStyle(
+                        t.verificationCode,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -250,8 +250,8 @@ class BindMobilePage extends GetView<BindMobileController> {
                                     const SizedBox(width: 6),
                                     Text(
                                       controller.seconds.value > 0
-                                          ? '重新发送 (${controller.seconds.value}s)'
-                                          : '获取验证码',
+                                          ? t.resendCodeWithCount.replaceAll('{count}', '${controller.seconds.value}')
+                                          : t.getVerificationCode,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
@@ -305,7 +305,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                 // Length status
                 Obx(
                   () => _StatusRow(
-                    label: '长度检查',
+                    label: t.lengthCheck,
                     value: '${controller.codeLength.value} / 6',
                     ok: controller.codeOk.value,
                   ),
@@ -341,7 +341,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                               ),
                             )
                           : Text(
-                              hasBound ? '确认更换' : '立即绑定',
+                              hasBound ? t.confirmChange : t.bindNow,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -353,7 +353,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    '验证码将发送至该手机，请在有效期内完成验证',
+                    t.verificationCodeSentToMobile,
                     style: TextStyle(color: Colors.grey[500], fontSize: 13),
                   ),
                 ),
@@ -467,8 +467,8 @@ class BindMobileController extends GetxController {
       );
       if (res == null) {
         Get.snackbar(
-          '验证码已发送',
-          '已发送至 ${hiddenPhone(mobile.value)}',
+          t.verificationCodeSent,
+          t.codeSentToMobileParam.replaceAll('{param}', hiddenPhone(mobile.value)),
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.inverseSurface,
           colorText: Get.theme.colorScheme.onInverseSurface,
@@ -478,8 +478,8 @@ class BindMobileController extends GetxController {
         _startCountdown();
       } else {
         Get.snackbar(
-          '发送失败',
-          res.tr,
+          t.sendFailed,
+          res,
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.errorContainer,
           colorText: Get.theme.colorScheme.onErrorContainer,
@@ -501,8 +501,8 @@ class BindMobileController extends GetxController {
       final currentMobile = UserRepoLocal.to.current.mobile;
       if (currentMobile.isNotEmpty && mobile.value == currentMobile) {
         Get.snackbar(
-          '无需修改',
-          '新号码与当前绑定一致',
+          t.noChangeNeeded,
+          t.newMobileSameAsCurrent,
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.surfaceContainerHighest,
           colorText: Get.theme.colorScheme.onSurface,
@@ -523,8 +523,8 @@ class BindMobileController extends GetxController {
         await UserRepoLocal.to.changeInfo(user.toMap());
 
         Get.snackbar(
-          '绑定成功',
-          '手机号已更新为 ${hiddenPhone(mobile.value)}',
+          t.bindSuccess,
+          t.mobileUpdatedToParam.replaceAll('{param}', hiddenPhone(mobile.value)),
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.inverseSurface,
           colorText: Get.theme.colorScheme.onInverseSurface,
@@ -534,8 +534,8 @@ class BindMobileController extends GetxController {
         Get.back();
       } else {
         Get.snackbar(
-          '提交失败',
-          '请检查验证码或稍后重试',
+          t.submissionFailed,
+          t.checkVerificationCodeOrRetry,
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.errorContainer,
           colorText: Get.theme.colorScheme.onErrorContainer,
