@@ -3,7 +3,6 @@
 // [Date] 2020-05-30 20:56
 //
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// Define a regular pick method.
@@ -95,7 +94,8 @@ class PickMethod {
     return PickMethod(
       icon: '📸',
       name: 'Pick from camera and stay',
-      description: 'Take a photo or video with the camera picker, '
+      description:
+          'Take a photo or video with the camera picker, '
           'select the result and stay in the entities list.',
       method: (BuildContext context, List<AssetEntity> assets) {
         return AssetPicker.pickAssets(
@@ -132,7 +132,8 @@ class PickMethod {
     return PickMethod(
       icon: '🔲',
       name: '3 items grid',
-      description: 'Picker will served as 3 items on cross axis. '
+      description:
+          'Picker will served as 3 items on cross axis. '
           '(pageSize must be a multiple of gridCount)',
       method: (BuildContext context, List<AssetEntity> assets) {
         return AssetPicker.pickAssets(
@@ -228,9 +229,12 @@ class PickMethod {
           throw StateError('Permission state error with $ps.');
         }
         onPermission(ps);
-        // ignore: use_build_context_synchronously
+        // 检查 context 是否仍然 mounted
+        if (!context.mounted) {
+          return null;
+        }
         return AssetPicker.pickAssetsWithDelegate(
-          Get.context!,
+          context,
           delegate: delegate(),
         );
       },
@@ -242,7 +246,8 @@ class PickMethod {
     return PickMethod(
       icon: '🔤',
       name: 'Change Languages',
-      description: 'Pass text delegates to change between languages. '
+      description:
+          'Pass text delegates to change between languages. '
           '(e.g. EnglishTextDelegate)',
       method: (BuildContext context, List<AssetEntity> assets) {
         return AssetPicker.pickAssets(
@@ -306,7 +311,8 @@ class PickMethod {
   final Future<List<AssetEntity>?> Function(
     BuildContext context,
     List<AssetEntity> selectedAssets,
-  ) method;
+  )
+  method;
 
   final GestureLongPressCallback? onLongPress;
 }

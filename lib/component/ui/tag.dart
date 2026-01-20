@@ -22,16 +22,11 @@ class TagItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(20.0),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(20.0)),
         color: selectedBackgroundColor,
       ),
       margin: const EdgeInsets.only(right: 10.0, top: 6, bottom: 6),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10.0,
-        vertical: 4.0,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -39,10 +34,7 @@ class TagItem extends StatelessWidget {
           InkWell(
             child: Text(
               tag,
-              style: TextStyle(
-                fontSize: 18,
-                color: tagSelectedColor,
-              ),
+              style: TextStyle(fontSize: 18, color: tagSelectedColor),
             ),
             onTap: () {
               //print("$tag selected");
@@ -50,15 +42,11 @@ class TagItem extends StatelessWidget {
           ),
           const SizedBox(width: 4.0),
           InkWell(
-            child: Icon(
-              Icons.cancel,
-              size: 14.0,
-              color: tagSelectedColor,
-            ),
+            child: Icon(Icons.cancel, size: 14.0, color: tagSelectedColor),
             onTap: () {
               onTagDelete(tag);
             },
-          )
+          ),
         ],
       ),
     );

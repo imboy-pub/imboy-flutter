@@ -366,9 +366,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.surface,
-                                    child: Center(
-                                      child: Text(t.buttonCancel),
-                                    ),
+                                    child: Center(child: Text(t.buttonCancel)),
                                   ),
                                 ),
                               ),

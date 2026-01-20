@@ -22,7 +22,8 @@ class HorizontalLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 使用优化后的主题色彩系统
-    final effectiveColor = color ?? 
+    final effectiveColor =
+        color ??
         (ThemeManager.instance.isDarkMode
             ? AppColors.darkBorder
             : AppColors.lightBorder);
@@ -57,7 +58,8 @@ class VerticalLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 使用优化后的主题色彩系统
-    final effectiveColor = color ?? 
+    final effectiveColor =
+        color ??
         (ThemeManager.instance.isDarkMode
             ? AppColors.darkBorder
             : AppColors.lightBorder);
@@ -99,7 +101,9 @@ class ModernDivider extends StatelessWidget {
         thickness: thickness,
         indent: indent,
         endIndent: endIndent,
-        color: color ?? Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        color:
+            color ??
+            Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
       ),
     );
   }
@@ -174,11 +178,11 @@ class DecorativeLine extends StatelessWidget {
       height: height,
       margin: margin,
       decoration: BoxDecoration(
-        color: color ?? AppColors.primaryGreen,
+        color: color ?? AppColors.primary,
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: (color ?? AppColors.primaryGreen).withValues(alpha: 0.3),
+            color: (color ?? AppColors.primary).withValues(alpha: 0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

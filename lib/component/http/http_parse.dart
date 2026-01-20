@@ -12,8 +12,11 @@ import 'http_response.dart';
 import 'http_transformer.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-IMBoyHttpResponse handleResponse(Response? response,
-    {required String uri, HttpTransformer? httpTransformer}) {
+IMBoyHttpResponse handleResponse(
+  Response? response, {
+  required String uri,
+  HttpTransformer? httpTransformer,
+}) {
   httpTransformer ??= DefaultHttpTransformer.getInstance();
 
   // 返回值异常
@@ -25,18 +28,32 @@ IMBoyHttpResponse handleResponse(Response? response,
   if (_isRequestSuccess(response.statusCode)) {
     return httpTransformer.parse(response, uri);
   } else {
-    iPrint("handleResponse_response $uri : ${response.toString()==''} ${response.toString()}; ");
-    if (response.toString()=='') {
-      return IMBoyHttpResponse.failureFromError();
+    iPrint(
+      "handleResponse_response $uri : ${response.toString() == ''} ${response.toString()}; ",
+    );
+    if (response.toString() == '' || response.data == null) {
+      // 当响应体为空时，使用状态码生成错误信息
+      return IMBoyHttpResponse.failure(
+        errMsg: _getErrorMessageForStatusCode(response.statusCode),
+        errCode: response.statusCode,
+        payload: null,
+      );
     }
-    if (int.tryParse(response.data['code']) == ErrorCode.TOO_MANY_REQUESTS) {
-      EasyLoading.showError(response.data['msg']);
+    // 安全访问响应数据
+    final data = response.data;
+    final code = data is Map ? data['code'] : response.statusCode;
+    final msg = data is Map ? data['msg'] : _getErrorMessageForStatusCode(response.statusCode);
+    final payload = data is Map ? data['payload'] : null;
+
+    // 处理 429 Too Many Requests
+    if (int.tryParse('$code') == ErrorCode.TOO_MANY_REQUESTS) {
+      EasyLoading.showError('$msg');
     }
     // 接口调用失败
     return IMBoyHttpResponse.failure(
-      errMsg: response.data['msg'],
-      errCode: response.data['code'],
-      payload: response.data['payload'],
+      errMsg: msg,
+      errCode: code,
+      payload: payload,
     );
   }
 }
@@ -50,6 +67,32 @@ IMBoyHttpResponse handleException(String uri, Exception exception) {
 /// 请求成功
 bool _isRequestSuccess(int? statusCode) {
   return (statusCode != null && statusCode >= 200 && statusCode < 300);
+}
+
+/// 根据状态码获取错误消息
+String _getErrorMessageForStatusCode(int? statusCode) {
+  switch (statusCode) {
+    case ErrorCode.BAD_REQUEST:
+      return t.errorRequestSyntax;
+    case ErrorCode.UNAUTHORIZED:
+      return t.noPermission;
+    case ErrorCode.FORBIDDEN:
+      return t.errorServerRefused;
+    case ErrorCode.NOT_FOUND:
+      return t.errorFailedConnectServer;
+    case ErrorCode.METHOD_NOT_ALLOWED:
+      return t.errorRequestForbidden;
+    case ErrorCode.TOO_MANY_REQUESTS:
+      return t.errorManyRequest;
+    case ErrorCode.INTERNAL_SERVER_ERROR:
+      return t.errorInternalServer;
+    case ErrorCode.BAD_GATEWAY:
+      return t.errorInvalidRequest;
+    case ErrorCode.SERVICE_UNAVAILABLE:
+      return t.errorServerDown;
+    default:
+      return 'HTTP $statusCode ${t.errorUnexpected}';
+  }
 }
 
 HttpException _parseException(Exception error) {

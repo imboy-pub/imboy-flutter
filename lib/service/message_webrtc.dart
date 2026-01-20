@@ -1,25 +1,68 @@
 import 'dart:async';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/func.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/config/init.dart';
 
 /// MessageWebrtc
 /// WebRTC 消息处理，包含音视频通话相关功能
 /// WebRTC message handling including audio/video call functionality
-class MessageWebrtc extends GetxService {
-  static MessageWebrtc get to => Get.find();
+///
+/// ## 架构说明
+///
+/// 此服务已从 GetX 迁移到纯 Dart 实现：
+/// - ✅ 移除了 `Get.find<ChatLogic>()` 依赖
+/// - ✅ 使用事件总线与 UI 层通信
+/// - ✅ 保持单例模式
+/// - ✅ 可以通过 Riverpod Provider 访问
+///
+/// ## 使用方式
+///
+/// ### 方式1：通过单例（兼容旧代码）
+/// ```dart
+/// MessageWebrtc.to.addLocalMsg(...);
+/// MessageWebrtc.instance.changeLocalMsgState(...);
+/// ```
+///
+/// ### 方式2：通过 Riverpod（推荐）
+/// ```dart
+/// final webrtc = ref.watch(messageWebrtcProvider);
+/// webrtc.addLocalMsg(...);
+/// ```
+///
+/// ## 依赖注入
+///
+/// - `ContactRepo` - 通过构造函数注入
+/// - `MessageRepo` - 按需创建
+/// - UI 通信通过 `AppEventBus` 事件总线
+class MessageWebrtc {
+  /// 单例实例
+  static MessageWebrtc? _instance;
+
+  /// 获取单例实例
+  static MessageWebrtc get instance {
+    _instance ??= MessageWebrtc._internal();
+    return _instance!;
+  }
+
+  /// 兼容旧代码的访问方式
+  static MessageWebrtc get to => instance;
+
+  /// 私有构造函数
+  MessageWebrtc._internal() {
+    // WebRTC 模块初始化
+    // WebRTC module initialization
+  }
 
   // 缓存常用仓库实例，避免重复 new。
   // Cache repository instances to avoid repeated instantiation.
@@ -33,13 +76,6 @@ class MessageWebrtc extends GetxService {
   /// Track ongoing WebRTC message IDs for dedupe and batch state changes.
   final Set<String> webrtcMsgIds = <String>{};
 
-  @override
-  void onInit() {
-    super.onInit();
-    // WebRTC 模块初始化
-    // WebRTC module initialization
-  }
-
   /// Handle WebRTC-specific messages
   /// 处理 WebRTC 信令：OFFER, BUSY, BYE 等
   Future<void> handleWebRTC(String type, Map data) async {
@@ -51,8 +87,9 @@ class MessageWebrtc extends GetxService {
     if (type == 'WEBRTC_OFFER') {
       final peerId = data['from'];
       final contact = await _contactRepo.findByUid(peerId);
-      if (contact != null) {
+      if (contact != null && navigatorKey.currentContext != null) {
         await incomingCallScreen(
+          navigatorKey.currentContext!,
           msgId,
           ContactModel.fromMap({
             'id': contact.peerId,
@@ -78,7 +115,10 @@ class MessageWebrtc extends GetxService {
           changeLocalMsgState(id, 4);
         }
         webrtcMsgIds.clear();
-        if (Get.isDialogOpen ?? false) Get.closeAllDialogs();
+        // Close dialogs using navigatorKey
+        if (navigatorKey.currentContext != null) {
+          navigatorKey.currentState?.pop();
+        }
         gTimer?.cancel();
         gTimer = null;
         p2pCallScreenOn = false;
@@ -89,6 +129,11 @@ class MessageWebrtc extends GetxService {
 
   /// Add a local WebRTC message record (UI only)
   /// 本地添加一条 WebRTC 消息记录，仅更新 UI
+  ///
+  /// ## 迁移说明
+  ///
+  /// 此方法已从依赖 `ChatLogic` 改为通过事件总线通知 UI 层
+  /// UI 层需要订阅 `ChatMessageAddRequestedEvent` 事件来处理消息添加
   Future<void> addLocalMsg({
     required String media,
     required bool caller,
@@ -115,7 +160,10 @@ class MessageWebrtc extends GetxService {
       }
       final msg = CustomMessage(
         authorId: author.id,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          DateTimeHelper.millisecond(),
+          isUtc: true,
+        ),
         id: msgId,
         status: MessageStatus.delivered,
         metadata: {
@@ -127,17 +175,23 @@ class MessageWebrtc extends GetxService {
           'state': 0,
         },
       );
-      await Get.find<ChatLogic>().addMessage(
-        UserRepoLocal.to.currentUid,
-        peer.peerId,
-        peer.avatar,
-        peer.nickname,
-        'C2C',
-        msg,
-        sendToServer: false,
+
+      // 通过事件总线通知 UI 层添加消息
+      // UI 层（ChatProvider）需要订阅此事件
+      AppEventBus.fire(
+        ChatMessageAddRequestedEvent(
+          peerId: peer.peerId,
+          peerAvatar: peer.avatar,
+          peerNickname: peer.nickname,
+          conversationType: 'C2C',
+          message: msg,
+          sendToServer: false,
+        ),
       );
+
+      iPrint('✅ [WebRTC] 已发送本地消息添加请求: msgId=$msgId');
     } catch (e, s) {
-      iPrint('addLocalMsg error: $e; $s');
+      iPrint('❌ [WebRTC] addLocalMsg error: $e; $s');
       rethrow;
     } finally {
       _addMessageLock = false;

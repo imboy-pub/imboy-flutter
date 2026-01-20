@@ -50,7 +50,7 @@ class _AuroraBackgroundState extends State<AuroraBackground>
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  AppColors.primaryGreen.withValues(alpha: 0.2), // Deep Primary
+                  AppColors.primary.withValues(alpha: 0.2), // Deep Primary
                   Colors.transparent,
                 ],
               ),
@@ -122,7 +122,7 @@ class _AuroraBackgroundState extends State<AuroraBackground>
                 height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryGreenLight.withValues(alpha: 0.15),
+                  color: AppColors.primaryLight.withValues(alpha: 0.15),
                 ),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),

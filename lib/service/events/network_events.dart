@@ -31,9 +31,14 @@ final class NetworkStatusChangedEvent extends AppEvent {
     required this.oldType,
     required this.newType,
     required this.isAvailable,
-  })  : isNetworkRecovered = oldType == NetworkType.none && newType != NetworkType.none,
-        isNetworkLost = oldType != NetworkType.none && newType == NetworkType.none,
-        isTypeChanged = oldType != NetworkType.none && newType != NetworkType.none && oldType != newType;
+  }) : isNetworkRecovered =
+           oldType == NetworkType.none && newType != NetworkType.none,
+       isNetworkLost =
+           oldType != NetworkType.none && newType == NetworkType.none,
+       isTypeChanged =
+           oldType != NetworkType.none &&
+           newType != NetworkType.none &&
+           oldType != newType;
 
   @override
   List<Object> get props => [oldType, newType, isAvailable];
@@ -76,7 +81,14 @@ final class NetworkReconnectRequestedEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [reason, source, isAutomatic, currentAttempt, maxAttempts, suggestedDelay];
+  List<Object?> get props => [
+    reason,
+    source,
+    isAutomatic,
+    currentAttempt,
+    maxAttempts,
+    suggestedDelay,
+  ];
 
   @override
   String toString() {
@@ -145,7 +157,13 @@ final class NetworkQualityChangedEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [networkType, latency, quality, packetLoss, bandwidth];
+  List<Object?> get props => [
+    networkType,
+    latency,
+    quality,
+    packetLoss,
+    bandwidth,
+  ];
 
   @override
   String toString() {
@@ -206,7 +224,14 @@ final class NetworkConnectivityTestEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [testType, target, isSuccess, duration, errorMessage, extraInfo];
+  List<Object?> get props => [
+    testType,
+    target,
+    isSuccess,
+    duration,
+    errorMessage,
+    extraInfo,
+  ];
 
   @override
   String toString() {
@@ -263,7 +288,13 @@ final class NetworkUsageWarningEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [warningType, message, bytesUsed, requestCount, threshold];
+  List<Object?> get props => [
+    warningType,
+    message,
+    bytesUsed,
+    requestCount,
+    threshold,
+  ];
 
   @override
   String toString() {

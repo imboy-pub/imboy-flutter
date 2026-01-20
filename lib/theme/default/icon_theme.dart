@@ -1,4 +1,3 @@
-
 // 自定义图标主题
 import 'package:flutter/material.dart';
 
@@ -32,7 +31,9 @@ class IMBoyIconTheme extends ThemeExtension<IMBoyIconTheme> {
 
   @override
   ThemeExtension<IMBoyIconTheme> lerp(
-      ThemeExtension<IMBoyIconTheme>? other, double t) {
+    ThemeExtension<IMBoyIconTheme>? other,
+    double t,
+  ) {
     if (other is! IMBoyIconTheme) return this;
     return IMBoyIconTheme(
       primaryIcon: IconThemeData.lerp(primaryIcon, other.primaryIcon, t),

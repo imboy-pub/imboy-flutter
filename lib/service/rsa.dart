@@ -104,8 +104,12 @@ class RSAService {
       final keyPair = _generateRSAKeyPair();
 
       // 编码为PEM格式
-      _cachedPublicKey = _encodePublicKeyToPem(keyPair.publicKey as RSAPublicKey);
-      _cachedPrivateKey = _encodePrivateKeyToPem(keyPair.privateKey as RSAPrivateKey);
+      _cachedPublicKey = _encodePublicKeyToPem(
+        keyPair.publicKey as RSAPublicKey,
+      );
+      _cachedPrivateKey = _encodePrivateKeyToPem(
+        keyPair.privateKey as RSAPrivateKey,
+      );
 
       // 存储到安全存储
       await Future.wait([
@@ -301,7 +305,10 @@ class RSAService {
   }
 
   /// 分块处理数据
-  static Uint8List _processInBlocks(AsymmetricBlockCipher engine, Uint8List input) {
+  static Uint8List _processInBlocks(
+    AsymmetricBlockCipher engine,
+    Uint8List input,
+  ) {
     try {
       final output = Uint8List(
         engine.outputBlockSize *
@@ -398,7 +405,9 @@ class RSAService {
 
       // 解析 SubjectPublicKey (BIT STRING) 中的 RSAPublicKey
       final publicKeyBytes = subjectPublicKey.stringValue;
-      final publicKeyParser = asn1.ASN1Parser(Uint8List.fromList(publicKeyBytes));
+      final publicKeyParser = asn1.ASN1Parser(
+        Uint8List.fromList(publicKeyBytes),
+      );
       final rsaPublicKeySeq = publicKeyParser.nextObject() as asn1.ASN1Sequence;
 
       // RSAPublicKey ::= SEQUENCE {
@@ -408,8 +417,12 @@ class RSAService {
       final modulusAsn1 = rsaPublicKeySeq.elements[0] as asn1.ASN1Integer;
       final exponentAsn1 = rsaPublicKeySeq.elements[1] as asn1.ASN1Integer;
 
-      final modulus = bytesToBigInt(Uint8List.fromList(modulusAsn1.valueBytes()));
-      final exponent = bytesToBigInt(Uint8List.fromList(exponentAsn1.valueBytes()));
+      final modulus = bytesToBigInt(
+        Uint8List.fromList(modulusAsn1.valueBytes()),
+      );
+      final exponent = bytesToBigInt(
+        Uint8List.fromList(exponentAsn1.valueBytes()),
+      );
 
       return RSAPublicKey(modulus, exponent);
     } catch (e) {
@@ -417,19 +430,59 @@ class RSAService {
     }
   }
 
+  static RSAPrivateKey parsePrivateKeyFromPem(String pem) {
+    try {
+      final cleaned = pem
+          .replaceAll('-----BEGIN PRIVATE KEY-----', '')
+          .replaceAll('-----END PRIVATE KEY-----', '')
+          .replaceAll('\n', '')
+          .replaceAll('\r', '');
+
+      final derBytes = base64.decode(cleaned);
+
+      final asn1Parser = asn1.ASN1Parser(derBytes);
+      final topLevelSeq = asn1Parser.nextObject() as asn1.ASN1Sequence;
+
+      final privateKeyOctetString = topLevelSeq.elements[2] as asn1.ASN1OctetString;
+      final privateKeyBytes = privateKeyOctetString.valueBytes();
+
+      final privateKeyParser = asn1.ASN1Parser(Uint8List.fromList(privateKeyBytes));
+      final rsaPrivateKeySeq = privateKeyParser.nextObject() as asn1.ASN1Sequence;
+
+      final modulusAsn1 = rsaPrivateKeySeq.elements[1] as asn1.ASN1Integer;
+      final privateExponentAsn1 = rsaPrivateKeySeq.elements[3] as asn1.ASN1Integer;
+      final pAsn1 = rsaPrivateKeySeq.elements[4] as asn1.ASN1Integer;
+      final qAsn1 = rsaPrivateKeySeq.elements[5] as asn1.ASN1Integer;
+
+      final modulus = bytesToBigInt(Uint8List.fromList(modulusAsn1.valueBytes()));
+      final privateExponent =
+          bytesToBigInt(Uint8List.fromList(privateExponentAsn1.valueBytes()));
+      final p = bytesToBigInt(Uint8List.fromList(pAsn1.valueBytes()));
+      final q = bytesToBigInt(Uint8List.fromList(qAsn1.valueBytes()));
+
+      return RSAPrivateKey(modulus, privateExponent, p, q);
+    } catch (e) {
+      throw Exception('解析RSA私钥失败: $e');
+    }
+  }
+
+  static Future<RSAPrivateKey> privateKeyObject() async {
+    final pem = await privateKey();
+    if (pem == null || pem.isEmpty) {
+      throw Exception('私钥不存在');
+    }
+    return parsePrivateKeyFromPem(pem);
+  }
+
   static String rsaEncryptWithPointyCastle(String plaintext, String pubKeyPem) {
     final publicKey = parsePublicKeyFromPem(pubKeyPem);
 
     final engine = PKCS1Encoding(RSAEngine())
-      ..init(
-        true,
-        PublicKeyParameter<RSAPublicKey>(publicKey),
-      );
+      ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
     final input = Uint8List.fromList(utf8.encode(plaintext));
     final encrypted = engine.process(input);
 
-    return base64.encode(encrypted);  // 输出保持不变
+    return base64.encode(encrypted); // 输出保持不变
   }
-
 }

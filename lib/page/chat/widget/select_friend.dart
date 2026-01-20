@@ -2,22 +2,22 @@ import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
-import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-// ignore: must_be_immutable
-class SelectFriendPage extends StatefulWidget {
+/// 选择好友页面
+/// 使用 Riverpod 进行状态管理
+class SelectFriendPage extends ConsumerStatefulWidget {
   final Map<String, String> peer;
-
   final bool peerIsReceiver;
 
   const SelectFriendPage({
@@ -27,34 +27,58 @@ class SelectFriendPage extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _SelectFriendPageState createState() => _SelectFriendPageState();
+  ConsumerState<SelectFriendPage> createState() => _SelectFriendPageState();
 }
 
-class _SelectFriendPageState extends State<SelectFriendPage> {
+class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   // final int _suspensionHeight = 30;
   final int _itemHeight = 60;
 
-  RxList<ContactModel> contactList = RxList<ContactModel>();
+  List<ContactModel> _contactList = [];
 
   // ignore: prefer_collection_literals
-  RxSet currIndexBarData = Set().obs;
+  final Set _currIndexBarData = {};
 
   @override
   void initState() {
     super.initState();
     debugPrint("SelectFriendPage init ${widget.peer.toString()}");
-    loadData();
+    // 延迟加载数据，确保 ref 已准备好
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadData();
+    });
   }
 
   List selects = [];
 
+  // 构建索引栏项目
+  Widget _buildSusItem(BuildContext context, String tag) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      height: 30,
+      width: double.infinity,
+      alignment: Alignment.centerLeft,
+      color: Theme.of(context).colorScheme.surface,
+      child: Text(
+        tag,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontSize: 12.0,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   void loadData() async {
     // 加载联系人列表
-    contactList.value = await Get.find<ContactLogic>().listFriend(false);
-    // debugPrint(
-    //     "_handleVisitCardSelection contactList ${contactList.toString()}");
-    _handleList(contactList);
+    final contactList = await ContactRepo().findFriend();
+
+    setState(() {
+      _contactList = contactList;
+    });
+
+    _handleList(_contactList);
   }
 
   void _handleList(List<ContactModel> list) {
@@ -64,18 +88,20 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;
-        currIndexBarData.add(tag);
+        _currIndexBarData.add(tag);
       } else {
         list[i].nameIndex = "#";
       }
     }
-    currIndexBarData.add('#');
+    _currIndexBarData.add('#');
 
     // A-Z sort.
-    SuspensionUtil.sortListBySuspensionTag(contactList);
+    SuspensionUtil.sortListBySuspensionTag(_contactList);
 
     // show sus tag.
-    SuspensionUtil.setShowSuspensionStatus(contactList);
+    SuspensionUtil.setShowSuspensionStatus(_contactList);
+
+    setState(() {});
   }
 
   /*
@@ -100,98 +126,101 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   */
 
   void sendToDialog(ContactModel model) {
-    Get.defaultDialog(
-      title: t.sendTo,
-      backgroundColor: Get.isDarkMode
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
-      radius: 6,
-      cancel: TextButton(
-        onPressed: () {
-          Get.close();
-        },
-        child: Text(
-          t.buttonCancel,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final peer = widget.peer;
+    final peerIsReceiver = widget.peerIsReceiver;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.sendTo),
+        backgroundColor: isDarkMode
+            ? const Color.fromRGBO(80, 80, 80, 1)
+            : const Color.fromRGBO(240, 240, 240, 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        content: SizedBox(
+          height: 164,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              peerIsReceiver
+                  ? Row(
+                      children: [
+                        Avatar(imgUri: model.avatar, onTap: () {}),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              model.title,
+                              style: const TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              maxLines: 6,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Avatar(imgUri: peer['avatar']!, onTap: () {}),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              peer['title']!,
+                              style: const TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              maxLines: 6,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+              const Divider(),
+              Expanded(
+                child: Text(
+                  // visit_card
+                  peerIsReceiver
+                      ? "[${t.personalCard}]${peer['nickname']}"
+                      : "[${t.personalCard}]${model.nickname}",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-      confirm: TextButton(
-        onPressed: () async {
-          var nav = Navigator.of(context);
-          nav.pop();
-          nav.pop(model);
-        },
-        child: Text(
-          t.buttonSend,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-        ),
-      ),
-      content: SizedBox(
-        height: 164,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            widget.peerIsReceiver
-                ? Row(
-              children: [
-                Avatar(
-                  imgUri: model.avatar,
-                  onTap: () {},
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      model.title,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      maxLines: 6,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
-            )
-                : Row(
-              children: [
-                Avatar(
-                  imgUri: widget.peer['avatar']!,
-                  onTap: () {},
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      widget.peer['title']!,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      maxLines: 6,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              t.buttonCancel,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
-            const Divider(),
-            Expanded(
-              child: Text(
-                // visit_card
-                widget.peerIsReceiver
-                    ? "[${t.personalCard}]${widget.peer['nickname']}"
-                    : "[${t.personalCard}]${model.nickname}",
-                style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-              ),
+          ),
+          TextButton(
+            onPressed: () async {
+              var nav = Navigator.of(context);
+              nav.pop();
+              nav.pop(model);
+            },
+            child: Text(
+              t.buttonSend,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -217,11 +246,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16),
-                  child: Avatar(
-                    imgUri: model.avatar,
-                    width: 49,
-                    height: 49,
-                  ),
+                  child: Avatar(imgUri: model.avatar, width: 49, height: 49),
                 ),
                 const Space(),
                 Expanded(
@@ -230,11 +255,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                     padding: const EdgeInsets.only(right: 30),
                     height: _itemHeight.toDouble(),
                     decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          width: 0.5,
-                        ),
-                      ),
+                      border: Border(top: BorderSide(width: 0.5)),
                     ),
                     child: Text(
                       model.title,
@@ -245,7 +266,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -279,75 +300,74 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         //   ),
         // ],
       ),
-      body: Obx(
-            () => Stack(
-          children: [
-            RefreshIndicator(
-              onRefresh: () async {
-                debugPrint(">>> contact onRefresh");
-                // 检查网络状态
-                var connectivityResult = await Connectivity().checkConnectivity();
-                if (connectivityResult.contains(ConnectivityResult.none)) {
-                  String msg = t.tipConnectDesc;
-                  EasyLoading.showInfo(' $msg        ');
-                  return;
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            onRefresh: () async {
+              debugPrint(">>> contact onRefresh");
+              // 检查网络状态
+              var connectivityResult = await Connectivity().checkConnectivity();
+              if (connectivityResult.contains(ConnectivityResult.none)) {
+                String msg = t.tipConnectDesc;
+                EasyLoading.showInfo(' $msg');
+                return;
+              }
+              List<ContactModel> contact = await ContactRepo().findFriend();
+              if (contact.isNotEmpty) {
+                setState(() {
+                  _contactList = contact;
+                  // contactIsEmpty.value = _contactList.isEmpty;
+                });
+                _handleList(_contactList);
+              }
+            },
+            child: AzListView(
+              data: _contactList,
+              itemCount: _contactList.length,
+              itemBuilder: (context, i) => _buildListItem(_contactList[i]),
+              // 解决联系人数据量少的情况下无法刷新的问题
+              // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+              physics: const AlwaysScrollableScrollPhysics(),
+              susItemBuilder: (BuildContext context, int index) {
+                ContactModel model = _contactList[index];
+                if ('↑' == model.getSuspensionTag()) {
+                  return Container();
                 }
-                List<ContactModel> contact =
-                await Get.find<ContactLogic>().listFriend(true);
-                if (contact.isNotEmpty) {
-                  contactList.value = contact;
-                  // contactIsEmpty.value = contactList.isEmpty;
-                  _handleList(contactList);
-                }
-              },
-              child: AzListView(
-                data: contactList,
-                itemCount: contactList.length,
-                itemBuilder: (context, i) => _buildListItem(contactList[i]),
-                // 解决联系人数据量少的情况下无法刷新的问题
-                // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                physics: const AlwaysScrollableScrollPhysics(),
-                susItemBuilder: (BuildContext context, int index) {
-                  ContactModel model = contactList[index];
-                  if ('↑' == model.getSuspensionTag()) {
-                    return Container();
-                  }
 
-                  return Get.find<ContactLogic>()
-                      .getSusItem(context, model.getSuspensionTag());
-                },
-                // indexBarData: const ['↑', ...kIndexBarData],
-                indexBarData:
-                contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
-                indexBarOptions: IndexBarOptions(
-                  needRebuild: true,
-                  ignoreDragCancel: true,
-                  downTextStyle: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                  downItemDecoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                  indexHintWidth: 128 / 2,
-                  indexHintHeight: 128 / 2,
-                  indexHintDecoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(
-                        AssetsService.getImgPath('index_bar_bubble_gray'),
-                      ),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  indexHintAlignment: Alignment.centerRight,
-                  indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                  indexHintOffset: const Offset(-20, 0),
+                return _buildSusItem(context, model.getSuspensionTag());
+              },
+              // indexBarData: const ['↑', ...kIndexBarData],
+              indexBarData: _contactList.isNotEmpty
+                  ? ['↑', ..._currIndexBarData]
+                  : [],
+              indexBarOptions: IndexBarOptions(
+                needRebuild: true,
+                ignoreDragCancel: true,
+                downTextStyle: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
                 ),
+                downItemDecoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                indexHintWidth: 128 / 2,
+                indexHintHeight: 128 / 2,
+                indexHintDecoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                      AssetsService.getImgPath('index_bar_bubble_gray'),
+                    ),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                indexHintAlignment: Alignment.centerRight,
+                indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                indexHintOffset: const Offset(-20, 0),
               ),
-            )
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

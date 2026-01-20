@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 消息气泡样式配置类
 /// 提供现代化的消息气泡样式设计
@@ -15,25 +16,25 @@ class MessageBubbleStyle {
   }) {
     final theme = ThemeManager.instance;
     final isDark = theme.isDarkMode;
-    
+
     // 根据消息位置确定圆角
     BorderRadius borderRadius = _getBubbleBorderRadius(
       isSentByMe: isSentByMe,
       groupStatus: groupStatus,
     );
-    
+
     // 根据发送方确定颜色
     Color bubbleColor = isSentByMe
         ? (isDark ? const Color(0xFF2E7D32) : const Color(0xFF4CAF50))
         : (isDark ? const Color(0xFF424242) : const Color(0xFFF5F5F5));
-    
+
     // 高亮状态
     if (isHighlighted) {
-      bubbleColor = isDark 
+      bubbleColor = isDark
           ? const Color(0xFF1976D2).withValues(alpha: 0.3)
           : const Color(0xFF2196F3).withValues(alpha: 0.2);
     }
-    
+
     return BoxDecoration(
       color: bubbleColor,
       borderRadius: borderRadius,
@@ -48,7 +49,7 @@ class MessageBubbleStyle {
   }) {
     const baseRadius = Radius.circular(18.0);
     const smallRadius = Radius.circular(4.0);
-    
+
     // 根据消息分组状态调整圆角
     if (groupStatus != null) {
       if (groupStatus.isFirst) {
@@ -95,16 +96,16 @@ class MessageBubbleStyle {
               );
       }
     }
-    
+
     // 默认情况（单独消息）
-    return BorderRadius.circular(18.0);
+    return AppRadius.borderRadiusLarge;
   }
 
   /// 获取消息气泡阴影
   static List<BoxShadow> _getBubbleShadow(bool isDark) {
     return [
       BoxShadow(
-        color: isDark 
+        color: isDark
             ? Colors.black.withValues(alpha: 0.3)
             : Colors.black.withValues(alpha: 0.1),
         blurRadius: 4,
@@ -121,7 +122,7 @@ class MessageBubbleStyle {
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w400,
@@ -135,12 +136,10 @@ class MessageBubbleStyle {
   /// 获取时间戳样式
   static TextStyle getTimestampStyle(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return TextStyle(
       fontSize: 12,
-      color: isDark 
-          ? Colors.white54
-          : Colors.black54,
+      color: isDark ? Colors.white54 : Colors.black54,
       fontWeight: FontWeight.w400,
     );
   }
@@ -152,9 +151,9 @@ class MessageBubbleStyle {
     MessageStatus status = MessageStatus.delivered,
   }) {
     if (!isSentByMe) return Colors.transparent;
-    
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     switch (status) {
       case MessageStatus.sending:
         return isDark ? Colors.white54 : Colors.black54;
@@ -170,8 +169,8 @@ class MessageBubbleStyle {
 
 /// 消息状态枚举
 enum MessageStatus {
-  sending,    // 发送中
-  delivered,  // 已送达
-  read,       // 已读
-  failed,     // 发送失败
+  sending, // 发送中
+  delivered, // 已送达
+  read, // 已读
+  failed, // 发送失败
 }

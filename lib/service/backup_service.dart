@@ -90,10 +90,7 @@ class BackupConfigBuilder {
 }
 
 /// 备份格式
-enum BackupFormat {
-  database,
-  json,
-}
+enum BackupFormat { database, json }
 
 /// 备份结果
 class BackupResult {
@@ -112,7 +109,9 @@ class BackupResult {
   String? get formattedFileSize {
     if (fileSize == null) return null;
     if (fileSize! < 1024) return '$fileSize B';
-    if (fileSize! < 1024 * 1024) return '${(fileSize! / 1024).toStringAsFixed(1)} KB';
+    if (fileSize! < 1024 * 1024) {
+      return '${(fileSize! / 1024).toStringAsFixed(1)} KB';
+    }
     if (fileSize! < 1024 * 1024 * 1024) {
       return '${(fileSize! / (1024 * 1024)).toStringAsFixed(1)} MB';
     }
@@ -135,10 +134,7 @@ class BackupService {
   Future<BackupResult> export(BackupConfig config) async {
     final db = await SqliteService.to.db;
     if (db == null) {
-      return BackupResult(
-        success: false,
-        error: 'Database not available',
-      );
+      return BackupResult(success: false, error: 'Database not available');
     }
 
     final stopwatch = Stopwatch()..start();
@@ -147,9 +143,16 @@ class BackupService {
       final backupDir = await _getBackupDirectory();
       await backupDir.create(recursive: true);
 
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()));
-      final extension = config.format == BackupFormat.database ? '.db' : '.json';
-      final backupPath = path.join(backupDir.path, 'backup_$timestamp$extension');
+      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(
+        DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()),
+      );
+      final extension = config.format == BackupFormat.database
+          ? '.db'
+          : '.json';
+      final backupPath = path.join(
+        backupDir.path,
+        'backup_$timestamp$extension',
+      );
 
       switch (config.format) {
         case BackupFormat.database:
@@ -165,7 +168,9 @@ class BackupService {
       final file = File(backupPath);
       final size = await file.length();
 
-      _logger.i('Backup completed: $backupPath (${stopwatch.elapsedMilliseconds}ms)');
+      _logger.i(
+        'Backup completed: $backupPath (${stopwatch.elapsedMilliseconds}ms)',
+      );
 
       return BackupResult(
         success: true,
@@ -176,10 +181,7 @@ class BackupService {
       stopwatch.stop();
       _logger.e('Backup failed', error: e, stackTrace: stackTrace);
 
-      return BackupResult(
-        success: false,
-        error: e.toString(),
-      );
+      return BackupResult(success: false, error: e.toString());
     }
   }
 
@@ -236,7 +238,11 @@ class BackupService {
 
   /// 导出为数据库文件
   /// ⚠️ 安全警告：如果未设置密码，数据库文件将以明文存储
-  Future<void> _exportDatabase(Database db, String outputPath, BackupConfig config) async {
+  Future<void> _exportDatabase(
+    Database db,
+    String outputPath,
+    BackupConfig config,
+  ) async {
     final dbPath = db.path;
 
     if (config.password == null || config.password!.isEmpty) {
@@ -250,7 +256,11 @@ class BackupService {
 
   /// 导出为 JSON
   /// ⚠️ 安全警告：如果未设置密码，JSON 文件将以明文存储
-  Future<void> _exportJson(Database db, String outputPath, BackupConfig config) async {
+  Future<void> _exportJson(
+    Database db,
+    String outputPath,
+    BackupConfig config,
+  ) async {
     final data = await _collectData(db, config);
 
     final encoder = JsonEncoder.withIndent('  ');
@@ -277,16 +287,22 @@ class BackupService {
       if (data['messages'] != null) {
         final messages = data['messages'] as List;
         for (final msg in messages) {
-          await txn.insert('message', msg as Map<String, dynamic>,
-              conflictAlgorithm: ConflictAlgorithm.replace);
+          await txn.insert(
+            'message',
+            msg as Map<String, dynamic>,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
       }
 
       if (data['contacts'] != null) {
         final contacts = data['contacts'] as List;
         for (final contact in contacts) {
-          await txn.insert('contact', contact as Map<String, dynamic>,
-              conflictAlgorithm: ConflictAlgorithm.replace);
+          await txn.insert(
+            'contact',
+            contact as Map<String, dynamic>,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
       }
     });
@@ -295,7 +311,11 @@ class BackupService {
   }
 
   /// 加密文件到新位置（用于数据库备份）
-  Future<void> _encryptFile(String inputPath, String outputPath, String password) async {
+  Future<void> _encryptFile(
+    String inputPath,
+    String outputPath,
+    String password,
+  ) async {
     try {
       // 读取源文件
       final inputFile = File(inputPath);
@@ -303,14 +323,18 @@ class BackupService {
 
       // 生成加密密钥和 IV
       final key = EncrypterService.sha256Hash(password).substring(0, 32);
-      final iv = EncrypterService.sha256Hash(password + DateTimeHelper.millisecond().toString()).substring(0, 16);
+      final iv = EncrypterService.sha256Hash(
+        password + DateTimeHelper.millisecond().toString(),
+      ).substring(0, 16);
 
       // 分块加密（避免内存问题）
       final chunkSize = 1024 * 1024; // 1MB chunks
       final encryptedChunks = <List<int>>[];
 
       for (int i = 0; i < bytes.length; i += chunkSize) {
-        final end = (i + chunkSize < bytes.length) ? i + chunkSize : bytes.length;
+        final end = (i + chunkSize < bytes.length)
+            ? i + chunkSize
+            : bytes.length;
         final chunk = bytes.sublist(i, end);
         final base64Chunk = base64.encode(chunk);
 
@@ -345,11 +369,17 @@ class BackupService {
   }
 
   /// 加密 JSON 数据到文件
-  Future<void> _encryptDataToJson(String json, String outputPath, String password) async {
+  Future<void> _encryptDataToJson(
+    String json,
+    String outputPath,
+    String password,
+  ) async {
     try {
       // 生成加密密钥和 IV
       final key = EncrypterService.sha256Hash(password).substring(0, 32);
-      final iv = EncrypterService.sha256Hash(password + DateTimeHelper.millisecond().toString()).substring(0, 16);
+      final iv = EncrypterService.sha256Hash(
+        password + DateTimeHelper.millisecond().toString(),
+      ).substring(0, 16);
 
       // AES 加密
       final encrypted = EncrypterService.aesEncrypt(json, key, iv);
@@ -390,14 +420,19 @@ class BackupService {
   }
 
   /// 收集数据
-  Future<Map<String, dynamic>> _collectData(Database db, BackupConfig config) async {
+  Future<Map<String, dynamic>> _collectData(
+    Database db,
+    BackupConfig config,
+  ) async {
     final data = <String, dynamic>{};
 
     // 获取当前数据库版本
     final versionResult = await db.rawQuery('PRAGMA user_version');
     final currentVersion = Sqflite.firstIntValue(versionResult) ?? 9;
     data['version'] = currentVersion;
-    data['exportedAt'] = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).toIso8601String();
+    data['exportedAt'] = DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+    ).toIso8601String();
 
     if (config.includeMessages) {
       data['messages'] = await db.query('message');
@@ -460,7 +495,9 @@ class BackupService {
   Future<int> cleanupOldBackups({int keepDays = 7}) async {
     final backups = await listBackups();
     int cleaned = 0;
-    final cutoff = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).subtract(Duration(days: keepDays));
+    final cutoff = DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+    ).subtract(Duration(days: keepDays));
 
     for (final backup in backups) {
       if (backup['modified'].isBefore(cutoff)) {

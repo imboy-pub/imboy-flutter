@@ -28,10 +28,7 @@ final class UserLoginEvent extends AppEvent {
   /// 用户名
   final String username;
 
-  const UserLoginEvent({
-    required this.userId,
-    required this.username,
-  });
+  const UserLoginEvent({required this.userId, required this.username});
 
   @override
   List<Object> get props => [userId, username];
@@ -47,10 +44,7 @@ final class UserLogoutEvent extends AppEvent {
   /// 登出原因
   final String? reason;
 
-  const UserLogoutEvent({
-    required this.userId,
-    this.reason,
-  });
+  const UserLogoutEvent({required this.userId, this.reason});
 
   @override
   List<Object?> get props => [userId, reason];
@@ -134,7 +128,13 @@ final class MessageReceiveEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [messageId, conversationId, senderId, messageType, payload];
+  List<Object?> get props => [
+    messageId,
+    conversationId,
+    senderId,
+    messageType,
+    payload,
+  ];
 }
 
 /// 消息撤回事件
@@ -187,6 +187,39 @@ final class MessagesReadEvent extends AppEvent {
 // 会话相关事件
 // ============================================================================
 
+/// 当前活动会话变化事件
+///
+/// 当用户打开或切换到某个聊天会话时发布
+/// 用于跟踪用户当前正在浏览的会话，以便正确管理未读数
+final class ChatActiveEvent extends AppEvent {
+  /// 会话唯一标识符 (conversation_uk3)
+  final String conversationUk3;
+
+  /// 会话类型（C2C, C2G）
+  final String conversationType;
+
+  /// 对端用户 ID 或群组 ID
+  final String peerId;
+
+  /// 是否为激活操作（true=进入聊天，false=离开聊天）
+  final bool isActive;
+
+  const ChatActiveEvent({
+    required this.conversationUk3,
+    required this.conversationType,
+    required this.peerId,
+    this.isActive = true,
+  });
+
+  @override
+  List<Object> get props => [conversationUk3, conversationType, peerId, isActive];
+
+  @override
+  String toString() {
+    return 'ChatActiveEvent(conversationUk3: $conversationUk3, conversationType: $conversationType, peerId: $peerId, isActive: $isActive)';
+  }
+}
+
 /// 会话更新事件
 ///
 /// 当会话信息更新时发布（最后消息、未读数等）
@@ -211,7 +244,12 @@ final class ConversationUpdateEvent extends AppEvent {
   });
 
   @override
-  List<Object> get props => [conversationId, conversationType, peerId, updatedFields];
+  List<Object> get props => [
+    conversationId,
+    conversationType,
+    peerId,
+    updatedFields,
+  ];
 }
 
 /// 会话删除事件
@@ -266,10 +304,7 @@ final class WebSocketStatusEvent extends AppEvent {
   /// 错误信息（如果有）
   final String? error;
 
-  const WebSocketStatusEvent({
-    required this.status,
-    this.error,
-  });
+  const WebSocketStatusEvent({required this.status, this.error});
 
   @override
   List<Object?> get props => [status, error];
@@ -289,10 +324,7 @@ final class ContactAddEvent extends AppEvent {
   /// 联系人昵称
   final String nickname;
 
-  const ContactAddEvent({
-    required this.contactId,
-    required this.nickname,
-  });
+  const ContactAddEvent({required this.contactId, required this.nickname});
 
   @override
   List<Object> get props => [contactId, nickname];
@@ -305,9 +337,7 @@ final class ContactDeleteEvent extends AppEvent {
   /// 联系人ID
   final String contactId;
 
-  const ContactDeleteEvent({
-    required this.contactId,
-  });
+  const ContactDeleteEvent({required this.contactId});
 
   @override
   List<Object> get props => [contactId];
@@ -327,10 +357,7 @@ final class GroupCreateEvent extends AppEvent {
   /// 群组名称
   final String groupName;
 
-  const GroupCreateEvent({
-    required this.groupId,
-    required this.groupName,
-  });
+  const GroupCreateEvent({required this.groupId, required this.groupName});
 
   @override
   List<Object> get props => [groupId, groupName];
@@ -373,10 +400,7 @@ final class PageNavigationEvent extends AppEvent {
   /// 页面参数
   final Map<String, dynamic>? arguments;
 
-  const PageNavigationEvent({
-    required this.route,
-    this.arguments,
-  });
+  const PageNavigationEvent({required this.route, this.arguments});
 
   @override
   List<Object?> get props => [route, arguments];
@@ -416,9 +440,7 @@ final class DataSyncStartEvent extends AppEvent {
   /// 同步类型（message, contact, group等）
   final String syncType;
 
-  const DataSyncStartEvent({
-    required this.syncType,
-  });
+  const DataSyncStartEvent({required this.syncType});
 
   @override
   List<Object> get props => [syncType];
@@ -493,10 +515,7 @@ final class DataWrapperEvent<T> extends AppEvent {
   /// 数据类型描述
   final String dataType;
 
-  const DataWrapperEvent({
-    required this.data,
-    required this.dataType,
-  });
+  const DataWrapperEvent({required this.data, required this.dataType});
 
   @override
   List<Object?> get props => [data, dataType];
@@ -507,10 +526,7 @@ final class ReEditMessageEvent extends AppEvent {
   final String text;
   final String? messageId;
 
-  const ReEditMessageEvent({
-    required this.text,
-    this.messageId,
-  });
+  const ReEditMessageEvent({required this.text, this.messageId});
 
   @override
   List<Object?> get props => [text, messageId];
@@ -521,10 +537,7 @@ final class ChatExtendEvent extends AppEvent {
   final String type;
   final Map<String, dynamic> payload;
 
-  const ChatExtendEvent({
-    required this.type,
-    required this.payload,
-  });
+  const ChatExtendEvent({required this.type, required this.payload});
 
   @override
   List<Object> get props => [type, payload];
@@ -534,9 +547,7 @@ final class ChatExtendEvent extends AppEvent {
 final class WebRTCSignalingEvent extends AppEvent {
   final Map<String, dynamic> data;
 
-  const WebRTCSignalingEvent({
-    required this.data,
-  });
+  const WebRTCSignalingEvent({required this.data});
 
   @override
   List<Object> get props => [data];
@@ -548,8 +559,10 @@ final class WebRTCSignalingEvent extends AppEvent {
 
 /// ACK 发送请求事件
 ///
-/// 当需要发送 ACK 确认消息时发布
-/// 替代直接调用 MessageService.to.sendAckMsg()
+/// ⚠️ 注意：消息接收时的 ACK 已在 websocket.dart 中统一处理
+///
+/// 此事件用于其他操作场景下的 ACK 确认（如消息已读、表情反应等）
+/// 【建议】直接调用 AckManager.to.sendAckDirect() 更高效
 final class AckSendRequestedEvent extends AppEvent {
   /// 消息类型（C2C, C2G 等）
   final String messageType;
@@ -604,7 +617,13 @@ final class MessageStatusUpdateRequestedEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [messageId, messageType, newStatus, oldStatus, notifyUI];
+  List<Object?> get props => [
+    messageId,
+    messageType,
+    newStatus,
+    oldStatus,
+    notifyUI,
+  ];
 
   @override
   String toString() {
@@ -652,10 +671,7 @@ final class RetryMessagesRequestedEvent extends AppEvent {
   /// 重试原因（网络恢复、应用启动等）
   final String? reason;
 
-  const RetryMessagesRequestedEvent({
-    required this.source,
-    this.reason,
-  });
+  const RetryMessagesRequestedEvent({required this.source, this.reason});
 
   @override
   List<Object?> get props => [source, reason];
@@ -677,10 +693,7 @@ final class OfflineMessagesPullRequestedEvent extends AppEvent {
   /// 拉取原因（服务端通知、应用启动等）
   final String? reason;
 
-  const OfflineMessagesPullRequestedEvent({
-    required this.source,
-    this.reason,
-  });
+  const OfflineMessagesPullRequestedEvent({required this.source, this.reason});
 
   @override
   List<Object?> get props => [source, reason];
@@ -721,5 +734,57 @@ final class EventRetryFailedEvent extends AppEvent {
   @override
   String toString() {
     return 'EventRetryFailedEvent(eventId: $eventId, eventType: $eventType, attempts: $attempts)';
+  }
+}
+
+// ============================================================================
+// 聊天 UI 相关事件
+// ============================================================================
+
+/// 聊天消息添加请求事件
+///
+/// 当服务层需要向聊天界面添加本地消息时发布
+/// 用于解耦服务层与 UI 层的依赖（如 WebRTC 消息）
+final class ChatMessageAddRequestedEvent extends AppEvent {
+  /// 对端用户 ID
+  final String peerId;
+
+  /// 对端头像
+  final String peerAvatar;
+
+  /// 对端昵称
+  final String peerNickname;
+
+  /// 会话类型（C2C, C2G）
+  final String conversationType;
+
+  /// 要添加的消息对象
+  final dynamic message;
+
+  /// 是否发送到服务器（false 表示仅本地显示）
+  final bool sendToServer;
+
+  const ChatMessageAddRequestedEvent({
+    required this.peerId,
+    required this.peerAvatar,
+    required this.peerNickname,
+    required this.conversationType,
+    required this.message,
+    this.sendToServer = false,
+  });
+
+  @override
+  List<Object> get props => [
+        peerId,
+        peerAvatar,
+        peerNickname,
+        conversationType,
+        message,
+        sendToServer,
+      ];
+
+  @override
+  String toString() {
+    return 'ChatMessageAddRequestedEvent(peerId: $peerId, conversationType: $conversationType, sendToServer: $sendToServer)';
   }
 }

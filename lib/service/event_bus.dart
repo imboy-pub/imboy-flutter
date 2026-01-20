@@ -423,8 +423,7 @@ class AppEventBus {
   /// ```
   static Subscription respond<T extends AppEvent>(
     void Function(T event) responder,
-  ) =>
-      _eventBus.respond<T>(responder);
+  ) => _eventBus.respond<T>(responder);
 
   /// 发布数据包装事件（兼容旧代码）
   ///
@@ -442,9 +441,11 @@ class AppEventBus {
   /// AppEventBus.fireData(messageList, 'List<Message>');
   /// ```
   static void fireData(dynamic data, [String? dataType]) {
-    fire(DataWrapperEvent(
-      data: data,
-      dataType: dataType ?? data.runtimeType.toString(),
-    ));
+    fire(
+      DataWrapperEvent(
+        data: data,
+        dataType: dataType ?? data.runtimeType.toString(),
+      ),
+    );
   }
 }

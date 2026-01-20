@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 
 /// 组件主题管理器
 /// 统一管理所有组件主题，支持动态字体缩放和 Material 3 设计规范
@@ -13,11 +16,12 @@ class ComponentThemeManager {
   static AppBarTheme getAppBarTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledTitleSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.large,
-      context: context,
-    );
+    // 使用固定字体大小，避免循环依赖
+    final scaledTitleSize = fontSizeOption != null
+        ? FontSizeType.large.size * fontSizeOption.scale
+        : FontSizeType.large.size;
 
     return AppBarTheme(
       backgroundColor: isDark
@@ -45,7 +49,7 @@ class ComponentThemeManager {
         fontFamily: 'PingFang SC',
       ),
       centerTitle: true,
-      toolbarHeight: 56,
+      toolbarHeight: AppSizes.appBarHeight,
     );
   }
 
@@ -55,17 +59,15 @@ class ComponentThemeManager {
   static ElevatedButtonThemeData getElevatedButtonTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledFontSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.medium,
-      context: context,
-    );
+    final scaledFontSize = fontSizeOption != null
+        ? FontSizeType.medium.size * fontSizeOption.scale
+        : FontSizeType.medium.size;
 
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isDark
-            ? AppColors.primaryGreenLight
-            : AppColors.primaryGreen,
+        backgroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
         foregroundColor: Colors.white,
         disabledBackgroundColor: isDark
             ? AppColors.darkTextDisabled
@@ -73,9 +75,11 @@ class ComponentThemeManager {
         disabledForegroundColor: Colors.white,
         elevation: 0,
         shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        minimumSize: const Size(88, 44),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+        ),
+        padding: AppSpacing.buttonPadding,
+        minimumSize: Size(AppSizes.buttonMinWidth, AppSizes.buttonHeightLarge),
         textStyle: TextStyle(
           fontSize: scaledFontSize,
           fontWeight: FontWeight.w500,
@@ -89,23 +93,23 @@ class ComponentThemeManager {
   static TextButtonThemeData getTextButtonTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledFontSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.normal,
-      context: context,
-    );
+    final scaledFontSize = fontSizeOption != null
+        ? FontSizeType.normal.size * fontSizeOption.scale
+        : FontSizeType.normal.size;
 
     return TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: isDark
-            ? AppColors.primaryGreenLight
-            : AppColors.primaryGreen,
+        foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
         disabledForegroundColor: isDark
             ? AppColors.darkTextDisabled
             : AppColors.lightTextDisabled,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        minimumSize: const Size(64, 36),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        padding: AppSpacing.buttonSmallPadding,
+        minimumSize: Size(AppSizes.buttonMinWidth, AppSizes.buttonHeightSmall),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+        ),
         textStyle: TextStyle(
           fontSize: scaledFontSize,
           fontWeight: FontWeight.w500,
@@ -119,27 +123,27 @@ class ComponentThemeManager {
   static OutlinedButtonThemeData getOutlinedButtonTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledFontSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.medium,
-      context: context,
-    );
+    final scaledFontSize = fontSizeOption != null
+        ? FontSizeType.medium.size * fontSizeOption.scale
+        : FontSizeType.medium.size;
 
     return OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: isDark
-            ? AppColors.primaryGreenLight
-            : AppColors.primaryGreen,
+        foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
         disabledForegroundColor: isDark
             ? AppColors.darkTextDisabled
             : AppColors.lightTextDisabled,
         side: BorderSide(
-          color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+          color: isDark ? AppColors.primaryLight : AppColors.primary,
           width: 1,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        minimumSize: const Size(88, 44),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+        ),
+        padding: AppSpacing.buttonPadding,
+        minimumSize: Size(AppSizes.buttonMinWidth, AppSizes.buttonHeightLarge),
         textStyle: TextStyle(
           fontSize: scaledFontSize,
           fontWeight: FontWeight.w500,
@@ -154,9 +158,7 @@ class ComponentThemeManager {
     required bool isDark,
   }) {
     return FloatingActionButtonThemeData(
-      backgroundColor: isDark
-          ? AppColors.primaryGreenLight
-          : AppColors.primaryGreen,
+      backgroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
       foregroundColor: Colors.white,
       elevation: 6,
       focusElevation: 8,
@@ -176,10 +178,10 @@ class ComponentThemeManager {
       shadowColor: (isDark ? AppColors.darkBorder : AppColors.lightBorder)
           .withValues(alpha: 0.2),
       elevation: 0,
-      margin: const EdgeInsets.all(8),
+      margin: AppSpacing.cardMarginSmall,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 1,
@@ -194,36 +196,32 @@ class ComponentThemeManager {
   static InputDecorationTheme getInputDecorationTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledHintSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.medium,
-      context: context,
-    );
-    final scaledLabelSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.medium,
-      context: context,
-    );
-    final scaledFloatingLabelSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.normal,
-      context: context,
-    );
-    final scaledErrorSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.small,
-      context: context,
-    );
-    final scaledHelperSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.small,
-      context: context,
-    );
+    final scaledHintSize = fontSizeOption != null
+        ? FontSizeType.medium.size * fontSizeOption.scale
+        : FontSizeType.medium.size;
+    final scaledLabelSize = fontSizeOption != null
+        ? FontSizeType.medium.size * fontSizeOption.scale
+        : FontSizeType.medium.size;
+    final scaledFloatingLabelSize = fontSizeOption != null
+        ? FontSizeType.normal.size * fontSizeOption.scale
+        : FontSizeType.normal.size;
+    final scaledErrorSize = fontSizeOption != null
+        ? FontSizeType.small.size * fontSizeOption.scale
+        : FontSizeType.small.size;
+    final scaledHelperSize = fontSizeOption != null
+        ? FontSizeType.small.size * fontSizeOption.scale
+        : FontSizeType.small.size;
 
     return InputDecorationTheme(
       filled: true,
       fillColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: AppSpacing.inputPadding,
 
       // 默认边框
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 1,
@@ -232,7 +230,7 @@ class ComponentThemeManager {
 
       // 启用状态边框
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 1,
@@ -241,16 +239,16 @@ class ComponentThemeManager {
 
       // 聚焦状态边框
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(
-          color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+          color: isDark ? AppColors.primaryLight : AppColors.primary,
           width: 2,
         ),
       ),
 
       // 错误状态边框
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(
           color: isDark ? AppColors.darkError : AppColors.lightError,
           width: 1,
@@ -259,7 +257,7 @@ class ComponentThemeManager {
 
       // 聚焦错误状态边框
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(
           color: isDark ? AppColors.darkError : AppColors.lightError,
           width: 2,
@@ -268,7 +266,7 @@ class ComponentThemeManager {
 
       // 禁用状态边框
       disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(
           color: isDark
               ? AppColors.darkTextDisabled
@@ -293,7 +291,7 @@ class ComponentThemeManager {
         fontFamily: 'PingFang SC',
       ),
       floatingLabelStyle: TextStyle(
-        color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+        color: isDark ? AppColors.primaryLight : AppColors.primary,
         fontSize: scaledFloatingLabelSize,
         fontFamily: 'PingFang SC',
       ),
@@ -318,21 +316,19 @@ class ComponentThemeManager {
   static ListTileThemeData getListTileTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledTitleSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.medium,
-      context: context,
-    );
-    final scaledSubtitleSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.normal,
-      context: context,
-    );
+    final scaledTitleSize = fontSizeOption != null
+        ? FontSizeType.medium.size * fontSizeOption.scale
+        : FontSizeType.medium.size;
+    final scaledSubtitleSize = fontSizeOption != null
+        ? FontSizeType.normal.size * fontSizeOption.scale
+        : FontSizeType.normal.size;
 
     return ListTileThemeData(
       tileColor: Colors.transparent,
-      selectedTileColor:
-          (isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen)
-              .withValues(alpha: 0.1),
+      selectedTileColor: (isDark ? AppColors.primaryLight : AppColors.primary)
+          .withValues(alpha: 0.1),
       iconColor: isDark
           ? AppColors.darkTextSecondary
           : AppColors.lightTextSecondary,
@@ -362,9 +358,9 @@ class ComponentThemeManager {
         fontFamily: 'PingFang SC',
       ),
       dense: false,
-      horizontalTitleGap: 16,
-      minVerticalPadding: 8,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      horizontalTitleGap: AppSpacing.regular,
+      minVerticalPadding: AppSpacing.small,
+      contentPadding: AppSpacing.listItemPadding,
     );
   }
 
@@ -374,19 +370,17 @@ class ComponentThemeManager {
   static ChipThemeData getChipTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledLabelSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.normal,
-      context: context,
-    );
+    final scaledLabelSize = fontSizeOption != null
+        ? FontSizeType.normal.size * fontSizeOption.scale
+        : FontSizeType.normal.size;
 
     return ChipThemeData(
       backgroundColor: isDark
           ? AppColors.darkCardBackground
           : AppColors.lightCardBackground,
-      selectedColor: isDark
-          ? AppColors.primaryGreenLight
-          : AppColors.primaryGreen,
+      selectedColor: isDark ? AppColors.primaryLight : AppColors.primary,
       disabledColor:
           (isDark ? AppColors.darkTextDisabled : AppColors.lightTextDisabled)
               .withValues(alpha: 0.3),
@@ -406,9 +400,9 @@ class ComponentThemeManager {
       brightness: isDark ? Brightness.dark : Brightness.light,
       elevation: 0,
       pressElevation: 2,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: AppSpacing.chipPadding,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.borderRadiusRegular,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           width: 1,
@@ -423,24 +417,23 @@ class ComponentThemeManager {
   static BottomNavigationBarThemeData getBottomNavigationBarTheme({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
-    final scaledLabelSize = ThemeManager.instance.getScaledFontSize(
-      FontSizeType.small,
-      context: context,
-    );
+    // 使用固定字体大小，避免循环依赖
+    final scaledLabelSize = fontSizeOption != null
+        ? FontSizeType.small.size * fontSizeOption.scale
+        : FontSizeType.small.size;
 
     return BottomNavigationBarThemeData(
       backgroundColor: isDark
           ? AppColors.darkAppBarBackground
           : const Color(0xFFF7F7F7), // 微信风格底部导航栏背景略亮于AppBar
-      selectedItemColor: isDark
-          ? AppColors.primaryGreenLight
-          : AppColors.primaryGreen,
+      selectedItemColor: isDark ? AppColors.primaryLight : AppColors.primary,
       unselectedItemColor: isDark
           ? AppColors.darkTextDisabled
           : AppColors.lightTextSecondary, // 使用次要文本颜色
       selectedLabelStyle: TextStyle(
-        color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+        color: isDark ? AppColors.primaryLight : AppColors.primary,
         fontSize: scaledLabelSize,
         fontFamily: 'PingFang SC',
         fontWeight: FontWeight.w500,
@@ -467,7 +460,7 @@ class ComponentThemeManager {
     return DividerThemeData(
       color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
       thickness: 1,
-      space: 16,
+      space: AppSpacing.regular,
     );
   }
 
@@ -478,7 +471,7 @@ class ComponentThemeManager {
     required bool isDark,
   }) {
     return ProgressIndicatorThemeData(
-      color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
+      color: isDark ? AppColors.primaryLight : AppColors.primary,
       linearTrackColor: (isDark ? AppColors.darkBorder : AppColors.lightBorder)
           .withValues(alpha: 0.3),
       circularTrackColor:
@@ -494,29 +487,50 @@ class ComponentThemeManager {
   static Map<String, dynamic> getAllComponentThemes({
     required bool isDark,
     BuildContext? context,
+    FontSizeOption? fontSizeOption,
   }) {
     return {
-      'appBarTheme': getAppBarTheme(isDark: isDark, context: context),
+      'appBarTheme': getAppBarTheme(
+        isDark: isDark,
+        context: context,
+        fontSizeOption: fontSizeOption,
+      ),
       'elevatedButtonTheme': getElevatedButtonTheme(
         isDark: isDark,
         context: context,
+        fontSizeOption: fontSizeOption,
       ),
-      'textButtonTheme': getTextButtonTheme(isDark: isDark, context: context),
+      'textButtonTheme': getTextButtonTheme(
+        isDark: isDark,
+        context: context,
+        fontSizeOption: fontSizeOption,
+      ),
       'outlinedButtonTheme': getOutlinedButtonTheme(
         isDark: isDark,
         context: context,
+        fontSizeOption: fontSizeOption,
       ),
       'floatingActionButtonTheme': getFloatingActionButtonTheme(isDark: isDark),
       'cardTheme': getCardTheme(isDark: isDark),
       'inputDecorationTheme': getInputDecorationTheme(
         isDark: isDark,
         context: context,
+        fontSizeOption: fontSizeOption,
       ),
-      'listTileTheme': getListTileTheme(isDark: isDark, context: context),
-      'chipTheme': getChipTheme(isDark: isDark, context: context),
+      'listTileTheme': getListTileTheme(
+        isDark: isDark,
+        context: context,
+        fontSizeOption: fontSizeOption,
+      ),
+      'chipTheme': getChipTheme(
+        isDark: isDark,
+        context: context,
+        fontSizeOption: fontSizeOption,
+      ),
       'bottomNavigationBarTheme': getBottomNavigationBarTheme(
         isDark: isDark,
         context: context,
+        fontSizeOption: fontSizeOption,
       ),
       'dividerTheme': getDividerTheme(isDark: isDark),
       'progressIndicatorTheme': getProgressIndicatorTheme(isDark: isDark),

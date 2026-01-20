@@ -56,10 +56,7 @@ class AvatarList extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(12)),
-                      child: SizedBox(
-                        height: height ?? 56,
-                        width: width ?? 56,
-                      ),
+                      child: SizedBox(height: height ?? 56, width: width ?? 56),
                     ),
                   )
                 else if (memberList[j].id == 'add')
@@ -72,7 +69,9 @@ class AvatarList extends StatelessWidget {
                           radius: const Radius.circular(12),
                         ),
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.all(Radius.circular(12)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(12),
+                          ),
                           child: SizedBox(
                             height: (height ?? 56) - 4,
                             width: (width ?? 56) - 4,
@@ -92,7 +91,9 @@ class AvatarList extends StatelessWidget {
                           radius: const Radius.circular(12),
                         ),
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.all(Radius.circular(12)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(12),
+                          ),
                           child: SizedBox(
                             height: (height ?? 56) - 4,
                             width: (width ?? 56) - 4,

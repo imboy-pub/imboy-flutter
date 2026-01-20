@@ -26,12 +26,13 @@ class _DragAreaStateStateful extends State<DragArea> {
       isLeft = false;
     }
     final rebuildPosition = Offset(
-        isLeft ? 2 : MediaQuery.of(context).size.width - 98,
-        newPosition.dy < 45
-            ? 45
-            : newPosition.dy > maxY
-                ? maxY
-                : newPosition.dy);
+      isLeft ? 2 : MediaQuery.of(context).size.width - 98,
+      newPosition.dy < 45
+          ? 45
+          : newPosition.dy > maxY
+          ? maxY
+          : newPosition.dy,
+    );
     setState(() => position = rebuildPosition);
   }
 

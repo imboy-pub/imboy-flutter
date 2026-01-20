@@ -10,7 +10,9 @@ class SoundManager {
     } on PlatformException catch (e) {
       AppLogger.warning("Failed to play key press sound: '${e.message}'.");
     } on MissingPluginException catch (e) {
-      AppLogger.warning("Key press sound plugin not implemented: '${e.message}'.");
+      AppLogger.warning(
+        "Key press sound plugin not implemented: '${e.message}'.",
+      );
     } catch (e) {
       AppLogger.warning("Unexpected error playing key press sound: $e");
     }
@@ -22,7 +24,9 @@ class SoundManager {
     } on PlatformException catch (e) {
       AppLogger.warning("Failed to play metallic sound: '${e.message}'.");
     } on MissingPluginException catch (e) {
-      AppLogger.warning("Metallic sound plugin not implemented: '${e.message}'.");
+      AppLogger.warning(
+        "Metallic sound plugin not implemented: '${e.message}'.",
+      );
     } catch (e) {
       AppLogger.warning("Unexpected error playing metallic sound: $e");
     }

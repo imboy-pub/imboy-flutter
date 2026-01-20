@@ -22,7 +22,6 @@ class GroupModel {
   // 如果 title 为空，零时计算title
   String computeTitle = '';
 
-
   GroupModel({
     required this.groupId,
     required this.type,
@@ -57,26 +56,32 @@ class GroupModel {
       avatar: json['avatar'] ?? '',
       title: json['title'] ?? '',
       status: json['status'] ?? 1,
-      updatedAt: DateTimeHelper.parseTimestamp(json['updated_at'], defaultValue: 0),
-      createdAt: DateTimeHelper.parseTimestamp(json['created_at'], defaultValue: 0),
+      updatedAt: DateTimeHelper.parseTimestamp(
+        json['updated_at'],
+        defaultValue: 0,
+      ),
+      createdAt: DateTimeHelper.parseTimestamp(
+        json['created_at'],
+        defaultValue: 0,
+      ),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        GroupRepo.groupId: groupId,
-        GroupRepo.type: type,
-        GroupRepo.joinLimit: joinLimit,
-        GroupRepo.contentLimit: contentLimit,
-        GroupRepo.userIdSum: userIdSum,
-        GroupRepo.ownerUid: ownerUid,
-        GroupRepo.creatorUid: creatorUid,
-        GroupRepo.memberMax: memberMax,
-        GroupRepo.memberCount: memberCount,
-        GroupRepo.introduction: introduction,
-        GroupRepo.avatar: avatar,
-        GroupRepo.title: title,
-        GroupRepo.status: status,
-        GroupRepo.updatedAt: updatedAt,
-        GroupRepo.createdAt: createdAt,
-      };
+    GroupRepo.groupId: groupId,
+    GroupRepo.type: type,
+    GroupRepo.joinLimit: joinLimit,
+    GroupRepo.contentLimit: contentLimit,
+    GroupRepo.userIdSum: userIdSum,
+    GroupRepo.ownerUid: ownerUid,
+    GroupRepo.creatorUid: creatorUid,
+    GroupRepo.memberMax: memberMax,
+    GroupRepo.memberCount: memberCount,
+    GroupRepo.introduction: introduction,
+    GroupRepo.avatar: avatar,
+    GroupRepo.title: title,
+    GroupRepo.status: status,
+    GroupRepo.updatedAt: updatedAt,
+    GroupRepo.createdAt: createdAt,
+  };
 }

@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/env.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -11,8 +12,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
-class UpgradePage extends StatefulWidget {
+class UpgradePage extends ConsumerStatefulWidget {
   /// apk更新url
   final String downLoadUrl;
 
@@ -32,10 +34,10 @@ class UpgradePage extends StatefulWidget {
   });
 
   @override
-  UpgradePageState createState() => UpgradePageState();
+  ConsumerState<UpgradePage> createState() => UpgradePageState();
 }
 
-class UpgradePageState extends State<UpgradePage> {
+class UpgradePageState extends ConsumerState<UpgradePage> {
   int downloadId = 0;
   UpgradeCard? _upgradeCard;
   String downloadKey = 'downloaderSendPort';
@@ -49,9 +51,16 @@ class UpgradePageState extends State<UpgradePage> {
   int maxLength = 0;
   int currentLength = 0;
 
+  StreamSubscription? _localeSubscription;
+
   @override
   void initState() {
     super.initState();
+    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     // RUpgrade.setDebug(true);
     if (Platform.isAndroid) {
       RUpgrade.stream.listen((DownloadInfo info) {
@@ -103,13 +112,15 @@ class UpgradePageState extends State<UpgradePage> {
 
   @override
   void dispose() {
+    _localeSubscription?.cancel();
     super.dispose();
   }
 
   // 初始化弹框文案
   void initGeneral() {
     _upgradeCard?.updateProgress(
-      title: t.newVersionDetected + widget.version,
+      // 使用字符串替换的方式传递版本号参数
+      title: t.newVersionDetectedWithVersion(param: widget.version),
       message: widget.message,
       positiveBtn: t.updateNow,
       negativeBtn: t.remindMeLater,
@@ -121,7 +132,7 @@ class UpgradePageState extends State<UpgradePage> {
   //检查权限
   Future<bool> _checkPermission() async {
     if (!(Platform.isAndroid || Platform.isIOS)) {
-      EasyLoading.show(status: "Permission 只支持 Android 和 IOS");
+      EasyLoading.show(status: t.permissionOnlySupportAndroidAndIos);
       return false;
     }
     PermissionStatus status;
@@ -139,7 +150,7 @@ class UpgradePageState extends State<UpgradePage> {
     }
     iPrint("_checkPermission status ${status.toString()}");
 
-    switch(status) {
+    switch (status) {
       case PermissionStatus.denied:
         return false;
       case PermissionStatus.granted:
@@ -218,13 +229,9 @@ class UpgradePageState extends State<UpgradePage> {
 
   // ios 点击立即更新调整到 applly APP Store
   void upgradeFromAppStore() async {
-    bool? isSuccess = await RUpgrade.upgradeFromAppStore(
-      Env().iosAppId,
-    );
+    bool? isSuccess = await RUpgrade.upgradeFromAppStore(Env().iosAppId);
     if (isSuccess == false) {
-      EasyLoading.showError(
-        t.iosAppIdUnknown.replaceAll('{s}', Env().iosAppId),
-      );
+      EasyLoading.showError(t.iosAppIdUnknown(param: Env().iosAppId));
       return;
     }
     closeCallback();
@@ -281,6 +288,7 @@ class UpgradePageState extends State<UpgradePage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     if (_upgradeCard != null) {
       return _upgradeCard!;
     }
@@ -344,31 +352,31 @@ class UpgradeCard extends StatefulWidget {
   UpgradeCardState createState() => upgradeCardState;
 
   /// 外部更新函数
-  void updateProgress(
-          {required bool hasLinearProgress,
-          required double progress,
-          String? title,
-          String? message,
-          String? positiveBtn,
-          String? negativeBtn,
-          GestureTapCallback? positiveCallback,
-          String? speed,
-          double? planTime,
-          int? maxLength,
-          int? currentLength}) =>
-      upgradeCardState.updateProgress(
-        title: title,
-        message: message,
-        positiveBtn: positiveBtn,
-        negativeBtn: negativeBtn,
-        hasLinearProgress: hasLinearProgress,
-        progress: progress,
-        positiveCallback: positiveCallback,
-        speed: speed,
-        planTime: planTime,
-        maxLength: maxLength,
-        currentLength: currentLength,
-      );
+  void updateProgress({
+    required bool hasLinearProgress,
+    required double progress,
+    String? title,
+    String? message,
+    String? positiveBtn,
+    String? negativeBtn,
+    GestureTapCallback? positiveCallback,
+    String? speed,
+    double? planTime,
+    int? maxLength,
+    int? currentLength,
+  }) => upgradeCardState.updateProgress(
+    title: title,
+    message: message,
+    positiveBtn: positiveBtn,
+    negativeBtn: negativeBtn,
+    hasLinearProgress: hasLinearProgress,
+    progress: progress,
+    positiveCallback: positiveCallback,
+    speed: speed,
+    planTime: planTime,
+    maxLength: maxLength,
+    currentLength: currentLength,
+  );
 }
 
 class UpgradeCardState extends State<UpgradeCard> {
@@ -424,27 +432,18 @@ class UpgradeCardState extends State<UpgradeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return Center(
       child: Container(
-        width: Get.width - 20,
+        width: MediaQuery.of(context).size.width - 20,
         padding: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(8)),
+          color: Colors.white,
+          borderRadius: AppRadius.borderRadiusSmall,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            //背景图片
-            // Container(
-            //   padding: const EdgeInsets.only(bottom: 8),
-            //   child: ClipRRect(
-            //     borderRadius: BorderRadius.circular(8),
-            //     child: Image.asset(
-            //       "assets/images/updateBg.png",
-            //       width: 320,
-            //     ),
-            //   ),
-            // ),
-
             ///标题
             Visibility(
               visible: widget.title.isNotEmpty,
@@ -453,10 +452,11 @@ class UpgradeCardState extends State<UpgradeCard> {
                 child: Text(
                   widget.title,
                   style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.none,
-                      color: Color(0xFF333130)),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.none,
+                    color: Color(0xFF333130),
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -465,32 +465,28 @@ class UpgradeCardState extends State<UpgradeCard> {
 
             ///更新内容
             Container(
-                width: Get.width - 40,
-                height: Get.height - 200,
-                margin: const EdgeInsets.all(8),
-                child: Scrollbar(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SelectableText.rich(
-                      TextSpan(
-                        text: widget.message.isEmpty
-                            ? t.noUpdateDescription
-                            : widget.message,
-                        // style: const TextStyle(
-                        //   color: Colors.black,
-                        //   fontSize: 16,
-                        // ),
-                      ),
-                      textAlign: widget.message.isEmpty
-                          ? TextAlign.center
-                          : TextAlign.left,
+              width: MediaQuery.of(context).size.width - 40,
+              height: MediaQuery.of(context).size.height - 200,
+              margin: const EdgeInsets.all(8),
+              child: Scrollbar(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: SelectableText.rich(
+                    TextSpan(
+                      text: widget.message.isEmpty
+                          ? t.noUpdateDescription
+                          : widget.message,
                     ),
+                    textAlign: widget.message.isEmpty
+                        ? TextAlign.center
+                        : TextAlign.left,
                   ),
-                )),
+                ),
+              ),
+            ),
             SizedBox(
               height: 44,
-              width: Get.width - 40,
-              // margin: const EdgeInsets.only(bottom: 0),
+              width: MediaQuery.of(context).size.width - 40,
               child: widget.planTime == null
                   ? const SizedBox.shrink()
                   : Column(
@@ -498,16 +494,19 @@ class UpgradeCardState extends State<UpgradeCard> {
                         Row(
                           children: [
                             Text(
-                                "${t.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                              "${t.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB",
+                            ),
                             const Spacer(),
                             Text(
-                                "${t.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}秒"),
+                              "${t.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}秒",
+                            ),
                           ],
                         ),
                         Row(
                           children: [
                             Text(
-                                "${t.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                              "${t.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB",
+                            ),
                             const Spacer(),
                             Text(t.speed + widget.speed!),
                           ],
@@ -519,11 +518,11 @@ class UpgradeCardState extends State<UpgradeCard> {
             // 进度条
             Container(
               height: 8,
-              width: Get.width - 40,
+              width: MediaQuery.of(context).size.width - 40,
               margin: const EdgeInsets.only(bottom: 20),
               child: widget.hasLinearProgress
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.borderRadiusSmall,
                       child: LinearProgressIndicator(
                         value: widget.progress,
                         backgroundColor: Colors.grey[200],
@@ -536,42 +535,46 @@ class UpgradeCardState extends State<UpgradeCard> {
             ///按钮列表
             SizedBox(
               height: 40,
-              child: Row(children: <Widget>[
-                Visibility(
-                  visible: widget.negativeBtn.isNotEmpty,
-                  child: Expanded(
-                    child: TextButton(
-                      onPressed: widget.negativeCallback,
-                      child: Text(
-                        widget.negativeBtn,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+              child: Row(
+                children: <Widget>[
+                  Visibility(
+                    visible: widget.negativeBtn.isNotEmpty,
+                    child: Expanded(
+                      child: TextButton(
+                        onPressed: widget.negativeCallback,
+                        child: Text(
+                          widget.negativeBtn,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  height: 40,
-                  width: 0.5,
-                  color: const Color(0xffC0C5D6),
-                ),
-                Visibility(
+                  Container(
+                    height: 40,
+                    width: 0.5,
+                    color: const Color(0xffC0C5D6),
+                  ),
+                  Visibility(
                     visible: widget.positiveBtn.isNotEmpty,
                     child: Expanded(
                       child: TextButton(
                         onPressed: widget.positiveCallback,
-                        child: Text(widget.positiveBtn,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              // color: Color.fromARGB(255, 64, 75, 130),
-                            )),
+                        child: Text(
+                          widget.positiveBtn,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ))
-              ]),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

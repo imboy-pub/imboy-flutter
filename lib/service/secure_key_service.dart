@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:imboy/component/helper/datetime.dart';
 import 'storage_secure.dart';
 
-
 class SecureKeyService {
   static const _currentKeyStorageKey = 'secure_storage_current_aes_key';
   static const _oldKeysStorageKey = 'secure_storage_old_aes_keys';
@@ -39,7 +38,9 @@ class SecureKeyService {
 
   static bool _isKeyExpired() {
     if (_expireAt == null) return true;
-    return DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).isAfter(_expireAt!);
+    return DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+    ).isAfter(_expireAt!);
   }
 
   static Future<void> _rotateKey() async {
@@ -55,25 +56,39 @@ class SecureKeyService {
     }
 
     _currentAesKey = newKey;
-    _expireAt = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).add(Duration(days: keyValidDays));
+    _expireAt = DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+    ).add(Duration(days: keyValidDays));
 
-    await StorageSecureService().write(key: _currentKeyStorageKey, value: _currentAesKey!);
-    await StorageSecureService().write(key: _keyExpireAtStorageKey, value: _expireAt!.toIso8601String());
+    await StorageSecureService().write(
+      key: _currentKeyStorageKey,
+      value: _currentAesKey!,
+    );
+    await StorageSecureService().write(
+      key: _keyExpireAtStorageKey,
+      value: _expireAt!.toIso8601String(),
+    );
   }
 
   static Future<void> _loadKeys() async {
     if (_currentAesKey != null) return;
 
-    _currentAesKey = await StorageSecureService().read(key: _currentKeyStorageKey);
+    _currentAesKey = await StorageSecureService().read(
+      key: _currentKeyStorageKey,
+    );
 
-    final oldKeysStr = await StorageSecureService().read(key: _oldKeysStorageKey);
+    final oldKeysStr = await StorageSecureService().read(
+      key: _oldKeysStorageKey,
+    );
     if (oldKeysStr != null && oldKeysStr.isNotEmpty) {
       _oldAesKeys = List<String>.from(jsonDecode(oldKeysStr));
     } else {
       _oldAesKeys = [];
     }
 
-    final expireAtStr = await StorageSecureService().read(key: _keyExpireAtStorageKey);
+    final expireAtStr = await StorageSecureService().read(
+      key: _keyExpireAtStorageKey,
+    );
     if (expireAtStr != null && expireAtStr.isNotEmpty) {
       _expireAt = DateTime.tryParse(expireAtStr);
     }

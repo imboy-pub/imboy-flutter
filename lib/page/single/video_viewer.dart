@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -14,22 +14,17 @@ import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-class VideoViewerPage extends StatefulWidget {
+class VideoViewerPage extends ConsumerStatefulWidget {
   final String url;
   final String thumb;
 
-  const VideoViewerPage({
-    super.key,
-    required this.url,
-    required this.thumb,
-  });
+  const VideoViewerPage({super.key, required this.url, required this.thumb});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _VideoViewerPageState createState() => _VideoViewerPageState();
+  ConsumerState<VideoViewerPage> createState() => _VideoViewerPageState();
 }
 
-class _VideoViewerPageState extends State<VideoViewerPage> {
+class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
   VideoPlayerController? _controller;
   final ValueNotifier<bool> isPlaying = ValueNotifier<bool>(false);
   bool get isControllerPlaying => _controller?.value.isPlaying ?? false;
@@ -58,10 +53,10 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
   }
 
   Future<void> initializePlayer() async {
-    File? tmpF = await IMBoyCacheManager().getSingleFile(
-      widget.url,
+    File? tmpF = await IMBoyCacheManager().getSingleFile(widget.url);
+    debugPrint(
+      "chat_video_initializePlayer ${AssetsService.viewUrl(widget.url)}",
     );
-    debugPrint("chat_video_initializePlayer ${AssetsService.viewUrl(widget.url)}");
     try {
       _controller = VideoPlayerController.file(tmpF);
       await _controller?.initialize();
@@ -138,13 +133,13 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
           child: AnimatedOpacity(
             duration: kThemeAnimationDuration,
             opacity: value ? 0 : 1,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
+            child: const DecoratedBox(
+              decoration: BoxDecoration(
                 boxShadow: [BoxShadow(color: Colors.black12)],
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                value ? Icons.pause_circle_outline : Icons.play_circle_filled,
+                Icons.play_circle_filled,
                 size: 70,
                 color: Colors.white,
               ),
@@ -182,36 +177,16 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
     );
   }
 
-  Widget buildForeground(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Semantics(
-              sortKey: const OrdinalSortKey(0),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: buildBackButton(context),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!hasLoaded) {
       return Scaffold(
         floatingActionButton: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-        backgroundColor: Get.theme.cardColor,
+        backgroundColor: Theme.of(context).cardColor,
         body: Stack(
           alignment: Alignment.centerRight,
           children: <Widget>[
@@ -231,20 +206,22 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
                     AssetsService.viewUrl(widget.thumb).toString(),
                     headers,
                   ),
-                  width: Get.width,
-                  height: Get.height,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return Center(
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
                             : null,
                       ),
                     );
                   },
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.error),
                 );
               },
             ),
@@ -264,16 +241,10 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
         ),
       );
     }
-    
+
     return Material(
       color: Colors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          buildVideo(context),
-          // 移除旧的buildForeground，因为控制功能已集成到VideoControllerOverlay中
-        ],
-      ),
+      child: Stack(fit: StackFit.expand, children: [buildVideo(context)]),
     );
   }
 }

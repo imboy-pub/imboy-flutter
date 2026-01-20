@@ -1,11 +1,35 @@
 # ImBoy App - 架构文档
 
 > 本文档由 init-architect 自动生成和维护
-> 最后更新：2026-01-01 12:00:00 CST
+> 最后更新：2026-01-19 12:00:00 CST
 
 ---
 
 ## 变更记录 (Changelog)
+
+### 2026-01-19
+- **数据层命名重构**：`store/provider/` 重命名为 `store/api/`
+- 统一 API 客户端命名：`*_provider.dart` → `*_api.dart`，`*Provider` → `*Api`
+- 解决与 Riverpod 的 `Provider` 类型命名冲突
+- 更新模块架构图和文档
+
+### 2026-01-16
+- **统一文件命名规范**：
+  - 新页面 UI 组件使用 `*_page.dart` 后缀
+  - 状态管理使用 `*_provider.dart` 后缀
+  - 添加完整的命名规范文档和代码模板
+  - 明确旧架构到新架构的迁移规则
+
+### 2026-01-15
+- 更新主题颜色：主色调从绿色 #059669 更改为科技蓝 #2474E5
+- 同步更新 UI/UX 设计规范文档
+- 更新颜色系统中的所有相关定义（主色、浅色、深色、容器色）
+- **解决 Provider 命名冲突**：为旧 `provider` 包添加别名 `get_provider`，与 Riverpod 的 `Provider` 区分
+
+### 2026-01-13
+- 更新国际化方案说明：项目使用 slang 作为多语言解决方案
+- 添加 slang 使用方式和配置说明
+- 新增国际化相关 FAQ
 
 ### 2026-01-01
 - 完善架构文档，更新技术栈信息
@@ -41,17 +65,33 @@ ImBoy 是一个基于 Flutter 开发的跨平台即时通讯（IM）应用，提
 
 ### 技术栈
 - **前端框架**：Flutter (Dart 3.8+)
-- **状态管理**：GetX 5.0
+- **状态管理**：
+  - **主力架构**：**Riverpod**（最新版本，已完成80%迁移）
+- **路由管理**：**go_router**（主力）
 - **本地数据库**：SQLite (sqflite 2.4+)
 - **网络请求**：Dio 5.9
 - **实时通讯**：WebSocket + WebRTC
-- **依赖注入**：GetX 依赖注入系统
 
 ### 设计模式
 - **架构模式**：MVVM + Repository 模式
-- **路由管理**：GetX 路由
+- **路由管理**：**go_router
 - **数据持久化**：Repository + SQLite
 - **消息队列**：持久化队列 + 事件总线
+
+### 迁移状态（2026-01-16 22:10）
+- ✅ **服务层**：100% 迁移到 Riverpod
+- ✅ **会话模块**：100% 迁移到 Riverpod
+- ✅ **联系人模块**：100% 迁移到 Riverpod
+- ✅ **个人信息模块**：100% 迁移到 Riverpod
+- ✅ **群组模块**：100% 迁移到 Riverpod
+- ✅ **登录注册模块**：100% 迁移到 Riverpod
+- ✅ **我的模块**：95% 迁移到 Riverpod (user_collect已完成)
+- ✅ **聊天模块**：100% 迁移到 Riverpod ⭐
+- ✅ **GetX依赖**：0个Dart文件使用GetX
+- ✅ **编译状态**：0 errors, 0 warnings (chat模块)
+
+**迁移完成时间**：2026-01-16 22:10 CST
+**详细报告**：`lib/page/chat/chat/CHAT_MODULE_GETX_REMOVAL_COMPLETE_REPORT.md`
 
 ---
 
@@ -87,7 +127,7 @@ graph TD
     service --> storage["storage*.dart - 存储服务"]
 
     store --> repository["repository/ - 数据仓库"]
-    store --> provider["provider/ - API提供者"]
+    store --> api["api/ - HTTP API客户端"]
     store --> model["model/ - 数据模型"]
 
     click page "./lib/page/CLAUDE.md" "查看页面层文档"
@@ -110,10 +150,15 @@ graph TD
 | `lib/page/` | 所有页面视图和路由 | [查看详情](./lib/page/CLAUDE.md) |
 | `lib/component/` | 可复用组件和工具类 | [查看详情](./lib/component/CLAUDE.md) |
 | `lib/service/` | 核心业务服务（WebSocket、消息、数据库） | [查看详情](./lib/service/CLAUDE.md) |
-| `lib/store/` | 数据层（Repository、Provider、Model） | [查看详情](./lib/store/CLAUDE.md) |
+| `lib/store/` | 数据层（Repository、Api、Model） | [查看详情](./lib/store/CLAUDE.md) |
 | `lib/theme/` | 主题管理和样式系统 | [查看详情](./lib/theme/CLAUDE.md) |
 | `lib/config/` | 应用配置和初始化 | - |
 | `lib/utils/` | 通用工具类和辅助函数 | - |
+
+### 设计文档
+| 文档 | 描述 | 链接 |
+|------|------|------|
+| UI/UX 设计规范 | 完整的设计系统文档（颜色、间距、组件等） | [查看](./doc/UI_UX_Design_Spec.md) |
 
 ---
 
@@ -160,197 +205,30 @@ flutter pub run build_runner build
 - `test/async_test.dart` - 异步测试
 - `test/hidden_phone_test.dart` - 手机号隐藏测试
 - `test/is_phone_test.dart` - 手机号验证测试
+- `test/service/storage_service_test.dart` - 存储服务测试
+- `test/service/event_bus/` - 事件总线测试
+- `test/theme_migration_test.dart` - 主题迁移测试
+
+### 测试原则
+- **框架无关**：测试代码不依赖特定状态管理框架
+- **Widget 测试**：使用 `ProviderScope` 包裹测试组件
+- **单元测试**：直接测试业务逻辑，不依赖 UI 层
+- **集成测试**：测试完整的用户流程
 
 ### 测试工具
 - `flutter_test` - Flutter 官方测试框架
 - `build_runner` - 代码生成工具
-
----
-
-## 编码规范
-
-### GetX 架构规范
-每个功能模块遵循 GetX 的四层架构：
-- **View**（`*_view.dart`）- UI 视图层
-- **Logic**（`*_logic.dart`）- 业务逻辑层
-- **State**（`*_state.dart`）- 状态管理层
-- **Binding**（`*_binding.dart`）- 依赖注入层
-
-### 文件命名规范
-- 页面文件：`<module>_<name>_view.dart`
-- 逻辑文件：`<module>_<name>_logic.dart`
-- 状态文件：`<module>_<name>_state.dart`
-- 绑定文件：`<module>_<name>_binding.dart`
-
-### 时间处理规范
-**重要**：项目中所有获取时间点、格式化时间、计算时间差等操作，**必须统一使用 `DateTimeHelper` 工具类**，禁止直接使用 `DateTime.now()` 或其他时间处理方式。
-
-**原因**：
-- 统一时间处理逻辑，避免时区问题
-- 便于维护和修改时间显示格式
-- 支持国际化时间格式
-- 确保时间显示的一致性
-
-**正确示例**：
-```dart
-// ✅ 使用 DateTimeHelper
-String timeStr = DateTimeHelper.lastTimeFmt(timestamp);
-String fullTime = DateTimeHelper.fmt(timestamp);
-```
-
-**错误示例**：
-```dart
-// ❌ 直接使用 DateTime
-String timeStr = DateTime.now().toString();
-String timeStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-```
-
-**DateTimeHelper 常用方法**：
-- `lastTimeFmt(timestamp)` - 格式化为"刚刚"、"5分钟前"等相对时间
-- `fmt(timestamp)` - 标准时间格式化
-- `getTimestamp()` - 获取当前时间戳
-- 其他方法请参考 `lib/component/helper/func.dart` 中的 `DateTimeHelper` 类
-
-### 代码风格
-- 遵循 [Flutter 官方代码规范](https://dart.dev/guides/language/effective-dart)
-- 使用 `flutter_lints` 进行代码检查
-- 建议使用 VS Code 或 Android Studio 配合 Flutter 插件开发
-
----
-
-## AI 使用指引
-
-### 适合 AI 辅助的任务
-1. **新增页面/功能**：基于现有模式创建新的页面模块
-2. **UI 组件开发**：参考 `lib/component/ui/` 下的通用组件
-3. **数据模型扩展**：在 `lib/store/model/` 添加新的数据模型
-4. **API 集成**：在 `lib/store/provider/` 添加新的 API 接口
-5. **消息类型扩展**：参考 `lib/component/chat/` 添加新的消息类型
-
-### 关键上下文文件
-在执行 AI 辅助开发时，建议优先提供以下文件：
-- `lib/config/init.dart` - 应用初始化流程
-- `lib/config/routes.dart` - 路由配置
-- `lib/page/pages.dart` - 页面注册
-- `lib/service/sqlite.dart` - 数据库服务
-- `lib/service/websocket.dart` - WebSocket 服务
-- `lib/store/repository/message_repo_sqlite.dart` - 消息数据仓库示例
-
-### 典型开发流程
-1. 在 `lib/page/<module>/` 创建页面（View、Logic、State、Binding）
-2. 在 `lib/store/model/` 创建数据模型
-3. 在 `lib/store/repository/` 创建数据仓库
-4. 在 `lib/store/provider/` 创建 API 提供者
-5. 在 `lib/page/pages.dart` 注册路由
-6. 在对应的 Logic 中集成业务逻辑
-
----
-
-## 依赖管理
-
-### 核心依赖
-- `get: ^5.0.0-release-candidate-9.3.2` - 状态管理和路由
-- `sqflite: ^2.4.2` - SQLite 数据库
-- `dio: ^5.9.0` - HTTP 网络请求
-- `web_socket_channel: ^3.0.3` - WebSocket 通讯
-- `flutter_webrtc: ^1.2.1` - WebRTC 音视频
-
-### 自定义插件
-项目使用多个自定义插件，位于 `plugin/` 目录：
-- `flutter_chat_ui` - 自定义聊天 UI 组件
-- `cross_cache` - 跨平台缓存
-- `amap_flutter_map_plus` - 高德地图
-- 其他第三方定制插件
-
-查看 `pubspec.yaml` 获取完整依赖列表。
-
----
-
-## 数据库架构
-
-### SQLite 数据库
-- 数据库版本：v9
-- 数据库名称：`{env}_{uid}.db`
-- 支持事务、并发控制、查询缓存
-- 自动迁移和降级支持
-
-### 主要数据表
-- `message` - C2C 消息
-- `group_message` - C2G 群组消息
-- `c2s_message` - C2S 客户端到服务端消息
-- `s2c_message` - S2C 服务端到客户端消息
-- `conversation` - 会话列表
-- `contact` - 联系人
-- `group_*` - 群组相关表
-- `user_*` - 用户相关表
-
-### 数据库操作模式
-- 所有数据库操作通过 `SqliteService` 单例进行
-- 使用事务保证数据一致性
-- 支持批量操作和并发控制
-- 实现了查询缓存机制以提高性能
-
-### 迁移策略
-- 使用 `MigrationService` 进行自动迁移
-- 每次版本升级都创建数据库快照备份
-- 支持升级和降级操作
-- 迁移失败时可回滚到备份版本
-
----
-
-## 消息系统
-
-### 消息类型
-- `C2C` - 客户端到客户端消息
-- `C2G` - 客户端到群组消息
-- `C2S` - 客户端到服务端消息
-- `S2C` - 服务端到客户端消息
-
-### 消息流程
-1. **发送**：客户端 → WebSocket → 服务端
-2. **接收**：服务端 → WebSocket → 客户端
-3. **存储**：本地 SQLite 数据库
-4. **展示**：消息列表渲染
-
-### 消息状态
-- 待发送
-- 已发送
-- 已送达
-- 已读
-- 撤回
-
-### 消息可靠性保障
-- **消息确认**：通过 ACK 机制确保消息送达
-- **消息重试**：失败消息自动重试发送
-- **离线消息**：应用恢复时自动拉取离线消息
-- **消息去重**：防止重复消息显示
-
----
-
-## 主题系统
-
-### 主题管理器
-- `lib/theme/theme_manager.dart` - 主题管理核心
-- 支持亮色/暗色模式切换
-- 支持动态字体缩放
-- 支持动态颜色（Material 3）
-
-### 主题配置
-- `lib/theme/default/theme.dart` - 主题配置
-- `lib/theme/default/app_colors.dart` - 颜色定义
-- `lib/theme/default/font_types.dart` - 字体类型
-
-### 字体管理
-- 支持多种字体大小选项
-- 遵循无障碍标准
-- 可根据系统设置自动调整
+- `mockito` - Mock 框架（如需要）
 
 ---
 
 ## 国际化
 
+### 多语言方案
+项目使用 **slang** 作为国际化解决方案（版本: ^4.11.2）
+
 ### 支持语言
-- 简体中文 (zh_CN)
+- 简体中文 (zh_CN) - 默认语言
 - 繁体中文 (zh_Hant)
 - 英语 (en_US)
 - 德语 (de_DE)
@@ -362,51 +240,43 @@ String timeStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
 - 阿拉伯语 (ar_SA)
 
 ### 翻译文件
-- `assets/locales/` - JSON 格式翻译文件
-- `lib/component/locales/locales.g.dart` - 生成的翻译代码
+- `lib/i18n/*.i18n.yaml` - YAML 格式翻译文件
+  - `zh-CN.i18n.yaml` - 简体中文（主文件，包含所有翻译键）
+  - `en-US.i18n.yaml` - 英语
+  - 其他语言文件...
+- `lib/i18n/strings.g.dart` - 自动生成的翻译入口文件
+- `lib/i18n/strings_*.g.dart` - 各语言自动生成的翻译代码
+
+### 使用方式
+```dart
+// 在代码中使用翻译
+import 'package:imboy/i18n/strings.g.dart';
+
+// 获取翻译字符串
+String title = t.home.title; // 访问嵌套键
+String message = t.errors.networkError;
+
+// 切换语言
+LocaleSettings.setLocale(AppLocale.enUs);
+
+// 获取当前语言
+AppLocale currentLocale = LocaleSettings.currentLocale;
+```
+
+### 添加新翻译
+1. 在 `lib/i18n/zh-CN.i18n.yaml` 添加新的翻译键
+2. 运行 `dart run slang` 生成翻译代码
+3. 在其他语言文件中提供对应翻译
+
+### 配置文件
+- `build.yaml` - slang 构建配置
+- `pubspec.yaml` - slang 依赖配置
+
+### 优势
+- **类型安全**: 编译时检查翻译键是否存在
+- **自动代码生成**: 无需手动维护映射关系
+- **支持嵌套**: 支持多层嵌套的翻译结构
+- **缺失翻译检测**: 自动检测缺失的翻译
+- **轻量高效**: 采用懒加载和代码分割，减小包体积
 
 ---
-
-## 常见问题 (FAQ)
-
-### Q: 如何添加新的消息类型？
-A: 在 `lib/component/chat/` 下创建新的消息 Builder，参考 `message_image_builder.dart` 等文件。
-
-### Q: 如何修改主题颜色？
-A: 编辑 `lib/theme/default/app_colors.dart` 中的颜色定义。
-
-### Q: 数据库迁移如何处理？
-A: 使用 `lib/service/migration_service.dart` 中的 `MigrationService` 进行自动迁移。
-
-### Q: WebSocket 连接失败如何排查？
-A: 检查 `lib/service/websocket.dart` 和 `lib/service/network_monitor.dart` 的日志输出。
-
-### Q: 如何处理消息撤回？
-A: 使用 `MessageActions` 服务中的撤回功能，系统会自动更新消息状态并通知相关界面。
-
-### Q: 如何添加新的聊天消息类型？
-A:
-1. 在 `lib/component/chat/enum.dart` 中添加消息类型枚举
-2. 创建对应的 `Message*Builder` 组件
-3. 在消息处理逻辑中添加相应的处理分支
-
-### Q: 如何实现消息加密？
-A:
-1. 使用 `lib/service/encrypter.dart` 中的加密服务
-2. 在发送消息前对消息内容进行加密
-3. 在接收消息时进行解密处理
-
----
-
-## 相关资源
-
-- [Flutter 官方文档](https://flutter.dev/docs)
-- [GetX 文档](https://github.com/jonataslaw/getx)
-- [SQLite 文档](https://www.sqlite.org/docs.html)
-- 项目 Wiki：待补充
-
----
-
-**文档维护者**：init-architect agent
-**项目版本**：0.7.0
-**最后更新**：2026-01-01

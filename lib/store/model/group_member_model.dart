@@ -1,7 +1,8 @@
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 
+/// 群组成员数据模型
+/// 纯数据模型，不包含响应式状态
 class GroupMemberModel {
   int? id; // 自增长ID 服务端
   String groupId; // 群组ID
@@ -21,8 +22,8 @@ class GroupMemberModel {
   int updatedAt;
   int createdAt;
 
-  // 计算量
-  RxBool selected = false.obs;
+  // 如果需要选中状态，应在 UI 层使用 Set 或 State 管理
+  // bool selected = false;
 
   GroupMemberModel({
     required this.id,
@@ -66,17 +67,17 @@ class GroupMemberModel {
   }
 
   Map<String, dynamic> toJson() => {
-        GroupMemberRepo.id: id,
-        GroupMemberRepo.groupId: groupId,
-        GroupMemberRepo.userId: userId,
-        GroupMemberRepo.inviteCode: inviteCode,
-        GroupMemberRepo.alias: alias,
-        GroupMemberRepo.description: description,
-        GroupMemberRepo.role: role,
-        GroupMemberRepo.isJoin: isJoin,
-        GroupMemberRepo.joinMode: joinMode,
-        GroupMemberRepo.status: status,
-        GroupMemberRepo.updatedAt: updatedAt,
-        GroupMemberRepo.createdAt: createdAt,
-      };
+    GroupMemberRepo.id: id,
+    GroupMemberRepo.groupId: groupId,
+    GroupMemberRepo.userId: userId,
+    GroupMemberRepo.inviteCode: inviteCode,
+    GroupMemberRepo.alias: alias,
+    GroupMemberRepo.description: description,
+    GroupMemberRepo.role: role,
+    GroupMemberRepo.isJoin: isJoin,
+    GroupMemberRepo.joinMode: joinMode,
+    GroupMemberRepo.status: status,
+    GroupMemberRepo.updatedAt: updatedAt,
+    GroupMemberRepo.createdAt: createdAt,
+  };
 }

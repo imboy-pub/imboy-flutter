@@ -1,10 +1,9 @@
-
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/export.dart';
 import 'package:flutter/foundation.dart';
-
 
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart' as crypto;
@@ -98,6 +97,64 @@ class EncrypterService {
     return hex.encode(digest.bytes);
   }
 
+  /// AES-GCM 加密（自动生成 IV）
+  static Map<String, String> aesGcmEncryptBytes(
+    Uint8List plainBytes,
+    Uint8List keyBytes, {
+    Uint8List? aad,
+  }) {
+    final iv = _secureRandomBytes(12);
+    return aesGcmEncryptBytesWithIV(
+      plainBytes,
+      keyBytes,
+      iv,
+      aad: aad,
+    );
+  }
+
+  /// AES-GCM 加密（使用自定义 IV）
+  ///
+  /// 当需要使用预生成的 nonce/IV 时使用此方法（例如 E2EE v2.0）
+  static Map<String, String> aesGcmEncryptBytesWithIV(
+    Uint8List plainBytes,
+    Uint8List keyBytes,
+    Uint8List iv, {
+    Uint8List? aad,
+  }) {
+    final cipher = GCMBlockCipher(AESEngine());
+    final params = AEADParameters(
+      KeyParameter(keyBytes),
+      128,
+      iv,
+      aad ?? Uint8List(0),
+    );
+    cipher.init(true, params);
+    final out = cipher.process(plainBytes);
+    return {
+      'iv': base64.encode(iv),
+      'ct': base64.encode(out),
+    };
+  }
+
+  static Uint8List aesGcmDecryptBytes(
+    String ivBase64,
+    String ctBase64,
+    Uint8List keyBytes, {
+    Uint8List? aad,
+  }) {
+    final iv = base64.decode(base64.normalize(ivBase64));
+    final cipherBytes = base64.decode(base64.normalize(ctBase64));
+    final cipher = GCMBlockCipher(AESEngine());
+    final params = AEADParameters(
+      KeyParameter(keyBytes),
+      128,
+      iv,
+      aad ?? Uint8List(0),
+    );
+    cipher.init(false, params);
+    return cipher.process(cipherBytes);
+  }
+
   /// 获取或创建缓存的密钥
   static Uint8List _getOrCreateCachedKey(String key) {
     // 直接从缓存获取
@@ -132,8 +189,6 @@ class EncrypterService {
     };
   }
 
-
-
   static Uint8List _processBlocks(BlockCipher cipher, Uint8List input) {
     final output = Uint8List(input.length);
 
@@ -161,4 +216,9 @@ class EncrypterService {
     return data.sublist(0, data.length - padLen);
   }
 
+  static Uint8List _secureRandomBytes(int length) {
+    final rnd = Random.secure();
+    final bytes = List<int>.generate(length, (_) => rnd.nextInt(256));
+    return Uint8List.fromList(bytes);
+  }
 }

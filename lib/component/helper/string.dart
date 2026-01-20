@@ -19,10 +19,11 @@ class StringHelper {
     if (url.isNotEmpty && url.lastIndexOf(".") != -1) {
       Uri u1 = Uri.dataFromString(url);
       ext = u1.path.substring(
-          u1.path.lastIndexOf(".") + 1,
-          u1.path.lastIndexOf("?") > 0
-              ? u1.path.lastIndexOf("?")
-              : u1.path.length);
+        u1.path.lastIndexOf(".") + 1,
+        u1.path.lastIndexOf("?") > 0
+            ? u1.path.lastIndexOf("?")
+            : u1.path.length,
+      );
     }
     if (ext.toUpperCase() == 'JPG') {
       ext = 'JPEG';

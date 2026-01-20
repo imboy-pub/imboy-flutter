@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
-
-import 'package:imboy/page/group/group_select/group_select_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 class LaunchGroupItem extends StatelessWidget {
   final String item;
 
-  const LaunchGroupItem(
-    Key? key,
-    this.item,
-  ) : super(key: key);
+  const LaunchGroupItem(Key? key, this.item) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +26,11 @@ class LaunchGroupItem extends StatelessWidget {
         onPressed: () {
           // 选择一个群 select_a_group
           if (item == 'select_a_group') {
-            Get.to(
-              () => GroupSelectPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
+            context.push('/group/select');
           }
         },
         child: Container(
-          width: Get.width,
+          width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 20.0),
           child: Text(item),
         ),
@@ -99,7 +90,7 @@ class LaunchSearch extends StatelessWidget {
                   delOnTap!();
                 },
               )
-            : Container()
+            : Container(),
       ],
     );
   }

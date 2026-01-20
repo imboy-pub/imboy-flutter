@@ -20,9 +20,7 @@ class Counter {
   // 初始值
   int count = 0;
 
-  Counter({
-    this.count = 0,
-  });
+  Counter({this.count = 0});
 
   String formatTime(int timeNum) {
     return timeNum < 10 ? "0$timeNum" : timeNum.toString();

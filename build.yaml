@@ -63,4 +63,88 @@ targets:
               name: AppLocale
               output: lib/i18n/locales.g.dart
 
+      # Riverpod Generator 配置
+      riverpod_generator:
+        enabled: true
+        generate_for:
+          - lib/page/bottom_navigation/bottom_navigation_provider.dart
+          - lib/page/group/group_list/group_list_provider.dart
+          - lib/page/group/group_detail/group_detail_provider.dart
+          - lib/page/group/announcement/group_announcement_provider.dart
+          - lib/page/group/group_select/group_select_provider.dart
+          - lib/page/group/face_to_face/face_to_face_provider.dart
+          - lib/page/group/launch_chat/launch_chat_provider.dart
+          - lib/page/group/group_detail/add_member_provider.dart
+          - lib/page/group/group_detail/change_info_provider.dart
+          - lib/page/group/group_detail/remove_member_provider.dart
+          - lib/page/search/search_provider.dart
+          - lib/page/qrcode/qrcode_provider.dart
+          - lib/page/passport/passport_notifier.dart
+          - lib/component/image_gallery/image_gallery.dart
+          - lib/page/contact/contact/contact_provider.dart
+          - lib/page/contact/people_info/people_info_provider.dart
+          - lib/page/contact/new_friend/new_friend_provider.dart
+          - lib/page/contact/confirm_new_friend/confirm_new_friend_provider.dart
+          - lib/page/contact/apply_friend/apply_friend_provider.dart
+          # Contact 模块子模块2
+          - lib/page/contact/people_info_more/people_info_more_provider.dart
+          - lib/page/contact/contact_setting/contact_setting_provider.dart
+          - lib/page/contact/contact_setting_tag/contact_setting_tag_provider.dart
+          - lib/page/conversation/conversation_provider.dart
+          - lib/page/chat/chat/chat_provider.dart
+          # Personal Info 模块
+          - lib/page/personal_info/update/update_provider.dart
+          - lib/page/personal_info/set_gender/set_gender_provider.dart
+          - lib/page/personal_info/set_nickname/set_nickname_provider.dart
+          - lib/page/personal_info/set_region/set_region_provider.dart
+          - lib/page/personal_info/personal_info/personal_info_provider.dart
+          - lib/page/personal_info/profile/profile_provider.dart
+          # Mine 模块
+          - lib/page/mine/setting/setting_page.dart
+          - lib/page/mine/mine/mine_page.dart
+          - lib/page/mine/account_security/account_security_page.dart
+          - lib/page/mine/account_security/bind_email_provider.dart
+          - lib/page/mine/account_security/bind_mobile_provider.dart
+          - lib/page/mine/change_password/change_password_provider.dart
+          - lib/page/mine/change_password/set_password_provider.dart
+          - lib/page/mine/dark_model/dark_model_page.dart
+          - lib/page/mine/denylist/denylist_page.dart
+          - lib/page/mine/denylist/denylist_provider.dart
+          - lib/page/mine/feedback/feedback_page.dart
+          - lib/page/mine/feedback/feedback_provider.dart
+          - lib/page/mine/help/help_page.dart
+          - lib/page/mine/language/language_page.dart
+          - lib/page/mine/logout_account/logout_account_page.dart
+          - lib/page/mine/storage_space/storage_space_page.dart
+          - lib/page/mine/storage_space/storage_space_provider.dart
+          - lib/page/mine/user_collect/user_collect_page.dart
+          - lib/page/mine/user_collect/user_collect_provider.dart
+          - lib/page/mine/user_device/user_device_page.dart
+          - lib/page/mine/user_device/user_device_provider.dart
+          - lib/page/mine/select_region/select_region_provider.dart
+          # User Tag 模块
+          - lib/page/user_tag/contact_tag_list/contact_tag_list_provider.dart
+          - lib/page/user_tag/contact_tag_detail/contact_tag_detail_provider.dart
+          - lib/page/user_tag/user_tag_save/user_tag_save_provider.dart
+          - lib/page/user_tag/user_tag_relation/user_tag_relation_provider.dart
+          # Live Room 模块
+          - lib/page/live_room/subscriber/subscriber_provider.dart
+          - lib/page/live_room/publisher/publisher_provider.dart
+          # P2P Call Screen 模块
+          - lib/page/chat/p2p_call_screen/p2p_call_screen_provider.dart
+          # Chat 组件模块
+          - lib/component/chat/message_loading_provider.dart
+          - lib/component/chat/message_scroll_provider.dart
+          # Theme 模块
+          - lib/theme/providers/theme_provider.dart
+          # Scanner 模块
+          - lib/page/scanner/scanner_provider.dart
+          # Service 模块
+          - lib/service/notification_provider.dart
+          - lib/service/voice_playback_service.dart
+          - lib/service/message_providers.dart
+          - lib/service/active_conversation_notifier.dart
+          # Font Size 模块
+          - lib/page/mine/font_size/font_size_page.dart
+
 # 其他构建配置可以继续添加...

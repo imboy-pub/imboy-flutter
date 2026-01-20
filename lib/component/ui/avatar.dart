@@ -18,6 +18,7 @@ class SmartGroupAvatar extends StatefulWidget {
   final double size;
   final VoidCallback? onTap;
   final Future<List<String>> Function(String groupId)? avatarLoader;
+  final String? heroTag;
 
   const SmartGroupAvatar({
     super.key,
@@ -26,6 +27,7 @@ class SmartGroupAvatar extends StatefulWidget {
     this.size = 50,
     this.onTap,
     this.avatarLoader,
+    this.heroTag,
   });
 
   @override
@@ -75,12 +77,17 @@ class _SmartGroupAvatarState extends State<SmartGroupAvatar> {
         avatar: widget.avatar,
         size: widget.size,
         onTap: widget.onTap,
+        heroTag: widget.heroTag,
       );
     }
 
     // 没有groupId显示默认
     if (widget.groupId == "") {
-      return GroupAvatar(size: widget.size, onTap: widget.onTap);
+      return GroupAvatar(
+        size: widget.size,
+        onTap: widget.onTap,
+        heroTag: widget.heroTag,
+      );
     }
 
     // 异步加载成员头像
@@ -91,6 +98,7 @@ class _SmartGroupAvatarState extends State<SmartGroupAvatar> {
           memberAvatars: snapshot.data ?? [],
           size: widget.size,
           onTap: widget.onTap,
+          heroTag: widget.heroTag,
         );
       },
     );
@@ -105,6 +113,7 @@ class Avatar extends StatelessWidget {
     this.width,
     this.height,
     this.title,
+    this.heroTag,
   });
 
   final String imgUri;
@@ -112,34 +121,37 @@ class Avatar extends StatelessWidget {
   final double? width;
   final double? height;
   final Widget? title;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
+    Widget avatarContent = Container(
+      width: width ?? 50,
+      height: height ?? 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.circular(4.0),
+        border: Border.all(
+          width: 0.5,
+          style: BorderStyle.solid,
+          color: Colors.grey.withValues(alpha: 0.5),
+        ),
+        color: Colors.grey.withValues(alpha: 0.5),
+        image: dynamicAvatar(imgUri),
+      ),
+    );
+
+    if (heroTag != null) {
+      avatarContent = Hero(tag: heroTag!, child: avatarContent);
+    }
+
     return InkWell(
       onTap: onTap,
       child: Wrap(
         verticalDirection: VerticalDirection.down,
         children: [
-          Container(
-            width: width ?? 50,
-            height: height ?? 50,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(4.0),
-              border: Border.all(
-                width: 0.5,
-                style: BorderStyle.solid,
-                color: Colors.grey.withValues(alpha: 0.5),
-              ),
-              color: Colors.grey.withValues(alpha: 0.5),
-              image: dynamicAvatar(imgUri),
-            ),
-          ),
-          if (title != null)
-            SizedBox(
-              width: width ?? 50,
-              child: title!,
-            ),
+          avatarContent,
+          if (title != null) SizedBox(width: width ?? 50, child: title!),
         ],
       ),
     );

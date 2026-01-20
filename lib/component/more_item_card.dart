@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class MoreItemCard extends StatelessWidget {
   final String? name, icon;
@@ -21,7 +20,7 @@ class MoreItemCard extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.only(top: top, bottom: 5.0),
-      width: (Get.width - 70) / 4,
+      width: (MediaQuery.of(context).size.width - 70) / 4,
       child: Column(
         children: <Widget>[
           Container(

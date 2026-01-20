@@ -1,3 +1,4 @@
+import 'package:imboy/i18n/strings.g.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
@@ -5,17 +6,17 @@ import 'package:flutter/services.dart';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/ui/image_button.dart' show ImageButton;
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 键盘高度观察者
 class _KeyboardObserver with WidgetsBindingObserver {
   final VoidCallback onKeyboardChanged;
-  
+
   _KeyboardObserver(this.onKeyboardChanged);
-  
+
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
@@ -92,7 +93,7 @@ class ChatInput extends StatefulWidget {
   final int? maxLines; // 最大行数
   final int? minLines; // 最小行数
   final int? maxLength; // 最大输入长度
-  final RxDouble composerHeight; // 外部传递的输入区高度notifier（用于丝滑动画）
+  final ValueNotifier<double> composerHeight; // 外部传递的输入区高度notifier（用于丝滑动画）
   final ContentInsertionConfiguration? contentInsertionConfiguration; // 内容插入配置
 
   @override
@@ -102,7 +103,7 @@ class ChatInput extends StatefulWidget {
 class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _inputFocusNode = FocusNode(); // 输入框焦点
   final _textController = TextEditingController(); // 文本输入控制器
-  
+
   // 公开内部方法供外部调用
   FocusNode get inputFocusNode => _inputFocusNode;
   TextEditingController get textController => _textController;
@@ -119,14 +120,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _mentionCandidates = ValueNotifier<List<String>>([]); // @提及候选列表
   final _showQuickReplies = ValueNotifier<bool>(false); // 是否显示快捷回复
   final _quickReplies = ValueNotifier<List<String>>([
-    '好的',
-    '收到',
-    '谢谢',
-    '明白了',
-    '稍等',
-    '没问题',
-    '马上到',
-    '好的，谢谢'
+    t.quickReplyOk,
+    t.quickReplyReceived,
+    t.quickReplyThanks,
+    t.understood,
+    t.quickReplyWait,
+    t.noProblem,
+    t.onMyWay,
+    t.quickReplyOkThanks,
   ]); // 快捷回复列表
 
   final double iconSize = 40; // 图标大小
@@ -180,10 +181,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 初始化事件监听器（输入框获取焦点自动切回文本模式）
   void _initEventListeners() {
-
     /// 加载本地草稿（避免信息丢失提升用户体验）
     final draft = StorageService.to.getString(draftKey);
-    if (draft != null && draft.isNotEmpty) {
+    if (draft.isNotEmpty) {
       _setText(draft);
     }
 
@@ -198,35 +198,41 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (!mounted) return;
       final mediaQuery = MediaQuery.of(context);
       final newKeyboardHeight = mediaQuery.viewInsets.bottom;
-      
+
       if (newKeyboardHeight != _keyboardHeight) {
         _keyboardHeight = newKeyboardHeight;
         _updateComposerHeightByKeyboard();
       }
     });
-    
+
     // 监听后续的键盘变化
-    WidgetsBinding.instance.addObserver(_KeyboardObserver(_updateComposerHeightByKeyboard));
+    WidgetsBinding.instance.addObserver(
+      _KeyboardObserver(_updateComposerHeightByKeyboard),
+    );
   }
 
   /// 处理键盘快捷键
-  void _handleKeyboardShortcuts(RawKeyEvent event) {
-    if (event is RawKeyDownEvent) {
+  void _handleKeyboardShortcuts(KeyEvent event) {
+    if (event is KeyDownEvent) {
       final logicalKey = event.logicalKey;
-      
+
       // Command/Ctrl + Enter 发送消息
-      if (event.isControlPressed && logicalKey == LogicalKeyboardKey.enter) {
+      if (HardwareKeyboard.instance.isControlPressed &&
+          logicalKey == LogicalKeyboardKey.enter) {
         _handleSendPressed();
       }
-      
+
       // Escape 键收起键盘和面板
       if (logicalKey == LogicalKeyboardKey.escape) {
         hideAllPanel();
       }
-      
+
       // Command/Ctrl + K 切换输入模式
-      if (event.isControlPressed && logicalKey == LogicalKeyboardKey.keyK) {
-        updateState(_inputType.value == InputType.text ? InputType.voice : InputType.text);
+      if (HardwareKeyboard.instance.isControlPressed &&
+          logicalKey == LogicalKeyboardKey.keyK) {
+        updateState(
+          _inputType.value == InputType.text ? InputType.voice : InputType.text,
+        );
       }
     }
   }
@@ -235,7 +241,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// 优化版本：快速响应，减少延迟
   void _updateComposerHeightByKeyboard() {
     if (!mounted) return;
-    
+
     // 触发重绘，以便 build 方法中重新计算 panelHeight
     setState(() {});
   }
@@ -249,14 +255,23 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void _handleMentionDetection() {
     final text = _textController.text;
     final selection = _textController.selection;
-    
+
     // 检测@符号
     if (text.isNotEmpty && selection.extentOffset > 0) {
-      final charBeforeCursor = text.substring(selection.extentOffset - 1, selection.extentOffset);
+      final charBeforeCursor = text.substring(
+        selection.extentOffset - 1,
+        selection.extentOffset,
+      );
       if (charBeforeCursor == '@') {
         _showMentionList.value = true;
         // 模拟群组成员列表
-        _mentionCandidates.value = ['用户1', '用户2', '用户3', '用户4', '用户5'];
+        _mentionCandidates.value = [
+          t.testUser1,
+          t.testUser2,
+          t.testUser3,
+          t.testUser4,
+          t.testUser5,
+        ];
       } else {
         _showMentionList.value = false;
       }
@@ -269,19 +284,20 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void _insertMention(String username) {
     final currentText = _textController.text;
     final selection = _textController.selection;
-    
+
     // 找到@符号的位置
     final atIndex = currentText.lastIndexOf('@', selection.extentOffset - 1);
     if (atIndex != -1) {
-      final newText = '${currentText.substring(0, atIndex)}@$username ${currentText.substring(selection.extentOffset)}';
+      final newText =
+          '${currentText.substring(0, atIndex)}@$username ${currentText.substring(selection.extentOffset)}';
       final newCursorPosition = atIndex + username.length + 2;
-      
+
       _textController.value = TextEditingValue(
         text: newText,
         selection: TextSelection.collapsed(offset: newCursorPosition),
       );
     }
-    
+
     _showMentionList.value = false;
   }
 
@@ -291,7 +307,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       valueListenable: _showQuickReplies,
       builder: (context, showQuickReplies, _) {
         if (!showQuickReplies) return const SizedBox.shrink();
-        
+
         return ValueListenableBuilder<List<String>>(
           valueListenable: _quickReplies,
           builder: (context, replies, _) {
@@ -301,7 +317,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 color: ThemeManager.instance.getThemeColor('surface'),
                 border: Border(
                   top: BorderSide(
-                    color: ThemeManager.instance.getThemeColor('outline').withValues(alpha: 0.1),
+                    color: ThemeManager.instance
+                        .getThemeColor('outline')
+                        .withValues(alpha: 0.1),
                     width: 0.5,
                   ),
                 ),
@@ -316,11 +334,18 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     child: ElevatedButton(
                       onPressed: () => _insertQuickReply(replies[index]),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
-                        foregroundColor: ThemeManager.instance.getThemeColor('primary'),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        backgroundColor: ThemeManager.instance
+                            .getThemeColor('primary')
+                            .withValues(alpha: 0.1),
+                        foregroundColor: ThemeManager.instance.getThemeColor(
+                          'primary',
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.borderRadiusRegular,
                         ),
                         elevation: 0,
                       ),
@@ -349,7 +374,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       valueListenable: _showMentionList,
       builder: (context, showMentionList, _) {
         if (!showMentionList) return const SizedBox.shrink();
-        
+
         return ValueListenableBuilder<List<String>>(
           valueListenable: _mentionCandidates,
           builder: (context, candidates, _) {
@@ -357,7 +382,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               height: 180,
               decoration: BoxDecoration(
                 color: ThemeManager.instance.getThemeColor('surface'),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.borderRadiusMedium,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
@@ -508,7 +533,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (oldType == InputType.emoji || oldType == InputType.extra) {
         _isTransitioningToTextFromPanel = true;
       }
-      
+
       _updateComposerHeightByKeyboard(); // 先更新高度
       // 立即请求焦点，不使用 await 延迟，减少空白闪烁
       if (mounted) {
@@ -522,27 +547,30 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     } else {
       // 切换到emoji/extra，先收起键盘，再展示面板
       FocusScope.of(context).unfocus();
-      
+
       // 根据之前的状态调整延迟时间
-      final delay = oldType == InputType.text 
+      final delay = oldType == InputType.text
           ? const Duration(milliseconds: 150) // 从文本切换需要等键盘收起
-          : const Duration(milliseconds: 50);  // 从其他状态切换延迟较短
-      
+          : const Duration(milliseconds: 50); // 从其他状态切换延迟较短
+
       await Future.delayed(delay);
       if (!mounted) return;
-      
+
       // 触发重新构建，让 ChatInputHeightListener 检测到高度变化并执行动画
       setState(() {});
     }
   }
 
   /// 构建底部容器（emoji/扩展面板，带动画）—— 丝滑高度逻辑
-  Widget _buildBottomContainer({required Widget child, required double height}) {
+  Widget _buildBottomContainer({
+    required Widget child,
+    required double height,
+  }) {
     // 如果高度为0，且不显示，则隐藏（避免点击穿透等问题）
     if (height <= 0) {
       return const SizedBox.shrink();
     }
-    
+
     return SizedBox(
       height: height,
       child: GestureDetector(
@@ -562,7 +590,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           // 扩展功能面板
           return widget.extraWidget ?? const Center(child: Text("Extra Items"));
         } else if (inputType == InputType.emoji) {
-          final columns = Get.width ~/ (fontSize + 10);
+          final columns = MediaQuery.of(context).size.width ~/ (fontSize + 10);
           return ValueListenableBuilder<bool>(
             valueListenable: _emojiShowing,
             builder: (context, emojiShowing, _) {
@@ -572,62 +600,82 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   behavior: HitTestBehavior.opaque, // 面板命中不穿透，避免触发外层返回/侧滑
                   child: EmojiPicker(
                     onEmojiSelected: (Category? category, Emoji emoji) {
-                    _setText(emoji.emoji);
-                  },
-                  onBackspacePressed: () {
-                    if (_textController.text.isNotEmpty) {
-                      _textController
-                        ..text = _textController.text.characters
-                            .skipLast(1)
-                            .toString()
-                        ..selection = TextSelection.fromPosition(
-                          TextPosition(offset: _textController.text.length),
-                        );
-                    }
-                  },
+                      _setText(emoji.emoji);
+                    },
+                    onBackspacePressed: () {
+                      if (_textController.text.isNotEmpty) {
+                        _textController
+                          ..text = _textController.text.characters
+                              .skipLast(1)
+                              .toString()
+                          ..selection = TextSelection.fromPosition(
+                            TextPosition(offset: _textController.text.length),
+                          );
+                      }
+                    },
                     config: Config(
-                    checkPlatformCompatibility: true,
-                    emojiViewConfig: EmojiViewConfig(
-                      columns: columns,
-                      emojiSizeMax: fontSize,
-                      verticalSpacing: 0,
-                      horizontalSpacing: 4,
-                      recentsLimit: columns * 3 - 2,
-                      buttonMode: ButtonMode.MATERIAL,
-                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
-                    ),
-                    skinToneConfig: SkinToneConfig(
-                      indicatorColor: ThemeManager.instance.getThemeColor('surface'),
-                    ),
-                    categoryViewConfig: CategoryViewConfig(
-                      tabBarHeight: 48,
-                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
-                      iconColor: ThemeManager.instance.getThemeColor('textSecondary'),
-                      iconColorSelected: ThemeManager.instance.getThemeColor('primary'),
-                      indicatorColor: ThemeManager.instance.getThemeColor('primary'),
-                      categoryIcons: const CategoryIcons(
-                        recentIcon: Icons.access_time_outlined,
-                        smileyIcon: Icons.emoji_emotions_outlined,
-                        animalIcon: Icons.cruelty_free_outlined,
-                        foodIcon: Icons.coffee_outlined,
-                        activityIcon: Icons.sports_soccer_outlined,
-                        travelIcon: Icons.directions_car_filled_outlined,
-                        objectIcon: Icons.lightbulb_outline,
-                        symbolIcon: Icons.emoji_symbols_outlined,
-                        flagIcon: Icons.flag_outlined,
+                      checkPlatformCompatibility: true,
+                      emojiViewConfig: EmojiViewConfig(
+                        columns: columns,
+                        emojiSizeMax: fontSize,
+                        verticalSpacing: 0,
+                        horizontalSpacing: 4,
+                        recentsLimit: columns * 3 - 2,
+                        buttonMode: ButtonMode.MATERIAL,
+                        backgroundColor: ThemeManager.instance.getThemeColor(
+                          'surface',
+                        ),
+                      ),
+                      skinToneConfig: SkinToneConfig(
+                        indicatorColor: ThemeManager.instance.getThemeColor(
+                          'surface',
+                        ),
+                      ),
+                      categoryViewConfig: CategoryViewConfig(
+                        tabBarHeight: 48,
+                        backgroundColor: ThemeManager.instance.getThemeColor(
+                          'surface',
+                        ),
+                        iconColor: ThemeManager.instance.getThemeColor(
+                          'textSecondary',
+                        ),
+                        iconColorSelected: ThemeManager.instance.getThemeColor(
+                          'primary',
+                        ),
+                        indicatorColor: ThemeManager.instance.getThemeColor(
+                          'primary',
+                        ),
+                        categoryIcons: const CategoryIcons(
+                          recentIcon: Icons.access_time_outlined,
+                          smileyIcon: Icons.emoji_emotions_outlined,
+                          animalIcon: Icons.cruelty_free_outlined,
+                          foodIcon: Icons.coffee_outlined,
+                          activityIcon: Icons.sports_soccer_outlined,
+                          travelIcon: Icons.directions_car_filled_outlined,
+                          objectIcon: Icons.lightbulb_outline,
+                          symbolIcon: Icons.emoji_symbols_outlined,
+                          flagIcon: Icons.flag_outlined,
+                        ),
+                      ),
+                      bottomActionBarConfig: BottomActionBarConfig(
+                        enabled: true,
+                        backgroundColor: ThemeManager.instance.getThemeColor(
+                          'surface',
+                        ),
+                        buttonColor: ThemeManager.instance.getThemeColor(
+                          'primary',
+                        ),
+                        buttonIconColor: Colors.white,
+                      ),
+                      searchViewConfig: SearchViewConfig(
+                        backgroundColor: ThemeManager.instance.getThemeColor(
+                          'surface',
+                        ),
+                        buttonIconColor: ThemeManager.instance.getThemeColor(
+                          'primary',
+                        ),
                       ),
                     ),
-                    bottomActionBarConfig: BottomActionBarConfig(
-                      enabled: true,
-                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
-                      buttonColor: ThemeManager.instance.getThemeColor('primary'),
-                      buttonIconColor: Colors.white,
-                    ),
-                    searchViewConfig: SearchViewConfig(
-                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
-                      buttonIconColor: ThemeManager.instance.getThemeColor('primary'),
-                    ),
-                  ),
                   ),
                 ),
               );
@@ -644,9 +692,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return ValueListenableBuilder<bool>(
       valueListenable: _isFocused,
       builder: (context, isFocused, _) {
-        return RawKeyboardListener(
+        return KeyboardListener(
           focusNode: FocusNode(),
-          onKey: _handleKeyboardShortcuts,
+          onKeyEvent: _handleKeyboardShortcuts,
           child: TextField(
             controller: _textController,
             focusNode: _inputFocusNode,
@@ -662,15 +710,19 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               hintText: widget.hintText,
               hintStyle: TextStyle(
                 color: ThemeManager.instance.getThemeColor('textSecondary'),
-                fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),
+                fontSize: ThemeManager.instance.getFontSize(
+                  FontSizeType.medium,
+                ),
               ),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
               counterText: '',
               filled: isFocused,
-              fillColor: isFocused 
-                ? ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.05)
-                : Colors.transparent,
+              fillColor: isFocused
+                  ? ThemeManager.instance
+                        .getThemeColor('primary')
+                        .withValues(alpha: 0.05)
+                  : Colors.transparent,
             ),
             style: TextStyle(
               color: ThemeManager.instance.getThemeColor('textPrimary'),
@@ -779,10 +831,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) {
-            return ScaleTransition(
-              scale: animation,
-              child: child,
-            );
+            return ScaleTransition(scale: animation, child: child);
           },
           child: sendButtonVisible
               ? const SizedBox.shrink(key: ValueKey('empty_extra'))
@@ -810,10 +859,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) {
-            return ScaleTransition(
-              scale: animation,
-              child: child,
-            );
+            return ScaleTransition(scale: animation, child: child);
           },
           child: sendButtonVisible
               ? IconButton(
@@ -835,13 +881,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     // 每次构建时都设置键盘监听器，确保能及时响应键盘变化
     _setupKeyboardListener();
-    
+
     // 计算底部面板高度，实现丝滑切换
     // 使用 View.of(context) 获取全局的 viewInsets，避免被 Scaffold(resizeToAvoidBottomInset: true) 消费掉
     // 从而导致在键盘弹出时获取到的 bottomInset 为 0，引发面板高度计算错误（出现空白）
     final view = View.of(context);
     final bottomInset = view.viewInsets.bottom / view.devicePixelRatio;
-    
+
     // iPhone 底部安全区域处理
     // 即使在键盘未弹出时，iPhone X+ 机型也有底部安全区域（通常34px）
     // 这会导致输入框和键盘之间出现空隙，因为 bottomInset 包含了这个安全区域
@@ -861,53 +907,60 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     if (bottomInset > (bottomPadding + 50)) {
       _keyboardHeight = bottomInset;
     }
-    
-    final targetPanelHeight = _keyboardHeight > 0 ? _keyboardHeight : _softKeyHeight;
+
+    final targetPanelHeight = _keyboardHeight > 0
+        ? _keyboardHeight
+        : _softKeyHeight;
     double panelHeight = 0;
-    
-    if (_inputType.value == InputType.emoji || _inputType.value == InputType.extra) {
-       // 面板展开模式：面板高度 = 目标高度 - 当前键盘高度（实现键盘收起时面板逐渐出现）
-       // 这里使用原始 bottomInset，因为我们需要填补键盘腾出的空间
-       panelHeight = max(0, targetPanelHeight - bottomInset);
+
+    if (_inputType.value == InputType.emoji ||
+        _inputType.value == InputType.extra) {
+      // 面板展开模式：面板高度 = 目标高度 - 当前键盘高度（实现键盘收起时面板逐渐出现）
+      // 这里使用原始 bottomInset，因为我们需要填补键盘腾出的空间
+      panelHeight = max(0, targetPanelHeight - bottomInset);
     } else if (_inputType.value == InputType.text) {
-       // 文本模式：
-       // 如果正在从面板切换回文本，且键盘还未完全弹出，保持面板填充剩余空间
-       if (_isTransitioningToTextFromPanel) {
-          if (bottomInset > 0) {
-             // 键盘开始弹起，面板高度 = 目标高度 - 当前键盘高度
-             // 这样 键盘高度 + 面板高度 ≈ 目标高度，实现无缝过渡
-             panelHeight = max(0, targetPanelHeight - bottomInset);
-             
-             // 当键盘高度接近完全展开时，结束过渡状态
-             if (bottomInset >= targetPanelHeight * 0.9) {
-               _isTransitioningToTextFromPanel = false;
-               panelHeight = 0;
-             }
-          } else {
-             // 键盘未弹起时，保持面板高度，避免闪烁
-             panelHeight = targetPanelHeight;
+      // 文本模式：
+      // 如果正在从面板切换回文本，且键盘还未完全弹出，保持面板填充剩余空间
+      if (_isTransitioningToTextFromPanel) {
+        if (bottomInset > 0) {
+          // 键盘开始弹起，面板高度 = 目标高度 - 当前键盘高度
+          // 这样 键盘高度 + 面板高度 ≈ 目标高度，实现无缝过渡
+          panelHeight = max(0, targetPanelHeight - bottomInset);
+
+          // 当键盘高度接近完全展开时，结束过渡状态
+          if (bottomInset >= targetPanelHeight * 0.9) {
+            _isTransitioningToTextFromPanel = false;
+            panelHeight = 0;
           }
-       } else {
-          panelHeight = 0;
-       }
+        } else {
+          // 键盘未弹起时，保持面板高度，避免闪烁
+          panelHeight = targetPanelHeight;
+        }
+      } else {
+        panelHeight = 0;
+      }
     } else {
-       panelHeight = 0;
+      panelHeight = 0;
     }
 
     return Container(
-      color: widget.backgroundColor ?? ThemeManager.instance.getThemeColor('surface'),
+      color:
+          widget.backgroundColor ??
+          ThemeManager.instance.getThemeColor('surface'),
       child: Column(
         children: [
           // 引用消息提示条
           if (widget.quoteTipsWidget != null) widget.quoteTipsWidget!,
-          
+
           // 主输入区域
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.1),
                   width: 0.5,
                 ),
               ),
@@ -917,7 +970,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               children: [
                 // 左侧语音/键盘切换按钮
                 _buildLeftButton(),
-                
+
                 // 中间输入区域（文本输入框或语音按钮）
                 Expanded(
                   child: Container(
@@ -927,21 +980,18 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     ),
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: ThemeManager.instance.getThemeColor('surface').withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: 1.5,
-                      ),
+                      color: ThemeManager.instance
+                          .getThemeColor('surface')
+                          .withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusLarge,
+                      border: Border.all(color: Colors.transparent, width: 1.5),
                     ),
                     child: Stack(
                       children: [
                         SingleChildScrollView(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildInputButton(),
-                            ],
+                            children: [_buildInputButton()],
                           ),
                         ),
                         // @提及列表
@@ -955,10 +1005,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                
+
                 // 表情按钮
                 _buildEmojiButton(),
-                
+
                 // 发送按钮或附加功能按钮
                 ValueListenableBuilder<bool>(
                   valueListenable: _sendButtonVisible,
@@ -971,13 +1021,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               ],
             ),
           ),
-          
+
           // 底部面板（表情选择器或扩展功能）
           _buildBottomContainer(
             child: _buildBottomItems(),
             height: panelHeight,
           ),
-          
+
           // 快捷回复面板
           _buildQuickRepliesPanel(),
         ],

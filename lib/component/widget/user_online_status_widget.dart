@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/user_online_time_helper.dart';
-import 'package:imboy/i18n/tr.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class UserOnlineStatusWidget extends StatelessWidget {
   final bool isOnline;
@@ -36,9 +36,14 @@ class UserOnlineStatusWidget extends StatelessWidget {
         Expanded(
           child: Text(
             _getStatusText(status),
-            style: textStyle ?? Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: UserOnlineTimeHelper.getStatusColor(status.status, context),
-            ),
+            style:
+                textStyle ??
+                Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: UserOnlineTimeHelper.getStatusColor(
+                    status.status,
+                    context,
+                  ),
+                ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -56,10 +61,7 @@ class UserOnlineStatusWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white, width: 1.5),
       ),
     );
   }
@@ -101,7 +103,10 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
               width: 12,
               height: 12,
               decoration: BoxDecoration(
-                color: UserOnlineTimeHelper.getStatusColor(status.status, context),
+                color: UserOnlineTimeHelper.getStatusColor(
+                  status.status,
+                  context,
+                ),
                 shape: BoxShape.circle,
               ),
             ),
@@ -110,7 +115,10 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
               child: Text(
                 status.statusText ?? '',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: UserOnlineTimeHelper.getStatusColor(status.status, context),
+                  color: UserOnlineTimeHelper.getStatusColor(
+                    status.status,
+                    context,
+                  ),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -120,10 +128,12 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
         if (status.lastSeenAt != null && !status.isOnline) ...[
           const SizedBox(height: 4),
           Text(
-            t.lastSeenExactTime.replaceAll('{s}', UserOnlineTimeHelper.formatExactTime(status.lastSeenAt!)),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey,
+            t.lastSeenExactTime(
+              param: UserOnlineTimeHelper.formatExactTime(status.lastSeenAt!),
             ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
           ),
         ],
       ],

@@ -291,4 +291,3 @@ class ErrorCode {
         code == LOGIN_ELSEWHERE;
   }
 }
-

@@ -5,15 +5,9 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 
-// import 'package:fvp/fvp.dart';
-import 'package:get/get.dart' as getx;
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/group/group_list/group_list_logic.dart';
-import 'package:imboy/page/mine/change_password/set_password_view.dart';
-// FontSizeLogic 已移除，功能迁移到 ThemeManager
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
@@ -33,27 +27,21 @@ import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/session.dart';
 
-import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
-import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
-import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/event_bus.dart';
-import 'package:imboy/store/provider/user_provider.dart';
+import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
 import 'env.dart';
+import 'package:go_router/go_router.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
@@ -84,6 +72,9 @@ GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Map<String, WebRTCSession> webRTCSessions = {};
 
+/// Connectivity监听器订阅（需要在dispose时取消）
+StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+
 List<AvailableMap> availableMaps = [];
 
 // JPush push = JPush();
@@ -101,7 +92,63 @@ String solidifiedKeyEnv = '';
 String globalSignKeyVsn = '1';
 
 // 使用响应式变量来跟踪当前字体大小
-RxString currentFontSize = 'normal'.obs;
+ValueNotifier<String> currentFontSize = ValueNotifier('normal');
+
+/// 服务容器
+///
+/// 提供单例服务的注册和获取功能
+class ServiceContainer {
+  static final ServiceContainer _instance = ServiceContainer._internal();
+  factory ServiceContainer() => _instance;
+  ServiceContainer._internal();
+
+  final Map<Type, dynamic> _services = {};
+  final Map<Type, dynamic Function()> _factories = {};
+
+  /// 注册单例服务
+  T put<T>(T service) {
+    _services[T] = service;
+    return service;
+  }
+
+  /// 注册延迟初始化的服务
+  T lazyPut<T>(T Function() factory) {
+    _factories[T] = factory;
+    return factory();
+  }
+
+  /// 获取服务
+  T get<T>() {
+    // 首先检查是否已注册
+    if (_services.containsKey(T)) {
+      return _services[T] as T;
+    }
+
+    // 检查是否有工厂函数
+    if (_factories.containsKey(T)) {
+      final factory = _factories[T];
+      if (factory != null) {
+        return factory() as T;
+      }
+    }
+
+    throw Exception('Service $T not registered');
+  }
+
+  /// 检查服务是否已注册
+  bool isRegistered<T>() {
+    return _services.containsKey(T) || _factories.containsKey(T);
+  }
+
+  /// 清空所有服务（仅用于测试）
+  void clear() {
+    _services.clear();
+    _factories.clear();
+  }
+}
+
+/// 全局服务容器实例
+final serviceContainer = ServiceContainer();
 
 class AppInitializer {
   static bool _initialized = false;
@@ -139,8 +186,8 @@ class AppInitializer {
     await _setupEnvironment(env, false);
 
     // 初始化用户仓库 - 必须在数据库迁移之前注册
-    final userRepo = Get.put(UserRepoLocal(), permanent: true);
-    userRepo.onInit();
+    // UserRepoLocal 现在是单例，会自动初始化
+    UserRepoLocal.to; // 触发单例初始化
 
     // 数据库迁移由 SqliteService 的 onUpgrade 回调处理
     // 禁用 MigrationService 的自动迁移，避免双重迁移冲突导致数据丢失
@@ -175,7 +222,8 @@ class AppInitializer {
 
   static Future<void> _setupEnvironment(String env, bool changedEnv) async {
     if (changedEnv) {
-      currentEnv = StorageService.to.getString('env') ?? env;
+      final savedEnv = StorageService.to.getString('env');
+      currentEnv = savedEnv.isEmpty ? env : savedEnv;
     } else {
       currentEnv = env;
     }
@@ -192,7 +240,7 @@ class AppInitializer {
   }
 
   static Future<void> _setupDeviceInfo() async {
-    Get.put(DeviceExt());
+    serviceContainer.put(DeviceExt());
 
     // 【改进】添加错误处理和日志
     try {
@@ -214,7 +262,7 @@ class AppInitializer {
       iPrint('堆栈: $stack');
       // 使用错误备用方案
       deviceId = Xid().toString();
-      iPrint('⚠️ [INIT] 使用备用deviceId: $deviceId');
+      iPrint('⚠️  [INIT] 使用备用deviceId: $deviceId');
     }
 
     final packageInfo = await PackageInfo.fromPlatform();
@@ -232,7 +280,7 @@ class AppInitializer {
       baseUrl: Env().apiBaseUrl,
       interceptors: [IMBoyInterceptor()],
     );
-    Get.put(HttpClient(conf: dioConfig));
+    serviceContainer.put(HttpClient(conf: dioConfig));
   }
 
   static Future<Map<String, dynamic>> initConfig() async {
@@ -265,7 +313,9 @@ class AppInitializer {
       return payload;
     }
     // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
-    debugPrint("initConfig_payload received ${payload.keys.length} config items");
+    debugPrint(
+      "initConfig_payload received ${payload.keys.length} config items",
+    );
     await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
     await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
     await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
@@ -290,10 +340,9 @@ class AppInitializer {
     iPrint('✅ [INIT] AppEventBus 使用静态方法模式');
 
     // 初始化网络监控服务（必须在HttpClient使用之前初始化）
-    Get.put(NetworkMonitorService());
-
-    // 初始化语音播放服务
-    Get.put(VoicePlaybackService());
+    final networkMonitorService = NetworkMonitorService.to;
+    serviceContainer.put(networkMonitorService);
+    networkMonitorService.init(); // 调用初始化方法
 
     // 检查API公钥
     if (strEmpty(Env.apiPublicKey)) {
@@ -308,39 +357,30 @@ class AppInitializer {
   }
 
   static Future<void> _initializeWebSocketServices() async {
-    // 初始化底部导航逻辑
-    final bnLogic = Get.put(BottomNavigationLogic());
-    await bnLogic.countNewFriendRemindCounter();
-
     // 注册消息队列服务
-    Get.put(PersistentMessageQueue());
-
-    // 注册会话逻辑控制器，必须在消息相关服务之前注册
-    Get.lazyPut(() => ConversationLogic(), fenix: true);
+    final messageQueue = PersistentMessageQueue.to;
+    await messageQueue.init();
+    serviceContainer.put(messageQueue);
 
     // 使用lazyPut注册消息相关服务，避免循环依赖问题
     // 注册顺序很重要，被依赖的模块必须先注册
-    Get.put(AckManager()); // ACK管理器，必须在MessageService之前注册
-    Get.lazyPut<MessageService>(() => MessageService(), fenix: true);
-    Get.lazyPut<MessageActions>(() => MessageActions(), fenix: true);
-    Get.lazyPut<MessageWebrtc>(() => MessageWebrtc(), fenix: true);
-    Get.lazyPut<MessageOfflineService>(
-      () => MessageOfflineService(),
-      fenix: true,
+    // AckManager 使用单例模式，通过 AckManager.to 访问，无需手动注册
+    serviceContainer.lazyPut<MessageService>(() => MessageService.instance);
+    serviceContainer.lazyPut<MessageActions>(() => MessageActions.instance);
+    serviceContainer.lazyPut<MessageWebrtc>(() => MessageWebrtc.instance);
+    serviceContainer.lazyPut<MessageOfflineService>(
+      () => MessageOfflineService.instance,
     );
-    // 初始化 MessageOfflineService 的事件订阅
-    MessageOfflineService.to.onInit();
-    Get.lazyPut<MessageRetry>(() => MessageRetry(), fenix: true);
+    serviceContainer.lazyPut<MessageRetry>(() => MessageRetry.instance);
 
     // 初始化各种逻辑控制器
-    Get.put(ChatLogic()); // 1
-    Get.put(GroupListLogic()); // 2
-    Get.lazyPut(() => ContactLogic());
-    Get.lazyPut(() => NewFriendLogic());
-    // FontSizeLogic 功能已迁移到 ThemeManager
+    // ChatLogic 已迁移到 Riverpod，不再需要手动注册
+    // serviceContainer.put(ChatLogic()); // 1
 
     // 最后初始化WebSocket服务，确保依赖的服务都已注册
-    final wsService = Get.put<WebSocketService>(WebSocketService());
+    final wsService = WebSocketService.to;
+    serviceContainer.put<WebSocketService>(wsService);
+    wsService.init(); // 调用初始化方法
 
     // 如果已登录，尝试连接WebSocket
     if (UserRepoLocal.to.isLoggedIn) {
@@ -364,8 +404,9 @@ class AppInitializer {
       ),
     );
 
-    // 网络连接状态监听
-    Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
+    // 网络连接状态监听（保存订阅以便后续取消）
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
   }
 
   static Future<void> _onAppResume() async {
@@ -378,16 +419,12 @@ class AppInitializer {
           await _refreshToken();
         }
 
-        // 更新好友提醒计数
-        final bnLogic = Get.find<BottomNavigationLogic>();
-        await bnLogic.countNewFriendRemindCounter();
-
         // 检查WebSocket服务是否已注册
-        if (Get.isRegistered<WebSocketService>()) {
+        if (serviceContainer.isRegistered<WebSocketService>()) {
           // 【修复】不再强制重连WebSocket，避免消息入队延迟
           // 如果WebSocket连接正常，直接拉取离线消息即可
           final wsService = WebSocketService.to;
-          if (wsService.status.value == SocketStatus.connected) {
+          if (wsService.status == SocketStatus.connected) {
             logger.i('App恢复，WebSocket已连接，拉取离线消息...');
             // 【关键优化】App恢复时主动拉取离线消息，兜底处理
             await MessageOfflineService.to.pullOfflineMessages();
@@ -401,18 +438,25 @@ class AppInitializer {
         // 检查是否需要设置密码
         final needSetPwd = StorageService.to.getBool(Keys.needSetPwd) ?? false;
         if (needSetPwd) {
-          Get.off(() => SetPasswordPage());
+          final ctx = navigatorKey.currentContext;
+          if (ctx != null && ctx.mounted) {
+            // 使用 go_router 导航
+            ctx.go('/set_password');
+          }
         }
       }
     });
   }
+
+  // 获取 context 的辅助方法
+  static BuildContext? get context => navigatorKey.currentContext;
 
   static Future<void> _refreshToken() async {
     try {
       logger.i('Refreshing expired token');
       final refreshToken = await UserRepoLocal.to.refreshToken;
       if (refreshToken != "") {
-        await UserProvider().refreshAccessTokenApi(refreshToken);
+        await UserApi.to.refreshAccessTokenApi(refreshToken);
       }
     } catch (e) {
       logger.e("Failed to refresh token", error: e);
@@ -426,7 +470,7 @@ class AppInitializer {
     logger.i("Connectivity changed: $results");
 
     // 检查WebSocket服务是否已注册
-    if (!Get.isRegistered<WebSocketService>()) {
+    if (!serviceContainer.isRegistered<WebSocketService>()) {
       logger.i('WebSocket服务未注册，跳过连接状态处理');
       return;
     }
@@ -440,5 +484,46 @@ class AppInitializer {
     } catch (e) {
       logger.e('WebSocket连接状态处理失败: $e');
     }
+  }
+
+  /// 释放资源（在应用退出或重新初始化前调用）
+  static Future<void> dispose() async {
+    logger.i('Disposing AppInitializer resources...');
+
+    // 取消网络监听器
+    await _connectivitySubscription?.cancel();
+    _connectivitySubscription = null;
+
+    // 取消全局定时器
+    gTimer?.cancel();
+    gTimer = null;
+
+    // 清理WebSocket连接
+    try {
+      if (serviceContainer.isRegistered<WebSocketService>()) {
+        await WebSocketService.to.closeSocket();
+      }
+    } catch (e) {
+      logger.w('Failed to close WebSocket: $e');
+    }
+
+    // 清理MessageOfflineService资源
+    try {
+      MessageOfflineService.to.onDispose();
+    } catch (e) {
+      logger.w('Failed to dispose MessageOfflineService: $e');
+    }
+
+    // 清理WebRTC会话
+    webRTCSessions.clear();
+
+    logger.i('AppInitializer dispose completed');
+  }
+
+  /// 重置初始化状态（用于测试或重新初始化）
+  static void reset() {
+    _initialized = false;
+    serviceContainer.clear();
+    logger.i('AppInitializer reset completed');
   }
 }

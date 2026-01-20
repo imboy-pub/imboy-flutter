@@ -67,7 +67,9 @@ class UserOnlineTimeHelper {
     }
 
     final lastSeen = DateTime.fromMillisecondsSinceEpoch(lastSeenTimestamp);
-    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
+    final now = DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+    );
     final difference = now.difference(lastSeen);
 
     if (difference.inSeconds <= justNowThresholdSeconds) {
@@ -82,7 +84,9 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMinutes,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenMinutesAgo.replaceAll('{s}', difference.inMinutes.toString()),
+        statusText: t.lastSeenMinutesAgo(
+          param: difference.inMinutes.toString(),
+        ),
         timeValue: difference.inMinutes,
       );
     }
@@ -91,7 +95,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinHours,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenHoursAgo.replaceAll('{s}', difference.inHours.toString()),
+        statusText: t.lastSeenHoursAgo(param: difference.inHours.toString()),
         timeValue: difference.inHours,
       );
     }
@@ -100,7 +104,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinDays,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenDaysAgo.replaceAll('{s}', difference.inDays.toString()),
+        statusText: t.lastSeenDaysAgo(param: difference.inDays.toString()),
         timeValue: difference.inDays,
       );
     }
@@ -110,7 +114,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinWeeks,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenWeeksAgo.replaceAll('{s}', weeks.toString()),
+        statusText: t.lastSeenWeeksAgo(param: weeks.toString()),
         timeValue: weeks,
       );
     }
@@ -120,7 +124,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMonths,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenMonthsAgo.replaceAll('{s}', months.toString()),
+        statusText: t.lastSeenMonthsAgo(param: months.toString()),
         timeValue: months,
       );
     }
@@ -133,7 +137,9 @@ class UserOnlineTimeHelper {
   }
 
   static String formatExactTime(DateTime dateTime) {
-    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
+    final now = DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+    );
     final difference = now.difference(dateTime);
 
     if (difference.inDays == 0) {

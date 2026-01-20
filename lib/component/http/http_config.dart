@@ -25,7 +25,6 @@ class HttpConfig {
     this.receiveTimeout = Duration.millisecondsPerMinute,
   });
 
-// static DioConfig of() => Get.find<DioConfig>();
 }
 
 // https://github.com/dart-lang/web_socket_channel/issues/134

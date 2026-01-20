@@ -9,9 +9,9 @@ import 'package:imboy/store/model/message_model.dart';
 ///
 /// 当用户请求发送消息时触发，消息进入发送流程
 final class MessageSendRequestedEvent extends AppEvent {
+  @override
+  List<Object> get props => [message, conversationUk3, isOffline, priority];
 
-    @override
-    List<Object> get props => [message, conversationUk3, isOffline, priority];
   /// 消息模型
   final MessageModel message;
 
@@ -41,9 +41,15 @@ final class MessageSendRequestedEvent extends AppEvent {
 ///
 /// 当消息成功发送到服务器时触发
 final class MessageSentEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    messageType,
+    conversationUk3,
+    serverTimestamp,
+    sendDuration,
+  ];
 
-    @override
-    List<Object> get props => [messageId, messageType, conversationUk3, serverTimestamp, sendDuration];
   /// 消息 ID
   final String messageId;
 
@@ -81,9 +87,17 @@ final class MessageSentEvent extends AppEvent {
 ///
 /// 当消息发送失败时触发
 final class MessageSendFailedEvent extends ErrorEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    messageType,
+    conversationUk3,
+    failureReason,
+    willRetry,
+    currentRetryCount,
+    maxRetryCount,
+  ];
 
-    @override
-    List<Object> get props => [messageId, messageType, conversationUk3, failureReason, willRetry, currentRetryCount, maxRetryCount];
   /// 消息 ID
   final String messageId;
 
@@ -168,9 +182,14 @@ enum MessageFailureReason {
 ///
 /// 当消息状态发生变化时触发（如：发送中 → 已发送 → 已送达 → 已读）
 final class MessageStatusChangedEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    conversationUk3,
+    newStatus,
+    statusChangeTime,
+  ];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, newStatus, statusChangeTime];
   /// 消息 ID
   final String messageId;
 
@@ -204,9 +223,14 @@ final class MessageStatusChangedEvent extends AppEvent {
 ///
 /// 当接收到新消息时触发（已解析并存储到本地数据库）
 final class MessageReceivedEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    message,
+    conversationUk3,
+    isOfflineMessage,
+    isDuplicate,
+  ];
 
-    @override
-    List<Object> get props => [message, conversationUk3, isOfflineMessage, isDuplicate];
   /// 消息模型
   final MessageModel message;
 
@@ -236,9 +260,9 @@ final class MessageReceivedEvent extends AppEvent {
 ///
 /// 当消息被撤回时触发
 final class MessageRevokedEvent extends AppEvent {
+  @override
+  List<Object> get props => [messageId, conversationUk3, revokerId, revokeTime];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, revokerId, revokeTime];
   /// 被撤回的消息 ID
   final String messageId;
 
@@ -272,9 +296,15 @@ final class MessageRevokedEvent extends AppEvent {
 ///
 /// 当消息被标记为已读时触发
 final class MessageReadEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    conversationUk3,
+    readerId,
+    readTime,
+    isBatchRead,
+  ];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, readerId, readTime, isBatchRead];
   /// 已读消息的 ID
   final String messageId;
 
@@ -308,9 +338,9 @@ final class MessageReadEvent extends AppEvent {
 ///
 /// 当消息被编辑时触发
 final class MessageEditedEvent extends AppEvent {
+  @override
+  List<Object> get props => [messageId, conversationUk3, editorId, editTime];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, editorId, editTime];
   /// 被编辑的消息 ID
   final String messageId;
 
@@ -348,9 +378,15 @@ final class MessageEditedEvent extends AppEvent {
 ///
 /// 当消息被删除时触发
 final class MessageDeletedEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    conversationUk3,
+    deleterId,
+    deleteTime,
+    isBothDeleted,
+  ];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, deleterId, deleteTime, isBothDeleted];
   /// 被删除的消息 ID
   final String messageId;
 
@@ -384,9 +420,16 @@ final class MessageDeletedEvent extends AppEvent {
 ///
 /// 当消息发送失败后进行重试时触发
 final class MessageRetryEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    conversationUk3,
+    currentAttempt,
+    maxAttempts,
+    retryDelay,
+    lastFailureReason,
+  ];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, currentAttempt, maxAttempts, retryDelay, lastFailureReason];
   /// 消息 ID
   final String messageId;
 
@@ -424,9 +467,9 @@ final class MessageRetryEvent extends AppEvent {
 ///
 /// 当对方正在输入时触发
 final class MessageTypingEvent extends AppEvent {
+  @override
+  List<Object> get props => [conversationUk3, typierId, status];
 
-    @override
-    List<Object> get props => [conversationUk3, typierId, status];
   /// 会话 UK3
   final String conversationUk3;
 
@@ -461,9 +504,16 @@ enum TypingStatus {
 ///
 /// 当消息发送或接收进度更新时触发（如文件上传/下载进度）
 final class MessageProgressEvent extends AppEvent {
+  @override
+  List<Object> get props => [
+    messageId,
+    conversationUk3,
+    progressType,
+    progress,
+    bytesTransferred,
+    totalBytes,
+  ];
 
-    @override
-    List<Object> get props => [messageId, conversationUk3, progressType, progress, bytesTransferred, totalBytes];
   /// 消息 ID
   final String messageId;
 

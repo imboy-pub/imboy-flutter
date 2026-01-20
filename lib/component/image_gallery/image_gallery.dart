@@ -2,21 +2,20 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import 'package:imboy/component/helper/func.dart';
 
+part 'image_gallery.g.dart';
+
 /// A class that represents an image showed in a preview widget.
 @immutable
 class PreviewImage extends Equatable {
   /// Creates a preview image.
-  const PreviewImage({
-    required this.id,
-    required this.uri,
-  });
+  const PreviewImage({required this.id, required this.uri});
 
   /// Unique ID of the image.
   final String id;
@@ -53,20 +52,12 @@ class IMBoyImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     iPrint("IMBoyImageGallery build ${images.length}");
-    // return PopScope(
-    //   canPop: false,
-    //   onPopInvoked: (bool didPop) async {
-    //     iPrint('IMBoyImageGallery didPop: $didPop');
-    //     // var canPop = await controller.confirmDiscard();
-    //   },
     return PopScope(
-      canPop: false, // 允许返回
-      // 防止连续点击两次退出
+      canPop: false,
       onPopInvokedWithResult: (bool didPop, String? res) async {
         if (didPop) {
           return;
         }
-        // 系统级别导航栈 退出程序
         SystemNavigator.pop();
       },
       child: GestureDetector(
@@ -80,25 +71,19 @@ class IMBoyImageGallery extends StatelessWidget {
               PhotoViewGallery.builder(
                 builder: (BuildContext context, int index) =>
                     PhotoViewGalleryPageOptions(
-                  imageProvider: cachedImageProvider(images[index].uri, w: 0),
-                  minScale: options.minScale,
-                  maxScale: options.maxScale,
-                ),
+                      imageProvider: cachedImageProvider(
+                        images[index].uri,
+                        w: 0,
+                      ),
+                      minScale: options.minScale,
+                      maxScale: options.maxScale,
+                    ),
                 itemCount: images.length,
                 loadingBuilder: (context, event) =>
                     _imageGalleryLoadingBuilder(event),
                 pageController: pageController,
                 scrollPhysics: const ClampingScrollPhysics(),
               ),
-              // Positioned.directional(
-              //   end: 16,
-              //   textDirection: Directionality.of(context),
-              //   top: 56,
-              //   child: CloseButton(
-              //     color: Colors.white,
-              //     onPressed: onClosePressed,
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -107,23 +92,20 @@ class IMBoyImageGallery extends StatelessWidget {
   }
 
   Widget _imageGalleryLoadingBuilder(ImageChunkEvent? event) => Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            value: event == null || event.expectedTotalBytes == null
-                ? 0
-                : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-          ),
-        ),
-      );
+    child: SizedBox(
+      width: 20,
+      height: 20,
+      child: CircularProgressIndicator(
+        value: event == null || event.expectedTotalBytes == null
+            ? 0
+            : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+      ),
+    ),
+  );
 }
 
 class IMBoyImageGalleryOptions {
-  const IMBoyImageGalleryOptions({
-    this.maxScale,
-    this.minScale,
-  });
+  const IMBoyImageGalleryOptions({this.maxScale, this.minScale});
 
   /// See [PhotoViewGalleryPageOptions.maxScale].
   final dynamic maxScale;
@@ -132,16 +114,43 @@ class IMBoyImageGalleryOptions {
   final dynamic minScale;
 }
 
-class IMBoyImageGalleryController extends GetxController {
-  final RxList<PreviewImage> gallery = RxList<PreviewImage>([]);
-  final RxBool isImageViewVisible = false.obs;
-  PageController? galleryPageController;
+// Riverpod State
+class ImageGalleryState {
+  const ImageGalleryState({
+    this.gallery = const [],
+    this.isImageViewVisible = false,
+  });
 
-  // 用于快速查找的索引映射
+  final List<PreviewImage> gallery;
+  final bool isImageViewVisible;
+
+  ImageGalleryState copyWith({
+    List<PreviewImage>? gallery,
+    bool? isImageViewVisible,
+  }) {
+    return ImageGalleryState(
+      gallery: gallery ?? this.gallery,
+      isImageViewVisible: isImageViewVisible ?? this.isImageViewVisible,
+    );
+  }
+}
+
+// Riverpod Notifier (使用代码生成)
+@riverpod
+class ImageGalleryNotifier extends _$ImageGalleryNotifier {
+  PageController? galleryPageController;
   final _imageIndexMap = <String, int>{};
 
+  @override
+  ImageGalleryState build() {
+    ref.onDispose(() {
+      galleryPageController?.dispose();
+    });
+    return const ImageGalleryState();
+  }
+
   void onImagePressed(String imageId, String imageUri) {
-    iPrint("onImagePressed: ${gallery.isEmpty}");
+    iPrint("onImagePressed: ${state.gallery.isEmpty}");
     pushToGallery(imageId, imageUri);
 
     final key = '$imageId-$imageUri';
@@ -150,70 +159,68 @@ class IMBoyImageGalleryController extends GetxController {
 
     galleryPageController?.dispose();
     galleryPageController = PageController(
-      initialPage: initialPage.clamp(0, gallery.length - 1),
+      initialPage: initialPage
+          .clamp(0.0, state.gallery.length.toDouble())
+          .toInt(),
     );
-    isImageViewVisible.value = true;
+    state = state.copyWith(isImageViewVisible: true);
   }
 
   void onCloseGalleryPressed() {
-    isImageViewVisible.value = false;
+    state = state.copyWith(isImageViewVisible: false);
     galleryPageController?.dispose();
     galleryPageController = null;
   }
 
   void pushToGallery(String msgId, String msgUri) {
-    if (GetPlatform.isWeb &&
-        !(msgUri.startsWith('http') || msgUri.startsWith('blob'))) {
-      return;
-    }
-
     final key = '$msgId-$msgUri';
     if (!_imageIndexMap.containsKey(key)) {
-      gallery.insert(0, PreviewImage(id: msgId, uri: msgUri));
+      final newGallery = [
+        PreviewImage(id: msgId, uri: msgUri),
+        ...state.gallery,
+      ];
+      state = state.copyWith(gallery: newGallery);
       _updateIndexMap();
-      update();
     }
   }
 
   void pushToLast(String msgId, String msgUri) {
     final key = '$msgId-$msgUri';
     if (!_imageIndexMap.containsKey(key)) {
-      gallery.add(PreviewImage(id: msgId, uri: msgUri));
+      final newGallery = [
+        ...state.gallery,
+        PreviewImage(id: msgId, uri: msgUri),
+      ];
+      state = state.copyWith(gallery: newGallery);
       _updateIndexMap();
-      update();
     }
   }
 
   void remoteFromGallery(String msgId) {
-    final index = gallery.indexWhere((e) => e.id == msgId);
+    final index = state.gallery.indexWhere((e) => e.id == msgId);
     if (index >= 0) {
-      gallery.removeAt(index);
+      final newGallery = List<PreviewImage>.from(state.gallery);
+      newGallery.removeAt(index);
+      state = state.copyWith(gallery: newGallery);
       _imageIndexMap.removeWhere((key, _) => key.startsWith('$msgId-'));
-      _updateIndexMap(); // 重新计算索引
-      update();
+      _updateIndexMap();
     }
   }
 
-  // 更新索引映射
   void _updateIndexMap() {
     _imageIndexMap.clear();
-    for (int i = 0; i < gallery.length; i++) {
-      _imageIndexMap['${gallery[i].id}-${gallery[i].uri}'] = i;
+    for (int i = 0; i < state.gallery.length; i++) {
+      _imageIndexMap['${state.gallery[i].id}-${state.gallery[i].uri}'] = i;
     }
-  }
-
-  @override
-  void onClose() {
-    galleryPageController?.dispose();
-    super.onClose();
   }
 }
 
 /// 单击图片的时候放大显示图片的效果
-void zoomInPhotoView(String thumb) async {
+void zoomInPhotoView(BuildContext context, String thumb) async {
+  final size = MediaQuery.of(context).size;
   ImageProvider thumbProvider = cachedImageProvider(
     thumb,
-    w: Get.width,
+    w: size.width.toDouble(),
   );
   // 检查网络状态
   var connectivityResult = await Connectivity().checkConnectivity();
@@ -225,35 +232,35 @@ void zoomInPhotoView(String thumb) async {
     thumb = thumb.replaceAll('&width=$width', '&width=$w');
     thumbProvider = cachedImageProvider(thumb, w: -1);
   }
-  Get.bottomSheet(
-    InkWell(
-      onTap: () {
-        Get.closeAllBottomSheets();
-      },
-      child: PhotoView(
-        imageProvider: thumbProvider,
-      ),
-    ),
-    // 是否支持全屏弹出，默认false
+  if (!context.mounted) return;
+  showModalBottomSheet(
+    context: context,
     isScrollControlled: true,
     enableDrag: false,
+    builder: (context) => InkWell(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: PhotoView(imageProvider: thumbProvider),
+    ),
   );
 }
 
 /// 显示多个图像并让用户在它们之间进行更改的效果
-void zoomInPhotoViewGallery(List items) async {
+void zoomInPhotoViewGallery(BuildContext context, List items) async {
   iPrint("zoomInPhotoViewGallery");
+  final size = MediaQuery.of(context).size;
   List galleryItems = [];
   for (var e in items) {
-    galleryItems.add(cachedImageProvider(
-      e,
-      w: Get.width,
-    ));
+    galleryItems.add(cachedImageProvider(e, w: size.width.toDouble()));
   }
-  Get.bottomSheet(
-    InkWell(
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    enableDrag: false,
+    builder: (context) => InkWell(
       onTap: () {
-        Get.closeAllBottomSheets();
+        Navigator.of(context).pop();
       },
       child: PhotoViewGallery.builder(
         scrollPhysics: const BouncingScrollPhysics(),
@@ -261,8 +268,6 @@ void zoomInPhotoViewGallery(List items) async {
           return PhotoViewGalleryPageOptions(
             imageProvider: galleryItems[index],
             initialScale: PhotoViewComputedScale.contained * 0.8,
-            // heroAttributes:
-            //     PhotoViewHeroAttributes(tag: galleryItems[index].toString()),
           );
         },
         itemCount: galleryItems.length,
@@ -277,13 +282,8 @@ void zoomInPhotoViewGallery(List items) async {
             ),
           ),
         ),
-        // backgroundDecoration: widget.backgroundDecoration,
         pageController: PageController(),
-        // onPageChanged: () {},
       ),
     ),
-    // 是否支持全屏弹出，默认false
-    isScrollControlled: true,
-    enableDrag: false,
   );
 }

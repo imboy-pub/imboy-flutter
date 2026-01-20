@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 聊天主题配置类
 /// 专门用于配置聊天界面的主题，与 flutter_chat_core 完美集成
@@ -11,8 +12,10 @@ class ChatThemeConfig {
 
   /// 获取聊天主题（根据当前系统主题自动适配）
   static ChatTheme get chatTheme {
+    // 注意：此静态 getter 无法访问 BuildContext
+    // 请使用 getChatThemeWithScale 并传入 context 参数
     return getChatTheme(
-      isDark: Get.isDarkMode,
+      isDark: false, // 默认使用亮色主题
     );
   }
 
@@ -85,27 +88,30 @@ class ChatThemeConfig {
     BuildContext? context,
   }) {
     // 根据护眼模式动态调整颜色
-    final backgroundColor = isEyeCareMode 
+    final backgroundColor = isEyeCareMode
         ? AppColors.getEyeCareBackground(isEyeCareMode, Brightness.light)
         : AppColors.lightSurface;
-    final textColor = isEyeCareMode 
+    final textColor = isEyeCareMode
         ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.light)
         : AppColors.lightTextPrimary;
-    
+
     return ChatTheme(
       colors: ChatColors(
         // Material 3主要颜色 - 用于发送消息气泡
-        primary: AppColors.primaryGreen,
+        primary: AppColors.primary,
         onPrimary: Colors.white,
-        
+
         // Material 3表面颜色系统 - 支持护眼模式
         surface: backgroundColor, // 动态背景色
         onSurface: textColor, // 动态文本色
-        
         // 容器颜色 - 用于接收消息气泡
         surfaceContainer: AppColors.lightCardBackground,
-        surfaceContainerLow: const Color(0xFFF7F2FA), // Material 3 Surface Container Low
-        surfaceContainerHigh: const Color(0xFFECE6F0), // Material 3 Surface Container High
+        surfaceContainerLow: const Color(
+          0xFFF7F2FA,
+        ), // Material 3 Surface Container Low
+        surfaceContainerHigh: const Color(
+          0xFFECE6F0,
+        ), // Material 3 Surface Container High
       ),
       typography: _buildChatTypography(
         isDark: false,
@@ -114,7 +120,7 @@ class ChatThemeConfig {
         context: context,
       ),
       // Material 3形状系统 - Medium圆角 (16dp)
-      shape: BorderRadius.circular(16),
+      shape: AppRadius.borderRadiusRegular,
     );
   }
 
@@ -126,27 +132,34 @@ class ChatThemeConfig {
     BuildContext? context,
   }) {
     // 根据OLED模式和护眼模式动态调整颜色
-    final backgroundColor = AppColors.getDarkBackground(isOLEDMode, Brightness.dark);
+    final backgroundColor = AppColors.getDarkBackground(
+      isOLEDMode,
+      Brightness.dark,
+    );
     final surfaceColor = AppColors.getDarkSurface(isOLEDMode, Brightness.dark);
-    final containerColor = AppColors.getDarkSurfaceContainer(isOLEDMode, Brightness.dark);
-    final textColor = isEyeCareMode 
+    final containerColor = AppColors.getDarkSurfaceContainer(
+      isOLEDMode,
+      Brightness.dark,
+    );
+    final textColor = isEyeCareMode
         ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.dark)
         : const Color(0xFFE6E0E9);
-    
+
     return ChatTheme(
       colors: ChatColors(
         // Material 3主要颜色 - 暗色模式，用于发送消息气泡
         primary: const Color(0xFF69F0AE), // Material 3 Primary Dark
         onPrimary: Colors.white,
-        
+
         // Material 3表面颜色系统 - 暗色模式，支持OLED优化
         surface: backgroundColor, // 动态背景色
         onSurface: textColor, // 动态文本色
-        
         // 容器颜色 - 用于接收消息气泡，支持OLED优化
         surfaceContainer: containerColor, // 动态容器色
         surfaceContainerLow: surfaceColor, // 动态表面色
-        surfaceContainerHigh: const Color(0xFF2B2930), // Material 3 Surface Container High Dark
+        surfaceContainerHigh: const Color(
+          0xFF2B2930,
+        ), // Material 3 Surface Container High Dark
       ),
       typography: _buildChatTypography(
         isDark: true,
@@ -156,7 +169,7 @@ class ChatThemeConfig {
         context: context,
       ),
       // Material 3形状系统 - Medium圆角 (16dp)
-      shape: BorderRadius.circular(16),
+      shape: AppRadius.borderRadiusRegular,
     );
   }
 
@@ -170,12 +183,12 @@ class ChatThemeConfig {
   }) {
     // 根据模式动态调整文本颜色
     final textColor = isDark
-        ? (isEyeCareMode 
-            ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.dark)
-            : const Color(0xFFE6E0E9)) // Material 3 On Surface Dark
-        : (isEyeCareMode 
-            ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.light)
-            : const Color(0xFF1C1B1F)); // Material 3 On Surface Light
+        ? (isEyeCareMode
+              ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.dark)
+              : const Color(0xFFE6E0E9)) // Material 3 On Surface Dark
+        : (isEyeCareMode
+              ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.light)
+              : const Color(0xFF1C1B1F)); // Material 3 On Surface Light
     final secondaryTextColor = isDark
         ? const Color(0xFFCAC4D0) // Material 3 On Surface Variant Dark
         : const Color(0xFF49454F); // Material 3 On Surface Variant Light
@@ -185,79 +198,73 @@ class ChatThemeConfig {
 
     return ChatTypography(
       // Material 3 Body Large - 消息内容
-      bodyLarge: TextStyle(
+      bodyLarge: GoogleFonts.inter(
         fontSize: FontScaleCalculator.calculateScaledSize(
           16, // Material 3 Body Large 标准大小
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w400,
-        fontFamily: 'PingFang SC',
         color: textColor,
         height: 1.5, // Material 3推荐行高
         letterSpacing: 0.5, // Material 3字母间距
       ),
       // Material 3 Body Medium - 辅助文本
-      bodyMedium: TextStyle(
+      bodyMedium: GoogleFonts.inter(
         fontSize: FontScaleCalculator.calculateScaledSize(
           14, // Material 3 Body Medium 标准大小
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w400,
-        fontFamily: 'PingFang SC',
         color: textColor,
         height: 1.43, // Material 3推荐行高
         letterSpacing: 0.25, // Material 3字母间距
       ),
       // Material 3 Body Small - 小号文本
-      bodySmall: TextStyle(
+      bodySmall: GoogleFonts.inter(
         fontSize: FontScaleCalculator.calculateScaledSize(
           12, // Material 3 Body Small 标准大小
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w400,
-        fontFamily: 'PingFang SC',
         color: secondaryTextColor,
         height: 1.33, // Material 3推荐行高
         letterSpacing: 0.4, // Material 3字母间距
       ),
       // Material 3 Title Small - 用户名
-      labelLarge: TextStyle(
+      labelLarge: GoogleFonts.inter(
         fontSize: FontScaleCalculator.calculateScaledSize(
           14, // Material 3 Title Small 标准大小
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w500, // Material 3推荐字重
-        fontFamily: 'PingFang SC',
         color: textColor,
         height: 1.43, // Material 3推荐行高
         letterSpacing: 0.1, // Material 3字母间距
       ),
       // Material 3 Label Medium - 中等标签
-      labelMedium: TextStyle(
+      labelMedium: GoogleFonts.inter(
         fontSize: FontScaleCalculator.calculateScaledSize(
           12, // Material 3 Label Medium 标准大小
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w500, // Material 3推荐字重
-        fontFamily: 'PingFang SC',
         color: textColor,
         height: 1.33, // Material 3推荐行高
         letterSpacing: 0.5, // Material 3字母间距
       ),
       // Material 3 Label Small - 时间戳
-      labelSmall: TextStyle(
+      labelSmall: GoogleFonts.inter(
         fontSize: FontScaleCalculator.calculateScaledSize(
           11, // Material 3 Label Small 标准大小
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w500, // Material 3推荐字重
-        fontFamily: 'PingFang SC',
         color: secondaryTextColor,
         height: 1.45, // Material 3推荐行高
         letterSpacing: 0.5, // Material 3字母间距

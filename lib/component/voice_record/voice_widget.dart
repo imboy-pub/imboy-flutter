@@ -10,7 +10,6 @@ import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:get/get.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -74,7 +73,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   final List<double> waveform = [];
   String recordingMimeType = 'audio/aac';
   late Codec recordCodec;
-  
+
   // 当前分贝值，用于实时响应声音大小变化
   double currentDecibels = -60.0;
 
@@ -107,20 +106,16 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       try {
         var status = await Permission.microphone.request();
         if (status != PermissionStatus.granted) {
-          Get.snackbar("", t.microphonePermissionNotObtained);
-          throw RecordingPermissionException(
-            t.microphonePermissionNotObtained,
-          );
+          EasyLoading.showError(t.microphonePermissionNotObtained);
+          throw RecordingPermissionException(t.microphonePermissionNotObtained);
         }
 
         //判断如果还没拥有读写权限就申请获取权限
         if (await Permission.storage.request().isDenied) {
           await Permission.storage.request();
           if ((await Permission.storage.status) != PermissionStatus.granted) {
-            Get.snackbar("", t.microphonePermissionNotObtained);
-            throw RecordingPermissionException(
-              t.storagePermissionNotObtained,
-            );
+            EasyLoading.showError(t.storagePermissionNotObtained);
+            throw RecordingPermissionException(t.storagePermissionNotObtained);
           }
         }
       } catch (e, s) {
@@ -230,10 +225,13 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       overlayEntry?.remove();
       overlayEntry = null;
     }
-    
+
     // 无论是否取消发送，都要取消订阅
-    await cancelRecorderSubscriptions(from: 'hideVoiceView', stopRecorder: true);
-    
+    await cancelRecorderSubscriptions(
+      from: 'hideVoiceView',
+      stopRecorder: true,
+    );
+
     if (isUp) {
       iPrint("取消发送录音");
     } else if (strNoEmpty(filePath)) {
@@ -271,12 +269,17 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     });
   }
 
-  Future<void> cancelRecorderSubscriptions({String from = '', bool stopRecorder = false}) async {
+  Future<void> cancelRecorderSubscriptions({
+    String from = '',
+    bool stopRecorder = false,
+  }) async {
     // 只在调试模式下打印取消订阅的日志
     if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-      iPrint("cancelRecorderSubscriptions $from, recordStream is null: ${recordStream == null}, stopRecorder: $stopRecorder");
+      iPrint(
+        "cancelRecorderSubscriptions $from, recordStream is null: ${recordStream == null}, stopRecorder: $stopRecorder",
+      );
     }
-    
+
     if (recordStream != null) {
       try {
         await recordStream!.cancel();
@@ -293,7 +296,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         recordStream = null;
       }
     }
-    
+
     // 只有在明确要求时才停止录音器
     if (stopRecorder) {
       try {
@@ -369,13 +372,24 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     }
 
     isUp = true; // 标记为取消状态
-    // 先取消订阅并停止录音器
-    cancelRecorderSubscriptions(from: 'forceStopRecording', stopRecorder: true).then((_) {
-      hideVoiceView(Get.context!);
+    // 先取消订阅并停止录音器，然后清理录音状态
+    cancelRecorderSubscriptions(
+      from: 'forceStopRecording',
+      stopRecorder: true,
+    ).then((_) {
+      // 直接清理录音状态，不需要 context
+      setState(() {
+        textShow = t.chatHoldDownTalk;
+      });
+      if (recordingDuration.inMilliseconds < 1000) {
+        EasyLoading.showToast(t.speakingTooShort);
+      }
+      recordingDuration = const Duration();
+      waveform.clear();
     });
 
     // 显示提示
-    EasyLoading.showToast('录音已取消');
+    EasyLoading.showToast(t.recordingCancelled);
   }
 
   /// 当切换到其他输入模式时调用
@@ -413,7 +427,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
       // 必须要设置，才能够监听 振幅大小
       await setSubscriptionDuration(1);
-      
+
       // 确保之前的订阅已取消，但不要停止录音器
       if (recordStream != null) {
         try {
@@ -424,7 +438,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
           iPrint("Error cancelling previous recordStream: $e");
         }
       }
-      
+
       // 启动录音器
       await recorder.startRecorder(
         toFile: filePath,
@@ -439,65 +453,74 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
       // 检查录音器是否正在录音
       if (!recorder.isRecording) {
-        iPrint("Recorder is not recording after startRecorder, skipping subscription setup");
+        iPrint(
+          "Recorder is not recording after startRecorder, skipping subscription setup",
+        );
         return;
       }
 
       // 暂时不启动 AudioWaveforms 的录音功能，避免与 FlutterSound 冲突
       await recorderController.record();
 
-     // 设置录音监听
-     recordStream = recorder.onProgress!.listen((e) {
-       // 检查是否仍在录音状态且订阅未取消
-       if (!recorder.isRecording || recordStream == null) {
-         // 不再打印日志，直接返回
-         return;
-       }
-       
-       // debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
-       if (e.decibels != null) {
-         // 分贝
-         double dbLevel = e.decibels as double;
+      // 设置录音监听
+      recordStream = recorder.onProgress!.listen(
+        (e) {
+          // 检查是否仍在录音状态且订阅未取消
+          if (!recorder.isRecording || recordStream == null) {
+            // 不再打印日志，直接返回
+            return;
+          }
 
-         // 更新当前分贝值
-         currentDecibels = dbLevel;
+          // debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
+          if (e.decibels != null) {
+            // 分贝
+            double dbLevel = e.decibels as double;
 
-         // 优化波形数据收集，使其更适合实时显示
-         // 将分贝值转换为0-1之间的振幅值
-         double normalizedAmplitude = (dbLevel + 60) / 60; // 假设-60dB到0dB的范围
-         normalizedAmplitude = normalizedAmplitude.clamp(0.0, 1.0); // 限制在0-1之间
+            // 更新当前分贝值
+            currentDecibels = dbLevel;
 
-         // 添加波形数据，限制数组长度以避免内存问题
-         waveform.add(normalizedAmplitude);
-         if (waveform.length > 100) {
-           waveform.removeRange(0, waveform.length - 100); // 保留最近100个数据点
-         }
+            // 优化波形数据收集，使其更适合实时显示
+            // 将分贝值转换为0-1之间的振幅值
+            double normalizedAmplitude = (dbLevel + 60) / 60; // 假设-60dB到0dB的范围
+            normalizedAmplitude = normalizedAmplitude.clamp(
+              0.0,
+              1.0,
+            ); // 限制在0-1之间
 
-         // 只在调试模式下打印日志
-         if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-           debugPrint(
-             "> on record listen dbLevel $dbLevel; normalizedAmplitude $normalizedAmplitude; e ${e.toString()} ${DateTime.now()}",
-           );
-         }
-         if (overlayEntry != null) {
-           overlayEntry!.markNeedsBuild();
-         }
-         setState(() {
-           recordingDuration = e.duration;
-           recorderTxt = formatDuration(recordingDuration.inMilliseconds);
-         });
-       }
-     }, onError: (error) {
-       iPrint("Error in record stream: $error");
-       // 发生错误时取消订阅
-       cancelRecorderSubscriptions(from: 'stream_error');
-     }, onDone: () {
-       iPrint("Record stream completed");
-       // 流完成时取消订阅
-       cancelRecorderSubscriptions(from: 'stream_done');
-     });
-     
-     iPrint("Record stream subscription setup completed");
+            // 添加波形数据，限制数组长度以避免内存问题
+            waveform.add(normalizedAmplitude);
+            if (waveform.length > 100) {
+              waveform.removeRange(0, waveform.length - 100); // 保留最近100个数据点
+            }
+
+            // 只在调试模式下打印日志
+            if (const bool.fromEnvironment('DEBUG_AUDIO')) {
+              debugPrint(
+                "> on record listen dbLevel $dbLevel; normalizedAmplitude $normalizedAmplitude; e ${e.toString()} ${DateTime.now()}",
+              );
+            }
+            if (overlayEntry != null) {
+              overlayEntry!.markNeedsBuild();
+            }
+            setState(() {
+              recordingDuration = e.duration;
+              recorderTxt = formatDuration(recordingDuration.inMilliseconds);
+            });
+          }
+        },
+        onError: (error) {
+          iPrint("Error in record stream: $error");
+          // 发生错误时取消订阅
+          cancelRecorderSubscriptions(from: 'stream_error');
+        },
+        onDone: () {
+          iPrint("Record stream completed");
+          // 流完成时取消订阅
+          cancelRecorderSubscriptions(from: 'stream_done');
+        },
+      );
+
+      iPrint("Record stream subscription setup completed");
       setState(() {
         filePath = filePath;
       });
@@ -513,7 +536,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     iPrint("recorderStop ${DateTime.now()}");
     try {
       // 先取消订阅，防止停止录音后仍有监听事件，但不停止录音器
-      await cancelRecorderSubscriptions(from: 'recorderStop_before_stop', stopRecorder: false);
+      await cancelRecorderSubscriptions(
+        from: 'recorderStop_before_stop',
+        stopRecorder: false,
+      );
 
       // 暂时不停止 recorderController，避免与 FlutterSound 冲突
       try {
@@ -528,7 +554,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       iPrint("FlutterSound recorder stopped, filepath: $filepath");
 
       // 再次确保订阅已取消，此时可以停止录音器
-      await cancelRecorderSubscriptions(from: 'recorderStop_after_stop', stopRecorder: false);
+      await cancelRecorderSubscriptions(
+        from: 'recorderStop_after_stop',
+        stopRecorder: false,
+      );
 
       if (filepath != null && filepath.isNotEmpty) {
         try {
@@ -579,24 +608,33 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOutQuart,
         height: widget.height ?? 60,
-        decoration: widget.decoration ??
+        decoration:
+            widget.decoration ??
             BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
               gradient: LinearGradient(
                 colors: [
-                  ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
-                  ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.05),
+                  ThemeManager.instance
+                      .getThemeColor('primary')
+                      .withValues(alpha: 0.1),
+                  ThemeManager.instance
+                      .getThemeColor('primary')
+                      .withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               border: Border.all(
                 width: 1.5,
-                color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.3),
+                color: ThemeManager.instance
+                    .getThemeColor('primary')
+                    .withValues(alpha: 0.3),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
+                  color: ThemeManager.instance
+                      .getThemeColor('primary')
+                      .withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -642,7 +680,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     } else {
       cancelRecorderSubscriptions(from: 'dispose', stopRecorder: true);
     }
-    
+
     recorderController.dispose();
     // Be careful : you must `close` the audio session when you have finished with it.
     recorder.closeRecorder();

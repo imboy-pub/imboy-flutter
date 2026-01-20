@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/enum.dart' show CustomMessageType;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -44,7 +46,17 @@ class MessageModel {
   String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   String? fromId; // 等价于数据库的 from
   String? toId; // 等价于数据库的 to
-  Map<String, dynamic> payload;
+
+  // WebSocket API v2.0 新增字段
+  // 根据 type 决定是否存在：
+  // - C2C/C2G/C2S: msgType 有值，action 为 null
+  // - S2C: action 有值，msgType 为 null
+  String? msgType; // 仅 C2C/C2G/C2S 消息有值, S2C 可能有值
+  String? action; // 仅 S2C 消息有值
+  Map<String, dynamic>? e2ee; // 仅 C2C/C2G 加密时有值
+
+  // payload 类型改为 dynamic，支持 Map 或 String（加密后的 JSON 字符串）
+  dynamic payload;
   int createdAt; // 消息创建时间 毫秒时间戳
   // type_userId_peerId
   String conversationUk3;
@@ -70,30 +82,70 @@ class MessageModel {
     required this.conversationUk3,
     this.topicId = 0,
     this.createdAt = 0,
+    this.msgType,
+    this.action,
+    this.e2ee,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> data) {
-    Map<String, dynamic> p = <String, dynamic>{};
-    if (data['payload'] == null || data['payload'] == "") {
+    // 解析 type
+    final type = data[MessageRepo.type] as String? ?? 'C2C';
+
+    // WebSocket API v2.0: 从顶层读取 msg_type、action、e2ee
+    // 根据 type 决定读取哪些字段
+    final msgType = type == 'S2C' ? null : (data['msg_type'] as String?);
+    final action = type == 'S2C' ? (data['action'] as String?) : null;
+
+    // 解析 e2ee 字段（仅 C2C/C2G 有）
+    Map<String, dynamic>? e2eeData;
+    if (type != 'S2C' && data['e2ee'] != null) {
+      if (data['e2ee'] is String) {
+        try {
+          e2eeData = jsonDecode(data['e2ee']) as Map<String, dynamic>?;
+        } catch (e) {
+          debugPrint('MessageModel: e2ee 解析失败: $e');
+        }
+      } else if (data['e2ee'] is Map<String, dynamic>) {
+        e2eeData = data['e2ee'] as Map<String, dynamic>;
+      }
+    }
+
+    // 解析 payload - 支持 Map 或 String
+    dynamic p;
+    if (data[MessageRepo.payload] == null || data[MessageRepo.payload] == "") {
       p = <String, dynamic>{};
-    } else if (data['payload'] is String) {
-      p = jsonDecode("${data['payload']}");
-    } else if (data['payload'] is Map<String, dynamic>) {
-      p = data['payload'];
+    } else if (data[MessageRepo.payload] is String) {
+      // 尝试解析为 JSON
+      try {
+        p = jsonDecode("${data[MessageRepo.payload]}");
+      } catch (e) {
+        // 如果解析失败，保持为 String（可能是加密数据）
+        p = data[MessageRepo.payload];
+      }
+    } else if (data[MessageRepo.payload] is Map<String, dynamic>) {
+      p = data[MessageRepo.payload];
+    } else {
+      p = data[MessageRepo.payload];
     }
 
     return MessageModel(
       data[MessageRepo.id] ?? '',
       autoId: data[MessageRepo.autoId] ?? 0,
-      type: data[MessageRepo.type] ?? 'C2C',
+      type: type,
       status: int.parse('${data[MessageRepo.status] ?? 0}'),
       fromId: data[MessageRepo.from] ?? '',
       toId: data[MessageRepo.to] ?? '',
       payload: p,
-      createdAt: DateTimeHelper.parseTimestamp(data[MessageRepo.createdAt], defaultValue: 0),
+      createdAt: DateTimeHelper.parseTimestamp(
+        data[MessageRepo.createdAt],
+        defaultValue: 0,
+      ),
       isAuthor: data[MessageRepo.isAuthor] ?? 0,
       topicId: data[MessageRepo.topicId] ?? 0,
       conversationUk3: data[MessageRepo.conversationUk3] ?? '',
+      msgType: msgType,
+      action: action,
+      e2ee: e2eeData,
     );
   }
 
@@ -105,11 +157,37 @@ class MessageModel {
     data[MessageRepo.status] = status;
     data[MessageRepo.from] = fromId;
     data[MessageRepo.to] = toId;
-    data[MessageRepo.payload] = json.encode(payload);
     data[MessageRepo.createdAt] = createdAt;
     data[MessageRepo.isAuthor] = isAuthor;
     data[MessageRepo.topicId] = topicId;
     data[MessageRepo.conversationUk3] = conversationUk3;
+
+    // WebSocket API v2.0: 根据 type 写入对应字段到顶层
+    final currentType = type ?? 'C2C';
+
+    // 仅 C2C/C2G/C2S 消息写入 msg_type 和 e2ee
+    if (currentType != 'S2C') {
+      if (msgType != null) {
+        data['msg_type'] = msgType;
+      }
+      if (e2ee != null && e2ee!.isNotEmpty) {
+        data['e2ee'] = json.encode(e2ee);
+      }
+    }
+
+    // 仅 S2C 消息写入 action
+    if (currentType == 'S2C' && action != null) {
+      data['action'] = action;
+    }
+
+    // payload 序列化
+    if (payload is Map) {
+      data[MessageRepo.payload] = json.encode(payload);
+    } else if (payload is String) {
+      data[MessageRepo.payload] = payload;
+    } else {
+      data[MessageRepo.payload] = json.encode(payload);
+    }
 
     // debugPrint("> on MessageModel toMap $data");
     return data;
@@ -134,22 +212,25 @@ class MessageModel {
     return MessageStatus.error;
   }
 
-  CustomMessageType get msgType {
-    if (payload['msg_type'] == 'text') {
+  CustomMessageType get customMsgType {
+    // WebSocket API v2.0: 优先使用顶层的 msgType 字段
+    final typeValue = msgType ?? (payload is Map ? payload['msg_type'] : null);
+
+    if (typeValue == 'text') {
       return CustomMessageType.text;
-    } else if (payload['msg_type'] == 'text_stream') {
+    } else if (typeValue == 'text_stream') {
       return CustomMessageType.textStream;
-    } else if (payload['msg_type'] == 'image') {
+    } else if (typeValue == 'image') {
       return CustomMessageType.image;
-    } else if (payload['msg_type'] == 'file') {
+    } else if (typeValue == 'file') {
       return CustomMessageType.file;
-    } else if (payload['msg_type'] == 'custom') {
+    } else if (typeValue == 'custom') {
       return CustomMessageType.custom;
-    } else if (payload['msg_type'] == 'location') {
+    } else if (typeValue == 'location') {
       return CustomMessageType.custom;
-    } else if (payload['msg_type'] == 'visit_card') {
+    } else if (typeValue == 'visit_card') {
       return CustomMessageType.custom;
-    } else if (payload['msg_type'] == 'revoked') {
+    } else if (typeValue == 'revoked') {
       return CustomMessageType.custom;
     }
 
@@ -169,7 +250,9 @@ class MessageModel {
         // 检查是否有revoke_user字段，如果有则根据revoke_user判断撤回方
         final String revokeUser = message.metadata?['revoke_user'] ?? '';
         if (revokeUser.isNotEmpty) {
-          return revokeUser == UserRepoLocal.to.currentUid ? 'my_revoked' : 'peer_revoked';
+          return revokeUser == UserRepoLocal.to.currentUid
+              ? 'my_revoked'
+              : 'peer_revoked';
         }
         // 如果没有revoke_user字段，则根据authorId判断
         return UserRepoLocal.to.currentUid == message.authorId
@@ -223,10 +306,63 @@ class MessageModel {
   }
 
   Future<Message> toTypeMessage() async {
-    // 验证 payload 有效性
-    if (!payload.containsKey('msg_type') || payload.isEmpty) {
+    // WebSocket API v2.0: 兼容新的 payload 结构（可能是 Map 或 String）
+    Map<String, dynamic> payloadData;
+
+    if (payload is String) {
+      // payload 是加密的 JSON 字符串（E2EE 消息）
+      if (e2ee != null && e2ee!.isNotEmpty) {
+        // 尝试解密 E2EE 消息
+        try {
+          final ciphertext = payload;
+          final decryptedJson = await E2EEService.decryptE2EEMessage(
+            ciphertext: ciphertext,
+            e2ee: e2ee!,
+          );
+          payloadData = jsonDecode(decryptedJson) as Map<String, dynamic>;
+          iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
+        } catch (e) {
+          iPrint('⚠️ toTypeMessage: E2EE 解密失败，id=$id, error=$e');
+          return TextMessage(
+            authorId: fromId!,
+            createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+            id: id!,
+            text: '[加密消息]',
+            status: MessageStatus.error,
+            metadata: {
+              'conversation_uk3': conversationUk3,
+              'peer_id': toId,
+              'msg_type': msgType ?? 'custom',
+              '_e2ee_failed': true,
+              '_e2ee_reason': 'decrypt_failed',
+              '_e2ee_error': e.toString(),
+            },
+          );
+        }
+      } else {
+        // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析（可能是旧数据）
+        try {
+          payloadData = jsonDecode(payload) as Map<String, dynamic>;
+        } catch (e) {
+          iPrint('⚠️ toTypeMessage: payload 解析失败，id=$id, error=$e');
+          return TextMessage(
+            authorId: fromId!,
+            createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+            id: id!,
+            text: '[加密消息]',
+            status: MessageStatus.error,
+            metadata: {
+              'conversation_uk3': conversationUk3,
+              'peer_id': toId,
+              'error': 'encrypted_payload',
+            },
+          );
+        }
+      }
+    } else if (payload is Map<String, dynamic>) {
+      payloadData = payload;
+    } else {
       iPrint('⚠️ toTypeMessage: payload 无效或为空，id=$id, payload=$payload');
-      // 返回一个带有错误信息的文本消息，而不是无效的 CustomMessage
       return TextMessage(
         authorId: fromId!,
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
@@ -241,13 +377,35 @@ class MessageModel {
       );
     }
 
-    String sysPrompt = payload['sys_prompt'] ?? '';
+    // WebSocket API v2.0: 优先使用顶层的 msgType 字段
+    final currentMsgType = msgType ?? payloadData['msg_type'];
+
+    // 验证 msg_type 有效性
+    if (currentMsgType == null || payloadData.isEmpty) {
+      iPrint('⚠️ toTypeMessage: msg_type 无效或为空，id=$id, payload=$payload');
+      return TextMessage(
+        authorId: fromId!,
+        createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+        id: id!,
+        text: '[无效消息]',
+        status: MessageStatus.error,
+        metadata: {
+          'conversation_uk3': conversationUk3,
+          'peer_id': toId,
+          'error': 'invalid_msg_type',
+        },
+      );
+    }
+
+    String sysPrompt = payloadData['sys_prompt'] ?? '';
     Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
+    // WebSocket API v2.0: 将 msgType 添加到 metadata，供 UI 层使用
     Map<String, dynamic> metadata = {
       'conversation_uk3': conversationUk3,
       'sys_prompt': sysPrompt,
       'peer_id': toId,
+      'msg_type': currentMsgType, // 添加 msg_type 到 metadata
     };
     String nickname = '';
     String avatar = '';
@@ -264,24 +422,23 @@ class MessageModel {
       imageSource: avatar,
       // payload['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
       name: nickname.isEmpty
-          ? (payload['peer_name'] ?? (payload['quote_msg_author_name'] ?? ''))
+          ? (payloadData['peer_name'] ?? (payloadData['quote_msg_author_name'] ?? ''))
           : nickname,
     );
     DateTime createdDt = DateTimeHelper.millisecondToDateTime(createdAt);
 
     // Handle null payload case
-    final payloadData = payload;
-    if (payloadData['msg_type'] == 'text') {
+    if (currentMsgType == 'text') {
       message = TextMessage(
         authorId: author.id,
         createdAt: createdDt,
         id: id!,
         // peerId: toId,
-        text: payload['text'],
+        text: payloadData['text'],
         status: typesStatus,
-        metadata: {...metadata, ...payload},
+        metadata: {...metadata, ...payloadData},
       );
-    } else if (payloadData['msg_type'] == 'image') {
+    } else if (currentMsgType == 'image') {
       message = ImageMessage(
         authorId: author.id,
         createdAt: createdDt,
@@ -295,7 +452,7 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (payloadData['msg_type'] == 'file') {
+    } else if (currentMsgType == 'file') {
       message = FileMessage(
         authorId: author.id,
         createdAt: createdDt,
@@ -326,7 +483,7 @@ class MessageModel {
         // peerId: toId,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (payloadData['msg_type'] == 'custom') {
+    } else if (currentMsgType == 'custom') {
       message = CustomMessage(
         authorId: author.id,
         id: id!,
@@ -352,13 +509,17 @@ class MessageModel {
   static MessageModel fromMessage(Message message) {
     final Map<String, dynamic> payload = {};
 
+    // WebSocket API v2.0: 提取 msg_type 到顶层字段
+    String? msgType;
+
     // 根据不同类型的消息提取特定字段
     if (message is TextMessage) {
+      msgType = 'text';
       payload['msg_type'] = 'text';
       payload['text'] = message.text;
       payload.addAll(message.metadata ?? {});
-    }
-    else if (message is ImageMessage) {
+    } else if (message is ImageMessage) {
+      msgType = 'image';
       payload['msg_type'] = 'image';
       payload['name'] = message.text;
       payload['size'] = message.size;
@@ -366,15 +527,15 @@ class MessageModel {
       payload['width'] = message.width;
       payload['height'] = message.height;
       payload.addAll(message.metadata ?? {});
-    }
-    else if (message is FileMessage) {
+    } else if (message is FileMessage) {
+      msgType = 'file';
       payload['msg_type'] = 'file';
       payload['name'] = message.name;
       payload['size'] = message.size;
       payload['uri'] = message.source;
       payload.addAll(message.metadata ?? {});
-    }
-    else if (message is CustomMessage) {
+    } else if (message is CustomMessage) {
+      msgType = 'custom';
       payload['msg_type'] = 'custom';
       if (message.metadata?['custom_type'] != null) {
         payload['custom_type'] = message.metadata!['custom_type'];
@@ -387,20 +548,26 @@ class MessageModel {
     // final sysPrompt = metadata['sys_prompt'] ?? '';
     final peerId = metadata['peer_id'] ?? '';
     final conversationUk3 = metadata['conversation_uk3'] ?? '';
+    final type = payload['type'] ?? 'C2C';
 
     return MessageModel(
       message.id,
       autoId: 0,
-      type: payload['type'], // 需要根据实际情况设置，可能是从metadata获取
+      type: type,
       fromId: message.authorId,
       toId: peerId,
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
-      isAuthor: message.authorId == UserRepoLocal.to.currentUid ? 1 : 0, // 需要根据实际情况设置
-      topicId: payload['topic_id'] ?? 0, // 需要根据实际情况设置
+      isAuthor: message.authorId == UserRepoLocal.to.currentUid
+          ? 1
+          : 0,
+      topicId: payload['topic_id'] ?? 0,
       conversationUk3: conversationUk3,
-      status: 0, // 默认状态
-      // sysPrompt: sysPrompt,
+      status: 0,
+      // WebSocket API v2.0: 设置顶层字段
+      msgType: type == 'S2C' ? null : msgType,
+      action: type == 'S2C' ? (metadata['action'] as String?) : null,
+      e2ee: type == 'S2C' ? null : (metadata['e2ee'] as Map<String, dynamic>?),
     );
   }
 }

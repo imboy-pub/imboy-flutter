@@ -1,15 +1,12 @@
 import 'dart:core';
 
 enum WebRTCCallState {
-  CallStateNew,
-  CallStateRinging,
-  CallStateInvite,
-  CallStateConnected,
-  CallStateBye,
-  CallStateBusy,
+  callStateNew,
+  callStateRinging,
+  callStateInvite,
+  callStateConnected,
+  callStateBye,
+  callStateBusy,
 }
 
-enum VideoSource {
-  Camera,
-  Screen,
-}
+enum VideoSource { camera, screen }

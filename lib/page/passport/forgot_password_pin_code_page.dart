@@ -1,0 +1,448 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/password.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
+import 'package:imboy/page/passport/widget/fadeanimation.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+
+class PinCodeVerificationPage extends ConsumerStatefulWidget {
+  final String account;
+  final String accountType;
+
+  const PinCodeVerificationPage({
+    super.key,
+    required this.account,
+    required this.accountType,
+  });
+
+  @override
+  ConsumerState<PinCodeVerificationPage> createState() =>
+      _PinCodeVerificationPageState();
+}
+
+class _PinCodeVerificationPageState
+    extends ConsumerState<PinCodeVerificationPage> {
+  TextEditingController textEditingController = TextEditingController();
+
+  // ignore: close_sinks
+  StreamController<ErrorAnimationType>? errorController;
+
+  bool hasError = false;
+  String currentText = "";
+  final formKey = GlobalKey<FormState>();
+
+  StreamSubscription? _localeSubscription;
+
+  @override
+  void initState() {
+    errorController = StreamController<ErrorAnimationType>();
+    super.initState();
+    // 监听语言变化
+    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _localeSubscription?.cancel();
+    errorController!.close();
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(passportProvider);
+    final notifier = ref.read(passportProvider.notifier);
+    final t = context.t;
+    return Scaffold(
+      backgroundColor: AppColors.lightSurface,
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 80),
+                    FadeAnimation(
+                      delay: 0.8,
+                      child: notifier.title(color: AppColors.primary),
+                    ),
+                    const SizedBox(height: 40),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadius.borderRadiusSmall,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 0.0,
+                              vertical: 8,
+                            ),
+                            child: RichText(
+                              text: TextSpan(
+                                text: widget.accountType == 'email'
+                                    ? t.codeSentToEmail
+                                    : t.codeSentToMobile,
+                                children: [
+                                  TextSpan(
+                                    text: widget.account,
+                                    style: const TextStyle(
+                                      color: AppColors.lightTextPrimary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                                style: const TextStyle(
+                                  color: AppColors.lightTextSecondary,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Form(
+                            key: formKey,
+                            child: PinCodeTextField(
+                              appContext: context,
+                              pastedTextStyle: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              length: 6,
+                              obscureText: true,
+                              obscuringCharacter: '*',
+                              obscuringWidget: Icon(
+                                Icons.safety_check,
+                                color: AppColors.primary,
+                                size: 24,
+                              ),
+                              blinkWhenObscuring: true,
+                              animationType: AnimationType.fade,
+                              validator: (v) {
+                                if (v!.length < 3) {
+                                  return "Validate me";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              pinTheme: PinTheme(
+                                shape: PinCodeFieldShape.box,
+                                borderRadius: AppRadius.borderRadiusSmall,
+                                fieldHeight: 50,
+                                fieldWidth: 40,
+                                activeFillColor:
+                                    AppColors.lightSurfaceContainer,
+                                inactiveFillColor:
+                                    AppColors.lightSurfaceContainer,
+                                selectedFillColor:
+                                    AppColors.lightSurfaceContainer,
+                                selectedColor: AppColors.primary,
+                                activeColor: AppColors.primary,
+                                inactiveColor: AppColors.lightBorder,
+                              ),
+                              cursorColor: AppColors.lightTextPrimary,
+                              animationDuration: const Duration(
+                                milliseconds: 300,
+                              ),
+                              enableActiveFill: true,
+                              errorAnimationController: errorController,
+                              controller: textEditingController,
+                              keyboardType: TextInputType.number,
+                              boxShadows: [
+                                BoxShadow(
+                                  offset: const Offset(0, 1),
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                              onCompleted: (v) {
+                                debugPrint("Completed");
+                              },
+                              onChanged: (value) {
+                                debugPrint(value);
+                                setState(() {
+                                  currentText = value;
+                                });
+                              },
+                              beforeTextPaste: (text) {
+                                debugPrint("Allowing to paste $text");
+                                return true;
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0,
+                            ),
+                            child: Text(
+                              hasError ? t.pinCodeFillTips : '',
+                              style: const TextStyle(
+                                color: AppColors.lightError,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  t.notReceiveCoeQ,
+                                  style: const TextStyle(
+                                    color: AppColors.lightTextSecondary,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () async {
+                                    String? res = await notifier.sendCode(
+                                      widget.accountType,
+                                      widget.account,
+                                      'forgot_pwd',
+                                    );
+                                    if (res == null) {
+                                      notifier.snackBar(
+                                        Text(
+                                          t.codeSentToParam(
+                                            param: widget.account,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                        icon: const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    } else {
+                                      notifier.snackBar(
+                                        Text(
+                                          res,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    t.resendCode,
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 0.0,
+                                  vertical: 8.0,
+                                ),
+                                child: StatefulBuilder(
+                                  builder: (context, setLocalState) {
+                                    return PasswordTextField(
+                                      obscureText: state.newPwdObscure,
+                                      hintText: t.newPassword,
+                                      style: const TextStyle(
+                                        color: AppColors.lightTextPrimary,
+                                      ),
+                                      hintStyle: const TextStyle(
+                                        color: AppColors.lightTextSecondary,
+                                      ),
+                                      iconColor: AppColors.lightTextSecondary,
+                                      onTap: () {
+                                        notifier.toggleNewPwdObscure();
+                                      },
+                                      onChanged: (String? val) {
+                                        if (strNoEmpty(val)) {
+                                          notifier.setNewPwd(val!.trim());
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 0.0,
+                                  vertical: 8.0,
+                                ),
+                                child: StatefulBuilder(
+                                  builder: (context, setLocalState) {
+                                    return PasswordTextField(
+                                      obscureText: state.retypePwdObscure,
+                                      hintText: t.retypePassword,
+                                      style: const TextStyle(
+                                        color: AppColors.lightTextPrimary,
+                                      ),
+                                      hintStyle: const TextStyle(
+                                        color: AppColors.lightTextSecondary,
+                                      ),
+                                      iconColor: AppColors.lightTextSecondary,
+                                      onTap: () {
+                                        setState(() {
+                                          notifier.setRetypePwdObscure(
+                                            !state.retypePwdObscure,
+                                          );
+                                        });
+                                      },
+                                      onChanged: (String? val) {
+                                        if (strNoEmpty(val)) {
+                                          notifier.setRetypePwd(val!.trim());
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+                          FadeAnimation(
+                            delay: 1,
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (currentText.length != 6) {
+                                    errorController!.add(
+                                      ErrorAnimationType.shake,
+                                    );
+                                    setState(() => hasError = true);
+                                    return;
+                                  }
+                                  formKey.currentState!.validate();
+                                  String? res = await notifier.resetPassword(
+                                    type: widget.accountType,
+                                    account: widget.account,
+                                    code: currentText,
+                                    newPwd: state.newPwd,
+                                    rePwd: state.retypePwd,
+                                  );
+                                  if (res == null) {
+                                    EasyLoading.showSuccess(
+                                      t.confirmRecoverSuccess,
+                                    );
+                                    if (!context.mounted) return;
+                                    context.go('/sign_in');
+                                  } else {
+                                    setState(() {
+                                      hasError = false;
+                                      notifier.snackBar(
+                                        Text(
+                                          res,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      );
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: AppRadius.borderRadiusRegular,
+                                  ),
+                                ),
+                                child: Text(
+                                  t.setParam(param: t.password),
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    FadeAnimation(
+                      delay: 1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            t.tryAgainQ,
+                            style: const TextStyle(
+                              color: AppColors.lightTextSecondary,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (!context.mounted) return;
+                              context.go('/sign_in');
+                            },
+                            child: Text(
+                              t.login,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              left: 0,
+              child: notifier.backButton(color: AppColors.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

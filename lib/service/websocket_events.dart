@@ -35,10 +35,7 @@ final class WebSocketMessageReceivedEvent extends AppEvent {
   /// 消息数据
   final Map<String, dynamic> data;
 
-  const WebSocketMessageReceivedEvent({
-    required this.type,
-    required this.data,
-  });
+  const WebSocketMessageReceivedEvent({required this.type, required this.data});
 
   @override
   List<Object> get props => [type, data];
@@ -71,10 +68,7 @@ final class WebSocketDisconnectedEvent extends AppEvent {
   /// 关闭代码
   final int? closeCode;
 
-  const WebSocketDisconnectedEvent({
-    this.reason = '',
-    this.closeCode,
-  });
+  const WebSocketDisconnectedEvent({this.reason = '', this.closeCode});
 
   @override
   List<Object?> get props => [reason, closeCode];
@@ -87,9 +81,7 @@ final class WebSocketErrorEvent extends AppEvent {
   /// 错误对象
   final dynamic error;
 
-  const WebSocketErrorEvent({
-    required this.error,
-  });
+  const WebSocketErrorEvent({required this.error});
 
   @override
   List<Object> get props => [error];
@@ -102,9 +94,7 @@ final class WebSocketStatusChangedEvent extends AppEvent {
   /// 连接状态 (connecting, connected, disconnected, error)
   final String status;
 
-  const WebSocketStatusChangedEvent({
-    required this.status,
-  });
+  const WebSocketStatusChangedEvent({required this.status});
 
   @override
   List<Object> get props => [status];
@@ -149,10 +139,7 @@ final class MessageSentEvent extends AppEvent {
   /// 发送时间戳（毫秒）
   final int eventTime;
 
-  const MessageSentEvent({
-    required this.messageId,
-    required this.eventTime,
-  });
+  const MessageSentEvent({required this.messageId, required this.eventTime});
 
   @override
   List<Object> get props => [messageId, eventTime];
@@ -188,9 +175,7 @@ final class WebSocketForceCloseEvent extends AppEvent {
   /// 是否永久关闭（不再重连）
   final bool permanent;
 
-  const WebSocketForceCloseEvent({
-    this.permanent = false,
-  });
+  const WebSocketForceCloseEvent({this.permanent = false});
 
   @override
   List<Object> get props => [permanent];

@@ -17,7 +17,7 @@ class QuickReplyManager {
     '👌',
     '😊',
   ];
-  
+
   static const Map<String, List<String>> _contextReplies = {
     '问候': ['你好！', '最近怎么样？', '好久不见', '忙什么呢？'],
     '感谢': ['不客气', '应该的', '互相帮助', '乐意效劳'],
@@ -27,51 +27,67 @@ class QuickReplyManager {
     '工作': ['收到，马上处理', '好的，明白了', '稍后回复您', '正在处理中'],
     '询问': ['是的', '不是', '可能吧', '让我想想'],
   };
-  
+
   /// 获取默认快捷回复
   static List<String> getDefaultReplies() {
     return List<String>.from(_defaultReplies);
   }
-  
+
   /// 根据上下文获取智能快捷回复
   static List<String> getContextualReplies(String lastMessage) {
     final message = lastMessage.toLowerCase();
-    
+
     // 根据关键词返回相应的快捷回复
     if (message.contains('谢') || message.contains('thank')) {
       return _contextReplies['感谢'] ?? _defaultReplies;
     }
-    
-    if (message.contains('对不') || message.contains('抱歉') || message.contains('sorry')) {
+
+    if (message.contains('对不') ||
+        message.contains('抱歉') ||
+        message.contains('sorry')) {
       return _contextReplies['道歉'] ?? _defaultReplies;
     }
-    
-    if (message.contains('邀请') || message.contains('一起') || message.contains('join')) {
+
+    if (message.contains('邀请') ||
+        message.contains('一起') ||
+        message.contains('join')) {
       return _contextReplies['邀请'] ?? _defaultReplies;
     }
-    
-    if (message.contains('再见') || message.contains('bye') || message.contains('拜拜')) {
+
+    if (message.contains('再见') ||
+        message.contains('bye') ||
+        message.contains('拜拜')) {
       return _contextReplies['告别'] ?? _defaultReplies;
     }
-    
-    if (message.contains('工作') || message.contains('任务') || message.contains('work')) {
+
+    if (message.contains('工作') ||
+        message.contains('任务') ||
+        message.contains('work')) {
       return _contextReplies['工作'] ?? _defaultReplies;
     }
-    
-    if (message.contains('吗') || message.contains('?') || message.contains('？')) {
+
+    if (message.contains('吗') ||
+        message.contains('?') ||
+        message.contains('？')) {
       return _contextReplies['询问'] ?? _defaultReplies;
     }
-    
-    if (message.contains('你好') || message.contains('hi') || message.contains('hello')) {
+
+    if (message.contains('你好') ||
+        message.contains('hi') ||
+        message.contains('hello')) {
       return _contextReplies['问候'] ?? _defaultReplies;
     }
-    
+
     return _defaultReplies;
   }
-  
+
   /// 添加自定义快捷回复
-  static List<String> addCustomReply(List<String> currentReplies, String customReply) {
-    if (customReply.trim().isNotEmpty && !currentReplies.contains(customReply)) {
+  static List<String> addCustomReply(
+    List<String> currentReplies,
+    String customReply,
+  ) {
+    if (customReply.trim().isNotEmpty &&
+        !currentReplies.contains(customReply)) {
       final newReplies = List<String>.from(currentReplies);
       newReplies.add(customReply);
       return newReplies;
@@ -88,25 +104,24 @@ class QuickReplyPanel extends StatelessWidget {
     required this.lastMessage,
     this.customReplies = const [],
   });
-  
+
   final Function(String) onReplySelected;
   final String lastMessage;
   final List<String> customReplies;
-  
+
   @override
   Widget build(BuildContext context) {
     // 获取智能快捷回复
-    final contextualReplies = QuickReplyManager.getContextualReplies(lastMessage);
-    
+    final contextualReplies = QuickReplyManager.getContextualReplies(
+      lastMessage,
+    );
+
     // 合并默认回复和自定义回复
-    final allReplies = [
-      ...contextualReplies,
-      ...customReplies,
-    ];
-    
+    final allReplies = [...contextualReplies, ...customReplies];
+
     // 去重
     final uniqueReplies = allReplies.toSet().toList();
-    
+
     return Container(
       height: 60,
       decoration: BoxDecoration(
@@ -129,9 +144,14 @@ class QuickReplyPanel extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => onReplySelected(reply),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                backgroundColor: Theme.of(
+                  context,
+                ).primaryColor.withValues(alpha: 0.1),
                 foregroundColor: Theme.of(context).primaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -159,10 +179,10 @@ class MessageActionMenu extends StatelessWidget {
     required this.message,
     required this.onAction,
   });
-  
+
   final Message message;
   final Function(String) onAction;
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -184,56 +204,51 @@ class MessageActionMenu extends StatelessWidget {
       ),
     );
   }
-  
+
   List<Widget> _buildActionItems(BuildContext context) {
     final items = <Widget>[];
-    
+
     // 复制
     if (message is TextMessage) {
-      items.add(_buildActionItem(
-        context,
-        '复制',
-        Icons.copy,
-        () => onAction('copy'),
-      ));
+      items.add(
+        _buildActionItem(context, '复制', Icons.copy, () => onAction('copy')),
+      );
     }
-    
+
     // 回复
-    items.add(_buildActionItem(
-      context,
-      '回复',
-      Icons.reply,
-      () => onAction('reply'),
-    ));
-    
+    items.add(
+      _buildActionItem(context, '回复', Icons.reply, () => onAction('reply')),
+    );
+
     // 转发
-    items.add(_buildActionItem(
-      context,
-      '转发',
-      Icons.forward,
-      () => onAction('forward'),
-    ));
-    
+    items.add(
+      _buildActionItem(context, '转发', Icons.forward, () => onAction('forward')),
+    );
+
     // 收藏
-    items.add(_buildActionItem(
-      context,
-      '收藏',
-      Icons.bookmark_border,
-      () => onAction('collect'),
-    ));
-    
+    items.add(
+      _buildActionItem(
+        context,
+        '收藏',
+        Icons.bookmark_border,
+        () => onAction('collect'),
+      ),
+    );
+
     // 删除
-    items.add(_buildActionItem(
-      context,
-      '删除',
-      Icons.delete_outline,
-      () => onAction('delete'),
-      isDestructive: true,
-    ));
-    
+    items.add(
+      _buildActionItem(
+        context,
+        '删除',
+        Icons.delete_outline,
+        () => onAction('delete'),
+        isDestructive: true,
+      ),
+    );
+
     return items;
   }
-  
+
   Widget _buildActionItem(
     BuildContext context,
     String title,
@@ -244,15 +259,15 @@ class MessageActionMenu extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: isDestructive 
-            ? Theme.of(context).colorScheme.error 
+        color: isDestructive
+            ? Theme.of(context).colorScheme.error
             : Theme.of(context).iconTheme.color,
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: isDestructive 
-              ? Theme.of(context).colorScheme.error 
+          color: isDestructive
+              ? Theme.of(context).colorScheme.error
               : Theme.of(context).textTheme.titleMedium?.color,
         ),
       ),

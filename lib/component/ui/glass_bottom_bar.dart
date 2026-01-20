@@ -72,7 +72,7 @@ class GlassBottomNavigationBar extends StatelessWidget {
                         ), // Reduced from 8
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primaryGreen.withValues(alpha: 0.15)
+                              ? AppColors.primary.withValues(alpha: 0.15)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -83,7 +83,7 @@ class GlassBottomNavigationBar extends StatelessWidget {
                                     ? (item.activeIcon ?? item.icon)
                                     : item.icon,
                                 color: isSelected
-                                    ? AppColors.primaryGreen
+                                    ? AppColors.primary
                                     : theme.colorScheme.onSurface.withValues(
                                         alpha: 0.5,
                                       ),
@@ -102,7 +102,7 @@ class GlassBottomNavigationBar extends StatelessWidget {
                               ? FontWeight.w600
                               : FontWeight.w500,
                           color: isSelected
-                              ? AppColors.primaryGreen
+                              ? AppColors.primary
                               : theme.colorScheme.onSurface.withValues(
                                   alpha: 0.5,
                                 ),

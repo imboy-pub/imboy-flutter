@@ -19,10 +19,7 @@ class UserDeviceRepo {
 
   final SqliteService _db = SqliteService.to;
 
-  Future<List<UserDeviceModel>> page({
-    int limit = 1000,
-    int offset = 0,
-  }) async {
+  Future<List<UserDeviceModel>> page({int limit = 1000, int offset = 0}) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserDeviceRepo.tableName,
       columns: [
@@ -52,7 +49,10 @@ class UserDeviceRepo {
   }
 
   // 插入一条数据
-  Future<UserDeviceModel> insert(UserDeviceModel obj, {Transaction? txn}) async {
+  Future<UserDeviceModel> insert(
+    UserDeviceModel obj, {
+    Transaction? txn,
+  }) async {
     Map<String, dynamic> insert = {
       UserDeviceRepo.userId: UserRepoLocal.to.currentUid,
       UserDeviceRepo.deviceId: obj.deviceId,
@@ -81,7 +81,11 @@ class UserDeviceRepo {
   }
 
   // 更新信息
-  Future<int> update(String did, Map<String, dynamic> json, {Transaction? txn}) async {
+  Future<int> update(
+    String did,
+    Map<String, dynamic> json, {
+    Transaction? txn,
+  }) async {
     Map<String, Object?> data = {};
     if (strNoEmpty(json[UserDeviceRepo.deviceVsn])) {
       data[UserDeviceRepo.deviceVsn] = json[UserDeviceRepo.deviceVsn];
@@ -101,7 +105,7 @@ class UserDeviceRepo {
           UserDeviceRepo.tableName,
           data,
           where:
-          '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
+              '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
           whereArgs: [UserRepoLocal.to.currentUid, did],
         );
       } else {
@@ -109,7 +113,7 @@ class UserDeviceRepo {
           UserDeviceRepo.tableName,
           data,
           where:
-          '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
+              '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
           whereArgs: [UserRepoLocal.to.currentUid, did],
         );
       }
@@ -156,8 +160,9 @@ class UserDeviceRepo {
     }
     return UserDeviceModel.fromJson(maps.first);
   }
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' as getx;
 import 'package:imboy/config/init.dart';
 
 /// 通用工具类模块
@@ -81,26 +80,26 @@ class ErrorHandler {
   /// [error] 错误对象
   /// [stackTrace] 堆栈跟踪
   /// [showSnackbar] 是否显示提示条
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static void handleError(
     String message, {
     Object? error,
     StackTrace? stackTrace,
     bool showSnackbar = true,
+    BuildContext? context,
   }) {
     // 记录错误日志
     logger.e(message, error: error, stackTrace: stackTrace);
 
     // 显示错误提示
-    if (showSnackbar) {
-      getx.Get.snackbar(
-        '错误', // 错误标题
-        message,
-        snackPosition: getx.SnackPosition.bottom,
-        backgroundColor: getx.Get.theme.colorScheme.error.withValues(
-          alpha: 0.8,
+    final ctx = context;
+    if (showSnackbar && ctx != null) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Theme.of(ctx).colorScheme.error,
+          duration: const Duration(seconds: 3),
         ),
-        colorText: getx.Get.theme.colorScheme.onError,
-        duration: const Duration(seconds: 3),
       );
     }
   }
@@ -110,18 +109,30 @@ class ErrorHandler {
   /// [errorMessage] 错误消息
   /// [onSuccess] 成功回调
   /// [onError] 错误回调
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static Future<T?> handleAsyncError<T>(
     Future<T> future, {
     required String errorMessage,
     VoidCallback? onSuccess,
     VoidCallback? onError,
+    BuildContext? context,
   }) async {
     try {
       final result = await future;
       onSuccess?.call();
       return result;
     } catch (e, stack) {
-      handleError(errorMessage, error: e, stackTrace: stack);
+      // 只在 context 仍然 mounted 时显示错误
+      final ctx = context;
+      if (ctx == null || ctx.mounted) {
+        handleError(
+          errorMessage,
+          error: e,
+          stackTrace: stack,
+          showSnackbar: ctx != null,
+          context: ctx,
+        );
+      }
       onError?.call();
       return null;
     }
@@ -176,17 +187,25 @@ class SafeExecutor {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [showError] 是否显示错误
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static T? execute<T>(
     T Function() action, {
     String? errorMessage,
     VoidCallback? onError,
     bool showError = true,
+    BuildContext? context,
   }) {
     try {
       return action();
     } catch (e, stack) {
       if (errorMessage != null && showError) {
-        ErrorHandler.handleError(errorMessage, error: e, stackTrace: stack);
+        ErrorHandler.handleError(
+          errorMessage,
+          error: e,
+          stackTrace: stack,
+          showSnackbar: showError,
+          context: context,
+        );
       }
       onError?.call();
       return null;
@@ -198,17 +217,25 @@ class SafeExecutor {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [showError] 是否显示错误
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static Future<T?> executeAsync<T>(
     Future<T> Function() action, {
     String? errorMessage,
     VoidCallback? onError,
     bool showError = true,
+    BuildContext? context,
   }) async {
     try {
       return await action();
     } catch (e, stack) {
       if (errorMessage != null && showError) {
-        ErrorHandler.handleError(errorMessage, error: e, stackTrace: stack);
+        ErrorHandler.handleError(
+          errorMessage,
+          error: e,
+          stackTrace: stack,
+          showSnackbar: showError,
+          context: context,
+        );
       }
       onError?.call();
       return null;
@@ -260,11 +287,13 @@ class BatchExecutor {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [stopOnError] 是否在遇到错误时停止执行
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static Future<List<T?>> executeAsync<T>(
     List<Future<T> Function()> actions, {
     String? errorMessage,
     VoidCallback? onError,
     bool stopOnError = false,
+    BuildContext? context,
   }) async {
     final results = <T?>[];
 
@@ -273,8 +302,18 @@ class BatchExecutor {
         final result = await action();
         results.add(result);
       } catch (e, stack) {
-        if (errorMessage != null) {
-          ErrorHandler.handleError(errorMessage, error: e, stackTrace: stack);
+        // 只在 context 仍然 mounted 时显示错误
+        final ctx = context;
+        if (ctx == null || ctx.mounted) {
+          if (errorMessage != null) {
+            ErrorHandler.handleError(
+              errorMessage,
+              error: e,
+              stackTrace: stack,
+              showSnackbar: ctx != null,
+              context: ctx,
+            );
+          }
         }
         onError?.call();
         results.add(null);
@@ -293,11 +332,13 @@ class BatchExecutor {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [stopOnError] 是否在遇到错误时停止执行
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static List<T?> execute<T>(
     List<T Function()> actions, {
     String? errorMessage,
     VoidCallback? onError,
     bool stopOnError = false,
+    BuildContext? context,
   }) {
     final results = <T?>[];
 
@@ -307,7 +348,13 @@ class BatchExecutor {
         results.add(result);
       } catch (e, stack) {
         if (errorMessage != null) {
-          ErrorHandler.handleError(errorMessage, error: e, stackTrace: stack);
+          ErrorHandler.handleError(
+            errorMessage,
+            error: e,
+            stackTrace: stack,
+            showSnackbar: true,
+            context: context,
+          );
         }
         onError?.call();
         results.add(null);
@@ -368,17 +415,20 @@ class Utils {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [showError] 是否显示错误
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static T? safeExecute<T>(
     T Function() action, {
     String? errorMessage,
     VoidCallback? onError,
     bool showError = true,
+    BuildContext? context,
   }) {
     return SafeExecutor.execute(
       action,
       errorMessage: errorMessage,
       onError: onError,
       showError: showError,
+      context: context,
     );
   }
 
@@ -387,17 +437,20 @@ class Utils {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [showError] 是否显示错误
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static Future<T?> safeExecuteAsync<T>(
     Future<T> Function() action, {
     String? errorMessage,
     VoidCallback? onError,
     bool showError = true,
+    BuildContext? context,
   }) {
     return SafeExecutor.executeAsync(
       action,
       errorMessage: errorMessage,
       onError: onError,
       showError: showError,
+      context: context,
     );
   }
 
@@ -406,17 +459,20 @@ class Utils {
   /// [error] 错误对象
   /// [stackTrace] 堆栈跟踪
   /// [showSnackbar] 是否显示提示条
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static void handleError(
     String message, {
     Object? error,
     StackTrace? stackTrace,
     bool showSnackbar = true,
+    BuildContext? context,
   }) {
     ErrorHandler.handleError(
       message,
       error: error,
       stackTrace: stackTrace,
       showSnackbar: showSnackbar,
+      context: context,
     );
   }
 
@@ -425,17 +481,20 @@ class Utils {
   /// [errorMessage] 错误消息
   /// [onSuccess] 成功回调
   /// [onError] 错误回调
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static Future<T?> handleAsyncError<T>(
     Future<T> future, {
     required String errorMessage,
     VoidCallback? onSuccess,
     VoidCallback? onError,
+    BuildContext? context,
   }) {
     return ErrorHandler.handleAsyncError(
       future,
       errorMessage: errorMessage,
       onSuccess: onSuccess,
       onError: onError,
+      context: context,
     );
   }
 
@@ -444,17 +503,20 @@ class Utils {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [stopOnError] 是否在遇到错误时停止执行
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static Future<List<T?>> batchExecuteAsync<T>(
     List<Future<T> Function()> actions, {
     String? errorMessage,
     VoidCallback? onError,
     bool stopOnError = false,
+    BuildContext? context,
   }) {
     return BatchExecutor.executeAsync(
       actions,
       errorMessage: errorMessage,
       onError: onError,
       stopOnError: stopOnError,
+      context: context,
     );
   }
 
@@ -463,17 +525,20 @@ class Utils {
   /// [errorMessage] 错误消息
   /// [onError] 错误回调
   /// [stopOnError] 是否在遇到错误时停止执行
+  /// [context] 用于显示 SnackBar 的 BuildContext
   static List<T?> batchExecute<T>(
     List<T Function()> actions, {
     String? errorMessage,
     VoidCallback? onError,
     bool stopOnError = false,
+    BuildContext? context,
   }) {
     return BatchExecutor.execute(
       actions,
       errorMessage: errorMessage,
       onError: onError,
       stopOnError: stopOnError,
+      context: context,
     );
   }
 }

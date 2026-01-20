@@ -87,7 +87,11 @@ class NewFriendRepo {
   }
 
   //
-  Future<NewFriendModel?> findByFromTo(String from, String to, {Transaction? txn}) async {
+  Future<NewFriendModel?> findByFromTo(
+    String from,
+    String to, {
+    Transaction? txn,
+  }) async {
     List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
@@ -200,8 +204,9 @@ class NewFriendRepo {
       whereArgs: [status, to],
     );
   }
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

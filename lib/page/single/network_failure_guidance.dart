@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-class NetworkFailureGuidancePage extends StatelessWidget {
+class NetworkFailureGuidancePage extends ConsumerWidget {
   const NetworkFailureGuidancePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
@@ -17,10 +19,10 @@ class NetworkFailureGuidancePage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const ListTile(
+            ListTile(
               title: Text(
-                '建议按照以下方法检查网络连接',
-                style: TextStyle(
+                t.suggestCheckNetwork,
+                style: const TextStyle(
                   color: Colors.black,
                   fontSize: 17.0,
                   fontWeight: FontWeight.w600,
@@ -37,14 +39,10 @@ class NetworkFailureGuidancePage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                         ), // left: 16, right: 16
-                        child: const Text(
-                          "1.打开手机“设置”并把“Wi-Fi”开关保持开启状态。\n\n"
-                          "2.打开手机“设置”-“通用”-“蜂窝移动网络”，并把“蜂窝移动数据”开关保持开启状态。\n\n"
-                          "3.如果仍无法连接网络，请检查手机接入的“Wi-Fi”是否已接入互联网或者咨询网络运营商。",
-                          // style: TextStyle(
-                          //   color: XColors.textColor33,
-                          //   fontSize: setSp(28),
-                          // ),
+                        child: Text(
+                          '${t.networkTroubleshootingStep1}\n\n'
+                          '${t.networkTroubleshootingStep2}\n\n'
+                          '${t.networkTroubleshootingStep3}',
                         ),
                       ),
                     ),

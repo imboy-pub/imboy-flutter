@@ -25,8 +25,9 @@ class IconImageProvider extends ImageProvider<IconImageProvider> {
 
   @override
   ImageStreamCompleter loadImage(
-          IconImageProvider key, ImageDecoderCallback decode) =>
-      OneFrameImageStreamCompleter(_loadAsync(key));
+    IconImageProvider key,
+    ImageDecoderCallback decode,
+  ) => OneFrameImageStreamCompleter(_loadAsync(key));
 
   Future<ImageInfo> _loadAsync(IconImageProvider key) async {
     assert(key == this);

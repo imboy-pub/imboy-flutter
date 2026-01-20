@@ -1,4 +1,3 @@
-
 import 'http_exceptions.dart';
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -45,8 +44,11 @@ class IMBoyHttpResponse {
     ok = false;
   }
 
-  IMBoyHttpResponse.failureFromError(
-      {HttpException? error, int? errCode, String? errMsg}) {
+  IMBoyHttpResponse.failureFromError({
+    HttpException? error,
+    int? errCode,
+    String? errMsg,
+  }) {
     error = error ?? UnknownException();
     code = errCode ?? 1;
     msg = errMsg ?? t.errorUnexpected;

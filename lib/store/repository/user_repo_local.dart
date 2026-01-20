@@ -1,20 +1,28 @@
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
 
-import '../../service/secure_token_storage_service.dart' show SecureTokenStorageService;
+import '../../service/secure_token_storage_service.dart'
+    show SecureTokenStorageService;
 
-class UserRepoLocal extends GetxController {
-  static UserRepoLocal get to => Get.find();
+/// 用户本地数据仓库
+/// 负责管理用户登录状态、令牌、用户信息等本地数据
+class UserRepoLocal {
+  // 私有构造函数，实现单例模式
+  UserRepoLocal._();
 
-  String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
+  // 单例实例
+  static final UserRepoLocal _instance = UserRepoLocal._();
+
+  /// 获取单例实例
+  static UserRepoLocal get to => _instance;
+
+  String get currentUid => StorageService.to.getString(Keys.currentUid);
 
   bool get isLoggedIn {
     return currentUid.isNotEmpty;
@@ -67,24 +75,43 @@ class UserRepoLocal extends GetxController {
     StorageService.to.remove('token_decryption_failed');
   }
 
+  /// 获取当前用户信息
+  ///
+  /// 注意：如果用户未登录或数据无效，会抛出异常
+  /// 建议使用 [currentUser] getter 来安全地获取用户信息
+  ///
+  /// 抛出：
+  /// - [StateError] 当用户未登录或数据无效时
   UserModel get current {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
     // iPrint("current user ${user.toString()}");
     if (user.isEmpty) {
-      WebSocketService.to.closeSocket(permanent: true);
-      Get.offAll(() => const LoginPage());
+      // 不再在这里执行导航，由调用方处理
+      // WebSocketService.to.closeSocket(permanent: true);
+      // Get.offAll(() => const LoginPage());
+      debugPrint(
+        "UserRepoLocal.current: user data is empty, throwing exception",
+      );
+      throw StateError('User not logged in or user data is empty');
+    }
+    return UserModel.fromJson(user);
+  }
+
+  /// 安全地获取当前用户信息
+  ///
+  /// 如果用户未登录或数据无效，返回 null
+  /// 调用方需要处理 null 情况并执行相应的导航逻辑
+  UserModel? get currentUser {
+    Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
+    if (user.isEmpty) {
+      debugPrint("UserRepoLocal.currentUser: user data is empty");
+      return null;
     }
     return UserModel.fromJson(user);
   }
 
   String get lastLoginAccount =>
-      StorageService.to.getString(Keys.lastLoginAccount) ?? '';
-
-  @override
-  void onInit() {
-    super.onInit();
-    // _loadIsLogin();
-  }
+      StorageService.to.getString(Keys.lastLoginAccount);
 
   Future<bool> changeSetting(UserSettingModel setting) async {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
@@ -99,7 +126,6 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> loginAfter(String account, Map<String, dynamic> payload) async {
-
     StorageService.to.setString(Keys.lastLoginAccount, account);
     List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
     if (li == null) {

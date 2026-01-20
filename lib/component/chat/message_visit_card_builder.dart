@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/contact/people_info/people_info_view.dart';
+import 'package:imboy/page/contact/people_info/people_info_page.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -57,7 +56,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
           return Container(); // 或者一些错误提示
         }
         return SizedBox(
-          width: Get.width * 0.618,
+          width: MediaQuery.of(context).size.width * 0.618,
           height: 105,
           child: Padding(
             padding: const EdgeInsets.all(8),
@@ -68,13 +67,14 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                   flex: 3,
                   child: InkWell(
                     onTap: () {
-                      Get.to(
-                        () => PeopleInfoPage(
-                          id: msg.metadata?['uid'],
-                          scene: 'visit_card',
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PeopleInfoPage(
+                            id: msg.metadata?['uid'],
+                            scene: 'visit_card',
+                          ),
                         ),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
                       );
                     },
                     child: Row(

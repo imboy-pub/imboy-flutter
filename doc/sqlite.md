@@ -5,7 +5,7 @@
 查询
 PRAGMA user_version
 修改
-PRAGMA user_version = 6
+PRAGMA user_version = 10
 ```
 
 ## Flutter项目移动端SQLite升级指南：解决json_extract函数缺失问题

@@ -61,7 +61,7 @@
 | `backup_service.dart` | 数据备份服务 | archive, path |
 | `assets.dart` | 资源管理服务 | -
 | `app_logger.dart` | 应用日志服务 | logger |
-| `voice_playback_service.dart` | 语音播放服务 | just_audio |
+| `voice_playback_service.dart` | 语音播放服务（Riverpod StateNotifier） | just_audio |
 
 ---
 
@@ -78,7 +78,7 @@
 4. DeviceExt.did                       // 设备信息
 5. HttpClient                          // HTTP 客户端
 6. NetworkMonitorService               // 网络监控
-7. VoicePlaybackService                // 语音播放
+7. VoicePlaybackService                // 语音播放（使用 voicePlaybackProvider，无需手动初始化）
 8. WebSocket 相关服务                   // WebSocket 服务群
 ```
 
@@ -291,6 +291,78 @@ WebSocketService.to.send(json.encode({
 - `C2G` - 客户端到群组
 - `C2S` - 客户端到服务端
 - `S2C` - 服务端到客户端
+
+### VoicePlaybackService
+语音播放服务，使用 Riverpod StateNotifier 管理音频播放状态。
+
+**核心功能**：
+- 播放本地音频文件
+- 播放控制（播放、暂停、恢复、停止）
+- 播放进度跟踪
+- 播放完成回调
+- 自动连播支持
+
+**架构设计**：
+- 使用 `StateNotifier` 管理播放状态
+- 状态包含：音频路径、消息ID、播放状态、暂停状态、播放位置、音频时长
+- 支持响应式 UI 更新
+
+**使用示例**：
+```dart
+// 在 ConsumerWidget 中监听播放状态
+class MyWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playbackState = ref.watch(voicePlaybackProvider);
+
+    return Column(
+      children: [
+        Text('播放状态: ${playbackState.isPlaying ? "播放中" : "未播放"}'),
+        Text('进度: ${playbackState.currentPosition}/${playbackState.currentDuration}'),
+        ElevatedButton(
+          onPressed: () {
+            ref.read(voicePlaybackProvider.notifier).play(
+              path: 'audio.mp3',
+              messageId: 'msg123',
+            );
+          },
+          child: Text('播放'),
+        ),
+      ],
+    );
+  }
+}
+
+// 在 Notifier 中使用
+class ChatNotifier extends StateNotifier<ChatState> {
+  ChatNotifier(this.ref) : super(ChatState()) {
+    // 设置播放完成回调
+    final playbackNotifier = ref.read(voicePlaybackProvider.notifier);
+    playbackNotifier.onPlaybackCompleted = (messageId) async {
+      await _playNextAudioMessage(messageId);
+    };
+  }
+
+  final Ref ref;
+
+  Future<void> playVoiceMessage({
+    required String voiceUrlOrPath,
+    required String messageId,
+    required int duration,
+  }) async {
+    await ref.read(voicePlaybackProvider.notifier).play(
+      path: voiceUrlOrPath,
+      messageId: messageId,
+      durationMs: duration,
+    );
+  }
+}
+```
+
+**向后兼容**：
+- 旧代码可以继续使用 `VoicePlaybackService.to` API
+- 向后兼容层会自动转发到 Riverpod Provider
+- 详细迁移指南：[VOICE_PLAYBACK_MIGRATION.md](./VOICE_PLAYBACK_MIGRATION.md)
 
 ### SqliteService
 SQLite 数据库服务，提供统一的数据库操作接口。

@@ -208,14 +208,13 @@ class AppTheme {
       brightness: Brightness.light,
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.lightSurface, // 确保Scaffold背景一致
-
       // 1. Material 3 完整颜色方案
       colorScheme: ColorScheme.light(
         // Primary colors - 主色系
-        primary: AppColors.primaryGreen,
+        primary: AppColors.primary,
         onPrimary: Colors.white,
-        primaryContainer: AppColors.greenContainer,
-        onPrimaryContainer: AppColors.onGreenContainer,
+        primaryContainer: AppColors.primaryContainer,
+        onPrimaryContainer: AppColors.onPrimaryContainer,
 
         // Secondary colors - 次要色系
         secondary: AppColors.secondary,
@@ -255,7 +254,7 @@ class AppTheme {
 
       // 4. 底部导航栏
       bottomNavigationBarTheme:
-          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark),
+          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark, fontSizeOption: null),
 
       // 5. 按钮主题
       elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
@@ -296,10 +295,10 @@ class AppTheme {
       // 1. Material 3 完整颜色方案 - 暗色模式
       colorScheme: ColorScheme.dark(
         // Primary colors - 主色系
-        primary: AppColors.primaryGreenLight,
+        primary: AppColors.primaryLight,
         onPrimary: Colors.white,
-        primaryContainer: AppColors.primaryGreenDark,
-        onPrimaryContainer: AppColors.onGreenContainer,
+        primaryContainer: AppColors.primaryDark,
+        onPrimaryContainer: AppColors.onPrimaryContainer,
 
         // Secondary colors - 次要色系
         secondary: AppColors.secondary,
@@ -331,7 +330,7 @@ class AppTheme {
       ),
 
       // 2. 图标主题
-      iconTheme: IconThemeData(color: AppColors.primaryGreenLight),
+      iconTheme: IconThemeData(color: AppColors.primaryLight),
       primaryIconTheme: IconThemeData(color: Colors.white),
 
       // 3. 应用栏主题
@@ -339,7 +338,7 @@ class AppTheme {
 
       // 4. 底部导航栏
       bottomNavigationBarTheme:
-          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark),
+          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark, fontSizeOption: null),
 
       // 5. 按钮主题
       elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(

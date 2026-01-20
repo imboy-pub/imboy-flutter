@@ -32,10 +32,10 @@ class WebRTCSignalingModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': msgId,
-        'type': type,
-        'from': from,
-        'to': to,
-        'payload': payload,
-      };
+    'id': msgId,
+    'type': type,
+    'from': from,
+    'to': to,
+    'payload': payload,
+  };
 }

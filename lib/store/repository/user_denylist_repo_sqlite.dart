@@ -37,10 +37,7 @@ class UserDenylistRepo {
 
   final SqliteService _db = SqliteService.to;
 
-  Future<List<DenylistModel>> page({
-    int limit = 1000,
-    int offset = 0,
-  }) async {
+  Future<List<DenylistModel>> page({int limit = 1000, int offset = 0}) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserDenylistRepo.tableName,
       columns: defaultColumns,
@@ -70,7 +67,8 @@ class UserDenylistRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       UserDenylistRepo.tableName,
       columns: defaultColumns,
-      where: '${UserDenylistRepo.uid}=? and ('
+      where:
+          '${UserDenylistRepo.uid}=? and ('
           '${UserDenylistRepo.nickname} like ? or ${UserDenylistRepo.remark} like ?'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid, pattern, pattern],
@@ -245,8 +243,9 @@ class UserDenylistRepo {
       whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
   }
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

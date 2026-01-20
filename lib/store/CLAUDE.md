@@ -2,11 +2,16 @@
 
 [根目录](../../CLAUDE.md) > [lib](../) > **store**
 
-> 最后更新：2026-01-05 14:12:27 CST
+> 最后更新：2026-01-19 12:00:00 CST
 
 ---
 
 ## 变更记录 (Changelog)
+
+### 2026-01-19
+- **重命名重构**：`provider/` 目录重命名为 `api/`
+- 统一命名规范：`*_provider.dart` → `*_api.dart`，`*Provider` → `*Api`
+- 解决与 Riverpod 的命名冲突
 
 ### 2026-01-05
 - 初始化数据层文档
@@ -16,12 +21,12 @@
 
 ## 模块职责
 
-数据层（`lib/store/`）负责应用的数据管理，包括数据模型定义、数据仓库（Repository）、API 提供者（Provider）三部分。
+数据层（`lib/store/`）负责应用的数据管理，包括数据模型定义、数据仓库（Repository）、API 客户端（Api）三部分。
 
 ### 核心职责
 - 数据模型（Model）定义
 - 本地数据存储和查询（Repository）
-- 远程 API 调用（Provider）
+- 远程 API 调用（Api）
 - 数据缓存和同步
 
 ---
@@ -34,7 +39,7 @@
 |-------|---------|---------|
 | `model/` | 数据模型定义 | 18+ 个模型 |
 | `repository/` | 数据仓库（SQLite） | 11+ 个仓库 |
-| `provider/` | API 提供者（HTTP） | 13+ 个提供者 |
+| `api/` | HTTP API 客户端 | 14+ 个 API 类 |
 
 ---
 
@@ -48,11 +53,11 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 ```
 
-### Provider 导入示例
+### Api 导入示例
 ```dart
-import 'package:imboy/store/provider/user_provider.dart';
-import 'package:imboy/store/provider/contact_provider.dart';
-import 'package:imboy/store/provider/group_provider.dart';
+import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/store/api/contact_api.dart';
+import 'package:imboy/store/api/group_api.dart';
 ```
 
 ---
@@ -177,65 +182,81 @@ GroupModel? group = await groupRepo.findByGroupId(groupId);
 List<GroupModel> groups = await groupRepo.pageByUser(uid);
 ```
 
-### Provider 接口
+### Api 接口
 
-#### UserProvider（用户 API）
+#### UserApi（用户 API）
 ```dart
 // 创建实例
-UserProvider provider = UserProvider();
-
-// 登录
-IMBoyHttpResponse response = await provider.loginApi(
-  username,
-  password,
-);
-
-// 注册
-IMBoyHttpResponse response = await provider.signUpApi(data);
+UserApi api = UserApi.to;
 
 // 刷新 Token
-IMBoyHttpResponse response = await provider.refreshAccessTokenApi(
+String newToken = await api.refreshAccessTokenApi(
   refreshToken,
 );
 
-// 获取用户信息
-IMBoyHttpResponse response = await provider.userInfoApi(userId);
-```
+// 修改邮箱
+bool success = await api.changeEmail(
+  email: email,
+  code: code,
+);
 
-#### ContactProvider（联系人 API）
-```dart
-// 创建实例
-ContactProvider provider = ContactProvider();
+// 修改密码
+bool success = await api.changePassword(
+  newPwd: newPwd,
+  existingPwd: existingPwd,
+);
 
 // 搜索用户
-IMBoyHttpResponse response = await provider.searchUserApi(keyword);
-
-// 添加好友
-IMBoyHttpResponse response = await provider.addFriendApi(userId);
-
-// 删除好友
-IMBoyHttpResponse response = await provider.deleteFriendApi(userId);
-
-// 获取好友列表
-IMBoyHttpResponse response = await provider.contactListApi();
+Map<String, dynamic>? result = await api.userSearch(
+  page: 1,
+  size: 10,
+  keyword: 'keyword',
+);
 ```
 
-#### GroupProvider（群组 API）
+#### ContactApi（联系人 API）
 ```dart
 // 创建实例
-GroupProvider provider = GroupProvider();
+ContactApi api = ContactApi();
+
+// 获取好友列表
+List<dynamic> friends = await api.listFriend();
+
+// 同步联系人信息
+ContactModel? contact = await api.syncByUid(uid);
+
+// 修改备注
+bool success = await api.changeRemark(uid, remark);
+
+// 删除联系人
+bool success = await api.deleteContact(uid);
+```
+
+#### GroupApi（群组 API）
+```dart
+// 创建实例
+GroupApi api = GroupApi();
+
+// 分页查询群组
+Map<String, dynamic>? result = await api.page(
+  page: 1,
+  size: 10,
+  attr: 'owner',
+);
+
+// 获取群组详情
+Map<String, dynamic> detail = await api.detail(gid: gid);
 
 // 创建群组
-IMBoyHttpResponse response = await provider.createGroupApi(data);
+Map<String, dynamic>? result = await api.groupAdd(
+  memberUserIds: [uid1, uid2],
+);
 
-// 加入群组
-IMBoyHttpResponse response = await provider.joinGroupApi(groupId);
-
-// 退出群组
-IMBoyHttpResponse response = await provider.leaveGroupApi(groupId);
-
-// 获取群组成员
-IMBoyHttpResponse response = await provider.groupMembersApi(groupId);
+// 编辑群组
+bool success = await api.groupEdit(
+  gid: gid,
+  data: {...},
+);
 ```
 
 ---
@@ -393,11 +414,11 @@ class MessageRepo {
 
 ---
 
-## Provider 设计模式
+## Api 设计模式
 
 ### 基础结构
 ```dart
-class ExampleProvider {
+class ExampleApi extends HttpClient {
   // API 方法
   Future<IMBoyHttpResponse> exampleApi(
     Map<String, dynamic> data,
@@ -439,7 +460,7 @@ A: 在 `lib/store/model/` 下创建新模型类，实现 `toJson`/`fromJson` 方
 A: 在 `lib/store/repository/` 下创建新的仓库类，继承基础 CRUD 模式。
 
 ### Q: 如何调用新的 API？
-A: 在 `lib/store/provider/` 下创建新的 Provider 类，使用 `HttpClient` 发送请求。
+A: 在 `lib/store/api/` 下创建新的 Api 类，使用 `HttpClient` 发送请求。
 
 ### Q: 如何处理数据库迁移？
 A: 在 `lib/service/migration_service.dart` 中添加迁移逻辑。
@@ -475,20 +496,21 @@ A: 在 `lib/service/migration_service.dart` 中添加迁移逻辑。
 - `lib/store/repository/user_denylist_repo_sqlite.dart` - 黑名单仓库
 - `lib/store/repository/user_collect_repo_sqlite.dart` - 收藏仓库
 
-### API 提供者（Provider）
-- `lib/store/provider/user_provider.dart` - 用户 API
-- `lib/store/provider/contact_provider.dart` - 联系人 API
-- `lib/store/provider/group_provider.dart` - 群组 API
-- `lib/store/provider/group_member_provider.dart` - 群成员 API
-- `lib/store/provider/auth_provider.dart` - 认证 API
-- `lib/store/provider/denylist_provider.dart` - 黑名单 API
-- `lib/store/provider/user_tag_provider.dart` - 用户标签 API
-- `lib/store/provider/feedback_provider.dart` - 反馈 API
-- `lib/store/provider/location_provider.dart` - 位置 API
-- `lib/store/provider/user_device_provider.dart` - 用户设备 API
-- `lib/store/provider/user_collect_provider.dart` - 收藏 API
-- `lib/store/provider/app_version_provider.dart` - 应用版本 API
-- `lib/store/provider/attachment_provider.dart` - 附件 API
+### API 客户端（Api）
+- `lib/store/api/user_api.dart` - 用户 API
+- `lib/store/api/contact_api.dart` - 联系人 API
+- `lib/store/api/group_api.dart` - 群组 API
+- `lib/store/api/group_member_api.dart` - 群成员 API
+- `lib/store/api/auth_api.dart` - 认证 API
+- `lib/store/api/denylist_api.dart` - 黑名单 API
+- `lib/store/api/user_tag_api.dart` - 用户标签 API
+- `lib/store/api/feedback_api.dart` - 反馈 API
+- `lib/store/api/location_api.dart` - 位置 API
+- `lib/store/api/user_device_api.dart` - 用户设备 API
+- `lib/store/api/user_collect_api.dart` - 收藏 API
+- `lib/store/api/app_version_api.dart` - 应用版本 API
+- `lib/store/api/attachment_api.dart` - 附件 API
+- `lib/store/api/e2ee_api.dart` - 端到端加密 API
 
 ---
 

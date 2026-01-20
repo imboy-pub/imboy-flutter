@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -10,15 +9,13 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_page.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
-
 
 /// 发送WebRTC消息
 Future<bool> sendWebRTCMsg(
@@ -43,10 +40,12 @@ Future<bool> sendWebRTCMsg(
   request["payload"] = payload;
 
   // 解耦：通过事件发送消息
-  AppEventBus.fire(WebSocketMessageSendRequestEvent(
-    message: json.encode(request),
-    messageId: msgId,
-  ));
+  AppEventBus.fire(
+    WebSocketMessageSendRequestEvent(
+      message: json.encode(request),
+      messageId: msgId,
+    ),
+  );
 
   return true;
 }
@@ -60,6 +59,7 @@ String sessionId(String peerId) {
 
 /// 来电提示弹窗
 Future<void> incomingCallScreen(
+  BuildContext context,
   String msgId,
   ContactModel peer,
   Map<String, dynamic> option,
@@ -81,7 +81,10 @@ Future<void> incomingCallScreen(
 
   gTimer = Timer(const Duration(seconds: 60), () {
     MessageService.to.changeLocalMsgState(msgId, 5);
-    if (Get.isDialogOpen ?? false) Get.closeAllDialogs();
+    // Check if dialog is still open and close it
+    if (navigatorKey.currentState?.overlay != null) {
+      navigatorKey.currentState?.pop();
+    }
     gTimer?.cancel();
     gTimer = null;
     p2pCallScreenOn = false;
@@ -89,98 +92,118 @@ Future<void> incomingCallScreen(
 
   await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
 
-  Get.defaultDialog(
-    title: '',
-    backgroundColor: ThemeManager.instance.isDarkMode
-        ? const Color.fromRGBO(80, 80, 80, 1)
-        : const Color.fromRGBO(240, 240, 240, 1),
-    titlePadding: EdgeInsets.zero,
+  // 标记消息已读 - TODO: 需要在 ChatLogic 迁移后更新
+  // 目前暂时跳过此功能，因为 ChatLogic 仍在使用 GetX
+
+  if (!context.mounted) return;
+
+  final theme = Theme.of(context);
+  final size = MediaQuery.of(context).size;
+
+  showDialog(
+    context: context,
     barrierDismissible: false,
-    radius: 10,
-    content: SizedBox(
-      width: Get.width,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Avatar(imgUri: peer.avatar, width: 44, height: 44),
-          ),
-          SizedBox(
-            width: 116,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  peer.nickname,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    t.incomingCall.replaceAll('{s}',
-                        option['media'] == 'video' ? t.video : t.audio),
-                    style: TextStyle(
-                      color: ThemeManager.instance.getThemeColor('textPrimary'),
+    builder: (dialogContext) => Dialog(
+      backgroundColor: ThemeManager.instance.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: SizedBox(
+        width: size.width * 0.8,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 6,
+                left: 16,
+                top: 16,
+                bottom: 16,
+              ),
+              child: Avatar(imgUri: peer.avatar, width: 44, height: 44),
+            ),
+            SizedBox(
+              width: 116,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    peer.nickname,
+                    style: const TextStyle(
                       fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      t.incomingCall(
+                        param: option['media'] == 'video' ? t.video : t.audio,
+                      ),
+                      style: TextStyle(
+                        color: ThemeManager.instance.getThemeColor(
+                          'textPrimary',
+                        ),
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
-          ),
-          FloatingActionButton(
-            mini: true,
-            heroTag: "RejectCall",
-            backgroundColor: Get.theme.colorScheme.error,
-            onPressed: () async {
-              try {
-                await Get.find<ChatLogic>().markAsRead('C2C', peer.peerId, [
-                  msgId,
-                ]);
-              } catch (e) {
-                // Ignore marking error, continue with call rejection
-              }
-              MessageService.to.changeLocalMsgState(msgId, 5);
-              gTimer?.cancel();
-              gTimer = null;
-              await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);
-              p2pCallScreenOn = false;
-              Get.closeAllDialogs();
-            },
-            child: Icon(Icons.call_end, color: Get.theme.colorScheme.onError),
-          ),
-          const SizedBox(width: 8),
-          FloatingActionButton(
-            mini: true,
-            heroTag: "AcceptCall",
-            backgroundColor: Get.theme.colorScheme.primary,
-            onPressed: () async {
-              try {
-                await Get.find<ChatLogic>().markAsRead('C2C', peer.peerId, [
-                  msgId,
-                ]);
-              } catch (e) {
-                // Ignore marking error, continue with call acceptance
-              }
-              gTimer?.cancel();
-              gTimer = null;
-              Get.closeAllDialogs();
-              option['msgId'] = msgId;
-              openCallScreen(peer, session: s, option, caller: false);
-            },
-            child: Icon(
-              option['media'] == 'video' ? Icons.videocam : Icons.phone,
-              color: ThemeManager.instance.getThemeColor('textPrimary'),
+            const Spacer(),
+            FloatingActionButton(
+              mini: true,
+              heroTag: "RejectCall",
+              backgroundColor: theme.colorScheme.error,
+              onPressed: () async {
+                // TODO: mark message as read after ChatLogic migration
+                MessageService.to.changeLocalMsgState(msgId, 5);
+                gTimer?.cancel();
+                gTimer = null;
+                await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);
+                p2pCallScreenOn = false;
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+              },
+              child: Icon(Icons.call_end, color: theme.colorScheme.onError),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            FloatingActionButton(
+              mini: true,
+              heroTag: "AcceptCall",
+              backgroundColor: theme.colorScheme.primary,
+              onPressed: () async {
+                // TODO: mark message as read after ChatLogic migration
+                gTimer?.cancel();
+                gTimer = null;
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+                option['msgId'] = msgId;
+                openCallScreen(
+                  context,
+                  peer,
+                  session: s,
+                  option,
+                  caller: false,
+                );
+              },
+              child: Icon(
+                option['media'] == 'video' ? Icons.videocam : Icons.phone,
+                color: ThemeManager.instance.getThemeColor('textPrimary'),
+              ),
+            ),
+            const SizedBox(width: 16),
+          ],
+        ),
       ),
     ),
   );
@@ -188,6 +211,7 @@ Future<void> incomingCallScreen(
 
 /// 打开通话界面
 Future<void> openCallScreen(
+  BuildContext context,
   ContactModel peer,
   Map<String, dynamic> option, {
   WebRTCSession? session,
@@ -209,7 +233,7 @@ Future<void> openCallScreen(
       closePage: () {
         p2pEntry?.remove();
         p2pEntry = null;
-        Get.delete<P2pCallScreenPage>(force: true);
+        // Get.delete removed - cleanup is handled by closePage callback
         p2pCallScreenOn = false;
       },
     ),

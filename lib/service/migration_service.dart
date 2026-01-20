@@ -9,8 +9,8 @@ import 'package:sqflite/sqflite.dart';
 
 /// 迁移脚本模型
 class MigrationScript {
-  final int version;        // 起始版本
-  final int targetVersion;  // 目标版本
+  final int version; // 起始版本
+  final int targetVersion; // 目标版本
   final String description;
   final List<String> sqlStatements;
 
@@ -40,10 +40,7 @@ class MigrationResult {
     this.snapshotPath,
   });
 
-  factory MigrationResult.success({
-    int? fromVersion,
-    int? toVersion,
-  }) {
+  factory MigrationResult.success({int? fromVersion, int? toVersion}) {
     return MigrationResult(
       success: true,
       fromVersion: fromVersion,
@@ -123,7 +120,11 @@ class MigrationService {
       _logger.i('Loaded ${_downgradeScripts!.length} downgrade scripts');
       _logger.i('Target version: $targetVersion');
     } catch (e, stackTrace) {
-      _logger.e('Failed to initialize MigrationService', error: e, stackTrace: stackTrace);
+      _logger.e(
+        'Failed to initialize MigrationService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -175,6 +176,9 @@ class MigrationService {
     String? snapshotPath;
 
     try {
+      // 确保迁移脚本已加载
+      await init();
+
       // 创建快照（在事务外执行）
       snapshotPath = await _createSnapshot(db);
 
@@ -201,16 +205,22 @@ class MigrationService {
       // 执行迁移（已在事务中，由 SqliteService 的 onUpgrade/onDowngrade 回调保证）
       for (int i = 0; i < scripts.length; i++) {
         final script = scripts[i];
-        _logger.i('Progress: ${i + 1}/${scripts.length} - v${script.version} → v${script.targetVersion}');
+        _logger.i(
+          'Progress: ${i + 1}/${scripts.length} - v${script.version} → v${script.targetVersion}',
+        );
 
         for (final sql in script.sqlStatements) {
           await db.execute(sql);
-          _logger.d('Executed: ${sql.substring(0, 50)}...');
+          // 安全截取：避免 SQL 语句长度小于 50 时抛出 RangeError
+          final preview = sql.length > 50 ? '${sql.substring(0, 50)}...' : sql;
+          _logger.d('Executed: $preview');
         }
 
         // 每个脚本执行后进行完整性检查
         if (!await _verifyDatabaseIntegrity(db)) {
-          throw Exception('Database integrity check failed after v${script.targetVersion}');
+          throw Exception(
+            'Database integrity check failed after v${script.targetVersion}',
+          );
         }
       }
 
@@ -252,7 +262,9 @@ class MigrationService {
       // 执行 SQLite 完整性检查
       final result = await db.rawQuery('PRAGMA integrity_check');
       if (result.isNotEmpty && result.first.values.first != 'ok') {
-        _logger.e('Database integrity check failed: ${result.first.values.first}');
+        _logger.e(
+          'Database integrity check failed: ${result.first.values.first}',
+        );
         return false;
       }
 
@@ -271,7 +283,9 @@ class MigrationService {
   }
 
   /// 加载迁移脚本文件
-  Future<Map<int, MigrationScript>> _loadMigrationScripts(String scriptPath) async {
+  Future<Map<int, MigrationScript>> _loadMigrationScripts(
+    String scriptPath,
+  ) async {
     try {
       final content = await rootBundle.loadString(scriptPath);
       return _parseMigrationScripts(content);
@@ -313,7 +327,8 @@ class MigrationService {
       // 目标版本（从 PRAGMA user_version 中提取）
       int targetVersion = startVersion;
 
-      for (final line in lines) {
+      // 跳过第一行（版本号），从第二行开始处理 SQL 语句
+      for (final line in lines.skip(1)) {
         final trimmed = line.trim();
         if (trimmed.isEmpty || trimmed.startsWith('--')) continue;
 
@@ -322,7 +337,9 @@ class MigrationService {
 
         // 提取 PRAGMA user_version 作为目标版本
         if (trimmed.startsWith('PRAGMA user_version')) {
-          final match = RegExp(r'PRAGMA user_version\s*=\s*(\d+)').firstMatch(trimmed);
+          final match = RegExp(
+            r'PRAGMA user_version\s*=\s*(\d+)',
+          ).firstMatch(trimmed);
           if (match != null) {
             targetVersion = int.parse(match.group(1)!);
           }
@@ -365,8 +382,9 @@ class MigrationService {
       final script = scripts[startVersion];
       if (script == null) continue;
 
-      // 只执行起始版本 >= fromVersion 且目标版本 <= toVersion 的脚本
-      if (script.version >= fromVersion && script.targetVersion <= toVersion) {
+      // 只执行起始版本 > fromVersion 且目标版本 <= toVersion 的脚本
+      // 注意：起始版本等于 fromVersion 的脚本是当前版本，不需要执行
+      if (script.version > fromVersion && script.targetVersion <= toVersion) {
         result.add(script);
       }
     }
@@ -412,7 +430,9 @@ class MigrationService {
   }
 
   /// 清理旧快照
-  Future<int> cleanupOldSnapshots({Duration maxAge = const Duration(days: 1)}) async {
+  Future<int> cleanupOldSnapshots({
+    Duration maxAge = const Duration(days: 1),
+  }) async {
     final tempDir = await getTemporaryDirectory();
     final snapshotDir = Directory(path.join(tempDir.path, 'db_snapshots'));
 

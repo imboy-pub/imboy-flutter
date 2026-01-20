@@ -36,7 +36,8 @@ class LocaleHelper {
       local = intlPhoneNumberInput(local);
     }
 
-    return StorageService.to.getString(Keys.currentLang) ?? local;
+    final currentLang = StorageService.to.getString(Keys.currentLang);
+    return currentLang.isEmpty ? local : currentLang;
   }
 
   /// 转换为国际电话输入库支持的语言代码

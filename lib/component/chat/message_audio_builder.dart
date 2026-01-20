@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:get/get.dart' as getx;
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/theme_manager.dart';
@@ -12,9 +12,6 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:get/get.dart';
-import 'package:imboy/service/voice_playback_service.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
 
 class AudioMessageBuilder extends StatefulWidget {
   final String type;
@@ -22,6 +19,13 @@ class AudioMessageBuilder extends StatefulWidget {
   final CustomMessage? message;
   final Map<String, dynamic>? info;
   final Function()? onPlay;
+  // 新增：播放状态参数（由父组件传递）
+  final bool isPlaying;
+  final bool isPaused;
+  final int currentPositionMs;
+  final int currentDurationMs;
+  final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+  onPlayPause;
 
   const AudioMessageBuilder({
     super.key,
@@ -30,6 +34,11 @@ class AudioMessageBuilder extends StatefulWidget {
     this.message,
     this.info,
     this.onPlay,
+    this.isPlaying = false,
+    this.isPaused = false,
+    this.currentPositionMs = 0,
+    this.currentDurationMs = 0,
+    this.onPlayPause,
   });
 
   @override
@@ -43,7 +52,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
   late Future<CustomMessage?> messageFuture;
   late AnimationController _animationController;
   late Animation<double> _pulseAnimation;
-  late VoicePlaybackService _playbackService;
   // 仅用于渲染更好看的波形，不用于播放控制
   PlayerController? _waveformController;
   String? _preparedWaveformPath;
@@ -53,7 +61,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
   @override
   void initState() {
     super.initState();
-    _playbackService = VoicePlaybackService.to;
     messageFuture = _initMessage();
     audioPathFuture = _initAudioPath();
 
@@ -275,74 +282,72 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           child: Padding(
             // 使用统一间距（之前是 horizontal: 16, vertical: 12）
             padding: MessageSpacing.bubblePaddingSymmetric,
-            child: Obx(() {
-              // 使用 VoicePlaybackService 全局播放状态
-              final bool isCurrent =
-                  _playbackService.currentMessageId.value == msg.id;
-              final bool isPlayingUI =
-                  isCurrent && _playbackService.isPlaying.value;
-              final bool isPausedUI =
-                  isCurrent && _playbackService.isPaused.value;
-              final int currentMs = isCurrent
-                  ? _playbackService.currentPosition.value
-                  : 0;
-              final int totalMs =
-                  isCurrent && _playbackService.currentDuration.value > 0
-                  ? _playbackService.currentDuration.value
-                  : (duration.inMilliseconds > 0
-                        ? duration.inMilliseconds
-                        : _totalDuration.inMilliseconds);
+            child: Builder(
+              builder: (context) {
+                // 使用传递的播放状态参数
+                final bool isPlayingUI = widget.isPlaying;
+                final bool isPausedUI = widget.isPaused;
+                final int currentMs = widget.currentPositionMs;
+                final int totalMs = widget.currentDurationMs > 0
+                    ? widget.currentDurationMs
+                    : (duration.inMilliseconds > 0
+                          ? duration.inMilliseconds
+                          : _totalDuration.inMilliseconds);
 
-              // 控制脉冲动画
-              if (isPlayingUI) {
-                if (!_animationController.isAnimating) {
-                  _animationController.forward();
+                // 控制脉冲动画
+                if (isPlayingUI) {
+                  if (!_animationController.isAnimating) {
+                    _animationController.forward();
+                  }
+                } else {
+                  if (_animationController.isAnimating) {
+                    _animationController.stop();
+                    _animationController.reset();
+                  }
                 }
-              } else {
-                if (_animationController.isAnimating) {
-                  _animationController.stop();
-                  _animationController.reset();
-                }
-              }
 
-              return ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 200, maxWidth: 350),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 播放按钮
-                    _buildPlayButton(iconColor, isPlayingUI, isPausedUI),
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minWidth: 200,
+                    maxWidth: 350,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 播放按钮
+                      _buildPlayButton(iconColor, isPlayingUI, isPausedUI),
 
-                    // 使用统一间距 12dp
-                    SizedBox(width: MessageSpacing.playButtonSpacing),
+                      // 使用统一间距 12dp
+                      SizedBox(width: MessageSpacing.playButtonSpacing),
 
-                    // 波形显示区域
-                    Expanded(
-                      child: _buildWaveformView(
-                        audioPath,
-                        userIsAuthor,
-                        waveformColor,
+                      // 波形显示区域
+                      Expanded(
+                        child: _buildWaveformView(
+                          audioPath,
+                          userIsAuthor,
+                          waveformColor,
+                        ),
                       ),
-                    ),
 
-                    // 使用统一间距 12dp
-                    SizedBox(width: MessageSpacing.waveformSpacing),
+                      // 使用统一间距 12dp
+                      SizedBox(width: MessageSpacing.waveformSpacing),
 
-                    // 时长显示
-                    _buildDurationDisplay(
-                      textColor,
-                      Duration(milliseconds: currentMs),
-                      Duration(milliseconds: totalMs),
-                      isPlayingUI || isPausedUI,
-                    ),
+                      // 时长显示
+                      _buildDurationDisplay(
+                        textColor,
+                        Duration(milliseconds: currentMs),
+                        Duration(milliseconds: totalMs),
+                        isPlayingUI || isPausedUI,
+                      ),
 
-                    // 未读提示
-                    if (msg.metadata?['played'] != true && !userIsAuthor)
-                      _buildUnreadIndicator(),
-                  ],
-                ),
-              );
-            }),
+                      // 未读提示
+                      if (msg.metadata?['played'] != true && !userIsAuthor)
+                        _buildUnreadIndicator(),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -508,21 +513,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       // 标记为已播放（拷贝 metadata，避免修改不可变 Map）
       if (msg.metadata?['played'] != true) {
         final Map<String, dynamic> newMeta = {...?msg.metadata, 'played': true};
-        final updatedMsg = CustomMessage(
-          authorId: msg.authorId,
-          createdAt: msg.createdAt,
-          id: msg.id,
-          metadata: newMeta,
-        );
-        // 更新UI中的消息对象
-        setState(() {
-          try {
-            final chatLogic = Get.find<ChatLogic>();
-            chatLogic.chatController?.updateMessage(msg, updatedMsg);
-          } catch (e) {
-            iPrint('获取 ChatLogic 实例失败: $e');
-          }
-        });
 
         // 持久化到数据库
         Map<String, dynamic> data = {
@@ -533,12 +523,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         await MessageRepo(tableName: tableName).update(data);
       }
 
-      // 统一交由全局 VoicePlaybackService 控制
-      await _playbackService.play(
-        path: audioPath,
-        messageId: msg.id,
-        durationMs: totalDuration.inMilliseconds,
-      );
+      // 使用回调处理播放逻辑
+      widget.onPlayPause?.call(audioPath, msg, totalDuration);
+
       setState(() {
         _totalDuration = totalDuration;
       });
@@ -549,9 +536,11 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       // 延迟执行以避免在异步间隙使用BuildContext
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          final t = context.t;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('播放失败: ${e.toString()}'),
+              // 错误消息需要保留异常信息，这里字符串拼接是合理的
+              content: Text('${t.audioPlayFailed}: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );

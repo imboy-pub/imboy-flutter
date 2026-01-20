@@ -42,7 +42,8 @@ import 'dart:async';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/base_event.dart';
-import 'package:imboy/service/events/common_events.dart' show EventRetryFailedEvent;
+import 'package:imboy/service/events/common_events.dart'
+    show EventRetryFailedEvent;
 
 /// 事件重试管理器
 ///
@@ -63,9 +64,7 @@ class EventRetryManager {
   /// 构造函数
   ///
   /// [processingInterval] 重试队列处理间隔，默认 10 秒
-  EventRetryManager({
-    this.processingInterval = const Duration(seconds: 10),
-  });
+  EventRetryManager({this.processingInterval = const Duration(seconds: 10)});
 
   /// 添加重试任务
   ///
@@ -83,9 +82,7 @@ class EventRetryManager {
   }) {
     // 如果事件已存在，先移除旧的
     if (_retryQueue.containsKey(eventId)) {
-      AppLogger.warning(
-        '🔄 [EVENT_RETRY] 事件 $eventId 已存在于重试队列，将被覆盖',
-      );
+      AppLogger.warning('🔄 [EVENT_RETRY] 事件 $eventId 已存在于重试队列，将被覆盖');
       removeRetryTask(eventId);
     }
 
@@ -140,7 +137,9 @@ class EventRetryManager {
       _processRetries();
     });
 
-    AppLogger.info('✅ [EVENT_RETRY] 重试定时器已启动，间隔: ${processingInterval.inSeconds}秒');
+    AppLogger.info(
+      '✅ [EVENT_RETRY] 重试定时器已启动，间隔: ${processingInterval.inSeconds}秒',
+    );
   }
 
   /// 停止重试定时器
@@ -173,9 +172,7 @@ class EventRetryManager {
     final now = DateTime.now();
     final toRemove = <String>[];
 
-    AppLogger.debug(
-      '🔄 [EVENT_RETRY] 开始处理重试队列，待处理事件数: ${_retryQueue.length}',
-    );
+    AppLogger.debug('🔄 [EVENT_RETRY] 开始处理重试队列，待处理事件数: ${_retryQueue.length}');
 
     // 遍历重试队列
     for (final entry in _retryQueue.entries) {
@@ -198,11 +195,13 @@ class EventRetryManager {
         );
 
         // 发布重试失败事件
-        AppEventBus.fire(EventRetryFailedEvent(
-          eventId: eventId,
-          eventType: retryEntry.event.runtimeType.toString(),
-          attempts: retryEntry.maxRetries,
-        ));
+        AppEventBus.fire(
+          EventRetryFailedEvent(
+            eventId: eventId,
+            eventType: retryEntry.event.runtimeType.toString(),
+            attempts: retryEntry.maxRetries,
+          ),
+        );
 
         continue;
       }
@@ -217,9 +216,7 @@ class EventRetryManager {
     }
 
     if (_retryQueue.isNotEmpty) {
-      AppLogger.debug(
-        '📊 [EVENT_RETRY] 重试处理完成，剩余事件数: ${_retryQueue.length}',
-      );
+      AppLogger.debug('📊 [EVENT_RETRY] 重试处理完成，剩余事件数: ${_retryQueue.length}');
     }
   }
 
@@ -243,10 +240,7 @@ class EventRetryManager {
 
       AppLogger.debug('✅ [EVENT_RETRY] 事件已重新发布: $eventId');
     } catch (e) {
-      AppLogger.error(
-        '❌ [EVENT_RETRY] 事件重试发布失败: $eventId',
-        e,
-      );
+      AppLogger.error('❌ [EVENT_RETRY] 事件重试发布失败: $eventId', e);
     }
   }
 
@@ -266,15 +260,14 @@ class EventRetryManager {
     return {
       'total': _retryQueue.length,
       'isStarted': _isStarted,
-      'events': _retryQueue.map((eventId, entry) => MapEntry(
-        eventId,
-        {
+      'events': _retryQueue.map(
+        (eventId, entry) => MapEntry(eventId, {
           'type': entry.event.runtimeType.toString(),
           'currentRetry': entry.currentRetry,
           'maxRetries': entry.maxRetries,
           'delay': entry.delay.inSeconds,
-        },
-      )),
+        }),
+      ),
     };
   }
 

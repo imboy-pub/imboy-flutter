@@ -92,7 +92,10 @@ class UserCollectRepo {
   }
 
   // 插入一条数据
-  Future<UserCollectModel> insert(UserCollectModel obj, {Transaction? txn}) async {
+  Future<UserCollectModel> insert(
+    UserCollectModel obj, {
+    Transaction? txn,
+  }) async {
     String tag = _formatTag(obj.tag);
 
     Map<String, dynamic> insert = {
@@ -126,7 +129,11 @@ class UserCollectRepo {
   }
 
   // 更新信息
-  Future<int> update(String kid, Map<String, dynamic> json, {Transaction? txn}) async {
+  Future<int> update(
+    String kid,
+    Map<String, dynamic> json, {
+    Transaction? txn,
+  }) async {
     // iPrint("user_collect_repo_sqlite/update $kid, ${json.toString()}");
     Map<String, Object?> data = {};
     if (strNoEmpty(json[UserCollectRepo.remark])) {
@@ -178,20 +185,25 @@ class UserCollectRepo {
     }
   }
 
-  Future<UserCollectModel?> findByKindId(String kindId, {Transaction? txn}) async {
+  Future<UserCollectModel?> findByKindId(
+    String kindId, {
+    Transaction? txn,
+  }) async {
     List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
         UserCollectRepo.tableName,
         columns: [],
-        where: '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+        where:
+            '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
         whereArgs: [UserRepoLocal.to.currentUid, kindId],
       );
     } else {
       maps = await _db.query(
         UserCollectRepo.tableName,
         columns: [],
-        where: '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+        where:
+            '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
         whereArgs: [UserRepoLocal.to.currentUid, kindId],
       );
     }
@@ -202,8 +214,8 @@ class UserCollectRepo {
     }
   }
 
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

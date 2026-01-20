@@ -49,7 +49,7 @@ class ConversationRepo {
       ConversationRepo.type: obj.type,
       ConversationRepo.msgType: obj.msgType,
       ConversationRepo.isShow: obj.isShow,
-      ConversationRepo.payload: jsonEncode(obj.payload)
+      ConversationRepo.payload: jsonEncode(obj.payload),
     };
     // return lastInsertId;
     if (txn != null) {
@@ -59,13 +59,18 @@ class ConversationRepo {
     }
   }
 
-  Future<int> updateById(int id, Map<String, dynamic> data, {Transaction? txn}) async {
+  Future<int> updateById(
+    int id,
+    Map<String, dynamic> data, {
+    Transaction? txn,
+  }) async {
     // iPrint(
     //     "ConversationRepo_updateById $id, ${data.toString()} ${DateTime.now()}");
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
-      data[ConversationRepo.payload] =
-          jsonEncode(data[ConversationRepo.payload]);
+      data[ConversationRepo.payload] = jsonEncode(
+        data[ConversationRepo.payload],
+      );
     }
     data.remove(ConversationRepo.id);
     if (txn != null) {
@@ -95,8 +100,9 @@ class ConversationRepo {
     data.remove(ConversationRepo.id);
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
-      data[ConversationRepo.payload] =
-          jsonEncode(data[ConversationRepo.payload]);
+      data[ConversationRepo.payload] = jsonEncode(
+        data[ConversationRepo.payload],
+      );
     }
     return await _db.update(
       ConversationRepo.tableName,
@@ -204,7 +210,8 @@ class ConversationRepo {
       orderBy: "${ConversationRepo.lastTime} DESC",
     );
     iPrint(
-        "> on ConversationRepo/all ${items.length} items ${items.toString()}");
+      "> on ConversationRepo/all ${items.length} items ${items.toString()}",
+    );
     if (items.isEmpty) {
       return [];
     }
@@ -213,7 +220,7 @@ class ConversationRepo {
       // if(e['t'])
       try {
         item2.add(ConversationModel.fromJson(e));
-      } catch(e,s) {
+      } catch (e, s) {
         iPrint("ConversationRepo/list err $e; $s");
       }
     }
@@ -281,7 +288,11 @@ class ConversationRepo {
   }
 
   //
-  Future<ConversationModel?> findByPeerId(String type, String peerId, {Transaction? txn}) async {
+  Future<ConversationModel?> findByPeerId(
+    String type,
+    String peerId, {
+    Transaction? txn,
+  }) async {
     List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
@@ -335,7 +346,7 @@ class ConversationRepo {
       );
     }
     // iPrint(
-        // "> on pageMessages findByPeerId $type, ${UserRepoLocal.to.currentUid}, pid $peerId, ${maps.toString()}");
+    // "> on pageMessages findByPeerId $type, ${UserRepoLocal.to.currentUid}, pid $peerId, ${maps.toString()}");
     if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
     }

@@ -227,8 +227,10 @@ HttpRetryInterceptor createRetryInterceptor([HttpRetryConfig? config]) {
       return false;
     },
     onRetry: (error, retryCount) {
-      if (effectiveConfig.showRetryToast && RECORD_LOG) {
-        AppLogger.warning('HTTP 重试中... ($retryCount/${effectiveConfig.maxRetries})');
+      if (effectiveConfig.showRetryToast && recordLog) {
+        AppLogger.warning(
+          'HTTP 重试中... ($retryCount/${effectiveConfig.maxRetries})',
+        );
       }
     },
   );

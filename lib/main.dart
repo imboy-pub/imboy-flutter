@@ -15,10 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await AppInitializer.initialize(
-      env: appEnv,
-      signKeyVsn: '1',
-    );
+    await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
     run();
   } catch (e, s) {
     // logger.e("Application initialization failed", error: e);

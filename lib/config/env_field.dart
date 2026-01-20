@@ -1,4 +1,3 @@
-
 /// Both DebugEnv and ReleaseEnv must implement all these values
 abstract interface class EnvField {
   abstract final String apiBaseUrl;

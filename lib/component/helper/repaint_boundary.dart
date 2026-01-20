@@ -10,8 +10,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class RepaintBoundaryHelper {
   FutureOr<Uint8List?> image(BuildContext ctx, GlobalKey boundaryKey) async {
-    RenderRepaintBoundary? boundary = boundaryKey.currentContext!
-        .findRenderObject() as RenderRepaintBoundary?;
+    RenderRepaintBoundary? boundary =
+        boundaryKey.currentContext!.findRenderObject()
+            as RenderRepaintBoundary?;
 
     final dpr = View.of(ctx).devicePixelRatio; // 获取当前设备的像素比
     final image = await boundary!.toImage(pixelRatio: dpr);
@@ -33,28 +34,22 @@ class RepaintBoundaryHelper {
   /// for example:{"isSuccess":true, "filePath":String?}
   ///保存到相册
   FutureOr<dynamic> savePhoto(
-      BuildContext ctx, GlobalKey boundaryKey, String name) async {
+    BuildContext ctx,
+    GlobalKey boundaryKey,
+    String name,
+  ) async {
     final img = await image(ctx, boundaryKey);
     if (img == null) {
       return {"isSuccess": false, "errorMessage": "Failed to capture image"};
     }
-    
+
     try {
       // 使用 photo_manager 保存到相册
-      final asset = await PhotoManager.editor.saveImage(
-        img,
-        filename: name,
-      );
-      
-      return {
-        "isSuccess": true,
-        "filePath": asset.id,
-      };
+      final asset = await PhotoManager.editor.saveImage(img, filename: name);
+
+      return {"isSuccess": true, "filePath": asset.id};
     } catch (e) {
-      return {
-        "isSuccess": false,
-        "errorMessage": e.toString(),
-      };
+      return {"isSuccess": false, "errorMessage": e.toString()};
     }
   }
 }

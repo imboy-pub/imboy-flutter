@@ -4,19 +4,16 @@ import 'package:flutter/material.dart';
 
 const contactAssets = 'assets/images/contact/';
 
-const CONST_HELP_URL =
+const constHelpUrl =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
 
 String qrcodeDataSuffix = "s=app_qrcode";
 
-const RECORD_LOG = true;
+const recordLog = true;
 
-Icon navigateNextIcon = const Icon(
-  Icons.navigate_next,
-);
+Icon navigateNextIcon = const Icon(Icons.navigate_next);
 
 class Keys {
-
   static const String wsUrl = "ws_url";
   static const String apiPublicKey = "api_public_key";
   static const String uploadUrl = "upload_url";
@@ -45,11 +42,14 @@ class Keys {
   static const refreshTokenKey = 'imboy-refreshtoken';
 
   static String lastLoginAccount = 'lastLoginAccount';
-  static String loginHistory = 'loginHistory';
+  static String loginHistory =
+      'loginHistory'; // Keep for backward compatibility or general list
+  static String loginHistoryAccount = 'loginHistoryAccount';
+  static String loginHistoryMobile = 'loginHistoryMobile';
+  static String loginHistoryEmail = 'loginHistoryEmail';
   static String themeType = 'theme_type';
   static String needSetPwd = 'need_set_password';
 }
-
 
 class API {
   static const initConfig = '/init';
@@ -93,7 +93,6 @@ class API {
   static const groupMemberLeave = '/group_member/leave';
   static const groupMemberAlias = '/group_member/alias';
   static const groupMemberSameGroup = '/group_member/same_group';
-
 
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';

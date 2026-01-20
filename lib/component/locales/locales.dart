@@ -37,16 +37,18 @@ String sysLang(String pkg) {
   } else if (pkg == 'intl_phone_number_input') {
     local = intlPhoneNumberInput(local);
   }
-  return StorageService.to.getString(Keys.currentLang) ?? local;
+  final currentLang = StorageService.to.getString(Keys.currentLang);
+  return currentLang.isEmpty ? local : currentLang;
 }
-
 
 // https://github.com/natintosh/intl_phone_number_input/blob/develop/lib/src/models/country_list.dart
 String intlPhoneNumberInput(String local) {
   iPrint('intlPhoneNumberInput 1 $local');
-  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) { // Hans：代表简体中文（Simplified Chinese）
+  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) {
+    // Hans：代表简体中文（Simplified Chinese）
     local = 'zh';
-  } else if (local.startsWith('zh-Hant')) { // Hant，代表繁体中文（Traditional Chinese）
+  } else if (local.startsWith('zh-Hant')) {
+    // Hant，代表繁体中文（Traditional Chinese）
     local = 'zh_TW';
   } else if (local.startsWith('zh_')) {
     local = 'zh';
@@ -68,7 +70,6 @@ String intlPhoneNumberInput(String local) {
   iPrint('intlPhoneNumberInput 2 $local');
   return local;
 }
-
 
 String jiffyLocal(String local) {
   // from ./jiffy-6.1.0/lib/src/locale/available_locales.dart
@@ -100,9 +101,11 @@ String jiffyLocal(String local) {
   // 'ar': ArLocale(),
   // 'it': ItLocale(),
 
-  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) { // Hans：代表简体中文（Simplified Chinese）
+  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) {
+    // Hans：代表简体中文（Simplified Chinese）
     local = 'zh_CN';
-  } else if (local.startsWith('zh-Hant')) { // Hant，代表繁体中文（Traditional Chinese）
+  } else if (local.startsWith('zh-Hant')) {
+    // Hant，代表繁体中文（Traditional Chinese）
     local = 'zh_Hant';
   } else if (local.startsWith('ru_')) {
     local = 'ru';

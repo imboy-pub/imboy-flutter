@@ -9,9 +9,9 @@ import 'package:imboy/store/model/conversation_model.dart';
 ///
 /// 当会话信息发生变化时触发（如最后消息更新、未读数变化等）
 final class ConversationUpdatedEvent extends AppEvent {
+  @override
+  List<Object> get props => [conversation, updateType, isNewConversation];
 
-    @override
-    List<Object> get props => [conversation, updateType, isNewConversation];
   /// 更新后的会话模型
   final ConversationModel conversation;
 
@@ -77,9 +77,9 @@ enum ConversationUpdateType {
 ///
 /// 当会话未读数或全局未读数发生变化时触发
 final class UnreadCountChangedEvent extends AppEvent {
+  @override
+  List<Object> get props => [oldCount, newCount];
 
-    @override
-    List<Object> get props => [oldCount, newCount];
   /// 会话 UK3（如果为空则表示全局未读数变化）
   final String? conversationUk3;
 
@@ -122,16 +122,18 @@ final class UnreadCountChangedEvent extends AppEvent {
 ///
 /// 当应用的全局未读数（所有会话的未读数总和）发生变化时触发
 final class GlobalUnreadCountChangedEvent extends AppEvent {
+  @override
+  List<Object> get props => [oldCount, newCount, breakdown];
 
-    @override
-    List<Object> get props => [oldCount, newCount, breakdown];
   /// 旧的全局未读数
   final int oldCount;
 
   /// 新的全局未读数
   final int newCount;
+
   /// 未读数变化量
   int get delta => newCount - oldCount;
+
   /// 是否为零（所有消息已读）
   bool get isZero => newCount == 0;
 
@@ -154,9 +156,9 @@ final class GlobalUnreadCountChangedEvent extends AppEvent {
 ///
 /// 当需要刷新会话列表时触发
 final class ConversationListRefreshEvent extends AppEvent {
+  @override
+  List<Object> get props => [reason, forceRefresh];
 
-    @override
-    List<Object> get props => [reason, forceRefresh];
   /// 刷新原因
   final ConversationListRefreshReason reason;
 
@@ -213,9 +215,9 @@ enum ConversationListRefreshReason {
 ///
 /// 当联系人信息发生变化时触发
 final class ContactUpdatedEvent extends AppEvent {
+  @override
+  List<Object> get props => [userId, updateType];
 
-    @override
-    List<Object> get props => [userId, updateType];
   /// 联系人用户 ID
   final String userId;
 
@@ -273,9 +275,9 @@ enum ContactUpdateType {
 ///
 /// 当群组信息发生变化时触发
 final class GroupUpdatedEvent extends AppEvent {
+  @override
+  List<Object> get props => [groupId, updateType];
 
-    @override
-    List<Object> get props => [groupId, updateType];
   /// 群组 ID
   final String groupId;
 
@@ -335,9 +337,9 @@ enum GroupUpdateType {
 ///
 /// 当当前用户信息发生变化时触发
 final class UserInfoUpdatedEvent extends AppEvent {
+  @override
+  List<Object> get props => [updatedFields];
 
-    @override
-    List<Object> get props => [updatedFields];
   /// 更新的字段列表
   final List<String> updatedFields;
 
@@ -363,9 +365,9 @@ final class UserInfoUpdatedEvent extends AppEvent {
 ///
 /// 当用户滚动消息列表时触发（用于加载更多历史消息）
 final class MessageListScrollEvent extends AppEvent {
+  @override
+  List<Object> get props => [conversationUk3, direction, needsLoadMore];
 
-    @override
-    List<Object> get props => [conversationUk3, direction, needsLoadMore];
   /// 会话 UK3
   final String conversationUk3;
 
@@ -408,9 +410,9 @@ enum ScrollDirection {
 ///
 /// 当聊天界面状态发生变化时触发
 final class ChatViewStateChangeEvent extends AppEvent {
+  @override
+  List<Object> get props => [conversationUk3, newState];
 
-    @override
-    List<Object> get props => [conversationUk3, newState];
   /// 会话 UK3
   final String conversationUk3;
 
@@ -463,9 +465,9 @@ enum ChatViewState {
 ///
 /// 当需要显示系统通知时触发
 final class NotificationEvent extends AppEvent {
+  @override
+  List<Object> get props => [type, title, content];
 
-    @override
-    List<Object> get props => [type, title, content];
   /// 通知类型
   final NotificationType type;
 
@@ -532,9 +534,8 @@ enum NotificationType {
 ///
 /// 当应用主题发生变化时触发
 final class ThemeChangedEvent extends AppEvent {
-
-    @override
-    List<Object> get props => [themeMode];
+  @override
+  List<Object> get props => [themeMode];
   final ThemeMode themeMode;
 
   /// 是否为暗色主题
@@ -543,9 +544,7 @@ final class ThemeChangedEvent extends AppEvent {
   /// 是否跟随系统
   bool get isSystemMode => themeMode == ThemeMode.system;
 
-  const ThemeChangedEvent({
-    required this.themeMode,
-  });
+  const ThemeChangedEvent({required this.themeMode});
 
   @override
   String toString() {
@@ -569,9 +568,9 @@ enum ThemeMode {
 ///
 /// 当应用语言发生变化时触发
 final class LanguageChangedEvent extends AppEvent {
+  @override
+  List<Object> get props => [languageCode, languageName];
 
-    @override
-    List<Object> get props => [languageCode, languageName];
   /// 新的语言代码
   final String languageCode;
 
@@ -593,9 +592,9 @@ final class LanguageChangedEvent extends AppEvent {
 ///
 /// 当加载数据（如历史消息、联系人列表等）时触发
 final class DataLoadingEvent extends AppEvent {
+  @override
+  List<Object> get props => [loadingType, isLoading];
 
-    @override
-    List<Object> get props => [loadingType, isLoading];
   /// 加载类型
   final DataLoadingType loadingType;
 

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:imboy/i18n/strings.g.dart';
 

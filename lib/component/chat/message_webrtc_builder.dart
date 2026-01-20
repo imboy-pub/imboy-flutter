@@ -18,8 +18,12 @@ class WebRTCMessageBuilder extends StatelessWidget {
   final User user;
   final CustomMessage message;
 
-  Widget _buildBody(BuildContext context, String customType, String title,
-      bool userIsAuthor) {
+  Widget _buildBody(
+    BuildContext context,
+    String customType,
+    String title,
+    bool userIsAuthor,
+  ) {
     Widget row;
     if (userIsAuthor) {
       row = Row(
@@ -85,7 +89,9 @@ class WebRTCMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool userIsAuthor = UserRepoLocal.to.currentUid == message.authorId;
-    String peerId = userIsAuthor ? (message.metadata?['peer_id']??'') : message.authorId;
+    String peerId = userIsAuthor
+        ? (message.metadata?['peer_id'] ?? '')
+        : message.authorId;
     int state = message.metadata?['state'] ?? 0;
     String media = message.metadata?['media'] ?? 'audio';
     String customType = message.metadata?['custom_type'] ?? '';
@@ -131,23 +137,19 @@ class WebRTCMessageBuilder extends StatelessWidget {
         //   nickname: c.nickname,
         //   avatar: c.avatar,
         // );
-        openCallScreen(
-          peer!,
-          // session: s,
-          {
-            'media': media,
-          },
-          caller: true,
-        );
+        if (peer != null) {
+          openCallScreen(
+            context,
+            peer,
+            // session: s,
+            {'media': media},
+            caller: true,
+          );
+        }
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
-        child: _buildBody(
-          context,
-          customType,
-          title,
-          userIsAuthor,
-        ),
+        child: _buildBody(context, customType, title, userIsAuthor),
       ),
     );
     /*
@@ -169,14 +171,17 @@ class WebRTCMessageBuilder extends StatelessWidget {
           //   nickname: c.nickname,
           //   avatar: c.avatar,
           // );
-          openCallScreen(
-            peer!,
-            // session: s,
-            {
-              'media': media,
-            },
-            caller: true,
-          );
+          if (peer != null) {
+            openCallScreen(
+              context,
+              peer,
+              // session: s,
+              {
+                'media': media,
+              },
+              caller: true,
+            );
+          }
         },
         child: _buildBody(
           customType,

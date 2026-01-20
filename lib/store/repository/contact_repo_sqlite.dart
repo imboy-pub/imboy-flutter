@@ -4,7 +4,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/provider/contact_provider.dart';
+import 'package:imboy/store/api/contact_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -69,7 +69,8 @@ class ContactRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: defaultColumns,
-      where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
+      where:
+          '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
           '${ContactRepo.nickname} like ? or ${ContactRepo.remark} like ? or ${ContactRepo.tag} like ?'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid, 1, pattern, pattern, pattern],
@@ -169,7 +170,11 @@ class ContactRepo {
   }
 
   //
-  Future<ContactModel?> findByUid(String uid, {bool autoFetch = true, Transaction? txn}) async {
+  Future<ContactModel?> findByUid(
+    String uid, {
+    bool autoFetch = true,
+    Transaction? txn,
+  }) async {
     if (uid == 'bot_qian_fan') {
       return ContactModel.fromMap({
         ContactRepo.peerId: uid,
@@ -202,7 +207,7 @@ class ContactRepo {
     // iPrint("people_info.initData 12 ${DateTime.now()} $autoFetch");
     if (autoFetch) {
       // 如果没有联系人，同步去取
-      return await (ContactProvider()).syncByUid(uid);
+      return await (ContactApi()).syncByUid(uid);
     } else {
       return null;
     }
@@ -293,7 +298,9 @@ class ContactRepo {
     // json['id'] 兼容 api响应的数据
     String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
     if (uid.isEmpty) {
-      debugPrint("> ContactRepo.save error: peerId is empty, json: ${json.toString()}");
+      debugPrint(
+        "> ContactRepo.save error: peerId is empty, json: ${json.toString()}",
+      );
       return null;
     }
     if (uid == UserRepoLocal.to.currentUid) {
@@ -326,13 +333,19 @@ class ContactRepo {
     );
   }
 
-  Future<int> removeTag(
-      {required String peerId, required String tagName}) async {
+  Future<int> removeTag({
+    required String peerId,
+    required String tagName,
+  }) async {
     String tagPattern = '$tagName,';
     String sql =
         "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, ?, '') WHERE ${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?;";
     // iPrint("remoteTag $sql");
-    return await SqliteService.to.execute(sql, [tagPattern, UserRepoLocal.to.currentUid, peerId]);
+    return await SqliteService.to.execute(sql, [
+      tagPattern,
+      UserRepoLocal.to.currentUid,
+      peerId,
+    ]);
   }
 
   Future<int> addTag({required String peerId, required String tagName}) async {
@@ -340,11 +353,15 @@ class ContactRepo {
     String sql =
         "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = ? || ${ContactRepo.tag} WHERE ${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?;";
     // iPrint("addTag $sql");
-    return await SqliteService.to.execute(sql, [tagPrefix, UserRepoLocal.to.currentUid, peerId]);
+    return await SqliteService.to.execute(sql, [
+      tagPrefix,
+      UserRepoLocal.to.currentUid,
+      peerId,
+    ]);
   }
 
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

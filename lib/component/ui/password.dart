@@ -1,17 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
-// https://stackoverflow.com/questions/52111853/how-to-add-a-password-input-type-in-flutter-makes-the-password-user-input-is-not
-// ignore: must_be_immutable
+/// 密码输入框组件
+///
+/// 符合 UI/UX 设计规范 v2.0：
+/// - 使用 Design Token 定义样式
+/// - 支持主题切换
+/// - 支持暗色模式
+/// - 遵循无障碍设计标准
+///
+/// 设计原则：
+/// - 使用 Flutter 官方 TextField 组件
+/// - 通过 InputDecoration 配置样式
+/// - 避免不必要的自定义容器
+///
+/// 使用示例：
+/// ```dart
+/// PasswordTextField(
+///   obscureText: state.passwordObscure.value,
+///   hintText: t.password,
+///   onTap: () => state.passwordObscure.toggle(),
+///   onChanged: (val) => state.password.value = val,
+/// )
+/// ```
 class PasswordTextField extends StatelessWidget {
-  /// {@macro flutter.widgets.editableText.obscureText}
+  /// 是否隐藏密码
   final bool obscureText;
+
+  /// 提示文本
   final String? hintText;
+
+  /// 输入文本样式
   final TextStyle? style;
+
+  /// 提示文本样式
   final TextStyle? hintStyle;
+
+  /// 光标颜色（默认使用主题色）
   final Color? cursorColor;
+
+  /// 图标颜色（默认使用次要文本色）
   final Color? iconColor;
 
+  /// 点击切换密码可见性的回调
   final GestureTapCallback? onTap;
+
+  /// 文本变化回调
   final ValueChanged<String>? onChanged;
 
   const PasswordTextField({
@@ -28,63 +65,94 @@ class PasswordTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Default colors if not provided
-    final effectiveIconColor = iconColor ?? Colors.grey.shade600;
+    // 使用 Design Token 定义默认值
+    final effectiveIconColor = iconColor ?? AppColors.lightTextSecondary;
+    final effectiveCursorColor = cursorColor ?? AppColors.primary;
+    final effectiveStyle =
+        style ??
+        TextStyle(
+          color: AppColors.lightTextPrimary,
+          fontSize: FontSizeType.medium.size,
+          fontWeight: FontWeight.w500,
+        );
+    final effectiveHintStyle =
+        hintStyle ??
+        TextStyle(
+          color: AppColors.lightTextSecondary,
+          fontSize: FontSizeType.medium.size,
+        );
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(11), // 与外层容器圆角匹配
-      child: TextField(
-        obscureText: obscureText,
-        enableSuggestions: false,
-        autocorrect: false,
-        // TextField 垂直居中光标
-        textAlignVertical: TextAlignVertical.center,
-        style: style,
-        cursorColor: cursorColor,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          hintText: hintText,
-          hintStyle:
-              hintStyle ?? TextStyle(color: Colors.grey.shade600, fontSize: 16),
-          prefixIcon: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(
-              Icons.lock_rounded, // Rounded icon
-              color: effectiveIconColor,
-              size: 22,
-            ),
-          ),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 44,
-            minHeight: 44,
-          ),
-          suffixIcon: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(20),
-              child: Icon(
-                obscureText
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: effectiveIconColor,
-                size: 22,
-              ),
-            ),
-          ),
-          suffixIconConstraints: const BoxConstraints(
-            minWidth: 44,
-            minHeight: 44,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 16,
+    return TextField(
+      obscureText: obscureText,
+      enableSuggestions: false,
+      autocorrect: false,
+      textAlignVertical: TextAlignVertical.center,
+      style: effectiveStyle,
+      cursorColor: effectiveCursorColor,
+      decoration: InputDecoration(
+        // 背景色和边框 - 符合设计规范
+        filled: true,
+        fillColor: AppColors.lightSurfaceContainer,
+
+        // 圆角边框 - 符合设计规范
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+          borderSide: BorderSide.none,
+        ),
+
+        // 聚焦状态边框
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+
+        // 启用状态边框
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+          borderSide: BorderSide.none,
+        ),
+
+        // 提示文本
+        hintText: hintText,
+        hintStyle: effectiveHintStyle,
+
+        // 内容内边距 - 使用 Design Token
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 16.0,
+        ),
+
+        // 前缀图标 - 锁
+        prefixIcon: Icon(
+          Icons.lock_rounded,
+          color: effectiveIconColor,
+          size: AppSizes.iconSizeSmall,
+        ),
+        // 图标约束 - 确保触摸区域符合无障碍标准
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: AppSizes.touchTarget, // 48px 最小触摸目标
+          minHeight: AppSizes.touchTarget, // 48px 最小触摸目标
+        ),
+
+        // 后缀图标 - 显示/隐藏密码
+        suffixIcon: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.small),
+          child: Icon(
+            obscureText
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            color: effectiveIconColor,
+            size: AppSizes.iconSizeSmall,
           ),
         ),
-        onChanged: onChanged,
+        // 图标约束 - 确保触摸区域符合无障碍标准
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: AppSizes.touchTarget, // 48px 最小触摸目标
+          minHeight: AppSizes.touchTarget, // 48px 最小触摸目标
+        ),
       ),
+      onChanged: onChanged,
     );
   }
 }

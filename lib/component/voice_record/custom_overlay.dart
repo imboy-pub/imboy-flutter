@@ -133,7 +133,8 @@ class CustomOverlay extends StatelessWidget {
                                         enableGesture: false,
                                         size: Size((width - 40) / 2, 60),
                                         recorderController:
-                                            recorderController ?? RecorderController(),
+                                            recorderController ??
+                                            RecorderController(),
                                         waveStyle: WaveStyle(
                                           waveColor: primaryColor,
                                           showMiddleLine: false, // 禁用中间线以避免干扰

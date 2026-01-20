@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 消息状态枚举
 enum MessageStatusType {
-  sending,   // 发送中
-  sent,      // 已发送
+  sending, // 发送中
+  sent, // 已发送
   delivered, // 已送达
-  seen,      // 已读
-  failed,    // 发送失败
+  seen, // 已读
+  failed, // 发送失败
 }
 
 class MessageStatusIndicator extends StatefulWidget {
@@ -20,6 +19,7 @@ class MessageStatusIndicator extends StatefulWidget {
   final VoidCallback? onRetry;
   final bool isSentByMe;
   final double size;
+  final bool isNetworkConnected; // 新增：网络状态参数
 
   const MessageStatusIndicator({
     super.key,
@@ -28,13 +28,14 @@ class MessageStatusIndicator extends StatefulWidget {
     this.onRetry,
     required this.isSentByMe,
     this.size = 16,
+    this.isNetworkConnected = true, // 默认认为网络可用
   });
 
   @override
   State<MessageStatusIndicator> createState() => _MessageStatusIndicatorState();
 }
 
-class _MessageStatusIndicatorState extends State<MessageStatusIndicator> 
+class _MessageStatusIndicatorState extends State<MessageStatusIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _shakeAnimation;
@@ -43,21 +44,24 @@ class _MessageStatusIndicatorState extends State<MessageStatusIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
-    _shakeAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -5.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -5.0, end: 5.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 5.0, end: -5.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -5.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _shakeAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -5.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -5.0, end: 5.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 5.0, end: -5.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: -5.0, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
+          ),
+        );
 
     // 如果是失败状态，启动抖动动画
     if (widget.status == MessageStatusType.failed) {
@@ -68,13 +72,13 @@ class _MessageStatusIndicatorState extends State<MessageStatusIndicator>
   @override
   void didUpdateWidget(MessageStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    if (widget.status == MessageStatusType.failed && 
+
+    if (widget.status == MessageStatusType.failed &&
         oldWidget.status != MessageStatusType.failed) {
       _animationController.repeat(reverse: true);
       HapticFeedback.heavyImpact();
-    } else if (widget.status != MessageStatusType.failed && 
-               oldWidget.status == MessageStatusType.failed) {
+    } else if (widget.status != MessageStatusType.failed &&
+        oldWidget.status == MessageStatusType.failed) {
       _animationController.stop();
       _animationController.reset();
     }
@@ -86,49 +90,42 @@ class _MessageStatusIndicatorState extends State<MessageStatusIndicator>
     super.dispose();
   }
 
-  /// 检查网络是否可用
-  /// Check if network is available.
+  /// 检查网络是否可用（使用参数传递的状态）
   bool _isNetworkAvailable() {
-    try {
-      // 这里可以接入真实的网络状态检测
-      // 暂时使用WebSocket状态作为网络状态指示
-      return Get.find<WebSocketService>().status.value == SocketStatus.connected;
-    } catch (e) {
-      return true; // 默认认为网络可用
-    }
+    return widget.isNetworkConnected;
   }
 
   String _getStatusText() {
     switch (widget.status) {
       case MessageStatusType.sending:
-        return '发送中';
+        return t.chatStatusSending;
       case MessageStatusType.sent:
-        return '已发送';
+        return t.chatStatusSent;
       case MessageStatusType.delivered:
-        return '已送达';
+        return t.chatStatusDelivered;
       case MessageStatusType.seen:
-        return '已读';
+        return t.chatStatusSeen;
       case MessageStatusType.failed:
-        return '发送失败';
+        return t.chatStatusFailed;
     }
   }
 
   String _getStatusDescription() {
-    final timeText = widget.timestamp != null 
+    final timeText = widget.timestamp != null
         ? DateTimeHelper.dateTimeFmt(widget.timestamp!)
         : '';
-    
+
     switch (widget.status) {
       case MessageStatusType.sending:
-        return '消息正在发送中...';
+        return t.chatStatusSendingDesc;
       case MessageStatusType.sent:
-        return '消息已发送${timeText.isNotEmpty ? '于 $timeText' : ''}';
+        return '${t.chatStatusSentDesc}${timeText.isNotEmpty ? ' $timeText' : ''}';
       case MessageStatusType.delivered:
-        return '消息已送达${timeText.isNotEmpty ? '于 $timeText' : ''}';
+        return '${t.chatStatusDeliveredDesc}${timeText.isNotEmpty ? ' $timeText' : ''}';
       case MessageStatusType.seen:
-        return '消息已读${timeText.isNotEmpty ? '于 $timeText' : ''}';
+        return '${t.chatStatusSeenDesc}${timeText.isNotEmpty ? ' $timeText' : ''}';
       case MessageStatusType.failed:
-        return '消息发送失败，点击重试';
+        return t.chatStatusFailedDesc;
     }
   }
 
@@ -219,6 +216,7 @@ class _MessageStatusIndicatorState extends State<MessageStatusIndicator>
   }
 
   void _showStatusTooltip(BuildContext context) {
+    final t = context.t;
     final theme = ThemeManager.instance;
     final bgColor = theme.getThemeColor('surfaceContainerHigh');
     final textColor = theme.getThemeColor('onSurface');
@@ -255,7 +253,7 @@ class _MessageStatusIndicatorState extends State<MessageStatusIndicator>
                       Navigator.pop(context);
                       widget.onRetry?.call();
                     },
-                    child: const Text('重新发送'),
+                    child: Text(t.chatResend),
                   ),
                 ),
             ],

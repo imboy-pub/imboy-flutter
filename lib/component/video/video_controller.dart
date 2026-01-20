@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class VideoControllerOverlay extends StatefulWidget {
   final VideoPlayerController controller;
@@ -63,10 +64,10 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
   void _handleHorizontalDragUpdate(DragUpdateDetails details) {
     if (_dragStartPosition == null) return;
-    
+
     final delta = details.localPosition.dx - _dragStartPosition!.dx;
     _dragDelta = delta;
-    
+
     if (delta.abs() > 10) {
       setState(() {
         _showGestureFeedback = true;
@@ -77,12 +78,14 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
   void _handleHorizontalDragEnd(DragEndDetails details) {
     if (_dragStartPosition == null) return;
-    
+
     final currentPosition = widget.controller.value.position;
-    
+
     if (_dragDelta.abs() > 50) {
-      final seekDuration = Duration(seconds: (_dragDelta.abs() / 100 * 10).round());
-      
+      final seekDuration = Duration(
+        seconds: (_dragDelta.abs() / 100 * 10).round(),
+      );
+
       if (_dragDelta > 0) {
         // 向前快进
         widget.controller.seekTo(currentPosition + seekDuration);
@@ -91,13 +94,13 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
         widget.controller.seekTo(currentPosition - seekDuration);
       }
     }
-    
+
     setState(() {
       _showGestureFeedback = false;
       _dragStartPosition = null;
       _dragDelta = 0.0;
     });
-    
+
     _startHideTimer();
   }
 
@@ -107,10 +110,10 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
   void _handleVerticalDragUpdate(DragUpdateDetails details) {
     if (_dragStartPosition == null) return;
-    
+
     final delta = details.localPosition.dy - _dragStartPosition!.dy;
     _dragDelta = delta;
-    
+
     if (delta.abs() > 10) {
       setState(() {
         _showGestureFeedback = true;
@@ -125,7 +128,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
       _dragStartPosition = null;
       _dragDelta = 0.0;
     });
-    
+
     _startHideTimer();
   }
 
@@ -135,7 +138,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
     } else {
       widget.controller.play();
     }
-    
+
     setState(() {
       _showControls = true;
       _startHideTimer();
@@ -147,7 +150,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    
+
     if (hours > 0) {
       return '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}';
     } else {
@@ -157,30 +160,34 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
   Widget _buildGestureFeedback() {
     if (!_showGestureFeedback) return const SizedBox.shrink();
-    
+
     IconData icon;
     String text;
     Color color;
-    
+
     switch (_gestureType) {
       case 'forward':
         icon = Icons.fast_forward_rounded;
-        text = '快进 ${(_dragDelta.abs() / 100 * 10).round()}秒';
+        text = t.fastForward(
+          seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
+        );
         color = Colors.blueAccent;
         break;
       case 'backward':
         icon = Icons.fast_rewind_rounded;
-        text = '快退 ${(_dragDelta.abs() / 100 * 10).round()}秒';
+        text = t.fastRewind(
+          seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
+        );
         color = Colors.blueAccent;
         break;
       case 'volume_up':
         icon = Icons.volume_up_rounded;
-        text = '音量增加';
+        text = t.volumeUp;
         color = Colors.greenAccent;
         break;
       case 'volume_down':
         icon = Icons.volume_down_rounded;
-        text = '音量减少';
+        text = t.volumeDown;
         color = Colors.orangeAccent;
         break;
       default:
@@ -188,7 +195,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
         text = '';
         color = Colors.white;
     }
-    
+
     return Positioned.fill(
       child: Center(
         child: AnimatedOpacity(
@@ -197,11 +204,15 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xCC000000), // Colors.black.withValues(alpha: 0.8)
+              color: const Color(
+                0xCC000000,
+              ), // Colors.black.withValues(alpha: 0.8)
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0x80000000), // Colors.black.withValues(alpha: 0.5)
+                  color: const Color(
+                    0x80000000,
+                  ), // Colors.black.withValues(alpha: 0.5)
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -220,7 +231,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                     fontWeight: FontWeight.w500,
                     shadows: [
                       Shadow(
-                        color: const Color(0xCC000000), // Colors.black.withValues(alpha: 0.8)
+                        color: const Color(
+                          0xCC000000,
+                        ), // Colors.black.withValues(alpha: 0.8)
                         blurRadius: 4,
                         offset: const Offset(1, 1),
                       ),
@@ -257,16 +270,20 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color(0x99000000), // Colors.black.withValues(alpha: 0.6)
+                      const Color(
+                        0x99000000,
+                      ), // Colors.black.withValues(alpha: 0.6)
                       Colors.transparent,
                       Colors.transparent,
-                      const Color(0x99000000), // Colors.black.withValues(alpha: 0.6)
+                      const Color(
+                        0x99000000,
+                      ), // Colors.black.withValues(alpha: 0.6)
                     ],
                   ),
                 ),
               ),
             ),
-          
+
           // 顶部控制栏
           if (_showControls)
             Positioned(
@@ -285,9 +302,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                       const Spacer(),
                       IconButton(
                         icon: Icon(
-                          widget.isFullScreen 
-                            ? Icons.fullscreen_exit 
-                            : Icons.fullscreen,
+                          widget.isFullScreen
+                              ? Icons.fullscreen_exit
+                              : Icons.fullscreen,
                           color: Colors.white,
                         ),
                         onPressed: widget.onFullScreenPressed,
@@ -297,7 +314,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                 ),
               ),
             ),
-          
+
           // 底部控制栏
           if (_showControls)
             Positioned(
@@ -344,9 +361,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                           );
                         },
                       ),
-                      
+
                       const SizedBox(height: 8),
-                      
+
                       // 时间信息和播放控制
                       Row(
                         children: [
@@ -362,9 +379,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                               );
                             },
                           ),
-                          
+
                           const Spacer(),
-                          
+
                           ValueListenableBuilder(
                             valueListenable: widget.controller,
                             builder: (context, VideoPlayerValue value, child) {
@@ -379,31 +396,38 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 12),
-                      
+
                       // 播放控制按钮
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.replay_10, color: Colors.white, size: 28),
+                            icon: const Icon(
+                              Icons.replay_10,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                             onPressed: () {
-                              final currentPosition = widget.controller.value.position;
+                              final currentPosition =
+                                  widget.controller.value.position;
                               widget.controller.seekTo(
                                 currentPosition - const Duration(seconds: 10),
                               );
                             },
                           ),
-                          
+
                           const SizedBox(width: 24),
-                          
+
                           ValueListenableBuilder(
                             valueListenable: widget.controller,
                             builder: (context, VideoPlayerValue value, child) {
                               return IconButton(
                                 icon: Icon(
-                                  value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                  value.isPlaying
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
                                   color: Colors.white,
                                   size: 36,
                                 ),
@@ -417,13 +441,18 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                               );
                             },
                           ),
-                          
+
                           const SizedBox(width: 24),
-                          
+
                           IconButton(
-                            icon: const Icon(Icons.forward_10, color: Colors.white, size: 28),
+                            icon: const Icon(
+                              Icons.forward_10,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                             onPressed: () {
-                              final currentPosition = widget.controller.value.position;
+                              final currentPosition =
+                                  widget.controller.value.position;
                               widget.controller.seekTo(
                                 currentPosition + const Duration(seconds: 10),
                               );
@@ -436,7 +465,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                 ),
               ),
             ),
-          
+
           // 中央播放按钮（当控制栏隐藏时）
           if (!_showControls)
             Positioned.fill(
@@ -449,7 +478,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                       duration: const Duration(milliseconds: 300),
                       child: Icon(
                         value.isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: const Color(0xCCFFFFFF), // Colors.white.withValues(alpha: 0.8)
+                        color: const Color(
+                          0xCCFFFFFF,
+                        ), // Colors.white.withValues(alpha: 0.8)
                         size: 56,
                       ),
                     );
@@ -457,7 +488,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                 ),
               ),
             ),
-          
+
           // 手势反馈
           _buildGestureFeedback(),
         ],

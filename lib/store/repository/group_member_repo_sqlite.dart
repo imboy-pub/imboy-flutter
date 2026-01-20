@@ -18,8 +18,10 @@ class GroupMemberRepo {
   static String alias = 'alias'; // 群内别名
   static String description = 'description'; // 群内描述
   static String role = 'role'; // 角色: 1 成员  2 嘉宾  3  管理员 4 群主
-  static String isJoin = 'is_join'; // 是否加入的群： 1 是 0 否 （0 是群创建者或者拥有者 1 是 成员 嘉宾 管理员等）
-  static String joinMode = 'join_mode'; // 进群方式 :  invite_[uid]_[nickname] <a>leeyi</a>邀请进群  scan_qr_code 扫描二维码加入 face2face_join 面对面建群
+  static String isJoin =
+      'is_join'; // 是否加入的群： 1 是 0 否 （0 是群创建者或者拥有者 1 是 成员 嘉宾 管理员等）
+  static String joinMode =
+      'join_mode'; // 进群方式 :  invite_[uid]_[nickname] <a>leeyi</a>邀请进群  scan_qr_code 扫描二维码加入 face2face_join 面对面建群
   static String status = 'status'; //
   static String updatedAt = 'updated_at'; //
   static String createdAt = 'created_at'; //
@@ -63,7 +65,8 @@ class GroupMemberRepo {
       offset: offset,
     );
     debugPrint(
-        "GroupMemberRepo_page repo ${maps.length} $where, ${maps.toList().toString()}");
+      "GroupMemberRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
+    );
     if (maps.isEmpty) {
       return [];
     }
@@ -76,7 +79,10 @@ class GroupMemberRepo {
   }
 
   // 插入一条数据
-  Future<GroupMemberModel> insert(GroupMemberModel obj, {Transaction? txn}) async {
+  Future<GroupMemberModel> insert(
+    GroupMemberModel obj, {
+    Transaction? txn,
+  }) async {
     Map<String, dynamic> insert = {
       GroupMemberRepo.id: obj.id,
       GroupMemberRepo.groupId: obj.groupId,
@@ -91,7 +97,7 @@ class GroupMemberRepo {
       GroupMemberRepo.role: obj.role,
       GroupMemberRepo.isJoin: obj.isJoin,
       GroupMemberRepo.joinMode: obj.joinMode,
-      GroupMemberRepo.status : obj.status,
+      GroupMemberRepo.status: obj.status,
       GroupMemberRepo.updatedAt: obj.updatedAt,
       GroupMemberRepo.createdAt: obj.createdAt,
     };
@@ -113,6 +119,7 @@ class GroupMemberRepo {
       whereArgs: [gid, userId],
     );
   }
+
   Future<int> deleteByGid(String gid) async {
     return await _db.delete(
       GroupMemberRepo.tableName,
@@ -120,8 +127,14 @@ class GroupMemberRepo {
       whereArgs: [gid],
     );
   }
+
   // 更新信息
-  Future<int> update(String gid, String userId, Map<String, dynamic> json, {Transaction? txn}) async {
+  Future<int> update(
+    String gid,
+    String userId,
+    Map<String, dynamic> json, {
+    Transaction? txn,
+  }) async {
     Map<String, Object?> data = {};
 
     String? nickname = json[GroupMemberRepo.nickname];
@@ -136,7 +149,9 @@ class GroupMemberRepo {
     if (sign != null) {
       data[GroupMemberRepo.sign] = json[GroupMemberRepo.sign];
     }
-    String? account = json.containsKey(GroupMemberRepo.account) ? json[GroupMemberRepo.account].toString() : null;
+    String? account = json.containsKey(GroupMemberRepo.account)
+        ? json[GroupMemberRepo.account].toString()
+        : null;
     if (account != null) {
       data[GroupMemberRepo.account] = account;
     }
@@ -181,14 +196,16 @@ class GroupMemberRepo {
         return await txn.update(
           GroupMemberRepo.tableName,
           data,
-          where: '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
+          where:
+              '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
           whereArgs: [gid, userId],
         );
       } else {
         return await _db.update(
           GroupMemberRepo.tableName,
           data,
-          where: '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
+          where:
+              '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
           whereArgs: [gid, userId],
         );
       }
@@ -213,20 +230,27 @@ class GroupMemberRepo {
       return old!;
     }
   }
-  Future<GroupMemberModel?> findByUserId(String gid, String userId, {Transaction? txn}) async {
+
+  Future<GroupMemberModel?> findByUserId(
+    String gid,
+    String userId, {
+    Transaction? txn,
+  }) async {
     List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
         GroupMemberRepo.tableName,
         columns: [],
-        where: '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
+        where:
+            '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
         whereArgs: [gid, userId],
       );
     } else {
       maps = await _db.query(
         GroupMemberRepo.tableName,
         columns: [],
-        where: '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
+        where:
+            '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
         whereArgs: [gid, userId],
       );
     }
@@ -275,8 +299,8 @@ class GroupMemberRepo {
   //   return items;
   // }
 
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

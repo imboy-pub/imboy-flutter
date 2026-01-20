@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
@@ -11,8 +10,19 @@ import 'package:imboy/service/events/events.dart';
 /// 1. 发送ACK并记录待确认ACK
 /// 2. 自动重试失败的ACK（最多3次）
 /// 3. 提供ACK状态查询
-class AckManager extends GetxService {
-  static AckManager get to => Get.find();
+class AckManager {
+  static AckManager? _instance;
+
+  static AckManager get to {
+    _instance ??= AckManager._internal();
+    return _instance!;
+  }
+
+  AckManager._internal() {
+    _init();
+  }
+
+  bool _isInitialized = false;
 
   /// 待确认的ACK映射表
   /// Key: msgId, Value: _PendingAck
@@ -21,6 +31,9 @@ class AckManager extends GetxService {
   /// 【修复】Timer 映射表，用于跟踪和取消所有活动的 Timer
   /// Key: msgId, Value: Timer
   final Map<String, Timer> _activeTimers = {};
+
+  /// 【优化】定期清理 Timer（每小时清理一次孤立的 Timer）
+  Timer? _timerCleanupTimer;
 
   /// WebSocket 连接状态（通过事件同步）
   bool _isWebSocketConnected = false;
@@ -34,9 +47,8 @@ class AckManager extends GetxService {
   /// 重试间隔（毫秒）
   static const int _retryInterval = 3000; // 3秒
 
-  @override
-  void onInit() {
-    super.onInit();
+  void _init() {
+    if (_isInitialized) return;
 
     // 订阅 WebSocket 状态变化事件（解耦：不再直接依赖 WebSocketService）
     AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
@@ -44,16 +56,25 @@ class AckManager extends GetxService {
       iPrint('🔌 [ACK_MANAGER] WebSocket 状态更新: ${event.status}');
     });
 
+    // 【优化】启动定期清理 Timer（每小时清理一次孤立的 Timer）
+    _timerCleanupTimer = Timer.periodic(
+      const Duration(hours: 1),
+      (_) => _cleanupOrphanTimers(),
+    );
+
+    _isInitialized = true;
     iPrint('✅ [ACK_MANAGER] AckManager initialized');
   }
 
-  @override
-  void onClose() {
+  void dispose() {
     // 【修复】取消所有活动的 Timer
     _cancelAllTimers();
+    // 【优化】取消定期清理 Timer
+    _timerCleanupTimer?.cancel();
+    _timerCleanupTimer = null;
     // 清理待确认 ACK
     _pendingAcks.clear();
-    super.onClose();
+    _isInitialized = false;
   }
 
   /// 【新增】取消所有活动的 Timer
@@ -116,7 +137,9 @@ class AckManager extends GetxService {
   String generateAckMessage(String type, String msgId) {
     // 参数验证：防止空值导致格式错误
     if (type.isEmpty || msgId.isEmpty) {
-      iPrint('❌ [ACK_MANAGER] generateAckMessage 参数无效: type=$type, msgId=$msgId');
+      iPrint(
+        '❌ [ACK_MANAGER] generateAckMessage 参数无效: type=$type, msgId=$msgId',
+      );
       throw ArgumentError('ACK type and msgId cannot be empty');
     }
     if (deviceId.isEmpty) {
@@ -138,7 +161,9 @@ class AckManager extends GetxService {
       iPrint('📤 [WS_ACK] 准备发送ACK: msgId=$msgId, type=$type, content=$ackMsg');
 
       // 【解耦】检查 WebSocket 连接状态（通过内部状态变量）
-      iPrint('🔌 [WS_ACK] WebSocket 状态: ${_isConnected ? "connected" : "disconnected"}');
+      iPrint(
+        '🔌 [WS_ACK] WebSocket 状态: ${_isConnected ? "connected" : "disconnected"}',
+      );
 
       if (!_isConnected) {
         iPrint('⚠️ [WS_ACK] WebSocket 未连接，无法发送ACK: msgId=$msgId');
@@ -146,11 +171,13 @@ class AckManager extends GetxService {
       }
 
       // 【解耦】通过事件总线发送 ACK 消息
-      AppEventBus.fire(WebSocketMessageSendRequestEvent(
-        message: ackMsg,
-        messageId: msgId,
-        priority: 1, // ACK 消息优先级较高
-      ));
+      AppEventBus.fire(
+        WebSocketMessageSendRequestEvent(
+          message: ackMsg,
+          messageId: msgId,
+          priority: 1, // ACK 消息优先级较高
+        ),
+      );
       iPrint('⚡ [WS_ACK] 直接发送ACK成功: msgId=$msgId, type=$type');
     } catch (e) {
       iPrint('❌ [WS_ACK] ACK发送失败: msgId=$msgId, type=$type, error=$e');
@@ -167,11 +194,15 @@ class AckManager extends GetxService {
 
     try {
       // 【解耦】通过事件总线发送 ACK 消息
-      AppEventBus.fire(WebSocketMessageSendRequestEvent(
-        message: ack.content,
-        messageId: msgId,
-      ));
-      iPrint('✅ [ACK_MANAGER] ACK发送成功: msgId=$msgId, retryCount=${ack.retryCount}');
+      AppEventBus.fire(
+        WebSocketMessageSendRequestEvent(
+          message: ack.content,
+          messageId: msgId,
+        ),
+      );
+      iPrint(
+        '✅ [ACK_MANAGER] ACK发送成功: msgId=$msgId, retryCount=${ack.retryCount}',
+      );
     } catch (e) {
       iPrint('❌ [ACK_MANAGER] ACK发送异常: msgId=$msgId, error=$e');
       // 不立即重试，等待定时器触发
@@ -205,7 +236,9 @@ class AckManager extends GetxService {
 
       // 重试
       ack.retryCount++;
-      iPrint('🔄 [ACK_MANAGER] ACK重试 ${ack.retryCount}/$_maxRetries: msgId=$msgId');
+      iPrint(
+        '🔄 [ACK_MANAGER] ACK重试 ${ack.retryCount}/$_maxRetries: msgId=$msgId',
+      );
       _sendAckInternal(msgId);
 
       // 继续安排下一次重试
@@ -252,7 +285,8 @@ class AckManager extends GetxService {
 
     _pendingAcks.forEach((msgId, ack) {
       final age = now - ack.sendTime; // 毫秒差
-      if (age > 30000) { // 30秒
+      if (age > 30000) {
+        // 30秒
         expiredKeys.add(msgId);
       }
     });
@@ -264,6 +298,28 @@ class AckManager extends GetxService {
         _pendingAcks.remove(msgId);
       }
       iPrint('🗑️ [ACK_MANAGER] 清理了 ${expiredKeys.length} 个过期ACK');
+    }
+  }
+
+  /// 【优化】清理孤立的 Timer（对应的 ACK 已被确认但 Timer 未被取消）
+  void _cleanupOrphanTimers() {
+    if (_activeTimers.isEmpty) return;
+
+    final orphanTimers = <String>[];
+
+    for (final entry in _activeTimers.entries) {
+      final msgId = entry.key;
+      // 如果对应的 ACK 不存在，说明是孤立的 Timer
+      if (!_pendingAcks.containsKey(msgId)) {
+        orphanTimers.add(msgId);
+      }
+    }
+
+    if (orphanTimers.isNotEmpty) {
+      for (final msgId in orphanTimers) {
+        _cancelTimer(msgId);
+      }
+      iPrint('🧹 [ACK_MANAGER] 清理了 ${orphanTimers.length} 个孤立的 Timer');
     }
   }
 
@@ -301,7 +357,9 @@ class _PendingAck {
       'type': type,
       'content': content,
       'sendTime': sendTime, // 毫秒时间戳
-      'sendTimeIso': DateTime.fromMillisecondsSinceEpoch(sendTime).toIso8601String(),
+      'sendTimeIso': DateTime.fromMillisecondsSinceEpoch(
+        sendTime,
+      ).toIso8601String(),
       'retryCount': retryCount,
     };
   }

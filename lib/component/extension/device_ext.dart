@@ -2,11 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
+/// 设备信息扩展
+///
+/// 迁移说明：
+/// - 已移除 GetX 依赖
+/// - 使用单例模式替代 Get.find()
 class DeviceExt extends DeviceInfoPlugin {
-  static DeviceExt get to => Get.find();
+  static DeviceExt? _instance;
+  static DeviceExt get to {
+    _instance ??= DeviceExt();
+    return _instance!;
+  }
 
   static Future<String> get did async {
     final Map<String, dynamic>? info = await to.detail;

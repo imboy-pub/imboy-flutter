@@ -56,10 +56,10 @@ class LabelRow extends StatelessWidget {
                 onTap: onPressed,
                 borderRadius: BorderRadius.circular(0),
                 splashColor: showRipple
-                    ? AppColors.primaryGreen.withValues(alpha: 0.1)
+                    ? AppColors.primary.withValues(alpha: 0.1)
                     : Colors.transparent,
                 highlightColor: showRipple
-                    ? AppColors.primaryGreen.withValues(alpha: 0.05)
+                    ? AppColors.primary.withValues(alpha: 0.05)
                     : Colors.transparent,
                 child: Container(
                   padding:
@@ -75,13 +75,13 @@ class LabelRow extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: (leadingIconColor ?? AppColors.primaryGreen)
+                            color: (leadingIconColor ?? AppColors.primary)
                                 .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             leadingIcon!,
-                            color: leadingIconColor ?? AppColors.primaryGreen,
+                            color: leadingIconColor ?? AppColors.primary,
                             size: 20,
                           ),
                         ),

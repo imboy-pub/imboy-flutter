@@ -1,35 +1,18 @@
 import 'package:flutter/material.dart';
-
-// ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-/// 搜索栏组件 - 使用新的主题系统
+/// 搜索栏组件
 Widget searchBar(
   BuildContext context, {
   String? hintText,
   String? queryTips,
   String? searchLabel,
   Widget? leading,
-
-  /// A list of Widgets to display in a row after the text field.
-  ///
-  /// Typically these actions can represent additional modes of searching
-  /// (like voice search), an avatar, a separate high-level action (such as
-  /// current location) or an overflow menu. There should not be more than
-  /// two trailing actions.
   final Iterable<Widget>? trailing,
-
-  /// Controls the text being edited in the search bar's text field.
-  ///
-  /// If null, this widget will create its own [TextEditingController].
   final TextEditingController? controller,
-
-  /// {@macro flutter.widgets.Focus.focusNode}
   final FocusNode? focusNode,
-
-  /// Invoked upon user input.
   final ValueChanged<String>? onChanged,
   final Null Function(dynamic value)? onTapForItem,
   Future<List<dynamic>> Function(dynamic query)? doSearch,
@@ -46,8 +29,7 @@ Widget searchBar(
             size: 20,
           ),
       trailing: trailing,
-      hintText: hintText ?? '搜索',
-      // 使用新的搜索主题配置
+      hintText: hintText ?? t.search,
       elevation: WidgetStateProperty.all(0),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -58,19 +40,28 @@ Widget searchBar(
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       ),
       side: WidgetStateProperty.all(
-        BorderSide(color: ThemeManager.instance.getThemeColor('border'), width: 0.5),
+        BorderSide(
+          color: ThemeManager.instance.getThemeColor('border'),
+          width: 0.5,
+        ),
       ),
       hintStyle: WidgetStateProperty.all(
         TextStyle(
           color: ThemeManager.instance.getThemeColor('textSecondary'),
-          fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium, context: context),
+          fontSize: ThemeManager.instance.getFontSize(
+            FontSizeType.medium,
+            context: context,
+          ),
           height: 1.4,
         ),
       ),
       textStyle: WidgetStateProperty.all(
         TextStyle(
           color: ThemeManager.instance.getThemeColor('textPrimary'),
-          fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium, context: context),
+          fontSize: ThemeManager.instance.getFontSize(
+            FontSizeType.medium,
+            context: context,
+          ),
           height: 1.4,
         ),
       ),
@@ -99,16 +90,10 @@ Widget searchBar(
 }
 
 class SearchBarDelegate extends SearchDelegate {
-  /// This text will be shown in the [AppBar] when
-  /// current query is empty.
   final String? searchLabel;
   final String? queryTips;
-
   final Future<dynamic> Function(dynamic arg1)? doSearch;
   final Widget Function(List<dynamic>)? doBuildResults;
-
-  /// 点击搜索结果项是触发的方法
-  /// Clicking on a search result item is the trigger method
   final void Function(dynamic arg1) onTapForItem;
 
   SearchBarDelegate({
@@ -133,9 +118,7 @@ class SearchBarDelegate extends SearchDelegate {
             size: 20,
             color: ThemeManager.instance.getThemeColor('textSecondary'),
           ),
-          onPressed: () {
-            query = '';
-          },
+          onPressed: () => query = '',
         ),
       ),
     ];
@@ -152,7 +135,6 @@ class SearchBarDelegate extends SearchDelegate {
       ),
       onPressed: () {
         close(context, 'error');
-        // 收起键盘
         FocusScope.of(context).requestFocus(FocusNode());
       },
     );
@@ -162,12 +144,7 @@ class SearchBarDelegate extends SearchDelegate {
   TextInputType get keyboardType => TextInputType.text;
 
   Future doSearchFuture() async {
-    if (query.isEmpty) {
-      return [];
-    }
-    if (doSearch == null) {
-      return [];
-    }
+    if (query.isEmpty || doSearch == null) return [];
     return doSearch!(query);
   }
 
@@ -179,7 +156,9 @@ class SearchBarDelegate extends SearchDelegate {
           queryTips ?? '',
           style: ThemeManager.instance
               .getTextStyle(FontSizeType.medium, context: context)
-              .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),
+              .copyWith(
+                color: ThemeManager.instance.getThemeColor('textSecondary'),
+              ),
         ),
       );
     }
@@ -187,79 +166,84 @@ class SearchBarDelegate extends SearchDelegate {
     return FutureBuilder(
       future: doSearchFuture(),
       builder: (context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
-          List<dynamic> items = snapshot.data;
-
-          if (doBuildResults != null) {
-            return doBuildResults!(items);
-          } else {
-            if (items.isEmpty) {
-              return Center(
-                child: Text(
-                  t.searchNoFound,
-                  style: ThemeManager.instance
-                      .getTextStyle(FontSizeType.medium, context: context)
-                      .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),
-                ),
-              );
-            }
-            return Container(
-              color: ThemeManager.instance.getThemeColor('surface'),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: <Widget>[
-                  for (int i = 0; i < items.length; i++)
-                    Column(
-                      children: [
-                        Container(
-                          color: ThemeManager.instance.getThemeColor('surface'),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            onTap: () {
-                              onTapForItem(items[i]);
-                            },
-                            leading: Avatar(
-                              imgUri: items[i].avatar,
-                              onTap: () {},
-                              width: 40,
-                              height: 40,
-                            ),
-                            title: Text(
-                              // 会话对象标题
-                              items[i].title,
-                              style: ThemeManager.instance
-                                  .getTextStyle(FontSizeType.large, context: context)
-                                  .copyWith(
-                                    fontWeight: FontWeight.normal,
-                                    color: ThemeManager.instance.getThemeColor('textPrimary'),
-                                    height: 1.4,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: ThemeManager.instance.mainLineWidth,
-                          margin: const EdgeInsets.only(left: 72),
-                          color: ThemeManager.instance.getThemeColor('border'),
-                        ),
-                      ],
-                    ),
-                ],
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                ThemeManager.instance.getThemeColor('primary'),
               ),
-            );
-          }
+            ),
+          );
         }
 
-        return Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              ThemeManager.instance.getThemeColor('primary'),
+        List<dynamic> items = snapshot.data;
+
+        if (doBuildResults != null) {
+          return doBuildResults!(items);
+        }
+
+        if (items.isEmpty) {
+          return Center(
+            child: Text(
+              t.searchNoFound,
+              style: ThemeManager.instance
+                  .getTextStyle(FontSizeType.medium, context: context)
+                  .copyWith(
+                    color: ThemeManager.instance.getThemeColor('textSecondary'),
+                  ),
             ),
+          );
+        }
+
+        return Container(
+          color: ThemeManager.instance.getThemeColor('surface'),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              for (int i = 0; i < items.length; i++)
+                Column(
+                  children: [
+                    Container(
+                      color: ThemeManager.instance.getThemeColor('surface'),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        onTap: () => onTapForItem(items[i]),
+                        leading: Avatar(
+                          imgUri: items[i].avatar,
+                          onTap: () {},
+                          width: 40,
+                          height: 40,
+                        ),
+                        title: Text(
+                          items[i].title,
+                          style: ThemeManager.instance
+                              .getTextStyle(
+                                FontSizeType.large,
+                                context: context,
+                              )
+                              .copyWith(
+                                fontWeight: FontWeight.normal,
+                                color: ThemeManager.instance.getThemeColor(
+                                  'textPrimary',
+                                ),
+                                height: 1.4,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 0.5,
+                      margin: const EdgeInsets.only(left: 72),
+                      color: ThemeManager.instance.getThemeColor('border'),
+                    ),
+                  ],
+                ),
+            ],
           ),
         );
       },
@@ -275,7 +259,9 @@ class SearchBarDelegate extends SearchDelegate {
           queryTips ?? '',
           style: ThemeManager.instance
               .getTextStyle(FontSizeType.medium, context: context)
-              .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),
+              .copyWith(
+                color: ThemeManager.instance.getThemeColor('textSecondary'),
+              ),
         ),
       ),
     );

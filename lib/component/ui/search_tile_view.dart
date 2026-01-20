@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -8,12 +7,7 @@ class SearchTileView extends StatelessWidget {
   final int? type;
   final VoidCallback? onPressed;
 
-  const SearchTileView(
-    this.text, {
-    super.key,
-    this.type = 0,
-    this.onPressed,
-  });
+  const SearchTileView(this.text, {super.key, this.type = 0, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +17,10 @@ class SearchTileView extends StatelessWidget {
         children: <Widget>[
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: Icon(
-              Icons.map,
-              color: Colors.green,
-              size: 50.0,
-            ),
+            child: Icon(Icons.map, color: Colors.green, size: 50.0),
           ),
           Text("${t.search}："),
-          Text(
-            text!,
-            style: const TextStyle(color: Colors.green),
-          ),
+          Text(text!, style: const TextStyle(color: Colors.green)),
         ],
       ),
     );
@@ -51,30 +38,31 @@ class SearchTileView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                const Text('搜一搜：'),
-                Text(
-                  text!,
-                  style: const TextStyle(color: Colors.green),
-                ),
+                Text('${t.search}：'),
+                Text(text!, style: const TextStyle(color: Colors.green)),
               ],
             ),
-            const Text(
-              '小程序、公众号、文章、朋友圈、和表情等',
+            Text(
+              t.searchDescription,
               // style: TextStyle(color: AppColors.MainTextColor),
-            )
+            ),
           ],
-        )
+        ),
       ],
     );
 
     if (type == 0) {
       return Container(
         decoration: BoxDecoration(
-            // color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
-            border: Border(
-                top: BorderSide(
-                    color: Colors.grey.withValues(alpha: 0.2), width: 0.5))),
-        width: Get.width,
+          // color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
+          border: Border(
+            top: BorderSide(
+              color: Colors.grey.withValues(alpha: 0.2),
+              width: 0.5,
+            ),
+          ),
+        ),
+        width: MediaQuery.of(context).size.width, // 使用 MediaQuery 替代 Get.width
         height: 65.0,
         child: strNoEmpty(text) ? bt : Container(),
       );
@@ -83,10 +71,13 @@ class SearchTileView extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(
-            top: BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 0.5),
+            top: BorderSide(
+              color: Colors.grey.withValues(alpha: 0.2),
+              width: 0.5,
+            ),
           ),
         ),
-        width: Get.width,
+        width: MediaQuery.of(context).size.width, // 使用 MediaQuery 替代 Get.width
         height: 65.0,
         child: TextButton(
           style: TextButton.styleFrom(

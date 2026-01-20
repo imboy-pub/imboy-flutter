@@ -82,7 +82,11 @@ lib/page/chat/chat/
 ### 路由配置
 - **路由定义**：`lib/config/routes.dart` - `AppRoutes`
 - **页面注册**：`lib/page/pages.dart` - `AppPages.routes`
-- **路由守卫**：`lib/middleware/router_auth.dart` - `RouteAuthMiddleware`
+- **路由守卫**：`lib/config/router/app_router.dart` - go_router redirect 函数
+  - ✅ 已完全移除 GetX 中间件，使用 go_router 原生路由守卫
+  - ✅ 认证检查：`UserRepoLocal.to.isLoggedIn`
+  - ✅ 免登录页面：初始页、登录页、注册页、忘记密码等
+  - ✅ 未登录重定向到登录页并显示提示
 
 ### 首页判断
 ```dart
@@ -264,9 +268,9 @@ state.data.refresh();
 ## 相关文件清单
 
 ### 路由和导航
+- `lib/config/router/app_router.dart` - go_router 路由配置和守卫
 - `lib/config/routes.dart` - 路由常量定义
-- `lib/page/pages.dart` - 页面注册
-- `lib/middleware/router_auth.dart` - 路由守卫
+- `lib/page/pages.dart` - 页面注册（已废弃，保留用于向后兼容）
 
 ### 核心页面
 - `lib/page/bottom_navigation/bottom_navigation_view.dart` - 底部导航

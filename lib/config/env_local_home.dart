@@ -39,5 +39,6 @@ final class EnvLocalHome implements Env, EnvField {
   final String jiguangAppKey = _Env.jiguangAppKey;
 
   @override
-  String? get wsUrl => _Env.wsUrl;
+  @EnviedField(defaultValue: '', varName: 'WS_URL', obfuscate: false)
+  final String wsUrl = _Env.wsUrl;
 }

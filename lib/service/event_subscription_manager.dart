@@ -9,11 +9,19 @@
 ///
 /// 使用示例：
 /// ```dart
-/// class MyService extends GetxService with EventSubscriptionManager {
-///   @override
-///   void onInit() {
-///     super.onInit();
+/// // 方式1：在单例服务中使用（推荐）
+/// class MyService with EventSubscriptionManager {
+///   static MyService? _instance;
+///   static MyService get instance {
+///     _instance ??= MyService._internal();
+///     return _instance!;
+///   }
 ///
+///   MyService._internal() {
+///     _init();
+///   }
+///
+///   void _init() {
 ///     // 订阅单个事件
 ///     subscribeTo(
 ///       AppEventBus.on<UserLoginEvent>().listen((event) {
@@ -28,16 +36,38 @@
 ///     ]);
 ///   }
 ///
-///   @override
-///   void onClose() {
+///   void dispose() {
 ///     cancelAllSubscriptions(); // 一次性取消所有订阅
-///     super.onClose();
+///   }
+/// }
+///
+/// // 方式2：在 Riverpod Notifier 中使用
+/// @riverpod
+/// class MyNotifier extends _$MyNotifier {
+///   final List<StreamSubscription> _subscriptions = [];
+///
+///   @override
+///   MyState build() {
+///     // 订阅事件
+///     _subscriptions.add(
+///       AppEventBus.on<UserLoginEvent>().listen((event) {
+///         // 更新状态
+///       }),
+///     );
+///     ref.onDispose(() {
+///       // 取消所有订阅
+///       for (final sub in _subscriptions) {
+///         sub.cancel();
+///       }
+///     });
+///     return MyState();
 ///   }
 /// }
 /// ```
 ///
 /// 注意事项：
-/// - 必须在 onClose 中调用 cancelAllSubscriptions
+/// - 单例服务：在 dispose() 方法中调用 cancelAllSubscriptions
+/// - Riverpod Notifier：使用 ref.onDispose() 回调中调用 cancelAllSubscriptions
 /// - subscribeTo 返回的订阅会被自动管理，无需手动取消
 /// - cancelAllSubscriptions 可以安全调用多次
 library;
@@ -100,10 +130,18 @@ mixin EventSubscriptionManager {
   ///
   /// 示例：
   /// ```dart
-  /// @override
-  /// void onClose() {
+  /// // 单例服务中
+  /// void dispose() {
   ///   cancelAllSubscriptions();
-  ///   super.onClose();
+  /// }
+  ///
+  /// // Riverpod Notifier 中
+  /// @override
+  /// MyState build() {
+  ///   ref.onDispose(() {
+  ///     cancelAllSubscriptions();
+  ///   });
+  ///   return MyState();
   /// }
   /// ```
   void cancelAllSubscriptions() {

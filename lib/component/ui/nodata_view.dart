@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -79,18 +80,18 @@ class NoDataView extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.primaryGreen.withValues(alpha: 0.2),
+                      color: AppColors.primary.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
                   child: Text(
-                    '点击重试',
+                    t.buttonRetry,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
-                      color: AppColors.primaryGreen, // 使用主题主色
+                      color: AppColors.primary, // 使用主题主色
                       fontWeight: FontWeight.w500,
                     ),
                   ),

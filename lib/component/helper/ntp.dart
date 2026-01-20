@@ -30,7 +30,7 @@ class NtpHelper {
   static const List<String> _ntpServers = [
     'time5.cloud.tencent.com',
     'pool.ntp.org',
-    'time.google.com'
+    'time.google.com',
   ];
   static const int _maxRetry = 2; // 最大重试次数
   static const int _cacheExpiryHours = 6; // 缓存有效期（小时）
@@ -112,7 +112,7 @@ class NtpHelper {
     return adjustedOffset;
   }
 
-  static  Future<int> _saveCache(int offset) async {
+  static Future<int> _saveCache(int offset) async {
     final data = {
       'ntp_time': DateTime.now().toUtc().toIso8601String(),
       'device_ts': DateTime.now().millisecondsSinceEpoch,
@@ -127,8 +127,8 @@ class NtpHelper {
       if (val == null) return null;
       final map = Map<String, dynamic>.from(json.decode(val));
       return (
-      offset: map['offset'] as int,
-      deviceTimestamp: map['device_ts'] as int
+        offset: map['offset'] as int,
+        deviceTimestamp: map['device_ts'] as int,
       );
     } catch (e) {
       StorageService.to.remove(_cacheKey); // 清除无效缓存

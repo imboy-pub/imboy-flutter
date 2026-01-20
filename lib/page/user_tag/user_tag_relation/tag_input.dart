@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 增强的标签输入组件
 /// 提供更好的标签编辑体验，包括：
@@ -46,7 +48,7 @@ class _TagInputState extends State<TagInput> {
     super.initState();
     _currentTags = List.from(widget.initialTags);
     _filteredSuggestions = List.from(widget.suggestedTags);
-    
+
     _controller.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
   }
@@ -62,7 +64,7 @@ class _TagInputState extends State<TagInput> {
   /// 文本变化监听
   void _onTextChanged() {
     final text = _controller.text.trim();
-    
+
     // 防抖处理
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
@@ -80,7 +82,7 @@ class _TagInputState extends State<TagInput> {
   /// 过滤建议标签
   void _filterSuggestions(String query) {
     if (!mounted) return;
-    
+
     setState(() {
       if (query.isEmpty) {
         // 按使用频率排序显示所有建议
@@ -92,16 +94,19 @@ class _TagInputState extends State<TagInput> {
           });
       } else {
         // 模糊搜索匹配
-        _filteredSuggestions = widget.suggestedTags
-            .where((tag) => 
-                tag.toLowerCase().contains(query.toLowerCase()) &&
-                !_currentTags.contains(tag))
-            .toList()
-          ..sort((a, b) {
-            final countA = widget.tagUsageCount[a] ?? 0;
-            final countB = widget.tagUsageCount[b] ?? 0;
-            return countB.compareTo(countA);
-          });
+        _filteredSuggestions =
+            widget.suggestedTags
+                .where(
+                  (tag) =>
+                      tag.toLowerCase().contains(query.toLowerCase()) &&
+                      !_currentTags.contains(tag),
+                )
+                .toList()
+              ..sort((a, b) {
+                final countA = widget.tagUsageCount[a] ?? 0;
+                final countB = widget.tagUsageCount[b] ?? 0;
+                return countB.compareTo(countA);
+              });
       }
     });
   }
@@ -110,11 +115,11 @@ class _TagInputState extends State<TagInput> {
   void _addTag(String tag) {
     if (tag.isEmpty || _currentTags.contains(tag)) return;
     if (tag.length > widget.maxTagLength) {
-      _showError('标签长度不能超过${widget.maxTagLength}个字符');
+      _showError(t.tagLengthExceeded(param: widget.maxTagLength.toString()));
       return;
     }
     if (_currentTags.length >= widget.maxTags) {
-      _showError('最多只能添加${widget.maxTags}个标签');
+      _showError(t.maxTagsExceeded(param: widget.maxTags.toString()));
       return;
     }
 
@@ -123,9 +128,9 @@ class _TagInputState extends State<TagInput> {
       _controller.clear();
       _filterSuggestions('');
     });
-    
+
     widget.onTagsChanged(_currentTags);
-    
+
     // 触觉反馈
     HapticFeedback.lightImpact();
   }
@@ -135,10 +140,10 @@ class _TagInputState extends State<TagInput> {
     setState(() {
       _currentTags.remove(tag);
     });
-    
+
     widget.onTagsChanged(_currentTags);
     _filterSuggestions(_controller.text.trim());
-    
+
     // 触觉反馈
     HapticFeedback.lightImpact();
   }
@@ -157,27 +162,26 @@ class _TagInputState extends State<TagInput> {
   /// 构建当前标签列表
   Widget _buildCurrentTags() {
     if (_currentTags.isEmpty) return const SizedBox.shrink();
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.local_offer,
-                size: 16,
-                color: AppColors.primaryGreen,
-              ),
+              Icon(Icons.local_offer, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
-                '已选标签 (${_currentTags.length}/${widget.maxTags})',
+                t.selectedTags(
+                  param: _currentTags.length.toString(),
+                  max: widget.maxTags.toString(),
+                ),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,
@@ -189,7 +193,9 @@ class _TagInputState extends State<TagInput> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _currentTags.map((tag) => _buildTagChip(tag, true)).toList(),
+            children: _currentTags
+                .map((tag) => _buildTagChip(tag, true))
+                .toList(),
           ),
         ],
       ),
@@ -199,20 +205,22 @@ class _TagInputState extends State<TagInput> {
   /// 构建标签芯片
   Widget _buildTagChip(String tag, bool isSelected) {
     final usageCount = widget.tagUsageCount[tag] ?? 0;
-    
+
     return Container(
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primaryGreen : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
+        color: isSelected ? AppColors.primary : Colors.transparent,
+        borderRadius: AppRadius.borderRadiusLarge,
         border: Border.all(
-          color: isSelected ? AppColors.primaryGreen : Theme.of(context).colorScheme.outline,
+          color: isSelected
+              ? AppColors.primary
+              : Theme.of(context).colorScheme.outline,
           width: 1,
         ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.borderRadiusLarge,
           onTap: () {
             if (isSelected) {
               _removeTag(tag);
@@ -228,25 +236,30 @@ class _TagInputState extends State<TagInput> {
                 Text(
                   tag,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                    color: isSelected
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 if (usageCount > 0) ...[
                   const SizedBox(width: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected 
+                      color: isSelected
                           ? Colors.white.withValues(alpha: 0.2)
-                          : AppColors.primaryGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                          : AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusSmall,
                     ),
                     child: Text(
                       '$usageCount',
                       style: TextStyle(
                         fontSize: 10,
-                        color: isSelected ? Colors.white : AppColors.primaryGreen,
+                        color: isSelected ? Colors.white : AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -254,11 +267,7 @@ class _TagInputState extends State<TagInput> {
                 ],
                 if (isSelected) ...[
                   const SizedBox(width: 4),
-                  Icon(
-                    Icons.close,
-                    size: 16,
-                    color: Colors.white,
-                  ),
+                  Icon(Icons.close, size: 16, color: Colors.white),
                 ],
               ],
             ),
@@ -273,10 +282,10 @@ class _TagInputState extends State<TagInput> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: _focusNode.hasFocus 
-              ? AppColors.primaryGreen 
+          color: _focusNode.hasFocus
+              ? AppColors.primary
               : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
           width: _focusNode.hasFocus ? 2 : 1,
         ),
@@ -287,14 +296,16 @@ class _TagInputState extends State<TagInput> {
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.add_circle),
-                  color: AppColors.primaryGreen,
+                  color: AppColors.primary,
                   onPressed: () => _addTag(_controller.text.trim()),
                 )
               : null,
@@ -315,7 +326,7 @@ class _TagInputState extends State<TagInput> {
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
@@ -335,14 +346,10 @@ class _TagInputState extends State<TagInput> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(
-                  Icons.lightbulb_outline,
-                  size: 16,
-                  color: Colors.orange,
-                ),
+                Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  '建议标签',
+                  t.suggestedTags,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -377,10 +384,10 @@ class _TagInputState extends State<TagInput> {
           _buildCurrentTags(),
           const SizedBox(height: 16),
         ],
-        
+
         // 输入框
         _buildInputField(),
-        
+
         // 建议标签
         _buildSuggestions(),
       ],

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// 圆角 elevated 按钮 - 使用优化后的主题系统
@@ -26,13 +24,15 @@ class RoundedElevatedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: borderRadius ?? BorderRadius.circular(25),
         boxShadow: highlighted && onPressed != null
             ? [
                 BoxShadow(
-                  color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -51,7 +51,7 @@ class RoundedElevatedButton extends StatelessWidget {
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    highlighted ? Colors.white : AppColors.primaryGreen,
+                    highlighted ? Colors.white : AppColors.primary,
                   ),
                 ),
               )
@@ -66,8 +66,7 @@ class RoundedElevatedButton extends StatelessWidget {
                   Text(
                     text,
                     textAlign: TextAlign.center,
-                    style: ThemeManager.instance.getTextStyle(
-                      FontSizeType.medium,
+                    style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -80,7 +79,7 @@ class RoundedElevatedButton extends StatelessWidget {
   /// 主要按钮样式
   ButtonStyle _primaryButtonStyle(BuildContext context, Size? size) {
     return ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primaryGreen,
+      backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       minimumSize: size ?? const Size(88, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -88,7 +87,7 @@ class RoundedElevatedButton extends StatelessWidget {
         borderRadius: borderRadius ?? BorderRadius.circular(25),
       ),
       elevation: 2,
-      shadowColor: AppColors.primaryGreen.withValues(alpha: 0.3),
+      shadowColor: AppColors.primary.withValues(alpha: 0.3),
     );
   }
 
@@ -96,13 +95,13 @@ class RoundedElevatedButton extends StatelessWidget {
   ButtonStyle _secondaryButtonStyle(BuildContext context, Size? size) {
     return ElevatedButton.styleFrom(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      foregroundColor: AppColors.primaryGreen,
+      foregroundColor: AppColors.primary,
       minimumSize: size ?? const Size(88, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius ?? BorderRadius.circular(25),
         side: BorderSide(
-          color: AppColors.primaryGreen.withValues(alpha: 0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -112,22 +111,27 @@ class RoundedElevatedButton extends StatelessWidget {
 }
 
 /// 浅绿色按钮样式 - 使用优化后的主题色彩
+/// 新版本：需要传入 BuildContext 以获取屏幕宽度
 ButtonStyle lightGreenButtonStyle(
+  BuildContext context,
   Size? s, {
   WidgetStateProperty<Color?>? backgroundColor,
   double borderRadius = 25.0,
 }) {
+  // 使用 MediaQuery 获取屏幕宽度，替代 Get.width
+  final screenWidth = MediaQuery.of(context).size.width;
+
   return ButtonStyle(
     backgroundColor:
         backgroundColor ??
         WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
           if (states.contains(WidgetState.disabled)) {
-            return AppColors.primaryGreen.withValues(alpha: 0.5);
+            return AppColors.primary.withValues(alpha: 0.5);
           }
           if (states.contains(WidgetState.pressed)) {
-            return AppColors.primaryGreen.withValues(alpha: 0.8);
+            return AppColors.primary.withValues(alpha: 0.8);
           }
-          return AppColors.primaryGreen;
+          return AppColors.primary;
         }),
     foregroundColor: WidgetStateProperty.resolveWith<Color>((
       Set<WidgetState> states,
@@ -137,7 +141,7 @@ ButtonStyle lightGreenButtonStyle(
       }
       return Colors.white;
     }),
-    minimumSize: WidgetStateProperty.all(s ?? Size(Get.width - 20, 50)),
+    minimumSize: WidgetStateProperty.all(s ?? Size(screenWidth - 20, 50)),
     padding: WidgetStateProperty.all(
       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
     ),
@@ -153,7 +157,60 @@ ButtonStyle lightGreenButtonStyle(
       return 3;
     }),
     shadowColor: WidgetStateProperty.all(
-      AppColors.primaryGreen.withValues(alpha: 0.3),
+      AppColors.primary.withValues(alpha: 0.3),
+    ),
+    overlayColor: WidgetStateProperty.resolveWith<Color?>((
+      Set<WidgetState> states,
+    ) {
+      if (states.contains(WidgetState.pressed)) {
+        return Colors.white.withValues(alpha: 0.1);
+      }
+      return null;
+    }),
+  );
+}
+
+/// 浅绿色按钮样式 - 旧版本（向后兼容）
+/// @deprecated 使用 lightGreenButtonStyle(BuildContext context, Size? s, ...) 替代
+ButtonStyle lightGreenButtonStyleLegacy(Size? s, {double borderRadius = 25.0}) {
+  // 使用固定宽度替代 Get.width（仅用于向后兼容）
+  return ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+      Set<WidgetState> states,
+    ) {
+      if (states.contains(WidgetState.disabled)) {
+        return AppColors.primary.withValues(alpha: 0.5);
+      }
+      if (states.contains(WidgetState.pressed)) {
+        return AppColors.primary.withValues(alpha: 0.8);
+      }
+      return AppColors.primary;
+    }),
+    foregroundColor: WidgetStateProperty.resolveWith<Color>((
+      Set<WidgetState> states,
+    ) {
+      if (states.contains(WidgetState.disabled)) {
+        return Colors.white.withValues(alpha: 0.7);
+      }
+      return Colors.white;
+    }),
+    minimumSize: WidgetStateProperty.all(s ?? const Size(350, 50)),
+    padding: WidgetStateProperty.all(
+      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    ),
+    shape: WidgetStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
+    ),
+    elevation: WidgetStateProperty.resolveWith<double>((
+      Set<WidgetState> states,
+    ) {
+      if (states.contains(WidgetState.pressed)) {
+        return 1;
+      }
+      return 3;
+    }),
+    shadowColor: WidgetStateProperty.all(
+      AppColors.primary.withValues(alpha: 0.3),
     ),
     overlayColor: WidgetStateProperty.resolveWith<Color?>((
       Set<WidgetState> states,
@@ -173,11 +230,11 @@ ButtonStyle whiteGreenButtonStyle(Size? s, {double borderRadius = 8.0}) {
       Set<WidgetState> states,
     ) {
       if (states.contains(WidgetState.pressed)) {
-        return AppColors.primaryGreen.withValues(alpha: 0.05);
+        return AppColors.primary.withValues(alpha: 0.05);
       }
       return Colors.white;
     }),
-    foregroundColor: WidgetStateProperty.all<Color>(AppColors.primaryGreen),
+    foregroundColor: WidgetStateProperty.all<Color>(AppColors.primary),
     minimumSize: WidgetStateProperty.all(s ?? const Size(88, 48)),
     padding: WidgetStateProperty.all(
       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -186,7 +243,7 @@ ButtonStyle whiteGreenButtonStyle(Size? s, {double borderRadius = 8.0}) {
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         side: BorderSide(
-          color: AppColors.primaryGreen.withValues(alpha: 0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -204,7 +261,7 @@ ButtonStyle whiteGreenButtonStyle(Size? s, {double borderRadius = 8.0}) {
       Set<WidgetState> states,
     ) {
       if (states.contains(WidgetState.pressed)) {
-        return AppColors.primaryGreen.withValues(alpha: 0.1);
+        return AppColors.primary.withValues(alpha: 0.1);
       }
       return null;
     }),
@@ -218,6 +275,8 @@ ButtonStyle modernElevatedButtonStyle(
   Color? foregroundColor,
   double borderRadius = 12.0,
 }) {
+  final textTheme = Theme.of(context).textTheme;
+
   return ButtonStyle(
     backgroundColor: WidgetStateProperty.resolveWith<Color>((
       Set<WidgetState> states,
@@ -253,7 +312,7 @@ ButtonStyle modernElevatedButtonStyle(
       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
     ),
     textStyle: WidgetStateProperty.all(
-      ThemeManager.instance.getTextStyle(FontSizeType.medium, fontWeight: FontWeight.w500, context: context),
+      textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
     ),
     shape: WidgetStateProperty.all<OutlinedBorder>(
       RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
@@ -278,8 +337,9 @@ ButtonStyle modernOutlinedButtonStyle(
   double borderRadius = 12.0,
   double borderWidth = 1.5,
 }) {
-  final effectiveBorderColor = borderColor ?? AppColors.primaryGreen;
-  final effectiveForegroundColor = foregroundColor ?? AppColors.primaryGreen;
+  final textTheme = Theme.of(context).textTheme;
+  final effectiveBorderColor = borderColor ?? AppColors.primary;
+  final effectiveForegroundColor = foregroundColor ?? AppColors.primary;
 
   return ButtonStyle(
     foregroundColor: WidgetStateProperty.resolveWith<Color>((
@@ -325,7 +385,7 @@ ButtonStyle modernOutlinedButtonStyle(
       const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
     ),
     textStyle: WidgetStateProperty.all(
-      ThemeManager.instance.getTextStyle(FontSizeType.medium, fontWeight: FontWeight.w600, context: context),
+      textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
     ),
     overlayColor: WidgetStateProperty.resolveWith<Color?>((
       Set<WidgetState> states,

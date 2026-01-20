@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import 'package:get/get.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:octo_image/octo_image.dart';
@@ -31,8 +30,7 @@ class IMBoyImageMessageBuilder extends StatefulWidget {
   final int messageWidth;
 
   @override
-  State<IMBoyImageMessageBuilder> createState() =>
-      _IMBoyImageMessageState();
+  State<IMBoyImageMessageBuilder> createState() => _IMBoyImageMessageState();
 }
 
 /// [ImageMessage] widget state.
@@ -77,15 +75,13 @@ class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
   }
 
   Widget _buildImageContent(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
     if (_size.aspectRatio == 0) {
-      return SizedBox(
-        height: _size.height,
-        width: _size.width,
-      );
+      return SizedBox(height: _size.height, width: _size.width);
     } else if (_size.aspectRatio < 0.1 || _size.aspectRatio > 10) {
       return SizedBox(
-        width: Get.width * 0.618,
+        width: screenWidth * 0.618,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -96,7 +92,7 @@ class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
                 borderRadius: BorderRadius.circular(12),
                 child: _image != null
                     ? OctoImage(
-                        width: Get.width,
+                        width: screenWidth,
                         fit: BoxFit.cover,
                         image: _image!,
                         errorBuilder: (context, error, stacktrace) =>
@@ -104,7 +100,9 @@ class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
                       )
                     : Container(
                         color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       ),
               ),
             ),
@@ -121,11 +119,9 @@ class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
                     textWidthBasis: TextWidthBasis.longestLine,
                   ),
                   Container(
-                    margin: const EdgeInsets.only(
-                      top: 4,
-                    ),
+                    margin: const EdgeInsets.only(top: 4),
                     child: Text(
-                      formatBytes((widget.message.size??0).truncate()),
+                      formatBytes((widget.message.size ?? 0).truncate()),
                       style: TextStyle(
                         color: Theme.of(context).textTheme.bodySmall?.color,
                         fontSize: 12.0,
@@ -140,17 +136,16 @@ class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
       );
     } else {
       return SizedBox(
-        width: Get.width * 0.618,
+        width: screenWidth * 0.618,
         child: AspectRatio(
           aspectRatio: _size.aspectRatio > 0 ? _size.aspectRatio : 1,
           child: _image != null
-              ? Image(
-                  fit: BoxFit.contain,
-                  image: _image!,
-                )
+              ? Image(fit: BoxFit.contain, image: _image!)
               : Container(
                   color: Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 ),
         ),
       );
@@ -170,17 +165,15 @@ class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
 
   void _updateImage(ImageInfo info, bool _) {
     setState(() {
-      _size = Size(
-        info.image.width.toDouble(),
-        info.image.height.toDouble(),
-      );
+      _size = Size(info.image.width.toDouble(), info.image.height.toDouble());
     });
   }
 
   Future<void> _loadImage() async {
     try {
-      final File file =
-          await IMBoyCacheManager().getSingleFile(widget.message.source);
+      final File file = await IMBoyCacheManager().getSingleFile(
+        widget.message.source,
+      );
       if (!mounted) {
         return;
       }

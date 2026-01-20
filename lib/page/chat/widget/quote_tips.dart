@@ -5,6 +5,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/func.dart' show formatBytes;
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 // ignore: must_be_immutable
 class QuoteTipsWidget extends StatelessWidget {
@@ -70,7 +71,9 @@ class QuoteTipsWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   "[${t.file}] (${formatBytes(fileMsg.size!.truncate())})",
-                  style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
                 ),
               ),
             ],
@@ -187,8 +190,10 @@ class QuoteTipsWidget extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(4),
+                color: Theme.of(
+                  context,
+                ).colorScheme.tertiary.withValues(alpha: 0.2),
+                borderRadius: AppRadius.borderRadiusTiny,
               ),
               child: Icon(
                 Icons.play_arrow,
@@ -217,7 +222,9 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (customType == 'revoked' || customType == 'my_revoked' || customType == 'peer_revoked') {
+    } else if (customType == 'revoked' ||
+        customType == 'my_revoked' ||
+        customType == 'peer_revoked') {
       body = Row(
         children: [
           Icon(
@@ -227,7 +234,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-  t.messageRevoked,
+            t.messageRevoked,
             style: TextStyle(
               color: Theme.of(context).colorScheme.tertiary,
               fontStyle: FontStyle.italic,

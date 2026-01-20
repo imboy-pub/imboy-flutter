@@ -24,10 +24,7 @@ class MessageDeleteResult {
   final int deletedCount;
   final String? error;
 
-  MessageDeleteResult({
-    required this.deletedCount,
-    this.error,
-  });
+  MessageDeleteResult({required this.deletedCount, this.error});
 
   bool get success => error == null;
 }
@@ -116,41 +113,40 @@ class MessageCleanupRule {
     'enabled': enabled,
   };
 
-  factory MessageCleanupRule.fromJson(Map<String, dynamic> json) => MessageCleanupRule(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    type: CleanupRuleType.values.firstWhere(
-      (e) => e.name == json['type'],
-      orElse: () => CleanupRuleType.byTime,
-    ),
-    retentionDays: json['retention_days'] as int,
-    maxMessageCount: json['max_message_count'] as int?,
-    conversationIds: (json['conversation_ids'] as List<dynamic>?)?.cast<String>(),
-    messageTypes: (json['message_types'] as List<dynamic>?)?.cast<String>(),
-    enabled: json['enabled'] as bool? ?? true,
-  );
+  factory MessageCleanupRule.fromJson(Map<String, dynamic> json) =>
+      MessageCleanupRule(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        type: CleanupRuleType.values.firstWhere(
+          (e) => e.name == json['type'],
+          orElse: () => CleanupRuleType.byTime,
+        ),
+        retentionDays: json['retention_days'] as int,
+        maxMessageCount: json['max_message_count'] as int?,
+        conversationIds: (json['conversation_ids'] as List<dynamic>?)
+            ?.cast<String>(),
+        messageTypes: (json['message_types'] as List<dynamic>?)?.cast<String>(),
+        enabled: json['enabled'] as bool? ?? true,
+      );
 }
 
 /// 清理规则类型
 enum CleanupRuleType {
-  byTime,      // 按时间清理
-  byCount,     // 按数量清理
-  byCustom,    // 自定义清理
+  byTime, // 按时间清理
+  byCount, // 按数量清理
+  byCustom, // 自定义清理
 }
 
 /// 消息导出格式
-enum MessageExportFormat {
-  json,
-  txt,
-  html,
-}
+enum MessageExportFormat { json, txt, html }
 
 /// 消息管理服务
 class MessageManageService {
   static final Logger _logger = Logger();
 
   // 单例
-  static final MessageManageService to = MessageManageService._privateConstructor();
+  static final MessageManageService to =
+      MessageManageService._privateConstructor();
 
   MessageManageService._privateConstructor();
 
@@ -186,11 +182,12 @@ class MessageManageService {
       _logger.i('Deleted $count messages from conversation $conversationUk3');
       return MessageDeleteResult(deletedCount: count);
     } catch (e, stackTrace) {
-      _logger.e('Failed to delete messages by conversation', error: e, stackTrace: stackTrace);
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: e.toString(),
+      _logger.e(
+        'Failed to delete messages by conversation',
+        error: e,
+        stackTrace: stackTrace,
       );
+      return MessageDeleteResult(deletedCount: 0, error: e.toString());
     }
   }
 
@@ -216,7 +213,8 @@ class MessageManageService {
           : [MessageRepo.c2cTable, MessageRepo.c2gTable, MessageRepo.c2sTable];
 
       for (final table in tables) {
-        String where = '${MessageRepo.createdAt} >= ? AND ${MessageRepo.createdAt} <= ?';
+        String where =
+            '${MessageRepo.createdAt} >= ? AND ${MessageRepo.createdAt} <= ?';
         List<dynamic> whereArgs = [
           startDate.millisecondsSinceEpoch ~/ 1000,
           endDate.millisecondsSinceEpoch ~/ 1000,
@@ -243,11 +241,12 @@ class MessageManageService {
       _logger.i('Deleted $totalDeleted messages from time range');
       return MessageDeleteResult(deletedCount: totalDeleted);
     } catch (e, stackTrace) {
-      _logger.e('Failed to delete messages by time range', error: e, stackTrace: stackTrace);
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: e.toString(),
+      _logger.e(
+        'Failed to delete messages by time range',
+        error: e,
+        stackTrace: stackTrace,
       );
+      return MessageDeleteResult(deletedCount: 0, error: e.toString());
     }
   }
 
@@ -288,11 +287,12 @@ class MessageManageService {
       _logger.i('Deleted $totalDeleted messages by IDs');
       return MessageDeleteResult(deletedCount: totalDeleted);
     } catch (e, stackTrace) {
-      _logger.e('Failed to delete messages by IDs', error: e, stackTrace: stackTrace);
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: e.toString(),
+      _logger.e(
+        'Failed to delete messages by IDs',
+        error: e,
+        stackTrace: stackTrace,
       );
+      return MessageDeleteResult(deletedCount: 0, error: e.toString());
     }
   }
 
@@ -306,10 +306,7 @@ class MessageManageService {
   }) async {
     final db = await SqliteService.to.db;
     if (db == null) {
-      return MessageSearchResult(
-        messages: [],
-        totalCount: 0,
-      );
+      return MessageSearchResult(messages: [], totalCount: 0);
     }
 
     try {
@@ -376,10 +373,7 @@ class MessageManageService {
       );
     } catch (e, stackTrace) {
       _logger.e('Failed to search messages', error: e, stackTrace: stackTrace);
-      return MessageSearchResult(
-        messages: [],
-        totalCount: 0,
-      );
+      return MessageSearchResult(messages: [], totalCount: 0);
     }
   }
 
@@ -451,7 +445,8 @@ class MessageManageService {
         for (final row in convResults) {
           final convId = row[MessageRepo.conversationUk3] as String;
           final convCount = row['count'] as int;
-          messagesByConversation[convId] = (messagesByConversation[convId] ?? 0) + convCount;
+          messagesByConversation[convId] =
+              (messagesByConversation[convId] ?? 0) + convCount;
           conversationIds.add(convId);
         }
 
@@ -550,7 +545,9 @@ class MessageManageService {
       final exportDir = await _getExportDirectory();
       await exportDir.create(recursive: true);
 
-      final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
+      final now = DateTime.fromMillisecondsSinceEpoch(
+        DateTimeHelper.millisecond(),
+      );
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(now);
       final extension = _getFileExtension(format);
       final filename = 'messages_$timestamp$extension';
@@ -585,26 +582,24 @@ class MessageManageService {
       );
     } catch (e, stackTrace) {
       _logger.e('Failed to export messages', error: e, stackTrace: stackTrace);
-      return MessageExportResult(
-        success: false,
-        error: e.toString(),
-      );
+      return MessageExportResult(success: false, error: e.toString());
     }
   }
 
   /// 执行清理规则
-  Future<MessageDeleteResult> executeCleanupRule(MessageCleanupRule rule) async {
+  Future<MessageDeleteResult> executeCleanupRule(
+    MessageCleanupRule rule,
+  ) async {
     if (!rule.enabled) {
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: 'Rule is disabled',
-      );
+      return MessageDeleteResult(deletedCount: 0, error: 'Rule is disabled');
     }
 
     try {
       switch (rule.type) {
         case CleanupRuleType.byTime:
-          final cutoffDate = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).subtract(Duration(days: rule.retentionDays));
+          final cutoffDate = DateTime.fromMillisecondsSinceEpoch(
+            DateTimeHelper.millisecond(),
+          ).subtract(Duration(days: rule.retentionDays));
           return await deleteByTimeRange(
             startDate: DateTime.fromMillisecondsSinceEpoch(0), // 从最早开始
             endDate: cutoffDate,
@@ -629,11 +624,12 @@ class MessageManageService {
           return await _deleteByCustomRule(rule);
       }
     } catch (e, stackTrace) {
-      _logger.e('Failed to execute cleanup rule', error: e, stackTrace: stackTrace);
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: e.toString(),
+      _logger.e(
+        'Failed to execute cleanup rule',
+        error: e,
+        stackTrace: stackTrace,
       );
+      return MessageDeleteResult(deletedCount: 0, error: e.toString());
     }
   }
 
@@ -652,7 +648,11 @@ class MessageManageService {
 
     try {
       final List<dynamic> decoded = jsonDecode(rulesJson);
-      return decoded.map((json) => MessageCleanupRule.fromJson(json as Map<String, dynamic>)).toList();
+      return decoded
+          .map(
+            (json) => MessageCleanupRule.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
     } catch (e) {
       _logger.w('Failed to load cleanup rules: $e');
       return [];
@@ -687,7 +687,9 @@ class MessageManageService {
   String _formatAsText(List<Map<String, dynamic>> messages) {
     final buffer = StringBuffer();
     buffer.writeln('=== Message Export ===');
-    buffer.writeln('Exported at: ${DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).toIso8601String()}');
+    buffer.writeln(
+      'Exported at: ${DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).toIso8601String()}',
+    );
     buffer.writeln('Total messages: ${messages.length}');
     buffer.writeln();
 
@@ -704,7 +706,9 @@ class MessageManageService {
       final createdAt = msg[MessageRepo.createdAt] as int;
       final date = DateTime.fromMillisecondsSinceEpoch(createdAt * 1000);
 
-      buffer.writeln('[${date.toLocal()}] ${msg[MessageRepo.from]} -> ${msg[MessageRepo.to]}');
+      buffer.writeln(
+        '[${date.toLocal()}] ${msg[MessageRepo.from]} -> ${msg[MessageRepo.to]}',
+      );
       buffer.writeln('Type: ${msg[MessageRepo.type]}');
       buffer.writeln('Text: $text');
       buffer.writeln('---');
@@ -723,9 +727,15 @@ class MessageManageService {
     buffer.writeln('  <meta charset="UTF-8">');
     buffer.writeln('  <title>Message Export</title>');
     buffer.writeln('  <style>');
-    buffer.writeln('    body { font-family: Arial, sans-serif; margin: 20px; }');
-    buffer.writeln('    .header { background: #f0f0f0; padding: 10px; margin-bottom: 20px; }');
-    buffer.writeln('    .message { border: 1px solid #ddd; margin: 10px 0; padding: 10px; }');
+    buffer.writeln(
+      '    body { font-family: Arial, sans-serif; margin: 20px; }',
+    );
+    buffer.writeln(
+      '    .header { background: #f0f0f0; padding: 10px; margin-bottom: 20px; }',
+    );
+    buffer.writeln(
+      '    .message { border: 1px solid #ddd; margin: 10px 0; padding: 10px; }',
+    );
     buffer.writeln('    .message-header { font-weight: bold; color: #333; }');
     buffer.writeln('    .message-body { margin-top: 10px; color: #555; }');
     buffer.writeln('    .timestamp { color: #999; font-size: 0.9em; }');
@@ -734,7 +744,9 @@ class MessageManageService {
     buffer.writeln('<body>');
     buffer.writeln('  <div class="header">');
     buffer.writeln('    <h1>Message Export</h1>');
-    buffer.writeln('    <p>Exported at: ${DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).toIso8601String()}</p>');
+    buffer.writeln(
+      '    <p>Exported at: ${DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).toIso8601String()}</p>',
+    );
     buffer.writeln('    <p>Total messages: ${messages.length}</p>');
     buffer.writeln('  </div>');
 
@@ -753,8 +765,12 @@ class MessageManageService {
 
       buffer.writeln('  <div class="message">');
       buffer.writeln('    <div class="message-header">');
-      buffer.writeln('      ${msg[MessageRepo.from]} &rarr; ${msg[MessageRepo.to]}');
-      buffer.writeln('      <span class="timestamp">[${date.toLocal()}]</span>');
+      buffer.writeln(
+        '      ${msg[MessageRepo.from]} &rarr; ${msg[MessageRepo.to]}',
+      );
+      buffer.writeln(
+        '      <span class="timestamp">[${date.toLocal()}]</span>',
+      );
       buffer.writeln('    </div>');
       buffer.writeln('    <div class="message-body">');
       buffer.writeln('      Type: ${msg[MessageRepo.type]}<br>');
@@ -839,15 +855,14 @@ class MessageManageService {
       return MessageDeleteResult(deletedCount: totalDeleted);
     } catch (e, stackTrace) {
       _logger.e('Failed to delete by count', error: e, stackTrace: stackTrace);
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: e.toString(),
-      );
+      return MessageDeleteResult(deletedCount: 0, error: e.toString());
     }
   }
 
   /// 按自定义规则删除
-  Future<MessageDeleteResult> _deleteByCustomRule(MessageCleanupRule rule) async {
+  Future<MessageDeleteResult> _deleteByCustomRule(
+    MessageCleanupRule rule,
+  ) async {
     final db = await SqliteService.to.db;
     if (db == null) {
       return MessageDeleteResult(
@@ -858,8 +873,9 @@ class MessageManageService {
 
     try {
       int totalDeleted = 0;
-      final tables = rule.messageTypes?.map((t) => _determineTable(t)).toSet().toList()
-          ?? [MessageRepo.c2cTable, MessageRepo.c2gTable, MessageRepo.c2sTable];
+      final tables =
+          rule.messageTypes?.map((t) => _determineTable(t)).toSet().toList() ??
+          [MessageRepo.c2cTable, MessageRepo.c2gTable, MessageRepo.c2sTable];
 
       for (final table in tables) {
         String where = '1=1';
@@ -887,11 +903,12 @@ class MessageManageService {
 
       return MessageDeleteResult(deletedCount: totalDeleted);
     } catch (e, stackTrace) {
-      _logger.e('Failed to delete by custom rule', error: e, stackTrace: stackTrace);
-      return MessageDeleteResult(
-        deletedCount: 0,
-        error: e.toString(),
+      _logger.e(
+        'Failed to delete by custom rule',
+        error: e,
+        stackTrace: stackTrace,
       );
+      return MessageDeleteResult(deletedCount: 0, error: e.toString());
     }
   }
 }

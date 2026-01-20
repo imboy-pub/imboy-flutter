@@ -1,71 +1,46 @@
-import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/config/error_code.dart';
-import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/active_conversation_notifier.dart';
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
-import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
+import 'package:imboy/config/init.dart' show navigatorKey;
+import 'package:imboy/config/routes.dart' show AppRoutes;
 
 import 'message_actions.dart';
 import 'message_s2c.dart';
 import 'message_webrtc.dart';
 
 /// MessageService
+///
 /// 负责消息处理的核心服务，包括可靠传递、状态同步、UI 通知。
 /// Core service for message handling: reliable delivery, state sync, UI updates.
 ///
-/// ## 架构说明 (Architecture Notes)
+/// ## 架构说明
 ///
 /// 此服务采用**模块化架构**，原有功能已拆分到以下文件：
-/// This service uses a **modular architecture**, original functionality split into:
-/// - `message_core.dart`: 核心服务，基础初始化和事件分发
-/// - `message_handler.dart`: 消息处理器，处理不同类型消息
 /// - `message_actions.dart`: 消息操作，撤回、编辑等功能
 /// - `message_webrtc.dart`: WebRTC 消息处理
-/// - `message_retry.dart`: 消息重试机制
+/// - `message_s2c.dart`: 服务端到客户端消息
+/// - `ack_manager.dart`: ACK 确认管理
 ///
-/// ## 当前设计权衡 (Current Design Trade-offs)
-///
-/// ### 单例模式的权衡
-/// **优点**:
-/// - 全局访问便利，简化消息传递流程
-/// - 避免重复创建仓储实例，节省内存
-/// - 统一的消息状态管理
-///
-/// **缺点**:
-/// - 作为单例持有大量仓储实例（缓存优化）
-/// - 与 WebSocketService 存在循环依赖（已通过延迟初始化缓解）
-/// - 测试时可能需要特殊处理
-///
-/// ### 循环依赖处理
-/// - **MessageService** 依赖 **WebSocketService** 发送消息
-/// - **WebSocketService** 依赖 **MessageService** 处理接收的消息
-/// - **解决方案**: 使用 `Future.microtask` 延迟初始化网络监控，避免在服务注册阶段访问其他服务
-/// - **未来优化建议**: 引入事件总线（如 GetX EventBus）完全解耦，或使用依赖注入容器
-///
-/// ### 仓储实例缓存
-/// 当前缓存的仓储实例：
-/// - `ConversationRepo`: 会话数据仓库
-/// - `ContactRepo`: 联系人数据仓库
-///
-/// 这些实例在服务初始化时创建，避免重复 new 操作，提升性能。
-///
-/// ## 职责范围 (Responsibilities)
+/// ## 职责范围
 ///
 /// ### 核心职责：
 /// 1. **消息接收与分发**：处理来自 WebSocket 的消息（C2C、C2G、C2S、S2C）
@@ -77,132 +52,141 @@ import 'message_webrtc.dart';
 /// ### 委托的职责：
 /// - **撤回/编辑**：委托给 `MessageActions`
 /// - **WebRTC**：委托给 `MessageWebrtc`
-/// - **消息重试**：委托给 `MessageRetry`
 /// - **ACK 发送**：委托给 `AckManager`
 ///
-/// ## 使用示例 (Usage Examples)
-///
-/// ```dart
-/// // 获取服务实例
-/// final msgService = MessageService.to;
-///
-/// // 发送消息（实际由 MessageService 内部处理）
-/// // 通常通过 ChatLogic 调用
-///
-/// // 处理接收到的消息（由 WebSocketService 自动调用）
-/// await msgService.processMessage('C2C', data);
-///
-/// // 更新消息状态
-/// await msgService.changeStatus('message_table', msgId, IMBoyMessageStatus.seen);
-///
-/// // 发送 ACK
-/// msgService.sendAckMsg('C2C', msgId);
-/// ```
-///
-/// ## 未来优化方向 (Future Optimization)
-///
-/// 1. **拆分服务职责**：
-///    - 将网络状态监控独立为 `MessageNetworkService`
-///    - 将 UI 通知逻辑独立为 `MessageNotificationService`
-///
-/// 2. **解耦循环依赖**：
-///    - 引入事件总线模式，使用 `eventBus.fire()` 完全解耦
-///    - 或使用依赖注入容器（如 GetX 的 Bindings）
-///
-/// 3. **仓储实例管理**：
-///    - 考虑使用仓储工厂模式，统一管理所有仓储实例
-///    - 或引入仓储缓存层，避免在 Service 中直接持有
-///
-/// ## 相关服务 (Related Services)
+/// ## 相关服务
 ///
 /// - `WebSocketService`: WebSocket 连接管理
 /// - `MessageActions`: 消息操作（撤回、编辑）
-/// - `MessageRetry`: 消息重试机制
 /// - `AckManager`: ACK 确认管理
 /// - `MessageOfflineService`: 离线消息处理
 ///
-class MessageService extends GetxService with EventSubscriptionManager {
-  static MessageService get to => Get.find();
+/// MessageService
+///
+/// 负责消息处理的核心服务，包括可靠传递、状态同步、UI 通知。
+/// Core service for message handling: reliable delivery, state sync, UI updates.
+///
+/// ## 架构说明
+///
+/// 此服务采用**模块化架构**，原有功能已拆分到以下文件：
+/// - `message_actions.dart`: 消息操作，撤回、编辑等功能
+/// - `message_webrtc.dart`: WebRTC 消息处理
+/// - `message_s2c.dart`: 服务端到客户端消息
+/// - `ack_manager.dart`: ACK 确认管理
+///
+/// ## 职责范围
+///
+/// ### 核心职责：
+/// 1. **消息接收与分发**：处理来自 WebSocket 的消息（C2C、C2G、C2S、S2C）
+/// 2. **消息状态管理**：更新消息状态（待发送、已发送、已送达、已读）
+/// 3. **UI 通知**：通过 EventBus 通知 UI 层更新
+/// 4. **消息去重**：防止重复消息显示
+/// 5. **网络状态监控**：监听 WebSocket 连接状态，处理离线/在线切换
+///
+/// ### 委托的职责：
+/// - **撤回/编辑**：委托给 `MessageActions`
+/// - **WebRTC**：委托给 `MessageWebrtc`
+/// - **ACK 发送**：委托给 `AckManager`
+///
+/// ## 相关服务
+///
+/// - `WebSocketService`: WebSocket 连接管理
+/// - `MessageActions`: 消息操作（撤回、编辑）
+/// - `AckManager`: ACK 确认管理
+/// - `MessageOfflineService`: 离线消息处理
+///
+/// ## 使用方式
+///
+/// ```dart
+/// // 获取服务实例（单例）
+/// final messageService = MessageService();
+///
+/// // 或者使用静态访问器
+/// MessageService.instance.processMessage(type, data);
+/// ```
+class MessageService with EventSubscriptionManager {
+  /// 单例实例
+  static MessageService? _instance;
 
-  // 委托给各个模块
-  // Delegate to each module
-  MessageActions get actions => MessageActions.to;
-  MessageWebrtc get webrtc => MessageWebrtc.to;
+  /// 获取单例实例
+  static MessageService get instance {
+    _instance ??= MessageService._internal();
+    return _instance!;
+  }
 
+  /// 兼容旧代码的访问方式
+  static MessageService get to => instance;
 
-  final MessageActions _messageActions = MessageActions.to;
+  /// 私有构造函数
+  MessageService._internal() {
+    _init();
+  }
 
-  // 懒加载 ConversationLogic 实例
-  ConversationLogic get _conversationLogic => Get.find<ConversationLogic>();
+  /// 委托给各个模块
+  MessageActions get actions => MessageActions.instance;
+  MessageWebrtc get webrtc => MessageWebrtc.instance;
 
-  // 缓存常用仓库实例，避免重复 new。
-  // Cache repository instances to avoid repeated instantiation.
+  final MessageActions _messageActions = MessageActions.instance;
+
+  // 使用 ProviderContainer 访问 Riverpod Provider
+  // 注意：这是一个临时解决方案，理想情况下应该将 MessageService 也迁移到 Riverpod
+  static final _providerContainer = ProviderContainer();
+
+  // 获取会话逻辑的 Riverpod Provider
+  ConversationNotifier get _conversationNotifier =>
+      _providerContainer.read(conversationProvider.notifier);
+
+  // 获取活跃会话管理的 Riverpod Provider
+  ActiveConversationNotifier get _activeConversationNotifier =>
+      _providerContainer.read(activeConversationProvider.notifier);
+
+  // 缓存常用仓库实例
   final ConversationRepo _conversationRepo = ConversationRepo();
   final ContactRepo _contactRepo = ContactRepo();
 
-
   /// 根据消息类型获取对应的 MessageRepo
-  /// Helper: get MessageRepo by message type.
   MessageRepo getMessageRepo(String type) =>
       MessageRepo(tableName: MessageRepo.getTableName(type));
 
-  /// 本地添加消息锁，防止并发重复添加
-  /// Lock to prevent concurrent duplicate local messages.
+  // 本地添加消息锁，防止并发重复添加
   bool addMessageLock = false;
 
-  /// 网络状态监听
-  /// Network status monitoring.
-  final RxBool isOnline = true.obs;
+  // 网络状态监听（使用 Stream 替代 RxBool）
+  bool _isOnline = true;
+  final StreamController<bool> _onlineStatusController =
+      StreamController<bool>.broadcast();
 
-  /// 消息发送进度跟踪
-  /// Message sending progress tracking.
+  /// 网络在线状态流
+  Stream<bool> get onlineStatusStream => _onlineStatusController.stream;
+
+  /// 当前在线状态
+  bool get isOnline => _isOnline;
+
+  // 消息发送进度跟踪
   final Map<String, double> sendingProgress = {};
 
-  /// 【修复】Timer 用于定期清理过期的内容哈希缓存
+  // Timer 用于定期清理过期的内容哈希缓存
   Timer? _cleanupTimer;
 
-  @override
-  void onInit() {
-    super.onInit();
-
+  /// 内部初始化方法
+  void _init() {
     // 延迟初始化网络监控，避免在服务注册阶段访问其他服务
-    // Delay network monitoring initialization to avoid accessing services during registration phase
-    Future.microtask(() {
-      // 通过事件总线订阅 WebSocket 状态，不再直接依赖 WebSocketService
-      // Subscribe to WebSocket status via event bus, no longer directly depends on WebSocketService
-      initNetworkMonitoring();
-    });
+    Future.microtask(() => initNetworkMonitoring());
 
-    // 所有子模块现在都在 init.dart 中使用 lazyPut 注册
-    // All sub-modules are now registered using lazyPut in init.dart
+    // 定期清理过期的内容哈希缓存
+    _cleanupTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => _cleanupExpiredContentHashes(),
+    );
 
-    // 【修复】定期清理过期的内容哈希缓存 - 跟踪 Timer
-    // Periodically clean up expired content hash cache
-    _cleanupTimer = Timer.periodic(const Duration(seconds: 60), (_) {
-      _cleanupExpiredContentHashes();
-    });
-
-    // 【新增】订阅 WebSocket 消息接收事件（解耦：通过事件总线接收消息而不是直接被 WebSocketService 调用）
-    // Subscribe to WebSocket message received event (decoupling: receive messages via event bus instead of direct calls)
-    // 使用 EventSubscriptionManager 管理
+    // 订阅 WebSocket 消息接收事件
     subscribeTo(
       AppEventBus.on<WebSocketMessageReceivedEvent>().listen((event) {
         processMessage(event.type, event.data);
       }),
     );
 
-    // 【新增】订阅 ACK 发送请求事件（解耦：通过事件总线接收 ACK 发送请求）
-    // Subscribe to ACK send request event (decoupling: receive ACK send requests via event bus)
-    // 使用 EventSubscriptionManager 管理
-    subscribeTo(
-      AppEventBus.on<AckSendRequestedEvent>().listen((event) {
-        sendAckMsg(event.messageType, event.messageId);
-      }),
-    );
-
-    // 【新增】订阅消息状态更新请求事件（解耦：通过事件总线接收状态更新请求）
-    // Subscribe to message status update request event (decoupling: receive status update requests via event bus)
-    // 使用 EventSubscriptionManager 管理
+    // 订阅消息状态更新请求事件
     subscribeTo(
       AppEventBus.on<MessageStatusUpdateRequestedEvent>().listen((event) {
         _handleStatusUpdateRequest(event);
@@ -210,76 +194,41 @@ class MessageService extends GetxService with EventSubscriptionManager {
     );
   }
 
-  @override
-  void onClose() {
-    // 【修复】取消清理 Timer
+  /// 释放资源
+  void dispose() {
     _cleanupTimer?.cancel();
-
-    // 【新增】使用 EventSubscriptionManager 统一取消所有事件订阅
-    // Cancel all event subscriptions using EventSubscriptionManager
+    _onlineStatusController.close();
     cancelAllSubscriptions();
-
-    super.onClose();
   }
 
-
   /// 初始化网络状态监控
-  /// Initialize network status monitoring.
   void initNetworkMonitoring() {
-    // 监听WebSocket连接状态变化事件（解耦：通过事件总线订阅而不是直接依赖 WebSocketService）
-    // Subscribe to WebSocket connection status change event (decoupling: subscribe via event bus instead of directly depending on WebSocketService)
-    // 使用 EventSubscriptionManager 管理
     subscribeTo(
       AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
         final isConnected = event.status == 'connected';
-        isOnline.value = isConnected;
+        _isOnline = isConnected;
+        _onlineStatusController.add(isConnected);
         if (isConnected) {
-          // 网络恢复时重试失败的消息（解耦：通过事件总线触发）
-          // Retry failed messages when network recovers (decoupling: trigger via event bus)
-          AppEventBus.fire(RetryMessagesRequestedEvent(
-            source: 'WebSocketConnected',
-            reason: 'WebSocket 连接恢复',
-          ));
+          AppEventBus.fire(
+            RetryMessagesRequestedEvent(
+              source: 'WebSocketConnected',
+              reason: 'WebSocket 连接恢复',
+            ),
+          );
         }
       }),
     );
   }
 
-  /// Send reliable ACK back to server/peer
-  /// 发送消息回执
-  /// type is ['C2C' | 'S2C' | 'C2G' | 'C2S | 'WEBRTC']
-  void sendAckMsg(String type, String msgId) {
-    // 【改进】使用 AckManager 发送 ACK，支持自动重试
-    try {
-      AckManager.to.sendAck(type, msgId);
-    } catch (e) {
-      iPrint('❌ [ACK_SEND] AckManager调用失败: type=$type, msgId=$msgId, error=$e');
-      // 降级处理：使用统一的 ACK 生成方法直接发送（不重试）
-      // AckManager 内部已处理 deviceId 检查，generateAckMessage 会验证参数
-      try {
-        final ackMsg = AckManager.to.generateAckMessage(type, msgId);
-        // 解耦：通过事件总线发送消息，而不是直接调用 WebSocketService
-        AppEventBus.fire(WebSocketMessageSendRequestEvent(
-          message: ackMsg,
-          messageId: msgId,
-        ));
-        iPrint('⚠️ [ACK_SEND] 降级发送成功: type=$type, msgId=$msgId');
-      } catch (e2) {
-        iPrint('❌ [ACK_SEND] 降级发送也失败: type=$type, msgId=$msgId, error=$e2');
-      }
-    }
-  }
-
   /// 处理消息状态更新请求事件
-  /// Handle message status update request event
-  void _handleStatusUpdateRequest(MessageStatusUpdateRequestedEvent event) async {
+  void _handleStatusUpdateRequest(
+    MessageStatusUpdateRequestedEvent event,
+  ) async {
     try {
       final repo = getMessageRepo(event.messageType);
       await updateStatus(repo, event.messageId, event.newStatus);
 
-      // 如果需要通知 UI 更新
       if (event.notifyUI) {
-        // 触发 UI 更新（通过现有的 data wrapper 机制）
         final updatedMsg = await repo.find(event.messageId);
         if (updatedMsg != null) {
           final typeMessage = await updatedMsg.toTypeMessage();
@@ -287,50 +236,47 @@ class MessageService extends GetxService with EventSubscriptionManager {
         }
       }
     } catch (e) {
-      iPrint('❌ [STATUS_UPDATE] 更新消息状态失败: messageId=${event.messageId}, status=${event.newStatus}, error=$e');
+      iPrint(
+        '❌ [STATUS_UPDATE] 更新消息状态失败: messageId=${event.messageId}, status=${event.newStatus}, error=$e',
+      );
     }
   }
 
-  /// 对外保留：改变消息状态（兼容旧调用）
-  /// Public API: change message status (for backward compatibility)
+  /// 改变消息状态（兼容旧调用）
   Future<MessageModel?> changeStatus(String tb, String msgId, int status) {
     final repo = MessageRepo(tableName: tb);
     return updateStatus(repo, msgId, status);
   }
 
-  /// Internal: update message status and conversation state
-  /// 内部：更新消息状态并同步会话
+  /// 更新消息状态并同步会话
   Future<MessageModel?> updateStatus(
-      MessageRepo repo,
-      String msgId,
-      int status,
-      ) async {
+    MessageRepo repo,
+    String msgId,
+    int status,
+  ) async {
     await repo.update({'id': msgId, 'status': status});
     iPrint('> message_core: 更新消息状态 $msgId 为 $status');
-    // 获取会话逻辑实例
-    final conversationLogic = Get.find<ConversationLogic>();
-    await conversationLogic.updateConversationByMsgId(msgId, {
+    await _conversationNotifier.updateConversationByMsgId(msgId, {
       ConversationRepo.lastMsgStatus: status,
     });
     return repo.find(msgId);
   }
 
   /// 获取消息发送进度
-  /// Get message sending progress.
   double getSendingProgress(String messageId) {
     return sendingProgress[messageId] ?? 0.0;
   }
 
   /// 更新消息发送进度
-  /// Update message sending progress.
   void updateSendingProgress(String messageId, double progress) {
     sendingProgress[messageId] = progress;
-    // 通知UI更新进度
-    AppEventBus.fireData({'progress_update': messageId, 'progress': progress}, 'ProgressUpdate');
+    AppEventBus.fireData({
+      'progress_update': messageId,
+      'progress': progress,
+    }, 'ProgressUpdate');
   }
 
   /// 清理发送进度
-  /// Clear sending progress.
   void clearSendingProgress(String messageId) {
     sendingProgress.remove(messageId);
   }
@@ -343,14 +289,11 @@ class MessageService extends GetxService with EventSubscriptionManager {
     final to = data['to']?.toString() ?? 'unknown';
     iPrint('📥 [processMessage] type=$type, msgId=$msgId, from=$from, to=$to');
 
-    // 检查payload中是否有action字段
-    final payload = (data['payload'] as Map?)?.cast<String, dynamic>();
-    final action = payload?['action']?.toString();
+    // WebSocket API v2.0: 从顶层读取 action 字段（用于 S2C 消息）
+    final action = data['action']?.toString();
 
-    // 所有消息均需回执 ACK
-    // Always send ACK for receipt
+    // 【重构】所有 ACK 统一在 websocket.dart 中处理，此处不再发送
     if (type.startsWith('WEBRTC_')) {
-      sendAckMsg('WEBRTC', data['id']);
       await webrtc.handleWebRTC(type, data);
     } else if (type.endsWith('_SERVER_ACK')) {
       await _receiveServerAck(data);
@@ -376,10 +319,67 @@ class MessageService extends GetxService with EventSubscriptionManager {
     }
   }
 
-  /// Process incoming chat messages (C2C/C2G/C2S)
-  /// 处理文本/自定义/位置等消息
-  /// 优化版：先更新UI，再异步处理数据存储
-  /// 注意：ACK已在websocket.dart的_onMessage中立即发送，此处不再发送
+  /// 处理 C2C/C2G 消息接收（WebSocket API v2.0）
+  ///
+  /// ## v2.0 API 规范
+  /// - **顶层字段**：`msg_type`（消息类型）、`e2ee`（端到端加密元数据）
+  /// - **payload**：
+  ///   - 普通（非 E2EE）消息：JSON 对象，包含消息内容
+  ///   - E2EE 消息：密文字符串（格式：`base64(nonce).base64(ciphertext)`）
+  /// - **e2ee 元数据**：分离的加密参数（nonce、keys 等），不包含密文
+  ///
+  /// ## 处理流程
+  /// 1. 检查是否是 S2C 消息，如果是则委托给 MessageS2CService
+  /// 2. 从顶层读取 `msg_type`（不再从 payload 读取）
+  /// 3. 检查是否有 `e2ee` 字段（判断是否为 E2EE 消息）
+  /// 4. 如果是 E2EE 消息，调用 `_handleE2EEMessage` 解密
+  /// 5. 根据 `msg_type` 分发到不同的处理方法
+  ///
+  /// ## 支持的消息类型
+  /// - `text`：文本消息
+  /// - `image`：图片消息
+  /// - `voice`：语音消息
+  /// - `video`：视频消息
+  /// - `file`：文件消息
+  /// - `quote`：引用消息
+  /// - `location`：位置消息
+  /// - `custom`：自定义消息
+  /// - `e2ee`：端到端加密消息
+  ///
+  /// ## v2.0 消息格式示例
+  /// ```json
+  /// {
+  ///   "id": "msg123",
+  ///   "type": "C2C",
+  ///   "msg_type": "text",
+  ///   "from": "user1",
+  ///   "to": "user2",
+  ///   "created_at": 1234567890,
+  ///   "payload": {
+  ///     "text": "Hello"
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// ## v2.0 E2EE 消息格式示例
+  /// ```json
+  /// {
+  ///   "id": "msg123",
+  ///   "type": "C2C",
+  ///   "msg_type": "text",
+  ///   "from": "user1",
+  ///   "to": "user2",
+  ///   "created_at": 1234567890,
+  ///   "e2ee": {
+  ///     "e2ee": true,
+  ///     "e2ee_ver": 1,
+  ///     "e2ee_suite": "RSA-OAEP-256+AES-256-GCM",
+  ///     "nonce": "base64_nonce",
+  ///     "keys": [{"did": "deviceA", "kid": "key_v1", "wrap_alg": "RSA-OAEP-256", "ek": "base64_ek"}]
+  ///   },
+  ///   "payload": "base64_nonce.base64_ciphertext"
+  /// }
+  /// ```
   Future<void> _receiveMessage(Map data) async {
     final startTime = DateTimeHelper.millisecond();
     final msgId = data['id'] as String;
@@ -389,10 +389,88 @@ class MessageService extends GetxService with EventSubscriptionManager {
     // ACK已在websocket.dart:_onMessage中发送，此处不再重复发送
     // ACK发送已移至websocket.dart，确保在最早期发送，避免任何处理延迟
 
-    // 强制 cast 为 Map<String, dynamic>
-    // Safely cast payload to Map<String, dynamic>
-    final payload = (data['payload'] as Map?)?.cast<String, dynamic>();
+    // v2.0: 从顶层读取 msg_type 字段（用于消息类型分发）
+    final topMsgType = data['msg_type']?.toString();
+
+    // v2.0: 从顶层读取 e2ee 字段（可能是字符串形式的 JSON）
+    final e2eeRaw = data['e2ee'];
+    Map<String, dynamic>? e2ee;
+
+    // 解析 e2ee（可能是字符串或 Map）
+    if (e2eeRaw != null && e2eeRaw.toString().isNotEmpty) {
+      if (e2eeRaw is String) {
+        try {
+          e2ee = jsonDecode(e2eeRaw);
+          if (e2ee is! Map) {
+            e2ee = null;
+          } else {
+            e2ee = e2ee!.cast<String, dynamic>();
+          }
+        } catch (e) {
+          iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
+        }
+      } else if (e2eeRaw is Map) {
+        e2ee = e2eeRaw.cast<String, dynamic>();
+      }
+    }
+
+    // v2.0: 处理 E2EE 消息（payload 为字符串）
+    // 或普通消息（payload 为 Map）
+    Map<String, dynamic>? payload;
+    final payloadRaw = data['payload'];
+
+    // 检查是否为 E2EE 消息（v2.0：顶层 msg_type 为 e2ee，或者 e2ee 字段存在且非空）
+    final isE2EEMessage = topMsgType == 'e2ee' || (e2ee != null && e2ee.isNotEmpty);
+
+    if (isE2EEMessage) {
+      // E2EE 消息：payload 通常是加密后的字符串
+      if (payloadRaw is String && payloadRaw.isNotEmpty) {
+        // 保留加密的 payload，稍后解密
+        payload = {
+          'msg_type': 'e2ee', // v2.0: 明确标记为 e2ee 类型
+          '_e2ee_ciphertext': payloadRaw,
+          '_e2ee_meta': e2ee ?? {},
+          '_e2ee_v2': true, // 标记为 v2.0 格式
+        };
+      } else if (payloadRaw is Map) {
+        // 兼容旧格式：e2ee 信息在 payload 内
+        payload = payloadRaw.cast<String, dynamic>();
+      } else {
+        // 无效的 E2EE 消息
+        iPrint('❌ [E2EE] 无效的 E2EE 消息格式: msgId=$msgId');
+        return;
+      }
+    } else {
+      // 普通（非 E2EE）消息：payload 应该是 Map
+      if (payloadRaw is Map) {
+        payload = payloadRaw.cast<String, dynamic>();
+        // v2.0: 确保顶层 msg_type 也存在于 payload 中（向后兼容）
+        if (topMsgType != null && topMsgType.isNotEmpty) {
+          payload['msg_type'] = topMsgType;
+        }
+      } else if (payloadRaw is String && payloadRaw.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(payloadRaw);
+          if (decoded is Map) {
+            payload = decoded.cast<String, dynamic>();
+          }
+        } catch (e) {
+          iPrint('❌ [Payload] 无法解析 payload 字符串: msgId=$msgId, error=$e');
+        }
+      }
+    }
+
     if (payload == null) return;
+    data['payload'] = payload;
+
+    final senderDid = data['sender_did'];
+    if (senderDid != null && payload['sender_did'] == null) {
+      payload['sender_did'] = senderDid;
+    }
+    final senderDtype = data['sender_dtype'];
+    if (senderDtype != null && payload['sender_dtype'] == null) {
+      payload['sender_dtype'] = senderDtype;
+    }
 
     // 计算端到端延迟：从发送客户端到接收客户端的总延迟
     // Calculate end-to-end latency: from sender client to receiver client
@@ -409,8 +487,51 @@ class MessageService extends GetxService with EventSubscriptionManager {
       createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
       data['created_at'] = createdAt;
     }
+    final createdAtMs = (data['created_at'] is int)
+        ? data['created_at'] as int
+        : DateTimeHelper.millisecond();
 
-    final repo = to.getMessageRepo(msgType);
+    // v2.0: E2EE 解密处理
+    // 检查是否为 v2.0 E2EE 格式（payload 包含密文标记）
+    if (payload.containsKey('_e2ee_ciphertext')) {
+      // v2.0 E2EE 格式：使用新的解密方法
+      final decryptedPayload = await _handleE2EEMessage(
+        data: data,
+        msgId: msgId,
+        msgType: msgType,
+        createdAtMs: createdAtMs,
+      );
+
+      // 替换 payload
+      payload
+        ..clear()
+        ..addAll(decryptedPayload);
+      data['payload'] = payload;
+    } else {
+      // 普通（非 v2.0 E2EE）消息或 v1.0 E2EE 消息，使用原有解密逻辑
+      final decryptedPayload = await E2EEService.decryptIncomingPayload(
+        msgId: msgId,
+        msgType: msgType,
+        fromUid: data['from']?.toString() ?? '',
+        toUid: data['to']?.toString() ?? '',
+        createdAt: createdAtMs,
+        payload: payload,
+      );
+
+      // 如果解密后内容不同，说明解密成功或需要更新
+      if (!identical(decryptedPayload, payload)) {
+        // 检查是否解密失败
+        if (decryptedPayload.containsKey('_e2ee_failed')) {
+          iPrint('❌ [E2EE] v1.0 E2EE 解密失败: msgId=$msgId, reason=${decryptedPayload['_e2ee_reason']}');
+        }
+        payload
+          ..clear()
+          ..addAll(decryptedPayload);
+        data['payload'] = payload;
+      }
+    }
+
+    final repo = getMessageRepo(msgType);
 
     // 【修复】先检查数据库中是否已存在，避免重复显示
     // Check database first to avoid duplicate display
@@ -432,7 +553,9 @@ class MessageService extends GetxService with EventSubscriptionManager {
     final contentHash = _generateContentHash(data);
     if (_recentMessageContents.containsKey(contentHash)) {
       final previousMsgId = _recentMessageContents[contentHash];
-      iPrint('⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$msgType');
+      iPrint(
+        '⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$msgType',
+      );
       // 【可选】自动跳过重复消息
       // 如果服务器发送了相同消息但不同 msg_id，直接跳过
       return;
@@ -442,12 +565,24 @@ class MessageService extends GetxService with EventSubscriptionManager {
 
     // 快速检查消息是否已存在（仅检查内存缓存，不阻塞UI）
     // Quick duplicate check using in-memory set only (non-blocking)
+    // 优化：使用 TTL 自动过期，默认 5 秒
     final receivingMsgKey = '${msgType}_$msgId';
-    if (_receivingMessages.contains(receivingMsgKey)) {
-      iPrint('消息正在处理中，跳过重复: $msgId');
-      return;
+    final now = DateTimeHelper.millisecond();
+    const ttlMs = 5000;  // 5秒 TTL
+
+    // 清理过期的标记
+    _cleanExpiredReceivingMarks(now, ttlMs);
+
+    if (_receivingMessages.containsKey(receivingMsgKey)) {
+      final timestamp = _receivingMessages[receivingMsgKey]!;
+      if (now - timestamp < ttlMs) {
+        iPrint('消息正在处理中，跳过重复: $msgId');
+        return;
+      }
+      // 已过期，移除旧标记
+      _receivingMessages.remove(receivingMsgKey);
     }
-    _receivingMessages.add(receivingMsgKey);
+    _receivingMessages[receivingMsgKey] = now;
     iPrint('⏱️ [3] 去重检查完成: +${DateTimeHelper.millisecond() - startTime}ms');
 
     try {
@@ -456,23 +591,21 @@ class MessageService extends GetxService with EventSubscriptionManager {
       final peerId = msgType == 'C2G' ? data['to'] : data['from'];
       final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
 
-      // 构造 subtitle
-      String subtitle = payload['text'] ?? '';
-      final messageType = payload['msg_type'] ?? '';
-      if (messageType == 'custom') {
-        subtitle = '';
-      } else if (messageType == 'quote') {
-        subtitle = payload['quote_text'] ?? '';
-      } else if (messageType == 'location') {
-        subtitle = payload['title'] ?? '';
-      }
+      // v2.0: 优先从顶层读取 msg_type，如果不存在则从 payload 读取（兼容 v1.0）
+      final messageType = data['msg_type']?.toString() ?? payload['msg_type']?.toString() ?? '';
+
+      // v2.0: 根据消息类型进行特定的处理（日志记录、特殊逻辑等）
+      _dispatchMessageByType(messageType, data, payload);
+
+      // v2.0: 使用 switch 处理不同的 msg_type，构造会话副标题
+      String subtitle = _getMessageSubtitle(messageType, payload);
 
       // 创建临时会话对象用于立即显示
       // Create temporary conversation for immediate UI display
       final tempConv = ConversationModel(
         peerId: peerId,
         avatar: '', // 稍后异步更新
-        title: msgType == 'C2G' ? '群聊' : '用户', // 稍后异步更新
+        title: msgType == 'C2G' ? t.groupChat : t.user, // 稍后异步更新
         subtitle: subtitle,
         type: msgType,
         msgType: messageType,
@@ -514,15 +647,49 @@ class MessageService extends GetxService with EventSubscriptionManager {
       // Process data storage and full message conversion asynchronously in background (non-blocking)
       await _processMessageInBackground(data, payload, tempConv, tempMsg, repo);
     } finally {
-      // 【修复】立即清理标记，不再延迟 5 秒
-      // 立即清理可以避免正常的重复消息被错误过滤
-      _receivingMessages.remove(receivingMsgKey);
+      // 优化：TTL 自动过期，无需手动清理
+      // 清理由 _cleanExpiredReceivingMarks 自动处理
     }
   }
 
   /// 正在接收的消息集合（用于快速去重，不阻塞UI）
   /// Set of messages being received (for fast deduplication, non-blocking)
-  final Set<String> _receivingMessages = <String>{};
+  /// 优化：使用 Map 存储时间戳，支持 TTL 自动过期
+  final Map<String, int> _receivingMessages = <String, int>{};  // msgKey -> timestamp
+
+  /// 清理过期的接收标记
+  /// Clean up expired receiving marks
+  void _cleanExpiredReceivingMarks(int now, int ttlMs) {
+    if (_receivingMessages.isEmpty) return;
+
+    final expiredKeys = <String>[];
+    for (final entry in _receivingMessages.entries) {
+      if (now - entry.value > ttlMs) {
+        expiredKeys.add(entry.key);
+      }
+    }
+
+    for (final key in expiredKeys) {
+      _receivingMessages.remove(key);
+    }
+
+    if (expiredKeys.isNotEmpty) {
+      iPrint('🧹 [DEDUP] 清理 ${expiredKeys.length} 个过期接收标记');
+    }
+  }
+
+  /// 手动清理接收标记（供特殊情况使用）
+  void clearReceivingMark(String receivingMsgKey) {
+    _receivingMessages.remove(receivingMsgKey);
+    iPrint('🧹 [DEDUP] 手动清理接收标记: $receivingMsgKey');
+  }
+
+  /// 清理所有接收标记（用于测试或调试）
+  void clearAllReceivingMarks() {
+    final count = _receivingMessages.length;
+    _receivingMessages.clear();
+    iPrint('🧹 [DEDUP] 清理所有接收标记: $count 个');
+  }
 
   /// 正在加载的消息ID集合（用于防止 page_view 加载时重复显示）
   /// Set of message IDs being loaded (to prevent duplicate display during page_view loading)
@@ -566,8 +733,9 @@ class MessageService extends GetxService with EventSubscriptionManager {
     final type = data['type']?.toString() ?? '';
     final createdAt = data['created_at']?.toString() ?? '';
 
+    // v2.0: 从顶层读取 msg_type（后备兼容从 payload 读取）
+    final msgType = data['msg_type']?.toString() ?? '';
     final payload = data['payload'] as Map?;
-    final msgType = payload?['msg_type']?.toString() ?? '';
     final clientSendTs = payload?['client_send_ts']?.toString() ?? '';
 
     // 使用关键字段生成哈希（不包含加密的文本内容）
@@ -685,7 +853,7 @@ class MessageService extends GetxService with EventSubscriptionManager {
       // Update unread count
       final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
       if (!isUserInChat && !isFromCurrentUser) {
-        await _conversationLogic.increaseConversationRemind(savedConv, 1);
+        await _conversationNotifier.increaseConversationRemind(savedConv, 1);
       }
 
       // 再次触发 UI 更新以显示完整的 peer 信息
@@ -769,7 +937,8 @@ class MessageService extends GetxService with EventSubscriptionManager {
       final cachedTime = _groupCacheTime[peerId] ?? 0;
       GroupModel? g;
 
-      if (_groupCache.containsKey(peerId) && (nowMs - cachedTime < _groupCacheExpiration)) {
+      if (_groupCache.containsKey(peerId) &&
+          (nowMs - cachedTime < _groupCacheExpiration)) {
         // 使用缓存的群组信息
         // Use cached group info
         g = _groupCache[peerId];
@@ -777,7 +946,7 @@ class MessageService extends GetxService with EventSubscriptionManager {
       } else {
         // 缓存过期或不存在，从数据库/网络获取
         // Cache expired or not exists, fetch from DB/network
-        g = await GroupDetailLogic().detail(gid: peerId);
+        g = await GroupDetailService().detail(gid: peerId);
 
         // 更新缓存
         // Update cache
@@ -804,11 +973,7 @@ class MessageService extends GetxService with EventSubscriptionManager {
       title = ct?.title ?? '用户';
     }
 
-    return {
-      'peerId': peerId,
-      'avatar': avatar,
-      'title': title,
-    };
+    return {'peerId': peerId, 'avatar': avatar, 'title': title};
   }
 
   /// 清空群组缓存（用于群组信息更新后刷新）
@@ -836,15 +1001,17 @@ class MessageService extends GetxService with EventSubscriptionManager {
 
     // 【重要】从重试队列中移除该消息，避免重复发送（解耦：通过事件总线）
     // Remove from retry queue to avoid duplicate sending (decoupling: via event bus)
-    AppEventBus.fire(RemoveFromRetryQueueRequestedEvent(
-      messageId: msgId,
-      messageType: type,
-      reason: 'server_ack',
-    ));
+    AppEventBus.fire(
+      RemoveFromRetryQueueRequestedEvent(
+        messageId: msgId,
+        messageType: type,
+        reason: 'server_ack',
+      ),
+    );
     iPrint('✅ [SERVER_ACK] 请求从重试队列移除: msgId=$msgId');
 
-    final repo = to.getMessageRepo(type);
-    final msg = await to.updateStatus(repo, msgId, IMBoyMessageStatus.sent);
+    final repo = getMessageRepo(type);
+    final msg = await updateStatus(repo, msgId, IMBoyMessageStatus.sent);
 
     if (msg != null) {
       // 【改进】确认消息状态已更新
@@ -854,7 +1021,7 @@ class MessageService extends GetxService with EventSubscriptionManager {
       AppEventBus.fireData([await msg.toTypeMessage()], 'List<Message>');
 
       // 确保会话列表中的lastMsgStatus也得到更新
-      await _conversationLogic.updateConversationByMsgId(msgId, {
+      await _conversationNotifier.updateConversationByMsgId(msgId, {
         ConversationRepo.lastMsgStatus: IMBoyMessageStatus.sent,
       });
     } else {
@@ -863,22 +1030,16 @@ class MessageService extends GetxService with EventSubscriptionManager {
     }
   }
 
-  /// 检查用户是否正在查看特定会话
-  /// Check if user is currently viewing a specific conversation
+  /// 检查用户当前是否正在浏览指定会话
+  ///
+  /// 通过 ActiveConversationNotifier Riverpod Provider 跟踪当前活动会话
   Future<bool> _isUserCurrentlyInChat(ConversationModel conv) async {
     try {
-      // 检查是否有ChatLogic实例且当前会话匹配
-      if (Get.isRegistered<ChatLogic>()) {
-        final chatLogic = Get.find<ChatLogic>();
-        // 检查当前聊天页面的会话ID是否与传入的会话匹配
-        if (chatLogic.state.currentConversationId.value == conv.uk3) {
-          return true;
-        }
-      }
-      return false;
+      // 使用 Riverpod Provider 访问活跃会话状态
+      return _activeConversationNotifier.isConversationActive(conv.uk3);
     } catch (e) {
-      debugPrint('检查用户会话状态时出错: $e');
-      return false;
+      iPrint('❌ [ACTIVE_CONVERSATION] 检查失败: $e');
+      return false; // 失败时返回 false，保守增加未读数
     }
   }
 
@@ -891,14 +1052,81 @@ class MessageService extends GetxService with EventSubscriptionManager {
     // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content 字段
     if (ErrorCode.shouldReLogin(code)) {
       UserRepoLocal.to.quitLogin();
-      Get.offAll(() => const LoginPage());
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        AppRoutes.signIn,
+        (route) => false,
+      );
     }
   }
 
+  /// v2.0: 根据消息类型构造会话副标题
+  ///
+  /// 使用 switch 处理不同的 msg_type（text、image、voice、video、file、quote、location、custom）
+  ///
+  /// ## 参数
+  /// - [messageType]: 消息类型（从顶层 msg_type 字段读取）
+  /// - [payload]: 消息负载内容
+  ///
+  /// ## 返回值
+  /// 会话列表中显示的副标题文本
+  String _getMessageSubtitle(String messageType, Map<String, dynamic> payload) {
+    // 使用 switch 处理不同的消息类型
+    switch (messageType) {
+      case 'text':
+        // 文本消息：显示文本内容
+        return payload['text']?.toString() ?? '';
+
+      case 'image':
+        // 图片消息：显示 [图片]
+        return '[图片]';
+
+      case 'voice':
+        // 语音消息：显示 [语音] 或时长
+        final duration = payload['duration']?.toInt() ?? 0;
+        return duration > 0 ? '[语音 $duration"]' : '[语音]';
+
+      case 'video':
+        // 视频消息：显示 [视频]
+        return '[视频]';
+
+      case 'file':
+        // 文件消息：显示文件名或 [文件]
+        final filename = payload['filename']?.toString() ?? '';
+        return filename.isNotEmpty ? '📄 $filename' : '[文件]';
+
+      case 'quote':
+        // 引用消息：显示引用的文本
+        return payload['quote_text']?.toString() ?? '[引用]';
+
+      case 'location':
+        // 位置消息：显示位置标题
+        return payload['title']?.toString() ?? '[位置]';
+
+      case 'custom':
+        // 自定义消息：通常不显示副标题
+        return '';
+
+      case 'e2ee':
+        // E2EE 加密消息：显示加密标记（如果未解密）
+        if (payload.containsKey('_e2ee_failed')) {
+          return '[加密消息 - 解密失败]';
+        }
+        // 如果已解密，根据实际内容类型返回
+        final actualMsgType = payload['msg_type']?.toString() ?? '';
+        return actualMsgType.isEmpty ? '[加密消息]' : _getMessageSubtitle(actualMsgType, payload);
+
+      default:
+        // 未知消息类型：尝试从 payload 获取文本
+        final text = payload['text']?.toString();
+        if (text != null && text.isNotEmpty) {
+          return text;
+        }
+        return '[消息]';
+    }
+  }
 
   // 兼容性方法，保持原有 API
   // Compatibility methods to maintain original API
-
 
   /// Add a local WebRTC message record (UI only)
   /// 本地添加一条 WebRTC 消息记录，仅更新 UI
@@ -921,12 +1149,8 @@ class MessageService extends GetxService with EventSubscriptionManager {
     int state, {
     int startAt = -1,
     int endAt = -1,
-  }) => webrtc.changeLocalMsgState(
-    msgId,
-    state,
-    startAt: startAt,
-    endAt: endAt,
-  );
+  }) =>
+      webrtc.changeLocalMsgState(msgId, state, startAt: startAt, endAt: endAt);
 
   /// 发送撤回消息请求
   /// Send revoke message request.
@@ -935,14 +1159,246 @@ class MessageService extends GetxService with EventSubscriptionManager {
 
   /// 发送编辑消息请求
   /// Send edit message request.
-  Future<bool> sendEditMessage(String messageId, String messageType, String newContent) =>
-      actions.sendEditMessage(messageId, messageType, newContent);
+  Future<bool> sendEditMessage(
+    String messageId,
+    String messageType,
+    String newContent,
+  ) => actions.sendEditMessage(messageId, messageType, newContent);
 
   /// 检查消息是否可以撤回
   /// Check if message can be revoked.
-  Future<bool> canRevokeMessage(MessageModel msg) => actions.canRevokeMessage(msg);
+  Future<bool> canRevokeMessage(MessageModel msg) =>
+      actions.canRevokeMessage(msg);
 
   /// 检查消息是否可以编辑
   /// Check if message can be edited.
   Future<bool> canEditMessage(MessageModel msg) => actions.canEditMessage(msg);
+
+  /// 处理 E2EE 消息解密（v2.0 格式）
+  ///
+  /// ## v2.0 E2EE 格式
+  /// - **payload**：密文字符串（格式：`base64(nonce).base64(ciphertext)`）
+  /// - **e2ee 元数据**：包含加密参数（keys 数组、nonce、suite 等）
+  ///
+  /// ## 解密流程
+  /// 1. 从 payload 获取密文字符串
+  /// 2. 从 e2ee 元数据获取加密参数
+  /// 3. 调用 `E2EEService.decryptE2EEMessage` 解密
+  /// 4. 解析解密后的 JSON 内容
+  /// 5. 返回解密后的 payload
+  ///
+  /// ## 参数
+  /// - [data]: 原始消息数据（包含 payload 和 e2ee 字段）
+  /// - [msgId]: 消息 ID
+  /// - [msgType]: 消息类型（C2C/C2G）
+  /// - [createdAtMs]: 创建时间戳（毫秒）
+  ///
+  /// ## 返回值
+  /// 解密后的 payload（Map），如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
+  Future<Map<String, dynamic>> _handleE2EEMessage({
+    required Map data,
+    required String msgId,
+    required String msgType,
+    required int createdAtMs,
+  }) async {
+    // 1. 获取密文字符串
+    final ciphertext = data['payload']?.toString();
+    if (ciphertext == null || ciphertext.isEmpty) {
+      iPrint('❌ [E2EE] payload 为空: msgId=$msgId');
+      return {
+        'msg_type': 'custom',
+        'custom_type': 'e2ee',
+        'text': '[加密消息]',
+        '_e2ee_failed': true,
+        '_e2ee_reason': 'empty_payload',
+      };
+    }
+
+    // 2. 获取 e2ee 元数据
+    final e2eeRaw = data['e2ee'];
+    Map<String, dynamic>? e2ee;
+
+    if (e2eeRaw != null && e2eeRaw.toString().isNotEmpty) {
+      if (e2eeRaw is String) {
+        try {
+          final decoded = jsonDecode(e2eeRaw);
+          if (decoded is Map) {
+            e2ee = decoded.cast<String, dynamic>();
+          }
+        } catch (e) {
+          iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
+        }
+      } else if (e2eeRaw is Map) {
+        e2ee = e2eeRaw.cast<String, dynamic>();
+      }
+    }
+
+    if (e2ee == null || e2ee.isEmpty) {
+      iPrint('❌ [E2EE] e2ee 元数据为空: msgId=$msgId');
+      return {
+        'msg_type': 'custom',
+        'custom_type': 'e2ee',
+        'text': '[加密消息]',
+        '_e2ee_failed': true,
+        '_e2ee_reason': 'missing_e2ee_metadata',
+      };
+    }
+
+    // 3. 调用 E2EEService.decryptE2EEMessage 解密
+    try {
+      final plaintext = await E2EEService.decryptE2EEMessage(
+        ciphertext: ciphertext,
+        e2ee: e2ee,
+      );
+
+      // 4. 解析解密后的 JSON 内容
+      final decoded = jsonDecode(plaintext);
+      if (decoded is! Map) {
+        throw Exception('解密后的内容不是 JSON 对象');
+      }
+
+      final payload = decoded.cast<String, dynamic>();
+
+      // 5. 保留原始元数据
+      if (data.containsKey('client_send_ts')) {
+        payload['client_send_ts'] = data['client_send_ts'];
+      }
+      if (data.containsKey('sender_did')) {
+        payload['sender_did'] = data['sender_did'];
+      }
+      if (data.containsKey('sender_dtype')) {
+        payload['sender_dtype'] = data['sender_dtype'];
+      }
+      if (!payload.containsKey('_e2ee')) {
+        payload['_e2ee'] = data; // 保存完整的原始消息
+      }
+
+      iPrint('✅ [E2EE] v2.0 解密成功: msgId=$msgId, msgType=${payload['msg_type']}');
+      return payload;
+    } catch (e) {
+      iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=$e');
+      return {
+        'msg_type': 'custom',
+        'custom_type': 'e2ee',
+        'text': '[加密消息]',
+        '_e2ee_failed': true,
+        '_e2ee_reason': 'decrypt_error',
+        '_e2ee_error': e.toString(),
+      };
+    }
+  }
+
+  /// 处理文本消息
+  void _handleTextMessage(Map data, Map<String, dynamic> payload) {
+    final text = payload['text']?.toString() ?? '';
+    iPrint('📝 [文本消息] ${text.substring(0, text.length > 50 ? 50 : text.length)}...');
+  }
+
+  /// 处理图片消息
+  void _handleImageMessage(Map data, Map<String, dynamic> payload) {
+    final url = payload['url']?.toString() ?? '';
+    iPrint('🖼️ [图片消息] $url');
+  }
+
+  /// 处理语音消息
+  void _handleVoiceMessage(Map data, Map<String, dynamic> payload) {
+    final duration = payload['duration']?.toInt() ?? 0;
+    final url = payload['url']?.toString() ?? '';
+    iPrint('🎤 [语音消息] 时长: $duration秒, URL: $url');
+  }
+
+  /// 处理视频消息
+  void _handleVideoMessage(Map data, Map<String, dynamic> payload) {
+    final url = payload['url']?.toString() ?? '';
+    final duration = payload['duration']?.toInt() ?? 0;
+    iPrint('🎬 [视频消息] 时长: $duration秒, URL: $url');
+  }
+
+  /// 处理文件消息
+  void _handleFileMessage(Map data, Map<String, dynamic> payload) {
+    final filename = payload['filename']?.toString() ?? '';
+    final size = payload['size']?.toInt() ?? 0;
+    iPrint('📎 [文件消息] 文件名: $filename, 大小: $size 字节');
+  }
+
+  /// 处理引用消息
+  void _handleQuoteMessage(Map data, Map<String, dynamic> payload) {
+    final quoteText = payload['quote_text']?.toString() ?? '';
+    final text = payload['text']?.toString() ?? '';
+    iPrint('💬 [引用消息] 引用: $quoteText, 内容: $text');
+  }
+
+  /// 处理位置消息
+  void _handleLocationMessage(Map data, Map<String, dynamic> payload) {
+    final title = payload['title']?.toString() ?? '';
+    final address = payload['address']?.toString() ?? '';
+    iPrint('📍 [位置消息] 标题: $title, 地址: $address');
+  }
+
+  /// 处理自定义消息
+  void _handleCustomMessage(Map data, Map<String, dynamic> payload) {
+    final customType = payload['custom_type']?.toString() ?? '';
+    iPrint('🔧 [自定义消息] 类型: $customType');
+  }
+
+  /// 根据 msg_type 分发消息处理（v2.0）
+  ///
+  /// ## 参数
+  /// - [messageType]: 消息类型（从顶层 msg_type 字段读取）
+  /// - [data]: 原始消息数据
+  /// - [payload]: 消息负载内容
+  ///
+  /// ## 支持的消息类型
+  /// - `text`：文本消息
+  /// - `image`：图片消息
+  /// - `voice`：语音消息
+  /// - `video`：视频消息
+  /// - `file`：文件消息
+  /// - `quote`：引用消息
+  /// - `location`：位置消息
+  /// - `custom`：自定义消息
+  /// - `e2ee`：端到端加密消息（已解密）
+  void _dispatchMessageByType(
+    String messageType,
+    Map data,
+    Map<String, dynamic> payload,
+  ) {
+    switch (messageType) {
+      case 'text':
+        _handleTextMessage(data, payload);
+        break;
+      case 'image':
+        _handleImageMessage(data, payload);
+        break;
+      case 'voice':
+        _handleVoiceMessage(data, payload);
+        break;
+      case 'video':
+        _handleVideoMessage(data, payload);
+        break;
+      case 'file':
+        _handleFileMessage(data, payload);
+        break;
+      case 'quote':
+        _handleQuoteMessage(data, payload);
+        break;
+      case 'location':
+        _handleLocationMessage(data, payload);
+        break;
+      case 'custom':
+        _handleCustomMessage(data, payload);
+        break;
+      case 'e2ee':
+        // E2EE 消息：如果已解密，根据实际内容类型处理
+        if (!payload.containsKey('_e2ee_failed')) {
+          final actualMsgType = payload['msg_type']?.toString() ?? '';
+          if (actualMsgType.isNotEmpty) {
+            _dispatchMessageByType(actualMsgType, data, payload);
+          }
+        }
+        break;
+      default:
+        iPrint('⚠️ [未知消息类型] messageType=$messageType');
+    }
+  }
 }

@@ -1,34 +1,40 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 enum NetworkType { wifi, mobile, ethernet, none, unknown }
 
-class NetworkMonitorService extends GetxService {
-  static NetworkMonitorService get to => Get.find();
+class NetworkMonitorService {
+  // 单例模式
+  static NetworkMonitorService? _instance;
+  static NetworkMonitorService get to =>
+      _instance ??= NetworkMonitorService._internal();
+  NetworkMonitorService._internal();
 
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
-  final Rx<NetworkType> currentNetworkType = NetworkType.unknown.obs;
-  final RxBool isConnected = false.obs;
+  // 状态管理
+  NetworkType _currentNetworkType = NetworkType.unknown;
+  NetworkType get currentNetworkType => _currentNetworkType;
+
+  bool _isConnected = false;
+  bool get isConnected => _isConnected;
 
   // 网络类型改变回调
-  final List<void Function(NetworkType oldType, NetworkType newType)> _networkChangeCallbacks = [];
+  final List<void Function(NetworkType oldType, NetworkType newType)>
+  _networkChangeCallbacks = [];
 
-  @override
-  void onInit() {
-    super.onInit();
+  /// 初始化服务
+  void init() {
     _initializeNetworkMonitoring();
   }
 
-  @override
-  void onClose() {
+  /// 释放资源
+  void dispose() {
     _connectivitySubscription?.cancel();
-    super.onClose();
   }
 
   void _initializeNetworkMonitoring() {
@@ -36,7 +42,9 @@ class NetworkMonitorService extends GetxService {
     _checkCurrentNetworkStatus();
 
     // 监听网络变化
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((results) {
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+      results,
+    ) {
       _handleConnectivityChange(results);
     });
   }
@@ -53,7 +61,7 @@ class NetworkMonitorService extends GetxService {
   void _handleConnectivityChange(List<ConnectivityResult> results) {
     if (results.isEmpty) return;
 
-    final oldType = currentNetworkType.value;
+    final oldType = _currentNetworkType;
     final newType = _convertToNetworkType(results);
     final newConnected = newType != NetworkType.none;
 
@@ -62,8 +70,8 @@ class NetworkMonitorService extends GetxService {
       iPrint('网络类型变化: ${oldType.name} -> ${newType.name}');
 
       // 更新状态
-      currentNetworkType.value = newType;
-      isConnected.value = newConnected;
+      _currentNetworkType = newType;
+      _isConnected = newConnected;
 
       // 通知所有监听器
       _notifyNetworkTypeChange(oldType, newType);
@@ -103,9 +111,9 @@ class NetworkMonitorService extends GetxService {
       // 【解耦】通过事件总线发布 WebSocket 重连请求，而不是直接调用 WebSocketService
       // Decoupling: publish WebSocket reconnect request via event bus instead of directly calling WebSocketService
       try {
-        AppEventBus.fire(WebSocketReconnectRequestEvent(
-          source: 'network-type-change',
-        ));
+        AppEventBus.fire(
+          WebSocketReconnectRequestEvent(source: 'network-type-change'),
+        );
         iPrint('因网络类型变化触发WebSocket重连请求');
       } catch (e) {
         iPrint('发布WebSocket重连请求失败: $e');
@@ -123,13 +131,17 @@ class NetworkMonitorService extends GetxService {
     }
   }
 
-  void addNetworkChangeListener(void Function(NetworkType oldType, NetworkType newType) callback) {
+  void addNetworkChangeListener(
+    void Function(NetworkType oldType, NetworkType newType) callback,
+  ) {
     if (!_networkChangeCallbacks.contains(callback)) {
       _networkChangeCallbacks.add(callback);
     }
   }
 
-  void removeNetworkChangeListener(void Function(NetworkType oldType, NetworkType newType) callback) {
+  void removeNetworkChangeListener(
+    void Function(NetworkType oldType, NetworkType newType) callback,
+  ) {
     _networkChangeCallbacks.remove(callback);
   }
 
@@ -148,8 +160,8 @@ class NetworkMonitorService extends GetxService {
     }
   }
 
-  bool get isWifi => currentNetworkType.value == NetworkType.wifi;
-  bool get isMobile => currentNetworkType.value == NetworkType.mobile;
-  bool get isEthernet => currentNetworkType.value == NetworkType.ethernet;
-  bool get hasNetwork => currentNetworkType.value != NetworkType.none;
+  bool get isWifi => _currentNetworkType == NetworkType.wifi;
+  bool get isMobile => _currentNetworkType == NetworkType.mobile;
+  bool get isEthernet => _currentNetworkType == NetworkType.ethernet;
+  bool get hasNetwork => _currentNetworkType != NetworkType.none;
 }

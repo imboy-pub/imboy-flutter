@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -25,12 +24,11 @@ class ImageView extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget image;
     if (isNetWorkImg(uri)) {
-      final double targetWidth = width ?? Get.width;
+      // 使用 MediaQuery 获取屏幕宽度，替代 Get.width
+      final screenWidth = MediaQuery.of(context).size.width;
+      final double targetWidth = width ?? screenWidth;
       image = Image(
-        image: cachedImageProvider(
-          uri,
-          w: targetWidth,
-        ),
+        image: cachedImageProvider(uri, w: targetWidth),
         width: width,
         height: height,
         fit: fit,
@@ -39,7 +37,8 @@ class ImageView extends StatelessWidget {
           return Center(
             child: CircularProgressIndicator(
               value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                  ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
                   : null,
             ),
           );
@@ -56,12 +55,7 @@ class ImageView extends StatelessWidget {
         ),
       );
     } else if (File(uri).existsSync()) {
-      image = Image.file(
-        File(uri),
-        width: width,
-        height: height,
-        fit: fit,
-      );
+      image = Image.file(File(uri), width: width, height: height, fit: fit);
     } else if (isAssetsImg(uri)) {
       image = Image(
         image: AssetImage(uri),
@@ -83,9 +77,7 @@ class ImageView extends StatelessWidget {
     }
     if (isRadius) {
       return ClipRRect(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(4.0),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
         child: image,
       );
     }

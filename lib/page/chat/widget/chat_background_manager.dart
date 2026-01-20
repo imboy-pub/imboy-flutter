@@ -1,23 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:get/get.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 聊天背景管理器
-/// 提供聊天背景的个性化设置和管理
-class ChatBackgroundManager extends GetxController {
-  static ChatBackgroundManager get to => Get.find();
+/// 聊天背景状态
+class ChatBackgroundState {
+  final String currentBackground;
+  final double backgroundOpacity;
+  final bool useCustomColor;
+  final String customColorHex;
 
-  final RxString _currentBackground = 'default'.obs;
-  final RxDouble _backgroundOpacity = 0.3.obs;
-  final RxBool _useCustomColor = false.obs;
-  final RxString _customColorHex = '#F5F5F5'.obs;
+  const ChatBackgroundState({
+    this.currentBackground = 'default',
+    this.backgroundOpacity = 0.3,
+    this.useCustomColor = false,
+    this.customColorHex = '#F5F5F5',
+  });
 
-  String get currentBackground => _currentBackground.value;
-  double get backgroundOpacity => _backgroundOpacity.value;
-  bool get useCustomColor => _useCustomColor.value;
-  Color get customColor => Color(int.parse(_customColorHex.value.replaceFirst('#', '0xFF')));
+  ChatBackgroundState copyWith({
+    String? currentBackground,
+    double? backgroundOpacity,
+    bool? useCustomColor,
+    String? customColorHex,
+  }) {
+    return ChatBackgroundState(
+      currentBackground: currentBackground ?? this.currentBackground,
+      backgroundOpacity: backgroundOpacity ?? this.backgroundOpacity,
+      useCustomColor: useCustomColor ?? this.useCustomColor,
+      customColorHex: customColorHex ?? this.customColorHex,
+    );
+  }
+
+  Color get customColor =>
+      Color(int.parse(customColorHex.replaceFirst('#', '0xFF')));
+}
+
+/// 聊天背景管理器 Notifier
+class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
+  @override
+  ChatBackgroundState build() {
+    _loadSettings();
+    return const ChatBackgroundState();
+  }
 
   /// 预定义的背景选项
   static const List<String> backgroundOptions = [
@@ -32,135 +59,158 @@ class ChatBackgroundManager extends GetxController {
   ];
 
   /// 背景名称映射
-  static const Map<String, String> backgroundNames = {
-    'default': '默认背景',
-    'pattern_1': '几何图案',
-    'pattern_2': '简约纹理',
-    'pattern_3': '波纹图案',
-    'gradient_1': '渐变蓝',
-    'gradient_2': '渐变紫',
-    'solid_color': '纯色背景',
-    'custom_image': '自定义图片',
+  static Map<String, String> get backgroundNames => {
+    'default': t.defaultBackground,
+    'pattern_1': t.geometricPattern,
+    'pattern_2': t.simpleTexture,
+    'pattern_3': t.ripplePattern,
+    'gradient_1': t.gradientBlue,
+    'gradient_2': t.gradientPurple,
+    'solid_color': t.solidColorBackground,
+    'custom_image': t.customImage,
   };
-
-  @override
-  void onInit() {
-    super.onInit();
-    _loadSettings();
-  }
 
   /// 加载设置
   void _loadSettings() {
-    _currentBackground.value = StorageService.to.getString('chat_background') ?? 'default';
-    _backgroundOpacity.value = StorageService.to.getDouble('chat_background_opacity') ?? 0.3;
-    _useCustomColor.value = StorageService.to.getBool('chat_use_custom_color') ?? false;
-    _customColorHex.value = StorageService.to.getString('chat_custom_color') ?? '#F5F5F5';
+    final currentBackground =
+        StorageService.to.getString('chat_background');
+    // 使用字符串存储 double 值
+    final opacityStr = StorageService.to.getString('chat_background_opacity');
+    final backgroundOpacity = opacityStr.isNotEmpty
+        ? double.tryParse(opacityStr) ?? 0.3
+        : 0.3;
+    final useCustomColor =
+        StorageService.to.getBool('chat_use_custom_color');
+    final customColorHex =
+        StorageService.to.getString('chat_custom_color');
+
+    state = ChatBackgroundState(
+      currentBackground: currentBackground.isNotEmpty ? currentBackground : 'default',
+      backgroundOpacity: backgroundOpacity,
+      useCustomColor: useCustomColor ?? false,
+      customColorHex: customColorHex.isNotEmpty ? customColorHex : '#F5F5F5',
+    );
   }
 
   /// 保存设置
   void _saveSettings() {
-    StorageService.to.setString('chat_background', _currentBackground.value);
-    StorageService.to.setDouble('chat_background_opacity', _backgroundOpacity.value);
-    StorageService.to.setBool('chat_use_custom_color', _useCustomColor.value);
-    StorageService.to.setString('chat_custom_color', _customColorHex.value);
+    StorageService.to.setString('chat_background', state.currentBackground);
+    // 使用字符串存储 double 值
+    StorageService.to.setString(
+      'chat_background_opacity',
+      state.backgroundOpacity.toString(),
+    );
+    StorageService.to.setBool('chat_use_custom_color', state.useCustomColor);
+    StorageService.to.setString('chat_custom_color', state.customColorHex);
   }
 
   /// 设置背景
   void setBackground(String background) {
-    _currentBackground.value = background;
+    state = state.copyWith(currentBackground: background);
     _saveSettings();
   }
 
   /// 设置背景透明度
   void setBackgroundOpacity(double opacity) {
-    _backgroundOpacity.value = opacity;
+    state = state.copyWith(backgroundOpacity: opacity);
     _saveSettings();
   }
 
   /// 设置是否使用自定义颜色
   void setUseCustomColor(bool use) {
-    _useCustomColor.value = use;
+    state = state.copyWith(useCustomColor: use);
     _saveSettings();
   }
 
   /// 设置自定义颜色
   void setCustomColor(Color color) {
-    _customColorHex.value = '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+    final hexValue =
+        '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+    state = state.copyWith(customColorHex: hexValue);
     _saveSettings();
   }
 
   /// 获取当前背景装饰
   BoxDecoration getCurrentBackgroundDecoration() {
     final theme = ThemeManager.instance;
+    final currentState = state;
 
-    switch (_currentBackground.value) {
+    switch (currentState.currentBackground) {
       case 'pattern_1':
         return BoxDecoration(
           color: theme.getThemeColor('surface'),
           image: DecorationImage(
             image: AssetImage('assets/images/chat_backgrounds/pattern_1.png'),
             repeat: ImageRepeat.repeat,
-            opacity: _backgroundOpacity.value,
+            opacity: currentState.backgroundOpacity,
           ),
         );
-        
+
       case 'pattern_2':
         return BoxDecoration(
           color: theme.getThemeColor('surface'),
           image: DecorationImage(
             image: AssetImage('assets/images/chat_backgrounds/pattern_2.png'),
             repeat: ImageRepeat.repeat,
-            opacity: _backgroundOpacity.value,
+            opacity: currentState.backgroundOpacity,
           ),
         );
-        
+
       case 'pattern_3':
         return BoxDecoration(
           color: theme.getThemeColor('surface'),
           image: DecorationImage(
             image: AssetImage('assets/images/chat_backgrounds/pattern_3.png'),
             repeat: ImageRepeat.repeat,
-            opacity: _backgroundOpacity.value,
+            opacity: currentState.backgroundOpacity,
           ),
         );
-        
+
       case 'gradient_1':
         return BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF64B5F6).withValues(alpha: _backgroundOpacity.value),
-              const Color(0xFF42A5F5).withValues(alpha: _backgroundOpacity.value),
+              const Color(
+                0xFF64B5F6,
+              ).withValues(alpha: currentState.backgroundOpacity),
+              const Color(
+                0xFF42A5F5,
+              ).withValues(alpha: currentState.backgroundOpacity),
             ],
           ),
         );
-        
+
       case 'gradient_2':
         return BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFFBA68C8).withValues(alpha: _backgroundOpacity.value),
-              const Color(0xFFAB47BC).withValues(alpha: _backgroundOpacity.value),
+              const Color(
+                0xFFBA68C8,
+              ).withValues(alpha: currentState.backgroundOpacity),
+              const Color(
+                0xFFAB47BC,
+              ).withValues(alpha: currentState.backgroundOpacity),
             ],
           ),
         );
-        
+
       case 'solid_color':
         return BoxDecoration(
-          color: _useCustomColor.value 
-              ? customColor.withValues(alpha: _backgroundOpacity.value)
+          color: currentState.useCustomColor
+              ? currentState.customColor.withValues(
+                  alpha: currentState.backgroundOpacity,
+                )
               : theme.getThemeColor('surface'),
         );
-        
+
       case 'custom_image':
         // TODO: 实现自定义图片背景
-        return BoxDecoration(
-          color: theme.getThemeColor('surface'),
-        );
-        
+        return BoxDecoration(color: theme.getThemeColor('surface'));
+
       case 'default':
       default:
         return BoxDecoration(
@@ -169,7 +219,9 @@ class ChatBackgroundManager extends GetxController {
             image: AssetImage('assets/images/pattern.png'),
             repeat: ImageRepeat.repeat,
             colorFilter: ColorFilter.mode(
-              theme.getThemeColor('surface').withValues(alpha: _backgroundOpacity.value),
+              theme
+                  .getThemeColor('surface')
+                  .withValues(alpha: currentState.backgroundOpacity),
               BlendMode.srcIn,
             ),
           ),
@@ -178,40 +230,45 @@ class ChatBackgroundManager extends GetxController {
   }
 }
 
+/// 聊天背景管理器 Provider
+final chatBackgroundManagerProvider =
+    NotifierProvider<ChatBackgroundManager, ChatBackgroundState>(
+      ChatBackgroundManager.new,
+    );
+
 /// 聊天背景设置页面
-class ChatBackgroundSettingsPage extends StatelessWidget {
+class ChatBackgroundSettingsPage extends ConsumerWidget {
   const ChatBackgroundSettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final manager = Get.put(ChatBackgroundManager());
-    
+  Widget build(BuildContext context, WidgetRef ref) {
+    final manager = ref.watch(chatBackgroundManagerProvider.notifier);
+    final state = ref.watch(chatBackgroundManagerProvider);
+
     return Scaffold(
-      appBar: GlassAppBar(
-        title: '聊天背景',
-      ),
+      appBar: GlassAppBar(title: t.chatSettingBackground),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 背景预览
-            _buildBackgroundPreview(manager),
-            
+            _buildBackgroundPreview(state, manager),
+
             const SizedBox(height: 24),
-            
+
             // 背景选择
-            _buildBackgroundOptions(manager),
-            
+            _buildBackgroundOptions(context, state, manager),
+
             const SizedBox(height: 24),
-            
+
             // 透明度调节
-            _buildOpacitySlider(manager),
-            
+            _buildOpacitySlider(context, state, manager),
+
             const SizedBox(height: 24),
-            
+
             // 自定义颜色
-            _buildCustomColorSection(manager),
+            _buildCustomColorSection(context, state, manager),
           ],
         ),
       ),
@@ -219,46 +276,45 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
   }
 
   /// 构建背景预览
-  Widget _buildBackgroundPreview(ChatBackgroundManager manager) {
+  Widget _buildBackgroundPreview(ChatBackgroundState state, ChatBackgroundManager manager) {
     return Container(
       height: 200,
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.3),
-        ),
+        borderRadius: AppRadius.borderRadiusMedium,
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Obx(() => Container(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: Container(
           decoration: manager.getCurrentBackgroundDecoration(),
-          child: const Center(
+          child: Center(
             child: Text(
-              '聊天背景预览',
-              style: TextStyle(
+              t.chatSettingBackground,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Colors.black54,
               ),
             ),
           ),
-        )),
+        ),
       ),
     );
   }
 
   /// 构建背景选项
-  Widget _buildBackgroundOptions(ChatBackgroundManager manager) {
+  Widget _buildBackgroundOptions(
+    BuildContext context,
+    ChatBackgroundState state,
+    ChatBackgroundManager manager,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '选择背景',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          t.backgroundSelectColor,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         GridView.builder(
@@ -273,18 +329,19 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
           itemCount: ChatBackgroundManager.backgroundOptions.length,
           itemBuilder: (context, index) {
             final option = ChatBackgroundManager.backgroundOptions[index];
-            final name = ChatBackgroundManager.backgroundNames[option] ?? option;
-            
-            return Obx(() => GestureDetector(
+            final name =
+                ChatBackgroundManager.backgroundNames[option] ?? option;
+
+            return GestureDetector(
               onTap: () => manager.setBackground(option),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.borderRadiusSmall,
                   border: Border.all(
-                    color: manager.currentBackground == option
+                    color: state.currentBackground == option
                         ? Theme.of(context).primaryColor
                         : Colors.grey.withValues(alpha: 0.3),
-                    width: manager.currentBackground == option ? 2 : 1,
+                    width: state.currentBackground == option ? 2 : 1,
                   ),
                 ),
                 child: Column(
@@ -307,10 +364,10 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
                         name,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: manager.currentBackground == option
+                          fontWeight: state.currentBackground == option
                               ? FontWeight.w600
                               : FontWeight.w400,
-                          color: manager.currentBackground == option
+                          color: state.currentBackground == option
                               ? Theme.of(context).primaryColor
                               : null,
                         ),
@@ -320,7 +377,7 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
                   ],
                 ),
               ),
-            ));
+            );
           },
         ),
       ],
@@ -360,72 +417,74 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
   }
 
   /// 构建透明度滑块
-  Widget _buildOpacitySlider(ChatBackgroundManager manager) {
+  Widget _buildOpacitySlider(
+    BuildContext context,
+    ChatBackgroundState state,
+    ChatBackgroundManager manager,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '背景透明度',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          t.backgroundTransparency,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-        Obx(() => Slider(
-          value: manager.backgroundOpacity,
+        Slider(
+          value: state.backgroundOpacity,
           min: 0.1,
           max: 1.0,
           divisions: 9,
-          label: '${(manager.backgroundOpacity * 100).round()}%',
+          label: '${(state.backgroundOpacity * 100).round()}%',
           onChanged: (value) => manager.setBackgroundOpacity(value),
-        )),
+        ),
       ],
     );
   }
 
   /// 构建自定义颜色区域
-  Widget _buildCustomColorSection(ChatBackgroundManager manager) {
+  Widget _buildCustomColorSection(
+    BuildContext context,
+    ChatBackgroundState state,
+    ChatBackgroundManager manager,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '自定义颜色',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          t.backgroundUseCustomColor,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-        Obx(() => SwitchListTile(
-          title: const Text('使用自定义颜色'),
-          subtitle: const Text('仅适用于纯色背景'),
-          value: manager.useCustomColor,
+        SwitchListTile(
+          title: Text(t.backgroundUseCustomColor),
+          subtitle: Text(t.backgroundOnlySolidColor),
+          value: state.useCustomColor,
           onChanged: (value) => manager.setUseCustomColor(value),
-        )),
-        if (manager.useCustomColor) ...[
+        ),
+        if (state.useCustomColor) ...[
           const SizedBox(height: 12),
-          Obx(() => GestureDetector(
-            onTap: () => _showColorPicker(Get.context!, manager),
+          GestureDetector(
+            onTap: () => _showColorPicker(context, manager),
             child: Container(
               height: 60,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: manager.customColor,
-                borderRadius: BorderRadius.circular(8),
+                color: state.customColor,
+                borderRadius: AppRadius.borderRadiusSmall,
                 border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '点击选择颜色',
-                  style: TextStyle(
+                  t.backgroundSelectColor,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
-          )),
+          ),
         ],
       ],
     );
@@ -436,7 +495,7 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('选择颜色'),
+        title: Text(t.backgroundSelectColor),
         content: SizedBox(
           width: 300,
           height: 200,
@@ -457,8 +516,10 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: color,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    borderRadius: AppRadius.borderRadiusTiny,
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                    ),
                   ),
                 ),
               );
@@ -468,7 +529,7 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
+            child: Text(t.buttonCancel),
           ),
         ],
       ),

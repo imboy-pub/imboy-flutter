@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/theme/default/font_types.dart';
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -16,6 +14,7 @@ class ContactCard extends StatelessWidget {
   int gender;
   final String region;
   final String? remark;
+  final String? heroTag;
 
   final bool? isBorder;
   final double? lineWidth;
@@ -30,6 +29,7 @@ class ContactCard extends StatelessWidget {
     required this.gender,
     this.region = '', //
     this.remark = '',
+    this.heroTag,
     this.isBorder = false,
     this.lineWidth,
     this.padding,
@@ -39,7 +39,7 @@ class ContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     TextStyle labelStyle = ThemeManager.instance.getTextStyle(
       FontSizeType.small,
-      color: ThemeManager.instance.getThemeColor('textSecondary'),
+      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
     );
 
     String? title = (remark == null || remark == 'null') ? '' : remark;
@@ -88,13 +88,13 @@ class ContactCard extends StatelessWidget {
         border: isBorder!
             ? Border(
                 bottom: BorderSide(
-                  color: ThemeManager.instance.getThemeColor('primary'),
-                  width: lineWidth ?? ThemeManager.instance.mainLineWidth,
+                  color: Theme.of(context).colorScheme.primary,
+                  width: lineWidth ?? 1.0,
                 ),
               )
             : null,
       ),
-      width: Get.width,
+      width: MediaQuery.of(context).size.width, // 使用 MediaQuery 替代 Get.width
       padding:
           padding ??
           const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
@@ -104,13 +104,21 @@ class ContactCard extends StatelessWidget {
           GestureDetector(
             child: Padding(
               padding: const EdgeInsets.only(top: 4.0),
-              child: Avatar(imgUri: avatar!, width: 55, height: 55),
+              child: Avatar(
+                imgUri: avatar!,
+                width: 55,
+                height: 55,
+                heroTag: heroTag,
+              ),
             ),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
-                zoomInPhotoView(avatar!);
+                zoomInPhotoView(context, avatar!);
               } else {
-                Get.snackbar('', t.noAvatar);
+                // 使用 ScaffoldMessenger 替代 Get.snackbar
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(t.noAvatar)));
               }
             },
           ),

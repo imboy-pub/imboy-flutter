@@ -26,7 +26,7 @@ class SearchMainView extends StatelessWidget {
         Text(
           text!,
           // style: const TextStyle(color: AppColors.MainTextColor),
-        )
+        ),
       ],
     );
 

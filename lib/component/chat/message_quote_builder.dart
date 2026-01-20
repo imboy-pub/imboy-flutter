@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:get/get.dart';
 
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/service/assets.dart';
-
-import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/assets.dart';
 
-// ignore: must_be_immutable
 class QuoteMessageBuilder extends StatelessWidget {
-  QuoteMessageBuilder({
+  const QuoteMessageBuilder({
     super.key,
     required this.type,
     // 当前登录用户
     required this.user,
     required this.message,
+    this.onQuoteTap, // 新增：点击引用消息的回调
   });
 
   final String type; // C2C C2G
   final User user;
   final CustomMessage message;
+  final Function(String quoteMessageId)? onQuoteTap;
 
-  RxDouble quoteMsgBgColorOpacity = 0.1.obs;
+  // RxDouble quoteMsgBgColorOpacity = 0.1.obs; // 已移除：使用 Theme 代替
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +71,15 @@ class QuoteMessageBuilder extends StatelessWidget {
             color: userIsAuthor
                 ? Theme.of(context).colorScheme.primaryContainer
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
+            borderRadius: BorderRadius.circular(
+              MessageSpacing.quoteBorderRadius,
+            ),
           ),
           child: ClipRRect(
             // 确保子元素不超出圆角
-            borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
+            borderRadius: BorderRadius.circular(
+              MessageSpacing.quoteBorderRadius,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -89,8 +92,12 @@ class QuoteMessageBuilder extends StatelessWidget {
                     // 优化：使用纯色，提升对比度
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
-                      bottomLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
+                      topLeft: Radius.circular(
+                        MessageSpacing.quoteBorderRadius,
+                      ),
+                      bottomLeft: Radius.circular(
+                        MessageSpacing.quoteBorderRadius,
+                      ),
                     ),
                   ),
                 ),
@@ -101,111 +108,105 @@ class QuoteMessageBuilder extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                      InkWell(
-                        onTap: () async {
-                          debugPrint("> on quoteMsg_onTap: ${quoteMsg.id}");
-                          try {
-                            ChatLogic logic = Get.find();
-
-                            // 显示加载提示
-                            // EasyLoading.showToast('正在定位消息...');
-
-                            // 优化滚动体验：先尝试直接滚动，如果失败再加载历史消息
-                            await logic.scrollToMessage(type, quoteMsg.id);
-
-                            debugPrint("> quoteMsg scroll completed");
-                          } catch (e) {
-                            debugPrint("> quoteMsg scroll error: $e");
-                            // EasyLoading.showError('定位消息失败');
-                          }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            // 优化：发送者名称（增强视觉权重）
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                message.metadata?['quote_msg_author_name'] ??
-                                    '',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  // 优化：使用主色调，增强视觉识别
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                        InkWell(
+                          onTap: () async {
+                            debugPrint("> on quoteMsg_onTap: ${quoteMsg.id}");
+                            // 使用回调处理点击事件
+                            onQuoteTap?.call(quoteMsg.id);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // 优化：发送者名称（增强视觉权重）
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  message.metadata?['quote_msg_author_name'] ??
+                                      '',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    // 优化：使用主色调，增强视觉识别
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            // 优化：时间显示（调整 flex 权重）
-                            Flexible(
-                              child: Text(
-                                _formatQuoteTime(
-                                  message.metadata?['quote_msg']?['createdAt'],
-                                ),
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.6),
-                                  fontSize: 12,
+                              const SizedBox(width: 8),
+                              // 优化：时间显示（调整 flex 权重）
+                              Flexible(
+                                child: Text(
+                                  _formatQuoteTime(
+                                    message
+                                        .metadata?['quote_msg']?['createdAt'],
+                                  ),
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.vertical_align_top,
-                              size: 15,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.vertical_align_top,
+                                size: 15,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      InkWell(
-                        onDoubleTap: () async {
-                          if (quoteMsg is TextMessage) {
-                            showTextMessage(quoteMsg.text);
-                          } else if (quoteMsg is ImageMessage) {
-                            final String uri = AssetsService.viewUrl(
-                              quoteMsg.source,
-                            ).toString();
-                            zoomInPhotoView(uri);
-                          } else if (quoteMsg is FileMessage) {
-                            final String uri = AssetsService.viewUrl(
-                              quoteMsg.source,
-                            ).toString();
-                            confirmOpenFile(uri);
-                          } else if (quoteMsg is CustomMessage) {
-                            String txt = quoteMsg.metadata?['quote_text'] ?? '';
-                            if (txt.isNotEmpty) {
-                              showTextMessage(txt);
+                        const SizedBox(height: 4),
+                        InkWell(
+                          onDoubleTap: () async {
+                            if (quoteMsg is TextMessage) {
+                              showTextMessage(quoteMsg.text);
+                            } else if (quoteMsg is ImageMessage) {
+                              final String uri = AssetsService.viewUrl(
+                                quoteMsg.source,
+                              ).toString();
+                              zoomInPhotoView(context, uri);
+                            } else if (quoteMsg is FileMessage) {
+                              final String uri = AssetsService.viewUrl(
+                                quoteMsg.source,
+                              ).toString();
+                              confirmOpenFile(context, uri);
+                            } else if (quoteMsg is CustomMessage) {
+                              String txt =
+                                  quoteMsg.metadata?['quote_text'] ?? '';
+                              if (txt.isNotEmpty) {
+                                showTextMessage(txt);
+                              }
                             }
-                          }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Flexible(
-                              child: _buildQuoteMessageContent(quoteMsg),
-                            ),
-                          ],
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: _buildQuoteMessageContent(
+                                  context,
+                                  quoteMsg,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
       ],
     );
   }
@@ -269,7 +270,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '引用的消息不可用',
+                        t.quoteMessageNotAvailable,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                           fontSize: 12,
@@ -290,12 +291,12 @@ class QuoteMessageBuilder extends StatelessWidget {
   }
 
   /// 构建引用消息内容显示组件
-  Widget _buildQuoteMessageContent(Message quoteMsg) {
+  Widget _buildQuoteMessageContent(BuildContext context, Message quoteMsg) {
     if (quoteMsg is TextMessage) {
       return Text(
         quoteMsg.text,
         style: TextStyle(
-          color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           fontSize: 13,
         ),
         maxLines: 2,
@@ -307,14 +308,18 @@ class QuoteMessageBuilder extends StatelessWidget {
           Icon(
             Icons.image,
             size: 16,
-            color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              (quoteMsg.text != null) ? quoteMsg.text! : '图片',
+              (quoteMsg.text != null) ? quoteMsg.text! : t.image,
               style: TextStyle(
-                color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
               ),
               maxLines: 1,
@@ -329,14 +334,18 @@ class QuoteMessageBuilder extends StatelessWidget {
           Icon(
             Icons.attach_file,
             size: 16,
-            color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              quoteMsg.name.isNotEmpty ? quoteMsg.name : '文件',
+              quoteMsg.name.isNotEmpty ? quoteMsg.name : t.file,
               style: TextStyle(
-                color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
               ),
               maxLines: 1,
@@ -353,27 +362,27 @@ class QuoteMessageBuilder extends StatelessWidget {
       switch (customType) {
         case 'voice':
         case 'audio':
-          displayText = '语音消息';
+          displayText = t.voiceMessage;
           iconData = Icons.mic;
           break;
         case 'video':
-          displayText = '视频消息';
+          displayText = t.videoMessage;
           iconData = Icons.videocam;
           break;
         case 'location':
-          displayText = quoteMsg.metadata?['title'] ?? '位置消息';
+          displayText = quoteMsg.metadata?['title'] ?? t.locationMessage;
           iconData = Icons.location_on;
           break;
         case 'visit_card':
-          displayText = quoteMsg.metadata?['title'] ?? '名片';
+          displayText = quoteMsg.metadata?['title'] ?? t.card;
           iconData = Icons.person;
           break;
         case 'revoked':
-          displayText = '消息已撤回';
+          displayText = t.messageRevoked;
           iconData = Icons.block;
           break;
         default:
-          displayText = quoteMsg.metadata?['quote_text'] ?? '自定义消息';
+          displayText = quoteMsg.metadata?['quote_text'] ?? t.customMessage;
           iconData = Icons.insert_drive_file;
       }
 
@@ -382,14 +391,18 @@ class QuoteMessageBuilder extends StatelessWidget {
           Icon(
             iconData,
             size: 16,
-            color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               displayText,
               style: TextStyle(
-                color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
               ),
               maxLines: 2,
@@ -400,9 +413,9 @@ class QuoteMessageBuilder extends StatelessWidget {
       );
     } else {
       return Text(
-        '不支持的消息类型',
+        t.unsupportedMessageType,
         style: TextStyle(
-          color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           fontSize: 13,
         ),
         maxLines: 2,

@@ -68,7 +68,7 @@ class VideoThumbnailCache {
     try {
       // 保存到内存缓存
       _memoryCache[cacheKey] = bytes;
-      
+
       // 保存到磁盘缓存
       final filePath = await _getCacheFilePath(cacheKey);
       final file = File(filePath);
@@ -86,7 +86,7 @@ class VideoThumbnailCache {
     int maxHeight = 200,
   }) async {
     final cacheKey = _generateCacheKey(videoPath, position);
-    
+
     // 检查是否正在生成中
     if (_loadingCache.containsKey(cacheKey)) {
       return await _loadingCache[cacheKey];
@@ -105,9 +105,15 @@ class VideoThumbnailCache {
     }
 
     // 生成缩略图
-    final future = _doGenerateThumbnail(videoPath, position, maxWidth, maxHeight, cacheKey);
+    final future = _doGenerateThumbnail(
+      videoPath,
+      position,
+      maxWidth,
+      maxHeight,
+      cacheKey,
+    );
     _loadingCache[cacheKey] = future;
-    
+
     try {
       final result = await future;
       return result;
@@ -125,24 +131,23 @@ class VideoThumbnailCache {
     String cacheKey,
   ) async {
     VideoPlayerController? controller;
-    
+
     try {
       // 初始化视频控制器
       controller = VideoPlayerController.file(File(videoPath));
       await controller.initialize();
-      
+
       // 跳转到指定位置
       await controller.seekTo(position);
-      
+
       // 等待帧加载
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       // 这里需要使用第三方库来获取视频帧
       // 由于Flutter原生不支持视频帧提取，这里返回null
       // 在实际项目中，可以使用video_thumbnail或ffmpeg_kit_flutter
-      
+
       return null;
-      
     } catch (e) {
       iPrint('生成视频缩略图失败: $e');
       return null;
@@ -156,7 +161,7 @@ class VideoThumbnailCache {
     try {
       // 清理内存缓存
       _memoryCache.clear();
-      
+
       // 清理磁盘缓存
       final cacheDir = await _getCacheDirectory();
       if (await cacheDir.exists()) {
@@ -172,7 +177,7 @@ class VideoThumbnailCache {
     try {
       final cacheDir = await _getCacheDirectory();
       if (!await cacheDir.exists()) return 0;
-      
+
       int totalSize = 0;
       await for (final entity in cacheDir.list()) {
         if (entity is File) {
@@ -234,7 +239,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
   @override
   void didUpdateWidget(VideoThumbnailWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.videoPath != widget.videoPath || 
+    if (oldWidget.videoPath != widget.videoPath ||
         oldWidget.position != widget.position) {
       _loadThumbnail();
     }
@@ -243,7 +248,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
   /// 加载缩略图
   Future<void> _loadThumbnail() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
       _hasError = false;
@@ -293,14 +298,12 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
             children: [
               // 缩略图或占位符
               _buildThumbnailContent(),
-              
+
               // 播放图标覆盖层
-              if (widget.showPlayIcon)
-                _buildPlayIconOverlay(),
-              
+              if (widget.showPlayIcon) _buildPlayIconOverlay(),
+
               // 时长显示
-              if (widget.videoDuration != null)
-                _buildDurationLabel(),
+              if (widget.videoDuration != null) _buildDurationLabel(),
             ],
           ),
         ),
@@ -331,11 +334,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
   Widget _buildDefaultPlaceholder() {
     return Container(
       color: Colors.grey[300],
-      child: const Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-        ),
-      ),
+      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
     );
   }
 
@@ -344,11 +343,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
     return Container(
       color: Colors.grey[400],
       child: const Center(
-        child: Icon(
-          Icons.videocam_off,
-          size: 48,
-          color: Colors.white70,
-        ),
+        child: Icon(Icons.videocam_off, size: 48, color: Colors.white70),
       ),
     );
   }
@@ -358,11 +353,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
     return Container(
       color: Colors.black26,
       child: const Center(
-        child: Icon(
-          Icons.play_circle_outline,
-          size: 48,
-          color: Colors.white,
-        ),
+        child: Icon(Icons.play_circle_outline, size: 48, color: Colors.white),
       ),
     );
   }
@@ -395,7 +386,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
-    
+
     if (hours > 0) {
       return '$hours:$minutes:$seconds';
     } else {

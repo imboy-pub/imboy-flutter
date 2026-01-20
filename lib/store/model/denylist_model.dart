@@ -81,7 +81,9 @@ class DenylistModel extends ISuspensionBean {
 
       sign: json[UserDenylistRepo.sign].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      createdAt: DateTimeHelper.parseTimestamp(json[UserDenylistRepo.createdAt]),
+      createdAt: DateTimeHelper.parseTimestamp(
+        json[UserDenylistRepo.createdAt],
+      ),
 
       gender: json[UserDenylistRepo.gender] ?? 0,
       region: json[UserDenylistRepo.region].toString(),
@@ -91,22 +93,22 @@ class DenylistModel extends ISuspensionBean {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': deniedUid,
-        UserDenylistRepo.deniedUid: deniedUid,
-        'account': account,
-        'nickname': nickname,
-        'avatar': avatar,
-        'gender': gender,
-        'remark': remark,
-        'region': region,
-        'sign': sign,
-        'source': source,
-        UserDenylistRepo.createdAt: createdAt,
-        //
-        'firstLetter': firstLetter,
-        'nameIndex': nameIndex,
-        'namePinyin': namePinyin
-      };
+    'id': deniedUid,
+    UserDenylistRepo.deniedUid: deniedUid,
+    'account': account,
+    'nickname': nickname,
+    'avatar': avatar,
+    'gender': gender,
+    'remark': remark,
+    'region': region,
+    'sign': sign,
+    'source': source,
+    UserDenylistRepo.createdAt: createdAt,
+    //
+    'firstLetter': firstLetter,
+    'nameIndex': nameIndex,
+    'namePinyin': namePinyin,
+  };
 
   @override
   String getSuspensionTag() => nameIndex;

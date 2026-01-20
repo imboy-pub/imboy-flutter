@@ -1,78 +1,56 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:imboy/page/pages.dart';
+// ✅ 路由常量定义
+// 此文件仅保留路由路径常量，路由配置已迁移到 go_router
+// 完整路由配置请查看 lib/config/router/app_router.dart
 
+/// 应用路由常量
+///
+/// 定义所有路由的路径常量，用于程序化导航
+/// 路由配置和守卫已迁移到 go_router
 class AppRoutes {
+  // ==================== 根路径 ====================
+  /// 应用初始路径（启动页）
   static const initial = '/';
+
+  // ==================== 认证相关 ====================
+  /// 登录页
   static const signIn = '/sign_in';
+
+  /// 注册页
   static const signUp = '/sign_up';
-  static const notFound = '/not_found';
 
+  /// 忘记密码页
+  static const forgotPassword = '/forgot_password';
+
+  // ==================== 主功能页 ====================
+  /// 个人中心
   static const mine = '/mine';
+
+  /// 联系人列表
   static const contact = '/contact';
+
+  /// 联系人详情（已废弃，使用 /contact/people/:id）
+  @Deprecated('Use /contact/people/:id instead')
   static const contactDetail = '/contact_detail';
+
+  /// 会话列表
   static const conversation = "/conversation";
+
+  /// 群组公告
   static const groupAnnouncement = '/group/announcement';
+
+  /// 聊天设置
   static const chatSetting = '/chat/setting';
-}
 
-class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
-  /// 页面push
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPush(route, previousRoute);
-    var name = route.settings.name ?? '';
-    if (name.isNotEmpty) {
-      AppPages.history.add(name);
-    }
-    debugPrint('> on didPush ${AppPages.history}');
-  }
+  // ==================== Single 页面 ====================
+  /// Markdown 查看器
+  static const markdown = '/markdown';
 
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPop(route, previousRoute);
-    AppPages.history.remove(route.settings.name);
-    debugPrint('> on didPop ${AppPages.history}');
-  }
+  /// 视频播放器
+  static const videoViewer = '/video_viewer';
 
-  @override
-  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-    if (newRoute != null) {
-      var index = AppPages.history.indexWhere((element) {
-        return element == oldRoute?.settings.name;
-      });
-      var name = newRoute.settings.name ?? '';
-      if (name.isNotEmpty) {
-        if (index > 0) {
-          AppPages.history[index] = name;
-        } else {
-          AppPages.history.add(name);
-        }
-      }
-    }
-    debugPrint('> on didReplace ${AppPages.history}');
-  }
+  /// 应用升级页
+  static const upgrade = '/upgrade';
 
-  @override
-  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didRemove(route, previousRoute);
-    AppPages.history.remove(route.settings.name);
-    debugPrint('> on didRemove ${AppPages.history}');
-  }
-
-  @override
-  void didStartUserGesture(
-    Route<dynamic> route,
-    Route<dynamic>? previousRoute,
-  ) {
-    debugPrint('> on didStartUserGesture ${AppPages.history}');
-    super.didStartUserGesture(route, previousRoute);
-  }
-
-  @override
-  void didStopUserGesture() {
-    debugPrint('> on didStopUserGesture ${AppPages.history}');
-    super.didStopUserGesture();
-  }
+  /// 网络失败引导页
+  static const networkFailureGuidance = '/network_failure_guidance';
 }

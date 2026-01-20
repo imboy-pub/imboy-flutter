@@ -163,7 +163,7 @@ class AMapApi {
       "location": location,
       "types": types,
       "page_size": page.toString(),
-      "page_num": size.toString()
+      "page_num": size.toString(),
     };
     debugPrint("amapapi_getAmapPoi ${queryParameters.toString()}");
     return await Dio().get(
@@ -187,7 +187,7 @@ class AMapApi {
       "region": region,
       "city_limit": cityLimit.toString(),
       "page_size": page.toString(),
-      "page_num": size.toString()
+      "page_num": size.toString(),
     };
     debugPrint("amapapi_getMapByKeyword ${queryParameters.toString()}");
     // https://lbs.amap.com/api/webservice/guide/api/newpoisearch

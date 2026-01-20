@@ -28,7 +28,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
-  static const _dbVersion = 9;
+  static const _dbVersion = 10; // v2.0: 升级到 WebSocket API v2.0 消息表结构
 
   // 单例构造
   SqliteService._privateConstructor();
@@ -69,7 +69,9 @@ class SqliteService {
   /// Build the database file path
   Future<String> dbPath() async {
     String name = "${currentEnv}_${UserRepoLocal.to.currentUid}.db";
-    iPrint("Database path: currentEnv=$currentEnv, uid=${UserRepoLocal.to.currentUid}, dbName=$name");
+    iPrint(
+      "Database path: currentEnv=$currentEnv, uid=${UserRepoLocal.to.currentUid}, dbName=$name",
+    );
     return join(await getDatabasesPath(), name);
   }
 
@@ -90,8 +92,11 @@ class SqliteService {
         await Directory(dirname(path)).create(recursive: true);
       } catch (_) {}
 
-      ByteData data = await rootBundle.load(url.join("assets", "example.db"));
-      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      ByteData data = await rootBundle.load(url.join("assets", "example10.db"));
+      List<int> bytes = data.buffer.asUint8List(
+        data.offsetInBytes,
+        data.lengthInBytes,
+      );
       await File(path).writeAsBytes(bytes, flush: true);
     } else {
       iPrint("Opening existing database");
@@ -170,7 +175,9 @@ class SqliteService {
       throw Exception('Migration failed: ${result.error}');
     }
 
-    iPrint("✅ Migration completed successfully: v${result.fromVersion} → v${result.toVersion}");
+    iPrint(
+      "✅ Migration completed successfully: v${result.fromVersion} → v${result.toVersion}",
+    );
   }
 
   /// 数据库降级回调
@@ -198,7 +205,9 @@ class SqliteService {
       throw Exception('Downgrade failed: ${result.error}');
     }
 
-    iPrint("✅ Downgrade completed successfully: v${result.fromVersion} → v${result.toVersion}");
+    iPrint(
+      "✅ Downgrade completed successfully: v${result.fromVersion} → v${result.toVersion}",
+    );
   }
 
   /// 插入数据（带重试机制和超时控制）
@@ -209,19 +218,26 @@ class SqliteService {
   /// - data: 要插入的数据
   /// - retries: 重试次数，默认 3
   /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
-  Future<int> insert(String table, Map<String, dynamic> data, {int retries = 3, int timeoutMs = 5000}) async {
+  Future<int> insert(
+    String table,
+    Map<String, dynamic> data, {
+    int retries = 3,
+    int timeoutMs = 5000,
+  }) async {
     final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
           if (db == null) return 0;
-          return await db.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace).timeout(
-            Duration(milliseconds: timeoutMs),
-            onTimeout: () {
-              AppLogger.warning('Insert timeout: table=$table');
-              return 0; // 超时返回 0
-            },
-          );
+          return await db
+              .insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace)
+              .timeout(
+                Duration(milliseconds: timeoutMs),
+                onTimeout: () {
+                  AppLogger.warning('Insert timeout: table=$table');
+                  return 0; // 超时返回 0
+                },
+              );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
@@ -254,32 +270,36 @@ class SqliteService {
   /// - retries: 重试次数，默认 3
   /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
   Future<int> update(
-      String table,
-      Map<String, Object?> values, {
-        String? where,
-        List<Object?>? whereArgs,
-        ConflictAlgorithm? conflictAlgorithm,
-        int retries = 3,
-        int timeoutMs = 5000,
-      }) async {
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+    int retries = 3,
+    int timeoutMs = 5000,
+  }) async {
     final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
           if (db == null) return 0;
-          return await db.update(
-            table,
-            values,
-            where: where,
-            whereArgs: whereArgs,
-            conflictAlgorithm: conflictAlgorithm,
-          ).timeout(
-            Duration(milliseconds: timeoutMs),
-            onTimeout: () {
-              AppLogger.warning('Update timeout: table=$table, where=$where');
-              return 0; // 超时返回 0
-            },
-          );
+          return await db
+              .update(
+                table,
+                values,
+                where: where,
+                whereArgs: whereArgs,
+                conflictAlgorithm: conflictAlgorithm,
+              )
+              .timeout(
+                Duration(milliseconds: timeoutMs),
+                onTimeout: () {
+                  AppLogger.warning(
+                    'Update timeout: table=$table, where=$where',
+                  );
+                  return 0; // 超时返回 0
+                },
+              );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
@@ -318,18 +338,15 @@ class SqliteService {
     if (db == null) return [];
 
     try {
-      return await _cacheService.cachedQuery(
-        db,
-        sql,
-        arguments: arguments,
-        useCache: useCache,
-      ).timeout(
-        Duration(milliseconds: timeoutMs),
-        onTimeout: () {
-          AppLogger.warning('SQL query timeout: $sql');
-          return []; // 超时返回空结果
-        },
-      );
+      return await _cacheService
+          .cachedQuery(db, sql, arguments: arguments, useCache: useCache)
+          .timeout(
+            Duration(milliseconds: timeoutMs),
+            onTimeout: () {
+              AppLogger.warning('SQL query timeout: $sql');
+              return []; // 超时返回空结果
+            },
+          );
     } catch (e) {
       AppLogger.error('SQL query error: $sql, error: $e');
       rethrow;
@@ -347,7 +364,11 @@ class SqliteService {
 
   /// 执行原始 SQL 更新语句（带重试机制）
   /// Execute raw update SQL (with retry logic)
-  Future<int> execute(String sql, [List<Object?>? arguments, int retries = 3]) async {
+  Future<int> execute(
+    String sql, [
+    List<Object?>? arguments,
+    int retries = 3,
+  ]) async {
     return await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
@@ -383,40 +404,44 @@ class SqliteService {
   /// - offset: 偏移量
   /// - timeoutMs: 超时时间（毫秒），默认 10000ms (10秒)
   Future<List<Map<String, dynamic>>> query(
-      String table, {
-        bool? distinct,
-        List<String>? columns,
-        String? where,
-        List<Object?>? whereArgs,
-        String? groupBy,
-        String? having,
-        String? orderBy,
-        int? limit,
-        int? offset,
-        int timeoutMs = 10000,
-      }) async {
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+    int timeoutMs = 10000,
+  }) async {
     final db = await this.db;
     if (db == null) return [];
 
     try {
-      return await db.query(
-        table,
-        distinct: distinct,
-        columns: columns,
-        where: where,
-        whereArgs: whereArgs,
-        groupBy: groupBy,
-        having: having,
-        orderBy: orderBy,
-        limit: limit,
-        offset: offset,
-      ).timeout(
-        Duration(milliseconds: timeoutMs),
-        onTimeout: () {
-          AppLogger.warning('SQL query timeout: table=$table, where=$where');
-          return []; // 超时返回空结果
-        },
-      );
+      return await db
+          .query(
+            table,
+            distinct: distinct,
+            columns: columns,
+            where: where,
+            whereArgs: whereArgs,
+            groupBy: groupBy,
+            having: having,
+            orderBy: orderBy,
+            limit: limit,
+            offset: offset,
+          )
+          .timeout(
+            Duration(milliseconds: timeoutMs),
+            onTimeout: () {
+              AppLogger.warning(
+                'SQL query timeout: table=$table, where=$where',
+              );
+              return []; // 超时返回空结果
+            },
+          );
     } catch (e) {
       AppLogger.error('SQL query error: table=$table, error=$e');
       rethrow;
@@ -435,7 +460,11 @@ class SqliteService {
 
   /// 查询某表记录总数
   /// Count number of rows in a table
-  Future<int?> count(String table, {String? where, List<Object?>? whereArgs}) async {
+  Future<int?> count(
+    String table, {
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
     String sql = "SELECT COUNT(*) FROM $table";
     if (strNoEmpty(where)) {
       sql += " WHERE $where";
@@ -446,11 +475,11 @@ class SqliteService {
   /// 查询某一列的值（返回首行）
   /// Pluck a single column value from the first matched row
   Future<T?> pluck<T>(
-      String column,
-      String table, {
-        String? where,
-        List<Object?>? whereArgs,
-      }) async {
+    String column,
+    String table, {
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
     String sql = "SELECT $column FROM $table";
     if (strNoEmpty(where)) {
       sql += " WHERE $where";
@@ -477,21 +506,17 @@ class SqliteService {
   /// 删除记录（带重试机制）
   /// Delete records (with retry logic)
   Future<int> delete(
-      String table, {
-        String? where,
-        List<Object?>? whereArgs,
-        int retries = 3,
-      }) async {
+    String table, {
+    String? where,
+    List<Object?>? whereArgs,
+    int retries = 3,
+  }) async {
     final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
           if (db == null) return 0;
-          return await db.delete(
-            table,
-            where: where,
-            whereArgs: whereArgs,
-          );
+          return await db.delete(table, where: where, whereArgs: whereArgs);
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
@@ -514,7 +539,10 @@ class SqliteService {
 
   /// 使用事务进行批处理操作
   /// Execute batch operations within a transaction
-  Future<T> transaction<T>(Future<T> Function(Transaction txn) action, {bool exclusive = false}) async {
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool exclusive = false,
+  }) async {
     if (exclusive) {
       // 排他事务需要全局锁
       return await _dbLock.synchronized(() async {
@@ -532,7 +560,11 @@ class SqliteService {
 
   /// 批量插入（带全局锁）
   /// Insert multiple records in batch (with global lock)
-  Future<void> batchInsert(String table, List<Map<String, dynamic>> dataList, {int batchSize = 500}) async {
+  Future<void> batchInsert(
+    String table,
+    List<Map<String, dynamic>> dataList, {
+    int batchSize = 500,
+  }) async {
     if (dataList.isEmpty) return;
     await _dbLock.synchronized(() async {
       final db = await this.db;
@@ -540,9 +572,15 @@ class SqliteService {
       // 分批处理，避免单次事务过大
       for (int i = 0; i < dataList.length; i += batchSize) {
         final batch = db.batch();
-        final end = (i + batchSize) < dataList.length ? (i + batchSize) : dataList.length;
+        final end = (i + batchSize) < dataList.length
+            ? (i + batchSize)
+            : dataList.length;
         for (int j = i; j < end; j++) {
-          batch.insert(table, dataList[j], conflictAlgorithm: ConflictAlgorithm.replace);
+          batch.insert(
+            table,
+            dataList[j],
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
         await batch.commit(noResult: true);
       }
@@ -554,9 +592,9 @@ class SqliteService {
   bool _isDatabaseLockedError(dynamic e) {
     final errorStr = e.toString().toLowerCase();
     return errorStr.contains('database is locked') ||
-           errorStr.contains('database is closed') ||
-           errorStr.contains('sqlite_locked') ||
-           errorStr.contains('database is busy');
+        errorStr.contains('database is closed') ||
+        errorStr.contains('sqlite_locked') ||
+        errorStr.contains('database is busy');
   }
 
   /// 清除查询缓存

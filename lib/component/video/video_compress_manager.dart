@@ -3,29 +3,29 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:get/get.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/component/helper/func.dart';
 
 /// 视频压缩质量枚举
 enum VideoCompressQuality {
-  low,     // 低质量 - 适合快速上传
-  medium,  // 中等质量 - 平衡文件大小和质量
-  high,    // 高质量 - 保持较好的视觉效果
-  custom,  // 自定义质量
+  low, // 低质量 - 适合快速上传
+  medium, // 中等质量 - 平衡文件大小和质量
+  high, // 高质量 - 保持较好的视觉效果
+  custom, // 自定义质量
 }
 
 /// 视频压缩配置
 class VideoCompressConfig {
   final VideoCompressQuality quality;
-  final int? targetBitrate;      // 目标比特率 (kbps)
-  final int? targetFrameRate;    // 目标帧率 (fps)
-  final int? targetWidth;        // 目标宽度
-  final int? targetHeight;       // 目标高度
-  final Duration? maxDuration;   // 最大时长限制
-  final int? maxFileSize;        // 最大文件大小 (bytes)
-  final bool enableAudio;        // 是否包含音频
-  final String? outputFormat;    // 输出格式 (mp4, mov等)
+  final int? targetBitrate; // 目标比特率 (kbps)
+  final int? targetFrameRate; // 目标帧率 (fps)
+  final int? targetWidth; // 目标宽度
+  final int? targetHeight; // 目标高度
+  final Duration? maxDuration; // 最大时长限制
+  final int? maxFileSize; // 最大文件大小 (bytes)
+  final bool enableAudio; // 是否包含音频
+  final String? outputFormat; // 输出格式 (mp4, mov等)
 
   const VideoCompressConfig({
     this.quality = VideoCompressQuality.medium,
@@ -42,9 +42,9 @@ class VideoCompressConfig {
   /// 预设配置 - 低质量
   static const VideoCompressConfig lowQuality = VideoCompressConfig(
     quality: VideoCompressQuality.low,
-    targetBitrate: 500,    // 500kbps
-    targetFrameRate: 24,   // 24fps
-    targetWidth: 640,      // 640p
+    targetBitrate: 500, // 500kbps
+    targetFrameRate: 24, // 24fps
+    targetWidth: 640, // 640p
     targetHeight: 480,
     maxFileSize: 10 * 1024 * 1024, // 10MB
   );
@@ -52,9 +52,9 @@ class VideoCompressConfig {
   /// 预设配置 - 中等质量
   static const VideoCompressConfig mediumQuality = VideoCompressConfig(
     quality: VideoCompressQuality.medium,
-    targetBitrate: 1000,   // 1Mbps
-    targetFrameRate: 30,   // 30fps
-    targetWidth: 1280,     // 720p
+    targetBitrate: 1000, // 1Mbps
+    targetFrameRate: 30, // 30fps
+    targetWidth: 1280, // 720p
     targetHeight: 720,
     maxFileSize: 50 * 1024 * 1024, // 50MB
   );
@@ -62,9 +62,9 @@ class VideoCompressConfig {
   /// 预设配置 - 高质量
   static const VideoCompressConfig highQuality = VideoCompressConfig(
     quality: VideoCompressQuality.high,
-    targetBitrate: 2000,   // 2Mbps
-    targetFrameRate: 30,   // 30fps
-    targetWidth: 1920,     // 1080p
+    targetBitrate: 2000, // 2Mbps
+    targetFrameRate: 30, // 30fps
+    targetWidth: 1920, // 1080p
     targetHeight: 1080,
     maxFileSize: 100 * 1024 * 1024, // 100MB
   );
@@ -116,7 +116,8 @@ typedef VideoCompressProgressCallback = void Function(double progress);
 
 /// 视频压缩和优化工具类
 class VideoCompressManager {
-  static final VideoCompressManager _instance = VideoCompressManager._internal();
+  static final VideoCompressManager _instance =
+      VideoCompressManager._internal();
   factory VideoCompressManager() => _instance;
   VideoCompressManager._internal();
 
@@ -133,7 +134,7 @@ class VideoCompressManager {
     if (_isCompressing) {
       return VideoCompressResult(
         success: false,
-        errorMessage: '已有压缩任务在进行中',
+        errorMessage: 'Another compression task is in progress',
       );
     }
 
@@ -145,14 +146,14 @@ class VideoCompressManager {
       if (!await inputFile.exists()) {
         return VideoCompressResult(
           success: false,
-          errorMessage: '输入文件不存在',
+          errorMessage: 'Input file does not exist',
         );
       }
 
       // 获取原始文件信息
       final originalSize = await inputFile.length();
       final videoInfo = await VideoCompress.getMediaInfo(inputPath);
-      
+
       iPrint('开始压缩视频: $inputPath');
       iPrint('原始文件大小: ${_formatFileSize(originalSize)}');
       iPrint('原始视频信息: ${videoInfo.toJson()}');
@@ -170,7 +171,7 @@ class VideoCompressManager {
 
       // 设置压缩参数
       final compressQuality = _mapQualityToVideoQuality(config.quality);
-      
+
       // 设置压缩进度监听
       if (onProgress != null) {
         // 注意：VideoCompress的进度监听需要在压缩开始前设置
@@ -188,7 +189,7 @@ class VideoCompressManager {
       if (result == null) {
         return VideoCompressResult(
           success: false,
-          errorMessage: '压缩失败，返回结果为空',
+          errorMessage: 'Compression failed, result is null',
         );
       }
 
@@ -218,8 +219,12 @@ class VideoCompressManager {
         outputPath: result.path,
         originalSize: originalSize,
         compressedSize: compressedSize,
-        originalDuration: Duration(milliseconds: videoInfo.duration?.toInt() ?? 0),
-        compressedDuration: Duration(milliseconds: result.duration?.toInt() ?? 0),
+        originalDuration: Duration(
+          milliseconds: videoInfo.duration?.toInt() ?? 0,
+        ),
+        compressedDuration: Duration(
+          milliseconds: result.duration?.toInt() ?? 0,
+        ),
         compressionRatio: compressionRatio,
         metadata: {
           'originalWidth': videoInfo.width,
@@ -229,13 +234,9 @@ class VideoCompressManager {
           // 'originalBitrate': videoInfo.bitrate, // bitrate属性可能不存在
         },
       );
-
     } catch (e) {
       iPrint('视频压缩失败: $e');
-      return VideoCompressResult(
-        success: false,
-        errorMessage: e.toString(),
-      );
+      return VideoCompressResult(success: false, errorMessage: e.toString());
     } finally {
       _isCompressing = false;
     }
@@ -267,22 +268,22 @@ class VideoCompressManager {
     try {
       final file = File(inputPath);
       final fileSize = await file.length();
-      
+
       // 如果文件已经很小，跳过压缩
       if (config.maxFileSize != null && fileSize <= config.maxFileSize!) {
         final videoInfo = await VideoCompress.getMediaInfo(inputPath);
-        
+
         // 检查分辨率
         if (config.targetWidth != null && config.targetHeight != null) {
           if (videoInfo.width != null && videoInfo.height != null) {
-            if (videoInfo.width! <= config.targetWidth! && 
+            if (videoInfo.width! <= config.targetWidth! &&
                 videoInfo.height! <= config.targetHeight!) {
               return true;
             }
           }
         }
       }
-      
+
       return false;
     } catch (e) {
       return false;
@@ -302,8 +303,12 @@ class VideoCompressManager {
         quality: VideoCompressQuality.low,
         targetBitrate: max(200, (config.targetBitrate ?? 1000) ~/ 2),
         targetFrameRate: max(15, (config.targetFrameRate ?? 30) ~/ 2),
-        targetWidth: config.targetWidth != null ? config.targetWidth! ~/ 2 : 480,
-        targetHeight: config.targetHeight != null ? config.targetHeight! ~/ 2 : 360,
+        targetWidth: config.targetWidth != null
+            ? config.targetWidth! ~/ 2
+            : 480,
+        targetHeight: config.targetHeight != null
+            ? config.targetHeight! ~/ 2
+            : 360,
         maxFileSize: config.maxFileSize,
         enableAudio: config.enableAudio,
         outputFormat: config.outputFormat,
@@ -318,7 +323,7 @@ class VideoCompressManager {
     } catch (e) {
       return VideoCompressResult(
         success: false,
-        errorMessage: '进一步压缩失败: $e',
+        errorMessage: 'Further compression failed: $e',
       );
     }
   }
@@ -341,7 +346,9 @@ class VideoCompressManager {
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -350,14 +357,14 @@ class VideoCompressManager {
     try {
       final tempDir = await getTemporaryDirectory();
       final files = tempDir.listSync();
-      
+
       for (final file in files) {
         if (file is File && file.path.contains('compressed')) {
           // 只删除1小时前的临时压缩文件
           final stat = await file.stat();
           final now = DateTime.now();
           final fileTime = stat.modified;
-          
+
           if (now.difference(fileTime).inHours > 1) {
             await file.delete();
             iPrint('删除临时文件: ${file.path}');
@@ -378,13 +385,13 @@ class VideoCompressManager {
     VideoCompressConfig config;
 
     // 针对红米A5的特殊优化
-    if (deviceModel.toLowerCase().contains('redmi') && 
+    if (deviceModel.toLowerCase().contains('redmi') &&
         deviceModel.toLowerCase().contains('a5')) {
       config = const VideoCompressConfig(
         quality: VideoCompressQuality.low,
-        targetBitrate: 300,     // 更低的比特率
-        targetFrameRate: 20,    // 更低的帧率
-        targetWidth: 480,       // 更小的分辨率
+        targetBitrate: 300, // 更低的比特率
+        targetFrameRate: 20, // 更低的帧率
+        targetWidth: 480, // 更小的分辨率
         targetHeight: 360,
         maxFileSize: 5 * 1024 * 1024, // 5MB限制
         enableAudio: true,
@@ -419,10 +426,12 @@ class VideoCompressProgressWidget extends StatefulWidget {
   });
 
   @override
-  State<VideoCompressProgressWidget> createState() => _VideoCompressProgressWidgetState();
+  State<VideoCompressProgressWidget> createState() =>
+      _VideoCompressProgressWidgetState();
 }
 
-class _VideoCompressProgressWidgetState extends State<VideoCompressProgressWidget> {
+class _VideoCompressProgressWidgetState
+    extends State<VideoCompressProgressWidget> {
   double _progress = 0.0;
   bool _isCompressing = true;
   final VideoCompressManager _compressManager = VideoCompressManager();
@@ -468,54 +477,45 @@ class _VideoCompressProgressWidgetState extends State<VideoCompressProgressWidge
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return Dialog(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.video_settings,
-              size: 48,
-              color: Colors.blue,
-            ),
-            
+            const Icon(Icons.video_settings, size: 48, color: Colors.blue),
+
             const SizedBox(height: 16),
-            
-            const Text(
-              '正在压缩视频...',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+
+            Text(
+              t.videoCompressing,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             LinearProgressIndicator(
               value: _progress,
               backgroundColor: Colors.grey[300],
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               '${(_progress * 100).toStringAsFixed(1)}%',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
                   onPressed: _isCompressing ? _cancelCompression : null,
-                  child: const Text('取消'),
+                  child: Text(t.buttonCancel),
                 ),
               ],
             ),

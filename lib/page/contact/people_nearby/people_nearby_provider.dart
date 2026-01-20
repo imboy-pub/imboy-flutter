@@ -1,0 +1,181 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/location/amap_helper.dart';
+import 'package:imboy/store/model/people_model.dart';
+import 'package:imboy/store/api/location_api.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
+
+/// 附近的人状态类
+class PeopleNearbyState {
+  final List<PeopleModel> peopleList;
+  final bool peopleNearbyVisible;
+  final String longitude; // 经度
+  final String latitude; // 维度
+  final int page;
+  final int size;
+  final int limit;
+
+  const PeopleNearbyState({
+    this.peopleList = const [],
+    this.peopleNearbyVisible = false,
+    this.longitude = "",
+    this.latitude = "",
+    this.page = 1,
+    this.size = 20,
+    this.limit = 90,
+  });
+
+  PeopleNearbyState copyWith({
+    List<PeopleModel>? peopleList,
+    bool? peopleNearbyVisible,
+    String? longitude,
+    String? latitude,
+    int? page,
+    int? size,
+    int? limit,
+  }) {
+    return PeopleNearbyState(
+      peopleList: peopleList ?? this.peopleList,
+      peopleNearbyVisible: peopleNearbyVisible ?? this.peopleNearbyVisible,
+      longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+      page: page ?? this.page,
+      size: size ?? this.size,
+      limit: limit ?? this.limit,
+    );
+  }
+}
+
+/// 附近的人状态通知器
+class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
+  @override
+  PeopleNearbyState build() {
+    // 初始化时从本地存储读取可见性设置
+    final isVisible = UserRepoLocal.to.setting.peopleNearbyVisible;
+    debugPrint(
+      "PeopleNearbyState init peopleNearbyVisible $isVisible; ${UserRepoLocal.to.setting.peopleNearbyVisible}",
+    );
+
+    return PeopleNearbyState(peopleNearbyVisible: isVisible);
+  }
+
+  /// 更新人员列表
+  void updatePeopleList(List<PeopleModel> list) {
+    state = state.copyWith(peopleList: list);
+  }
+
+  /// 更新可见性状态
+  void updateVisibility(bool visible) {
+    state = state.copyWith(peopleNearbyVisible: visible);
+  }
+
+  /// 更新位置信息
+  void updateLocation(String longitude, String latitude) {
+    state = state.copyWith(longitude: longitude, latitude: latitude);
+  }
+
+  /// 清空列表
+  void clearList() {
+    state = state.copyWith(peopleList: []);
+  }
+
+  /// 初始化
+  Future<void> init() async {
+    DateTime s = DateTime.now();
+    AMapPosition? l = await AMapHelper().startLocation();
+    DateTime end = DateTime.now();
+    debugPrint(
+      "PeopleNearbyNotifier init peopleNearbyVisible ${state.peopleNearbyVisible} diff ${end.difference(s)}",
+    );
+    updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
+    await peopleNearby();
+    DateTime end2 = DateTime.now();
+    debugPrint(
+      "PeopleNearbyNotifier init peopleNearbyVisible diff2 ${end2.difference(s)}",
+    );
+  }
+
+  /// 获取附近的人
+  Future<void> peopleNearby() async {
+    if (state.longitude.isEmpty) {
+      AMapPosition? l = await AMapHelper().startLocation();
+      updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
+    }
+
+    if (state.longitude.isEmpty || state.longitude == "null") {
+      EasyLoading.showInfo(
+        "${t.failedGetLatLong}\n${t.notTurnedLocationService}\n${t.or} ${t.notAuthorizedLatLong}",
+      );
+      return;
+    }
+
+    int radius = 500000;
+    // 获取附近的人
+    Map<String, dynamic>? payload = await LocationApi().peopleNearby(
+      longitude: state.longitude, // 经度
+      latitude: state.latitude, // 维度
+      radius: radius,
+      unit: 'm',
+    );
+
+    if (payload == null) {
+      return;
+    }
+    List<Map<String, dynamic>> li = await ContactRepo().selectFriend(
+      columns: [ContactRepo.peerId],
+    );
+    List<String> friendUidList = [];
+    for (var f in li) {
+      friendUidList.add(f[ContactRepo.peerId]);
+    }
+
+    List<PeopleModel> l = [];
+    for (var json in payload['list']) {
+      json['unit'] = payload['unit'];
+      PeopleModel model = PeopleModel.fromJson(json);
+      if (json['id'] != UserRepoLocal.to.currentUid) {
+        model.isFriend = friendUidList.contains(json['id']);
+        l.add(model);
+      }
+    }
+    updatePeopleList(l);
+  }
+
+  /// 让自己可见
+  Future<bool> makeMyselfVisible() async {
+    updateVisibility(!state.peopleNearbyVisible);
+
+    bool res = await LocationApi().makeMyselfVisible(
+      longitude: state.longitude,
+      latitude: state.latitude,
+    );
+    if (res) {
+      var s = UserRepoLocal.to.setting;
+      s.peopleNearbyVisible = true;
+      UserRepoLocal.to.changeSetting(s);
+    }
+    return res;
+  }
+
+  /// 让自己不可见
+  Future<bool> makeMyselfUnVisible() async {
+    updateVisibility(!state.peopleNearbyVisible);
+
+    bool res = await LocationApi().makeMyselfUnVisible();
+    if (res) {
+      var s = UserRepoLocal.to.setting;
+      s.peopleNearbyVisible = false;
+      UserRepoLocal.to.changeSetting(s);
+    }
+    return res;
+  }
+}
+
+/// 附近的人 Provider
+final peopleNearbyProvider =
+    NotifierProvider<PeopleNearbyNotifier, PeopleNearbyState>(
+      PeopleNearbyNotifier.new,
+    );

@@ -418,7 +418,10 @@ class CrossPlatformThemeValidator {
   /// 简化的亮度计算
   static double _calculateLuminance(Color color) {
     // 简化的亮度计算
-    return (0.299 * (color.r * 255.0).round() + 0.587 * (color.g * 255.0).round() + 0.114 * (color.b * 255.0).round()) / 255;
+    return (0.299 * (color.r * 255.0).round() +
+            0.587 * (color.g * 255.0).round() +
+            0.114 * (color.b * 255.0).round()) /
+        255;
   }
 
   /// 生成验证报告

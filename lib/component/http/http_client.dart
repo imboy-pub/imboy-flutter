@@ -6,19 +6,18 @@ import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart' as getx;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/config/routes.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
-import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/service/network_monitor.dart';
 
 import 'package:imboy/service/encrypter.dart';
-import 'package:imboy/store/provider/user_provider.dart';
+import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_config.dart';
@@ -52,12 +51,12 @@ Future<Map<String, dynamic>> defaultHeaders() async {
     'method': 'sha512',
     // signKeyVsn 告知服务端用哪个签名key 不同设备类型签名不一样
     'sk': globalSignKeyVsn,
-    'sign': EncrypterService.sha512("$deviceId|$appVsn|$cos|$packageName", key)
+    'sign': EncrypterService.sha512("$deviceId|$appVsn|$cos|$packageName", key),
   };
 }
 
 class HttpClient {
-  static HttpClient get client => getx.Get.find();
+  static HttpClient get client => serviceContainer.get<HttpClient>();
   late Dio _dio;
 
   HttpClient({BaseOptions? options, HttpConfig? conf}) {
@@ -87,14 +86,17 @@ class HttpClient {
         : HttpRetryConfig.prodConfig;
     _dio.interceptors.add(createRetryInterceptor(retryConfig));
 
-    if (RECORD_LOG) {
-      _dio.interceptors.add(LogInterceptor(
+    if (recordLog) {
+      _dio.interceptors.add(
+        LogInterceptor(
           responseBody: true,
           error: true,
           requestHeader: true,
           responseHeader: false,
           request: false,
-          requestBody: true));
+          requestBody: true,
+        ),
+      );
     }
     if (conf?.interceptors?.isNotEmpty ?? false) {
       _dio.interceptors.addAll(conf!.interceptors!);
@@ -142,8 +144,10 @@ class HttpClient {
       String rtk = await UserRepoLocal.to.refreshToken;
       // 防御性检查：refresh token 为空时不尝试刷新
       if (rtk.isNotEmpty) {
-        tk = await (UserProvider())
-            .refreshAccessTokenApi(rtk, checkNewToken: false);
+        tk = await UserApi.to.refreshAccessTokenApi(
+          rtk,
+          checkNewToken: false,
+        );
       } else {
         debugPrint("_setDefaultConfig: refresh token 为空，跳过刷新");
       }
@@ -166,7 +170,10 @@ class HttpClient {
     // 执行登出操作
     await UserRepoLocal.to.quitLogin();
     // 跳转到登录页
-    getx.Get.offAll(() => const LoginPage());
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      AppRoutes.signIn,
+      (route) => false,
+    );
   }
 
   Future<IMBoyHttpResponse> get(
@@ -180,7 +187,8 @@ class HttpClient {
     try {
       await _setDefaultConfig();
       // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-      if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+      if (serviceContainer.isRegistered<NetworkMonitorService>() &&
+          !NetworkMonitorService.to.hasNetwork) {
         return handleException(
           uri,
           NetworkException(message: t.tipConnectDesc),
@@ -203,7 +211,10 @@ class HttpClient {
       // 处理认证相关错误：401 (新标准) 和 706/707 (旧版兼容)
       if (ErrorCode.shouldReLogin(resp.code)) {
         UserRepoLocal.to.quitLogin();
-        getx.Get.offAll(() => const LoginPage());
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.signIn,
+          (route) => false,
+        );
       } else if (resp.code == ErrorCode.TOKEN_EXPIRED) {
         // Token 过期，尝试刷新
         EasyLoading.showInfo(resp.msg);
@@ -239,12 +250,10 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
+        !NetworkMonitorService.to.hasNetwork) {
       // EasyLoading.showError(t.tipConnectDesc);
-      return handleException(
-        uri,
-        NetworkException(message: t.tipConnectDesc),
-      );
+      return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
       debugPrint("http_post $uri");
@@ -281,12 +290,10 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
+        !NetworkMonitorService.to.hasNetwork) {
       EasyLoading.showError(t.tipConnectDesc);
-      return handleException(
-        uri,
-        NetworkException(message: t.tipConnectDesc),
-      );
+      return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
       await _setDefaultConfig();
@@ -319,12 +326,10 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
+        !NetworkMonitorService.to.hasNetwork) {
       EasyLoading.showError(t.tipConnectDesc);
-      return handleException(
-        uri,
-        NetworkException(message: t.tipConnectDesc),
-      );
+      return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
       await _setDefaultConfig();
@@ -337,8 +342,11 @@ class HttpClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      return handleResponse(response,
-          uri: uri, httpTransformer: httpTransformer);
+      return handleResponse(
+        response,
+        uri: uri,
+        httpTransformer: httpTransformer,
+      );
     } on Exception catch (e) {
       return handleException(uri, e);
     }
@@ -353,12 +361,10 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
+        !NetworkMonitorService.to.hasNetwork) {
       EasyLoading.showError(t.tipConnectDesc);
-      return handleException(
-        uri,
-        NetworkException(message: t.tipConnectDesc),
-      );
+      return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
       await _setDefaultConfig();
@@ -369,8 +375,11 @@ class HttpClient {
         options: options,
         cancelToken: cancelToken,
       );
-      return handleResponse(response,
-          uri: uri, httpTransformer: httpTransformer);
+      return handleResponse(
+        response,
+        uri: uri,
+        httpTransformer: httpTransformer,
+      );
     } on Exception catch (e) {
       return handleException(uri, e);
     }

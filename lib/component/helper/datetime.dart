@@ -32,13 +32,13 @@ class DateTimeHelper {
       return t.timeJustNow;
     } else if (diffMs < 3600 * 1000) {
       final minutes = (diffMs / (60 * 1000)).floor();
-      return t.timeMinutesAgo.replaceAll('{s}', minutes.toString());
+      return t.timeMinutesAgo(param: minutes.toString());
     } else if (diffMs < 24 * 3600 * 1000) {
       final hours = (diffMs / (3600 * 1000)).floor();
-      return t.timeHoursAgo.replaceAll('{s}', hours.toString());
+      return t.timeHoursAgo(param: hours.toString());
     } else {
       final days = (diffMs / (24 * 3600 * 1000)).floor();
-      return t.timeDaysAgo.replaceAll('{s}', days.toString());
+      return t.timeDaysAgo(param: days.toString());
     }
   }
 

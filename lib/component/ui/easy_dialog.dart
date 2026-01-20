@@ -3,10 +3,10 @@ import 'package:imboy/theme/default/font_types.dart';
 
 // 对话框类型枚举
 enum DialogType {
-  confirm,   // 确认对话框
-  warning,   // 警告对话框
-  info,      // 信息对话框
-  error,     // 错误对话框
+  confirm, // 确认对话框
+  warning, // 警告对话框
+  info, // 信息对话框
+  error, // 错误对话框
 }
 
 class EasyDialog extends StatelessWidget {
@@ -169,16 +169,16 @@ class EasyDialog extends StatelessWidget {
       case DialogType.info:
         iconData = Icons.info_outline;
         iconColor = theme.colorScheme.secondary;
-        dialogColor = theme.colorScheme.secondaryContainer.withValues(alpha: 0.1);
+        dialogColor = theme.colorScheme.secondaryContainer.withValues(
+          alpha: 0.1,
+        );
         actionButtonColor = theme.colorScheme.primary;
         break;
     }
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
       title: type == DialogType.confirm
           ? Text(
@@ -197,11 +197,7 @@ class EasyDialog extends StatelessWidget {
                     color: dialogColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    iconData,
-                    size: 24,
-                    color: iconColor,
-                  ),
+                  child: Icon(iconData, size: 24, color: iconColor),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -277,9 +273,7 @@ class EasyDialog extends StatelessWidget {
             ),
             child: Text(
               confirmText ?? '确定',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ];
@@ -301,9 +295,7 @@ class EasyDialog extends StatelessWidget {
             ),
             child: Text(
               confirmText ?? '确定',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ];

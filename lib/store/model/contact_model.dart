@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
+/// 联系人数据模型
+/// 纯数据模型，不包含响应式状态
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -103,7 +105,7 @@ class ContactModel extends ISuspensionBean {
   Widget? iconData;
   String? firstLetter;
 
-  RxBool selected = false.obs;
+  bool selected = false;
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
@@ -146,7 +148,9 @@ class ContactModel extends ISuspensionBean {
       avatar: json["avatar"].toString(),
       gender: int.tryParse(json["gender"].toString()) ?? 0,
       status: json["status"] ?? '',
-      lastSeenAt: json["last_seen_at"] == "" ? null : int.tryParse(json["last_seen_at"].toString()),
+      lastSeenAt: json["last_seen_at"] == ""
+          ? null
+          : int.tryParse(json["last_seen_at"].toString()),
       remark: json["remark"].toString(),
       tag: tag,
       region: "${json["region"] ?? ''}",
@@ -161,27 +165,27 @@ class ContactModel extends ISuspensionBean {
   }
 
   Map<String, dynamic> toJson() => {
-        ContactRepo.peerId: peerId,
-        'account': account,
-        'nickname': nickname,
-        'avatar': avatar,
-        'gender': gender,
-        'status': status,
-        'last_seen_at': lastSeenAt,
-        'remark': remark,
-        'region': region,
-        'sign': sign,
-        'source': source,
-        ContactRepo.tag: tag,
-        ContactRepo.updatedAt: updatedAt,
-        ContactRepo.isFriend: isFriend,
-        ContactRepo.isFrom: isFrom,
-        ContactRepo.categoryId: categoryId,
-        //
-        'firstLetter': firstLetter,
-        'nameIndex': nameIndex,
-        'namePinyin': namePinyin
-      };
+    ContactRepo.peerId: peerId,
+    'account': account,
+    'nickname': nickname,
+    'avatar': avatar,
+    'gender': gender,
+    'status': status,
+    'last_seen_at': lastSeenAt,
+    'remark': remark,
+    'region': region,
+    'sign': sign,
+    'source': source,
+    ContactRepo.tag: tag,
+    ContactRepo.updatedAt: updatedAt,
+    ContactRepo.isFriend: isFriend,
+    ContactRepo.isFrom: isFrom,
+    ContactRepo.categoryId: categoryId,
+    //
+    'firstLetter': firstLetter,
+    'nameIndex': nameIndex,
+    'namePinyin': namePinyin,
+  };
 
   @override
   String getSuspensionTag() => nameIndex;

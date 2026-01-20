@@ -43,7 +43,7 @@ class TitleTextField extends StatelessWidget {
               color: Theme.of(context).colorScheme.onPrimary,
             ),
             contentPadding:
-            contentPadding ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                contentPadding ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),
             // fillColor: Get.isDarkMode ? darkInputFillColor : lightInputFillColor,
             filled: true,
             enabledBorder: OutlineInputBorder(

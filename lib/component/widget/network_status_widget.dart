@@ -1,49 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/websocket.dart';
 
-class NetworkStatusWidget extends StatelessWidget {
+class NetworkStatusWidget extends StatefulWidget {
   const NetworkStatusWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final networkType = NetworkMonitorService.to.currentNetworkType.value;
-      final isConnected = NetworkMonitorService.to.isConnected.value;
-      final wsStatus = WebSocketService.to.status.value;
+  State<NetworkStatusWidget> createState() => _NetworkStatusWidgetState();
+}
 
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: _getStatusColor(networkType, isConnected, wsStatus).withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _getStatusColor(networkType, isConnected, wsStatus).withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _getNetworkIcon(networkType, isConnected),
-              size: 14,
-              color: _getStatusColor(networkType, isConnected, wsStatus),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _getStatusText(networkType, isConnected, wsStatus),
-              style: TextStyle(
-                fontSize: 11,
-                color: _getStatusColor(networkType, isConnected, wsStatus),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
+class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
+  NetworkType _networkType = NetworkType.unknown;
+  bool _isConnected = false;
+  SocketStatus _wsStatus = SocketStatus.disconnected;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化状态
+    _networkType = NetworkMonitorService.to.currentNetworkType;
+    _isConnected = NetworkMonitorService.to.isConnected;
+    _wsStatus = WebSocketService.to.status;
+
+    // 添加网络变化监听器
+    NetworkMonitorService.to.addNetworkChangeListener((oldType, newType) {
+      if (mounted) {
+        setState(() {
+          _networkType = newType;
+          _isConnected = newType != NetworkType.none;
+        });
+      }
     });
+
+    // 添加 WebSocket 状态监听器
+    WebSocketService.to.addStatusListener((status) {
+      if (mounted) {
+        setState(() {
+          _wsStatus = status;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // 移除监听器
+    NetworkMonitorService.to.removeNetworkChangeListener((oldType, newType) {});
+    WebSocketService.to.removeStatusListener((status) {});
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: _getStatusColor(
+          _networkType,
+          _isConnected,
+          _wsStatus,
+        ).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _getStatusColor(
+            _networkType,
+            _isConnected,
+            _wsStatus,
+          ).withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _getNetworkIcon(_networkType, _isConnected),
+            size: 14,
+            color: _getStatusColor(_networkType, _isConnected, _wsStatus),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            _getStatusText(_networkType, _isConnected, _wsStatus),
+            style: TextStyle(
+              fontSize: 11,
+              color: _getStatusColor(_networkType, _isConnected, _wsStatus),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   IconData _getNetworkIcon(NetworkType type, bool connected) {
@@ -65,7 +111,11 @@ class NetworkStatusWidget extends StatelessWidget {
     }
   }
 
-  String _getStatusText(NetworkType type, bool connected, SocketStatus wsStatus) {
+  String _getStatusText(
+    NetworkType type,
+    bool connected,
+    SocketStatus wsStatus,
+  ) {
     if (!connected) {
       return '无网络';
     }
@@ -76,7 +126,11 @@ class NetworkStatusWidget extends StatelessWidget {
     return '$networkName ${wsConnected ? '✓' : '...'}';
   }
 
-  Color _getStatusColor(NetworkType type, bool connected, SocketStatus wsStatus) {
+  Color _getStatusColor(
+    NetworkType type,
+    bool connected,
+    SocketStatus wsStatus,
+  ) {
     if (!connected) {
       return Colors.red;
     }

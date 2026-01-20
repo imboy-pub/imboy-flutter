@@ -71,7 +71,8 @@ class GroupRepo {
       offset: offset,
     );
     debugPrint(
-        "GroupRepo_page repo ${maps.length} $where, ${maps.toList().toString()}");
+      "GroupRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
+    );
     if (maps.isEmpty) {
       return [];
     }
@@ -91,7 +92,8 @@ class GroupRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       GroupRepo.tableName,
       columns: defaultColumns,
-      where: '${GroupRepo.ownerUid}=? and ('
+      where:
+          '${GroupRepo.ownerUid}=? and ('
           '${GroupRepo.title} like ? or ${GroupRepo.introduction} like ?'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid, pattern, pattern],
@@ -148,7 +150,11 @@ class GroupRepo {
   }
 
   // 更新信息
-  Future<int> update(String gid, Map<String, dynamic> json, {Transaction? txn}) async {
+  Future<int> update(
+    String gid,
+    Map<String, dynamic> json, {
+    Transaction? txn,
+  }) async {
     Map<String, Object?> data = {};
     String? title = json[GroupRepo.title];
     if (title != null) {
@@ -247,8 +253,8 @@ class GroupRepo {
     }
   }
 
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

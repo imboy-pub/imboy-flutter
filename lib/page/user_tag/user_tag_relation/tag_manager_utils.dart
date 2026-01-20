@@ -1,55 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 标签管理工具类
 /// 提供标签相关的实用功能和UI组件
 class TagManagerUtils {
-  /// 常用标签模板
-  static const List<String> commonTagTemplates = [
-    '重要', '紧急', '工作', '生活', '学习',
-    '娱乐', '旅行', '美食', '健康', '家庭',
-    '朋友', '项目', '想法', '灵感', '备忘',
-  ];
+  /// 常用标签模板 - 使用国际化键
+  static List<String> getCommonTagTemplates() {
+    return [
+      t.tagImportant,
+      t.tagUrgent,
+      t.tagWork,
+      t.tagLife,
+      t.tagStudy,
+      t.tagEntertainment,
+      t.tagTravel,
+      t.tagFood,
+      t.tagHealth,
+      t.tagFamily,
+      t.tagFriends,
+      t.tagProject,
+      t.tagIdeas,
+      t.tagInspiration,
+      t.tagMemo,
+    ];
+  }
 
-  /// 标签颜色映射
+  /// 标签颜色映射 - 使用统一的颜色方案
   static const Map<String, Color> tagColors = {
-    '重要': Colors.red,
-    '紧急': Colors.orange,
-    '工作': Colors.blue,
-    '生活': Colors.green,
-    '学习': Colors.purple,
-    '娱乐': Colors.pink,
-    '旅行': Colors.teal,
-    '美食': Colors.amber,
-    '健康': Colors.lightGreen,
-    '家庭': Colors.brown,
-    '朋友': Colors.cyan,
-    '项目': Colors.indigo,
-    '想法': Colors.lime,
-    '灵感': Colors.yellow,
-    '备忘': Colors.grey,
+    'important': Colors.red,
+    'urgent': Colors.orange,
+    'work': Colors.blue,
+    'life': Colors.green,
+    'study': Colors.purple,
+    'entertainment': Colors.pink,
+    'travel': Colors.teal,
+    'food': Colors.amber,
+    'health': Colors.lightGreen,
+    'family': Colors.brown,
+    'friends': Colors.cyan,
+    'project': Colors.indigo,
+    'ideas': Colors.lime,
+    'inspiration': Colors.yellow,
+    'memo': Colors.grey,
   };
+
+  /// 获取标签颜色键（基于标签文本匹配）
+  static String _getTagColorKey(String tagName) {
+    // 根据标签文本映射到颜色键
+    final tagMap = {
+      t.tagImportant: 'important',
+      t.tagUrgent: 'urgent',
+      t.tagWork: 'work',
+      t.tagLife: 'life',
+      t.tagStudy: 'study',
+      t.tagEntertainment: 'entertainment',
+      t.tagTravel: 'travel',
+      t.tagFood: 'food',
+      t.tagHealth: 'health',
+      t.tagFamily: 'family',
+      t.tagFriends: 'friends',
+      t.tagProject: 'project',
+      t.tagIdeas: 'ideas',
+      t.tagInspiration: 'inspiration',
+      t.tagMemo: 'memo',
+    };
+    return tagMap[tagName] ?? 'default';
+  }
 
   /// 验证标签名称
   /// 返回错误信息，null表示验证通过
   static String? validateTagName(String tagName) {
     if (tagName.isEmpty) {
-      return '标签名称不能为空';
+      return t.tagNameRequired;
     }
     if (tagName.length > 14) {
-      return '标签名称不能超过14个字符';
+      return t.tagNameTooLong;
     }
     if (tagName.contains(',')) {
-      return '标签名称不能包含逗号';
+      return t.tagNameNoComma;
     }
     if (tagName.trim() != tagName) {
-      return '标签名称不能包含前后空格';
+      return t.tagNameNoLeadingTrailingSpaces;
     }
     // 检查特殊字符
     final RegExp specialChars = RegExp(r'[<>:"/\\|?*]');
     if (specialChars.hasMatch(tagName)) {
-      return '标签名称不能包含特殊字符';
+      return t.tagNameNoSpecialChars;
     }
     return null;
   }
@@ -77,7 +115,8 @@ class TagManagerUtils {
 
   /// 获取标签颜色
   static Color getTagColor(String tagName, {Color? defaultColor}) {
-    return tagColors[tagName] ?? defaultColor ?? AppColors.primaryGreen;
+    final colorKey = _getTagColorKey(tagName);
+    return tagColors[colorKey] ?? defaultColor ?? AppColors.primary;
   }
 
   /// 构建标签芯片组件
@@ -98,17 +137,14 @@ class TagManagerUtils {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.borderRadiusRegular,
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: chipBgColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: bgColor.withValues(alpha: 0.3),
-              width: 1,
-            ),
+            borderRadius: AppRadius.borderRadiusRegular,
+            border: Border.all(color: bgColor.withValues(alpha: 0.3), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -124,12 +160,15 @@ class TagManagerUtils {
               if (showUsageCount && usageCount != null && usageCount > 0) ...[
                 const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected 
+                    color: isSelected
                         ? Colors.white.withValues(alpha: 0.2)
                         : bgColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.borderRadiusSmall,
                   ),
                   child: Text(
                     '$usageCount',
@@ -143,11 +182,7 @@ class TagManagerUtils {
               ],
               if (isSelected) ...[
                 const SizedBox(width: 4),
-                Icon(
-                  Icons.check,
-                  size: 14,
-                  color: textColor,
-                ),
+                Icon(Icons.check, size: 14, color: textColor),
               ],
             ],
           ),
@@ -158,6 +193,7 @@ class TagManagerUtils {
 
   /// 构建标签输入建议列表
   static Widget buildTagSuggestions({
+    required BuildContext context,
     required List<String> suggestions,
     required List<String> selectedTags,
     required Function(String) onTagSelected,
@@ -176,10 +212,10 @@ class TagManagerUtils {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Get.theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: Get.theme.colorScheme.outline.withValues(alpha: 0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -187,17 +223,13 @@ class TagManagerUtils {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.lightbulb_outline,
-                size: 16,
-                color: Colors.orange,
-              ),
+              Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange),
               const SizedBox(width: 8),
               Text(
-                '建议标签',
+                t.suggestedTags,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Get.theme.colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -207,12 +239,14 @@ class TagManagerUtils {
             spacing: 8,
             runSpacing: 8,
             children: filteredSuggestions
-                .map((tag) => buildTagChip(
-                      tag: tag,
-                      isSelected: false,
-                      onTap: () => onTagSelected(tag),
-                      usageCount: usageCount[tag],
-                    ))
+                .map(
+                  (tag) => buildTagChip(
+                    tag: tag,
+                    isSelected: false,
+                    onTap: () => onTagSelected(tag),
+                    usageCount: usageCount[tag],
+                  ),
+                )
                 .toList(),
           ),
         ],
@@ -222,10 +256,11 @@ class TagManagerUtils {
 
   /// 构建常用标签模板
   static Widget buildCommonTagTemplates({
+    required BuildContext context,
     required Function(String) onTagSelected,
     List<String> excludeTags = const [],
   }) {
-    final availableTemplates = commonTagTemplates
+    final availableTemplates = getCommonTagTemplates()
         .where((tag) => !excludeTags.contains(tag))
         .toList();
 
@@ -236,25 +271,21 @@ class TagManagerUtils {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Get.theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.bookmark_outline,
-                size: 16,
-                color: AppColors.primaryGreen,
-              ),
+              Icon(Icons.bookmark_outline, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
-                '常用标签',
+                t.commonTags,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Get.theme.colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -264,12 +295,14 @@ class TagManagerUtils {
             spacing: 8,
             runSpacing: 8,
             children: availableTemplates
-                .map((tag) => buildTagChip(
-                      tag: tag,
-                      isSelected: false,
-                      onTap: () => onTagSelected(tag),
-                      showUsageCount: false,
-                    ))
+                .map(
+                  (tag) => buildTagChip(
+                    tag: tag,
+                    isSelected: false,
+                    onTap: () => onTagSelected(tag),
+                    showUsageCount: false,
+                  ),
+                )
                 .toList(),
           ),
         ],
@@ -285,12 +318,15 @@ class TagManagerUtils {
     required Function(List<String>) onTagsChanged,
     Map<String, int> usageCount = const {},
   }) {
-    Get.bottomSheet(
-      Container(
-        height: Get.height * 0.7,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Get.theme.colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -305,31 +341,33 @@ class TagManagerUtils {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Get.theme.colorScheme.outline.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
+                  borderRadius: AppRadius.borderRadiusTiny,
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // 标题
             Text(
-              '标签管理',
+              t.tagManagement,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Get.theme.colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // 当前标签
             if (currentTags.isNotEmpty) ...[
               Text(
-                '当前标签 (${currentTags.length})',
+                t.currentTags(param: currentTags.length.toString()),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Get.theme.colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -337,21 +375,23 @@ class TagManagerUtils {
                 spacing: 8,
                 runSpacing: 8,
                 children: currentTags
-                    .map((tag) => buildTagChip(
-                          tag: tag,
-                          isSelected: true,
-                          onTap: () {
-                            final newTags = List<String>.from(currentTags)
-                              ..remove(tag);
-                            onTagsChanged(newTags);
-                          },
-                          usageCount: usageCount[tag],
-                        ))
+                    .map(
+                      (tag) => buildTagChip(
+                        tag: tag,
+                        isSelected: true,
+                        onTap: () {
+                          final newTags = List<String>.from(currentTags)
+                            ..remove(tag);
+                          onTagsChanged(newTags);
+                        },
+                        usageCount: usageCount[tag],
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 16),
             ],
-            
+
             // 可选标签
             Expanded(
               child: SingleChildScrollView(
@@ -359,10 +399,12 @@ class TagManagerUtils {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildTagSuggestions(
+                      context: context,
                       suggestions: allTags,
                       selectedTags: currentTags,
-                      onTagSelected: (tag) {
-                        final newTags = List<String>.from(currentTags)..add(tag);
+                      onTagSelected: (task) {
+                        final newTags = List<String>.from(currentTags)
+                          ..add(task);
                         onTagsChanged(newTags);
                       },
                       usageCount: usageCount,
@@ -370,9 +412,11 @@ class TagManagerUtils {
                     ),
                     const SizedBox(height: 16),
                     buildCommonTagTemplates(
-                      onTagSelected: (tag) {
-                        if (!currentTags.contains(tag)) {
-                          final newTags = List<String>.from(currentTags)..add(tag);
+                      context: context,
+                      onTagSelected: (task) {
+                        if (!currentTags.contains(task)) {
+                          final newTags = List<String>.from(currentTags)
+                            ..add(task);
                           onTagsChanged(newTags);
                         }
                       },
@@ -385,7 +429,6 @@ class TagManagerUtils {
           ],
         ),
       ),
-      isScrollControlled: true,
     );
   }
 
@@ -396,9 +439,9 @@ class TagManagerUtils {
     bool fuzzyMatch = true,
   }) {
     if (query.isEmpty) return tags;
-    
+
     final lowerQuery = query.toLowerCase();
-    
+
     return tags.where((tag) {
       final lowerTag = tag.toLowerCase();
       if (fuzzyMatch) {
@@ -443,7 +486,7 @@ class TagManagerUtils {
 
     final totalUsage = usageCount.values.fold(0, (sum, count) => sum + count);
     final averageUsage = totalUsage / tags.length;
-    
+
     final sortedByUsage = sortTagsByUsage(tags, usageCount);
     final mostUsedTag = sortedByUsage.isNotEmpty ? sortedByUsage.first : '';
     final leastUsedTag = sortedByUsage.isNotEmpty ? sortedByUsage.last : '';

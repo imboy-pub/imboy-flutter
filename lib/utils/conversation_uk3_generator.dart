@@ -88,13 +88,19 @@ class ConversationUk3Generator {
   }
 
   /// 比较群组会话
-  static bool _compareGroupConversation(List<String> parts1, List<String> parts2) {
+  static bool _compareGroupConversation(
+    List<String> parts1,
+    List<String> parts2,
+  ) {
     // 群组格式：C2G_userId_groupId
     return parts1[1] == parts2[1] && parts1[2] == parts2[2];
   }
 
   /// 比较C2C会话
-  static bool _compareC2CConversation(List<String> parts1, List<String> parts2) {
+  static bool _compareC2CConversation(
+    List<String> parts1,
+    List<String> parts2,
+  ) {
     // 提取两个用户ID并标准化排序
     final users1 = [parts1[1], parts1[2]]..sort();
     final users2 = [parts2[1], parts2[2]]..sort();
@@ -134,17 +140,29 @@ class ConversationUk3Generator {
     final upperType = type.toUpperCase();
 
     if (!useNewLogic) {
-      return generateLegacy(type: type, currentUserId: currentUserId, peerId: peerId);
+      return generateLegacy(
+        type: type,
+        currentUserId: currentUserId,
+        peerId: peerId,
+      );
     }
 
     switch (upperType) {
       case 'C2G':
-        return generateForGroup(type: type, currentUserId: currentUserId, groupId: peerId);
+        return generateForGroup(
+          type: type,
+          currentUserId: currentUserId,
+          groupId: peerId,
+        );
       case 'S2C':
       case 'C2S':
         return generateForSystem(type: type, userId: currentUserId);
       default:
-        return generate(type: type, currentUserId: currentUserId, peerId: peerId);
+        return generate(
+          type: type,
+          currentUserId: currentUserId,
+          peerId: peerId,
+        );
     }
   }
 

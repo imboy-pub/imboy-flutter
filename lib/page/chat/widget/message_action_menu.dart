@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:get/get.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 消息操作菜单组件
 /// 提供现代化的消息操作界面
-class MessageActionMenu extends StatelessWidget {
+class MessageActionMenu extends StatefulWidget {
   const MessageActionMenu({
     super.key,
     required this.message,
@@ -31,11 +33,11 @@ class MessageActionMenu extends StatelessWidget {
   final VoidCallback onReply;
   final VoidCallback onCopy;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;  // 删除我的消息
+  final VoidCallback onDelete; // 删除我的消息
   final VoidCallback onForward;
   final Function(String) onReaction;
-  final VoidCallback? onRevoke;  // 新增：撤回功能
-  final VoidCallback? onSave;    // 新增：保存功能
+  final VoidCallback? onRevoke; // 新增：撤回功能
+  final VoidCallback? onSave; // 新增：保存功能
   final VoidCallback? onCollect; // 新增：收藏功能
   final VoidCallback? onDeleteForEveryone; // 新增：删除所有人的消息
   final VoidCallback? onRetry; // 新增：重试功能
@@ -43,12 +45,36 @@ class MessageActionMenu extends StatelessWidget {
   final bool canEdit;
 
   @override
+  State<MessageActionMenu> createState() => _MessageActionMenuState();
+}
+
+class _MessageActionMenuState extends State<MessageActionMenu> {
+  StreamSubscription? _localeSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    // 监听语言变化
+    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _localeSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.15),
@@ -102,25 +128,26 @@ class MessageActionMenu extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              onReaction(emoji);
-              onClose?.call();
+              widget.onReaction(emoji);
+              widget.onClose?.call();
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: AppRadius.borderRadiusLarge,
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 20),
-              ),
+              child: Text(emoji, style: const TextStyle(fontSize: 20)),
             ),
           );
         }).toList(),
@@ -130,6 +157,7 @@ class MessageActionMenu extends StatelessWidget {
 
   /// 构建操作区域
   Widget _buildActionSection(BuildContext context) {
+    final t = context.t;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -144,8 +172,8 @@ class MessageActionMenu extends StatelessWidget {
                 label: t.quote,
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  onReply();
-                  onClose?.call();
+                  widget.onReply();
+                  widget.onClose?.call();
                 },
               ),
               _buildActionButton(
@@ -154,8 +182,8 @@ class MessageActionMenu extends StatelessWidget {
                 label: t.buttonCopy,
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  onCopy();
-                  onClose?.call();
+                  widget.onCopy();
+                  widget.onClose?.call();
                 },
               ),
               _buildActionButton(
@@ -164,19 +192,19 @@ class MessageActionMenu extends StatelessWidget {
                 label: t.forward,
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  onForward();
-                  onClose?.call();
+                  widget.onForward();
+                  widget.onClose?.call();
                 },
               ),
-              if (onCollect != null)
+              if (widget.onCollect != null)
                 _buildActionButton(
                   context: context,
                   icon: Icons.collections_bookmark,
                   label: t.favorites,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    onCollect!();
-                    onClose?.call();
+                    widget.onCollect!();
+                    widget.onClose?.call();
                   },
                 ),
             ],
@@ -188,54 +216,54 @@ class MessageActionMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // 保存按钮（适用于图片、文件、视频、语音）
-              if (onSave != null)
+              if (widget.onSave != null)
                 _buildActionButton(
                   context: context,
                   icon: Icons.save_alt,
                   label: t.buttonSave,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    onSave!();
-                    onClose?.call();
+                    widget.onSave!();
+                    widget.onClose?.call();
                   },
                 ),
 
               // 发送者可见的操作
-              if (isSentByMe) ...[
+              if (widget.isSentByMe) ...[
                 // 重试按钮（仅发送失败的消息）
-                if (onRetry != null)
+                if (widget.onRetry != null)
                   _buildActionButton(
                     context: context,
                     icon: Icons.refresh,
-                    label: '重试',
+                    label: t.buttonRetry,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      onRetry!();
-                      onClose?.call();
+                      widget.onRetry!();
+                      widget.onClose?.call();
                     },
                   ),
                 // 编辑按钮（仅文本消息且发送后2分钟内）
-                if (canEdit)
+                if (widget.canEdit)
                   _buildActionButton(
                     context: context,
                     icon: Icons.edit,
-                    label: '编辑',
+                    label: t.edit,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      onEdit();
-                      onClose?.call();
+                      widget.onEdit();
+                      widget.onClose?.call();
                     },
                   ),
                 // 撤回按钮（发送者专有）
-                if (onRevoke != null)
+                if (widget.onRevoke != null)
                   _buildActionButton(
                     context: context,
                     icon: Icons.layers_clear_rounded,
                     label: t.revoke,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      onRevoke!();
-                      onClose?.call();
+                      widget.onRevoke!();
+                      widget.onClose?.call();
                     },
                   ),
                 // 删除按钮（发送者：可选择删除所有人或仅自己）
@@ -257,8 +285,8 @@ class MessageActionMenu extends StatelessWidget {
                   label: t.deleteForMe,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    onDelete();
-                    onClose?.call();
+                    widget.onDelete();
+                    widget.onClose?.call();
                   },
                   isDestructive: true,
                 ),
@@ -294,13 +322,21 @@ class MessageActionMenu extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isDestructive
-                      ? Theme.of(context).colorScheme.error.withValues(alpha: 0.1)
-                      : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.error.withValues(alpha: 0.1)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.borderRadiusMedium,
                   border: Border.all(
                     color: isDestructive
-                        ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
-                        : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.2)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -334,7 +370,8 @@ class MessageActionMenu extends StatelessWidget {
 
   /// 显示删除确认对话框
   void _showDeleteConfirmation(BuildContext context) {
-    if (isSentByMe) {
+    final t = context.t;
+    if (widget.isSentByMe) {
       // 发送者：可选择删除所有人或仅自己
       showDialog(
         context: context,
@@ -347,27 +384,27 @@ class MessageActionMenu extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.person),
                   title: Text(t.deleteForMe),
-                  subtitle: Text('仅在你这里删除，对方仍可见'),
+                  subtitle: Text(t.chatDeleteOnlyLocal),
                   onTap: () {
                     Navigator.of(context).pop();
-                    onDelete();
-                    onClose?.call();
+                    widget.onDelete();
+                    widget.onClose?.call();
                   },
                 ),
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.group, color: Colors.red),
                   title: Text(t.deleteForEveryone),
-                  subtitle: Text('从所有人的聊天中删除，无法撤销'),
+                  subtitle: Text(t.chatDeleteAll),
                   onTap: () {
                     Navigator.of(context).pop();
                     // 删除所有人的消息
-                    if (onDeleteForEveryone != null) {
-                      onDeleteForEveryone!();
+                    if (widget.onDeleteForEveryone != null) {
+                      widget.onDeleteForEveryone!();
                     } else {
-                      onDelete(); // 后备方案
+                      widget.onDelete(); // 后备方案
                     }
-                    onClose?.call();
+                    widget.onClose?.call();
                   },
                 ),
               ],
@@ -390,7 +427,7 @@ class MessageActionMenu extends StatelessWidget {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(t.buttonDelete),
-            content: Text('确定要删除这条消息吗？此操作无法撤销。'),
+            content: Text(t.chatDeleteConfirm),
             actions: [
               TextButton(
                 onPressed: () {
@@ -401,8 +438,8 @@ class MessageActionMenu extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  onDelete();
-                  onClose?.call();
+                  widget.onDelete();
+                  widget.onClose?.call();
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,
@@ -428,11 +465,11 @@ void showMessageActionMenu({
   required VoidCallback onDelete,
   required VoidCallback onForward,
   required Function(String) onReaction,
-  VoidCallback? onRevoke,   // 新增：撤回回调
-  VoidCallback? onSave,     // 新增：保存回调
-  VoidCallback? onCollect,  // 新增：收藏回调
+  VoidCallback? onRevoke, // 新增：撤回回调
+  VoidCallback? onSave, // 新增：保存回调
+  VoidCallback? onCollect, // 新增：收藏回调
   VoidCallback? onDeleteForEveryone, // 新增：删除所有人的消息
-  VoidCallback? onRetry,   // 新增：重试回调
+  VoidCallback? onRetry, // 新增：重试回调
   bool canEdit = false,
 }) {
   showModalBottomSheet(

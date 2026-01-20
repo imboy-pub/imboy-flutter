@@ -1,0 +1,1233 @@
+import 'dart:convert' show jsonDecode;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/page/single/video_viewer.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider.dart';
+import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/message_model.dart' show MessageModel;
+import 'package:imboy/store/model/user_collect_model.dart';
+import 'package:imboy/store/api/user_collect_api.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart'
+    show MessageRepo;
+import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/component/chat/message_audio_builder.dart' as audio;
+
+import 'user_collect_state.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+
+part 'user_collect_provider.g.dart';
+
+/// UserCollect Notifier
+/// 处理收藏相关的业务逻辑
+@riverpod
+class UserCollectNotifier extends _$UserCollectNotifier {
+  @override
+  UserCollectState build() {
+    return UserCollectState();
+  }
+
+  /// 更新状态
+  void updateState(UserCollectState newState) {
+    state = newState;
+  }
+
+  Future<List<UserCollectModel>> page({
+    int page = 1,
+    int size = 10,
+    String? kind,
+    String? tag,
+    String? kwd,
+    bool onRefresh = false,
+  }) async {
+    final List<UserCollectModel> result = [];
+    final repo = UserCollectRepo();
+
+    try {
+      // 标记加载状态
+      if (onRefresh) state.isRefreshing = true;
+      // 先尝试从本地分页读取（除非强制刷新）
+      if (!onRefresh) {
+        page = page > 1 ? page : 1;
+        final int offset = (page - 1) * size;
+
+        String where = '${UserCollectRepo.userId}=?';
+        List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
+        String? orderBy;
+        if (kind == state.recentUse) {
+          orderBy = "${UserCollectRepo.updatedAt} desc, auto_id desc";
+          where = "$where and ${UserCollectRepo.updatedAt} >= 0";
+        } else if (kind != null && int.tryParse(kind) != null) {
+          where = "$where and ${UserCollectRepo.kind}=?";
+          whereArgs.add(kind);
+        }
+        if (tag != null) {
+          where = "$where and ${UserCollectRepo.tag} like '%$tag,%'";
+        }
+        if (strNoEmpty(kwd)) {
+          where =
+              "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
+        }
+        iPrint("searchLeading_tag where $where");
+
+        final List<UserCollectModel> localList = await repo.page(
+          limit: size,
+          offset: offset,
+          where: where,
+          whereArgs: whereArgs,
+          orderBy: orderBy,
+        );
+        iPrint("searchLeading_tag list ${localList.length}");
+
+        if (page == 1 && localList.isEmpty) {
+          // 如果第一页本地没有，继续走服务端请求
+        } else {
+          // 本地有数据，直接返回（并更新 hasMore）
+          await _decryptCollectModels(localList);
+          state.hasMore = localList.length >= size;
+          return localList;
+        }
+      }
+
+      // 构建服务端请求参数
+      final Map<String, dynamic> args = {'page': page, 'size': size};
+      if (kind == state.recentUse) {
+        args['order'] = state.recentUse;
+      } else if (kind != null && int.tryParse(kind) != null) {
+        args['kind'] = kind;
+      }
+      if (strNoEmpty(kwd)) {
+        args['kwd'] = kwd;
+      }
+      if (strNoEmpty(tag)) {
+        args['tag'] = tag;
+      }
+
+      final Map<String, dynamic>? payload = await UserCollectApi().page(
+        args,
+      );
+      if (payload == null || payload['list'] == null) {
+        // 服务端返回为空或异常，标记无更多并返回空列表
+        state.hasMore = false;
+        return [];
+      }
+
+      for (var json in payload['list']) {
+        json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
+        final UserCollectModel model = UserCollectModel.fromJson(json);
+        await repo.save(json);
+        result.add(model);
+      }
+      await _decryptCollectModels(result);
+
+      // 翻页时去重（防止重复项）
+      if (page > 1 && state.items.isNotEmpty) {
+        final existing = state.items
+            .map((e) => (e as UserCollectModel).kindId)
+            .toSet();
+        final filtered = result
+            .where((r) => !existing.contains(r.kindId))
+            .toList();
+        // 更新 hasMore：以过滤后的数量判断
+        state.hasMore = filtered.length >= size;
+        return filtered;
+      }
+
+      // 非翻页或第一页：直接按照数量判断 hasMore
+      state.hasMore = result.length >= size;
+      return result;
+    } catch (e, s) {
+      debugPrint('UserCollectLogic.page error: $e\n$s');
+      // 出错返回空列表，外层会显示错误态或重试
+      state.hasMore = false;
+      return [];
+    } finally {
+      state.isLoading = false;
+      state.isRefreshing = false;
+    }
+  }
+
+  Future<void> _decryptCollectModels(List<UserCollectModel> list) async {
+    for (final item in list) {
+      try {
+        if (item.info['msg_type'] != 'e2ee') continue;
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          msgId: item.kindId,
+          msgType: 'C2C',
+          fromUid: item.userId,
+          toUid: item.userId,
+          createdAt: item.createdAt,
+          payload: item.info,
+        );
+        if (!identical(decrypted, item.info)) {
+          item.info = Map<String, dynamic>.from(decrypted);
+        }
+      } catch (_) {}
+    }
+  }
+
+  /// 显示分类标签
+  /// scene page | detail
+  Widget buildItemBody(
+    BuildContext context,
+    UserCollectModel obj,
+    String scene,
+  ) {
+    // 缓存屏幕尺寸，避免重复使用 screenWidth/screenHeight
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+
+    Widget body = const SizedBox.shrink();
+    // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
+    if (obj.kind == 1) {
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              maxLines: scene == 'page' ? 4 : 160,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 2) {
+      String uri = obj.info['payload']['uri'] ?? '';
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          scene == 'page'
+              ? Image(
+                  width: screenWidth * 0.5,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  image: cachedImageProvider(uri, w: screenWidth),
+                )
+              : InkWell(
+                  onTap: () async {
+                    zoomInPhotoView(context, uri);
+                  },
+                  child: Image(
+                    // detail 里面减去左右 padding 和
+                    width: screenWidth - 20,
+                    fit: BoxFit.cover,
+                    image: cachedImageProvider(uri, w: screenWidth),
+                  ),
+                ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Text(
+                  formatBytes(obj.info['payload']['size'] ?? ''),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 3) {
+      int durationMS = obj.info['payload']['duration_ms'] ?? 0;
+      // row > expand > column > text 换行有效
+      body = scene == 'page'
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 9,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        durationMS > 0 ? "${durationMS / 1000} ''" : '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const Expanded(
+                  flex: 1,
+                  child: Column(children: [Icon(Icons.graphic_eq, size: 28)]),
+                ),
+              ],
+            )
+          : FutureBuilder<CustomMessage?>(
+              future:
+                  MessageModel.fromJson(obj.info).toTypeMessage()
+                      as Future<CustomMessage?>,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox.shrink();
+                }
+                return audio.AudioMessageBuilder(
+                  type: 'C2C', // 默认作为 C2C 渲染，或者根据 metadata 判断
+                  user: User(
+                    id: UserRepoLocal.to.currentUid,
+                    name: UserRepoLocal.to.current.nickname,
+                    imageSource: UserRepoLocal.to.current.avatar,
+                  ),
+                  message: snapshot.data,
+                );
+              },
+            );
+    } else if (obj.kind == 4) {
+      String uri = obj.info['payload']['thumb']['uri'] ?? '';
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            alignment: Alignment.centerRight,
+            children: <Widget>[
+              Image(
+                width: scene == 'page' ? screenWidth * 0.5 : screenWidth - 20,
+                height: scene == 'page' ? 120 : screenHeight * 0.618,
+                fit: BoxFit.cover,
+                image: cachedImageProvider(uri, w: screenWidth * 0.5),
+              ),
+              Positioned.fill(
+                child: InkWell(
+                  onTap: () {
+                    final String uri =
+                        obj.info['payload']['video']['uri'] ?? '';
+                    final String thumb =
+                        obj.info['payload']['thumb']['uri'] ?? '';
+                    if (uri.isEmpty) {
+                      EasyLoading.showError(
+                        t.collectedVideoFormatIncorrectCannotFindVideoUri,
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              VideoViewerPage(url: uri, thumb: thumb),
+                        ),
+                      );
+                    }
+                  },
+                  child: const SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Icon(
+                        Icons.video_library,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Text(
+                  formatBytes(obj.info['payload']['video']['size'] ?? 0),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 5) {
+      String mimeType = (obj.info['payload']['mimeType'] ?? '')
+          .toString()
+          .toLowerCase();
+      body = scene == 'page'
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        obj.info['payload']['name'] ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        maxLines: 8,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ],
+            )
+          : Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        obj.info['payload']['name'] ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        maxLines: 8,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        "${t.fileSize}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      mimeType,
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ],
+            );
+    } else if (obj.kind == 6) {
+      String title = obj.info['payload']['title'] ?? '';
+      String address = obj.info['payload']['address'] ?? '';
+
+      body = scene == 'page'
+          ? Row(
+              children: [
+                Expanded(
+                  flex: 9,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        address,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [Icon(Icons.location_on_outlined, size: 28)],
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    width: screenWidth - 20,
+                    height: screenHeight - 160,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusSmall,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: AppColors.primary,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          address,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.8),
+                          ),
+                          maxLines: 6,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+    } else if (obj.kind == 7) {
+      // 个人名片
+      String nickname = obj.info['payload']['nickname'] ?? '';
+      String avatar = obj.info['payload']['avatar'] ?? '';
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: AppRadius.borderRadiusSmall,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: AppRadius.borderRadiusLarge,
+                    child: Image(
+                      image: cachedImageProvider(avatar, w: 40),
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                            borderRadius: AppRadius.borderRadiusLarge,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: AppColors.primary,
+                            size: 24,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nickname,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          t.personalCard,
+                          style: TextStyle(color: AppColors.primary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return scene == 'detail'
+        ? SizedBox(
+            width: screenWidth - 8,
+            height: screenHeight - 120,
+            child: SingleChildScrollView(child: body),
+          )
+        : body;
+  }
+
+  /// 点击分类标签，按Tag搜索
+  Future<void> searchByTag(
+    BuildContext context,
+    String tag,
+    String kindTips,
+    Function callback,
+  ) async {
+    state.page = 1;
+    iPrint("searchLeading_tag searchByTag tag $tag, kindTips $kindTips");
+    var list = await page(page: state.page, size: state.size, tag: tag);
+    if (list.isNotEmpty) {
+      state.page += 1;
+    }
+    state.items = list;
+
+    state.searchTrailing = [
+      InkWell(
+        onTap: () {
+          if (state.kwd.isEmpty) {
+            return;
+          }
+          doSearch(state.kwd);
+        },
+        child: const Icon(Icons.search),
+      ),
+    ].map((e) => e).toList();
+
+    state.searchLeading = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: ElevatedButton(
+            onPressed: () {
+              state.searchLeading = null;
+              state.searchTrailing = null;
+              state.kwd = '';
+              state.searchController.text = "";
+              state.kindActive = !state.kindActive;
+              state.kindActive = !state.kindActive;
+              state.kind = 'all';
+              callback();
+            },
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return ThemeData().colorScheme.surface.withAlpha(191);
+                }
+                return ThemeData().colorScheme.surface;
+              }),
+            ),
+            child: IntrinsicWidth(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Transform.scale(
+                      scaleX: -1,
+                      child: Icon(
+                        Icons.local_offer,
+                        size: 18,
+                        color: ThemeData().colorScheme.onPrimary.withAlpha(191),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: Text(
+                      kindTips,
+                      style: TextStyle(
+                        color: ThemeData().colorScheme.onPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.close,
+                    size: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.75),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 点击分类标签，按分类搜索
+  Future<void> searchByKind(
+    BuildContext context,
+    String kind,
+    String kindTips,
+    Function callback,
+  ) async {
+    state.page = 1;
+    state.kind = kind;
+    var list = await page(page: state.page, size: state.size, kind: kind);
+    if (list.isNotEmpty) {
+      state.page += 1;
+    }
+    state.items = list;
+
+    state.searchTrailing = [
+      InkWell(
+        onTap: () {
+          if (state.kwd.isEmpty) {
+            return;
+          }
+          doSearch(state.kwd);
+        },
+        child: const Icon(Icons.search),
+      ),
+    ].map((e) => e).toList();
+
+    state.searchLeading = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: ElevatedButton(
+            onPressed: () {
+              state.searchLeading = null;
+              state.searchTrailing = null;
+              state.kwd = '';
+              state.searchController.text = "";
+              state.kindActive = !state.kindActive;
+              state.kindActive = !state.kindActive;
+              state.kind = 'all';
+              callback();
+            },
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return ThemeData().colorScheme.surface.withAlpha(191);
+                }
+                return ThemeData().colorScheme.surface;
+              }),
+            ),
+            child: IntrinsicWidth(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Transform.scale(
+                      scaleX: -1,
+                      child: Icon(
+                        Icons.grid_view,
+                        size: 18,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: Text(
+                      kindTips,
+                      style: TextStyle(
+                        color: ThemeData().colorScheme.onPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.close,
+                    size: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<List<dynamic>> doSearch(dynamic query) async {
+    debugPrint("user_collect_s_doSearch ${query.toString()}");
+
+    state.page = 1;
+    var list = await page(
+      page: state.page,
+      size: state.size,
+      kind: state.kind,
+      kwd: query.toString(),
+    );
+    if (list.isNotEmpty) {
+      state.page += 1;
+    }
+    state.items = list;
+    return list;
+  }
+
+  /// 删除收藏（带防重复提交与错误回滚）
+  /// 参数：
+  ///   obj - 要删除的收藏项
+  /// 返回：删除是否成功（bool）
+  Future<bool> remove(UserCollectModel obj) async {
+    final String id = obj.kindId;
+    // 防止并发删除同一项
+    if (state.removingIds.contains(id)) {
+      iPrint('remove already in progress for $id');
+      return false;
+    }
+    state = state.copyWith()..removingIds.add(id);
+
+    try {
+      // 1) 先请求后端删除（若后端删除失败，则不更新本地）
+      bool remoteOk = await UserCollectApi().remove(kindId: id);
+      if (!remoteOk) {
+        iPrint('remote remove failed for $id');
+        return false;
+      }
+
+      // 2) 再删除本地库记录
+      int deleted = await UserCollectRepo().delete(id);
+      if (deleted > 0) {
+        return true;
+      } else {
+        // 本地删除失败：记录日志并尝试通知（此处为占位，可实现回滚策略）
+        iPrint('local delete failed for $id after remote remove');
+        return false;
+      }
+    } catch (e, s) {
+      debugPrint('UserCollectLogic.remove error: $e\n$s');
+      return false;
+    } finally {
+      // 无论成功或失败都释放锁
+      state = state.copyWith()..removingIds.remove(id);
+    }
+  }
+
+  /// 收藏的信息来源，消息发布中的昵称或者备注
+  Future<String> getCollectSource(String authorId) async {
+    ContactModel? obj = await ContactRepo().findByUid(
+      authorId,
+      autoFetch: true,
+    );
+    debugPrint(
+      "userCollectLogic/getCollectSource ${obj?.title}; ${obj?.toJson().toString()} ;",
+    );
+    if (obj == null) {
+      return '';
+    }
+    return obj.title;
+  }
+
+  /// 转发收藏回调
+  Future<bool> change(String kindId) async {
+    bool res = await UserCollectApi().change({
+      'action': 'transpond_callback',
+      'kind_id': kindId,
+    });
+
+    if (res) {
+      await UserCollectRepo().save({
+        UserCollectRepo.updatedAt: DateTimeHelper.millisecond() ~/ 1000,
+        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+        UserCollectRepo.kindId: kindId,
+      });
+    }
+    return res;
+  }
+
+  /// 备注收藏
+  Future<bool> remark(String kindId, String remark) async {
+    bool res = await UserCollectApi().change({
+      'action': 'remark',
+      'kind_id': kindId,
+      'remark': remark,
+    });
+    debugPrint("send_to_view callback after $res");
+    if (res) {
+      await UserCollectRepo().save({
+        UserCollectRepo.updatedAt: DateTimeHelper.millisecond() ~/ 1000,
+        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+        UserCollectRepo.kindId: kindId,
+        UserCollectRepo.remark: remark,
+      });
+    }
+    return res;
+  }
+
+  /// 添加收藏
+  Future<bool> add({required String tb, required Message msg}) async {
+    debugPrint(
+      "userCollectLogic/add 开始收藏消息: ${msg.id}, 类型: ${msg.runtimeType}",
+    );
+
+    int kind = getCollectKind(msg);
+    // 如果消息类型不支持收藏，直接返回失败
+    if (kind <= 0) {
+      debugPrint("userCollectLogic/add 消息类型不支持收藏: ${msg.runtimeType}");
+      return false;
+    }
+
+    String source = await getCollectSource(msg.authorId);
+
+    // 尝试从数据库查找消息
+    MessageModel? msg2 = await MessageRepo(tableName: tb).find(msg.id);
+
+    // 如果数据库中没有找到消息，尝试从Message对象创建
+    if (msg2 == null) {
+      debugPrint("userCollectLogic/add 未在数据库中找到消息，尝试从Message对象创建: ${msg.id}");
+      try {
+        // 创建一个基本的MessageModel
+        msg2 = MessageModel(
+          autoId: 0,
+          msg.id,
+          type: tb, // 使用表名作为类型
+          fromId: msg.authorId,
+          toId: msg.metadata?['peer_id'],
+          payload: _extractPayloadFromMessage(msg),
+          createdAt:
+              msg.createdAt?.millisecondsSinceEpoch ??
+              DateTimeHelper.millisecond(),
+          isAuthor: msg.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
+          conversationUk3: "", // 可能为空，因为我们是直接收藏消息
+          status: 10, // 假设为已发送状态
+        );
+      } catch (e) {
+        debugPrint("userCollectLogic/add 从Message对象创建失败: $e");
+        return false;
+      }
+    }
+
+    Map<String, dynamic> info = msg2.toJson();
+    var payload = info['payload'];
+    if (payload is String) {
+      try {
+        info['payload'] = jsonDecode(payload);
+      } catch (e) {
+        debugPrint("userCollectLogic/add 解析payload失败: $e");
+        info['payload'] = {};
+      }
+    }
+
+    // 确保metadata包含在info中
+    if (msg.metadata != null) {
+      info['metadata'] = msg.metadata;
+    }
+
+    debugPrint(
+      "userCollectLogic/add 准备收藏: kind=$kind, source=$source, msgId=${msg.id}",
+    );
+
+    // 显示加载状态
+    EasyLoading.show(status: t.collecting);
+
+    bool res = await UserCollectApi().add(kind, msg.id, source, info);
+
+    // 隐藏加载状态
+    EasyLoading.dismiss();
+
+    debugPrint(
+      "userCollectLogic/add 结果: $res, kind: $kind, source: $source, info: ${info.toString()}",
+    );
+
+    if (res) {
+      await UserCollectRepo().save({
+        UserCollectRepo.createdAt: DateTimeHelper.millisecond(),
+        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+        UserCollectRepo.kind: kind,
+        UserCollectRepo.kindId: msg.id,
+        UserCollectRepo.source: source,
+        UserCollectRepo.info: info,
+      });
+      debugPrint("userCollectLogic/add 本地保存成功");
+    } else {
+      debugPrint("userCollectLogic/add 服务端保存失败");
+    }
+
+    return res;
+  }
+
+  /// 从Message对象提取payload
+  Map<String, dynamic> _extractPayloadFromMessage(Message msg) {
+    Map<String, dynamic> payload = {};
+
+    if (msg is TextMessage) {
+      payload = {"msg_type": "text", "text": msg.text};
+    } else if (msg is ImageMessage) {
+      payload = {
+        "msg_type": "image",
+        "name": msg.text ?? "",
+        "text": msg.text ?? "",
+        "size": msg.size ?? 0,
+        "uri": msg.source,
+        "width": msg.width ?? 0,
+        "height": msg.height ?? 0,
+      };
+    } else if (msg is FileMessage) {
+      payload = {
+        "msg_type": "file",
+        "name": msg.name,
+        "text": msg.name,
+        "size": msg.size ?? 0,
+        "uri": msg.source,
+        "mime_type": msg.mimeType ?? "",
+      };
+    } else if (msg is CustomMessage) {
+      payload = {...?msg.metadata};
+      payload['msg_type'] = 'custom';
+    }
+
+    // 添加peer_id
+    payload['peer_id'] = msg.metadata?['peer_id'];
+
+    return payload;
+  }
+
+  Future<List<Widget>> tagItems(BuildContext context) async {
+    String scene = 'collect';
+    List<Widget> widgetList = [];
+    // 获取最近标签
+    final repository = UserTagRelationNotifier();
+    List<String> items = await repository.getRecentTagItems(scene);
+
+    for (String tag in items) {
+      widgetList.add(
+        Material(
+          color: Colors.transparent,
+          child: GestureDetector(
+            onTap: () {
+              debugPrint(
+                "searchLeading_tag $tag ${state.searchLeading.toString()}",
+              );
+              // 收起展开面板
+              state.kindActive = false;
+              // 执行标签搜索
+              searchByTag(context, tag, tag, () {});
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.info.withValues(alpha: 0.1),
+                borderRadius: AppRadius.borderRadiusRegular,
+                border: Border.all(
+                  color: AppColors.info.withValues(alpha: 0.3),
+                  width: 0.5,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.local_offer, size: 12, color: AppColors.info),
+                  const SizedBox(width: 4),
+                  Text(
+                    tag,
+                    style: TextStyle(
+                      color: AppColors.info,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return widgetList;
+  }
+
+  void updateItem(UserCollectModel item) {
+    final index = state.items.indexWhere((e) => e.kindId == item.kindId);
+    if (index > -1) {
+      state.items.setRange(index, index + 1, [item]);
+    }
+  }
+
+  /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
+  /// 这个方法被其他文件调用，需要保留
+  static int getCollectKind(dynamic message) {
+    debugPrint("getCollectKind message ${message.toString()}");
+    // 由于移除了 flutter_chat_types 依赖，这里简化处理
+    // 根据 message 的 metadata 或其他属性判断类型
+    if (message == null) return 0;
+
+    try {
+      String customType = message.metadata?['custom_type'] ?? '';
+      String messageType = message.runtimeType.toString();
+
+      // 判断文本消息
+      if (messageType.contains('TextMessage')) {
+        return 1;
+      }
+
+      // 判断图片消息
+      if (messageType.contains('ImageMessage')) {
+        return 2;
+      }
+
+      // 判断自定义消息类型
+      if (messageType.contains('CustomMessage')) {
+        switch (customType) {
+          case 'audio':
+            return 3;
+          case 'video':
+            return 4;
+          case 'location':
+            return 6;
+          case 'visit_card':
+            return 7;
+          default:
+            // 检查payload中的msg_type
+            String msgType = message.metadata?['payload']?['msg_type'] ?? '';
+            switch (msgType) {
+              case 'text':
+                return 1;
+              case 'image':
+                return 2;
+              case 'file':
+                return 5;
+              default:
+                // 如果无法确定类型，尝试从其他属性判断
+                if (message.metadata?['uri'] != null) {
+                  // 有uri可能是图片、视频或音频
+                  if (message.metadata?['duration_ms'] != null) {
+                    return customType == 'video' ? 4 : 3;
+                  }
+                  return 2;
+                }
+                return 0;
+            }
+        }
+      }
+
+      // 判断文件消息
+      if (messageType.contains('FileMessage')) {
+        return 5;
+      }
+    } catch (e, s) {
+      debugPrint('getCollectKind error: $e, trace: $s');
+    }
+
+    return 0;
+  }
+}
+
+/// 向后兼容的类型别名
+/// @deprecated 使用 UserCollectNotifier 代替
+typedef UserCollectLogic = UserCollectNotifier;
+
+/// UserCollect 辅助类
+/// 提供静态方法访问 UserCollectNotifier 的功能
+class UserCollectHelper {
+  /// 添加收藏（静态方法，用于非 Widget 上下文）
+  static Future<bool> add({required String tb, required dynamic msg}) async {
+    // 注意：这个方法需要在有 WidgetRef 的上下文中使用
+    // 或者创建一个临时的 UserCollectNotifier 实例
+    final notifier = UserCollectNotifier();
+    return await notifier.add(tb: tb, msg: msg);
+  }
+
+  /// 获取收藏类型（静态方法）
+  static int getCollectKind(dynamic message) {
+    return UserCollectNotifier.getCollectKind(message);
+  }
+}

@@ -1,6 +1,5 @@
 // NumericKeypad
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/ui/sound_manager.dart';
 import 'package:imboy/service/app_logger.dart';
 
@@ -8,7 +7,11 @@ class NumericKeypad extends StatelessWidget {
   final NumericKeypadController controller;
   final ValueChanged<String> onChanged;
 
-  const NumericKeypad({required this.controller, required this.onChanged, super.key});
+  const NumericKeypad({
+    required this.controller,
+    required this.onChanged,
+    super.key,
+  });
 
   static const List<PayKeyboardDataBean> _keyboardDataList = [
     PayKeyboardDataBean(PayKeyboardType.num, "1"),
@@ -41,7 +44,10 @@ class NumericKeypad extends StatelessWidget {
     );
   }
 
-  Widget buildNumKeyboardItem(BuildContext context, PayKeyboardDataBean keyboardDataBean) {
+  Widget buildNumKeyboardItem(
+    BuildContext context,
+    PayKeyboardDataBean keyboardDataBean,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -55,11 +61,13 @@ class NumericKeypad extends StatelessWidget {
           // 如果音效播放失败，不影响功能继续使用
           AppLogger.warning("金属音效播放失败: $e");
         }
-        
+
         if (keyboardDataBean.type == PayKeyboardType.delete) {
           if (controller.value.isNotEmpty) {
-            controller.value =
-                controller.value.substring(0, controller.value.length - 1);
+            controller.value = controller.value.substring(
+              0,
+              controller.value.length - 1,
+            );
             onChanged(controller.value);
           }
         } else if (keyboardDataBean.type == PayKeyboardType.num) {
@@ -108,11 +116,7 @@ class NumericKeypad extends StatelessWidget {
   }
 }
 
-enum PayKeyboardType {
-  none,
-  num,
-  delete,
-}
+enum PayKeyboardType { none, num, delete }
 
 class PayKeyboardDataBean {
   final PayKeyboardType type;
@@ -121,7 +125,9 @@ class PayKeyboardDataBean {
   const PayKeyboardDataBean(this.type, this.value);
 }
 
-class NumericKeypadController extends RxString {
+/// 数字键盘控制器
+/// 使用 ValueNotifier 替代 GetX 的 RxString
+class NumericKeypadController extends ValueNotifier<String> {
   NumericKeypadController(super.initial);
 
   void setText(String text) {
@@ -131,4 +137,13 @@ class NumericKeypadController extends RxString {
   void clearText() {
     value = '';
   }
+
+  /// 获取当前值
+  String get currentValue => value;
+
+  /// 检查是否为空
+  bool get isEmpty => value.isEmpty;
+
+  /// 检查是否非空
+  bool get isNotEmpty => value.isNotEmpty;
 }

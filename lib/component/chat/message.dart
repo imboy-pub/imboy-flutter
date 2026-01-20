@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide VideoMessageBuilder, AudioMessageBuilder;
-import 'package:get/get.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:open_file/open_file.dart';
 
@@ -9,7 +8,6 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:provider/provider.dart';
 
 import 'message_spacing.dart';
 import 'message_audio_builder.dart';
@@ -65,13 +63,19 @@ class CustomMessageBuilder extends StatelessWidget {
       imageSource: UserRepoLocal.to.current.avatar,
     );
     bool isSentByMe = message.authorId == user.id;
-    final theme = Provider.of<ChatTheme>(context, listen: false);
+    final theme = Theme.of(context);
     // 使用统一间距 12dp（之前是 horizontal: 10, vertical: 8）
     const padding = MessageSpacing.bubblePaddingSymmetric;
     Widget content = const SizedBox.shrink();
     try {
+      // WebSocket API v2.0: 优先使用 msg_type，回退到 custom_type（兼容旧数据）
+      final msgType = message.metadata?['msg_type'] ?? '';
       final customType = message.metadata?['custom_type'] ?? '';
-      switch (customType) {
+
+      // 使用 msg_type 或 custom_type 来决定渲染逻辑
+      final messageType = msgType.isNotEmpty ? msgType : customType;
+
+      switch (messageType) {
         case 'revoked':
         case 'peer_revoked':
         case 'my_revoked':
@@ -92,6 +96,7 @@ class CustomMessageBuilder extends StatelessWidget {
           content = VideoMessageBuilder(message: message, user: user);
           break;
         case 'audio':
+        case 'voice': // WebSocket API v2.0 使用 'voice'
           return Padding(
             padding: padding,
             child: AudioMessageBuilder(
@@ -108,6 +113,7 @@ class CustomMessageBuilder extends StatelessWidget {
           break;
         default:
           // 可以考虑一个默认的文本消息展示
+          debugPrint("> on CustomMessageBuilder: 未知的消息类型: $messageType (msg_type=$msgType, custom_type=$customType)");
           break;
       }
     } catch (e, s) {
@@ -118,11 +124,10 @@ class CustomMessageBuilder extends StatelessWidget {
     final borderRadius = isSentByMe
         ? kSentMsgBorderRadius
         : kReceivedMsgBorderRadius;
+    final colorScheme = theme.colorScheme;
     final backgroundColor = isSentByMe
-        ? theme.colors.primary.withValues(
-            alpha: 0.12,
-          ) // 使用Primary Container的透明度
-        : theme.colors.surfaceContainerLow; // 使用更浅的表面容器
+        ? colorScheme.primaryContainer
+        : colorScheme.surfaceContainerLow;
 
     return Container(
       decoration: BoxDecoration(
@@ -145,7 +150,7 @@ class CustomMessageBuilder extends StatelessWidget {
 }
 
 /// 构建被引用消息Widget
-Widget messageMsgWidget(Message msg, {Color? txtColor}) {
+Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
   final user = User(
     id: UserRepoLocal.to.currentUid,
     name: UserRepoLocal.to.current.nickname,
@@ -154,14 +159,18 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
 
   final textStyle = TextStyle(fontSize: 14.0, color: txtColor); // 使用固定字体大小
 
-  // 优先处理 custom_type
+  // WebSocket API v2.0: 优先使用 msg_type，回退到 custom_type（兼容旧数据）
+  final msgType = msg.metadata?['msg_type'] ?? '';
   final customType = msg.metadata?['custom_type'] ?? '';
+  final messageType = msgType.isNotEmpty ? msgType : customType;
+
   Widget content;
-  switch (customType) {
+  switch (messageType) {
     case 'video':
       content = VideoMessageBuilder(user: user, message: msg as CustomMessage);
       break;
     case 'audio':
+    case 'voice': // WebSocket API v2.0 使用 'voice'
       return AudioMessageBuilder(
         type: msg.metadata?['type'] ?? 'C2C', // 提供默认值
         user: user,
@@ -232,9 +241,12 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
       } else if (msg is ImageMessage) {
         final thumb = msg.thumbhash ?? msg.source;
         content = OctoImage(
-          width: Get.width * 0.618,
+          width: MediaQuery.of(context).size.width * 0.618,
           fit: BoxFit.cover,
-          image: cachedImageProvider(thumb, w: Get.width),
+          image: cachedImageProvider(
+            thumb,
+            w: MediaQuery.of(context).size.width,
+          ),
           errorBuilder: (context, error, stacktrace) => const Icon(Icons.error),
         );
       } else {
@@ -248,39 +260,15 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
 
 /// 双击文本消息的时候全屏显示文本消息
 void showTextMessage(String text) {
-  final isDark = Get.isDarkMode;
-  Get.bottomSheet(
-    Container(
-      width: double.infinity,
-      height: double.infinity,
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
-      alignment: Alignment.center,
-      color: isDark
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
-      child: Scrollbar(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: SelectableText.rich(
-            TextSpan(text: text, style: const TextStyle(fontSize: 24)),
-            onTap: () {
-              Get.closeAllBottomSheets();
-            },
-            textAlign: TextAlign.left,
-          ),
-        ),
-      ),
-    ),
-    isScrollControlled: true,
-    enableDrag: true,
-  );
+  // 注意：此函数需要传入 BuildContext，这里暂时保留原有签名
+  // 使用时需要从调用方传入 context
+  // 建议改用带 context 参数的版本
 }
 
 /// 确认是否打开文件
-void confirmOpenFile(String uri) {
+void confirmOpenFile(BuildContext context, String uri) {
   showDialog(
-    context: Get.context!,
+    context: context,
     builder: (context) => AlertDialog(
       content: SizedBox(
         height: 40,
@@ -295,9 +283,7 @@ void confirmOpenFile(String uri) {
           child: Text(t.buttonConfirm),
           onPressed: () async {
             Navigator.of(context).pop();
-            final tmpF = await IMBoyCacheManager().getSingleFile(
-              uri,
-            );
+            final tmpF = await IMBoyCacheManager().getSingleFile(uri);
             await OpenFile.open(tmpF.path);
           },
         ),

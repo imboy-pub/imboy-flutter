@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:octo_image/octo_image.dart';
 
@@ -48,7 +47,8 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
     if (widget.message != null) {
       return widget.message;
     } else if (widget.info != null) {
-      return await MessageModel.fromJson(widget.info!).toTypeMessage() as CustomMessage;
+      return await MessageModel.fromJson(widget.info!).toTypeMessage()
+          as CustomMessage;
     }
     return null;
   }
@@ -66,16 +66,16 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
           return Container(); // 或者一些错误提示
         }
         // 构建消息视图
-        return _buildMessageView(msg);
+        return _buildMessageView(context, msg);
       },
     );
   }
 
-  Widget _buildMessageView(CustomMessage msg) {
+  Widget _buildMessageView(BuildContext context, CustomMessage msg) {
     // bool userIsAuthor = user.id == message.author.id;
     String thumb = msg.metadata?['thumb'];
     return SizedBox(
-      width: widget.width ?? Get.width * 0.618,
+      width: widget.width ?? MediaQuery.of(context).size.width * 0.618,
       height: widget.height ?? 240,
       // color: const Color(0xFFF5F5F8), // 优化：统一背景色，可根据需求调整
       child: Column(
@@ -86,37 +86,36 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
           InkWell(
             onTap: () {
               // 优化：支持选择地图APP打开位置
-              Get.bottomSheet(
-                Container(
-                  color: Theme.of(Get.context!).colorScheme.surface,
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => Container(
+                  color: Theme.of(context).colorScheme.surface,
                   child: availableMaps.isEmpty
-                      ? Center(
-                    child: Text(t.notInstallAnyMapApp),
-                  )
+                      ? Center(child: Text(t.notInstallAnyMapApp))
                       : SingleChildScrollView(
-                    child: Wrap(
-                      children: availableMaps.map<Widget>((map) {
-                        return ListTile(
-                          onTap: () {
-                            map.showMarker(
-                              coords: Coords(
-                                double.parse(msg.metadata?['latitude']),
-                                double.parse(msg.metadata?['longitude']),
-                              ),
-                              title: msg.metadata?['title'],
-                              description: msg.metadata?['description'],
-                            );
-                          },
-                          title: Text(map.mapName),
-                          leading: SvgPicture.asset(
-                            map.icon,
-                            height: 30.0,
-                            width: 30.0,
+                          child: Wrap(
+                            children: availableMaps.map<Widget>((map) {
+                              return ListTile(
+                                onTap: () {
+                                  map.showMarker(
+                                    coords: Coords(
+                                      double.parse(msg.metadata?['latitude']),
+                                      double.parse(msg.metadata?['longitude']),
+                                    ),
+                                    title: msg.metadata?['title'],
+                                    description: msg.metadata?['description'],
+                                  );
+                                },
+                                title: Text(map.mapName),
+                                leading: SvgPicture.asset(
+                                  map.icon,
+                                  height: 30.0,
+                                  width: 30.0,
+                                ),
+                              );
+                            }).toList(),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                        ),
                 ),
               );
             },
@@ -154,17 +153,17 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
             flex: 2,
             child: InkWell(
               onTap: () async {
-                zoomInPhotoView(thumb);
+                zoomInPhotoView(context, thumb);
               },
               child: OctoImage(
-                width: Get.width,
+                width: MediaQuery.of(context).size.width,
                 fit: BoxFit.cover,
                 image: cachedImageProvider(
                   thumb,
-                  w: Get.width,
+                  w: MediaQuery.of(context).size.width,
                 ),
                 errorBuilder: (context, error, stacktrace) =>
-                const Icon(Icons.error),
+                    const Icon(Icons.error),
               ),
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class ActionButton extends StatefulWidget {
   final String? title;
@@ -10,16 +11,17 @@ class ActionButton extends StatefulWidget {
   final Function()? onPressed;
   final Function()? onLongPress;
 
-  const ActionButton(
-      {super.key,
-      this.title,
-      this.subTitle = '',
-      this.icon,
-      this.onPressed,
-      this.onLongPress,
-      this.checked = false,
-      this.number = false,
-      this.fillColor});
+  const ActionButton({
+    super.key,
+    this.title,
+    this.subTitle = '',
+    this.icon,
+    this.onPressed,
+    this.onLongPress,
+    this.checked = false,
+    this.number = false,
+    this.fillColor,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -36,7 +38,7 @@ class _ActionButtonState extends State<ActionButton> {
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: colorScheme.surface, // 应用主题表面颜色
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
         boxShadow: [
           BoxShadow(
             color: colorScheme.outline.withValues(alpha: 0.1), // 应用主题边框颜色
@@ -50,7 +52,7 @@ class _ActionButtonState extends State<ActionButton> {
         color: Colors.transparent,
         child: InkWell(
           onTap: widget.onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.borderRadiusMedium,
           child: Container(
             width: 60,
             height: 60,

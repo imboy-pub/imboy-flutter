@@ -16,6 +16,7 @@ class GroupAvatar extends StatelessWidget {
     this.errorWidget,
     this.shape = AvatarShape.roundedSquare, // 默认圆形
     this.borderRadius = 4.0, // 圆角半径，仅在shape为roundedSquare时有效
+    this.heroTag,
   });
 
   final String? avatar;
@@ -27,16 +28,23 @@ class GroupAvatar extends StatelessWidget {
   final Widget? errorWidget;
   final AvatarShape shape;
   final double borderRadius;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    Widget content = _buildAvatarContent(context, isDark);
+
+    if (heroTag != null) {
+      content = Hero(tag: heroTag!, child: content);
+    }
+
     return InkWell(
       onTap: onTap,
       borderRadius: _getBorderRadius(),
-      child: _buildAvatarContent(context, isDark),
+      child: content,
     );
   }
 
@@ -56,7 +64,9 @@ class GroupAvatar extends StatelessWidget {
       return _buildSingleAvatar(avatar!, isDark);
     }
 
-    iPrint("memberAvatars ${memberAvatars.length} : ${memberAvatars.toString()}");
+    iPrint(
+      "memberAvatars ${memberAvatars.length} : ${memberAvatars.toString()}",
+    );
     if (memberAvatars.isEmpty) {
       return _buildDefaultGroupAvatar(isDark);
     }

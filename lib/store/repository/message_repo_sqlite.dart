@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -18,10 +17,29 @@ import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:sqflite/sqflite.dart';
 
 class MessageRepo {
-  static String c2cTable = 'message';
-  static String c2gTable = 'group_message';
-  static String c2sTable = 'c2s_message';
-  static String s2cTable = 's2c_message';
+  // v2.0 表名常量（与服务端保持一致）
+  static String c2cTable = 'msg_c2c';
+  static String c2gTable = 'msg_c2g';
+  static String c2sTable = 'msg_c2s';
+  static String s2cTable = 'msg_s2c';
+
+  // 旧表名常量（用于迁移期兼容）
+  static const String _legacyC2cTable = 'message';
+  static const String _legacyC2gTable = 'group_message';
+  static const String _legacyC2sTable = 'c2s_message';
+  static const String _legacyS2cTable = 's2c_message';
+
+  // 表名映射：新表名 -> 旧表名（用于向后兼容）
+  static final Map<String, String> _legacyTableMapping = {
+    c2cTable: _legacyC2cTable,
+    c2gTable: _legacyC2gTable,
+    c2sTable: _legacyC2sTable,
+    s2cTable: _legacyS2cTable,
+  };
+
+  // 数据库版本标记（用于判断是否已完成迁移）
+  static int _dbVersion = 9;
+  static bool _hasCheckedMigration = false;
 
   static String autoId = 'auto_id';
   static String id = 'id'; // message_id
@@ -41,6 +59,11 @@ class MessageRepo {
   static String isAuthor = 'is_author';
   static String topicId = 'topic_id';
 
+  // v2.0 新增字段（从 payload 中提取到顶层）
+  static String msgType = 'msg_type';  // 消息类型：text, image, audio, video, file 等
+  static String action = 'action';      // S2C 消息指令
+  static String e2ee = 'e2ee';          // 端到端加密信息（JSON 字符串）
+
   static final List<String> defaultColumns = [
     autoId,
     id,
@@ -53,7 +76,22 @@ class MessageRepo {
     status,
     conversationUk3,
     topicId,
+    msgType,  // v2.0 新增
+    action,   // v2.0 新增
+    e2ee,     // v2.0 新增
   ];
+
+  // 当前活动的会话 UK3（用于离线消息同步时判断是否需要触发消息事件）
+  static String? _currentActiveConversationUk3;
+
+  /// 设置当前活动的会话 UK3
+  /// 由聊天页面在打开/关闭时调用
+  static void setCurrentActiveConversationUk3(String? uk3) {
+    _currentActiveConversationUk3 = uk3;
+  }
+
+  /// 获取当前活动的会话 UK3
+  static String? get currentActiveConversationUk3 => _currentActiveConversationUk3;
 
   final SqliteService _db = SqliteService.to;
 
@@ -63,6 +101,69 @@ class MessageRepo {
     // 验证表名是否合法
     if (!_isTableAllowed(tableName)) {
       throw ArgumentError('Invalid table name: $tableName');
+    }
+  }
+
+  /// 获取实际使用的表名（处理迁移期兼容性）
+  /// 如果新表存在则使用新表名，否则尝试使用旧表名
+  Future<String> getActualTableName() async {
+    if (!_hasCheckedMigration) {
+      await _checkDatabaseVersion();
+    }
+
+    // 如果数据库版本 >= 10，使用新表名
+    if (_dbVersion >= 10) {
+      return tableName;
+    }
+
+    // 否则检查新表是否存在
+    final db = await _db.db;
+    final count = Sqflite.firstIntValue(
+      await db!.rawQuery(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+        [tableName],
+      ),
+    );
+
+    if (count != null && count > 0) {
+      // 新表存在，使用新表名
+      return tableName;
+    }
+
+    // 新表不存在，尝试使用旧表名
+    final legacyTableName = _legacyTableMapping[tableName];
+    if (legacyTableName != null) {
+      final legacyCount = Sqflite.firstIntValue(
+        await db.rawQuery(
+          "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+          [legacyTableName],
+        ),
+      );
+
+      if (legacyCount != null && legacyCount > 0) {
+        debugPrint('MessageRepo: 使用旧表名 $legacyTableName 替代 $tableName');
+        return legacyTableName;
+      }
+    }
+
+    // 都不存在，返回新表名（会报错，但这是预期的）
+    return tableName;
+  }
+
+  /// 检查数据库版本
+  Future<void> _checkDatabaseVersion() async {
+    try {
+      final db = await _db.db;
+      final version = Sqflite.firstIntValue(
+        await db!.rawQuery('PRAGMA user_version'),
+      );
+      _dbVersion = version ?? 9;
+      _hasCheckedMigration = true;
+      debugPrint('MessageRepo: 数据库版本 v$_dbVersion');
+    } catch (e) {
+      debugPrint('MessageRepo: 检查数据库版本失败: $e');
+      _dbVersion = 9;
+      _hasCheckedMigration = true;
     }
   }
 
@@ -187,18 +288,19 @@ class MessageRepo {
       throw ArgumentError('Invalid message data');
     }
 
+    // 使用 getTableName 获取表名（支持 v2.0 新表名）
+    final msgType = (msg.type?.isNotEmpty == true) ? msg.type! : 'C2C'; // 默认为 C2C
+    final targetTableName = MessageRepo.getTableName(msgType);
+
     int? count;
     if (txn != null) {
-      count = await txn.rawQuery(
-        'SELECT COUNT(*) as count FROM $tableName WHERE id = ?',
-        [msg.id],
-      ).then((result) => result.first['count'] as int?);
+      count = await txn
+          .rawQuery('SELECT COUNT(*) as count FROM $targetTableName WHERE id = ?', [
+            msg.id,
+          ])
+          .then((result) => result.first['count'] as int?);
     } else {
-      count = await _db.count(
-        tableName,
-        where: "id=?",
-        whereArgs: [msg.id],
-      );
+      count = await _db.count(targetTableName, where: "id=?", whereArgs: [msg.id]);
     }
     if (count == 0) {
       Map<String, dynamic> insert = {
@@ -213,12 +315,22 @@ class MessageRepo {
         MessageRepo.topicId: msg.topicId,
         MessageRepo.conversationUk3: msg.conversationUk3,
         MessageRepo.status: msg.status,
+        // v2.0 新增字段
+        MessageRepo.msgType: msg.msgType ?? '',
+        MessageRepo.action: msg.action,
+        MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
-      debugPrint("> on MessageModel/insert tb $tableName : $insert");
+      debugPrint("> on MessageModel/insert tb $targetTableName : $insert");
       if (txn != null) {
-        await txn.insert(tableName, insert);
+        await txn.insert(
+          targetTableName,
+          insert,
+        );
       } else {
-        await _db.insert(tableName, insert);
+        await _db.insert(
+          targetTableName,
+          insert,
+        );
       }
     } else {
       debugPrint("> on MessageModel/insert count $count : $insert");
@@ -293,13 +405,18 @@ class MessageRepo {
 
     if (nextAutoId <= 0) {
       // 加载最新的消息，需要计算offset
-      final count = await _db.count(tableName, where: "${MessageRepo.conversationUk3} = ?", whereArgs: [uk3]);
+      final count = await _db.count(
+        tableName,
+        where: "${MessageRepo.conversationUk3} = ?",
+        whereArgs: [uk3],
+      );
       offset = (count != null && count > size) ? (count - size) : 0;
       where = "${MessageRepo.conversationUk3} = ?";
       args = [uk3];
     } else {
       // 加载比nextAutoId更早的消息
-      where = "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
+      where =
+          "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
       args = [uk3, nextAutoId];
       offset = 0;
     }
@@ -325,7 +442,9 @@ class MessageRepo {
       }
       return messages;
     } catch (e) {
-      debugPrint("MessageRepo pageForConversation error: $e, where: $where, args: $args");
+      debugPrint(
+        "MessageRepo pageForConversation error: $e, where: $where, args: $args",
+      );
       return [];
     }
   }
@@ -343,7 +462,8 @@ class MessageRepo {
       where = "${MessageRepo.conversationUk3} = ?";
       args = [uk3];
     } else {
-      where = "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} > ?";
+      where =
+          "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} > ?";
       args = [uk3, prevAutoId];
     }
 
@@ -368,7 +488,9 @@ class MessageRepo {
       }
       return messages;
     } catch (e) {
-      debugPrint("MessageRepo pageNewerForConversation error: $e, where: $where, args: $args");
+      debugPrint(
+        "MessageRepo pageNewerForConversation error: $e, where: $where, args: $args",
+      );
       return [];
     }
   }
@@ -427,7 +549,8 @@ class MessageRepo {
     }
 
     // 使用优化的排序和索引
-    String optimizedOrderBy = orderBy ?? "${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC";
+    String optimizedOrderBy =
+        orderBy ?? "${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC";
 
     iPrint("searchLeading_tag kwd $kwd, where $where");
 
@@ -443,7 +566,8 @@ class MessageRepo {
       );
 
       debugPrint(
-          "> on MessageRepo_page tb $tableName, $conversationUk3, kwd $kwd, page $page, len ${maps.length}");
+        "> on MessageRepo_page tb $tableName, $conversationUk3, kwd $kwd, page $page, len ${maps.length}",
+      );
 
       if (maps.isEmpty) {
         return [];
@@ -459,7 +583,6 @@ class MessageRepo {
       return [];
     }
   }
-
 
   /// 创建搜索索引
   Future<void> createSearchIndexes() async {
@@ -565,10 +688,10 @@ class MessageRepo {
   /// Batch update message status.
   Future<int> batchUpdateStatus(List<String> messageIds, int status) async {
     if (messageIds.isEmpty) return 0;
-    
+
     final placeholders = messageIds.map((_) => '?').join(',');
     final whereClause = '${MessageRepo.id} IN ($placeholders)';
-    
+
     return await _db.update(
       tableName,
       {MessageRepo.status: status},
@@ -601,7 +724,10 @@ class MessageRepo {
   }
 
   /// 批量插入离线消息
-  Future<List<String>?> batchInsertOfflineMessages(List<Map<String, dynamic>> messages, {Future<void> Function(Map<String, dynamic>)? onS2CMessage}) async {
+  Future<List<String>?> batchInsertOfflineMessages(
+    List<Map<String, dynamic>> messages, {
+    Future<void> Function(Map<String, dynamic>)? onS2CMessage,
+  }) async {
     if (messages.isEmpty) return null;
 
     final List<String> ackMsgIds = [];
@@ -702,7 +828,8 @@ class MessageRepo {
           final fromId = (msgData['from'] ?? '').toString();
           final toId = (msgData['to'] ?? '').toString();
           final createdAt = _parseCreatedAt(msgData['created_at']);
-          final topicId = int.tryParse((msgData['topic_id'] ?? 0).toString()) ?? 0;
+          final topicId =
+              int.tryParse((msgData['topic_id'] ?? 0).toString()) ?? 0;
 
           // 确定消息方向（是否为作者）
           String currentUid = UserRepoLocal.to.currentUid;
@@ -713,7 +840,8 @@ class MessageRepo {
           if (type == 'C2G') {
             peerId = toId;
             if (peerId.isEmpty) {
-              peerId = (payload['group_id'] ?? payload['groupId'] ?? '').toString();
+              peerId = (payload['group_id'] ?? payload['groupId'] ?? '')
+                  .toString();
             }
           } else if (type == 'S2C') {
             peerId = fromId;
@@ -743,30 +871,35 @@ class MessageRepo {
             MessageRepo.topicId: topicId,
             MessageRepo.conversationUk3: conversationUk3,
             MessageRepo.status: IMBoyMessageStatus.delivered,
+            // v2.0 新增字段
+            MessageRepo.msgType: payload['msg_type'] ?? '',
+            MessageRepo.action: type == 'S2C' ? (payload['action'] ?? '') : '',
+            MessageRepo.e2ee: payload['e2ee'] != null ? json.encode(payload['e2ee']) : '',
           };
 
-          await txn.insert(
-            tableName,
-            insertData,
-          );
+          await txn.insert(tableName, insertData);
 
-          inserted.add(_InsertedOfflineMessage(
-            id: msgId,
-            type: type,
-            fromId: fromId,
-            toId: toId,
-            payload: payload,
-            createdAt: createdAt,
-            isAuthor: isAuthor ? 1 : 0,
-            topicId: topicId,
-            conversationUk3: conversationUk3,
-            status: IMBoyMessageStatus.delivered,
-            peerId: peerId,
-          ));
+          inserted.add(
+            _InsertedOfflineMessage(
+              id: msgId,
+              type: type,
+              fromId: fromId,
+              toId: toId,
+              payload: payload,
+              createdAt: createdAt,
+              isAuthor: isAuthor ? 1 : 0,
+              topicId: topicId,
+              conversationUk3: conversationUk3,
+              status: IMBoyMessageStatus.delivered,
+              peerId: peerId,
+            ),
+          );
 
           addAckId(msgId);
 
-          iPrint("离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3");
+          iPrint(
+            "离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3",
+          );
         }
       });
 
@@ -806,20 +939,28 @@ class MessageRepo {
     }
   }
 
-  Future<void> _syncOfflineConversationsAndNotify(List<_InsertedOfflineMessage> inserted) async {
+  Future<void> _syncOfflineConversationsAndNotify(
+    List<_InsertedOfflineMessage> inserted,
+  ) async {
     final conversationRepo = ConversationRepo();
     final contactRepo = ContactRepo();
     final groupRepo = GroupRepo();
 
-    final ConversationLogic? conversationLogic =
-        Get.isRegistered<ConversationLogic>() ? Get.find<ConversationLogic>() : null;
-    final ChatLogic? chatLogic = Get.isRegistered<ChatLogic>() ? Get.find<ChatLogic>() : null;
-    final currentConversationUk3 = chatLogic?.state.currentConversationId.value ?? '';
+    // 使用 ProviderContainer 访问 Riverpod Provider
+    final container = ProviderContainer();
+    final conversationNotifier = container.read(conversationProvider.notifier);
+
+    // 获取当前会话 ID - 使用静态字段跟踪当前活动会话
+    // 注意：如果没有打开的聊天页面，currentConversationUk3 将为空
+    final String currentConversationUk3 = _currentActiveConversationUk3 ?? '';
 
     final Map<String, _OfflineConversationAgg> convAgg = {};
     for (final msg in inserted) {
       final key = '${msg.type}::${msg.peerId}';
-      final agg = convAgg.putIfAbsent(key, () => _OfflineConversationAgg(type: msg.type, peerId: msg.peerId));
+      final agg = convAgg.putIfAbsent(
+        key,
+        () => _OfflineConversationAgg(type: msg.type, peerId: msg.peerId),
+      );
       agg.observe(msg, currentConversationUk3);
     }
 
@@ -842,7 +983,10 @@ class MessageRepo {
       } catch (_) {}
 
       final preview = _derivePreview(latest.payload);
-      final existing = await conversationRepo.findByPeerId(agg.type, agg.peerId);
+      final existing = await conversationRepo.findByPeerId(
+        agg.type,
+        agg.peerId,
+      );
 
       ConversationModel conv;
       if (existing == null) {
@@ -879,36 +1023,45 @@ class MessageRepo {
 
         // 重新获取更新后的会话
         conv = (await conversationRepo.findById(existing.id)) ?? existing;
-        iPrint("更新会话: ${conv.toJson()}, 新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum");
+        iPrint(
+          "更新会话: ${conv.toJson()}, 新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum",
+        );
       }
 
       // 触发会话列表刷新 - 多重保障
       AppEventBus.fireData(conv); // 全局事件
 
       // 更新会话逻辑中的内存映射
-      if (conversationLogic != null) {
-        await conversationLogic.replace(conv);
+      // 使用 Riverpod Provider
+      await conversationNotifier.replace(conv);
 
-        // 更新未读数
-        if (agg.unreadDelta > 0) {
-          await conversationLogic.increaseConversationRemind(conv, agg.unreadDelta);
-        }
-
-        iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
+      // 更新未读数
+      if (agg.unreadDelta > 0) {
+        await conversationNotifier.increaseConversationRemind(
+          conv,
+          agg.unreadDelta,
+        );
       }
+
+      iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
     }
 
     if (currentConversationUk3.isNotEmpty) {
       for (final msg in inserted) {
         if (msg.conversationUk3 != currentConversationUk3) continue;
         try {
-          AppEventBus.fireData(await msg.toMessageModel().toTypeMessage(), 'Message');
+          AppEventBus.fireData(
+            await msg.toMessageModel().toTypeMessage(),
+            'Message',
+          );
         } catch (_) {}
       }
     }
   }
 
-  static ({String msgType, String subtitle}) _derivePreview(Map<String, dynamic> payload) {
+  static ({String msgType, String subtitle}) _derivePreview(
+    Map<String, dynamic> payload,
+  ) {
     String msgType = (payload['msg_type'] ?? '').toString();
     String subtitle = (payload['text'] ?? '').toString();
     if (msgType == 'custom') {
@@ -922,10 +1075,10 @@ class MessageRepo {
     return (msgType: msgType, subtitle: subtitle);
   }
 
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 
   /// 数据迁移工具：将旧格式UK3转换为新格式
   /// 这个方法可以在应用启动时调用，一次性迁移所有历史数据
@@ -971,7 +1124,10 @@ class MessageRepo {
         final fromId = map['from_id'] as String?;
         final toId = map['to_id'] as String?;
 
-        if (oldUk3 == null || oldUk3.isEmpty || fromId == null || toId == null) {
+        if (oldUk3 == null ||
+            oldUk3.isEmpty ||
+            fromId == null ||
+            toId == null) {
           continue;
         }
 
@@ -1066,6 +1222,118 @@ class MessageRepo {
     } catch (e) {
       iPrint("检查旧格式数据失败: $e");
       return false;
+    }
+  }
+
+  /// 从多个表（msg_c2c、msg_c2g）查询消息
+  /// 按创建时间排序返回
+  ///
+  /// 参数:
+  /// - [conversationUk3]: 会话 UK3（可选）
+  /// - [limit]: 返回的最大消息数量（默认 20）
+  /// - [offset]: 偏移量（默认 0）
+  /// - [startTime]: 开始时间戳（可选）
+  /// - [endTime]: 结束时间戳（可选）
+  ///
+  /// 返回: 消息列表，按创建时间降序排列
+  static Future<List<MessageModel>> getMessages({
+    String? conversationUk3,
+    int limit = 20,
+    int offset = 0,
+    int? startTime,
+    int? endTime,
+  }) async {
+    try {
+      final db = SqliteService.to;
+      final List<MessageModel> allMessages = [];
+
+      // 从 msg_c2c 表查询
+      final c2cMessages = await _getMessagesFromTable(
+        db,
+        c2cTable,
+        conversationUk3: conversationUk3,
+        limit: limit,
+        offset: offset,
+        startTime: startTime,
+        endTime: endTime,
+      );
+      allMessages.addAll(c2cMessages);
+
+      // 从 msg_c2g 表查询
+      final c2gMessages = await _getMessagesFromTable(
+        db,
+        c2gTable,
+        conversationUk3: conversationUk3,
+        limit: limit,
+        offset: offset,
+        startTime: startTime,
+        endTime: endTime,
+      );
+      allMessages.addAll(c2gMessages);
+
+      // 按创建时间降序排序
+      allMessages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      // 应用 limit
+      if (allMessages.length > limit) {
+        return allMessages.sublist(0, limit);
+      }
+
+      return allMessages;
+    } catch (e) {
+      debugPrint("MessageRepo getMessages error: $e");
+      return [];
+    }
+  }
+
+  /// 从单个表查询消息
+  static Future<List<MessageModel>> _getMessagesFromTable(
+    SqliteService db,
+    String table, {
+    String? conversationUk3,
+    int limit = 20,
+    int offset = 0,
+    int? startTime,
+    int? endTime,
+  }) async {
+    try {
+      String where = "1=1";
+      List<Object?> whereArgs = [];
+
+      if (strNoEmpty(conversationUk3)) {
+        where = "$where AND ${MessageRepo.conversationUk3}=?";
+        whereArgs.add(conversationUk3);
+      }
+
+      if (startTime != null) {
+        where = "$where AND ${MessageRepo.createdAt} >= ?";
+        whereArgs.add(startTime);
+      }
+
+      if (endTime != null) {
+        where = "$where AND ${MessageRepo.createdAt} <= ?";
+        whereArgs.add(endTime);
+      }
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        table,
+        columns: defaultColumns,
+        where: where,
+        whereArgs: whereArgs,
+        orderBy: "${MessageRepo.createdAt} DESC",
+        limit: limit,
+        offset: offset,
+      );
+
+      final List<MessageModel> messages = [];
+      for (final map in maps) {
+        messages.add(MessageModel.fromJson(map));
+      }
+
+      return messages;
+    } catch (e) {
+      debugPrint("_getMessagesFromTable error: $e, table: $table");
+      return [];
     }
   }
 }

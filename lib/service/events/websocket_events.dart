@@ -57,7 +57,12 @@ final class WebSocketDisconnectedEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [reason, closeCode, isIntentional, connectedDuration];
+  List<Object?> get props => [
+    reason,
+    closeCode,
+    isIntentional,
+    connectedDuration,
+  ];
 
   @override
   String toString() {
@@ -149,7 +154,14 @@ final class WebSocketMessageReceivedEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [messageType, payload, messageId, senderId, receiverId, dataSize];
+  List<Object?> get props => [
+    messageType,
+    payload,
+    messageId,
+    senderId,
+    receiverId,
+    dataSize,
+  ];
 
   @override
   String toString() {
@@ -181,7 +193,12 @@ final class WebSocketMessageSentEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props => [messageId, messageType, messageContent, sendDuration];
+  List<Object?> get props => [
+    messageId,
+    messageType,
+    messageContent,
+    sendDuration,
+  ];
 
   @override
   String toString() {
@@ -213,7 +230,12 @@ final class WebSocketReconnectingEvent extends AppEvent {
   });
 
   @override
-  List<Object> get props => [currentAttempt, maxAttempts, retryDelay, lastDisconnectReason];
+  List<Object> get props => [
+    currentAttempt,
+    maxAttempts,
+    retryDelay,
+    lastDisconnectReason,
+  ];
 
   @override
   String toString() {

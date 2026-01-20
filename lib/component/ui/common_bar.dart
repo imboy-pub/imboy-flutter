@@ -34,7 +34,8 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double opacity;
 
   @override
-  Size get preferredSize => Size.fromHeight(toolbarHeight ?? kToolbarHeight + 16);
+  Size get preferredSize =>
+      Size.fromHeight(toolbarHeight ?? kToolbarHeight + 16);
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +44,14 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     final height = toolbarHeight ?? kToolbarHeight + 16;
 
     // Background color with opacity for glass effect
-    final glassBackgroundColor = backgroundColor ??
+    final glassBackgroundColor =
+        backgroundColor ??
         (isDark
-
-        ? const Color(0xFF1E1E1E).withValues(alpha: 0.75)
-        : const Color(0xFFF7F7F7).withValues(alpha: 0.85) // WeChat style grey
-            );
+            ? const Color(0xFF1E1E1E).withValues(alpha: 0.75)
+            : const Color(0xFFF7F7F7).withValues(
+                alpha: 0.85,
+              ) // WeChat style grey
+              );
 
     // Border color to "catch the light"
     final borderColor = isDark
@@ -56,7 +59,9 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
         : Colors.white.withValues(alpha: 0.5);
 
     // Text color
-    final textColor = isDark ? Colors.white.withValues(alpha: 0.95) : Colors.black87;
+    final textColor = isDark
+        ? Colors.white.withValues(alpha: 0.95)
+        : Colors.black87;
 
     return ClipRRect(
       child: BackdropFilter(
@@ -65,9 +70,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
           height: height + MediaQuery.of(context).padding.top,
           decoration: BoxDecoration(
             color: glassBackgroundColor,
-            border: Border(
-              bottom: BorderSide(color: borderColor, width: 0.5),
-            ),
+            border: Border(bottom: BorderSide(color: borderColor, width: 0.5)),
           ),
           child: SafeArea(
             bottom: false,
@@ -78,11 +81,13 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                   // Leading widget
                   if (leading != null)
                     leading!
-                  else if (automaticallyImplyLeading && Navigator.canPop(context))
+                  else if (automaticallyImplyLeading &&
+                      Navigator.canPop(context))
                     _buildDefaultLeading(context),
                   // Title
                   Expanded(
-                    child: titleWidget ??
+                    child:
+                        titleWidget ??
                         Text(
                           title ?? '',
                           style: TextStyle(
@@ -121,12 +126,12 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
         height: 36,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.primaryGreen.withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
-          color: AppColors.primaryGreen,
+          color: AppColors.primary,
           size: 16,
         ),
       ),

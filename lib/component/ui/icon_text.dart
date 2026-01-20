@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:imboy/theme/default/font_types.dart';
 
 class IconTextView extends StatefulWidget {
   // 左侧 图标
@@ -172,13 +170,15 @@ class _IconTextViewState extends State<IconTextView> {
             widget.decoration ??
             BoxDecoration(
               color: isClickDown
-                  ? ThemeManager.instance.getThemeColor('surfaceVariant') // 点击时使用主题变体色
-                  : ThemeManager.instance.getThemeColor('surface'), // 默认使用主题表面色
+                  ? Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest // 点击时使用主题变体色
+                  : Theme.of(context).colorScheme.surface, // 默认使用主题表面色
               border: Border(
                 bottom: BorderSide(
-                  color: context
-                      .themeColor('outline')
-                      .withValues(alpha: 0.1), // 使用主题边框色
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.1), // 使用主题边框色
                   width: 0.5,
                 ),
               ),

@@ -48,7 +48,8 @@ class UserTagRepo {
       offset: offset,
     );
     debugPrint(
-        "UserTagRepo_page repo ${maps.length} $where, ${maps.toList().toString()}");
+      "UserTagRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
+    );
     if (maps.isEmpty) {
       return [];
     }
@@ -173,8 +174,8 @@ class UserTagRepo {
     }
   }
 
-// 记得及时关闭数据库，防止内存泄漏
-// close() async {
-//   await _db.close();
-// }
+  // 记得及时关闭数据库，防止内存泄漏
+  // close() async {
+  //   await _db.close();
+  // }
 }

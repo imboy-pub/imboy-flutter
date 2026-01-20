@@ -1,18 +1,18 @@
 import 'dart:typed_data';
 
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/location/amap_helper.dart';
-import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -37,8 +37,8 @@ class ExtraItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
-        borderRadius: BorderRadius.circular(16),
+        onTap: onPressed ?? () => EasyLoading.showToast(t.featureComingSoon),
+        borderRadius: AppRadius.borderRadiusRegular,
         child: Container(
           width: width ?? 64,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -55,7 +55,7 @@ class ExtraItem extends StatelessWidget {
                   color: isDark
                       ? const Color(0xFF2C2C2E)
                       : const Color(0xFFF5F5F7),
-                  borderRadius: BorderRadius.circular(18), // 更圆润的角
+                  borderRadius: AppRadius.borderRadiusLarge, // 更圆润的角
                   // 移除硬边框，使用极淡的内描边来增加精致感
                   border: Border.all(
                     color: isDark
@@ -107,7 +107,7 @@ class ExtraItem extends StatelessWidget {
   }
 }
 
-class ExtraItems extends StatefulWidget {
+class ExtraItems extends ConsumerStatefulWidget {
   const ExtraItems({
     super.key,
     this.handleImageSelection,
@@ -131,15 +131,16 @@ class ExtraItems extends StatefulWidget {
   final void Function()? handleCollectSelection;
 
   @override
-  ExtraItemsState createState() => ExtraItemsState();
+  ConsumerState<ExtraItems> createState() => _ExtraItemsState();
 }
 
-class ExtraItemsState extends State<ExtraItems> {
+class _ExtraItemsState extends ConsumerState<ExtraItems> {
   int _current = 0;
   final CarouselSliderController _controller = CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t; // 获取翻译实例
     const double iconSize = 28; // 调整图标大小
     var items = [
       // 第一页
@@ -162,41 +163,40 @@ class ExtraItemsState extends State<ExtraItems> {
           title: t.location,
           image: const Icon(Icons.location_on_outlined, size: iconSize),
           onPressed: () async {
+            if (!context.mounted) return;
+
             AMapPosition? l = await AMapHelper().startLocation();
             debugPrint("getLocation ${l?.latLng.toJson().toString()}");
-            if (l != null) {
-              Navigator.push(
-                Get.context!,
-                CupertinoPageRoute(
-                  builder: (context) => MapLocationPicker(
-                    arguments: {
-                      "lat": double.parse(l.latLng.latitude.toString()),
-                      "lng": double.parse(l.latLng.longitude.toString()),
-                      "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
-                      "isMapImage": true,
-                    },
-                  ),
-                ),
-              ).then((value) {
-                if (value != null) {
-                  if (value["image"] == null) {
-                    EasyLoading.showError(t.failedGetMapTryAgain);
-                    FocusScope.of(Get.context!).requestFocus(FocusNode());
-                    return;
-                  }
-                  if (widget.handleLocationSelection != null &&
-                      value["image"] != null) {
-                    widget.handleLocationSelection!(
-                      value["id"],
-                      value["image"],
-                      value["address"],
-                      value["title"],
-                      value["latitude"].toString(),
-                      value["longitude"].toString(),
-                    );
-                  }
+            if (l != null && context.mounted) {
+              // 使用 go_router 进行导航
+              final result = await context.push<Map<String, dynamic>>(
+                '/map_location_picker',
+                extra: {
+                  "lat": double.parse(l.latLng.latitude.toString()),
+                  "lng": double.parse(l.latLng.longitude.toString()),
+                  "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
+                  "isMapImage": true,
+                },
+              );
+
+              if (result != null && context.mounted) {
+                if (result["image"] == null) {
+                  EasyLoading.showError(t.failedGetMapTryAgain);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  return;
                 }
-              });
+                if (widget.handleLocationSelection != null &&
+                    result["image"] != null) {
+                  widget.handleLocationSelection!(
+                    result["id"],
+                    result["image"],
+                    result["address"],
+                    result["title"],
+                    result["latitude"].toString(),
+                    result["longitude"].toString(),
+                  );
+                }
+              }
             }
           },
         ),
@@ -211,6 +211,7 @@ class ExtraItemsState extends State<ExtraItems> {
             image: const Icon(Icons.phone_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
+                context,
                 ContactModel.fromMap({
                   "id": widget.options["to"],
                   "nickname": widget.options["title"],
@@ -227,6 +228,7 @@ class ExtraItemsState extends State<ExtraItems> {
             image: const Icon(Icons.videocam_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
+                context,
                 ContactModel.fromMap({
                   "id": widget.options["to"],
                   "nickname": widget.options["title"],
@@ -282,7 +284,7 @@ class ExtraItemsState extends State<ExtraItems> {
                 color: ThemeManager.instance
                     .getThemeColor('outline')
                     .withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: AppRadius.borderRadiusTiny,
               ),
             ),
             Expanded(

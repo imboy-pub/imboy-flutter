@@ -54,17 +54,17 @@ class NewFriendModel {
   }
 
   Map<String, dynamic> toJson() => {
-        NewFriendRepo.uid: uid,
-        NewFriendRepo.from: from,
-        NewFriendRepo.to: to,
-        NewFriendRepo.nickname: nickname,
-        NewFriendRepo.avatar: avatar,
-        NewFriendRepo.status: status,
-        NewFriendRepo.msg: msg,
-        NewFriendRepo.updatedAt: updatedAt,
-        NewFriendRepo.createdAt: createdAt,
-        NewFriendRepo.payload: payload,
-      };
+    NewFriendRepo.uid: uid,
+    NewFriendRepo.from: from,
+    NewFriendRepo.to: to,
+    NewFriendRepo.nickname: nickname,
+    NewFriendRepo.avatar: avatar,
+    NewFriendRepo.status: status,
+    NewFriendRepo.msg: msg,
+    NewFriendRepo.updatedAt: updatedAt,
+    NewFriendRepo.createdAt: createdAt,
+    NewFriendRepo.payload: payload,
+  };
 
   @override
   String toString() => json.encode(this);

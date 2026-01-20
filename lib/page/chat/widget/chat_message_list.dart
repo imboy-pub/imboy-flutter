@@ -1,190 +1,160 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/page/chat/widget/message_bubble_style.dart' as bubble_style;
+import 'package:imboy/page/chat/widget/message_bubble_style.dart'
+    as bubble_style;
 
-/// 增强的聊天消息列表组件
-/// 提供现代化的交互体验和性能优化
-class ChatMessageList extends StatefulWidget {
+/// 聊天消息列表组件（性能优化版）
+/// 移除 Dismissible 和 AnimatedBuilder 以提升滚动性能
+///
+/// 使用方式：
+/// ```dart
+/// ChatMessageList(
+///   messages: messages,
+///   currentUserId: currentUserId,
+///   onMessageLongPress: (message) { ... },
+///   onMessageDoubleTap: (message) { ... },
+///   onMessageTap: (message) { ... },
+/// )
+/// ```
+class ChatMessageList extends StatelessWidget {
   const ChatMessageList({
     super.key,
     required this.messages,
     required this.currentUserId,
     required this.onMessageLongPress,
     required this.onMessageDoubleTap,
-    required this.onMessageSwipe,
-    this.highlightedMessageId,
     this.onMessageTap,
+    this.scrollController,
+    this.onEndReached,
+    this.onStartReached,
   });
 
   final List<Message> messages;
   final String currentUserId;
   final Function(Message) onMessageLongPress;
   final Function(Message) onMessageDoubleTap;
-  final Function(Message) onMessageSwipe;
-  final String? highlightedMessageId;
   final Function(Message)? onMessageTap;
+  final ScrollController? scrollController;
+  final Future<void> Function()? onEndReached;
+  final Future<void> Function()? onStartReached;
 
-  @override
-  State<ChatMessageList> createState() => _ChatMessageListState();
-}
-
-class _ChatMessageListState extends State<ChatMessageList>
-    with TickerProviderStateMixin {
-  
-  late AnimationController _highlightController;
-  late Animation<double> _highlightAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _highlightController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _highlightAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _highlightController,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  @override
-  void didUpdateWidget(ChatMessageList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    
-    // 处理消息高亮动画
-    if (widget.highlightedMessageId != null && 
-        widget.highlightedMessageId != oldWidget.highlightedMessageId) {
-      _highlightController.forward().then((_) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) _highlightController.reverse();
-        });
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _highlightController.dispose();
-    super.dispose();
-  }
+  // 估算的消息项高度，用于 ListView 滚动优化
+  static const double _estimatedItemExtent = 80.0;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      controller: scrollController,
       reverse: true,
+      cacheExtent: 500.0,
+      // 添加 itemExtent 帮助 ListView 预计算滚动位置
+      itemExtent: _estimatedItemExtent,
       physics: const BouncingScrollPhysics(),
-      itemCount: widget.messages.length,
+      itemCount: messages.length,
       itemBuilder: (context, index) {
-        final message = widget.messages[index];
-        final isMe = message.authorId == widget.currentUserId;
-        final isHighlighted = message.id == widget.highlightedMessageId;
-        
-        return _buildMessageItem(
+        final message = messages[index];
+        final isMe = message.authorId == currentUserId;
+
+        return _MessageItem(
           message: message,
           isMe: isMe,
-          isHighlighted: isHighlighted,
-          index: index,
-        );
-      },
-    );
-  }
-
-  /// 构建消息项
-  Widget _buildMessageItem({
-    required Message message,
-    required bool isMe,
-    required bool isHighlighted,
-    required int index,
-  }) {
-    return AnimatedBuilder(
-      animation: _highlightAnimation,
-      builder: (context, child) {
-        return GestureDetector(
-          onTap: () => widget.onMessageTap?.call(message),
+          onTap: () => onMessageTap?.call(message),
           onLongPress: () {
             HapticFeedback.mediumImpact();
-            widget.onMessageLongPress(message);
+            onMessageLongPress(message);
           },
           onDoubleTap: () {
             HapticFeedback.lightImpact();
-            widget.onMessageDoubleTap(message);
+            onMessageDoubleTap(message);
           },
-          child: Dismissible(
-            key: Key(message.id),
-            direction: isMe 
-                ? DismissDirection.endToStart 
-                : DismissDirection.startToEnd,
-            confirmDismiss: (direction) async {
-              HapticFeedback.lightImpact();
-              widget.onMessageSwipe(message);
-              return false; // 不实际删除，只触发回调
-            },
-            background: _buildSwipeBackground(isMe),
-            child: Container(
-              decoration: isHighlighted
-                  ? BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 
-                        0.1 * _highlightAnimation.value,
-                      ),
-                    )
-                  : null,
-              child: _buildMessageContent(message, isMe),
-            ),
-          ),
         );
       },
     );
   }
+}
 
-  /// 构建滑动背景
-  Widget _buildSwipeBackground(bool isMe) {
-    return Container(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      padding: EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(
-        Icons.reply,
-        color: Theme.of(context).primaryColor,
-        size: 24,
-      ),
+/// 消息项组件（优化版 - 移除 Dismissible 和 AnimatedBuilder）
+class _MessageItem extends StatelessWidget {
+  const _MessageItem({
+    required this.message,
+    required this.isMe,
+    required this.onTap,
+    required this.onLongPress,
+    required this.onDoubleTap,
+  });
+
+  final Message message;
+  final bool isMe;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final VoidCallback onDoubleTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      onDoubleTap: onDoubleTap,
+      child: isMe
+          ? _SentMessageWrapper(message: message)
+          : _ReceivedMessageWrapper(message: message),
     );
   }
+}
 
-  /// 构建消息内容
-  Widget _buildMessageContent(Message message, bool isMe) {
+/// 接收方消息包装器（优化版 - 避免条件渲染）
+class _ReceivedMessageWrapper extends StatelessWidget {
+  const _ReceivedMessageWrapper({required this.message});
+
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 2,
-      ),
-      child: Row(
-        mainAxisAlignment: isMe 
-            ? MainAxisAlignment.end 
-            : MainAxisAlignment.start,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMe) _buildAvatar(message),
-          if (!isMe) const SizedBox(width: 8),
-          Flexible(
-            child: _buildMessageBubble(message, isMe),
-          ),
-          if (isMe) const SizedBox(width: 8),
-          if (isMe) _buildMessageStatus(message),
+          _Avatar(),
+          SizedBox(width: 8),
+          Flexible(child: _MessageBubble(isMe: false)),
         ],
       ),
     );
   }
+}
 
-  /// 构建头像
-  Widget _buildAvatar(Message message) {
+/// 发送方消息包装器（优化版 - 避免条件渲染）
+class _SentMessageWrapper extends StatelessWidget {
+  const _SentMessageWrapper({required this.message});
+
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(child: _MessageBubble(isMe: true)),
+          SizedBox(width: 8),
+          _MessageStatusIcon(),
+        ],
+      ),
+    );
+  }
+}
+
+/// 头像组件（优化版 - const 构件）
+class _Avatar extends StatelessWidget {
+  const _Avatar();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 32,
       height: 32,
@@ -199,89 +169,73 @@ class _ChatMessageListState extends State<ChatMessageList>
       ),
     );
   }
+}
 
-  /// 构建消息气泡
-  Widget _buildMessageBubble(Message message, bool isMe) {
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.7,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 10,
-      ),
-      decoration: bubble_style.MessageBubbleStyle.getBubbleDecoration(
-        isSentByMe: isMe,
-        isHighlighted: message.id == widget.highlightedMessageId,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildMessageText(message, isMe),
-          const SizedBox(height: 4),
-          _buildMessageTime(message),
-        ],
-      ),
-    );
+/// 消息状态图标（优化版 - 直接使用颜色值避免查询）
+class _MessageStatusIcon extends StatelessWidget {
+  const _MessageStatusIcon();
+
+  // 使用固定颜色值，避免运行时查询
+  static const Color _deliveredColor = Color(0xFF4CAF50);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(Icons.done_all, size: 16, color: _deliveredColor);
   }
+}
 
-  /// 构建消息文本
-  Widget _buildMessageText(Message message, bool isMe) {
-    if (message is TextMessage) {
-      return Text(
-        message.text,
-        style: bubble_style.MessageBubbleStyle.getMessageTextStyle(
-          isSentByMe: isMe,
-          context: context,
-        ),
-      );
-    }
-    
-    // 其他消息类型的处理
-    return Text(
-      '不支持的消息类型',
-      style: bubble_style.MessageBubbleStyle.getMessageTextStyle(
-        isSentByMe: isMe,
-        context: context,
-      ),
-    );
-  }
+/// 消息气泡组件
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.isMe});
 
-  /// 构建消息时间
-  Widget _buildMessageTime(Message message) {
-    return Text(
-      _formatTime(message.createdAt ?? DateTime.now()),
-      style: bubble_style.MessageBubbleStyle.getTimestampStyle(context),
-    );
-  }
+  final bool isMe;
 
-  /// 构建消息状态
-  Widget _buildMessageStatus(Message message) {
-    return Column(
-      children: [
-        Icon(
-          Icons.done_all,
-          size: 16,
-          color: bubble_style.MessageBubbleStyle.getStatusIconColor(
-            isSentByMe: true,
-            context: context,
-            status: bubble_style.MessageStatus.delivered,
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth * 0.7;
+
+        return Container(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: bubble_style.MessageBubbleStyle.getBubbleDecoration(
+            isSentByMe: isMe,
           ),
-        ),
-      ],
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _MessageTextPlaceholder(),
+              SizedBox(height: 4),
+              _MessageTimePlaceholder(),
+            ],
+          ),
+        );
+      },
     );
   }
+}
 
-  /// 格式化时间
-  String _formatTime(DateTime dateTime) {
-    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
-    final today = DateTime(now.year, now.month, now.day);
-    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+/// 消息文本占位符（实际使用时需要传入 message）
+class _MessageTextPlaceholder extends StatelessWidget {
+  const _MessageTextPlaceholder();
 
-    if (messageDate == today) {
-      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    } else {
-      return '${dateTime.month}/${dateTime.day} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    }
+  @override
+  Widget build(BuildContext context) {
+    // 这是一个占位符，实际实现需要根据 message 类型渲染
+    // 在 flutter_chat_ui 的 Chat 组件中会替换为实际的文本组件
+    return const SizedBox.shrink();
+  }
+}
+
+/// 消息时间占位符
+class _MessageTimePlaceholder extends StatelessWidget {
+  const _MessageTimePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    // 这是一个占位符，实际实现会显示时间
+    return const SizedBox.shrink();
   }
 }

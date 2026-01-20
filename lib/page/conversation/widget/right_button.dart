@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:imboy/page/contact/new_friend/add_friend_view.dart';
-import 'package:imboy/page/group/launch_chat/launch_chat_view.dart';
-import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
-import 'package:imboy/page/scanner/scanner_view.dart';
-import 'package:imboy/page/qrcode/qrcode_view.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:popover/popover.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class RightButton extends StatelessWidget {
   const RightButton({super.key});
@@ -30,10 +26,12 @@ class RightButton extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.surface,
           shadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.15),
+              color: Theme.of(
+                context,
+              ).colorScheme.shadow.withValues(alpha: 0.15),
               blurRadius: 12,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
         );
       },
@@ -59,11 +57,7 @@ class RightButtonList extends StatelessWidget {
           title: t.initiateChat,
           onTap: () {
             Navigator.of(context).pop();
-            Get.to(
-              () => LaunchChatPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true,
-            );
+            context.push('/launch_chat');
           },
         ),
         _buildDivider(),
@@ -73,11 +67,7 @@ class RightButtonList extends StatelessWidget {
           title: t.addFriend,
           onTap: () {
             Navigator.of(context).pop();
-            Get.to(
-              () => AddFriendPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true,
-            );
+            context.push('/add_friend');
           },
         ),
         _buildDivider(),
@@ -87,11 +77,7 @@ class RightButtonList extends StatelessWidget {
           title: t.newlyRegisteredPeople,
           onTap: () {
             Navigator.of(context).pop();
-            Get.to(
-              () => RecentlyRegisteredUserPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true,
-            );
+            context.push('/recently_registered_user');
           },
         ),
         _buildDivider(),
@@ -101,11 +87,7 @@ class RightButtonList extends StatelessWidget {
           title: t.myQrcode,
           onTap: () {
             Navigator.of(context).pop();
-            Get.to(
-              () => UserQrCodePage(),
-              transition: Transition.rightToLeft,
-              popGesture: true,
-            );
+            context.push('/qrcode');
           },
         ),
         _buildDivider(),
@@ -115,10 +97,8 @@ class RightButtonList extends StatelessWidget {
           title: t.scanQrCode,
           onTap: () {
             Navigator.of(context).pop();
-            Get.to(
-              () => const ScannerPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true,
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const ScannerPage()),
             );
           },
         ),
@@ -134,7 +114,7 @@ class RightButtonList extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: AppRadius.borderRadiusTiny,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

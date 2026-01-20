@@ -20,7 +20,6 @@ class _CacheEntry {
 /// - YAGNI: 只实现必要的缓存功能
 /// - 性能优化：减少重复查询，提升响应速度
 class CachedSqliteService {
-
   /// 查询缓存（SQL -> 缓存条目）
   final Map<String, _CacheEntry> _queryCache = {};
 
@@ -136,7 +135,9 @@ class CachedSqliteService {
   /// 获取缓存统计信息
   Map<String, dynamic> getCacheStats() {
     final totalRequests = _cacheHits + _cacheMisses;
-    final hitRate = totalRequests > 0 ? (_cacheHits / totalRequests * 100) : 0.0;
+    final hitRate = totalRequests > 0
+        ? (_cacheHits / totalRequests * 100)
+        : 0.0;
 
     return {
       'cacheSize': _queryCache.length,
@@ -165,10 +166,7 @@ class CachedSqliteService {
       _queryCache.remove(oldestKey);
     }
 
-    _queryCache[key] = _CacheEntry(
-      data,
-      DateTimeHelper.millisecond(),
-    );
+    _queryCache[key] = _CacheEntry(data, DateTimeHelper.millisecond());
   }
 
   /// 清理过期缓存

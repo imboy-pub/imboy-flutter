@@ -2,11 +2,17 @@
 
 [根目录](../../CLAUDE.md) > [lib](../) > **theme**
 
-> 最后更新：2026-01-05 14:12:27 CST
+> 最后更新：2026-01-14 12:00:00 CST
 
 ---
 
 ## 变更记录 (Changelog)
+
+### 2026-01-14
+- 新增 Design Token 系统（app_spacing, app_radius, app_shadows 等）
+- 更新颜色命名规范（primary 代替 primaryGreen）
+- 字体系统统一（使用 FontSizeType 代替 AppTextSize）
+- 添加 UI/UX 设计规范文档引用
 
 ### 2026-01-05
 - 初始化主题系统文档
@@ -19,6 +25,7 @@
 主题系统（`lib/theme/`）负责应用的外观和样式管理，支持亮色/暗色模式切换、动态字体缩放、动态颜色等功能。
 
 ### 核心职责
+- Design Token 系统定义和管理
 - 主题配置和管理
 - 颜色系统定义
 - 字体和文本样式
@@ -27,20 +34,68 @@
 
 ---
 
+## Design Token 系统
+
+项目已实现完整的 Design Token 系统，位于 `lib/theme/default/` 目录：
+
+| 文件 | 描述 | 状态 |
+|------|------|------|
+| `app_colors.dart` | 颜色定义（主色、语义色、中性色等） | ✅ 已更新 |
+| `app_spacing.dart` | 间距系统（4px 基数：0-48px） | ✅ 新增 |
+| `app_radius.dart` | 圆角系统（4-50px） | ✅ 新增 |
+| `app_shadows.dart` | 阴影系统（elevation 0-16） | ✅ 新增 |
+| `app_duration.dart` | 动画时长（0-1000ms） | ✅ 新增 |
+| `app_curves.dart` | 动画曲线（11种标准曲线） | ✅ 新增 |
+| `app_sizes.dart` | 组件尺寸（按钮、输入框、头像等） | ✅ 新增 |
+| `font_types.dart` | 字体类型（FontSizeType、FontWeight） | ✅ 已更新 |
+| `app_text_size.dart` | 旧字体系统（已废弃） | ⚠️ @Deprecated |
+
+### 使用示例
+
+```dart
+// 导入 Design Token 文件
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+
+// 使用常量
+Container(
+  color: AppColors.primary,              // 颜色
+  padding: AppSpacing.cardPadding,        // 间距
+  decoration: BoxDecoration(
+    borderRadius: AppRadius.borderRadiusMedium,  // 圆角
+    boxShadow: AppShadows.card,           // 阴影
+  ),
+)
+```
+
+### 设计规范文档
+- 完整的 UI/UX 设计规范：[doc/UI_UX_Design_Spec.md](../../doc/UI_UX_Design_Spec.md)
+- Design Token 迁移指南：[DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md)
+
+---
+
 ## 模块结构
 
 ### 主要文件
 
-| 文件 | 职责描述 |
-|-----|---------|
-| `theme_manager.dart` | 主题管理器（核心） |
-| `default/theme.dart` | 主题配置 |
-| `default/app_colors.dart` | 颜色定义 |
-| `default/font_types.dart` | 字体类型 |
-| `default/config/text_theme.dart` | 文本主题 |
-| `default/config/component_theme_manager.dart` | 组件主题管理 |
-| `default/config/chat_theme_config.dart` | 聊天主题 |
-| `dynamic_color_manager.dart` | 动态颜色管理 |
+| 文件 | 职责描述 | 状态 |
+|-----|---------|------|
+| `theme_manager.dart` | 主题管理器（核心） | - |
+| `default/theme.dart` | 主题配置 | - |
+| `default/app_colors.dart` | 颜色定义（已更新命名） | ✅ 已更新 |
+| `default/app_spacing.dart` | Design Token - 间距系统 | ✅ 新增 |
+| `default/app_radius.dart` | Design Token - 圆角系统 | ✅ 新增 |
+| `default/app_shadows.dart` | Design Token - 阴影系统 | ✅ 新增 |
+| `default/app_duration.dart` | Design Token - 动画时长 | ✅ 新增 |
+| `default/app_curves.dart` | Design Token - 动画曲线 | ✅ 新增 |
+| `default/app_sizes.dart` | Design Token - 组件尺寸 | ✅ 新增 |
+| `default/font_types.dart` | 字体类型（已统一） | ✅ 已更新 |
+| `default/app_text_size.dart` | 旧字体系统（已废弃） | ⚠️ @Deprecated |
+| `default/config/text_theme.dart` | 文本主题 | - |
+| `default/config/component_theme_manager.dart` | 组件主题管理 | - |
+| `default/config/chat_theme_config.dart` | 聊天主题 | - |
+| `dynamic_color_manager.dart` | 动态颜色管理 | - |
 
 ---
 
@@ -208,61 +263,80 @@ enum FontSizeType {
 
 ### AppColors 颜色定义
 
+**注意**：颜色命名已更新（2026-01-14），旧命名标记为 `@Deprecated`。
+
+#### 主色调（新命名）
+```dart
+class AppColors {
+  // ✅ 新命名（推荐使用）
+  static const Color primary = Color(0xFF2474E5);
+  static const Color primaryLight = Color(0xFFE3F2FD);
+  static const Color primaryDark = Color(0xFF1565C0);
+  static const Color primaryContainer = Color(0xFFBBDEFB);
+  static const Color onPrimaryContainer = Color(0xFF0D47A1);
+
+  // ⚠️ 旧命名（已废弃，请使用新命名）
+  @Deprecated('使用 primary 代替')
+  static const Color primaryGreen = Color(0xFF2474E5);
+  @Deprecated('使用 primaryLight 代替')
+  static const Color primaryGreenLight = Color(0xFFE3F2FD);
+  @Deprecated('使用 primaryDark 代替')
+  static const Color primaryGreenDark = Color(0xFF1565C0);
+}
+```
+
 #### 亮色主题颜色
 ```dart
 class AppColors {
-  // 主色调
-  static const primaryGreen = Color(0xFF07C160);
-  static const primaryGreenLight = Color(0xFF06AE56);
-
-  // 背景色
-  static const lightBackground = Color(0xFFEDEDED);
-  static const lightSurface = Color(0xFFFFFFFF);
+  // 表面色
+  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightSurfaceContainer = Color(0xFFEDEDED);
+  static const Color lightSurfaceVariant = Color(0xFFE7E0EC);
 
   // 文本色
-  static const lightTextPrimary = Color(0xFF000000);
-  static const lightTextSecondary = Color(0xFF999999);
+  static const Color lightTextPrimary = Color(0xFF1D1B20);
+  static const Color lightTextSecondary = Color(0xFF49454F);
+  static const Color lightTextDisabled = Color(0xFF999999);
 
   // 边框色
-  static const lightBorder = Color(0xFFE5E5E5);
+  static const Color lightBorder = Color(0xFFE5E5E5);
+  static const Color lightDivider = Color(0xFFE5E5E5);
 
   // 错误色
-  static const lightError = Color(0xFFFF4D4F);
+  static const Color lightError = Color(0xFFBA1A1A);
 
   // 聊天消息色
-  static const lightSentMessageBackground = Color(0xFF07C160);
-  static const lightReceivedMessageBackground = Color(0xFFFFFFFF);
-  static const sentMessageText = Color(0xFFFFFFFF);
-  static const lightReceivedMessageText = Color(0xFF000000);
+  static const Color lightSentMessageBackground = Color(0xFF2474E5);
+  static const Color lightReceivedMessageBackground = Color(0xFFFFFFFF);
+  static const Color sentMessageText = Color(0xFFFFFFFF);
+  static const Color lightReceivedMessageText = Color(0xFF1D1B20);
 }
 ```
 
 #### 暗色主题颜色
 ```dart
 class AppColors {
-  // 背景色
-  static Color getDarkBackground(bool useOLED, Brightness brightness) {
-    return useOLED ? Color(0xFF000000) : Color(0xFF1C1C1E);
-  }
-
-  static Color getDarkSurface(bool useOLED, Brightness brightness) {
-    return useOLED ? Color(0xFF000000) : Color(0xFF2C2C2E);
-  }
+  // 表面色
+  static const Color darkSurface = Color(0xFF121212);
+  static const Color darkSurfaceContainer = Color(0xFF1E1E1E);
+  static const Color darkSurfaceVariant = Color(0xFF2C2C2C);
 
   // 文本色
-  static const darkTextPrimary = Color(0xFFFFFFFF);
-  static const darkTextSecondary = Color(0xFF999999);
+  static const Color darkTextPrimary = Color(0xFFF0F0F0);
+  static const Color darkTextSecondary = Color(0xFFD0D0D0);
+  static const Color darkTextDisabled = Color(0xFF808080);
 
   // 边框色
-  static const darkBorder = Color(0xFF38383A);
+  static const Color darkBorder = Color(0xFF606060);
+  static const Color darkDivider = Color(0xFF404040);
 
   // 错误色
-  static const darkError = Color(0xFFFF6B6B);
+  static const Color darkError = Color(0xFFFF6B6B);
 
   // 聊天消息色
-  static const darkSentMessageBackground = Color(0xFF06AE56);
-  static const darkReceivedMessageBackground = Color(0xFF2C2C2E);
-  static const darkReceivedMessageText = Color(0xFFFFFFFF);
+  static const Color darkSentMessageBackground = Color(0xFF4CD964);
+  static const Color darkReceivedMessageBackground = Color(0xFF2A2A2A);
+  static const Color darkReceivedMessageText = Color(0xFFF0F0F0);
 }
 ```
 
@@ -364,7 +438,7 @@ class ChatThemeConfig {
   static ChatTheme getChatTheme(bool isDarkMode) {
     return ChatTheme(
       backgroundColor: isDarkMode ? Colors.black : Colors.grey[100],
-      primaryColor: AppColors.primaryGreen,
+      primaryColor: AppColors.primary,  // 使用新命名
       secondaryColor: isDarkMode ? Colors.grey[800] : Colors.grey[200],
       // ...
     );
@@ -462,6 +536,68 @@ Future<void> _saveThemePreference() async {
 
 ## 常见问题 (FAQ)
 
+### Design Token 相关
+
+#### Q: 如何使用 Design Token？
+A:
+```dart
+// 导入 Design Token 文件
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+
+// 使用常量
+Container(
+  color: AppColors.primary,
+  padding: AppSpacing.cardPadding,
+)
+```
+
+#### Q: 如何迁移现有代码到 Design Token？
+A: 参考 [DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md) 文档，其中包含详细的迁移步骤和批量替换脚本。
+
+#### Q: 旧的颜色命名（如 primaryGreen）还能用吗？
+A: 可以，但已标记为 `@Deprecated`，建议使用新命名：
+```dart
+// ❌ 旧命名（已废弃）
+AppColors.primaryGreen
+
+// ✅ 新命名（推荐）
+AppColors.primary
+```
+
+#### Q: Design Token 支持哪些类型？
+A: 目前支持以下类型：
+- 颜色（app_colors.dart）
+- 间距（app_spacing.dart）
+- 圆角（app_radius.dart）
+- 阴影（app_shadows.dart）
+- 动画时长（app_duration.dart）
+- 动画曲线（app_curves.dart）
+- 组件尺寸（app_sizes.dart）
+
+#### Q: 如何使用 ThemeData 配置全局样式？
+A: 在 `MaterialApp` 中配置 `theme` 参数：
+```dart
+MaterialApp(
+  theme: ThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: AppColors.lightSurface,
+      selectedItemColor: AppColors.primary,
+      elevation: 0,
+    ),
+    cardTheme: CardTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadius.borderRadiusMedium,
+      ),
+    ),
+  ),
+)
+```
+
+---
+
+### 主题系统相关
+
 ### Q: 如何自定义主题颜色？
 A: 修改 `lib/theme/default/app_colors.dart` 中的颜色定义。
 
@@ -481,11 +617,20 @@ A: 使用 `ThemeManager.instance.addListener()` 监听主题变化。
 
 ## 相关文件清单
 
+### Design Token 文件（新增）
+- `lib/theme/default/app_colors.dart` - 颜色定义（已更新命名）
+- `lib/theme/default/app_spacing.dart` - 间距系统（新增）
+- `lib/theme/default/app_radius.dart` - 圆角系统（新增）
+- `lib/theme/default/app_shadows.dart` - 阴影系统（新增）
+- `lib/theme/default/app_duration.dart` - 动画时长（新增）
+- `lib/theme/default/app_curves.dart` - 动画曲线（新增）
+- `lib/theme/default/app_sizes.dart` - 组件尺寸（新增）
+- `lib/theme/default/font_types.dart` - 字体类型（已更新）
+- `lib/theme/default/app_text_size.dart` - 旧字体系统（已废弃）
+
 ### 核心文件
 - `lib/theme/theme_manager.dart` - 主题管理器
 - `lib/theme/default/theme.dart` - 主题配置
-- `lib/theme/default/app_colors.dart` - 颜色定义
-- `lib/theme/default/font_types.dart` - 字体类型
 - `lib/theme/default/config/text_theme.dart` - 文本主题
 - `lib/theme/default/config/component_theme_manager.dart` - 组件主题
 - `lib/theme/default/config/chat_theme_config.dart` - 聊天主题
@@ -495,9 +640,14 @@ A: 使用 `ThemeManager.instance.addListener()` 监听主题变化。
 - `assets/fonts/iconfont.ttf` - 图标字体
 - `assets/images/` - 主题相关图片
 
+### 设计文档
+- [doc/UI_UX_Design_Spec.md](../../doc/UI_UX_Design_Spec.md) - 完整的 UI/UX 设计规范
+- [DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md) - Design Token 迁移指南
+
 ---
 
 **相关文档**
+- [根目录文档](../../CLAUDE.md) - 项目架构文档
 - [组件层文档](../component/CLAUDE.md)
 - [页面层文档](../page/CLAUDE.md)
 - [配置文档](../config/CLAUDE.md)

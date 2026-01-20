@@ -1,11 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
-import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -23,7 +22,6 @@ bool isUrl(String value) {
   RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?://)\S+");
   return url.hasMatch(value);
 }
-
 
 bool strEmpty(String? val) {
   if (val == null) {
@@ -76,7 +74,6 @@ bool isAssetsImg(String? img) {
   }
   return img.startsWith('asset') || img.startsWith('assets');
 }
-
 
 String hiddenPhone(String phone) {
   if (phone.isEmpty) return phone;
@@ -150,7 +147,6 @@ String hiddenPhone(String phone) {
   // 非常短的号码：显示首字符
   return cleaned.isNotEmpty ? '${cleaned[0]}****' : '';
 }
-
 
 final RegExp _internationalRegExp = RegExp(r'^\+\d{5,15}$');
 final RegExp _cleanRegExp = RegExp(r'[^\d+]'); // 清理正则
@@ -294,7 +290,9 @@ bool _validateInternational(String s) {
 bool _validateChina(String s) {
   String v = s.replaceAll(_cleanRegExp, '');
   final bool hasChinaPrefix =
-      v.startsWith('+86') || v.startsWith('0086') || (v.startsWith('86') && v.length > 11);
+      v.startsWith('+86') ||
+      v.startsWith('0086') ||
+      (v.startsWith('86') && v.length > 11);
 
   if (v.startsWith('+86')) {
     v = v.substring(3);
@@ -326,7 +324,6 @@ bool isEmail(String value) {
   return RegExp(pt).hasMatch(value);
 }
 
-
 ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   if (url.isEmpty) {
     return IconImageProvider(Icons.broken_image);
@@ -338,14 +335,9 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   Uri u = AssetsService.viewUrl(url);
   String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
 
-  final headers = <String, String>{
-    'User-Agent': 'imboy/1.0.0',
-  };
+  final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
 
-  return IMBoyCachedImageProvider(
-    finalUrl,
-    headers,
-  );
+  return IMBoyCachedImageProvider(finalUrl, headers);
 }
 
 DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
@@ -365,53 +357,39 @@ DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
 Widget genderIcon(int gender) {
   Widget icon;
   if (gender == 1) {
-    icon = const Icon(
-      Icons.male,
-      color: Colors.lightBlueAccent,
-    );
+    icon = const Icon(Icons.male, color: Colors.lightBlueAccent);
   } else if (gender == 2) {
-    icon = const Icon(
-      Icons.female,
-      color: Colors.pink,
-    );
+    icon = const Icon(Icons.female, color: Colors.pink);
   } else if (gender == 3) {
-    icon = const Icon(
-      Icons.security,
-      color: Colors.black87,
-    );
+    icon = const Icon(Icons.security, color: Colors.black87);
   } else {
-    icon = const Icon(
-      Icons.battery_unknown,
-      color: Colors.grey,
-    );
+    icon = const Icon(Icons.battery_unknown, color: Colors.grey);
   }
   return icon;
 }
 
-void toChatPage(String peerId, String type) async {
+/// 跳转到聊天页面
+/// 注意：此函数已废弃，请使用 go_router 导航
+/// @deprecated 使用 context.go('/chat/$peerId?type=$type&title=$title&avatar=$avatar&sign=$sign') 替代
+void toChatPage(BuildContext context, String peerId, String type) async {
   ContactModel? peer = await ContactRepo().findByUid(peerId);
   /*
   // 如果没有联系人，同步去取
-  peer ??= await (ContactProvider()).syncByUid(peerId);
+  peer ??= await (ContactApi()).syncByUid(peerId);
   debugPrint("to_chat_page peerId ${peerId} ${peer.toJson().toString()}");
 
   */
   debugPrint(
-      "toChatPage peerId $peerId, type $type, ${peer?.title} peer ${peer?.toJson().toString()}");
+    "toChatPage peerId $peerId, type $type, ${peer?.title} peer ${peer?.toJson().toString()}",
+  );
   if (peer != null && peer.title != '') {
     debugPrint("toChatPage peerId $peerId, type $type, ${peer.title}");
-    Get.to(
-      () => ChatPage(
-        peerId: peerId,
-        type: type,
-        peerTitle: peer.title,
-        peerAvatar: peer.avatar,
-        peerSign: peer.sign,
-      ),
-      transition: Transition.rightToLeft,
-      popGesture: true, // 右滑，返回上一页
-      // binding: ChatBinding(),
-    );
+    // 使用 go_router 导航
+    if (context.mounted) {
+      context.go(
+        '/chat/$peerId?type=$type&title=${peer.title}&avatar=${peer.avatar}&sign=${peer.sign}',
+      );
+    }
   }
 }
 
@@ -419,17 +397,7 @@ void toChatPage(String peerId, String type) async {
 String formatBytes(int size, {int fractionDigits = 2, int num = 1024}) {
   if (size <= 0) return '0 B';
   final multiple = (math.log(size) / math.log(num)).floor();
-  return '${(size / math.pow(num, multiple)).toStringAsFixed(fractionDigits)} ${[
-    'B',
-    'kB',
-    'MB',
-    'GB',
-    'TB',
-    'PB',
-    'EB',
-    'ZB',
-    'YB',
-  ][multiple]}';
+  return '${(size / math.pow(num, multiple)).toStringAsFixed(fractionDigits)} ${['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][multiple]}';
 }
 
 /// 获取本地主题配置

@@ -2,34 +2,27 @@
 library;
 
 enum CustomMessageType {
-  file,
-  image,
   text,
+  textStream,
+  image,
+  file,
+  location,
   audio,
   video,
   unsupported,
   system,
   custom,
   //
-  location,
   // webrtc 音频消息
   webrtcAudio,
   // webrtc 视频消息
   webrtcVideo,
   // 引用消息
   quote,
-  textStream,
 }
 
 // 在文件任意位置添加 ↓
-enum ExtraItemType {
-  image,
-  file,
-  camera,
-  voice,
-  video,
-  none
-}
+enum ExtraItemType { image, file, camera, voice, video, none }
 
 /// Used to toggle the visibility behavior of the [SendButton] based on the
 /// [TextField] state inside the [Input] widget.

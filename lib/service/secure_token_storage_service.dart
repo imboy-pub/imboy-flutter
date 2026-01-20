@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data' show Uint8List;
@@ -37,16 +36,16 @@ class SecureTokenStorageService {
 
   static Future<void> saveToken(String token) async {
     final encrypted = await _encryptData(token);
-    await StorageService().setString(_tokenKey, encrypted);
+    await StorageService.to.setString(_tokenKey, encrypted);
   }
 
   static Future<void> saveRefreshToken(String refreshToken) async {
     final encrypted = await _encryptData(refreshToken);
-    await StorageService().setString(_refreshTokenKey, encrypted);
+    await StorageService.to.setString(_refreshTokenKey, encrypted);
   }
 
   static Future<String> getToken() async {
-    final encrypted = StorageService().getString(_tokenKey);
+    final encrypted = StorageService.to.getString(_tokenKey);
     if (encrypted.isEmpty) return '';
 
     try {
@@ -54,38 +53,45 @@ class SecureTokenStorageService {
     } on Exception catch (e) {
       debugPrint("SecureTokenStorageService.getToken: 解密失败，清除损坏的令牌数据; $e");
       // 解密失败时清除损坏的数据，避免重复错误
-      await StorageService().remove(_tokenKey);
+      await StorageService.to.remove(_tokenKey);
       rethrow;
     }
   }
 
   static Future<String> getRefreshToken() async {
-    final encrypted = StorageService().getString(_refreshTokenKey);
+    final encrypted = StorageService.to.getString(_refreshTokenKey);
     if (encrypted.isEmpty) return '';
 
     try {
       return await _decryptData(encrypted);
     } on Exception catch (e) {
-      debugPrint("SecureTokenStorageService.getRefreshToken: 解密失败，清除损坏的令牌数据; $e");
+      debugPrint(
+        "SecureTokenStorageService.getRefreshToken: 解密失败，清除损坏的令牌数据; $e",
+      );
       // 解密失败时清除损坏的数据，避免重复错误
-      await StorageService().remove(_refreshTokenKey);
+      await StorageService.to.remove(_refreshTokenKey);
       rethrow;
     }
   }
 
   static Future<void> clear() async {
     try {
-      debugPrint("SecureTokenStorageService.clear: Removing token key: $_tokenKey");
-      await StorageService().remove(_tokenKey);
-      debugPrint("SecureTokenStorageService.clear: Removing refresh token key: $_refreshTokenKey");
-      await StorageService().remove(_refreshTokenKey);
-      debugPrint("SecureTokenStorageService.clear: All tokens cleared successfully");
+      debugPrint(
+        "SecureTokenStorageService.clear: Removing token key: $_tokenKey",
+      );
+      await StorageService.to.remove(_tokenKey);
+      debugPrint(
+        "SecureTokenStorageService.clear: Removing refresh token key: $_refreshTokenKey",
+      );
+      await StorageService.to.remove(_refreshTokenKey);
+      debugPrint(
+        "SecureTokenStorageService.clear: All tokens cleared successfully",
+      );
     } catch (e, s) {
       debugPrint("SecureTokenStorageService.clear error: $e; $s");
       rethrow;
     }
   }
-
 
   /*
   static Future<String> _encryptData(String plainText) async {
@@ -136,8 +142,11 @@ class SecureTokenStorageService {
     // 生成 16 字节随机 IV
     final ivBytes = _secureRandomBytes(16);
 
-    final cipherBytes =
-    _aesCbcEncrypt(Utf8Encoder().convert(plainText), keyBytes, ivBytes);
+    final cipherBytes = _aesCbcEncrypt(
+      Utf8Encoder().convert(plainText),
+      keyBytes,
+      ivBytes,
+    );
 
     return "${base64.encode(ivBytes)}:${base64.encode(cipherBytes)}";
   }
@@ -179,11 +188,7 @@ class SecureTokenStorageService {
   // 实际 AES-CBC + PKCS7 加解密实现
   // ---------------------------------------------------------------------------
 
-  static Uint8List _aesCbcEncrypt(
-      Uint8List data,
-      Uint8List key,
-      Uint8List iv,
-      ) {
+  static Uint8List _aesCbcEncrypt(Uint8List data, Uint8List key, Uint8List iv) {
     final cipher = CBCBlockCipher(AESEngine());
     final params = ParametersWithIV<KeyParameter>(KeyParameter(key), iv);
     cipher.init(true, params); // true = 加密
@@ -193,10 +198,10 @@ class SecureTokenStorageService {
   }
 
   static Uint8List _aesCbcDecrypt(
-      Uint8List encrypted,
-      Uint8List key,
-      Uint8List iv,
-      ) {
+    Uint8List encrypted,
+    Uint8List key,
+    Uint8List iv,
+  ) {
     if (key.length != 16 && key.length != 24 && key.length != 32) {
       throw Exception('Invalid AES key length.');
     }
@@ -204,7 +209,8 @@ class SecureTokenStorageService {
     final params = ParametersWithIV<KeyParameter>(KeyParameter(key), iv);
     cipher.init(false, params); // false = 解密
 
-    if (iv.length != cipher.blockSize || encrypted.length % cipher.blockSize != 0) {
+    if (iv.length != cipher.blockSize ||
+        encrypted.length % cipher.blockSize != 0) {
       throw Exception('Invalid encrypted data.');
     }
 
@@ -236,7 +242,9 @@ class SecureTokenStorageService {
     if (data.isEmpty) throw Exception("Invalid padding");
     final padLen = data.last;
     if (data.length % 16 != 0) throw Exception("Invalid padding");
-    if (padLen <= 0 || padLen > 16 || padLen > data.length) throw Exception("Invalid padding");
+    if (padLen <= 0 || padLen > 16 || padLen > data.length) {
+      throw Exception("Invalid padding");
+    }
     for (int i = data.length - padLen; i < data.length; i++) {
       if (data[i] != padLen) throw Exception("Invalid padding");
     }
@@ -250,6 +258,7 @@ class SecureTokenStorageService {
   static Uint8List _secureRandomBytes(int length) {
     final rnd = Random.secure();
     return Uint8List.fromList(
-        List<int>.generate(length, (i) => rnd.nextInt(256)));
+      List<int>.generate(length, (i) => rnd.nextInt(256)),
+    );
   }
 }

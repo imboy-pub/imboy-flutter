@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
+/// 会话数据模型
+/// 纯数据模型，不包含响应式状态
 class ConversationModel {
   int id;
   // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
@@ -35,7 +35,8 @@ class ConversationModel {
   String msgType;
   int isShow;
 
-  RxBool selected = false.obs;
+  // 如果需要选中状态，应在 UI 层使用 Set 或 State 管理
+  // bool selected = false;
 
   // 如果 title 为空，零时计算title
   String computeTitle = '';
@@ -66,19 +67,21 @@ class ConversationModel {
       peerId: peerId,
     );
   }
+
   /// 会话内容计算
   String get content {
     // iPrint("ConversationModel_content msgType $msgType;  ${payload.toString()}");
     // 处理系统提示信息
-    String sysPrompt = Get.find<ChatLogic>().parseSysPrompt(
-      payload?['sys_prompt'] ?? '',
-    );
+    String sysPrompt = _parseSysPrompt(payload?['sys_prompt'] ?? '');
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
     String draftKey = "draft${type}_$peerId";
     String? draft = StorageService.to.getString(draftKey);
     if (strNoEmpty(draft)) {
+      // 草稿显示：使用占位符格式，避免字符串拼接
+      // 翻译键需要支持参数，例如：[{draft}]_color_red_{content}
+      // 这里暂时保持原格式，因为涉及特殊的颜色标记语法
       return "[${t.tipDraft}]_color_red_$draft";
     }
 
@@ -115,20 +118,23 @@ class ConversationModel {
         title = title.substring(0, 12);
         suffix = '...';
       }
-      return '"$title$suffix" ${t.messageWasWithdrawn}';
+      // 消息撤回显示：使用命名参数
+      String displayName = '"$title$suffix"';
+      return t.messageWasWithdrawnWithTitle(param: displayName);
     } else if (msgType == 'my_revoked') {
       return t.youWithdrewAMessage;
     } else if (msgType == 'custom') {
       str = subtitle;
     } else if (msgType == 'empty') {
       return '';
-    } else {}
+    }
     return "[$str]";
   }
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     // iPrint("ConversationModel_payload 1 $payload");
-    dynamic payload = json[ConversationRepo.payload] ?? json[ConversationRepo.payload];
+    dynamic payload =
+        json[ConversationRepo.payload] ?? json[ConversationRepo.payload];
 
     // Handle payload parsing
     if (payload is String) {
@@ -146,7 +152,9 @@ class ConversationModel {
     return ConversationModel(
       id: json[ConversationRepo.id]?.toInt() ?? 0,
       peerId: json[ConversationRepo.peerId]?.toString() ?? '',
-      avatar: (json[ConversationRepo.avatar]?.toString() ?? '').isEmpty ? '' : json['avatar'].toString(),
+      avatar: (json[ConversationRepo.avatar]?.toString() ?? '').isEmpty
+          ? ''
+          : json['avatar'].toString(),
       title: json[ConversationRepo.title]?.toString() ?? '',
       region: json[ConversationRepo.region]?.toString() ?? '',
       sign: json[ConversationRepo.sign]?.toString() ?? '',
@@ -156,29 +164,32 @@ class ConversationModel {
       lastMsgStatus: json[ConversationRepo.lastMsgStatus]?.toInt() ?? 11,
       unreadNum: json[ConversationRepo.unreadNum]?.toInt() ?? 0,
       type: json[ConversationRepo.type]?.toString() ?? '',
-      msgType: json[ConversationRepo.msgType] ?? json[ConversationRepo.msgType]?.toString() ?? '',
+      msgType:
+          json[ConversationRepo.msgType] ??
+          json[ConversationRepo.msgType]?.toString() ??
+          '',
       isShow: json[ConversationRepo.isShow]?.toInt() ?? 1,
       payload: payload != null ? Map<String, dynamic>.from(payload) : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        ConversationRepo.id: id,
-        ConversationRepo.peerId: peerId,
-        ConversationRepo.avatar: avatar,
-        ConversationRepo.title: title,
-        ConversationRepo.region: region,
-        ConversationRepo.sign: sign,
-        ConversationRepo.subtitle: subtitle,
-        ConversationRepo.lastTime: lastTime,
-        ConversationRepo.lastMsgId: lastMsgId,
-        ConversationRepo.lastMsgStatus: lastMsgStatus,
-        ConversationRepo.unreadNum: unreadNum,
-        ConversationRepo.type: type,
-        ConversationRepo.msgType: msgType,
-        ConversationRepo.isShow: isShow,
-        ConversationRepo.payload: payload,
-      };
+    ConversationRepo.id: id,
+    ConversationRepo.peerId: peerId,
+    ConversationRepo.avatar: avatar,
+    ConversationRepo.title: title,
+    ConversationRepo.region: region,
+    ConversationRepo.sign: sign,
+    ConversationRepo.subtitle: subtitle,
+    ConversationRepo.lastTime: lastTime,
+    ConversationRepo.lastMsgId: lastMsgId,
+    ConversationRepo.lastMsgStatus: lastMsgStatus,
+    ConversationRepo.unreadNum: unreadNum,
+    ConversationRepo.type: type,
+    ConversationRepo.msgType: msgType,
+    ConversationRepo.isShow: isShow,
+    ConversationRepo.payload: payload,
+  };
 
   factory ConversationModel.empty() => ConversationModel.fromJson({
     ConversationRepo.id: 0,
@@ -224,5 +235,15 @@ class ConversationModel {
       ConversationRepo.isShow: isShow ?? this.isShow,
       ConversationRepo.payload: payload ?? this.payload,
     });
+  }
+
+  /// 解析系统提示信息（静态方法，避免依赖 Get.find）
+  static String _parseSysPrompt(String sysPrompt) {
+    if (sysPrompt == 'in_denylist') {
+      return t.sendMsgRejected;
+    } else if (sysPrompt == 'not_a_friend') {
+      return t.sendMsgNotFriendTips;
+    }
+    return sysPrompt;
   }
 }

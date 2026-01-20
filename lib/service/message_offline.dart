@@ -1,39 +1,55 @@
 import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
-import '../page/conversation/conversation_logic.dart';
 import 'message_s2c.dart';
 
 /// 离线消息处理服务
 class MessageOfflineService {
-  static MessageOfflineService get to => Get.find();
+  /// 单例实例
+  static MessageOfflineService? _instance;
+
+  /// 获取单例实例
+  static MessageOfflineService get instance {
+    _instance ??= MessageOfflineService._internal();
+    return _instance!;
+  }
+
+  /// 兼容旧代码的访问方式
+  static MessageOfflineService get to => instance;
+
+  /// 私有构造函数
+  MessageOfflineService._internal() {
+    onInit();
+  }
 
   /// 离线消息拉取请求事件的订阅
-  StreamSubscription<OfflineMessagesPullRequestedEvent>? _pullRequestedSubscription;
+  StreamSubscription<OfflineMessagesPullRequestedEvent>?
+  _pullRequestedSubscription;
 
   /// 初始化服务（订阅事件）
   void onInit() {
     // 订阅离线消息拉取请求事件（解耦：通过事件总线接收拉取请求）
-    _pullRequestedSubscription = AppEventBus.on<OfflineMessagesPullRequestedEvent>().listen((event) {
-      // 异步处理，避免阻塞事件总线
-      Future.microtask(() async {
-        try {
-          await pullOfflineMessages();
-          iPrint("离线消息处理完成，来源: ${event.source}");
-        } catch (e) {
-          iPrint("离线消息处理失败: $e");
-        }
-      });
-    });
+    _pullRequestedSubscription =
+        AppEventBus.on<OfflineMessagesPullRequestedEvent>().listen((event) {
+          // 异步处理，避免阻塞事件总线
+          Future.microtask(() async {
+            try {
+              await pullOfflineMessages();
+              iPrint("离线消息处理完成，来源: ${event.source}");
+            } catch (e) {
+              iPrint("离线消息处理失败: $e");
+            }
+          });
+        });
   }
 
   /// 释放资源（取消订阅）
@@ -59,7 +75,7 @@ class MessageOfflineService {
 
         if (resp.code != 0) {
           iPrint("拉取离线消息失败: ${resp.msg}");
-          EasyLoading.showError('拉取离线消息失败: ${resp.msg}');
+          EasyLoading.showError('${t.pullOfflineMessagesFailed}: ${resp.msg}');
           return false;
         }
 
@@ -117,7 +133,6 @@ class MessageOfflineService {
           iPrint("S2C数据为空");
         }
 
-
         hasMore = overallHasMore;
 
         if (hasMore) {
@@ -130,24 +145,22 @@ class MessageOfflineService {
       iPrint("离线消息拉取完成，共拉取 $pullCount 次");
 
       // 主动刷新会话列表，确保UI及时更新
-      try {
-        final conversationLogic = Get.find<ConversationLogic>();
-        await conversationLogic.conversationsList();
-        iPrint("已主动刷新会话列表");
-      } catch (e) {
-        iPrint("刷新会话列表失败: $e");
-      }
+      // 注意：会话列表现在通过 Riverpod provider 管理，
+      // UI 会自动响应数据变化，无需手动刷新
 
       return true;
     } catch (e) {
       iPrint("拉取离线消息异常: $e");
-      EasyLoading.showError('拉取离线消息异常: $e');
+      EasyLoading.showError('${t.pullOfflineMessagesAbnormal}: $e');
       return false;
     }
   }
 
   /// 处理离线消息
-  Future<void> _processOfflineMessages(List<dynamic> messages, String type) async {
+  Future<void> _processOfflineMessages(
+    List<dynamic> messages,
+    String type,
+  ) async {
     iPrint("进入 _processOfflineMessages 方法，类型: $type, 消息数量: ${messages.length}");
     if (messages.isEmpty) {
       iPrint("消息列表为空，直接返回");
@@ -170,15 +183,16 @@ class MessageOfflineService {
       }
 
       // 使用静态方法批量插入消息
-      List<String>? msgIds = await MessageRepo(
-        tableName: MessageRepo.getTableName(type),
-      ).batchInsertOfflineMessages(
-        processedMessages,
-        onS2CMessage: (msgData) async {
-          // 处理 S2C 消息
-          await MessageS2CService.switchS2C(msgData);
-        },
-      );
+      List<String>? msgIds =
+          await MessageRepo(
+            tableName: MessageRepo.getTableName(type),
+          ).batchInsertOfflineMessages(
+            processedMessages,
+            onS2CMessage: (msgData) async {
+              // 处理 S2C 消息
+              await MessageS2CService.switchS2C(msgData);
+            },
+          );
 
       if (msgIds != null && msgIds.isNotEmpty) {
         // 发送确认消息
@@ -194,10 +208,10 @@ class MessageOfflineService {
   /// 发送离线消息确认
   Future<void> _sendOfflineAck(String type, List<String> msgIds) async {
     try {
-      final resp = await HttpClient.client.post(API.msgOfflineAck, data: {
-        "type": type,
-        "msg_ids": msgIds,
-      });
+      final resp = await HttpClient.client.post(
+        API.msgOfflineAck,
+        data: {"type": type, "msg_ids": msgIds},
+      );
       if (resp.code != 0) {
         iPrint("发送离线消息确认失败: ${resp.msg}");
       } else {

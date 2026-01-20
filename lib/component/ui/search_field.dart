@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -65,10 +64,14 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest, // 使用主题容器最高色
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest, // 使用主题容器最高色
                 borderRadius: BorderRadius.circular(12.0),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.1),
                   width: 1,
                 ),
                 boxShadow: [
@@ -105,7 +108,7 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide(
-                      color: AppColors.primaryGreen, // 使用主题主色
+                      color: AppColors.primary, // 使用主题主色
                       width: 2.0,
                     ),
                   ),
@@ -126,7 +129,9 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
                           icon: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: AppColors.textSecondary.withValues(alpha: 0.1),
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.1,
+                              ),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -158,7 +163,8 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
           const SizedBox(width: 12),
           // 取消按钮 - 使用优化后的主题样式
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () =>
+                Navigator.of(context).pop(), // 使用 Navigator 替代 Get.back()
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shape: RoundedRectangleBorder(
@@ -169,7 +175,7 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
               t.buttonCancel,
               style: ThemeManager.instance.getTextStyle(
                 FontSizeType.normal,
-                color: AppColors.primaryGreen, // 使用主题主色
+                color: AppColors.primary, // 使用主题主色
                 fontWeight: FontWeight.w600,
               ),
             ),

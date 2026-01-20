@@ -1,7 +1,21 @@
 import 'package:imboy/theme/default/font_types.dart';
 
 /// 应用文本大小常量类
-/// 提供向后兼容的字体大小常量，内部使用新的字体系统
+///
+/// @Deprecated('使用 FontSizeType 代替。此类将在下个版本移除。')
+/// 请使用 `FontSizeType` 枚举代替，例如：
+/// - `AppTextSize.small` → `FontSizeType.small.size`
+/// - `AppTextSize.getFontSizeValue('large')` → `FontSizeType.large.size`
+///
+/// 迁移示例：
+/// ```dart
+/// // 旧方式（已废弃）
+/// final size = AppTextSize.medium;
+///
+/// // 新方式（推荐）
+/// final size = FontSizeType.medium.size;
+/// ```
+@Deprecated('使用 FontSizeType 代替。此类将在下个版本移除。')
 class AppTextSize {
   AppTextSize._();
 

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../profile_logic.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../profile_provider.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 资料完善度卡片组件
-class ProfileCompletenessCard extends StatelessWidget {
+class ProfileCompletenessCard extends ConsumerWidget {
   const ProfileCompletenessCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final logic = Get.find<ProfileLogic>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileState = ref.watch(profileProvider);
+    final profileNotifier = ref.read(profileProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -19,13 +22,13 @@ class ProfileCompletenessCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Get.theme.primaryColor.withValues(alpha: 0.1),
-            Get.theme.primaryColor.withValues(alpha: 0.05),
+            Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            Theme.of(context).primaryColor.withValues(alpha: 0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.borderRadiusRegular,
         border: Border.all(
-          color: Get.theme.primaryColor.withValues(alpha: 0.2),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -44,34 +47,39 @@ class ProfileCompletenessCard extends StatelessWidget {
                   color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
-              Obx(() => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: logic.state.completenessColor.value.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: profileState.completenessColor.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.borderRadiusMedium,
                   border: Border.all(
-                    color: logic.state.completenessColor.value.withValues(alpha: 0.3),
+                    color: profileState.completenessColor.withValues(
+                      alpha: 0.3,
+                    ),
                   ),
                 ),
                 child: Text(
-                  logic.state.completenessLevel.value,
+                  profileState.completenessLevel,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: logic.state.completenessColor.value,
+                    color: profileState.completenessColor,
                   ),
                 ),
-              )),
+              ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 进度条和百分比
           Row(
             children: [
               Expanded(
-                child: Obx(() => Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 进度条
@@ -79,125 +87,141 @@ class ProfileCompletenessCard extends StatelessWidget {
                       height: 8,
                       decoration: BoxDecoration(
                         color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: AppRadius.borderRadiusTiny,
                       ),
                       child: FractionallySizedBox(
                         alignment: Alignment.centerLeft,
-                        widthFactor: logic.state.completeness.value / 100,
+                        widthFactor: profileState.completeness / 100,
                         child: Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                logic.state.completenessColor.value,
-                                logic.state.completenessColor.value.withValues(alpha: 0.7),
+                                profileState.completenessColor,
+                                profileState.completenessColor.withValues(
+                                  alpha: 0.7,
+                                ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadius.borderRadiusTiny,
                           ),
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // 百分比文本
                     Text(
-                      '${logic.state.completeness.value}% 完成',
+                      '${profileState.completeness}% 完成',
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.white70 : Colors.black54,
                       ),
                     ),
                   ],
-                )),
+                ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // 百分比数字
-              Obx(() => Text(
-                '${logic.state.completeness.value}%',
+              Text(
+                '${profileState.completeness}%',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: logic.state.completenessColor.value,
+                  color: profileState.completenessColor,
                 ),
-              )),
+              ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 完善建议
-          Obx(() {
-            final suggestions = logic.getCompletionSuggestions();
-            if (suggestions.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.3),
+          Builder(
+            builder: (context) {
+              final suggestions = profileNotifier.getCompletionSuggestions();
+              if (suggestions.isEmpty) {
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.borderRadiusSmall,
+                    border: Border.all(
+                      color: Colors.green.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '资料已完善！',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.green[700],
-                        fontWeight: FontWeight.w500,
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 20,
                       ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '资料已完善！',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '完善建议：',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white70 : Colors.black54,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: suggestions
+                        .take(3)
+                        .map(
+                          (suggestion) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withValues(alpha: 0.1),
+                              borderRadius: AppRadius.borderRadiusMedium,
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).primaryColor.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              suggestion,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
               );
-            }
-            
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '完善建议：',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white70 : Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: suggestions.take(3).map((suggestion) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Get.theme.primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Get.theme.primaryColor.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      suggestion,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Get.theme.primaryColor,
-                      ),
-                    ),
-                  )).toList(),
-                ),
-              ],
-            );
-          }),
+            },
+          ),
         ],
       ),
     );

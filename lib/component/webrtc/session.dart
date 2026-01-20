@@ -24,7 +24,7 @@ class WebRTCSession {
 
   List<RTCIceCandidate> remoteCandidates = [];
 
-//
-// @override
-// List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
+  //
+  // @override
+  // List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
 }

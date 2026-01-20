@@ -25,7 +25,7 @@ bool tokenExpired(String? token) {
     }
 
     final current = DateTimeHelper.second();
-    const buffer = 3;// 建议 3-5 秒（考虑网络波动）
+    const buffer = 3; // 建议 3-5 秒（考虑网络波动）
     // 修正后的核心逻辑
     return current >= (exp - buffer);
   } on JoseException catch (e) {

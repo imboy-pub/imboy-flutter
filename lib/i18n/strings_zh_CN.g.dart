@@ -40,6 +40,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final TranslationsSplashZhCn splash = TranslationsSplashZhCn._(_root);
 
 	/// zh-CN: '关于'
 	String get about => '关于';
@@ -50,8 +51,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '接受'
 	String get accept => '接受';
 
-	/// zh-CN: '通过朋友验证'
-	String get acceptFriendRequest => '通过朋友验证';
+	/// zh-CN: '通过好友验证'
+	String get acceptFriendRequest => '通过好友验证';
 
 	/// zh-CN: '账号'
 	String get account => '账号';
@@ -59,17 +60,65 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '账号安全'
 	String get accountSecurity => '账号安全';
 
+	/// zh-CN: '银行卡'
+	String get bankCard => '银行卡';
+
+	/// zh-CN: '张'
+	String get cards => '张';
+
 	/// zh-CN: '添加朋友'
 	String get addFriend => '添加朋友';
 
 	/// zh-CN: '添加手机联系人'
 	String get addPhoneContact => '添加手机联系人';
 
+	/// zh-CN: '信用卡还款'
+	String get creditCardRepayment => '信用卡还款';
+
+	/// zh-CN: '修改'
+	String get change => '修改';
+
+	/// zh-CN: '电影演出'
+	String get entertainment => '电影演出';
+
+	/// zh-CN: '理财通'
+	String get financialManagement => '理财通';
+
+	/// zh-CN: '京东购物'
+	String get jdShopping => '京东购物';
+
+	/// zh-CN: '生活缴费'
+	String get lifePayment => '生活缴费';
+
+	/// zh-CN: '医疗健康'
+	String get medicalHealth => '医疗健康';
+
+	/// zh-CN: '美团外卖'
+	String get meituanDelivery => '美团外卖';
+
+	/// zh-CN: '手机充值'
+	String get mobileRecharge => '手机充值';
+
+	/// zh-CN: '收付款'
+	String get receivePayment => '收付款';
+
+	/// zh-CN: '零钱'
+	String get smallChange => '零钱';
+
+	/// zh-CN: '腾讯服务'
+	String get tencentService => '腾讯服务';
+
+	/// zh-CN: '交通出行'
+	String get traffic => '交通出行';
+
 	/// zh-CN: '添加标签'
 	String get addTag => '添加标签';
 
 	/// zh-CN: '添加到通讯录'
 	String get addToContacts => '添加到通讯录';
+
+	/// zh-CN: '总资产'
+	String get totalAssets => '总资产';
 
 	/// zh-CN: '加入黑名单'
 	String get addToDenylist => '加入黑名单';
@@ -125,20 +174,20 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '申请添加朋友'
 	String get applyAddFriend => '申请添加朋友';
 
-	/// zh-CN: 'applyFriend'
-	String get applyFriend => 'applyFriend';
+	/// zh-CN: '申请好友'
+	String get applyFriend => '申请好友';
 
-	/// zh-CN: 'applyFriendLogic'
-	String get applyFriendLogic => 'applyFriendLogic';
+	/// zh-CN: '申请好友逻辑'
+	String get applyFriendLogic => '申请好友逻辑';
 
-	/// zh-CN: '申请{param}'
-	String get applyParam => '申请{param}';
+	/// zh-CN: '申请$param'
+	String applyParam({required Object param}) => '申请${param}';
 
 	/// zh-CN: '阿拉伯语（沙特阿拉伯）'
 	String get arSa => '阿拉伯语（沙特阿拉伯）';
 
-	/// zh-CN: 'attachmentProvider'
-	String get attachmentProvider => 'attachmentProvider';
+	/// zh-CN: '附件提供者'
+	String get attachmentProvider => '附件提供者';
 
 	/// zh-CN: '音频'
 	String get audio => '音频';
@@ -209,8 +258,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '取消'
 	String get buttonCancel => '取消';
 
-	/// zh-CN: 'buttonChangePassword'
-	String get buttonChangePassword => 'buttonChangePassword';
+	/// zh-CN: '修改密码'
+	String get buttonChangePassword => '修改密码';
 
 	/// zh-CN: '关闭'
 	String get buttonClose => '关闭';
@@ -227,29 +276,29 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '删除'
 	String get buttonDelete => '删除';
 
-	/// zh-CN: 'buttonDeleteAccount'
-	String get buttonDeleteAccount => 'buttonDeleteAccount';
+	/// zh-CN: '注销账户'
+	String get buttonDeleteAccount => '注销账户';
 
 	/// zh-CN: '邀请码'
 	String get buttonInviteCode => '邀请码';
 
-	/// zh-CN: 'buttonLogin'
-	String get buttonLogin => 'buttonLogin';
+	/// zh-CN: '登录'
+	String get buttonLogin => '登录';
 
-	/// zh-CN: '注销'
-	String get buttonLogout => '注销';
+	/// zh-CN: '退出登录'
+	String get buttonLogout => '退出登录';
 
-	/// zh-CN: 'buttonNextStep'
-	String get buttonNextStep => 'buttonNextStep';
+	/// zh-CN: '下一步'
+	String get buttonNextStep => '下一步';
 
 	/// zh-CN: '确定'
 	String get buttonOk => '确定';
 
-	/// zh-CN: 'buttonRegister'
-	String get buttonRegister => 'buttonRegister';
+	/// zh-CN: '注册'
+	String get buttonRegister => '注册';
 
-	/// zh-CN: 'buttonResetPassword'
-	String get buttonResetPassword => 'buttonResetPassword';
+	/// zh-CN: '重置密码'
+	String get buttonResetPassword => '重置密码';
 
 	/// zh-CN: '重试'
 	String get buttonRetry => '重试';
@@ -262,6 +311,12 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '发送'
 	String get buttonSend => '发送';
+
+	/// zh-CN: '需要重启应用'
+	String get restartRequired => '需要重启应用';
+
+	/// zh-CN: '请重启应用以应用更改'
+	String get applyChanges => '请重启应用以应用更改';
 
 	/// zh-CN: '置空'
 	String get buttonSetEmpty => '置空';
@@ -291,7 +346,25 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	String get canNotAddYourselfFriend => '你不能添加自己为好友';
 
 	/// zh-CN: '取消'
-	String get cancel => '取消';
+	String get cancel => _root.buttonCancel;
+
+	/// zh-CN: '确定'
+	String get ok => _root.buttonOk;
+
+	/// zh-CN: '保存'
+	String get save => _root.buttonSave;
+
+	/// zh-CN: '重置'
+	String get reset => '重置';
+
+	/// zh-CN: '清空'
+	String get clear => '清空';
+
+	/// zh-CN: '输入新标签...'
+	String get inputNewTag => '输入新标签...';
+
+	/// zh-CN: '保存标签 ($count)'
+	String saveTag({required Object count}) => '保存标签 (${count})';
 
 	/// zh-CN: '此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。'
 	String get cancelLogoutBody => '此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。';
@@ -305,20 +378,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '修改群聊名称后，将在群内通知其他成员。'
 	String get changeGroupChatName => '修改群聊名称后，将在群内通知其他成员。';
 
-	/// zh-CN: 'changeNameView'
-	String get changeNameView => 'changeNameView';
+	/// zh-CN: '修改名称视图'
+	String get changeNameView => '修改名称视图';
 
-	/// zh-CN: '修改{param}'
-	String get changeParam => '修改{param}';
+	/// zh-CN: '修改$param'
+	String changeParam({required Object param}) => '修改${param}';
 
 	/// zh-CN: '聊天记录'
 	String get chatHistory => '聊天记录';
 
 	/// zh-CN: '按住说话'
 	String get chatHoldDownTalk => '按住说话';
-
-	/// zh-CN: 'chatInput'
-	String get chatInput => 'chatInput';
 
 	/// zh-CN: '聊天消息'
 	String get chatMessage => '聊天消息';
@@ -380,6 +450,36 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '聊天设置'
 	String get chatSettings => '聊天设置';
 
+	/// zh-CN: '发送中'
+	String get chatStatusSending => '发送中';
+
+	/// zh-CN: '已发送'
+	String get chatStatusSent => '已发送';
+
+	/// zh-CN: '已送达'
+	String get chatStatusDelivered => '已送达';
+
+	/// zh-CN: '已读'
+	String get chatStatusSeen => '已读';
+
+	/// zh-CN: '发送失败'
+	String get chatStatusFailed => '发送失败';
+
+	/// zh-CN: '消息正在发送...'
+	String get chatStatusSendingDesc => '消息正在发送...';
+
+	/// zh-CN: '消息已发送'
+	String get chatStatusSentDesc => '消息已发送';
+
+	/// zh-CN: '消息已送达'
+	String get chatStatusDeliveredDesc => '消息已送达';
+
+	/// zh-CN: '消息已读'
+	String get chatStatusSeenDesc => '消息已读';
+
+	/// zh-CN: '发送失败，点击重试'
+	String get chatStatusFailedDesc => '发送失败，点击重试';
+
 	/// zh-CN: '检查更新'
 	String get checkForUpdates => '检查更新';
 
@@ -395,11 +495,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '清空聊天记录'
 	String get clearChatRecord => '清空聊天记录';
 
-	/// zh-CN: '验证码已发送到{param}'
-	String get codeSentToParam => '验证码已发送到{param}';
+	/// zh-CN: '验证码已发送到$param'
+	String codeSentToParam({required Object param}) => '验证码已发送到${param}';
 
-	/// zh-CN: '验证码已发送到{param}'
-	String get codeSentToType => '验证码已发送到{param}';
+	/// zh-CN: '验证码已发送到$param'
+	String codeSentToType({required Object param}) => '验证码已发送到${param}';
 
 	/// zh-CN: '验证码已发送到邮箱'
 	String get codeSentToEmail => '验证码已发送到邮箱';
@@ -428,23 +528,23 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '确定删除聊天记录吗？'
 	String get confirmDeleteChatRecord => '确定删除聊天记录吗？';
 
-	/// zh-CN: 'confirmNewFriend'
-	String get confirmNewFriend => 'confirmNewFriend';
+	/// zh-CN: '确认新好友'
+	String get confirmNewFriend => '确认新好友';
 
-	/// zh-CN: 'confirmNewFriendLogic'
-	String get confirmNewFriendLogic => 'confirmNewFriendLogic';
+	/// zh-CN: '确认新好友逻辑'
+	String get confirmNewFriendLogic => '确认新好友逻辑';
 
 	/// zh-CN: '密码修改成功。'
 	String get confirmRecoverSuccess => '密码修改成功。';
 
-	/// zh-CN: 'contactSetting'
-	String get contactSetting => 'contactSetting';
+	/// zh-CN: '联系人设置'
+	String get contactSetting => '联系人设置';
 
-	/// zh-CN: 'contactSettingTag'
-	String get contactSettingTag => 'contactSettingTag';
+	/// zh-CN: '联系人设置标签'
+	String get contactSettingTag => '联系人设置标签';
 
-	/// zh-CN: 'contactTagListLogic'
-	String get contactTagListLogic => 'contactTagListLogic';
+	/// zh-CN: '联系人标签列表逻辑'
+	String get contactTagListLogic => '联系人标签列表逻辑';
 
 	/// zh-CN: '联系人标签'
 	String get contactTags => '联系人标签';
@@ -480,7 +580,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	String get deDd => '德语（德国）';
 
 	/// zh-CN: '删除'
-	String get delete => '删除';
+	String get delete => _root.buttonDelete;
 
 	/// zh-CN: '删除后无法恢复，确定要删除这条收藏吗？'
 	String get deleteCollectConfirmDesc => '删除后无法恢复，确定要删除这条收藏吗？';
@@ -575,107 +675,107 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '进入该群'
 	String get enterTheGroup => '进入该群';
 
-	/// zh-CN: '对 {param} 的访问被拒绝'
-	String get errorAccessDenied => '对 {param} 的访问被拒绝';
+	/// zh-CN: '对 $param 的访问被拒绝'
+	String errorAccessDenied({required Object param}) => '对 ${param} 的访问被拒绝';
 
-	/// zh-CN: '没有找到已安装版本。'
-	String get errorCliVersionNotFound => '没有找到已安装版本。';
+	/// zh-CN: '错误'
+	String get errorCliVersionNotFound => _root.error;
 
-	/// zh-CN: '{param} 是空的'
-	String get errorEmptyDirectory => '{param} 是空的';
+	/// zh-CN: '$param 是空的'
+	String errorEmptyDirectory({required Object param}) => '${param} 是空的';
 
-	/// zh-CN: '无法连接服务器'
-	String get errorFailedConnectServer => '无法连接服务器';
+	/// zh-CN: '错误'
+	String get errorFailedConnectServer => _root.error;
 
-	/// zh-CN: '连接到 {param} 失败'
-	String get errorFailedToConnect => '连接到 {param} 失败';
+	/// zh-CN: '错误'
+	String get errorFailedToConnect => _root.error;
 
-	/// zh-CN: '在 {param} 中没有找到文件'
-	String get errorFileNotFound => '在 {param} 中没有找到文件';
+	/// zh-CN: '在 $param 中没有找到文件'
+	String errorFileNotFound({required Object param}) => '在 ${param} 中没有找到文件';
 
-	/// zh-CN: '文件夹 {param} 未找到'
-	String get errorFolderNotFound => '文件夹 {param} 未找到';
+	/// zh-CN: '文件夹 $param 未找到'
+	String errorFolderNotFound({required Object param}) => '文件夹 ${param} 未找到';
 
-	/// zh-CN: '不支持HTTP协议请求'
-	String get errorHttpNotSupported => '不支持HTTP协议请求';
+	/// zh-CN: '错误'
+	String get errorHttpNotSupported => _root.error;
 
-	/// zh-CN: '服务器内部错误'
-	String get errorInternalServer => '服务器内部错误';
+	/// zh-CN: '错误'
+	String get errorInternalServer => _root.error;
 
-	/// zh-CN: '{param} 是无效的'
-	String get errorInvalid => '{param} 是无效的';
+	/// zh-CN: '$param 是无效的'
+	String errorInvalid({required Object param}) => '${param} 是无效的';
 
-	/// zh-CN: '{param} 不是有效的dart文件'
-	String get errorInvalidDart => '{param} 不是有效的dart文件';
+	/// zh-CN: '错误'
+	String get errorInvalidDart => _root.error;
 
-	/// zh-CN: '{param} 不是有效的文件或目录'
-	String get errorInvalidFileOrDirectory => '{param} 不是有效的文件或目录';
+	/// zh-CN: '错误'
+	String get errorInvalidFileOrDirectory => _root.error;
 
-	/// zh-CN: '{param} 不是个有效的json文件'
-	String get errorInvalidJson => '{param} 不是个有效的json文件';
+	/// zh-CN: '错误'
+	String get errorInvalidJson => _root.error;
 
-	/// zh-CN: '无效的请求'
-	String get errorInvalidRequest => '无效的请求';
+	/// zh-CN: '错误'
+	String get errorInvalidRequest => _root.error;
 
-	/// zh-CN: '{param}长度为{min}-{max}的任意字符'
-	String get errorLengthBetween => '{param}长度为{min}-{max}的任意字符';
+	/// zh-CN: '$param 长度必须在 $min 和 $max 之间'
+	String errorLengthBetween({required Object param, required Object min, required Object max}) => '${param} 长度必须在 ${min} 和 ${max} 之间';
 
-	/// zh-CN: '请求过多'
-	String get errorManyRequest => '请求过多';
+	/// zh-CN: '错误'
+	String get errorManyRequest => _root.error;
 
-	/// zh-CN: '请输入你想移除的 package 名称'
-	String get errorNoPackageToRemove => '请输入你想移除的 package 名称';
+	/// zh-CN: '错误'
+	String get errorNoPackageToRemove => _root.error;
 
-	/// zh-CN: '{param} 不是有效的文件或URL'
-	String get errorNoValidFileOrUrl => '{param} 不是有效的文件或URL';
+	/// zh-CN: '错误'
+	String get errorNoValidFileOrUrl => _root.error;
 
-	/// zh-CN: '{param} 不存在'
-	String get errorNonexistentDirectory => '{param} 不存在';
+	/// zh-CN: '错误'
+	String get errorNonexistentDirectory => _root.error;
 
-	/// zh-CN: '依赖: {param} 在 pub.dev 中没有找到'
-	String get errorPackageNotFound => '依赖: {param} 在 pub.dev 中没有找到';
+	/// zh-CN: '错误'
+	String get errorPackageNotFound => _root.error;
 
 	/// zh-CN: '密码错误'
 	String get errorPassword => '密码错误';
 
-	/// zh-CN: '请求方法被禁止'
-	String get errorRequestForbidden => '请求方法被禁止';
+	/// zh-CN: '错误'
+	String get errorRequestForbidden => _root.error;
 
-	/// zh-CN: '请求语法错误'
-	String get errorRequestSyntax => '请求语法错误';
+	/// zh-CN: '错误'
+	String get errorRequestSyntax => _root.error;
 
-	/// zh-CN: '{param} 是必须的'
-	String get errorRequired => '{param} 是必须的';
+	/// zh-CN: '$param 是必须的'
+	String errorRequired({required Object param}) => '${param} 是必须的';
 
-	/// zh-CN: '需要传入文件或路径'
-	String get errorRequiredPath => '需要传入文件或路径';
+	/// zh-CN: '错误'
+	String get errorRequiredPath => _root.error;
 
-	/// zh-CN: '两次输入密码不一致'
-	String get errorRetypePassword => '两次输入密码不一致';
+	/// zh-CN: '错误'
+	String get errorRetypePassword => _root.error;
 
-	/// zh-CN: '{param1} 和 {param2} 是同样的'
-	String get errorSame => '{param1} 和 {param2} 是同样的';
+	/// zh-CN: '$param1 和 $param2 必须相同'
+	String errorSame({required Object param1, required Object param2}) => '${param1} 和 ${param2} 必须相同';
 
-	/// zh-CN: '服务器挂了'
-	String get errorServerDown => '服务器挂了';
+	/// zh-CN: '错误'
+	String get errorServerDown => _root.error;
 
-	/// zh-CN: '服务器拒绝执行'
-	String get errorServerRefused => '服务器拒绝执行';
+	/// zh-CN: '错误'
+	String get errorServerRefused => _root.error;
 
-	/// zh-CN: 'key中包含不允许的特殊字符. \n key: {param}'
-	String get errorSpecialCharactersInKey => 'key中包含不允许的特殊字符. \n key: {param}';
+	/// zh-CN: '错误'
+	String get errorSpecialCharactersInKey => _root.error;
 
-	/// zh-CN: '发生意外错误'
-	String get errorUnexpected => '发生意外错误';
+	/// zh-CN: '错误'
+	String get errorUnexpected => _root.error;
 
-	/// zh-CN: '参数 {param} 是多余的'
-	String get errorUnnecessaryParameter => '参数 {param} 是多余的';
+	/// zh-CN: '错误'
+	String get errorUnnecessaryParameter => _root.error;
 
-	/// zh-CN: '参数 {param} 是多余的'
-	String get errorUnnecessaryParameterPlural => '参数 {param} 是多余的';
+	/// zh-CN: '错误'
+	String get errorUnnecessaryParameterPlural => _root.error;
 
-	/// zh-CN: '升级 get_cli 错误'
-	String get errorUpdateCli => '升级 get_cli 错误';
+	/// zh-CN: '错误'
+	String get errorUpdateCli => _root.error;
 
 	/// zh-CN: '例:'
 	String get example => '例:';
@@ -686,23 +786,23 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '已过期'
 	String get expired => '已过期';
 
-	/// zh-CN: 'extraItem'
-	String get extraItem => 'extraItem';
+	/// zh-CN: '额外项目'
+	String get extraItem => '额外项目';
 
-	/// zh-CN: 'faceToFaceLogic'
-	String get faceToFaceLogic => 'faceToFaceLogic';
+	/// zh-CN: '面对面建群逻辑'
+	String get faceToFaceLogic => '面对面建群逻辑';
 
-	/// zh-CN: '无法获取经纬度'
-	String get failedGetLatLong => '无法获取经纬度';
+	/// zh-CN: '网络错误'
+	String get failedGetLatLong => _root.errorNetwork;
 
-	/// zh-CN: '获取地图失败,请重试'
-	String get failedGetMapTryAgain => '获取地图失败,请重试';
+	/// zh-CN: '网络错误'
+	String get failedGetMapTryAgain => _root.errorNetwork;
 
-	/// zh-CN: '发起请求失败，请检查网络连接，或稍后重试'
-	String get failedRequestPleaseCheckNetwork => '发起请求失败，请检查网络连接，或稍后重试';
+	/// zh-CN: '网络错误'
+	String get failedRequestPleaseCheckNetwork => _root.errorNetwork;
 
-	/// zh-CN: '收藏人名、群名、标签等'
-	String get favoriteGroupTagsEtc => '收藏人名、群名、标签等';
+	/// zh-CN: '收藏、人名、群名、标签等'
+	String get favoriteGroupTagsEtc => '收藏、人名、群名、标签等';
 
 	/// zh-CN: '收藏'
 	String get favorites => '收藏';
@@ -710,8 +810,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '反馈建议'
 	String get feedback => '反馈建议';
 
-	/// zh-CN: 'feedbackBuilder'
-	String get feedbackBuilder => 'feedbackBuilder';
+	/// zh-CN: '反馈构建器'
+	String get feedbackBuilder => '反馈构建器';
 
 	/// zh-CN: '反馈内容不能为空'
 	String get feedbackContentRequired => '反馈内容不能为空';
@@ -719,11 +819,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '反馈建议明细'
 	String get feedbackDetails => '反馈建议明细';
 
-	/// zh-CN: 'feedbackModel'
-	String get feedbackModel => 'feedbackModel';
+	/// zh-CN: '反馈模型'
+	String get feedbackModel => '反馈模型';
 
-	/// zh-CN: 'feedbackReplyModel'
-	String get feedbackReplyModel => 'feedbackReplyModel';
+	/// zh-CN: '反馈回复模型'
+	String get feedbackReplyModel => '反馈回复模型';
 
 	/// zh-CN: '你的反馈问题我们已经收到了，会尽快处理！'
 	String get feedbackSuccessMsg => '你的反馈问题我们已经收到了，会尽快处理！';
@@ -749,14 +849,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '开启后,将跟随系统打开或关闭深色模式'
 	String get followSystemTips => '开启后,将跟随系统打开或关闭深色模式';
 
-	/// zh-CN: '您已被设备【{param}】强制下线'
-	String get forceLogoutNotification => '您已被设备【{param}】强制下线';
+	/// zh-CN: '您已被设备【$param】强制下线'
+	String forceLogoutNotification({required Object param}) => '您已被设备【${param}】强制下线';
 
 	/// zh-CN: '忘记密码？'
 	String get forgotPassword => '忘记密码？';
 
-	/// zh-CN: 'forgotPasswordPinCodeView'
-	String get forgotPasswordPinCodeView => 'forgotPasswordPinCodeView';
+	/// zh-CN: '忘记密码验证码视图'
+	String get forgotPasswordPinCodeView => '忘记密码验证码视图';
 
 	/// zh-CN: '转发'
 	String get forward => '转发';
@@ -776,8 +876,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '朋友权限'
 	String get friendPermissions => '朋友权限';
 
-	/// zh-CN: 'friendsPermissionsView'
-	String get friendsPermissionsView => 'friendsPermissionsView';
+	/// zh-CN: '好友权限视图'
+	String get friendsPermissionsView => '好友权限视图';
 
 	/// zh-CN: '来自'
 	String get from => '来自';
@@ -842,11 +942,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '群二维码'
 	String get groupQrcode => '群二维码';
 
-	/// zh-CN: '该二维码{days}天内（{date}前）有效，重新进入将更新'
-	String get groupQrcodeTips => '该二维码{days}天内（{date}前）有效，重新进入将更新';
+	/// zh-CN: '该二维码$days天内（$date前）有效，重新进入将更新'
+	String groupQrcodeTips({required Object days, required Object date}) => '该二维码${days}天内（${date}前）有效，重新进入将更新';
 
-	/// zh-CN: 'groupRemarkView'
-	String get groupRemarkView => 'groupRemarkView';
+	/// zh-CN: '群组备注视图'
+	String get groupRemarkView => '群组备注视图';
 
 	/// zh-CN: '群聊的备注仅自己可见'
 	String get groupRemarkVisibility => '群聊的备注仅自己可见';
@@ -869,11 +969,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '账号/邮箱'
 	String get hintLoginAccount => '账号/邮箱';
 
-	/// zh-CN: 'httpParse'
-	String get httpParse => 'httpParse';
+	/// zh-CN: 'HTTP解析'
+	String get httpParse => 'HTTP解析';
 
-	/// zh-CN: 'httpResponse'
-	String get httpResponse => 'httpResponse';
+	/// zh-CN: 'HTTP响应'
+	String get httpResponse => 'HTTP响应';
 
 	/// zh-CN: '我是'
 	String get iAm => '我是';
@@ -884,14 +984,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '[图片]'
 	String get imageMessage => '[图片]';
 
-	/// zh-CN: '{param}呼入'
-	String get incomingCall => '{param}呼入';
+	/// zh-CN: '$param呼入'
+	String incomingCall({required Object param}) => '${param}呼入';
 
 	/// zh-CN: '信息'
 	String get info => '信息';
 
-	/// zh-CN: '你的账号已于{param}在其他设备登录'
-	String get infoLoggedInOnAnotherDevice => '你的账号已于{param}在其他设备登录';
+	/// zh-CN: '你的账号已于$param在其他设备登录'
+	String infoLoggedInOnAnotherDevice({required Object param}) => '你的账号已于${param}在其他设备登录';
 
 	/// zh-CN: '发起群聊'
 	String get initiateChat => '发起群聊';
@@ -899,8 +999,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '立即安装'
 	String get installNow => '立即安装';
 
-	/// zh-CN: 'AppStore未上架或AppID[{param}]不存在'
-	String get iosAppIdUnknown => 'AppStore未上架或AppID[{param}]不存在';
+	/// zh-CN: 'AppStore未上架或AppID[$param]不存在'
+	String iosAppIdUnknown({required Object param}) => 'AppStore未上架或AppID[${param}]不存在';
 
 	/// zh-CN: '意大利语（意大利）'
 	String get itIt => '意大利语（意大利）';
@@ -920,8 +1020,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '语言设置'
 	String get languageSetting => '语言设置';
 
-	/// zh-CN: 'languageState'
-	String get languageState => 'languageState';
+	/// zh-CN: '语言状态'
+	String get languageState => '语言状态';
 
 	/// zh-CN: '最近活跃时间'
 	String get lastActiveTime => '最近活跃时间';
@@ -929,14 +1029,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时间。'
 	String get lastActiveTips => '当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时间。';
 
-	/// zh-CN: '{param}天前'
-	String get lastSeenDaysAgo => '{param}天前';
-
 	/// zh-CN: '隐藏在线状态'
 	String get lastSeenHide => '隐藏在线状态';
-
-	/// zh-CN: '{param}小时前'
-	String get lastSeenHoursAgo => '{param}小时前';
 
 	/// zh-CN: '刚刚上线'
 	String get lastSeenJustNow => '刚刚上线';
@@ -944,20 +1038,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '很久以前上线'
 	String get lastSeenLongTimeAgo => '很久以前上线';
 
-	/// zh-CN: '{param}分钟前'
-	String get lastSeenMinutesAgo => '{param}分钟前';
-
-	/// zh-CN: '{param}个月前'
-	String get lastSeenMonthsAgo => '{param}个月前';
+	/// zh-CN: '$param个月前'
+	String lastSeenMonthsAgo({required Object param}) => '${param}个月前';
 
 	/// zh-CN: '从未上线'
 	String get lastSeenNever => '从未上线';
 
-	/// zh-CN: '{param}周前'
-	String get lastSeenWeeksAgo => '{param}周前';
+	/// zh-CN: '$param周前'
+	String lastSeenWeeksAgo({required Object param}) => '${param}周前';
 
-	/// zh-CN: '上次在线 {param}'
-	String get lastSeenExactTime => '上次在线 {param}';
+	/// zh-CN: '上次在线 $param'
+	String lastSeenExactTime({required Object param}) => '上次在线 ${param}';
 
 	/// zh-CN: '请留下您宝贵的意见和建议'
 	String get leaveYourSuggestions => '请留下您宝贵的意见和建议';
@@ -968,8 +1059,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '直播'
 	String get liveBroadcast => '直播';
 
-	/// zh-CN: 'liveRoomListView'
-	String get liveRoomListView => 'liveRoomListView';
+	/// zh-CN: '直播间列表视图'
+	String get liveRoomListView => '直播间列表视图';
 
 	/// zh-CN: '推流页面'
 	String get publisherPage => '推流页面';
@@ -1009,6 +1100,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '注销账号'
 	String get logoutAccount => '注销账号';
+
+	/// zh-CN: '正在退出登录...'
+	String get loggingOut => '正在退出登录...';
 
 	/// zh-CN: '《注销须知》'
 	String get logoutNotice => '《注销须知》';
@@ -1058,17 +1152,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '消息内容'
 	String get messageContent => '消息内容';
 
-	/// zh-CN: 'messageHandlingMixin'
-	String get messageHandlingMixin => 'messageHandlingMixin';
+	/// zh-CN: '消息处理混入'
+	String get messageHandlingMixin => '消息处理混入';
 
-	/// zh-CN: 'messageLocationBuilder'
-	String get messageLocationBuilder => 'messageLocationBuilder';
+	/// zh-CN: '消息位置构建器'
+	String get messageLocationBuilder => '消息位置构建器';
 
 	/// zh-CN: '消息标记'
 	String get messageMarkTitle => '消息标记';
-
-	/// zh-CN: '消息免打扰'
-	String get messageMute => '消息免打扰';
 
 	/// zh-CN: '消息通知'
 	String get messageNotification => '消息通知';
@@ -1076,20 +1167,32 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '消息已撤回'
 	String get messageRevoked => '消息已撤回';
 
-	/// zh-CN: 'messageRevokedBuilder'
-	String get messageRevokedBuilder => 'messageRevokedBuilder';
+	/// zh-CN: '引用的消息不可用'
+	String get quoteMessageNotAvailable => '引用的消息不可用';
+
+	/// zh-CN: '自定义消息'
+	String get customMessage => '自定义消息';
+
+	/// zh-CN: '名片'
+	String get card => '名片';
+
+	/// zh-CN: '消息撤回构建器'
+	String get messageRevokedBuilder => '消息撤回构建器';
 
 	/// zh-CN: '消息类型'
 	String get messageType => '消息类型';
 
-	/// zh-CN: 'messageVisitCardBuilder'
-	String get messageVisitCardBuilder => 'messageVisitCardBuilder';
+	/// zh-CN: '消息名片构建器'
+	String get messageVisitCardBuilder => '消息名片构建器';
 
 	/// zh-CN: '撤回了一条消息'
 	String get messageWasWithdrawn => '撤回了一条消息';
 
-	/// zh-CN: 'messageWebrtcBuilder'
-	String get messageWebrtcBuilder => 'messageWebrtcBuilder';
+	/// zh-CN: '$param撤回了一条消息'
+	String messageWasWithdrawnWithTitle({required Object param}) => '${param}撤回了一条消息';
+
+	/// zh-CN: '音视频消息构建器'
+	String get messageWebrtcBuilder => '音视频消息构建器';
 
 	/// zh-CN: '麦克风'
 	String get microphone => '麦克风';
@@ -1142,8 +1245,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。'
 	String get nearbyPeopleExplain => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n\n你的电话号码将会被隐藏。';
 
-	/// zh-CN: '和附近的人交换联系方式，结交新朋友'
-	String get nearbyPeopleTips => '和附近的人交换联系方式，结交新朋友';
+	/// zh-CN: '与附近的人交换联系方式，结交新朋友'
+	String get nearbyPeopleTips => '与附近的人交换联系方式，结交新朋友';
 
 	/// zh-CN: '需要继续加油'
 	String get needContinueWorkHard => '需要继续加油';
@@ -1151,23 +1254,23 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '需要确认提交，该操作才生效'
 	String get needSubmitEffect => '需要确认提交，该操作才生效';
 
+	/// zh-CN: '$param失败，请检查网络连接'
+	String networkErrorWithAction({required Object param}) => '${param}失败，请检查网络连接';
+
 	/// zh-CN: '网络连接异常'
 	String get networkException => '网络连接异常';
+
+	/// zh-CN: '网络错误'
+	String get errorNetwork => '网络错误';
 
 	/// zh-CN: '网络状态异常，需要打开网络才能够查看数据'
 	String get networkExceptionPlaseNeedNetworkToViewData => '网络状态异常，需要打开网络才能够查看数据';
 
-	/// zh-CN: 'networkFailureGuidance'
-	String get networkFailureGuidance => 'networkFailureGuidance';
+	/// zh-CN: '网络失败指引'
+	String get networkFailureGuidance => '网络失败指引';
 
-	/// zh-CN: 'networkFailureTips'
-	String get networkFailureTips => 'networkFailureTips';
-
-	/// zh-CN: '网络故障，请重试！'
-	String get networkFailureTryAgain => '网络故障，请重试！';
-
-	/// zh-CN: '当前网络不可用。'
-	String get networkNotAvailable => '当前网络不可用。';
+	/// zh-CN: '网络失败提示'
+	String get networkFailureTips => '网络失败提示';
 
 	/// zh-CN: '新的朋友'
 	String get newFriend => '新的朋友';
@@ -1177,6 +1280,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '检测到新版本'
 	String get newVersionDetected => '检测到新版本';
+
+	/// zh-CN: '检测到新版本 $param'
+	String newVersionDetectedWithVersion({required Object param}) => '检测到新版本 ${param}';
 
 	/// zh-CN: '新注册的人'
 	String get newlyRegisteredPeople => '新注册的人';
@@ -1190,8 +1296,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '昵称修改后，只会在此群内显示，群内成员都可以看见。'
 	String get nicknameChangeVisibility => '昵称修改后，只会在此群内显示，群内成员都可以看见。';
 
-	/// zh-CN: '还可输入{param}个字符'
-	String get nicknameCharsRemaining => '还可输入{param}个字符';
+	/// zh-CN: '还可输入$param个字符'
+	String nicknameCharsRemaining({required Object param}) => '还可输入${param}个字符';
 
 	/// zh-CN: '昵称已被使用，请选择其他昵称'
 	String get nicknameConflictError => '昵称已被使用，请选择其他昵称';
@@ -1283,14 +1389,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '您没有安装任何地图APP哦'
 	String get notInstallAnyMapApp => '您没有安装任何地图APP哦';
 
-	/// zh-CN: '不让他（她）看'
-	String get notLetHimSee => '不让他（她）看';
+	/// zh-CN: '不让TA看'
+	String get notLetHimSee => '不让TA看';
 
 	/// zh-CN: '没有收到验证码？'
 	String get notReceiveCoeQ => '没有收到验证码？';
 
-	/// zh-CN: '不看他（她）'
-	String get notSeeHim => '不看他（她）';
+	/// zh-CN: '不看TA'
+	String get notSeeHim => '不看TA';
 
 	/// zh-CN: '未设置'
 	String get notSet => '未设置';
@@ -1304,11 +1410,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '未检测到新版本'
 	String get nowNewVersion => '未检测到新版本';
 
-	/// zh-CN: '{param}个'
-	String get numUnit => '{param}个';
+	/// zh-CN: '$param个'
+	String numUnit({required Object param}) => '${param}个';
 
 	/// zh-CN: '已关闭'
-	String get off => '已关闭';
+	String get off => _root.disabled;
 
 	/// zh-CN: '离线'
 	String get offline => '离线';
@@ -1317,7 +1423,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	String get offlineNotification => '下线通知';
 
 	/// zh-CN: '已开启'
-	String get on => '已开启';
+	String get on => _root.enabled;
 
 	/// zh-CN: '在线'
 	String get online => '在线';
@@ -1352,14 +1458,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '包大小'
 	String get packageSize => '包大小';
 
-	/// zh-CN: '{param}已存在'
-	String get paramAlreadyExist => '{param}已存在';
+	/// zh-CN: '$param已存在'
+	String paramAlreadyExist({required Object param}) => '${param}已存在';
 
-	/// zh-CN: '{param}格式有误'
-	String get paramFormatError => '{param}格式有误';
+	/// zh-CN: '$param格式有误'
+	String paramFormatError({required Object param}) => '${param}格式有误';
 
-	/// zh-CN: '{param}登录'
-	String get paramLogin => '{param}登录';
+	/// zh-CN: '$param登录'
+	String paramLogin({required Object param}) => '${param}登录';
 
 	/// zh-CN: '密码'
 	String get password => '密码';
@@ -1373,23 +1479,23 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '对方无应答...'
 	String get peerNoResponse => '对方无应答...';
 
-	/// zh-CN: 'peopleInfoMoreLogic'
-	String get peopleInfoMoreLogic => 'peopleInfoMoreLogic';
+	/// zh-CN: '用户信息更多逻辑'
+	String get peopleInfoMoreLogic => '用户信息更多逻辑';
 
-	/// zh-CN: 'peopleInfoSameGroupView'
-	String get peopleInfoSameGroupView => 'peopleInfoSameGroupView';
+	/// zh-CN: '同群用户视图'
+	String get peopleInfoSameGroupView => '同群用户视图';
 
 	/// zh-CN: '附近的人'
 	String get peopleNearby => '附近的人';
 
-	/// zh-CN: 'peopleNearbyLogic'
-	String get peopleNearbyLogic => 'peopleNearbyLogic';
+	/// zh-CN: '附近的人逻辑'
+	String get peopleNearbyLogic => '附近的人逻辑';
 
 	/// zh-CN: '每分钟只能请求一次'
 	String get perMinuteOnce => '每分钟只能请求一次';
 
-	/// zh-CN: 'permission'
-	String get permission => 'permission';
+	/// zh-CN: '权限'
+	String get permission => '权限';
 
 	/// zh-CN: '权限获取失败'
 	String get permissionAcquisitionFailed => '权限获取失败';
@@ -1424,8 +1530,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '请检查你的网络设置。'
 	String get pleaseCheckNetwork => '请检查你的网络设置。';
 
-	/// zh-CN: '请输入{param}'
-	String get pleaseInputParam => '请输入{param}';
+	/// zh-CN: '请输入$param'
+	String pleaseInputParam({required Object param}) => '请输入${param}';
 
 	/// zh-CN: '请选择'
 	String get pleaseSelect => '请选择';
@@ -1457,8 +1563,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '重新编辑'
 	String get reEdit => '重新编辑';
 
-	/// zh-CN: '已经阅读并同意{param}'
-	String get readAgreeParam => '已经阅读并同意{param}';
+	/// zh-CN: '已经阅读并同意$param'
+	String readAgreeParam({required Object param}) => '已经阅读并同意${param}';
 
 	/// zh-CN: '最近聊天'
 	String get recentChats => '最近聊天';
@@ -1466,8 +1572,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '最近转发'
 	String get recentForwards => '最近转发';
 
-	/// zh-CN: 'recentlyRegisteredUser'
-	String get recentlyRegisteredUser => 'recentlyRegisteredUser';
+	/// zh-CN: '最近注册用户'
+	String get recentlyRegisteredUser => '最近注册用户';
 
 	/// zh-CN: '最近使用'
 	String get recentlyUsed => '最近使用';
@@ -1481,14 +1587,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '找回密码'
 	String get recoverPassword => '找回密码';
 
-	/// zh-CN: ''
-	String get recoverPasswordDesc => '';
+	/// zh-CN: '请输入您的邮箱地址，我们将把密码重置码发送给您。'
+	String get recoverPasswordDesc => '请输入您的邮箱地址，我们将把密码重置码发送给您。';
 
 	/// zh-CN: '不要感觉不好，这是常有的事。'
 	String get recoverPasswordIntro => '不要感觉不好，这是常有的事。';
 
 	/// zh-CN: '验证码发送成功'
 	String get recoverPasswordSuccess => '验证码发送成功';
+
+	/// zh-CN: '生日'
+	String get birthday => '生日';
 
 	/// zh-CN: '地区'
 	String get region => '地区';
@@ -1517,8 +1626,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '松开手指,取消发送'
 	String get releaseFingerCancelSending => '松开手指,取消发送';
 
-	/// zh-CN: '还可输入 {param} 个字符'
-	String get remainingChars => '还可输入 {param} 个字符';
+	/// zh-CN: '还可输入 $param 个字符'
+	String remainingChars({required Object param}) => '还可输入 ${param} 个字符';
 
 	/// zh-CN: '备注'
 	String get remark => '备注';
@@ -1589,8 +1698,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '扫描结果'
 	String get scanResult => '扫描结果';
 
-	/// zh-CN: 'scannerResult'
-	String get scannerResult => 'scannerResult';
+	/// zh-CN: '扫描结果'
+	String get scannerResult => '扫描结果';
 
 	/// zh-CN: '搜索'
 	String get search => '搜索';
@@ -1652,8 +1761,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '搜索结果'
 	String get searchResults => '搜索结果';
 
-	/// zh-CN: '第 {current} 个，共 {total} 个结果'
-	String get searchResultsCount => '第 {current} 个，共 {total} 个结果';
+	/// zh-CN: '第 $current 个，共 $total 个结果'
+	String searchResultsCount({required Object current, required Object total}) => '第 ${current} 个，共 ${total} 个结果';
 
 	/// zh-CN: '搜索建议'
 	String get searchSuggestions => '搜索建议';
@@ -1670,11 +1779,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '选择联系人'
 	String get selectContacts => '选择联系人';
 
-	/// zh-CN: '已选 ({count})'
-	String get selectedCount => '已选 ({count})';
+	/// zh-CN: '已选 ($count)'
+	String selectedCount({required Object count}) => '已选 (${count})';
 
-	/// zh-CN: 'selectFriend'
-	String get selectFriend => 'selectFriend';
+	/// zh-CN: '选择好友'
+	String get selectFriend => '选择好友';
 
 	/// zh-CN: '选择朋友'
 	String get selectFriends => '选择朋友';
@@ -1685,14 +1794,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '选择或输入标签'
 	String get selectOrEnterTag => '选择或输入标签';
 
-	/// zh-CN: 'selectRegionView'
-	String get selectRegionView => 'selectRegionView';
+	/// zh-CN: '选择地区视图'
+	String get selectRegionView => '选择地区视图';
 
 	/// zh-CN: '已选'
 	String get selected => '已选';
 
-	/// zh-CN: '{param} 个选定项目'
-	String get selectedItems => '{param} 个选定项目';
+	/// zh-CN: '$param 个选定项目'
+	String selectedItems({required Object param}) => '${param} 个选定项目';
 
 	/// zh-CN: '已选地区'
 	String get selectedRegion => '已选地区';
@@ -1711,6 +1820,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '发送给'
 	String get sendTo => '发送给';
+
+	/// zh-CN: '发送'
+	String get send => _root.buttonSend;
 
 	/// zh-CN: '发送者'
 	String get sender => '发送者';
@@ -1733,8 +1845,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '设置昵称'
 	String get setNickname => '设置昵称';
 
-	/// zh-CN: '设置{param}'
-	String get setParam => '设置{param}';
+	/// zh-CN: '设置$param'
+	String setParam({required Object param}) => '设置${param}';
 
 	/// zh-CN: '设置'
 	String get setting => '设置';
@@ -1745,8 +1857,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '已经有账号了？'
 	String get siginQ => '已经有账号了？';
 
-	/// zh-CN: '用{param}登录'
-	String get signInWith => '用{param}登录';
+	/// zh-CN: '用$param登录'
+	String signInWith({required Object param}) => '用${param}登录';
 
 	/// zh-CN: '个性签名'
 	String get signature => '个性签名';
@@ -1788,7 +1900,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	String get speed => '速度';
 
 	/// zh-CN: '收藏'
-	String get star => '收藏';
+	String get star => _root.markStar;
 
 	/// zh-CN: '状态'
 	String get status => '状态';
@@ -1853,17 +1965,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '本周'
 	String get thisWeek => '本周';
 
-	/// zh-CN: '{param}天前'
-	String get timeDaysAgo => '{param}天前';
+	/// zh-CN: '$param天前'
+	String timeDaysAgo({required Object param}) => '${param}天前';
 
-	/// zh-CN: '{param}小时前'
-	String get timeHoursAgo => '{param}小时前';
+	/// zh-CN: '$param小时前'
+	String timeHoursAgo({required Object param}) => '${param}小时前';
 
 	/// zh-CN: '刚刚'
 	String get timeJustNow => '刚刚';
 
-	/// zh-CN: '{param}分钟前'
-	String get timeMinutesAgo => '{param}分钟前';
+	/// zh-CN: '$param分钟前'
+	String timeMinutesAgo({required Object param}) => '${param}分钟前';
 
 	/// zh-CN: '时间范围'
 	String get timeRange => '时间范围';
@@ -1880,11 +1992,14 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '无网络'
 	String get tipConnectDesc => '无网络';
 
-	/// zh-CN: '将联系人"{param}"删除，同时删除与该联系人的聊天记录'
-	String get tipDeleteContact => '将联系人"{param}"删除，同时删除与该联系人的聊天记录';
+	/// zh-CN: '($param)'
+	String tipConnectDescWithParen({required Object param}) => '(${param})';
 
-	/// zh-CN: '占设备 {param1}‰ 存储空间({param2})'
-	String get tipDeviceSpace => '占设备 {param1}‰ 存储空间({param2})';
+	/// zh-CN: '将联系人"$param"删除，同时删除与该联系人的聊天记录'
+	String tipDeleteContact({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录';
+
+	/// zh-CN: '占设备 $param1‰ 存储空间($param2)'
+	String tipDeviceSpace({required Object param1, required Object param2}) => '占设备 ${param1}‰ 存储空间(${param2})';
 
 	/// zh-CN: '草稿'
 	String get tipDraft => '草稿';
@@ -1913,6 +2028,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '消息'
 	String get titleMessage => '消息';
 
+	/// zh-CN: '发现'
+	String get titleDiscover => '发现';
+
 	/// zh-CN: '我的'
 	String get titleMine => '我的';
 
@@ -1930,9 +2048,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '类型'
 	String get type => '类型';
-
-	/// zh-CN: '输入消息...'
-	String get typeMessage => '输入消息...';
 
 	/// zh-CN: '未应答'
 	String get unanswered => '未应答';
@@ -1952,8 +2067,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '不支持的文件类型'
 	String get unsupportedFileType => '不支持的文件类型';
 
-	/// zh-CN: '最多{param}个字'
-	String get upToWords => '最多{param}个字';
+	/// zh-CN: '最多$param个字'
+	String upToWords({required Object param}) => '最多${param}个字';
 
 	/// zh-CN: '更新日志'
 	String get updateLog => '更新日志';
@@ -1961,8 +2076,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '立即更新'
 	String get updateNow => '立即更新';
 
-	/// zh-CN: 'upgrade'
-	String get upgrade => 'upgrade';
+	/// zh-CN: '升级'
+	String get upgrade => '升级';
 
 	/// zh-CN: '上传中'
 	String get uploading => '上传中';
@@ -1982,17 +2097,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '用户不存在'
 	String get userNotExist => '用户不存在';
 
-	/// zh-CN: 'userOnlineStatusWidget'
-	String get userOnlineStatusWidget => 'userOnlineStatusWidget';
+	/// zh-CN: '用户在线状态组件'
+	String get userOnlineStatusWidget => '用户在线状态组件';
 
-	/// zh-CN: 'userTagRelationView'
-	String get userTagRelationView => 'userTagRelationView';
+	/// zh-CN: '用户标签关系视图'
+	String get userTagRelationView => '用户标签关系视图';
 
-	/// zh-CN: 'userTagSaveView'
-	String get userTagSaveView => 'userTagSaveView';
+	/// zh-CN: '用户标签保存视图'
+	String get userTagSaveView => '用户标签保存视图';
 
-	/// zh-CN: '对方发来的验证消息为：{param}'
-	String get verificationMessageSentByPeerIs => '对方发来的验证消息为：{param}';
+	/// zh-CN: '对方发来的验证消息为：$param'
+	String verificationMessageSentByPeerIs({required Object param}) => '对方发来的验证消息为：${param}';
 
 	/// zh-CN: '版本'
 	String get version => '版本';
@@ -2036,8 +2151,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '警告:'
 	String get warning => '警告:';
 
-	/// zh-CN: 'webView'
-	String get webView => 'webView';
+	/// zh-CN: '网页视图'
+	String get webView => '网页视图';
 
 	/// zh-CN: '网页加载中...'
 	String get webpageLoading => '网页加载中...';
@@ -2177,8 +2292,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '确认删除'
 	String get confirmDelete => '确认删除';
 
-	/// zh-CN: '处理中...'
-	String get processing => '处理中...';
+	/// zh-CN: '加载中'
+	String get processing => _root.loading;
 
 	/// zh-CN: '错误报告'
 	String get bugReport => '错误报告';
@@ -2210,6 +2325,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '密码长度为4-32的任意字符'
 	String get passwordLengthRequirement => '密码长度为4-32的任意字符';
 
+	/// zh-CN: '密码至少需要$min个字符'
+	String passwordMinLength({required Object min}) => '密码至少需要${min}个字符';
+
 	/// zh-CN: '请输入密码'
 	String get pleaseEnterPassword => '请输入密码';
 
@@ -2228,11 +2346,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '删除中...'
 	String get deleting => '删除中...';
 
-	/// zh-CN: '操作成功'
-	String get operationSuccess => '操作成功';
+	/// zh-CN: '成功'
+	String get operationSuccess => _root.success;
 
-	/// zh-CN: '操作失败'
-	String get operationFailed => '操作失败';
+	/// zh-CN: '错误'
+	String get operationFailed => _root.error;
 
 	/// zh-CN: '功能开发中...'
 	String get featureInDevelopment => '功能开发中...';
@@ -2252,17 +2370,1301 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '请输入手机号'
 	String get enterMobileHint => '请输入手机号';
 
-	/// zh-CN: '重新发送 ({count}秒)'
-	String get resendCodeWithCount => '重新发送 ({count}秒)';
+	/// zh-CN: '重新发送（$count秒）'
+	String resendCodeWithCount({required Object count}) => '重新发送（${count}秒）';
 
-	/// zh-CN: '已发送至 {param}'
-	String get codeSentToMobileParam => '已发送至 {param}';
+	/// zh-CN: '已发送至 $param'
+	String codeSentToMobileParam({required Object param}) => '已发送至 ${param}';
 
 	/// zh-CN: '绑定成功'
 	String get bindSuccess => '绑定成功';
 
-	/// zh-CN: '手机号已更新为 {param}'
-	String get mobileUpdatedToParam => '手机号已更新为 {param}';
+	/// zh-CN: '手机号已更新为 $param'
+	String mobileUpdatedToParam({required Object param}) => '手机号已更新为 ${param}';
+
+	/// zh-CN: '当前'
+	String get current => '当前';
+
+	/// zh-CN: '发布公告'
+	String get groupAnnouncementPublish => '发布公告';
+
+	/// zh-CN: '请输入公告内容'
+	String get pleaseEnterAnnouncementContent => '请输入公告内容';
+
+	/// zh-CN: '选择有效期（可选）'
+	String get selectExpirationDateOptional => '选择有效期（可选）';
+
+	/// zh-CN: '发布'
+	String get publish => '发布';
+
+	/// zh-CN: '确定要删除这条公告吗？'
+	String get groupAnnouncementDeleteConfirm => '确定要删除这条公告吗？';
+
+	/// zh-CN: '删除'
+	String get groupAnnouncementDelete => '删除';
+
+	/// zh-CN: '清除聊天记录'
+	String get privacyClearChatHistory => '清除聊天记录';
+
+	/// zh-CN: '确定要清除所有聊天记录吗？此操作不可恢复。'
+	String get privacyClearChatHistoryConfirm => '确定要清除所有聊天记录吗？此操作不可恢复。';
+
+	/// zh-CN: '注销账号'
+	String get privacyLogoutAccount => '注销账号';
+
+	/// zh-CN: '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。'
+	String get privacyLogoutAccountConfirm => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。';
+
+	/// zh-CN: '隐私设置'
+	String get privacySettings => '隐私设置';
+
+	/// zh-CN: '搜索设置'
+	String get searchSettings => '搜索设置';
+
+	/// zh-CN: '允许通过账号搜索'
+	String get allowSearchByAccount => '允许通过账号搜索';
+
+	/// zh-CN: '其他用户可以通过你的账号找到你'
+	String get allowSearchByAccountDesc => '其他用户可以通过你的账号找到你';
+
+	/// zh-CN: '允许通过手机号添加'
+	String get allowAddByPhone => '允许通过手机号添加';
+
+	/// zh-CN: '其他用户可以通过你的手机号添加你为好友'
+	String get allowAddByPhoneDesc => '其他用户可以通过你的手机号添加你为好友';
+
+	/// zh-CN: '允许通过二维码添加'
+	String get allowAddByQR => '允许通过二维码添加';
+
+	/// zh-CN: '其他用户可以通过扫描你的二维码添加你为好友'
+	String get allowAddByQRDesc => '其他用户可以通过扫描你的二维码添加你为好友';
+
+	/// zh-CN: '状态设置'
+	String get statusSettings => '状态设置';
+
+	/// zh-CN: '显示在线状态'
+	String get showOnlineStatus => '显示在线状态';
+
+	/// zh-CN: '好友可以看到你的在线状态'
+	String get showOnlineStatusDesc => '好友可以看到你的在线状态';
+
+	/// zh-CN: '附近的人可见'
+	String get allowNearbyVisible => '附近的人可见';
+
+	/// zh-CN: '数据设置'
+	String get dataSettings => '数据设置';
+
+	/// zh-CN: '清除聊天记录'
+	String get clearChatRecords => '清除聊天记录';
+
+	/// zh-CN: '清除所有聊天记录，此操作不可恢复'
+	String get clearChatRecordsDesc => '清除所有聊天记录，此操作不可恢复';
+
+	/// zh-CN: '注销账号'
+	String get deleteAccountAction => '注销账号';
+
+	/// zh-CN: '永久删除账号和所有数据，此操作不可恢复'
+	String get deleteAccountActionDesc => '永久删除账号和所有数据，此操作不可恢复';
+
+	/// zh-CN: '聊天记录已清除'
+	String get chatHistoryCleared => '聊天记录已清除';
+
+	/// zh-CN: '账号注销功能暂未开放'
+	String get accountDeletionNotAvailable => '账号注销功能暂未开放';
+
+	/// zh-CN: '重新发送'
+	String get chatResend => '重新发送';
+
+	/// zh-CN: '删除消息'
+	String get chatDeleteMessage => '删除消息';
+
+	/// zh-CN: '复制'
+	String get chatCopy => '复制';
+
+	/// zh-CN: '保存图片'
+	String get chatSaveImage => '保存图片';
+
+	/// zh-CN: '回复'
+	String get chatReply => '回复';
+
+	/// zh-CN: '仅删除本地'
+	String get chatDeleteLocalOnly => '仅删除本地';
+
+	/// zh-CN: '打开文件'
+	String get chatOpenFile => '打开文件';
+
+	/// zh-CN: '下载文件'
+	String get chatDownloadFile => '下载文件';
+
+	/// zh-CN: '分享文件'
+	String get chatShareFile => '分享文件';
+
+	/// zh-CN: '打开链接'
+	String get chatOpenLink => '打开链接';
+
+	/// zh-CN: '复制链接'
+	String get chatCopyLink => '复制链接';
+
+	/// zh-CN: '分享链接'
+	String get chatShareLink => '分享链接';
+
+	/// zh-CN: '删除失败'
+	String get chatDeleteFailed => '删除失败';
+
+	/// zh-CN: '网络连接失败，是否仅删除本地消息？'
+	String get chatNetworkErrorDeleteLocal => '网络连接失败，是否仅删除本地消息？';
+
+	/// zh-CN: '确定要删除这条消息吗？此操作无法撤销。'
+	String get chatDeleteConfirm => '确定要删除这条消息吗？此操作无法撤销。';
+
+	/// zh-CN: '仅在你这里删除，对方仍可见'
+	String get chatDeleteOnlyLocal => '仅在你这里删除，对方仍可见';
+
+	/// zh-CN: '从所有人的聊天中删除，无法撤销'
+	String get chatDeleteAll => '从所有人的聊天中删除，无法撤销';
+
+	/// zh-CN: '聊天初始化失败'
+	String get chatInitFailed => '聊天初始化失败';
+
+	/// zh-CN: '拍摄失败'
+	String get cameraShootFailed => '拍摄失败';
+
+	/// zh-CN: '保存'
+	String get avatarSave => '保存';
+
+	/// zh-CN: '选择照片'
+	String get avatarSelectPhoto => '选择照片';
+
+	/// zh-CN: '删除头像'
+	String get avatarDeleteAvatar => '删除头像';
+
+	/// zh-CN: '拍照'
+	String get avatarTakePhoto => '拍照';
+
+	/// zh-CN: '从相册选择'
+	String get avatarSelectFromAlbum => '从相册选择';
+
+	/// zh-CN: '编辑头像'
+	String get avatarEditAvatar => '编辑头像';
+
+	/// zh-CN: '使用自定义颜色'
+	String get backgroundUseCustomColor => '使用自定义颜色';
+
+	/// zh-CN: '仅适用于纯色背景'
+	String get backgroundOnlySolidColor => '仅适用于纯色背景';
+
+	/// zh-CN: '选择颜色'
+	String get backgroundSelectColor => '选择颜色';
+
+	/// zh-CN: '分享资料'
+	String get profileShareProfile => '分享资料';
+
+	/// zh-CN: '导出资料'
+	String get profileExportProfile => '导出资料';
+
+	/// zh-CN: '确定要清空所有标签吗？'
+	String get tagClearAllConfirm => '确定要清空所有标签吗？';
+
+	/// zh-CN: '确认清空'
+	String get tagClearAll => '确认清空';
+
+	/// zh-CN: '钱包'
+	String get wallet => '钱包';
+
+	/// zh-CN: '发送'
+	String get momentsSend => '发送';
+
+	/// zh-CN: '加载中'
+	String get saving => _root.loading;
+
+	/// zh-CN: '播放失败'
+	String get audioPlayFailed => '播放失败';
+
+	/// zh-CN: '已有压缩任务在进行中'
+	String get videoCompressInProgress => '已有压缩任务在进行中';
+
+	/// zh-CN: '输入文件不存在'
+	String get videoFileNotFound => '输入文件不存在';
+
+	/// zh-CN: '压缩失败，返回结果为空'
+	String get videoCompressFailed => '压缩失败，返回结果为空';
+
+	/// zh-CN: '进一步压缩失败'
+	String get videoFurtherCompressFailed => '进一步压缩失败';
+
+	/// zh-CN: '正在压缩视频...'
+	String get videoCompressing => '正在压缩视频...';
+
+	/// zh-CN: '您已被设备【$device】强制下线'
+	String forcedOfflineByDevice({required Object device}) => '您已被设备【${device}】强制下线';
+
+	/// zh-CN: '小程序、公众号、文章、朋友圈、和表情等'
+	String get searchDescription => '小程序、公众号、文章、朋友圈、和表情等';
+
+	/// zh-CN: '看一看'
+	String get topStories => '看一看';
+
+	/// zh-CN: '修改登录密码'
+	String get changeLoginPassword => '修改登录密码';
+
+	/// zh-CN: '测试直接跳转'
+	String get testDirectNavigation => '测试直接跳转';
+
+	/// zh-CN: '提示'
+	String get loginExpiredTitle => '提示';
+
+	/// zh-CN: '登录过期,请重新登录'
+	String get loginExpiredMessage => '登录过期,请重新登录';
+
+	/// zh-CN: '标签名称不能为空'
+	String get tagNameRequired => '标签名称不能为空';
+
+	/// zh-CN: '标签名称不能超过14个字符'
+	String get tagNameTooLong => '标签名称不能超过14个字符';
+
+	/// zh-CN: '标签名称不能包含逗号'
+	String get tagNameNoComma => '标签名称不能包含逗号';
+
+	/// zh-CN: '标签名称不能包含前后空格'
+	String get tagNameNoLeadingTrailingSpaces => '标签名称不能包含前后空格';
+
+	/// zh-CN: '标签名称不能包含特殊字符'
+	String get tagNameNoSpecialChars => '标签名称不能包含特殊字符';
+
+	/// zh-CN: '建议标签'
+	String get suggestedTags => '建议标签';
+
+	/// zh-CN: '常用标签'
+	String get commonTags => '常用标签';
+
+	/// zh-CN: '标签管理'
+	String get tagManagement => '标签管理';
+
+	/// zh-CN: '当前标签 ($param)'
+	String currentTags({required Object param}) => '当前标签 (${param})';
+
+	/// zh-CN: '加载标签数据失败'
+	String get loadingTagDataFailed => '加载标签数据失败';
+
+	/// zh-CN: '请输入内容'
+	String get pleaseEnterContent => '请输入内容';
+
+	/// zh-CN: '敬请期待'
+	String get comingSoon => '敬请期待';
+
+	/// zh-CN: '聊天背景'
+	String get chatBackground => '聊天背景';
+
+	/// zh-CN: '系统默认'
+	String get systemDefault => '系统默认';
+
+	/// zh-CN: '使用系统默认背景'
+	String get useSystemDefaultBackground => '使用系统默认背景';
+
+	/// zh-CN: '自定义'
+	String get custom => '自定义';
+
+	/// zh-CN: '选择自定义背景图片'
+	String get selectCustomBackgroundImage => '选择自定义背景图片';
+
+	/// zh-CN: '当前背景'
+	String get currentBackground => '当前背景';
+
+	/// zh-CN: '预览区域'
+	String get previewArea => '预览区域';
+
+	/// zh-CN: '背景透明度'
+	String get backgroundTransparency => '背景透明度';
+
+	/// zh-CN: '默认背景'
+	String get defaultBackground => '默认背景';
+
+	/// zh-CN: '几何图案'
+	String get geometricPattern => '几何图案';
+
+	/// zh-CN: '简约纹理'
+	String get simpleTexture => '简约纹理';
+
+	/// zh-CN: '波纹图案'
+	String get ripplePattern => '波纹图案';
+
+	/// zh-CN: '渐变蓝'
+	String get gradientBlue => '渐变蓝';
+
+	/// zh-CN: '渐变紫'
+	String get gradientPurple => '渐变紫';
+
+	/// zh-CN: '纯色背景'
+	String get solidColorBackground => '纯色背景';
+
+	/// zh-CN: '自定义图片'
+	String get customImage => '自定义图片';
+
+	/// zh-CN: '选择图片失败'
+	String get selectImageFailed => '选择图片失败';
+
+	/// zh-CN: '拍照失败'
+	String get takePhotoFailed => '拍照失败';
+
+	/// zh-CN: '选择视频失败'
+	String get selectVideoFailed => '选择视频失败';
+
+	/// zh-CN: '录制视频失败'
+	String get recordVideoFailed => '录制视频失败';
+
+	/// zh-CN: '选择文件失败'
+	String get selectFileFailed => '选择文件失败';
+
+	/// zh-CN: '位置选择功能暂未实现'
+	String get locationSelectNotImplemented => '位置选择功能暂未实现';
+
+	/// zh-CN: '选择位置失败'
+	String get selectLocationFailed => '选择位置失败';
+
+	/// zh-CN: '名片发送功能暂未实现'
+	String get sendCardNotImplemented => '名片发送功能暂未实现';
+
+	/// zh-CN: '发送名片失败'
+	String get sendCardFailed => '发送名片失败';
+
+	/// zh-CN: '语音录制结果为空'
+	String get voiceRecordResultEmpty => '语音录制结果为空';
+
+	/// zh-CN: '上传响应数据无效'
+	String get uploadResponseInvalid => '上传响应数据无效';
+
+	/// zh-CN: '语音发送成功'
+	String get voiceSendSuccess => '语音发送成功';
+
+	/// zh-CN: '语音发送失败'
+	String get voiceSendFailed => '语音发送失败';
+
+	/// zh-CN: '功能暂未实现'
+	String get featureNotImplemented => '功能暂未实现';
+
+	/// zh-CN: '收藏发送功能暂未实现'
+	String get sendCollectionNotImplemented => '收藏发送功能暂未实现';
+
+	/// zh-CN: '文件打开功能暂未实现'
+	String get fileOpenNotImplemented => '文件打开功能暂未实现';
+
+	/// zh-CN: '文件分享功能暂未实现'
+	String get fileShareNotImplemented => '文件分享功能暂未实现';
+
+	/// zh-CN: '已复制到剪贴板'
+	String get copiedToClipboard => '已复制到剪贴板';
+
+	/// zh-CN: '语音文件无效'
+	String get voiceFileInvalid => '语音文件无效';
+
+	/// zh-CN: '已复制链接'
+	String get copiedLink => '已复制链接';
+
+	/// zh-CN: '重试成功'
+	String get retrySuccess => '重试成功';
+
+	/// zh-CN: '删除成功'
+	String get deleteSuccess => '删除成功';
+
+	/// zh-CN: '本地删除成功'
+	String get localDeleteSuccess => '本地删除成功';
+
+	/// zh-CN: '本地删除失败'
+	String get localDeleteFailed => '本地删除失败';
+
+	/// zh-CN: '撤回成功'
+	String get revokeSuccess => '撤回成功';
+
+	/// zh-CN: '编辑内容不能为空'
+	String get editContentCannotBeEmpty => '编辑内容不能为空';
+
+	/// zh-CN: '编辑成功'
+	String get editSuccess => '编辑成功';
+
+	/// zh-CN: '未找到该消息'
+	String get messageNotFound => '未找到该消息';
+
+	/// zh-CN: '未找到会话'
+	String get conversationNotFound => '未找到会话';
+
+	/// zh-CN: '阅后即焚'
+	String get burnAfterReading => '阅后即焚';
+
+	/// zh-CN: '已开启'
+	String get enabled => '已开启';
+
+	/// zh-CN: '已关闭'
+	String get disabled => '已关闭';
+
+	/// zh-CN: '销毁时间'
+	String get destroyTime => '销毁时间';
+
+	/// zh-CN: '可视阈值已读'
+	String get visibleThresholdRead => '可视阈值已读';
+
+	/// zh-CN: '已读阈值与延时'
+	String get readThresholdDelay => '已读阈值与延时';
+
+	/// zh-CN: '配置可视阈值'
+	String get configureVisibleThreshold => '配置可视阈值';
+
+	/// zh-CN: '字体大小设置已更新'
+	String get fontSizeSettingUpdated => '字体大小设置已更新';
+
+	/// zh-CN: '字体大小设置'
+	String get fontSizeSetting => '字体大小设置';
+
+	/// zh-CN: '预览效果'
+	String get previewEffect => '预览效果';
+
+	/// zh-CN: '这是标题文本'
+	String get thisIsTitleText => '这是标题文本';
+
+	/// zh-CN: '这是辅助说明文字'
+	String get thisIsAuxiliaryText => '这是辅助说明文字';
+
+	/// zh-CN: '可读性良好'
+	String get goodReadability => '可读性良好';
+
+	/// zh-CN: '字体偏小，可能影响阅读'
+	String get fontTooSmallMayAffect => '字体偏小，可能影响阅读';
+
+	/// zh-CN: '拖动滑块调整字体大小'
+	String get dragSliderAdjustFontSize => '拖动滑块调整字体大小';
+
+	/// zh-CN: '待完善'
+	String get toBeCompleted => '待完善';
+
+	/// zh-CN: '个人信息'
+	String get personalInfo => '个人信息';
+
+	/// zh-CN: '未设置昵称'
+	String get nicknameNotSet => '未设置昵称';
+
+	/// zh-CN: '资料完善度'
+	String get profileCompleteness => '资料完善度';
+
+	/// zh-CN: '基本信息'
+	String get basicInfo => '基本信息';
+
+	/// zh-CN: '联系信息'
+	String get contactInfo => '联系信息';
+
+	/// zh-CN: '编辑标签'
+	String get editTags => '编辑标签';
+
+	/// zh-CN: '标签统计'
+	String get tagStatistics => '标签统计';
+
+	/// zh-CN: '可选择'
+	String get availableCount => '可选择';
+
+	/// zh-CN: '最常用'
+	String get mostUsed => '最常用';
+
+	/// zh-CN: '快捷操作'
+	String get quickActions => '快捷操作';
+
+	/// zh-CN: '已发送'
+	String get alreadySent => '已发送';
+
+	/// zh-CN: '暂时没有新的好友申请'
+	String get noNewFriendRequests => '暂时没有新的好友申请';
+
+	/// zh-CN: '请输入验证消息'
+	String get pleaseEnterVerificationMessage => '请输入验证消息';
+
+	/// zh-CN: '请输入备注名'
+	String get pleaseEnterRemark => '请输入备注名';
+
+	/// zh-CN: '未知地区'
+	String get unknownRegion => '未知地区';
+
+	/// zh-CN: '暂无共同群组'
+	String get noCommonGroups => '暂无共同群组';
+
+	/// zh-CN: '暂无更多信息'
+	String get noMoreInfo => '暂无更多信息';
+
+	/// zh-CN: '该用户还没有设置个人签名等详细信息'
+	String get userNotSetSignature => '该用户还没有设置个人签名等详细信息';
+
+	/// zh-CN: '验证消息'
+	String get verificationMessage => '验证消息';
+
+	/// zh-CN: '请输入备注名'
+	String get enterRemark => '请输入备注名';
+
+	/// zh-CN: '评论...'
+	String get commentPlaceholder => '评论...';
+
+	/// zh-CN: '开启后：消息在被阅读后 $duration 自动销毁'
+	String burnEnabledMessage({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁';
+
+	/// zh-CN: '关闭后：消息不会自动销毁'
+	String get burnDisabledMessage => '关闭后：消息不会自动销毁';
+
+	/// zh-CN: '开启后：可见比例≥$percentage%，持续≥$delayms'
+	String visibleEnabledMessage({required Object percentage, required Object delayms}) => '开启后：可见比例≥${percentage}%，持续≥${delayms}';
+
+	/// zh-CN: '关闭后：不会基于可视自动已读'
+	String get visibleDisabledMessage => '关闭后：不会基于可视自动已读';
+
+	/// zh-CN: '可见比例: $percentage% | 延时: $delayms'
+	String visibleThresholdInfo({required Object percentage, required Object delayms}) => '可见比例: ${percentage}% | 延时: ${delayms}';
+
+	/// zh-CN: '可见比例 (0.1~1.0)'
+	String get visibleRatioLabel => '可见比例 (0.1~1.0)';
+
+	/// zh-CN: '延时毫秒 (>=100)'
+	String get delayMsLabel => '延时毫秒 (>=100)';
+
+	/// zh-CN: '暂无群公告'
+	String get noGroupAnnouncement => '暂无群公告';
+
+	/// zh-CN: '公告内容不能为空'
+	String get announcementContentCannotBeEmpty => '公告内容不能为空';
+
+	/// zh-CN: '公告发布成功'
+	String get announcementPublishSuccess => '公告发布成功';
+
+	/// zh-CN: '不支持的消息类型'
+	String get unsupportedMessageType => '不支持的消息类型';
+
+	/// zh-CN: '提示'
+	String get tips => '提示';
+
+	/// zh-CN: '功能暂未实现'
+	String get featureComingSoon => '功能暂未实现';
+
+	/// zh-CN: '明白了'
+	String get understood => '明白了';
+
+	/// zh-CN: '没问题'
+	String get noProblem => '没问题';
+
+	/// zh-CN: '马上到'
+	String get onMyWay => '马上到';
+
+	/// zh-CN: '其他设备'
+	String get otherDevice => '其他设备';
+
+	/// zh-CN: '强制下线'
+	String get sendOfflineCommand => '强制下线';
+
+	/// zh-CN: '已发送下线指令'
+	String get offlineCommandSent => '已发送下线指令';
+
+	/// zh-CN: '操作选项'
+	String get operationOptions => '操作选项';
+
+	/// zh-CN: '复制文本内容'
+	String get copyTextContent => '复制文本内容';
+
+	/// zh-CN: '分享给其他好友'
+	String get shareWithOtherFriends => '分享给其他好友';
+
+	/// zh-CN: '为收藏添加标签'
+	String get addTagsToFavorites => '为收藏添加标签';
+
+	/// zh-CN: '为收藏添加备注'
+	String get addRemarkToFavorites => '为收藏添加备注';
+
+	/// zh-CN: '删除此收藏'
+	String get deleteThisCollection => '删除此收藏';
+
+	/// zh-CN: '上拉加载更多'
+	String get pullUpLoadMore => '上拉加载更多';
+
+	/// zh-CN: '请输入标签'
+	String get pleaseEnterTags => '请输入标签';
+
+	/// zh-CN: '修改成功'
+	String get changeSuccess => '修改成功';
+
+	/// zh-CN: '登录密码'
+	String get loginPassword => '登录密码';
+
+	/// zh-CN: '用于登录IMBoy账号'
+	String get loginPasswordDesc => '用于登录IMBoy账号';
+
+	/// zh-CN: '登录密码已更新'
+	String get loginPasswordUpdated => '登录密码已更新';
+
+	/// zh-CN: '旧密码'
+	String get oldPassword => '旧密码';
+
+	/// zh-CN: '请输入旧密码'
+	String get enterOldPassword => '请输入旧密码';
+
+	/// zh-CN: '长度符合'
+	String get lengthOk => '长度符合';
+
+	/// zh-CN: '请输入新密码'
+	String get enterNewPassword => '请输入新密码';
+
+	/// zh-CN: '确认新密码'
+	String get confirmNewPassword => '确认新密码';
+
+	/// zh-CN: '请再次输入新密码'
+	String get enterNewPasswordAgain => '请再次输入新密码';
+
+	/// zh-CN: '两次密码不一致'
+	String get passwordMismatch => '两次密码不一致';
+
+	/// zh-CN: '验证通过'
+	String get validationPassed => '验证通过';
+
+	/// zh-CN: '修改失败'
+	String get changeFailed => '修改失败';
+
+	/// zh-CN: '请稍后重试'
+	String get pleaseTryAgainLater => '请稍后重试';
+
+	/// zh-CN: '已处理'
+	String get processed => '已处理';
+
+	/// zh-CN: '已提交'
+	String get submitted => '已提交';
+
+	/// zh-CN: '其他用户可以通过搜索找到我'
+	String get otherUsersCanFindMe => '其他用户可以通过搜索找到我';
+
+	/// zh-CN: '查看安全帮助'
+	String get viewSecurityHelp => '查看安全帮助';
+
+	/// zh-CN: '朋友圈'
+	String get moments => '朋友圈';
+
+	/// zh-CN: '余额'
+	String get balance => '余额';
+
+	/// zh-CN: '充值'
+	String get recharge => '充值';
+
+	/// zh-CN: '提现'
+	String get withdraw => '提现';
+
+	/// zh-CN: '交易记录'
+	String get transactionHistory => '交易记录';
+
+	/// zh-CN: '支付密码'
+	String get paymentPassword => '支付密码';
+
+	/// zh-CN: '设置支付密码'
+	String get setPaymentPassword => '设置支付密码';
+
+	/// zh-CN: '请输入支付密码'
+	String get enterPaymentPassword => '请输入支付密码';
+
+	/// zh-CN: '支付密码设置成功'
+	String get paymentPasswordSetSuccess => '支付密码设置成功';
+
+	/// zh-CN: '支付密码设置失败'
+	String get paymentPasswordSetFailed => '支付密码设置失败';
+
+	/// zh-CN: '没有找到下一条语音消息'
+	String get nextVoiceMessageNotFound => '没有找到下一条语音消息';
+
+	/// zh-CN: '没有下一条语音消息可播放'
+	String get noNextVoiceMessage => '没有下一条语音消息可播放';
+
+	/// zh-CN: '下一条语音消息没有音频文件路径'
+	String get nextVoiceMessageNoPath => '下一条语音消息没有音频文件路径';
+
+	/// zh-CN: '发送新消息'
+	String get sendNewMessage => '发送新消息';
+
+	/// zh-CN: '保存失败'
+	String get saveFailed => '保存失败';
+
+	/// zh-CN: '标记已读'
+	String get markRead => '标记已读';
+
+	/// zh-CN: '标记未读'
+	String get markUnread => '标记未读';
+
+	/// zh-CN: '发现'
+	String get discover => '发现';
+
+	/// zh-CN: '摇一摇'
+	String get shake => '摇一摇';
+
+	/// zh-CN: '提示'
+	String get tip => '提示';
+
+	/// zh-CN: '确认'
+	String get confirm => '确认';
+
+	/// zh-CN: '成功'
+	String get success => '成功';
+
+	/// zh-CN: '导出'
+	String get export => '导出';
+
+	/// zh-CN: '个人展示'
+	String get personalDisplay => '个人展示';
+
+	/// zh-CN: '个性签名'
+	String get personalSignature => '个性签名';
+
+	/// zh-CN: '个人背景'
+	String get personalBackground => '个人背景';
+
+	/// zh-CN: '设置背景图片'
+	String get setBackgroundImage => '设置背景图片';
+
+	/// zh-CN: '扩展信息'
+	String get extendedInfo => '扩展信息';
+
+	/// zh-CN: '职业'
+	String get profession => '职业';
+
+	/// zh-CN: '学校'
+	String get school => '学校';
+
+	/// zh-CN: '兴趣爱好'
+	String get hobbiesAndInterests => '兴趣爱好';
+
+	/// zh-CN: '功能设置'
+	String get functionSettings => '功能设置';
+
+	/// zh-CN: '我的二维码'
+	String get myQRCode => '我的二维码';
+
+	/// zh-CN: '管理个人信息的可见性'
+	String get manageVisibility => '管理个人信息的可见性';
+
+	/// zh-CN: '分享资料'
+	String get shareProfile => '分享资料';
+
+	/// zh-CN: '将个人资料分享给好友'
+	String get shareWithFriends => '将个人资料分享给好友';
+
+	/// zh-CN: '导出资料'
+	String get exportProfile => '导出资料';
+
+	/// zh-CN: '导出个人资料到本地'
+	String get exportToLocal => '导出个人资料到本地';
+
+	/// zh-CN: '从相册选择'
+	String get selectFromAlbum => '从相册选择';
+
+	/// zh-CN: '设置地区'
+	String get setRegion => '设置地区';
+
+	/// zh-CN: '设置个性签名'
+	String get setSignature => '设置个性签名';
+
+	/// zh-CN: '设置头像'
+	String get setAvatar => '设置头像';
+
+	/// zh-CN: '设置性别'
+	String get setGender => '设置性别';
+
+	/// zh-CN: '设置生日'
+	String get setBirthday => '设置生日';
+
+	/// zh-CN: '头像更新成功'
+	String get avatarUpdateSuccess => '头像更新成功';
+
+	/// zh-CN: '头像更新失败'
+	String get avatarUpdateFailed => '头像更新失败';
+
+	/// zh-CN: '音量增加'
+	String get volumeUp => '音量增加';
+
+	/// zh-CN: '音量减少'
+	String get volumeDown => '音量减少';
+
+	/// zh-CN: '快进 $seconds秒'
+	String fastForward({required Object seconds}) => '快进 ${seconds}秒';
+
+	/// zh-CN: '快退 $seconds秒'
+	String fastRewind({required Object seconds}) => '快退 ${seconds}秒';
+
+	/// zh-CN: '删除操作异常，请重试'
+	String get deleteOperationAbnormal => '删除操作异常，请重试';
+
+	/// zh-CN: '正在撤回...'
+	String get revoking => '正在撤回...';
+
+	/// zh-CN: '正在编辑...'
+	String get editing => '正在编辑...';
+
+	/// zh-CN: '消息ID为空，无法操作'
+	String get messageIdCannotBeEmpty => '消息ID为空，无法操作';
+
+	/// zh-CN: '开始撤回消息流程'
+	String get startRevokeMessageFlow => '开始撤回消息流程';
+
+	/// zh-CN: '撤回消息追踪'
+	String get revokeMessageTracking => '撤回消息追踪';
+
+	/// zh-CN: '使用新的action机制'
+	String get useNewActionMechanism => '使用新的action机制';
+
+	/// zh-CN: '消息ID'
+	String get messageId => '消息ID';
+
+	/// zh-CN: '聊天类型'
+	String get chatType => '聊天类型';
+
+	/// zh-CN: '撤回消息发送结果'
+	String get revokeMessageSendResult => '撤回消息发送结果';
+
+	/// zh-CN: '撤回请求发送完成'
+	String get revokeRequestSendComplete => '撤回请求发送完成';
+
+	/// zh-CN: '撤回失败'
+	String get revokeFailed => '撤回失败';
+
+	/// zh-CN: '撤回消息异常'
+	String get revokeMessageException => '撤回消息异常';
+
+	/// zh-CN: '撤回操作异常'
+	String get revokeOperationAbnormal => '撤回操作异常';
+
+	/// zh-CN: '请重试'
+	String get pleaseTryAgain => '请重试';
+
+	/// zh-CN: '开始编辑消息流程'
+	String get startEditMessageFlow => '开始编辑消息流程';
+
+	/// zh-CN: '编辑消息追踪'
+	String get editMessageTracking => '编辑消息追踪';
+
+	/// zh-CN: '新内容'
+	String get newContent => '新内容';
+
+	/// zh-CN: '编辑消息发送结果'
+	String get editMessageSendResult => '编辑消息发送结果';
+
+	/// zh-CN: '编辑请求发送完成'
+	String get editRequestSendComplete => '编辑请求发送完成';
+
+	/// zh-CN: '编辑失败'
+	String get editFailed => '编辑失败';
+
+	/// zh-CN: '编辑消息异常'
+	String get editMessageException => '编辑消息异常';
+
+	/// zh-CN: '编辑操作异常'
+	String get editOperationAbnormal => '编辑操作异常';
+
+	/// zh-CN: '保密'
+	String get secret => '保密';
+
+	/// zh-CN: '拍照'
+	String get takePhoto => '拍照';
+
+	/// zh-CN: '上传头像失败'
+	String get uploadAvatarFailed => '上传头像失败';
+
+	/// zh-CN: '错误'
+	String get error => '错误';
+
+	/// zh-CN: '无法打开网页'
+	String get cannotOpenWebpage => '无法打开网页';
+
+	/// zh-CN: '群组ID不能为空'
+	String get groupIdCannotBeEmpty => '群组ID不能为空';
+
+	/// zh-CN: '发布中...'
+	String get publishing => '发布中...';
+
+	/// zh-CN: '选择图片失败'
+	String get selectImageFailedWithError => '选择图片失败';
+
+	/// zh-CN: '上传头像失败'
+	String get uploadAvatarFailedWithError => '上传头像失败';
+
+	/// zh-CN: '头像选择成功，上传功能待实现'
+	String get avatarSelectedUploadPending => '头像选择成功，上传功能待实现';
+
+	/// zh-CN: '邮箱编辑功能开发中...'
+	String get emailEditFeaturePending => '邮箱编辑功能开发中...';
+
+	/// zh-CN: '已添加反应'
+	String get reactionAdded => '已添加反应';
+
+	/// zh-CN: '已取消反应'
+	String get reactionCancelled => '已取消反应';
+
+	/// zh-CN: '重试失败，请检查网络连接'
+	String get retryFailedPleaseCheckNetwork => '重试失败，请检查网络连接';
+
+	/// zh-CN: '重试异常'
+	String get retryAbnormal => '重试异常';
+
+	/// zh-CN: '删除失败，请重试'
+	String get deleteFailedPleaseTryAgain => '删除失败，请重试';
+
+	/// zh-CN: '删除失败，请检查网络连接'
+	String get deleteFailedPleaseCheckNetwork => '删除失败，请检查网络连接';
+
+	/// zh-CN: '语音录制失败，请重试'
+	String get voiceRecordFailedPleaseTryAgain => '语音录制失败，请重试';
+
+	/// zh-CN: '语音文件不存在，请重试'
+	String get voiceFileNotFoundPleaseTryAgain => '语音文件不存在，请重试';
+
+	/// zh-CN: '语音文件为空，请重试'
+	String get voiceFileEmptyPleaseTryAgain => '语音文件为空，请重试';
+
+	/// zh-CN: '语音文件无法读取，请重试'
+	String get voiceFileCannotReadPleaseTryAgain => '语音文件无法读取，请重试';
+
+	/// zh-CN: '语音文件读取失败，请重试'
+	String get voiceFileReadFailedPleaseTryAgain => '语音文件读取失败，请重试';
+
+	/// zh-CN: '语音处理异常'
+	String get voiceProcessingAbnormal => '语音处理异常';
+
+	/// zh-CN: '语音上传失败，请检查网络连接'
+	String get voiceUploadFailedPleaseCheckNetwork => '语音上传失败，请检查网络连接';
+
+	/// zh-CN: '语音发送异常'
+	String get voiceSendAbnormal => '语音发送异常';
+
+	/// zh-CN: '语音时长'
+	String get voiceDuration => '语音时长';
+
+	/// zh-CN: '播放失败'
+	String get playbackFailed => '播放失败';
+
+	/// zh-CN: '撤回操作异常，请重试'
+	String get revokeOperationAbnormalPleaseTryAgain => '撤回操作异常，请重试';
+
+	/// zh-CN: '收藏失败，请重试'
+	String get collectionFailedPleaseTryAgain => '收藏失败，请重试';
+
+	/// zh-CN: '已发送反应'
+	String get reactionSent => '已发送反应';
+
+	/// zh-CN: '秒'
+	String get seconds => '秒';
+
+	/// zh-CN: '未能定位到该消息，可能已被删除'
+	String get messageCannotLocatedMayBeDeleted => '未能定位到该消息，可能已被删除';
+
+	/// zh-CN: '设置失败，请重试'
+	String get settingFailedPleaseTryAgain => '设置失败，请重试';
+
+	/// zh-CN: '正在删除中，请稍候...'
+	String get deletingInProgressPleaseWait => '正在删除中，请稍候...';
+
+	/// zh-CN: '部分删除成功：$success 成功，$fail 失败'
+	String partialDeleteSuccess({required Object success, required Object fail}) => '部分删除成功：${success} 成功，${fail} 失败';
+
+	/// zh-CN: '收藏的视频消息格式有误，找不到 video uri'
+	String get collectedVideoFormatIncorrectCannotFindVideoUri => '收藏的视频消息格式有误，找不到 video uri';
+
+	/// zh-CN: '录音已取消'
+	String get recordingCancelled => '录音已取消';
+
+	/// zh-CN: '拉取离线消息失败'
+	String get pullOfflineMessagesFailed => '拉取离线消息失败';
+
+	/// zh-CN: '拉取离线消息异常'
+	String get pullOfflineMessagesAbnormal => '拉取离线消息异常';
+
+	/// zh-CN: '退出登录请求失败，请检查网络连接'
+	String get logoutRequestFailedPleaseCheckNetwork => '退出登录请求失败，请检查网络连接';
+
+	/// zh-CN: '1.打开手机设置并把Wi-Fi开关保持开启状态。'
+	String get networkTroubleshootingStep1 => '1.打开手机设置并把Wi-Fi开关保持开启状态。';
+
+	/// zh-CN: '2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。'
+	String get networkTroubleshootingStep2 => '2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。';
+
+	/// zh-CN: '3.如果仍无法连接网络，请检查手机接入的Wi-Fi是否已接入互联网或者咨询网络运营商。'
+	String get networkTroubleshootingStep3 => '3.如果仍无法连接网络，请检查手机接入的Wi-Fi是否已接入互联网或者咨询网络运营商。';
+
+	/// zh-CN: 'Permission 只支持 Android 和 IOS'
+	String get permissionOnlySupportAndroidAndIos => 'Permission 只支持 Android 和 IOS';
+
+	/// zh-CN: '消息发送失败，请检查网络连接'
+	String get messageSendFailedPleaseCheckNetwork => '消息发送失败，请检查网络连接';
+
+	/// zh-CN: '正在发送语音...'
+	String get sendingVoice => '正在发送语音...';
+
+	/// zh-CN: '正在重试发送...'
+	String get retryingSend => '正在重试发送...';
+
+	/// zh-CN: '正在删除...'
+	String get deletingMessage => '正在删除...';
+
+	/// zh-CN: '正在删除本地消息...'
+	String get deletingLocalMessage => '正在删除本地消息...';
+
+	/// zh-CN: '好的'
+	String get quickReplyOk => '好的';
+
+	/// zh-CN: '收到'
+	String get quickReplyReceived => '收到';
+
+	/// zh-CN: '谢谢'
+	String get quickReplyThanks => '谢谢';
+
+	/// zh-CN: '稍等'
+	String get quickReplyWait => '稍等';
+
+	/// zh-CN: '好的，谢谢'
+	String get quickReplyOkThanks => '好的，谢谢';
+
+	/// zh-CN: '标签长度不能超过 $param 个字符'
+	String tagLengthExceeded({required Object param}) => '标签长度不能超过 ${param} 个字符';
+
+	/// zh-CN: '最多只能添加 $param 个标签'
+	String maxTagsExceeded({required Object param}) => '最多只能添加 ${param} 个标签';
+
+	/// zh-CN: '已选标签 ($param/$max)'
+	String selectedTags({required Object param, required Object max}) => '已选标签 (${param}/${max})';
+
+	/// zh-CN: '重要'
+	String get tagImportant => '重要';
+
+	/// zh-CN: '紧急'
+	String get tagUrgent => '紧急';
+
+	/// zh-CN: '工作'
+	String get tagWork => '工作';
+
+	/// zh-CN: '生活'
+	String get tagLife => '生活';
+
+	/// zh-CN: '学习'
+	String get tagStudy => '学习';
+
+	/// zh-CN: '娱乐'
+	String get tagEntertainment => '娱乐';
+
+	/// zh-CN: '旅行'
+	String get tagTravel => '旅行';
+
+	/// zh-CN: '美食'
+	String get tagFood => '美食';
+
+	/// zh-CN: '健康'
+	String get tagHealth => '健康';
+
+	/// zh-CN: '家庭'
+	String get tagFamily => '家庭';
+
+	/// zh-CN: '朋友'
+	String get tagFriends => '朋友';
+
+	/// zh-CN: '项目'
+	String get tagProject => '项目';
+
+	/// zh-CN: '想法'
+	String get tagIdeas => '想法';
+
+	/// zh-CN: '灵感'
+	String get tagInspiration => '灵感';
+
+	/// zh-CN: '备忘'
+	String get tagMemo => '备忘';
+
+	/// zh-CN: '已发送'
+	String get friendRequestSent => '已发送';
+
+	/// zh-CN: '该用户还没有设置个人签名等详细信息'
+	String get noDetailedInfo => '该用户还没有设置个人签名等详细信息';
+
+	/// zh-CN: '当前没有新注册的用户 请稍后再来查看'
+	String get noNewRegisteredUsers => '当前没有新注册的用户\n请稍后再来查看';
+
+	/// zh-CN: '这里显示最近注册的用户，你可以主动添加他们为好友'
+	String get newRegisteredUsersTip => '这里显示最近注册的用户，你可以主动添加他们为好友';
+
+	/// zh-CN: '用户1'
+	String get testUser1 => '用户1';
+
+	/// zh-CN: '用户2'
+	String get testUser2 => '用户2';
+
+	/// zh-CN: '用户3'
+	String get testUser3 => '用户3';
+
+	/// zh-CN: '用户4'
+	String get testUser4 => '用户4';
+
+	/// zh-CN: '用户5'
+	String get testUser5 => '用户5';
+
+	/// zh-CN: '你撤回了一条消息'
+	String get youRevokedMessage => '你撤回了一条消息';
+
+	/// zh-CN: '对方撤回了一条消息'
+	String get otherRevokedMessage => '对方撤回了一条消息';
+
+	/// zh-CN: '网络故障，请重试！'
+	String get networkFailureTryAgain => '网络故障，请重试！';
+
+	/// zh-CN: '当前网络不可用。'
+	String get networkNotAvailable => '当前网络不可用。';
+
+	/// zh-CN: '请检查你的网络连接。'
+	String get pleaseCheckNetworkConnection => '请检查你的网络连接。';
+
+	/// zh-CN: '建议检查网络设置。'
+	String get suggestCheckNetwork => '建议检查网络设置。';
+
+	/// zh-CN: '$param分钟前'
+	String lastSeenMinutesAgo({required Object param}) => _root.timeMinutesAgo(param: param);
+
+	/// zh-CN: '$param小时前'
+	String lastSeenHoursAgo({required Object param}) => _root.timeHoursAgo(param: param);
+
+	/// zh-CN: '$param天前'
+	String lastSeenDaysAgo({required Object param}) => _root.timeDaysAgo(param: param);
+
+	/// zh-CN: '消息免打扰'
+	String get messageMute => _root.chatSettingMute;
+
+	/// zh-CN: '字体大小设置'
+	String get fontSettings => _root.fontSizeSetting;
+
+	/// zh-CN: '错误'
+	String get failed => _root.error;
+
+	/// zh-CN: '收藏中...'
+	String get collecting => '收藏中...';
+
+	/// zh-CN: '暂无个人签名'
+	String get lazyUserNoSignature => '暂无个人签名';
+
+	/// zh-CN: '用户'
+	String get user => '用户';
+
+	/// zh-CN: '暂无收藏内容，快去收藏一些有趣的消息吧'
+	String get noFavoritesYet => '暂无收藏内容，快去收藏一些有趣的消息吧';
+
+	/// zh-CN: '推荐'
+	String get recommended => '推荐';
+
+	/// zh-CN: '这是正文内容，您可以在这里看到不同字体大小的显示效果。'
+	String get fontPreviewText => '这是正文内容，您可以在这里看到不同字体大小的显示效果。';
+
+	/// zh-CN: '更小'
+	String get smaller => '更小';
+
+	/// zh-CN: '更大'
+	String get larger => '更大';
+
+	/// zh-CN: '当前：$param1 $param2%'
+	String currentFontScale({required Object param1, required Object param2}) => '当前：${param1} ${param2}%';
+
+	/// zh-CN: '当前长度：$param1 / $param2'
+	String currentLength({required Object param1, required Object param2}) => '当前长度：${param1} / ${param2}';
+
+	/// zh-CN: '已发送至 $param'
+	String sentToEmail({required Object param}) => '已发送至 ${param}';
+
+	/// zh-CN: '邮箱已更新为 $param'
+	String emailUpdatedTo({required Object param}) => '邮箱已更新为 ${param}';
+
+	/// zh-CN: '• 昵称长度为2-24个字符 • 不能仅包含空白字符或表情符号 • 不能包含敏感词汇 • 修改后将在所有聊天中显示'
+	String get nicknameRules => '• 昵称长度为2-24个字符\n• 不能仅包含空白字符或表情符号\n• 不能包含敏感词汇\n• 修改后将在所有聊天中显示';
+
+	/// zh-CN: '填入'
+	String get fillIn => '填入';
+
+	late final TranslationsWelcomeZhCn welcome = TranslationsWelcomeZhCn._(_root);
+	late final TranslationsPassportZhCn passport = TranslationsPassportZhCn._(_root);
+}
+
+// Path: splash
+class TranslationsSplashZhCn {
+	TranslationsSplashZhCn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '畅所欲言，自在沟通'
+	String get slogan => '畅所欲言，自在沟通';
+
+	/// zh-CN: '安全可靠 · 自主可控'
+	String get security => '安全可靠 · 自主可控';
+}
+
+// Path: welcome
+class TranslationsWelcomeZhCn {
+	TranslationsWelcomeZhCn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '简单连接'
+	String get step1Title => '简单连接';
+
+	/// zh-CN: '体验无缝沟通的乐趣。 随时随地，畅所欲言。'
+	String get step1Desc => '体验无缝沟通的乐趣。\n随时随地，畅所欲言。';
+
+	/// zh-CN: '安全私密'
+	String get step2Title => '安全私密';
+
+	/// zh-CN: '端到端加密 保护你的个人时刻只属于你自己。'
+	String get step2Desc => '端到端加密\n保护你的个人时刻只属于你自己。';
+
+	/// zh-CN: '准备探索？'
+	String get step3Title => '准备探索？';
+
+	/// zh-CN: '加入一个充满活力的社区。 让对话开始吧！'
+	String get step3Desc => '加入一个充满活力的社区。\n让对话开始吧！';
+
+	/// zh-CN: '下一步'
+	String get next => '下一步';
+
+	/// zh-CN: '开始使用'
+	String get getStarted => '开始使用';
+
+	/// zh-CN: '跳过'
+	String get skip => '跳过';
+}
+
+// Path: passport
+class TranslationsPassportZhCn {
+	TranslationsPassportZhCn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '找回密码'
+	String get retrievePassword => '找回密码';
+
+	/// zh-CN: '请输入邮箱'
+	String get hintEmail => '请输入邮箱';
+
+	/// zh-CN: '请输入手机号'
+	String get hintMobile => '请输入手机号';
+
+	/// zh-CN: '忘记密码？'
+	String get forgetPassword => '忘记密码？';
+
+	/// zh-CN: '注册账号'
+	String get register => '注册账号';
+
+	/// zh-CN: '请输入密码'
+	String get hintPassword => '请输入密码';
+
+	/// zh-CN: '请输入验证码'
+	String get hintVerifyCode => '请输入验证码';
+
+	/// zh-CN: '获取验证码'
+	String get getVerifyCode => '获取验证码';
+
+	/// zh-CN: '已有账号？'
+	String get hasAccount => '已有账号？';
+
+	/// zh-CN: '一键登录'
+	String get oneKeyLogin => '一键登录';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -2273,16 +3675,34 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'splash.slogan' => '畅所欲言，自在沟通',
+			'splash.security' => '安全可靠 · 自主可控',
 			'about' => '关于',
 			'aboutApp' => '关于应用',
 			'accept' => '接受',
-			'acceptFriendRequest' => '通过朋友验证',
+			'acceptFriendRequest' => '通过好友验证',
 			'account' => '账号',
 			'accountSecurity' => '账号安全',
+			'bankCard' => '银行卡',
+			'cards' => '张',
 			'addFriend' => '添加朋友',
 			'addPhoneContact' => '添加手机联系人',
+			'creditCardRepayment' => '信用卡还款',
+			'change' => '修改',
+			'entertainment' => '电影演出',
+			'financialManagement' => '理财通',
+			'jdShopping' => '京东购物',
+			'lifePayment' => '生活缴费',
+			'medicalHealth' => '医疗健康',
+			'meituanDelivery' => '美团外卖',
+			'mobileRecharge' => '手机充值',
+			'receivePayment' => '收付款',
+			'smallChange' => '零钱',
+			'tencentService' => '腾讯服务',
+			'traffic' => '交通出行',
 			'addTag' => '添加标签',
 			'addToContacts' => '添加到通讯录',
+			'totalAssets' => '总资产',
 			'addToDenylist' => '加入黑名单',
 			'added' => '已添加',
 			'addedToDenylistTips' => '已添加至黑名单，你将不再收到对方的消息',
@@ -2301,11 +3721,11 @@ extension on Translations {
 			'appSizeTips' => '包含APP运行的必要文件，包括 APK 文件、优化的编译器输出和解压的原生库。',
 			'appSqliteFileSizeExplain' => '当前账号本地生成的sqlite文件大小；可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。',
 			'applyAddFriend' => '申请添加朋友',
-			'applyFriend' => 'applyFriend',
-			'applyFriendLogic' => 'applyFriendLogic',
-			'applyParam' => '申请{param}',
+			'applyFriend' => '申请好友',
+			'applyFriendLogic' => '申请好友逻辑',
+			'applyParam' => ({required Object param}) => '申请${param}',
 			'arSa' => '阿拉伯语（沙特阿拉伯）',
-			'attachmentProvider' => 'attachmentProvider',
+			'attachmentProvider' => '附件提供者',
 			'audio' => '音频',
 			'audioMessage' => '语音消息',
 			'avatar' => '头像',
@@ -2329,24 +3749,26 @@ extension on Translations {
 			'bindNow' => '立即绑定',
 			'later' => '以后再说',
 			'buttonCancel' => '取消',
-			'buttonChangePassword' => 'buttonChangePassword',
+			'buttonChangePassword' => '修改密码',
 			'buttonClose' => '关闭',
 			'buttonConfirm' => '确认',
 			'buttonContinue' => '继续',
 			'buttonCopy' => '复制',
 			'buttonDelete' => '删除',
-			'buttonDeleteAccount' => 'buttonDeleteAccount',
+			'buttonDeleteAccount' => '注销账户',
 			'buttonInviteCode' => '邀请码',
-			'buttonLogin' => 'buttonLogin',
-			'buttonLogout' => '注销',
-			'buttonNextStep' => 'buttonNextStep',
+			'buttonLogin' => '登录',
+			'buttonLogout' => '退出登录',
+			'buttonNextStep' => '下一步',
 			'buttonOk' => '确定',
-			'buttonRegister' => 'buttonRegister',
-			'buttonResetPassword' => 'buttonResetPassword',
+			'buttonRegister' => '注册',
+			'buttonResetPassword' => '重置密码',
 			'buttonRetry' => '重试',
 			'buttonSave' => '保存',
 			'buttonSelectFromAlbum' => '从相册选择',
 			'buttonSend' => '发送',
+			'restartRequired' => '需要重启应用',
+			'applyChanges' => '请重启应用以应用更改',
 			'buttonSetEmpty' => '置空',
 			'buttonSubmit' => '提交',
 			'buttonTakingPictures' => '拍照',
@@ -2356,16 +3778,21 @@ extension on Translations {
 			'calling' => '正在通话',
 			'camera' => '拍摄',
 			'canNotAddYourselfFriend' => '你不能添加自己为好友',
-			'cancel' => '取消',
+			'cancel' => _root.buttonCancel,
+			'ok' => _root.buttonOk,
+			'save' => _root.buttonSave,
+			'reset' => '重置',
+			'clear' => '清空',
+			'inputNewTag' => '输入新标签...',
+			'saveTag' => ({required Object count}) => '保存标签 (${count})',
 			'cancelLogoutBody' => '此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。',
 			'cancelLogoutTitle' => '是否终止注销流程？',
 			'cancelled' => '已取消',
 			'changeGroupChatName' => '修改群聊名称后，将在群内通知其他成员。',
-			'changeNameView' => 'changeNameView',
-			'changeParam' => '修改{param}',
+			'changeNameView' => '修改名称视图',
+			'changeParam' => ({required Object param}) => '修改${param}',
 			'chatHistory' => '聊天记录',
 			'chatHoldDownTalk' => '按住说话',
-			'chatInput' => 'chatInput',
 			'chatMessage' => '聊天消息',
 			'chatMomentSportDataEtc' => '聊天、朋友圈、运动数据等',
 			'chatSettingBackground' => '聊天背景',
@@ -2386,13 +3813,23 @@ extension on Translations {
 			'chatSettingUnmuted' => '已关闭免打扰',
 			'chatSettingUnpinnedSuccess' => '取消置顶',
 			'chatSettings' => '聊天设置',
+			'chatStatusSending' => '发送中',
+			'chatStatusSent' => '已发送',
+			'chatStatusDelivered' => '已送达',
+			'chatStatusSeen' => '已读',
+			'chatStatusFailed' => '发送失败',
+			'chatStatusSendingDesc' => '消息正在发送...',
+			'chatStatusSentDesc' => '消息已发送',
+			'chatStatusDeliveredDesc' => '消息已送达',
+			'chatStatusSeenDesc' => '消息已读',
+			'chatStatusFailedDesc' => '发送失败，点击重试',
 			'checkForUpdates' => '检查更新',
 			'chooseFromAlbum' => '从相册选择',
 			'clean' => '清理',
 			'clearAll' => '清除全部',
 			'clearChatRecord' => '清空聊天记录',
-			'codeSentToParam' => '验证码已发送到{param}',
-			'codeSentToType' => '验证码已发送到{param}',
+			'codeSentToParam' => ({required Object param}) => '验证码已发送到${param}',
+			'codeSentToType' => ({required Object param}) => '验证码已发送到${param}',
 			'codeSentToEmail' => '验证码已发送到邮箱',
 			'codeSentToMobile' => '验证码已发送到手机',
 			'collected' => '已收藏',
@@ -2402,12 +3839,12 @@ extension on Translations {
 			'confirmCodeError' => '确认码为空',
 			'confirmCodeSuccess' => '账户已确认。',
 			'confirmDeleteChatRecord' => '确定删除聊天记录吗？',
-			'confirmNewFriend' => 'confirmNewFriend',
-			'confirmNewFriendLogic' => 'confirmNewFriendLogic',
+			'confirmNewFriend' => '确认新好友',
+			'confirmNewFriendLogic' => '确认新好友逻辑',
 			'confirmRecoverSuccess' => '密码修改成功。',
-			'contactSetting' => 'contactSetting',
-			'contactSettingTag' => 'contactSettingTag',
-			'contactTagListLogic' => 'contactTagListLogic',
+			'contactSetting' => '联系人设置',
+			'contactSettingTag' => '联系人设置标签',
+			'contactTagListLogic' => '联系人标签列表逻辑',
 			'contactTags' => '联系人标签',
 			'continueDownloading' => '继续下载',
 			'copied' => '已复制',
@@ -2419,7 +3856,7 @@ extension on Translations {
 			'currentDevice' => '当前设备',
 			'darkModel' => '深色模式',
 			'deDd' => '德语（德国）',
-			'delete' => '删除',
+			'delete' => _root.buttonDelete,
 			'deleteCollectConfirmDesc' => '删除后无法恢复，确定要删除这条收藏吗？',
 			'deleteContact' => '删除联系人',
 			'deleteForEveryone' => '删除所有人的消息',
@@ -2451,56 +3888,56 @@ extension on Translations {
 			'enable' => '启用',
 			'enterSameGroup' => '与身边的朋友进入同一个群聊',
 			'enterTheGroup' => '进入该群',
-			'errorAccessDenied' => '对 {param} 的访问被拒绝',
-			'errorCliVersionNotFound' => '没有找到已安装版本。',
-			'errorEmptyDirectory' => '{param} 是空的',
-			'errorFailedConnectServer' => '无法连接服务器',
-			'errorFailedToConnect' => '连接到 {param} 失败',
-			'errorFileNotFound' => '在 {param} 中没有找到文件',
-			'errorFolderNotFound' => '文件夹 {param} 未找到',
-			'errorHttpNotSupported' => '不支持HTTP协议请求',
-			'errorInternalServer' => '服务器内部错误',
-			'errorInvalid' => '{param} 是无效的',
-			'errorInvalidDart' => '{param} 不是有效的dart文件',
-			'errorInvalidFileOrDirectory' => '{param} 不是有效的文件或目录',
-			'errorInvalidJson' => '{param} 不是个有效的json文件',
-			'errorInvalidRequest' => '无效的请求',
-			'errorLengthBetween' => '{param}长度为{min}-{max}的任意字符',
-			'errorManyRequest' => '请求过多',
-			'errorNoPackageToRemove' => '请输入你想移除的 package 名称',
-			'errorNoValidFileOrUrl' => '{param} 不是有效的文件或URL',
-			'errorNonexistentDirectory' => '{param} 不存在',
-			'errorPackageNotFound' => '依赖: {param} 在 pub.dev 中没有找到',
+			'errorAccessDenied' => ({required Object param}) => '对 ${param} 的访问被拒绝',
+			'errorCliVersionNotFound' => _root.error,
+			'errorEmptyDirectory' => ({required Object param}) => '${param} 是空的',
+			'errorFailedConnectServer' => _root.error,
+			'errorFailedToConnect' => _root.error,
+			'errorFileNotFound' => ({required Object param}) => '在 ${param} 中没有找到文件',
+			'errorFolderNotFound' => ({required Object param}) => '文件夹 ${param} 未找到',
+			'errorHttpNotSupported' => _root.error,
+			'errorInternalServer' => _root.error,
+			'errorInvalid' => ({required Object param}) => '${param} 是无效的',
+			'errorInvalidDart' => _root.error,
+			'errorInvalidFileOrDirectory' => _root.error,
+			'errorInvalidJson' => _root.error,
+			'errorInvalidRequest' => _root.error,
+			'errorLengthBetween' => ({required Object param, required Object min, required Object max}) => '${param} 长度必须在 ${min} 和 ${max} 之间',
+			'errorManyRequest' => _root.error,
+			'errorNoPackageToRemove' => _root.error,
+			'errorNoValidFileOrUrl' => _root.error,
+			'errorNonexistentDirectory' => _root.error,
+			'errorPackageNotFound' => _root.error,
 			'errorPassword' => '密码错误',
-			'errorRequestForbidden' => '请求方法被禁止',
-			'errorRequestSyntax' => '请求语法错误',
-			'errorRequired' => '{param} 是必须的',
-			'errorRequiredPath' => '需要传入文件或路径',
-			'errorRetypePassword' => '两次输入密码不一致',
-			'errorSame' => '{param1} 和 {param2} 是同样的',
-			'errorServerDown' => '服务器挂了',
-			'errorServerRefused' => '服务器拒绝执行',
-			'errorSpecialCharactersInKey' => 'key中包含不允许的特殊字符. \n key: {param}',
-			'errorUnexpected' => '发生意外错误',
-			'errorUnnecessaryParameter' => '参数 {param} 是多余的',
-			'errorUnnecessaryParameterPlural' => '参数 {param} 是多余的',
-			'errorUpdateCli' => '升级 get_cli 错误',
+			'errorRequestForbidden' => _root.error,
+			'errorRequestSyntax' => _root.error,
+			'errorRequired' => ({required Object param}) => '${param} 是必须的',
+			'errorRequiredPath' => _root.error,
+			'errorRetypePassword' => _root.error,
+			'errorSame' => ({required Object param1, required Object param2}) => '${param1} 和 ${param2} 必须相同',
+			'errorServerDown' => _root.error,
+			'errorServerRefused' => _root.error,
+			'errorSpecialCharactersInKey' => _root.error,
+			'errorUnexpected' => _root.error,
+			'errorUnnecessaryParameter' => _root.error,
+			'errorUnnecessaryParameterPlural' => _root.error,
+			'errorUpdateCli' => _root.error,
 			'example' => '例:',
 			'existingPassword' => '现有密码',
 			'expired' => '已过期',
-			'extraItem' => 'extraItem',
-			'faceToFaceLogic' => 'faceToFaceLogic',
-			'failedGetLatLong' => '无法获取经纬度',
-			'failedGetMapTryAgain' => '获取地图失败,请重试',
-			'failedRequestPleaseCheckNetwork' => '发起请求失败，请检查网络连接，或稍后重试',
-			'favoriteGroupTagsEtc' => '收藏人名、群名、标签等',
+			'extraItem' => '额外项目',
+			'faceToFaceLogic' => '面对面建群逻辑',
+			'failedGetLatLong' => _root.errorNetwork,
+			'failedGetMapTryAgain' => _root.errorNetwork,
+			'failedRequestPleaseCheckNetwork' => _root.errorNetwork,
+			'favoriteGroupTagsEtc' => '收藏、人名、群名、标签等',
 			'favorites' => '收藏',
 			'feedback' => '反馈建议',
-			'feedbackBuilder' => 'feedbackBuilder',
+			'feedbackBuilder' => '反馈构建器',
 			'feedbackContentRequired' => '反馈内容不能为空',
 			'feedbackDetails' => '反馈建议明细',
-			'feedbackModel' => 'feedbackModel',
-			'feedbackReplyModel' => 'feedbackReplyModel',
+			'feedbackModel' => '反馈模型',
+			'feedbackReplyModel' => '反馈回复模型',
 			'feedbackSuccessMsg' => '你的反馈问题我们已经收到了，会尽快处理！',
 			'female' => '女',
 			'file' => '文件',
@@ -2509,16 +3946,16 @@ extension on Translations {
 			'findNearbyPeople' => '找附近的人',
 			'followSystem' => '跟随系统',
 			'followSystemTips' => '开启后,将跟随系统打开或关闭深色模式',
-			'forceLogoutNotification' => '您已被设备【{param}】强制下线',
+			'forceLogoutNotification' => ({required Object param}) => '您已被设备【${param}】强制下线',
 			'forgotPassword' => '忘记密码？',
-			'forgotPasswordPinCodeView' => 'forgotPasswordPinCodeView',
+			'forgotPasswordPinCodeView' => '忘记密码验证码视图',
 			'forward' => '转发',
 			'forwardReply' => '转发回复',
 			'forwardTo' => '转发给',
 			'forwardToFriend' => '转发给朋友',
 			'frFr' => '法语（法国）',
 			'friendPermissions' => '朋友权限',
-			'friendsPermissionsView' => 'friendsPermissionsView',
+			'friendsPermissionsView' => '好友权限视图',
 			'from' => '来自',
 			'gender' => '性别',
 			'genderConflictError' => '性别设置冲突，请重试',
@@ -2540,8 +3977,8 @@ extension on Translations {
 			'groupMembers' => '群成员',
 			'groupName' => '群聊名称',
 			'groupQrcode' => '群二维码',
-			'groupQrcodeTips' => '该二维码{days}天内（{date}前）有效，重新进入将更新',
-			'groupRemarkView' => 'groupRemarkView',
+			'groupQrcodeTips' => ({required Object days, required Object date}) => '该二维码${days}天内（${date}前）有效，重新进入将更新',
+			'groupRemarkView' => '群组备注视图',
 			'groupRemarkVisibility' => '群聊的备注仅自己可见',
 			'groupSearchTips' => '群名称和群简介',
 			'hangup' => '挂断',
@@ -2549,40 +3986,37 @@ extension on Translations {
 			'helpDocument' => '帮助文档',
 			'hintEditGroupAnnouncement' => '编辑群公告',
 			'hintLoginAccount' => '账号/邮箱',
-			'httpParse' => 'httpParse',
-			'httpResponse' => 'httpResponse',
+			'httpParse' => 'HTTP解析',
+			'httpResponse' => 'HTTP响应',
 			'iAm' => '我是',
 			'image' => '图片',
 			'imageMessage' => '[图片]',
-			'incomingCall' => '{param}呼入',
+			'incomingCall' => ({required Object param}) => '${param}呼入',
 			'info' => '信息',
-			'infoLoggedInOnAnotherDevice' => '你的账号已于{param}在其他设备登录',
+			'infoLoggedInOnAnotherDevice' => ({required Object param}) => '你的账号已于${param}在其他设备登录',
 			'initiateChat' => '发起群聊',
 			'installNow' => '立即安装',
-			'iosAppIdUnknown' => 'AppStore未上架或AppID[{param}]不存在',
+			'iosAppIdUnknown' => ({required Object param}) => 'AppStore未上架或AppID[${param}]不存在',
 			'itIt' => '意大利语（意大利）',
 			'jaJp' => '日语（日本）',
 			'justChat' => '仅聊天',
 			'keepSecret' => '保密',
 			'koKr' => '韩语（韩国）',
 			'languageSetting' => '语言设置',
-			'languageState' => 'languageState',
+			'languageState' => '语言状态',
 			'lastActiveTime' => '最近活跃时间',
 			'lastActiveTips' => '当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时间。',
-			'lastSeenDaysAgo' => '{param}天前',
 			'lastSeenHide' => '隐藏在线状态',
-			'lastSeenHoursAgo' => '{param}小时前',
 			'lastSeenJustNow' => '刚刚上线',
 			'lastSeenLongTimeAgo' => '很久以前上线',
-			'lastSeenMinutesAgo' => '{param}分钟前',
-			'lastSeenMonthsAgo' => '{param}个月前',
+			'lastSeenMonthsAgo' => ({required Object param}) => '${param}个月前',
 			'lastSeenNever' => '从未上线',
-			'lastSeenWeeksAgo' => '{param}周前',
-			'lastSeenExactTime' => '上次在线 {param}',
+			'lastSeenWeeksAgo' => ({required Object param}) => '${param}周前',
+			'lastSeenExactTime' => ({required Object param}) => '上次在线 ${param}',
 			'leaveYourSuggestions' => '请留下您宝贵的意见和建议',
 			'licenseAgreement' => '《软件许可及服务协议》',
 			'liveBroadcast' => '直播',
-			'liveRoomListView' => 'liveRoomListView',
+			'liveRoomListView' => '直播间列表视图',
 			'publisherPage' => '推流页面',
 			'subscriber' => '订阅者',
 			'loadError' => '加载失败，请重试',
@@ -2596,6 +4030,7 @@ extension on Translations {
 			'loginDeviceManagementTips' => '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。',
 			'loginEmail' => '登录邮箱',
 			'logoutAccount' => '注销账号',
+			'loggingOut' => '正在退出登录...',
 			'logoutNotice' => '《注销须知》',
 			'loudspeaker' => '扩音器',
 			'makeYourselfInvisible' => '让自己不可见',
@@ -2612,17 +4047,20 @@ extension on Translations {
 			'message' => '消息',
 			'messageCall' => '发消息',
 			'messageContent' => '消息内容',
-			'messageHandlingMixin' => 'messageHandlingMixin',
-			'messageLocationBuilder' => 'messageLocationBuilder',
+			'messageHandlingMixin' => '消息处理混入',
+			'messageLocationBuilder' => '消息位置构建器',
 			'messageMarkTitle' => '消息标记',
-			'messageMute' => '消息免打扰',
 			'messageNotification' => '消息通知',
 			'messageRevoked' => '消息已撤回',
-			'messageRevokedBuilder' => 'messageRevokedBuilder',
+			'quoteMessageNotAvailable' => '引用的消息不可用',
+			'customMessage' => '自定义消息',
+			'card' => '名片',
+			'messageRevokedBuilder' => '消息撤回构建器',
 			'messageType' => '消息类型',
-			'messageVisitCardBuilder' => 'messageVisitCardBuilder',
+			'messageVisitCardBuilder' => '消息名片构建器',
 			'messageWasWithdrawn' => '撤回了一条消息',
-			'messageWebrtcBuilder' => 'messageWebrtcBuilder',
+			'messageWasWithdrawnWithTitle' => ({required Object param}) => '${param}撤回了一条消息',
+			'messageWebrtcBuilder' => '音视频消息构建器',
 			'microphone' => '麦克风',
 			'microphonePermissionNotObtained' => '未获取到麦克风权限',
 			'mobile' => '手机',
@@ -2640,23 +4078,24 @@ extension on Translations {
 			'myQrcode' => '我的二维码',
 			'name' => '名称',
 			'nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n\n你的电话号码将会被隐藏。',
-			'nearbyPeopleTips' => '和附近的人交换联系方式，结交新朋友',
+			'nearbyPeopleTips' => '与附近的人交换联系方式，结交新朋友',
 			'needContinueWorkHard' => '需要继续加油',
 			'needSubmitEffect' => '需要确认提交，该操作才生效',
+			'networkErrorWithAction' => ({required Object param}) => '${param}失败，请检查网络连接',
 			'networkException' => '网络连接异常',
+			'errorNetwork' => '网络错误',
 			'networkExceptionPlaseNeedNetworkToViewData' => '网络状态异常，需要打开网络才能够查看数据',
-			'networkFailureGuidance' => 'networkFailureGuidance',
-			'networkFailureTips' => 'networkFailureTips',
-			'networkFailureTryAgain' => '网络故障，请重试！',
-			'networkNotAvailable' => '当前网络不可用。',
+			'networkFailureGuidance' => '网络失败指引',
+			'networkFailureTips' => '网络失败提示',
 			'newFriend' => '新的朋友',
 			'newPassword' => '新的密码',
 			'newVersionDetected' => '检测到新版本',
+			'newVersionDetectedWithVersion' => ({required Object param}) => '检测到新版本 ${param}',
 			'newlyRegisteredPeople' => '新注册的人',
 			'nextStep' => '下一步',
 			'nickname' => '昵称',
 			'nicknameChangeVisibility' => '昵称修改后，只会在此群内显示，群内成员都可以看见。',
-			'nicknameCharsRemaining' => '还可输入{param}个字符',
+			'nicknameCharsRemaining' => ({required Object param}) => '还可输入${param}个字符',
 			'nicknameConflictError' => '昵称已被使用，请选择其他昵称',
 			'nicknameEmojiOnlyError' => '昵称不能仅包含表情符号',
 			'nicknameEmptyError' => '昵称不能为空',
@@ -2687,18 +4126,18 @@ extension on Translations {
 			'notBound' => '未绑定',
 			'notFilled' => '未填写',
 			'notInstallAnyMapApp' => '您没有安装任何地图APP哦',
-			'notLetHimSee' => '不让他（她）看',
+			'notLetHimSee' => '不让TA看',
 			'notReceiveCoeQ' => '没有收到验证码？',
-			'notSeeHim' => '不看他（她）',
+			'notSeeHim' => '不看TA',
 			'notSet' => '未设置',
 			'notShow' => '不显示',
 			'notTurnedLocationService' => '您还没有打开位置信息服务',
 			'nowNewVersion' => '未检测到新版本',
-			'numUnit' => '{param}个',
-			'off' => '已关闭',
+			'numUnit' => ({required Object param}) => '${param}个',
+			'off' => _root.disabled,
 			'offline' => '离线',
 			'offlineNotification' => '下线通知',
-			'on' => '已开启',
+			'on' => _root.enabled,
 			'online' => '在线',
 			'openInBrowser' => '在浏览器中打开',
 			'operationFailedAgainLater' => '操作失败，请稍后重试',
@@ -2710,19 +4149,19 @@ extension on Translations {
 			'p2pCallScreenLogic' => 'p2pCallScreenLogic',
 			'p2pCallScreenView' => 'p2pCallScreenView',
 			'packageSize' => '包大小',
-			'paramAlreadyExist' => '{param}已存在',
-			'paramFormatError' => '{param}格式有误',
-			'paramLogin' => '{param}登录',
+			'paramAlreadyExist' => ({required Object param}) => '${param}已存在',
+			'paramFormatError' => ({required Object param}) => '${param}格式有误',
+			'paramLogin' => ({required Object param}) => '${param}登录',
 			'password' => '密码',
 			'pauseDownloading' => '暂停下载',
 			'peerHasHungUp' => '对方已挂断',
 			'peerNoResponse' => '对方无应答...',
-			'peopleInfoMoreLogic' => 'peopleInfoMoreLogic',
-			'peopleInfoSameGroupView' => 'peopleInfoSameGroupView',
+			'peopleInfoMoreLogic' => '用户信息更多逻辑',
+			'peopleInfoSameGroupView' => '同群用户视图',
 			'peopleNearby' => '附近的人',
-			'peopleNearbyLogic' => 'peopleNearbyLogic',
+			'peopleNearbyLogic' => '附近的人逻辑',
 			'perMinuteOnce' => '每分钟只能请求一次',
-			'permission' => 'permission',
+			'permission' => '权限',
 			'permissionAcquisitionFailed' => '权限获取失败',
 			'personalCard' => '个人名片',
 			'personalInfoDesc' => '个人信息描述',
@@ -2734,7 +4173,7 @@ extension on Translations {
 			'pinned' => '已置顶',
 			'play' => '播放',
 			'pleaseCheckNetwork' => '请检查你的网络设置。',
-			'pleaseInputParam' => '请输入{param}',
+			'pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'pleaseSelect' => '请选择',
 			'pleaseSelectMembersForAdd' => '请选择要添加的成员',
 			'privateReply' => '私聊回复',
@@ -2745,17 +4184,20 @@ extension on Translations {
 			'quoteReply' => '引用回复',
 			'rating' => '评级',
 			'reEdit' => '重新编辑',
-			'readAgreeParam' => '已经阅读并同意{param}',
+			'readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
 			'recentChats' => '最近聊天',
 			'recentForwards' => '最近转发',
-			'recentlyRegisteredUser' => 'recentlyRegisteredUser',
+			_ => null,
+		} ?? switch (path) {
+			'recentlyRegisteredUser' => '最近注册用户',
 			'recentlyUsed' => '最近使用',
 			'recommendToFriend' => '把他推荐给朋友',
 			'recoverCodePasswordDesc' => '我们会将密码恢复码发送到您的邮箱。',
 			'recoverPassword' => '找回密码',
-			'recoverPasswordDesc' => '',
+			'recoverPasswordDesc' => '请输入您的邮箱地址，我们将把密码重置码发送给您。',
 			'recoverPasswordIntro' => '不要感觉不好，这是常有的事。',
 			'recoverPasswordSuccess' => '验证码发送成功',
+			'birthday' => '生日',
 			'region' => '地区',
 			'regionCancel' => '取消',
 			'regionConfirm' => '确定',
@@ -2765,7 +4207,7 @@ extension on Translations {
 			'regionSelectTitle' => '选择地区',
 			'releaseEnd' => '松开结束',
 			'releaseFingerCancelSending' => '松开手指,取消发送',
-			'remainingChars' => '还可输入 {param} 个字符',
+			'remainingChars' => ({required Object param}) => '还可输入 ${param} 个字符',
 			'remark' => '备注',
 			'remarksTags' => '备注和标签',
 			'remindMeLater' => '下次再说',
@@ -2785,13 +4227,11 @@ extension on Translations {
 			'saveQrCode' => '保存二维码',
 			'saveSuccess' => '保存成功',
 			'scan' => '扫一扫',
-			_ => null,
-		} ?? switch (path) {
 			'scanQrCode' => '扫描二维码',
 			'scanQrCodeBusinessCard' => '扫描二维码名片',
 			'scanQrcodeAddFriend' => '扫一扫上面的二维码图案，加我为朋友',
 			'scanResult' => '扫描结果',
-			'scannerResult' => 'scannerResult',
+			'scannerResult' => '扫描结果',
 			'search' => '搜索',
 			'searchChatContent' => '查找聊天内容',
 			'searchChatRecord' => '查找聊天记录',
@@ -2812,26 +4252,27 @@ extension on Translations {
 			'noSearchHistory' => '暂无搜索历史',
 			'searchRegion' => '搜索地区',
 			'searchResults' => '搜索结果',
-			'searchResultsCount' => '第 {current} 个，共 {total} 个结果',
+			'searchResultsCount' => ({required Object current, required Object total}) => '第 ${current} 个，共 ${total} 个结果',
 			'searchSuggestions' => '搜索建议',
 			'securityCenter' => '安全中心',
 			'selectAGroup' => '选择一个群',
 			'selectAll' => '全选',
 			'selectContacts' => '选择联系人',
-			'selectedCount' => '已选 ({count})',
-			'selectFriend' => 'selectFriend',
+			'selectedCount' => ({required Object count}) => '已选 (${count})',
+			'selectFriend' => '选择好友',
 			'selectFriends' => '选择朋友',
 			'selectGroup' => '选择群聊',
 			'selectOrEnterTag' => '选择或输入标签',
-			'selectRegionView' => 'selectRegionView',
+			'selectRegionView' => '选择地区视图',
 			'selected' => '已选',
-			'selectedItems' => '{param} 个选定项目',
+			'selectedItems' => ({required Object param}) => '${param} 个选定项目',
 			'selectedRegion' => '已选地区',
 			'sendFriendRequest' => '发送添加朋友申请',
 			'sendMsgNotFriendTips' => '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
 			'sendMsgRejected' => '消息已发出，但被对方拒收了。',
 			'sendSeparatelyTo' => '分别发送给',
 			'sendTo' => '发送给',
+			'send' => _root.buttonSend,
 			'sender' => '发送者',
 			'sending' => '正在发送...',
 			'sent' => '已发送',
@@ -2839,11 +4280,11 @@ extension on Translations {
 			'sentByOthers' => '他人发送的',
 			'setChatBackground' => '设置当前聊天背景',
 			'setNickname' => '设置昵称',
-			'setParam' => '设置{param}',
+			'setParam' => ({required Object param}) => '设置${param}',
 			'setting' => '设置',
 			'share' => '分享',
 			'siginQ' => '已经有账号了？',
-			'signInWith' => '用{param}登录',
+			'signInWith' => ({required Object param}) => '用${param}登录',
 			'signature' => '个性签名',
 			'signatureInputHint' => '签名输入提示',
 			'signaturePlaceholder' => '签名占位符',
@@ -2857,7 +4298,7 @@ extension on Translations {
 			'sourceQrcode' => '通过扫一扫添加',
 			'speakingTooShort' => '说话时间太短',
 			'speed' => '速度',
-			'star' => '收藏',
+			'star' => _root.markStar,
 			'status' => '状态',
 			'stillNeeded' => '还需',
 			'storagePermissionNotObtained' => '未获取存储权限',
@@ -2879,17 +4320,18 @@ extension on Translations {
 			'textMessage' => '文本消息',
 			'thisMonth' => '本月',
 			'thisWeek' => '本周',
-			'timeDaysAgo' => '{param}天前',
-			'timeHoursAgo' => '{param}小时前',
+			'timeDaysAgo' => ({required Object param}) => '${param}天前',
+			'timeHoursAgo' => ({required Object param}) => '${param}小时前',
 			'timeJustNow' => '刚刚',
-			'timeMinutesAgo' => '{param}分钟前',
+			'timeMinutesAgo' => ({required Object param}) => '${param}分钟前',
 			'timeRange' => '时间范围',
 			'timeToday' => '今天',
 			'timeWeekdays' => '星期一,星期二,星期三,星期四,星期五,星期六,星期日',
 			'timeYesterday' => '昨天',
 			'tipConnectDesc' => '无网络',
-			'tipDeleteContact' => '将联系人"{param}"删除，同时删除与该联系人的聊天记录',
-			'tipDeviceSpace' => '占设备 {param1}‰ 存储空间({param2})',
+			'tipConnectDescWithParen' => ({required Object param}) => '(${param})',
+			'tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
+			'tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}‰ 存储空间(${param2})',
 			'tipDraft' => '草稿',
 			'tipEmptyChatPlaceholder' => '这里还没有消息',
 			'tipFailed' => '操作失败！',
@@ -2899,33 +4341,33 @@ extension on Translations {
 			'tipTips' => '小贴士',
 			'titleContact' => '联系人',
 			'titleMessage' => '消息',
+			'titleDiscover' => '发现',
 			'titleMine' => '我的',
 			'today' => '今天',
 			'tooBad' => '太差了',
 			'topChat' => '置顶聊天',
 			'tryAgainQ' => '想再试一次吗？',
 			'type' => '类型',
-			'typeMessage' => '输入消息...',
 			'unanswered' => '未应答',
 			'unknown' => '未知',
 			'unknownMessage' => '未知消息',
 			'unnamed' => '未命名',
 			'unpin' => '取消置顶',
 			'unsupportedFileType' => '不支持的文件类型',
-			'upToWords' => '最多{param}个字',
+			'upToWords' => ({required Object param}) => '最多${param}个字',
 			'updateLog' => '更新日志',
 			'updateNow' => '立即更新',
-			'upgrade' => 'upgrade',
+			'upgrade' => '升级',
 			'uploading' => '上传中',
 			'usedSpace' => '已使用空间',
 			'userData' => '用户数据',
 			'userDataTips' => '包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。',
 			'userDisabledOrDeleted' => '用户被禁用或已删除',
 			'userNotExist' => '用户不存在',
-			'userOnlineStatusWidget' => 'userOnlineStatusWidget',
-			'userTagRelationView' => 'userTagRelationView',
-			'userTagSaveView' => 'userTagSaveView',
-			'verificationMessageSentByPeerIs' => '对方发来的验证消息为：{param}',
+			'userOnlineStatusWidget' => '用户在线状态组件',
+			'userTagRelationView' => '用户标签关系视图',
+			'userTagSaveView' => '用户标签保存视图',
+			'verificationMessageSentByPeerIs' => ({required Object param}) => '对方发来的验证消息为：${param}',
 			'version' => '版本',
 			'video' => '视频',
 			'videoCall' => '视频通话',
@@ -2940,7 +4382,7 @@ extension on Translations {
 			'waitingDownload' => '等待下载',
 			'waitingPeerAccept' => '等待对方接受邀请...',
 			'warning' => '警告:',
-			'webView' => 'webView',
+			'webView' => '网页视图',
 			'webpageLoading' => '网页加载中...',
 			'whatYourFeedback' => '你的反馈是什么?',
 			'yesterday' => '昨天',
@@ -2987,7 +4429,7 @@ extension on Translations {
 			'newFeedback' => '新建反馈',
 			'feedbackHistory' => '反馈历史',
 			'confirmDelete' => '确认删除',
-			'processing' => '处理中...',
+			'processing' => _root.loading,
 			'bugReport' => '错误报告',
 			'featureRequest' => '功能请求',
 			'verificationCode' => '验证码',
@@ -2998,24 +4440,443 @@ extension on Translations {
 			'enhanceAccountSecurity' => '提升账号安全性',
 			'setPasswordSecurityTips' => '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。',
 			'passwordLengthRequirement' => '密码长度为4-32的任意字符',
+			'passwordMinLength' => ({required Object min}) => '密码至少需要${min}个字符',
 			'pleaseEnterPassword' => '请输入密码',
 			'locationHidden' => '已隐藏您的位置',
 			'locationVisible' => '已显示您的位置',
 			'noNearbyPeople' => '暂无附近的人',
 			'clickSearchButtonToFind' => '点击上方的搜索按钮查找附近的人',
 			'deleting' => '删除中...',
-			'operationSuccess' => '操作成功',
-			'operationFailed' => '操作失败',
+			'operationSuccess' => _root.success,
+			'operationFailed' => _root.error,
 			'featureInDevelopment' => '功能开发中...',
 			'addedToDenylist' => '已加入黑名单',
 			'changeMobile' => '更换手机号',
 			'currentMobile' => '当前手机号',
 			'newMobile' => '新手机号',
 			'enterMobileHint' => '请输入手机号',
-			'resendCodeWithCount' => '重新发送 ({count}秒)',
-			'codeSentToMobileParam' => '已发送至 {param}',
+			'resendCodeWithCount' => ({required Object count}) => '重新发送（${count}秒）',
+			'codeSentToMobileParam' => ({required Object param}) => '已发送至 ${param}',
 			'bindSuccess' => '绑定成功',
-			'mobileUpdatedToParam' => '手机号已更新为 {param}',
+			'mobileUpdatedToParam' => ({required Object param}) => '手机号已更新为 ${param}',
+			'current' => '当前',
+			'groupAnnouncementPublish' => '发布公告',
+			'pleaseEnterAnnouncementContent' => '请输入公告内容',
+			'selectExpirationDateOptional' => '选择有效期（可选）',
+			'publish' => '发布',
+			'groupAnnouncementDeleteConfirm' => '确定要删除这条公告吗？',
+			'groupAnnouncementDelete' => '删除',
+			'privacyClearChatHistory' => '清除聊天记录',
+			'privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
+			'privacyLogoutAccount' => '注销账号',
+			'privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
+			'privacySettings' => '隐私设置',
+			'searchSettings' => '搜索设置',
+			'allowSearchByAccount' => '允许通过账号搜索',
+			'allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
+			'allowAddByPhone' => '允许通过手机号添加',
+			'allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
+			'allowAddByQR' => '允许通过二维码添加',
+			'allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
+			'statusSettings' => '状态设置',
+			'showOnlineStatus' => '显示在线状态',
+			'showOnlineStatusDesc' => '好友可以看到你的在线状态',
+			'allowNearbyVisible' => '附近的人可见',
+			'dataSettings' => '数据设置',
+			'clearChatRecords' => '清除聊天记录',
+			'clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
+			'deleteAccountAction' => '注销账号',
+			'deleteAccountActionDesc' => '永久删除账号和所有数据，此操作不可恢复',
+			'chatHistoryCleared' => '聊天记录已清除',
+			'accountDeletionNotAvailable' => '账号注销功能暂未开放',
+			'chatResend' => '重新发送',
+			'chatDeleteMessage' => '删除消息',
+			'chatCopy' => '复制',
+			'chatSaveImage' => '保存图片',
+			'chatReply' => '回复',
+			'chatDeleteLocalOnly' => '仅删除本地',
+			'chatOpenFile' => '打开文件',
+			'chatDownloadFile' => '下载文件',
+			'chatShareFile' => '分享文件',
+			'chatOpenLink' => '打开链接',
+			'chatCopyLink' => '复制链接',
+			'chatShareLink' => '分享链接',
+			'chatDeleteFailed' => '删除失败',
+			'chatNetworkErrorDeleteLocal' => '网络连接失败，是否仅删除本地消息？',
+			'chatDeleteConfirm' => '确定要删除这条消息吗？此操作无法撤销。',
+			'chatDeleteOnlyLocal' => '仅在你这里删除，对方仍可见',
+			'chatDeleteAll' => '从所有人的聊天中删除，无法撤销',
+			'chatInitFailed' => '聊天初始化失败',
+			'cameraShootFailed' => '拍摄失败',
+			'avatarSave' => '保存',
+			'avatarSelectPhoto' => '选择照片',
+			'avatarDeleteAvatar' => '删除头像',
+			'avatarTakePhoto' => '拍照',
+			'avatarSelectFromAlbum' => '从相册选择',
+			'avatarEditAvatar' => '编辑头像',
+			'backgroundUseCustomColor' => '使用自定义颜色',
+			'backgroundOnlySolidColor' => '仅适用于纯色背景',
+			'backgroundSelectColor' => '选择颜色',
+			'profileShareProfile' => '分享资料',
+			'profileExportProfile' => '导出资料',
+			'tagClearAllConfirm' => '确定要清空所有标签吗？',
+			'tagClearAll' => '确认清空',
+			'wallet' => '钱包',
+			'momentsSend' => '发送',
+			'saving' => _root.loading,
+			'audioPlayFailed' => '播放失败',
+			'videoCompressInProgress' => '已有压缩任务在进行中',
+			'videoFileNotFound' => '输入文件不存在',
+			'videoCompressFailed' => '压缩失败，返回结果为空',
+			'videoFurtherCompressFailed' => '进一步压缩失败',
+			'videoCompressing' => '正在压缩视频...',
+			'forcedOfflineByDevice' => ({required Object device}) => '您已被设备【${device}】强制下线',
+			'searchDescription' => '小程序、公众号、文章、朋友圈、和表情等',
+			'topStories' => '看一看',
+			'changeLoginPassword' => '修改登录密码',
+			'testDirectNavigation' => '测试直接跳转',
+			'loginExpiredTitle' => '提示',
+			'loginExpiredMessage' => '登录过期,请重新登录',
+			'tagNameRequired' => '标签名称不能为空',
+			'tagNameTooLong' => '标签名称不能超过14个字符',
+			'tagNameNoComma' => '标签名称不能包含逗号',
+			'tagNameNoLeadingTrailingSpaces' => '标签名称不能包含前后空格',
+			'tagNameNoSpecialChars' => '标签名称不能包含特殊字符',
+			'suggestedTags' => '建议标签',
+			'commonTags' => '常用标签',
+			'tagManagement' => '标签管理',
+			'currentTags' => ({required Object param}) => '当前标签 (${param})',
+			'loadingTagDataFailed' => '加载标签数据失败',
+			'pleaseEnterContent' => '请输入内容',
+			'comingSoon' => '敬请期待',
+			'chatBackground' => '聊天背景',
+			'systemDefault' => '系统默认',
+			'useSystemDefaultBackground' => '使用系统默认背景',
+			'custom' => '自定义',
+			'selectCustomBackgroundImage' => '选择自定义背景图片',
+			'currentBackground' => '当前背景',
+			'previewArea' => '预览区域',
+			'backgroundTransparency' => '背景透明度',
+			'defaultBackground' => '默认背景',
+			'geometricPattern' => '几何图案',
+			'simpleTexture' => '简约纹理',
+			'ripplePattern' => '波纹图案',
+			'gradientBlue' => '渐变蓝',
+			'gradientPurple' => '渐变紫',
+			'solidColorBackground' => '纯色背景',
+			'customImage' => '自定义图片',
+			'selectImageFailed' => '选择图片失败',
+			'takePhotoFailed' => '拍照失败',
+			'selectVideoFailed' => '选择视频失败',
+			'recordVideoFailed' => '录制视频失败',
+			'selectFileFailed' => '选择文件失败',
+			'locationSelectNotImplemented' => '位置选择功能暂未实现',
+			'selectLocationFailed' => '选择位置失败',
+			'sendCardNotImplemented' => '名片发送功能暂未实现',
+			'sendCardFailed' => '发送名片失败',
+			'voiceRecordResultEmpty' => '语音录制结果为空',
+			'uploadResponseInvalid' => '上传响应数据无效',
+			'voiceSendSuccess' => '语音发送成功',
+			'voiceSendFailed' => '语音发送失败',
+			'featureNotImplemented' => '功能暂未实现',
+			'sendCollectionNotImplemented' => '收藏发送功能暂未实现',
+			'fileOpenNotImplemented' => '文件打开功能暂未实现',
+			'fileShareNotImplemented' => '文件分享功能暂未实现',
+			'copiedToClipboard' => '已复制到剪贴板',
+			'voiceFileInvalid' => '语音文件无效',
+			'copiedLink' => '已复制链接',
+			'retrySuccess' => '重试成功',
+			'deleteSuccess' => '删除成功',
+			'localDeleteSuccess' => '本地删除成功',
+			'localDeleteFailed' => '本地删除失败',
+			'revokeSuccess' => '撤回成功',
+			'editContentCannotBeEmpty' => '编辑内容不能为空',
+			'editSuccess' => '编辑成功',
+			'messageNotFound' => '未找到该消息',
+			'conversationNotFound' => '未找到会话',
+			'burnAfterReading' => '阅后即焚',
+			'enabled' => '已开启',
+			'disabled' => '已关闭',
+			'destroyTime' => '销毁时间',
+			'visibleThresholdRead' => '可视阈值已读',
+			'readThresholdDelay' => '已读阈值与延时',
+			'configureVisibleThreshold' => '配置可视阈值',
+			'fontSizeSettingUpdated' => '字体大小设置已更新',
+			'fontSizeSetting' => '字体大小设置',
+			'previewEffect' => '预览效果',
+			'thisIsTitleText' => '这是标题文本',
+			'thisIsAuxiliaryText' => '这是辅助说明文字',
+			'goodReadability' => '可读性良好',
+			'fontTooSmallMayAffect' => '字体偏小，可能影响阅读',
+			'dragSliderAdjustFontSize' => '拖动滑块调整字体大小',
+			'toBeCompleted' => '待完善',
+			'personalInfo' => '个人信息',
+			'nicknameNotSet' => '未设置昵称',
+			'profileCompleteness' => '资料完善度',
+			'basicInfo' => '基本信息',
+			'contactInfo' => '联系信息',
+			'editTags' => '编辑标签',
+			'tagStatistics' => '标签统计',
+			'availableCount' => '可选择',
+			'mostUsed' => '最常用',
+			'quickActions' => '快捷操作',
+			'alreadySent' => '已发送',
+			'noNewFriendRequests' => '暂时没有新的好友申请',
+			'pleaseEnterVerificationMessage' => '请输入验证消息',
+			'pleaseEnterRemark' => '请输入备注名',
+			'unknownRegion' => '未知地区',
+			'noCommonGroups' => '暂无共同群组',
+			'noMoreInfo' => '暂无更多信息',
+			'userNotSetSignature' => '该用户还没有设置个人签名等详细信息',
+			'verificationMessage' => '验证消息',
+			'enterRemark' => '请输入备注名',
+			'commentPlaceholder' => '评论...',
+			'burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',
+			'burnDisabledMessage' => '关闭后：消息不会自动销毁',
+			'visibleEnabledMessage' => ({required Object percentage, required Object delayms}) => '开启后：可见比例≥${percentage}%，持续≥${delayms}',
+			'visibleDisabledMessage' => '关闭后：不会基于可视自动已读',
+			'visibleThresholdInfo' => ({required Object percentage, required Object delayms}) => '可见比例: ${percentage}% | 延时: ${delayms}',
+			'visibleRatioLabel' => '可见比例 (0.1~1.0)',
+			'delayMsLabel' => '延时毫秒 (>=100)',
+			'noGroupAnnouncement' => '暂无群公告',
+			'announcementContentCannotBeEmpty' => '公告内容不能为空',
+			'announcementPublishSuccess' => '公告发布成功',
+			'unsupportedMessageType' => '不支持的消息类型',
+			'tips' => '提示',
+			'featureComingSoon' => '功能暂未实现',
+			'understood' => '明白了',
+			'noProblem' => '没问题',
+			'onMyWay' => '马上到',
+			'otherDevice' => '其他设备',
+			'sendOfflineCommand' => '强制下线',
+			'offlineCommandSent' => '已发送下线指令',
+			'operationOptions' => '操作选项',
+			'copyTextContent' => '复制文本内容',
+			'shareWithOtherFriends' => '分享给其他好友',
+			'addTagsToFavorites' => '为收藏添加标签',
+			'addRemarkToFavorites' => '为收藏添加备注',
+			'deleteThisCollection' => '删除此收藏',
+			'pullUpLoadMore' => '上拉加载更多',
+			'pleaseEnterTags' => '请输入标签',
+			'changeSuccess' => '修改成功',
+			'loginPassword' => '登录密码',
+			'loginPasswordDesc' => '用于登录IMBoy账号',
+			'loginPasswordUpdated' => '登录密码已更新',
+			'oldPassword' => '旧密码',
+			'enterOldPassword' => '请输入旧密码',
+			'lengthOk' => '长度符合',
+			'enterNewPassword' => '请输入新密码',
+			'confirmNewPassword' => '确认新密码',
+			'enterNewPasswordAgain' => '请再次输入新密码',
+			'passwordMismatch' => '两次密码不一致',
+			'validationPassed' => '验证通过',
+			'changeFailed' => '修改失败',
+			'pleaseTryAgainLater' => '请稍后重试',
+			'processed' => '已处理',
+			'submitted' => '已提交',
+			'otherUsersCanFindMe' => '其他用户可以通过搜索找到我',
+			'viewSecurityHelp' => '查看安全帮助',
+			'moments' => '朋友圈',
+			'balance' => '余额',
+			'recharge' => '充值',
+			'withdraw' => '提现',
+			'transactionHistory' => '交易记录',
+			'paymentPassword' => '支付密码',
+			'setPaymentPassword' => '设置支付密码',
+			'enterPaymentPassword' => '请输入支付密码',
+			'paymentPasswordSetSuccess' => '支付密码设置成功',
+			'paymentPasswordSetFailed' => '支付密码设置失败',
+			'nextVoiceMessageNotFound' => '没有找到下一条语音消息',
+			'noNextVoiceMessage' => '没有下一条语音消息可播放',
+			'nextVoiceMessageNoPath' => '下一条语音消息没有音频文件路径',
+			'sendNewMessage' => '发送新消息',
+			'saveFailed' => '保存失败',
+			'markRead' => '标记已读',
+			'markUnread' => '标记未读',
+			'discover' => '发现',
+			'shake' => '摇一摇',
+			'tip' => '提示',
+			'confirm' => '确认',
+			'success' => '成功',
+			'export' => '导出',
+			'personalDisplay' => '个人展示',
+			'personalSignature' => '个性签名',
+			_ => null,
+		} ?? switch (path) {
+			'personalBackground' => '个人背景',
+			'setBackgroundImage' => '设置背景图片',
+			'extendedInfo' => '扩展信息',
+			'profession' => '职业',
+			'school' => '学校',
+			'hobbiesAndInterests' => '兴趣爱好',
+			'functionSettings' => '功能设置',
+			'myQRCode' => '我的二维码',
+			'manageVisibility' => '管理个人信息的可见性',
+			'shareProfile' => '分享资料',
+			'shareWithFriends' => '将个人资料分享给好友',
+			'exportProfile' => '导出资料',
+			'exportToLocal' => '导出个人资料到本地',
+			'selectFromAlbum' => '从相册选择',
+			'setRegion' => '设置地区',
+			'setSignature' => '设置个性签名',
+			'setAvatar' => '设置头像',
+			'setGender' => '设置性别',
+			'setBirthday' => '设置生日',
+			'avatarUpdateSuccess' => '头像更新成功',
+			'avatarUpdateFailed' => '头像更新失败',
+			'volumeUp' => '音量增加',
+			'volumeDown' => '音量减少',
+			'fastForward' => ({required Object seconds}) => '快进 ${seconds}秒',
+			'fastRewind' => ({required Object seconds}) => '快退 ${seconds}秒',
+			'deleteOperationAbnormal' => '删除操作异常，请重试',
+			'revoking' => '正在撤回...',
+			'editing' => '正在编辑...',
+			'messageIdCannotBeEmpty' => '消息ID为空，无法操作',
+			'startRevokeMessageFlow' => '开始撤回消息流程',
+			'revokeMessageTracking' => '撤回消息追踪',
+			'useNewActionMechanism' => '使用新的action机制',
+			'messageId' => '消息ID',
+			'chatType' => '聊天类型',
+			'revokeMessageSendResult' => '撤回消息发送结果',
+			'revokeRequestSendComplete' => '撤回请求发送完成',
+			'revokeFailed' => '撤回失败',
+			'revokeMessageException' => '撤回消息异常',
+			'revokeOperationAbnormal' => '撤回操作异常',
+			'pleaseTryAgain' => '请重试',
+			'startEditMessageFlow' => '开始编辑消息流程',
+			'editMessageTracking' => '编辑消息追踪',
+			'newContent' => '新内容',
+			'editMessageSendResult' => '编辑消息发送结果',
+			'editRequestSendComplete' => '编辑请求发送完成',
+			'editFailed' => '编辑失败',
+			'editMessageException' => '编辑消息异常',
+			'editOperationAbnormal' => '编辑操作异常',
+			'secret' => '保密',
+			'takePhoto' => '拍照',
+			'uploadAvatarFailed' => '上传头像失败',
+			'error' => '错误',
+			'cannotOpenWebpage' => '无法打开网页',
+			'groupIdCannotBeEmpty' => '群组ID不能为空',
+			'publishing' => '发布中...',
+			'selectImageFailedWithError' => '选择图片失败',
+			'uploadAvatarFailedWithError' => '上传头像失败',
+			'avatarSelectedUploadPending' => '头像选择成功，上传功能待实现',
+			'emailEditFeaturePending' => '邮箱编辑功能开发中...',
+			'reactionAdded' => '已添加反应',
+			'reactionCancelled' => '已取消反应',
+			'retryFailedPleaseCheckNetwork' => '重试失败，请检查网络连接',
+			'retryAbnormal' => '重试异常',
+			'deleteFailedPleaseTryAgain' => '删除失败，请重试',
+			'deleteFailedPleaseCheckNetwork' => '删除失败，请检查网络连接',
+			'voiceRecordFailedPleaseTryAgain' => '语音录制失败，请重试',
+			'voiceFileNotFoundPleaseTryAgain' => '语音文件不存在，请重试',
+			'voiceFileEmptyPleaseTryAgain' => '语音文件为空，请重试',
+			'voiceFileCannotReadPleaseTryAgain' => '语音文件无法读取，请重试',
+			'voiceFileReadFailedPleaseTryAgain' => '语音文件读取失败，请重试',
+			'voiceProcessingAbnormal' => '语音处理异常',
+			'voiceUploadFailedPleaseCheckNetwork' => '语音上传失败，请检查网络连接',
+			'voiceSendAbnormal' => '语音发送异常',
+			'voiceDuration' => '语音时长',
+			'playbackFailed' => '播放失败',
+			'revokeOperationAbnormalPleaseTryAgain' => '撤回操作异常，请重试',
+			'collectionFailedPleaseTryAgain' => '收藏失败，请重试',
+			'reactionSent' => '已发送反应',
+			'seconds' => '秒',
+			'messageCannotLocatedMayBeDeleted' => '未能定位到该消息，可能已被删除',
+			'settingFailedPleaseTryAgain' => '设置失败，请重试',
+			'deletingInProgressPleaseWait' => '正在删除中，请稍候...',
+			'partialDeleteSuccess' => ({required Object success, required Object fail}) => '部分删除成功：${success} 成功，${fail} 失败',
+			'collectedVideoFormatIncorrectCannotFindVideoUri' => '收藏的视频消息格式有误，找不到 video uri',
+			'recordingCancelled' => '录音已取消',
+			'pullOfflineMessagesFailed' => '拉取离线消息失败',
+			'pullOfflineMessagesAbnormal' => '拉取离线消息异常',
+			'logoutRequestFailedPleaseCheckNetwork' => '退出登录请求失败，请检查网络连接',
+			'networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
+			'networkTroubleshootingStep2' => '2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。',
+			'networkTroubleshootingStep3' => '3.如果仍无法连接网络，请检查手机接入的Wi-Fi是否已接入互联网或者咨询网络运营商。',
+			'permissionOnlySupportAndroidAndIos' => 'Permission 只支持 Android 和 IOS',
+			'messageSendFailedPleaseCheckNetwork' => '消息发送失败，请检查网络连接',
+			'sendingVoice' => '正在发送语音...',
+			'retryingSend' => '正在重试发送...',
+			'deletingMessage' => '正在删除...',
+			'deletingLocalMessage' => '正在删除本地消息...',
+			'quickReplyOk' => '好的',
+			'quickReplyReceived' => '收到',
+			'quickReplyThanks' => '谢谢',
+			'quickReplyWait' => '稍等',
+			'quickReplyOkThanks' => '好的，谢谢',
+			'tagLengthExceeded' => ({required Object param}) => '标签长度不能超过 ${param} 个字符',
+			'maxTagsExceeded' => ({required Object param}) => '最多只能添加 ${param} 个标签',
+			'selectedTags' => ({required Object param, required Object max}) => '已选标签 (${param}/${max})',
+			'tagImportant' => '重要',
+			'tagUrgent' => '紧急',
+			'tagWork' => '工作',
+			'tagLife' => '生活',
+			'tagStudy' => '学习',
+			'tagEntertainment' => '娱乐',
+			'tagTravel' => '旅行',
+			'tagFood' => '美食',
+			'tagHealth' => '健康',
+			'tagFamily' => '家庭',
+			'tagFriends' => '朋友',
+			'tagProject' => '项目',
+			'tagIdeas' => '想法',
+			'tagInspiration' => '灵感',
+			'tagMemo' => '备忘',
+			'friendRequestSent' => '已发送',
+			'noDetailedInfo' => '该用户还没有设置个人签名等详细信息',
+			'noNewRegisteredUsers' => '当前没有新注册的用户\n请稍后再来查看',
+			'newRegisteredUsersTip' => '这里显示最近注册的用户，你可以主动添加他们为好友',
+			'testUser1' => '用户1',
+			'testUser2' => '用户2',
+			'testUser3' => '用户3',
+			'testUser4' => '用户4',
+			'testUser5' => '用户5',
+			'youRevokedMessage' => '你撤回了一条消息',
+			'otherRevokedMessage' => '对方撤回了一条消息',
+			'networkFailureTryAgain' => '网络故障，请重试！',
+			'networkNotAvailable' => '当前网络不可用。',
+			'pleaseCheckNetworkConnection' => '请检查你的网络连接。',
+			'suggestCheckNetwork' => '建议检查网络设置。',
+			'lastSeenMinutesAgo' => ({required Object param}) => _root.timeMinutesAgo(param: param),
+			'lastSeenHoursAgo' => ({required Object param}) => _root.timeHoursAgo(param: param),
+			'lastSeenDaysAgo' => ({required Object param}) => _root.timeDaysAgo(param: param),
+			'messageMute' => _root.chatSettingMute,
+			'fontSettings' => _root.fontSizeSetting,
+			'failed' => _root.error,
+			'collecting' => '收藏中...',
+			'lazyUserNoSignature' => '暂无个人签名',
+			'user' => '用户',
+			'noFavoritesYet' => '暂无收藏内容，快去收藏一些有趣的消息吧',
+			'recommended' => '推荐',
+			'fontPreviewText' => '这是正文内容，您可以在这里看到不同字体大小的显示效果。',
+			'smaller' => '更小',
+			'larger' => '更大',
+			'currentFontScale' => ({required Object param1, required Object param2}) => '当前：${param1} ${param2}%',
+			'currentLength' => ({required Object param1, required Object param2}) => '当前长度：${param1} / ${param2}',
+			'sentToEmail' => ({required Object param}) => '已发送至 ${param}',
+			'emailUpdatedTo' => ({required Object param}) => '邮箱已更新为 ${param}',
+			'nicknameRules' => '• 昵称长度为2-24个字符\n• 不能仅包含空白字符或表情符号\n• 不能包含敏感词汇\n• 修改后将在所有聊天中显示',
+			'fillIn' => '填入',
+			'welcome.step1Title' => '简单连接',
+			'welcome.step1Desc' => '体验无缝沟通的乐趣。\n随时随地，畅所欲言。',
+			'welcome.step2Title' => '安全私密',
+			'welcome.step2Desc' => '端到端加密\n保护你的个人时刻只属于你自己。',
+			'welcome.step3Title' => '准备探索？',
+			'welcome.step3Desc' => '加入一个充满活力的社区。\n让对话开始吧！',
+			'welcome.next' => '下一步',
+			'welcome.getStarted' => '开始使用',
+			'welcome.skip' => '跳过',
+			'passport.retrievePassword' => '找回密码',
+			'passport.hintEmail' => '请输入邮箱',
+			'passport.hintMobile' => '请输入手机号',
+			'passport.forgetPassword' => '忘记密码？',
+			'passport.register' => '注册账号',
+			'passport.hintPassword' => '请输入密码',
+			'passport.hintVerifyCode' => '请输入验证码',
+			'passport.getVerifyCode' => '获取验证码',
+			'passport.hasAccount' => '已有账号？',
+			'passport.oneKeyLogin' => '一键登录',
 			_ => null,
 		};
 	}
