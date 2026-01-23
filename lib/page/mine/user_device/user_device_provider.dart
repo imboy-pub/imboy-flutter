@@ -204,7 +204,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     if (!apiResp.ok) {
       return {
         'success': false,
-        'errorMsg': apiResp.msg.isNotEmpty ? apiResp.msg : t.tipFailed
+        'errorMsg': apiResp.msg.isNotEmpty ? apiResp.msg : t.tipFailed,
       };
     }
 

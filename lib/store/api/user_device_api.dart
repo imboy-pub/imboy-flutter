@@ -36,9 +36,13 @@ class UserDeviceApi extends HttpClient {
       API.userDeviceChangeName,
       data: {"did": deviceId, "name": name},
     );
-    debugPrint("> on Api/changeName response: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}");
+    debugPrint(
+      "> on Api/changeName response: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
+    );
     if (!resp.ok) {
-      debugPrint("> on Api/changeName failed: ${resp.error?.message ?? 'unknown error'}");
+      debugPrint(
+        "> on Api/changeName failed: ${resp.error?.message ?? 'unknown error'}",
+      );
     }
     return resp;
   }

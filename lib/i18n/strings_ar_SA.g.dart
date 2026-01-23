@@ -386,6 +386,7 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => 'الموقع';
 	@override String get locationMessage => 'رسالة موقع';
 	@override String get logOut => 'تسجيل الخروج';
+	@override String get areYouSureLogOut => 'هل أنت متأكد من أنك تريد تسجيل الخروج؟';
 	@override String get login => 'تسجيل الدخول';
 	@override String get loginDeviceManagement => 'إدارة أجهزة تسجيل الدخول';
 	@override String get loginDeviceManagementTips => 'تم تسجيل الدخول إلى حسابك على الأجهزة التالية، يمكنك حذف الأجهزة، وستحتاج إلى التحقق الأمني عند تسجيل الدخول التالي على هذه الأجهزة بعد الحذف.';
@@ -1625,6 +1626,7 @@ extension on TranslationsArSa {
 			'location' => 'الموقع',
 			'locationMessage' => 'رسالة موقع',
 			'logOut' => 'تسجيل الخروج',
+			'areYouSureLogOut' => 'هل أنت متأكد من أنك تريد تسجيل الخروج؟',
 			'login' => 'تسجيل الدخول',
 			'loginDeviceManagement' => 'إدارة أجهزة تسجيل الدخول',
 			'loginDeviceManagementTips' => 'تم تسجيل الدخول إلى حسابك على الأجهزة التالية، يمكنك حذف الأجهزة، وستحتاج إلى التحقق الأمني عند تسجيل الدخول التالي على هذه الأجهزة بعد الحذف.',
@@ -1786,9 +1788,9 @@ extension on TranslationsArSa {
 			'reEdit' => 'إعادة التعديل',
 			'readAgreeParam' => ({required Object param}) => 'لقد قرأت ووافقت على ${param}',
 			'recentChats' => 'المحادثات الأخيرة',
-			'recentForwards' => 'إعادة التوجيه الأخيرة',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => 'إعادة التوجيه الأخيرة',
 			'recentlyRegisteredUser' => 'مستخدم مسجل حديثاً',
 			'recentlyUsed' => 'استخدمت مؤخراً',
 			'recommendToFriend' => 'التوصية به للأصدقاء',
@@ -2300,9 +2302,9 @@ extension on TranslationsArSa {
 			'success' => 'نجح',
 			'export' => 'تصدير',
 			'personalDisplay' => 'عرض شخصي',
-			'personalSignature' => 'التوقيع الشخصي',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => 'التوقيع الشخصي',
 			'personalBackground' => 'الخلفية الشخصية',
 			'setBackgroundImage' => 'تعيين صورة الخلفية',
 			'extendedInfo' => 'معلومات موسعة',

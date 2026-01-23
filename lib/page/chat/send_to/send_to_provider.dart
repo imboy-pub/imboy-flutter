@@ -62,10 +62,12 @@ class SendToLogic {
       await msgRepo.insert(msgModel);
 
       // 通过事件总线触发消息发送
-      AppEventBus.fire(MessageSendRequestedEvent(
-        message: msgModel,
-        conversationUk3: conversation.uk3,
-      ));
+      AppEventBus.fire(
+        MessageSendRequestedEvent(
+          message: msgModel,
+          conversationUk3: conversation.uk3,
+        ),
+      );
 
       return true;
     } catch (e, s) {

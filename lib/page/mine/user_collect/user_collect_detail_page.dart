@@ -61,10 +61,9 @@ class UserCollectDetailPage extends ConsumerWidget {
               height: 4,
               margin: const EdgeInsets.only(top: 16, bottom: 24),
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurfaceVariant
-                    .withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                 borderRadius: AppRadius.borderRadiusTiny,
               ),
             ),
@@ -205,7 +204,9 @@ class UserCollectDetailPage extends ConsumerWidget {
                   final updatedItems = currentState.items
                       .where((item) => item.kindId != obj.kindId)
                       .toList();
-                  notifier.updateState(currentState.copyWith(items: updatedItems));
+                  notifier.updateState(
+                    currentState.copyWith(items: updatedItems),
+                  );
                   Navigator.pop(context);
                 }
               },
@@ -359,20 +360,18 @@ class UserCollectDetailPage extends ConsumerWidget {
                 borderRadius: AppRadius.borderRadiusMedium,
                 border: isDark
                     ? Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outline
-                            .withValues(alpha: 0.15),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.15),
                         width: 0.5,
                       )
                     : null,
                 boxShadow: [
                   BoxShadow(
                     color: isDark
-                        ? Theme.of(context)
-                            .colorScheme
-                            .shadow
-                            .withValues(alpha: 0.05)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.shadow.withValues(alpha: 0.05)
                         : Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
@@ -394,10 +393,9 @@ class UserCollectDetailPage extends ConsumerWidget {
                       "${t.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.8),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -416,18 +414,16 @@ class UserCollectDetailPage extends ConsumerWidget {
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withValues(alpha: 0.1)
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.1)
                       : const Color(0xFFE1F5FE),
                   borderRadius: AppRadius.borderRadiusMedium,
                   border: isDark
                       ? Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withValues(alpha: 0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.2),
                           width: 0.5,
                         )
                       : null,
@@ -483,20 +479,18 @@ class UserCollectDetailPage extends ConsumerWidget {
                 borderRadius: AppRadius.borderRadiusRegular,
                 border: isDark
                     ? Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outline
-                            .withValues(alpha: 0.15),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.15),
                         width: 0.5,
                       )
                     : null,
                 boxShadow: [
                   BoxShadow(
                     color: isDark
-                        ? Theme.of(context)
-                            .colorScheme
-                            .shadow
-                            .withValues(alpha: 0.05)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.shadow.withValues(alpha: 0.05)
                         : Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),

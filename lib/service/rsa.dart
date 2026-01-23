@@ -443,20 +443,28 @@ class RSAService {
       final asn1Parser = asn1.ASN1Parser(derBytes);
       final topLevelSeq = asn1Parser.nextObject() as asn1.ASN1Sequence;
 
-      final privateKeyOctetString = topLevelSeq.elements[2] as asn1.ASN1OctetString;
+      final privateKeyOctetString =
+          topLevelSeq.elements[2] as asn1.ASN1OctetString;
       final privateKeyBytes = privateKeyOctetString.valueBytes();
 
-      final privateKeyParser = asn1.ASN1Parser(Uint8List.fromList(privateKeyBytes));
-      final rsaPrivateKeySeq = privateKeyParser.nextObject() as asn1.ASN1Sequence;
+      final privateKeyParser = asn1.ASN1Parser(
+        Uint8List.fromList(privateKeyBytes),
+      );
+      final rsaPrivateKeySeq =
+          privateKeyParser.nextObject() as asn1.ASN1Sequence;
 
       final modulusAsn1 = rsaPrivateKeySeq.elements[1] as asn1.ASN1Integer;
-      final privateExponentAsn1 = rsaPrivateKeySeq.elements[3] as asn1.ASN1Integer;
+      final privateExponentAsn1 =
+          rsaPrivateKeySeq.elements[3] as asn1.ASN1Integer;
       final pAsn1 = rsaPrivateKeySeq.elements[4] as asn1.ASN1Integer;
       final qAsn1 = rsaPrivateKeySeq.elements[5] as asn1.ASN1Integer;
 
-      final modulus = bytesToBigInt(Uint8List.fromList(modulusAsn1.valueBytes()));
-      final privateExponent =
-          bytesToBigInt(Uint8List.fromList(privateExponentAsn1.valueBytes()));
+      final modulus = bytesToBigInt(
+        Uint8List.fromList(modulusAsn1.valueBytes()),
+      );
+      final privateExponent = bytesToBigInt(
+        Uint8List.fromList(privateExponentAsn1.valueBytes()),
+      );
       final p = bytesToBigInt(Uint8List.fromList(pAsn1.valueBytes()));
       final q = bytesToBigInt(Uint8List.fromList(qAsn1.valueBytes()));
 

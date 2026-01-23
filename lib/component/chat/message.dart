@@ -7,16 +7,18 @@ import 'package:open_file/open_file.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'message_spacing.dart';
 import 'message_audio_builder.dart';
+import 'message_image_multi_builder.dart';
 import 'message_location_builder.dart';
 import 'message_quote_builder.dart';
 import 'message_revoked_builder.dart';
-import 'message_video_builder.dart';
-import 'message_visit_card_builder.dart';
+import 'message_unsupported_builder.dart';
 import 'message_webrtc_builder.dart';
+import 'message_visit_card_builder.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// Material 3消息圆角半径 - Medium圆角 (16dp)
@@ -68,53 +70,73 @@ class CustomMessageBuilder extends StatelessWidget {
     const padding = MessageSpacing.bubblePaddingSymmetric;
     Widget content = const SizedBox.shrink();
     try {
-      // WebSocket API v2.0: 优先使用 msg_type，回退到 custom_type（兼容旧数据）
+      // WebSocket API v2.0: 优先检查 status 字段（撤回状态 30-39），然后 custom_type，最后 msg_type
+      // 这样可以保留原始内容类型，同时支持特殊状态
       final msgType = message.metadata?['msg_type'] ?? '';
-      final customType = message.metadata?['custom_type'] ?? '';
+      final status = message.metadata?['status'] as int?;
 
-      // 使用 msg_type 或 custom_type 来决定渲染逻辑
-      final messageType = msgType.isNotEmpty ? msgType : customType;
+      // 方案 D: 检查 status 字段（撤回状态 30-39）
+      if (IMBoyMessageStatus.isRevokedStatus(status)) {
+        // status = 30 (peer_revoked) 或 31 (my_revoked)
+        content = RevokedMessageBuilder(message: message, user: user);
+      } else {
+        // status 不是撤回状态，检查 custom_type
+        final customType = message.metadata?['custom_type'] ?? '';
 
-      switch (messageType) {
-        case 'revoked':
-        case 'peer_revoked':
-        case 'my_revoked':
-          content = RevokedMessageBuilder(message: message, user: user);
-          break;
-        case 'webrtc_audio':
-        case 'webrtc_video':
+        if (customType == 'webrtc_audio' ||
+            customType == 'webrtcAudio' ||
+            customType == 'webrtc_video' ||
+            customType == 'webrtcVideo') {
+          // WebRTC 消息需要区分音频和视频
           content = WebRTCMessageBuilder(message: message, user: user);
-          break;
-        case 'quote':
-          content = QuoteMessageBuilder(
-            type: type,
-            message: message,
-            user: user,
-          );
-          break;
-        case 'video':
-          content = VideoMessageBuilder(message: message, user: user);
-          break;
-        case 'audio':
-        case 'voice': // WebSocket API v2.0 使用 'voice'
-          return Padding(
-            padding: padding,
-            child: AudioMessageBuilder(
-              type: type,
-              message: message,
-              user: user,
-            ),
-          );
-        case 'visit_card':
+        } else if (customType == 'visit_card' || customType == 'visitCard') {
           content = VisitCardMessageBuilder(message: message, user: user);
-          break;
-        case 'location':
-          content = LocationMessageBuilder(message: message, user: user);
-          break;
-        default:
-          // 可以考虑一个默认的文本消息展示
-          debugPrint("> on CustomMessageBuilder: 未知的消息类型: $messageType (msg_type=$msgType, custom_type=$customType)");
-          break;
+        } else {
+          // 使用 msg_type 判断内容类型
+          switch (msgType) {
+            case 'quote':
+              content = QuoteMessageBuilder(
+                type: type,
+                message: message,
+                user: user,
+              );
+              break;
+            case 'audio':
+            case 'voice': // WebSocket API v2.0 使用 'voice'
+              // 对于 CustomMessage 类型的 audio/voice，使用 AudioMessageBuilder
+              return Padding(
+                padding: padding,
+                child: AudioMessageBuilder(
+                  type: type,
+                  message: message,
+                  user: user,
+                ),
+              );
+            case 'location':
+              content = LocationMessageBuilder(message: message, user: user);
+              break;
+            case 'image_multi':
+            case 'imageMulti':
+              // 多图消息
+              content = ImageMultiMessageBuilder(
+                type: type,
+                message: message,
+                user: user,
+              );
+              break;
+            default:
+              // 未知的消息类型使用 ImUnsupportedMessageBuilder
+              debugPrint(
+                "> on CustomMessageBuilder: 未知的消息类型 (msg_type=$msgType, status=$status, custom_type=$customType)",
+              );
+              content = ImUnsupportedMessageBuilder(
+                type: type,
+                message: message,
+                user: user,
+              );
+              break;
+          }
+        }
       }
     } catch (e, s) {
       debugPrint("> on CustomMessageBuilder e ${e.toString()}; $s");
@@ -166,23 +188,13 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
 
   Widget content;
   switch (messageType) {
-    case 'video':
-      content = VideoMessageBuilder(user: user, message: msg as CustomMessage);
-      break;
     case 'audio':
     case 'voice': // WebSocket API v2.0 使用 'voice'
       return AudioMessageBuilder(
-        type: msg.metadata?['type'] ?? 'C2C', // 提供默认值
+        type: msg.metadata?['type'] ?? 'C2C',
         user: user,
         message: msg as CustomMessage,
-        // onPlay: ,
       );
-    // content = AudioMessageBuilder(
-    //   type: msg.metadata?['type'] ?? 'C2C', // 提供默认值
-    //   user: user,
-    //   message: msg as CustomMessage,
-    // );
-    // break;
     case 'location':
       content = LocationMessageBuilder(
         user: user,

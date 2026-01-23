@@ -18,7 +18,8 @@ class ActiveConversationState {
     DateTime? lastActiveTime,
   }) {
     return ActiveConversationState(
-      activeConversationUk3: activeConversationUk3 ?? this.activeConversationUk3,
+      activeConversationUk3:
+          activeConversationUk3 ?? this.activeConversationUk3,
       lastActiveTime: lastActiveTime ?? this.lastActiveTime,
     );
   }
@@ -45,9 +46,7 @@ class ActiveConversationState {
 class ActiveConversationNotifier extends _$ActiveConversationNotifier {
   @override
   ActiveConversationState build() {
-    return ActiveConversationState(
-      lastActiveTime: DateTime.now(),
-    );
+    return ActiveConversationState(lastActiveTime: DateTime.now());
   }
 
   /// 设置活跃会话
@@ -76,7 +75,8 @@ class ActiveConversationNotifier extends _$ActiveConversationNotifier {
   bool isConversationActive(String conversationUk3) {
     // 5分钟内的会话视为活跃
     const activeDuration = Duration(minutes: 5);
-    final isActive = state.activeConversationUk3 == conversationUk3 &&
+    final isActive =
+        state.activeConversationUk3 == conversationUk3 &&
         DateTime.now().difference(state.lastActiveTime) < activeDuration;
 
     if (isActive) {
@@ -89,9 +89,7 @@ class ActiveConversationNotifier extends _$ActiveConversationNotifier {
   /// 更新活跃时间（用于保持会话活跃状态）
   void updateActiveTime() {
     if (state.activeConversationUk3.isNotEmpty) {
-      state = state.copyWith(
-        lastActiveTime: DateTime.now(),
-      );
+      state = state.copyWith(lastActiveTime: DateTime.now());
     }
   }
 }

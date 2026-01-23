@@ -5,15 +5,149 @@
 ///
 /// 使用示例：
 /// ```dart
-/// // 用户消息类型
+/// // 使用常量（推荐）
 /// String type = MessageType.text;
 /// if (msgType == MessageType.image) { ... }
+///
+/// // 使用枚举（类型安全）
+/// if (msgTypeEnum == MsgTypeEnum.image) { ... }
 ///
 /// // S2C 系统动作
 /// String action = S2CAction.pullOfflineMsg;
 /// if (action == S2CAction.c2cRevoke) { ... }
 /// ```
 library;
+
+// ============================================
+// 消息类型枚举 (类型安全)
+// ============================================
+
+/// 用户消息类型枚举
+///
+/// 提供 类型安全的消息类型定义
+/// 迁移自 lib/component/chat/enum.dart 的 CustomMessageType
+///
+/// 使用示例：
+/// ```dart
+/// MsgTypeEnum type = MsgTypeEnum.image;
+/// String typeStr = type.value;  // 'image'
+/// ```
+enum MsgTypeEnum {
+  /// 文本消息
+  text,
+
+  /// 文本流消息（AI对话等流式输出）
+  textStream,
+
+  /// 图片消息
+  image,
+
+  /// 多图消息（一次发送多张图片）
+  imageMulti,
+
+  /// 文件消息
+  file,
+
+  /// 位置消息
+  location,
+
+  /// 语音消息
+  audio,
+
+  /// 视频消息
+  video,
+
+  /// 不支持的消息类型
+  unsupported,
+
+  /// 系统消息
+  system,
+
+  /// 自定义消息
+  custom,
+
+  /// WebRTC 音频通话
+  webrtcAudio,
+
+  /// WebRTC 视频通话
+  webrtcVideo,
+
+  /// 引用消息
+  quote,
+}
+
+/// MsgTypeEnum 扩展方法
+extension MsgTypeEnumExtension on MsgTypeEnum {
+  /// 获取枚举对应的字符串值
+  String get value {
+    switch (this) {
+      case MsgTypeEnum.text:
+        return MessageType.text;
+      case MsgTypeEnum.textStream:
+        return MessageType.textStream;
+      case MsgTypeEnum.image:
+        return MessageType.image;
+      case MsgTypeEnum.imageMulti:
+        return MessageType.imageMulti;
+      case MsgTypeEnum.file:
+        return MessageType.file;
+      case MsgTypeEnum.location:
+        return MessageType.location;
+      case MsgTypeEnum.audio:
+        return MessageType.audio;
+      case MsgTypeEnum.video:
+        return MessageType.video;
+      case MsgTypeEnum.unsupported:
+        return MessageType.unsupported;
+      case MsgTypeEnum.system:
+        return MessageType.system;
+      case MsgTypeEnum.custom:
+        return MessageType.custom;
+      case MsgTypeEnum.webrtcAudio:
+        return CustomMessageType.webrtcAudio;
+      case MsgTypeEnum.webrtcVideo:
+        return CustomMessageType.webrtcVideo;
+      case MsgTypeEnum.quote:
+        return MessageType.quote;
+    }
+  }
+
+  /// 从字符串值获取枚举
+  static MsgTypeEnum? fromValue(String value) {
+    switch (value) {
+      case MessageType.text:
+        return MsgTypeEnum.text;
+      case MessageType.textStream:
+        return MsgTypeEnum.textStream;
+      case MessageType.image:
+        return MsgTypeEnum.image;
+      case MessageType.imageMulti:
+        return MsgTypeEnum.imageMulti;
+      case MessageType.file:
+        return MsgTypeEnum.file;
+      case MessageType.location:
+        return MsgTypeEnum.location;
+      case MessageType.audio:
+        return MsgTypeEnum.audio;
+      case MessageType.video:
+        return MsgTypeEnum.video;
+      case MessageType.unsupported:
+        return MsgTypeEnum.unsupported;
+      case MessageType.system:
+        return MsgTypeEnum.system;
+      case MessageType.custom:
+        return MsgTypeEnum.custom;
+      case CustomMessageType.webrtcAudio:
+        return MsgTypeEnum.webrtcAudio;
+      case CustomMessageType.webrtcVideo:
+        return MsgTypeEnum.webrtcVideo;
+      case MessageType.quote:
+        return MsgTypeEnum.quote;
+      default:
+        return null;
+    }
+  }
+}
 
 // ============================================
 // 用户消息类型 (C2C/C2G/C2S)
@@ -37,6 +171,20 @@ abstract class MessageType {
   /// ```
   static const String text = 'text';
 
+  /// 文本流消息
+  ///
+  /// 用于 AI 对话等流式文本输出场景，文本分段传输
+  /// payload 结构：
+  /// ```json
+  /// {
+  ///   "text": "当前分片文本",
+  ///   "index": 0,
+  ///   "is_end": false,
+  ///   "stream_id": "stream_abc123"
+  /// }
+  /// ```
+  static const String textStream = 'textStream';
+
   /// 图片消息
   ///
   /// payload 结构：
@@ -49,6 +197,20 @@ abstract class MessageType {
   /// }
   /// ```
   static const String image = 'image';
+
+  /// 多图消息
+  ///
+  /// 一次发送多张图片（最多9张）
+  /// payload 结构：
+  /// ```json
+  /// {
+  ///   "images": [
+  ///     {"uri": "https://...", "size": 102400, "width": 1920, "height": 1080}
+  ///   ],
+  ///   "total": 3
+  /// }
+  /// ```
+  static const String imageMulti = 'imageMulti';
 
   /// 语音消息
   ///
@@ -117,30 +279,50 @@ abstract class MessageType {
   /// 自定义消息
   ///
   /// 通过 `custom_type` 字段子类型区分具体类型
-  /// payload 结构：
+  /// payload 结构示例：
   /// ```json
   /// {
-  ///   "custom_type": "message_revoke",
-  ///   "original_msg_id": "msg105"
+  ///   "custom_type": "webrtc_audio",
+  ///   "call_type": "offer",
+  ///   "sdp": "..."
   /// }
   /// ```
   static const String custom = 'custom';
 
   // ==================== E2EE 加密消息 ====================
 
-  /// 端到端加密消息
+  /// 端到端加密消息（已废弃，仅用于向后兼容）
   ///
-  /// 当 msg_type 为 e2ee 时，payload 为加密后的字符串
-  /// e2ee 字段包含加密元数据
+  /// **WebSocket API v2.0 变更**：
+  /// - ❌ **不再**使用 `msg_type = 'e2ee'` 来标识加密消息
+  /// - ✅ **保留**原始消息的 `msg_type`（text, image, video 等）
+  /// - ✅ **通过** `e2ee` 字段（Map 类型）是否存在判断是否为加密消息
   ///
-  /// 消息结构：
+  /// v2.0 消息结构：
+  /// ```json
+  /// {
+  ///   "msg_type": "text",  // 保留原始消息类型
+  ///   "e2ee": {
+  ///     "e2ee": true,
+  ///     "e2ee_ver": 1,
+  ///     "e2ee_suite": "RSA-OAEP-256+AES-256-GCM",
+  ///     "iv": "base64_encoded_iv",
+  ///     "ct": "base64_encoded_ciphertext",
+  ///     "recipients": [...],
+  ///     "sig": "base64_signature"
+  ///   },
+  ///   "payload": "base64(iv).base64(ciphertext)"
+  /// }
+  /// ```
+  ///
+  /// v1.0 旧格式（已废弃）：
   /// ```json
   /// {
   ///   "msg_type": "e2ee",
-  ///   "e2ee": "{...加密元数据...}",
   ///   "payload": "base64(nonce).base64(ciphertext)"
   /// }
   /// ```
+  @Deprecated('WebSocket API v2.0: 使用原始 msg_type + e2ee 字段代替')
   static const String e2ee = 'e2ee';
 
   // ==================== 已废弃/兼容性类型 ====================
@@ -150,6 +332,11 @@ abstract class MessageType {
 
   /// @Deprecated 使用 'custom' 代替
   static const String system = 'system';
+
+  /// 不支持的消息类型
+  ///
+  /// 客户端无法识别或处理的消息类型
+  static const String unsupported = 'unsupported';
 }
 
 // ============================================
@@ -165,11 +352,6 @@ abstract class CustomMessageType {
   /// 用户主动撤回消息时使用
   static const String messageRevoke = 'message_revoke';
 
-  /// 对端撤回消息
-  ///
-  /// 对方撤回消息时使用
-  static const String peerRevoked = 'peer_revoked';
-
   /// 正在输入提示
   ///
   /// 显示对方正在输入状态
@@ -178,17 +360,17 @@ abstract class CustomMessageType {
   /// WebRTC 音频通话
   ///
   /// WebRTC 音频通话邀请/信令
-  static const String webrtcAudio = 'webrtc_audio';
+  static const String webrtcAudio = 'webrtcAudio';
 
   /// WebRTC 视频通话
   ///
   /// WebRTC 视频通话邀请/信令
-  static const String webrtcVideo = 'webrtc_video';
+  static const String webrtcVideo = 'webrtcVideo';
 
   /// 个人名片
   ///
   /// 分享联系人名片
-  static const String visitCard = 'visit_card';
+  static const String visitCard = 'visitCard';
 
   /// 实时通话邀请
   ///

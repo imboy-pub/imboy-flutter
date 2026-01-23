@@ -1,38 +1,49 @@
-/// All possible message types.
+/// 组件层枚举定义
+///
+/// CustomMessageType 已迁移至 lib/service/message_type_constants.dart
 library;
 
-enum CustomMessageType {
-  text,
-  textStream,
+// ============================================================================
+// 附件类型枚举
+// ============================================================================
+
+/// 附件选择类型
+///
+/// 用于附件选择器，定义用户可以选择的附件类型
+enum ExtraItemType {
+  /// 图片
   image,
+
+  /// 文件
   file,
-  location,
-  audio,
+
+  /// 相机拍照
+  camera,
+
+  /// 语音录制
+  voice,
+
+  /// 视频录制
   video,
-  unsupported,
-  system,
-  custom,
-  //
-  // webrtc 音频消息
-  webrtcAudio,
-  // webrtc 视频消息
-  webrtcVideo,
-  // 引用消息
-  quote,
+
+  /// 无附件
+  none,
 }
 
-// 在文件任意位置添加 ↓
-enum ExtraItemType { image, file, camera, voice, video, none }
+// ============================================================================
+// UI 交互相关枚举
+// ============================================================================
 
-/// Used to toggle the visibility behavior of the [SendButton] based on the
-/// [TextField] state inside the [Input] widget.
+/// 发送按钮可见性模式
+///
+/// 用于控制输入框中发送按钮的显示行为
 enum SendButtonVisibilityMode {
-  /// Always show the [SendButton] regardless of the [TextField] state.
+  /// 始终显示发送按钮（无论输入框是否为空）
   always,
 
-  /// The [SendButton] will only appear when the [TextField] is not empty.
+  /// 仅在输入框有内容时显示发送按钮
   editing,
 
-  /// Always hide the [SendButton] regardless of the [TextField] state.
+  /// 始终隐藏发送按钮
   hidden,
 }

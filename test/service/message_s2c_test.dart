@@ -144,7 +144,8 @@ void main() {
         'payload': {}, // 没有 msg_type
       };
 
-      final action = data['action'] ?? (data['payload'] as Map)['msg_type'] ?? '';
+      final action =
+          data['action'] ?? (data['payload'] as Map)['msg_type'] ?? '';
       expect(action, equals(''));
     });
   });
@@ -233,12 +234,7 @@ void main() {
           'action': 'pull_offline_msg',
           'payload': {},
         },
-        {
-          'id': 'msg_132',
-          'type': 'S2C',
-          'action': 'c2c_revoke',
-          'payload': {},
-        },
+        {'id': 'msg_132', 'type': 'S2C', 'action': 'c2c_revoke', 'payload': {}},
         {
           'id': 'msg_133',
           'type': 'S2C',

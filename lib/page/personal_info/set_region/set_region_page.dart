@@ -176,16 +176,12 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                   : (isDark
                         ? const Color(0xFF48484A)
                         : const Color(0xFFE5E5E5)),
-              borderRadius: BorderRadius.circular(
-                AppSpacing.regular * 2,
-              ),
+              borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(
-                  AppSpacing.regular * 2,
-                ),
+                borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
                 onTap: state.hasChanged
                     ? () async {
                         final success = await widget.onSave(

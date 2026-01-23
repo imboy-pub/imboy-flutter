@@ -386,6 +386,7 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => '位置';
 	@override String get locationMessage => '位置メッセージ';
 	@override String get logOut => 'ログアウト';
+	@override String get areYouSureLogOut => 'ログアウトしてもよろしいですか？';
 	@override String get login => 'ログイン';
 	@override String get loginDeviceManagement => 'ログインデバイス管理';
 	@override String get loginDeviceManagementTips => 'あなたのアカウントは以下のデバイスでログインしたことがあります。デバイスを削除できます。削除後、次回そのデバイスでログインする際にセキュリティ認証が必要です。';
@@ -1625,6 +1626,7 @@ extension on TranslationsJaJp {
 			'location' => '位置',
 			'locationMessage' => '位置メッセージ',
 			'logOut' => 'ログアウト',
+			'areYouSureLogOut' => 'ログアウトしてもよろしいですか？',
 			'login' => 'ログイン',
 			'loginDeviceManagement' => 'ログインデバイス管理',
 			'loginDeviceManagementTips' => 'あなたのアカウントは以下のデバイスでログインしたことがあります。デバイスを削除できます。削除後、次回そのデバイスでログインする際にセキュリティ認証が必要です。',
@@ -1786,9 +1788,9 @@ extension on TranslationsJaJp {
 			'reEdit' => '再編集',
 			'readAgreeParam' => ({required Object param}) => '${param}を読んで同意しました',
 			'recentChats' => '最近のチャット',
-			'recentForwards' => '最近の転送',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => '最近の転送',
 			'recentlyRegisteredUser' => '最近登録したユーザー',
 			'recentlyUsed' => '最近使用',
 			'recommendToFriend' => '友達に推薦する',
@@ -2300,9 +2302,9 @@ extension on TranslationsJaJp {
 			'success' => '成功',
 			'export' => 'エクスポート',
 			'personalDisplay' => '個人表示',
-			'personalSignature' => '署名',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => '署名',
 			'personalBackground' => '個人背景',
 			'setBackgroundImage' => '背景画像を設定',
 			'extendedInfo' => '拡張情報',

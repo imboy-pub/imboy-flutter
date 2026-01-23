@@ -30,13 +30,16 @@ class E2EEService {
     _groupKeyCacheByDevice.clear();
   }
 
+  /// 检查是否需要对消息进行端到端加密
+  ///
+  /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内
   static bool shouldEncryptOutgoingPayload(
     String msgType,
     Map<String, dynamic> payload,
   ) {
+    // 只对 C2C 和 C2G 消息加密
     if (msgType != 'C2C' && msgType != 'C2G') return false;
-    if (payload['action'] != null) return false;
-    if (payload['msg_type'] == 'e2ee') return false;
+    // 注意：不再检查 payload 中的 msg_type/action（v2.0 中它们在顶层）
     return true;
   }
 
@@ -176,7 +179,9 @@ class E2EEService {
     // 1. 解析 ciphertext（格式：base64(nonce).base64(ciphertext)）
     final parts = ciphertext.split('.');
     if (parts.length != 2) {
-      throw Exception('Invalid ciphertext format: expected "base64(nonce).base64(ciphertext)"');
+      throw Exception(
+        'Invalid ciphertext format: expected "base64(nonce).base64(ciphertext)"',
+      );
     }
 
     final nonceBase64 = parts[0];
@@ -226,11 +231,7 @@ class E2EEService {
             aesKey,
             aad: Uint8List.fromList(utf8.encode(aad)),
           )
-        : EncrypterService.aesGcmDecryptBytes(
-            nonceBase64,
-            ct,
-            aesKey,
-          );
+        : EncrypterService.aesGcmDecryptBytes(nonceBase64, ct, aesKey);
 
     return utf8.decode(plainBytes);
   }
@@ -263,10 +264,7 @@ class E2EEService {
       final pem = entry.value;
       final pubKey = RSAService.parsePublicKeyFromPem(pem);
       final ek = RSAService.rsaEncrypt(pubKey, aesKey);
-      recipients.add({
-        'did': did,
-        'ek': base64.encode(ek),
-      });
+      recipients.add({'did': did, 'ek': base64.encode(ek)});
     }
 
     final sigInput = utf8.encode(
@@ -275,11 +273,13 @@ class E2EEService {
     final privateKeyObj = await RSAService.privateKeyObject();
     final sig = RSAService.rsaSign(privateKeyObj, Uint8List.fromList(sigInput));
 
+    // WebSocket API v2.0: 只返回 e2ee 元数据，不包含 msg_type
+    // msg_type 应该由调用者设置（保留原始类型：text, image 等）
     return {
-      'msg_type': 'e2ee',
       'e2ee': {
-        'v': 1,
-        'alg': 'rsa-oaep+aes-256-gcm',
+        'e2ee': true,
+        'e2ee_ver': 1,
+        'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
         'sender_did': senderDid,
         'iv': encrypted['iv'],
         'ct': encrypted['ct'],
@@ -317,10 +317,7 @@ class E2EEService {
       final pem = entry.value;
       final pubKey = RSAService.parsePublicKeyFromPem(pem);
       final ek = RSAService.rsaEncrypt(pubKey, aesKey);
-      recipients.add({
-        'did': did,
-        'ek': base64.encode(ek),
-      });
+      recipients.add({'did': did, 'ek': base64.encode(ek)});
     }
 
     final sigInput = utf8.encode(
@@ -329,11 +326,13 @@ class E2EEService {
     final privateKeyObj = await RSAService.privateKeyObject();
     final sig = RSAService.rsaSign(privateKeyObj, Uint8List.fromList(sigInput));
 
+    // WebSocket API v2.0: 只返回 e2ee 元数据，不包含 msg_type
+    // msg_type 应该由调用者设置（保留原始类型：text, image 等）
     return {
-      'msg_type': 'e2ee',
       'e2ee': {
-        'v': 1,
-        'alg': 'rsa-oaep+aes-256-gcm',
+        'e2ee': true,
+        'e2ee_ver': 1,
+        'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
         'sender_did': senderDid,
         'scope': 'group',
         'gid': gid,
@@ -354,7 +353,7 @@ class E2EEService {
   /// ## v2.0 E2EE 格式
   /// ```json
   /// {
-  ///   "msg_type": "e2ee",
+  ///   "msg_type": "text",  // 保留原始消息类型！
   ///   "e2ee": {
   ///     "e2ee": true,
   ///     "e2ee_ver": 1,
@@ -369,7 +368,7 @@ class E2EEService {
   ///       }
   ///     ]
   ///   },
-  ///   "ciphertext": "base64(nonce).base64(ciphertext)"
+  ///   "payload": "base64(nonce).base64(ciphertext)"  // 密文字符串
   /// }
   /// ```
   ///
@@ -401,23 +400,36 @@ class E2EEService {
     required Map<String, dynamic> payload,
   }) async {
     // 检查是否为 E2EE 消息
-    if (payload['msg_type'] != 'e2ee') return payload;
-
+    // WebSocket API v2.0: 只检查 e2ee 字段是否存在（不再检查 msg_type == 'e2ee'）
+    // v1.0 格式（msg_type == 'e2ee'）已废弃
     final e2ee = payload['e2ee'];
-    if (e2ee is! Map) {
-      return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
+    final isV2Format = e2ee != null && e2ee != '';
+
+    if (!isV2Format) return payload;
+
+    final e2eeData = e2ee is Map ? e2ee.cast<String, dynamic>() : null;
+    if (e2eeData is! Map) {
+      // 解密失败时保留原始 msg_type，不修改为 'custom'
+      return _decryptFailedPayload(
+        payload,
+        msgType: msgType,
+        reason: 'invalid_e2ee',
+      );
     }
 
     final e = e2ee.cast<String, dynamic>();
 
-    // v2.0 格式支持
+    // v2.0 格式支持（v1.0 已废弃）
     final isV2 = payload['_e2ee_v2'] == true;
 
     // v2.0: 从 keys 数组中查找当前设备的密钥
-    // v1.0: 从 recipients 数组中查找
-    final keysOrRecipients = isV2 ? (e['keys'] ?? e['recipients']) : e['recipients'];
+    final keysOrRecipients = e['keys'] ?? e['recipients'];
     if (keysOrRecipients is! List) {
-      return _decryptFailedPayload(payload, reason: 'invalid_recipients');
+      return _decryptFailedPayload(
+        payload,
+        msgType: msgType,
+        reason: 'invalid_recipients',
+      );
     }
 
     final myDid = deviceId;
@@ -429,7 +441,11 @@ class E2EEService {
           orElse: () => {},
         );
     if (me.isEmpty) {
-      return _decryptFailedPayload(payload, reason: 'no_device_key');
+      return _decryptFailedPayload(
+        payload,
+        msgType: msgType,
+        reason: 'no_device_key',
+      );
     }
 
     // 提取加密密钥、IV 和密文
@@ -442,35 +458,53 @@ class E2EEService {
       // e2ee 元数据中包含 nonce
       final ciphertext = e['ciphertext']?.toString() ?? '';
       if (ciphertext.isEmpty) {
-        return _decryptFailedPayload(payload, reason: 'missing_ciphertext');
+        return _decryptFailedPayload(
+          payload,
+          msgType: msgType,
+          reason: 'missing_ciphertext',
+        );
       }
 
       // 分割 nonce 和密文
       final parts = ciphertext.split('.');
       if (parts.length != 2) {
-        return _decryptFailedPayload(payload, reason: 'invalid_ciphertext_format');
+        return _decryptFailedPayload(
+          payload,
+          msgType: msgType,
+          reason: 'invalid_ciphertext_format',
+        );
       }
 
       iv = parts[0]; // nonce (IV)
       ct = parts[1]; // 实际密文
     } else {
-      // v1.0: iv 和 ct 分别在 e2ee 元数据中
+      // v1.0 格式已废弃，但保留兼容性
       iv = e['nonce']?.toString() ?? e['iv']?.toString() ?? '';
       ct = e['ciphertext']?.toString() ?? e['ct']?.toString() ?? '';
     }
 
     if (iv.isEmpty || ct.isEmpty || ekB64.isEmpty) {
-      return _decryptFailedPayload(payload, reason: 'missing_fields');
+      return _decryptFailedPayload(
+        payload,
+        msgType: msgType,
+        reason: 'missing_fields',
+      );
     }
 
     try {
       // 1. 使用私钥解密 AES 密钥
       final encKeyBytes = base64.decode(base64.normalize(ekB64));
       final privateKeyObj = await RSAService.privateKeyObject();
-      final aesKey = RSAService.rsaDecrypt(privateKeyObj, Uint8List.fromList(encKeyBytes));
+      final aesKey = RSAService.rsaDecrypt(
+        privateKeyObj,
+        Uint8List.fromList(encKeyBytes),
+      );
 
       // 2. 使用 AES 密钥解密消息
-      final senderDid = payload['sender_did']?.toString() ?? e['sender_did']?.toString() ?? '';
+      final senderDid =
+          payload['sender_did']?.toString() ??
+          e['sender_did']?.toString() ??
+          '';
       final aad = utf8.encode('$msgId|$fromUid|$toUid|$createdAt|$senderDid');
       final plainBytes = EncrypterService.aesGcmDecryptBytes(
         iv,
@@ -482,7 +516,11 @@ class E2EEService {
       // 3. 解析明文
       final decoded = jsonDecode(utf8.decode(plainBytes));
       if (decoded is! Map) {
-        return _decryptFailedPayload(payload, reason: 'invalid_plaintext');
+        return _decryptFailedPayload(
+          payload,
+          msgType: msgType,
+          reason: 'invalid_plaintext',
+        );
       }
 
       final plain = decoded.cast<String, dynamic>();
@@ -534,7 +572,11 @@ class E2EEService {
 
       return plain;
     } catch (e) {
-      return _decryptFailedPayload(payload, reason: 'decrypt_error');
+      return _decryptFailedPayload(
+        payload,
+        msgType: msgType,
+        reason: 'decrypt_error',
+      );
     }
   }
 
@@ -554,7 +596,9 @@ class E2EEService {
     if (pem == null || pem.isEmpty) return false;
     final pubKey = RSAService.parsePublicKeyFromPem(pem);
     final sig = base64.decode(base64.normalize(sigB64));
-    final sigInput = utf8.encode('$msgId|$fromUid|$toUid|$createdAt|$senderDid|$iv|$ct');
+    final sigInput = utf8.encode(
+      '$msgId|$fromUid|$toUid|$createdAt|$senderDid|$iv|$ct',
+    );
     return RSAService.rsaVerify(
       pubKey,
       Uint8List.fromList(sigInput),
@@ -564,10 +608,11 @@ class E2EEService {
 
   static Map<String, dynamic> _decryptFailedPayload(
     Map<String, dynamic> payload, {
+    required String msgType,
     required String reason,
   }) {
     return {
-      'msg_type': 'custom',
+      'msg_type': msgType, // 保留原始消息类型
       'custom_type': 'e2ee',
       'text': '[加密消息]',
       '_e2ee_failed': true,

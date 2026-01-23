@@ -53,9 +53,7 @@ class FeedbackApi extends HttpClient {
       API.feedbackPageReply,
       queryParameters: {'feedback_id': feedbackId, 'page': page, 'size': size},
     );
-    debugPrint(
-      "> on Api/feedbackPageReply resp: ${resp.payload.toString()}",
-    );
+    debugPrint("> on Api/feedbackPageReply resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }

@@ -254,7 +254,10 @@ class AppTheme {
 
       // 4. 底部导航栏
       bottomNavigationBarTheme:
-          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark, fontSizeOption: null),
+          ComponentThemeManager.getBottomNavigationBarTheme(
+            isDark: isDark,
+            fontSizeOption: null,
+          ),
 
       // 5. 按钮主题
       elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
@@ -338,7 +341,10 @@ class AppTheme {
 
       // 4. 底部导航栏
       bottomNavigationBarTheme:
-          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark, fontSizeOption: null),
+          ComponentThemeManager.getBottomNavigationBarTheme(
+            isDark: isDark,
+            fontSizeOption: null,
+          ),
 
       // 5. 按钮主题
       elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(

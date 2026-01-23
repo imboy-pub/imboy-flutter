@@ -212,7 +212,12 @@ final class ChatActiveEvent extends AppEvent {
   });
 
   @override
-  List<Object> get props => [conversationUk3, conversationType, peerId, isActive];
+  List<Object> get props => [
+    conversationUk3,
+    conversationType,
+    peerId,
+    isActive,
+  ];
 
   @override
   String toString() {
@@ -775,13 +780,13 @@ final class ChatMessageAddRequestedEvent extends AppEvent {
 
   @override
   List<Object> get props => [
-        peerId,
-        peerAvatar,
-        peerNickname,
-        conversationType,
-        message,
-        sendToServer,
-      ];
+    peerId,
+    peerAvatar,
+    peerNickname,
+    conversationType,
+    message,
+    sendToServer,
+  ];
 
   @override
   String toString() {

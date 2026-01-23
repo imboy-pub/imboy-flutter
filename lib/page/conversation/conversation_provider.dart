@@ -92,6 +92,11 @@ class ConversationNotifier extends _$ConversationNotifier {
   // Replace single conversation
   void replaceConversation(ConversationModel obj) {
     if (obj.uk3.isEmpty) return;
+    // 检查 provider 是否仍然有效，避免在销毁后访问 state
+    if (!ref.mounted) {
+      iPrint('⚠️ [replaceConversation] ConversationNotifier 已释放，跳过更新');
+      return;
+    }
     final newMap = Map<String, ConversationModel>.from(state.conversationMap);
     newMap[obj.uk3] = obj;
     state = state.copyWith(conversationMap: newMap);

@@ -124,4 +124,3 @@ class NotificationService {
     _isInitialized = false;
   }
 }
-

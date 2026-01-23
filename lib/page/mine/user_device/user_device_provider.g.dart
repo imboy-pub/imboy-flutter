@@ -42,7 +42,7 @@ final class UserDeviceNotifierProvider
 }
 
 String _$userDeviceNotifierHash() =>
-    r'4d4d632c89ee7f7c873426dc05ca7bbee2a093ef';
+    r'ac3740da95f10a572c0c7a476ab5910f1d51d378';
 
 abstract class _$UserDeviceNotifier extends $Notifier<UserDeviceState> {
   UserDeviceState build();

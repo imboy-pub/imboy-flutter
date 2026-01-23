@@ -24,7 +24,6 @@ class HttpConfig {
     this.sendTimeout = Duration.millisecondsPerMinute,
     this.receiveTimeout = Duration.millisecondsPerMinute,
   });
-
 }
 
 // https://github.com/dart-lang/web_socket_channel/issues/134

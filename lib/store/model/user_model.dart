@@ -58,10 +58,12 @@ class UserSettingModel {
     // 注意：不要使用 ?? true 作为默认值，这会导致用户关闭开关后被自动打开
     // 使用严格检查：只有显式设置为 true/1/'1' 时才为 true，否则为 false
     return UserSettingModel(
-      allowSearch: json['allow_search'] == true ||
+      allowSearch:
+          json['allow_search'] == true ||
           json['allow_search'] == 1 ||
           json['allow_search'] == '1',
-      peopleNearbyVisible: json['people_nearby_visible'] == true ||
+      peopleNearbyVisible:
+          json['people_nearby_visible'] == true ||
           json['people_nearby_visible'] == 1 ||
           json['people_nearby_visible'] == '1',
       chatState: json['chat_state'] ?? 'hide',
@@ -69,13 +71,16 @@ class UserSettingModel {
       enableVisibilityRead: json['enable_visibility_read'] ?? true,
       visibilityReadFraction: toDouble(json['visibility_read_fraction'], 0.6),
       visibilityReadDelayMs: toInt(json['visibility_read_delay_ms'], 400),
-      showOnlineStatus: json['show_online_status'] == true ||
+      showOnlineStatus:
+          json['show_online_status'] == true ||
           json['show_online_status'] == 1 ||
           json['show_online_status'] == '1',
-      allowAddByPhone: json['allow_add_by_phone'] == true ||
+      allowAddByPhone:
+          json['allow_add_by_phone'] == true ||
           json['allow_add_by_phone'] == 1 ||
           json['allow_add_by_phone'] == '1',
-      allowAddByQR: json['allow_add_by_qr'] == true ||
+      allowAddByQR:
+          json['allow_add_by_qr'] == true ||
           json['allow_add_by_qr'] == 1 ||
           json['allow_add_by_qr'] == '1',
     );

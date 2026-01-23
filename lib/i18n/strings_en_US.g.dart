@@ -376,6 +376,7 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => 'Location';
 	@override String get locationMessage => 'Location message';
 	@override String get logOut => 'Log out';
+	@override String get areYouSureLogOut => 'Are you sure you want to log out?';
 	@override String get login => 'Login';
 	@override String get loginDeviceManagement => 'Login device management';
 	@override String get loginDeviceManagementTips => 'Your account has been logged in on the following devices. You can delete devices, and security verification will be required when logging in to those devices.';
@@ -1615,6 +1616,7 @@ extension on TranslationsEnUs {
 			'location' => 'Location',
 			'locationMessage' => 'Location message',
 			'logOut' => 'Log out',
+			'areYouSureLogOut' => 'Are you sure you want to log out?',
 			'login' => 'Login',
 			'loginDeviceManagement' => 'Login device management',
 			'loginDeviceManagementTips' => 'Your account has been logged in on the following devices. You can delete devices, and security verification will be required when logging in to those devices.',
@@ -1786,9 +1788,9 @@ extension on TranslationsEnUs {
 			'recoverPasswordIntro' => 'No worries, this happens to everyone.',
 			'recoverPasswordSuccess' => 'Verification code sent successfully',
 			'birthday' => 'Birthday',
-			'region' => 'Region',
 			_ => null,
 		} ?? switch (path) {
+			'region' => 'Region',
 			'regionCancel' => 'Cancel',
 			'regionConfirm' => 'OK',
 			'regionNoResult' => 'No results yet',
@@ -2300,9 +2302,9 @@ extension on TranslationsEnUs {
 			'functionSettings' => 'Function Settings',
 			'myQRCode' => 'My QR Code',
 			'manageVisibility' => 'Manage visibility of personal info',
-			'shareProfile' => 'Share Profile',
 			_ => null,
 		} ?? switch (path) {
+			'shareProfile' => 'Share Profile',
 			'shareWithFriends' => 'Share profile with friends',
 			'exportProfile' => 'Export Profile',
 			'exportToLocal' => 'Export profile to local',

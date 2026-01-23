@@ -597,8 +597,19 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: GlassAppBar(title: t.peopleNearby),
+      appBar: GlassAppBar(
+        title: t.peopleNearby,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: colorScheme.primary,
+            size: 20,
+          ),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: SlidableAutoCloseBehavior(
         child: Column(
           children: [

@@ -96,9 +96,7 @@ class UserApi extends HttpClient {
       queryParameters: {'page': page, 'size': size, 'keyword': keyword},
     );
 
-    iPrint(
-      "> on UserApi/ftsRecentlyUser resp: ${resp.payload.toString()}",
-    );
+    iPrint("> on UserApi/ftsRecentlyUser resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }

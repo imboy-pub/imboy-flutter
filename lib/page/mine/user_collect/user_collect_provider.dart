@@ -113,9 +113,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         args['tag'] = tag;
       }
 
-      final Map<String, dynamic>? payload = await UserCollectApi().page(
-        args,
-      );
+      final Map<String, dynamic>? payload = await UserCollectApi().page(args);
       if (payload == null || payload['list'] == null) {
         // 服务端返回为空或异常，标记无更多并返回空列表
         state.hasMore = false;
@@ -160,7 +158,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
   Future<void> _decryptCollectModels(List<UserCollectModel> list) async {
     for (final item in list) {
       try {
-        if (item.info['msg_type'] != 'e2ee') continue;
+        // v2.0: 检查 e2ee 字段是否存在（而不是 msg_type == 'e2ee'）
+        final e2ee = item.info['e2ee'];
+        if (e2ee == null || e2ee == '') continue;
         final decrypted = await E2EEService.decryptIncomingPayload(
           msgId: item.kindId,
           msgType: 'C2C',

@@ -72,20 +72,19 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
 
   /// 加载设置
   void _loadSettings() {
-    final currentBackground =
-        StorageService.to.getString('chat_background');
+    final currentBackground = StorageService.to.getString('chat_background');
     // 使用字符串存储 double 值
     final opacityStr = StorageService.to.getString('chat_background_opacity');
     final backgroundOpacity = opacityStr.isNotEmpty
         ? double.tryParse(opacityStr) ?? 0.3
         : 0.3;
-    final useCustomColor =
-        StorageService.to.getBool('chat_use_custom_color');
-    final customColorHex =
-        StorageService.to.getString('chat_custom_color');
+    final useCustomColor = StorageService.to.getBool('chat_use_custom_color');
+    final customColorHex = StorageService.to.getString('chat_custom_color');
 
     state = ChatBackgroundState(
-      currentBackground: currentBackground.isNotEmpty ? currentBackground : 'default',
+      currentBackground: currentBackground.isNotEmpty
+          ? currentBackground
+          : 'default',
       backgroundOpacity: backgroundOpacity,
       useCustomColor: useCustomColor ?? false,
       customColorHex: customColorHex.isNotEmpty ? customColorHex : '#F5F5F5',
@@ -276,7 +275,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
   }
 
   /// 构建背景预览
-  Widget _buildBackgroundPreview(ChatBackgroundState state, ChatBackgroundManager manager) {
+  Widget _buildBackgroundPreview(
+    ChatBackgroundState state,
+    ChatBackgroundManager manager,
+  ) {
     return Container(
       height: 200,
       width: double.infinity,

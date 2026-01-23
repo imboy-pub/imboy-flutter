@@ -386,6 +386,7 @@ class TranslationsRuRu with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => 'Местоположение';
 	@override String get locationMessage => 'Сообщение о местоположении';
 	@override String get logOut => 'Выйти';
+	@override String get areYouSureLogOut => 'Вы уверены, что хотите выйти?';
 	@override String get login => 'Войти';
 	@override String get loginDeviceManagement => 'Управление устройствами входа';
 	@override String get loginDeviceManagementTips => 'Управляйте устройствами. После удаления потребуется проверка безопасности';
@@ -1625,6 +1626,7 @@ extension on TranslationsRuRu {
 			'location' => 'Местоположение',
 			'locationMessage' => 'Сообщение о местоположении',
 			'logOut' => 'Выйти',
+			'areYouSureLogOut' => 'Вы уверены, что хотите выйти?',
 			'login' => 'Войти',
 			'loginDeviceManagement' => 'Управление устройствами входа',
 			'loginDeviceManagementTips' => 'Управляйте устройствами. После удаления потребуется проверка безопасности',
@@ -1786,9 +1788,9 @@ extension on TranslationsRuRu {
 			'reEdit' => 'Редактировать снова',
 			'readAgreeParam' => ({required Object param}) => 'Прочитал и согласен с ${param}',
 			'recentChats' => 'Недавние чаты',
-			'recentForwards' => 'Недавние пересылки',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => 'Недавние пересылки',
 			'recentlyRegisteredUser' => 'Недавно зарегистрированный пользователь',
 			'recentlyUsed' => 'Недавно использованные',
 			'recommendToFriend' => 'Порекомендовать другу',
@@ -2300,9 +2302,9 @@ extension on TranslationsRuRu {
 			'success' => 'Успешно',
 			'export' => 'Экспорт',
 			'personalDisplay' => 'Личное отображение',
-			'personalSignature' => 'Личная подпись',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => 'Личная подпись',
 			'personalBackground' => 'Личный фон',
 			'setBackgroundImage' => 'Установить изображение фона',
 			'extendedInfo' => 'Дополнительная информация',

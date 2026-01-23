@@ -14,7 +14,6 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
@@ -25,35 +24,33 @@ import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/api/user_api.dart';
 
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/config/routes.dart';
 
+import 'package:imboy/service/message_actions.dart';
+
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
 ///
 /// v2.0 主要变更：
-/// - action 字段从 payload.msg_type 移到顶层 action
+/// - action 字段在顶层（不再兼容旧格式）
 /// - 使用 switch 语句处理不同的 action
 /// - 提取各个 action 处理逻辑为独立方法
-/// - 支持向后兼容（自动检测旧格式）
 class MessageS2CService {
   static final _providerContainer = ProviderContainer();
 
   /// 处理 S2C 消息（WebSocket API v2.0 格式）
   ///
-  /// v2.0 变更：
-  /// - action 字段从 payload.msg_type 移到顶层 action
-  /// - 使用 switch 语句处理不同的 action
-  /// - 提取各个 action 处理逻辑为独立方法
-  /// - 向后兼容：自动检测旧格式（从 payload.msg_type 读取）
+  /// v2.0 格式：
+  /// - action 字段在顶层
+  /// - 不再兼容旧格式（payload.msg_type）
   ///
   /// 消息格式示例：
   /// ```json
   /// {
   ///   "id": "msg_id",
   ///   "type": "S2C",
-  ///   "action": "pull_offline_msg",  // v2.0：顶层 action
+  ///   "action": "pull_offline_msg",
   ///   "from": "user_id",
   ///   "to": "user_id",
   ///   "payload": {...},
@@ -68,14 +65,18 @@ class MessageS2CService {
     bool autoAck = true;
 
     try {
-      // v2.0: 从顶层读取 action 字段（兼容旧格式：从 payload.msg_type 读取）
+      // v2.0: 从顶层读取 action 字段（不再兼容旧格式）
       final payload = data['payload'] ?? {};
-      final Map<String, dynamic> payloadMap =
-          payload is String ? json.decode(payload) : payload as Map<String, dynamic>;
+      final Map<String, dynamic> payloadMap = payload is String
+          ? json.decode(payload)
+          : payload as Map<String, dynamic>;
 
-      // v2.0 格式：data['action']
-      // v1.x 兼容：payloadMap['msg_type']
-      final action = data['action'] ?? payloadMap['msg_type'] ?? '';
+      // v2.0: action 必须在顶层，不存在则报错
+      final action = data['action']?.toString() ?? '';
+      if (action.isEmpty) {
+        debugPrint("❌ [S2C] 缺少 action 字段: msgId=$msgId");
+        return;
+      }
       debugPrint("switchS2C action=$action, msgId=$msgId");
 
       // v2.0: 使用 switch 处理不同的 action（统一转小写，避免大小写问题）
@@ -126,8 +127,7 @@ class MessageS2CService {
           debugPrint("TODO: in_denylist 需要迁移到事件总线或 Provider");
           break;
         case 'not_a_friend':
-          // TODO: 通过事件总线处理系统提示设置
-          debugPrint("TODO: not_a_friend 需要迁移到事件总线或 Provider");
+          await _handleNotAFriend(data, payloadMap);
           break;
         case 'logged_another_device':
           autoAck = false;
@@ -189,10 +189,7 @@ class MessageS2CService {
     // 发布离线消息拉取事件，由 MessageOfflineService 订阅处理
     // 异步处理，避免阻塞 S2C 消息确认
     AppEventBus.fire(
-      OfflineMessagesPullRequestedEvent(
-        source: 'S2C',
-        reason: '服务端通知拉取离线消息',
-      ),
+      OfflineMessagesPullRequestedEvent(source: 'S2C', reason: '服务端通知拉取离线消息'),
     );
   }
 
@@ -200,7 +197,7 @@ class MessageS2CService {
   ///
   /// Action: c2c_revoke
   /// 触发时机：对端撤回了一条消息
-  /// 处理逻辑：将消息转换为撤回提示，更新数据库，触发UI刷新
+  /// 处理逻辑：使用公共辅助类将消息转换为撤回提示，更新数据库，触发UI刷新
   static Future<void> _handleC2CRevoke(
     Map data,
     Map<String, dynamic> payload,
@@ -208,9 +205,8 @@ class MessageS2CService {
     String to,
   ) async {
     final revokeMsgId = payload['old_msg_id'] ?? '';
-    final peerId = UserRepoLocal.to.currentUid == from ? to : from;
 
-    iPrint("收到对端撤回消息: revokeMsgId=$revokeMsgId, peerId=$peerId");
+    iPrint("收到对端撤回消息: revokeMsgId=$revokeMsgId");
 
     // 验证必需的字段
     if (revokeMsgId.isEmpty) {
@@ -218,65 +214,22 @@ class MessageS2CService {
       return;
     }
 
-    // 查找会话
-    final conversationRepo = ConversationRepo();
-    final conversation = await conversationRepo.findByPeerId(
-      'C2C',
-      peerId,
-    );
+    // 查找要撤回的消息
+    final messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+    final oldMsg = await messageRepo.find(revokeMsgId);
 
-    if (conversation != null) {
-      // 查找要撤回的消息
-      final messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
-      final oldMsg = await messageRepo.find(revokeMsgId);
+    if (oldMsg != null) {
+      iPrint("找到要撤回的消息: ${oldMsg.toJson()}");
 
-      if (oldMsg != null) {
-        iPrint("找到要撤回的消息: ${oldMsg.toJson()}");
-
-        // 转换为撤回消息
-        final revokePayload = {
-          'msg_type': 'custom',
-          'custom_type': 'peer_revoked', // 标记为对方撤回
-          'text': payload['text'] ?? '撤回的消息',
-          'original_type': oldMsg.payload['msg_type'] ?? 'TextMessage',
-          'revoke_time':
-              payload['revoke_time'] ?? DateTimeHelper.millisecond(),
-          'revoke_user': from, // 记录撤回操作的用户ID
-        };
-
-        // 更新消息
-        final res = await messageRepo.update({
-          'id': revokeMsgId,
-          'payload': json.encode(revokePayload),
-          'status': 20, // 设置为已读状态
-        });
-
-        iPrint("撤回消息数据库更新结果: $res, 消息ID: $revokeMsgId");
-
-        if (res > 0) {
-          // 重新获取更新后的消息
-          final updatedMsg = await messageRepo.find(revokeMsgId);
-          if (updatedMsg != null) {
-            iPrint("撤回消息更新成功: ${updatedMsg.toJson()}");
-
-            // 触发UI更新事件
-            AppEventBus.fire(
-              ChatExtendEvent(
-                type: 'revoke_msg',
-                payload: {
-                  'conversation': conversation,
-                  'msgId': revokeMsgId,
-                  'revokeUser': from,
-                },
-              ),
-            );
-          }
-        }
-      } else {
-        iPrint("未找到要撤回的消息: $revokeMsgId");
-      }
+      // 使用公共辅助类处理撤回（消除代码重复）
+      await MessageActions.convertMessageToRevoked(
+        originalMsg: oldMsg,
+        repo: messageRepo,
+        revokeUserId: from,
+        originalText: payload['text'],
+      );
     } else {
-      iPrint("未找到对应的会话: peerId=$peerId");
+      iPrint("未找到要撤回的消息: $revokeMsgId");
     }
   }
 
@@ -284,7 +237,7 @@ class MessageS2CService {
   ///
   /// Action: c2c_del_everyone
   /// 触发时机：对端删除了一条消息（双方都删除）
-  /// 处理逻辑：从会话中移除消息，触发UI更新
+  /// 处理逻辑：使用公共辅助类处理删除，触发UI更新
   static Future<void> _handleC2CDelEveryone(
     Map data,
     Map<String, dynamic> payload,
@@ -292,28 +245,12 @@ class MessageS2CService {
     String to,
   ) async {
     final oldMsgId = payload['old_msg_id'] ?? '';
-    final peerId = UserRepoLocal.to.currentUid == from ? to : from;
-    final repo = ConversationRepo();
-    final m = await repo.findByPeerId('C2C', peerId);
 
-    final messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
-    final oldMsg = await messageRepo.find(oldMsgId);
-
-    debugPrint(
-      "switchS2C conversation found: ${m != null}, oldMsg found: ${oldMsg != null}",
-    );
-
-    if (m == null || oldMsg == null) {
-      return;
-    }
-
-    final msg = await oldMsg.toTypeMessage();
-    // 发布删除消息事件，由聊天界面订阅处理
-    AppEventBus.fire(
-      ChatExtendEvent(
-        type: 'delete_msg',
-        payload: {'conversation': m, 'msg': msg},
-      ),
+    // 使用公共辅助类处理删除（消除代码重复）
+    await MessageActions.handleC2CDeleteMessage(
+      oldMsgId: oldMsgId,
+      from: from,
+      to: to,
     );
   }
 
@@ -321,34 +258,18 @@ class MessageS2CService {
   ///
   /// Action: c2g_del_everyone
   /// 触发时机：群组消息被删除（所有人可见）
-  /// 处理逻辑：从群组会话中移除消息，触发UI更新
+  /// 处理逻辑：使用公共辅助类处理删除，触发UI更新
   static Future<void> _handleC2GDelEveryone(
     Map data,
     Map<String, dynamic> payload,
   ) async {
     final oldMsgId = payload['old_msg_id'] ?? '';
     final groupId = payload['to'] ?? '';
-    final repo = ConversationRepo();
-    final m = await repo.findByPeerId('C2G', groupId);
 
-    final messageRepo = MessageRepo(tableName: MessageRepo.c2gTable);
-    final oldMsg = await messageRepo.find(oldMsgId);
-
-    iPrint(
-      "c2g_del_everyone_check oldMsg ${oldMsg == null}, m ${m == null}; payload ${payload.toString()}",
-    );
-
-    if (m == null || oldMsg == null) {
-      return;
-    }
-
-    final msg = await oldMsg.toTypeMessage();
-    // 发布删除消息事件，由聊天界面订阅处理
-    AppEventBus.fire(
-      ChatExtendEvent(
-        type: 'delete_msg',
-        payload: {'conversation': m, 'msg': msg},
-      ),
+    // 使用公共辅助类处理删除（消除代码重复）
+    await MessageActions.handleC2GDeleteMessage(
+      oldMsgId: oldMsgId,
+      groupId: groupId,
     );
   }
 
@@ -530,10 +451,7 @@ class MessageS2CService {
 
     final rtk = await UserRepoLocal.to.refreshToken;
 
-    await UserApi.to.refreshAccessTokenApi(
-      rtk,
-      checkNewToken: true,
-    );
+    await UserApi.to.refreshAccessTokenApi(rtk, checkNewToken: true);
   }
 
   /// 处理应用升级
@@ -608,5 +526,20 @@ class MessageS2CService {
       AppRoutes.signIn,
       (route) => false,
     );
+  }
+
+  ///
+  /// Action: not_a_friend
+  /// 触发时机：尝试向非好友用户发送消息
+  /// 处理逻辑：使用公共辅助类处理非好友错误
+  static Future<void> _handleNotAFriend(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    final msgId = data['id'] as String?;
+    final msgType = data['type']?.toString() ?? 'C2C';
+
+    // 使用公共辅助类处理非好友错误（消除代码重复）
+    await MessageActions.handleNotAFriendError(msgId: msgId, msgType: msgType);
   }
 }

@@ -83,9 +83,7 @@ class UserQrCodePage extends ConsumerWidget {
                   children: [
                     // 用户信息区域
                     Container(
-                      padding: EdgeInsets.all(
-                        AppSpacing.regular * 2,
-                      ),
+                      padding: EdgeInsets.all(AppSpacing.regular * 2),
                       child: Row(
                         children: [
                           // 头像
@@ -100,9 +98,7 @@ class UserQrCodePage extends ConsumerWidget {
                             ),
                           ),
 
-                          SizedBox(
-                            width: AppSpacing.regular * 1.6,
-                          ),
+                          SizedBox(width: AppSpacing.regular * 1.6),
 
                           // 用户信息
                           Expanded(
@@ -118,9 +114,7 @@ class UserQrCodePage extends ConsumerWidget {
                                   ),
                                 ),
 
-                                SizedBox(
-                                  height: AppSpacing.regular * 0.4,
-                                ),
+                                SizedBox(height: AppSpacing.regular * 0.4),
 
                                 if (UserRepoLocal.to.current.region.isNotEmpty)
                                   Text(
@@ -151,16 +145,12 @@ class UserQrCodePage extends ConsumerWidget {
 
                     // 二维码区域
                     Container(
-                      padding: EdgeInsets.all(
-                        AppSpacing.regular * 3,
-                      ),
+                      padding: EdgeInsets.all(AppSpacing.regular * 3),
                       child: Column(
                         children: [
                           // 二维码
                           Container(
-                            padding: EdgeInsets.all(
-                              AppSpacing.regular,
-                            ),
+                            padding: EdgeInsets.all(AppSpacing.regular),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: AppRadius.borderRadiusSmall,
@@ -182,10 +172,10 @@ class UserQrCodePage extends ConsumerWidget {
                               // 使用简单的 AssetImage 避免缓存问题
                               embeddedImage:
                                   MediaQuery.of(context).size.height < 640
-                                      ? null
-                                      : const AssetImage(
-                                          'assets/images/imboy_logo0.png',
-                                        ),
+                                  ? null
+                                  : const AssetImage(
+                                      'assets/images/imboy_logo0.png',
+                                    ),
                               embeddedImageStyle: const QrEmbeddedImageStyle(
                                 size: Size.square(48),
                               ),
@@ -281,9 +271,7 @@ class UserQrCodePage extends ConsumerWidget {
           highlightColor: AppColors.primary.withValues(alpha: 0.05),
           onTap: onPressed,
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular * 1.2,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 1.2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -406,9 +394,7 @@ class UserQrCodePage extends ConsumerWidget {
                 color: AppColors.getDividerColor(
                   Theme.of(context).brightness,
                 ).withValues(alpha: 0.3),
-                margin: EdgeInsets.symmetric(
-                  vertical: AppSpacing.regular,
-                ),
+                margin: EdgeInsets.symmetric(vertical: AppSpacing.regular),
               ),
 
               // 取消选项
@@ -656,9 +642,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
 
                     // 有效期提示
                     Padding(
-                      padding: EdgeInsets.all(
-                        AppSpacing.regular * 2,
-                      ),
+                      padding: EdgeInsets.all(AppSpacing.regular * 2),
                       child: Text(
                         t.groupQrcodeTips(
                           days: dayNum.toString(),
@@ -749,9 +733,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
           highlightColor: AppColors.primary.withValues(alpha: 0.05),
           onTap: onPressed,
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular * 1.2,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 1.2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -870,9 +852,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                 color: AppColors.getDividerColor(
                   Theme.of(context).brightness,
                 ).withValues(alpha: 0.3),
-                margin: EdgeInsets.symmetric(
-                  vertical: AppSpacing.regular,
-                ),
+                margin: EdgeInsets.symmetric(vertical: AppSpacing.regular),
               ),
 
               // 取消选项

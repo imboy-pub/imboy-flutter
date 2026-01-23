@@ -84,16 +84,12 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   : (isDark
                         ? const Color(0xFF48484A)
                         : const Color(0xFFE5E5E5)),
-              borderRadius: BorderRadius.circular(
-                AppSpacing.regular * 2,
-              ),
+              borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(
-                  AppSpacing.regular * 2,
-                ),
+                borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
                 onTap: state.canSave && !state.isSaving
                     ? () async {
                         final success = await ref
@@ -234,9 +230,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
 
             // 字符计数和校验提示区域
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.regular * 2,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 2),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -292,9 +286,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
 
                   // 使用说明
                   Container(
-                    padding: EdgeInsets.all(
-                      AppSpacing.regular * 1.5,
-                    ),
+                    padding: EdgeInsets.all(AppSpacing.regular * 1.5),
                     decoration: BoxDecoration(
                       color: Theme.of(context)
                           .colorScheme
@@ -342,9 +334,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   horizontal: AppSpacing.regular * 2,
                 ),
                 child: Container(
-                  padding: EdgeInsets.all(
-                    AppSpacing.regular * 1.5,
-                  ),
+                  padding: EdgeInsets.all(AppSpacing.regular * 1.5),
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,

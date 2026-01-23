@@ -84,7 +84,7 @@ class UIEventHandler {
 
   /// 删除消息（所有人）回调
   final void Function(BuildContext context, Message message)
-      onDeleteMessageForEveryone;
+  onDeleteMessageForEveryone;
 
   /// 设置引用消息回调
   final void Function(Message? message) onSetQuoteMessage;
@@ -94,7 +94,8 @@ class UIEventHandler {
     required String voiceUrlOrPath,
     required String messageId,
     required int duration,
-  }) onPlayVoice;
+  })
+  onPlayVoice;
 
   /// 保存文件回调
   final void Function(String name, String uri) onSaveFile;
@@ -219,8 +220,7 @@ class UIEventHandler {
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
           child: Column(
@@ -401,8 +401,7 @@ class UIEventHandler {
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
           child: Column(
@@ -499,8 +498,7 @@ class UIEventHandler {
     if (message is! TextMessage) return false;
 
     final nowMs = DateTimeHelper.millisecond();
-    final messageTimeMs =
-        message.createdAt?.millisecondsSinceEpoch ?? nowMs;
+    final messageTimeMs = message.createdAt?.millisecondsSinceEpoch ?? nowMs;
     final timeDiffMs = nowMs - messageTimeMs;
 
     return timeDiffMs < 15 * 60 * 1000; // 15分钟 = 900000毫秒

@@ -126,11 +126,8 @@ dependencies:
       ref: leeyi
   easy_refresh: ^3.4.0    # Pull-to-refresh
   flutter_slidable: ^4.0.3 # Slidable list items
-#  scroll_to_index:        # Scroll to index 打算弃用
-#    git:
-#      url: https://github.com/quire-io/scroll-to-index.git
+  # scroll_to_index 已弃用并移除
   sliding_up_panel: ^2.0.0+1 # Sliding panels
-  buttons_tabbar: ^1.3.15 # Tab bar
 
   ##############################################
   # Maps & Location
@@ -172,11 +169,10 @@ dependencies:
   ntp: ^2.0.0             # Network time protocol
   clock: ^1.1.2           # Time utilities
   equatable: ^2.0.7       # Object equality
-  safemap: ^2.1.0         # Safe map access
   synchronized: ^3.4.0    # Synchronization
   share_plus: ^12.0.1     # Sharing
   wakelock_plus: ^1.4.0   # Keep screen awake
-  #drag_ball: ^2.0.1       # Assistive touch ball
+  # drag_ball 已移除 - 未使用的辅助球组件
   r_upgrade:              # App upgrade
     git:
       url: https://gitee.com/imboy-tripartite-deps/r_upgrade.git
@@ -187,7 +183,6 @@ dependencies:
       url: https://github.com/leeyisoft/IcStorageSpace.git
       ref: leeyi
     #path: plugin/ic_storage_space
-  nine_grid_view: ^2.0.0  # 9-grid view
   badges: ^3.1.2          # Badge indicators
   carousel_slider_plus: ^7.1.1 # Carousel slider
   textfield_tags: ^3.0.1  # Tag input field

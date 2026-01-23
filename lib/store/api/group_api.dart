@@ -38,9 +38,7 @@ class GroupApi extends HttpClient {
 
   Future<Map<String, dynamic>?> dissolve({required String gid}) async {
     IMBoyHttpResponse resp = await post(API.groupDissolve, data: {"gid": gid});
-    debugPrint(
-      "GroupApi/dissolve resp.payload: ${resp.payload.toString()}",
-    );
+    debugPrint("GroupApi/dissolve resp.payload: ${resp.payload.toString()}");
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
@@ -107,9 +105,7 @@ class GroupApi extends HttpClient {
   }) async {
     data['gid'] = gid;
     IMBoyHttpResponse resp = await post(API.groupEdit, data: data);
-    debugPrint(
-      "GroupApi/groupEdit resp: ${resp.code.toString()}; ${resp.msg}",
-    );
+    debugPrint("GroupApi/groupEdit resp: ${resp.code.toString()}; ${resp.msg}");
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }

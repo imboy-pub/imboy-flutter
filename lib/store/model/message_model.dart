@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/component/chat/enum.dart' show CustomMessageType;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -17,20 +17,86 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 /// All possible statuses message can have.
 // enum Status { delivered, error, seen, sending, sent }
 class IMBoyMessageStatus {
-  // 发送中
+  // ==================== 发送状态 (10-19) ====================
+
+  /// 发送中
   static const int sending = 10;
 
-  //  已发送
+  /// 已发送
   static const int sent = 11;
 
-  // 未读 已投递
+  // ==================== 投递/阅读状态 (20-29) ====================
+
+  /// 未读 已投递
   static const int delivered = 20;
 
-  // 已读
+  /// 已读
   static const int seen = 21;
 
-  // 错误（发送失败）
+  // ==================== 撤回状态 (30-39) ====================
+
+  /// 对方撤回（peer_revoked）
+  ///
+  /// 消息被对方撤回，msg_type 保留原始内容类型（text/image等）
+  /// 状态码 30 表示对方撤回，与 payload.custom_type 配合使用
+  static const int peerRevoked = 30;
+
+  /// 自己撤回（my_revoked）
+  ///
+  /// 消息被自己撤回，msg_type 保留原始内容类型（text/image等）
+  /// 状态码 31 表示自己撤回，与 payload.custom_type 配合使用
+  static const int myRevoked = 31;
+
+  // ==================== 错误状态 (40-49) ====================
+
+  /// 错误（发送失败）
   static const int error = 41;
+
+  // ==================== 辅助方法 ====================
+
+  /// 判断是否为发送状态（10-19）
+  static bool isSendingStatus(int? status) {
+    return status != null && status >= 10 && status < 20;
+  }
+
+  /// 判断是否为撤回状态（30-39）
+  static bool isRevokedStatus(int? status) {
+    return status != null && status >= 30 && status < 40;
+  }
+
+  /// 判断是否为错误状态（40-49）
+  static bool isErrorStatus(int? status) {
+    return status != null && status >= 40;
+  }
+
+  /// 判断消息是否显示为撤回状态
+  ///
+  /// WebSocket API v2.0: 检查 status 字段（30=peer_revoked, 31=my_revoked）
+  static bool isRevoked(MessageModel msg) {
+    return isRevokedStatus(msg.status);
+  }
+
+  /// 获取撤回状态的文本描述
+  static String getRevokedStatusText(int? status) {
+    switch (status) {
+      case peerRevoked:
+        return '对方撤回';
+      case myRevoked:
+        return '已撤回';
+      default:
+        return '已撤回';
+    }
+  }
+
+  /// 判断是否为对方撤回
+  static bool isPeerRevoked(int? status) {
+    return status == peerRevoked;
+  }
+
+  /// 判断是否为自己撤回
+  static bool isMyRevoked(int? status) {
+    return status == myRevoked;
+  }
 }
 
 class ReEditMessage {
@@ -100,10 +166,14 @@ class MessageModel {
     Map<String, dynamic>? e2eeData;
     if (type != 'S2C' && data['e2ee'] != null) {
       if (data['e2ee'] is String) {
-        try {
-          e2eeData = jsonDecode(data['e2ee']) as Map<String, dynamic>?;
-        } catch (e) {
-          debugPrint('MessageModel: e2ee 解析失败: $e');
+        final e2eeStr = data['e2ee'] as String;
+        // 检查字符串非空后再解析
+        if (e2eeStr.isNotEmpty) {
+          try {
+            e2eeData = jsonDecode(e2eeStr) as Map<String, dynamic>?;
+          } catch (e) {
+            debugPrint('MessageModel: e2ee 解析失败: $e');
+          }
         }
       } else if (data['e2ee'] is Map<String, dynamic>) {
         e2eeData = data['e2ee'] as Map<String, dynamic>;
@@ -212,74 +282,207 @@ class MessageModel {
     return MessageStatus.error;
   }
 
-  CustomMessageType get customMsgType {
+  /// 获取消息类型枚举（兼容 flutter_chat_core）
+  ///
+  /// WebSocket API v2.0: 优先使用顶层的 msgType 字段
+  /// 返回 MsgTypeEnum 用于 UI 类型判断
+  MsgTypeEnum get customMsgType {
     // WebSocket API v2.0: 优先使用顶层的 msgType 字段
     final typeValue = msgType ?? (payload is Map ? payload['msg_type'] : null);
 
-    if (typeValue == 'text') {
-      return CustomMessageType.text;
-    } else if (typeValue == 'text_stream') {
-      return CustomMessageType.textStream;
-    } else if (typeValue == 'image') {
-      return CustomMessageType.image;
-    } else if (typeValue == 'file') {
-      return CustomMessageType.file;
-    } else if (typeValue == 'custom') {
-      return CustomMessageType.custom;
-    } else if (typeValue == 'location') {
-      return CustomMessageType.custom;
-    } else if (typeValue == 'visit_card') {
-      return CustomMessageType.custom;
-    } else if (typeValue == 'revoked') {
-      return CustomMessageType.custom;
-    }
-
-    return CustomMessageType.unsupported;
+    // 使用 MsgTypeEnumExtension.fromValue 进行转换
+    return MsgTypeEnumExtension.fromValue(typeValue) ?? MsgTypeEnum.unsupported;
   }
 
-  static String conversationMsgType(Message message) {
-    if (message is TextMessage) {
-      return 'text';
-    } else if (message is ImageMessage) {
-      return 'image';
-    } else if (message is FileMessage) {
-      return 'file';
-    } else if (message is CustomMessage) {
-      String msgType = message.metadata?['custom_type'] ?? 'unsupported';
-      if (msgType == 'revoked') {
-        // 检查是否有revoke_user字段，如果有则根据revoke_user判断撤回方
-        final String revokeUser = message.metadata?['revoke_user'] ?? '';
-        if (revokeUser.isNotEmpty) {
-          return revokeUser == UserRepoLocal.to.currentUid
-              ? 'my_revoked'
-              : 'peer_revoked';
-        }
-        // 如果没有revoke_user字段，则根据authorId判断
-        return UserRepoLocal.to.currentUid == message.authorId
-            ? 'my_revoked'
-            : 'peer_revoked';
-      }
+  /// 获取会话列表中显示的消息类型（MessageModel 版本）
+  ///
+  /// 直接从数据库字段读取，不依赖 metadata
+  ///
+  /// ## 返回值说明
+  /// - 基础类型：text, image, file, audio, video, location, quote
+  /// - 撤回消息：保留原始类型（如 text），UI 根据 action 判断撤回状态
+  static String conversationMsgTypeFromModel(MessageModel model) {
+    // 直接从数据库字段读取（v2.0 规范）
+    final msgType = model.msgType;
+    if (msgType != null && msgType.isNotEmpty) {
       return msgType;
     }
-    return 'unsupported';
+    return MessageType.unsupported;
   }
 
-  static String conversationSubtitle(Message message) {
-    String subtitle = '';
-    String customType = '';
-    if (message is CustomMessage) {
-      customType = message.metadata?['custom_type'] ?? '';
+  /// 获取会话列表中显示的消息类型（flutter_chat_core Message 版本）
+  ///
+  /// 从 metadata 读取（兼容 flutter_chat_core）
+  ///
+  /// ## 返回值说明
+  /// - 基础类型：text, image, file, audio, video, location, quote
+  /// - 撤回消息：保留原始类型（如 text），UI 根据 action 判断撤回状态
+  static String conversationMsgType(Message message) {
+    // 1. 优先从顶层 metadata 获取 msg_type（v2.0 规范）
+    final topMsgType = message.metadata?['msg_type'];
+    if (topMsgType is String && topMsgType.isNotEmpty) {
+      return topMsgType;
     }
+
+    // 2. 兼容 flutter_chat_core 的 Message 子类型
     if (message is TextMessage) {
-      subtitle = message.text;
-    } else if (customType == "quote") {
-      subtitle = message.metadata?['quote_text'] ?? '';
-    } else if (customType == 'visit_card') {
-      subtitle = message.metadata?['title'] ?? '';
-    } else if (customType == 'location') {
-      subtitle = message.metadata?['title'] ?? '';
+      return MessageType.text;
+    } else if (message is ImageMessage) {
+      return MessageType.image;
+    } else if (message is FileMessage) {
+      return MessageType.file;
+    } else if (message is CustomMessage) {
+      // CustomMessage 也可能包含 msg_type
+      final customMsgType = message.metadata?['msg_type'];
+      if (customMsgType is String && customMsgType.isNotEmpty) {
+        return customMsgType;
+      }
+      // 兼容旧的 custom_type（用于自定义消息子类型）
+      return message.metadata?['custom_type'] ?? MessageType.unsupported;
     }
-    return subtitle;
+
+    return MessageType.unsupported;
+  }
+
+  /// 获取会话副标题（MessageModel 版本）
+  ///
+  /// 直接从 MessageModel 读取，避免 toTypeMessage 转换
+  ///
+  /// ## 规则
+  /// - text: 显示文本内容
+  /// - image: [图片]
+  /// - video: [视频]
+  /// - audio: [语音]
+  /// - file: [文件] 或文件名
+  /// - quote: 引用的文本内容
+  /// - location: 位置标题
+  static String conversationSubtitleFromModel(MessageModel model) {
+    // WebSocket API v2.0: 优先检查 status 字段（撤回状态 30-39）
+    if (IMBoyMessageStatus.isRevokedStatus(model.status)) {
+      // 撤回消息的预览由 conversationModel 另外处理
+      return '';
+    }
+
+    final msgType = model.msgType ?? MessageType.unsupported;
+    final payload = model.payload is Map
+        ? model.payload as Map<String, dynamic>
+        : {};
+
+    switch (msgType) {
+      case MessageType.text:
+        // 文本消息：直接返回文本
+        return payload['text']?.toString() ?? '';
+
+      case MessageType.image:
+        return '[图片]';
+
+      case MessageType.video:
+        return '[视频]';
+
+      case MessageType.audio:
+      case MessageType.voice:
+        return '[语音]';
+
+      case MessageType.file:
+        // 文件消息：显示文件名或 [文件]
+        final filename =
+            payload['filename']?.toString() ??
+            payload['name']?.toString() ??
+            '';
+        return filename.isNotEmpty ? '📄 $filename' : '[文件]';
+
+      case MessageType.quote:
+        // 引用消息：显示引用的文本
+        return payload['quote_text']?.toString() ?? '[引用]';
+
+      case MessageType.location:
+        // 位置消息：显示位置标题
+        return payload['title']?.toString() ?? '[位置]';
+
+      case MessageType.custom:
+        // 自定义消息：根据 custom_type 处理
+        final customType = payload['custom_type']?.toString() ?? '';
+        if (customType == 'visit_card') {
+          return payload['title']?.toString() ?? '[名片]';
+        }
+        return '';
+
+      default:
+        // 其他类型不显示副标题
+        return '';
+    }
+  }
+
+  /// 获取会话副标题（flutter_chat_core Message 版本）
+  ///
+  /// 从 metadata 读取（兼容 flutter_chat_core）
+  ///
+  /// ## 规则
+  /// - text: 显示文本内容
+  /// - image: [图片]
+  /// - video: [视频]
+  /// - audio: [语音]
+  /// - file: [文件] 或文件名
+  /// - quote: 引用的文本内容
+  /// - location: 位置标题
+  static String conversationSubtitle(Message message) {
+    final metadata = message.metadata ?? {};
+
+    // WebSocket API v2.0: 优先检查 status 字段（撤回状态 30-39）
+    final status = metadata['status'] as int?;
+    if (IMBoyMessageStatus.isRevokedStatus(status)) {
+      // 撤回消息的预览由 conversationModel 另外处理
+      return '';
+    }
+
+    final msgType = conversationMsgType(message);
+
+    switch (msgType) {
+      case MessageType.text:
+        // 文本消息：直接返回文本
+        if (message is TextMessage) {
+          return message.text;
+        }
+        return metadata['text']?.toString() ?? '';
+
+      case MessageType.image:
+        return '[图片]';
+
+      case MessageType.video:
+        return '[视频]';
+
+      case MessageType.audio:
+      case MessageType.voice:
+        return '[语音]';
+
+      case MessageType.file:
+        // 文件消息：显示文件名或 [文件]
+        final filename =
+            metadata['filename']?.toString() ??
+            metadata['name']?.toString() ??
+            '';
+        return filename.isNotEmpty ? '📄 $filename' : '[文件]';
+
+      case MessageType.quote:
+        // 引用消息：显示引用的文本
+        return metadata['quote_text']?.toString() ?? '[引用]';
+
+      case MessageType.location:
+        // 位置消息：显示位置标题
+        return metadata['title']?.toString() ?? '[位置]';
+
+      case MessageType.custom:
+        // 自定义消息：根据 custom_type 处理
+        final customType = metadata['custom_type']?.toString() ?? '';
+        if (customType == 'visit_card') {
+          return metadata['title']?.toString() ?? '[名片]';
+        }
+        return '';
+
+      default:
+        // 其他类型不显示副标题
+        return '';
+    }
   }
 
   int toStatus(MessageStatus status) {
@@ -377,12 +580,12 @@ class MessageModel {
       );
     }
 
-    // WebSocket API v2.0: 优先使用顶层的 msgType 字段
-    final currentMsgType = msgType ?? payloadData['msg_type'];
+    // WebSocket API v2.0: msgType 必须在顶层（不再兼容从 payload 读取）
+    final currentMsgType = msgType;
 
     // 验证 msg_type 有效性
-    if (currentMsgType == null || payloadData.isEmpty) {
-      iPrint('⚠️ toTypeMessage: msg_type 无效或为空，id=$id, payload=$payload');
+    if (currentMsgType == null || currentMsgType.isEmpty) {
+      iPrint('❌ [toTypeMessage] msg_type 为空或无效，id=$id');
       return TextMessage(
         authorId: fromId!,
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
@@ -400,12 +603,13 @@ class MessageModel {
     String sysPrompt = payloadData['sys_prompt'] ?? '';
     Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
-    // WebSocket API v2.0: 将 msgType 添加到 metadata，供 UI 层使用
+    // WebSocket API v2.0: 将 msgType 和 status 添加到 metadata，供 UI 层使用
     Map<String, dynamic> metadata = {
       'conversation_uk3': conversationUk3,
       'sys_prompt': sysPrompt,
       'peer_id': toId,
       'msg_type': currentMsgType, // 添加 msg_type 到 metadata
+      'status': status, // 添加 status 到 metadata
     };
     String nickname = '';
     String avatar = '';
@@ -422,13 +626,24 @@ class MessageModel {
       imageSource: avatar,
       // payload['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
       name: nickname.isEmpty
-          ? (payloadData['peer_name'] ?? (payloadData['quote_msg_author_name'] ?? ''))
+          ? (payloadData['peer_name'] ??
+                (payloadData['quote_msg_author_name'] ?? ''))
           : nickname,
     );
     DateTime createdDt = DateTimeHelper.millisecondToDateTime(createdAt);
 
-    // Handle null payload case
-    if (currentMsgType == 'text') {
+    // WebSocket API v2.0: 优先检查 status 字段（撤回状态 30-39）
+    // 撤回状态应该在所有类型检查之前处理，因为 msg_type 保留的是原始内容类型
+    if (IMBoyMessageStatus.isRevokedStatus(status)) {
+      // status = 30 (peer_revoked) 或 31 (my_revoked)
+      // 使用 CustomMessage，UI 层会根据 status 渲染撤回样式
+      message = CustomMessage(
+        authorId: author.id,
+        id: id!,
+        createdAt: createdDt,
+        metadata: {...metadata, ...payloadData},
+      );
+    } else if (currentMsgType == 'text') {
       message = TextMessage(
         authorId: author.id,
         createdAt: createdDt,
@@ -464,17 +679,41 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (payloadData['custom_type'] == 'revoked' ||
-        payloadData['custom_type'] == 'peer_revoked' ||
-        payloadData['custom_type'] == 'my_revoked' ||
-        payloadData['custom_type'] == 'c2c_revoke') {
-      message = CustomMessage(
-        authorId: author.id,
-        id: id!,
-        createdAt: createdDt,
-        // peerId: toId,
-        metadata: {...metadata, ...payloadData},
-      );
+    } else if (currentMsgType == 'video' || currentMsgType == 'voice') {
+      // 视频/语音消息：使用 VideoMessage 或 AudioMessage
+      if (currentMsgType == 'video') {
+        message = VideoMessage(
+          authorId: author.id,
+          createdAt: createdDt,
+          id: id!,
+          // peerId: toId,
+          source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
+          text: payloadData['name'] ?? '',
+          name: payloadData['name'] ?? '',
+          size: payloadData['size'] ?? 0,
+          width: (payloadData['width'] ?? 0) / 1.0,
+          height: (payloadData['height'] ?? 0) / 1.0,
+          status: typesStatus,
+          metadata: {...metadata, ...payloadData},
+        );
+      } else {
+        // voice/audio 消息使用 AudioMessage
+        message = AudioMessage(
+          authorId: author.id,
+          createdAt: createdDt,
+          id: id!,
+          // peerId: toId,
+          source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
+          text: payloadData['name'] ?? '',
+          size: payloadData['size'] ?? 0,
+          duration: payloadData['duration_ms'] ?? 0,
+          waveform: payloadData['waveform'] != null
+              ? List<double>.from(payloadData['waveform'])
+              : null,
+          status: typesStatus,
+          metadata: {...metadata, ...payloadData},
+        );
+      }
     } else if (payloadData['custom_type'] == 'quote') {
       message = CustomMessage(
         authorId: author.id,
@@ -482,6 +721,37 @@ class MessageModel {
         createdAt: createdDt,
         // peerId: toId,
         metadata: {...metadata, ...payloadData},
+      );
+    } else if (currentMsgType == 'textStream' ||
+        currentMsgType == 'text_stream') {
+      // 文本流消息：使用 TextMessage，带额外的流式 metadata
+      message = TextMessage(
+        authorId: author.id,
+        createdAt: createdDt,
+        id: id!,
+        text: payloadData['text'] ?? '',
+        status: typesStatus,
+        metadata: {
+          ...metadata,
+          ...payloadData,
+          'index': payloadData['index'] ?? 0,
+          'is_end': payloadData['is_end'] ?? false,
+          'stream_id': payloadData['stream_id'],
+        },
+      );
+    } else if (currentMsgType == 'imageMulti' ||
+        currentMsgType == 'image_multi') {
+      // 多图消息：使用 CustomMessage，带 images 数组
+      message = CustomMessage(
+        authorId: author.id,
+        id: id!,
+        createdAt: createdDt,
+        metadata: {
+          ...metadata,
+          ...payloadData,
+          'images': payloadData['images'] ?? [],
+          'total': payloadData['total'] ?? 0,
+        },
       );
     } else if (currentMsgType == 'custom') {
       message = CustomMessage(
@@ -494,11 +764,18 @@ class MessageModel {
       );
     } else {
       // Fallback case for unknown message types
+      // 使用 unsupported 标识
       message = CustomMessage(
         authorId: author.id,
         id: id!,
         createdAt: createdDt,
-        metadata: {...metadata, ...payloadData},
+        metadata: {
+          ...metadata,
+          ...payloadData,
+          'unsupported': true,
+          'error': 'unknown_msg_type',
+          'original_type': currentMsgType,
+        },
       );
     }
 
@@ -534,6 +811,26 @@ class MessageModel {
       payload['size'] = message.size;
       payload['uri'] = message.source;
       payload.addAll(message.metadata ?? {});
+    } else if (message is VideoMessage) {
+      msgType = 'video';
+      payload['msg_type'] = 'video';
+      payload['name'] = message.name ?? message.text;
+      payload['size'] = message.size;
+      payload['uri'] = message.source;
+      payload['width'] = message.width;
+      payload['height'] = message.height;
+      payload.addAll(message.metadata ?? {});
+    } else if (message is AudioMessage) {
+      msgType = 'voice'; // WebSocket API v2.0 使用 'voice'
+      payload['msg_type'] = 'voice';
+      payload['name'] = message.text;
+      payload['size'] = message.size;
+      payload['uri'] = message.source;
+      payload['duration_ms'] = message.duration;
+      if (message.waveform != null) {
+        payload['waveform'] = message.waveform;
+      }
+      payload.addAll(message.metadata ?? {});
     } else if (message is CustomMessage) {
       msgType = 'custom';
       payload['msg_type'] = 'custom';
@@ -558,9 +855,7 @@ class MessageModel {
       toId: peerId,
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
-      isAuthor: message.authorId == UserRepoLocal.to.currentUid
-          ? 1
-          : 0,
+      isAuthor: message.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
       topicId: payload['topic_id'] ?? 0,
       conversationUk3: conversationUk3,
       status: 0,

@@ -30,7 +30,9 @@ class AssetsService {
     // 检查 uploadKey 是否为空
     final uploadKey = Env.uploadKey;
     if (uploadKey == null || uploadKey.isEmpty) {
-      iPrint('AssetsService.authData: uploadKey is null or empty, triggering refresh');
+      iPrint(
+        'AssetsService.authData: uploadKey is null or empty, triggering refresh',
+      );
       // 触发异步刷新配置
       _refreshUploadKey();
       return {'v': v, 'a': '', 's': Env.uploadScene ?? '', 'needRefresh': true};
@@ -55,13 +57,17 @@ class AssetsService {
       final result = await AppInitializer.initConfig();
 
       if (result.containsKey('error')) {
-        iPrint('AssetsService._refreshUploadKey: Failed to refresh - ${result['error']}');
+        iPrint(
+          'AssetsService._refreshUploadKey: Failed to refresh - ${result['error']}',
+        );
         // 配置刷新失败，可能需要重新登录
         // 这里可以通过事件总线通知需要重新登录
         return;
       }
 
-      iPrint('AssetsService._refreshUploadKey: Successfully refreshed uploadKey');
+      iPrint(
+        'AssetsService._refreshUploadKey: Successfully refreshed uploadKey',
+      );
     } catch (e, s) {
       iPrint('AssetsService._refreshUploadKey: Error - $e; $s');
     }

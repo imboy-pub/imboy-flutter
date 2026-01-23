@@ -77,7 +77,12 @@ void main() {
 
       // 检查新表是否存在（迁移后）
       final newTables = ['msg_c2c', 'msg_c2g', 'msg_c2s', 'msg_s2c'];
-      final oldTables = ['message', 'group_message', 'c2s_message', 's2c_message'];
+      final oldTables = [
+        'message',
+        'group_message',
+        'c2s_message',
+        's2c_message',
+      ];
 
       bool hasNewTables = false;
       bool hasOldTables = false;
@@ -129,20 +134,12 @@ void main() {
       expect(s2cRepo.tableName, equals('msg_s2c'));
 
       // 测试使用旧表名应该抛出异常（不在白名单中）
-      expect(
-        () => MessageRepo(tableName: 'message'),
-        throwsArgumentError,
-      );
+      expect(() => MessageRepo(tableName: 'message'), throwsArgumentError);
     });
 
     test('表名白名单验证', () {
       // 验证白名单包含正确的表名
-      final allowedTables = [
-        'msg_c2c',
-        'msg_c2g',
-        'msg_c2s',
-        'msg_s2c',
-      ];
+      final allowedTables = ['msg_c2c', 'msg_c2g', 'msg_c2s', 'msg_s2c'];
 
       for (final table in allowedTables) {
         final repo = MessageRepo(tableName: table);
@@ -154,10 +151,7 @@ void main() {
         () => MessageRepo(tableName: 'invalid_table'),
         throwsArgumentError,
       );
-      expect(
-        () => MessageRepo(tableName: ''),
-        throwsArgumentError,
-      );
+      expect(() => MessageRepo(tableName: ''), throwsArgumentError);
     });
   });
 }

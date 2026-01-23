@@ -104,12 +104,7 @@ class EncrypterService {
     Uint8List? aad,
   }) {
     final iv = _secureRandomBytes(12);
-    return aesGcmEncryptBytesWithIV(
-      plainBytes,
-      keyBytes,
-      iv,
-      aad: aad,
-    );
+    return aesGcmEncryptBytesWithIV(plainBytes, keyBytes, iv, aad: aad);
   }
 
   /// AES-GCM 加密（使用自定义 IV）
@@ -130,10 +125,7 @@ class EncrypterService {
     );
     cipher.init(true, params);
     final out = cipher.process(plainBytes);
-    return {
-      'iv': base64.encode(iv),
-      'ct': base64.encode(out),
-    };
+    return {'iv': base64.encode(iv), 'ct': base64.encode(out)};
   }
 
   static Uint8List aesGcmDecryptBytes(

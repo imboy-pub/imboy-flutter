@@ -5,7 +5,8 @@ import 'package:jose/jose.dart';
 bool tokenExpired(String? token) {
   // 空值快速失败
   if (token == null || token.isEmpty) {
-    debugPrint('Token validation failed: null or empty');
+    // 这是预期的情况（用户未登录或正在登录），降低日志级别
+    debugPrint('Token validation: token is empty (user may not be logged in)');
     return true;
   }
 
@@ -20,19 +21,34 @@ bool tokenExpired(String? token) {
 
     // 边界值处理
     if (exp == null || exp <= 0) {
-      debugPrint('Invalid exp value: ${claims['exp']}');
+      debugPrint(
+        '❌ Token validation failed: invalid exp value: ${claims['exp']}',
+      );
       return true;
     }
 
     final current = DateTimeHelper.second();
     const buffer = 3; // 建议 3-5 秒（考虑网络波动）
     // 修正后的核心逻辑
-    return current >= (exp - buffer);
+    final expired = current >= (exp - buffer);
+
+    if (expired) {
+      debugPrint(
+        '❌ Token validation failed: token expired (exp=$exp, current=$current)',
+      );
+    } else {
+      // Token 有效，输出调试信息（可以后续移除）
+      debugPrint(
+        '✅ Token validation: token is valid (exp=$exp, current=$current)',
+      );
+    }
+
+    return expired;
   } on JoseException catch (e) {
-    debugPrint('JWT processing error (${e.runtimeType}): ${e.message}');
+    debugPrint('❌ JWT processing error (${e.runtimeType}): ${e.message}');
     return true;
   } catch (e) {
-    debugPrint('Unexpected error: ${e.runtimeType}');
+    debugPrint('❌ Unexpected token validation error: ${e.runtimeType}');
     return true;
   }
 }

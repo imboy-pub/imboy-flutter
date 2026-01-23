@@ -59,9 +59,7 @@ class GroupMemberApi extends HttpClient {
       API.groupMemberAlias,
       data: {'gid': gid, 'alias': alias},
     );
-    debugPrint(
-      "GroupMemberApi/changeAlias resp: ${resp.payload.toString()}",
-    );
+    debugPrint("GroupMemberApi/changeAlias resp: ${resp.payload.toString()}");
     return resp.ok;
   }
 
@@ -71,9 +69,7 @@ class GroupMemberApi extends HttpClient {
       queryParameters: {'uid1': uid1, 'uid2': uid2},
     );
 
-    debugPrint(
-      "GroupMemberApi/sameGroup resp: ${resp.payload.toString()}",
-    );
+    debugPrint("GroupMemberApi/sameGroup resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }

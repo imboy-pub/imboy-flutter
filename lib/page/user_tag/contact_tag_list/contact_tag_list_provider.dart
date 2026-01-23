@@ -150,10 +150,7 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     if (connectivityResult.contains(ConnectivityResult.none)) {
       return false;
     }
-    bool res2 = await UserTagApi().deleteTag(
-      scene: scene,
-      tagName: tagName,
-    );
+    bool res2 = await UserTagApi().deleteTag(scene: scene, tagName: tagName);
     if (res2 == false) {
       return false;
     }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
@@ -102,10 +103,20 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     ssMsg = AppEventBus.on<DataWrapperEvent>().listen((event) async {
       if (!mounted) return;
 
-      final ConversationModel obj = event.data as ConversationModel;
-      obj.title = await notifier.computeTitle(obj);
-      // 更新会话
-      await notifier.replace(obj);
+      // 处理不同的数据类型
+      if (event.data is ConversationModel) {
+        final obj = event.data as ConversationModel;
+        obj.title = await notifier.computeTitle(obj);
+        // 更新会话
+        await notifier.replace(obj);
+      } else if (event.data is List && event.data.isNotEmpty) {
+        // 处理消息列表（用于批量更新）
+        final messages = event.data as List;
+        if (messages.first is Message) {
+          // 消息列表由其他地方处理，这里跳过或做特殊处理
+          debugPrint('收到消息列表事件，跳过会话更新');
+        }
+      }
     });
 
     // 加载会话记录

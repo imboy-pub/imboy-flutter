@@ -70,7 +70,9 @@ class SqliteVersionHelper {
     final version = await getSqliteEngineVersion(db);
     final parts = version.split('.').map(int.parse).toList();
     _supportsDropColumn = parts[0] > 3 || (parts[0] == 3 && parts[1] >= 35);
-    AppLogger.info('DROP COLUMN supported: $_supportsDropColumn (version: $version)');
+    AppLogger.info(
+      'DROP COLUMN supported: $_supportsDropColumn (version: $version)',
+    );
     return _supportsDropColumn!;
   }
 
@@ -96,7 +98,9 @@ class SqliteVersionHelper {
   }) async {
     final tempTableName = '${tableName}_new';
 
-    AppLogger.info('Recreating table $tableName without column (DROP COLUMN workaround)');
+    AppLogger.info(
+      'Recreating table $tableName without column (DROP COLUMN workaround)',
+    );
 
     try {
       // 1. 创建新表
@@ -105,8 +109,12 @@ class SqliteVersionHelper {
       AppLogger.info('Created temp table: $tempTableName');
 
       // 2. 复制数据
-      final columns = columnsToKeep.map((def) => def.split(' ').first).join(', ');
-      await db.execute('INSERT INTO $tempTableName ($columns) SELECT $columns FROM $tableName');
+      final columns = columnsToKeep
+          .map((def) => def.split(' ').first)
+          .join(', ');
+      await db.execute(
+        'INSERT INTO $tempTableName ($columns) SELECT $columns FROM $tableName',
+      );
       AppLogger.info('Copied data from $tableName to $tempTableName');
 
       // 3. 删除旧表

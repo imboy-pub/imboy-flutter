@@ -113,6 +113,62 @@ class UserRepoLocal {
   String get lastLoginAccount =>
       StorageService.to.getString(Keys.lastLoginAccount);
 
+  /// Token 验证相关常量
+  static const int _minTokenLength = 10;
+
+  /// 验证登录响应 payload 中的必需字段
+  ///
+  /// 验证规则：
+  /// - uid 不能为空
+  /// - token 不能为空且长度必须大于 10（基本的 JWT 长度检查）
+  /// - refreshtoken 不能为空
+  ///
+  /// 抛出 [ArgumentError] 当任何必需字段无效时
+  void validateLoginPayload(Map<String, dynamic> payload) {
+    // 验证 uid
+    _validateUid(payload['uid']);
+
+    // 验证 token
+    _validateToken(payload['token']);
+
+    // 验证 refreshtoken
+    _validateRefreshToken(payload['refreshtoken']);
+
+    final uid = payload['uid'];
+    debugPrint('✅ loginAfter payload 验证通过: uid=$uid');
+  }
+
+  /// 验证 uid 字段
+  void _validateUid(dynamic uid) {
+    if (uid == null || uid.toString().isEmpty) {
+      debugPrint('❌ loginAfter 验证失败: uid 为空');
+      throw ArgumentError('登录响应缺少有效的 uid 字段');
+    }
+  }
+
+  /// 验证 token 字段
+  void _validateToken(dynamic token) {
+    if (token == null ||
+        token is! String ||
+        token.trim().isEmpty ||
+        token.length < _minTokenLength) {
+      debugPrint('❌ loginAfter 验证失败: token 无效 (token=$token)');
+      throw ArgumentError(
+        '登录响应包含无效的 token 字段: token 不能为空且长度必须大于 $_minTokenLength',
+      );
+    }
+  }
+
+  /// 验证 refreshtoken 字段
+  void _validateRefreshToken(dynamic refreshToken) {
+    if (refreshToken == null ||
+        refreshToken is! String ||
+        refreshToken.trim().isEmpty) {
+      debugPrint('❌ loginAfter 验证失败: refreshtoken 为空');
+      throw ArgumentError('登录响应包含无效的 refreshtoken 字段');
+    }
+  }
+
   Future<bool> changeSetting(UserSettingModel setting) async {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
     u['setting'] = setting.toMap();
@@ -126,6 +182,9 @@ class UserRepoLocal {
   }
 
   Future<bool> loginAfter(String account, Map<String, dynamic> payload) async {
+    // 验证必需字段
+    validateLoginPayload(payload);
+
     StorageService.to.setString(Keys.lastLoginAccount, account);
     List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
     if (li == null) {

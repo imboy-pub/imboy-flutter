@@ -386,6 +386,7 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => '위치';
 	@override String get locationMessage => '위치 메시지';
 	@override String get logOut => '로그아웃';
+	@override String get areYouSureLogOut => '로그아웃 하시겠습니까?';
 	@override String get login => '로그인';
 	@override String get loginDeviceManagement => '로그인 기기 관리';
 	@override String get loginDeviceManagementTips => '귀하의 계정은 다음 기기에서 로그인했습니다. 기기를 삭제할 수 있으며 삭제 후 해당 기기에서 로그인할 때 보안 검증이 필요합니다.';
@@ -1625,6 +1626,7 @@ extension on TranslationsKoKr {
 			'location' => '위치',
 			'locationMessage' => '위치 메시지',
 			'logOut' => '로그아웃',
+			'areYouSureLogOut' => '로그아웃 하시겠습니까?',
 			'login' => '로그인',
 			'loginDeviceManagement' => '로그인 기기 관리',
 			'loginDeviceManagementTips' => '귀하의 계정은 다음 기기에서 로그인했습니다. 기기를 삭제할 수 있으며 삭제 후 해당 기기에서 로그인할 때 보안 검증이 필요합니다.',
@@ -1786,9 +1788,9 @@ extension on TranslationsKoKr {
 			'reEdit' => '다시 편집',
 			'readAgreeParam' => ({required Object param}) => '${param}을(를) 읽고 동의합니다',
 			'recentChats' => '최근 채팅',
-			'recentForwards' => '최근 전달',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => '최근 전달',
 			'recentlyRegisteredUser' => '최근 등록 사용자',
 			'recentlyUsed' => '최근 사용',
 			'recommendToFriend' => '친구에게 추천',
@@ -2300,9 +2302,9 @@ extension on TranslationsKoKr {
 			'success' => '성공',
 			'export' => '내보내기',
 			'personalDisplay' => '개인 표시',
-			'personalSignature' => '개인 서명',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => '개인 서명',
 			'personalBackground' => '개인 배경',
 			'setBackgroundImage' => '배경 이미지 설정',
 			'extendedInfo' => '추가 정보',

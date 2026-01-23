@@ -60,9 +60,9 @@ class MessageRepo {
   static String topicId = 'topic_id';
 
   // v2.0 新增字段（从 payload 中提取到顶层）
-  static String msgType = 'msg_type';  // 消息类型：text, image, audio, video, file 等
-  static String action = 'action';      // S2C 消息指令
-  static String e2ee = 'e2ee';          // 端到端加密信息（JSON 字符串）
+  static String msgType = 'msg_type'; // 消息类型：text, image, audio, video, file 等
+  static String action = 'action'; // S2C 消息指令
+  static String e2ee = 'e2ee'; // 端到端加密信息（JSON 字符串）
 
   static final List<String> defaultColumns = [
     autoId,
@@ -76,9 +76,9 @@ class MessageRepo {
     status,
     conversationUk3,
     topicId,
-    msgType,  // v2.0 新增
-    action,   // v2.0 新增
-    e2ee,     // v2.0 新增
+    msgType, // v2.0 新增
+    action, // v2.0 新增
+    e2ee, // v2.0 新增
   ];
 
   // 当前活动的会话 UK3（用于离线消息同步时判断是否需要触发消息事件）
@@ -91,7 +91,8 @@ class MessageRepo {
   }
 
   /// 获取当前活动的会话 UK3
-  static String? get currentActiveConversationUk3 => _currentActiveConversationUk3;
+  static String? get currentActiveConversationUk3 =>
+      _currentActiveConversationUk3;
 
   final SqliteService _db = SqliteService.to;
 
@@ -289,18 +290,25 @@ class MessageRepo {
     }
 
     // 使用 getTableName 获取表名（支持 v2.0 新表名）
-    final msgType = (msg.type?.isNotEmpty == true) ? msg.type! : 'C2C'; // 默认为 C2C
+    final msgType = (msg.type?.isNotEmpty == true)
+        ? msg.type!
+        : 'C2C'; // 默认为 C2C
     final targetTableName = MessageRepo.getTableName(msgType);
 
     int? count;
     if (txn != null) {
       count = await txn
-          .rawQuery('SELECT COUNT(*) as count FROM $targetTableName WHERE id = ?', [
-            msg.id,
-          ])
+          .rawQuery(
+            'SELECT COUNT(*) as count FROM $targetTableName WHERE id = ?',
+            [msg.id],
+          )
           .then((result) => result.first['count'] as int?);
     } else {
-      count = await _db.count(targetTableName, where: "id=?", whereArgs: [msg.id]);
+      count = await _db.count(
+        targetTableName,
+        where: "id=?",
+        whereArgs: [msg.id],
+      );
     }
     if (count == 0) {
       Map<String, dynamic> insert = {
@@ -322,15 +330,9 @@ class MessageRepo {
       };
       debugPrint("> on MessageModel/insert tb $targetTableName : $insert");
       if (txn != null) {
-        await txn.insert(
-          targetTableName,
-          insert,
-        );
+        await txn.insert(targetTableName, insert);
       } else {
-        await _db.insert(
-          targetTableName,
-          insert,
-        );
+        await _db.insert(targetTableName, insert);
       }
     } else {
       debugPrint("> on MessageModel/insert count $count : $insert");
@@ -818,12 +820,11 @@ class MessageRepo {
             } catch (_) {}
           }
 
-          // 验证 payload 有效性：必须包含 msg_type 字段
-          if (!payload.containsKey('msg_type') || payload.isEmpty) {
-            iPrint("离线消息 payload 无效或为空，跳过: $msgId, payload: $payload");
-            addAckId(msgId); // 仍然需要 ACK，避免服务端重复推送
-            continue;
-          }
+          // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
+          // 获取顶层字段
+          final msgType = (msgData['msg_type'] ?? '').toString();
+          final action = (msgData['action'] ?? '').toString();
+          final e2ee = msgData['e2ee'];
 
           final fromId = (msgData['from'] ?? '').toString();
           final toId = (msgData['to'] ?? '').toString();
@@ -871,10 +872,10 @@ class MessageRepo {
             MessageRepo.topicId: topicId,
             MessageRepo.conversationUk3: conversationUk3,
             MessageRepo.status: IMBoyMessageStatus.delivered,
-            // v2.0 新增字段
-            MessageRepo.msgType: payload['msg_type'] ?? '',
-            MessageRepo.action: type == 'S2C' ? (payload['action'] ?? '') : '',
-            MessageRepo.e2ee: payload['e2ee'] != null ? json.encode(payload['e2ee']) : '',
+            // v2.0 新增字段 - 从消息顶层获取（不在 payload 内）
+            MessageRepo.msgType: msgType,
+            MessageRepo.action: type == 'S2C' ? action : '',
+            MessageRepo.e2ee: e2ee != null ? json.encode(e2ee) : '',
           };
 
           await txn.insert(tableName, insertData);
@@ -892,6 +893,7 @@ class MessageRepo {
               conversationUk3: conversationUk3,
               status: IMBoyMessageStatus.delivered,
               peerId: peerId,
+              msgType: msgType, // WebSocket API v2.0: 从顶层字段读取
             ),
           );
 
@@ -982,7 +984,12 @@ class MessageRepo {
         }
       } catch (_) {}
 
-      final preview = _derivePreview(latest.payload);
+      // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
+      final preview = _derivePreview(
+        latest.msgType,
+        latest.status,
+        latest.payload,
+      );
       final existing = await conversationRepo.findByPeerId(
         agg.type,
         agg.peerId,
@@ -1001,6 +1008,7 @@ class MessageRepo {
           msgType: preview.msgType,
           lastMsgId: latest.id,
           lastTime: latest.createdAt,
+          lastMsgStatus: latest.status, // 传递消息状态
           unreadNum: agg.unreadDelta, // 使用计算出的未读数
           payload: {},
           isShow: 1,
@@ -1017,6 +1025,7 @@ class MessageRepo {
           ConversationRepo.msgType: preview.msgType,
           ConversationRepo.lastMsgId: latest.id,
           ConversationRepo.lastTime: latest.createdAt,
+          ConversationRepo.lastMsgStatus: latest.status, // 传递消息状态
           ConversationRepo.unreadNum: newUnreadNum,
           ConversationRepo.isShow: 1,
         });
@@ -1059,19 +1068,62 @@ class MessageRepo {
     }
   }
 
+  /// WebSocket API v2.0: 根据消息 status 和 payload 生成会话预览
+  ///
+  /// 方案 D: 检查 status 字段（30=peer_revoked, 31=my_revoked）
   static ({String msgType, String subtitle}) _derivePreview(
+    String msgType,
+    int? status,
     Map<String, dynamic> payload,
   ) {
-    String msgType = (payload['msg_type'] ?? '').toString();
     String subtitle = (payload['text'] ?? '').toString();
-    if (msgType == 'custom') {
-      msgType = (payload['custom_type'] ?? '').toString();
-      subtitle = '';
-    } else if (msgType == 'quote') {
-      subtitle = (payload['quote_text'] ?? '').toString();
-    } else if (msgType == 'location') {
-      subtitle = (payload['title'] ?? '').toString();
+
+    // 方案 D: 检查 status 字段（撤回状态 30-39）
+    if (IMBoyMessageStatus.isRevokedStatus(status)) {
+      // status = 30 (peer_revoked) 或 31 (my_revoked)
+      // 保留原始 msg_type，让会话列表知道原始内容类型
+      if (status == IMBoyMessageStatus.peerRevoked) {
+        return (msgType: msgType, subtitle: '[对方撤回了一条消息]');
+      } else {
+        return (msgType: msgType, subtitle: '[你撤回了一条消息]');
+      }
     }
+
+    // 检查 custom_type（用于特殊消息类型如 e2ee）
+    final customType = (payload['custom_type'] ?? '').toString();
+    if (customType.isNotEmpty) {
+      if (customType == 'e2ee') {
+        // 加密失败
+        return (msgType: 'custom', subtitle: '[加密消息]');
+      }
+    }
+
+    // 使用传入的 msgType（顶层字段）判断内容类型
+    switch (msgType) {
+      case 'quote':
+        subtitle = (payload['quote_text'] ?? '').toString();
+        break;
+      case 'location':
+        subtitle = (payload['title'] ?? '').toString();
+        break;
+      case 'image':
+        subtitle = '[图片]';
+        break;
+      case 'imageMulti':
+        subtitle = '[多图]';
+        break;
+      case 'voice':
+      case 'audio':
+        subtitle = '[语音]';
+        break;
+      case 'video':
+        subtitle = '[视频]';
+        break;
+      case 'file':
+        subtitle = '[文件]';
+        break;
+    }
+
     return (msgType: msgType, subtitle: subtitle);
   }
 
@@ -1350,6 +1402,7 @@ class _InsertedOfflineMessage {
   final String conversationUk3;
   final int status;
   final String peerId;
+  final String msgType; // WebSocket API v2.0: 顶层 msg_type 字段
 
   const _InsertedOfflineMessage({
     required this.id,
@@ -1363,6 +1416,7 @@ class _InsertedOfflineMessage {
     required this.conversationUk3,
     required this.status,
     required this.peerId,
+    required this.msgType, // WebSocket API v2.0
   });
 
   MessageModel toMessageModel() {
@@ -1378,6 +1432,7 @@ class _InsertedOfflineMessage {
       topicId: topicId,
       conversationUk3: conversationUk3,
       status: status,
+      msgType: msgType, // WebSocket API v2.0
     );
   }
 }

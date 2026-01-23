@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
@@ -86,6 +87,28 @@ class ConversationModel {
     }
 
     String str = t.unknownMessage;
+
+    // 方案 D: 优先检查 lastMsgStatus 字段（撤回状态 30-39）
+    if (lastMsgStatus != null) {
+      if (lastMsgStatus == IMBoyMessageStatus.peerRevoked) {
+        // 对方撤回 (status=30)
+        if (title.isEmpty) {
+          title = payload?['peer_name'] ?? '';
+        }
+        String suffix = '';
+        if (title.length > 12) {
+          title = title.substring(0, 12);
+          suffix = '...';
+        }
+        String displayName = '"$title$suffix"';
+        return t.messageWasWithdrawnWithTitle(param: displayName);
+      } else if (lastMsgStatus == IMBoyMessageStatus.myRevoked) {
+        // 自己撤回 (status=31)
+        return t.youWithdrewAMessage;
+      }
+    }
+
+    // 普通消息类型
     if (msgType == 'text' || msgType == '') {
       return subtitle;
     } else if (msgType == 'quote') {
@@ -93,7 +116,6 @@ class ConversationModel {
     } else if (msgType == 'image') {
       str = t.image;
     } else if (msgType == 'file') {
-      // str = '文件';
       str = t.file;
     } else if (msgType == 'audio') {
       str = t.voiceMessage;
@@ -109,20 +131,6 @@ class ConversationModel {
     } else if (msgType == 'location') {
       str = t.location;
       return "[$str]$subtitle";
-    } else if (msgType == 'peer_revoked') {
-      if (title.isEmpty) {
-        title = payload?['peer_name'] ?? '';
-      }
-      String suffix = '';
-      if (title.length > 12) {
-        title = title.substring(0, 12);
-        suffix = '...';
-      }
-      // 消息撤回显示：使用命名参数
-      String displayName = '"$title$suffix"';
-      return t.messageWasWithdrawnWithTitle(param: displayName);
-    } else if (msgType == 'my_revoked') {
-      return t.youWithdrewAMessage;
     } else if (msgType == 'custom') {
       str = subtitle;
     } else if (msgType == 'empty') {

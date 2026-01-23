@@ -163,8 +163,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           if (list.isNotEmpty && mounted) {
             // 去重添加
             final existingIds = currentState.items.map((e) => e.kindId).toSet();
-            final filtered =
-                list.where((e) => !existingIds.contains(e.kindId)).toList();
+            final filtered = list
+                .where((e) => !existingIds.contains(e.kindId))
+                .toList();
 
             if (filtered.isNotEmpty) {
               final updatedItems = [...currentState.items, ...filtered];
@@ -177,15 +178,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               );
             } else {
               // 没有新数据，更新 hasMore
-              notifier.updateState(
-                currentState.copyWith(hasMore: false),
-              );
+              notifier.updateState(currentState.copyWith(hasMore: false));
             }
           } else {
             // 没有获取到更多数据
-            notifier.updateState(
-              currentState.copyWith(hasMore: false),
-            );
+            notifier.updateState(currentState.copyWith(hasMore: false));
           }
         } catch (e) {
           debugPrint('Load more error: $e');
@@ -242,8 +239,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               decoration: BoxDecoration(
                 color: AppColors.primaryAlpha10,
                 borderRadius: AppRadius.borderRadiusMedium,
-                border: Border.all(
-                    color: AppColors.primaryAlpha30, width: 0.5),
+                border: Border.all(color: AppColors.primaryAlpha30, width: 0.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -442,8 +438,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     continue;
                   }
 
-                  String newTag =
-                      obj.tag.isEmpty ? input : '${obj.tag},$input';
+                  String newTag = obj.tag.isEmpty ? input : '${obj.tag},$input';
                   // 清理重复标签
                   final parts = newTag
                       .split(',')
@@ -453,17 +448,19 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       .toList();
 
                   // 创建新的对象而不是使用 copyWith
-                  updatedItems.add(UserCollectModel(
-                    userId: obj.userId,
-                    kind: obj.kind,
-                    kindId: obj.kindId,
-                    source: obj.source,
-                    remark: obj.remark,
-                    tag: parts.join(','),
-                    updatedAt: obj.updatedAt,
-                    createdAt: obj.createdAt,
-                    info: obj.info,
-                  ));
+                  updatedItems.add(
+                    UserCollectModel(
+                      userId: obj.userId,
+                      kind: obj.kind,
+                      kindId: obj.kindId,
+                      source: obj.source,
+                      remark: obj.remark,
+                      tag: parts.join(','),
+                      updatedAt: obj.updatedAt,
+                      createdAt: obj.createdAt,
+                      info: obj.info,
+                    ),
+                  );
                 }
 
                 notifier.updateState(
@@ -499,8 +496,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           Expanded(
             child: Text(
               t.loadError,
-              style:
-                  TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           TextButton(
@@ -545,8 +541,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         ],
         border: isDark
             ? Border.all(
-                color:
-                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.15),
                 width: 0.5,
               )
             : null,
@@ -640,10 +637,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -655,9 +651,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             borderRadius: AppRadius.borderRadiusSmall,
                           ),
                           child: Text(
@@ -668,10 +664,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.5),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -692,9 +687,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     top: 0,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: AppRadius.borderRadiusMedium,
                       ),
                       child: Checkbox(
@@ -901,10 +896,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .outline
-                      .withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
                   borderRadius: AppRadius.borderRadiusTiny,
                 ),
               ),
@@ -939,10 +933,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 t.deleteCollectConfirmDesc,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 32),
@@ -955,10 +948,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       height: 48,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outline
-                              .withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.3),
                           width: 1,
                         ),
                         borderRadius: AppRadius.borderRadiusMedium,
@@ -995,13 +987,18 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                             : () async {
                                 try {
                                   bool res = await notifier.remove(obj);
-                                  debugPrint("user_collect_remove $res; i $index");
+                                  debugPrint(
+                                    "user_collect_remove $res; i $index",
+                                  );
                                   if (res) {
-                                    final updatedItems = [...currentState.items];
+                                    final updatedItems = [
+                                      ...currentState.items,
+                                    ];
                                     updatedItems.removeAt(index);
                                     notifier.updateState(
                                       currentState.copyWith(
-                                          items: updatedItems),
+                                        items: updatedItems,
+                                      ),
                                     );
                                     if (context.mounted) {
                                       Navigator.pop(context);
@@ -1161,12 +1158,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         onRefresh: true,
       );
       if (mounted) {
-        notifier.updateState(
-          currentState.copyWith(
-            items: list,
-            page: 2,
-          ),
-        );
+        notifier.updateState(currentState.copyWith(items: list, page: 2));
       }
     } catch (e) {
       debugPrint('Refresh error: $e');
@@ -1187,10 +1179,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
     if (mounted) {
       notifier.updateState(
-        currentState.copyWith(
-          items: list,
-          page: list.isNotEmpty ? 2 : 1,
-        ),
+        currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
       );
     }
   }
@@ -1209,11 +1198,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
     if (mounted) {
       notifier.updateState(
-        currentState.copyWith(
-          items: list,
-          page: 2,
-          kwd: '',
-        ),
+        currentState.copyWith(items: list, page: 2, kwd: ''),
       );
       _searchController.clear();
     }
@@ -1236,10 +1221,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
     if (mounted) {
       notifier.updateState(
-        currentState.copyWith(
-          items: list,
-          page: list.isNotEmpty ? 2 : 1,
-        ),
+        currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
       );
     }
   }
@@ -1283,8 +1265,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         borderRadius: AppRadius.borderRadiusMedium,
         border: isDark
             ? Border.all(
-                color:
-                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 0.5,
               )
             : null,
@@ -1365,8 +1348,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         borderRadius: AppRadius.borderRadiusMedium,
         border: isDark
             ? Border.all(
-                color:
-                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 0.5,
               )
             : null,
@@ -1450,8 +1434,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                             onTap: () {
                               _searchByKind(context, entry.key, entry.value);
                               // 收起面板
-                              final notifier = ref.read(userCollectProvider.notifier);
-                              final updatedState = ref.read(userCollectProvider);
+                              final notifier = ref.read(
+                                userCollectProvider.notifier,
+                              );
+                              final updatedState = ref.read(
+                                userCollectProvider,
+                              );
                               notifier.updateState(
                                 updatedState.copyWith(kindActive: false),
                               );
@@ -1464,9 +1452,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? AppColors.primary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
                                 borderRadius: AppRadius.borderRadiusLarge,
                                 border: isSelected
                                     ? null
@@ -1483,11 +1471,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                 style: TextStyle(
                                   color: isSelected
                                       ? Colors.white
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                  fontWeight:
-                                      isSelected ? FontWeight.w600 : FontWeight.w500,
+                                      : Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -1597,10 +1584,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     },
                     child: Icon(
                       Icons.search,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   controller: _searchController,
@@ -1656,17 +1642,15 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                                   borderRadius: AppRadius.borderRadiusXLarge,
                                 ),
                                 child: Icon(
                                   Icons.bookmark_border,
                                   size: 40,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
+                                  color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.4),
                                 ),
                               ),
@@ -1674,9 +1658,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               Text(
                                 t.noData,
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
+                                  color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.6),
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -1685,9 +1667,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               Text(
                                 t.noFavoritesYet,
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
+                                  color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.4),
                                 ),
                                 textAlign: TextAlign.center,

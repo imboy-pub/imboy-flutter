@@ -149,8 +149,8 @@ void main() {
           'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
           'nonce': 'test_nonce',
           'keys': [
-            {'did': 'device1', 'kid': 'device1', 'ek': 'encrypted_key'}
-          ]
+            {'did': 'device1', 'kid': 'device1', 'ek': 'encrypted_key'},
+          ],
         };
 
         final msg = MessageModel(
@@ -325,12 +325,7 @@ void main() {
           'type': 'C2C',
           'msg_type': 'text',
           'action': '',
-          'e2ee': {
-            'e2ee': true,
-            'e2ee_ver': 1,
-            'nonce': 'abc123',
-            'keys': []
-          },
+          'e2ee': {'e2ee': true, 'e2ee_ver': 1, 'nonce': 'abc123', 'keys': []},
           'payload': 'base64_nonce.base64_ciphertext', // 字符串格式
         };
 

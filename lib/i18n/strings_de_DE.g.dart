@@ -386,6 +386,7 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => 'Standort';
 	@override String get locationMessage => 'Standortnachricht';
 	@override String get logOut => 'Abmelden';
+	@override String get areYouSureLogOut => 'Möchten Sie sich wirklich abmelden?';
 	@override String get login => 'Anmelden';
 	@override String get loginDeviceManagement => 'Geräteverwaltung';
 	@override String get loginDeviceManagementTips => 'Konto auf folgenden Geräten angemeldet. Sie können Geräte löschen. Nach Löschen ist bei nächster Anmeldung auf diesem Gerät eine Sicherheitsüberprüfung erforderlich.';
@@ -1625,6 +1626,7 @@ extension on TranslationsDeDe {
 			'location' => 'Standort',
 			'locationMessage' => 'Standortnachricht',
 			'logOut' => 'Abmelden',
+			'areYouSureLogOut' => 'Möchten Sie sich wirklich abmelden?',
 			'login' => 'Anmelden',
 			'loginDeviceManagement' => 'Geräteverwaltung',
 			'loginDeviceManagementTips' => 'Konto auf folgenden Geräten angemeldet. Sie können Geräte löschen. Nach Löschen ist bei nächster Anmeldung auf diesem Gerät eine Sicherheitsüberprüfung erforderlich.',
@@ -1786,9 +1788,9 @@ extension on TranslationsDeDe {
 			'reEdit' => 'Erneut bearbeiten',
 			'readAgreeParam' => ({required Object param}) => 'Habe gelesen und zugestimmt ${param}',
 			'recentChats' => 'Letzte Chats',
-			'recentForwards' => 'Kürzlich weitergeleitet',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => 'Kürzlich weitergeleitet',
 			'recentlyRegisteredUser' => 'Kürzlich registrierter Benutzer',
 			'recentlyUsed' => 'Kürzlich verwendet',
 			'recommendToFriend' => 'Freunden empfehlen',
@@ -2300,9 +2302,9 @@ extension on TranslationsDeDe {
 			'success' => 'Erfolg',
 			'export' => 'Exportieren',
 			'personalDisplay' => 'Persönliche Anzeige',
-			'personalSignature' => 'Persönliche Signatur',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => 'Persönliche Signatur',
 			'personalBackground' => 'Persönlicher Hintergrund',
 			'setBackgroundImage' => 'Hintergrundbild festlegen',
 			'extendedInfo' => 'Erweiterte Informationen',

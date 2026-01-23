@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart' show debugPrint;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/ack_manager.dart';
@@ -41,10 +42,17 @@ class MessageActions {
   // 缓存常用仓库实例，避免重复 new。
   // Cache repository instances to avoid repeated instantiation.
   final ConversationRepo _conversationRepo = ConversationRepo();
-  final ContactRepo _contactRepo = ContactRepo();
 
   /// Handle action-based messages
-  /// 处理基于action的消息
+  /// 处理基于action的消息（C2C/C2G/C2S 的消息操作）
+  ///
+  /// 职责：处理用户主动发起的消息操作
+  /// - 消息已读：message_read
+  /// - 表情回复：message_reaction
+  /// - 消息撤回：message_revoke, message_revoke_ack
+  /// - 消息编辑：message_edit, message_edit_ack
+  ///
+  /// 注意：S2C 消息的 action（服务端通知）在 MessageS2CService.switchS2C 中处理
   Future<void> handleActionMessage(String action, Map data) async {
     iPrint(
       "🔄 处理action消息: action=$action, msgId=${data['id']}, type=${data['type']}",
@@ -223,7 +231,6 @@ class MessageActions {
   /// 处理撤回确认
   Future<void> _processRevokeAck(Map data, String originalMsgId) async {
     final msgType = data['type'] as String? ?? '';
-    final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
     final currentUid = UserRepoLocal.to.currentUid;
 
     // 【重要】从重试队列中移除撤回消息
@@ -252,24 +259,21 @@ class MessageActions {
     final isMyRevoke = originalMsg.fromId == currentUid;
 
     if (isMyRevoke) {
-      // 自己撤回的确认
-      final newPayload = Map<String, dynamic>.from(originalMsg.payload);
-      newPayload['msg_type'] = 'custom';
-      newPayload['custom_type'] = 'my_revoked';
-      newPayload['revoked_at'] =
-          payload['revoked_at'] ?? DateTimeHelper.millisecond();
+      // 自己撤回的确认 - 使用公共撤回方法
+      await MessageActions.convertMessageToRevoked(
+        originalMsg: originalMsg,
+        repo: repo,
+        revokeUserId: currentUid,
+        isMyRevoke: true, // 自己撤回
+      );
 
-      await repo.update({
-        'id': originalMsgId,
-        'payload': json.encode(newPayload),
-        'status': IMBoyMessageStatus.sent,
-      });
-
+      // 重新获取更新后的消息用于触发UI更新
       final updatedMsg = await repo.find(originalMsgId);
       if (updatedMsg != null) {
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
-        await _updateConversationAfterRevoke(updatedMsg, 'my_revoked');
+        AppEventBus.fireData([
+          await updatedMsg.toTypeMessage(),
+        ], 'List<Message>');
+        await _updateConversationAfterRevoke(updatedMsg);
       }
     } else {
       // 对方撤回的通知
@@ -591,6 +595,7 @@ class MessageActions {
 
   /// 处理对方撤回消息的通用方法
   /// Process peer revoke message
+  /// 使用公共辅助类 MessageActionHelpers 消除代码重复
   Future<void> _processPeerRevoke(
     MessageModel msg,
     MessageRepo repo,
@@ -600,55 +605,17 @@ class MessageActions {
       // 保存原始消息内容（如果是文本消息）
       final originalText = msg.payload['text'] ?? '';
 
-      // 获取联系人信息
-      final contact = await _contactRepo.findByUid(data['from']);
-      iPrint("🔄 获取联系人信息: ${contact?.nickname ?? '未知用户'}");
-
-      // 构建新的payload
-      final newPayload = <String, dynamic>{
-        'msg_type': 'custom',
-        'custom_type': 'peer_revoked',
-        'peer_name': contact?.nickname ?? '',
-        'text': originalText, // 保留原始文本内容
-        'revoke_time': DateTimeHelper.millisecond(),
-        'revoke_user': data['from'], // 记录撤回操作的用户ID
-      };
-
-      iPrint(
-        '🔄 处理对方撤回消息: originalMsgId=${msg.id}, peerName=${contact?.nickname}',
+      // 使用公共静态方法处理撤回（isMyRevoke = false 表示对方撤回）
+      await MessageActions.convertMessageToRevoked(
+        originalMsg: msg,
+        repo: repo,
+        revokeUserId: data['from'],
+        originalText: originalText,
+        isMyRevoke: false, // 对方撤回
       );
-      iPrint('🔄 新的payload: ${json.encode(newPayload)}');
 
-      // 更新数据库 - 使用原始消息的ID，而不是撤回确认消息的ID
-      final updateResult = await repo.update({
-        'id': msg.id, // 使用原始消息的ID
-        'status': IMBoyMessageStatus.sent,
-        'payload': json.encode(newPayload),
-      });
-
-      iPrint('🔄 对方撤回更新数据库结果: $updateResult, originalMsgId=${msg.id}');
-
-      // 重新获取更新后的消息
-      final updatedMsg = await repo.find(msg.id!);
-      if (updatedMsg != null) {
-        iPrint('🔄 重新获取更新后的消息成功: ${updatedMsg.toJson()}');
-        iPrint('🔄 触发peer_revoked消息更新事件: msgId=${updatedMsg.id}');
-
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        iPrint('🔄 peer_revoked消息转换结果: ${updatedMessage.runtimeType}');
-        iPrint('🔄 消息元数据: ${updatedMessage.metadata}');
-        iPrint('🔄 customType: ${updatedMessage.metadata?['custom_type']}');
-
-        // 更新UI - 这是关键步骤
-        iPrint('🔄 准备触发UI更新事件...');
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
-        iPrint('🔄 UI更新事件已触发');
-
-        // 更新会话
-        await _updateConversationAfterRevoke(updatedMsg, 'peer_revoked');
-      } else {
-        iPrint('❌ 重新获取更新后的消息失败');
-      }
+      // 更新会话
+      await _updateConversationAfterRevoke(msg);
     } catch (e, s) {
       iPrint('❌ 处理对方撤回消息异常: $e; $s');
     }
@@ -656,13 +623,10 @@ class MessageActions {
 
   /// Update conversation record after revoke
   /// 撤回后同步更新会话列表
-  Future<void> _updateConversationAfterRevoke(
-    MessageModel msg,
-    String customType,
-  ) async {
+  Future<void> _updateConversationAfterRevoke(MessageModel msg) async {
     try {
       iPrint(
-        '更新会话撤回状态: msgId=${msg.id}, type=${msg.type}, customType=$customType',
+        '更新会话撤回状态: msgId=${msg.id}, type=${msg.type}, status=${msg.status}',
       );
 
       // 确定对话的peerId
@@ -695,14 +659,10 @@ class MessageActions {
           '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
         );
 
-        // 更新会话属性
-        conv.msgType = customType;
-        conv.subtitle = '';
-
+        // WebSocket API v2.0: 保留原始 msgType，使用 status 标识撤回状态
         // 更新会话数据库记录
         final updateResult = await _conversationRepo.updateById(conv.id, {
-          ConversationRepo.msgType: customType,
-          ConversationRepo.subtitle: '',
+          ConversationRepo.lastMsgStatus: msg.status, // 30 或 31
           ConversationRepo.payload: json.encode(msg.payload),
         });
 
@@ -751,9 +711,7 @@ class MessageActions {
         'msg_type': 'custom',
         'action': 'message_revoke',
         'e2ee': '',
-        'payload': {
-          'original_msg_id': messageId,
-        },
+        'payload': {'original_msg_id': messageId},
       };
 
       iPrint('🔄 发送撤回消息请求 (v2.0): ${json.encode(revokeMessage)}');
@@ -812,10 +770,7 @@ class MessageActions {
         'msg_type': 'text',
         'action': 'message_edit',
         'e2ee': '',
-        'payload': {
-          'original_msg_id': messageId,
-          'content': newContent,
-        },
+        'payload': {'original_msg_id': messageId, 'content': newContent},
       };
 
       iPrint('🔄 发送编辑消息请求 (v2.0): ${json.encode(editMessage)}');
@@ -849,9 +804,8 @@ class MessageActions {
         return false;
       }
 
-      // 检查消息类型是否支持撤回
-      final payload = msg.payload;
-      final msgType = payload['msg_type'] as String? ?? '';
+      // WebSocket API v2.0: 从顶层 msgType 字段读取消息类型
+      final msgType = msg.msgType ?? '';
 
       // 文本、图片、语音、视频、文件、位置消息可以撤回
       final supportedTypes = [
@@ -904,8 +858,8 @@ class MessageActions {
         return false;
       }
 
-      // 检查消息类型是否支持编辑
-      final msgType = msg.payload['msg_type'] as String? ?? '';
+      // WebSocket API v2.0: 从顶层 msgType 字段读取消息类型
+      final msgType = msg.msgType ?? '';
 
       // 目前只支持编辑文本消息
       if (msgType != 'text') {
@@ -933,9 +887,8 @@ class MessageActions {
       }
 
       // 检查是否已经被撤回
-      final customType = msg.payload['custom_type'] as String? ?? '';
-      if (['my_revoked', 'peer_revoked'].contains(customType)) {
-        iPrint('❌ 已撤回的消息不能编辑: customType=$customType');
+      if (IMBoyMessageStatus.isRevokedStatus(msg.status)) {
+        iPrint('❌ 已撤回的消息不能编辑: status=${msg.status}');
         return false;
       }
 
@@ -943,6 +896,225 @@ class MessageActions {
     } catch (e, s) {
       iPrint("❌ 检查编辑条件异常: $e; $s");
       return false;
+    }
+  }
+
+  // ============================================
+  // 公共静态方法（供 MessageS2CService 调用）
+  // ============================================
+
+  /// 将消息转换为撤回提示
+  ///
+  /// 用于：
+  /// - MessageActions._processPeerRevoke: 用户撤回自己的消息
+  /// - MessageS2CService._handleC2CRevoke: 服务端通知对方撤回了消息
+  ///
+  /// 参数：
+  /// - [originalMsg]: 原始消息
+  /// - [repo]: 消息仓库
+  /// - [revokeUserId]: 执行撤回操作的用户ID
+  /// - [originalText]: 原始消息文本（可选，优先从消息中获取）
+  /// - [isMyRevoke]: 是否为自己撤回（默认 true）
+  static Future<void> convertMessageToRevoked({
+    required MessageModel originalMsg,
+    required MessageRepo repo,
+    required String revokeUserId,
+    String? originalText,
+    bool isMyRevoke = false,
+  }) async {
+    try {
+      // 获取联系人信息（静态方法中创建新的仓库实例）
+      final contactRepo = ContactRepo();
+      final contact = await contactRepo.findByUid(revokeUserId);
+      iPrint("🔄 获取联系人信息: ${contact?.nickname ?? '未知用户'}");
+
+      // 保存原始消息内容（如果是文本消息）
+      final text = originalText ?? originalMsg.payload['text'] ?? '';
+
+      // 根据撤回类型设置状态码
+      final revokeStatus = isMyRevoke
+          ? IMBoyMessageStatus
+                .myRevoked // 31: 自己撤回
+          : IMBoyMessageStatus.peerRevoked; // 30: 对方撤回
+
+      // 构建新的 payload（保留撤回相关信息供 UI 使用）
+      final newPayload = <String, dynamic>{
+        'peer_name': contact?.nickname ?? '',
+        'text': text, // 保留原始文本内容
+        'revoke_time': DateTimeHelper.millisecond(),
+        'revoke_user': revokeUserId, // 记录撤回操作的用户ID
+      };
+
+      iPrint(
+        '🔄 处理撤回消息: originalMsgId=${originalMsg.id}, '
+        'isMyRevoke=$isMyRevoke, status=$revokeStatus',
+      );
+
+      // 更新数据库
+      // WebSocket API v2.0: msg_type 保留原始内容类型，status 标识撤回状态
+      final updateResult = await repo.update({
+        'id': originalMsg.id,
+        'status': revokeStatus, // 30 或 31
+        'payload': json.encode(newPayload),
+      });
+
+      iPrint('🔄 撤回更新数据库结果: $updateResult, originalMsgId=${originalMsg.id}');
+
+      // 重新获取更新后的消息
+      final updatedMsg = await repo.find(originalMsg.id!);
+      if (updatedMsg != null) {
+        iPrint('🔄 重新获取更新后的消息成功: ${updatedMsg.toJson()}');
+
+        final updatedMessage = await updatedMsg.toTypeMessage();
+        iPrint('🔄 触发撤回消息更新事件: msgId=${updatedMsg.id}');
+
+        // 更新 UI
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
+      } else {
+        iPrint('❌ 重新获取更新后的消息失败');
+      }
+    } catch (e, s) {
+      iPrint('❌ [convertMessageToRevoked] 处理异常: $e; $s');
+    }
+  }
+
+  /// 处理 C2C 消息删除（双方）
+  ///
+  /// 用于：
+  /// - MessageS2CService._handleC2CDelEveryone
+  static Future<void> handleC2CDeleteMessage({
+    required String oldMsgId,
+    required String from,
+    required String to,
+  }) async {
+    try {
+      final currentUid = UserRepoLocal.to.currentUid;
+      final peerId = currentUid == from ? to : from;
+
+      // 静态方法中创建新的仓库实例
+      final conversationRepo = ConversationRepo();
+      final conversation = await conversationRepo.findByPeerId('C2C', peerId);
+      final messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+      final oldMsg = await messageRepo.find(oldMsgId);
+
+      iPrint(
+        '🗑️ C2C 删除检查: conversation=${conversation != null}, oldMsg=${oldMsg != null}',
+      );
+
+      if (conversation == null || oldMsg == null) {
+        return;
+      }
+
+      final msg = await oldMsg.toTypeMessage();
+      // 发布删除消息事件，由聊天界面订阅处理
+      AppEventBus.fire(
+        ChatExtendEvent(
+          type: 'delete_msg',
+          payload: {'conversation': conversation, 'msg': msg},
+        ),
+      );
+    } catch (e, s) {
+      iPrint('❌ [handleC2CDeleteMessage] 处理异常: $e; $s');
+    }
+  }
+
+  /// 处理 C2G 消息删除（所有人）
+  ///
+  /// 用于：
+  /// - MessageS2CService._handleC2GDelEveryone
+  static Future<void> handleC2GDeleteMessage({
+    required String oldMsgId,
+    required String groupId,
+  }) async {
+    try {
+      // 静态方法中创建新的仓库实例
+      final conversationRepo = ConversationRepo();
+      final conversation = await conversationRepo.findByPeerId('C2G', groupId);
+      final messageRepo = MessageRepo(tableName: MessageRepo.c2gTable);
+      final oldMsg = await messageRepo.find(oldMsgId);
+
+      iPrint(
+        '🗑️ C2G 删除检查: conversation=${conversation != null}, oldMsg=${oldMsg != null}',
+      );
+
+      if (conversation == null || oldMsg == null) {
+        return;
+      }
+
+      final msg = await oldMsg.toTypeMessage();
+      // 发布删除消息事件，由聊天界面订阅处理
+      AppEventBus.fire(
+        ChatExtendEvent(
+          type: 'delete_msg',
+          payload: {'conversation': conversation, 'msg': msg},
+        ),
+      );
+    } catch (e, s) {
+      iPrint('❌ [handleC2GDeleteMessage] 处理异常: $e; $s');
+    }
+  }
+
+  /// 处理非好友错误
+  ///
+  /// 用于：
+  /// - MessageS2CService._handleNotAFriend
+  ///
+  /// 参数：
+  /// - [msgId]: 消息ID
+  /// - [msgType]: 消息类型 (C2C/C2G)
+  static Future<void> handleNotAFriendError({
+    required String? msgId,
+    required String msgType,
+  }) async {
+    try {
+      // 1. 打印调试日志
+      iPrint('🚫 [NOT_A_FRIEND] msgId=$msgId, msgType=$msgType');
+      debugPrint('🚫 [NOT_A_FRIEND] 无法发送消息 - 非好友关系');
+
+      // 2. 通过事件总线通知 UI 显示错误提示
+      try {
+        AppEventBus.fire(
+          AppErrorEvent(message: '非好友关系，无法发送消息', errorType: 'not_a_friend'),
+        );
+        iPrint('✅ [NOT_A_FRIEND] 已发送错误提示事件');
+      } catch (e) {
+        debugPrint('⚠️ [NOT_A_FRIEND] 发送事件失败: $e');
+      }
+
+      // 3. 更新消息状态为失败
+      // 4. 从重试队列移除
+      if (msgId != null && msgId.isNotEmpty) {
+        try {
+          // 更新消息状态为 error（失败）
+          AppEventBus.fire(
+            MessageStatusUpdateRequestedEvent(
+              messageId: msgId,
+              messageType: msgType,
+              newStatus: 41, // IMBoyMessageStatus.error
+              notifyUI: true,
+            ),
+          );
+          iPrint('✅ [NOT_A_FRIEND] 消息状态已更新为 error: msgId=$msgId');
+        } catch (e) {
+          debugPrint('⚠️ [NOT_A_FRIEND] 更新消息状态失败: $e');
+        }
+
+        try {
+          // 从重试队列移除（不重试）
+          AppEventBus.fire(
+            RemoveFromRetryQueueRequestedEvent(
+              messageId: msgId,
+              messageType: msgType,
+              reason: 'not_a_friend',
+            ),
+          );
+          iPrint('🗑️ [NOT_A_FRIEND] 消息已从重试队列移除: msgId=$msgId');
+        } catch (e) {
+          debugPrint('⚠️ [NOT_A_FRIEND] 从重试队列移除失败: $e');
+        }
+      }
+    } catch (e, s) {
+      iPrint('❌ [handleNotAFriendError] 处理异常: error=$e\nstacktrace=$s');
     }
   }
 }

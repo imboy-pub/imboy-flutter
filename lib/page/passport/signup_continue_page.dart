@@ -90,10 +90,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text(
-                t.unknown,
-                style: const TextStyle(fontSize: 18),
-              ),
+              Text(t.unknown, style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -268,9 +265,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                     if (res == null) {
                                       notifier.snackBar(
                                         Text(
-                                          t.codeSentToParam(
-                                            param: _account,
-                                          ),
+                                          t.codeSentToParam(param: _account),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,

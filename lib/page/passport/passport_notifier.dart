@@ -504,42 +504,67 @@ class PassportNotifier extends _$PassportNotifier {
     String account,
     String password,
   ) async {
+    debugPrint('🔐 _login 开始: accountType=$accountType, account=$account');
     try {
+      debugPrint('🔐 步骤1: 加密密码');
       Map<String, dynamic> data = await _encryptPassword(password);
       if (strNoEmpty(data['error'])) {
+        debugPrint('❌ 加密失败: ${data['error']}');
         safeUpdateState((state) => state.copyWith(error: data['error']));
         return 0;
       }
+      debugPrint('✅ 密码加密完成');
+
+      debugPrint('🔐 步骤2: 获取设备信息');
       Map<String, dynamic>? dinfo = await DeviceExt.to.detail;
+      debugPrint('✅ 设备信息获取完成: did=${dinfo!["did"]}');
+
+      debugPrint('🔐 步骤3: 获取RSA公钥');
+      final publicKey = await RSAService.publicKey();
+      debugPrint('✅ RSA公钥获取完成');
+
       Map<String, dynamic> postData = {
         "type": accountType,
         "account": account,
         "pwd": data['password'],
         "rsa_encrypt": data['rsa_encrypt'],
-        "did": dinfo!["did"],
+        "did": dinfo["did"],
         "cos": dinfo["cos"],
-        "public_key": await RSAService.publicKey(),
+        "public_key": publicKey,
       };
       if (UserRepoLocal.to.lastLoginAccount != account) {
         postData["dname"] = dinfo["deviceName"];
         postData["dvsn"] = dinfo["deviceVersion"];
       }
+
+      debugPrint('🔐 步骤4: 发送登录请求到 ${API.login}');
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.login,
         data: postData,
       );
+      debugPrint('✅ 登录请求完成: ok=${resp2.ok}');
+
       if (!resp2.ok) {
+        debugPrint('❌ 登录失败: ${resp2.error!.message}');
         safeUpdateState((state) => state.copyWith(error: resp2.error!.message));
         return 0;
       } else {
         int status = (resp2.payload['status'] ?? 1).toInt();
+        debugPrint('✅ 登录响应状态: status=$status');
         if (status == 1 || status == 2) {
+          debugPrint('🔐 步骤5: 保存登录信息');
           await UserRepoLocal.to.loginAfter(account, resp2.payload);
+          debugPrint('✅ 登录信息保存完成');
         }
         return 1;
       }
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      debugPrint('❌ PlatformException: $e');
       safeUpdateState((state) => state.copyWith(error: '网络故障，请稍后重试'));
+      return 0;
+    } catch (e) {
+      debugPrint('❌ 异常: $e');
+      safeUpdateState((state) => state.copyWith(error: '登录失败: $e'));
       return 0;
     }
   }

@@ -386,6 +386,7 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => 'Emplacement';
 	@override String get locationMessage => 'Message de localisation';
 	@override String get logOut => 'Se déconnecter';
+	@override String get areYouSureLogOut => 'Êtes-vous sûr de vouloir vous déconnecter ?';
 	@override String get login => 'Se connecter';
 	@override String get loginDeviceManagement => 'Gestion des appareils connectés';
 	@override String get loginDeviceManagementTips => 'Votre compte s\'est connecté sur les appareils suivants. Vous pouvez supprimer des appareils. Après suppression, une vérification de sécurité sera nécessaire lors de la prochaine connexion sur cet appareil.';
@@ -1625,6 +1626,7 @@ extension on TranslationsFrFr {
 			'location' => 'Emplacement',
 			'locationMessage' => 'Message de localisation',
 			'logOut' => 'Se déconnecter',
+			'areYouSureLogOut' => 'Êtes-vous sûr de vouloir vous déconnecter ?',
 			'login' => 'Se connecter',
 			'loginDeviceManagement' => 'Gestion des appareils connectés',
 			'loginDeviceManagementTips' => 'Votre compte s\'est connecté sur les appareils suivants. Vous pouvez supprimer des appareils. Après suppression, une vérification de sécurité sera nécessaire lors de la prochaine connexion sur cet appareil.',
@@ -1786,9 +1788,9 @@ extension on TranslationsFrFr {
 			'reEdit' => 'Modifier à nouveau',
 			'readAgreeParam' => ({required Object param}) => 'J\'ai lu et accepté ${param}',
 			'recentChats' => 'Chats récents',
-			'recentForwards' => 'Transferts récents',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => 'Transferts récents',
 			'recentlyRegisteredUser' => 'Utilisateur récemment inscrit',
 			'recentlyUsed' => 'Récemment utilisé',
 			'recommendToFriend' => 'Recommander à des amis',
@@ -2300,9 +2302,9 @@ extension on TranslationsFrFr {
 			'success' => 'Succès',
 			'export' => 'Exporter',
 			'personalDisplay' => 'Affichage personnel',
-			'personalSignature' => 'Signature personnelle',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => 'Signature personnelle',
 			'personalBackground' => 'Arrière-plan personnel',
 			'setBackgroundImage' => 'Définir l\'image d\'arrière-plan',
 			'extendedInfo' => 'Informations étendues',

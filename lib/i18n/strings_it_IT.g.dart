@@ -386,6 +386,7 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 	@override String get location => 'Posizione';
 	@override String get locationMessage => 'Messaggio posizione';
 	@override String get logOut => 'Disconnetti';
+	@override String get areYouSureLogOut => 'Sei sicuro di volerti disconnettere?';
 	@override String get login => 'Accedi';
 	@override String get loginDeviceManagement => 'Gestione dispositivi di accesso';
 	@override String get loginDeviceManagementTips => 'Il tuo account ha effettuato l\'accesso sui seguenti dispositivi, puoi eliminare i dispositivi, dopo l\'eliminazione sarà richiesta la verifica di sicurezza quando accedi su quel dispositivo.';
@@ -1625,6 +1626,7 @@ extension on TranslationsItIt {
 			'location' => 'Posizione',
 			'locationMessage' => 'Messaggio posizione',
 			'logOut' => 'Disconnetti',
+			'areYouSureLogOut' => 'Sei sicuro di volerti disconnettere?',
 			'login' => 'Accedi',
 			'loginDeviceManagement' => 'Gestione dispositivi di accesso',
 			'loginDeviceManagementTips' => 'Il tuo account ha effettuato l\'accesso sui seguenti dispositivi, puoi eliminare i dispositivi, dopo l\'eliminazione sarà richiesta la verifica di sicurezza quando accedi su quel dispositivo.',
@@ -1786,9 +1788,9 @@ extension on TranslationsItIt {
 			'reEdit' => 'Modifica di nuovo',
 			'readAgreeParam' => ({required Object param}) => 'Ho letto e accetto ${param}',
 			'recentChats' => 'Chat recenti',
-			'recentForwards' => 'Inoltri recenti',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => 'Inoltri recenti',
 			'recentlyRegisteredUser' => 'Utente registrato di recente',
 			'recentlyUsed' => 'Usato di recente',
 			'recommendToFriend' => 'Consiglialo agli amici',
@@ -2300,9 +2302,9 @@ extension on TranslationsItIt {
 			'success' => 'Successo',
 			'export' => 'Esporta',
 			'personalDisplay' => 'Visualizzazione personale',
-			'personalSignature' => 'Firma personale',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => 'Firma personale',
 			'personalBackground' => 'Sfondo personale',
 			'setBackgroundImage' => 'Imposta immagine sfondo',
 			'extendedInfo' => 'Info estese',

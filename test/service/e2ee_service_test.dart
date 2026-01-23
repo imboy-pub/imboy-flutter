@@ -18,26 +18,26 @@ void main() {
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, (call) async {
-      switch (call.method) {
-        case 'write':
-          final key = call.arguments['key'] as String;
-          final value = call.arguments['value'] as String?;
-          store[key] = value;
-          return null;
-        case 'read':
-          final key = call.arguments['key'] as String;
-          return store[key];
-        case 'delete':
-          final key = call.arguments['key'] as String;
-          store.remove(key);
-          return null;
-        case 'deleteAll':
-          store.clear();
-          return null;
-        default:
-          return null;
-      }
-    });
+          switch (call.method) {
+            case 'write':
+              final key = call.arguments['key'] as String;
+              final value = call.arguments['value'] as String?;
+              store[key] = value;
+              return null;
+            case 'read':
+              final key = call.arguments['key'] as String;
+              return store[key];
+            case 'delete':
+              final key = call.arguments['key'] as String;
+              store.remove(key);
+              return null;
+            case 'deleteAll':
+              store.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
   });
 
   setUp(() async {
@@ -173,11 +173,7 @@ void main() {
       final pubPem = await RSAService.publicKey();
 
       final recipients = [
-        RecipientDevice(
-          deviceId: deviceId,
-          keyId: 'key_v1',
-          publicKey: pubPem,
-        ),
+        RecipientDevice(deviceId: deviceId, keyId: 'key_v1', publicKey: pubPem),
       ];
 
       final plaintextPayload = <String, dynamic>{
@@ -223,11 +219,7 @@ void main() {
       final pubPem = await RSAService.publicKey();
 
       final recipients = [
-        RecipientDevice(
-          deviceId: deviceId,
-          keyId: 'key_v1',
-          publicKey: pubPem,
-        ),
+        RecipientDevice(deviceId: deviceId, keyId: 'key_v1', publicKey: pubPem),
       ];
 
       final originalPayload = <String, dynamic>{
@@ -270,11 +262,13 @@ void main() {
           ciphertext: 'invalid_format_no_dot',
           e2ee: e2ee,
         ),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('Invalid ciphertext format'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            contains('Invalid ciphertext format'),
+          ),
+        ),
       );
     });
 
@@ -289,8 +283,9 @@ void main() {
             'did': 'other_device',
             'kid': 'key_v1',
             'wrap_alg': 'RSA-OAEP-256',
-            'ek': 'invalid_key', // This will cause a decode error after finding no matching device
-          }
+            'ek':
+                'invalid_key', // This will cause a decode error after finding no matching device
+          },
         ],
       };
 
@@ -299,11 +294,13 @@ void main() {
           ciphertext: 'YWJjMTIz.ZGVmNDU2', // valid base64 format
           e2ee: e2ee,
         ),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('No key found for device'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            contains('No key found for device'),
+          ),
+        ),
       );
     });
   });
@@ -322,4 +319,3 @@ void main() {
     });
   });
 }
-

@@ -17,7 +17,9 @@ class E2EEApi extends HttpClient {
     return [];
   }
 
-  Future<List<Map<String, dynamic>>> groupMemberKeys({required String gid}) async {
+  Future<List<Map<String, dynamic>>> groupMemberKeys({
+    required String gid,
+  }) async {
     IMBoyHttpResponse resp = await get(
       '/v1/e2ee/group_member_keys',
       queryParameters: {'gid': gid},

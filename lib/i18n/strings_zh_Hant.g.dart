@@ -386,6 +386,7 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 	@override String get location => '位置';
 	@override String get locationMessage => '位置訊息';
 	@override String get logOut => '登出';
+	@override String get areYouSureLogOut => '確定要登出嗎？';
 	@override String get login => '登入';
 	@override String get loginDeviceManagement => '登入設備管理';
 	@override String get loginDeviceManagementTips => '您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。';
@@ -1625,6 +1626,7 @@ extension on TranslationsZhHant {
 			'location' => '位置',
 			'locationMessage' => '位置訊息',
 			'logOut' => '登出',
+			'areYouSureLogOut' => '確定要登出嗎？',
 			'login' => '登入',
 			'loginDeviceManagement' => '登入設備管理',
 			'loginDeviceManagementTips' => '您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。',
@@ -1786,9 +1788,9 @@ extension on TranslationsZhHant {
 			'reEdit' => '重新編輯',
 			'readAgreeParam' => ({required Object param}) => '已經閱讀並同意${param}',
 			'recentChats' => '最近聊天',
-			'recentForwards' => '最近轉發',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => '最近轉發',
 			'recentlyRegisteredUser' => '最近註冊的用家',
 			'recentlyUsed' => '最近使用',
 			'recommendToFriend' => '把他推薦給好友',
@@ -2300,9 +2302,9 @@ extension on TranslationsZhHant {
 			'success' => '成功',
 			'export' => '匯出',
 			'personalDisplay' => '個人展示',
-			'personalSignature' => '個性簽名',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => '個性簽名',
 			'personalBackground' => '個人背景',
 			'setBackgroundImage' => '設定背景圖片',
 			'extendedInfo' => '擴展資訊',

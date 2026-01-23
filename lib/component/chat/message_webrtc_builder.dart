@@ -20,11 +20,16 @@ class WebRTCMessageBuilder extends StatelessWidget {
 
   Widget _buildBody(
     BuildContext context,
-    String customType,
+    String messageType, // 改名：customType -> messageType，更准确
     String title,
     bool userIsAuthor,
   ) {
     Widget row;
+    // 根据 messageType 判断是否为视频通话
+    // 支持：webrtcVideo, webrtc_video (旧格式)
+    final isVideo =
+        messageType == 'webrtcVideo' || messageType == 'webrtc_video';
+
     if (userIsAuthor) {
       row = Row(
         mainAxisSize: MainAxisSize.min,
@@ -46,15 +51,13 @@ class WebRTCMessageBuilder extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          customType == 'webrtc_video'
+          // 根据类型显示不同图标
+          isVideo
               ? const Icon(
                   Icons.videocam,
                   color: Color.fromRGBO(34, 34, 34, 1.0),
                 )
-              : const Icon(
-                  Icons.call_end,
-                  color: Color.fromRGBO(34, 34, 34, 1.0),
-                ),
+              : const Icon(Icons.call, color: Color.fromRGBO(34, 34, 34, 1.0)),
         ],
       );
     } else {
@@ -63,9 +66,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          customType == 'webrtc_video'
-              ? const Icon(Icons.videocam)
-              : const Icon(Icons.call_end),
+          // 根据类型显示不同图标
+          isVideo ? const Icon(Icons.videocam) : const Icon(Icons.call),
           Padding(
             padding: const EdgeInsets.only(top: 2, left: 4),
             child: Text(
@@ -93,8 +95,17 @@ class WebRTCMessageBuilder extends StatelessWidget {
         ? (message.metadata?['peer_id'] ?? '')
         : message.authorId;
     int state = message.metadata?['state'] ?? 0;
-    String media = message.metadata?['media'] ?? 'audio';
-    String customType = message.metadata?['custom_type'] ?? '';
+
+    // 优先使用 msg_type 判断（WebSocket API v2.0）
+    // 兼容新旧数据格式
+    final msgType = message.metadata?['msg_type'] ?? '';
+    final customType = message.metadata?['custom_type'] ?? '';
+
+    // 新格式：msg_type = 'webrtcAudio' 或 'webrtcVideo'
+    // 旧格式：custom_type = 'webrtc_audio' 或 'webrtc_video'
+    final isVideo = msgType == 'webrtcVideo' || customType == 'webrtc_video';
+    String media = isVideo ? 'video' : 'audio';
+
     int startAt = message.metadata?['start_at'] ?? 0;
     int endAt = message.metadata?['end_at'] ?? 0;
     String callCuration = '';
@@ -149,7 +160,12 @@ class WebRTCMessageBuilder extends StatelessWidget {
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
-        child: _buildBody(context, customType, title, userIsAuthor),
+        child: _buildBody(
+          context,
+          msgType.isNotEmpty ? msgType : customType,
+          title,
+          userIsAuthor,
+        ),
       ),
     );
     /*

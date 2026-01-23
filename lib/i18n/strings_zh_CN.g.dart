@@ -1086,6 +1086,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '退出登录'
 	String get logOut => '退出登录';
 
+	/// zh-CN: '确定要退出登录吗？'
+	String get areYouSureLogOut => '确定要退出登录吗？';
+
 	/// zh-CN: '登录'
 	String get login => '登录';
 
@@ -4025,6 +4028,7 @@ extension on Translations {
 			'location' => '位置',
 			'locationMessage' => '位置消息',
 			'logOut' => '退出登录',
+			'areYouSureLogOut' => '确定要退出登录吗？',
 			'login' => '登录',
 			'loginDeviceManagement' => '登录设备管理',
 			'loginDeviceManagementTips' => '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。',
@@ -4186,9 +4190,9 @@ extension on Translations {
 			'reEdit' => '重新编辑',
 			'readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
 			'recentChats' => '最近聊天',
-			'recentForwards' => '最近转发',
 			_ => null,
 		} ?? switch (path) {
+			'recentForwards' => '最近转发',
 			'recentlyRegisteredUser' => '最近注册用户',
 			'recentlyUsed' => '最近使用',
 			'recommendToFriend' => '把他推荐给朋友',
@@ -4700,9 +4704,9 @@ extension on Translations {
 			'success' => '成功',
 			'export' => '导出',
 			'personalDisplay' => '个人展示',
-			'personalSignature' => '个性签名',
 			_ => null,
 		} ?? switch (path) {
+			'personalSignature' => '个性签名',
 			'personalBackground' => '个人背景',
 			'setBackgroundImage' => '设置背景图片',
 			'extendedInfo' => '扩展信息',

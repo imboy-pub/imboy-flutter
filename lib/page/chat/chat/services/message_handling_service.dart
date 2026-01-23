@@ -53,10 +53,7 @@ class MessageHandlingService {
       ),
       id: Xid().toString(),
       text: text,
-      metadata: {
-        'peer_id': peerId,
-        ...?metadata,
-      },
+      metadata: {'peer_id': peerId, ...?metadata},
     );
   }
 
@@ -140,7 +137,9 @@ class MessageHandlingService {
     required Future<bool> Function(ConversationModel, Message) deleteFn,
     bool pop = true,
   }) async {
-    iPrint('deleteMessageForMe - 开始删除消息(仅自己): ${msg.id}, 聊天类型: ${conversation.type}');
+    iPrint(
+      'deleteMessageForMe - 开始删除消息(仅自己): ${msg.id}, 聊天类型: ${conversation.type}',
+    );
     try {
       EasyLoading.show(status: t.deletingMessage);
 
@@ -276,7 +275,12 @@ class MessageHandlingService {
               child: Text(t.chatDeleteLocalOnly),
               onPressed: () async {
                 Navigator.of(context).pop();
-                await _deleteLocalMessageOnly(context, conversation, msg, deleteFn);
+                await _deleteLocalMessageOnly(
+                  context,
+                  conversation,
+                  msg,
+                  deleteFn,
+                );
               },
             ),
           ],
@@ -328,28 +332,16 @@ class MessageHandlingService {
     required Future<void> Function(String, String) saveFileFn,
   }) async {
     if (msg is CustomMessage) {
-      await saveFileFn(
-        msg.metadata!['md5'],
-        msg.metadata!['uri'],
-      );
+      await saveFileFn(msg.metadata!['md5'], msg.metadata!['uri']);
     } else if (msg is ImageMessage) {
-      await saveFileFn(
-        msg.text ?? Xid().toString(),
-        msg.source,
-      );
+      await saveFileFn(msg.text ?? Xid().toString(), msg.source);
     } else if (msg is FileMessage) {
-      await saveFileFn(
-        msg.name,
-        msg.source,
-      );
+      await saveFileFn(msg.name, msg.source);
     }
   }
 
   /// 收藏消息
-  Future<void> collectMessage(
-    String chatType,
-    Message msg,
-  ) async {
+  Future<void> collectMessage(String chatType, Message msg) async {
     debugPrint("collectMessage: 开始收藏消息 ${msg.id}, 类型: ${msg.runtimeType}");
 
     String tb = MessageRepo.getTableName(chatType);
@@ -363,10 +355,7 @@ class MessageHandlingService {
   }
 
   /// 撤回消息（使用新的action机制）
-  Future<void> revokeMessage(
-    String chatType,
-    Message msg,
-  ) async {
+  Future<void> revokeMessage(String chatType, Message msg) async {
     try {
       iPrint('${t.startRevokeMessageFlow} (新action机制)');
       EasyLoading.show(status: t.revoking);
@@ -381,10 +370,7 @@ class MessageHandlingService {
       iPrint('🔍 ${t.chatType}: $chatType');
 
       // 使用新的MessageService发送撤回请求
-      bool result = await MessageService.to.sendRevokeMessage(
-            msg.id,
-            chatType,
-          );
+      bool result = await MessageService.to.sendRevokeMessage(msg.id, chatType);
       iPrint('🔍 ${t.revokeMessageSendResult}: $result');
 
       if (result) {
@@ -435,10 +421,10 @@ class MessageHandlingService {
 
       // 使用新的MessageService发送编辑请求
       bool result = await MessageService.to.sendEditMessage(
-            msg.id,
-            chatType,
-            newContent.trim(),
-          );
+        msg.id,
+        chatType,
+        newContent.trim(),
+      );
       iPrint('🔍 ${t.editMessageSendResult}: $result');
 
       if (result) {

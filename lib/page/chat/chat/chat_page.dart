@@ -15,11 +15,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide CustomMessageBuilder;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart' show ChatMessage, Avatar, Username, ScrollToBottom, EmptyChatList, ChatAnimatedList;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart'
+    show
+        ChatMessage,
+        Avatar,
+        Username,
+        ScrollToBottom,
+        EmptyChatList,
+        ChatAnimatedList;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flyer_chat_audio_message/flyer_chat_audio_message.dart';
 import 'package:flyer_chat_file_message/flyer_chat_file_message.dart';
+import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
 import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
 import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
+import 'package:flyer_chat_video_message/flyer_chat_video_message.dart';
+import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/config/chat_theme_config.dart';
@@ -37,7 +48,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/chat/message.dart';
-import 'package:imboy/component/chat/message_image_builder.dart';
 import 'package:imboy/component/chat/message_scroll_provider.dart';
 import 'package:imboy/component/chat/performance_monitor.dart';
 import 'package:imboy/page/chat/widget/chat_message_list.dart';
@@ -65,7 +75,6 @@ import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart' as old_provider;
 
-import '../../../component/helper/permission.dart' show requestPhotoPermission;
 import '../../../component/helper/picker_method.dart' show PickMethod;
 import '../widget/chat_input.dart';
 import '../widget/extra_item.dart';
@@ -152,6 +161,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
   // 用于定位目标消息的 GlobalKey
   final GlobalKey _targetMessageKey = GlobalKey();
 
+  // 保存 ChatNotifier 引用，用于在 dispose 中安全访问
+  late final ChatNotifier _chatNotifier;
+
   // ===== 便利访问器（替代 UIEventHandlerMixinState 接口） =====
 
   // 获取消息滚动管理器（兼容旧代码）
@@ -185,6 +197,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
   @override
   void initState() {
     super.initState();
+
+    // 保存 ChatNotifier 引用，用于在 dispose 中安全访问
+    _chatNotifier = ref.read(chatProvider.notifier);
 
     // 立即初始化控制器（必须在 build 方法第一次调用前完成）
     _initializeControllers();
@@ -246,16 +261,22 @@ class ChatPageState extends ConsumerState<ChatPage> {
       // 创建或获取会话
       await _setupConversation();
       await _reloadConversationSettings();
-      await ref.read(chatProvider.notifier).cleanupExpiredBurnMessagesForConversation(conversation);
+      await ref
+          .read(chatProvider.notifier)
+          .cleanupExpiredBurnMessagesForConversation(conversation);
 
       if (widget.msgId.isNotEmpty) {
-        await ref.read(chatProvider.notifier).loadMessagesAround(conversation, widget.msgId);
+        await ref
+            .read(chatProvider.notifier)
+            .loadMessagesAround(conversation, widget.msgId);
         // 延迟滚动，确保 ListView 已构建且消息已渲染
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToTargetMessage();
         });
       } else {
-        await ref.read(chatProvider.notifier).loadMoreMessages(conversation, isInitial: true);
+        await ref
+            .read(chatProvider.notifier)
+            .loadMoreMessages(conversation, isInitial: true);
       }
 
       _setupEventListeners();
@@ -303,14 +324,16 @@ class ChatPageState extends ConsumerState<ChatPage> {
   Future<void> _setupConversation() async {
     bool showConversation = widget.options?['showConversation'] ?? true;
 
-    final conversationResult = await ref.read(conversationProvider.notifier).createConversation(
-      type: widget.type,
-      peerId: widget.peerId,
-      avatar: widget.peerAvatar,
-      title: widget.peerTitle,
-      subtitle: "",
-      lastTime: showConversation ? DateTimeHelper.millisecond() : 0,
-    );
+    final conversationResult = await ref
+        .read(conversationProvider.notifier)
+        .createConversation(
+          type: widget.type,
+          peerId: widget.peerId,
+          avatar: widget.peerAvatar,
+          title: widget.peerTitle,
+          subtitle: "",
+          lastTime: showConversation ? DateTimeHelper.millisecond() : 0,
+        );
 
     conversation = conversationResult;
 
@@ -376,11 +399,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
     if (widget.type == 'C2G') {
       final memberCount = widget.options?['memberCount'] ?? 0;
       ref.read(chatProvider.notifier).updateMemberCount(memberCount);
-      newGroupName = await ref.read(chatProvider.notifier).groupTitle(
-        widget.peerId,
-        widget.peerTitle,
-        memberCount,
-      );
+      newGroupName = await ref
+          .read(chatProvider.notifier)
+          .groupTitle(widget.peerId, widget.peerTitle, memberCount);
     }
   }
 
@@ -388,6 +409,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
   StreamSubscription<DataWrapperEvent>? _ssMsg;
   StreamSubscription<DataWrapperEvent>? _ssMsgState;
   StreamSubscription<ReEditMessageEvent>? _ssReEdit;
+  StreamSubscription<AppErrorEvent>? _ssAppError;
 
   void _setupEventListeners() {
     try {
@@ -400,23 +422,31 @@ class ChatPageState extends ConsumerState<ChatPage> {
                 obj.payload['groupId'] == widget.peerId &&
                 (obj.payload['isFirst'] ?? false)) {
               final currentCount = ref.read(chatProvider).memberCount;
-              ref.read(chatProvider.notifier).updateMemberCount(currentCount + 1);
-              newGroupName = await ref.read(chatProvider.notifier).groupTitle(
-                widget.peerId,
-                widget.peerTitle,
-                currentCount + 1,
-              );
+              ref
+                  .read(chatProvider.notifier)
+                  .updateMemberCount(currentCount + 1);
+              newGroupName = await ref
+                  .read(chatProvider.notifier)
+                  .groupTitle(
+                    widget.peerId,
+                    widget.peerTitle,
+                    currentCount + 1,
+                  );
               if (mounted) setState(() {});
             } else if (obj.type == 'clean_msg' &&
                 ((obj.payload['uk3'] ?? '') == _conversationUk3)) {
               ref.read(chatProvider.notifier).updateNextAutoId(0);
-              await ref.read(chatProvider.notifier).loadMoreMessages(conversation, isInitial: true);
+              await ref
+                  .read(chatProvider.notifier)
+                  .loadMoreMessages(conversation, isInitial: true);
             } else if (obj.type == 'delete_msg' &&
                 obj.payload['conversation'] != null &&
-                (_isConversationInitialized && obj.payload['conversation'].id == conversation.id)) {
-              ref.read(chatProvider.notifier).chatService?.removeMessageById(
-                obj.payload['msg']?.id ?? '',
-              );
+                (_isConversationInitialized &&
+                    obj.payload['conversation'].id == conversation.id)) {
+              ref
+                  .read(chatProvider.notifier)
+                  .chatService
+                  ?.removeMessageById(obj.payload['msg']?.id ?? '');
             }
           } catch (e) {
             debugPrint('_setupEventListeners ssMsgExt error: $e');
@@ -451,16 +481,27 @@ class ChatPageState extends ConsumerState<ChatPage> {
             }
             msgIds.add(msg.id);
             final i =
-                ref.read(chatProvider.notifier).chatService?.messages.indexWhere(
-                  (e) => e.id == msg.id,
-                ) ??
+                ref
+                    .read(chatProvider.notifier)
+                    .chatService
+                    ?.messages
+                    .indexWhere((e) => e.id == msg.id) ??
                 -1;
             if (i == -1) {
               // 不再强制立即置为已读，交由"可视阈值已读"推进水位
-              ref.read(chatProvider.notifier).chatService?.insertMessage(
-                msg,
-                index: ref.read(chatProvider.notifier).chatService?.messages.length ?? 0,
-              );
+              ref
+                  .read(chatProvider.notifier)
+                  .chatService
+                  ?.insertMessage(
+                    msg,
+                    index:
+                        ref
+                            .read(chatProvider.notifier)
+                            .chatService
+                            ?.messages
+                            .length ??
+                        0,
+                  );
               if (msg is ImageMessage) {
                 // 图片画廊已迁移至 Riverpod，由 ChatProvider 处理
               }
@@ -499,30 +540,44 @@ class ChatPageState extends ConsumerState<ChatPage> {
             Message msg = e.first;
             iPrint('收到消息状态更新事件: msgId=${msg.id}, type=${msg.runtimeType}');
             final i =
-                ref.read(chatProvider.notifier).chatService?.messages.indexWhere(
-                  (e) => e.id == msg.id,
-                ) ??
+                ref
+                    .read(chatProvider.notifier)
+                    .chatService
+                    ?.messages
+                    .indexWhere((e) => e.id == msg.id) ??
                 -1;
-            final messageCount = ref.read(chatProvider.notifier).chatService?.messages.length ?? 0;
+            final messageCount =
+                ref.read(chatProvider.notifier).chatService?.messages.length ??
+                0;
             iPrint('在消息列表中查找消息: index=$i, 总消息数=$messageCount');
-            if (i > -1 && mounted && ref.read(chatProvider.notifier).chatService != null) {
-              final old = ref.read(chatProvider.notifier).chatService!.messages[i];
+            if (i > -1 &&
+                mounted &&
+                ref.read(chatProvider.notifier).chatService != null) {
+              final old = ref
+                  .read(chatProvider.notifier)
+                  .chatService!
+                  .messages[i];
               iPrint('更新消息UI: ${msg.id}');
-              ref.read(chatProvider.notifier).chatService!.updateMessage(
-                ref.read(chatProvider.notifier).chatService!.messages[i],
-                msg,
-              );
+              ref
+                  .read(chatProvider.notifier)
+                  .chatService!
+                  .updateMessage(
+                    ref.read(chatProvider.notifier).chatService!.messages[i],
+                    msg,
+                  );
               final didBecomeSeen =
                   old.status != MessageStatus.seen &&
                   msg.status == MessageStatus.seen;
               if (didBecomeSeen &&
                   _isBurnMessage(msg) &&
                   (msg.metadata?['burn_read_at'] ?? 0) == 0) {
-                ref.read(chatProvider.notifier).markBurnReadAt(
-                  conversation,
-                  msg.id,
-                  readAtMs: DateTimeHelper.millisecond(),
-                );
+                ref
+                    .read(chatProvider.notifier)
+                    .markBurnReadAt(
+                      conversation,
+                      msg.id,
+                      readAtMs: DateTimeHelper.millisecond(),
+                    );
               }
             } else {
               iPrint('消息未找到或组件未挂载: msgId=${msg.id}, mounted=$mounted');
@@ -555,6 +610,32 @@ class ChatPageState extends ConsumerState<ChatPage> {
           debugPrint('ssReEdit stream error: $error');
         },
       );
+
+      // 监听全局错误事件（如 not_a_friend）
+      _ssAppError = AppEventBus.on<AppErrorEvent>().listen(
+        (error) {
+          try {
+            if (!mounted) return;
+            // 只处理聊天相关的错误
+            if (error.errorType == 'not_a_friend' ||
+                error.message.contains('非好友')) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(error.message),
+                  duration: const Duration(seconds: 3),
+                  action: SnackBarAction(label: '确定', onPressed: () {}),
+                ),
+              );
+              iPrint('✅ [AppErrorEvent] 显示 SnackBar: ${error.message}');
+            }
+          } catch (e) {
+            debugPrint('ssAppError error: $e');
+          }
+        },
+        onError: (error) {
+          debugPrint('ssAppError stream error: $error');
+        },
+      );
     } catch (e) {
       debugPrint('_setupEventListeners error: $e');
     }
@@ -570,7 +651,10 @@ class ChatPageState extends ConsumerState<ChatPage> {
     _ssMsg?.cancel();
     _ssMsgState?.cancel();
     _ssReEdit?.cancel();
-    ref.read(chatProvider.notifier).markAsDisposed();
+    _ssAppError?.cancel();
+
+    // 使用保存的引用而不是 ref.read（避免在 dispose 中使用 ref）
+    _chatNotifier.markAsDisposed();
 
     // 清理 composerHeightNotifier
     composerHeightNotifier.dispose();
@@ -590,10 +674,10 @@ class ChatPageState extends ConsumerState<ChatPage> {
     // 清理性能监控内存
     performanceMonitor.cleanupInvisibleMessages();
 
-    // 安全地清理聊天控制器
+    // 安全地清理聊天控制器（使用保存的引用）
     try {
-      ref.read(chatProvider.notifier).chatService?.setMessages([]);
-      ref.read(chatProvider.notifier).chatService?.dispose();
+      _chatNotifier.chatService?.setMessages([]);
+      _chatNotifier.chatService?.dispose();
     } catch (e) {
       debugPrint('Error disposing chat controller: $e');
     }
@@ -617,7 +701,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
       // 使用 Riverpod Provider 管理活跃会话状态
       if (isActive) {
-        ref.read(activeConversationProvider.notifier).setActiveConversation(conversationUk3);
+        ref
+            .read(activeConversationProvider.notifier)
+            .setActiveConversation(conversationUk3);
       } else {
         ref.read(activeConversationProvider.notifier).clearActiveConversation();
       }
@@ -630,7 +716,8 @@ class ChatPageState extends ConsumerState<ChatPage> {
   Future<void> _scrollToTargetMessage() async {
     try {
       // 确保消息列表已加载
-      if (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ?? true) {
+      if (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
+          true) {
         debugPrint("消息列表为空，无法滚动");
         return;
       }
@@ -654,11 +741,14 @@ class ChatPageState extends ConsumerState<ChatPage> {
         // 渐进式等待：前几次快一点，后面慢一点
         await Future.delayed(Duration(milliseconds: attempt < 3 ? 100 : 200));
 
-        await ref.read(chatProvider.notifier).chatService?.scrollToMessage(
-          widget.msgId,
-          duration: const Duration(milliseconds: 500),
-          offset: 100.0,
-        );
+        await ref
+            .read(chatProvider.notifier)
+            .chatService
+            ?.scrollToMessage(
+              widget.msgId,
+              duration: const Duration(milliseconds: 500),
+              offset: 100.0,
+            );
 
         // 检查目标消息是否在可视区域内
         if (_targetMessageKey.currentContext != null) {
@@ -673,7 +763,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
         }
       }
 
-      ref.read(messageScrollManagerProvider.notifier).highlightMessage(widget.msgId);
+      ref
+          .read(messageScrollManagerProvider.notifier)
+          .highlightMessage(widget.msgId);
     } catch (e) {
       debugPrint("滚动到目标消息失败: $e");
       // 降级处理：使用简单的索引滚动
@@ -684,7 +776,8 @@ class ChatPageState extends ConsumerState<ChatPage> {
   // 降级滚动方法
   void _fallbackScrollToMessage() {
     try {
-      final messages = ref.read(chatProvider.notifier).chatService?.messages ?? [];
+      final messages =
+          ref.read(chatProvider.notifier).chatService?.messages ?? [];
       final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
 
       if (targetIndex == -1) return;
@@ -693,17 +786,29 @@ class ChatPageState extends ConsumerState<ChatPage> {
       // 假设平均消息高度为80像素
       double estimatedOffset = targetIndex * 80.0;
 
-      if (ref.read(messageScrollManagerProvider.notifier).scrollController.hasClients) {
-        final maxScroll = ref.read(messageScrollManagerProvider.notifier).scrollController.position.maxScrollExtent;
+      if (ref
+          .read(messageScrollManagerProvider.notifier)
+          .scrollController
+          .hasClients) {
+        final maxScroll = ref
+            .read(messageScrollManagerProvider.notifier)
+            .scrollController
+            .position
+            .maxScrollExtent;
         if (estimatedOffset > maxScroll) {
           estimatedOffset = maxScroll;
         }
 
-        ref.read(messageScrollManagerProvider.notifier).scrollController.jumpTo(estimatedOffset);
+        ref
+            .read(messageScrollManagerProvider.notifier)
+            .scrollController
+            .jumpTo(estimatedOffset);
 
         // 延迟高亮
         Future.delayed(const Duration(milliseconds: 300), () {
-          ref.read(messageScrollManagerProvider.notifier).highlightMessage(widget.msgId);
+          ref
+              .read(messageScrollManagerProvider.notifier)
+              .highlightMessage(widget.msgId);
         });
 
         debugPrint("使用降级方法滚动到消息: ${widget.msgId}, 位置: $estimatedOffset");
@@ -717,19 +822,26 @@ class ChatPageState extends ConsumerState<ChatPage> {
   // 添加消息
   Future<bool> _addMessage(Message message) async {
     try {
-      await ref.read(chatProvider.notifier).addMessage(
-        UserRepoLocal.to.currentUid,
-        widget.peerId,
-        widget.peerAvatar,
-        widget.peerTitle,
-        widget.type == 'null' ? 'C2C' : widget.type,
-        message,
-      );
-      await ref.read(chatProvider.notifier).chatService?.insertMessage(
-        message,
-        index: ref.read(chatProvider.notifier).chatService?.messages.length ?? 0,
-        animated: true, // 新消息使用动画
-      );
+      await ref
+          .read(chatProvider.notifier)
+          .addMessage(
+            UserRepoLocal.to.currentUid,
+            widget.peerId,
+            widget.peerAvatar,
+            widget.peerTitle,
+            widget.type == 'null' ? 'C2C' : widget.type,
+            message,
+          );
+      await ref
+          .read(chatProvider.notifier)
+          .chatService
+          ?.insertMessage(
+            message,
+            index:
+                ref.read(chatProvider.notifier).chatService?.messages.length ??
+                0,
+            animated: true, // 新消息使用动画
+          );
       return true;
     } catch (e, stack) {
       debugPrint("_addMessage error: $e : $stack");
@@ -746,7 +858,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
       // 显示加载状态
       EasyLoading.show(status: t.retryingSend);
 
-      final success = await ref.read(chatProvider.notifier).retryMessage(messageId, widget.type);
+      final success = await ref
+          .read(chatProvider.notifier)
+          .retryMessage(messageId, widget.type);
 
       EasyLoading.dismiss();
 
@@ -1304,7 +1418,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
                   title: Text(t.chatSaveImage),
                   onTap: () {
                     Navigator.pop(context);
-                    ref.read(chatProvider.notifier).saveFile(message.text ?? message.id, message.source);
+                    ref
+                        .read(chatProvider.notifier)
+                        .saveFile(message.text ?? message.id, message.source);
                   },
                 ),
               ],
@@ -1517,12 +1633,14 @@ class ChatPageState extends ConsumerState<ChatPage> {
   void _addReaction(Message message, String emoji) async {
     try {
       HapticFeedback.lightImpact();
-      final res = await ref.read(chatProvider.notifier).toggleReaction(
-        chatType: widget.type == 'null' ? 'C2C' : widget.type,
-        peerId: widget.peerId,
-        messageId: message.id,
-        emoji: emoji,
-      );
+      final res = await ref
+          .read(chatProvider.notifier)
+          .toggleReaction(
+            chatType: widget.type == 'null' ? 'C2C' : widget.type,
+            peerId: widget.peerId,
+            messageId: message.id,
+            emoji: emoji,
+          );
       if (!mounted) return;
       if (res == null) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1547,9 +1665,14 @@ class ChatPageState extends ConsumerState<ChatPage> {
     if (widget.type == 'C2G') {
       await _sendDeleteForMeMessage(msg);
     }
-    bool res = await ref.read(chatProvider.notifier).removeMessage(conversation, msg);
+    bool res = await ref
+        .read(chatProvider.notifier)
+        .removeMessage(conversation, msg);
     if (res) {
-      await ref.read(chatProvider.notifier).chatService?.removeMessageById(msg.id);
+      await ref
+          .read(chatProvider.notifier)
+          .chatService
+          ?.removeMessageById(msg.id);
     }
     if (pop) {
       nav.pop();
@@ -1592,9 +1715,14 @@ class ChatPageState extends ConsumerState<ChatPage> {
       'created_at': DateTimeHelper.millisecond(),
     };
     await ref.read(chatProvider.notifier).sendMessage(msg2);
-    bool res = await ref.read(chatProvider.notifier).removeMessage(conversation, msg);
+    bool res = await ref
+        .read(chatProvider.notifier)
+        .removeMessage(conversation, msg);
     if (res) {
-      await ref.read(chatProvider.notifier).chatService?.removeMessageById(msg.id);
+      await ref
+          .read(chatProvider.notifier)
+          .chatService
+          ?.removeMessageById(msg.id);
     }
     nav.pop();
   }
@@ -1608,9 +1736,13 @@ class ChatPageState extends ConsumerState<ChatPage> {
   // 保存消息内容
   Future<void> _saveMessageContent(Message msg) async {
     if (msg is CustomMessage) {
-      await ref.read(chatProvider.notifier).saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
+      await ref
+          .read(chatProvider.notifier)
+          .saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
     } else if (msg is ImageMessage) {
-      await ref.read(chatProvider.notifier).saveFile(msg.text ?? Xid().toString(), msg.source);
+      await ref
+          .read(chatProvider.notifier)
+          .saveFile(msg.text ?? Xid().toString(), msg.source);
     } else if (msg is FileMessage) {
       await ref.read(chatProvider.notifier).saveFile(msg.name, msg.source);
     }
@@ -1854,7 +1986,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
   }
 
   /// 构建聊天背景装饰
-  BoxDecoration _buildBackgroundDecoration(ChatBackgroundState backgroundState) {
+  BoxDecoration _buildBackgroundDecoration(
+    ChatBackgroundState backgroundState,
+  ) {
     final theme = ThemeManager.instance;
 
     switch (backgroundState.currentBackground) {
@@ -1862,7 +1996,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
         return BoxDecoration(
           color: theme.getThemeColor('surface'),
           image: DecorationImage(
-            image: const AssetImage('assets/images/chat_backgrounds/pattern_1.png'),
+            image: const AssetImage(
+              'assets/images/chat_backgrounds/pattern_1.png',
+            ),
             repeat: ImageRepeat.repeat,
             opacity: backgroundState.backgroundOpacity,
           ),
@@ -1872,7 +2008,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
         return BoxDecoration(
           color: theme.getThemeColor('surface'),
           image: DecorationImage(
-            image: const AssetImage('assets/images/chat_backgrounds/pattern_2.png'),
+            image: const AssetImage(
+              'assets/images/chat_backgrounds/pattern_2.png',
+            ),
             repeat: ImageRepeat.repeat,
             opacity: backgroundState.backgroundOpacity,
           ),
@@ -1882,7 +2020,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
         return BoxDecoration(
           color: theme.getThemeColor('surface'),
           image: DecorationImage(
-            image: const AssetImage('assets/images/chat_backgrounds/pattern_3.png'),
+            image: const AssetImage(
+              'assets/images/chat_backgrounds/pattern_3.png',
+            ),
             repeat: ImageRepeat.repeat,
             opacity: backgroundState.backgroundOpacity,
           ),
@@ -1922,19 +2062,19 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
       case 'custom_image':
         // TODO: 支持自定义图片背景
-        return BoxDecoration(
-          color: theme.getThemeColor('surface'),
-        );
+        return BoxDecoration(color: theme.getThemeColor('surface'));
 
       default:
-        return BoxDecoration(
-          color: theme.getThemeColor('surface'),
-        );
+        return BoxDecoration(color: theme.getThemeColor('surface'));
     }
   }
 
   /// 构建聊天主界面
-  Widget _buildChatWidget(BuildContext context, ThemeData theme, ChatState chatState) {
+  Widget _buildChatWidget(
+    BuildContext context,
+    ThemeData theme,
+    ChatState chatState,
+  ) {
     // 使用 provider 获取聊天背景状态
     final backgroundState = ref.watch(chatBackgroundManagerProvider);
 
@@ -1942,7 +2082,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
     return flutter_chat_ui.Chat(
       currentUserId: currentUser.id,
       backgroundColor: Colors.transparent,
-      chatController: ref.read(chatProvider.notifier).chatService ?? SqliteChatController(ref.container),
+      chatController:
+          ref.read(chatProvider.notifier).chatService ??
+          SqliteChatController(ref.container),
       onMessageSend: _handleSendPressed,
       onMessageLongPress: _onMessageLongPress,
       onMessageTap: _onMessageTap,
@@ -2012,296 +2154,372 @@ class ChatPageState extends ConsumerState<ChatPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (!chatState.hasMoreMessage &&
-              (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ?? true)) {
+              (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
+                  true)) {
             return EmptyChatList(text: t.noData);
           }
           return const SizedBox.shrink();
         },
-        customMessageBuilder: (context, message, index, {
-          required bool isSentByMe,
-          MessageGroupStatus? groupStatus,
-        }) {
-          return CustomMessageBuilder(
-            type: widget.type,
-            message: message,
-          );
-        },
-        imageMessageBuilder: (context, message, index, {
-          required bool isSentByMe,
-          MessageGroupStatus? groupStatus,
-        }) {
-          final width = MediaQuery.of(context).size.width.toInt();
-          return IMBoyImageMessageBuilder(
-            message: message,
-            messageWidth: width,
-            user: isSentByMe ? currentUser : peer,
-          );
-        },
-        systemMessageBuilder: (context, message, index, {
-          required bool isSentByMe,
-          MessageGroupStatus? groupStatus,
-        }) {
-          return FlyerChatSystemMessage(message: message, index: index);
-        },
-        textMessageBuilder: (context, message, index, {
-          required bool isSentByMe,
-          MessageGroupStatus? groupStatus,
-        }) {
-          return FlyerChatTextMessage(
-            message: message,
-            index: index,
-            showStatus: false,
-            showTime: true,
-          );
-        },
-        fileMessageBuilder: (context, message, index, {
-          required bool isSentByMe,
-          MessageGroupStatus? groupStatus,
-        }) {
-          return FlyerChatFileMessage(
-            message: message,
-            index: index,
-            showStatus: false,
-            showTime: true,
-          );
-        },
-        chatMessageBuilder: (
-          context,
-          message,
-          index,
-          animation,
-          child, {
-          bool? isRemoved,
-          required bool isSentByMe,
-          MessageGroupStatus? groupStatus,
-        }) {
-                // 如果是目标消息，包裹 Key
-                if (widget.msgId.isNotEmpty && message.id == widget.msgId) {
-                  child = Container(key: _targetMessageKey, child: child);
-                }
-                final isSystemMessage = message.authorId == 'system';
-                final isFirstInGroup = groupStatus?.isFirst ?? true;
-                final isLastInGroup = groupStatus?.isLast ?? true;
-                final shouldShowAvatar =
-                    !isSystemMessage && isLastInGroup && isRemoved != true;
-                final isCurrentUser = message.authorId == currentUser.id;
-                final shouldShowUsername =
-                    !isSystemMessage && isFirstInGroup && isRemoved != true;
+        customMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              return CustomMessageBuilder(type: widget.type, message: message);
+            },
+        imageMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              return FlyerChatImageMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              );
+            },
+        systemMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              return FlyerChatSystemMessage(message: message, index: index);
+            },
+        textMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              return FlyerChatTextMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              );
+            },
+        fileMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              return FlyerChatFileMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              );
+            },
+        // 视频消息组件
+        videoMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              return FlyerChatVideoMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              );
+            },
+        // 音频消息组件 - 连接 VoicePlaybackService
+        audioMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              // 监听语音播放状态
+              final playbackState = ref.watch(voicePlaybackServiceProvider);
 
-                Widget? statusIcon;
-                switch (message.status) {
-                  case MessageStatus.sending:
-                    statusIcon = Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: ThemeManager.instance.getThemeColor(
-                        'textSecondary',
-                      ),
-                    );
-                    break;
-                  case MessageStatus.sent:
-                  case MessageStatus.delivered:
-                    statusIcon = Icon(
-                      Icons.done_all,
-                      size: 16,
-                      color: ThemeManager.instance.getThemeColor('primary'),
-                    );
-                    break;
-                  case MessageStatus.seen:
-                    statusIcon = Icon(
-                      Icons.done_all,
-                      size: 16,
-                      color: ThemeManager.instance.getChatColor(
-                        'sendMessageBg',
-                      ),
-                    );
-                    break;
-                  case MessageStatus.error:
-                    statusIcon = Icon(
-                      Icons.error_outline,
-                      size: 16,
-                      color: ThemeManager.instance.getThemeColor('error'),
-                    );
-                    break;
-                  default:
-                    statusIcon = null;
-                }
-                Widget? avatar;
-                if (shouldShowAvatar) {
-                  avatar = Padding(
-                    padding: EdgeInsets.only(
-                      left: isCurrentUser ? 8 : 0,
-                      right: isCurrentUser ? 0 : 8,
-                    ),
-                    child: Avatar(userId: message.authorId),
-                  );
-                } else if (!isSystemMessage) {
-                  avatar = const SizedBox(width: 40);
-                }
-
-                // 在消息末尾添加状态图标
-                final burnBadge = _isBurnMessage(message)
-                    ? _BurnBadge(
-                        isSentByMe: isCurrentUser,
-                        burnAfterMs: _burnAfterMsFromMessage(message),
-                        burnReadAtMs: (message.metadata?['burn_read_at'] is int)
-                            ? message.metadata!['burn_read_at'] as int
-                            : int.tryParse(
-                                    '${message.metadata?['burn_read_at'] ?? 0}',
-                                  ) ??
-                                  0,
-                      )
-                    : null;
-
-                Widget messageBody = burnBadge == null
-                    ? child
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: isCurrentUser
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
-                        children: [
-                          child,
-                          const SizedBox(height: 2),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: isCurrentUser ? 2 : 0,
-                              left: isCurrentUser ? 0 : 2,
-                            ),
-                            child: burnBadge,
-                          ),
-                        ],
+              return FlyerChatAudioMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+                isPlaying:
+                    playbackState.currentMessageId == message.id &&
+                    playbackState.isPlaying,
+                isPaused:
+                    playbackState.currentMessageId == message.id &&
+                    playbackState.isPaused,
+                currentPositionMs: playbackState.currentMessageId == message.id
+                    ? playbackState.currentPosition
+                    : 0,
+                currentDurationMs: playbackState.currentMessageId == message.id
+                    ? playbackState.currentDuration
+                    : 0,
+                onPlayPause: (audioPath, msg, totalDuration) {
+                  // 使用 VoicePlaybackService 统一管理播放
+                  ref
+                      .read(voicePlaybackServiceProvider.notifier)
+                      .play(
+                        path: audioPath,
+                        messageId: msg.id,
+                        durationMs: totalDuration.inMilliseconds,
                       );
+                },
+              );
+            },
+        chatMessageBuilder:
+            (
+              context,
+              message,
+              index,
+              animation,
+              child, {
+              bool? isRemoved,
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              // 如果是目标消息，包裹 Key
+              if (widget.msgId.isNotEmpty && message.id == widget.msgId) {
+                child = Container(key: _targetMessageKey, child: child);
+              }
+              final isSystemMessage = message.authorId == 'system';
+              final isFirstInGroup = groupStatus?.isFirst ?? true;
+              final isLastInGroup = groupStatus?.isLast ?? true;
+              final shouldShowAvatar =
+                  !isSystemMessage && isLastInGroup && isRemoved != true;
+              final isCurrentUser = message.authorId == currentUser.id;
+              final shouldShowUsername =
+                  !isSystemMessage && isFirstInGroup && isRemoved != true;
 
-                if (isCurrentUser && statusIcon != null) {
-                  statusIcon = GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _onMessageStatusTap(context, message),
-                    child: statusIcon,
+              Widget? statusIcon;
+              switch (message.status) {
+                case MessageStatus.sending:
+                  statusIcon = Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: ThemeManager.instance.getThemeColor('textSecondary'),
                   );
-                  child = Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(child: messageBody),
-                      const SizedBox(width: 4),
-                      statusIcon,
-                    ],
+                  break;
+                case MessageStatus.sent:
+                case MessageStatus.delivered:
+                  statusIcon = Icon(
+                    Icons.done_all,
+                    size: 16,
+                    color: ThemeManager.instance.getThemeColor('primary'),
                   );
-                } else {
-                  child = messageBody;
-                }
-                final chatMsg = ChatMessage(
-                  message: message,
-                  index: index,
-                  animation: animation,
-                  isRemoved: isRemoved,
-                  groupStatus: groupStatus,
-                  topWidget: shouldShowUsername
-                      ? Padding(
+                  break;
+                case MessageStatus.seen:
+                  statusIcon = Icon(
+                    Icons.done_all,
+                    size: 16,
+                    color: ThemeManager.instance.getChatColor('sendMessageBg'),
+                  );
+                  break;
+                case MessageStatus.error:
+                  statusIcon = Icon(
+                    Icons.error_outline,
+                    size: 16,
+                    color: ThemeManager.instance.getThemeColor('error'),
+                  );
+                  break;
+                default:
+                  statusIcon = null;
+              }
+              Widget? avatar;
+              if (shouldShowAvatar) {
+                avatar = Padding(
+                  padding: EdgeInsets.only(
+                    left: isCurrentUser ? 8 : 0,
+                    right: isCurrentUser ? 0 : 8,
+                  ),
+                  child: Avatar(userId: message.authorId),
+                );
+              } else if (!isSystemMessage) {
+                avatar = const SizedBox(width: 40);
+              }
+
+              // 在消息末尾添加状态图标
+              final burnBadge = _isBurnMessage(message)
+                  ? _BurnBadge(
+                      isSentByMe: isCurrentUser,
+                      burnAfterMs: _burnAfterMsFromMessage(message),
+                      burnReadAtMs: (message.metadata?['burn_read_at'] is int)
+                          ? message.metadata!['burn_read_at'] as int
+                          : int.tryParse(
+                                  '${message.metadata?['burn_read_at'] ?? 0}',
+                                ) ??
+                                0,
+                    )
+                  : null;
+
+              Widget messageBody = burnBadge == null
+                  ? child
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: isCurrentUser
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        child,
+                        const SizedBox(height: 2),
+                        Padding(
                           padding: EdgeInsets.only(
-                            bottom: 4,
-                            left: isCurrentUser ? 0 : 48,
-                            right: isCurrentUser ? 48 : 0,
+                            right: isCurrentUser ? 2 : 0,
+                            left: isCurrentUser ? 0 : 2,
                           ),
-                          child: Username(userId: message.authorId),
-                        )
-                      : null,
-                  leadingWidget: !isCurrentUser
-                      ? avatar
-                      : isSystemMessage
-                      ? null
-                      : const SizedBox(width: 40),
-                  trailingWidget: isCurrentUser
-                      ? avatar
-                      : isSystemMessage
-                      ? null
-                      : const SizedBox(width: 40),
-                  receivedMessageScaleAnimationAlignment:
-                      (message is SystemMessage)
-                      ? Alignment.center
-                      : Alignment.centerLeft,
-                  receivedMessageAlignment: (message is SystemMessage)
-                      ? AlignmentDirectional.center
-                      : AlignmentDirectional.centerStart,
-                  horizontalPadding: (message is SystemMessage) ? 0 : 8,
-                  child: child,
+                          child: burnBadge,
+                        ),
+                      ],
+                    );
+
+              if (isCurrentUser && statusIcon != null) {
+                statusIcon = GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _onMessageStatusTap(context, message),
+                  child: statusIcon,
                 );
-                // 可视阈值已读（受隐私设置控制）
-                final s = UserRepoLocal.to.setting;
-                if (!s.enableVisibilityRead) {
-                  return chatMsg;
-                }
-                final double fractionThreshold = (() {
-                  final v = s.visibilityReadFraction;
-                  if (v.isNaN) return 0.6;
-                  if (v < 0.1) return 0.1;
-                  if (v > 1.0) return 1.0;
-                  return v;
-                })();
-                final int delayMs = s.visibilityReadDelayMs <= 0
-                    ? 400
-                    : s.visibilityReadDelayMs;
-                // 当来自对方的消息可视比例达到阈值并持续 delayMs 后推进水位
-                return VisibilityDetector(
-                  key: Key('msg_vis_${message.id}'),
-                  onVisibilityChanged: (info) {
-                    final fraction = info.visibleFraction;
-                    // 标记当前消息是否可见（用于后续检查）
-                    if (fraction > 0.1) {
-                      performanceMonitor.markMessageVisible(message.id);
-                    } else {
-                      performanceMonitor.markMessageInvisible(message.id);
-                    }
+                child = Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(child: messageBody),
+                    const SizedBox(width: 4),
+                    statusIcon,
+                  ],
+                );
+              } else {
+                child = messageBody;
+              }
+              final chatMsg = ChatMessage(
+                message: message,
+                index: index,
+                animation: animation,
+                isRemoved: isRemoved,
+                groupStatus: groupStatus,
+                topWidget: shouldShowUsername
+                    ? Padding(
+                        padding: EdgeInsets.only(
+                          bottom: 4,
+                          left: isCurrentUser ? 0 : 48,
+                          right: isCurrentUser ? 48 : 0,
+                        ),
+                        child: Username(userId: message.authorId),
+                      )
+                    : null,
+                leadingWidget: !isCurrentUser
+                    ? avatar
+                    : isSystemMessage
+                    ? null
+                    : const SizedBox(width: 40),
+                trailingWidget: isCurrentUser
+                    ? avatar
+                    : isSystemMessage
+                    ? null
+                    : const SizedBox(width: 40),
+                receivedMessageScaleAnimationAlignment:
+                    (message is SystemMessage)
+                    ? Alignment.center
+                    : Alignment.centerLeft,
+                receivedMessageAlignment: (message is SystemMessage)
+                    ? AlignmentDirectional.center
+                    : AlignmentDirectional.centerStart,
+                horizontalPadding: (message is SystemMessage) ? 0 : 8,
+                child: child,
+              );
+              // 可视阈值已读（受隐私设置控制）
+              final s = UserRepoLocal.to.setting;
+              if (!s.enableVisibilityRead) {
+                return chatMsg;
+              }
+              final double fractionThreshold = (() {
+                final v = s.visibilityReadFraction;
+                if (v.isNaN) return 0.6;
+                if (v < 0.1) return 0.1;
+                if (v > 1.0) return 1.0;
+                return v;
+              })();
+              final int delayMs = s.visibilityReadDelayMs <= 0
+                  ? 400
+                  : s.visibilityReadDelayMs;
+              // 当来自对方的消息可视比例达到阈值并持续 delayMs 后推进水位
+              return VisibilityDetector(
+                key: Key('msg_vis_${message.id}'),
+                onVisibilityChanged: (info) {
+                  final fraction = info.visibleFraction;
+                  // 标记当前消息是否可见（用于后续检查）
+                  if (fraction > 0.1) {
+                    performanceMonitor.markMessageVisible(message.id);
+                  } else {
+                    performanceMonitor.markMessageInvisible(message.id);
+                  }
 
-                    // 仅处理来自对方的消息
-                    final isIncoming = message.authorId != currentUser.id;
-                    if (!isIncoming) return;
-                    // 已处理过的消息无需重复
-                    if (_readCommitted.contains(message.id)) return;
+                  // 仅处理来自对方的消息
+                  final isIncoming = message.authorId != currentUser.id;
+                  if (!isIncoming) return;
+                  // 已处理过的消息无需重复
+                  if (_readCommitted.contains(message.id)) return;
 
-                    // 达到可视阈值，启动延时判定
-                    if (fraction >= fractionThreshold) {
-                      _readDelayTimers[message.id]?.cancel();
-                      _readDelayTimers[message.id] = Timer(
-                        Duration(milliseconds: delayMs),
-                        () async {
-                          if (!mounted) return;
-                          // 仍处于可见状态才推进水位
-                          if (performanceMonitor.isMessageVisible(message.id)) {
-                            try {
-                              final ok = await ref.read(chatProvider.notifier).markAsRead(
-                                widget.type == 'null' ? 'C2C' : widget.type,
-                                widget.peerId,
-                                [message.id],
-                                syncToServer: true,
-                              );
-                              if (ok) {
-                                _readCommitted.add(message.id);
-                                if (_isBurnMessage(message) &&
-                                    (message.metadata?['burn_read_at'] ?? 0) ==
-                                        0) {
-                                  ref.read(chatProvider.notifier).markBurnReadAt(
-                                    conversation,
-                                    message.id,
-                                    readAtMs: DateTimeHelper.millisecond(),
-                                  );
-                                }
+                  // 达到可视阈值，启动延时判定
+                  if (fraction >= fractionThreshold) {
+                    _readDelayTimers[message.id]?.cancel();
+                    _readDelayTimers[message.id] = Timer(
+                      Duration(milliseconds: delayMs),
+                      () async {
+                        if (!mounted) return;
+                        // 仍处于可见状态才推进水位
+                        if (performanceMonitor.isMessageVisible(message.id)) {
+                          try {
+                            final ok = await ref
+                                .read(chatProvider.notifier)
+                                .markAsRead(
+                                  widget.type == 'null' ? 'C2C' : widget.type,
+                                  widget.peerId,
+                                  [message.id],
+                                  syncToServer: true,
+                                );
+                            if (ok) {
+                              _readCommitted.add(message.id);
+                              if (_isBurnMessage(message) &&
+                                  (message.metadata?['burn_read_at'] ?? 0) ==
+                                      0) {
+                                ref
+                                    .read(chatProvider.notifier)
+                                    .markBurnReadAt(
+                                      conversation,
+                                      message.id,
+                                      readAtMs: DateTimeHelper.millisecond(),
+                                    );
                               }
-                            } catch (_) {}
-                          }
-                        },
-                      );
-                    } else {
-                      // 可见比例下降，取消未完成的判定
-                      _readDelayTimers[message.id]?.cancel();
-                      _readDelayTimers.remove(message.id);
-                    }
-                  },
-                  child: chatMsg,
-                );
-              },
-        ),
-      );
+                            }
+                          } catch (_) {}
+                        }
+                      },
+                    );
+                  } else {
+                    // 可见比例下降，取消未完成的判定
+                    _readDelayTimers[message.id]?.cancel();
+                    _readDelayTimers.remove(message.id);
+                  }
+                },
+                child: chatMsg,
+              );
+            },
+      ),
+    );
   }
 
   // 导航到聊天设置
@@ -2325,19 +2543,26 @@ class ChatPageState extends ConsumerState<ChatPage> {
                 options: options,
                 callBack: (v) {},
               )
-            : ChatSettingPage(widget.peerId, type: widget.type, options: options),
+            : ChatSettingPage(
+                widget.peerId,
+                type: widget.type,
+                options: options,
+              ),
       ),
     ).then((value) => _handleChatSettingsResult(value));
   }
 
   /// 构建优化的消息列表（性能优化版）
   Widget _buildOptimizedMessageList() {
-    final messages = ref.read(chatProvider.notifier).chatService?.messages ?? [];
+    final messages =
+        ref.read(chatProvider.notifier).chatService?.messages ?? [];
 
     return ChatMessageList(
       messages: messages,
       currentUserId: currentUser.id,
-      scrollController: ref.read(messageScrollManagerProvider.notifier).scrollController,
+      scrollController: ref
+          .read(messageScrollManagerProvider.notifier)
+          .scrollController,
       onMessageLongPress: (message) => _onMessageLongPress(
         context,
         message,
@@ -2365,7 +2590,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
   /// 构建原始消息列表（ChatAnimatedList）
   Widget _buildOriginalMessageList(ChatItem itemBuilder, ChatState chatState) {
     return ChatAnimatedList(
-      scrollController: ref.read(messageScrollManagerProvider.notifier).scrollController,
+      scrollController: ref
+          .read(messageScrollManagerProvider.notifier)
+          .scrollController,
       reversed: true,
       itemBuilder: itemBuilder,
       onEndReached: () async {
@@ -2390,7 +2617,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
   Future<void> _handleChatSettingsResult(dynamic value) async {
     if (value == false) {
       ref.read(chatProvider.notifier).updateNextAutoId(0);
-      await ref.read(chatProvider.notifier).loadMoreMessages(conversation, isInitial: true);
+      await ref
+          .read(chatProvider.notifier)
+          .loadMoreMessages(conversation, isInitial: true);
     }
     if (value == true) {
       await _reloadConversationSettings();
@@ -2399,11 +2628,9 @@ class ChatPageState extends ConsumerState<ChatPage> {
       int num = value['memberCount'] ?? 0;
       if (num > 0) {
         ref.read(chatProvider.notifier).updateMemberCount(num);
-        newGroupName = await ref.read(chatProvider.notifier).groupTitle(
-          widget.peerId,
-          widget.peerTitle,
-          num,
-        );
+        newGroupName = await ref
+            .read(chatProvider.notifier)
+            .groupTitle(widget.peerId, widget.peerTitle, num);
         if (mounted) setState(() {});
       }
     }

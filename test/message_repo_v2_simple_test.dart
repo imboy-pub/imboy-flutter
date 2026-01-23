@@ -103,10 +103,7 @@ void main() {
       print('✅ MessageRepo 可以使用新表名创建实例');
 
       // 测试使用旧表名应该抛出异常（不在白名单中）
-      expect(
-        () => MessageRepo(tableName: 'message'),
-        throwsArgumentError,
-      );
+      expect(() => MessageRepo(tableName: 'message'), throwsArgumentError);
 
       expect(
         () => MessageRepo(tableName: 'group_message'),

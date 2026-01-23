@@ -56,6 +56,10 @@ bool p2pCallScreenOn = false;
 
 var logger = Logger();
 
+/// initConfig 缓存（避免重复请求）
+Map<String, dynamic>? _initConfigCache;
+Completer<Map<String, dynamic>>? _initConfigCompleter;
+
 OverlayEntry? p2pEntry;
 // ice 配置信息
 // Map<String, dynamic>? iceConfiguration;
@@ -284,52 +288,123 @@ class AppInitializer {
   }
 
   static Future<Map<String, dynamic>> initConfig() async {
-    IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
-    // 安全日志：不输出完整配置数据，可能包含敏感信息
-    debugPrint("initConfig completed with code ${resp1.code}");
-    if (!resp1.ok) {
-      return {"error": "网络故障或服务故障"};
+    // 1. 如果已有缓存，直接返回
+    if (_initConfigCache != null) {
+      debugPrint('🔧 initConfig: 返回缓存结果');
+      return _initConfigCache!;
     }
-    final encrypted = resp1.payload['res'] ?? '';
-    if (encrypted.isEmpty) {
-      return {"error": "服务故障协议有误"};
+
+    // 2. 如果有正在进行的请求，等待其完成
+    if (_initConfigCompleter != null) {
+      debugPrint('🔧 initConfig: 等待进行中的请求');
+      return await _initConfigCompleter!.future;
     }
-    final key = await Env.signKey();
-    // iPrint("initConfig signKey $key ;");
-    // final jsonStr = EncrypterService.aesDecrypt(
-    //   encrypted,
-    //   EncrypterService.md5(key),
-    //   Env().solidifiedKeyIv,
-    // );
-    // iPrint("initConfig_jsonStr $jsonStr");
-    Map<String, dynamic> payload = jsonDecode(
-      EncrypterService.aesDecrypt(
-        encrypted,
-        EncrypterService.md5(key),
-        Env().solidifiedKeyIv,
-      ),
-    );
-    if (payload.containsKey('error')) {
+
+    // 3. 创建新的 Completer 并开始请求
+    _initConfigCompleter = Completer<Map<String, dynamic>>();
+    debugPrint('🔧 initConfig: 开始获取配置');
+
+    try {
+      final startTime = DateTime.now();
+      debugPrint('🔧 initConfig: 请求 URL: ${Env().apiBaseUrl}${API.initConfig}');
+
+      // 添加超时保护
+      IMBoyHttpResponse resp1;
+      try {
+        resp1 = await HttpClient.client
+            .get(API.initConfig)
+            .timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                debugPrint('❌ initConfig: 请求超时 (10秒)');
+                // 返回一个失败响应
+                return IMBoyHttpResponse.failure(
+                  errMsg: "配置获取超时: 请检查网络连接或服务端状态",
+                  errCode: 408,
+                );
+              },
+            );
+      } on TimeoutException {
+        debugPrint('❌ initConfig: 请求超时异常 (10秒)');
+        resp1 = IMBoyHttpResponse.failure(
+          errMsg: "配置获取超时: 请检查网络连接或服务端状态",
+          errCode: 408,
+        );
+      }
+
+      final elapsed = DateTime.now().difference(startTime).inMilliseconds;
+      debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
+
+      // 安全日志：不输出完整配置数据，可能包含敏感信息
+      debugPrint("initConfig completed with code ${resp1.code}");
+      if (!resp1.ok) {
+        debugPrint('❌ initConfig: 请求失败 ${resp1.code}');
+        final error = {"error": "网络故障或服务故障 (HTTP ${resp1.code})"};
+        _initConfigCompleter!.complete(error);
+        return error;
+      }
+
+      final encrypted = resp1.payload['res'] ?? '';
+      debugPrint('🔧 initConfig: 加密内容长度=${encrypted.length}');
+
+      if (encrypted.isEmpty) {
+        debugPrint('❌ initConfig: 加密内容为空');
+        final error = {"error": "服务故障协议有误"};
+        _initConfigCompleter!.complete(error);
+        return error;
+      }
+
+      debugPrint('🔧 initConfig: 开始解密配置');
+      final key = await Env.signKey();
+      Map<String, dynamic> payload = jsonDecode(
+        EncrypterService.aesDecrypt(
+          encrypted,
+          EncrypterService.md5(key),
+          Env().solidifiedKeyIv,
+        ),
+      );
+      debugPrint('🔧 initConfig: 解密完成');
+
+      if (payload.containsKey('error')) {
+        debugPrint('❌ initConfig: payload包含错误 ${payload['error']}');
+        _initConfigCompleter!.complete(payload);
+        return payload;
+      }
+
+      // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
+      debugPrint(
+        "initConfig_payload received ${payload.keys.length} config items",
+      );
+      await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
+      await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
+      await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
+      await StorageService.to.setString(
+        Keys.uploadScene,
+        payload['upload_scene'],
+      );
+
+      await StorageService.to.setString(
+        Keys.apiPublicKey,
+        payload['login_rsa_pub_key'],
+      );
+
+      // 4. 缓存结果并完成
+      _initConfigCache = payload;
+      _initConfigCompleter!.complete(payload);
       return payload;
+    } catch (e, stack) {
+      debugPrint('❌ initConfig: 请求异常 $e');
+      debugPrint('❌ initConfig: 堆栈追踪: $stack');
+      final error = {"error": "配置获取异常: $e"};
+      // 确保在异常情况下也清理 Completer
+      if (!_initConfigCompleter!.isCompleted) {
+        _initConfigCompleter!.complete(error);
+      }
+      return error;
+    } finally {
+      // 5. 清理 Completer
+      _initConfigCompleter = null;
     }
-    // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
-    debugPrint(
-      "initConfig_payload received ${payload.keys.length} config items",
-    );
-    await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
-    await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
-    await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
-    await StorageService.to.setString(
-      Keys.uploadScene,
-      payload['upload_scene'],
-    );
-
-    await StorageService.to.setString(
-      Keys.apiPublicKey,
-      payload['login_rsa_pub_key'],
-    );
-
-    return payload;
   }
 
   static Future<void> _initializeServices() async {
@@ -405,8 +480,9 @@ class AppInitializer {
     );
 
     // 网络连接状态监听（保存订阅以便后续取消）
-    _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+      _onConnectivityChanged,
+    );
   }
 
   static Future<void> _onAppResume() async {
@@ -486,6 +562,13 @@ class AppInitializer {
     }
   }
 
+  /// 清理 initConfig 缓存（强制下次调用时重新获取配置）
+  static void clearInitConfigCache() {
+    _initConfigCache = null;
+    _initConfigCompleter = null;
+    debugPrint('🔧 initConfig: 缓存已清理');
+  }
+
   /// 释放资源（在应用退出或重新初始化前调用）
   static Future<void> dispose() async {
     logger.i('Disposing AppInitializer resources...');
@@ -516,6 +599,9 @@ class AppInitializer {
 
     // 清理WebRTC会话
     webRTCSessions.clear();
+
+    // 清理 initConfig 缓存
+    clearInitConfigCache();
 
     logger.i('AppInitializer dispose completed');
   }

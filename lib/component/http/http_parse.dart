@@ -42,7 +42,9 @@ IMBoyHttpResponse handleResponse(
     // 安全访问响应数据
     final data = response.data;
     final code = data is Map ? data['code'] : response.statusCode;
-    final msg = data is Map ? data['msg'] : _getErrorMessageForStatusCode(response.statusCode);
+    final msg = data is Map
+        ? data['msg']
+        : _getErrorMessageForStatusCode(response.statusCode);
     final payload = data is Map ? data['payload'] : null;
 
     // 处理 429 Too Many Requests

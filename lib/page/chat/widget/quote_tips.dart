@@ -5,6 +5,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/func.dart' show formatBytes;
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 // ignore: must_be_immutable
@@ -113,8 +114,30 @@ class QuoteTipsWidget extends StatelessWidget {
       );
     }
 
+    // WebSocket API v2.0: 获取 customType 和 status
     String customType = message?.metadata?['custom_type'] ?? '';
-    if (customType == 'quote') {
+    final status = message?.metadata?['status'] as int?;
+
+    // 优先检查 status 字段（撤回状态 30-39）
+    if (IMBoyMessageStatus.isRevokedStatus(status)) {
+      body = Row(
+        children: [
+          Icon(
+            Icons.block,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            t.messageRevoked,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      );
+    } else if (customType == 'quote') {
       String txt = message?.metadata?['quote_text'] ?? '';
       body = Row(
         children: [
@@ -218,26 +241,6 @@ class QuoteTipsWidget extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      );
-    } else if (customType == 'revoked' ||
-        customType == 'my_revoked' ||
-        customType == 'peer_revoked') {
-      body = Row(
-        children: [
-          Icon(
-            Icons.block,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            t.messageRevoked,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.tertiary,
-              fontStyle: FontStyle.italic,
             ),
           ),
         ],

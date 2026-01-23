@@ -91,7 +91,8 @@ class VoicePlaybackService extends _$VoicePlaybackService {
       state = state.copyWith(
         isPlaying: playerState.playing,
         isPaused:
-            playerState.processingState == ProcessingState.ready && !playerState.playing,
+            playerState.processingState == ProcessingState.ready &&
+            !playerState.playing,
       );
 
       if (playerState.processingState == ProcessingState.completed) {
@@ -192,7 +193,9 @@ class VoicePlaybackHelper {
   /// 获取当前播放的音频路径
   String get currentAudioPath {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     return _container!.read(voicePlaybackServiceProvider).currentAudioPath;
   }
@@ -200,7 +203,9 @@ class VoicePlaybackHelper {
   /// 获取当前播放的消息ID
   String get currentMessageId {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     return _container!.read(voicePlaybackServiceProvider).currentMessageId;
   }
@@ -208,7 +213,9 @@ class VoicePlaybackHelper {
   /// 检查是否正在播放
   bool get isPlaying {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     return _container!.read(voicePlaybackServiceProvider).isPlaying;
   }
@@ -216,7 +223,9 @@ class VoicePlaybackHelper {
   /// 检查是否暂停
   bool get isPaused {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     return _container!.read(voicePlaybackServiceProvider).isPaused;
   }
@@ -224,7 +233,9 @@ class VoicePlaybackHelper {
   /// 获取当前播放位置
   int get currentPosition {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     return _container!.read(voicePlaybackServiceProvider).currentPosition;
   }
@@ -232,7 +243,9 @@ class VoicePlaybackHelper {
   /// 获取当前音频时长
   int get currentDuration {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     return _container!.read(voicePlaybackServiceProvider).currentDuration;
   }
@@ -248,17 +261,25 @@ class VoicePlaybackHelper {
     Future<void> Function(String)? onPlaybackCompleted,
   }) async {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     final notifier = _container!.read(voicePlaybackServiceProvider.notifier);
     notifier.onPlaybackCompleted = onPlaybackCompleted;
-    await notifier.play(path: audioPath, messageId: messageId, durationMs: durationMs);
+    await notifier.play(
+      path: audioPath,
+      messageId: messageId,
+      durationMs: durationMs,
+    );
   }
 
   /// 暂停播放
   Future<void> pause() async {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     await _container!.read(voicePlaybackServiceProvider.notifier).pause();
   }
@@ -266,7 +287,9 @@ class VoicePlaybackHelper {
   /// 恢复播放
   Future<void> resume() async {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     await _container!.read(voicePlaybackServiceProvider.notifier).resume();
   }
@@ -274,7 +297,9 @@ class VoicePlaybackHelper {
   /// 停止播放
   Future<void> stop() async {
     if (_container == null) {
-      throw Exception('VoicePlaybackHelper not initialized. Call init() first.');
+      throw Exception(
+        'VoicePlaybackHelper not initialized. Call init() first.',
+      );
     }
     await _container!.read(voicePlaybackServiceProvider.notifier).stop();
   }

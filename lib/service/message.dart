@@ -297,8 +297,11 @@ class MessageService with EventSubscriptionManager {
       await webrtc.handleWebRTC(type, data);
     } else if (type.endsWith('_SERVER_ACK')) {
       await _receiveServerAck(data);
+    } else if (type == 'S2C') {
+      // S2C 消息优先走 switchS2C（包含所有 S2C action 处理）
+      await MessageS2CService.switchS2C(data);
     } else if (action != null && action.isNotEmpty) {
-      // 基于action的消息处理
+      // C2C/C2G/C2S 的 action 走 handleActionMessage
       await _messageActions.handleActionMessage(action, data);
     } else {
       switch (type) {
@@ -306,9 +309,6 @@ class MessageService with EventSubscriptionManager {
         case 'C2G':
         case 'C2S':
           await _receiveMessage(data);
-          break;
-        case 'S2C':
-          await MessageS2CService.switchS2C(data);
           break;
         case 'ERROR':
           await _handleError(data);
@@ -389,9 +389,6 @@ class MessageService with EventSubscriptionManager {
     // ACK已在websocket.dart:_onMessage中发送，此处不再重复发送
     // ACK发送已移至websocket.dart，确保在最早期发送，避免任何处理延迟
 
-    // v2.0: 从顶层读取 msg_type 字段（用于消息类型分发）
-    final topMsgType = data['msg_type']?.toString();
-
     // v2.0: 从顶层读取 e2ee 字段（可能是字符串形式的 JSON）
     final e2eeRaw = data['e2ee'];
     Map<String, dynamic>? e2ee;
@@ -419,35 +416,40 @@ class MessageService with EventSubscriptionManager {
     Map<String, dynamic>? payload;
     final payloadRaw = data['payload'];
 
-    // 检查是否为 E2EE 消息（v2.0：顶层 msg_type 为 e2ee，或者 e2ee 字段存在且非空）
-    final isE2EEMessage = topMsgType == 'e2ee' || (e2ee != null && e2ee.isNotEmpty);
+    // 归一化 created_at 时间戳（需要在解密前准备）
+    // Normalize timestamp field
+    var createdAt = data['created_at'];
+    if (createdAt is String) {
+      createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
+      data['created_at'] = createdAt;
+    }
+    final createdAtMs = (data['created_at'] is int)
+        ? data['created_at'] as int
+        : DateTimeHelper.millisecond();
 
-    if (isE2EEMessage) {
-      // E2EE 消息：payload 通常是加密后的字符串
-      if (payloadRaw is String && payloadRaw.isNotEmpty) {
-        // 保留加密的 payload，稍后解密
-        payload = {
-          'msg_type': 'e2ee', // v2.0: 明确标记为 e2ee 类型
-          '_e2ee_ciphertext': payloadRaw,
-          '_e2ee_meta': e2ee ?? {},
-          '_e2ee_v2': true, // 标记为 v2.0 格式
-        };
-      } else if (payloadRaw is Map) {
-        // 兼容旧格式：e2ee 信息在 payload 内
-        payload = payloadRaw.cast<String, dynamic>();
-      } else {
-        // 无效的 E2EE 消息
-        iPrint('❌ [E2EE] 无效的 E2EE 消息格式: msgId=$msgId');
+    // v2.0: E2EE 解密处理（复用前面解析的 e2ee 变量）
+    // 检查是否有 e2ee 字段（表示消息已加密）
+    if (e2ee != null && e2ee.isNotEmpty) {
+      // E2EE 加密消息：payload 应该是密文字符串
+      if (payloadRaw is! String || payloadRaw.isEmpty) {
+        iPrint('❌ [E2EE] E2EE 消息的 payload 应该是密文字符串: msgId=$msgId');
         return;
       }
+
+      // v2.0 E2EE 格式：使用新的解密方法
+      final decryptedPayload = await _handleE2EEMessage(
+        data: data,
+        msgId: msgId,
+        msgType: msgType,
+        createdAtMs: createdAtMs,
+      );
+
+      // 解密后的 payload
+      payload = decryptedPayload;
     } else {
       // 普通（非 E2EE）消息：payload 应该是 Map
       if (payloadRaw is Map) {
         payload = payloadRaw.cast<String, dynamic>();
-        // v2.0: 确保顶层 msg_type 也存在于 payload 中（向后兼容）
-        if (topMsgType != null && topMsgType.isNotEmpty) {
-          payload['msg_type'] = topMsgType;
-        }
       } else if (payloadRaw is String && payloadRaw.isNotEmpty) {
         try {
           final decoded = jsonDecode(payloadRaw);
@@ -480,57 +482,8 @@ class MessageService with EventSubscriptionManager {
       iPrint('📊 [端到端延迟] $msgId: ${e2eLatency}ms (A发送 → B接收)');
     }
 
-    // 归一化 created_at 时间戳
-    // Normalize timestamp field
-    var createdAt = data['created_at'];
-    if (createdAt is String) {
-      createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
-      data['created_at'] = createdAt;
-    }
-    final createdAtMs = (data['created_at'] is int)
-        ? data['created_at'] as int
-        : DateTimeHelper.millisecond();
-
-    // v2.0: E2EE 解密处理
-    // 检查是否为 v2.0 E2EE 格式（payload 包含密文标记）
-    if (payload.containsKey('_e2ee_ciphertext')) {
-      // v2.0 E2EE 格式：使用新的解密方法
-      final decryptedPayload = await _handleE2EEMessage(
-        data: data,
-        msgId: msgId,
-        msgType: msgType,
-        createdAtMs: createdAtMs,
-      );
-
-      // 替换 payload
-      payload
-        ..clear()
-        ..addAll(decryptedPayload);
-      data['payload'] = payload;
-    } else {
-      // 普通（非 v2.0 E2EE）消息或 v1.0 E2EE 消息，使用原有解密逻辑
-      final decryptedPayload = await E2EEService.decryptIncomingPayload(
-        msgId: msgId,
-        msgType: msgType,
-        fromUid: data['from']?.toString() ?? '',
-        toUid: data['to']?.toString() ?? '',
-        createdAt: createdAtMs,
-        payload: payload,
-      );
-
-      // 如果解密后内容不同，说明解密成功或需要更新
-      if (!identical(decryptedPayload, payload)) {
-        // 检查是否解密失败
-        if (decryptedPayload.containsKey('_e2ee_failed')) {
-          iPrint('❌ [E2EE] v1.0 E2EE 解密失败: msgId=$msgId, reason=${decryptedPayload['_e2ee_reason']}');
-        }
-        payload
-          ..clear()
-          ..addAll(decryptedPayload);
-        data['payload'] = payload;
-      }
-    }
-
+    // 确保 payload 为 non-nullable（用于后续调用）
+    final nonNullPayload = payload;
     final repo = getMessageRepo(msgType);
 
     // 【修复】先检查数据库中是否已存在，避免重复显示
@@ -568,7 +521,7 @@ class MessageService with EventSubscriptionManager {
     // 优化：使用 TTL 自动过期，默认 5 秒
     final receivingMsgKey = '${msgType}_$msgId';
     final now = DateTimeHelper.millisecond();
-    const ttlMs = 5000;  // 5秒 TTL
+    const ttlMs = 5000; // 5秒 TTL
 
     // 清理过期的标记
     _cleanExpiredReceivingMarks(now, ttlMs);
@@ -591,14 +544,18 @@ class MessageService with EventSubscriptionManager {
       final peerId = msgType == 'C2G' ? data['to'] : data['from'];
       final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
 
-      // v2.0: 优先从顶层读取 msg_type，如果不存在则从 payload 读取（兼容 v1.0）
-      final messageType = data['msg_type']?.toString() ?? payload['msg_type']?.toString() ?? '';
+      // v2.0: 从顶层读取 msg_type（不再兼容 v1.0）
+      final messageType = data['msg_type']?.toString() ?? '';
+      if (messageType.isEmpty) {
+        iPrint('❌ [消息格式] 缺少 msg_type 字段: msgId=$msgId');
+        return;
+      }
 
       // v2.0: 根据消息类型进行特定的处理（日志记录、特殊逻辑等）
-      _dispatchMessageByType(messageType, data, payload);
+      _dispatchMessageByType(messageType, data, nonNullPayload);
 
       // v2.0: 使用 switch 处理不同的 msg_type，构造会话副标题
-      String subtitle = _getMessageSubtitle(messageType, payload);
+      String subtitle = _getMessageSubtitle(messageType, nonNullPayload);
 
       // 创建临时会话对象用于立即显示
       // Create temporary conversation for immediate UI display
@@ -623,7 +580,7 @@ class MessageService with EventSubscriptionManager {
         type: msgType,
         fromId: data['from'],
         toId: data['to'],
-        payload: payload,
+        payload: nonNullPayload,
         createdAt: data['created_at'],
         isAuthor: isFromCurrentUser ? 1 : 0,
         topicId: data['topic_id'] ?? 0,
@@ -645,7 +602,13 @@ class MessageService with EventSubscriptionManager {
 
       // 后台异步处理数据存储和完整消息转换（不阻塞UI）
       // Process data storage and full message conversion asynchronously in background (non-blocking)
-      await _processMessageInBackground(data, payload, tempConv, tempMsg, repo);
+      await _processMessageInBackground(
+        data,
+        nonNullPayload,
+        tempConv,
+        tempMsg,
+        repo,
+      );
     } finally {
       // 优化：TTL 自动过期，无需手动清理
       // 清理由 _cleanExpiredReceivingMarks 自动处理
@@ -655,7 +618,8 @@ class MessageService with EventSubscriptionManager {
   /// 正在接收的消息集合（用于快速去重，不阻塞UI）
   /// Set of messages being received (for fast deduplication, non-blocking)
   /// 优化：使用 Map 存储时间戳，支持 TTL 自动过期
-  final Map<String, int> _receivingMessages = <String, int>{};  // msgKey -> timestamp
+  final Map<String, int> _receivingMessages =
+      <String, int>{}; // msgKey -> timestamp
 
   /// 清理过期的接收标记
   /// Clean up expired receiving marks
@@ -1106,15 +1070,6 @@ class MessageService with EventSubscriptionManager {
         // 自定义消息：通常不显示副标题
         return '';
 
-      case 'e2ee':
-        // E2EE 加密消息：显示加密标记（如果未解密）
-        if (payload.containsKey('_e2ee_failed')) {
-          return '[加密消息 - 解密失败]';
-        }
-        // 如果已解密，根据实际内容类型返回
-        final actualMsgType = payload['msg_type']?.toString() ?? '';
-        return actualMsgType.isEmpty ? '[加密消息]' : _getMessageSubtitle(actualMsgType, payload);
-
       default:
         // 未知消息类型：尝试从 payload 获取文本
         final text = payload['text']?.toString();
@@ -1201,12 +1156,15 @@ class MessageService with EventSubscriptionManager {
     required String msgType,
     required int createdAtMs,
   }) async {
+    // WebSocket API v2.0: 保留原始消息的 msg_type（内容类型）
+    final originalMsgType = data['msg_type'] as String? ?? 'text';
+
     // 1. 获取密文字符串
     final ciphertext = data['payload']?.toString();
     if (ciphertext == null || ciphertext.isEmpty) {
       iPrint('❌ [E2EE] payload 为空: msgId=$msgId');
       return {
-        'msg_type': 'custom',
+        'msg_type': originalMsgType, // 保留原始消息类型
         'custom_type': 'e2ee',
         'text': '[加密消息]',
         '_e2ee_failed': true,
@@ -1236,7 +1194,7 @@ class MessageService with EventSubscriptionManager {
     if (e2ee == null || e2ee.isEmpty) {
       iPrint('❌ [E2EE] e2ee 元数据为空: msgId=$msgId');
       return {
-        'msg_type': 'custom',
+        'msg_type': originalMsgType, // 保留原始消息类型
         'custom_type': 'e2ee',
         'text': '[加密消息]',
         '_e2ee_failed': true,
@@ -1273,12 +1231,14 @@ class MessageService with EventSubscriptionManager {
         payload['_e2ee'] = data; // 保存完整的原始消息
       }
 
-      iPrint('✅ [E2EE] v2.0 解密成功: msgId=$msgId, msgType=${payload['msg_type']}');
+      iPrint(
+        '✅ [E2EE] v2.0 解密成功: msgId=$msgId, msgType=${payload['msg_type']}',
+      );
       return payload;
     } catch (e) {
       iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=$e');
       return {
-        'msg_type': 'custom',
+        'msg_type': originalMsgType, // 保留原始消息类型
         'custom_type': 'e2ee',
         'text': '[加密消息]',
         '_e2ee_failed': true,
@@ -1291,7 +1251,9 @@ class MessageService with EventSubscriptionManager {
   /// 处理文本消息
   void _handleTextMessage(Map data, Map<String, dynamic> payload) {
     final text = payload['text']?.toString() ?? '';
-    iPrint('📝 [文本消息] ${text.substring(0, text.length > 50 ? 50 : text.length)}...');
+    iPrint(
+      '📝 [文本消息] ${text.substring(0, text.length > 50 ? 50 : text.length)}...',
+    );
   }
 
   /// 处理图片消息
@@ -1387,15 +1349,6 @@ class MessageService with EventSubscriptionManager {
         break;
       case 'custom':
         _handleCustomMessage(data, payload);
-        break;
-      case 'e2ee':
-        // E2EE 消息：如果已解密，根据实际内容类型处理
-        if (!payload.containsKey('_e2ee_failed')) {
-          final actualMsgType = payload['msg_type']?.toString() ?? '';
-          if (actualMsgType.isNotEmpty) {
-            _dispatchMessageByType(actualMsgType, data, payload);
-          }
-        }
         break;
       default:
         iPrint('⚠️ [未知消息类型] messageType=$messageType');

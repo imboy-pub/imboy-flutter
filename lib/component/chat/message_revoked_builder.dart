@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart' show UserRepoLocal;
@@ -24,20 +25,20 @@ class RevokedMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     // 获取消息元数据
     final Map<String, dynamic> metadata = message.metadata ?? {};
-    final String customType = metadata['custom_type'] ?? '';
+    final int? status = metadata['status'] as int?;
     final bool userIsAuthor = user.id == message.authorId;
     final String text = metadata['text'] ?? '';
     final int nowMs = DateTimeHelper.millisecond();
 
     // 调试输出
     iPrint(
-      '撤回消息渲染: msgId=${message.id}, customType=$customType, userIsAuthor=$userIsAuthor',
+      '撤回消息渲染: msgId=${message.id}, status=$status, userIsAuthor=$userIsAuthor',
     );
     iPrint('消息元数据: ${metadata.toString()}');
 
-    // 根据撤回类型确定显示逻辑
-    bool isPeerRevoked = customType == 'peer_revoked';
-    bool isMyRevoked = customType == 'my_revoked';
+    // WebSocket API v2.0: 根据 status 字段确定撤回类型
+    bool isPeerRevoked = IMBoyMessageStatus.isPeerRevoked(status);
+    bool isMyRevoked = IMBoyMessageStatus.isMyRevoked(status);
 
     // 检查是否可以重新编辑（仅限自己撤回的消息且在2小时内）
     bool canEdit =
@@ -92,30 +93,9 @@ class RevokedMessageBuilder extends StatelessWidget {
             );
             nickname = '"$contactTitle"';
           }
-        } else if (isMyRevoked) {
-          // 我撤回的消息
-          nickname = t.you;
         } else {
-          // 兼容旧的撤回类型
-          // 对于 custom_type == 'revoked' 的情况，需要根据 revoke_user 来判断撤回方
-          final String revokeUser = metadata['revoke_user'] ?? '';
-          if (revokeUser.isNotEmpty &&
-              revokeUser != UserRepoLocal.to.currentUid) {
-            // 如果 revoke_user 存在且不是当前用户，说明是对方撤回的
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              nickname = '"..."';
-            } else {
-              // 优先使用会话模型中的title，其次使用联系人信息
-              String contactTitle = _getContactTitleFromConversation(
-                snapshot.data?['conversation'],
-                metadata,
-              );
-              nickname = '"$contactTitle"';
-            }
-          } else {
-            // 否则认为是自己撤回的
-            nickname = t.you;
-          }
+          // 自己撤回的消息
+          nickname = t.you;
         }
 
         return Container(

@@ -8,6 +8,13 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-01-21
+- **新增 WebSocket API v2.0 文档**：详细说明与服务端对接的消息格式
+- **字段类型说明**：
+  - `to` 字段：String 类型（hashids编码），对应服务端 `<<"to">>` (binary)
+  - `to_id` 字段：int 类型，这是数据库字段，WebSocket API 中不使用
+- **E2EE 修复说明**：`e2ee` 字段必须是 Map 类型，不能是 JSON 字符串
+
 ### 2026-01-05
 - 初始化服务层文档
 - 完成模块结构分析
@@ -542,6 +549,152 @@ A: 使用 `MigrationService.to.backupDatabase()` 或 `BackupService`。
 - `lib/service/migration_service.dart` - 迁移服务
 - `lib/service/backup_service.dart` - 备份服务
 - `lib/service/notification.dart` - 通知服务
+
+---
+
+## WebSocket API v2.0 消息格式
+
+### C2C 消息格式（与服务端对接）
+
+客户端发送给服务端的 WebSocket 消息必须遵循以下格式：
+
+```dart
+// WebSocket API v2.0 - C2C 消息格式
+{
+  'id': 'msg123',                    // String: 消息ID
+  'type': 'C2C',                   // String: 消息类型
+  'from': 'p25vd5',                // String: 发送者ID (hashids编码)
+  'to': 'gdwqa5',                  // String: 接收者ID (hashids编码) ⚠️ 必须是 "to" 不是 "to_id"
+  'msg_type': 'text',              // String: 消息类型 (text/image/file/e2ee等)
+  'action': '',                    // String: 动作类型 (可选，通常为空)
+  'e2ee': {},                      // Map: E2EE元数据 (可选, 加密消息时必须有，必须是 Map 不是 JSON 字符串)
+  'payload': '{...}',              // String|Map: 消息内容（加密时为 base64 密文字符串）
+  'created_at': 1768957192053,      // int: 创建时间戳(毫秒)
+}
+```
+
+### 关键字段说明
+
+| 字段 | 类型 | 说明 | 服务端对应 |
+|------|------|------|-----------|
+| `to` | **String** | 接收者ID (hashids编码，如 `"gdwqa5"`) | `<<"to">>` (binary) |
+| `to_id` | **int** | ❌ 不要使用！这是数据库字段 | 服务端解码后的 `ToId` (integer) |
+| `from` | String | 发送者ID (hashids编码) | `<<"from">>` |
+| `e2ee` | **Map** | E2EE 元数据，必须是 Map 不能是 JSON 字符串 | `<<"e2ee">>` (map) |
+| `payload` | String|Map | 消息内容 | `<<"payload">>` |
+
+### 服务端字段类型映射
+
+| Dart 类型 | Erlang 类型 | 说明 |
+|-----------|-------------|------|
+| `String` | `binary()` | 字符串在 Erlang 中是 binary 类型 |
+| `int` | `integer()` | 整数在 Erlang 中是 integer 类型 |
+| `Map` | `map()` | Map 在 Erlang 中是 map 类型 |
+
+**重要**：
+- 客户端发送 `to` (String) → 服务端接收为 `<<"to">>` (binary)
+- 服务端使用 `elib_hashids:decode(To)` 解码 → 得到 `ToId` (integer)
+- 数据库存储的是 `to_id` (integer)
+
+### E2EE 加密消息格式
+
+当消息需要端到端加密时（通过 `e2ee` 字段存在判断）：
+
+```dart
+// WebSocket API v2.0: msg_type 保留原始内容类型，e2ee 字段独立存在
+'msg_type': 'text',  // 保留原始消息类型（text, image, video 等）
+'e2ee': {  // Map 类型，不能是 JSON 字符串
+  'e2ee': true,
+  'e2ee_ver': 1,
+  'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
+  'iv': 'base64_encoded_iv',
+  'ct': 'base64_encoded_ciphertext',
+  'recipients': [
+    {
+      'did': 'device-id',
+      'kid': 'device-id',
+      'ek': 'base64_encoded_encrypted_key'
+    }
+  ],
+  'sig': 'base64_signature'
+}
+
+// payload 是密文字符串：base64(iv) + '.' + base64(ciphertext)
+'payload': 'ODdcmdLuZ7v9enKf./mSJ0ivbNR9y7LFzc3dmsE/2Mq9SGL8YWZ0az+...'
+```
+
+**重要变更**（v2.0 架构）：
+- ❌ **不再**使用 `msg_type = 'e2ee'` 来标识加密消息
+- ✅ **保留**原始消息的 `msg_type`（text, image, video 等）
+- ✅ **通过** `e2ee` 字段是否存在判断是否为加密消息
+
+### 常见错误
+
+#### 错误1: {badkey,<<"to">>}
+
+**服务端错误**：
+```
+{json_message_error, error, {badkey,<<"to">>}, ...}
+```
+
+**原因**: 客户端发送了 `to_id` 而不是 `to`
+
+**解决方案**:
+```dart
+// ❌ 错误
+{'to_id': 'gdwqa5'}
+
+// ✅ 正确
+{'to': 'gdwqa5'}
+```
+
+#### 错误2: e2ee 字段是 JSON 字符串
+
+**服务端接收到的**：
+```erlang
+<<"e2ee">> => <<"{\"e2ee\":true,...}">>  % JSON 字符串 ❌
+```
+
+**期望应该是**：
+```erlang
+<<"e2ee">> => #{<<"e2ee">> => true, ...}  % Map ✅
+```
+
+**原因**: 客户端使用了 `json.encode(e2eeMap)`
+
+**解决方案**:
+```dart
+// ❌ 错误：e2ee 变成 JSON 字符串
+'e2ee': json.encode(e2eeMap)
+
+// ✅ 正确：直接发送 Map
+'e2ee': e2eeMap  // Dart WebSocket 库会自动编码为 Erlang Map
+```
+
+### 发送消息示例
+
+```dart
+// 在 chat_provider.dart 中
+Map<String, dynamic> msg = {
+  'id': obj.id,
+  'type': obj.type,  // 'C2C' 或 'C2G'
+  'from': obj.fromId,
+  'to': obj.toId,  // ⚠️ 注意：是 'to' 不是 'to_id'
+  'msg_type': msgType,
+  'action': action,
+  'e2ee': e2ee,  // Map 类型，不要 json.encode()
+  'payload': finalPayload,
+  'created_at': obj.createdAt,
+};
+
+// 通过 WebSocket 发送
+AppEventBus.fire(
+  WebSocketMessageSendRequestEvent(
+    message: json.encode(msg),  // 整个消息编码为 JSON 字符串
+    messageId: msg['id'],
+  ),
+);
+```
 
 ---
 

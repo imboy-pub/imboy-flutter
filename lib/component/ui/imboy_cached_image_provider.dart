@@ -83,7 +83,9 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
           rethrow;
         }
       } on Exception catch (e) {
-        debugPrint('❌ IMBoyCachedImageProvider 加载失败 (尝试 ${attempt + 1}/$maxAttempts): $url');
+        debugPrint(
+          '❌ IMBoyCachedImageProvider 加载失败 (尝试 ${attempt + 1}/$maxAttempts): $url',
+        );
         debugPrint('   错误: $e');
 
         if (attempt == maxAttempts - 1) {

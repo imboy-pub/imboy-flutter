@@ -230,7 +230,13 @@ class ProfileNotifier extends _$ProfileNotifier {
         Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
 
         // 隐私设置字段需要同时更新 setting 对象
-        if (['allow_search', 'allow_add_by_phone', 'allow_add_by_qr', 'show_online_status', 'allow_nearby_visible'].contains(field)) {
+        if ([
+          'allow_search',
+          'allow_add_by_phone',
+          'allow_add_by_qr',
+          'show_online_status',
+          'allow_nearby_visible',
+        ].contains(field)) {
           // 确保 setting 对象存在
           if (payload['setting'] == null) {
             payload['setting'] = <String, dynamic>{};
@@ -278,19 +284,35 @@ class ProfileNotifier extends _$ProfileNotifier {
             break;
           // 隐私设置字段
           case 'allow_search':
-            state = state.copyWith(allowSearch: value is bool ? value : value == 1 || value == '1');
+            state = state.copyWith(
+              allowSearch: value is bool ? value : value == 1 || value == '1',
+            );
             break;
           case 'allow_add_by_phone':
-            state = state.copyWith(allowAddByPhone: value is bool ? value : value == 1 || value == '1');
+            state = state.copyWith(
+              allowAddByPhone: value is bool
+                  ? value
+                  : value == 1 || value == '1',
+            );
             break;
           case 'allow_add_by_qr':
-            state = state.copyWith(allowAddByQR: value is bool ? value : value == 1 || value == '1');
+            state = state.copyWith(
+              allowAddByQR: value is bool ? value : value == 1 || value == '1',
+            );
             break;
           case 'show_online_status':
-            state = state.copyWith(showOnlineStatus: value is bool ? value : value == 1 || value == '1');
+            state = state.copyWith(
+              showOnlineStatus: value is bool
+                  ? value
+                  : value == 1 || value == '1',
+            );
             break;
           case 'allow_nearby_visible':
-            state = state.copyWith(allowNearbyVisible: value is bool ? value : value == 1 || value == '1');
+            state = state.copyWith(
+              allowNearbyVisible: value is bool
+                  ? value
+                  : value == 1 || value == '1',
+            );
             break;
         }
 

@@ -251,7 +251,6 @@ class WebSocketService {
       final msg = _parseMessage(message);
       if (msg.isEmpty) return;
 
-
       final action = msg['action']?.toString() ?? '';
       final messageType = msg['type']?.toString() ?? '';
       final messageId = msg['id']?.toString() ?? '';
@@ -601,7 +600,7 @@ class WebSocketService {
     if (_status == SocketStatus.connected) {
       try {
         _channel?.sink.add(message);
-        iPrint('> ws: 消息已发送 (${messageId ?? 'unknown'})');
+        iPrint('> ws: 消息已发送 (${messageId ?? 'unknown'}): $message ;');
 
         // 如果有消息ID，启动确认机制
         if (messageId != null) {

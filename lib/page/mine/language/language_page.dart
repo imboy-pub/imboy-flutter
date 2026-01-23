@@ -84,7 +84,9 @@ class LanguageNotifier extends _$LanguageNotifier {
   @override
   LanguageState build() {
     // 从存储中读取当前语言（使用枚举名称如 'zhCn'）
-    final savedLocaleName = StorageService.to.getString(Keys.currentLanguageCode);
+    final savedLocaleName = StorageService.to.getString(
+      Keys.currentLanguageCode,
+    );
 
     AppLocale currentLocale = AppLocale.zhCn; // 默认值
     if (savedLocaleName.isNotEmpty) {
@@ -249,8 +251,10 @@ class LanguagePage extends ConsumerWidget {
                   if (val == null) return;
                   // 根据选中的 AppLocale 查找对应的语言 ID
                   final langId = localeIdMap.entries
-                      .firstWhere((entry) => entry.value == val,
-                          orElse: () => localeIdMap.entries.first)
+                      .firstWhere(
+                        (entry) => entry.value == val,
+                        orElse: () => localeIdMap.entries.first,
+                      )
                       .key;
                   ref
                       .read(languageProvider.notifier)
@@ -269,9 +273,7 @@ class LanguagePage extends ConsumerWidget {
                       },
                       child: ListTile(
                         title: Text(item.title),
-                        trailing: Radio<AppLocale>(
-                          value: locale,
-                        ),
+                        trailing: Radio<AppLocale>(value: locale),
                       ),
                     );
                   },
@@ -283,7 +285,8 @@ class LanguagePage extends ConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: state.valueChanged && state.selectedLocaleId != null
+                  onPressed:
+                      state.valueChanged && state.selectedLocaleId != null
                       ? () async {
                           await ref
                               .read(languageProvider.notifier)

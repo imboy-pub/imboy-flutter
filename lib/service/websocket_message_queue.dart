@@ -31,8 +31,8 @@ class QueuedMessage {
     data: json['data'] as String,
     priority: json['priority'] as int? ?? 0,
     createdAt: json['createdAt'] != null
-      ? DateTime.parse(json['createdAt'] as String)
-      : null,
+        ? DateTime.parse(json['createdAt'] as String)
+        : null,
   );
 
   @override
@@ -63,7 +63,7 @@ class PersistentMessageQueue {
   // 单例模式
   static PersistentMessageQueue? _instance;
   static PersistentMessageQueue get to =>
-    _instance ??= PersistentMessageQueue._internal();
+      _instance ??= PersistentMessageQueue._internal();
   PersistentMessageQueue._internal();
 
   static const String _storageKey = 'ws_message_queue';
@@ -125,11 +125,7 @@ class PersistentMessageQueue {
   /// - [id]: 消息唯一标识（用于去重）
   /// - [data]: 消息内容（JSON 字符串）
   /// - [priority]: 优先级（0=普通, 1=高优先级/ACK, 2=重试）
-  void enqueue(
-    String id,
-    String data, {
-    int priority = 0,
-  }) {
+  void enqueue(String id, String data, {int priority = 0}) {
     // 去重检查
     if (_deduplicationSet.contains(id)) {
       iPrint('⚠️ [QUEUE] 消息已存在: $id');
@@ -141,11 +137,7 @@ class PersistentMessageQueue {
       _removeLowestPriorityMessage(priority);
     }
 
-    final msg = QueuedMessage(
-      id: id,
-      data: data,
-      priority: priority,
-    );
+    final msg = QueuedMessage(id: id, data: data, priority: priority);
 
     _priorityQueues[priority]!.addLast(msg);
     _deduplicationSet.add(id);
@@ -227,7 +219,8 @@ class PersistentMessageQueue {
   }
 
   /// 获取总队列大小
-  int get _totalSize => _priorityQueues.values.fold(0, (sum, queue) => sum + queue.length);
+  int get _totalSize =>
+      _priorityQueues.values.fold(0, (sum, queue) => sum + queue.length);
 
   /// 移除最低优先级的消息（如果其优先级低于新消息优先级）
   void _removeLowestPriorityMessage(int newMessagePriority) {

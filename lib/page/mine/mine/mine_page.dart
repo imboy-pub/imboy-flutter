@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -68,9 +67,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                 borderRadius: AppRadius.borderRadiusRegular,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context)
-                        .shadowColor
-                        .withValues(alpha: 0.04),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -95,9 +94,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                 borderRadius: AppRadius.borderRadiusRegular,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context)
-                        .shadowColor
-                        .withValues(alpha: 0.04),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -123,9 +122,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                 borderRadius: AppRadius.borderRadiusRegular,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context)
-                        .shadowColor
-                        .withValues(alpha: 0.04),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -184,9 +183,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                 borderRadius: AppRadius.borderRadiusRegular,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context)
-                        .shadowColor
-                        .withValues(alpha: 0.04),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -274,8 +273,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                           .read(themeProvider.notifier)
                           .getTextStyle(
                             FontSizeType.large,
-                            color:
-                                Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -346,8 +344,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: (leadingIconColor ?? AppColors.primary)
-                        .withValues(alpha: 0.1),
+                    color: (leadingIconColor ?? AppColors.primary).withValues(
+                      alpha: 0.1,
+                    ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -363,7 +362,9 @@ class _MinePageState extends ConsumerState<MinePage> {
               Expanded(
                 child: Text(
                   title,
-                  style: ref.read(themeProvider.notifier).getTextStyle(
+                  style: ref
+                      .read(themeProvider.notifier)
+                      .getTextStyle(
                         FontSizeType.normal,
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,

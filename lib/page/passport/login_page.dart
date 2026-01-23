@@ -28,7 +28,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _mobileCodeController = TextEditingController();
-  String _fullMobile = '';  // 完整的手机号（包含区域码）
+  String _fullMobile = ''; // 完整的手机号（包含区域码）
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _emailCodeController = TextEditingController();
@@ -205,24 +205,34 @@ class _LoginPageState extends ConsumerState<LoginPage>
               ),
             ),
             onPressed: () async {
+              debugPrint('🔘 登录按钮被点击');
               final account = _accountController.text;
               final pwd = _passwordController.text;
+              debugPrint('📝 账号: $account, 密码长度: ${pwd.length}');
+
               if (account.isEmpty || pwd.isEmpty) {
+                debugPrint('⚠️ 账号或密码为空');
                 notifier.setError(
                   t.errorEmptyDirectory(param: "${t.account}/${t.password}"),
                 );
                 return;
               }
+
+              debugPrint('🔄 开始登录...');
               final error = await notifier.loginUser('account', account, pwd);
+              debugPrint('✅ 登录完成，错误: $error');
+
               if (error == null) {
                 notifier.saveHistory('account', account);
                 // Navigate to home is handled in loginUser success logic usually,
                 // or we can do it here if loginUser returns success signal.
                 // The existing logic seems to handle navigation or return error string.
                 if (mounted) {
+                  debugPrint('🚀 导航到底部导航页');
                   context.go('/bottom_navigation'); // Using go_router
                 }
               } else {
+                debugPrint('❌ 登录失败: $error');
                 notifier.snackBar(error);
               }
             },
@@ -318,7 +328,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               ),
             ),
             onPressed: () async {
-              final mobile = _fullMobile;  // 使用包含区域码的完整手机号
+              final mobile = _fullMobile; // 使用包含区域码的完整手机号
               final code = _mobileCodeController.text;
               if (mobile.isEmpty || code.isEmpty) return;
 

@@ -8,10 +8,8 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/store/api/attachment_api.dart'
-    show AttachmentApi;
-import 'package:imboy/store/api/feedback_api.dart'
-    show FeedbackApi;
+import 'package:imboy/store/api/attachment_api.dart' show AttachmentApi;
+import 'package:imboy/store/api/feedback_api.dart' show FeedbackApi;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:feedback/feedback.dart';

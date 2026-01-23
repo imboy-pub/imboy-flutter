@@ -15,13 +15,10 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'text',  // v2.0: msg_type 在顶层
+        'msg_type': 'text', // v2.0: msg_type 在顶层
         'action': '',
         'e2ee': '',
-        'payload': {
-          'text': 'Hello, world!',
-          'client_send_ts': 1642579200000,
-        },
+        'payload': {'text': 'Hello, world!', 'client_send_ts': 1642579200000},
         'created_at': 1642579200000,
       };
 
@@ -35,7 +32,7 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'image',  // v2.0: msg_type 在顶层
+        'msg_type': 'image', // v2.0: msg_type 在顶层
         'action': '',
         'e2ee': '',
         'payload': {
@@ -57,13 +54,10 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'voice',  // v2.0: msg_type 在顶层
+        'msg_type': 'voice', // v2.0: msg_type 在顶层
         'action': '',
         'e2ee': '',
-        'payload': {
-          'url': 'https://example.com/voice.mp3',
-          'duration': 15,
-        },
+        'payload': {'url': 'https://example.com/voice.mp3', 'duration': 15},
         'created_at': 1642579200000,
       };
 
@@ -78,7 +72,7 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'video',  // v2.0: msg_type 在顶层
+        'msg_type': 'video', // v2.0: msg_type 在顶层
         'action': '',
         'e2ee': '',
         'payload': {
@@ -100,7 +94,7 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'file',  // v2.0: msg_type 在顶层
+        'msg_type': 'file', // v2.0: msg_type 在顶层
         'action': '',
         'e2ee': '',
         'payload': {
@@ -123,23 +117,25 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'e2ee',  // v2.0: msg_type 为 e2ee
+        'msg_type': 'e2ee', // v2.0: msg_type 为 e2ee
         'action': '',
-        'e2ee': '{'
-          '"e2ee":true,'
-          '"e2ee_ver":1,'
-          '"e2ee_suite":"RSA-OAEP-256+AES-256-GCM",'
-          '"nonce":"YWJjZGVmZ2g=",'
-          '"keys":['
+        'e2ee':
             '{'
-              '"did":"deviceA",'
-              '"kid":"key_v1",'
-              '"wrap_alg":"RSA-OAEP-256",'
-              '"ek":"base64_encoded_wrapped_key"'
+            '"e2ee":true,'
+            '"e2ee_ver":1,'
+            '"e2ee_suite":"RSA-OAEP-256+AES-256-GCM",'
+            '"nonce":"YWJjZGVmZ2g=",'
+            '"keys":['
+            '{'
+            '"did":"deviceA",'
+            '"kid":"key_v1",'
+            '"wrap_alg":"RSA-OAEP-256",'
+            '"ek":"base64_encoded_wrapped_key"'
             '}'
-          ']'
-        '}',
-        'payload': 'YWJjZGVmZ2g=.encrypted_ciphertext_here',  // v2.0: payload 为密文字符串
+            ']'
+            '}',
+        'payload':
+            'YWJjZGVmZ2g=.encrypted_ciphertext_here', // v2.0: payload 为密文字符串
         'created_at': 1642579200000,
       };
 
@@ -154,13 +150,10 @@ void main() {
         'type': 'C2G',
         'from': 'user1',
         'to': 'group123',
-        'msg_type': 'text',  // v2.0: msg_type 在顶层
+        'msg_type': 'text', // v2.0: msg_type 在顶层
         'action': '',
         'e2ee': '',
-        'payload': {
-          'text': 'Hello, group!',
-          'client_send_ts': 1642579200000,
-        },
+        'payload': {'text': 'Hello, group!', 'client_send_ts': 1642579200000},
         'created_at': 1642579200000,
       };
 
@@ -245,10 +238,7 @@ void main() {
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'payload': {
-          'msg_type': 'text',
-          'text': 'Hello, world!',
-        },
+        'payload': {'msg_type': 'text', 'text': 'Hello, world!'},
         'created_at': 1642579200000,
       };
 

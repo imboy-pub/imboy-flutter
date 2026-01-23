@@ -245,12 +245,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         final currentSetting = userRepo.setting;
                         final newSetting = UserSettingModel(
                           allowSearch: v,
-                          peopleNearbyVisible: currentSetting.peopleNearbyVisible,
+                          peopleNearbyVisible:
+                              currentSetting.peopleNearbyVisible,
                           chatState: currentSetting.chatState,
                           fontSize: currentSetting.fontSize,
-                          enableVisibilityRead: currentSetting.enableVisibilityRead,
-                          visibilityReadFraction: currentSetting.visibilityReadFraction,
-                          visibilityReadDelayMs: currentSetting.visibilityReadDelayMs,
+                          enableVisibilityRead:
+                              currentSetting.enableVisibilityRead,
+                          visibilityReadFraction:
+                              currentSetting.visibilityReadFraction,
+                          visibilityReadDelayMs:
+                              currentSetting.visibilityReadDelayMs,
                           showOnlineStatus: currentSetting.showOnlineStatus,
                           allowAddByPhone: currentSetting.allowAddByPhone,
                           allowAddByQR: currentSetting.allowAddByQR,
@@ -453,8 +457,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text(t.logoutAccount),
-                        content: Text(t.privacyLogoutAccountConfirm),
+                        title: Text(t.logOut),
+                        content: Text(t.areYouSureLogOut),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
@@ -479,11 +483,50 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     }
                   },
                   child: Text(
-                    t.logoutAccount,
-                    style: ref.read(themeProvider.notifier).getTextStyle(
+                    t.logOut,
+                    style: ref
+                        .read(themeProvider.notifier)
+                        .getTextStyle(
                           FontSizeType.normal,
                           color: AppColors.lightError,
                           fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // 注销账号按钮
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppRadius.borderRadiusRegular,
+                      side: BorderSide(
+                        color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    context.push('/logout_account');
+                  },
+                  child: Text(
+                    t.logoutAccount,
+                    style: ref
+                        .read(themeProvider.notifier)
+                        .getTextStyle(
+                          FontSizeType.normal,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
                   ),
                 ),

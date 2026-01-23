@@ -144,10 +144,7 @@ class HttpClient {
       String rtk = await UserRepoLocal.to.refreshToken;
       // 防御性检查：refresh token 为空时不尝试刷新
       if (rtk.isNotEmpty) {
-        tk = await UserApi.to.refreshAccessTokenApi(
-          rtk,
-          checkNewToken: false,
-        );
+        tk = await UserApi.to.refreshAccessTokenApi(rtk, checkNewToken: false);
       } else {
         debugPrint("_setDefaultConfig: refresh token 为空，跳过刷新");
       }

@@ -38,11 +38,7 @@ class ProviderUtils {
   /// ```dart
   /// final count = ProviderUtils.watchOrDefault(counterProvider, ref, 0);
   /// ```
-  static T watchOrDefault<T>(
-    dynamic provider,
-    WidgetRef ref,
-    T defaultValue,
-  ) {
+  static T watchOrDefault<T>(dynamic provider, WidgetRef ref, T defaultValue) {
     try {
       return ref.watch(provider);
     } catch (_) {
@@ -95,10 +91,7 @@ extension ProviderWidgetRefExtension on WidgetRef {
   /// ```dart
   /// final count = ref.watchOrDefault(counterProvider, 0);
   /// ```
-  T watchOrDefault<T>(
-    dynamic provider,
-    T defaultValue,
-  ) {
+  T watchOrDefault<T>(dynamic provider, T defaultValue) {
     return ProviderUtils.watchOrDefault<T>(provider, this, defaultValue);
   }
 
@@ -148,10 +141,7 @@ extension ProviderRefExtension on Ref {
   /// ```dart
   /// final count = ref.watchOrDefault(counterProvider, 0);
   /// ```
-  T watchOrDefault<T>(
-    dynamic provider,
-    T defaultValue,
-  ) {
+  T watchOrDefault<T>(dynamic provider, T defaultValue) {
     try {
       return watch(provider);
     } catch (_) {

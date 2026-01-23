@@ -149,8 +149,7 @@ class ChatNotifier extends _$ChatNotifier {
       ref.read(voicePlaybackServiceProvider);
 
   // VoicePlaybackHelper 访问器（兼容旧代码）
-  VoicePlaybackHelper get voicePlaybackService =>
-      VoicePlaybackHelper.to;
+  VoicePlaybackHelper get voicePlaybackService => VoicePlaybackHelper.to;
 
   @override
   ChatState build() {
@@ -176,21 +175,21 @@ class ChatNotifier extends _$ChatNotifier {
     );
 
     // 监听语音播放状态，自动播放下一条
-    ref.listen<VoicePlaybackState>(
-      voicePlaybackServiceProvider,
-      (previous, next) {
-        // 当播放完成时（playing 变为 false 且 paused 为 false）
-        if (previous != null &&
-            previous.isPlaying &&
-            !next.isPlaying &&
-            !next.isPaused) {
-          final finishedId = previous.currentMessageId;
-          if (finishedId.isNotEmpty) {
-            _playNextAudioMessage(finishedId);
-          }
+    ref.listen<VoicePlaybackState>(voicePlaybackServiceProvider, (
+      previous,
+      next,
+    ) {
+      // 当播放完成时（playing 变为 false 且 paused 为 false）
+      if (previous != null &&
+          previous.isPlaying &&
+          !next.isPlaying &&
+          !next.isPaused) {
+        final finishedId = previous.currentMessageId;
+        if (finishedId.isNotEmpty) {
+          _playNextAudioMessage(finishedId);
         }
-      },
-    );
+      }
+    });
 
     // 监听网络状态
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
@@ -532,13 +531,21 @@ class ChatNotifier extends _$ChatNotifier {
     // v2.0: 优先使用 MessageModel 的顶层字段
     String msgType = obj.msgType ?? '';
     String action = obj.action ?? '';
-    String e2ee = '';
+    // v2.0: e2ee 字段必须是 Map 类型（不能是 JSON 字符串）
+    Map<String, dynamic>? e2ee;
 
     // v2.0: payload 可以是 Map 或 String（E2EE 密文）
     dynamic finalPayload;
 
-    // 检查是否需要端到端加密
-    if (E2EEService.shouldEncryptOutgoingPayload(obj.type ?? 'C2C', payloadWithTs)) {
+    // 检查是否需要端到端加密（action 消息不加密）
+    final needEncrypt =
+        action.isEmpty &&
+        E2EEService.shouldEncryptOutgoingPayload(
+          obj.type ?? 'C2C',
+          payloadWithTs,
+        );
+
+    if (needEncrypt) {
       try {
         // v2.0: 使用新的 buildE2EEData 方法
         // 1. 获取接收方设备公钥
@@ -554,11 +561,13 @@ class ChatNotifier extends _$ChatNotifier {
         final recipients = <RecipientDevice>[];
         for (final entry in didToPem.entries) {
           // deviceId 和 keyId 使用相同值（当前设计没有密钥版本轮换）
-          recipients.add(RecipientDevice(
-            deviceId: entry.key,
-            keyId: entry.key, // 使用 deviceId 作为 keyId
-            publicKey: entry.value,
-          ));
+          recipients.add(
+            RecipientDevice(
+              deviceId: entry.key,
+              keyId: entry.key, // 使用 deviceId 作为 keyId
+              publicKey: entry.value,
+            ),
+          );
         }
 
         // 3. 构造明文（移除 client_send_ts，稍后添加）
@@ -573,17 +582,14 @@ class ChatNotifier extends _$ChatNotifier {
         );
 
         // v2.0: 提取 e2ee 元数据和密文
-        final e2eeData = result['e2ee'] as Map<String, dynamic>;
+        e2ee = result['e2ee'] as Map<String, dynamic>;
         final ciphertext = result['ciphertext'] as String;
-
-        // v2.0: e2ee 字段是 JSON 字符串（元数据）
-        e2ee = jsonEncode(e2eeData);
 
         // v2.0: payload 直接是密文字符串
         finalPayload = ciphertext;
 
-        // v2.0: 加密消息的 msg_type 设为 'e2ee'
-        msgType = 'e2ee';
+        // v2.0: msg_type 保持原始类型，e2ee 字段表示已加密
+        // msgType = obj.msgType ?? '';  // 保持原始值
       } catch (e) {
         iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, error=$e，降级为明文发送');
         // 加密失败，降级为明文发送
@@ -594,7 +600,9 @@ class ChatNotifier extends _$ChatNotifier {
       finalPayload = payloadWithTs;
     }
 
-    iPrint('📤 [发送 v2.0] msgId: ${obj.id}, msg_type: $msgType, action: $action, e2ee: ${e2ee.isNotEmpty}');
+    iPrint(
+      '📤 [发送 v2.0] msgId: ${obj.id}, msg_type: $msgType, action: $action, e2ee: ${e2ee != null}',
+    );
 
     // v2.0: 构建 WebSocket 消息，msg_type/action/e2ee 在顶层
     Map<String, dynamic> msg = {
@@ -682,15 +690,17 @@ class ChatNotifier extends _$ChatNotifier {
     if (!msg.containsKey('action')) {
       msg['action'] = msgAction;
     }
-    if (!msg.containsKey('e2ee')) {
-      msg['e2ee'] = '';
-    }
+    // v2.0: e2ee 字段只在加密时设置，非加密消息保持 null
 
     if (originalPayload is Map) {
       final payload = Map<String, dynamic>.from(originalPayload);
 
       // 检查是否需要加密（C2C/C2G 消息，非 action 操作）
-      if (E2EEService.shouldEncryptOutgoingPayload(msgType, payload)) {
+      final needEncrypt =
+          msgAction.isEmpty &&
+          E2EEService.shouldEncryptOutgoingPayload(msgType, payload);
+
+      if (needEncrypt) {
         try {
           final toUid = msg['to']?.toString() ?? '';
 
@@ -708,11 +718,13 @@ class ChatNotifier extends _$ChatNotifier {
           final recipients = <RecipientDevice>[];
           for (final entry in didToPem.entries) {
             // deviceId 和 keyId 使用相同值（当前设计没有密钥版本轮换）
-            recipients.add(RecipientDevice(
-              deviceId: entry.key,
-              keyId: entry.key, // 使用 deviceId 作为 keyId
-              publicKey: entry.value,
-            ));
+            recipients.add(
+              RecipientDevice(
+                deviceId: entry.key,
+                keyId: entry.key, // 使用 deviceId 作为 keyId
+                publicKey: entry.value,
+              ),
+            );
           }
 
           // 3. 构造明文（移除 msg_type，已提升到顶层）
@@ -730,14 +742,15 @@ class ChatNotifier extends _$ChatNotifier {
           final e2eeData = result['e2ee'] as Map<String, dynamic>;
           final ciphertext = result['ciphertext'] as String;
 
-          // v2.0: 设置 e2ee 字段（JSON 字符串）
-          msg['e2ee'] = jsonEncode(e2eeData);
+          // v2.0: e2ee 字段保持为 Map 类型（JSON 对象）
+          // json.encode() 会自动将其编码为 JSON 字符串发送给服务端
+          msg['e2ee'] = e2eeData;
 
           // v2.0: payload 直接是密文字符串
           msg['payload'] = ciphertext;
 
-          // v2.0: 加密消息的 msg_type 设为 'e2ee'
-          msg['msg_type'] = 'e2ee';
+          // v2.0: msg_type 保持原始类型，e2ee 字段表示已加密
+          // 不修改 msg['msg_type']
 
           iPrint('Chat.sendMessage: E2EE v2.0 加密成功 (${msg['id']})');
         } catch (e) {
@@ -828,13 +841,17 @@ class ChatNotifier extends _$ChatNotifier {
           ConversationRepo.subtitle: '',
         });
       } else {
-        Message msg2 = await finalLastMsg.toTypeMessage();
+        // 直接从 MessageModel 读取，避免 toTypeMessage 转换
         await repo.updateById(cm.id, {
           ConversationRepo.lastMsgId: finalLastMsg.id,
           ConversationRepo.lastMsgStatus: finalLastMsg.status,
           ConversationRepo.lastTime: finalLastMsg.createdAt,
-          ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
-          ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
+          ConversationRepo.msgType: MessageModel.conversationMsgTypeFromModel(
+            finalLastMsg,
+          ),
+          ConversationRepo.subtitle: MessageModel.conversationSubtitleFromModel(
+            finalLastMsg,
+          ),
         });
       }
 
@@ -942,10 +959,7 @@ class ChatNotifier extends _$ChatNotifier {
       'action': 'message_read',
       'e2ee': '',
       // v2.0: payload 只包含内容
-      'payload': {
-        'msg_ids': msgIds,
-        'read_at': now,
-      },
+      'payload': {'msg_ids': msgIds, 'read_at': now},
       'created_at': now,
     };
     await _enqueuePending(_spPendingReadReceiptsKey, item);
@@ -1420,7 +1434,8 @@ class ChatNotifier extends _$ChatNotifier {
     MessageModel? msg = await repo.find(msgId);
     if (msg == null) return;
     Map<String, dynamic> payload = msg.payload;
-    payload['msg_type'] = payload['msg_type'].toString();
+    // WebSocket API v2.0: 从顶层 msgType 字段读取，不再从 payload 读取
+    payload['msg_type'] = msg.msgType ?? 'text';
     payload['sys_prompt'] = sysPrompt;
 
     await repo.update({
@@ -1785,13 +1800,17 @@ class ChatNotifier extends _$ChatNotifier {
       } else {
         // 更新为最后一条消息
         final lastMsg = items[0];
-        final msg = await lastMsg.toTypeMessage();
+        // 直接从 MessageModel 读取，避免 toTypeMessage 转换
         await repo.updateById(conversation.id, {
           ConversationRepo.lastMsgId: lastMsg.id,
           ConversationRepo.lastMsgStatus: lastMsg.status,
           ConversationRepo.lastTime: lastMsg.createdAt,
-          ConversationRepo.msgType: MessageModel.conversationMsgType(msg),
-          ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg),
+          ConversationRepo.msgType: MessageModel.conversationMsgTypeFromModel(
+            lastMsg,
+          ),
+          ConversationRepo.subtitle: MessageModel.conversationSubtitleFromModel(
+            lastMsg,
+          ),
         });
       }
 
@@ -1963,13 +1982,17 @@ class ChatNotifier extends _$ChatNotifier {
           ConversationRepo.subtitle: '',
         });
       } else {
-        final msg2 = await latest.toTypeMessage();
+        // 直接从 MessageModel 读取，避免 toTypeMessage 转换
         await repo.updateById(conversation.id, {
           ConversationRepo.lastMsgId: latest.id,
           ConversationRepo.lastMsgStatus: latest.status,
           ConversationRepo.lastTime: latest.createdAt,
-          ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
-          ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
+          ConversationRepo.msgType: MessageModel.conversationMsgTypeFromModel(
+            latest,
+          ),
+          ConversationRepo.subtitle: MessageModel.conversationSubtitleFromModel(
+            latest,
+          ),
         });
       }
 
@@ -2187,8 +2210,7 @@ class ChatNotifier extends _$ChatNotifier {
   bool get isPausedVoice => voicePlaybackService.isPaused;
 
   /// 获取当前播放的消息ID
-  String get currentPlayingMessageId =>
-      voicePlaybackService.currentMessageId;
+  String get currentPlayingMessageId => voicePlaybackService.currentMessageId;
 
   // ===== 队列管理公共方法 =====
 
