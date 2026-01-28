@@ -3,6 +3,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:imboy/config/init.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
@@ -33,13 +35,25 @@ class E2EEService {
   /// 检查是否需要对消息进行端到端加密
   ///
   /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内
+  ///
+  /// ## 加密条件（全部满足）
+  /// 1. E2EE功能已启用（通过[E2EESettings.isEnabled]检查）
+  /// 2. 消息类型为 C2C 或 C2G
+  /// 3. 非action操作消息（action消息不加密）
   static bool shouldEncryptOutgoingPayload(
     String msgType,
     Map<String, dynamic> payload,
   ) {
+    // 检查E2EE全局开关（用户设置）
+    if (!E2EESettings.isEnabled()) {
+      return false;
+    }
+
     // 只对 C2C 和 C2G 消息加密
     if (msgType != 'C2C' && msgType != 'C2G') return false;
+
     // 注意：不再检查 payload 中的 msg_type/action（v2.0 中它们在顶层）
+    // action检查由调用方完成（通过msgAction参数）
     return true;
   }
 
@@ -622,48 +636,98 @@ class E2EEService {
   }
 
   /// 获取用户设备公钥（公共方法，用于 v2.0 发送）
+  ///
+  /// 带重试机制，网络抖动时自动重试
   static Future<Map<String, Map<String, String>>> getUserDevicePublicKeys(
-    String uid,
-  ) async {
+    String uid, {
+    int maxRetries = 3,
+    Duration retryDelay = const Duration(seconds: 1),
+  }) async {
+    // 检查缓存
     final cached = _userKeyCacheByDevice[uid];
     if (cached != null && cached.isNotEmpty) {
       return {'didToPem': cached};
     }
-    final list = await E2EEApi().userKeys(uid: uid);
-    final didToPem = <String, String>{};
-    for (final row in list) {
-      final did = row['device_id']?.toString() ?? '';
-      final pem = row['public_key']?.toString() ?? '';
-      if (did.isEmpty || pem.isEmpty) continue;
-      didToPem[did] = pem;
+
+    // 带重试的获取逻辑
+    int attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        final list = await E2EEApi().userKeys(uid: uid);
+        final didToPem = <String, String>{};
+        for (final row in list) {
+          final did = row['device_id']?.toString() ?? '';
+          final pem = row['public_key']?.toString() ?? '';
+          if (did.isEmpty || pem.isEmpty) continue;
+          didToPem[did] = pem;
+        }
+        _userKeyCacheByDevice[uid] = didToPem;
+        return {'didToPem': didToPem};
+      } catch (e) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          iPrint('获取用户设备密钥失败（已重试$maxRetries次）: $e');
+          rethrow;
+        }
+        iPrint('获取用户设备密钥失败，第$attempt次重试...');
+        await Future.delayed(retryDelay);
+      }
     }
-    _userKeyCacheByDevice[uid] = didToPem;
-    return {'didToPem': didToPem};
+
+    // 理论上不会到达这里
+    throw Exception(
+      'Failed to get user device keys after $maxRetries attempts',
+    );
   }
 
   /// 获取群组设备公钥（公共方法，用于 v2.0 发送）
+  ///
+  /// 带重试机制，网络抖动时自动重试
   static Future<Map<String, Map<String, String>>> getGroupDevicePublicKeys(
-    String gid,
-  ) async {
+    String gid, {
+    int maxRetries = 3,
+    Duration retryDelay = const Duration(seconds: 1),
+  }) async {
+    // 检查缓存
     final cached = _groupKeyCacheByDevice[gid];
     if (cached != null && cached.isNotEmpty) {
       return {'didToPem': cached};
     }
-    final members = await E2EEApi().groupMemberKeys(gid: gid);
-    final didToPem = <String, String>{};
-    for (final m in members) {
-      final devices = m['devices'];
-      if (devices is! List) continue;
-      for (final d in devices.whereType<Map>()) {
-        final row = d.cast<String, dynamic>();
-        final did = row['device_id']?.toString() ?? '';
-        final pem = row['public_key']?.toString() ?? '';
-        if (did.isEmpty || pem.isEmpty) continue;
-        didToPem[did] = pem;
+
+    // 带重试的获取逻辑
+    int attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        final members = await E2EEApi().groupMemberKeys(gid: gid);
+        final didToPem = <String, String>{};
+        for (final m in members) {
+          final devices = m['devices'];
+          if (devices is! List) continue;
+          for (final d in devices.whereType<Map>()) {
+            final row = d.cast<String, dynamic>();
+            final did = row['device_id']?.toString() ?? '';
+            final pem = row['public_key']?.toString() ?? '';
+            if (did.isEmpty || pem.isEmpty) continue;
+            didToPem[did] = pem;
+          }
+        }
+        _groupKeyCacheByDevice[gid] = didToPem;
+        return {'didToPem': didToPem};
+      } catch (e) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          iPrint('获取群组设备密钥失败（已重试$maxRetries次）: $e');
+          rethrow;
+        }
+        iPrint('获取群组设备密钥失败，第$attempt次重试...');
+        await Future.delayed(retryDelay);
       }
     }
-    _groupKeyCacheByDevice[gid] = didToPem;
-    return {'didToPem': didToPem};
+
+    // 理论上不会到达这里
+    throw Exception(
+      'Failed to get group device keys after $maxRetries attempts',
+    );
   }
 
   /// 内部方法：获取用户设备公钥（保留向后兼容）

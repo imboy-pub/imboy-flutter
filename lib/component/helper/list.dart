@@ -1,5 +1,3 @@
-// import 'package:flutter/foundation.dart';
-
 /// 使用 original 中 所有 元素创建一个 n 列的二维数组
 List listTo2D(List original, int n) {
   List result = [];

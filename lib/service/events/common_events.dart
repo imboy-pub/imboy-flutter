@@ -69,6 +69,45 @@ final class UserInfoUpdateEvent extends AppEvent {
   List<Object> get props => [userId, updatedFields];
 }
 
+/// 用户状态变更事件
+///
+/// 当好友上线、下线、隐身时发布
+final class UserStatusChangeEvent extends AppEvent {
+  /// 用户ID
+  final String userId;
+
+  /// 状态类型：online, offline, hide
+  final String status;
+
+  /// 用户昵称（可选，用于提示）
+  final String? nickname;
+
+  const UserStatusChangeEvent({
+    required this.userId,
+    required this.status,
+    this.nickname,
+  });
+
+  @override
+  List<Object?> get props => [userId, status, nickname];
+}
+
+/// 用户注销事件
+///
+/// 当好友账号注销时发布
+final class UserCancelEvent extends AppEvent {
+  /// 用户ID
+  final String userId;
+
+  /// 用户昵称（可选，用于提示）
+  final String? nickname;
+
+  const UserCancelEvent({required this.userId, this.nickname});
+
+  @override
+  List<Object?> get props => [userId, nickname];
+}
+
 // ============================================================================
 // 消息相关事件
 // ============================================================================

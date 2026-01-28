@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:logger/logger.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
@@ -13,6 +14,9 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+// 日志记录器
+final _msgLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
 /// 消息处理服务
 ///
@@ -105,7 +109,7 @@ class MessageHandlingService {
     required Future<bool> Function(String messageId, String chatType) retryFn,
   }) async {
     try {
-      debugPrint('开始重试消息: $messageId');
+      _msgLogger.d('开始重试消息: $messageId');
 
       // 显示加载状态
       EasyLoading.show(status: t.retryingSend);
@@ -122,7 +126,7 @@ class MessageHandlingService {
     } catch (e) {
       EasyLoading.dismiss();
       EasyLoading.showError('${t.retryAbnormal}: $e');
-      debugPrint('消息重试异常: $e');
+      _msgLogger.e('消息重试异常: $e');
     }
   }
 
@@ -342,14 +346,14 @@ class MessageHandlingService {
 
   /// 收藏消息
   Future<void> collectMessage(String chatType, Message msg) async {
-    debugPrint("collectMessage: 开始收藏消息 ${msg.id}, 类型: ${msg.runtimeType}");
+    _msgLogger.d("collectMessage: 开始收藏消息 ${msg.id}, 类型: ${msg.runtimeType}");
 
     String tb = MessageRepo.getTableName(chatType);
-    debugPrint("collectMessage: 获取表名: $tb");
+    _msgLogger.d("collectMessage: 获取表名: $tb");
 
     bool res = await UserCollectHelper.add(tb: tb, msg: msg);
 
-    debugPrint("collectMessage: 收藏结果: $res");
+    _msgLogger.d("collectMessage: 收藏结果: $res");
 
     EasyLoading.showToast(res ? t.collected : t.operationFailedAgainLater);
   }

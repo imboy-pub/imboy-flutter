@@ -41,7 +41,7 @@ class NotificationService {
 
     // 初始化插件
     await _plugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       // onDidReceiveNotificationResponse: (NotificationResponse response) {
       //   // 处理通知点击事件
       //   _handleNotificationResponse(response);
@@ -91,10 +91,10 @@ class NotificationService {
 
     // 显示通知
     await _plugin.show(
-      id ?? DateTime.now().millisecondsSinceEpoch >> 10,
-      title,
-      body,
-      details,
+      id: id ?? DateTime.now().millisecondsSinceEpoch >> 10,
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: payload,
     );
   }
@@ -103,7 +103,7 @@ class NotificationService {
   ///
   /// [id] 通知ID
   Future<void> cancel(int id) async {
-    await _plugin.cancel(id);
+    await _plugin.cancel(id: id);
   }
 
   /// 取消所有通知

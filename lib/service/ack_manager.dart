@@ -3,6 +3,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/websocket.dart' show WebSocketService, SocketStatus;
 
 /// ACK管理器 - 负责ACK的发送和重试
 ///
@@ -38,8 +39,23 @@ class AckManager {
   /// WebSocket 连接状态（通过事件同步）
   bool _isWebSocketConnected = false;
 
-  /// 【新增】检查 WebSocket 是否已连接（通过事件总线状态判断）
-  bool get _isConnected => _isWebSocketConnected;
+  /// 【修复】检查 WebSocket 是否已连接（双重检查：事件状态 + 直接查询）
+  ///
+  /// 解决竞态条件问题：当 WebSocket 刚连接时，状态事件可能还未被处理，
+  /// 此时直接查询 WebSocketService 可以获得最新的连接状态。
+  bool get _isConnected {
+    // 优先使用事件总线状态（避免循环依赖）
+    if (_isWebSocketConnected) return true;
+
+    // 备选方案：直接查询 WebSocketService 的当前状态
+    // 这解决了连接建立初期状态同步延迟的问题
+    try {
+      return WebSocketService.to.status == SocketStatus.connected;
+    } catch (e) {
+      // 如果 WebSocketService 不可用（例如测试环境），返回缓存状态
+      return _isWebSocketConnected;
+    }
+  }
 
   /// 最大重试次数
   static const int _maxRetries = 3;

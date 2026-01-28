@@ -7,6 +7,11 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-01-28
+- **前后端协作说明**：添加后端代码位置信息（`../imboy/`）
+- 新增"前后端协作"章节，说明前后端目录结构和协作开发方式
+- 提供前后端快速导航命令
+
 ### 2026-01-19
 - **数据层命名重构**：`store/provider/` 重命名为 `store/api/`
 - 统一 API 客户端命名：`*_provider.dart` → `*_api.dart`，`*Provider` → `*Api`
@@ -195,6 +200,32 @@ flutter pub run build_runner build
 - 本地环境：`lib/config/env_local.dart`
 
 通过 `main.dart` 中的 `env` 参数切换环境。
+
+### 前后端协作
+**后端代码位置**：`../imboy/`
+
+项目采用前后端分离开发，后端代码位于上一级目录的 `imboy` 文件夹中：
+
+```bash
+# 目录结构
+imboy.pub/
+├── imboy/          # 后端代码（Erlang/Elixir）
+└── imboyapp/       # 前端代码（Flutter/Dart）
+```
+
+**协作开发**：
+- 后端 API 文档：查看 `../imboy/doc/api/` 或后端 README
+- WebSocket 消息格式：参考 `lib/service/CLAUDE.md` 中的 WebSocket API v2.0 章节
+- 数据库迁移脚本：后端和前端使用相同的迁移脚本（`assets/migrations/`）
+
+**快速导航**：
+```bash
+# 从当前目录跳转到后端目录
+cd ../imboy
+
+# 从后端返回前端
+cd imboyapp
+```
 
 ---
 

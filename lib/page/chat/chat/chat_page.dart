@@ -1,93 +1,42 @@
 import 'dart:async';
-import 'package:flutter/gestures.dart';
-import 'package:imboy/component/helper/func.dart' show iPrint;
-import 'package:imboy/component/helper/permission.dart';
-import 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
-import 'package:imboy/page/chat/widget/message_action_menu.dart';
-import 'package:imboy/page/chat/widget/chat_background_manager.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart'
-    hide CustomMessageBuilder;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart'
-    show
-        ChatMessage,
-        Avatar,
-        Username,
-        ScrollToBottom,
-        EmptyChatList,
-        ChatAnimatedList;
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flyer_chat_audio_message/flyer_chat_audio_message.dart';
-import 'package:flyer_chat_file_message/flyer_chat_file_message.dart';
-import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
-import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
-import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
-import 'package:flyer_chat_video_message/flyer_chat_video_message.dart';
-import 'package:imboy/service/voice_playback_service.dart';
-import 'package:imboy/service/events/common_events.dart';
-import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/config/chat_theme_config.dart';
-import 'package:image/image.dart' as img;
-import 'package:map_launcher/map_launcher.dart';
-import 'package:mime/mime.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:visibility_detector/visibility_detector.dart';
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
-import 'package:xid/xid.dart';
-import 'package:imboy/service/message_actions.dart';
-import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/utils/conversation_uk3_generator.dart';
-import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/picker_method.dart';
-import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/chat/message.dart';
-import 'package:imboy/component/chat/message_scroll_provider.dart';
-import 'package:imboy/component/chat/performance_monitor.dart';
-import 'package:imboy/page/chat/widget/chat_message_list.dart';
-import 'package:imboy/component/ui/network_failure_tips.dart';
-import 'package:imboy/component/voice_record/voice_widget.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/service/event_bus.dart';
-import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
-import 'package:imboy/page/chat/send_to/send_to_page.dart';
-import 'package:imboy/page/group/group_detail/group_detail_page.dart';
-import 'package:imboy/page/mine/user_collect/user_collect_page.dart';
-import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
-import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/model/entity_image.dart';
-import 'package:imboy/store/model/entity_video.dart';
-import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/model/user_collect_model.dart';
-import 'package:imboy/store/api/attachment_api.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/page/conversation/conversation_provider.dart';
-// import 'package:imboy/page/chat/chat/chat_logic.dart'; // 已删除
-import 'package:imboy/service/active_conversation_notifier.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:provider/provider.dart' as old_provider;
 
-import '../../../component/helper/picker_method.dart' show PickMethod;
-import '../widget/chat_input.dart';
-import '../widget/extra_item.dart';
-import '../widget/quote_tips.dart';
-import '../widget/select_friend.dart';
-// import 'chat_logic.dart'; // 已删除 - 使用 Riverpod Provider 替代
-import 'chat_provider.dart';
-import 'sqlite_chat_controller.dart';
-import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_radius.dart';
+import 'package:flutter/gestures.dart';
+
+// Barrel exports - 减少导入语句
+import 'barrel/ui_packages.dart';
+import 'barrel/imboy_packages.dart';
+import 'barrel/page_packages.dart';
+import 'barrel/store_packages.dart';
+import 'barrel/chat_widgets.dart';
+
+// 附件处理器
+import 'attachment_handler.dart';
+
+// 消息操作处理器
+import 'message_action_handler.dart';
+
+// 事件订阅管理器
+import 'mixin/chat_event_subscription_manager.dart';
+
+// 消息事件处理器
+import 'mixin/message_event_handler.dart';
+
+// 选择器处理器
+import 'mixin/selection_handler.dart';
+
+// UI 组件
+import '../widget/burn_badge.dart';
+import '../widget/message_quick_action_menu.dart';
+
+// 显式导入需要特殊处理的
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+
+// CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
+import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
 
 // 性能优化开关：设置为 true 使用优化的 ChatMessageList，false 使用原 ChatAnimatedList
-const bool _useOptimizedMessageList = true;
+const bool _useOptimizedMessageList = false;
 
 // 聊天页面主Widget
 // ignore: must_be_immutable
@@ -123,9 +72,56 @@ class ChatPage extends ConsumerStatefulWidget {
   ConsumerState<ChatPage> createState() => ChatPageState();
 }
 
-class ChatPageState extends ConsumerState<ChatPage> {
+class ChatPageState extends ConsumerState<ChatPage>
+    with MessageEventHandler, SelectionHandler {
   // 使用 Riverpod Provider 替代 GetX
   // state 已移除 - 在 build 方法中通过 ref.watch(chatProvider) 获取
+
+  // ===== MessageEventHandler Mixin 所需的实现 =====
+
+  @override
+  String get currentUserId => UserRepoLocal.to.currentUid;
+
+  @override
+  dynamic get messageActionHandler => _messageActionHandler;
+
+  // 消息重试回调
+  @override
+  Future<void> onMessageRetry(String messageId) => _onMessageRetry(messageId);
+
+  // 更新引用消息的回调
+  @override
+  Future<void> updateQuoteMessage(Message? msg) async {
+    setState(() => quoteMessage = msg);
+  }
+
+  // ===== SelectionHandler Mixin 所需的实现 =====
+
+  @override
+  String get conversationUk3 => _conversationUk3;
+
+  @override
+  Map<String, dynamic> get peer => {
+    'id': widget.peerId,
+    'avatar': widget.peerAvatar,
+    'title': widget.peerTitle,
+    'sign': widget.peerSign,
+  };
+
+  @override
+  GlobalKey get chatInputKey => _chatInputKey;
+
+  @override
+  bool get burnEnabled => _burnEnabled;
+
+  @override
+  int get burnAfterMs => _burnAfterMs;
+
+  @override
+  Future<bool> Function(Message message)? get onMessageCreated => _addMessage;
+
+  @override
+  dynamic get attachmentHandler => _attachmentHandler;
 
   static const MethodChannel _secureChannel = MethodChannel('imboy/secure');
   static final Stream<int> _burnTicker = Stream<int>.periodic(
@@ -137,7 +133,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
   int get maxAssetsCount => 9; // 最大可选资源数量
   List<AssetEntity> assets = <AssetEntity>[]; // 选择的资源列表
   Message? quoteMessage; // 引用的消息
-  final GlobalKey<ChatInputState> chatInputKey = GlobalKey<ChatInputState>();
+  final GlobalKey<ChatInputState> _chatInputKey = GlobalKey<ChatInputState>();
   final performanceMonitor = ChatPerformanceMonitor();
   late final ValueNotifier<double> composerHeightNotifier;
   Timer? _cleanupTimer;
@@ -152,11 +148,17 @@ class ChatPageState extends ConsumerState<ChatPage> {
     imageSource: UserRepoLocal.to.current.avatar,
   );
   late ConversationModel conversation; // 当前会话
-  late User peer; // 对方用户信息
+  late User _peerUser; // 对方用户信息
   String? _editingMessageId; // 当前正在编辑的消息ID
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
   // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
+
+  // 附件处理器（延迟初始化，依赖 conversationUk3）
+  late final ChatAttachmentHandler _attachmentHandler;
+
+  // 消息操作处理器
+  late final MessageActionHandler _messageActionHandler;
 
   // 用于定位目标消息的 GlobalKey
   final GlobalKey _targetMessageKey = GlobalKey();
@@ -237,18 +239,26 @@ class ChatPageState extends ConsumerState<ChatPage> {
     final chatState = ref.read(chatProvider);
     composerHeightNotifier = ValueNotifier<double>(chatState.composerHeight);
 
+    // 监听高度变化并同步到 Provider 状态
+    composerHeightNotifier.addListener(() {
+      if (mounted) {
+        // 避免循环更新：只有当 notifier 的值与 state 中的值不同时才更新
+        if (ref.read(chatProvider).composerHeight !=
+            composerHeightNotifier.value) {
+          ref
+              .read(chatProvider.notifier)
+              .updateComposerHeight(composerHeightNotifier.value);
+        }
+      }
+    });
+
     // 注意：ref.listen 必须在 build 方法中调用，不能在 initState 中调用
     // 状态监听已移至 build 方法中的 ref.watch
   }
 
-  // 检查消息是否可以编辑
+  // 检查消息是否可以编辑（使用工具类）
   bool canEditMessage(Message message) {
-    if (message.authorId != UserRepoLocal.to.currentUid) return false;
-    if (message is! TextMessage) return false;
-    final nowMs = DateTimeHelper.millisecond();
-    final messageTimeMs = message.createdAt?.millisecondsSinceEpoch ?? nowMs;
-    final timeDiffMs = nowMs - messageTimeMs;
-    return timeDiffMs < 15 * 60 * 1000; // 15分钟内可编辑
+    return ChatPageUtils.canEditMessage(message, UserRepoLocal.to.currentUid);
   }
 
   /// 初始化聊天相关数据
@@ -293,7 +303,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
   // 初始化数据
   Future<void> _initData() async {
-    peer = User(
+    _peerUser = User(
       id: widget.peerId,
       name: widget.peerTitle,
       imageSource: widget.peerAvatar,
@@ -318,6 +328,33 @@ class ChatPageState extends ConsumerState<ChatPage> {
     await _initGroupInfo();
     // 设置消息监听
     _setupEventListeners();
+    // 预加载E2EE设备密钥（优化加密性能）
+    await _preloadE2EEDeviceKeys();
+  }
+
+  /// 预加载E2EE设备密钥
+  ///
+  /// 在聊天页面初始化时预先获取对方设备的公钥，避免发送消息时等待
+  Future<void> _preloadE2EEDeviceKeys() async {
+    // 只在E2EE启用时预加载
+    if (!E2EESettings.isEnabled()) {
+      return;
+    }
+
+    try {
+      if (widget.type == 'C2G') {
+        // 群组：预加载群组成员设备密钥
+        await E2EEService.getGroupDevicePublicKeys(widget.peerId);
+        debugPrint('E2EE: 已预加载群组设备密钥 ${widget.peerId}');
+      } else {
+        // 单聊：预加载对方设备密钥
+        await E2EEService.getUserDevicePublicKeys(widget.peerId);
+        debugPrint('E2EE: 已预加载用户设备密钥 ${widget.peerId}');
+      }
+    } catch (e) {
+      // 预加载失败不影响聊天，发送时会重试
+      debugPrint('E2EE: 预加载设备密钥失败（将在发送时重试）: $e');
+    }
   }
 
   /// 设置会话
@@ -363,6 +400,27 @@ class ChatPageState extends ConsumerState<ChatPage> {
         if (v != null && v > 0) _burnAfterMs = v;
       }
       await _applySecureFlag();
+
+      // 初始化附件处理器（在 _burnEnabled 和 _burnAfterMs 设置后）
+      _attachmentHandler = ChatAttachmentHandler(
+        peerId: widget.peerId,
+        conversationUk3: _conversationUk3,
+        burnEnabled: _burnEnabled,
+        burnAfterMs: _burnAfterMs,
+        onMessageCreated: _addMessage,
+      );
+
+      // 初始化消息操作处理器
+      _messageActionHandler = MessageActionHandler(
+        type: widget.type,
+        peerId: widget.peerId,
+        conversation: conversation,
+        ref: ref,
+        chatInputKey: _chatInputKey,
+        onEditingMessageIdChanged: (id) {
+          _editingMessageId = id;
+        },
+      );
     } catch (_) {}
   }
 
@@ -372,26 +430,23 @@ class ChatPageState extends ConsumerState<ChatPage> {
     } catch (_) {}
   }
 
+  // 检查消息是否为阅后即焚（使用工具类）
   bool _isBurnMessage(Message message) {
-    final m = message.metadata;
-    return m?['burn'] == true || m?['is_burn'] == true;
+    return ChatPageUtils.isBurnMessage(message);
   }
 
+  // 获取消息的阅后即焚时长（使用工具类）
   int _burnAfterMsFromMessage(Message message) {
-    final m = message.metadata;
-    final raw = m?['burn_after_ms'] ?? m?['expiry_time'];
-    if (raw is int) return raw;
-    if (raw is String) return int.tryParse(raw) ?? 0;
-    return 0;
+    return ChatPageUtils.getBurnAfterMs(message);
   }
 
+  // 为消息添加阅后即焚元数据（使用工具类）
   Map<String, dynamic> _withBurnMetadata(Map<String, dynamic> base) {
-    if (!_burnEnabled) return base;
-    return <String, dynamic>{
-      ...base,
-      'burn': true,
-      'burn_after_ms': _burnAfterMs,
-    };
+    return ChatPageUtils.withBurnMetadata(
+      base: base,
+      burnEnabled: _burnEnabled,
+      burnAfterMs: _burnAfterMs,
+    );
   }
 
   // 初始化群组信息
@@ -405,235 +460,56 @@ class ChatPageState extends ConsumerState<ChatPage> {
     }
   }
 
-  StreamSubscription<ChatExtendEvent>? _ssMsgExt;
-  StreamSubscription<DataWrapperEvent>? _ssMsg;
-  StreamSubscription<DataWrapperEvent>? _ssMsgState;
-  StreamSubscription<ReEditMessageEvent>? _ssReEdit;
-  StreamSubscription<AppErrorEvent>? _ssAppError;
+  // 事件订阅管理器
+  ChatEventSubscriptionManager? _eventSubscriptionManager;
+
+  // AppErrorEvent 监听器订阅（需要单独处理以显示 SnackBar）
+  StreamSubscription<AppErrorEvent>? _ssAppErrorLocal;
 
   void _setupEventListeners() {
     try {
-      // 一些异步操作事件的监听
-      _ssMsgExt = AppEventBus.on<ChatExtendEvent>().listen(
-        (ChatExtendEvent obj) async {
-          try {
-            // 监听新成员加入
-            if (obj.type == 'join_group' &&
-                obj.payload['groupId'] == widget.peerId &&
-                (obj.payload['isFirst'] ?? false)) {
-              final currentCount = ref.read(chatProvider).memberCount;
-              ref
-                  .read(chatProvider.notifier)
-                  .updateMemberCount(currentCount + 1);
-              newGroupName = await ref
-                  .read(chatProvider.notifier)
-                  .groupTitle(
-                    widget.peerId,
-                    widget.peerTitle,
-                    currentCount + 1,
-                  );
-              if (mounted) setState(() {});
-            } else if (obj.type == 'clean_msg' &&
-                ((obj.payload['uk3'] ?? '') == _conversationUk3)) {
-              ref.read(chatProvider.notifier).updateNextAutoId(0);
-              await ref
-                  .read(chatProvider.notifier)
-                  .loadMoreMessages(conversation, isInitial: true);
-            } else if (obj.type == 'delete_msg' &&
-                obj.payload['conversation'] != null &&
-                (_isConversationInitialized &&
-                    obj.payload['conversation'].id == conversation.id)) {
-              ref
-                  .read(chatProvider.notifier)
-                  .chatService
-                  ?.removeMessageById(obj.payload['msg']?.id ?? '');
-            }
-          } catch (e) {
-            debugPrint('_setupEventListeners ssMsgExt error: $e');
-          }
+      // 初始化事件订阅管理器
+      _eventSubscriptionManager = ChatEventSubscriptionManager(
+        widgetRef: ref,
+        peerId: widget.peerId,
+        peerTitle: widget.peerTitle,
+        chatType: widget.type,
+        conversationUk3: _conversationUk3,
+        msgIds: msgIds,
+        editingMessageIdSetter: (id) {
+          _editingMessageId = id;
         },
-        onError: (error) {
-          debugPrint('ssMsgExt stream error: $error');
+        chatInputKey: _chatInputKey,
+        isBurnMessageChecker: _isBurnMessage,
+        conversationGetter: () => conversation,
+        newGroupNameSetter: (name) {
+          newGroupName = name;
+          if (mounted) setState(() {});
         },
       );
 
-      // 接收到新的消息订阅 for c2c c2g
-      _ssMsg = AppEventBus.on<DataWrapperEvent>().listen(
-        (event) async {
-          // 检查数据类型，只处理消息类型的事件
-          if (event.dataType != 'Message' && event.dataType != 'message') {
-            // 跳过非消息事件（如 ConversationModel）
-            return;
-          }
-
-          // 安全地转换数据
-          if (event.data is! Message) {
-            return;
-          }
-
-          final Message msg = event.data as Message;
-          try {
-            final String conversationUk3 =
-                msg.metadata?['conversation_uk3'] ?? '';
-            if (conversationUk3 != _conversationUk3 ||
-                msgIds.contains(msg.id)) {
-              return;
-            }
-            msgIds.add(msg.id);
-            final i =
-                ref
-                    .read(chatProvider.notifier)
-                    .chatService
-                    ?.messages
-                    .indexWhere((e) => e.id == msg.id) ??
-                -1;
-            if (i == -1) {
-              // 不再强制立即置为已读，交由"可视阈值已读"推进水位
-              ref
-                  .read(chatProvider.notifier)
-                  .chatService
-                  ?.insertMessage(
-                    msg,
-                    index:
-                        ref
-                            .read(chatProvider.notifier)
-                            .chatService
-                            ?.messages
-                            .length ??
-                        0,
-                  );
-              if (msg is ImageMessage) {
-                // 图片画廊已迁移至 Riverpod，由 ChatProvider 处理
-              }
-            }
-            // 为节省内存，5秒后从 msgIds 移出 msg.id
-            Future.delayed(
-              const Duration(seconds: 5),
-              () => msgIds.remove(msg.id),
-            );
-          } catch (e) {
-            debugPrint('_setupEventListeners ssMsg error: $e');
-          }
-        },
-        onError: (error) {
-          debugPrint('ssMsg stream error: $error');
-        },
+      // 设置事件监听器（传入 mounted 状态检查函数）
+      _eventSubscriptionManager!.setupEventListeners(
+        onMountedStateChanged: () => mounted ? null : null,
       );
 
-      // 消息状态更新订阅, 这里无需用锁 for c2g
-      _ssMsgState = AppEventBus.on<DataWrapperEvent>().listen(
-        (event) {
-          // 检查数据类型，只处理消息列表类型的事件
-          if (event.dataType != 'MessageList' && event.dataType != 'messages') {
-            // 跳过非消息列表事件（如 ConversationModel）
-            return;
-          }
-
-          // 安全地转换数据
-          if (event.data is! List) {
-            return;
-          }
-
-          final List<Message> e = (event.data as List).cast<Message>();
-          try {
-            if (e.isEmpty) return;
-            Message msg = e.first;
-            iPrint('收到消息状态更新事件: msgId=${msg.id}, type=${msg.runtimeType}');
-            final i =
-                ref
-                    .read(chatProvider.notifier)
-                    .chatService
-                    ?.messages
-                    .indexWhere((e) => e.id == msg.id) ??
-                -1;
-            final messageCount =
-                ref.read(chatProvider.notifier).chatService?.messages.length ??
-                0;
-            iPrint('在消息列表中查找消息: index=$i, 总消息数=$messageCount');
-            if (i > -1 &&
-                mounted &&
-                ref.read(chatProvider.notifier).chatService != null) {
-              final old = ref
-                  .read(chatProvider.notifier)
-                  .chatService!
-                  .messages[i];
-              iPrint('更新消息UI: ${msg.id}');
-              ref
-                  .read(chatProvider.notifier)
-                  .chatService!
-                  .updateMessage(
-                    ref.read(chatProvider.notifier).chatService!.messages[i],
-                    msg,
-                  );
-              final didBecomeSeen =
-                  old.status != MessageStatus.seen &&
-                  msg.status == MessageStatus.seen;
-              if (didBecomeSeen &&
-                  _isBurnMessage(msg) &&
-                  (msg.metadata?['burn_read_at'] ?? 0) == 0) {
-                ref
-                    .read(chatProvider.notifier)
-                    .markBurnReadAt(
-                      conversation,
-                      msg.id,
-                      readAtMs: DateTimeHelper.millisecond(),
-                    );
-              }
-            } else {
-              iPrint('消息未找到或组件未挂载: msgId=${msg.id}, mounted=$mounted');
-            }
-          } catch (e) {
-            debugPrint('_setupEventListeners ssMsgState error: $e');
-          }
-        },
-        onError: (error) {
-          debugPrint('ssMsgState stream error: $error');
-        },
-      );
-
-      // 监听重新编辑消息事件
-      _ssReEdit = AppEventBus.on<ReEditMessageEvent>().listen(
-        (msg) async {
-          try {
-            if (msg.messageId != null && msg.messageId!.isNotEmpty) {
-              // 设置当前正在编辑的消息ID
-              _editingMessageId = msg.messageId;
-              iPrint('重新编辑消息: messageId=${msg.messageId}, text=${msg.text}');
-            }
-            // 将消息文本填充到输入框
-            chatInputKey.currentState?.setText(msg.text);
-          } catch (e) {
-            debugPrint('ssReEdit error: $e');
-          }
-        },
-        onError: (error) {
-          debugPrint('ssReEdit stream error: $error');
-        },
-      );
-
-      // 监听全局错误事件（如 not_a_friend）
-      _ssAppError = AppEventBus.on<AppErrorEvent>().listen(
+      // 单独处理 AppErrorEvent 的 SnackBar 显示（需要 context）
+      _ssAppErrorLocal = AppEventBus.on<AppErrorEvent>().listen(
         (error) {
-          try {
-            if (!mounted) return;
-            // 只处理聊天相关的错误
-            if (error.errorType == 'not_a_friend' ||
-                error.message.contains('非好友')) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(error.message),
-                  duration: const Duration(seconds: 3),
-                  action: SnackBarAction(label: '确定', onPressed: () {}),
-                ),
-              );
-              iPrint('✅ [AppErrorEvent] 显示 SnackBar: ${error.message}');
-            }
-          } catch (e) {
-            debugPrint('ssAppError error: $e');
+          if (!mounted) return;
+          if (error.errorType == 'not_a_friend' ||
+              error.message.contains('非好友')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(error.message),
+                duration: const Duration(seconds: 3),
+                action: SnackBarAction(label: '确定', onPressed: () {}),
+              ),
+            );
           }
         },
         onError: (error) {
-          debugPrint('ssAppError stream error: $error');
+          debugPrint('AppErrorEvent listener error: $error');
         },
       );
     } catch (e) {
@@ -646,12 +522,11 @@ class ChatPageState extends ConsumerState<ChatPage> {
     // 发送离开会话事件（用于未读数管理）
     _notifyChatActive(false);
 
-    // 取消所有订阅
-    _ssMsgExt?.cancel();
-    _ssMsg?.cancel();
-    _ssMsgState?.cancel();
-    _ssReEdit?.cancel();
-    _ssAppError?.cancel();
+    // 取消事件订阅管理器的所有订阅
+    _eventSubscriptionManager?.dispose();
+
+    // 取消 AppErrorEvent 本地监听器
+    _ssAppErrorLocal?.cancel();
 
     // 使用保存的引用而不是 ref.read（避免在 dispose 中使用 ref）
     _chatNotifier.markAsDisposed();
@@ -876,404 +751,66 @@ class ChatPageState extends ConsumerState<ChatPage> {
     }
   }
 
-  // 选择文件
-  Future<void> _handleFileSelection() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any);
-    if (result == null || result.files.single.path == null) return;
-    await _uploadFile(result.files.single);
+  // ===== 附件处理回调方法 =====
+
+  /// 处理语音录制完成
+  void _handleVoiceSelection(dynamic obj) {
+    handleVoiceSelection(obj);
   }
 
-  // 上传文件
-  Future<void> _uploadFile(PlatformFile file) async {
-    await AttachmentApi.uploadFile(
-      "files",
-      file,
-      (Map<String, dynamic> resp, String uri) async {
-        final message = FileMessage(
-          id: Xid().toString(),
-          authorId: currentUser.id,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            DateTimeHelper.millisecond(),
-            isUtc: true,
-          ),
-          mimeType: lookupMimeType(file.path!),
-          name: file.name,
-          size: file.size,
-          source: uri,
-          status: MessageStatus.sending,
-          metadata: _withBurnMetadata({
-            'peer_id': widget.peerId,
-            'md5': resp['data']['md5'].toString(),
-          }),
-        );
-        _addMessage(message);
-      },
-      (Error error) => debugPrint("File upload error: ${error.toString()}"),
-    );
-  }
-
-  // 拍摄照片或视频
-  Future<void> _handlePickerSelection(BuildContext context) async {
-    // 在异步操作前检查 context 是否已挂载
-    if (!context.mounted) {
-      return;
-    }
-    try {
-      // 请求相机权限
-      bool hasPermission = await requestCameraPermission();
-      if (!hasPermission || !context.mounted) {
-        // 添加 mounted 检查
-        return;
-      }
-      final AssetEntity? entity = await CameraPicker.pickFromCamera(
+  /// 处理图片选择（从相册）
+  void _handleImageSelection() {
+    // 调用 attachmentHandler 的 handleImageSelection
+    // 使用默认的图片选择器
+    _attachmentHandler.handleImageSelection(
+      context,
+      () => AssetPicker.pickAssets(
         context,
-        pickerConfig: const CameraPickerConfig(
-          enableRecording: true,
-          onlyEnableRecording: false,
-          enableTapRecording: true,
-          maximumRecordingDuration: Duration(seconds: 24),
+        pickerConfig: const AssetPickerConfig(
+          maxAssets: 9,
+          requestType: RequestType.image,
         ),
-      );
-      // 检查上下文是否仍然有效
-      if (!context.mounted || entity == null) return;
-      await _uploadCameraAsset(entity);
-    } catch (e) {
-      debugPrint("Camera picker error: $e");
-      if (context.mounted) {
-        // 错误处理时检查 mounted
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${t.cameraShootFailed}: $e')));
-      }
-    }
-  }
-
-  // 上传拍摄的资源
-  Future<void> _uploadCameraAsset(AssetEntity entity) async {
-    await AttachmentApi.uploadVideo(
-      "camera",
-      entity,
-      (Map<String, dynamic> resp, String imgUrl) async {
-        imgUrl += "&width=${MediaQuery.of(context).size.width.toInt()}";
-        if (entity.type == AssetType.image) {
-          await _handleImageUpload(resp, imgUrl, entity);
-        } else if (entity.type == AssetType.video) {
-          await _handleVideoUpload(resp);
-        }
-      },
-      (Error error) => debugPrint("Camera upload error: ${error.toString()}"),
-      uploadOriginalImage: true,
-    );
-    // 上传后删除临时文件
-    (await entity.file)?.deleteSync();
-  }
-
-  // 处理图片上传
-  Future<void> _handleImageUpload(
-    Map<String, dynamic> resp,
-    String imgUrl,
-    AssetEntity entity,
-  ) async {
-    final message = ImageMessage(
-      authorId: currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      text: await entity.titleAsync,
-      height: entity.height * 1.0,
-      width: entity.width * 1.0,
-      size: resp["data"]["size"],
-      source: imgUrl,
-      metadata: _withBurnMetadata({
-        'peer_id': widget.peerId,
-        'md5': resp['data']['md5'].toString(),
-      }),
-    );
-    _addMessage(message);
-  }
-
-  // 处理视频上传
-  Future<void> _handleVideoUpload(Map<String, dynamic> resp) async {
-    final message = CustomMessage(
-      authorId: currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      metadata: _withBurnMetadata({
-        'custom_type': 'video',
-        'peer_id': widget.peerId,
-        'thumb': (resp['thumb'] as EntityImage).toJson(),
-        'video': (resp['video'] as EntityVideo).toJson(),
-      }),
-    );
-    _addMessage(message);
-  }
-
-  // 选择资源(图片/视频)
-  Future<void> _selectAssets(PickMethod model) async {
-    final List<AssetEntity>? result = await model.method(context, assets);
-    if (result != null) {
-      assets = List<AssetEntity>.from(result);
-      if (mounted) setState(() {});
-    }
-  }
-
-  // 发送收藏消息
-  Future<void> _handleCollectSelection() async {
-    final peer = {
-      'peer_id': widget.peerId,
-      'avatar': widget.peerAvatar,
-      'title': widget.peerTitle,
-    };
-    final collect = await Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (_) => UserCollectPage(peer: peer, isSelect: true),
       ),
     );
-    if (collect != null) {
-      await _sendCollectMessage(collect);
-    }
   }
 
-  // 发送收藏消息
-  Future<void> _sendCollectMessage(UserCollectModel collect) async {
-    final data = collect.info
-      ..addAll({
-        MessageRepo.id: Xid().toString(),
-        MessageRepo.from: UserRepoLocal.to.currentUid,
-        MessageRepo.to: widget.peerId,
-        MessageRepo.status: 10,
-        MessageRepo.conversationUk3: _conversationUk3,
-        MessageRepo.createdAt: DateTime.fromMillisecondsSinceEpoch(
-          DateTimeHelper.millisecond(),
-          isUtc: true,
-        ),
-      });
-    final msg0 = await MessageModel.fromJson(data).toTypeMessage();
-    final msg = _burnEnabled
-        ? msg0.copyWith(
-            metadata: _withBurnMetadata(
-              Map<String, dynamic>.from(msg0.metadata ?? {}),
-            ),
-          )
-        : msg0;
-    final res = await _addMessage(msg);
-    if (res) {
-      // 使用 UserCollectLogic 更新收藏状态
-      UserCollectLogic().change(collect.kindId);
-      EasyLoading.showSuccess(t.tipSuccess);
-    } else {
-      EasyLoading.showError(t.tipFailed);
-    }
+  /// 处理文件选择
+  void _handleFileSelection() {
+    handleFileSelection();
   }
 
-  // 发送个人名片
-  Future<void> _handleVisitCardSelection() async {
-    final peer = {
-      'peer_id': widget.peerId,
-      'avatar': widget.peerAvatar,
-      'title': widget.peerTitle,
-    };
-    final contact = await Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (_) => SelectFriendPage(peer: peer)),
-    );
-    if (contact != null) {
-      await _sendVisitCardMessage(contact);
-    }
+  /// 处理相机选择
+  void _handlePickerSelection(BuildContext ctx) {
+    handlePickerSelection(ctx);
   }
 
-  // 发送个人名片消息
-  Future<void> _sendVisitCardMessage(ContactModel contact) async {
-    final message = CustomMessage(
-      authorId: currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      metadata: _withBurnMetadata({
-        'custom_type': 'visit_card',
-        'peer_id': widget.peerId,
-        'uid': contact.peerId,
-        'title': contact.title,
-        'avatar': contact.avatar,
-      }),
-    );
-    final res = await _addMessage(message);
-    if (res) {
-      EasyLoading.showSuccess(t.tipSuccess);
-    } else {
-      EasyLoading.showError(t.tipFailed);
-    }
-  }
-
-  // 发送位置消息
-  Future<void> _handleLocationSelection(
+  /// 处理位置选择（由ExtraItems内部处理，这里提供空实现）
+  void _handleLocationSelection(
     String id,
     Uint8List? imageBytes,
     String address,
     String title,
     String latitude,
     String longitude,
-  ) async {
-    if (imageBytes == null) return;
-    final image = img.decodeImage(imageBytes)!;
-    final result = img.encodeJpg(image, quality: 65);
-    await AttachmentApi.uploadBytes(
-      "location",
-      result,
-      (Map<String, dynamic> resp, String imgUrl) async {
-        double w = MediaQuery.of(context).size.width;
-        imgUrl += "&width=${w.toInt()}";
-        final message = CustomMessage(
-          authorId: currentUser.id,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            DateTimeHelper.millisecond(),
-            isUtc: true,
-          ),
-          id: Xid().toString(),
-          metadata: _withBurnMetadata({
-            'custom_type': 'location',
-            'peer_id': widget.peerId,
-            'title': title,
-            'address': address,
-            'latitude': latitude,
-            'longitude': longitude,
-            'thumb': imgUrl,
-            'size': resp['data']['size'],
-            'md5': resp['data']['md5'].toString(),
-          }),
-        );
-        _addMessage(message);
-      },
-      (Error error) => debugPrint("Location upload error: ${error.toString()}"),
-      process: false,
+  ) {
+    handleLocationSelection(
+      id,
+      imageBytes,
+      address,
+      title,
+      latitude,
+      longitude,
     );
   }
 
-  // 选择图片/视频
-  Future<void> _handleImageSelection() async {
-    // Request photo permission before accessing assets
-    bool hasPermission = await requestPhotoPermission();
-    if (!hasPermission) {
-      return; // Permission denied, exit early
-    }
-    await _selectAssets(
-      PickMethod.cameraAndStay(maxAssetsCount: maxAssetsCount),
-    );
-    await _uploadSelectedAssets();
+  /// 处理名片选择（暂未实现）
+  void _handleVisitCardSelection() {
+    EasyLoading.showToast(t.operationFailedAgainLater);
   }
 
-  // 上传选择的资源
-  Future<void> _uploadSelectedAssets() async {
-    for (var entity in assets) {
-      await AttachmentApi.uploadVideo(
-        "img",
-        entity,
-        (Map<String, dynamic> resp, String imgUrl) async {
-          if (entity.type == AssetType.image) {
-            await _handleSelectedImageUpload(resp, imgUrl, entity);
-          } else if (entity.type == AssetType.video) {
-            await _handleSelectedVideoUpload(resp);
-          }
-          _removeUploadedAsset(entity);
-        },
-        (Error error) => debugPrint("Asset upload error: ${error.toString()}"),
-        uploadOriginalImage: true,
-      );
-    }
-  }
-
-  // 处理选择的图片上传
-  Future<void> _handleSelectedImageUpload(
-    Map<String, dynamic> resp,
-    String imgUrl,
-    AssetEntity entity,
-  ) async {
-    double w = MediaQuery.of(context).size.width;
-    imgUrl += "&width=${w.toInt()}";
-    final message = ImageMessage(
-      authorId: currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      text: await entity.titleAsync,
-      height: entity.height * 1.0,
-      width: entity.width * 1.0,
-      size: resp["data"]["size"],
-      source: imgUrl,
-      metadata: _withBurnMetadata({
-        'peer_id': widget.peerId,
-        'md5': resp['data']['md5'].toString(),
-      }),
-    );
-    _addMessage(message);
-  }
-
-  // 处理选择的视频上传
-  Future<void> _handleSelectedVideoUpload(Map<String, dynamic> resp) async {
-    final message = CustomMessage(
-      authorId: currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      metadata: _withBurnMetadata({
-        'custom_type': 'video',
-        'peer_id': widget.peerId,
-        'thumb': (resp['thumb'] as EntityImage).toJson(),
-        'video': (resp['video'] as EntityVideo).toJson(),
-      }),
-    );
-    _addMessage(message);
-  }
-
-  // 移除已上传的资源
-  void _removeUploadedAsset(AssetEntity entity) {
-    assets.removeWhere((element) => element.id == entity.id);
-    if (mounted) setState(() {});
-  }
-
-  // 发送语音消息
-  Future<void> _handleVoiceSelection(AudioFile? obj) async {
-    if (obj == null || (await obj.file.readAsBytes()).isEmpty) return;
-    await AttachmentApi.uploadFile(
-      'audio',
-      obj.file,
-      (Map<String, dynamic> resp, String uri) async {
-        final message = CustomMessage(
-          authorId: currentUser.id,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            DateTimeHelper.millisecond(),
-            isUtc: true,
-          ),
-          id: Xid().toString(),
-          metadata: _withBurnMetadata({
-            'custom_type': 'audio',
-            'peer_id': widget.peerId,
-            'uri': uri,
-            'size': (await obj.file.readAsBytes()).length,
-            'duration_ms': obj.duration.inMilliseconds,
-            'waveform': obj.waveform,
-            'mime_type': obj.mimeType,
-            'md5': resp['data']['md5'].toString(),
-          }),
-        );
-        obj.file.delete(recursive: true);
-        _addMessage(message);
-      },
-      (Error error) => debugPrint("Voice upload error: ${error.toString()}"),
-      process: false,
-    );
+  /// 处理收藏选择（暂未实现）
+  void _handleCollectSelection() {
+    EasyLoading.showToast(t.operationFailedAgainLater);
   }
 
   // 消息双击事件
@@ -1342,107 +879,25 @@ class ChatPageState extends ConsumerState<ChatPage> {
     }
   }
 
-  // 显示重试菜单
+  // 显示重试菜单（使用 MessageQuickActionMenu 组件）
   void _showRetryMenu(BuildContext context, Message message) {
-    showModalBottomSheet(
+    MessageQuickActionMenu.showRetryMenu(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.refresh, color: Colors.orange),
-                title: Text(t.chatResend),
-                onTap: () {
-                  Navigator.pop(context);
-                  _onMessageRetry(message.id);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_outline, color: Colors.red),
-                title: Text(t.chatDeleteMessage),
-                onTap: () {
-                  Navigator.pop(context);
-                  _deleteMessageForMe(context, message, pop: false);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
+      message: message,
+      onRetry: () => _onMessageRetry(message.id),
+      onDelete: () => deleteMessageForMe(context, message, pop: false),
     );
   }
 
-  // 显示快捷操作菜单
+  // 显示快捷操作菜单（使用 MessageQuickActionMenu 组件）
   void _showQuickActionMenu(BuildContext context, Message message) {
-    showModalBottomSheet(
+    MessageQuickActionMenu.showQuickActionMenu(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 根据消息类型显示不同的选项
-              if (message is TextMessage) ...[
-                ListTile(
-                  leading: const Icon(Icons.copy),
-                  title: Text(t.buttonCopy),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Clipboard.setData(ClipboardData(text: message.text));
-                    EasyLoading.showToast(t.copied);
-                  },
-                ),
-              ],
-              if (message is ImageMessage) ...[
-                ListTile(
-                  leading: const Icon(Icons.save_alt),
-                  title: Text(t.chatSaveImage),
-                  onTap: () {
-                    Navigator.pop(context);
-                    ref
-                        .read(chatProvider.notifier)
-                        .saveFile(message.text ?? message.id, message.source);
-                  },
-                ),
-              ],
-              ListTile(
-                leading: const Icon(Icons.reply),
-                title: Text(t.chatReply),
-                onTap: () {
-                  Navigator.pop(context);
-                  updateQuoteMessage(message);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
+      message: message,
+      onReply: () => updateQuoteMessage(message),
+      onSaveFile: (name, uri) =>
+          ref.read(chatProvider.notifier).saveFile(name, uri),
     );
-  }
-
-  // 更新引用消息
-  Future<void> updateQuoteMessage(Message? msg) async {
-    setState(() => quoteMessage = msg);
   }
 
   // 发送文本消息
@@ -1527,13 +982,10 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
     // 原有逻辑：处理已发送和发送中的消息
     // 注意：这部分逻辑已废弃，因为与重试逻辑重复
-    // 保留此方法用于未来扩展（如查看消息发送详情）
     if (msg.status != MessageStatus.sent &&
         msg.status != MessageStatus.sending) {
       return;
     }
-    // TODO: 添加点击消息状态的扩展功能（如查看发送详情）
-    // 目前暂时为空，避免与重试逻辑冲突
   }
 
   // 消息长按事件
@@ -1559,7 +1011,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
       onReply: () => updateQuoteMessage(message),
       onCopy: () {
         if (message is TextMessage) {
-          _copyMessageText(message);
+          copyMessageText(message);
         } else if (message is CustomMessage &&
             message.metadata?['custom_type'] == 'quote') {
           // 引用消息的复制功能
@@ -1570,238 +1022,22 @@ class ChatPageState extends ConsumerState<ChatPage> {
           }
         }
       },
-      onEdit: () => _editMessage(message),
-      onDelete: () => _deleteMessageForMe(context, message, pop: false),
+      onEdit: () => editMessage(message),
+      onDelete: () => deleteMessageForMe(context, message, pop: false),
       onDeleteForEveryone: isSentByMe
-          ? () => _deleteMessageForEveryone(context, message)
+          ? () => deleteMessageForEveryone(context, message)
           : null,
-      onForward: () => _forwardMessage(message),
-      onReaction: (emoji) => _addReaction(message, emoji),
+      onForward: () => forwardMessage(message),
+      onReaction: (emoji) => addReaction(message, emoji),
       // 新增的操作回调
-      onRevoke: isSentByMe ? () => _revokeMessage(message) : null,
-      onSave: _canSaveMessage(message)
-          ? () => _saveMessageContent(message)
+      onRevoke: isSentByMe ? () => revokeMessage(message) : null,
+      onSave: canSaveMessage(message)
+          ? () => saveMessageContent(message)
           : null,
-      onCollect: _canCollectMessage(message)
-          ? () => _collectMessage(message)
+      onCollect: canCollectMessage(message)
+          ? () => collectMessage(message)
           : null,
       onRetry: canRetry ? () => _onMessageRetry(message.id) : null,
-    );
-  }
-
-  /// 检查消息是否可以保存
-  bool _canSaveMessage(Message message) {
-    if (message is ImageMessage) {
-      return true;
-    } else if (message is FileMessage) {
-      return true;
-    } else if (message is CustomMessage) {
-      final customType = message.metadata?['custom_type'] ?? '';
-      return customType == 'video' || customType == 'audio';
-    }
-    return false;
-  }
-
-  /// 检查消息是否可以收藏
-  bool _canCollectMessage(Message message) {
-    return UserCollectLogic.getCollectKind(message) > 0;
-  }
-
-  /// 编辑消息
-  Future<void> _editMessage(Message message) async {
-    if (message is TextMessage) {
-      iPrint(
-        '✅ _editMessage 被调用: messageId=${message.id}, text="${message.text}"',
-      );
-
-      // 记录当前正在编辑的消息ID（必须在设置文本之前）
-      _editingMessageId = message.id;
-
-      iPrint('✅ _editingMessageId 已设置为: $_editingMessageId');
-
-      // 将消息文本填充到输入框
-      chatInputKey.currentState?.setText(message.text);
-
-      // 聚焦输入框
-      chatInputKey.currentState?.inputFocusNode.requestFocus();
-
-      iPrint('✅ _editMessage 完成: _editingMessageId=$_editingMessageId');
-    }
-  }
-
-  /// 添加消息反应
-  void _addReaction(Message message, String emoji) async {
-    try {
-      HapticFeedback.lightImpact();
-      final res = await ref
-          .read(chatProvider.notifier)
-          .toggleReaction(
-            chatType: widget.type == 'null' ? 'C2C' : widget.type,
-            peerId: widget.peerId,
-            messageId: message.id,
-            emoji: emoji,
-          );
-      if (!mounted) return;
-      if (res == null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            res ? '${t.reactionAdded} $emoji' : '${t.reactionCancelled} $emoji',
-          ),
-          duration: const Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (_) {}
-  }
-
-  // 删除消息(仅自己)
-  Future<void> _deleteMessageForMe(
-    BuildContext context,
-    Message msg, {
-    bool pop = true,
-  }) async {
-    final nav = Navigator.of(context);
-    if (widget.type == 'C2G') {
-      await _sendDeleteForMeMessage(msg);
-    }
-    bool res = await ref
-        .read(chatProvider.notifier)
-        .removeMessage(conversation, msg);
-    if (res) {
-      await ref
-          .read(chatProvider.notifier)
-          .chatService
-          ?.removeMessageById(msg.id);
-    }
-    if (pop) {
-      nav.pop();
-    }
-  }
-
-  // 发送删除消息请求(仅自己)
-  Future<void> _sendDeleteForMeMessage(Message msg) async {
-    final msg2 = {
-      'id': Xid().toString(),
-      'from': msg.authorId,
-      'to': msg.metadata?['peer_id'],
-      'type': 'S2C',
-      'payload': {
-        'old_msg_id': msg.id,
-        'to': msg.metadata?['peer_id'],
-        'msg_type': '${widget.type}_DEL_FOR_ME',
-      },
-      'created_at': DateTimeHelper.millisecond(),
-    };
-    await ref.read(chatProvider.notifier).sendMessage(msg2);
-  }
-
-  // 删除消息(所有人)
-  Future<void> _deleteMessageForEveryone(
-    BuildContext context,
-    Message msg,
-  ) async {
-    final nav = Navigator.of(context);
-    final msg2 = {
-      'id': Xid().toString(),
-      'from': msg.authorId,
-      'to': msg.metadata?['peer_id'],
-      'type': 'S2C',
-      'payload': {
-        'old_msg_id': msg.id,
-        'to': msg.metadata?['peer_id'],
-        'msg_type': '${widget.type}_DEL_EVERYONE',
-      },
-      'created_at': DateTimeHelper.millisecond(),
-    };
-    await ref.read(chatProvider.notifier).sendMessage(msg2);
-    bool res = await ref
-        .read(chatProvider.notifier)
-        .removeMessage(conversation, msg);
-    if (res) {
-      await ref
-          .read(chatProvider.notifier)
-          .chatService
-          ?.removeMessageById(msg.id);
-    }
-    nav.pop();
-  }
-
-  // 复制消息文本
-  void _copyMessageText(TextMessage msg) {
-    Clipboard.setData(ClipboardData(text: msg.text));
-    EasyLoading.showToast(t.copied);
-  }
-
-  // 保存消息内容
-  Future<void> _saveMessageContent(Message msg) async {
-    if (msg is CustomMessage) {
-      await ref
-          .read(chatProvider.notifier)
-          .saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
-    } else if (msg is ImageMessage) {
-      await ref
-          .read(chatProvider.notifier)
-          .saveFile(msg.text ?? Xid().toString(), msg.source);
-    } else if (msg is FileMessage) {
-      await ref.read(chatProvider.notifier).saveFile(msg.name, msg.source);
-    }
-  }
-
-  // 收藏消息
-  Future<void> _collectMessage(Message msg) async {
-    String tb = MessageRepo.getTableName(widget.type);
-    final collectLogic = UserCollectLogic();
-    bool res = await collectLogic.add(tb: tb, msg: msg);
-    EasyLoading.showToast(res ? t.collected : t.operationFailedAgainLater);
-  }
-
-  // 撤回消息
-  Future<void> _revokeMessage(Message msg) async {
-    try {
-      // 显示加载状态
-      EasyLoading.show(status: t.revoking);
-
-      iPrint('🔍 使用新的action机制撤回消息: msgId=${msg.id}, type=${widget.type}');
-
-      // 使用新的MessageActions撤回机制
-      bool result = await MessageActions.to.sendRevokeMessage(
-        msg.id,
-        widget.type,
-      );
-      iPrint('🔍 撤回消息发送结果: $result');
-
-      EasyLoading.dismiss();
-
-      if (result) {
-        EasyLoading.showSuccess(t.revokeSuccess);
-        iPrint('🔍 撤回请求发送完成，等待服务端确认');
-      } else {
-        EasyLoading.showError(
-          '${t.revokeFailed}, ${t.pleaseCheckNetworkConnection}',
-        );
-      }
-    } catch (e, stack) {
-      iPrint('撤回消息异常: $e\n$stack');
-      EasyLoading.dismiss();
-      EasyLoading.showError(
-        '${t.revokeOperationAbnormal}, ${t.pleaseTryAgain}',
-      );
-    }
-  }
-
-  // 转发消息
-  void _forwardMessage(Message msg) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
-      isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.only(top: 24),
-        child: SendToPage(msg: msg),
-      ),
     );
   }
 
@@ -1834,7 +1070,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
         // 优先收起面板/键盘，避免"返回上一页"
         if (chatState.composerHeight > 52) {
           final navigator = Navigator.of(context);
-          chatInputKey.currentState?.hideAllPanel();
+          _chatInputKey.currentState?.hideAllPanel();
           await Future.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
           navigator.pop();
@@ -1856,86 +1092,56 @@ class ChatPageState extends ConsumerState<ChatPage> {
                 backgroundColor: ThemeManager.instance.getThemeColor('surface'),
                 rightDMActions: topRightWidget,
                 automaticallyImplyLeading: true,
-                // popTime: widget.options?['popTime'] ?? 1,
               )
             : null,
         body: Column(
-          // 替换 n.Column
           children: [
-            // 使用 Consumer 替代 Obx
             chatState.connected
                 ? const SizedBox.shrink()
                 : NetworkFailureTips(),
             Expanded(
-              child: Stack(
-                // 替换 n.Stack
-                children: [
-                  // 优化2：Provider 注入你的 onMessageLongPress 回调
-                  GestureDetector(
-                    onTapDown: (details) {
-                      // 检查点击位置是否在输入区域外部
-                      final screenHeight = MediaQuery.of(context).size.height;
-                      final composerHeight = chatState.composerHeight;
-                      final clickY = details.globalPosition.dy;
-                      final inputAreaTop = screenHeight - composerHeight;
-                      if (clickY < inputAreaTop) {
-                        chatInputKey.currentState?.hideAllPanel();
-                      }
-                    },
-                    // 只响应点击手势，不响应滑动手势，避免在输入框中滑动时误触收起面板
-                    behavior: HitTestBehavior.translucent,
-                    child: old_provider.MultiProvider(
-                      providers: [
-                        old_provider.Provider<Function>(
-                          create: (_) => _onMessageDoubleTap,
-                        ),
-                      ],
-                      // 以下回调与参数已由 Chat 通过 props 注入 Provider（见 _buildChatWidget 的 Chat(...)），无需在此重复注入：
-                      // Provider<OnMessageLongPressCallback>.value(
-                      //   value: _onMessageLongPress,
-                      // ),
-                      // Provider<OnMessageSendCallback>.value(
-                      //   value: _handleSendPressed,
-                      // ),
-                      // Provider<UserID>.value(value: currentUser.id),
-                      // Provider<OnMessageTapCallback>.value(
-                      //   value: ,
-                      // ),
-                      // Provider<OnAttachmentTapCallback>.value(
-                      //   value: _onAttachmentTap,
-                      // ),
-                      // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
-                      child: _buildChatWidget(context, theme, chatState),
-                    ),
-                  ),
-                  // 使用 Riverpod 的 ConsumerWidget 监听图片画廊状态
-                  Consumer(
-                    builder: (context, ref, _) {
-                      final galleryState = ref.watch(imageGalleryProvider);
-                      if (!galleryState.isImageViewVisible) {
-                        return const SizedBox.shrink();
-                      }
-                      return IMBoyImageGallery(
-                        images: galleryState.gallery,
-                        pageController: ref
-                            .read(imageGalleryProvider.notifier)
-                            .galleryPageController!,
-                        onClosePressed: () {
-                          // 关闭图片画廊
-                          ref
+              child: GestureDetector(
+                onTap: () {
+                  _chatInputKey.currentState?.hideAllPanel();
+                },
+                behavior: HitTestBehavior.translucent,
+                child: Stack(
+                  children: [
+                    _buildChatWidget(context, theme, chatState),
+                    // 使用 Riverpod 的 ConsumerWidget 监听图片画廊状态
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final galleryState = ref.watch(imageGalleryProvider);
+                        if (!galleryState.isImageViewVisible) {
+                          return const SizedBox.shrink();
+                        }
+                        return IMBoyImageGallery(
+                          images: galleryState.gallery,
+                          pageController: ref
                               .read(imageGalleryProvider.notifier)
-                              .onCloseGalleryPressed();
-                          setState(() => _showAppBar = true);
-                        },
-                        options: const IMBoyImageGalleryOptions(
-                          maxScale: PhotoViewComputedScale.covered,
-                          minScale: PhotoViewComputedScale.contained,
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                              .galleryPageController!,
+                          onClosePressed: () {
+                            // 关闭图片画廊
+                            ref
+                                .read(imageGalleryProvider.notifier)
+                                .onCloseGalleryPressed();
+                            setState(() => _showAppBar = true);
+                          },
+                          options: const IMBoyImageGalleryOptions(
+                            maxScale: PhotoViewComputedScale.covered,
+                            minScale: PhotoViewComputedScale.contained,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
+            ),
+            // 将输入框移出 Stack，放入 Column 底部，实现消息列表与输入框的自然联动
+            ChatInputHeightListener(
+              composerHeight: composerHeightNotifier,
+              child: _buildChatInput(context),
             ),
           ],
         ),
@@ -1946,7 +1152,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
   /// 导航到聊天设置页面
   Widget _buildChatInput(BuildContext context) {
     return ChatInput(
-      key: chatInputKey,
+      key: _chatInputKey,
       composerHeight: composerHeightNotifier, // 使用可动画的高度
       type: widget.type,
       peerId: widget.peerId,
@@ -1985,88 +1191,13 @@ class ChatPageState extends ConsumerState<ChatPage> {
     );
   }
 
-  /// 构建聊天背景装饰
+  /// 构建聊天背景装饰（使用 ChatBackgroundManager）
   BoxDecoration _buildBackgroundDecoration(
     ChatBackgroundState backgroundState,
   ) {
-    final theme = ThemeManager.instance;
-
-    switch (backgroundState.currentBackground) {
-      case 'pattern_1':
-        return BoxDecoration(
-          color: theme.getThemeColor('surface'),
-          image: DecorationImage(
-            image: const AssetImage(
-              'assets/images/chat_backgrounds/pattern_1.png',
-            ),
-            repeat: ImageRepeat.repeat,
-            opacity: backgroundState.backgroundOpacity,
-          ),
-        );
-
-      case 'pattern_2':
-        return BoxDecoration(
-          color: theme.getThemeColor('surface'),
-          image: DecorationImage(
-            image: const AssetImage(
-              'assets/images/chat_backgrounds/pattern_2.png',
-            ),
-            repeat: ImageRepeat.repeat,
-            opacity: backgroundState.backgroundOpacity,
-          ),
-        );
-
-      case 'pattern_3':
-        return BoxDecoration(
-          color: theme.getThemeColor('surface'),
-          image: DecorationImage(
-            image: const AssetImage(
-              'assets/images/chat_backgrounds/pattern_3.png',
-            ),
-            repeat: ImageRepeat.repeat,
-            opacity: backgroundState.backgroundOpacity,
-          ),
-        );
-
-      case 'gradient_1':
-        return BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              theme.getThemeColor('primary').withValues(alpha: 0.1),
-              theme.getThemeColor('surface'),
-            ],
-          ),
-        );
-
-      case 'gradient_2':
-        return BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.getThemeColor('primary').withValues(alpha: 0.15),
-              theme.getThemeColor('surface'),
-              theme.getThemeColor('primary').withValues(alpha: 0.05),
-            ],
-          ),
-        );
-
-      case 'solid_color':
-        return BoxDecoration(
-          color: backgroundState.useCustomColor
-              ? backgroundState.customColor
-              : theme.getThemeColor('surface'),
-        );
-
-      case 'custom_image':
-        // TODO: 支持自定义图片背景
-        return BoxDecoration(color: theme.getThemeColor('surface'));
-
-      default:
-        return BoxDecoration(color: theme.getThemeColor('surface'));
-    }
+    return ref
+        .read(chatBackgroundManagerProvider.notifier)
+        .getCurrentBackgroundDecoration();
   }
 
   /// 构建聊天主界面
@@ -2093,7 +1224,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
       decoration: _buildBackgroundDecoration(backgroundState),
       resolveUser: (id) => Future.value(switch (id) {
         'me' => currentUser,
-        'recipient' => peer,
+        'recipient' => _peerUser,
         _ => null,
       }),
       // timeFormat: DateFormat("y-MM-dd HH:mm"),
@@ -2102,7 +1233,8 @@ class ChatPageState extends ConsumerState<ChatPage> {
       builders: Builders(
         chatAnimatedListBuilder: (context, itemBuilder) {
           // 直接使用 chatState 而不是 Obx
-          final bottomGap = chatState.composerHeight;
+          // 使用 Column 布局后，不再需要底部的 padding，联动效果更自然
+          const bottomGap = 0.0;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             try {
@@ -2113,11 +1245,11 @@ class ChatPageState extends ConsumerState<ChatPage> {
           });
 
           return Padding(
-            padding: EdgeInsets.only(bottom: bottomGap),
+            padding: const EdgeInsets.only(bottom: bottomGap),
             child: NotificationListener<ScrollNotification>(
               onNotification: (sn) {
                 if (sn is UserScrollNotification) {
-                  chatInputKey.currentState?.hideAllPanel();
+                  _chatInputKey.currentState?.hideAllPanel();
                 }
                 return false;
               },
@@ -2127,25 +1259,15 @@ class ChatPageState extends ConsumerState<ChatPage> {
             ),
           );
         },
-        // composerBuilder: (context) => SizedBox.shrink(),
-        composerBuilder: (context) => Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: ChatInputHeightListener(
-            composerHeight: composerHeightNotifier,
-            animationDuration: Duration.zero,
-            animationCurve: Curves.linear,
-            child: _buildChatInput(context),
-          ),
-        ),
+        // 输入框已移至外部 Column，这里返回空
+        composerBuilder: (context) => const SizedBox.shrink(),
         // 自定义回到底部按钮（自动避让 Composer）
         scrollToBottomBuilder: (ctx, animation, onPressed) => ScrollToBottom(
           animation: animation,
           onPressed: onPressed,
           right: 16,
           bottom: 20,
-          useComposerHeightForBottomOffset: true,
+          useComposerHeightForBottomOffset: false, // 已经在 Column 内部，无需额外偏移
           mini: true,
         ),
         // 自定义空态文案
@@ -2208,6 +1330,26 @@ class ChatPageState extends ConsumerState<ChatPage> {
                 index: index,
                 showStatus: false,
                 showTime: true,
+              );
+            },
+        // 文本流消息组件（用于 AI 对话等流式输出场景）
+        // 注意：当前使用简化的加载状态，完整实现需要集成 StreamStateManager
+        textStreamMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              // 暂时使用加载状态显示，等待流式状态管理实现
+              return FlyerChatTextStreamMessage(
+                message: message,
+                index: index,
+                streamState: const StreamStateLoading(),
+                showStatus: false,
+                showTime: true,
+                loadingText: '...',
               );
             },
         fileMessageBuilder:
@@ -2355,7 +1497,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
               // 在消息末尾添加状态图标
               final burnBadge = _isBurnMessage(message)
-                  ? _BurnBadge(
+                  ? BurnBadge(
                       isSentByMe: isCurrentUser,
                       burnAfterMs: _burnAfterMsFromMessage(message),
                       burnReadAtMs: (message.metadata?['burn_read_at'] is int)
@@ -2364,6 +1506,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
                                   '${message.metadata?['burn_read_at'] ?? 0}',
                                 ) ??
                                 0,
+                      burnTicker: _burnTicker,
                     )
                   : null;
 
@@ -2634,75 +1777,5 @@ class ChatPageState extends ConsumerState<ChatPage> {
         if (mounted) setState(() {});
       }
     }
-  }
-}
-
-class _BurnBadge extends StatelessWidget {
-  final bool isSentByMe;
-  final int burnAfterMs;
-  final int burnReadAtMs;
-
-  const _BurnBadge({
-    required this.isSentByMe,
-    required this.burnAfterMs,
-    required this.burnReadAtMs,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.error;
-    final bg = Theme.of(context).colorScheme.surface;
-
-    if (burnReadAtMs <= 0 || burnAfterMs <= 0) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: AppRadius.borderRadiusMedium,
-          border: Border.all(color: color.withValues(alpha: 0.5), width: 0.8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.local_fire_department, size: 12, color: color),
-            const SizedBox(width: 2),
-            Text(
-              '阅后',
-              style: TextStyle(fontSize: 10, color: color, height: 1.0),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return StreamBuilder<int>(
-      stream: ChatPageState._burnTicker,
-      builder: (context, snapshot) {
-        final now = DateTimeHelper.millisecond();
-        final expireAt = burnReadAtMs + burnAfterMs;
-        final remainMs = expireAt - now;
-        final remainSec = (remainMs / 1000).ceil();
-        final text = remainSec <= 0 ? '0s' : '${remainSec}s';
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: AppRadius.borderRadiusMedium,
-            border: Border.all(color: color.withValues(alpha: 0.5), width: 0.8),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.local_fire_department, size: 12, color: color),
-              const SizedBox(width: 2),
-              Text(
-                text,
-                style: TextStyle(fontSize: 10, color: color, height: 1.0),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }

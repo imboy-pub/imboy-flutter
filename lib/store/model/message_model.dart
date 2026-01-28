@@ -679,8 +679,11 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (currentMsgType == 'video' || currentMsgType == 'voice') {
+    } else if (currentMsgType == 'video' ||
+        currentMsgType == 'voice' ||
+        currentMsgType == 'audio') {
       // 视频/语音消息：使用 VideoMessage 或 AudioMessage
+      // 兼容旧的 'audio' 命名（现在统一使用 'voice'）
       if (currentMsgType == 'video') {
         message = VideoMessage(
           authorId: author.id,
@@ -706,7 +709,7 @@ class MessageModel {
           source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
           text: payloadData['name'] ?? '',
           size: payloadData['size'] ?? 0,
-          duration: payloadData['duration_ms'] ?? 0,
+          duration: Duration(milliseconds: payloadData['duration_ms'] ?? 0),
           waveform: payloadData['waveform'] != null
               ? List<double>.from(payloadData['waveform'])
               : null,
@@ -753,6 +756,14 @@ class MessageModel {
           'total': payloadData['total'] ?? 0,
         },
       );
+    } else if (currentMsgType == 'system') {
+      // 系统消息：使用 CustomMessage，系统消息通常不需要复杂处理
+      message = CustomMessage(
+        authorId: author.id,
+        id: id!,
+        createdAt: createdDt,
+        metadata: {...metadata, ...payloadData, 'is_system': true},
+      );
     } else if (currentMsgType == 'custom') {
       message = CustomMessage(
         authorId: author.id,
@@ -795,6 +806,11 @@ class MessageModel {
       payload['msg_type'] = 'text';
       payload['text'] = message.text;
       payload.addAll(message.metadata ?? {});
+    } else if (message is TextStreamMessage) {
+      msgType = 'textStream';
+      payload['msg_type'] = 'textStream';
+      payload['stream_id'] = message.streamId;
+      payload.addAll(message.metadata ?? {});
     } else if (message is ImageMessage) {
       msgType = 'image';
       payload['msg_type'] = 'image';
@@ -826,10 +842,14 @@ class MessageModel {
       payload['name'] = message.text;
       payload['size'] = message.size;
       payload['uri'] = message.source;
-      payload['duration_ms'] = message.duration;
+      payload['duration_ms'] = message.duration.inMilliseconds;
       if (message.waveform != null) {
         payload['waveform'] = message.waveform;
       }
+      payload.addAll(message.metadata ?? {});
+    } else if (message is SystemMessage) {
+      msgType = 'system';
+      payload['msg_type'] = 'system';
       payload.addAll(message.metadata ?? {});
     } else if (message is CustomMessage) {
       msgType = 'custom';

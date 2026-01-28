@@ -6,94 +6,10 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-// 认证和启动页面
-import 'package:imboy/page/splash/splash_page.dart';
-import 'package:imboy/page/welcome/welcome_page.dart';
-import 'package:imboy/page/passport/login_page.dart';
-import 'package:imboy/page/passport/signup_page.dart';
-import 'package:imboy/page/passport/signup_continue_page.dart';
-import 'package:imboy/page/passport/forgot_password_page.dart';
-import 'package:imboy/page/passport/manage_account_page.dart';
-
-// 主框架
-import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
-
-// 会话列表
-import 'package:imboy/page/conversation/conversation_page.dart';
-
-// 聊天相关
-import 'package:imboy/page/chat/chat/chat_page.dart';
-import 'package:imboy/page/chat/send_to/send_to_page.dart';
-import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
-
-// 联系人相关
-import 'package:imboy/page/contact/contact/contact_page.dart';
-import 'package:imboy/page/contact/people_info/people_info_page.dart';
-import 'package:imboy/page/contact/new_friend/new_friend_page.dart';
-import 'package:imboy/page/contact/new_friend/add_friend_page.dart';
-import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
-import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_page.dart';
-import 'package:imboy/page/contact/people_info_more/people_info_more_page.dart';
-import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_page.dart';
-
-// 群组相关
-import 'package:imboy/page/group/group_list/group_list_page.dart';
-import 'package:imboy/page/group/group_detail/group_detail_page.dart';
-import 'package:imboy/page/group/launch_chat/launch_chat_page.dart';
-import 'package:imboy/page/group/group_select/group_select_page.dart';
-import 'package:imboy/page/group/face_to_face/face_to_face_page.dart';
-import 'package:imboy/page/group/face_to_face/face_to_face_confirm_page.dart';
-
-// 个人中心相关
-import 'package:imboy/page/mine/mine/mine_page.dart';
-import 'package:imboy/page/mine/setting/setting_page.dart';
-import 'package:imboy/page/mine/account_security/account_security_page.dart';
-import 'package:imboy/page/mine/change_password/change_password_page.dart';
-import 'package:imboy/page/mine/change_password/set_password_page.dart';
-import 'package:imboy/page/mine/user_collect/user_collect_page.dart';
-import 'package:imboy/page/mine/denylist/denylist_page.dart';
-import 'package:imboy/page/mine/storage_space/storage_space_page.dart';
-import 'package:imboy/page/mine/user_device/user_device_page.dart';
-import 'package:imboy/page/mine/feedback/feedback_page.dart';
-import 'package:imboy/page/mine/feedback/feedback_detail_page.dart';
-import 'package:imboy/page/mine/select_region/select_region_page.dart';
-import 'package:imboy/page/mine/language/language_page.dart';
-import 'package:imboy/page/mine/dark_model/dark_model_page.dart';
-import 'package:imboy/page/mine/font_size/font_size_page.dart';
-import 'package:imboy/page/mine/logout_account/logout_account_page.dart';
-
-// 个人信息相关
-import 'package:imboy/page/personal_info/personal_info/personal_info_page.dart';
-import 'package:imboy/page/personal_info/set_nickname/set_nickname_page.dart';
-import 'package:imboy/page/personal_info/set_gender/set_gender_page.dart';
-import 'package:imboy/page/personal_info/set_region/set_region_page.dart';
-import 'package:imboy/page/personal_info/update/update_page.dart';
-import 'package:imboy/page/personal_info/widget/more_page.dart';
-// 使用 profile_page.dart（Riverpod 版本）
-import 'package:imboy/page/personal_info/profile/profile_page.dart';
-import 'package:imboy/page/personal_info/profile/widgets/privacy_settings_page.dart';
-
-// 其他功能
-import 'package:imboy/page/wallet/wallet_page.dart';
-
-// 直播间相关
-import 'package:imboy/page/live_room/live_room_list/live_room_list_page.dart';
-import 'package:imboy/page/live_room/publisher/publisher_page.dart';
-import 'package:imboy/page/live_room/subscriber/subscriber_page.dart';
-
-// 搜索相关
-import 'package:imboy/page/search/search_chat_page.dart';
-
-// 二维码和扫描相关
-import 'package:imboy/page/scanner/scanner_page.dart';
-import 'package:imboy/page/scanner/scanner_result_page.dart';
-import 'package:imboy/page/qrcode/qrcode_page.dart';
-
-// Single 页面
-import 'package:imboy/page/single/markdown.dart';
-import 'package:imboy/page/single/video_viewer.dart';
-import 'package:imboy/page/single/upgrade.dart';
-import 'package:imboy/page/single/network_failure_guidance.dart';
+// ============================================================================
+// 页面 Barrel exports - 统一导入所有页面
+// ============================================================================
+import 'barrel/pages_barrel.dart';
 
 // 组件
 import 'package:imboy/component/location/widget.dart';

@@ -17,8 +17,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
-// TODO: 迁移到 Riverpod - new_friend_logic 已迁移为 new_friend_provider
-// import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -110,8 +108,7 @@ class MessageS2CService {
           break;
         case 'user_cancel':
           // 当前用户的朋友user_id注销了
-          // TODO: 实现 user_cancel 处理
-          debugPrint("TODO: user_cancel 需要实现处理逻辑");
+          await _handleUserCancel(data, payloadMap);
           break;
         case 'apply_friend':
           // 添加朋友申请
@@ -145,15 +142,15 @@ class MessageS2CService {
           break;
         case 'online':
           // 好友上线提醒
-          // TODO: 实现 online 处理
+          await _handleUserOnline(data, payloadMap);
           break;
         case 'offline':
           // 好友下线提醒
-          // TODO: 实现 offline 处理
+          await _handleUserOffline(data, payloadMap);
           break;
         case 'hide':
           // 好友hide提醒
-          // TODO: 实现 hide 处理
+          await _handleUserHide(data, payloadMap);
           break;
         default:
           debugPrint("⚠️ [S2C] 未知的 action: $action");
@@ -541,5 +538,103 @@ class MessageS2CService {
 
     // 使用公共辅助类处理非好友错误（消除代码重复）
     await MessageActions.handleNotAFriendError(msgId: msgId, msgType: msgType);
+  }
+
+  /// 处理用户注销
+  ///
+  /// Action: user_cancel
+  /// 触发时机：好友账号注销
+  /// 处理逻辑：发布用户注销事件，由UI层订阅显示提示
+  static Future<void> _handleUserCancel(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    final userId = data['from']?.toString() ?? '';
+    final nickname = payload['nickname']?.toString();
+
+    iPrint('[S2C] user_cancel: userId=$userId, nickname=$nickname');
+
+    // 发布用户注销事件
+    AppEventBus.fire(UserCancelEvent(userId: userId, nickname: nickname));
+
+    // 可选：从联系人列表中移除或标记为已注销
+    // await ContactRepo.to.markAsDeleted(userId);
+  }
+
+  /// 处理用户上线
+  ///
+  /// Action: online
+  /// 触发时机：好友上线
+  /// 处理逻辑：发布用户状态变更事件，由UI层订阅显示在线提示
+  static Future<void> _handleUserOnline(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    final userId = data['from']?.toString() ?? '';
+    final nickname = payload['nickname']?.toString();
+
+    iPrint('[S2C] online: userId=$userId, nickname=$nickname');
+
+    // 发布用户上线事件
+    AppEventBus.fire(
+      UserStatusChangeEvent(
+        userId: userId,
+        status: 'online',
+        nickname: nickname,
+      ),
+    );
+
+    // 可选：更新联系人状态到数据库
+    // await ContactRepo.to.updateOnlineStatus(userId, true);
+  }
+
+  /// 处理用户下线
+  ///
+  /// Action: offline
+  /// 触发时机：好友下线
+  /// 处理逻辑：发布用户状态变更事件，由UI层订阅显示离线提示
+  static Future<void> _handleUserOffline(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    final userId = data['from']?.toString() ?? '';
+    final nickname = payload['nickname']?.toString();
+
+    iPrint('[S2C] offline: userId=$userId, nickname=$nickname');
+
+    // 发布用户下线事件
+    AppEventBus.fire(
+      UserStatusChangeEvent(
+        userId: userId,
+        status: 'offline',
+        nickname: nickname,
+      ),
+    );
+
+    // 可选：更新联系人状态到数据库
+    // await ContactRepo.to.updateOnlineStatus(userId, false);
+  }
+
+  /// 处理用户隐身
+  ///
+  /// Action: hide
+  /// 触发时机：好友设置隐身状态
+  /// 处理逻辑：发布用户状态变更事件，由UI层订阅处理
+  static Future<void> _handleUserHide(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    final userId = data['from']?.toString() ?? '';
+    final nickname = payload['nickname']?.toString();
+
+    iPrint('[S2C] hide: userId=$userId, nickname=$nickname');
+
+    // 发布用户隐身事件
+    AppEventBus.fire(
+      UserStatusChangeEvent(userId: userId, status: 'hide', nickname: nickname),
+    );
+
+    // 可选：更新联系人状态到数据库
+    // await ContactRepo.to.updateHideStatus(userId, true);
   }
 }

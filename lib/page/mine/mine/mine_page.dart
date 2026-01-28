@@ -7,8 +7,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mine_page.g.dart';
@@ -46,279 +44,236 @@ class _MinePageState extends ConsumerState<MinePage> {
   @override
   Widget build(BuildContext context) {
     final userRepo = ref.watch(userRepoProvider);
+    final user = userRepo.currentUser;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      // appBar: GlassAppBar(
-      //   automaticallyImplyLeading: false,
-      //   title: t.titleMine,
-      // ),
-      body: SingleChildScrollView(
+      backgroundColor: theme.colorScheme.surface,
+      body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            // const SizedBox(height: 16),
-
-            // 用户信息卡片
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
+        slivers: [
+          // 顶部背景和用户信息
+          SliverToBoxAdapter(
+            child: Stack(
+              children: [
+                // 背景渐变
+                Container(
+                  height: 220,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withValues(alpha: 0.7),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  // 用户头像和基本信息
-                  _buildUserInfoItem(context, userRepo),
-                ],
-              ),
+                ),
+                // 用户信息
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + 20,
+                    left: 20,
+                    right: 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          // 头像
+                          GestureDetector(
+                            onTap: () => context.push('/personal_info/profile'),
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 40,
+                                backgroundColor: theme.colorScheme.surface,
+                                backgroundImage: strNoEmpty(user?.avatar)
+                                    ? cachedImageProvider(user!.avatar)
+                                    : null,
+                                child: !strNoEmpty(user?.avatar)
+                                    ? Text(
+                                        user!.nickname
+                                                .substring(0, 1)
+                                                .toUpperCase(),
+                                        style: theme.textTheme.headlineLarge
+                                            ?.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          // 昵称和ID
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user?.nickname ?? t.unknown,
+                                  style: theme.textTheme.headlineSmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'ID: ${user?.uid ?? '-'}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // 二维码
+                          IconButton(
+                            onPressed: () => context.push('/qrcode/user'),
+                            icon: const Icon(
+                              Icons.qr_code_2,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // 个性签名
+                      if (strNoEmpty(user?.sign))
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Text(
+                            user!.sign,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+          ),
 
-            const SizedBox(height: 8),
-
-            // 钱包
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
+          // 功能列表
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // 钱包
+                _buildMenuSection(context, [
+                  _buildMenuItem(
+                    context,
+                    title: t.wallet,
+                    leadingIcon: Icons.account_balance_wallet_outlined,
+                    leadingIconColor: Colors.orange,
+                    onTap: () => context.push('/wallet'),
                   ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: _buildMenuItem(
-                context,
-                title: t.wallet,
-                leadingIcon: Icons.account_balance_wallet_outlined,
-                leadingIconColor: AppColors.primary,
-                onTap: () {
-                  context.push('/wallet');
-                },
-              ),
-            ),
+                ]),
 
-            // 功能菜单列表
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  // 收藏
+                const SizedBox(height: 16),
+
+                // 常用功能
+                _buildMenuSection(context, [
                   _buildMenuItem(
                     context,
                     title: t.favorites,
                     leadingIcon: Icons.favorite_outline,
-                    leadingIconColor: AppColors.lightError,
-                    onTap: () {
-                      context.push('/favorites');
-                    },
+                    leadingIconColor: Colors.redAccent,
+                    onTap: () => context.push('/favorites'),
                   ),
-
                   _buildDivider(context),
-
-                  // 存储空间
                   _buildMenuItem(
                     context,
                     title: t.storageSpace,
                     leadingIcon: Icons.sd_storage_outlined,
-                    leadingIconColor: Colors.orange,
-                    onTap: () {
-                      context.push('/storage_space');
-                    },
+                    leadingIconColor: Colors.blueAccent,
+                    onTap: () => context.push('/storage_space'),
                   ),
-
                   _buildDivider(context),
-
-                  // 设备管理
                   _buildMenuItem(
                     context,
                     title: t.loginDeviceManagement,
                     leadingIcon: Icons.devices_outlined,
-                    leadingIconColor: AppColors.info,
-                    onTap: () {
-                      context.push('/devices');
-                    },
+                    leadingIconColor: Colors.teal,
+                    onTap: () => context.push('/devices'),
                   ),
-                ],
-              ),
-            ),
+                ]),
 
-            const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-            // 设置与反馈
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
+                // 设置
+                _buildMenuSection(context, [
                   _buildMenuItem(
                     context,
                     title: t.setting,
                     leadingIcon: Icons.settings_outlined,
-                    leadingIconColor: AppColors.textSecondary,
-                    onTap: () {
-                      context.push('/mine/setting');
-                    },
+                    leadingIconColor: Colors.grey,
+                    onTap: () => context.push('/mine/setting'),
                   ),
                   _buildDivider(context),
                   _buildMenuItem(
                     context,
                     title: t.feedback,
                     leadingIcon: Icons.feedback_outlined,
-                    leadingIconColor: AppColors.primary,
-                    onTap: () {
-                      context.push('/feedback');
-                    },
+                    leadingIconColor: Colors.purpleAccent,
+                    onTap: () => context.push('/feedback'),
                   ),
-                ],
-              ),
-            ),
+                ]),
 
-            const SizedBox(height: 30),
-          ],
-        ),
+                const SizedBox(height: 40),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// 构建用户信息项
-  Widget _buildUserInfoItem(BuildContext context, dynamic userRepo) {
-    final user = userRepo.currentUser;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          // 跳转到个人信息页
-          context.push('/personal_info/profile');
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            children: [
-              // 头像
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                backgroundImage: strNoEmpty(user?.avatar)
-                    ? NetworkImage(user!.avatar!)
-                    : null,
-                child: !strNoEmpty(user?.avatar)
-                    ? Text(
-                        user?.nickname?.substring(0, 1).toUpperCase() ?? 'U',
-                        style: ref
-                            .read(themeProvider.notifier)
-                            .getTextStyle(
-                              FontSizeType.title,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      )
-                    : null,
-              ),
-
-              const SizedBox(width: 16),
-
-              // 用户信息
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user?.nickname ?? '',
-                      style: ref
-                          .read(themeProvider.notifier)
-                          .getTextStyle(
-                            FontSizeType.large,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    if (user?.uid != null && user!.uid!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'ID: ${user.uid}',
-                        style: ref
-                            .read(themeProvider.notifier)
-                            .getTextStyle(
-                              FontSizeType.small,
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // QR Code
-              InkWell(
-                onTap: () {
-                  context.push('/qrcode/user');
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.qr_code_2,
-                    color: AppColors.textSecondary.withValues(alpha: 0.5),
-                    size: 20,
-                  ),
-                ),
-              ),
-
-              // 右箭头
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: AppColors.textSecondary.withValues(alpha: 0.5),
-                size: 16,
-              ),
-            ],
+  /// 构建菜单分组
+  Widget _buildMenuSection(BuildContext context, List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: AppRadius.borderRadiusRegular,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
+        ],
       ),
+      child: Column(children: children),
     );
   }
 
@@ -331,57 +286,39 @@ class _MinePageState extends ConsumerState<MinePage> {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
+    final theme = Theme.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        borderRadius: AppRadius.borderRadiusRegular,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
-              // 前导图标
               if (leadingIcon != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: (leadingIconColor ?? AppColors.primary).withValues(
-                      alpha: 0.1,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    leadingIcon,
-                    color: leadingIconColor ?? AppColors.primary,
-                    size: 20,
-                  ),
+                Icon(
+                  leadingIcon,
+                  color: leadingIconColor ?? theme.primaryColor,
+                  size: 24,
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
               ],
-
-              // 标题
               Expanded(
                 child: Text(
                   title,
-                  style: ref
-                      .read(themeProvider.notifier)
-                      .getTextStyle(
-                        FontSizeType.normal,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-
-              // 尾部组件
               if (trailing != null) ...[
-                const SizedBox(width: 8),
                 trailing,
               ] else if (onTap != null) ...[
-                const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: AppColors.textSecondary.withValues(alpha: 0.5),
-                  size: 16,
+                  color: theme.hintColor.withValues(alpha: 0.3),
+                  size: 14,
                 ),
               ],
             ],
@@ -393,13 +330,12 @@ class _MinePageState extends ConsumerState<MinePage> {
 
   /// 构建分割线
   Widget _buildDivider(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 56),
-      child: Divider(
-        height: 0.5,
-        thickness: 0.5,
-        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-      ),
+    return Divider(
+      height: 1,
+      indent: 56,
+      endIndent: 16,
+      color: Theme.of(context).dividerColor.withValues(alpha: 0.05),
     );
   }
+
 }

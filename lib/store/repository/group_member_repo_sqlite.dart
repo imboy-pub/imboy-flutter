@@ -269,38 +269,4 @@ class GroupMemberRepo {
       whereArgs: [gid],
     );
   }
-  // TODO DELETE
-  // Future<List<String>> getMemberAvatars(String gid, {int limit = 9}) async {
-  //
-  //   List<Map<String, dynamic>> maps = await _db.query(
-  //     GroupMemberRepo.tableName,
-  //     columns: [
-  //       GroupMemberRepo.avatar,
-  //     ],
-  //     where: '${GroupMemberRepo.groupId} = ?',
-  //     whereArgs: [gid],
-  //     // orderBy: orderBy,
-  //     limit: limit,
-  //     // offset: offset,
-  //   );
-  //   debugPrint(
-  //       "GroupMemberRepo_page repo ${maps.length} $gid, ${maps.toList().toString()}");
-  //   if (maps.isEmpty) {
-  //     return [];
-  //   }
-  //
-  //   List<String> items = [];
-  //   for (int i = 0; i < maps.length; i++) {
-  //     String avatar = maps[i][GroupMemberRepo.avatar] ?? "";
-  //     if (avatar != "") {
-  //       items.add(avatar);
-  //     }
-  //   }
-  //   return items;
-  // }
-
-  // 记得及时关闭数据库，防止内存泄漏
-  // close() async {
-  //   await _db.close();
-  // }
 }

@@ -10,6 +10,13 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/message_action_menu.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
 
+// 导入需要的页面和包
+import 'package:imboy/page/contact/people_info/people_info_page.dart';
+import 'package:imboy/page/single/video_viewer.dart';
+import 'package:map_launcher/map_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
+
 /// UI事件处理器
 ///
 /// 负责处理聊天页面的各种UI交互事件
@@ -336,20 +343,56 @@ class UIEventHandler {
 
   /// 显示用户详情
   void _showUserProfile(BuildContext context, User user) {
-    // TODO: 实现用户详情页面跳转
-    iPrint('显示用户详情: ${user.id}');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PeopleInfoPage(id: user.id, scene: 'chat'),
+      ),
+    );
   }
 
   /// 根据用户ID显示用户详情
   void _showUserProfileById(BuildContext context, String userId) {
-    // TODO: 实现用户详情页面跳转
-    iPrint('显示用户详情: $userId');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PeopleInfoPage(id: userId, scene: 'chat'),
+      ),
+    );
   }
 
   /// 在地图上显示位置
-  void _showLocationOnMap(BuildContext context, CustomMessage message) {
-    // TODO: 实现地图页面跳转
-    iPrint('显示位置消息: ${message.id}');
+  void _showLocationOnMap(BuildContext context, CustomMessage message) async {
+    try {
+      final metadata = message.metadata ?? {};
+      final latitude = double.tryParse(metadata['latitude']?.toString() ?? '');
+      final longitude = double.tryParse(
+        metadata['longitude']?.toString() ?? '',
+      );
+      final title = metadata['title']?.toString() ?? t.location;
+
+      if (latitude == null || longitude == null) {
+        EasyLoading.showToast(t.operationFailedAgainLater);
+        return;
+      }
+
+      // 使用已安装的地图应用打开位置
+      final availableMaps = await MapLauncher.installedMaps;
+
+      if (availableMaps.isEmpty) {
+        EasyLoading.showToast(t.operationFailedAgainLater);
+        return;
+      }
+
+      // 默认使用第一个可用的地图应用
+      await availableMaps.first.showMarker(
+        coords: Coords(latitude, longitude),
+        title: title,
+      );
+    } catch (e) {
+      iPrint('打开地图失败: $e');
+      EasyLoading.showError('${t.operationFailed}: ${e.toString()}');
+    }
   }
 
   /// 播放语音消息
@@ -380,9 +423,35 @@ class UIEventHandler {
   }
 
   /// 播放视频消息
-  void _playVideoMessage(BuildContext context, CustomMessage message) {
-    // TODO: 实现视频播放页面跳转
-    iPrint('播放视频消息: ${message.id}');
+  void _playVideoMessage(BuildContext context, CustomMessage message) async {
+    try {
+      final metadata = message.metadata ?? {};
+      final videoData = metadata['video'];
+
+      if (videoData == null || videoData is! Map<String, dynamic>) {
+        EasyLoading.showToast(t.operationFailedAgainLater);
+        return;
+      }
+
+      final videoUrl = videoData['url']?.toString() ?? '';
+      final thumbUrl = videoData['thumb']?.toString() ?? '';
+
+      if (videoUrl.isEmpty) {
+        EasyLoading.showToast(t.operationFailedAgainLater);
+        return;
+      }
+
+      // 打开视频播放页面
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoViewerPage(url: videoUrl, thumb: thumbUrl),
+        ),
+      );
+    } catch (e) {
+      iPrint('播放视频消息异常: $e');
+      EasyLoading.showError('${t.audioPlayFailed}: ${e.toString()}');
+    }
   }
 
   /// 检查文本是否包含URL
@@ -410,9 +479,14 @@ class UIEventHandler {
               ListTile(
                 leading: const Icon(Icons.open_in_browser),
                 title: Text(t.chatOpenLink),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  // TODO: 实现打开链接
+                  final uri = Uri.parse(text);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    EasyLoading.showError(t.operationFailedAgainLater);
+                  }
                 },
               ),
               ListTile(
@@ -427,9 +501,9 @@ class UIEventHandler {
               ListTile(
                 leading: const Icon(Icons.share),
                 title: Text(t.chatShareLink),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  // TODO: 实现分享链接
+                  await SharePlus.instance.share(ShareParams(text: text));
                 },
               ),
               const SizedBox(height: 20),

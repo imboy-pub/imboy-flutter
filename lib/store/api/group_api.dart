@@ -112,17 +112,6 @@ class GroupApi extends HttpClient {
     return resp.ok ? true : false;
   }
 
-  /// 下面的代码是垃圾代码，作完功能后需要清理 TODO
-
-  // Future<bool> deleteGr({required String groupId}) async {
-  //   IMBoyHttpResponse resp = await post(API., data: {
-  //     "scene": scene,
-  //     "tag": tagName,
-  //   });
-  //   debugPrint("GroupApi/deleteTag resp: ${resp.toString()}");
-  //   return resp.ok ? true : false;
-  // }
-
   Future<int> addTag({required String scene, required String tagName}) async {
     IMBoyHttpResponse resp = await post(
       API.userTagAdd,

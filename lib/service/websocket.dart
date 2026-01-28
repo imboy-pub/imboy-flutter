@@ -17,10 +17,12 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/network_monitor.dart';
+import 'package:imboy/service/storage.dart';
 import '../component/helper/datetime.dart' show DateTimeHelper;
 import 'websocket_message_queue.dart';
 import 'package:imboy/config/routes.dart' show AppRoutes;
 import 'package:imboy/config/init.dart' show navigatorKey;
+import 'package:flutter/foundation.dart';
 
 enum SocketStatus { connecting, connected, disconnected }
 
@@ -286,6 +288,15 @@ class WebSocketService {
 
       // 消息确认处理（包含ACK和撤回确认）
       _handleMessageAck(action, messageId);
+
+      // 【优化】过滤 ACK 相关消息，避免转发到 MessageService
+      // 这些消息已在 WebSocket 层面处理完成，不需要进一步处理
+      if (action == 'CLIENT_ACK_CONFIRM' ||
+          action == 'CLIENT_ACK_ERROR' ||
+          action.endsWith('_ACK')) {
+        iPrint('⏭️ [WS] ACK消息已处理，跳过转发: action=$action, msgId=$messageId');
+        return;
+      }
 
       // 统一分发到事件总线（非阻塞，不等待处理完成）
       // Unified dispatch to event bus (non-blocking, don't wait for processing)
@@ -600,7 +611,7 @@ class WebSocketService {
     if (_status == SocketStatus.connected) {
       try {
         _channel?.sink.add(message);
-        iPrint('> ws: 消息已发送 (${messageId ?? 'unknown'}): $message ;');
+        _logMessageSent(message, messageId);
 
         // 如果有消息ID，启动确认机制
         if (messageId != null) {
@@ -691,6 +702,48 @@ class WebSocketService {
     if (_pendingMessages.remove(messageId)) {
       iPrint('> ws: 消息已确认: $messageId');
       _notifyMessageSendResult(messageId, true);
+    }
+  }
+
+  /// 安全记录消息发送日志（不泄露敏感信息）
+  ///
+  /// 在生产环境中只输出消息类型和大小，不输出完整内容
+  /// 在开发环境中可通过 'debug_log_websocket_full' 开关启用详细日志
+  void _logMessageSent(String message, String? messageId) {
+    final id = messageId ?? 'unknown';
+
+    // 检查是否启用完整日志（仅开发环境）
+    final enableFullLog =
+        kDebugMode &&
+        StorageService.to.getBool('debug_log_websocket_full') == true;
+
+    if (enableFullLog) {
+      // 开发环境且启用详细日志时输出完整内容
+      iPrint('> ws: 消息已发送 ($id): $message ;');
+    } else {
+      // 默认只输出消息类型和大小（不包含敏感内容）
+      final msgType = _getMessageTypeInfo(message);
+      final size = message.length;
+      iPrint('> ws: 消息已发送 ($id) [$msgType] [$size bytes]');
+      // iPrint('> ws: 消息已发送 ($id) [$msgType] [$size bytes] $message');
+    }
+  }
+
+  /// 提取消息类型信息（不包含敏感内容）
+  ///
+  /// 返回格式：消息类型/消息子类型/加密状态
+  /// 例如：C2C/text/E2EE 或 C2G/image/PLAIN
+  String _getMessageTypeInfo(String message) {
+    try {
+      final data = jsonDecode(message);
+      final type = data['type']?.toString() ?? 'UNKNOWN';
+      final msgType = data['msg_type']?.toString() ?? 'unknown';
+      final hasE2ee = data['e2ee'] != null;
+      final encStatus = hasE2ee ? 'E2EE' : 'PLAIN';
+      return '$type/$msgType/$encStatus';
+    } catch (e, s) {
+      // debugPrint("_getMessageTypeInfo $e, trace $s ");
+      return 'UNKNOWN';
     }
   }
 

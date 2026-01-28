@@ -16,13 +16,13 @@
 
 ## 模块职责
 
-页面层（`lib/page/`）是应用的用户界面层，负责展示 UI 和处理用户交互。所有页面遵循 GetX 的 MVVM 架构模式。
+页面层（`lib/page/`）是应用的用户界面层，负责展示 UI 和处理用户交互。所有页面遵循 Riverpod 的现代化架构模式。
 
 ### 核心职责
 - 页面视图渲染（View）
-- 用户交互处理（Logic）
-- 页面状态管理（State）
-- 依赖注入和生命周期管理（Binding）
+- 用户交互处理（Notifier/Controller）
+- 页面状态管理（State/Provider）
+- 组件化拆分和复用
 
 ---
 
@@ -49,27 +49,33 @@
 
 ---
 
-## GetX 架构模式
+## Riverpod 架构模式
 
-每个功能模块遵循 GetX 的标准四层架构：
+每个功能模块遵循 Riverpod 的现代化架构：
 
 ### 文件命名规范
 ```
 <module>_<name>/
-├── <name>_view.dart      # 视图层
-├── <name>_logic.dart     # 业务逻辑层
-├── <name>_state.dart     # 状态管理层
-└── <name>_binding.dart   # 依赖注入层（可选）
+├── <name>_page.dart         # 页面视图
+├── <name>_provider.dart     # 状态管理
+├── <name>_state.dart        # 状态定义（可选）
+└── <name>_repository.dart   # 数据仓库（可选）
 ```
 
 ### 示例：聊天页面
 ```
 lib/page/chat/chat/
-├── chat_view.dart       # UI 视图
-├── chat_logic.dart      # 业务逻辑
-├── chat_state.dart      # 状态定义
-└── chat_binding.dart    # 依赖注入
+├── chat_page.dart           # UI 视图
+├── chat_provider.dart       # Riverpod Provider
+├── chat_state.dart          # 状态定义
+└── barrel/                  # 导出文件
 ```
+
+### Riverpod Provider 类型
+- **NotifierProvider**: 可变状态管理（推荐）
+- **FutureProvider**: 异步数据获取
+- **StreamProvider**: 流式数据监听
+- **Provider**: 不可变对象
 
 ---
 
@@ -81,9 +87,8 @@ lib/page/chat/chat/
 
 ### 路由配置
 - **路由定义**：`lib/config/routes.dart` - `AppRoutes`
-- **页面注册**：`lib/page/pages.dart` - `AppPages.routes`
-- **路由守卫**：`lib/config/router/app_router.dart` - go_router redirect 函数
-  - ✅ 已完全移除 GetX 中间件，使用 go_router 原生路由守卫
+- **路由配置**：`lib/config/router/app_router.dart` - go_router 配置
+  - ✅ 使用 go_router 原生路由守卫
   - ✅ 认证检查：`UserRepoLocal.to.isLoggedIn`
   - ✅ 免登录页面：初始页、登录页、注册页、忘记密码等
   - ✅ 未登录重定向到登录页并显示提示
@@ -117,10 +122,13 @@ AppRoutes.chatSetting    // 聊天设置
 
 ### 页面跳转示例
 ```dart
-// GetX 路由跳转
-Get.toNamed(AppRoutes.mine);
-Get.to(() => ContactPage(), binding: ContactBinding());
-Get.offAll(() => BottomNavigationPage());
+// go_router 路由跳转（推荐）
+context.go(AppRoutes.mine);
+context.push('/contact');
+GoRouter.of(context).go('/settings');
+
+// Navigator 跳转（兼容）
+Navigator.push(context, MaterialPageRoute(...));
 ```
 
 ---
@@ -178,46 +186,75 @@ import 'package:imboy/store/model/user_model.dart';
 1. **创建目录结构**
 ```bash
 lib/page/my_feature/
-├── my_feature_view.dart
-├── my_feature_logic.dart
-├── my_feature_state.dart
-└── my_feature_binding.dart
+├── my_feature_page.dart      # 页面视图
+├── my_feature_provider.dart  # Riverpod Provider
+└── my_feature_state.dart     # 状态定义（可选）
 ```
 
-2. **View 层示例**
+2. **Page 层示例**
 ```dart
-class MyFeatureView extends GetView<MyFeatureLogic> {
+class MyFeaturePage extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(myFeatureProvider);
     return Scaffold(
       appBar: AppBar(title: Text('MyFeature')),
-      body: Obx(() => Text(controller.state.data.value)),
+      body: state.isLoading
+          ? CircularProgressIndicator()
+          : Text(state.data),
     );
   }
 }
 ```
 
-3. **Logic 层示例**
+3. **Provider 层示例**
 ```dart
-class MyFeatureLogic extends GetxController {
-  final MyFeatureState state = MyFeatureState();
-
+class MyFeatureNotifier extends Notifier<MyFeatureState> {
   @override
-  void onInit() {
-    super.onInit();
-    // 初始化逻辑
+  MyFeatureState build() {
+    return MyFeatureState(isLoading: false, data: '');
+  }
+
+  Future<void> loadData() async {
+    state = MyFeatureState(isLoading: true, data: '');
+    // 加载数据...
+    state = MyFeatureState(isLoading: false, data: 'Loaded');
   }
 }
+
+final myFeatureProvider = NotifierProvider<MyFeatureNotifier, MyFeatureState>(
+  MyFeatureNotifier.new,
+);
 ```
 
 4. **State 层示例**
 ```dart
 class MyFeatureState {
-  final RxString data = ''.obs;
+  final bool isLoading;
+  final String data;
+
+  MyFeatureState({
+    required this.isLoading,
+    required this.data,
+  });
+
+  MyFeatureState copyWith({bool? isLoading, String? data}) {
+    return MyFeatureState(
+      isLoading: isLoading ?? this.isLoading,
+      data: data ?? this.data,
+    );
+  }
 }
 ```
 
-5. **Binding 层示例**
+5. **注册路由**
+```dart
+// lib/config/router/app_router.dart
+GoRoute(
+  path: '/my_feature',
+  name: 'my_feature',
+  builder: (context, state) => const MyFeaturePage(),
+),**
 ```dart
 class MyFeatureBinding extends Bindings {
   @override
@@ -252,15 +289,17 @@ EasyLoading.showSuccess('操作成功');
 ```
 
 ### Q: 如何跳转到聊天页面？
-A: 使用 `ChatLogic`：
+A: 使用 go_router：
 ```dart
-Get.toNamed('/chat', arguments: {'conversationUk3': uk3});
+context.go('/chat/$peerId');
+// 或者带参数
+context.go('/chat/user123?type=C2C&title=测试');
 ```
 
 ### Q: 如何刷新列表数据？
-A: 在 Logic 中调用更新方法：
+A: 在 Provider 中调用更新方法：
 ```dart
-state.data.refresh();
+ref.read(myFeatureProvider.notifier).refresh();
 ```
 
 ---
@@ -269,8 +308,8 @@ state.data.refresh();
 
 ### 路由和导航
 - `lib/config/router/app_router.dart` - go_router 路由配置和守卫
+- `lib/config/router/barrel/pages_barrel.dart` - 页面导出文件
 - `lib/config/routes.dart` - 路由常量定义
-- `lib/page/pages.dart` - 页面注册（已废弃，保留用于向后兼容）
 
 ### 核心页面
 - `lib/page/bottom_navigation/bottom_navigation_view.dart` - 底部导航

@@ -207,7 +207,7 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
         );
 
       case 'custom_image':
-        // TODO: 实现自定义图片背景
+        // 注意：自定义图片功能待实现，目前返回默认背景
         return BoxDecoration(color: theme.getThemeColor('surface'));
 
       case 'default':

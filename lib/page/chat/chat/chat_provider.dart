@@ -29,6 +29,7 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -753,9 +754,23 @@ class ChatNotifier extends _$ChatNotifier {
           // 不修改 msg['msg_type']
 
           iPrint('Chat.sendMessage: E2EE v2.0 加密成功 (${msg['id']})');
-        } catch (e) {
-          iPrint('Chat.sendMessage: E2EE v2.0 加密失败: $e，继续发送明文');
-          // 加密失败时继续发送明文（根据安全策略）
+        } catch (e, stackTrace) {
+          // E2EE加密失败，阻止发送并通知用户（安全修复）
+          iPrint('Chat.sendMessage: E2EE v2.0 加密失败: $e');
+
+          // 记录详细错误日志（不包含敏感内容）
+          AppLogger.error(
+            'E2EE加密失败 - msgId:${msg['id']?.toString()} msgType:${msg['type']?.toString()} to:${msg['to']?.toString()}',
+            e,
+            stackTrace,
+          );
+
+          // 显示用户友好的错误提示
+          final userMessage = _getE2EEErrorMessage(e);
+          EasyLoading.showToast(userMessage);
+
+          // 阻止发送（不再降级为明文）
+          return false;
         }
       } else {
         // v2.0: 普通消息，确保 payload 中不包含冗余的 msg_type/action/e2ee
@@ -782,6 +797,34 @@ class ChatNotifier extends _$ChatNotifier {
 
     iPrint('Chat.sendMessage已提交: ${msg['id']}');
     return true;
+  }
+
+  /// 生成E2EE加密失败的用户友好错误消息
+  ///
+  /// 隐藏技术细节，提供用户可理解的错误描述
+  String _getE2EEErrorMessage(dynamic error) {
+    final errorStr = error.toString().toLowerCase();
+
+    if (errorStr.contains('no_recipient_keys') ||
+        errorStr.contains('设备密钥') ||
+        errorStr.contains('device.*key')) {
+      return '无法获取对方设备密钥，消息未发送';
+    }
+
+    if (errorStr.contains('timeout') || errorStr.contains('超时')) {
+      return '加密超时，请检查网络连接后重试';
+    }
+
+    if (errorStr.contains('network') || errorStr.contains('网络')) {
+      return '网络错误，加密失败，消息未发送';
+    }
+
+    if (errorStr.contains('invalid') || errorStr.contains('格式')) {
+      return '消息格式错误，加密失败';
+    }
+
+    // 默认错误消息（不暴露技术细节）
+    return '端到端加密失败，消息未发送';
   }
 
   // ===== 消息操作 =====

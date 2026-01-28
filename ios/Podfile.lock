@@ -81,7 +81,7 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - JCore (5.2.2)
+  - JCore (5.3.1)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -309,7 +309,7 @@ SPEC CHECKSUMS:
   image_crop: d83cf4373d8a94b985477cb57af0a050274a9c8c
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
-  JCore: 310b8390501532c38c3baf43d1ebb16d782032af
+  JCore: 3814e38743361bcff5ee86b9f2e417a4b4cbf8ed
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: e26fc139307b3d80e30d01479656f4b9632f083f
   jverify: 756c7d4d358faa9fdc46e86b66aedcb1a410561a

@@ -15,6 +15,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/markdown.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -25,7 +26,6 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
-// import 'package:riverpod_annotation/riverpod_annotation.dart'; // 暂时不需要
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 允许搜索状态的 Provider - 使用 Provider 从存储中读取值
@@ -40,6 +40,11 @@ final allowSearchProvider = Provider<bool>((ref) {
     }
   }
   return true;
+});
+
+/// E2EE开关状态的 Provider - 从E2EE设置服务读取
+final e2eeEnabledProvider = Provider<bool>((ref) {
+  return E2EESettings.isEnabled();
 });
 
 /// 设置页面 - 使用 Riverpod + 优化后的主题系统
@@ -121,6 +126,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     final allowSearch = ref.watch(allowSearchProvider);
+    final e2eeEnabled = ref.watch(e2eeEnabledProvider);
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
 
@@ -269,6 +275,22 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           EasyLoading.showError(t.tipFailed);
                         }
                       }
+                    },
+                  ),
+
+                  // 端到端加密开关
+                  _buildSwitchItem(
+                    context,
+                    title: '端到端加密',
+                    subtitle: '启用后消息将被加密，只有接收方可以解密',
+                    value: e2eeEnabled,
+                    leadingIcon: Icons.lock,
+                    leadingIconColor: AppColors.success,
+                    onChanged: (v) async {
+                      await E2EESettings.setEnabled(v);
+                      // 刷新UI
+                      ref.invalidate(e2eeEnabledProvider);
+                      EasyLoading.showToast(v ? '已启用端到端加密' : '已关闭端到端加密');
                     },
                   ),
                 ],
