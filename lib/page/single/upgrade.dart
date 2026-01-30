@@ -52,6 +52,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   int currentLength = 0;
 
   StreamSubscription? _localeSubscription;
+  StreamSubscription? _downloadSubscription; // 下载进度订阅
 
   @override
   void initState() {
@@ -63,7 +64,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
     });
     // RUpgrade.setDebug(true);
     if (Platform.isAndroid) {
-      RUpgrade.stream.listen((DownloadInfo info) {
+      _downloadSubscription = RUpgrade.stream.listen((DownloadInfo info) {
         iPrint("RUpgrade.stream.listen info ${info.toString()}");
         // 更新进度条
         if (info.status == DownloadStatus.STATUS_PAUSED) {
@@ -113,6 +114,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   @override
   void dispose() {
     _localeSubscription?.cancel();
+    _downloadSubscription?.cancel(); // 清理下载进度订阅
     super.dispose();
   }
 

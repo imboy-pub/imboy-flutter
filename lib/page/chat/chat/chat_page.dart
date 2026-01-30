@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
+import 'package:go_router/go_router.dart';
 
 // Barrel exports - 减少导入语句
 import 'barrel/ui_packages.dart';
@@ -18,6 +19,9 @@ import 'message_action_handler.dart';
 // 事件订阅管理器
 import 'mixin/chat_event_subscription_manager.dart';
 
+// E2EE相关
+import 'package:imboy/service/message.dart';
+
 // 消息事件处理器
 import 'mixin/message_event_handler.dart';
 
@@ -34,6 +38,9 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+
+// 显式导入 StorageService（解决编译错误）
+import 'package:imboy/service/storage.dart';
 
 // 性能优化开关：设置为 true 使用优化的 ChatMessageList，false 使用原 ChatAnimatedList
 const bool _useOptimizedMessageList = false;
@@ -135,6 +142,10 @@ class ChatPageState extends ConsumerState<ChatPage>
   Message? quoteMessage; // 引用的消息
   final GlobalKey<ChatInputState> _chatInputKey = GlobalKey<ChatInputState>();
   final performanceMonitor = ChatPerformanceMonitor();
+
+  // 消息发送防抖
+  DateTime? _lastSendTime;
+  static const Duration _sendDebounceDuration = Duration(milliseconds: 500);
   late final ValueNotifier<double> composerHeightNotifier;
   Timer? _cleanupTimer;
   // 可视阈值已读：延迟计时与去重集合
@@ -152,7 +163,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   String? _editingMessageId; // 当前正在编辑的消息ID
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
-  // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
+  StreamSubscription? _connectivitySubscription; // 网络状态监听
 
   // 附件处理器（延迟初始化，依赖 conversationUk3）
   late final ChatAttachmentHandler _attachmentHandler;
@@ -217,8 +228,15 @@ class ChatPageState extends ConsumerState<ChatPage>
       _initChat();
       _initData();
 
-      // 发送活动会话事件（用于未读数管理）
-      _notifyChatActive(true);
+      // 初始化网络状态监听器（在 build 方法之外）
+      _chatNotifier.initConnectivityListener();
+
+      // 延迟发送活动会话事件，避免在 widget 树构建期间修改 provider
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _notifyChatActive(true);
+        }
+      });
 
       // 启动内存清理定时器
       _cleanupTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
@@ -303,18 +321,26 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 初始化数据
   Future<void> _initData() async {
+    // 检查 widget 是否仍然 mounted
+    if (!mounted) return;
+
     _peerUser = User(
       id: widget.peerId,
       name: widget.peerTitle,
       imageSource: widget.peerAvatar,
     );
     // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
-      if (r.contains(ConnectivityResult.none)) {
-        // 更新 Riverpod Provider 中的 connected 状态
-        ref.read(chatProvider.notifier).updateConnected(false);
-      } else {
-        ref.read(chatProvider.notifier).updateConnected(true);
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> r,
+    ) {
+      // 安全地更新 Provider 状态（仅在 widget 仍然 mounted 时）
+      if (mounted) {
+        if (r.contains(ConnectivityResult.none)) {
+          // 更新 Riverpod Provider 中的 connected 状态
+          ref.read(chatProvider.notifier).updateConnected(false);
+        } else {
+          ref.read(chatProvider.notifier).updateConnected(true);
+        }
       }
     });
     if (availableMaps.isEmpty) {
@@ -465,6 +491,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // AppErrorEvent 监听器订阅（需要单独处理以显示 SnackBar）
   StreamSubscription<AppErrorEvent>? _ssAppErrorLocal;
+  StreamSubscription<E2EEKeyMismatchEvent>? _ssE2EEKeyMismatch;
 
   void _setupEventListeners() {
     try {
@@ -497,19 +524,28 @@ class ChatPageState extends ConsumerState<ChatPage>
       _ssAppErrorLocal = AppEventBus.on<AppErrorEvent>().listen(
         (error) {
           if (!mounted) return;
+          // 处理非好友和黑名单错误
           if (error.errorType == 'not_a_friend' ||
-              error.message.contains('非好友')) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(error.message),
-                duration: const Duration(seconds: 3),
-                action: SnackBarAction(label: '确定', onPressed: () {}),
-              ),
-            );
+              error.errorType == 'in_denylist' ||
+              error.message.contains('非好友') ||
+              error.message.contains('黑名单')) {
+            // 使用 EasyLoading 显示提示（更简单直接）
+            EasyLoading.showToast(error.message);
           }
         },
         onError: (error) {
           debugPrint('AppErrorEvent listener error: $error');
+        },
+      );
+
+      // 监听E2EE密钥不匹配事件，引导用户重新登录
+      _ssE2EEKeyMismatch = AppEventBus.on<E2EEKeyMismatchEvent>().listen(
+        (event) {
+          if (!mounted) return;
+          _showE2EEKeyMismatchDialog();
+        },
+        onError: (error) {
+          debugPrint('E2EEKeyMismatchEvent listener error: $error');
         },
       );
     } catch (e) {
@@ -520,7 +556,15 @@ class ChatPageState extends ConsumerState<ChatPage>
   @override
   void dispose() {
     // 发送离开会话事件（用于未读数管理）
-    _notifyChatActive(false);
+    // 注意：在 dispose 中使用 ref 是不安全的
+    // 我们使用 try-catch 保护，并在 _notifyChatActive 内部检查 mounted
+    // 但此时 widget 已经 unmounted，所以不会有任何效果
+    try {
+      _notifyChatActive(false);
+    } catch (e) {
+      // 完全忽略 dispose 阶段的任何错误
+      // 此时 widget 已 unmounted，ref 不可用是正常的
+    }
 
     // 取消事件订阅管理器的所有订阅
     _eventSubscriptionManager?.dispose();
@@ -528,8 +572,15 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 取消 AppErrorEvent 本地监听器
     _ssAppErrorLocal?.cancel();
 
-    // 使用保存的引用而不是 ref.read（避免在 dispose 中使用 ref）
-    _chatNotifier.markAsDisposed();
+    // 取消 E2EE密钥不匹配事件监听器
+    _ssE2EEKeyMismatch?.cancel();
+
+    // 取消网络状态监听
+    _connectivitySubscription?.cancel();
+
+    // 注意：不要在页面 dispose 时清空消息列表
+    // ChatNotifier 是全局单例 Provider，退出页面不应销毁
+    // 这样重新进入会话时，消息列表仍然存在
 
     // 清理 composerHeightNotifier
     composerHeightNotifier.dispose();
@@ -549,14 +600,6 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 清理性能监控内存
     performanceMonitor.cleanupInvisibleMessages();
 
-    // 安全地清理聊天控制器（使用保存的引用）
-    try {
-      _chatNotifier.chatService?.setMessages([]);
-      _chatNotifier.chatService?.dispose();
-    } catch (e) {
-      debugPrint('Error disposing chat controller: $e');
-    }
-
     // Riverpod Provider 会自动处理资源释放
     try {
       _secureChannel.invokeMethod('disable');
@@ -567,6 +610,12 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 发送活动会话事件（用于未读数管理）
   void _notifyChatActive(bool isActive) {
+    // 检查 widget 是否仍然 mounted（在 dispose 中调用时可能已 unmounted）
+    if (!mounted) {
+      debugPrint('_notifyChatActive: widget 已 unmounted，跳过更新');
+      return;
+    }
+
     try {
       final conversationUk3 = ConversationUk3Generator.generateSmart(
         type: widget.type,
@@ -906,6 +955,14 @@ class ChatPageState extends ConsumerState<ChatPage>
       'handleSendPressed 开始: text=$text, _editingMessageId=$_editingMessageId',
     );
 
+    // 防抖：检查是否在短时间内重复发送
+    final now = DateTime.now();
+    if (_lastSendTime != null &&
+        now.difference(_lastSendTime!) < _sendDebounceDuration) {
+      iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
+      return false;
+    }
+
     // 检查是否是编辑消息
     if (_editingMessageId != null && _editingMessageId!.isNotEmpty) {
       iPrint('执行编辑消息: messageId=$_editingMessageId, newContent=$text');
@@ -925,9 +982,17 @@ class ChatPageState extends ConsumerState<ChatPage>
       return result;
     } else if (quoteMessage == null) {
       iPrint(t.sendNewMessage);
-      return await _sendTextMessage(text);
+      final result = await _sendTextMessage(text);
+      if (result) {
+        _lastSendTime = DateTime.now();
+      }
+      return result;
     } else {
-      return await _sendQuoteMessage(text);
+      final result = await _sendQuoteMessage(text);
+      if (result) {
+        _lastSendTime = DateTime.now();
+      }
+      return result;
     }
   }
 
@@ -1777,5 +1842,91 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (mounted) setState(() {});
       }
     }
+  }
+
+  /// 显示E2EE密钥不匹配对话框
+  ///
+  /// 当检测到E2EE密钥不匹配时，引导用户选择解决方案
+  void _showE2EEKeyMismatchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.lock_outline, color: Colors.orange),
+            const SizedBox(width: 12),
+            const Text('消息无法解密'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('此消息无法解密，可能原因是：'),
+            const SizedBox(height: 8),
+            Text('• 您在其他设备上登录'),
+            const Text('• 设备密钥已过期'),
+            const Text('• 应用数据损坏'),
+            const SizedBox(height: 16),
+            Text('请选择解决方案：'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _refreshE2EEKeys();
+            },
+            child: const Text('重新创建密钥（推荐）'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _relogin();
+            },
+            child: const Text('重新登录'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('稍后提醒我'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 重新创建E2EE密钥
+  Future<void> _refreshE2EEKeys() async {
+    try {
+      EasyLoading.showToast('正在重新创建密钥...');
+
+      // 1. 清除E2EE缓存
+      E2EEService.clearCache();
+
+      // 2. 重新生成密钥对（RSA服务会自动处理）
+      // 这里我们只需清理缓存，下次使用时会自动生成新的密钥对
+      // 并上传到服务器
+
+      // 3. 重新获取当前用户的设备密钥
+      final currentUid = UserRepoLocal.to.currentUid;
+      if (currentUid.isNotEmpty) {
+        // 清除标记，强制重新获取
+        await StorageService.to.remove('e2ee_key_refresh_time');
+        await E2EEService.getUserDevicePublicKeys(currentUid);
+      }
+
+      EasyLoading.showSuccess('密钥已重新创建');
+      iPrint('E2EE: 密钥已重新创建');
+    } catch (e) {
+      EasyLoading.showError('密钥创建失败: $e');
+      iPrint('E2EE: 密钥创建失败: $e');
+    }
+  }
+
+  /// 重新登录
+  void _relogin() {
+    EasyLoading.showToast('请重新登录');
+    // 跳转到登录页面
+    context.go('/initial');
   }
 }

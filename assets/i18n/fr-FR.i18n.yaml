@@ -150,6 +150,12 @@ chatStatusSentDesc: "Message envoyé"
 chatStatusDeliveredDesc: "Message livré"
 chatStatusSeenDesc: "Message lu"
 chatStatusFailedDesc: "Échec de l'envoi, appuyez pour réessayer"
+# 消息发送错误类型
+# 消息发送错误类型
+chatErrorInDenylist: "Vous êtes sur leur liste noire"
+chatErrorInDenylistDesc: "Le message ne peut pas être envoyé - vous avez été bloqué"
+chatErrorNotAFriend: "Pas encore amis"
+chatErrorNotAFriendDesc: "Le message ne peut pas être envoyé - ajoutez d'abord comme ami"
 checkForUpdates: "Vérifier les mises à jour"
 chooseFromAlbum: "Choisir depuis l'album"
 clean: "Nettoyer"

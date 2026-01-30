@@ -258,41 +258,65 @@ class MessageRetry with EventSubscriptionManager {
 
   /// 重试单个消息
   /// Retry single message.
+  ///
+  /// 【修复 H3】使用数据库事务防止竞态条件
+  /// 确保消息状态检查和更新的原子性
   Future<void> _retryMessage(MessageRetryInfo info) async {
     try {
-      // 从数据库读取消息数据
       final repo = getMessageRepo(info.type);
-      final msg = await repo.find(info.messageId);
 
-      if (msg == null) {
-        iPrint('⚠️ [RETRY] 消息不存在，从重试队列移除: ${info.messageId}');
-        _retryQueue.remove(info.messageId);
-        return;
-      }
+      // 【修复 H3】使用 CAS (Compare-And-Set) 操作防止竞态条件
+      // 只更新特定状态的消息，避免与其他操作冲突
+      // 只重试 error 状态的消息（41=发送失败）
+      final updatedRows = await repo.updateWithConditions(
+        {
+          'id': info.messageId,
+          'status': IMBoyMessageStatus.sending,
+        },
+        where: "id = ? AND status = ?",
+        whereArgs: [
+          info.messageId,
+          IMBoyMessageStatus.error,
+        ],
+      );
 
-      // 如果消息状态已经是 sent，说明已经收到 ACK，不需要重试
-      if (msg.status == IMBoyMessageStatus.sent) {
-        iPrint('✅ [RETRY] 消息已确认（状态为 sent），跳过重试: ${info.messageId}');
+      // 如果没有更新任何行，说明消息状态已被其他操作改变，跳过重试
+      if (updatedRows == 0) {
+        final msg = await repo.find(info.messageId);
+        if (msg == null) {
+          iPrint('⚠️ [RETRY] 消息不存在，从重试队列移除: ${info.messageId}');
+        } else {
+          iPrint(
+            '⚠️ [RETRY] 消息状态已变更，跳过重试: ${info.messageId}, 当前状态: ${msg.status}',
+          );
+        }
         _retryQueue.remove(info.messageId);
         return;
       }
 
       iPrint(
-        '重试发送消息: ${info.messageId}, 第${info.retryCount + 1}次重试, 当前状态: ${msg.status}',
+        '重试发送消息: ${info.messageId}, 第${info.retryCount + 1}次重试',
       );
 
-      // 更新消息状态为发送中
-      await repo.update({
-        'id': info.messageId,
-        'status': IMBoyMessageStatus.sending,
-      });
+      // 重新读取消息数据（构造完整的消息对象）
+      final msg = await repo.find(info.messageId);
+      if (msg == null) {
+        iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
+        _retryQueue.remove(info.messageId);
+        return;
+      }
 
       // 构造消息数据（从数据库读取）
+      // WebSocket API v2.0: msg_type、action、e2ee 字段提升到顶层
       final messageData = {
         'id': msg.id,
         'type': msg.type,
         'from': msg.fromId,
         'to': msg.toId,
+        // v2.0: 添加顶层字段
+        'msg_type': msg.msgType ?? '',
+        'action': msg.action ?? '',
+        'e2ee': msg.e2ee, // Map 类型（如果存在）
         'payload': msg.payload,
         'created_at': msg.createdAt,
       };
@@ -352,11 +376,16 @@ class MessageRetry with EventSubscriptionManager {
       });
 
       // 构造消息数据
+      // WebSocket API v2.0: msg_type、action、e2ee 字段提升到顶层
       Map<String, dynamic> messageData = {
         'id': msg.id,
         'type': msg.type,
         'from': msg.fromId,
         'to': msg.toId,
+        // v2.0: 添加顶层字段
+        'msg_type': msg.msgType ?? '',
+        'action': msg.action ?? '',
+        'e2ee': msg.e2ee, // Map 类型（如果存在）
         'payload': msg.payload,
         'created_at': msg.createdAt,
       };

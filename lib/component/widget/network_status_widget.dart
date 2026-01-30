@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_provider.dart';
 
-class NetworkStatusWidget extends StatefulWidget {
+class NetworkStatusWidget extends ConsumerStatefulWidget {
   const NetworkStatusWidget({super.key});
 
   @override
-  State<NetworkStatusWidget> createState() => _NetworkStatusWidgetState();
+  ConsumerState<NetworkStatusWidget> createState() =>
+      _NetworkStatusWidgetState();
 }
 
-class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
+class _NetworkStatusWidgetState extends ConsumerState<NetworkStatusWidget> {
   NetworkType _networkType = NetworkType.unknown;
   bool _isConnected = false;
-  SocketStatus _wsStatus = SocketStatus.disconnected;
 
   @override
   void initState() {
@@ -20,7 +22,6 @@ class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
     // 初始化状态
     _networkType = NetworkMonitorService.to.currentNetworkType;
     _isConnected = NetworkMonitorService.to.isConnected;
-    _wsStatus = WebSocketService.to.status;
 
     // 添加网络变化监听器
     NetworkMonitorService.to.addNetworkChangeListener((oldType, newType) {
@@ -31,41 +32,34 @@ class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
         });
       }
     });
-
-    // 添加 WebSocket 状态监听器
-    WebSocketService.to.addStatusListener((status) {
-      if (mounted) {
-        setState(() {
-          _wsStatus = status;
-        });
-      }
-    });
   }
 
   @override
   void dispose() {
     // 移除监听器
     NetworkMonitorService.to.removeNetworkChangeListener((oldType, newType) {});
-    WebSocketService.to.removeStatusListener((status) {});
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // 使用 Provider 监听 WebSocket 状态（响应式）
+    final wsStatus = ref.watch(webSocketStatusProvider);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: _getStatusColor(
           _networkType,
           _isConnected,
-          _wsStatus,
+          wsStatus,
         ).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _getStatusColor(
             _networkType,
             _isConnected,
-            _wsStatus,
+            wsStatus,
           ).withValues(alpha: 0.3),
           width: 1,
         ),
@@ -76,14 +70,14 @@ class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
           Icon(
             _getNetworkIcon(_networkType, _isConnected),
             size: 14,
-            color: _getStatusColor(_networkType, _isConnected, _wsStatus),
+            color: _getStatusColor(_networkType, _isConnected, wsStatus),
           ),
           const SizedBox(width: 4),
           Text(
-            _getStatusText(_networkType, _isConnected, _wsStatus),
+            _getStatusText(_networkType, _isConnected, wsStatus),
             style: TextStyle(
               fontSize: 11,
-              color: _getStatusColor(_networkType, _isConnected, _wsStatus),
+              color: _getStatusColor(_networkType, _isConnected, wsStatus),
               fontWeight: FontWeight.w500,
             ),
           ),

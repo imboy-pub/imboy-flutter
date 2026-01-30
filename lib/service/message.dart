@@ -1,27 +1,30 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/conversation/conversation_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:imboy/page/group/group_detail/group_detail_service.dart';
-import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/config/init.dart' show navigatorKey;
 import 'package:imboy/config/routes.dart' show AppRoutes;
+import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/events/base_event.dart';
+import 'package:imboy/service/event_subscription_manager.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 
 import 'message_actions.dart';
 import 'message_s2c.dart';
@@ -1237,10 +1240,39 @@ class MessageService with EventSubscriptionManager {
       return payload;
     } catch (e) {
       iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=$e');
+
+      // 检查是否是密钥不匹配错误
+      final errorStr = e.toString().toLowerCase();
+      final isKeyMismatch = errorStr.contains('no key found for device') ||
+          errorStr.contains('密钥') ||
+          errorStr.contains('device');
+
+      if (isKeyMismatch) {
+        // 触发E2EE密钥不匹配事件，引导用户重新登录
+        AppEventBus.fire(
+          E2EEKeyMismatchEvent(
+            messageId: msgId,
+            reason: '密钥不匹配',
+          ),
+        );
+
+        // 密钥不匹配：显示友好提示并引导用户重新登录
+        return {
+          'msg_type': originalMsgType,
+          'custom_type': 'e2ee_key_mismatch',
+          'text': '🔒 此消息无法解密\n\n可能原因：\n• 您在其他设备上登录\n• 设备密钥已过期\n\n建议：\n点击下方按钮重新登录以获取最新密钥',
+          '_e2ee_failed': true,
+          '_e2ee_reason': 'key_mismatch',
+          '_e2ee_error': e.toString(),
+          '_show_relogin_button': true,  // 标记需要显示重新登录按钮
+        };
+      }
+
+      // 其他解密错误
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
         'custom_type': 'e2ee',
-        'text': '[加密消息]',
+        'text': '🔒 [加密消息无法解密]\n\n错误：${e.toString()}',
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
         '_e2ee_error': e.toString(),
@@ -1353,5 +1385,27 @@ class MessageService with EventSubscriptionManager {
       default:
         iPrint('⚠️ [未知消息类型] messageType=$messageType');
     }
+  }
+}
+
+/// E2EE密钥不匹配事件
+///
+/// 当接收端无法解密消息（设备密钥不匹配）时触发
+/// 用于引导用户重新登录或刷新密钥
+final class E2EEKeyMismatchEvent extends AppEvent {
+  @override
+  List<Object> get props => [messageId, reason];
+
+  final String messageId;
+  final String reason;
+
+  const E2EEKeyMismatchEvent({
+    required this.messageId,
+    required this.reason,
+  });
+
+  @override
+  String toString() {
+    return 'E2EEKeyMismatchEvent(messageId: $messageId, reason: $reason)';
   }
 }

@@ -480,6 +480,18 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '发送失败，点击重试'
 	String get chatStatusFailedDesc => '发送失败，点击重试';
 
+	/// zh-CN: '对方已将您加入黑名单'
+	String get chatErrorInDenylist => '对方已将您加入黑名单';
+
+	/// zh-CN: '消息无法发送，对方已将您加入黑名单'
+	String get chatErrorInDenylistDesc => '消息无法发送，对方已将您加入黑名单';
+
+	/// zh-CN: '对方不是您的好友'
+	String get chatErrorNotAFriend => '对方不是您的好友';
+
+	/// zh-CN: '消息无法发送，请先添加对方为好友'
+	String get chatErrorNotAFriendDesc => '消息无法发送，请先添加对方为好友';
+
 	/// zh-CN: '检查更新'
 	String get checkForUpdates => '检查更新';
 
@@ -3826,6 +3838,10 @@ extension on Translations {
 			'chatStatusDeliveredDesc' => '消息已送达',
 			'chatStatusSeenDesc' => '消息已读',
 			'chatStatusFailedDesc' => '发送失败，点击重试',
+			'chatErrorInDenylist' => '对方已将您加入黑名单',
+			'chatErrorInDenylistDesc' => '消息无法发送，对方已将您加入黑名单',
+			'chatErrorNotAFriend' => '对方不是您的好友',
+			'chatErrorNotAFriendDesc' => '消息无法发送，请先添加对方为好友',
 			'checkForUpdates' => '检查更新',
 			'chooseFromAlbum' => '从相册选择',
 			'clean' => '清理',
@@ -4186,12 +4202,12 @@ extension on Translations {
 			'quickFilters' => '快速筛选',
 			'quote' => '引用',
 			'quoteReply' => '引用回复',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => '评级',
 			'reEdit' => '重新编辑',
 			'readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
 			'recentChats' => '最近聊天',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => '最近转发',
 			'recentlyRegisteredUser' => '最近注册用户',
 			'recentlyUsed' => '最近使用',
@@ -4700,12 +4716,12 @@ extension on Translations {
 			'discover' => '发现',
 			'shake' => '摇一摇',
 			'tip' => '提示',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => '确认',
 			'success' => '成功',
 			'export' => '导出',
 			'personalDisplay' => '个人展示',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => '个性签名',
 			'personalBackground' => '个人背景',
 			'setBackgroundImage' => '设置背景图片',

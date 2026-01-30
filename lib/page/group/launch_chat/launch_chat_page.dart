@@ -29,6 +29,9 @@ class LaunchChatPage extends ConsumerStatefulWidget {
 class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
   final int _itemHeight = 60;
 
+  // 防抖状态
+  bool _isCreatingGroup = false;
+
   @override
   void initState() {
     super.initState();
@@ -140,43 +143,53 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
             padding: const EdgeInsets.only(right: 16),
             child: RoundedElevatedButton(
               text: '${t.buttonAccomplish}${state.selectsTips}',
-              highlighted: state.selects.isNotEmpty,
-              onPressed: () async {
-                EasyLoading.show(status: t.loading);
-                int memberCount = state.selects.length;
-                iPrint(
-                  "state.selects $memberCount ${state.selects.map((e) => e.toJson()).toList()}",
-                );
-                try {
-                  GroupModel? m = await ref
-                      .read(launchChatProvider.notifier)
-                      .groupAdd(state.selects);
-                  if (m != null) {
-                    EasyLoading.dismiss();
-                    ref.read(launchChatProvider.notifier).resetData();
-                    if (context.mounted) {
-                      context.push(
-                        '/chat',
-                        extra: {
-                          'peerId': m.groupId,
-                          'type': 'C2G',
-                          'peerTitle': m.title,
-                          'peerAvatar': m.avatar,
-                          'peerSign': '',
-                          'memberCount': memberCount + 1,
-                        },
-                      );
-                    }
-                  } else {
-                    EasyLoading.dismiss();
-                    EasyLoading.showError(t.tipFailed);
-                  }
-                } catch (e) {
-                  EasyLoading.dismiss();
-                  EasyLoading.showError('${t.tipFailed}: $e');
-                  debugPrint("groupAdd error: $e");
-                }
-              },
+              highlighted: state.selects.isNotEmpty && !_isCreatingGroup,
+              onPressed: _isCreatingGroup
+                  ? null
+                  : () async {
+                      // 防抖：设置创建状态
+                      setState(() => _isCreatingGroup = true);
+
+                      try {
+                        EasyLoading.show(status: t.loading);
+                        int memberCount = state.selects.length;
+                        iPrint(
+                          "state.selects $memberCount ${state.selects.map((e) => e.toJson()).toList()}",
+                        );
+                        GroupModel? m = await ref
+                            .read(launchChatProvider.notifier)
+                            .groupAdd(state.selects);
+                        if (m != null) {
+                          EasyLoading.dismiss();
+                          ref.read(launchChatProvider.notifier).resetData();
+                          if (context.mounted) {
+                            context.push(
+                              '/chat',
+                              extra: {
+                                'peerId': m.groupId,
+                                'type': 'C2G',
+                                'peerTitle': m.title,
+                                'peerAvatar': m.avatar,
+                                'peerSign': '',
+                                'memberCount': memberCount + 1,
+                              },
+                            );
+                          }
+                        } else {
+                          EasyLoading.dismiss();
+                          EasyLoading.showError(t.tipFailed);
+                        }
+                      } catch (e) {
+                        EasyLoading.dismiss();
+                        EasyLoading.showError('${t.tipFailed}: $e');
+                        debugPrint("groupAdd error: $e");
+                      } finally {
+                        // 恢复创建状态
+                        if (mounted) {
+                          setState(() => _isCreatingGroup = false);
+                        }
+                      }
+                    },
             ),
           ),
         ],

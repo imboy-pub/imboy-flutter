@@ -32,6 +32,9 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
   final TextEditingController _msgController = TextEditingController();
   final TextEditingController _remarkController = TextEditingController();
 
+  // 防抖状态
+  bool _isSubmitting = false;
+
   @override
   void initState() {
     super.initState();
@@ -564,43 +567,55 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: () async {
-                final nav = Navigator.of(context);
-                Map<String, dynamic> payload = {
-                  "from": {
-                    "source": widget.source,
-                    "msg": _msgController.text,
-                    "remark": _remarkController.text,
-                    "account": UserRepoLocal.to.current.account,
-                    "nickname": UserRepoLocal.to.current.nickname,
-                    "avatar": UserRepoLocal.to.current.avatar,
-                    "sign": UserRepoLocal.to.current.sign,
-                    "gender": UserRepoLocal.to.current.gender,
-                    "region": UserRepoLocal.to.current.region,
-                    "role": providerState.role,
-                    "donotlookhim": providerState.donotlookhim,
-                    "donotlethimlook": providerState.donotlethimlook,
-                    "tag": providerState.peerTag.isEmpty
-                        ? ''
-                        : "${providerState.peerTag},",
-                  },
-                  "to": {},
-                };
+              onPressed: _isSubmitting
+                  ? null
+                  : () async {
+                      // 防抖：设置提交状态
+                      setState(() => _isSubmitting = true);
 
-                final success = await ref
-                    .read(applyFriendProvider.notifier)
-                    .apply(
-                      to: widget.uid,
-                      peerNickname: widget.remark,
-                      peerAvatar: widget.avatar,
-                      payload: payload,
-                    );
+                      try {
+                        final nav = Navigator.of(context);
+                        Map<String, dynamic> payload = {
+                          "from": {
+                            "source": widget.source,
+                            "msg": _msgController.text,
+                            "remark": _remarkController.text,
+                            "account": UserRepoLocal.to.current.account,
+                            "nickname": UserRepoLocal.to.current.nickname,
+                            "avatar": UserRepoLocal.to.current.avatar,
+                            "sign": UserRepoLocal.to.current.sign,
+                            "gender": UserRepoLocal.to.current.gender,
+                            "region": UserRepoLocal.to.current.region,
+                            "role": providerState.role,
+                            "donotlookhim": providerState.donotlookhim,
+                            "donotlethimlook": providerState.donotlethimlook,
+                            "tag": providerState.peerTag.isEmpty
+                                ? ''
+                                : "${providerState.peerTag},",
+                          },
+                          "to": {},
+                        };
 
-                if (success && context.mounted) {
-                  nav.pop();
-                  nav.pop();
-                }
-              },
+                        final success = await ref
+                            .read(applyFriendProvider.notifier)
+                            .apply(
+                              to: widget.uid,
+                              peerNickname: widget.remark,
+                              peerAvatar: widget.avatar,
+                              payload: payload,
+                            );
+
+                        if (success && context.mounted) {
+                          nav.pop();
+                          nav.pop();
+                        }
+                      } finally {
+                        // 恢复提交状态
+                        if (mounted) {
+                          setState(() => _isSubmitting = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
@@ -609,13 +624,22 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                   borderRadius: AppRadius.borderRadiusXLarge,
                 ),
               ),
-              child: Text(
-                t.buttonSend,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(
+                      t.buttonSend,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
           ),
         ),

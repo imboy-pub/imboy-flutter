@@ -27,6 +27,9 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
   final TextEditingController _textController = TextEditingController();
   bool _valueChanged = false;
 
+  // 防抖状态
+  bool _isSaving = false;
+
   @override
   void initState() {
     super.initState();
@@ -124,75 +127,90 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
               children: [
                 RoundedElevatedButton(
                   text: t.buttonAccomplish,
-                  highlighted: _valueChanged,
-                  onPressed: () async {
-                    String trimmedText = _textController.text.trim();
-                    if (trimmedText.isEmpty) {
-                      setState(() {
-                        _valueChanged = false;
-                      });
-                      return;
-                    }
+                  highlighted: _valueChanged && !_isSaving,
+                  onPressed: _isSaving
+                      ? null
+                      : () async {
+                          String trimmedText = _textController.text.trim();
+                          if (trimmedText.isEmpty) {
+                            setState(() {
+                              _valueChanged = false;
+                            });
+                            return;
+                          }
 
-                    if (widget.tag == null && _valueChanged) {
-                      // 添加新标签
-                      final newTag = await ref
-                          .read(userTagSaveProvider.notifier)
-                          .addTag(scene: widget.scene, tagName: trimmedText);
-                      if (newTag != null) {
-                        // 添加到列表
-                        ref
-                            .read(contactTagListProvider.notifier)
-                            .updateTag(newTag);
-                        Navigator.of(context).pop();
-                      }
-                    } else if (_valueChanged) {
-                      // 修改标签名称
-                      bool res = await ref
-                          .read(userTagSaveProvider.notifier)
-                          .changeName(
-                            scene: widget.scene,
-                            tagId: widget.tag?.tagId ?? 0,
-                            tagName: trimmedText,
-                          );
-                      if (res) {
-                        await ref
-                            .read(contactTagListProvider.notifier)
-                            .replaceObjectTag(
-                              scene: widget.scene,
-                              oldName: widget.tag?.name ?? '',
-                              newName: trimmedText,
-                            );
+                          // 防抖：设置保存状态
+                          setState(() => _isSaving = true);
 
-                        // 更新标签
-                        UserTagModel updatedTag = UserTagModel(
-                          userId: widget.tag?.userId ?? '',
-                          tagId: widget.tag?.tagId ?? 0,
-                          scene: widget.tag?.scene ?? 2,
-                          name: trimmedText,
-                          subtitle: widget.tag?.subtitle ?? '',
-                          refererTime: widget.tag?.refererTime ?? 0,
-                          updatedAt: widget.tag?.updatedAt ?? 0,
-                          createdAt: widget.tag?.createdAt ?? 0,
-                        );
-                        ref
-                            .read(contactTagListProvider.notifier)
-                            .updateTag(updatedTag);
+                          try {
+                            if (widget.tag == null && _valueChanged) {
+                              // 添加新标签
+                              final newTag = await ref
+                                  .read(userTagSaveProvider.notifier)
+                                  .addTag(
+                                    scene: widget.scene,
+                                    tagName: trimmedText,
+                                  );
+                              if (newTag != null) {
+                                // 添加到列表
+                                ref
+                                    .read(contactTagListProvider.notifier)
+                                    .updateTag(newTag);
+                                Navigator.of(context).pop();
+                              }
+                            } else if (_valueChanged) {
+                              // 修改标签名称
+                              bool res = await ref
+                                  .read(userTagSaveProvider.notifier)
+                                  .changeName(
+                                    scene: widget.scene,
+                                    tagId: widget.tag?.tagId ?? 0,
+                                    tagName: trimmedText,
+                                  );
+                              if (res) {
+                                await ref
+                                    .read(contactTagListProvider.notifier)
+                                    .replaceObjectTag(
+                                      scene: widget.scene,
+                                      oldName: widget.tag?.name ?? '',
+                                      newName: trimmedText,
+                                    );
 
-                        // 如果详情页面已打开，更新标签名称
-                        try {
-                          ref.read(contactTagDetailProvider).tagName;
-                        } catch (e) {
-                          // 详情页面未打开，忽略
-                        }
+                                // 更新标签
+                                UserTagModel updatedTag = UserTagModel(
+                                  userId: widget.tag?.userId ?? '',
+                                  tagId: widget.tag?.tagId ?? 0,
+                                  scene: widget.tag?.scene ?? 2,
+                                  name: trimmedText,
+                                  subtitle: widget.tag?.subtitle ?? '',
+                                  refererTime: widget.tag?.refererTime ?? 0,
+                                  updatedAt: widget.tag?.updatedAt ?? 0,
+                                  createdAt: widget.tag?.createdAt ?? 0,
+                                );
+                                ref
+                                    .read(contactTagListProvider.notifier)
+                                    .updateTag(updatedTag);
 
-                        EasyLoading.showSuccess(t.tipSuccess);
-                        Navigator.of(context).pop();
-                      } else {
-                        EasyLoading.showError(t.tipFailed);
-                      }
-                    }
-                  },
+                                // 如果详情页面已打开，更新标签名称
+                                try {
+                                  ref.read(contactTagDetailProvider).tagName;
+                                } catch (e) {
+                                  // 详情页面未打开，忽略
+                                }
+
+                                EasyLoading.showSuccess(t.tipSuccess);
+                                Navigator.of(context).pop();
+                              } else {
+                                EasyLoading.showError(t.tipFailed);
+                              }
+                            }
+                          } finally {
+                            // 恢复保存状态
+                            if (mounted) {
+                              setState(() => _isSaving = false);
+                            }
+                          }
+                        },
                 ),
               ],
             ),

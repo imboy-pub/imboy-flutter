@@ -184,6 +184,10 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => '메시지가 전달되었습니다';
 	@override String get chatStatusSeenDesc => '메시지가 읽혔습니다';
 	@override String get chatStatusFailedDesc => '전송 실패, 탭하여 재시도';
+	@override String get chatErrorInDenylist => '상대방이 차단함';
+	@override String get chatErrorInDenylistDesc => '메시지를 보낼 수 없음 - 상대방이 차단했음';
+	@override String get chatErrorNotAFriend => '아직 친구가 아님';
+	@override String get chatErrorNotAFriendDesc => '메시지를 보낼 수 없음 - 먼저 친구로 추가하세요';
 	@override String get checkForUpdates => '업데이트 확인';
 	@override String get chooseFromAlbum => '앨범에서 선택';
 	@override String get clean => '정리';
@@ -1424,6 +1428,10 @@ extension on TranslationsKoKr {
 			'chatStatusDeliveredDesc' => '메시지가 전달되었습니다',
 			'chatStatusSeenDesc' => '메시지가 읽혔습니다',
 			'chatStatusFailedDesc' => '전송 실패, 탭하여 재시도',
+			'chatErrorInDenylist' => '상대방이 차단함',
+			'chatErrorInDenylistDesc' => '메시지를 보낼 수 없음 - 상대방이 차단했음',
+			'chatErrorNotAFriend' => '아직 친구가 아님',
+			'chatErrorNotAFriendDesc' => '메시지를 보낼 수 없음 - 먼저 친구로 추가하세요',
 			'checkForUpdates' => '업데이트 확인',
 			'chooseFromAlbum' => '앨범에서 선택',
 			'clean' => '정리',
@@ -1784,12 +1792,12 @@ extension on TranslationsKoKr {
 			'quickFilters' => '빠른 필터',
 			'quote' => '인용',
 			'quoteReply' => '인용 답장',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => '평가',
 			'reEdit' => '다시 편집',
 			'readAgreeParam' => ({required Object param}) => '${param}을(를) 읽고 동의합니다',
 			'recentChats' => '최근 채팅',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => '최근 전달',
 			'recentlyRegisteredUser' => '최근 등록 사용자',
 			'recentlyUsed' => '최근 사용',
@@ -2298,12 +2306,12 @@ extension on TranslationsKoKr {
 			'discover' => '발견',
 			'shake' => '흔들기',
 			'tip' => '팁',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => '확인',
 			'success' => '성공',
 			'export' => '내보내기',
 			'personalDisplay' => '개인 표시',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => '개인 서명',
 			'personalBackground' => '개인 배경',
 			'setBackgroundImage' => '배경 이미지 설정',

@@ -28,7 +28,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
-  static const _dbVersion = 10; // v2.0: 升级到 WebSocket API v2.0 消息表结构
+  static const _dbVersion = 12; // v12: 最终修复 - 确保 msg_* 表包含所有必需字段
 
   // 单例构造
   SqliteService._privateConstructor();
@@ -156,6 +156,10 @@ class SqliteService {
   Future<void> _onUpgrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
 
+    // 检查当前数据库版本
+    final currentVersion = await db.rawQuery('PRAGMA user_version');
+    iPrint("📍 Current database version: $currentVersion");
+
     // 检查版本跳跃
     if (newVsn - oldVsn > 5) {
       iPrint("⚠️ Large version jump detected: v$oldVsn → v$newVsn");
@@ -178,6 +182,32 @@ class SqliteService {
     iPrint(
       "✅ Migration completed successfully: v${result.fromVersion} → v${result.toVersion}",
     );
+
+    // 验证表结构是否正确
+    await _verifyTableStructure(db);
+  }
+
+  /// 验证关键表的字段是否存在
+  Future<void> _verifyTableStructure(Database db) async {
+    try {
+      final tables = ['msg_c2c', 'msg_c2g', 'msg_c2s', 'msg_s2c'];
+      for (final table in tables) {
+        final result = await db.rawQuery("PRAGMA table_info($table)");
+        final columns = result.map((row) => row['name'] as String).toList();
+
+        // 检查必需字段
+        final requiredColumns = ['type', 'action', 'msg_type', 'e2ee'];
+        for (final col in requiredColumns) {
+          if (!columns.contains(col)) {
+            throw Exception('Table $table missing required column: $col');
+          }
+        }
+        iPrint("✅ Table $table structure verified: ${columns.length} columns");
+      }
+    } catch (e) {
+      iPrint("⚠️ Table structure verification failed: $e");
+      rethrow;
+    }
   }
 
   /// 数据库降级回调

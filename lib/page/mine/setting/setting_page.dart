@@ -15,6 +15,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/markdown.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -56,6 +57,10 @@ class SettingPage extends ConsumerStatefulWidget {
 }
 
 class _SettingPageState extends ConsumerState<SettingPage> {
+  // 防抖状态
+  bool _isUpdatingAllowSearch = false;
+  bool _isRefreshingKeys = false;
+
   /// 获取主题类型提示文字
   String themeTypeTips(WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
@@ -239,43 +244,58 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     value: allowSearch,
                     leadingIcon: Icons.search,
                     leadingIconColor: AppColors.info,
-                    onChanged: (v) async {
-                      iPrint("allowSearch v $v;");
-                      // 使用 userApiProvider 调用 API
-                      final userApi = ref.read(userApiProvider);
-                      bool res = await userApi.allowSearch(v ? 1 : 2);
-                      iPrint("allowSearch res $res;");
+                    onChanged: _isUpdatingAllowSearch
+                        ? null
+                        : (v) async {
+                            iPrint("allowSearch v $v;");
 
-                      if (res) {
-                        // 修复：先保存当前 setting，创建新对象后再保存
-                        final currentSetting = userRepo.setting;
-                        final newSetting = UserSettingModel(
-                          allowSearch: v,
-                          peopleNearbyVisible:
-                              currentSetting.peopleNearbyVisible,
-                          chatState: currentSetting.chatState,
-                          fontSize: currentSetting.fontSize,
-                          enableVisibilityRead:
-                              currentSetting.enableVisibilityRead,
-                          visibilityReadFraction:
-                              currentSetting.visibilityReadFraction,
-                          visibilityReadDelayMs:
-                              currentSetting.visibilityReadDelayMs,
-                          showOnlineStatus: currentSetting.showOnlineStatus,
-                          allowAddByPhone: currentSetting.allowAddByPhone,
-                          allowAddByQR: currentSetting.allowAddByQR,
-                        );
-                        await userRepo.changeSetting(newSetting);
-                        // allowSearchProvider 会自动从存储中读取最新值
-                        // 触发 userRepoProvider 失效以刷新 UI
-                        ref.invalidate(userRepoProvider);
-                      } else {
-                        // API 调用失败，显示错误提示
-                        if (context.mounted) {
-                          EasyLoading.showError(t.tipFailed);
-                        }
-                      }
-                    },
+                            // 防抖：设置更新状态
+                            setState(() => _isUpdatingAllowSearch = true);
+
+                            try {
+                              // 使用 userApiProvider 调用 API
+                              final userApi = ref.read(userApiProvider);
+                              bool res = await userApi.allowSearch(v ? 1 : 2);
+                              iPrint("allowSearch res $res;");
+
+                              if (res) {
+                                // 修复：先保存当前 setting，创建新对象后再保存
+                                final currentSetting = userRepo.setting;
+                                final newSetting = UserSettingModel(
+                                  allowSearch: v,
+                                  peopleNearbyVisible:
+                                      currentSetting.peopleNearbyVisible,
+                                  chatState: currentSetting.chatState,
+                                  fontSize: currentSetting.fontSize,
+                                  enableVisibilityRead:
+                                      currentSetting.enableVisibilityRead,
+                                  visibilityReadFraction:
+                                      currentSetting.visibilityReadFraction,
+                                  visibilityReadDelayMs:
+                                      currentSetting.visibilityReadDelayMs,
+                                  showOnlineStatus:
+                                      currentSetting.showOnlineStatus,
+                                  allowAddByPhone:
+                                      currentSetting.allowAddByPhone,
+                                  allowAddByQR: currentSetting.allowAddByQR,
+                                );
+                                await userRepo.changeSetting(newSetting);
+                                // allowSearchProvider 会自动从存储中读取最新值
+                                // 触发 userRepoProvider 失效以刷新 UI
+                                ref.invalidate(userRepoProvider);
+                              } else {
+                                // API 调用失败，显示错误提示
+                                if (context.mounted) {
+                                  EasyLoading.showError(t.tipFailed);
+                                }
+                              }
+                            } finally {
+                              // 恢复更新状态
+                              if (mounted) {
+                                setState(() => _isUpdatingAllowSearch = false);
+                              }
+                            }
+                          },
                   ),
 
                   // 端到端加密开关
@@ -292,6 +312,49 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       ref.invalidate(e2eeEnabledProvider);
                       EasyLoading.showToast(v ? '已启用端到端加密' : '已关闭端到端加密');
                     },
+                  ),
+
+                  // 刷新设备密钥
+                  _buildSettingItem(
+                    context,
+                    title: '刷新设备密钥',
+                    subtitle: '如果消息无法解密，点击此按钮刷新密钥',
+                    leadingIcon: Icons.refresh,
+                    leadingIconColor: AppColors.info,
+                    onTap: _isRefreshingKeys
+                        ? null
+                        : () async {
+                            // 防抖：设置刷新状态
+                            setState(() => _isRefreshingKeys = true);
+
+                            try {
+                              EasyLoading.showToast('正在刷新设备密钥...');
+                              // 清除E2EE缓存
+                              E2EEService.clearCache();
+                              await Future.delayed(
+                                const Duration(milliseconds: 500),
+                              );
+
+                              // 重新预加载当前用户的设备密钥
+                              final currentUid = UserRepoLocal.to.currentUid;
+                              if (currentUid.isNotEmpty) {
+                                await E2EEService.getUserDevicePublicKeys(
+                                  currentUid,
+                                );
+                              }
+
+                              EasyLoading.showSuccess('设备密钥已刷新');
+                              iPrint('E2EE: 设备密钥已手动刷新');
+                            } catch (e) {
+                              EasyLoading.showError('刷新失败: $e');
+                              iPrint('E2EE: 刷新设备密钥失败: $e');
+                            } finally {
+                              // 恢复刷新状态
+                              if (mounted) {
+                                setState(() => _isRefreshingKeys = false);
+                              }
+                            }
+                          },
                   ),
                 ],
               ),
@@ -724,7 +787,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     required String title,
     String? subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required ValueChanged<bool>? onChanged,
     IconData? leadingIcon,
     Color? leadingIconColor,
   }) {

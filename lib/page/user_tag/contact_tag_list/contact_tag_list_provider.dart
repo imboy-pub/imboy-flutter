@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
@@ -175,14 +176,24 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     if (newName.isNotEmpty && newName.endsWith(',') == false) {
       newName = "$newName,";
     }
+    // 安全验证：确保标签名称只包含安全字符
+    // 防止SQL注入攻击
+    final tagRegex = RegExp(r'^[\u4e00-\u9fa5a-zA-Z0-9_\s,，]+\$');
+    if (!tagRegex.hasMatch(oldName) || !tagRegex.hasMatch(newName)) {
+      debugPrint('❌ replaceObjectTag: 标签名称包含非法字符');
+      return null;
+    }
+
     if (scene == 'friend') {
+      // 使用参数化查询防止SQL注入
       String sql =
-          "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, '$oldName,', '$newName') WHERE 1 = 1;";
-      return await SqliteService.to.execute(sql);
+          "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, ?, ?) WHERE 1 = 1;";
+      return await SqliteService.to.execute(sql, ['\$oldName,', '\$newName']);
     } else if (scene == 'collect') {
+      // 使用参数化查询防止SQL注入
       String sql =
-          "UPDATE ${UserCollectRepo.tableName} SET ${UserCollectRepo.tag} = REPLACE(${UserCollectRepo.tag}, '$oldName,', '$newName,') WHERE 1 = 1;";
-      return await SqliteService.to.execute(sql);
+          "UPDATE ${UserCollectRepo.tableName} SET ${UserCollectRepo.tag} = REPLACE(${UserCollectRepo.tag}, ?, ?) WHERE 1 = 1;";
+      return await SqliteService.to.execute(sql, ['\$oldName,', '\$newName,']);
     }
     return null;
   }
@@ -196,10 +207,18 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     if (newName.isNotEmpty && newName.endsWith(',') == false) {
       newName = "$newName,";
     }
-    String old = '${tag.subtitle},';
+    // 安全验证：确保标签名称只包含安全字符
+    final tagRegex = RegExp(r'^[\u4e00-\u9fa5a-zA-Z0-9_\s,，]+\$');
+    if (!tagRegex.hasMatch(oldName) || !tagRegex.hasMatch(newName)) {
+      debugPrint('❌ replaceTagSubtitle: 标签名称包含非法字符');
+      return null;
+    }
+
+    // 使用参数化查询防止SQL注入
+    // 注意：直接在 SQL 参数中构造带逗号的字符串
     String sql =
-        "UPDATE ${UserTagRepo.tableName} SET ${UserTagRepo.subtitle} = REPLACE('$old}', '$oldName,', '$newName') WHERE ${UserTagRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${UserTagRepo.tagId} = ${tag.tagId};";
-    return await SqliteService.to.execute(sql);
+        "UPDATE ${UserTagRepo.tableName} SET ${UserTagRepo.subtitle} = REPLACE(${UserTagRepo.subtitle} || ',', ?, ?) WHERE ${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?;";
+    return await SqliteService.to.execute(sql, ['\$oldName,', '\$newName', UserRepoLocal.to.currentUid, tag.tagId]);
   }
 
   /// 更新标签

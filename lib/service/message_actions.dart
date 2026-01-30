@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:xid/xid.dart';
@@ -1115,6 +1116,78 @@ class MessageActions {
       }
     } catch (e, s) {
       iPrint('❌ [handleNotAFriendError] 处理异常: error=$e\nstacktrace=$s');
+    }
+  }
+
+  /// 处理黑名单错误（对方将您加入黑名单）
+  ///
+  /// 当服务端返回 `in_denylist` 事件时调用，说明接收方已将发送方加入黑名单。
+  ///
+  /// 处理流程：
+  /// 1. 打印调试日志
+  /// 2. 通过事件总线通知 UI 显示错误提示
+  /// 3. 更新消息状态为失败（status=41）
+  /// 4. 从重试队列移除（停止重试）
+  ///
+  /// 参数：
+  /// - [msgId]: 消息ID
+  /// - [msgType]: 消息类型 (C2C/C2G)
+  static Future<void> handleDenylistError({
+    required String? msgId,
+    required String msgType,
+  }) async {
+    try {
+      // 1. 打印调试日志
+      iPrint('🚫 [DENYLIST] msgId=$msgId, msgType=$msgType');
+      debugPrint('🚫 [DENYLIST] 无法发送消息 - 对方已将您加入黑名单');
+
+      // 2. 通过事件总线通知 UI 显示错误提示
+      try {
+        AppEventBus.fire(
+          AppErrorEvent(
+            message: t.chatErrorInDenylist,
+            errorType: 'in_denylist',
+          ),
+        );
+        iPrint('✅ [DENYLIST] 已发送错误提示事件');
+      } catch (e) {
+        debugPrint('⚠️ [DENYLIST] 发送事件失败: $e');
+      }
+
+      // 3. 更新消息状态为失败
+      // 4. 从重试队列移除
+      if (msgId != null && msgId.isNotEmpty) {
+        try {
+          // 更新消息状态为 error（失败）
+          AppEventBus.fire(
+            MessageStatusUpdateRequestedEvent(
+              messageId: msgId,
+              messageType: msgType,
+              newStatus: 41, // IMBoyMessageStatus.error
+              notifyUI: true,
+            ),
+          );
+          iPrint('✅ [DENYLIST] 消息状态已更新为 error: msgId=$msgId');
+        } catch (e) {
+          debugPrint('⚠️ [DENYLIST] 更新消息状态失败: $e');
+        }
+
+        try {
+          // 从重试队列移除（不重试）
+          AppEventBus.fire(
+            RemoveFromRetryQueueRequestedEvent(
+              messageId: msgId,
+              messageType: msgType,
+              reason: 'in_denylist',
+            ),
+          );
+          iPrint('🗑️ [DENYLIST] 消息已从重试队列移除: msgId=$msgId');
+        } catch (e) {
+          debugPrint('⚠️ [DENYLIST] 从重试队列移除失败: $e');
+        }
+      }
+    } catch (e, s) {
+      iPrint('❌ [handleDenylistError] 处理异常: error=$e\nstacktrace=$s');
     }
   }
 }

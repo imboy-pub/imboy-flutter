@@ -184,6 +184,10 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 	@override String get chatStatusDeliveredDesc => '訊息已送達';
 	@override String get chatStatusSeenDesc => '訊息已讀';
 	@override String get chatStatusFailedDesc => '傳送失敗，點擊重試';
+	@override String get chatErrorInDenylist => '對方已將您加入黑名單';
+	@override String get chatErrorInDenylistDesc => '訊息無法發送，對方已將您加入黑名單';
+	@override String get chatErrorNotAFriend => '對方不是您的好友';
+	@override String get chatErrorNotAFriendDesc => '訊息無法發送，請先添加對方為好友';
 	@override String get checkForUpdates => '檢查更新';
 	@override String get chooseFromAlbum => '從相簿選擇';
 	@override String get clean => '清理';
@@ -1424,6 +1428,10 @@ extension on TranslationsZhHant {
 			'chatStatusDeliveredDesc' => '訊息已送達',
 			'chatStatusSeenDesc' => '訊息已讀',
 			'chatStatusFailedDesc' => '傳送失敗，點擊重試',
+			'chatErrorInDenylist' => '對方已將您加入黑名單',
+			'chatErrorInDenylistDesc' => '訊息無法發送，對方已將您加入黑名單',
+			'chatErrorNotAFriend' => '對方不是您的好友',
+			'chatErrorNotAFriendDesc' => '訊息無法發送，請先添加對方為好友',
 			'checkForUpdates' => '檢查更新',
 			'chooseFromAlbum' => '從相簿選擇',
 			'clean' => '清理',
@@ -1784,12 +1792,12 @@ extension on TranslationsZhHant {
 			'quickFilters' => '快速篩選',
 			'quote' => '引用',
 			'quoteReply' => '引用回覆',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => '評級',
 			'reEdit' => '重新編輯',
 			'readAgreeParam' => ({required Object param}) => '已經閱讀並同意${param}',
 			'recentChats' => '最近聊天',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => '最近轉發',
 			'recentlyRegisteredUser' => '最近註冊的用家',
 			'recentlyUsed' => '最近使用',
@@ -2298,12 +2306,12 @@ extension on TranslationsZhHant {
 			'discover' => '發現',
 			'shake' => '搖一搖',
 			'tip' => '提示',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => '確認',
 			'success' => '成功',
 			'export' => '匯出',
 			'personalDisplay' => '個人展示',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => '個性簽名',
 			'personalBackground' => '個人背景',
 			'setBackgroundImage' => '設定背景圖片',

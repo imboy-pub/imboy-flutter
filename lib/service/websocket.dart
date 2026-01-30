@@ -42,7 +42,8 @@ class WebSocketService {
   final PersistentMessageQueue _messageQueue = PersistentMessageQueue.to;
 
   // 网络与连接
-  final ExponentialBackoff _backoff = ExponentialBackoff(maxRetries: 16);
+  // 【修复 M2】maxRetries=999999 表示无限重试（与注释一致）
+  final ExponentialBackoff _backoff = ExponentialBackoff(maxRetries: 999999);
   final Set<String> _pendingMessages = <String>{}; // 等待确认的消息ID
   WebSocketChannel? _channel;
   bool _isFlushing = false;
@@ -553,11 +554,14 @@ class WebSocketService {
       client = HttpClient();
       client.connectionTimeout = const Duration(seconds: 5);
 
-      // 测试多个可靠的服务
+      // 【修复 H4】使用国际通用的测试 URL + 配置化
       final testUrls = [
-        'https://www.baidu.com',
-        'https://dns.alidns.com',
-        'https://1.1.1.1',
+        'https://1.1.1.1',           // Cloudflare DNS (全球)
+        'https://8.8.8.8',           // Google DNS (全球)
+        'https://cloudflare.com',    // Cloudflare 官网
+        // Fallback: 使用配置的 WebSocket 服务器
+        if (Env.effectiveWsUrl != null)
+          Uri.parse(Env.effectiveWsUrl!).replace(scheme: 'https').toString(),
       ];
 
       for (final url in testUrls) {

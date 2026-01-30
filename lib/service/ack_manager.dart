@@ -36,6 +36,9 @@ class AckManager {
   /// 【优化】定期清理 Timer（每小时清理一次孤立的 Timer）
   Timer? _timerCleanupTimer;
 
+  // 【修复 H2】导入 async 库以使用 unawaited
+  // 已经在顶部导入了 dart:async
+
   /// WebSocket 连接状态（通过事件同步）
   bool _isWebSocketConnected = false;
 
@@ -83,7 +86,7 @@ class AckManager {
   }
 
   void dispose() {
-    // 【修复】取消所有活动的 Timer
+    // 【修复 H2】取消所有活动的 Timer（包括清理 Timer）
     _cancelAllTimers();
     // 【优化】取消定期清理 Timer
     _timerCleanupTimer?.cancel();
@@ -91,6 +94,7 @@ class AckManager {
     // 清理待确认 ACK
     _pendingAcks.clear();
     _isInitialized = false;
+    iPrint('🗑️ [ACK_MANAGER] dispose 完成，所有资源已清理');
   }
 
   /// 【新增】取消所有活动的 Timer
@@ -114,9 +118,11 @@ class AckManager {
   ///
   /// [type] 消息类型（C2C、C2G、S2C等）
   /// [msgId] 消息ID
-  void sendAck(String type, String msgId) {
-    // 检查deviceId
-    if (deviceId.isEmpty) {
+  /// [overrideDeviceId] 可选：覆盖 deviceId（用于测试）
+  void sendAck(String type, String msgId, {String? overrideDeviceId}) {
+    // 【修复 C1】检查deviceId，支持测试环境 Mock
+    final effectiveDeviceId = overrideDeviceId ?? deviceId;
+    if (effectiveDeviceId.isEmpty) {
       iPrint('❌ [ACK_MANAGER] deviceId 为空，跳过ACK: msgId=$msgId');
       return;
     }
@@ -124,7 +130,7 @@ class AckManager {
     // 【修复】移除去重逻辑，每次都发送 ACK 确保服务器收到
     // 如果服务器多次发送同一条消息（网络重试），客户端应该每次都返回 ACK
 
-    final ackMsg = generateAckMessage(type, msgId);
+    final ackMsg = generateAckMessage(type, msgId, overrideDeviceId: effectiveDeviceId);
 
     // 记录待确认的ACK
     _pendingAcks[msgId] = _PendingAck(
@@ -146,11 +152,12 @@ class AckManager {
   ///
   /// [type] 消息类型（C2C、C2G、S2C等）
   /// [msgId] 消息ID
+  /// [overrideDeviceId] 可选：覆盖 deviceId（用于测试）
   ///
   /// 返回格式：CLIENT_ACK,type,msgId,deviceId
   ///
   /// 抛出 [ArgumentError] 当参数无效时
-  String generateAckMessage(String type, String msgId) {
+  String generateAckMessage(String type, String msgId, {String? overrideDeviceId}) {
     // 参数验证：防止空值导致格式错误
     if (type.isEmpty || msgId.isEmpty) {
       iPrint(
@@ -158,22 +165,27 @@ class AckManager {
       );
       throw ArgumentError('ACK type and msgId cannot be empty');
     }
-    if (deviceId.isEmpty) {
+    // 【修复 C1】支持测试环境 Mock deviceId
+    final effectiveDeviceId = overrideDeviceId ?? deviceId;
+    if (effectiveDeviceId.isEmpty) {
       iPrint('⚠️ [ACK_MANAGER] deviceId 为空，ACK 可能无效');
     }
-    return 'CLIENT_ACK,$type,$msgId,$deviceId';
+    return 'CLIENT_ACK,$type,$msgId,$effectiveDeviceId';
   }
 
   /// 直接发送 ACK（不经过重试队列，用于需要立即发送的场景）
-  void sendAckDirect(String type, String msgId) {
+  ///
+  /// [overrideDeviceId] 可选：覆盖 deviceId（用于测试）
+  void sendAckDirect(String type, String msgId, {String? overrideDeviceId}) {
     try {
-      // 【新增】检查 deviceId 是否为空
-      if (deviceId.isEmpty) {
+      // 【修复 C1】支持测试环境 Mock deviceId
+      final effectiveDeviceId = overrideDeviceId ?? deviceId;
+      if (effectiveDeviceId.isEmpty) {
         iPrint('❌ [WS_ACK] deviceId 为空，无法发送ACK: msgId=$msgId, type=$type');
         return;
       }
 
-      final ackMsg = generateAckMessage(type, msgId);
+      final ackMsg = generateAckMessage(type, msgId, overrideDeviceId: effectiveDeviceId);
       iPrint('📤 [WS_ACK] 准备发送ACK: msgId=$msgId, type=$type, content=$ackMsg');
 
       // 【解耦】检查 WebSocket 连接状态（通过内部状态变量）
@@ -230,36 +242,45 @@ class AckManager {
     // 【修复】取消之前的 Timer（如果存在）
     _cancelTimer(msgId);
 
-    // 【修复】创建新的 Timer 并跟踪
+    // 【修复 H2】创建新的 Timer 并跟踪，添加异常保护
     final timer = Timer(Duration(milliseconds: _retryInterval), () {
-      // 从跟踪表中移除
-      _activeTimers.remove(msgId);
+      try {
+        // 从跟踪表中移除
+        _activeTimers.remove(msgId);
 
-      final ack = _pendingAcks[msgId];
+        final ack = _pendingAcks[msgId];
 
-      // ACK已被确认，不需要重试
-      if (ack == null) {
-        iPrint('✅ [ACK_MANAGER] ACK已确认，取消重试: msgId=$msgId');
-        return;
-      }
+        // ACK已被确认，不需要重试
+        if (ack == null) {
+          iPrint('✅ [ACK_MANAGER] ACK已确认，取消重试: msgId=$msgId');
+          return;
+        }
 
-      // 达到最大重试次数
-      if (ack.retryCount >= _maxRetries) {
-        iPrint('❌ [ACK_MANAGER] ACK发送失败，已达最大重试次数: msgId=$msgId');
-        _pendingAcks.remove(msgId);
-        return;
-      }
+        // 达到最大重试次数
+        if (ack.retryCount >= _maxRetries) {
+          iPrint('❌ [ACK_MANAGER] ACK发送失败，已达最大重试次数: msgId=$msgId');
+          _pendingAcks.remove(msgId);
+          return;
+        }
 
-      // 重试
-      ack.retryCount++;
-      iPrint(
-        '🔄 [ACK_MANAGER] ACK重试 ${ack.retryCount}/$_maxRetries: msgId=$msgId',
-      );
-      _sendAckInternal(msgId);
+        // 重试
+        ack.retryCount++;
+        iPrint(
+          '🔄 [ACK_MANAGER] ACK重试 ${ack.retryCount}/$_maxRetries: msgId=$msgId',
+        );
+        _sendAckInternal(msgId);
 
-      // 继续安排下一次重试
-      if (ack.retryCount < _maxRetries) {
-        _scheduleRetry(msgId);
+        // 继续安排下一次重试
+        if (ack.retryCount < _maxRetries) {
+          try {
+            _scheduleRetry(msgId);
+          } catch (e) {
+            iPrint('❌ [ACK_MANAGER] 安排下次重试失败: msgId=$msgId, error=$e');
+          }
+        }
+      } catch (e, s) {
+        // 【修复 H2】Timer 回调异常保护：防止未捕获异常导致 Timer 泄漏
+        iPrint('❌ [ACK_MANAGER] Timer 回调异常: msgId=$msgId, error=$e, stack=$s');
       }
     });
 

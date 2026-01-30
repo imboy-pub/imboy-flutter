@@ -192,15 +192,20 @@ class ChatNotifier extends _$ChatNotifier {
       }
     });
 
-    // 监听网络状态
+    return const ChatState();
+  }
+
+  /// 初始化网络状态监听（必须在 initState 或其他初始化方法中调用）
+  void initConnectivityListener() {
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
       results,
     ) {
       final isConnected = !results.contains(ConnectivityResult.none);
-      state = state.copyWith(connected: isConnected);
+      // 安全地更新状态（仅在 provider 未销毁时）
+      if (!isDisposed) {
+        state = state.copyWith(connected: isConnected);
+      }
     });
-
-    return const ChatState();
   }
 
   // ===== Getters =====
@@ -217,17 +222,15 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 初始化聊天服务
   void initChatService(String chatType) {
-    if (_isDisposed) {
-      iPrint('Chat已被释放，跳过初始化');
-      return;
-    }
+    // 移除 _isDisposed 检查 - 允许重新初始化
+    // ChatProvider 是全局单例，退出页面后不应标记为已释放
 
     if (_chatService == null || _chatService!.isDisposed) {
       iPrint('initChatService: 创建新的聊天服务');
       _chatService = ref.read(sqliteChatServiceProvider);
     } else {
-      iPrint('initChatService: 聊天服务已存在，重置状态');
-      _chatService!.reset();
+      iPrint('initChatService: 聊天服务已存在，保留消息列表');
+      // 不重置消息列表，保留之前的状态
     }
 
     iPrint('initChatService: 聊天服务初始化完成');
@@ -273,24 +276,32 @@ class ChatNotifier extends _$ChatNotifier {
     ConversationModel obj, {
     bool isInitial = false,
   }) async {
-    if (_isDisposed) {
-      iPrint('Chat已被释放，跳过加载更多消息');
-      return [];
-    }
-
     iPrint(
       '_loadMoreMessages: isInitial=$isInitial, hasMore=${state.hasMoreMessage}, loading=${state.isLoading}',
     );
 
     // 初始化时清空游标和消息
     if (isInitial) {
+      // 只有在切换到不同会话时才清空消息列表
+      // 重新进入同一会话时保留消息，避免消息列表闪烁
+      final isDifferentConversation = state.currentConversationId != obj.uk3;
+
       state = state.copyWith(
         nextAutoId: 0,
         prevAutoId: 0,
         hasMoreMessage: true,
         currentConversationId: obj.uk3,
       );
-      _chatService?.setMessages([]);
+
+      if (isDifferentConversation) {
+        // 切换会话：清空消息列表
+        _chatService?.setMessages([]);
+        iPrint('切换会话: ${state.currentConversationId} -> ${obj.uk3}');
+      } else {
+        // 同一会话：保留现有消息，只更新分页游标
+        iPrint('重新进入会话: ${obj.uk3}, 保留现有消息');
+      }
+
       iPrint('设置当前会话ID: ${obj.uk3}');
     }
 
@@ -299,11 +310,6 @@ class ChatNotifier extends _$ChatNotifier {
     state = state.copyWith(isLoading: true);
     final items = await _pageMessages(obj, state.pageSize);
     state = state.copyWith(isLoading: false);
-
-    if (_isDisposed) {
-      iPrint('Chat在异步操作后被释放，跳过消息更新');
-      return [];
-    }
 
     if (items.isEmpty) {
       state = state.copyWith(hasMoreMessage: false);
@@ -1687,11 +1693,6 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 加载较新的消息（用于双向分页）
   Future<List<Message>> loadNewerMessages(ConversationModel obj) async {
-    if (_isDisposed) {
-      iPrint('Chat已被释放，跳过加载较新消息');
-      return [];
-    }
-
     // 防止重复加载
     if (state.isLoadingNewer) {
       iPrint('正在加载较新消息，跳过');

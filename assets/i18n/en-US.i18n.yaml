@@ -1174,6 +1174,11 @@ chatStatusSentDesc: "Message sent"
 chatStatusDeliveredDesc: "Message delivered"
 chatStatusSeenDesc: "Message seen"
 chatStatusFailedDesc: "Failed, tap to retry"
+# 消息发送错误类型
+chatErrorInDenylist: "You are on their blacklist"
+chatErrorInDenylistDesc: "Message cannot be sent - you have been blocked"
+chatErrorNotAFriend: "Not friends yet"
+chatErrorNotAFriendDesc: "Message cannot be sent - please add as friend first"
 # ========================================
 # P1级Key别名支持（参数化改造）
 # P2级Key别名支持（语义相近）

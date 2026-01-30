@@ -184,6 +184,10 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'Messaggio consegnato';
 	@override String get chatStatusSeenDesc => 'Messaggio visualizzato';
 	@override String get chatStatusFailedDesc => 'Non riuscito, tocca per riprovare';
+	@override String get chatErrorInDenylist => 'Sei nella loro lista nera';
+	@override String get chatErrorInDenylistDesc => 'Impossibile inviare il messaggio - sei stato bloccato';
+	@override String get chatErrorNotAFriend => 'Non ancora amici';
+	@override String get chatErrorNotAFriendDesc => 'Impossibile inviare il messaggio - aggiungi prima come amico';
 	@override String get checkForUpdates => 'Controlla aggiornamenti';
 	@override String get chooseFromAlbum => 'Scegli dalla galleria';
 	@override String get clean => 'Pulisci';
@@ -1424,6 +1428,10 @@ extension on TranslationsItIt {
 			'chatStatusDeliveredDesc' => 'Messaggio consegnato',
 			'chatStatusSeenDesc' => 'Messaggio visualizzato',
 			'chatStatusFailedDesc' => 'Non riuscito, tocca per riprovare',
+			'chatErrorInDenylist' => 'Sei nella loro lista nera',
+			'chatErrorInDenylistDesc' => 'Impossibile inviare il messaggio - sei stato bloccato',
+			'chatErrorNotAFriend' => 'Non ancora amici',
+			'chatErrorNotAFriendDesc' => 'Impossibile inviare il messaggio - aggiungi prima come amico',
 			'checkForUpdates' => 'Controlla aggiornamenti',
 			'chooseFromAlbum' => 'Scegli dalla galleria',
 			'clean' => 'Pulisci',
@@ -1784,12 +1792,12 @@ extension on TranslationsItIt {
 			'quickFilters' => 'Filtri rapidi',
 			'quote' => 'Cita',
 			'quoteReply' => 'Risposta citata',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => 'Valutazione',
 			'reEdit' => 'Modifica di nuovo',
 			'readAgreeParam' => ({required Object param}) => 'Ho letto e accetto ${param}',
 			'recentChats' => 'Chat recenti',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => 'Inoltri recenti',
 			'recentlyRegisteredUser' => 'Utente registrato di recente',
 			'recentlyUsed' => 'Usato di recente',
@@ -2298,12 +2306,12 @@ extension on TranslationsItIt {
 			'discover' => 'Scopri',
 			'shake' => 'Scuoti',
 			'tip' => 'Suggerimento',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => 'Conferma',
 			'success' => 'Successo',
 			'export' => 'Esporta',
 			'personalDisplay' => 'Visualizzazione personale',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => 'Firma personale',
 			'personalBackground' => 'Sfondo personale',
 			'setBackgroundImage' => 'Imposta immagine sfondo',

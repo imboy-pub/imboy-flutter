@@ -150,6 +150,12 @@ chatStatusSentDesc: "تم إرسال الرسالة"
 chatStatusDeliveredDesc: "تم تسليم الرسالة"
 chatStatusSeenDesc: "تمت قراءة الرسالة"
 chatStatusFailedDesc: "فشل الإرسال، اضغط لإعادة المحاولة"
+# 消息发送错误类型
+# 消息发送错误类型
+chatErrorInDenylist: "أنت في القائمة السوداء"
+chatErrorInDenylistDesc: "لا يمكن إرسال الرسالة - تم حظرك"
+chatErrorNotAFriend: "لستما أصدقاء بعد"
+chatErrorNotAFriendDesc: "لا يمكن إرسال الرسالة - أضف كصديق أولا"
 checkForUpdates: "التحقق من التحديثات"
 chooseFromAlbum: "اختيار من الألبوم"
 clean: "تنظيف"

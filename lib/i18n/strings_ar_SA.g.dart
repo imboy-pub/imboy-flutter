@@ -184,6 +184,10 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'تم تسليم الرسالة';
 	@override String get chatStatusSeenDesc => 'تمت قراءة الرسالة';
 	@override String get chatStatusFailedDesc => 'فشل الإرسال، اضغط لإعادة المحاولة';
+	@override String get chatErrorInDenylist => 'أنت في القائمة السوداء';
+	@override String get chatErrorInDenylistDesc => 'لا يمكن إرسال الرسالة - تم حظرك';
+	@override String get chatErrorNotAFriend => 'لستما أصدقاء بعد';
+	@override String get chatErrorNotAFriendDesc => 'لا يمكن إرسال الرسالة - أضف كصديق أولا';
 	@override String get checkForUpdates => 'التحقق من التحديثات';
 	@override String get chooseFromAlbum => 'اختيار من الألبوم';
 	@override String get clean => 'تنظيف';
@@ -1424,6 +1428,10 @@ extension on TranslationsArSa {
 			'chatStatusDeliveredDesc' => 'تم تسليم الرسالة',
 			'chatStatusSeenDesc' => 'تمت قراءة الرسالة',
 			'chatStatusFailedDesc' => 'فشل الإرسال، اضغط لإعادة المحاولة',
+			'chatErrorInDenylist' => 'أنت في القائمة السوداء',
+			'chatErrorInDenylistDesc' => 'لا يمكن إرسال الرسالة - تم حظرك',
+			'chatErrorNotAFriend' => 'لستما أصدقاء بعد',
+			'chatErrorNotAFriendDesc' => 'لا يمكن إرسال الرسالة - أضف كصديق أولا',
 			'checkForUpdates' => 'التحقق من التحديثات',
 			'chooseFromAlbum' => 'اختيار من الألبوم',
 			'clean' => 'تنظيف',
@@ -1784,12 +1792,12 @@ extension on TranslationsArSa {
 			'quickFilters' => 'تصفية سريعة',
 			'quote' => 'اقتباس',
 			'quoteReply' => 'رد الاقتباس',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => 'تقييم',
 			'reEdit' => 'إعادة التعديل',
 			'readAgreeParam' => ({required Object param}) => 'لقد قرأت ووافقت على ${param}',
 			'recentChats' => 'المحادثات الأخيرة',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => 'إعادة التوجيه الأخيرة',
 			'recentlyRegisteredUser' => 'مستخدم مسجل حديثاً',
 			'recentlyUsed' => 'استخدمت مؤخراً',
@@ -2298,12 +2306,12 @@ extension on TranslationsArSa {
 			'discover' => 'اكتشاف',
 			'shake' => 'هز',
 			'tip' => 'تلميح',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => 'تأكيد',
 			'success' => 'نجح',
 			'export' => 'تصدير',
 			'personalDisplay' => 'عرض شخصي',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => 'التوقيع الشخصي',
 			'personalBackground' => 'الخلفية الشخصية',
 			'setBackgroundImage' => 'تعيين صورة الخلفية',

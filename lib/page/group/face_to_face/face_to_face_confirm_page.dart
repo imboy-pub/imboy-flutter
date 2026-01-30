@@ -40,6 +40,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   StreamSubscription? ssMsg;
   StreamSubscription? _localeSubscription;
 
+  // 防抖状态
+  bool _isJoiningGroup = false;
+
   @override
   void initState() {
     //监听Widget是否绘制完毕
@@ -143,45 +146,55 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                     borderRadius: AppRadius.borderRadiusSmall,
                   ),
                 ),
+                onPressed: _isJoiningGroup
+                    ? null
+                    : () async {
+                        // 防抖：设置加入状态
+                        setState(() => _isJoiningGroup = true);
+
+                        try {
+                          EasyLoading.show(status: t.loading);
+                          final notifier = ref.read(
+                            faceToFaceProvider.notifier,
+                          );
+                          Map<String, dynamic> res = await notifier
+                              .faceToFaceSave(widget.gid, widget.code);
+                          List<PeopleModel> memberList =
+                              res['memberList'] ?? [];
+                          Map<String, dynamic> group = res['group'];
+                          await GroupRepo().save('', group);
+
+                          if (context.mounted) {
+                            // 关闭当前页面并导航到聊天页面
+                            context.pop(); // 关闭 confirm 页面
+                            context.push(
+                              '/chat/${widget.gid}',
+                              extra: {
+                                'type': 'C2G',
+                                'title': group['title'] ?? '',
+                                'avatar': group['avatar'] ?? '',
+                                'sign': group['introduction'] ?? '',
+                                'memberCount': memberList.length,
+                              },
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint("faceToFaceSave error: $e");
+                          EasyLoading.showError('${t.error}: $e');
+                        } finally {
+                          EasyLoading.dismiss();
+                          // 恢复加入状态
+                          if (mounted) {
+                            setState(() => _isJoiningGroup = false);
+                          }
+                        }
+                      },
                 child: Text(
                   t.enterTheGroup,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onPrimary,
                   ),
                 ),
-                onPressed: () async {
-                  EasyLoading.show(status: t.loading);
-                  try {
-                    final notifier = ref.read(faceToFaceProvider.notifier);
-                    Map<String, dynamic> res = await notifier.faceToFaceSave(
-                      widget.gid,
-                      widget.code,
-                    );
-                    List<PeopleModel> memberList = res['memberList'] ?? [];
-                    Map<String, dynamic> group = res['group'];
-                    await GroupRepo().save('', group);
-
-                    if (context.mounted) {
-                      // 关闭当前页面并导航到聊天页面
-                      context.pop(); // 关闭 confirm 页面
-                      context.push(
-                        '/chat/${widget.gid}',
-                        extra: {
-                          'type': 'C2G',
-                          'title': group['title'] ?? '',
-                          'avatar': group['avatar'] ?? '',
-                          'sign': group['introduction'] ?? '',
-                          'memberCount': memberList.length,
-                        },
-                      );
-                    }
-                  } catch (e) {
-                    debugPrint("faceToFaceSave error: $e");
-                    EasyLoading.showError('${t.error}: $e');
-                  } finally {
-                    EasyLoading.dismiss();
-                  }
-                },
               ),
             ),
             const SizedBox(height: 8),

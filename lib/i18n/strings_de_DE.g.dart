@@ -184,6 +184,10 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'Nachricht zugestellt';
 	@override String get chatStatusSeenDesc => 'Nachricht gelesen';
 	@override String get chatStatusFailedDesc => 'Senden fehlgeschlagen. Zum Wiederholen tippen.';
+	@override String get chatErrorInDenylist => 'Sie stehen auf der Sperrliste';
+	@override String get chatErrorInDenylistDesc => 'Nachricht kann nicht gesendet werden - Sie wurden blockiert';
+	@override String get chatErrorNotAFriend => 'Noch keine Freunde';
+	@override String get chatErrorNotAFriendDesc => 'Nachricht kann nicht gesendet werden - fügen Sie die Person zuerst als Freund hinzu';
 	@override String get checkForUpdates => 'Auf Updates prüfen';
 	@override String get chooseFromAlbum => 'Aus Album auswählen';
 	@override String get clean => 'Bereinigen';
@@ -1424,6 +1428,10 @@ extension on TranslationsDeDe {
 			'chatStatusDeliveredDesc' => 'Nachricht zugestellt',
 			'chatStatusSeenDesc' => 'Nachricht gelesen',
 			'chatStatusFailedDesc' => 'Senden fehlgeschlagen. Zum Wiederholen tippen.',
+			'chatErrorInDenylist' => 'Sie stehen auf der Sperrliste',
+			'chatErrorInDenylistDesc' => 'Nachricht kann nicht gesendet werden - Sie wurden blockiert',
+			'chatErrorNotAFriend' => 'Noch keine Freunde',
+			'chatErrorNotAFriendDesc' => 'Nachricht kann nicht gesendet werden - fügen Sie die Person zuerst als Freund hinzu',
 			'checkForUpdates' => 'Auf Updates prüfen',
 			'chooseFromAlbum' => 'Aus Album auswählen',
 			'clean' => 'Bereinigen',
@@ -1784,12 +1792,12 @@ extension on TranslationsDeDe {
 			'quickFilters' => 'Schnellfilter',
 			'quote' => 'Zitat',
 			'quoteReply' => 'Zitatantwort',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => 'Bewertung',
 			'reEdit' => 'Erneut bearbeiten',
 			'readAgreeParam' => ({required Object param}) => 'Habe gelesen und zugestimmt ${param}',
 			'recentChats' => 'Letzte Chats',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => 'Kürzlich weitergeleitet',
 			'recentlyRegisteredUser' => 'Kürzlich registrierter Benutzer',
 			'recentlyUsed' => 'Kürzlich verwendet',
@@ -2298,12 +2306,12 @@ extension on TranslationsDeDe {
 			'discover' => 'Entdecken',
 			'shake' => 'Schütteln',
 			'tip' => 'Tipp',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => 'Bestätigen',
 			'success' => 'Erfolg',
 			'export' => 'Exportieren',
 			'personalDisplay' => 'Persönliche Anzeige',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => 'Persönliche Signatur',
 			'personalBackground' => 'Persönlicher Hintergrund',
 			'setBackgroundImage' => 'Hintergrundbild festlegen',

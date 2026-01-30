@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -240,8 +241,18 @@ class UserRepoLocal {
       await StorageService.to.remove(Keys.currentUid);
       await StorageService.to.remove(Keys.wsUrl);
       await StorageService.to.remove(Keys.uploadUrl);
+      await StorageService.to.remove(Keys.uploadUrl);
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
+
+      iPrint("> quitLogin: Clearing E2EE cache");
+      // 清理E2EE设备密钥缓存，确保重新登录后获取最新密钥
+      try {
+        E2EEService.clearCache();
+        iPrint("> quitLogin: E2EE cache cleared");
+      } catch (e, s) {
+        debugPrint("quitLogin error clearing E2EE cache: $e; $s");
+      }
 
       iPrint("> quitLogin: Clearing secure tokens");
       try {

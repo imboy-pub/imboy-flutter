@@ -10,8 +10,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/discover/discover_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
-import 'package:imboy/service/websocket.dart'
-    show SocketStatus, WebSocketService;
+import 'package:imboy/service/websocket.dart' show SocketStatus;
+import 'package:imboy/service/websocket_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -103,8 +103,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     final bottomBarIndex = ref.watch(bottomNavigationProvider);
     // 监听新好友提醒
     final newFriendCount = ref.watch(newFriendRemindProvider);
-    // 监听 WebSocket 状态（直接访问，无需 .value）
-    final socketStatus = WebSocketService.to.status;
+    // 监听 WebSocket 状态（使用 Provider 响应式监听）
+    final socketStatus = ref.watch(webSocketStatusProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface, // 使用主题背景色

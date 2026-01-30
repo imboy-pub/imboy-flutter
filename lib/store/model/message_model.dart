@@ -14,42 +14,106 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 // enum MsgType { custom, file, image, text, unsupported }
 
-/// All possible statuses message can have.
-// enum Status { delivered, error, seen, sending, sent }
+/// ImBoy 消息状态定义
+///
+/// 完整的状态定义文档：doc/message_status_definition.md
+///
+/// ## 状态码分类
+/// - **10-19**: 发送状态（消息正在发送、已发送）
+/// - **20-29**: 投递/阅读状态（已投递、已读）
+/// - **30-39**: 撤回状态（对方撤回、自己撤回）
+/// - **40-49**: 错误状态（发送失败）
+///
+/// ## 重要说明
+/// - `sent (11)`: 只表示客户端已成功通过 WebSocket 发送消息
+///   - ⚠️ 不保证服务端已接收或投递
+///   - ⚠️ 真正的投递确认需要 ACK 机制
+/// - `delivered (20)`: 服务端已成功投递（需要接收方 ACK 确认）
+/// - `seen (21)`: 接收方已阅读
+///
+/// ## 后端协议对齐
+/// - ACK 确认机制：../imboy/doc/libraries/message-ack.md
+/// - WebSocket API v2.0：../imboy/doc/api/websocket-api-2.md
 class IMBoyMessageStatus {
   // ==================== 发送状态 (10-19) ====================
 
   /// 发送中
+  ///
+  /// 含义：消息正在通过 WebSocket 发送到服务端
+  /// 触发时机：用户点击发送按钮，消息进入发送队列
+  /// UI 表现：显示发送中图标（转圈或单勾）
+  /// 流转：→ sent (11) 或 error (41)
   static const int sending = 10;
 
   /// 已发送
+  ///
+  /// 含义：客户端已成功通过 WebSocket 发送消息
+  /// 重要说明：
+  ///   - ⚠️ 只表示客户端发送成功
+  ///   - ⚠️ 不保证服务端已接收或投递
+  ///   - 服务端确认需要 ACK 机制
+  /// 触发时机：WebSocket sink.add() 成功执行
+  /// UI 表现：显示单勾图标
+  /// 流转：→ delivered (20) / seen (21) / error (41) / 撤回状态
   static const int sent = 11;
 
   // ==================== 投递/阅读状态 (20-29) ====================
 
-  /// 未读 已投递
+  /// 已投递
+  ///
+  /// 含义：服务端已成功投递消息给接收方
+  /// 确认机制：
+  ///   - 接收方发送 ACK（CLIENT_ACK,C2C,msg_id,did）
+  ///   - 服务端返回确认（CLIENT_ACK_CONFIRM）
+  ///   - 发送方收到服务端通知
+  /// 触发时机：收到服务端的投递确认
+  /// UI 表现：显示双勾图标（灰色）
+  /// 流转：→ seen (21) 或撤回状态
   static const int delivered = 20;
 
   /// 已读
+  ///
+  /// 含义：接收方已阅读消息
+  /// 触发时机：
+  ///   - 接收方打开聊天界面
+  ///   - 接收方长时间停留在消息上
+  /// UI 表现：显示双勾图标（蓝色）
+  /// 流转：→ 撤回状态（终态）
   static const int seen = 21;
 
   // ==================== 撤回状态 (30-39) ====================
 
   /// 对方撤回（peer_revoked）
   ///
-  /// 消息被对方撤回，msg_type 保留原始内容类型（text/image等）
-  /// 状态码 30 表示对方撤回，与 payload.custom_type 配合使用
+  /// 含义：消息被对方撤回
+  /// 触发时机：对方执行撤回操作，收到服务端的 C2C_REVOKE S2C 消息
+  /// UI 表现：显示"对方撤回"文字，原消息内容不可见
+  /// 状态码：30 表示对方撤回，与 payload.custom_type 配合使用
+  /// 流转：终态
   static const int peerRevoked = 30;
 
   /// 自己撤回（my_revoked）
   ///
-  /// 消息被自己撤回，msg_type 保留原始内容类型（text/image等）
-  /// 状态码 31 表示自己撤回，与 payload.custom_type 配合使用
+  /// 含义：消息被自己撤回
+  /// 触发时机：用户执行撤回操作（2分钟内）
+  /// 约束条件：只能撤回 2 分钟内发送的消息
+  /// UI 表现：显示"已撤回"文字，原消息内容不可见
+  /// 状态码：31 表示自己撤回，与 payload.custom_type 配合使用
+  /// 流转：终态
   static const int myRevoked = 31;
 
   // ==================== 错误状态 (40-49) ====================
 
   /// 错误（发送失败）
+  ///
+  /// 含义：消息发送失败
+  /// 触发时机：
+  ///   - WebSocket 连接断开
+  ///   - 网络不可用
+  ///   - 服务端返回错误
+  ///   - 超时未投递
+  /// UI 表现：显示红色感叹号，提供"重新发送"按钮
+  /// 流转：→ sending (10)（用户重试时）
   static const int error = 41;
 
   // ==================== 辅助方法 ====================
@@ -158,9 +222,9 @@ class MessageModel {
     final type = data[MessageRepo.type] as String? ?? 'C2C';
 
     // WebSocket API v2.0: 从顶层读取 msg_type、action、e2ee
-    // 根据 type 决定读取哪些字段
-    final msgType = type == 'S2C' ? null : (data['msg_type'] as String?);
-    final action = type == 'S2C' ? (data['action'] as String?) : null;
+    // 所有消息类型都可能包含这三个字段
+    final msgType = data['msg_type'] as String?;
+    final action = data['action'] as String?;  // ✅ 所有类型都读取 action
 
     // 解析 e2ee 字段（仅 C2C/C2G 有）
     Map<String, dynamic>? e2eeData;
@@ -235,19 +299,27 @@ class MessageModel {
     // WebSocket API v2.0: 根据 type 写入对应字段到顶层
     final currentType = type ?? 'C2C';
 
-    // 仅 C2C/C2G/C2S 消息写入 msg_type 和 e2ee
+    // C2C/C2G/C2S 消息：写入 msg_type、action、e2ee
+    // S2C 消息：写入 msg_type、action（不需要 e2ee）
     if (currentType != 'S2C') {
+      // C2C/C2G/C2S: 写入 msg_type
       if (msgType != null) {
         data['msg_type'] = msgType;
       }
+      // C2C/C2G/C2S: 写入 action（默认为空字符串）
+      data['action'] = action ?? '';
+      // C2C/C2G/C2S: 写入 e2ee（必须是 Map 类型，不能是 JSON 字符串）
       if (e2ee != null && e2ee!.isNotEmpty) {
-        data['e2ee'] = json.encode(e2ee);
+        data['e2ee'] = e2ee;  // ✅ 修复：直接使用 Map，不要 json.encode()
       }
-    }
-
-    // 仅 S2C 消息写入 action
-    if (currentType == 'S2C' && action != null) {
-      data['action'] = action;
+    } else {
+      // S2C: 写入 msg_type 和 action
+      if (msgType != null) {
+        data['msg_type'] = msgType;
+      }
+      if (action != null) {
+        data['action'] = action;
+      }
     }
 
     // payload 序列化

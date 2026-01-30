@@ -21,6 +21,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -555,6 +556,14 @@ class PassportNotifier extends _$PassportNotifier {
           debugPrint('🔐 步骤5: 保存登录信息');
           await UserRepoLocal.to.loginAfter(account, resp2.payload);
           debugPrint('✅ 登录信息保存完成');
+
+          // 登录成功后主动连接 WebSocket
+          debugPrint('🔌 步骤6: 连接 WebSocket');
+          // 延迟一小段时间确保存储操作完成
+          await Future.delayed(const Duration(milliseconds: 100));
+          // 直接调用 openSocket 而不是依赖被动触发
+          WebSocketService.to.openSocket(from: 'login');
+          debugPrint('✅ WebSocket 连接已触发');
         }
         return 1;
       }
@@ -599,6 +608,10 @@ class PassportNotifier extends _$PassportNotifier {
         int status = (resp2.payload['status'] ?? 1).toInt();
         if (status == 1 || status == 2) {
           await UserRepoLocal.to.loginAfter(account, resp2.payload);
+
+          // 登录成功后主动连接 WebSocket
+          await Future.delayed(const Duration(milliseconds: 100));
+          WebSocketService.to.openSocket(from: 'loginByCode');
         }
         return 1;
       }

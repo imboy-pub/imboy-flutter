@@ -184,6 +184,10 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'メッセージが配信されました';
 	@override String get chatStatusSeenDesc => 'メッセージが既読になりました';
 	@override String get chatStatusFailedDesc => '送信に失敗しました。タップしてリトライ';
+	@override String get chatErrorInDenylist => '相手にブロックされています';
+	@override String get chatErrorInDenylistDesc => 'メッセージを送信できません - ブロックされています';
+	@override String get chatErrorNotAFriend => 'まだ友達ではありません';
+	@override String get chatErrorNotAFriendDesc => 'メッセージを送信できません - まず友達追加してください';
 	@override String get checkForUpdates => '更新を確認';
 	@override String get chooseFromAlbum => 'アルバムから選択';
 	@override String get clean => 'クリーンアップ';
@@ -1424,6 +1428,10 @@ extension on TranslationsJaJp {
 			'chatStatusDeliveredDesc' => 'メッセージが配信されました',
 			'chatStatusSeenDesc' => 'メッセージが既読になりました',
 			'chatStatusFailedDesc' => '送信に失敗しました。タップしてリトライ',
+			'chatErrorInDenylist' => '相手にブロックされています',
+			'chatErrorInDenylistDesc' => 'メッセージを送信できません - ブロックされています',
+			'chatErrorNotAFriend' => 'まだ友達ではありません',
+			'chatErrorNotAFriendDesc' => 'メッセージを送信できません - まず友達追加してください',
 			'checkForUpdates' => '更新を確認',
 			'chooseFromAlbum' => 'アルバムから選択',
 			'clean' => 'クリーンアップ',
@@ -1784,12 +1792,12 @@ extension on TranslationsJaJp {
 			'quickFilters' => 'クイックフィルター',
 			'quote' => '引用',
 			'quoteReply' => '引用返信',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => '評価',
 			'reEdit' => '再編集',
 			'readAgreeParam' => ({required Object param}) => '${param}を読んで同意しました',
 			'recentChats' => '最近のチャット',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => '最近の転送',
 			'recentlyRegisteredUser' => '最近登録したユーザー',
 			'recentlyUsed' => '最近使用',
@@ -2298,12 +2306,12 @@ extension on TranslationsJaJp {
 			'discover' => '発見',
 			'shake' => 'シェイク',
 			'tip' => 'ヒント',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => '確認',
 			'success' => '成功',
 			'export' => 'エクスポート',
 			'personalDisplay' => '個人表示',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => '署名',
 			'personalBackground' => '個人背景',
 			'setBackgroundImage' => '背景画像を設定',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:imboy/component/ui/debounce_button.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
@@ -193,47 +194,43 @@ class _SignupPageState extends ConsumerState<SignupPage>
           ),
         ),
         const SizedBox(height: 20),
-        SizedBox(
+        DebounceButton(
+          text: t.nextStep,
           width: double.infinity,
           height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () async {
-              final email = _emailController.text;
-              final pwd = _passwordController.text;
-              if (email.isEmpty || pwd.isEmpty) {
-                notifier.snackBar(
-                  t.errorEmptyDirectory(param: "${t.email}/${t.password}"),
-                );
-                return;
-              }
-              // Send Code
-              final error = await notifier.sendCode('email', email, 'signup');
-              if (error == null) {
-                // 存储注册数据到 provider
-                notifier.setSignupData(
-                  account: email,
-                  accountType: 'email',
-                  password: pwd,
-                  nickname: '',
-                );
-                if (mounted) {
-                  context.push('/sign_up/continue');
-                }
-              } else {
-                notifier.snackBar(error);
-              }
-            },
-            child: Text(
-              t.nextStep,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
+          textStyle: const TextStyle(color: Colors.white, fontSize: 18),
+          onPressed: () async {
+            final email = _emailController.text;
+            final pwd = _passwordController.text;
+            if (email.isEmpty || pwd.isEmpty) {
+              notifier.snackBar(
+                t.errorEmptyDirectory(param: "${t.email}/${t.password}"),
+              );
+              return;
+            }
+            // Send Code
+            final error = await notifier.sendCode('email', email, 'signup');
+            if (error == null) {
+              // 存储注册数据到 provider
+              notifier.setSignupData(
+                account: email,
+                accountType: 'email',
+                password: pwd,
+                nickname: '',
+              );
+              if (mounted) {
+                context.push('/sign_up/continue');
+              }
+            } else {
+              notifier.snackBar(error);
+            }
+          },
         ),
       ],
     );
@@ -299,48 +296,44 @@ class _SignupPageState extends ConsumerState<SignupPage>
           ),
         ),
         const SizedBox(height: 20),
-        SizedBox(
+        DebounceButton(
+          text: t.nextStep,
           width: double.infinity,
           height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () async {
-              if (_fullMobile.isEmpty || _passwordController.text.isEmpty) {
-                notifier.snackBar(
-                  t.errorEmptyDirectory(param: "${t.mobile}/${t.password}"),
-                );
-                return;
-              }
-              final error = await notifier.sendCode(
-                'mobile',
-                _fullMobile,
-                'signup',
-              );
-              if (error == null) {
-                // 存储注册数据到 provider
-                notifier.setSignupData(
-                  account: _fullMobile,
-                  accountType: 'mobile',
-                  password: _passwordController.text,
-                  nickname: '',
-                );
-                if (mounted) {
-                  context.push('/sign_up/continue');
-                }
-              } else {
-                notifier.snackBar(error);
-              }
-            },
-            child: Text(
-              t.nextStep,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
+          textStyle: const TextStyle(color: Colors.white, fontSize: 18),
+          onPressed: () async {
+            if (_fullMobile.isEmpty || _passwordController.text.isEmpty) {
+              notifier.snackBar(
+                t.errorEmptyDirectory(param: "${t.mobile}/${t.password}"),
+              );
+              return;
+            }
+            final error = await notifier.sendCode(
+              'mobile',
+              _fullMobile,
+              'signup',
+            );
+            if (error == null) {
+              // 存储注册数据到 provider
+              notifier.setSignupData(
+                account: _fullMobile,
+                accountType: 'mobile',
+                password: _passwordController.text,
+                nickname: '',
+              );
+              if (mounted) {
+                context.push('/sign_up/continue');
+              }
+            } else {
+              notifier.snackBar(error);
+            }
+          },
         ),
       ],
     );

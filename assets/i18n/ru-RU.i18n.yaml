@@ -150,6 +150,12 @@ chatStatusSentDesc: "Сообщение отправлено"
 chatStatusDeliveredDesc: "Сообщение доставлено"
 chatStatusSeenDesc: "Сообщение прочитано"
 chatStatusFailedDesc: "Не удалось отправить, нажмите для повтора"
+# 消息发送错误类型
+# 消息发送错误类型
+chatErrorInDenylist: "Вы в черном списке"
+chatErrorInDenylistDesc: "Сообщение не может быть отправлено - вы заблокированы"
+chatErrorNotAFriend: "Еще не друзья"
+chatErrorNotAFriendDesc: "Сообщение не может быть отправлено - сначала добавьте в друзья"
 checkForUpdates: "Проверить обновления"
 chooseFromAlbum: "Выбрать из альбома"
 clean: "Очистить"

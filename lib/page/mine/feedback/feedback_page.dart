@@ -28,6 +28,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   final int size = 1000;
   bool _isInitialized = false;
 
+  // 防抖状态
+  bool _isSubmittingFeedback = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,53 +66,68 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: AppRadius.borderRadiusMedium,
-                onTap: () {
-                  BetterFeedback.of(context).show((
-                    UserFeedback feedback,
-                  ) async {
-                    if (feedback.text.isEmpty) {
-                      EasyLoading.showError(t.feedbackContentRequired);
-                      return;
-                    }
+                onTap: _isSubmittingFeedback
+                    ? null
+                    : () {
+                        BetterFeedback.of(context).show((
+                          UserFeedback feedback,
+                        ) async {
+                          if (feedback.text.isEmpty) {
+                            EasyLoading.showError(t.feedbackContentRequired);
+                            return;
+                          }
 
-                    img.Image image = img.decodeImage(feedback.screenshot)!;
-                    final result = img.encodeJpg(image, quality: 70);
+                          // 防抖：设置提交状态
+                          setState(() => _isSubmittingFeedback = true);
 
-                    await AttachmentApi.uploadBytes(
-                      "feedback",
-                      result,
-                      (Map<String, dynamic> resp, String uri) async {
-                        FeedbackApi p = FeedbackApi();
-                        var type = feedback.extra?['feedback_type'] ?? '';
-                        var rating = feedback.extra?['rating'] ?? '';
+                          try {
+                            img.Image image = img.decodeImage(
+                              feedback.screenshot,
+                            )!;
+                            final result = img.encodeJpg(image, quality: 70);
 
-                        Map<String, dynamic> data = {
-                          'rating': rating,
-                          'type': type
-                              .toString()
-                              .split('.')
-                              .last
-                              .replaceAll('_', ' '),
-                          'contact_detail':
-                              feedback.extra?['contact_detail'] ?? '',
-                          'description': feedback.text,
-                          'screenshot': [uri],
-                        };
-                        bool res = await p.add(data);
-                        if (res) {
-                          EasyLoading.showSuccess(t.feedbackSuccessMsg);
-                          _initData(); // 刷新列表
-                        } else {
-                          EasyLoading.showError(t.tipFailed);
-                        }
+                            await AttachmentApi.uploadBytes(
+                              "feedback",
+                              result,
+                              (Map<String, dynamic> resp, String uri) async {
+                                FeedbackApi p = FeedbackApi();
+                                var type =
+                                    feedback.extra?['feedback_type'] ?? '';
+                                var rating = feedback.extra?['rating'] ?? '';
+
+                                Map<String, dynamic> data = {
+                                  'rating': rating,
+                                  'type': type
+                                      .toString()
+                                      .split('.')
+                                      .last
+                                      .replaceAll('_', ' '),
+                                  'contact_detail':
+                                      feedback.extra?['contact_detail'] ?? '',
+                                  'description': feedback.text,
+                                  'screenshot': [uri],
+                                };
+                                bool res = await p.add(data);
+                                if (res) {
+                                  EasyLoading.showSuccess(t.feedbackSuccessMsg);
+                                  _initData(); // 刷新列表
+                                } else {
+                                  EasyLoading.showError(t.tipFailed);
+                                }
+                              },
+                              (Error error) {
+                                debugPrint("> on upload ${error.toString()}");
+                              },
+                              process: false,
+                            );
+                          } finally {
+                            // 恢复提交状态
+                            if (mounted) {
+                              setState(() => _isSubmittingFeedback = false);
+                            }
+                          }
+                        });
                       },
-                      (Error error) {
-                        debugPrint("> on upload ${error.toString()}");
-                      },
-                      process: false,
-                    );
-                  });
-                },
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -193,56 +211,86 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: AppRadius.borderRadiusSmall,
-                        onTap: () {
-                          BetterFeedback.of(context).show((
-                            UserFeedback feedback,
-                          ) async {
-                            if (feedback.text.isEmpty) {
-                              EasyLoading.showError(t.feedbackContentRequired);
-                              return;
-                            }
+                        onTap: _isSubmittingFeedback
+                            ? null
+                            : () {
+                                BetterFeedback.of(context).show((
+                                  UserFeedback feedback,
+                                ) async {
+                                  if (feedback.text.isEmpty) {
+                                    EasyLoading.showError(
+                                      t.feedbackContentRequired,
+                                    );
+                                    return;
+                                  }
 
-                            img.Image image = img.decodeImage(
-                              feedback.screenshot,
-                            )!;
-                            final result = img.encodeJpg(image, quality: 70);
+                                  // 防抖：设置提交状态
+                                  setState(() => _isSubmittingFeedback = true);
 
-                            await AttachmentApi.uploadBytes(
-                              "feedback",
-                              result,
-                              (Map<String, dynamic> resp, String uri) async {
-                                FeedbackApi p = FeedbackApi();
-                                var type =
-                                    feedback.extra?['feedback_type'] ?? '';
-                                var rating = feedback.extra?['rating'] ?? '';
+                                  try {
+                                    img.Image image = img.decodeImage(
+                                      feedback.screenshot,
+                                    )!;
+                                    final result = img.encodeJpg(
+                                      image,
+                                      quality: 70,
+                                    );
 
-                                Map<String, dynamic> data = {
-                                  'rating': rating,
-                                  'type': type
-                                      .toString()
-                                      .split('.')
-                                      .last
-                                      .replaceAll('_', ' '),
-                                  'contact_detail':
-                                      feedback.extra?['contact_detail'] ?? '',
-                                  'description': feedback.text,
-                                  'screenshot': [uri],
-                                };
-                                bool res = await p.add(data);
-                                if (res) {
-                                  EasyLoading.showSuccess(t.feedbackSuccessMsg);
-                                  _initData();
-                                } else {
-                                  EasyLoading.showError(t.tipFailed);
-                                }
+                                    await AttachmentApi.uploadBytes(
+                                      "feedback",
+                                      result,
+                                      (
+                                        Map<String, dynamic> resp,
+                                        String uri,
+                                      ) async {
+                                        FeedbackApi p = FeedbackApi();
+                                        var type =
+                                            feedback.extra?['feedback_type'] ??
+                                            '';
+                                        var rating =
+                                            feedback.extra?['rating'] ?? '';
+
+                                        Map<String, dynamic> data = {
+                                          'rating': rating,
+                                          'type': type
+                                              .toString()
+                                              .split('.')
+                                              .last
+                                              .replaceAll('_', ' '),
+                                          'contact_detail':
+                                              feedback
+                                                  .extra?['contact_detail'] ??
+                                              '',
+                                          'description': feedback.text,
+                                          'screenshot': [uri],
+                                        };
+                                        bool res = await p.add(data);
+                                        if (res) {
+                                          EasyLoading.showSuccess(
+                                            t.feedbackSuccessMsg,
+                                          );
+                                          _initData();
+                                        } else {
+                                          EasyLoading.showError(t.tipFailed);
+                                        }
+                                      },
+                                      (Error error) {
+                                        debugPrint(
+                                          "> on upload ${error.toString()}",
+                                        );
+                                      },
+                                      process: false,
+                                    );
+                                  } finally {
+                                    // 恢复提交状态
+                                    if (mounted) {
+                                      setState(
+                                        () => _isSubmittingFeedback = false,
+                                      );
+                                    }
+                                  }
+                                });
                               },
-                              (Error error) {
-                                debugPrint("> on upload ${error.toString()}");
-                              },
-                              process: false,
-                            );
-                          });
-                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,

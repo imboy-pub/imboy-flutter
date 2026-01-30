@@ -32,6 +32,15 @@ class E2EEService {
     _groupKeyCacheByDevice.clear();
   }
 
+  /// 清理E2EE缓存（用于退出登录等场景）
+  ///
+  /// 清理设备密钥缓存，确保下次使用时重新获取最新密钥
+  static void clearCache() {
+    _userKeyCacheByDevice.clear();
+    _groupKeyCacheByDevice.clear();
+    iPrint('E2EE: 缓存已清理');
+  }
+
   /// 检查是否需要对消息进行端到端加密
   ///
   /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内

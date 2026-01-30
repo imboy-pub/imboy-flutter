@@ -225,8 +225,11 @@ class AppInitializer {
   }
 
   static Future<void> _setupEnvironment(String env, bool changedEnv) async {
+    // 获取之前保存的环境
+    final previousEnv = StorageService.to.getString('env');
+
     if (changedEnv) {
-      final savedEnv = StorageService.to.getString('env');
+      final savedEnv = previousEnv;
       currentEnv = savedEnv.isEmpty ? env : savedEnv;
     } else {
       currentEnv = env;
@@ -235,6 +238,31 @@ class AppInitializer {
     // 确保环境不为空
     if (currentEnv.isEmpty) {
       currentEnv = env;
+    }
+
+    // 检测环境变化，清除缓存并重新获取配置
+    if (previousEnv.isNotEmpty && previousEnv != currentEnv) {
+      logger.i('🔄 Environment changed from $previousEnv to $currentEnv');
+      // 【关键】清除 initConfig 缓存，强制从新环境获取配置
+      clearInitConfigCache();
+
+      // 【关键】清除存储的旧配置，防止使用旧环境的配置
+      await StorageService.to.remove(Keys.apiPublicKey);
+      await StorageService.to.remove(Keys.wsUrl);
+      await StorageService.to.remove(Keys.uploadUrl);
+      await StorageService.to.remove(Keys.uploadKey);
+      await StorageService.to.remove(Keys.uploadScene);
+
+      logger.i('🔄 Cleared all cached configurations due to environment change');
+
+      // 【关键】立即从新环境获取配置，获取正确的 ws_url、upload_url 等
+      logger.i('🔄 Fetching new environment configuration...');
+      final config = await initConfig();
+      if (config.containsKey('error')) {
+        logger.w('⚠️ Failed to fetch config for new environment: ${config['error']}');
+      } else {
+        logger.i('✅ Successfully fetched config for new environment');
+      }
     }
 
     await StorageService.to.setString('env', currentEnv);
@@ -375,7 +403,18 @@ class AppInitializer {
       debugPrint(
         "initConfig_payload received ${payload.keys.length} config items",
       );
-      await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
+
+      // 【调试】输出 ws_url 用于验证
+      final wsUrl = payload['ws_url'];
+      debugPrint('🔧 initConfig: ws_url = $wsUrl');
+
+      if (wsUrl != null && wsUrl.isNotEmpty) {
+        await StorageService.to.setString(Keys.wsUrl, wsUrl);
+        debugPrint('✅ initConfig: Saved ws_url to storage');
+      } else {
+        debugPrint('⚠️ initConfig: ws_url is null or empty, not saved');
+      }
+
       await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
       await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
       await StorageService.to.setString(
@@ -419,9 +458,15 @@ class AppInitializer {
     serviceContainer.put(networkMonitorService);
     networkMonitorService.init(); // 调用初始化方法
 
-    // 检查API公钥
-    if (strEmpty(Env.apiPublicKey)) {
+    // 检查API公钥或是否需要重新获取配置
+    // 【重要】如果之前是其他环境，需要重新获取配置
+    final needFetchConfig = strEmpty(Env.apiPublicKey) ||
+                            _initConfigCache == null;
+    if (needFetchConfig) {
+      logger.i('🔧 Fetching initConfig (apiPublicKey empty: ${strEmpty(Env.apiPublicKey)}, cache null: ${_initConfigCache == null})');
       await initConfig();
+    } else {
+      logger.i('✅ Using cached initConfig (apiPublicKey exists)');
     }
 
     // 初始化WebSocket和相关服务

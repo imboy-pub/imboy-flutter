@@ -1154,6 +1154,10 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'Message delivered';
 	@override String get chatStatusSeenDesc => 'Message seen';
 	@override String get chatStatusFailedDesc => 'Failed, tap to retry';
+	@override String get chatErrorInDenylist => 'You are on their blacklist';
+	@override String get chatErrorInDenylistDesc => 'Message cannot be sent - you have been blocked';
+	@override String get chatErrorNotAFriend => 'Not friends yet';
+	@override String get chatErrorNotAFriendDesc => 'Message cannot be sent - please add as friend first';
 	@override String get youRevokedMessage => 'You revoked a message';
 	@override String get otherRevokedMessage => 'The other party revoked a message';
 	@override String get networkFailureTryAgain => 'Network error. Please try again!';
@@ -2398,6 +2402,10 @@ extension on TranslationsEnUs {
 			'chatStatusDeliveredDesc' => 'Message delivered',
 			'chatStatusSeenDesc' => 'Message seen',
 			'chatStatusFailedDesc' => 'Failed, tap to retry',
+			'chatErrorInDenylist' => 'You are on their blacklist',
+			'chatErrorInDenylistDesc' => 'Message cannot be sent - you have been blocked',
+			'chatErrorNotAFriend' => 'Not friends yet',
+			'chatErrorNotAFriendDesc' => 'Message cannot be sent - please add as friend first',
 			'youRevokedMessage' => 'You revoked a message',
 			'otherRevokedMessage' => 'The other party revoked a message',
 			'networkFailureTryAgain' => 'Network error. Please try again!',

@@ -65,21 +65,26 @@
 -- ============================================================
 
 -- 为 message 表 (C2C) 添加新字段
+-- 注意：type 字段用于存储消息协议类型（C2C、C2G、S2C 等），与 msg_type（内容类型）不同
+ALTER TABLE message ADD COLUMN type TEXT DEFAULT 'C2C';
 ALTER TABLE message ADD COLUMN msg_type TEXT DEFAULT '';
 ALTER TABLE message ADD COLUMN action TEXT DEFAULT '';
 ALTER TABLE message ADD COLUMN e2ee TEXT DEFAULT '';
 
 -- 为 group_message 表 (C2G) 添加新字段
+ALTER TABLE group_message ADD COLUMN type TEXT DEFAULT 'C2G';
 ALTER TABLE group_message ADD COLUMN msg_type TEXT DEFAULT '';
 ALTER TABLE group_message ADD COLUMN action TEXT DEFAULT '';
 ALTER TABLE group_message ADD COLUMN e2ee TEXT DEFAULT '';
 
 -- 为 c2s_message 表 (C2S) 添加新字段
+ALTER TABLE c2s_message ADD COLUMN type TEXT DEFAULT 'C2S';
 ALTER TABLE c2s_message ADD COLUMN msg_type TEXT DEFAULT '';
 ALTER TABLE c2s_message ADD COLUMN action TEXT DEFAULT '';
 ALTER TABLE c2s_message ADD COLUMN e2ee TEXT DEFAULT '';
 
 -- 为 s2c_message 表 (S2C) 添加新字段
+ALTER TABLE s2c_message ADD COLUMN type TEXT DEFAULT 'S2C';
 ALTER TABLE s2c_message ADD COLUMN msg_type TEXT DEFAULT '';
 ALTER TABLE s2c_message ADD COLUMN action TEXT DEFAULT '';
 ALTER TABLE s2c_message ADD COLUMN e2ee TEXT DEFAULT '';
@@ -244,3 +249,86 @@ CREATE INDEX IF NOT EXISTS idx_msg_s2c_action
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 10;
+
+-- ============================================================
+-- VERSION: 11
+-- DESC: 修复 msg_* 表缺少 type 和 action 字段的问题
+-- ============================================================
+-- 功能说明：修复 VERSION 10 迁移遗漏的字段
+-- 变更内容：
+--   1. 为所有 msg_* 表添加 type 字段（如果不存在）
+--   2. 为所有 msg_* 表添加 action 字段（如果不存在）
+--
+-- 注意：
+--   - type 字段用于存储消息协议类型（C2C、C2G、C2S、S2C）
+--   - action 字段用于存储 S2C 消息的指令类型
+--   - 此迁移会忽略"重复列"错误，因此可以安全地重复执行
+
+-- ============================================================
+-- Step 1: 为 msg_c2c 表添加缺失字段
+-- ============================================================
+ALTER TABLE msg_c2c ADD COLUMN type TEXT DEFAULT 'C2C';
+ALTER TABLE msg_c2c ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- Step 2: 为 msg_c2g 表添加缺失字段
+-- ============================================================
+ALTER TABLE msg_c2g ADD COLUMN type TEXT DEFAULT 'C2G';
+ALTER TABLE msg_c2g ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- Step 3: 为 msg_c2s 表添加缺失字段
+-- ============================================================
+ALTER TABLE msg_c2s ADD COLUMN type TEXT DEFAULT 'C2S';
+ALTER TABLE msg_c2s ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- Step 4: 为 msg_s2c 表添加缺失字段
+-- ============================================================
+ALTER TABLE msg_s2c ADD COLUMN type TEXT DEFAULT 'S2C';
+ALTER TABLE msg_s2c ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 11;
+
+-- ============================================================
+-- VERSION: 12
+-- DESC: 最终修复 - 确保 msg_* 表包含所有必需字段
+-- ============================================================
+-- 功能说明：这是最后的保障迁移，确保所有字段都存在
+-- 变更内容：
+--   1. 为所有 msg_* 表添加 type 字段（如果不存在）
+--   2. 为所有 msg_* 表添加 action 字段（如果不存在）
+--
+-- 注意：此迁移可以安全地重复执行，会忽略重复列错误
+
+-- ============================================================
+-- Step 1: 为 msg_c2c 表确保字段存在
+-- ============================================================
+ALTER TABLE msg_c2c ADD COLUMN type TEXT DEFAULT 'C2C';
+ALTER TABLE msg_c2c ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- Step 2: 为 msg_c2g 表确保字段存在
+-- ============================================================
+ALTER TABLE msg_c2g ADD COLUMN type TEXT DEFAULT 'C2G';
+ALTER TABLE msg_c2g ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- Step 3: 为 msg_c2s 表确保字段存在
+-- ============================================================
+ALTER TABLE msg_c2s ADD COLUMN type TEXT DEFAULT 'C2S';
+ALTER TABLE msg_c2s ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- Step 4: 为 msg_s2c 表确保字段存在
+-- ============================================================
+ALTER TABLE msg_s2c ADD COLUMN type TEXT DEFAULT 'S2C';
+ALTER TABLE msg_s2c ADD COLUMN action TEXT DEFAULT '';
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 12;

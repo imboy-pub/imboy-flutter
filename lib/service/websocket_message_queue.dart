@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -47,6 +48,7 @@ class QueuedMessage {
 /// - 限制最大条数：按优先级淘汰低优先级消息
 /// - 持久化支持：应用重启后恢复队列
 /// - 按优先级出队：高优先级消息优先发送
+/// - 【新增 M1】消息过期清理机制
 ///
 /// ## 使用示例
 /// ```dart
@@ -64,10 +66,22 @@ class PersistentMessageQueue {
   static PersistentMessageQueue? _instance;
   static PersistentMessageQueue get to =>
       _instance ??= PersistentMessageQueue._internal();
-  PersistentMessageQueue._internal();
+  PersistentMessageQueue._internal() {
+    _startPeriodicCleanup();
+  }
 
   static const String _storageKey = 'ws_message_queue';
   static const int _maxQueueSize = 200;
+
+  // 【新增 M1】消息过期时间配置（按优先级）
+  static const Map<int, Duration> _messageExpiry = {
+    0: Duration(hours: 24), // 普通消息 24 小时
+    1: Duration(minutes: 5), // ACK 消息 5 分钟
+    2: Duration(hours: 1),   // 重试消息 1 小时
+  };
+
+  // 【新增 M1】定期清理 Timer（每分钟清理一次）
+  Timer? _cleanupTimer;
 
   // 优先级队列映射
   final Map<int, ListQueue<QueuedMessage>> _priorityQueues = {
@@ -210,6 +224,10 @@ class PersistentMessageQueue {
 
   /// 清空消息队列
   void clear() {
+    // 【新增 M1】同时停止定期清理
+    _stopPeriodicCleanup();
+    _startPeriodicCleanup(); // 重新启动清理
+
     for (final queue in _priorityQueues.values) {
       queue.clear();
     }
@@ -218,9 +236,88 @@ class PersistentMessageQueue {
     iPrint('🧹 [QUEUE] 清空队列');
   }
 
+  /// 【新增 M1】释放资源
+  void dispose() {
+    _stopPeriodicCleanup();
+    clear();
+  }
+
   /// 获取总队列大小
   int get _totalSize =>
       _priorityQueues.values.fold(0, (sum, queue) => sum + queue.length);
+
+  /// 【新增 M1】启动定期清理过期消息
+  void _startPeriodicCleanup() {
+    _cleanupTimer?.cancel();
+    _cleanupTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _cleanupExpiredMessages(),
+    );
+    iPrint('🧹 [QUEUE] 启动定期清理 Timer');
+  }
+
+  /// 【新增 M1】停止定期清理
+  void _stopPeriodicCleanup() {
+    _cleanupTimer?.cancel();
+    _cleanupTimer = null;
+    iPrint('🛑 [QUEUE] 停止定期清理 Timer');
+  }
+
+  /// 【新增 M1】清理过期消息
+  void _cleanupExpiredMessages() {
+    final now = DateTime.now();
+    int totalCleaned = 0;
+
+    for (int p = 0; p < 3; p++) {
+      final queue = _priorityQueues[p]!;
+      final expiry = _messageExpiry[p] ?? const Duration(hours: 24);
+
+      // 由于 ListQueue 不支持迭代时删除，需要重建
+      final tempList = <QueuedMessage>[];
+      int cleaned = 0;
+
+      while (queue.isNotEmpty) {
+        final msg = queue.removeFirst();
+        // 检查消息是否过期
+        if (now.difference(msg.createdAt) > expiry) {
+          _deduplicationSet.remove(msg.id);
+          cleaned++;
+        } else {
+          tempList.add(msg);
+        }
+      }
+
+      // 重建队列
+      _priorityQueues[p] = ListQueue.from(tempList);
+      totalCleaned += cleaned;
+
+      if (cleaned > 0) {
+        iPrint('🗑️ [QUEUE] 清理优先级 $p 的 $cleaned 条过期消息');
+      }
+    }
+
+    if (totalCleaned > 0) {
+      _save();
+      iPrint('🧹 [QUEUE] 总共清理 $totalCleaned 条过期消息');
+    }
+  }
+
+  /// 【新增 M1】手动清理过期消息（供外部调用）
+  void cleanupExpired() {
+    _cleanupExpiredMessages();
+  }
+
+  /// 【新增 M1】获取队列统计信息
+  Map<String, dynamic> getQueueStats() {
+    return {
+      'total_size': _totalSize,
+      'by_priority': priorityStats,
+      'max_size': _maxQueueSize,
+      'expiry_config': _messageExpiry.map(
+        (k, v) => MapEntry(k.toString(), v.inMinutes),
+      ),
+    };
+  }
 
   /// 移除最低优先级的消息（如果其优先级低于新消息优先级）
   void _removeLowestPriorityMessage(int newMessagePriority) {

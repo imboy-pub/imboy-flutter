@@ -210,10 +210,21 @@ class MigrationService {
         );
 
         for (final sql in script.sqlStatements) {
-          await db.execute(sql);
-          // 安全截取：避免 SQL 语句长度小于 50 时抛出 RangeError
-          final preview = sql.length > 50 ? '${sql.substring(0, 50)}...' : sql;
-          _logger.d('Executed: $preview');
+          try {
+            await db.execute(sql);
+            // 安全截取：避免 SQL 语句长度小于 50 时抛出 RangeError
+            final preview = sql.length > 50 ? '${sql.substring(0, 50)}...' : sql;
+            _logger.d('Executed: $preview');
+          } catch (e) {
+            // 忽略 "duplicate column" 错误（字段已存在）
+            final errorStr = e.toString().toLowerCase();
+            if (errorStr.contains('duplicate column')) {
+              _logger.w('Column already exists (ignoring): $e');
+            } else {
+              // 其他错误重新抛出
+              rethrow;
+            }
+          }
         }
 
         // 每个脚本执行后进行完整性检查

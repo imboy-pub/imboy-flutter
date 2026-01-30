@@ -150,6 +150,12 @@ chatStatusSentDesc: "Nachricht gesendet"
 chatStatusDeliveredDesc: "Nachricht zugestellt"
 chatStatusSeenDesc: "Nachricht gelesen"
 chatStatusFailedDesc: "Senden fehlgeschlagen. Zum Wiederholen tippen."
+# 消息发送错误类型
+# 消息发送错误类型
+chatErrorInDenylist: "Sie stehen auf der Sperrliste"
+chatErrorInDenylistDesc: "Nachricht kann nicht gesendet werden - Sie wurden blockiert"
+chatErrorNotAFriend: "Noch keine Freunde"
+chatErrorNotAFriendDesc: "Nachricht kann nicht gesendet werden - fügen Sie die Person zuerst als Freund hinzu"
 checkForUpdates: "Auf Updates prüfen"
 chooseFromAlbum: "Aus Album auswählen"
 clean: "Bereinigen"

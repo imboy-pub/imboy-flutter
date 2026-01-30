@@ -150,6 +150,12 @@ chatStatusSentDesc: "メッセージが送信されました"
 chatStatusDeliveredDesc: "メッセージが配信されました"
 chatStatusSeenDesc: "メッセージが既読になりました"
 chatStatusFailedDesc: "送信に失敗しました。タップしてリトライ"
+# 消息发送错误类型
+# 消息发送错误类型
+chatErrorInDenylist: "相手にブロックされています"
+chatErrorInDenylistDesc: "メッセージを送信できません - ブロックされています"
+chatErrorNotAFriend: "まだ友達ではありません"
+chatErrorNotAFriendDesc: "メッセージを送信できません - まず友達追加してください"
 checkForUpdates: "更新を確認"
 chooseFromAlbum: "アルバムから選択"
 clean: "クリーンアップ"

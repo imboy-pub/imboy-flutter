@@ -120,8 +120,7 @@ class MessageS2CService {
           break;
         case 'in_denylist':
           // 对方将我加入黑名单后： 消息已发出，但被对方拒收了。
-          // TODO: 通过事件总线处理系统提示设置
-          debugPrint("TODO: in_denylist 需要迁移到事件总线或 Provider");
+          await _handleInDenylist(data, payloadMap);
           break;
         case 'not_a_friend':
           await _handleNotAFriend(data, payloadMap);
@@ -538,6 +537,21 @@ class MessageS2CService {
 
     // 使用公共辅助类处理非好友错误（消除代码重复）
     await MessageActions.handleNotAFriendError(msgId: msgId, msgType: msgType);
+  }
+
+  ///
+  /// Action: in_denylist
+  /// 触发时机：对方将您加入黑名单
+  /// 处理逻辑：使用公共辅助类处理黑名单错误
+  static Future<void> _handleInDenylist(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    final msgId = data['id'] as String?;
+    final msgType = data['type']?.toString() ?? 'C2C';
+
+    // 使用公共辅助类处理黑名单错误（消除代码重复）
+    await MessageActions.handleDenylistError(msgId: msgId, msgType: msgType);
   }
 
   /// 处理用户注销

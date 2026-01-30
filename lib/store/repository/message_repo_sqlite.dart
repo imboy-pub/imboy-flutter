@@ -342,9 +342,15 @@ class MessageRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> data, {Transaction? txn}) async {
+    // payload: Map -> JSON 字符串
     if (data.containsKey(MessageRepo.payload) &&
         data[MessageRepo.payload] is Map<String, dynamic>) {
       data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
+    }
+    // e2ee: Map -> JSON 字符串（数据库存储需要字符串格式）
+    if (data.containsKey(MessageRepo.e2ee) &&
+        data[MessageRepo.e2ee] is Map<String, dynamic>) {
+      data[MessageRepo.e2ee] = jsonEncode(data[MessageRepo.e2ee]);
     }
     // 移除主键 id，因为 SQLite 不允许更新主键
     final updateData = Map<String, dynamic>.from(data);
@@ -365,6 +371,55 @@ class MessageRepo {
         updateData,
         where: '${MessageRepo.id} = ?',
         whereArgs: [data[MessageRepo.id]],
+      );
+    }
+  }
+
+  /// 【新增 H3】带条件的更新操作（CAS - Compare-And-Set）
+  ///
+  /// 用于防止竞态条件，只更新符合特定条件的记录
+  ///
+  /// [data] 要更新的数据
+  /// [where] WHERE 子句
+  /// [whereArgs] WHERE 参数
+  /// [txn] 可选的事务对象
+  ///
+  /// 返回更新的行数（如果为 0，说明没有符合条件的记录）
+  Future<int> updateWithConditions(
+    Map<String, dynamic> data, {
+    String? where,
+    List<dynamic>? whereArgs,
+    Transaction? txn,
+  }) async {
+    // payload: Map -> JSON 字符串
+    if (data.containsKey(MessageRepo.payload) &&
+        data[MessageRepo.payload] is Map<String, dynamic>) {
+      data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
+    }
+    // e2ee: Map -> JSON 字符串
+    if (data.containsKey(MessageRepo.e2ee) &&
+        data[MessageRepo.e2ee] is Map<String, dynamic>) {
+      data[MessageRepo.e2ee] = jsonEncode(data[MessageRepo.e2ee]);
+    }
+    // 移除主键 id
+    final updateData = Map<String, dynamic>.from(data);
+    updateData.remove(MessageRepo.id);
+    updateData.remove(MessageRepo.autoId);
+
+    iPrint("message_repo/updateWithConditions $tableName ; where: $where");
+    if (txn != null) {
+      return await txn.update(
+        tableName,
+        updateData,
+        where: where,
+        whereArgs: whereArgs,
+      );
+    } else {
+      return await _db.update(
+        tableName,
+        updateData,
+        where: where,
+        whereArgs: whereArgs,
       );
     }
   }
@@ -873,8 +928,9 @@ class MessageRepo {
             MessageRepo.conversationUk3: conversationUk3,
             MessageRepo.status: IMBoyMessageStatus.delivered,
             // v2.0 新增字段 - 从消息顶层获取（不在 payload 内）
+            // 所有消息类型都应包含这三个字段
             MessageRepo.msgType: msgType,
-            MessageRepo.action: type == 'S2C' ? action : '',
+            MessageRepo.action: action,  // ✅ 修复：所有类型都写入 action
             MessageRepo.e2ee: e2ee != null ? json.encode(e2ee) : '',
           };
 

@@ -184,6 +184,10 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'Message livré';
 	@override String get chatStatusSeenDesc => 'Message lu';
 	@override String get chatStatusFailedDesc => 'Échec de l\'envoi, appuyez pour réessayer';
+	@override String get chatErrorInDenylist => 'Vous êtes sur leur liste noire';
+	@override String get chatErrorInDenylistDesc => 'Le message ne peut pas être envoyé - vous avez été bloqué';
+	@override String get chatErrorNotAFriend => 'Pas encore amis';
+	@override String get chatErrorNotAFriendDesc => 'Le message ne peut pas être envoyé - ajoutez d\'abord comme ami';
 	@override String get checkForUpdates => 'Vérifier les mises à jour';
 	@override String get chooseFromAlbum => 'Choisir depuis l\'album';
 	@override String get clean => 'Nettoyer';
@@ -1424,6 +1428,10 @@ extension on TranslationsFrFr {
 			'chatStatusDeliveredDesc' => 'Message livré',
 			'chatStatusSeenDesc' => 'Message lu',
 			'chatStatusFailedDesc' => 'Échec de l\'envoi, appuyez pour réessayer',
+			'chatErrorInDenylist' => 'Vous êtes sur leur liste noire',
+			'chatErrorInDenylistDesc' => 'Le message ne peut pas être envoyé - vous avez été bloqué',
+			'chatErrorNotAFriend' => 'Pas encore amis',
+			'chatErrorNotAFriendDesc' => 'Le message ne peut pas être envoyé - ajoutez d\'abord comme ami',
 			'checkForUpdates' => 'Vérifier les mises à jour',
 			'chooseFromAlbum' => 'Choisir depuis l\'album',
 			'clean' => 'Nettoyer',
@@ -1784,12 +1792,12 @@ extension on TranslationsFrFr {
 			'quickFilters' => 'Filtres rapides',
 			'quote' => 'Citer',
 			'quoteReply' => 'Réponse citée',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => 'Évaluation',
 			'reEdit' => 'Modifier à nouveau',
 			'readAgreeParam' => ({required Object param}) => 'J\'ai lu et accepté ${param}',
 			'recentChats' => 'Chats récents',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => 'Transferts récents',
 			'recentlyRegisteredUser' => 'Utilisateur récemment inscrit',
 			'recentlyUsed' => 'Récemment utilisé',
@@ -2298,12 +2306,12 @@ extension on TranslationsFrFr {
 			'discover' => 'Découvrir',
 			'shake' => 'Secouer',
 			'tip' => 'Conseil',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => 'Confirmer',
 			'success' => 'Succès',
 			'export' => 'Exporter',
 			'personalDisplay' => 'Affichage personnel',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => 'Signature personnelle',
 			'personalBackground' => 'Arrière-plan personnel',
 			'setBackgroundImage' => 'Définir l\'image d\'arrière-plan',

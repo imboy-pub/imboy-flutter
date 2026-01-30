@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:envied/envied.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -25,7 +26,18 @@ final envMap = {
 abstract interface class Env implements EnvField {
   factory Env() => _to;
 
-  static final Env _to = envMap[currentEnv] ?? EnvPro();
+  /// 动态获取当前环境配置（每次访问时重新计算）
+  /// 确保当 currentEnv 改变时，Env() 会返回正确的配置
+  static Env get _to {
+    final env = envMap[currentEnv];
+    if (env != null) {
+      return env;
+    }
+    // 如果 currentEnv 不在 envMap 中，默认使用生产环境
+    debugPrint('⚠️ [Env] 当前环境 "$currentEnv" 无效，使用默认生产环境配置');
+    return EnvPro();
+  }
+
 
   /// iso 的 buildSignature 未空字符串
   @EnviedField(obfuscate: true)
@@ -47,8 +59,29 @@ abstract interface class Env implements EnvField {
     if (envWsUrl != null && envWsUrl.isNotEmpty) {
       return envWsUrl;
     }
-    // 降级到本地存储的缓存值
-    return StorageService.to.getString(Keys.wsUrl);
+
+    // 当 wsUrl 为空时的处理逻辑
+    final cachedWsUrl = StorageService.to.getString(Keys.wsUrl);
+
+    // 【安全】生产环境不应使用缓存的 WebSocket URL
+    // 防止误用开发/测试环境的 WebSocket 地址
+    if (currentEnv == 'pro') {
+      if (cachedWsUrl.isNotEmpty) {
+        debugPrint('⚠️ [Env] 生产环境检测到缓存的 WebSocket URL: $cachedWsUrl');
+        debugPrint('⚠️ [Env] 该缓存可能来自开发/测试环境，将被清除');
+        // 清除缓存，防止下次使用
+        StorageService.to.remove(Keys.wsUrl);
+      }
+      // 生产环境返回 null，让应用从服务器获取或使用 API 构造的 URL
+      // WebSocket URL 通常从 initConfig API 获取
+      return null;
+    }
+
+    // 非生产环境可以使用缓存（开发/测试环境）
+    if (cachedWsUrl.isNotEmpty) {
+      debugPrint('ℹ️ [Env] 使用缓存的 WebSocket URL: $cachedWsUrl');
+    }
+    return cachedWsUrl;
   }
 
   @EnviedField(defaultValue: '')

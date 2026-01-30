@@ -184,6 +184,10 @@ class TranslationsRuRu with BaseTranslations<AppLocale, Translations> implements
 	@override String get chatStatusDeliveredDesc => 'Сообщение доставлено';
 	@override String get chatStatusSeenDesc => 'Сообщение прочитано';
 	@override String get chatStatusFailedDesc => 'Не удалось отправить, нажмите для повтора';
+	@override String get chatErrorInDenylist => 'Вы в черном списке';
+	@override String get chatErrorInDenylistDesc => 'Сообщение не может быть отправлено - вы заблокированы';
+	@override String get chatErrorNotAFriend => 'Еще не друзья';
+	@override String get chatErrorNotAFriendDesc => 'Сообщение не может быть отправлено - сначала добавьте в друзья';
 	@override String get checkForUpdates => 'Проверить обновления';
 	@override String get chooseFromAlbum => 'Выбрать из альбома';
 	@override String get clean => 'Очистить';
@@ -1424,6 +1428,10 @@ extension on TranslationsRuRu {
 			'chatStatusDeliveredDesc' => 'Сообщение доставлено',
 			'chatStatusSeenDesc' => 'Сообщение прочитано',
 			'chatStatusFailedDesc' => 'Не удалось отправить, нажмите для повтора',
+			'chatErrorInDenylist' => 'Вы в черном списке',
+			'chatErrorInDenylistDesc' => 'Сообщение не может быть отправлено - вы заблокированы',
+			'chatErrorNotAFriend' => 'Еще не друзья',
+			'chatErrorNotAFriendDesc' => 'Сообщение не может быть отправлено - сначала добавьте в друзья',
 			'checkForUpdates' => 'Проверить обновления',
 			'chooseFromAlbum' => 'Выбрать из альбома',
 			'clean' => 'Очистить',
@@ -1784,12 +1792,12 @@ extension on TranslationsRuRu {
 			'quickFilters' => 'Быстрые фильтры',
 			'quote' => 'Цитата',
 			'quoteReply' => 'Цитировать ответ',
+			_ => null,
+		} ?? switch (path) {
 			'rating' => 'Рейтинг',
 			'reEdit' => 'Редактировать снова',
 			'readAgreeParam' => ({required Object param}) => 'Прочитал и согласен с ${param}',
 			'recentChats' => 'Недавние чаты',
-			_ => null,
-		} ?? switch (path) {
 			'recentForwards' => 'Недавние пересылки',
 			'recentlyRegisteredUser' => 'Недавно зарегистрированный пользователь',
 			'recentlyUsed' => 'Недавно использованные',
@@ -2298,12 +2306,12 @@ extension on TranslationsRuRu {
 			'discover' => 'Обзор',
 			'shake' => 'Встряхнуть',
 			'tip' => 'Совет',
+			_ => null,
+		} ?? switch (path) {
 			'confirm' => 'Подтвердить',
 			'success' => 'Успешно',
 			'export' => 'Экспорт',
 			'personalDisplay' => 'Личное отображение',
-			_ => null,
-		} ?? switch (path) {
 			'personalSignature' => 'Личная подпись',
 			'personalBackground' => 'Личный фон',
 			'setBackgroundImage' => 'Установить изображение фона',
