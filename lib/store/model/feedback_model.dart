@@ -1,8 +1,60 @@
 import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/feedback_builder.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+/// 反馈类型枚举
+enum FeedbackType { bugReport, featureRequest }
+
+/// IMBoy 反馈数据类
+/// 用于构建反馈信息和计算评级描述
+class IMBoyFeedback {
+  IMBoyFeedback({
+    this.feedbackType,
+    this.feedbackText = '',
+    this.rating = '3.0',
+    this.contactDetail = '',
+  });
+
+  FeedbackType? feedbackType;
+  String feedbackText;
+  String rating;
+  String contactDetail;
+
+  @override
+  String toString() {
+    return {
+      'rating': rating,
+      'feedback_type': feedbackType.toString(),
+      'feedback_text': feedbackText,
+      'contact_detail': contactDetail,
+    }.toString();
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'rating': rating,
+      'feedback_type': feedbackType.toString(),
+      'feedback_text': feedbackText,
+      'contact_detail': contactDetail,
+    };
+  }
+
+  /// 获取评级描述
+  String get ratingDesc {
+    if (double.parse(rating) == 5.0) {
+      return t.great;
+    } else if (double.parse(rating) >= 4.0) {
+      return t.good;
+    } else if (double.parse(rating) >= 3.0) {
+      return t.notBad;
+    } else if (double.parse(rating) >= 2.0) {
+      return t.needContinueWorkHard;
+    } else {
+      return t.tooBad;
+    }
+  }
+}
 
 class FeedbackModel {
   int feedbackId;

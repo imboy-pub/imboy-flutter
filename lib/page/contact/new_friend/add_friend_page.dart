@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -106,7 +107,7 @@ class AddFriendPage extends ConsumerWidget {
                         InkWell(
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              CupertinoPageRoute(
                                 builder: (context) => UserQrCodePage(),
                               ),
                             );
@@ -158,7 +159,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.nearbyPeopleTips,
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => const PeopleNearbyPage(),
                         ),
                       );
@@ -173,7 +174,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.enterSameGroup,
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => FaceToFacePage(),
                         ),
                       );
@@ -188,7 +189,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.scanQrCodeBusinessCard,
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => const ScannerPage(),
                         ),
                       );
@@ -203,7 +204,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.allowedBeSearched,
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => RecentlyRegisteredUserPage(),
                         ),
                       );

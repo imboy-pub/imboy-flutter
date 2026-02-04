@@ -12,4 +12,17 @@ abstract interface class EnvField {
   /// WebSocket URL (optional, for development environments)
   /// If null, will be fetched from server config
   String? get wsUrl;
+
+  // ┌─────────────────────────────────────────────────────────────┐
+  // │ 🤖 AI 测试框架配置                                           │
+  // └─────────────────────────────────────────────────────────────┘
+
+  /// OpenAI API 密钥 (用于 AI 测试生成)
+  abstract final String openaiApiKey;
+
+  /// Anthropic API 密钥 (Claude 备选方案)
+  abstract final String anthropicApiKey;
+
+  /// AI 测试是否启用
+  abstract final bool aiTestEnabled;
 }

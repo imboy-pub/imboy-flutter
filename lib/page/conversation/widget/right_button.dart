@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:popover/popover.dart';
@@ -98,7 +99,7 @@ class RightButtonList extends StatelessWidget {
           onTap: () {
             Navigator.of(context).pop();
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const ScannerPage()),
+              CupertinoPageRoute(builder: (context) => const ScannerPage()),
             );
           },
         ),

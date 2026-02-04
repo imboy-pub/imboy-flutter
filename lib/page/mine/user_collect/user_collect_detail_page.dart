@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -110,7 +111,9 @@ class UserCollectDetailPage extends ConsumerWidget {
                 // 使用 Navigator.push 替代 Get.to
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SendToPage(msg: msg)),
+                  CupertinoPageRoute(
+                    builder: (context) => SendToPage(msg: msg),
+                  ),
                 ).then((value) {
                   // 调用 Provider 的 change 方法
                   notifier.change(obj.kindId);
@@ -129,7 +132,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) => TagRelationPage(
                       peerId: obj.kindId,
                       peerTag: obj.tag,
@@ -170,7 +173,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) => UpdatePage(
                       title: t.setParam(param: t.remark),
                       value: obj.remark,

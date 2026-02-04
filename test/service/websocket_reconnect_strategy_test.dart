@@ -7,9 +7,9 @@
 /// 4. 重连间隔计算
 library;
 
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/service/websocket.dart' show ExponentialBackoff, JitterType;
+import 'package:imboy/service/websocket.dart'
+    show ExponentialBackoff, JitterType;
 
 void main() {
   group('ExponentialBackoff 重连策略测试', () {

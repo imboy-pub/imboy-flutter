@@ -107,13 +107,13 @@ class _MinePageState extends ConsumerState<MinePage> {
                                 child: !strNoEmpty(user?.avatar)
                                     ? Text(
                                         user!.nickname
-                                                .substring(0, 1)
-                                                .toUpperCase(),
+                                            .substring(0, 1)
+                                            .toUpperCase(),
                                         style: theme.textTheme.headlineLarge
                                             ?.copyWith(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       )
                                     : null,
                               ),
@@ -127,10 +127,11 @@ class _MinePageState extends ConsumerState<MinePage> {
                               children: [
                                 Text(
                                   user?.nickname ?? t.unknown,
-                                  style: theme.textTheme.headlineSmall?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                                 const SizedBox(height: 8),
                                 Container(
@@ -337,5 +338,4 @@ class _MinePageState extends ConsumerState<MinePage> {
       color: Theme.of(context).dividerColor.withValues(alpha: 0.05),
     );
   }
-
 }

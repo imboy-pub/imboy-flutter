@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_page.dart';
@@ -483,7 +484,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
               icon: Icons.local_offer_outlined,
               onTap: () async {
                 final result = await Navigator.of(context).push(
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) => UserTagRelationPage(
                       peerId: widget.from,
                       peerTag: providerState.peerTag.isEmpty

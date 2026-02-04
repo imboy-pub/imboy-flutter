@@ -31,7 +31,14 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: GlassAppBar(title: t.createGroupF2f),
+      appBar: GlassAppBar(
+        title: t.createGroupF2f,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: '返回',
+        ),
+      ),
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       body: Column(
         children: [
@@ -115,7 +122,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                   String gid = res['gid'] ?? '';
                   if (gid.isNotEmpty && context.mounted) {
                     context.push(
-                      '/face_to_face_confirm',
+                      '/group/face_to_face_confirm',
                       extra: {
                         'code': value,
                         'gid': gid,

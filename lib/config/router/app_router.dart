@@ -175,6 +175,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return SendToPage(msg: extra?['msg']);
         },
       ),
+      // 发起聊天页（顶层路由，用于从任何地方发起聊天）
+      GoRoute(
+        path: '/launch_chat',
+        name: 'launch_chat',
+        builder: (context, state) => const LaunchChatPage(),
+      ),
       // 新路由（使用 Riverpod 版本的 ChatPageRiverpod）
       // 示例：/chat_riverpod/user123?type=C2C&title=测试&avatar=xxx
       GoRoute(
@@ -276,7 +282,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/launch_chat',
-            name: 'launch_chat',
+            name: 'group_launch_chat',
             builder: (context, state) => const LaunchChatPage(),
           ),
           GoRoute(
@@ -372,6 +378,77 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/logout_account',
         name: 'logout_account',
         builder: (context, state) => const LogoutAccountPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_key_recovery',
+        name: 'e2ee_key_recovery',
+        builder: (context, state) => const E2EEKeyRecoveryPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_transfer',
+        name: 'e2ee_transfer',
+        builder: (context, state) => const E2EETransferPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_social',
+        name: 'e2ee_social',
+        builder: (context, state) => const E2EESocialPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_social_create',
+        name: 'e2ee_social_create',
+        builder: (context, state) => const E2EESocialCreatePage(),
+      ),
+      GoRoute(
+        path: '/e2ee_social_recover',
+        name: 'e2ee_social_recover',
+        builder: (context, state) => const E2EESocialRecoverPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_social_manage',
+        name: 'e2ee_social_manage',
+        builder: (context, state) => const E2EESocialManagePage(),
+      ),
+      GoRoute(
+        path: '/e2ee_proxy_selector',
+        name: 'e2ee_proxy_selector',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final selectedUids = extra['selectedUids'] as List<String>? ?? [];
+          final requiredCount = extra['requiredCount'] as int? ?? 3;
+          return E2EEProxySelectorPage(
+            selectedUids: selectedUids,
+            requiredCount: requiredCount,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/e2ee_backup_export',
+        name: 'e2ee_backup_export',
+        builder: (context, state) => const E2EEBackupExportPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_backup_import',
+        name: 'e2ee_backup_import',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final initialFilePath = extra['initialFilePath'] as String?;
+          return E2EEBackupImportPage(initialFilePath: initialFilePath);
+        },
+      ),
+      GoRoute(
+        path: '/e2ee_transfer_send',
+        name: 'e2ee_transfer_send',
+        builder: (context, state) => const E2EETransferSendPage(),
+      ),
+      GoRoute(
+        path: '/e2ee_transfer_receive',
+        name: 'e2ee_transfer_receive',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final sessionId = extra['sessionId'] as String?;
+          return E2EETransferReceivePage(sessionId: sessionId);
+        },
       ),
       GoRoute(
         path: '/change_password',

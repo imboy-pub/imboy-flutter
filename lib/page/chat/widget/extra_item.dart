@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/theme/theme_manager.dart';
@@ -165,7 +166,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           onPressed: () async {
             if (!context.mounted) return;
 
-            AMapPosition? l = await AMapHelper().startLocation();
+            AMapPosition? l = await LocationService().getCurrentPosition();
             debugPrint("getLocation ${l?.latLng.toJson().toString()}");
             if (l != null && context.mounted) {
               // 使用 go_router 进行导航

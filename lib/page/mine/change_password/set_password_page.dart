@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -280,14 +281,14 @@ class SetPasswordPage extends ConsumerWidget {
                         (user.email.isEmpty || user.mobile.isEmpty);
                     if (needGuide) {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => const ManageAccountPage(),
                         ),
                         (route) => false,
                       );
                     } else {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => const BottomNavigationPage(),
                         ),
                         (route) => false,

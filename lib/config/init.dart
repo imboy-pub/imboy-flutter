@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/cupertino.dart';
 
 import 'package:imboy/component/helper/ntp.dart';
@@ -36,6 +37,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/e2ee_shard_message_handler.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
@@ -180,8 +182,16 @@ class AppInitializer {
     required String env,
     required String signKeyVsn,
   }) async {
-    // 保持屏幕常亮
-    await WakelockPlus.enable();
+    // 👇 Web 平台 FFI 初始化（必须在数据库操作前）
+    if (kIsWeb) {
+      // sqflite FFI 初始化已在 sqlite.dart 中处理
+      iPrint('✅ [INIT] Web 平台初始化');
+    }
+
+    // 保持屏幕常亮（Web 平台不需要）
+    if (!kIsWeb) {
+      await WakelockPlus.enable();
+    }
 
     // 初始化存储 - 必须在使用前先初始化
     await StorageService.init();
@@ -253,13 +263,17 @@ class AppInitializer {
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
 
-      logger.i('🔄 Cleared all cached configurations due to environment change');
+      logger.i(
+        '🔄 Cleared all cached configurations due to environment change',
+      );
 
       // 【关键】立即从新环境获取配置，获取正确的 ws_url、upload_url 等
       logger.i('🔄 Fetching new environment configuration...');
       final config = await initConfig();
       if (config.containsKey('error')) {
-        logger.w('⚠️ Failed to fetch config for new environment: ${config['error']}');
+        logger.w(
+          '⚠️ Failed to fetch config for new environment: ${config['error']}',
+        );
       } else {
         logger.i('✅ Successfully fetched config for new environment');
       }
@@ -460,10 +474,12 @@ class AppInitializer {
 
     // 检查API公钥或是否需要重新获取配置
     // 【重要】如果之前是其他环境，需要重新获取配置
-    final needFetchConfig = strEmpty(Env.apiPublicKey) ||
-                            _initConfigCache == null;
+    final needFetchConfig =
+        strEmpty(Env.apiPublicKey) || _initConfigCache == null;
     if (needFetchConfig) {
-      logger.i('🔧 Fetching initConfig (apiPublicKey empty: ${strEmpty(Env.apiPublicKey)}, cache null: ${_initConfigCache == null})');
+      logger.i(
+        '🔧 Fetching initConfig (apiPublicKey empty: ${strEmpty(Env.apiPublicKey)}, cache null: ${_initConfigCache == null})',
+      );
       await initConfig();
     } else {
       logger.i('✅ Using cached initConfig (apiPublicKey exists)');
@@ -496,6 +512,11 @@ class AppInitializer {
     // 初始化各种逻辑控制器
     // ChatLogic 已迁移到 Riverpod，不再需要手动注册
     // serviceContainer.put(ChatLogic()); // 1
+
+    // 初始化 E2EE 分片消息处理器（零信任架构）
+    // 必须在 WebSocket 服务初始化之前初始化，以便监听消息
+    E2EEShardMessageHandler.to.init();
+    iPrint('✅ [INIT] E2EE分片消息处理器已初始化');
 
     // 最后初始化WebSocket服务，确保依赖的服务都已注册
     final wsService = WebSocketService.to;

@@ -3,7 +3,8 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/websocket.dart' show WebSocketService, SocketStatus;
+import 'package:imboy/service/websocket.dart'
+    show WebSocketService, SocketStatus;
 
 /// ACK管理器 - 负责ACK的发送和重试
 ///
@@ -130,7 +131,11 @@ class AckManager {
     // 【修复】移除去重逻辑，每次都发送 ACK 确保服务器收到
     // 如果服务器多次发送同一条消息（网络重试），客户端应该每次都返回 ACK
 
-    final ackMsg = generateAckMessage(type, msgId, overrideDeviceId: effectiveDeviceId);
+    final ackMsg = generateAckMessage(
+      type,
+      msgId,
+      overrideDeviceId: effectiveDeviceId,
+    );
 
     // 记录待确认的ACK
     _pendingAcks[msgId] = _PendingAck(
@@ -157,7 +162,11 @@ class AckManager {
   /// 返回格式：CLIENT_ACK,type,msgId,deviceId
   ///
   /// 抛出 [ArgumentError] 当参数无效时
-  String generateAckMessage(String type, String msgId, {String? overrideDeviceId}) {
+  String generateAckMessage(
+    String type,
+    String msgId, {
+    String? overrideDeviceId,
+  }) {
     // 参数验证：防止空值导致格式错误
     if (type.isEmpty || msgId.isEmpty) {
       iPrint(
@@ -185,7 +194,11 @@ class AckManager {
         return;
       }
 
-      final ackMsg = generateAckMessage(type, msgId, overrideDeviceId: effectiveDeviceId);
+      final ackMsg = generateAckMessage(
+        type,
+        msgId,
+        overrideDeviceId: effectiveDeviceId,
+      );
       iPrint('📤 [WS_ACK] 准备发送ACK: msgId=$msgId, type=$type, content=$ackMsg');
 
       // 【解耦】检查 WebSocket 连接状态（通过内部状态变量）

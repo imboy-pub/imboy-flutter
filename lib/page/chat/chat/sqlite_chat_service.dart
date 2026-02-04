@@ -194,7 +194,11 @@ class SqliteChatService
     List<Message> messages, {
     bool animated = true,
   }) async {
-    if (_isDisposed) return;
+    if (_isDisposed) {
+      iPrint('setMessages: ChatService 已释放，跳过设置 ${messages.length} 条消息');
+      return;
+    }
+    iPrint('setMessages: 开始设置 ${messages.length} 条消息');
     final seen = <String>{};
     final unique = <Message>[];
     for (final m in messages) {
@@ -208,9 +212,13 @@ class SqliteChatService
       ..addAll(unique);
     // 如果消息为空，则不使用动画，避免奇怪的视觉效果
     final useAnimation = animated && messages.isNotEmpty;
+    iPrint(
+      'setMessages: 发送 ChatOperation.set 事件，消息数: ${_messages.length}, animated: $useAnimation',
+    );
     _operationsController.add(
       ChatOperation.set(List.unmodifiable(_messages), animated: useAnimation),
     );
+    iPrint('setMessages: 完成，共 ${_messages.length} 条消息');
   }
 
   /// 清空所有消息（同时推送set操作）

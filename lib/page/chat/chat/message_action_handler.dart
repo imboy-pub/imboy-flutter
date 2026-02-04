@@ -208,8 +208,8 @@ class MessageActionHandler {
   /// 收藏消息
   Future<void> collectMessage(Message msg) async {
     String tb = MessageRepo.getTableName(type);
-    final collectLogic = UserCollectLogic();
-    bool res = await collectLogic.add(tb: tb, msg: msg);
+    final collectNotifier = UserCollectNotifier();
+    bool res = await collectNotifier.add(tb: tb, msg: msg);
     EasyLoading.showToast(res ? t.collected : t.operationFailedAgainLater);
   }
 

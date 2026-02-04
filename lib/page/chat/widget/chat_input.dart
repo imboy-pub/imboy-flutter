@@ -102,6 +102,7 @@ class ChatInput extends StatefulWidget {
 
 class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _inputFocusNode = FocusNode(); // 输入框焦点
+  final _keyboardListenerFocusNode = FocusNode(); // 键盘监听器焦点
   final _textController = TextEditingController(); // 文本输入控制器
 
   // 公开内部方法供外部调用
@@ -431,6 +432,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void dispose() {
     _debounceTimer?.cancel();
     _inputFocusNode.dispose();
+    _keyboardListenerFocusNode.dispose();
     _textController.dispose();
     _bottomHeightController.dispose();
     _emojiShowing.dispose();
@@ -693,7 +695,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       valueListenable: _isFocused,
       builder: (context, isFocused, _) {
         return KeyboardListener(
-          focusNode: FocusNode(),
+          focusNode: _keyboardListenerFocusNode,
           onKeyEvent: _handleKeyboardShortcuts,
           child: TextField(
             controller: _textController,

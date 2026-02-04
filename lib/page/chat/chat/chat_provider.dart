@@ -222,18 +222,31 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 初始化聊天服务
   void initChatService(String chatType) {
-    // 移除 _isDisposed 检查 - 允许重新初始化
-    // ChatProvider 是全局单例，退出页面后不应标记为已释放
+    // 检查 ChatService 状态
+    final serviceExists = _chatService != null;
+    final serviceDisposed = _chatService?.isDisposed ?? true;
+    final messageCount = _chatService?.messages.length ?? 0;
 
-    if (_chatService == null || _chatService!.isDisposed) {
-      iPrint('initChatService: 创建新的聊天服务');
-      _chatService = ref.read(sqliteChatServiceProvider);
+    iPrint(
+      'initChatService: 检查状态 - serviceExists=$serviceExists, serviceDisposed=$serviceDisposed, messageCount=$messageCount',
+    );
+
+    if (!serviceExists || serviceDisposed) {
+      if (serviceExists && serviceDisposed) {
+        iPrint('initChatService: 聊天服务已释放，创建新实例');
+      } else {
+        iPrint('initChatService: 创建新的聊天服务');
+      }
+      // 直接创建新实例，不依赖 Provider（Provider 可能返回已释放的实例）
+      _chatService = SqliteChatService(ref);
     } else {
-      iPrint('initChatService: 聊天服务已存在，保留消息列表');
+      iPrint('initChatService: 聊天服务已存在，保留 $messageCount 条消息');
       // 不重置消息列表，保留之前的状态
     }
 
-    iPrint('initChatService: 聊天服务初始化完成');
+    iPrint(
+      'initChatService: 聊天服务初始化完成，当前消息数: ${_chatService?.messages.length ?? 0}',
+    );
   }
 
   /// 保持向后兼容：初始化聊天控制器（别名）
@@ -282,9 +295,18 @@ class ChatNotifier extends _$ChatNotifier {
 
     // 初始化时清空游标和消息
     if (isInitial) {
-      // 只有在切换到不同会话时才清空消息列表
-      // 重新进入同一会话时保留消息，避免消息列表闪烁
-      final isDifferentConversation = state.currentConversationId != obj.uk3;
+      // 保存旧的会话ID，用于日志记录
+      final oldConversationId = state.currentConversationId;
+
+      // 检查是否真的需要切换会话
+      // 1. 如果 currentConversationId 为空（页面刚初始化或被重置），检查 ChatService 中是否有消息
+      // 2. 如果 ChatService 中有消息且 currentConversationId 为空，说明是重新进入，应保留消息
+      (_chatService?.messages.length ?? 0) > 0; // hasExistingMessages check
+      final isStateReset = state.currentConversationId.isEmpty;
+
+      // 只有在明确切换到不同会话时才清空消息列表
+      final isDifferentConversation =
+          !isStateReset && state.currentConversationId != obj.uk3;
 
       state = state.copyWith(
         nextAutoId: 0,
@@ -294,18 +316,41 @@ class ChatNotifier extends _$ChatNotifier {
       );
 
       if (isDifferentConversation) {
-        // 切换会话：清空消息列表
+        // 明确切换会话：清空消息列表
         _chatService?.setMessages([]);
-        iPrint('切换会话: ${state.currentConversationId} -> ${obj.uk3}');
+        iPrint('切换会话: $oldConversationId -> ${obj.uk3}');
       } else {
-        // 同一会话：保留现有消息，只更新分页游标
-        iPrint('重新进入会话: ${obj.uk3}, 保留现有消息');
+        // 同一会话或状态重置：保留现有消息，只更新分页游标
+        final messageCount = _chatService?.messages.length ?? 0;
+        iPrint(
+          '会话初始化: ${obj.uk3}, 保留现有消息 ($messageCount 条), isStateReset=$isStateReset',
+        );
+
+        // 健壮性检查：如果消息列表为空，强制重新加载
+        if (messageCount == 0) {
+          iPrint('警告：会话初始化但消息列表为空，将重新加载');
+          // 不清空消息（因为本来就是空的），但会继续执行下面的加载逻辑
+        } else {
+          // 如果有现有消息，跳过加载，直接返回
+          iPrint('会话初始化：跳过加载，直接返回现有 $messageCount 条消息');
+          return _chatService!.messages.toList();
+        }
       }
 
       iPrint('设置当前会话ID: ${obj.uk3}');
     }
 
-    if (state.isLoading || !state.hasMoreMessage) return [];
+    // 如果正在加载，直接返回
+    if (state.isLoading) return [];
+
+    // 重新进入同一会话时，如果有消息且没有更多消息，直接返回现有消息
+    if (!isInitial && !state.hasMoreMessage) {
+      final messageCount = _chatService?.messages.length ?? 0;
+      if (messageCount > 0) {
+        iPrint('没有更多消息，返回现有 $messageCount 条消息');
+        return _chatService!.messages.toList();
+      }
+    }
 
     state = state.copyWith(isLoading: true);
     final items = await _pageMessages(obj, state.pageSize);
@@ -323,19 +368,38 @@ class ChatNotifier extends _$ChatNotifier {
         .where((msg) => !currentIds.contains(msg.id))
         .toList();
 
+    iPrint(
+      'loadMoreMessages: items=${items.length}, currentIds=${currentIds.length}, newItems=${newItems.length}, isInitial=$isInitial',
+    );
+    iPrint(
+      'loadMoreMessages: _chatService=${_chatService != null}, isDisposed=${_chatService?.isDisposed ?? true}',
+    );
+
     if (newItems.isNotEmpty) {
+      iPrint('loadMoreMessages: 准备设置 ${newItems.length} 条新消息到 ChatService');
       if (isInitial) {
-        _chatService?.setMessages(newItems);
+        final service = _chatService;
+        iPrint(
+          'loadMoreMessages: 调用 setMessages 之前，service=$service, isDisposed=${service?.isDisposed ?? true}',
+        );
+        service?.setMessages(newItems);
+        iPrint('loadMoreMessages: 调用 setMessages 之后');
         state = state.copyWith(
           nextAutoId: newItems.first.metadata?['auto_id'] ?? 0,
           prevAutoId: newItems.last.metadata?['auto_id'] ?? 0,
+        );
+        iPrint(
+          'loadMoreMessages: 已设置消息到 ChatService, nextAutoId=${state.nextAutoId}, prevAutoId=${state.prevAutoId}',
         );
       } else {
         _chatService?.insertAllMessages(newItems, index: 0);
         state = state.copyWith(
           nextAutoId: newItems.first.metadata?['auto_id'] ?? state.nextAutoId,
         );
+        iPrint('loadMoreMessages: 已插入消息到 ChatService');
       }
+    } else {
+      iPrint('loadMoreMessages: newItems 为空，跳过设置消息');
     }
 
     return newItems;
@@ -346,14 +410,21 @@ class ChatNotifier extends _$ChatNotifier {
     final tb = MessageRepo.getTableName(obj.type);
     final repo = MessageRepo(tableName: tb);
 
+    iPrint(
+      '_pageMessages: 加载消息 - conversation: ${obj.uk3}, nextAutoId: ${state.nextAutoId}, size: $size',
+    );
+
     final items = await repo.pageForConversation(
       obj.uk3,
       state.nextAutoId,
       size,
     );
 
+    iPrint('_pageMessages: 查询返回 ${items.length} 条消息');
+
     if (items.isEmpty) {
       state = state.copyWith(hasMoreMessage: false);
+      iPrint('_pageMessages: 没有更多消息');
       return [];
     }
 
@@ -367,6 +438,9 @@ class ChatNotifier extends _$ChatNotifier {
     );
 
     state = state.copyWith(nextAutoId: items.first.autoId);
+    iPrint(
+      '_pageMessages: 成功加载 ${messages.length} 条消息，新的 nextAutoId: ${state.nextAutoId}',
+    );
     return messages.toList();
   }
 

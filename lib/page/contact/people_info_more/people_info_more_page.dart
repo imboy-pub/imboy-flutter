@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -155,7 +156,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
               ? () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (_) => PeopleInfoSameGroupPage(
                         groupList: state.sameGroupList,
                       ),

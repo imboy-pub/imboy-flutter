@@ -26,6 +26,23 @@ final envMap = {
 abstract interface class Env implements EnvField {
   factory Env() => _to;
 
+  // ┌─────────────────────────────────────────────────────────────┐
+  // │ 🤖 AI 测试框架配置                                           │
+  // └─────────────────────────────────────────────────────────────┘
+
+  /// OpenAI API 密钥
+  abstract final String openaiApiKey;
+
+  /// Anthropic API 密钥
+  abstract final String anthropicApiKey;
+
+  /// AI 测试是否启用
+  abstract final bool aiTestEnabled;
+
+  // ┌─────────────────────────────────────────────────────────────┐
+  // │ 原有字段                                                    │
+  // └─────────────────────────────────────────────────────────────┘
+
   /// 动态获取当前环境配置（每次访问时重新计算）
   /// 确保当 currentEnv 改变时，Env() 会返回正确的配置
   static Env get _to {
@@ -37,7 +54,6 @@ abstract interface class Env implements EnvField {
     debugPrint('⚠️ [Env] 当前环境 "$currentEnv" 无效，使用默认生产环境配置');
     return EnvPro();
   }
-
 
   /// iso 的 buildSignature 未空字符串
   @EnviedField(obfuscate: true)

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -797,7 +798,7 @@ class _ProfileSimplePageState extends State<ProfileSimplePage>
   void _editNickname() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const SetNicknamePage()),
+      CupertinoPageRoute(builder: (_) => const SetNicknamePage()),
     ).then((result) {
       if (result == true) {
         _calculateCompleteness();
@@ -810,7 +811,7 @@ class _ProfileSimplePageState extends State<ProfileSimplePage>
   void _editGender() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const SetGenderPage()),
+      CupertinoPageRoute(builder: (_) => const SetGenderPage()),
     ).then((result) {
       if (result == true) {
         _calculateCompleteness();
@@ -823,7 +824,7 @@ class _ProfileSimplePageState extends State<ProfileSimplePage>
   void _editRegion() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (_) => SetRegionPage(
           title: t.setRegion,
           currentValue: UserRepoLocal.to.current.region,
@@ -840,7 +841,7 @@ class _ProfileSimplePageState extends State<ProfileSimplePage>
   void _editSignature() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (_) => UpdatePage(
           title: t.setSignature,
           value: UserRepoLocal.to.current.sign,

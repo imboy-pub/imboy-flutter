@@ -218,7 +218,12 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     // 注意：直接在 SQL 参数中构造带逗号的字符串
     String sql =
         "UPDATE ${UserTagRepo.tableName} SET ${UserTagRepo.subtitle} = REPLACE(${UserTagRepo.subtitle} || ',', ?, ?) WHERE ${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?;";
-    return await SqliteService.to.execute(sql, ['\$oldName,', '\$newName', UserRepoLocal.to.currentUid, tag.tagId]);
+    return await SqliteService.to.execute(sql, [
+      '\$oldName,',
+      '\$newName',
+      UserRepoLocal.to.currentUid,
+      tag.tagId,
+    ]);
   }
 
   /// 更新标签

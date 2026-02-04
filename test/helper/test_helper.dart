@@ -81,7 +81,8 @@ class ConversationTestHelper {
     }
 
     // 简单的字符串检查（测试环境）
-    if (sysPrompt.contains('in_denylist') || sysPrompt.contains('not_a_friend')) {
+    if (sysPrompt.contains('in_denylist') ||
+        sysPrompt.contains('not_a_friend')) {
       return '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。';
     }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:octo_image/octo_image.dart';
 
-import 'avatar.dart';
+import 'avatar_shape.dart';
 
 class GroupAvatar extends StatelessWidget {
   const GroupAvatar({

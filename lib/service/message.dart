@@ -584,7 +584,7 @@ class MessageService with EventSubscriptionManager {
         fromId: data['from'],
         toId: data['to'],
         payload: nonNullPayload,
-        createdAt: data['created_at'],
+        createdAt: data['created_at'] ?? DateTimeHelper.millisecond(),
         isAuthor: isFromCurrentUser ? 1 : 0,
         topicId: data['topic_id'] ?? 0,
         conversationUk3: tempConv.uk3,
@@ -800,7 +800,7 @@ class MessageService with EventSubscriptionManager {
         fromId: data['from'],
         toId: data['to'],
         payload: payload,
-        createdAt: data['created_at'],
+        createdAt: data['created_at'] ?? DateTimeHelper.millisecond(),
         isAuthor: tempMsg.isAuthor,
         topicId: tempMsg.topicId,
         conversationUk3: savedConv.uk3,
@@ -985,7 +985,8 @@ class MessageService with EventSubscriptionManager {
       iPrint('✅ [SERVER_ACK] 消息状态已更新为 sent: msgId=$msgId');
 
       // 更新会话里面的消息列表的特定消息状态
-      AppEventBus.fireData([await msg.toTypeMessage()], 'List<Message>');
+      // 修复：使用正确的 dataType 'messages' 以匹配监听器
+      AppEventBus.fireData([await msg.toTypeMessage()], 'messages');
 
       // 确保会话列表中的lastMsgStatus也得到更新
       await _conversationNotifier.updateConversationByMsgId(msgId, {
@@ -1243,28 +1244,27 @@ class MessageService with EventSubscriptionManager {
 
       // 检查是否是密钥不匹配错误
       final errorStr = e.toString().toLowerCase();
-      final isKeyMismatch = errorStr.contains('no key found for device') ||
+      final isKeyMismatch =
+          errorStr.contains('no key found for device') ||
           errorStr.contains('密钥') ||
           errorStr.contains('device');
 
       if (isKeyMismatch) {
         // 触发E2EE密钥不匹配事件，引导用户重新登录
         AppEventBus.fire(
-          E2EEKeyMismatchEvent(
-            messageId: msgId,
-            reason: '密钥不匹配',
-          ),
+          E2EEKeyMismatchEvent(messageId: msgId, reason: '密钥不匹配'),
         );
 
         // 密钥不匹配：显示友好提示并引导用户重新登录
         return {
           'msg_type': originalMsgType,
           'custom_type': 'e2ee_key_mismatch',
-          'text': '🔒 此消息无法解密\n\n可能原因：\n• 您在其他设备上登录\n• 设备密钥已过期\n\n建议：\n点击下方按钮重新登录以获取最新密钥',
+          'text':
+              '🔒 此消息无法解密\n\n可能原因：\n• 您在其他设备上登录\n• 设备密钥已过期\n\n建议：\n点击下方按钮重新登录以获取最新密钥',
           '_e2ee_failed': true,
           '_e2ee_reason': 'key_mismatch',
           '_e2ee_error': e.toString(),
-          '_show_relogin_button': true,  // 标记需要显示重新登录按钮
+          '_show_relogin_button': true, // 标记需要显示重新登录按钮
         };
       }
 
@@ -1399,10 +1399,7 @@ final class E2EEKeyMismatchEvent extends AppEvent {
   final String messageId;
   final String reason;
 
-  const E2EEKeyMismatchEvent({
-    required this.messageId,
-    required this.reason,
-  });
+  const E2EEKeyMismatchEvent({required this.messageId, required this.reason});
 
   @override
   String toString() {

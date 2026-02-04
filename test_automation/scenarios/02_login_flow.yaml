@@ -1,0 +1,177 @@
+# 用户登录流程测试
+#
+# 测试完整的用户登录流程：
+# 1. 启动应用
+# 2. 进入登录页
+# 3. 输入手机号
+# 4. 输入密码
+# 5. 点击登录
+# 6. 验证登录成功
+#
+# 使用方法：
+#   命令我："执行 02_login_flow 测试"
+
+name: "用户登录流程测试"
+description: "从启动页到成功登录的完整流程测试"
+device: "macos"
+
+# 测试配置
+config:
+  pre_launch_wait_ms: 1000
+  step_delay_ms: 800
+  screenshot_on_error: true
+  screenshot_dir: "test_automation/reports/screenshots"
+
+# 测试数据
+test_data:
+  # 测试账号信息
+  phone: "13800138000"
+  password: "Test123456"
+
+  # 或者使用环境变量
+  # phone: "${TEST_USER_PHONE}"
+  # password: "${TEST_USER_PASSWORD}"
+
+# 测试步骤
+steps:
+  # ========== 阶段 1: 启动应用 ==========
+  - name: "阶段1: 启动应用"
+    action: "launch"
+    description: "启动 IM Boy 应用"
+
+  - name: "等待启动页加载完成"
+    action: "wait"
+    timeout_ms: 3000
+    description: "等待 SplashPage 显示并自动跳转"
+
+  - name: "获取初始页面结构"
+    action: "get_widget_tree"
+    description: "获取 Widget 树用于调试"
+
+  # ========== 阶段 2: 进入登录页 ==========
+  - name: "阶段2: 进入登录页"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    description: "点击登录按钮进入登录页"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "login_entry_button"
+
+  - name: "等待登录页加载"
+    action: "wait"
+    timeout_ms: 1000
+
+  # ========== 阶段 3: 输入手机号 ==========
+  - name: "阶段3: 输入手机号"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "phone_field"
+    text: "${test_data.phone}"
+    description: "输入测试手机号"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入手机号"
+
+  - name: "等待手机号输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  # ========== 阶段 4: 输入密码 ==========
+  - name: "阶段4: 输入密码"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "password_field"
+    text: "${test_data.password}"
+    description: "输入测试密码"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入密码"
+
+  - name: "等待密码输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  # ========== 阶段 5: 点击登录按钮 ==========
+  - name: "阶段5: 提交登录"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    description: "点击登录按钮提交登录"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "login_submit_button"
+
+  # ========== 阶段 6: 等待登录结果 ==========
+  - name: "阶段6: 等待登录响应"
+    action: "wait"
+    timeout_ms: 5000
+    description: "等待网络请求和页面跳转"
+
+  # ========== 阶段 7: 验证登录成功 ==========
+  - name: "阶段7: 验证登录成功"
+    action: "verify"
+    expect:
+      # 验证方式 1: 检查底部导航栏出现
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "消息"
+        description: "验证底部导航栏'消息'标签存在"
+
+      # 验证方式 2: 检查会话列表标题
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "会话"
+        description: "验证会话列表页标题存在"
+
+  - name: "保存登录成功截图"
+    action: "screenshot"
+    filename: "02_login_success.png"
+
+  - name: "获取登录后页面结构"
+    action: "get_widget_tree"
+    description: "获取登录后的 Widget 树"
+
+# 清理步骤
+cleanup:
+  - name: "测试完成"
+    action: "wait"
+    timeout_ms: 2000
+    description: "保持应用运行 2 秒方便观察"
+
+  # 如果需要关闭应用，取消下面的注释
+  # - name: "关闭应用"
+  #   action: "stop"
+
+# 预期结果
+expected_result:
+  status: "passed"
+  description: "成功登录并进入会话列表页"
+
+# 错误处理
+error_handling:
+  # 常见错误及处理建议
+  common_errors:
+    - error: "Widget not found"
+      suggestion: "检查 Widget 树结构，确认 selector 是否正确"
+      action: "retry_with_alternative_selector"
+
+    - error: "Timeout waiting for widget"
+      suggestion: "增加等待时间或检查网络连接"
+      action: "increase_timeout"
+
+    - error: "Login failed"
+      suggestion: "检查测试账号密码是否正确，检查后端服务"
+      action: "verify_credentials"
+
+# 调试配置
+debug:
+  log_widget_tree: true
+  log_each_step: true
+  verbose: true

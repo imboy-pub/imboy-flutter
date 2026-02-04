@@ -116,26 +116,11 @@ void main() {
       });
 
       test('应该提供网络类型名称', () {
-        expect(
-          monitor.getNetworkTypeName(NetworkType.wifi),
-          'Wi-Fi',
-        );
-        expect(
-          monitor.getNetworkTypeName(NetworkType.mobile),
-          '4G/5G',
-        );
-        expect(
-          monitor.getNetworkTypeName(NetworkType.ethernet),
-          '以太网',
-        );
-        expect(
-          monitor.getNetworkTypeName(NetworkType.none),
-          '无网络',
-        );
-        expect(
-          monitor.getNetworkTypeName(NetworkType.unknown),
-          '未知',
-        );
+        expect(monitor.getNetworkTypeName(NetworkType.wifi), 'Wi-Fi');
+        expect(monitor.getNetworkTypeName(NetworkType.mobile), '4G/5G');
+        expect(monitor.getNetworkTypeName(NetworkType.ethernet), '以太网');
+        expect(monitor.getNetworkTypeName(NetworkType.none), '无网络');
+        expect(monitor.getNetworkTypeName(NetworkType.unknown), '未知');
       });
 
       test('应该提供便捷的网络类型检查', () {
@@ -240,12 +225,12 @@ void main() {
 
       test('应该在用户未登录时跳过重连', () {
         var shouldReconnect = false;
-        final isLoggedIn = false;
+        // final isLoggedIn = false; // Dead code: always false
 
         // 验证用户未登录时不重连
-        if (isLoggedIn) {
-          shouldReconnect = true;
-        }
+        // if (isLoggedIn) {
+        //   shouldReconnect = true;
+        // }
 
         expect(shouldReconnect, false);
       });

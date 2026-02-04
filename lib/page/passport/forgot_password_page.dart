@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -154,7 +155,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                 if (mounted) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) => PinCodeVerificationPage(
                         account: email,
                         accountType: 'email',
@@ -234,7 +235,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                 if (mounted) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) => PinCodeVerificationPage(
                         account: _fullMobile,
                         accountType: 'mobile',

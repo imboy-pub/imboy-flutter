@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
@@ -375,7 +376,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         child: ElevatedButton(
           onPressed: () {
             Navigator.of(context).push(
-              MaterialPageRoute(
+              CupertinoPageRoute(
                 builder: (context) => ConfirmNewFriendPage(
                   to: model.to,
                   from: model.from,
@@ -538,7 +539,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                 borderRadius: AppRadius.borderRadiusXLarge,
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) => const AddFriendPage(),
                     ),
                   );

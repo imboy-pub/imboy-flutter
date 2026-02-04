@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,16 +26,25 @@ class ScannerPage extends ConsumerStatefulWidget {
 
 class _ScannerPageState extends ConsumerState<ScannerPage>
     with SingleTickerProviderStateMixin {
-  MobileScannerController controller = MobileScannerController(
-    formats: [BarcodeFormat.all],
-  );
+  late MobileScannerController controller;
+  bool _isControllerInitialized = false;
 
   StreamSubscription? _localeSubscription;
 
   @override
   void initState() {
     super.initState();
-    controller.start();
+    // 禁用自动启动，在 widget 构建完成后手动启动
+    controller = MobileScannerController(
+      formats: [BarcodeFormat.all],
+      autoStart: false, // 关键：禁用自动启动
+    );
+
+    // 延迟启动，确保 UI 完全加载
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startScanner();
+    });
+
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
@@ -43,11 +53,26 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
     });
   }
 
+  Future<void> _startScanner() async {
+    if (_isControllerInitialized || !mounted) return;
+
+    try {
+      await controller.start();
+      if (mounted) {
+        setState(() {
+          _isControllerInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to start scanner: $e');
+    }
+  }
+
   @override
-  Future<void> dispose() async {
+  void dispose() {
     _localeSubscription?.cancel();
+    controller.dispose();
     super.dispose();
-    await controller.dispose();
   }
 
   Future<void> onDetect(BarcodeCapture barcodes) async {
@@ -82,7 +107,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
+          CupertinoPageRoute(
             builder: (context) =>
                 PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
           ),
@@ -92,7 +117,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(
+          CupertinoPageRoute(
             builder: (context) => ChatPage(
               peerId: payload['id'],
               peerTitle: payload['title'],
@@ -113,7 +138,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       if (!mounted) return;
       Navigator.push(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => ScannerResultPage(scanResult: barcodeStr),
         ),
       );

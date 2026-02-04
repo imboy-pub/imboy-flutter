@@ -4,13 +4,6 @@ import 'package:imboy/component/helper/func.dart';
 
 import 'avatar_group.dart';
 
-/// 头像形状类型
-enum AvatarShape {
-  circle, // 圆形
-  square, // 方形
-  roundedSquare, // 圆角方形
-}
-
 // 2. 创建智能容器组件
 class SmartGroupAvatar extends StatefulWidget {
   final String groupId;

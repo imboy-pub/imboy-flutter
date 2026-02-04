@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -572,7 +573,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 debugPrint('Navigating to detail page for ${obj.kindId}');
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) =>
                         UserCollectDetailPage(obj: obj, pageIndex: index),
                   ),
@@ -749,7 +750,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 try {
                   final result = await Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) => TagRelationPage(
                         peerId: obj.kindId,
                         peerTag: obj.tag,

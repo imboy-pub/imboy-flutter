@@ -224,7 +224,7 @@ class MessageModel {
     // WebSocket API v2.0: 从顶层读取 msg_type、action、e2ee
     // 所有消息类型都可能包含这三个字段
     final msgType = data['msg_type'] as String?;
-    final action = data['action'] as String?;  // ✅ 所有类型都读取 action
+    final action = data['action'] as String?; // ✅ 所有类型都读取 action
 
     // 解析 e2ee 字段（仅 C2C/C2G 有）
     Map<String, dynamic>? e2eeData;
@@ -310,7 +310,7 @@ class MessageModel {
       data['action'] = action ?? '';
       // C2C/C2G/C2S: 写入 e2ee（必须是 Map 类型，不能是 JSON 字符串）
       if (e2ee != null && e2ee!.isNotEmpty) {
-        data['e2ee'] = e2ee;  // ✅ 修复：直接使用 Map，不要 json.encode()
+        data['e2ee'] = e2ee; // ✅ 修复：直接使用 Map，不要 json.encode()
       }
     } else {
       // S2C: 写入 msg_type 和 action
@@ -682,6 +682,7 @@ class MessageModel {
       'peer_id': toId,
       'msg_type': currentMsgType, // 添加 msg_type 到 metadata
       'status': status, // 添加 status 到 metadata
+      'auto_id': autoId, // 添加 auto_id 到 metadata，用于分页查询
     };
     String nickname = '';
     String avatar = '';
@@ -721,7 +722,7 @@ class MessageModel {
         createdAt: createdDt,
         id: id!,
         // peerId: toId,
-        text: payloadData['text'],
+        text: payloadData['text'] ?? '',
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -866,7 +867,7 @@ class MessageModel {
     return message;
   }
 
-  static MessageModel fromMessage(Message message) {
+  static MessageModel fromMessage(Message message, {String? currentUid}) {
     final Map<String, dynamic> payload = {};
 
     // WebSocket API v2.0: 提取 msg_type 到顶层字段
@@ -939,6 +940,7 @@ class MessageModel {
     final conversationUk3 = metadata['conversation_uk3'] ?? '';
     final type = payload['type'] ?? 'C2C';
 
+    final uid = currentUid ?? UserRepoLocal.to.currentUid;
     return MessageModel(
       message.id,
       autoId: 0,
@@ -947,7 +949,7 @@ class MessageModel {
       toId: peerId,
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
-      isAuthor: message.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
+      isAuthor: message.authorId == uid ? 1 : 0,
       topicId: payload['topic_id'] ?? 0,
       conversationUk3: conversationUk3,
       status: 0,

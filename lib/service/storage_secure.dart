@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// 安全存储服务 - 基于 FlutterSecureStorage
@@ -141,4 +143,252 @@ class StorageSecureService {
     mOptions: mOptions,
     wOptions: wOptions,
   );
+
+  // ==========================================
+  // E2EE 密钥相关便捷方法
+  // E2EE Key Related Convenience Methods
+  // ==========================================
+
+  /// 存储私钥（E2EE）
+  /// Store private key for E2EE
+  Future<void> savePrivateKey(String privateKey) async {
+    await write(key: 'e2ee_private_key', value: privateKey);
+  }
+
+  /// 获取私钥（E2EE）
+  /// Get private key for E2EE
+  Future<String?> getPrivateKey() async {
+    return await read(key: 'e2ee_private_key');
+  }
+
+  /// 存储公钥（E2EE）
+  /// Store public key for E2EE
+  Future<void> savePublicKey(String publicKey) async {
+    await write(key: 'e2ee_public_key', value: publicKey);
+  }
+
+  /// 获取公钥（E2EE）
+  /// Get public key for E2EE
+  Future<String?> getPublicKey() async {
+    return await read(key: 'e2ee_public_key');
+  }
+
+  /// 设置设备 ID（E2EE）
+  /// Set device ID for E2EE
+  Future<void> setDeviceId(String deviceId) async {
+    await write(key: 'e2ee_device_id', value: deviceId);
+  }
+
+  /// 获取设备 ID（E2EE）
+  /// Get device ID for E2EE
+  Future<String?> getDeviceId() async {
+    return await read(key: 'e2ee_device_id');
+  }
+
+  /// 设置密钥 ID（E2EE）
+  /// Set key ID for E2EE
+  Future<void> setKeyId(String keyId) async {
+    await write(key: 'e2ee_key_id', value: keyId);
+  }
+
+  /// 获取密钥 ID（E2EE）
+  /// Get key ID for E2EE
+  Future<String?> getKeyId() async {
+    return await read(key: 'e2ee_key_id');
+  }
+
+  /// 设置密钥创建时间（E2EE）
+  /// Set key creation time for E2EE
+  Future<void> setKeyCreatedAt(String createdAt) async {
+    await write(key: 'e2ee_key_created_at', value: createdAt);
+  }
+
+  /// 获取密钥创建时间（E2EE）
+  /// Get key creation time for E2EE
+  Future<String?> getKeyCreatedAt() async {
+    return await read(key: 'e2ee_key_created_at');
+  }
+
+  /// 删除所有 E2EE 密钥数据
+  /// Delete all E2EE key data
+  Future<void> deleteAllE2EEKeys() async {
+    await delete(key: 'e2ee_private_key');
+    await delete(key: 'e2ee_public_key');
+    await delete(key: 'e2ee_device_id');
+    await delete(key: 'e2ee_key_id');
+    await delete(key: 'e2ee_key_created_at');
+  }
+
+  /// 检查是否存在 E2EE 密钥
+  /// Check if E2EE keys exist
+  Future<bool> hasE2EEKeys() async {
+    final privateKey = await getPrivateKey();
+    final publicKey = await getPublicKey();
+    return privateKey != null && publicKey != null;
+  }
+
+  // ==========================================
+  // E2EE 社交恢复分片相关方法
+  // E2EE Social Recovery Shard Methods
+  // ==========================================
+
+  /// 存储接收的分片（代理端）
+  /// Store received shard (proxy side)
+  Future<void> saveE2EEShard(String shardId, String shardData) async {
+    await write(key: 'e2ee_shard_$shardId', value: shardData);
+  }
+
+  /// 获取存储的分片（代理端）
+  /// Get stored shard (proxy side)
+  Future<String?> getE2EEShard(String shardId) async {
+    return await read(key: 'e2ee_shard_$shardId');
+  }
+
+  /// 删除存储的分片（代理端）
+  /// Delete stored shard (proxy side)
+  Future<void> deleteE2EEShard(String shardId) async {
+    await delete(key: 'e2ee_shard_$shardId');
+  }
+
+  /// 存储分片 ID 列表
+  /// Store shard ID list (for tracking all shards)
+  Future<void> saveShardIdList(List<String> shardIds) async {
+    await write(key: 'e2ee_shard_id_list', value: jsonEncode(shardIds));
+  }
+
+  /// 获取分片 ID 列表
+  /// Get shard ID list
+  Future<List<String>> getShardIdList() async {
+    final data = await read(key: 'e2ee_shard_id_list');
+    if (data == null) return [];
+    try {
+      final list = jsonDecode(data) as List;
+      return list.map((e) => e.toString()).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// 添加分片 ID 到列表
+  /// Add shard ID to list
+  Future<void> addShardId(String shardId) async {
+    final list = await getShardIdList();
+    if (!list.contains(shardId)) {
+      list.add(shardId);
+      await saveShardIdList(list);
+    }
+  }
+
+  /// 从列表中移除分片 ID
+  /// Remove shard ID from list
+  Future<void> removeShardId(String shardId) async {
+    final list = await getShardIdList();
+    final newList = list.where((id) => id != shardId).toList();
+    await saveShardIdList(newList);
+  }
+
+  /// 删除所有分片
+  /// Delete all shards
+  Future<void> deleteAllE2EEShards() async {
+    final list = await getShardIdList();
+    for (final shardId in list) {
+      await deleteE2EEShard(shardId);
+    }
+    await delete(key: 'e2ee_shard_id_list');
+  }
+
+  // ==========================================
+  // E2EE 分片元数据管理（零信任架构）
+  // Shard Metadata Management for Zero Trust
+  // ==========================================
+
+  /// 保存分片元数据列表（密钥所有者端）
+  /// 用于恢复密钥时知道有哪些分片可用
+  Future<void> saveE2EEShardMetadataList(
+    List<Map<String, dynamic>> shards,
+  ) async {
+    await write(key: 'e2ee_shard_metadata_list', value: jsonEncode(shards));
+  }
+
+  /// 获取分片元数据列表（密钥所有者端）
+  Future<List<Map<String, dynamic>>> getE2EEShardMetadataList() async {
+    final data = await read(key: 'e2ee_shard_metadata_list');
+    if (data == null) return [];
+    try {
+      final list = jsonDecode(data) as List;
+      return list.map((e) => (e as Map).cast<String, dynamic>()).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// 添加分片元数据
+  Future<void> addE2EEShardMetadata(Map<String, dynamic> shard) async {
+    final list = await getE2EEShardMetadataList();
+    list.add(shard);
+    await saveE2EEShardMetadataList(list);
+  }
+
+  /// 根据分片 ID 更新元数据状态
+  Future<void> updateE2EEShardMetadataStatus(
+    String shardId,
+    String status,
+  ) async {
+    final list = await getE2EEShardMetadataList();
+    final updatedList = list.map((shard) {
+      if (shard['shard_id']?.toString() == shardId) {
+        return {...shard, 'status': status};
+      }
+      return shard;
+    }).toList();
+    await saveE2EEShardMetadataList(updatedList);
+  }
+
+  /// 删除所有分片元数据
+  Future<void> deleteE2EEShardMetadataList() async {
+    await delete(key: 'e2ee_shard_metadata_list');
+  }
+
+  /// 根据密钥版本获取分片元数据
+  Future<List<Map<String, dynamic>>> getE2EEShardMetadataByKeyVersion(
+    String keyVersion,
+  ) async {
+    final list = await getE2EEShardMetadataList();
+    return list
+        .where((shard) => shard['key_version']?.toString() == keyVersion)
+        .toList();
+  }
+
+  /// 获取最新的分片元数据列表
+  Future<List<Map<String, dynamic>>> getLatestE2EEShardMetadata() async {
+    final list = await getE2EEShardMetadataList();
+    if (list.isEmpty) return [];
+
+    // 按密钥版本排序，返回最新的
+    final sorted = list.toList()
+      ..sort((a, b) {
+        final verA = a['key_version']?.toString() ?? '0';
+        final verB = b['key_version']?.toString() ?? '0';
+        return verB.compareTo(verA);
+      });
+
+    // 按密钥版本分组
+    final latestVersion = sorted.first['key_version']?.toString() ?? '';
+    return list
+        .where((shard) => shard['key_version']?.toString() == latestVersion)
+        .toList();
+  }
+
+  /// 清理指定密钥版本的分片元数据
+  Future<void> cleanE2EEShardMetadataByKeyVersion(String keyVersion) async {
+    final list = await getE2EEShardMetadataList();
+    final filtered = list
+        .where((shard) => shard['key_version']?.toString() != keyVersion)
+        .toList();
+    await saveE2EEShardMetadataList(filtered);
+  }
 }
+
+/// 类型别名，用于向后兼容
+/// Type alias for backward compatibility
+typedef StorageSecure = StorageSecureService;

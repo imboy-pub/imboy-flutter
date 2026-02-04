@@ -11,17 +11,15 @@
 /// 后端协议参考：../imboy/doc/libraries/message-ack.md
 library;
 
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 void main() {
   group('消息 ACK 流程集成测试', () {
     late AckManager ackManager;
-    StreamSubscription? ackEventSubscription;
+    // StreamSubscription? ackEventSubscription; // Reserved for future event listening tests
 
     setUp(() {
       ackManager = AckManager.to;
@@ -29,9 +27,7 @@ void main() {
     });
 
     tearDown(() async {
-      await ackEventSubscription?.cancel();
       ackManager.dispose();
-      ackManager.clear(); // 确保每个测试后清理状态
     });
 
     group('基础 ACK 流程', () {
@@ -138,32 +134,30 @@ void main() {
         bool eventReceived = false;
 
         // 订阅 WebSocket 发送请求事件
-        final subscription = AppEventBus
-            .on<WebSocketMessageSendRequestEvent>()
+        final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
             .listen((event) {
-          if (event.messageId == msgId) {
-            sentMessage = event.message;
-            eventReceived = true;
-          }
-        });
+              if (event.messageId == msgId) {
+                sentMessage = event.message;
+                eventReceived = true;
+              }
+            });
 
         // 【修复】使用 sendAck 而不是 sendAckDirect
         // sendAck 不检查连接状态，会直接触发事件
-        ackManager.sendAck('C2C', msgId,
-            overrideDeviceId: 'test_device');
+        ackManager.sendAck('C2C', msgId, overrideDeviceId: 'test_device');
 
         // 等待事件传播
         await Future.delayed(const Duration(milliseconds: 200));
 
         // 【修复】验证事件已接收
-        expect(eventReceived, true,
-            reason: '应该收到 WebSocket 发送请求事件');
-        expect(sentMessage, isNotNull,
-            reason: '消息内容不应为空');
-        expect(sentMessage, contains('CLIENT_ACK'),
-            reason: '应该包含 CLIENT_ACK 前缀');
-        expect(sentMessage, contains(msgId),
-            reason: '应该包含消息 ID');
+        expect(eventReceived, true, reason: '应该收到 WebSocket 发送请求事件');
+        expect(sentMessage, isNotNull, reason: '消息内容不应为空');
+        expect(
+          sentMessage,
+          contains('CLIENT_ACK'),
+          reason: '应该包含 CLIENT_ACK 前缀',
+        );
+        expect(sentMessage, contains(msgId), reason: '应该包含消息 ID');
 
         await subscription.cancel();
       });
@@ -290,12 +284,10 @@ void main() {
         const msgId2 = 'msg_multi_device_2';
 
         // 设备1发送 ACK
-        ackManager.sendAck('C2C', msgId1,
-            overrideDeviceId: deviceId1);
+        ackManager.sendAck('C2C', msgId1, overrideDeviceId: deviceId1);
 
         // 设备2发送 ACK（不同消息，因为同一消息的 ACK 会去重）
-        ackManager.sendAck('C2C', msgId2,
-            overrideDeviceId: deviceId2);
+        ackManager.sendAck('C2C', msgId2, overrideDeviceId: deviceId2);
 
         // 后端协议：每个设备独立 ACK
         // 验证两个 ACK 都被记录
@@ -317,8 +309,11 @@ void main() {
         final stopwatch = Stopwatch()..start();
 
         for (int i = 0; i < 1000; i++) {
-          ackManager.generateAckMessage('C2C', 'msg_$i',
-              overrideDeviceId: 'test_device');
+          ackManager.generateAckMessage(
+            'C2C',
+            'msg_$i',
+            overrideDeviceId: 'test_device',
+          );
         }
 
         stopwatch.stop();

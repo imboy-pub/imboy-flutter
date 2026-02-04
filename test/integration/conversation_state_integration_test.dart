@@ -11,14 +11,11 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/store/model/message_model.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -123,7 +120,10 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 查找会话
-        final found = await conversationRepo.findByPeerId('C2C', 'test_peer_user_2');
+        final found = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_peer_user_2',
+        );
 
         expect(found, isNotNull);
         expect(found!.peerId, 'test_peer_user_2');
@@ -216,7 +216,10 @@ void main() {
         });
 
         // 3. 验证更新
-        final updated = await conversationRepo.findByPeerId('C2C', 'test_peer_user_5');
+        final updated = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_peer_user_5',
+        );
 
         expect(updated, isNotNull);
         expect(updated!.title, 'peerId更新后的标题');
@@ -307,10 +310,13 @@ void main() {
           },
         );
 
-        final saved = await conversationRepo.save(conv);
+        await conversationRepo.save(conv); // saved variable not needed
 
         // 重新读取
-        final found = await conversationRepo.findByPeerId('C2C', 'test_peer_user_8');
+        final found = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_peer_user_8',
+        );
 
         expect(found, isNotNull);
         expect(found!.payload, isNotNull);
@@ -351,33 +357,37 @@ void main() {
 
       test('应该能够按类型查询会话', () async {
         // 1. 插入不同类型的会话
-        await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'test_c2c_user',
-          avatar: 'https://example.com/avatar.jpg',
-          title: 'C2C用户',
-          subtitle: 'C2C消息',
-          type: 'C2C',
-          msgType: 'text',
-          lastTime: 1642579200000,
-          lastMsgId: 'msg_c2c_001',
-          unreadNum: 1,
-          payload: {'text': 'C2C消息'},
-        ));
+        await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'test_c2c_user',
+            avatar: 'https://example.com/avatar.jpg',
+            title: 'C2C用户',
+            subtitle: 'C2C消息',
+            type: 'C2C',
+            msgType: 'text',
+            lastTime: 1642579200000,
+            lastMsgId: 'msg_c2c_001',
+            unreadNum: 1,
+            payload: {'text': 'C2C消息'},
+          ),
+        );
 
-        await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'test_c2g_group',
-          avatar: 'https://example.com/group.jpg',
-          title: 'C2G群组',
-          subtitle: 'C2G消息',
-          type: 'C2G',
-          msgType: 'text',
-          lastTime: 1642579200000,
-          lastMsgId: 'msg_c2g_001',
-          unreadNum: 2,
-          payload: {'text': 'C2G消息'},
-        ));
+        await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'test_c2g_group',
+            avatar: 'https://example.com/group.jpg',
+            title: 'C2G群组',
+            subtitle: 'C2G消息',
+            type: 'C2G',
+            msgType: 'text',
+            lastTime: 1642579200000,
+            lastMsgId: 'msg_c2g_001',
+            unreadNum: 2,
+            payload: {'text': 'C2G消息'},
+          ),
+        );
 
         // 2. 按 C2C 类型查询
         final c2cList = await conversationRepo.list(type: 'C2C');
@@ -667,14 +677,20 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 验证存在
-        final foundBefore = await conversationRepo.findByPeerId('C2C', 'test_peer_user_delete');
+        final foundBefore = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_peer_user_delete',
+        );
         expect(foundBefore, isNotNull);
 
         // 3. 删除
         await conversationRepo.delete('C2C', 'test_peer_user_delete');
 
         // 4. 验证已删除
-        final foundAfter = await conversationRepo.findByPeerId('C2C', 'test_peer_user_delete');
+        final foundAfter = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_peer_user_delete',
+        );
         expect(foundAfter, isNull);
       });
     });
@@ -694,10 +710,7 @@ void main() {
           lastMsgStatus: 20,
           unreadNum: 3,
           isShow: 1,
-          payload: {
-            'text': 'JSON测试消息',
-            'last_read_auto_id': 100,
-          },
+          payload: {'text': 'JSON测试消息', 'last_read_auto_id': 100},
         );
 
         // 序列化
@@ -788,10 +801,7 @@ void main() {
           payload: {'text': '原始消息'},
         );
 
-        final conv2 = conv1.copyWith(
-          title: '新标题',
-          unreadNum: 0,
-        );
+        final conv2 = conv1.copyWith(title: '新标题', unreadNum: 0);
 
         // 验证原对象不变
         expect(conv1.title, '原始标题');
@@ -828,7 +838,10 @@ void main() {
 
         expect(saved, greaterThan(0));
 
-        final found = await conversationRepo.findByPeerId('C2C', 'test_peer_large_unread');
+        final found = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_peer_large_unread',
+        );
 
         expect(found, isNotNull);
         expect(found!.unreadNum, 999999);

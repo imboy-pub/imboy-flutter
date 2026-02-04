@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -345,7 +346,7 @@ class UIEventHandler {
   void _showUserProfile(BuildContext context, User user) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (context) => PeopleInfoPage(id: user.id, scene: 'chat'),
       ),
     );
@@ -355,7 +356,7 @@ class UIEventHandler {
   void _showUserProfileById(BuildContext context, String userId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (context) => PeopleInfoPage(id: userId, scene: 'chat'),
       ),
     );
@@ -444,7 +445,7 @@ class UIEventHandler {
       // 打开视频播放页面
       Navigator.push(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => VideoViewerPage(url: videoUrl, thumb: thumbUrl),
         ),
       );

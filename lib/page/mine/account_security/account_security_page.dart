@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -67,16 +68,16 @@ class AccountSecurityPage extends ConsumerWidget {
             onTap: () {
               Navigator.of(
                 context,
-              ).push(MaterialPageRoute(builder: (_) => const BindEmailPage()));
+              ).push(CupertinoPageRoute(builder: (_) => const BindEmailPage()));
             },
           ),
           ListTile(
             title: Text(t.bindMobile),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const BindMobilePage()));
+              Navigator.of(context).push(
+                CupertinoPageRoute(builder: (_) => const BindMobilePage()),
+              );
             },
           ),
         ],

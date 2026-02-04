@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -15,8 +16,9 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/markdown.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/page/settings/e2ee_key_recovery_page.dart';
+import 'package:imboy/page/settings/e2ee_dev_test_page.dart';
 import 'package:imboy/service/e2ee_service.dart';
-import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -41,11 +43,6 @@ final allowSearchProvider = Provider<bool>((ref) {
     }
   }
   return true;
-});
-
-/// E2EE开关状态的 Provider - 从E2EE设置服务读取
-final e2eeEnabledProvider = Provider<bool>((ref) {
-  return E2EESettings.isEnabled();
 });
 
 /// 设置页面 - 使用 Riverpod + 优化后的主题系统
@@ -131,7 +128,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     final allowSearch = ref.watch(allowSearchProvider);
-    final e2eeEnabled = ref.watch(e2eeEnabledProvider);
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
 
@@ -298,22 +294,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           },
                   ),
 
-                  // 端到端加密开关
-                  _buildSwitchItem(
-                    context,
-                    title: '端到端加密',
-                    subtitle: '启用后消息将被加密，只有接收方可以解密',
-                    value: e2eeEnabled,
-                    leadingIcon: Icons.lock,
-                    leadingIconColor: AppColors.success,
-                    onChanged: (v) async {
-                      await E2EESettings.setEnabled(v);
-                      // 刷新UI
-                      ref.invalidate(e2eeEnabledProvider);
-                      EasyLoading.showToast(v ? '已启用端到端加密' : '已关闭端到端加密');
-                    },
-                  ),
-
                   // 刷新设备密钥
                   _buildSettingItem(
                     context,
@@ -356,6 +336,43 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             }
                           },
                   ),
+
+                  _buildDivider(context),
+
+                  // E2EE 密钥恢复
+                  _buildSettingItem(
+                    context,
+                    title: 'E2EE 密钥管理',
+                    subtitle: '备份、恢复和管理端到端加密密钥',
+                    leadingIcon: Icons.vpn_key,
+                    leadingIconColor: Colors.green,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => const E2EEKeyRecoveryPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // 开发者测试（仅调试模式）
+                  if (kDebugMode)
+                    _buildSettingItem(
+                      context,
+                      title: 'E2EE 开发测试',
+                      subtitle: '快速验证 E2EE 功能',
+                      leadingIcon: Icons.science,
+                      leadingIconColor: Colors.purple,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (_) => const E2EEDevTestPage(),
+                          ),
+                        );
+                      },
+                    ),
                 ],
               ),
             ),

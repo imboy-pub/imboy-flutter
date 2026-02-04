@@ -44,6 +44,13 @@ dependencies:
   mime: ^2.0.0                      # MIME type detection for file handling
 
   # ┌─────────────────────────────────────────────────────────────────┐
+  # │ 🌐 Web Platform Support                                         │
+  # └─────────────────────────────────────────────────────────────────┘
+  sqflite_common: ^2.5.0            # sqflite 公共接口（Web 支持）
+  sqflite_common_ffi: ^2.4.0+2      # Web FFI 实现（SQLite on Web）
+  web: ^1.1.0                       # 浏览器 API 封装（IndexedDB、Blob 等）
+
+  # ┌─────────────────────────────────────────────────────────────────┐
   # │ 💾 Data & Storage                                               │
   # └─────────────────────────────────────────────────────────────────┘
   shared_preferences: ^2.5.4       # Local key-value storage
@@ -126,6 +133,7 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # 📍 Maps & Location                                               │
   # └─────────────────────────────────────────────────────────────────┘
+  geolocator: ^13.0.2                   # 跨平台定位服务（支持 macOS/Web）
   amap_flutter_base_plus: ^3.1.0       # Amap (高德地图) base SDK
   amap_flutter_map_plus:               # Amap map integration
     git:
@@ -270,12 +278,20 @@ dev_dependencies:
   # ┌─ Code Quality & Linting ───────────────────────────────────────┐
   flutter_lints: ^6.0.0                # Official Flutter linting rules
 
+  # ┌─ Integration Testing ──────────────────────────────────────────┐
+  integration_test:
+    sdk: flutter
+
+  # ┌─ AI Testing Framework ────────────────────────────────────────────┐
+  # 🤖 AI 驱动测试框架 - MVP 精简版
+  # openai: ^1.0.0                    # OpenAI API 客户端 (GPT-4/3.5) - 暂时禁用
+  # 其他依赖按需添加...
+
 # ┌─────────────────────────────────────────────────────────────────┐
 # │ 📦 Flutter Configuration                                          │
 # └─────────────────────────────────────────────────────────────────┘
 # For information on the generic Dart part of this file, see:
 # https://dart.dev/tools/pub/pubspec
-
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

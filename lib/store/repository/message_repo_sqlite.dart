@@ -930,7 +930,7 @@ class MessageRepo {
             // v2.0 新增字段 - 从消息顶层获取（不在 payload 内）
             // 所有消息类型都应包含这三个字段
             MessageRepo.msgType: msgType,
-            MessageRepo.action: action,  // ✅ 修复：所有类型都写入 action
+            MessageRepo.action: action, // ✅ 修复：所有类型都写入 action
             MessageRepo.e2ee: e2ee != null ? json.encode(e2ee) : '',
           };
 

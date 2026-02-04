@@ -82,6 +82,25 @@ export 'package:imboy/page/personal_info/profile/profile_page.dart';
 export 'package:imboy/page/personal_info/profile/widgets/privacy_settings_page.dart';
 
 // ============================================================================
+// E2EE 密钥恢复模块
+// ============================================================================
+export 'package:imboy/page/settings/e2ee_key_recovery_page.dart';
+export 'package:imboy/page/settings/e2ee_backup_export_page.dart';
+export 'package:imboy/page/settings/e2ee_backup_import_page.dart';
+export 'package:imboy/page/settings/e2ee_backup_manage_page.dart';
+export 'package:imboy/page/settings/e2ee_transfer_page.dart';
+export 'package:imboy/page/settings/e2ee_transfer_send_page.dart';
+export 'package:imboy/page/settings/e2ee_transfer_receive_page.dart';
+export 'package:imboy/page/settings/e2ee_social_page.dart';
+export 'package:imboy/page/settings/e2ee_social_create_page.dart';
+export 'package:imboy/page/settings/e2ee_social_recover_page.dart';
+export 'package:imboy/page/settings/e2ee_social_manage_page.dart';
+export 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
+
+// 开发者测试（仅开发环境）
+export 'package:imboy/page/settings/e2ee_dev_test_page.dart';
+
+// ============================================================================
 // 其他功能
 // ============================================================================
 export 'package:imboy/page/wallet/wallet_page.dart';

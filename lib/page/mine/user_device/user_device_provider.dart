@@ -21,21 +21,31 @@ class UserDeviceState {
   final String currentDeviceId;
   final bool isLoading;
 
+  // 新增：活跃会话列表
+  final List<Map<String, dynamic>> activeSessions;
+  final bool isLoadingSessions;
+
   const UserDeviceState({
     this.deviceList = const [],
     this.currentDeviceId = '',
     this.isLoading = false,
+    this.activeSessions = const [],
+    this.isLoadingSessions = false,
   });
 
   UserDeviceState copyWith({
     List<UserDeviceModel>? deviceList,
     String? currentDeviceId,
     bool? isLoading,
+    List<Map<String, dynamic>>? activeSessions,
+    bool? isLoadingSessions,
   }) {
     return UserDeviceState(
       deviceList: deviceList ?? this.deviceList,
       currentDeviceId: currentDeviceId ?? this.currentDeviceId,
       isLoading: isLoading ?? this.isLoading,
+      activeSessions: activeSessions ?? this.activeSessions,
+      isLoadingSessions: isLoadingSessions ?? this.isLoadingSessions,
     );
   }
 }
@@ -141,26 +151,6 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     }
   }
 
-  /// 获取当前设备类型
-  String _getCurrentDeviceType() {
-    if (kIsWeb) {
-      return 'Web';
-    } else if (Platform.isIOS) {
-      // 检查是否是 iPad（iPad 在 iOS 9+ 上可以通过 userInterfaceIdiom 判断）
-      // 这里简化处理，直接返回 iOS
-      return 'iOS';
-    } else if (Platform.isAndroid) {
-      return 'Android';
-    } else if (Platform.isMacOS) {
-      return 'macOS';
-    } else if (Platform.isWindows) {
-      return 'Windows';
-    } else if (Platform.isLinux) {
-      return 'Linux';
-    }
-    return 'Unknown';
-  }
-
   /// 删除设备
   Future<bool> deleteDevice(String deviceId) async {
     // 检查网络状态
@@ -228,6 +218,123 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     return {'success': true, 'errorMsg': null};
   }
 
+  /// 获取活跃会话列表
+  /// 返回包含活跃设备和会话信息的列表
+  Future<bool> loadActiveSessions() async {
+    state = state.copyWith(isLoadingSessions: true);
+    try {
+      // 检查网络状态
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        state = state.copyWith(isLoadingSessions: false);
+        return false;
+      }
+
+      final result = await api.UserDeviceApi().getActiveSessions();
+      if (result != null) {
+        final devices = result['devices'] as List<dynamic>? ?? [];
+        state = state.copyWith(
+          activeSessions: List<Map<String, dynamic>>.from(
+            devices.map((d) => Map<String, dynamic>.from(d)),
+          ),
+          isLoadingSessions: false,
+        );
+        return true;
+      }
+
+      state = state.copyWith(isLoadingSessions: false);
+      return false;
+    } catch (e) {
+      debugPrint('UserDeviceNotifier.loadActiveSessions error: $e');
+      state = state.copyWith(isLoadingSessions: false);
+      return false;
+    }
+  }
+
+  /// 检查登录冲突
+  /// 返回包含冲突信息的 Map
+  Future<Map<String, dynamic>?> checkLoginConflict(String deviceType) async {
+    try {
+      // 检查网络状态
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        return null;
+      }
+
+      return await api.UserDeviceApi().checkLoginConflict(
+        deviceType: deviceType,
+      );
+    } catch (e) {
+      debugPrint('UserDeviceNotifier.checkLoginConflict error: $e');
+      return null;
+    }
+  }
+
+  /// 踢出指定设备
+  /// [deviceType] 要踢出的设备类型
+  /// [deviceId] 要踢出的设备 ID
+  /// 返回操作是否成功
+  Future<Map<String, dynamic>?> kickDevice({
+    required String deviceType,
+    required String deviceId,
+  }) async {
+    try {
+      // 检查网络状态
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        return null;
+      }
+
+      final result = await api.UserDeviceApi().kickDevice(
+        deviceType: deviceType,
+        deviceId: deviceId,
+      );
+
+      if (result != null) {
+        // 刷新设备列表
+        await fetchPage();
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('UserDeviceNotifier.kickDevice error: $e');
+      return null;
+    }
+  }
+
+  /// 踢出所有其他设备
+  /// 保留当前设备，踢出其他所有设备的会话
+  /// [deviceType] 当前设备类型
+  /// [deviceId] 当前设备 ID
+  /// 返回操作是否成功
+  Future<Map<String, dynamic>?> kickAllOtherDevices({
+    required String deviceType,
+    required String deviceId,
+  }) async {
+    try {
+      // 检查网络状态
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        return null;
+      }
+
+      final result = await api.UserDeviceApi().kickAllOtherDevices(
+        deviceType: deviceType,
+        deviceId: deviceId,
+      );
+
+      if (result != null) {
+        // 刷新设备列表
+        await fetchPage();
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('UserDeviceNotifier.kickAllOtherDevices error: $e');
+      return null;
+    }
+  }
+
   /// 获取设备名称，优先级：内存列表 > 本地库
   Future<String> getDeviceName(String deviceId) async {
     // 内存列表（若列表已加载）
@@ -291,5 +398,23 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
   /// 加载设备列表
   Future<void> loadDevices({int page = 1, int size = 10}) async {
     await fetchPage(page: page, size: size);
+  }
+
+  /// 获取当前设备类型
+  String _getCurrentDeviceType() {
+    if (kIsWeb) {
+      return 'web';
+    } else if (Platform.isIOS) {
+      return 'ios';
+    } else if (Platform.isAndroid) {
+      return 'android';
+    } else if (Platform.isMacOS) {
+      return 'macos';
+    } else if (Platform.isWindows) {
+      return 'windows';
+    } else if (Platform.isLinux) {
+      return 'linux';
+    }
+    return 'unknown';
   }
 }

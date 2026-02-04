@@ -109,6 +109,10 @@ class API {
   static const userDevicePage = '/user_device/page';
   static const userDeviceChangeName = '/user_device/change_name';
   static const userDeviceDelete = '/user_device/delete';
+  static const userDeviceSessions = '/user_device/sessions';
+  static const userDeviceCheckLogin = '/user_device/check_login';
+  static const userDeviceKick = '/user_device/kick';
+  static const userDeviceKickOthers = '/user_device/kick-others';
   static const userDeviceAdd = '/user_device/add';
 
   static const userCollectPage = '/user_collect/page';

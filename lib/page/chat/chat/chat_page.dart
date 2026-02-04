@@ -555,16 +555,9 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   @override
   void dispose() {
-    // 发送离开会话事件（用于未读数管理）
-    // 注意：在 dispose 中使用 ref 是不安全的
-    // 我们使用 try-catch 保护，并在 _notifyChatActive 内部检查 mounted
-    // 但此时 widget 已经 unmounted，所以不会有任何效果
-    try {
-      _notifyChatActive(false);
-    } catch (e) {
-      // 完全忽略 dispose 阶段的任何错误
-      // 此时 widget 已 unmounted，ref 不可用是正常的
-    }
+    // 注意：不在 dispose 中调用 _notifyChatActive(false)
+    // 原因：此时 ref 已不安全，且 widget 销毁后会自然失效
+    // 下一个活跃的聊天页面会调用 _notifyChatActive(true) 设置自己
 
     // 取消事件订阅管理器的所有订阅
     _eventSubscriptionManager?.dispose();
@@ -628,11 +621,46 @@ class ChatPageState extends ConsumerState<ChatPage>
         ref
             .read(activeConversationProvider.notifier)
             .setActiveConversation(conversationUk3);
+
+        // 修复：进入聊天页面时，自动推进已读水位到最新消息，清空未读数
+        // 这样用户不需要滚动到消息可见区域，小红点就会消失
+        _clearUnreadOnEnter();
       } else {
         ref.read(activeConversationProvider.notifier).clearActiveConversation();
       }
     } catch (e) {
       debugPrint('Error updating active conversation: $e');
+    }
+  }
+
+  /// 进入聊天页面时清空未读数
+  ///
+  /// 通过推进已读水位到最新消息来实现未读数的清空
+  /// 这样用户进入聊天页面后，小红点会立即消失，而不需要滚动到消息可见区域
+  Future<void> _clearUnreadOnEnter() async {
+    try {
+      final conversationNotifier = ref.read(conversationProvider.notifier);
+
+      // 不直接使用 conversation 字段（可能尚未初始化）
+      // 而是通过 peerId 和 type 从数据库或 provider 中获取会话对象
+      final ConversationRepo repo = ConversationRepo();
+      final conv = await repo.findByPeerId(
+        widget.type == 'null' ? 'C2C' : widget.type,
+        widget.peerId,
+      );
+
+      if (conv == null) {
+        debugPrint('_clearUnreadOnEnter: 会话未找到，跳过清空未读数');
+        return;
+      }
+
+      // 调用 advanceWatermarkToLatest 来推进已读水位到最新消息
+      // 这会自动重算未读数，通常会将未读数设置为 0
+      await conversationNotifier.advanceWatermarkToLatest(conv);
+
+      debugPrint('_clearUnreadOnEnter: 已清空会话未读数: ${conv.uk3}');
+    } catch (e) {
+      debugPrint('_clearUnreadOnEnter: 清空未读数失败: $e');
     }
   }
 
@@ -1863,11 +1891,11 @@ class ChatPageState extends ConsumerState<ChatPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('此消息无法解密，可能原因是：'),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text('• 您在其他设备上登录'),
-            const Text('• 设备密钥已过期'),
-            const Text('• 应用数据损坏'),
-            const SizedBox(height: 16),
+            Text('• 设备密钥已过期'),
+            Text('• 应用数据损坏'),
+            SizedBox(height: 16),
             Text('请选择解决方案：'),
           ],
         ),

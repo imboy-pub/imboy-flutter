@@ -60,7 +60,7 @@ void main() {
 
     group('心跳超时检测', () {
       test('应该检测心跳超时', () async {
-        const heartbeatTimeout = Duration(seconds: 30);
+        // const heartbeatTimeout = Duration(seconds: 30); // Reference value
         var lastHeartbeat = DateTime.now();
 
         // 模拟心跳超时

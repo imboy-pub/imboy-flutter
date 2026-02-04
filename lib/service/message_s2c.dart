@@ -423,11 +423,25 @@ class MessageS2CService {
   ) async {
     final did = payload['did'] ?? '';
     if (did != deviceId) {
-      UserRepoLocal.to.quitLogin();
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+      try {
+        await UserRepoLocal.to.quitLogin();
+
+        // 使用延迟确保 quitLogin 完全执行完毕
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // 安全地进行导航
+        final navigatorState = navigatorKey.currentState;
+        if (navigatorState != null && navigatorState.mounted) {
+          navigatorState.pushNamedAndRemoveUntil(
+            AppRoutes.signIn,
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        iPrint("switchS2C error: $e");
+        // 如果导航失败，尝试使用其他方式
+        rethrow;
+      }
     }
   }
 
@@ -518,10 +532,18 @@ class MessageS2CService {
 
     EasyLoading.showSuccess(t.confirmRecoverSuccess);
     await UserRepoLocal.to.quitLogin();
-    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      AppRoutes.signIn,
-      (route) => false,
-    );
+
+    // 使用延迟确保 quitLogin 完全执行完毕
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    // 安全地进行导航
+    final navigatorState = navigatorKey.currentState;
+    if (navigatorState != null && navigatorState.mounted) {
+      navigatorState.pushNamedAndRemoveUntil(
+        AppRoutes.signIn,
+        (route) => false,
+      );
+    }
   }
 
   ///

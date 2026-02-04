@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -550,7 +551,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   void _editDeviceName(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (context) => ChangeNamePage(
           title: t.setParam(param: t.deviceName),
           value: widget.model.deviceName,

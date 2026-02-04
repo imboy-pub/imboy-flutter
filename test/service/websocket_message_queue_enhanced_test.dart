@@ -8,7 +8,6 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
@@ -36,19 +35,27 @@ void main() {
 
         final messages = queue.messages;
         expect(messages.length, 1);
-        expect(messages[0].createdAt.isAfter(now.subtract(const Duration(seconds: 1))), true);
-        expect(messages[0].createdAt.isBefore(now.add(const Duration(seconds: 1))), true);
+        expect(
+          messages[0].createdAt.isAfter(
+            now.subtract(const Duration(seconds: 1)),
+          ),
+          true,
+        );
+        expect(
+          messages[0].createdAt.isBefore(now.add(const Duration(seconds: 1))),
+          true,
+        );
       });
 
       test('应该清理过期消息', () async {
         // 创建一个旧消息（模拟过期）
         final oldTime = DateTime.now().subtract(const Duration(minutes: 6));
-        final msg = QueuedMessage(
+        QueuedMessage(
           id: 'old_msg',
           data: '{"type":"old"}',
           priority: 0,
           createdAt: oldTime,
-        );
+        ); // Unused - created for reference
 
         // 直接添加到内部存储（模拟）
         queue.enqueue('current_msg', '{"type":"current"}', priority: 0);
@@ -58,7 +65,7 @@ void main() {
       });
 
       test('应该在出队时跳过过期消息', () async {
-        final now = DateTime.now();
+        // final now = DateTime.now(); // Reference time
 
         // 添加普通消息
         queue.enqueue('msg1', '{"type":"chat"}', priority: 0);
@@ -98,7 +105,7 @@ void main() {
 
     group('队列大小限制', () {
       test('应该限制队列最大大小', () {
-        const maxQueueSize = 200; // _maxQueueSize
+        // const maxQueueSize = 200; // _maxQueueSize - Reference value
 
         // 填充队列到接近最大大小（减少测试时间）
         for (int i = 0; i < 50; i++) {
@@ -183,7 +190,12 @@ void main() {
         expect(queue.messages.length, 2);
 
         // 验证包含原始消息ID
-        expect(queue.messages.any((m) => m.id.contains('msg1') || m.id.contains('msg2')), true);
+        expect(
+          queue.messages.any(
+            (m) => m.id.contains('msg1') || m.id.contains('msg2'),
+          ),
+          true,
+        );
       });
 
       test('应该记录优先级变更', () {
@@ -282,9 +294,11 @@ void main() {
         final futures = <Future<void>>[];
 
         for (int i = 0; i < 10; i++) {
-          futures.add(Future.microtask(() {
-            queue.enqueue('msg$i', '{"type":"chat"}', priority: 0);
-          }));
+          futures.add(
+            Future.microtask(() {
+              queue.enqueue('msg$i', '{"type":"chat"}', priority: 0);
+            }),
+          );
         }
 
         await Future.wait(futures);
@@ -301,9 +315,11 @@ void main() {
 
         final futures = <Future<QueuedMessage?>>[];
         for (int i = 0; i < 5; i++) {
-          futures.add(Future.microtask(() {
-            return queue.dequeueByPriority();
-          }));
+          futures.add(
+            Future.microtask(() {
+              return queue.dequeueByPriority();
+            }),
+          );
         }
 
         final results = await Future.wait(futures);

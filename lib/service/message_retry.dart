@@ -269,15 +269,9 @@ class MessageRetry with EventSubscriptionManager {
       // 只更新特定状态的消息，避免与其他操作冲突
       // 只重试 error 状态的消息（41=发送失败）
       final updatedRows = await repo.updateWithConditions(
-        {
-          'id': info.messageId,
-          'status': IMBoyMessageStatus.sending,
-        },
+        {'id': info.messageId, 'status': IMBoyMessageStatus.sending},
         where: "id = ? AND status = ?",
-        whereArgs: [
-          info.messageId,
-          IMBoyMessageStatus.error,
-        ],
+        whereArgs: [info.messageId, IMBoyMessageStatus.error],
       );
 
       // 如果没有更新任何行，说明消息状态已被其他操作改变，跳过重试
@@ -294,9 +288,7 @@ class MessageRetry with EventSubscriptionManager {
         return;
       }
 
-      iPrint(
-        '重试发送消息: ${info.messageId}, 第${info.retryCount + 1}次重试',
-      );
+      iPrint('重试发送消息: ${info.messageId}, 第${info.retryCount + 1}次重试');
 
       // 重新读取消息数据（构造完整的消息对象）
       final msg = await repo.find(info.messageId);

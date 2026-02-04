@@ -1,21 +1,14 @@
 
 # 
 ```
-// on fish shell
 
-env IMBOYENV=pro && flutter build apk --release \
-      --obfuscate \
-      --split-debug-info=debugInfo \
-      --target-platform=android-arm,android-arm64,android-x64 \
-      --split-per-abi \
-      -t lib/main.dart
-
-IMBOYENV=pro && flutter build apk --release \
-      --obfuscate \
-      --split-debug-info=debugInfo \
-      --target-platform=android-arm,android-arm64,android-x64 \
-      --split-per-abi \
-      -t lib/main.dart
+flutter build apk --release \
+    --obfuscate \
+    --split-debug-info=debugInfo \
+    --target-platform=android-arm,android-arm64,android-x64 \
+    --split-per-abi \
+    --dart-define=APP_ENV=pro \
+    -t lib/main.dart
 
 rm -rf ~/.gradle/caches/ && rm -rf ~/.flutter && ./gradlew --refresh-dependencies && ./gradlew build --stacktrace
 

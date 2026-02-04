@@ -8,11 +8,9 @@
 /// 5. 网络错误处理
 library;
 
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
 
@@ -62,9 +60,7 @@ void main() {
         try {
           // 通过事件总线触发拉取
           AppEventBus.fire(
-            OfflineMessagesPullRequestedEvent(
-              source: 'test_trigger',
-            ),
+            OfflineMessagesPullRequestedEvent(source: 'test_trigger'),
           );
 
           // 等待事件传播
@@ -82,9 +78,7 @@ void main() {
       test('应该能够通过事件总线触发拉取', () async {
         // 触发拉取请求
         AppEventBus.fire(
-          OfflineMessagesPullRequestedEvent(
-            source: 'test_event_bus',
-          ),
+          OfflineMessagesPullRequestedEvent(source: 'test_event_bus'),
         );
 
         // 等待事件传播
@@ -337,7 +331,9 @@ void main() {
         final invalidResponses = [
           {}, // 空对象
           {'c2c': {}}, // 空消息列表
-          {'c2c': {'list': []}}, // 空数组
+          {
+            'c2c': {'list': []},
+          }, // 空数组
         ];
 
         for (final response in invalidResponses) {
@@ -360,9 +356,7 @@ void main() {
       test('应该在收到拉取请求时触发处理', () async {
         // 触发拉取请求
         AppEventBus.fire(
-          OfflineMessagesPullRequestedEvent(
-            source: 'test_integration',
-          ),
+          OfflineMessagesPullRequestedEvent(source: 'test_integration'),
         );
 
         // 等待事件传播

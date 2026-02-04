@@ -1,0 +1,527 @@
+# 群管理测试
+#
+# 测试群组管理功能：
+# 1. 登录
+# 2. 进入群组详情
+# 3. 修改群组名称
+# 4. 添加/移除群成员
+# 5. 修改群组公告
+# 6. 转让群主
+# 7. 退出群组
+#
+# 使用方法：
+#   命令我："执行 09_group_manage 测试"
+#
+# 前置条件：
+#   需要先执行 08_group_chat.yaml 创建群组
+
+name: "群组管理功能测试"
+description: "测试群组详情、修改信息、成员管理等管理功能"
+device: "macos"
+
+# 测试配置
+config:
+  pre_launch_wait_ms: 1000
+  step_delay_ms: 800
+  screenshot_on_error: true
+  screenshot_dir: "test_automation/reports/screenshots"
+
+# 测试数据
+test_data:
+  # 登录账号（群主）
+  phone: "13800138000"
+  password: "Test123456"
+
+  # 群组信息
+  original_group_name: "测试群组"
+  new_group_name: "测试群组（已修改）"
+
+  # 群公告
+  group_announcement: "这是新的群公告"
+
+  # 成员信息
+  member_name: "测试用户A"
+
+# 测试步骤
+steps:
+  # ========== 阶段 1: 登录应用 ==========
+  - name: "阶段1: 启动应用"
+    action: "launch"
+    description: "启动 IM Boy 应用"
+
+  - name: "等待启动页加载"
+    action: "wait"
+    timeout_ms: 3000
+
+  - name: "点击登录按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "login_entry_button"
+
+  - name: "等待登录页加载"
+    action: "wait"
+    timeout_ms: 1000
+
+  - name: "输入手机号"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "phone_field"
+    text: "${test_data.phone}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入手机号"
+
+  - name: "输入密码"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "password_field"
+    text: "${test_data.password}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入密码"
+
+  - name: "提交登录"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+
+  - name: "等待登录成功"
+    action: "wait"
+    timeout_ms: 5000
+
+  # ========== 阶段 2: 进入群聊 ==========
+  - name: "阶段2: 点击会话标签"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "会话"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "会话"
+
+  - name: "等待会话列表加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "查找群聊会话"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.original_group_name}"
+        description: "查找群聊会话"
+    on_failure: "show_group_not_found_message"
+
+  - name: "点击进入群聊"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "${test_data.original_group_name}"
+    description: "点击群聊进入"
+
+  - name: "等待群聊页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "保存群聊页面截图"
+    action: "screenshot"
+    filename: "09_group_chat_page.png"
+
+  # ========== 阶段 3: 进入群组详情 ==========
+  - name: "阶段3: 点击群组名称/头像"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "${test_data.original_group_name}"
+    description: "点击群组名称查看详情"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "群组详情"
+
+  - name: "等待群组详情页加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取群组详情页结构"
+    action: "get_widget_tree"
+    description: "获取群组详情页 Widget 树"
+
+  - name: "保存群组详情页截图"
+    action: "screenshot"
+    filename: "09_group_detail_page.png"
+
+  # ========== 阶段 4: 修改群组名称 ==========
+  - name: "阶段4: 查找群组名称项"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "群名称"
+        description: "查找群名称设置项"
+
+  - name: "点击群名称设置项"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "群名称"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "修改群名称"
+
+  - name: "等待修改页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取修改页面结构"
+    action: "get_widget_tree"
+    description: "获取修改群名称页面 Widget 树"
+
+  - name: "点击群名称输入框"
+    action: "tap"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "group_name_input"
+
+  - name: "清空现有名称"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: ""
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "group_name_input"
+
+  - name: "输入新群名称"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: "${test_data.new_group_name}"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "group_name_input"
+
+  - name: "等待输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "保存修改群名称截图"
+    action: "screenshot"
+    filename: "09_modify_group_name.png"
+
+  - name: "点击保存按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "保存"
+    fallback_selectors:
+      - type: "ByText"
+        text: "完成"
+      - type: "ByTooltip"
+        message: "保存"
+      - type: "ByValueKey"
+        key: "save_button"
+
+  - name: "等待保存完成"
+    action: "wait"
+    timeout_ms: 2000
+
+  # ========== 阶段 5: 验证群名称修改成功 ==========
+  - name: "阶段5: 验证新群名称显示"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.new_group_name}"
+        description: "验证新群名称已显示"
+
+  - name: "保存修改成功截图"
+    action: "screenshot"
+    filename: "09_group_name_changed.png"
+
+  # ========== 阶段 6: 发布群公告 ==========
+  - name: "阶段6: 查找群公告项"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "群公告"
+        description: "查找群公告设置项"
+
+  - name: "点击群公告设置项"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "群公告"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "发布群公告"
+
+  - name: "等待群公告页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取群公告页面结构"
+    action: "get_widget_tree"
+    description: "获取群公告页面 Widget 树"
+
+  - name: "点击群公告输入框"
+    action: "tap"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "announcement_input"
+
+  - name: "输入群公告内容"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: "${test_data.group_announcement}"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "announcement_input"
+
+  - name: "等待输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "保存群公告截图"
+    action: "screenshot"
+    filename: "09_group_announcement.png"
+
+  - name: "点击发布按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "发布"
+    fallback_selectors:
+      - type: "ByText"
+        text: "保存"
+      - type: "ByTooltip"
+        message: "发布公告"
+      - type: "ByValueKey"
+        key: "publish_button"
+
+  - name: "等待发布完成"
+    action: "wait"
+    timeout_ms: 2000
+
+  # ========== 阶段 7: 管理群成员 ==========
+  - name: "阶段7: 返回群组详情"
+    action: "tap"
+    selector:
+      type: "ByTooltip"
+      message: "返回"
+    fallback_selectors:
+      - type: "ByText"
+        text: "返回"
+
+  - name: "等待返回完成"
+    action: "wait"
+    timeout_ms: 1000
+
+  - name: "查找群成员项"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "群成员"
+        description: "查找群成员入口"
+
+  - name: "点击群成员"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "群成员"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "查看群成员"
+
+  - name: "等待成员列表加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取成员列表结构"
+    action: "get_widget_tree"
+    description: "获取群成员列表 Widget 树"
+
+  - name: "保存群成员列表截图"
+    action: "screenshot"
+    filename: "09_group_members.png"
+
+  - name: "验证成员列表"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.member_name}"
+        description: "验证成员在列表中"
+
+  # ========== 阶段 8: 添加新成员 ==========
+  - name: "阶段8: 查找添加成员按钮"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "添加成员"
+        description: "查找添加成员按钮"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "添加群成员"
+      - type: "ByValueKey"
+        key: "add_member_button"
+
+  - name: "点击添加成员按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "添加成员"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "添加群成员"
+
+  - name: "等待选择成员页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "保存添加成员页面截图"
+    action: "screenshot"
+    filename: "09_add_member_page.png"
+
+  # 注意：这里只是演示流程，实际添加成员需要选择具体用户
+  - name: "返回成员列表（演示）"
+    action: "tap"
+    selector:
+      type: "ByTooltip"
+      message: "返回"
+    fallback_selectors:
+      - type: "ByText"
+        text: "取消"
+
+  # ========== 阶段 9: 查看更多管理选项 ==========
+  - name: "阶段9: 返回群组详情"
+    action: "tap"
+    selector:
+      type: "ByTooltip"
+      message: "返回"
+
+  - name: "等待返回完成"
+    action: "wait"
+    timeout_ms: 1000
+
+  - name: "查找更多管理选项"
+    action: "scroll"
+    dx: "0"
+    dy: "-500"
+    duration: "500"
+    description: "向下滚动查找更多选项"
+
+  - name: "等待滚动完成"
+    action: "wait"
+    timeout_ms: 800
+
+  - name: "保存管理选项截图"
+    action: "screenshot"
+    filename: "09_more_options.png"
+
+  # ========== 阶段 10: 退出群组（可选）==========
+  - name: "阶段10: 查找退出群组按钮"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "退出群组"
+        description: "查找退出群组按钮"
+    on_failure: "continue"
+
+  # 注意：实际测试时可能不想真的退出群组
+  # - name: "点击退出群组"
+  #   action: "tap"
+  #   selector:
+  #     type: "ByText"
+  #     text: "退出群组"
+
+  # - name: "确认退出"
+  #   action: "tap"
+  #   selector:
+  #     type: "ByText"
+  #     text: "确认"
+
+  - name: "保存最终状态截图"
+    action: "screenshot"
+    filename: "09_final_state.png"
+
+# 清理步骤
+cleanup:
+  - name: "返回群聊"
+    action: "tap"
+    selector:
+      type: "ByTooltip"
+      message: "返回"
+    fallback_selectors:
+      - type: "ByText"
+        text: "返回"
+
+  - name: "测试完成"
+    action: "wait"
+    timeout_ms: 2000
+    description: "保持应用运行方便观察"
+
+# 预期结果
+expected_result:
+  status: "passed"
+  description: "成功修改群名称、发布群公告、查看群成员列表"
+
+# 错误处理
+error_handling:
+  common_errors:
+    - error: "Group not found"
+      suggestion: "群组不存在，需要先创建群组"
+      action: "run_group_chat_test_first"
+
+    - error: "Not group owner"
+      suggestion: "当前用户不是群主，无法修改群信息"
+      action: "use_group_owner_account"
+
+    - error: "Modify failed"
+      suggestion: "修改失败，可能是网络问题或权限问题"
+      action: "check_permissions_and_retry"
+
+    - error: "Member not found"
+      suggestion: "指定的成员不在群中"
+      action: "verify_member_exists"
+
+# 测试数据准备说明
+setup_required:
+  - name: "创建群组"
+    description: "需要先执行 08_group_chat.yaml 创建群组"
+    reference_test: "08_group_chat.yaml"
+    note: "使用群主账号登录"
+
+# 注意事项
+notes:
+  - "退出群组操作默认注释，避免测试时真的退出群组"
+  - "如需测试退出功能，请取消相关步骤的注释"
+  - "添加成员功能需要实际选择用户，这里仅演示流程"

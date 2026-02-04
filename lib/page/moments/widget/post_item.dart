@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:photo_view/photo_view.dart';
@@ -22,7 +23,7 @@ class _PostItemState extends State<PostItem> {
   void _showImageGallery(BuildContext context, int initialIndex, int count) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (context) => Scaffold(
           backgroundColor: Colors.black,
           body: Stack(

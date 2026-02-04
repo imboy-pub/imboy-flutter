@@ -1,6 +1,7 @@
 import 'dart:convert' show jsonDecode;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -145,7 +146,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       state.hasMore = result.length >= size;
       return result;
     } catch (e, s) {
-      debugPrint('UserCollectLogic.page error: $e\n$s');
+      debugPrint('UserCollectNotifier.page error: $e\n$s');
       // 出错返回空列表，外层会显示错误态或重试
       state.hasMore = false;
       return [];
@@ -336,7 +337,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     } else {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) =>
                               VideoViewerPage(url: uri, thumb: thumb),
                         ),
@@ -895,7 +896,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         return false;
       }
     } catch (e, s) {
-      debugPrint('UserCollectLogic.remove error: $e\n$s');
+      debugPrint('UserCollectNotifier.remove error: $e\n$s');
       return false;
     } finally {
       // 无论成功或失败都释放锁
@@ -1210,10 +1211,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     return 0;
   }
 }
-
-/// 向后兼容的类型别名
-/// @deprecated 使用 UserCollectNotifier 代替
-typedef UserCollectLogic = UserCollectNotifier;
 
 /// UserCollect 辅助类
 /// 提供静态方法访问 UserCollectNotifier 的功能

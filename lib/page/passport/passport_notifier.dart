@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:jverify/jverify.dart';
@@ -407,7 +408,7 @@ class PassportNotifier extends _$PassportNotifier {
                     Navigator.pop(context);
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => const BottomNavigationPage(),
                       ),
                     );
@@ -464,7 +465,7 @@ class PassportNotifier extends _$PassportNotifier {
                     Navigator.pop(context);
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => const BottomNavigationPage(),
                       ),
                     );
@@ -861,7 +862,7 @@ class PassportNotifier extends _$PassportNotifier {
         if (context != null) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => SetPasswordPage()),
+            CupertinoPageRoute(builder: (_) => SetPasswordPage()),
           );
         }
       } else {
@@ -872,13 +873,13 @@ class PassportNotifier extends _$PassportNotifier {
           if (needGuide) {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (_) => const ManageAccountPage()),
+              CupertinoPageRoute(builder: (_) => const ManageAccountPage()),
               (route) => false,
             );
           } else {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (_) => const BottomNavigationPage()),
+              CupertinoPageRoute(builder: (_) => const BottomNavigationPage()),
               (route) => false,
             );
           }

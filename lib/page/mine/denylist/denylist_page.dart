@@ -1,6 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -38,7 +39,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (context) =>
                   PeopleInfoPage(id: model.deniedUid, scene: 'denylist'),
             ),

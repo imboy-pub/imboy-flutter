@@ -1,0 +1,269 @@
+# 发送消息测试
+#
+# 测试发送单聊消息的完整流程：
+# 1. 登录
+# 2. 进入会话列表
+# 3. 选择聊天对象
+# 4. 输入并发送消息
+# 5. 验证消息发送成功
+#
+# 使用方法：
+#   命令我："执行 04_chat_send 测试"
+
+name: "发送消息测试"
+description: "测试发送单聊消息的完整流程"
+device: "macos"
+
+# 测试配置
+config:
+  pre_launch_wait_ms: 1000
+  step_delay_ms: 800
+  screenshot_on_error: true
+  screenshot_dir: "test_automation/reports/screenshots"
+
+# 测试数据
+test_data:
+  # 发送者账号
+  sender_phone: "13800138000"
+  sender_password: "Test123456"
+
+  # 接收者信息
+  receiver_name: "测试用户"
+  receiver_id: "test_user_id"
+
+  # 测试消息
+  text_message: "这是一条测试消息"
+  emoji_message: "👍Hello! 🎉"
+  long_message: "这是一条较长的消息，用于测试消息输入框的多行显示和发送功能。"
+
+# 测试步骤
+steps:
+  # ========== 阶段 1: 登录应用 ==========
+  - name: "阶段1: 启动应用"
+    action: "launch"
+    description: "启动 IM Boy 应用"
+
+  - name: "等待启动页加载"
+    action: "wait"
+    timeout_ms: 3000
+
+  - name: "点击登录按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "login_entry_button"
+
+  - name: "等待登录页加载"
+    action: "wait"
+    timeout_ms: 1000
+
+  - name: "输入手机号"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "phone_field"
+    text: "${test_data.sender_phone}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入手机号"
+
+  - name: "输入密码"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "password_field"
+    text: "${test_data.sender_password}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入密码"
+
+  - name: "提交登录"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "login_submit_button"
+
+  - name: "等待登录成功"
+    action: "wait"
+    timeout_ms: 5000
+
+  # ========== 阶段 2: 进入会话列表 ==========
+  - name: "阶段2: 验证进入会话列表"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "会话"
+        description: "验证会话列表页标题存在"
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "消息"
+        description: "验证底部导航栏存在"
+
+  - name: "获取会话列表结构"
+    action: "get_widget_tree"
+    description: "获取会话列表 Widget 树"
+
+  # ========== 阶段 3: 选择或创建聊天 ==========
+  - name: "阶段3: 查找现有聊天"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.receiver_name}"
+        description: "查找与测试用户的现有聊天"
+    on_failure: "continue"
+
+  # 如果没有现有聊天，点击右下角新建按钮
+  - name: "点击新建聊天按钮（如需要）"
+    action: "tap"
+    selector:
+      type: "ByTooltip"
+      message: "新建聊天"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "new_chat_button"
+    on_condition: "widget_not_found"
+    condition_widget:
+      type: "ByText"
+      text: "${test_data.receiver_name}"
+
+  - name: "选择聊天对象"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "${test_data.receiver_name}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "点击进入聊天"
+
+  - name: "等待聊天页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  # ========== 阶段 4: 发送文本消息 ==========
+  - name: "阶段4: 获取聊天页面结构"
+    action: "get_widget_tree"
+    description: "获取聊天页面 Widget 树"
+
+  - name: "点击消息输入框"
+    action: "tap"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "输入消息"
+
+  - name: "输入测试消息"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: "${test_data.text_message}"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "chat_input_field"
+
+  - name: "等待输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "点击发送按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "发送"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "发送消息"
+      - type: "ByValueKey"
+        key: "send_button"
+
+  - name: "等待消息发送"
+    action: "wait"
+    timeout_ms: 2000
+
+  # ========== 阶段 5: 验证消息发送成功 ==========
+  - name: "阶段5: 验证消息显示"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.text_message}"
+        description: "验证消息已显示在聊天中"
+
+  - name: "保存消息发送成功截图"
+    action: "screenshot"
+    filename: "04_chat_send_success.png"
+
+  # ========== 阶段 6: 发送 Emoji 消息 ==========
+  - name: "阶段6: 发送 Emoji 消息"
+    action: "tap"
+    selector:
+      type: "ByType"
+      type: "TextField"
+
+  - name: "输入 Emoji 消息"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: "${test_data.emoji_message}"
+
+  - name: "发送 Emoji 消息"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "发送"
+
+  - name: "验证 Emoji 消息显示"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "保存 Emoji 消息截图"
+    action: "screenshot"
+    filename: "04_chat_emoji_success.png"
+
+# 清理步骤
+cleanup:
+  - name: "测试完成"
+    action: "wait"
+    timeout_ms: 2000
+    description: "保持应用运行方便观察"
+
+# 预期结果
+expected_result:
+  status: "passed"
+  description: "成功发送文本消息和 Emoji 消息"
+
+# 错误处理
+error_handling:
+  common_errors:
+    - error: "Chat not found"
+      suggestion: "先创建测试用户或添加好友关系"
+      action: "run_add_friend_test_first"
+
+    - error: "Send button not found"
+      suggestion: "检查输入框是否已获取焦点"
+      action: "tap_input_field_first"
+
+    - error: "Message not displayed"
+      suggestion: "检查网络连接和后端服务"
+      action: "verify_websocket_connection"
+
+# 调试配置
+debug:
+  log_widget_tree: true
+  log_each_step: true
+  verbose: true

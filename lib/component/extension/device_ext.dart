@@ -2,13 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/component/helper/func.dart';
+// 条件导入：在非 Web 平台使用存根，避免 dart:js_interop 错误
+import 'device_ext_web_stub.dart'
+    if (dart.library.html) 'device_ext_web.dart';
 
 /// 设备信息扩展
 ///
 /// 迁移说明：
 /// - 已移除 GetX 依赖
 /// - 使用单例模式替代 Get.find()
+/// - 支持 Web 平台
 class DeviceExt extends DeviceInfoPlugin {
   static DeviceExt? _instance;
   static DeviceExt get to {
@@ -22,6 +27,43 @@ class DeviceExt extends DeviceInfoPlugin {
   }
 
   Future<Map<String, dynamic>?> get detail async {
+    // 👇 Web 平台设备信息
+    if (kIsWeb) {
+      final browser = webBrowser;
+      final userAgent = browser.userAgent;
+      final screenWidth = browser.screenWidth;
+      final screenHeight = browser.screenHeight;
+      final language = browser.language;
+
+      // 生成唯一的设备 ID（使用 localStorage 持久化）
+      String? deviceId = browser.getItem('web_device_id');
+      if (deviceId == null || deviceId.isEmpty) {
+        final newDeviceId =
+            'web_${DateTime.now().millisecondsSinceEpoch}_${_generateRandomString(8)}';
+        browser.setItem('web_device_id', newDeviceId);
+        deviceId = newDeviceId;
+      }
+
+      iPrint("DeviceExt/detail Web: $deviceId");
+
+      return {
+        "cos": "web",
+        "did": deviceId,
+        "deviceName": "Web Browser",
+        "deviceVersion": json.encode({
+          'userAgent': userAgent,
+          'language': language,
+          'screenWidth': screenWidth,
+          'screenHeight': screenHeight,
+          'platform': browser.platform,
+          'vendor': browser.vendor,
+          'cookieEnabled': browser.cookieEnabled,
+          'onLine': browser.onLine,
+        }),
+      };
+    }
+
+    // 👇 移动端/桌面端设备信息
     if (Platform.isAndroid) {
       var data = await androidInfo;
       iPrint("DeviceExt/detail ${data.id}, ${data.toString()}");
@@ -151,5 +193,16 @@ class DeviceExt extends DeviceInfoPlugin {
       };
     }
     return {};
+  }
+
+  /// 生成随机字符串（用于 Web 设备 ID）
+  String _generateRandomString(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = DateTime.now().millisecondsSinceEpoch;
+    final sb = StringBuffer();
+    for (int i = 0; i < length; i++) {
+      sb.write(chars[(random + i) % chars.length]);
+    }
+    return sb.toString();
   }
 }

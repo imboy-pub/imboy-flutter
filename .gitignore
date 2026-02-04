@@ -87,3 +87,8 @@ erl_code
 .claude/*.jsonl
 .claude/*.json
 doc/ai_prompts*
+
+# Automation test reports
+test_automation/reports/
+android/.kotlin
+test_automation/logs

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -72,6 +74,13 @@ class SqliteService {
     iPrint(
       "Database path: currentEnv=$currentEnv, uid=${UserRepoLocal.to.currentUid}, dbName=$name",
     );
+
+    // Web 平台使用相对路径
+    if (kIsWeb) {
+      return name;
+    }
+
+    // 移动端/桌面端使用完整路径
     return join(await getDatabasesPath(), name);
   }
 
@@ -82,22 +91,33 @@ class SqliteService {
       return null;
     }
 
+    // 👇 Web 平台 FFI 初始化
+    if (kIsWeb) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
     String path = await dbPath();
     bool exists = await databaseExists(path);
 
     if (!exists) {
       iPrint("Creating new database");
 
-      try {
-        await Directory(dirname(path)).create(recursive: true);
-      } catch (_) {}
+      // Web 平台不需要文件系统操作
+      if (!kIsWeb) {
+        try {
+          await Directory(dirname(path)).create(recursive: true);
+        } catch (_) {}
 
-      ByteData data = await rootBundle.load(url.join("assets", "example10.db"));
-      List<int> bytes = data.buffer.asUint8List(
-        data.offsetInBytes,
-        data.lengthInBytes,
-      );
-      await File(path).writeAsBytes(bytes, flush: true);
+        ByteData data = await rootBundle.load(
+          url.join("assets", "example10.db"),
+        );
+        List<int> bytes = data.buffer.asUint8List(
+          data.offsetInBytes,
+          data.lengthInBytes,
+        );
+        await File(path).writeAsBytes(bytes, flush: true);
+      }
     } else {
       iPrint("Opening existing database");
     }

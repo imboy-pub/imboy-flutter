@@ -171,7 +171,7 @@ void main() {
         for (final msgType in msgTypes) {
           final conv = ConversationModel(
             id: 0,
-            peerId: 'user_${msgType}',
+            peerId: 'user_$msgType',
             type: 'C2C',
             avatar: '',
             title: '用户',
@@ -260,7 +260,8 @@ void main() {
 
         // 编辑旧消息
         final oldMsgId = 'msg_old_edit';
-        final shouldUpdate = (await conversationRepo.findById(convId))!.lastMsgId == oldMsgId;
+        final shouldUpdate =
+            (await conversationRepo.findById(convId))!.lastMsgId == oldMsgId;
         expect(shouldUpdate, false);
 
         // 不应该更新会话
@@ -285,9 +286,7 @@ void main() {
         final convId = await conversationRepo.insert(conv);
 
         final newQuote = '引用消息：这是修改后的内容';
-        await conversationRepo.updateById(convId, {
-          'subtitle': newQuote,
-        });
+        await conversationRepo.updateById(convId, {'subtitle': newQuote});
 
         final updated = await conversationRepo.findById(convId);
         expect(updated!.subtitle, newQuote);
@@ -330,7 +329,7 @@ void main() {
         await conversationRepo.updateById(convId, {
           'last_msg_id': previousMsg.id,
           'subtitle': '前一条消息',
-          'last_time': previousMsg.createdAt!,
+          'last_time': previousMsg.createdAt,
         });
 
         final updated = await conversationRepo.findById(convId);
@@ -435,15 +434,18 @@ void main() {
         final convId = await conversationRepo.insert(conv);
 
         // 撤回消息1（不是最后一条）
-        final shouldUpdate1 = (await conversationRepo.findById(convId))!.lastMsgId == 'msg1';
+        final shouldUpdate1 =
+            (await conversationRepo.findById(convId))!.lastMsgId == 'msg1';
         expect(shouldUpdate1, false);
 
         // 撤回消息2（不是最后一条）
-        final shouldUpdate2 = (await conversationRepo.findById(convId))!.lastMsgId == 'msg2';
+        final shouldUpdate2 =
+            (await conversationRepo.findById(convId))!.lastMsgId == 'msg2';
         expect(shouldUpdate2, false);
 
         // 撤回消息3（是最后一条）
-        final shouldUpdate3 = (await conversationRepo.findById(convId))!.lastMsgId == 'msg3';
+        final shouldUpdate3 =
+            (await conversationRepo.findById(convId))!.lastMsgId == 'msg3';
         expect(shouldUpdate3, true);
 
         // 只更新一次
@@ -473,9 +475,7 @@ void main() {
         final convId = await conversationRepo.insert(conv);
 
         // 先编辑
-        await conversationRepo.updateById(convId, {
-          'subtitle': '这是编辑后的内容',
-        });
+        await conversationRepo.updateById(convId, {'subtitle': '这是编辑后的内容'});
 
         // 然后撤回（撤回优先级更高）
         await conversationRepo.updateById(convId, {
@@ -507,7 +507,8 @@ void main() {
         final convId = await conversationRepo.insert(conv);
 
         // 空消息ID不应该匹配
-        final shouldUpdate = (await conversationRepo.findById(convId))!.lastMsgId == 'msg_any';
+        final shouldUpdate =
+            (await conversationRepo.findById(convId))!.lastMsgId == 'msg_any';
         expect(shouldUpdate, false);
       });
 
@@ -530,9 +531,7 @@ void main() {
         final convId = await conversationRepo.insert(conv);
 
         // 编辑包含特殊字符的消息
-        await conversationRepo.updateById(convId, {
-          'subtitle': specialContent,
-        });
+        await conversationRepo.updateById(convId, {'subtitle': specialContent});
 
         final updated = await conversationRepo.findById(convId);
         expect(updated!.subtitle, specialContent);
@@ -553,14 +552,14 @@ void main() {
 
           final conv = ConversationModel(
             id: 0,
-            peerId: 'user_${msgType}',
+            peerId: 'user_$msgType',
             type: 'C2C',
             avatar: '',
             title: '用户',
             subtitle: content,
             msgType: msgType,
             lastTime: 1234567890,
-            lastMsgId: 'msg_${msgType}',
+            lastMsgId: 'msg_$msgType',
             unreadNum: 0,
           );
 
@@ -584,18 +583,20 @@ void main() {
 
         // 创建100个会话
         for (int i = 0; i < 100; i++) {
-          await conversationRepo.insert(ConversationModel(
-            id: 0,
-            peerId: 'user_$i',
-            type: 'C2C',
-            avatar: '',
-            title: '用户$i',
-            subtitle: '消息$i',
-            msgType: 'text',
-            lastTime: 1234567890 + i,
-            lastMsgId: 'msg_$i',
-            unreadNum: 0,
-          ));
+          await conversationRepo.insert(
+            ConversationModel(
+              id: 0,
+              peerId: 'user_$i',
+              type: 'C2C',
+              avatar: '',
+              title: '用户$i',
+              subtitle: '消息$i',
+              msgType: 'text',
+              lastTime: 1234567890 + i,
+              lastMsgId: 'msg_$i',
+              unreadNum: 0,
+            ),
+          );
         }
 
         final duration = DateTime.now().difference(stopwatch).inMilliseconds;
@@ -609,18 +610,20 @@ void main() {
       });
 
       test('并发会话更新', () async {
-        final convId = await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'user_concurrent',
-          type: 'C2C',
-          avatar: '',
-          title: '用户',
-          subtitle: '初始消息',
-          msgType: 'text',
-          lastTime: 1234567890,
-          lastMsgId: 'msg_initial',
-          unreadNum: 0,
-        ));
+        final convId = await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'user_concurrent',
+            type: 'C2C',
+            avatar: '',
+            title: '用户',
+            subtitle: '初始消息',
+            msgType: 'text',
+            lastTime: 1234567890,
+            lastMsgId: 'msg_initial',
+            unreadNum: 0,
+          ),
+        );
 
         // 模拟多次更新
         for (int i = 0; i < 10; i++) {

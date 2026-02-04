@@ -77,7 +77,7 @@ class PersistentMessageQueue {
   static const Map<int, Duration> _messageExpiry = {
     0: Duration(hours: 24), // 普通消息 24 小时
     1: Duration(minutes: 5), // ACK 消息 5 分钟
-    2: Duration(hours: 1),   // 重试消息 1 小时
+    2: Duration(hours: 1), // 重试消息 1 小时
   };
 
   // 【新增 M1】定期清理 Timer（每分钟清理一次）

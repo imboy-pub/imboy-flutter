@@ -8,13 +8,10 @@
 /// 5. 批量消息已读处理
 library;
 
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/service/sqlite.dart';
 
 void main() {
   group('未读消息数管理集成测试', () {
@@ -314,12 +311,17 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 通过 peerId 清空未读数
-        await conversationRepo.updateByPeerId('C2C', 'test_unread_peer_clear_2', {
-          ConversationRepo.unreadNum: 0,
-        });
+        await conversationRepo.updateByPeerId(
+          'C2C',
+          'test_unread_peer_clear_2',
+          {ConversationRepo.unreadNum: 0},
+        );
 
         // 3. 验证
-        final updated = await conversationRepo.findByPeerId('C2C', 'test_unread_peer_clear_2');
+        final updated = await conversationRepo.findByPeerId(
+          'C2C',
+          'test_unread_peer_clear_2',
+        );
         expect(updated, isNotNull);
         expect(updated!.unreadNum, 0);
       });
@@ -486,9 +488,7 @@ void main() {
         expect(current, 0);
 
         // 推进到 100
-        final newPayload = <String, dynamic>{
-          'last_read_auto_id': 100,
-        };
+        final newPayload = <String, dynamic>{'last_read_auto_id': 100};
 
         conv = conv.copyWith(payload: newPayload);
 
@@ -521,7 +521,11 @@ void main() {
 
         final maxAutoId = messages
             .map((msg) => msg['auto_id'] as int)
-            .fold<int?>(null, (prev, element) => prev == null || element > prev ? element : prev);
+            .fold<int?>(
+              null,
+              (prev, element) =>
+                  prev == null || element > prev ? element : prev,
+            );
 
         expect(maxAutoId, null);
       });
@@ -583,7 +587,7 @@ void main() {
         // 未读消息：101, 102, 103, 104, 105 (5条)
         // 推进到 103 后，未读数应该变为 2 (104, 105)
 
-        const lastReadAutoId = 100;
+        // const lastReadAutoId = 100; // Reference value for test scenario
 
         final unreadMessages = [
           {'auto_id': 101, 'is_author': 0},

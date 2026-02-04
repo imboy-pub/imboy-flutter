@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
@@ -69,7 +70,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => PeopleInfoPage(
                             id: msg.metadata?['uid'],
                             scene: 'visit_card',

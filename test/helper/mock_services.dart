@@ -3,7 +3,6 @@
 /// 用于测试环境中模拟数据库和存储服务
 library;
 
-import 'dart:convert';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 
@@ -108,7 +107,7 @@ class MockMessageRepository {
     );
 
     _storage[tableKey]!.add(newMsg);
-    return newMsg.autoId!;
+    return newMsg.autoId;
   }
 
   /// 根据conversationUk3查找消息
@@ -133,7 +132,7 @@ class MockMessageRepository {
     if (messages.isEmpty) return null;
 
     // 按autoId排序，返回最大的
-    messages.sort((a, b) => (b.autoId ?? 0).compareTo(a.autoId ?? 0));
+    messages.sort((a, b) => b.autoId.compareTo(a.autoId));
     return messages.first;
   }
 
@@ -155,7 +154,11 @@ class MockMessageRepository {
 
     for (final msg in messages) {
       bool match = true;
-      for (int i = 0; i < conditions.length && i < (whereArgs?.length ?? 0); i++) {
+      for (
+        int i = 0;
+        i < conditions.length && i < (whereArgs?.length ?? 0);
+        i++
+      ) {
         final condition = conditions[i].trim();
         final parts = condition.split(' = ');
         if (parts.length != 2) continue;

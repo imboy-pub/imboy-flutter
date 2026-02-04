@@ -51,7 +51,10 @@ enum MsgTypeEnum {
   /// 位置消息
   location,
 
-  /// 语音消息
+  /// 语音消息（使用 voice 命名，符合 WebSocket API v2.0 规范）
+  voice,
+
+  /// @deprecated 使用 voice 代替
   audio,
 
   /// 视频消息
@@ -93,6 +96,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.file;
       case MsgTypeEnum.location:
         return MessageType.location;
+      case MsgTypeEnum.voice:
+        return MessageType.voice;
       case MsgTypeEnum.audio:
         return MessageType.audio;
       case MsgTypeEnum.video:
@@ -127,6 +132,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.file;
       case MessageType.location:
         return MsgTypeEnum.location;
+      case MessageType.voice:
+        return MsgTypeEnum.voice;
       case MessageType.audio:
         return MsgTypeEnum.audio;
       case MessageType.video:

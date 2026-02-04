@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -58,7 +59,7 @@ class ScannerResultPage extends StatelessWidget {
                     if (isUrl(scanResult)) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (context) => WebViewPage(
                             scanResult,
                             '',

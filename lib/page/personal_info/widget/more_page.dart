@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
@@ -207,7 +208,7 @@ class MorePage extends ConsumerWidget {
   void _handleGenderUpdate(BuildContext context, WidgetRef ref) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const SetGenderPage()),
+      CupertinoPageRoute(builder: (_) => const SetGenderPage()),
     );
   }
 
@@ -215,7 +216,7 @@ class MorePage extends ConsumerWidget {
   void _handleRegionUpdate(BuildContext context, WidgetRef ref) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (_) => SetRegionPage(
           title: t.region,
           currentValue: UserRepoLocal.to.current.region,
@@ -232,7 +233,7 @@ class MorePage extends ConsumerWidget {
   void _handleSignatureUpdate(BuildContext context, WidgetRef ref) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (_) => UpdatePage(
           title: t.signature,
           value: UserRepoLocal.to.current.sign,

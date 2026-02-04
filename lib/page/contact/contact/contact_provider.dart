@@ -48,9 +48,13 @@ class ContactNotifier extends _$ContactNotifier {
     state = state.copyWith(isLoading: true);
     try {
       final list = await listFriend(false);
-      handleList(list);
+      if (ref.mounted) {
+        handleList(list);
+      }
     } finally {
-      state = state.copyWith(isLoading: false);
+      if (ref.mounted) {
+        state = state.copyWith(isLoading: false);
+      }
     }
   }
 
@@ -149,6 +153,7 @@ class ContactNotifier extends _$ContactNotifier {
 
   // 接收确认好友
   void receivedConfirmFriend(Map data) {
+    if (!ref.mounted) return;
     final repo = ContactRepo();
     final json = {
       ContactRepo.peerId: data['id'],

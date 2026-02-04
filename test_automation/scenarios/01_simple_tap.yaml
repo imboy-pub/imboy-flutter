@@ -1,0 +1,92 @@
+# 简单点击示例
+#
+# 这是一个最简单的测试示例，演示如何执行基本的点击操作
+#
+# 使用方法：
+#   命令我："执行 01_simple_tap 测试"
+
+name: "简单点击示例测试"
+description: "演示基础的 Widget 查找和点击操作"
+device: "macos"
+
+# 测试配置
+config:
+  # 启动应用前等待时间（毫秒）
+  pre_launch_wait_ms: 1000
+
+  # 每步操作后等待时间（毫秒）
+  step_delay_ms: 500
+
+  # 截图配置
+  screenshot_on_error: true
+  screenshot_dir: "test_automation/reports/screenshots"
+
+# 测试步骤
+steps:
+  # 步骤 1: 启动应用
+  - name: "启动 IM Boy 应用"
+    action: "launch"
+    description: "启动 macOS 版本的应用"
+
+  # 步骤 2: 等待应用启动完成
+  - name: "等待启动页加载"
+    action: "wait"
+    timeout_ms: 3000
+    description: "等待 SplashPage 显示"
+
+  # 步骤 3: 获取当前 Widget 树（用于调试）
+  - name: "获取当前页面结构"
+    action: "get_widget_tree"
+    description: "获取并显示 Widget 树结构，方便调试"
+
+  # 步骤 4: 尝试查找并点击登录按钮
+  # 注意：实际使用时需要根据你的 App 结构调整 selector
+  - name: "点击登录按钮（示例）"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    description: "查找并点击文本为'登录'的按钮"
+    # 如果找不到，可以尝试其他 selector 类型
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "点击登录"
+      - type: "ByValueKey"
+        key: "login_button"
+
+  # 步骤 5: 等待页面响应
+  - name: "等待页面切换"
+    action: "wait"
+    timeout_ms: 1000
+
+  # 步骤 6: 验证是否进入登录页
+  - name: "验证登录页显示"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "手机号"
+        description: "验证手机号输入框存在"
+
+  # 步骤 7: 截图保存当前状态
+  - name: "保存当前状态截图"
+    action: "screenshot"
+    filename: "01_simple_tap_after_login.png"
+
+# 清理步骤（无论成功失败都会执行）
+cleanup:
+  - name: "测试完成，保持应用运行"
+    action: "wait"
+    timeout_ms: 2000
+    description: "保持应用运行 2 秒方便观察结果"
+
+# 预期结果
+expected_result:
+  status: "passed"
+  description: "成功启动应用并点击登录按钮"
+
+# 调试信息
+debug:
+  log_widget_tree: true
+  verbose: true

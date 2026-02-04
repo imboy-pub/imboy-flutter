@@ -1,13 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
 import 'package:imboy/service/assets.dart';
-import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 // 导出语言辅助工具，方便其他文件使用
@@ -366,31 +363,6 @@ Widget genderIcon(int gender) {
     icon = const Icon(Icons.battery_unknown, color: Colors.grey);
   }
   return icon;
-}
-
-/// 跳转到聊天页面
-/// 注意：此函数已废弃，请使用 go_router 导航
-/// @deprecated 使用 context.go('/chat/$peerId?type=$type&title=$title&avatar=$avatar&sign=$sign') 替代
-void toChatPage(BuildContext context, String peerId, String type) async {
-  ContactModel? peer = await ContactRepo().findByUid(peerId);
-  /*
-  // 如果没有联系人，同步去取
-  peer ??= await (ContactApi()).syncByUid(peerId);
-  debugPrint("to_chat_page peerId ${peerId} ${peer.toJson().toString()}");
-
-  */
-  debugPrint(
-    "toChatPage peerId $peerId, type $type, ${peer?.title} peer ${peer?.toJson().toString()}",
-  );
-  if (peer != null && peer.title != '') {
-    debugPrint("toChatPage peerId $peerId, type $type, ${peer.title}");
-    // 使用 go_router 导航
-    if (context.mounted) {
-      context.go(
-        '/chat/$peerId?type=$type&title=${peer.title}&avatar=${peer.avatar}&sign=${peer.sign}',
-      );
-    }
-  }
 }
 
 /// Returns text representation of a provided bytes value (e.g. 1kB, 1GB).

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -220,7 +221,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (_) => UserTagRelationPage(
                       peerId: widget.peerId,
                       peerTag: _currentTag,

@@ -170,59 +170,6 @@ ButtonStyle lightGreenButtonStyle(
   );
 }
 
-/// 浅绿色按钮样式 - 旧版本（向后兼容）
-/// @deprecated 使用 lightGreenButtonStyle(BuildContext context, Size? s, ...) 替代
-ButtonStyle lightGreenButtonStyleLegacy(Size? s, {double borderRadius = 25.0}) {
-  // 使用固定宽度替代 Get.width（仅用于向后兼容）
-  return ButtonStyle(
-    backgroundColor: WidgetStateProperty.resolveWith<Color?>((
-      Set<WidgetState> states,
-    ) {
-      if (states.contains(WidgetState.disabled)) {
-        return AppColors.primary.withValues(alpha: 0.5);
-      }
-      if (states.contains(WidgetState.pressed)) {
-        return AppColors.primary.withValues(alpha: 0.8);
-      }
-      return AppColors.primary;
-    }),
-    foregroundColor: WidgetStateProperty.resolveWith<Color>((
-      Set<WidgetState> states,
-    ) {
-      if (states.contains(WidgetState.disabled)) {
-        return Colors.white.withValues(alpha: 0.7);
-      }
-      return Colors.white;
-    }),
-    minimumSize: WidgetStateProperty.all(s ?? const Size(350, 50)),
-    padding: WidgetStateProperty.all(
-      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-    ),
-    shape: WidgetStateProperty.all<OutlinedBorder>(
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
-    ),
-    elevation: WidgetStateProperty.resolveWith<double>((
-      Set<WidgetState> states,
-    ) {
-      if (states.contains(WidgetState.pressed)) {
-        return 1;
-      }
-      return 3;
-    }),
-    shadowColor: WidgetStateProperty.all(
-      AppColors.primary.withValues(alpha: 0.3),
-    ),
-    overlayColor: WidgetStateProperty.resolveWith<Color?>((
-      Set<WidgetState> states,
-    ) {
-      if (states.contains(WidgetState.pressed)) {
-        return Colors.white.withValues(alpha: 0.1);
-      }
-      return null;
-    }),
-  );
-}
-
 /// 白色绿色按钮样式 - 使用优化后的主题色彩
 ButtonStyle whiteGreenButtonStyle(Size? s, {double borderRadius = 8.0}) {
   return ButtonStyle(

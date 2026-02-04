@@ -22,6 +22,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -97,6 +98,7 @@ flutter {
 }
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.databinding:viewbinding:8.2.2")
     // bcprov-jdk15to18 是它的 Java 加密核心实现（Provider），主要为 JDK 1.5 到 JDK 18 提供兼容支持。

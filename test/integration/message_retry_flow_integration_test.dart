@@ -8,11 +8,9 @@
 /// 5. 消息已确认（status=sent）时不应该重试
 library;
 
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
@@ -82,7 +80,7 @@ void main() {
 
       test('应该正确判断消息状态', () {
         // 测试状态判断辅助方法
-        final sendingMsg = MessageModel(
+        MessageModel(
           'msg_sending',
           autoId: 1,
           type: 'C2C',
@@ -133,21 +131,15 @@ void main() {
       });
 
       test('网络恢复事件应该触发重试', () async {
-        String? receivedSource;
-
         // 订阅重试请求事件
-        final subscription = AppEventBus
-            .on<RetryMessagesRequestedEvent>()
+        final subscription = AppEventBus.on<RetryMessagesRequestedEvent>()
             .listen((event) {
-          receivedSource = event.source;
-        });
+              // event.source received but not used in test
+            });
 
         // 模拟网络恢复事件
         AppEventBus.fire(
-          NetworkConnectionEvent(
-            isConnected: true,
-            networkType: 'wifi',
-          ),
+          NetworkConnectionEvent(isConnected: true, networkType: 'wifi'),
         );
 
         // 等待事件传播
@@ -163,7 +155,7 @@ void main() {
     group('与消息状态集成', () {
       test('应该判断消息是否为发送状态', () {
         // 测试状态判断辅助方法
-        final sendingMsg = MessageModel(
+        MessageModel(
           'msg_sending',
           autoId: 1,
           type: 'C2C',
@@ -220,19 +212,15 @@ void main() {
         String? receivedReason;
 
         // 订阅重试请求事件
-        final subscription = AppEventBus
-            .on<RetryMessagesRequestedEvent>()
+        final subscription = AppEventBus.on<RetryMessagesRequestedEvent>()
             .listen((event) {
-          receivedSource = event.source;
-          receivedReason = event.reason;
-        });
+              receivedSource = event.source;
+              receivedReason = event.reason;
+            });
 
         // 触发重试请求
         AppEventBus.fire(
-          RetryMessagesRequestedEvent(
-            source: 'test_event',
-            reason: '测试原因',
-          ),
+          RetryMessagesRequestedEvent(source: 'test_event', reason: '测试原因'),
         );
 
         // 等待事件传播
@@ -249,11 +237,12 @@ void main() {
         String? removedMessageId;
 
         // 订阅移除请求事件
-        final subscription = AppEventBus
-            .on<RemoveFromRetryQueueRequestedEvent>()
-            .listen((event) {
-          removedMessageId = event.messageId;
-        });
+        final subscription =
+            AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().listen((
+              event,
+            ) {
+              removedMessageId = event.messageId;
+            });
 
         // 触发移除请求
         const msgId = 'test_remove_msg';
@@ -285,10 +274,7 @@ void main() {
           futures.add(
             Future.delayed(
               const Duration(milliseconds: 10),
-              () => messageRetry.addToRetryQueue(
-                    'concurrent_$i',
-                    'C2C',
-                  ),
+              () => messageRetry.addToRetryQueue('concurrent_$i', 'C2C'),
             ),
           );
         }
@@ -302,10 +288,7 @@ void main() {
       test('应该能够安全地批量移除消息', () {
         // 添加多个消息
         for (int i = 0; i < 50; i++) {
-          messageRetry.addToRetryQueue(
-            'stress_test_$i',
-            'C2C',
-          );
+          messageRetry.addToRetryQueue('stress_test_$i', 'C2C');
         }
 
         // 批量移除
@@ -332,10 +315,7 @@ void main() {
 
       test('应该能够处理空消息ID', () async {
         // 尝试重试空消息ID
-        final result = await messageRetry.retryMessage(
-          '',
-          'C2C',
-        );
+        final result = await messageRetry.retryMessage('', 'C2C');
 
         // 应该返回 false
         expect(result, false);

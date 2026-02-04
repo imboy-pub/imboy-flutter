@@ -97,6 +97,27 @@ CommonBar(
 )
 ```
 
+#### GesturePageRoute（手势返回路由）
+**新增组件** - 提供统一的 iOS 风格滑动返回体验
+
+```dart
+import 'package:imboy/component/ui/gesture_page_route.dart';
+
+// 使用便捷函数（推荐）
+await RouteHelper.pushWithGesture(
+  context: context,
+  builder: (context) => MyPage(),
+);
+
+// 或直接使用 CupertinoPageRoute
+Navigator.push(
+  context,
+  CupertinoPageRoute(builder: (context) => MyPage()),
+);
+```
+
+**详细文档**: [doc/GESTURE_NAVIGATION_GUIDE.md](../../../doc/GESTURE_NAVIGATION_GUIDE.md)
+
 ### 聊天组件
 
 #### Message Builder
@@ -393,6 +414,7 @@ A: `HttpClient` 已内置错误处理，通过 `response.ok` 判断请求是否�
 - `lib/component/ui/contact_card.dart` - 联系人卡片
 - `lib/component/ui/easy_dialog.dart` - 对话框
 - `lib/component/ui/sound_manager.dart` - 声音管理
+- `lib/component/ui/gesture_page_route.dart` - 手势返回路由（新增）
 
 ### 聊天组件
 - `lib/component/chat/message.dart` - 消息主入口和 CustomMessageBuilder

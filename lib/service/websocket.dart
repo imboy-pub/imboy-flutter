@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
@@ -22,7 +23,6 @@ import '../component/helper/datetime.dart' show DateTimeHelper;
 import 'websocket_message_queue.dart';
 import 'package:imboy/config/routes.dart' show AppRoutes;
 import 'package:imboy/config/init.dart' show navigatorKey;
-import 'package:flutter/foundation.dart';
 
 enum SocketStatus { connecting, connected, disconnected }
 
@@ -184,12 +184,22 @@ class WebSocketService {
         return;
       }
 
-      _channel = IOWebSocketChannel.connect(
-        Env.effectiveWsUrl ?? 'wss://pro.imboy.pub/ws/',
-        headers: {...await defaultHeaders(), Keys.tokenKey: token},
-        protocols: ['text', 'sip'],
-        pingInterval: _pingInterval,
-      );
+      // 根据 platform 选择连接方式
+      final wsUrl = Env.effectiveWsUrl ?? 'wss://pro.imboy.pub/ws/';
+
+      if (kIsWeb) {
+        // Web 平台使用 WebSocketChannel.connect
+        _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+      } else {
+        // 移动端/桌面端使用 IOWebSocketChannel
+        _channel = IOWebSocketChannel.connect(
+          wsUrl,
+          headers: {...await defaultHeaders(), Keys.tokenKey: token},
+          protocols: ['text', 'sip'],
+          pingInterval: _pingInterval,
+        );
+      }
+
       await _channel!.ready;
 
       _updateStatus(SocketStatus.connected);
@@ -556,9 +566,9 @@ class WebSocketService {
 
       // 【修复 H4】使用国际通用的测试 URL + 配置化
       final testUrls = [
-        'https://1.1.1.1',           // Cloudflare DNS (全球)
-        'https://8.8.8.8',           // Google DNS (全球)
-        'https://cloudflare.com',    // Cloudflare 官网
+        'https://1.1.1.1', // Cloudflare DNS (全球)
+        'https://8.8.8.8', // Google DNS (全球)
+        'https://cloudflare.com', // Cloudflare 官网
         // Fallback: 使用配置的 WebSocket 服务器
         if (Env.effectiveWsUrl != null)
           Uri.parse(Env.effectiveWsUrl!).replace(scheme: 'https').toString(),
@@ -745,8 +755,8 @@ class WebSocketService {
       final hasE2ee = data['e2ee'] != null;
       final encStatus = hasE2ee ? 'E2EE' : 'PLAIN';
       return '$type/$msgType/$encStatus';
-    } catch (e, s) {
-      // debugPrint("_getMessageTypeInfo $e, trace $s ");
+    } catch (e) {
+      // debugPrint("_getMessageTypeInfo $e ");
       return 'UNKNOWN';
     }
   }

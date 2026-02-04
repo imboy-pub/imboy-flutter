@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/location_api.dart';
@@ -85,7 +86,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
   /// 初始化
   Future<void> init() async {
     DateTime s = DateTime.now();
-    AMapPosition? l = await AMapHelper().startLocation();
+    AMapPosition? l = await LocationService().getCurrentPosition();
     DateTime end = DateTime.now();
     debugPrint(
       "PeopleNearbyNotifier init peopleNearbyVisible ${state.peopleNearbyVisible} diff ${end.difference(s)}",
@@ -101,7 +102,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
   /// 获取附近的人
   Future<void> peopleNearby() async {
     if (state.longitude.isEmpty) {
-      AMapPosition? l = await AMapHelper().startLocation();
+      AMapPosition? l = await LocationService().getCurrentPosition();
       updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
     }
 

@@ -255,7 +255,7 @@ void main() {
           title: '用户2',
           subtitle: '新消息',
           msgType: msg.msgType!,
-          lastTime: msg.createdAt!,
+          lastTime: msg.createdAt,
           lastMsgId: msg.id ?? 'msg_new',
           unreadNum: 1,
         );
@@ -303,7 +303,7 @@ void main() {
         final current = await conversationRepo.findById(convId);
         await conversationRepo.updateById(convId, {
           'subtitle': '新消息内容',
-          'last_time': newMsg.createdAt!,
+          'last_time': newMsg.createdAt,
           'last_msg_id': newMsg.id ?? 'msg_new',
           'unread_num': current!.unreadNum + 1,
         });
@@ -318,62 +318,70 @@ void main() {
     group('会话列表管理', () {
       test('应该能够获取所有会话', () async {
         // 创建多个会话
-        await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'user1',
-          type: 'C2C',
-          avatar: '',
-          title: '用户1',
-          subtitle: '消息1',
-          msgType: 'text',
-          lastTime: 1234567890,
-          lastMsgId: 'msg1',
-          unreadNum: 1,
-        ));
+        await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'user1',
+            type: 'C2C',
+            avatar: '',
+            title: '用户1',
+            subtitle: '消息1',
+            msgType: 'text',
+            lastTime: 1234567890,
+            lastMsgId: 'msg1',
+            unreadNum: 1,
+          ),
+        );
 
-        await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'user2',
-          type: 'C2C',
-          avatar: '',
-          title: '用户2',
-          subtitle: '消息2',
-          msgType: 'text',
-          lastTime: 1234567891,
-          lastMsgId: 'msg2',
-          unreadNum: 0,
-        ));
+        await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'user2',
+            type: 'C2C',
+            avatar: '',
+            title: '用户2',
+            subtitle: '消息2',
+            msgType: 'text',
+            lastTime: 1234567891,
+            lastMsgId: 'msg2',
+            unreadNum: 0,
+          ),
+        );
 
         final all = conversationRepo.getAll();
         expect(all.length, 2);
       });
 
       test('应该按lastTime排序会话', () async {
-        await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'user1',
-          type: 'C2C',
-          avatar: '',
-          title: '用户1',
-          subtitle: '消息1',
-          msgType: 'text',
-          lastTime: 1000,
-          lastMsgId: 'msg1',
-          unreadNum: 0,
-        ));
+        await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'user1',
+            type: 'C2C',
+            avatar: '',
+            title: '用户1',
+            subtitle: '消息1',
+            msgType: 'text',
+            lastTime: 1000,
+            lastMsgId: 'msg1',
+            unreadNum: 0,
+          ),
+        );
 
-        await conversationRepo.insert(ConversationModel(
-          id: 0,
-          peerId: 'user2',
-          type: 'C2C',
-          avatar: '',
-          title: '用户2',
-          subtitle: '消息2',
-          msgType: 'text',
-          lastTime: 2000,
-          lastMsgId: 'msg2',
-          unreadNum: 0,
-        ));
+        await conversationRepo.insert(
+          ConversationModel(
+            id: 0,
+            peerId: 'user2',
+            type: 'C2C',
+            avatar: '',
+            title: '用户2',
+            subtitle: '消息2',
+            msgType: 'text',
+            lastTime: 2000,
+            lastMsgId: 'msg2',
+            unreadNum: 0,
+          ),
+        );
 
         final all = conversationRepo.getAll();
         all.sort((a, b) => b.lastTime.compareTo(a.lastTime));

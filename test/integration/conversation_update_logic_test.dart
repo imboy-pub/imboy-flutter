@@ -10,7 +10,6 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import '../helper/test_helper.dart';
 
 void main() {
@@ -77,7 +76,8 @@ void main() {
             toId: type == 'C2G' ? 'group1' : 'user2',
             payload: {},
             isAuthor: 1,
-            conversationUk3: '${type}_user1_${type == "C2G" ? "group1" : "user2"}',
+            conversationUk3:
+                '${type}_user1_${type == "C2G" ? "group1" : "user2"}',
             createdAt: 1234567890,
             msgType: 'text',
           );
@@ -127,7 +127,9 @@ void main() {
             subtitle: expectedContent,
           );
 
-          final content = ConversationTestHelper.computeContentWithoutDraft(conv);
+          final content = ConversationTestHelper.computeContentWithoutDraft(
+            conv,
+          );
 
           if (msgType == 'text') {
             expect(content, expectedContent);
@@ -195,10 +197,7 @@ void main() {
           unreadNum: 10,
         );
 
-        final copy = original.copyWith(
-          title: '新标题',
-          unreadNum: 5,
-        );
+        final copy = original.copyWith(title: '新标题', unreadNum: 5);
 
         // 验证修改的字段
         expect(copy.title, '新标题');
@@ -278,7 +277,9 @@ void main() {
             subtitle: text,
           );
 
-          final content = ConversationTestHelper.computeContentWithoutDraft(conv);
+          final content = ConversationTestHelper.computeContentWithoutDraft(
+            conv,
+          );
 
           expect(content, contains(text));
         }

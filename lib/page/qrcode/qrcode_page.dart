@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
@@ -381,7 +382,7 @@ class UserQrCodePage extends ConsumerWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) => const ScannerPage(),
                     ),
                   );
@@ -839,7 +840,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) => const ScannerPage(),
                     ),
                   );

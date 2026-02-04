@@ -37,7 +37,11 @@ void main() {
         const deviceId = 'test_device';
 
         // 【修复 C1】使用 overrideDeviceId 参数进行测试
-        final ackMsg = ackManager.generateAckMessage(type, msgId, overrideDeviceId: deviceId);
+        final ackMsg = ackManager.generateAckMessage(
+          type,
+          msgId,
+          overrideDeviceId: deviceId,
+        );
 
         expect(ackMsg, contains('CLIENT_ACK'));
         expect(ackMsg, contains(type));
@@ -93,7 +97,11 @@ void main() {
 
     group('ACK 超时处理', () {
       test('应该在 ACK 超时后清理记录', () async {
-        ackManager.sendAck('C2C', 'msg_timeout', overrideDeviceId: 'test_device');
+        ackManager.sendAck(
+          'C2C',
+          'msg_timeout',
+          overrideDeviceId: 'test_device',
+        );
 
         // 等待超时（实际超时是 30 秒，这里模拟）
         await Future.delayed(const Duration(milliseconds: 100));
@@ -107,21 +115,21 @@ void main() {
 
       test('应该计算 ACK 超时时间', () {
         const sendTime = 1640000000000; // 毫秒时间戳
-        const timeoutSeconds = 30;
+        // const timeoutSeconds = 30; // Reference value
         final currentTime = DateTime.now().millisecondsSinceEpoch;
 
         final elapsed = currentTime - sendTime;
-        final isExpired = elapsed > (timeoutSeconds * 1000);
+        // final isExpired = elapsed > (timeoutSeconds * 1000); // Reference calculation
 
         expect(elapsed, greaterThanOrEqualTo(0));
       });
 
       test('应该记录超时的 ACK 统计', () {
         final expiredAcks = <String>[];
-        const timeoutThreshold = 30 * 1000; // 30 秒
+        // const timeoutThreshold = 30 * 1000; // 30 秒 - Reference value
 
         // 模拟超时检测
-        final now = DateTime.now().millisecondsSinceEpoch;
+        // final now = DateTime.now().millisecondsSinceEpoch; // Reference time
         expiredAcks.add('msg_1'); // 假设已超时
 
         expect(expiredAcks.length, greaterThanOrEqualTo(0));
@@ -215,7 +223,7 @@ void main() {
         var cleanupCount = 0;
 
         // 模拟定期清理
-        final timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        Timer.periodic(const Duration(seconds: 1), (timer) {
           cleanupCount++;
           if (cleanupCount >= 3) {
             timer.cancel();
@@ -243,7 +251,11 @@ void main() {
 
     group('ACK 确认处理', () {
       test('应该在收到确认时停止重试', () {
-        ackManager.sendAck('C2C', 'msg_confirmed', overrideDeviceId: 'test_device');
+        ackManager.sendAck(
+          'C2C',
+          'msg_confirmed',
+          overrideDeviceId: 'test_device',
+        );
 
         expect(ackManager.pendingAckList, contains('msg_confirmed'));
 
@@ -254,7 +266,11 @@ void main() {
       });
 
       test('应该处理确认超时', () async {
-        ackManager.sendAck('C2C', 'msg_timeout', overrideDeviceId: 'test_device');
+        ackManager.sendAck(
+          'C2C',
+          'msg_timeout',
+          overrideDeviceId: 'test_device',
+        );
 
         // 等待超时
         await Future.delayed(const Duration(milliseconds: 100));
@@ -367,7 +383,7 @@ void main() {
         var resendCount = 0;
 
         // 模拟网络恢复
-        for (final msgId in pendingAcks) {
+        for (final _ in pendingAcks) {
           resendCount++;
         }
 

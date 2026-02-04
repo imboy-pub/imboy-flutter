@@ -8,25 +8,22 @@ part of 'websocket_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// WebSocket 状态提供者
 
 @ProviderFor(WebSocketStatusNotifier)
 final webSocketStatusProvider = WebSocketStatusNotifierProvider._();
 
-/// WebSocket 状态提供者
 final class WebSocketStatusNotifierProvider
     extends $NotifierProvider<WebSocketStatusNotifier, SocketStatus> {
-  /// WebSocket 状态提供者
   WebSocketStatusNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'webSocketStatusProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'webSocketStatusProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
 
   @override
   String debugGetCreateSourceHash() => _$webSocketStatusNotifierHash();
@@ -46,8 +43,6 @@ final class WebSocketStatusNotifierProvider
 
 String _$webSocketStatusNotifierHash() =>
     r'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0';
-
-/// WebSocket 状态提供者
 
 abstract class _$WebSocketStatusNotifier extends $Notifier<SocketStatus> {
   SocketStatus build();

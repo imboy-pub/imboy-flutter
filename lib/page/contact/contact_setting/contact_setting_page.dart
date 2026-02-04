@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -322,7 +323,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                               EasyLoading.showSuccess(t.tipSuccess);
                               if (mounted) {
                                 Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
+                                  CupertinoPageRoute(
                                     builder: (context) =>
                                         const BottomNavigationPage(),
                                   ),
@@ -419,7 +420,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (_) => ContactSettingTagPage(
                       peerId: widget.peerId,
                       peerAvatar: widget.peerAvatar,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/page/moments/moments_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -25,7 +26,7 @@ class DiscoverPage extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const MomentsPage()),
+                CupertinoPageRoute(builder: (_) => const MomentsPage()),
               );
             },
           ),

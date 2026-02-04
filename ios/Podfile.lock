@@ -73,6 +73,9 @@ PODS:
   - flutter_webrtc (1.2.0):
     - Flutter
     - WebRTC-SDK (= 137.7151.04)
+  - geolocator_apple (1.2.0):
+    - Flutter
+    - FlutterMacOS
   - ic_storage_space (0.1.1):
     - Flutter
   - image_crop (0.0.1):
@@ -80,6 +83,8 @@ PODS:
   - image_gallery_saver (2.0.2):
     - Flutter
   - image_picker_ios (0.0.1):
+    - Flutter
+  - integration_test (0.0.1):
     - Flutter
   - JCore (5.3.1)
   - just_audio (0.0.1):
@@ -161,10 +166,12 @@ DEPENDENCIES:
   - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
   - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
   - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - ic_storage_space (from `.symlinks/plugins/ic_storage_space/ios`)
   - image_crop (from `.symlinks/plugins/image_crop/ios`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - JVerification
   - jverify (from `.symlinks/plugins/jverify/ios`)
@@ -235,6 +242,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_sound/ios"
   flutter_webrtc:
     :path: ".symlinks/plugins/flutter_webrtc/ios"
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/darwin"
   ic_storage_space:
     :path: ".symlinks/plugins/ic_storage_space/ios"
   image_crop:
@@ -243,6 +252,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_gallery_saver/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
   just_audio:
     :path: ".symlinks/plugins/just_audio/darwin"
   jverify:
@@ -305,10 +316,12 @@ SPEC CHECKSUMS:
   flutter_sound: d95194f6476c9ad211d22b3a414d852c12c7ca44
   flutter_sound_core: 7f2626d249d3a57bfa6da892ef7e22d234482c1a
   flutter_webrtc: c3e21fc0dcd9d8eb246ae4d5256fcbeb2f5ecd22
+  geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   image_crop: d83cf4373d8a94b985477cb57af0a050274a9c8c
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   JCore: 3814e38743361bcff5ee86b9f2e417a4b4cbf8ed
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: e26fc139307b3d80e30d01479656f4b9632f083f

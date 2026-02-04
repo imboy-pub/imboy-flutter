@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -73,7 +74,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     }
 
     try {
-      AMapPosition? l = await AMapHelper().startLocation();
+      AMapPosition? l = await LocationService().getCurrentPosition();
       final lon = '${l?.latLng.longitude}';
       final lat = '${l?.latLng.latitude}';
 
@@ -103,17 +104,20 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     );
 
     // 解析成员列表
-    List memberList = payload['member_list'] ?? [];
+    List<dynamic> memberList = payload['member_list'] ?? [];
     List<PeopleModel> memberList2 = [];
-    for (Map<String, dynamic> item in memberList) {
-      memberList2.add(
-        PeopleModel(
-          id: item['user_id'],
-          account: item['account'] ?? '',
-          avatar: item['avatar'] ?? '',
-          nickname: item['alias'] ?? (item['nickname'] ?? ''),
-        ),
-      );
+    for (var item in memberList) {
+      if (item is Map) {
+        final itemMap = Map<String, dynamic>.from(item);
+        memberList2.add(
+          PeopleModel(
+            id: itemMap['user_id'],
+            account: itemMap['account'] ?? '',
+            avatar: itemMap['avatar'] ?? '',
+            nickname: itemMap['alias'] ?? (itemMap['nickname'] ?? ''),
+          ),
+        );
+      }
     }
 
     return {
@@ -131,17 +135,20 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     );
     iPrint("faceToFaceSave payload ${payload.toString()}");
 
-    List memberList = payload['member_list'] ?? [];
+    List<dynamic> memberList = payload['member_list'] ?? [];
     List<PeopleModel> memberList2 = [];
-    for (Map<String, dynamic> item in memberList) {
-      memberList2.add(
-        PeopleModel(
-          id: item['user_id'],
-          account: item['account'] ?? '',
-          avatar: item['avatar'] ?? '',
-          nickname: item['alias'] ?? (item['nickname'] ?? ''),
-        ),
-      );
+    for (var item in memberList) {
+      if (item is Map) {
+        final itemMap = Map<String, dynamic>.from(item);
+        memberList2.add(
+          PeopleModel(
+            id: itemMap['user_id'],
+            account: itemMap['account'] ?? '',
+            avatar: itemMap['avatar'] ?? '',
+            nickname: itemMap['alias'] ?? (itemMap['nickname'] ?? ''),
+          ),
+        );
+      }
     }
 
     return {'group': payload['group'] ?? {}, 'memberList': memberList2};

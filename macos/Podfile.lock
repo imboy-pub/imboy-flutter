@@ -26,6 +26,9 @@ PODS:
     - FlutterMacOS
     - WebRTC-SDK (= 137.7151.04)
   - FlutterMacOS (1.0.0)
+  - geolocator_apple (1.2.0):
+    - Flutter
+    - FlutterMacOS
   - ic_storage_space (0.1.1):
     - FlutterMacOS
   - just_audio (0.0.1):
@@ -84,6 +87,7 @@ DEPENDENCIES:
   - flutter_sound (from `Flutter/ephemeral/.symlinks/plugins/flutter_sound/macos`)
   - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/darwin`)
   - ic_storage_space (from `Flutter/ephemeral/.symlinks/plugins/ic_storage_space/macos`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/darwin`)
   - local_auth_darwin (from `Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin`)
@@ -133,6 +137,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  geolocator_apple:
+    :path: Flutter/ephemeral/.symlinks/plugins/geolocator_apple/darwin
   ic_storage_space:
     :path: Flutter/ephemeral/.symlinks/plugins/ic_storage_space/macos
   just_audio:
@@ -178,6 +184,7 @@ SPEC CHECKSUMS:
   flutter_sound: fbd52f5161931ee0ffb3c6be0bcd423d491323b7
   flutter_webrtc: 718eae22a371cd94e5d56aa4f301443ebc5bb737
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   ic_storage_space: e207731aed98a6126d5712cc63c4bcc6e04d6d1d
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   local_auth_darwin: c3ee6cce0a8d56be34c8ccb66ba31f7f180aaebb

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:highlight_text/highlight_text.dart';
@@ -162,7 +163,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           try {
             await Navigator.push(
               context,
-              MaterialPageRoute(
+              CupertinoPageRoute(
                 builder: (context) => ChatPage(
                   peerId: widget.peerId,
                   peerTitle: widget.peerTitle,

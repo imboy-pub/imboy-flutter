@@ -1,0 +1,431 @@
+# 群聊测试
+#
+# 测试群聊功能的完整流程：
+# 1. 登录
+# 2. 创建群组
+# 3. 添加群成员
+# 4. 发送群消息
+# 5. 验证消息接收
+#
+# 使用方法：
+#   命令我："执行 08_group_chat 测试"
+
+name: "群聊功能测试"
+description: "测试创建群组、添加成员、发送群消息的完整流程"
+device: "macos"
+
+# 测试配置
+config:
+  pre_launch_wait_ms: 1000
+  step_delay_ms: 800
+  screenshot_on_error: true
+  screenshot_dir: "test_automation/reports/screenshots"
+
+# 测试数据
+test_data:
+  # 登录账号（群主）
+  phone: "13800138000"
+  password: "Test123456"
+
+  # 群组信息
+  group_name: "测试群组"
+  group_description: "这是一个自动化测试创建的群组"
+
+  # 群成员信息
+  member1_name: "测试用户A"
+  member2_name: "测试用户B"
+
+  # 测试消息
+  group_message: "大家好！这是一条群聊测试消息"
+
+# 测试步骤
+steps:
+  # ========== 阶段 1: 登录应用 ==========
+  - name: "阶段1: 启动应用"
+    action: "launch"
+    description: "启动 IM Boy 应用"
+
+  - name: "等待启动页加载"
+    action: "wait"
+    timeout_ms: 3000
+
+  - name: "点击登录按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "login_entry_button"
+
+  - name: "等待登录页加载"
+    action: "wait"
+    timeout_ms: 1000
+
+  - name: "输入手机号"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "phone_field"
+    text: "${test_data.phone}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入手机号"
+
+  - name: "输入密码"
+    action: "enter_text"
+    selector:
+      type: "ByValueKey"
+      key: "password_field"
+    text: "${test_data.password}"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "请输入密码"
+
+  - name: "提交登录"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "登录"
+
+  - name: "等待登录成功"
+    action: "wait"
+    timeout_ms: 5000
+
+  # ========== 阶段 2: 进入联系人页面 ==========
+  - name: "阶段2: 点击联系人标签"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "联系人"
+    description: "进入联系人页面"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "联系人"
+
+  - name: "等待联系人页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取联系人页面结构"
+    action: "get_widget_tree"
+    description: "获取联系人页面 Widget 树"
+
+  # ========== 阶段 3: 创建群组 ==========
+  - name: "阶段3: 查找群组入口"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "群聊"
+        description: "查找群聊入口"
+
+  # 方式1: 通过群聊入口
+  - name: "点击群聊入口"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "群聊"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "群聊"
+
+  - name: "等待群聊列表页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "查找创建群组按钮"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "创建群组"
+        description: "查找创建群组按钮"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "新建群聊"
+
+  # 方式2: 通过右上角 + 按钮
+  - name: "点击创建群组按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "创建群组"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "创建群组"
+      - type: "ByValueKey"
+        key: "create_group_button"
+
+  - name: "等待创建群组页面加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取创建群组页面结构"
+    action: "get_widget_tree"
+    description: "获取创建群组页面 Widget 树"
+
+  - name: "保存创建群组页面截图"
+    action: "screenshot"
+    filename: "08_create_group_page.png"
+
+  # ========== 阶段 4: 选择群成员 ==========
+  - name: "阶段4: 查找选择成员界面"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "选择成员"
+        description: "验证选择成员界面"
+
+  - name: "点击第一个成员"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "${test_data.member1_name}"
+    description: "选择第一个群成员"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "选择联系人"
+
+  - name: "等待选择完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "点击第二个成员"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "${test_data.member2_name}"
+    description: "选择第二个群成员"
+
+  - name: "等待选择完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "保存选择成员截图"
+    action: "screenshot"
+    filename: "08_select_members.png"
+
+  # ========== 阶段 5: 确认创建 ==========
+  - name: "阶段5: 点击确定/下一步按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "确定"
+    fallback_selectors:
+      - type: "ByText"
+        text: "下一步"
+      - type: "ByTooltip"
+        message: "完成"
+      - type: "ByValueKey"
+        key: "confirm_button"
+
+  - name: "等待群组详情页加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "获取群组详情页结构"
+    action: "get_widget_tree"
+    description: "获取群组详情页 Widget 树"
+
+  # ========== 阶段 6: 设置群组信息 ==========
+  - name: "阶段6: 点击群组名称输入框"
+    action: "tap"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "群组名称"
+      - type: "ByValueKey"
+        key: "group_name_field"
+
+  - name: "输入群组名称"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: "${test_data.group_name}"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "group_name_field"
+
+  - name: "等待输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "保存群组设置截图"
+    action: "screenshot"
+    filename: "08_group_settings.png"
+
+  - name: "点击完成/创建按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "完成"
+    fallback_selectors:
+      - type: "ByText"
+        text: "创建"
+      - type: "ByTooltip"
+        message: "完成创建"
+      - type: "ByValueKey"
+        key: "complete_button"
+
+  - name: "等待群组创建完成"
+    action: "wait"
+    timeout_ms: 2000
+
+  # ========== 阶段 7: 进入群聊 ==========
+  - name: "阶段7: 验证群聊页面"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.group_name}"
+        description: "验证进入群聊"
+
+  - name: "获取群聊页面结构"
+    action: "get_widget_tree"
+    description: "获取群聊页面 Widget 树"
+
+  - name: "保存群聊页面截图"
+    action: "screenshot"
+    filename: "08_group_chat_page.png"
+
+  # ========== 阶段 8: 发送群消息 ==========
+  - name: "阶段8: 点击消息输入框"
+    action: "tap"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "输入消息"
+
+  - name: "输入群消息"
+    action: "enter_text"
+    selector:
+      type: "ByType"
+      type: "TextField"
+    text: "${test_data.group_message}"
+    fallback_selectors:
+      - type: "ByValueKey"
+        key: "chat_input_field"
+
+  - name: "等待输入完成"
+    action: "wait"
+    timeout_ms: 500
+
+  - name: "点击发送按钮"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "发送"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "发送消息"
+      - type: "ByValueKey"
+        key: "send_button"
+
+  - name: "等待消息发送"
+    action: "wait"
+    timeout_ms: 2000
+
+  # ========== 阶段 9: 验证消息发送成功 ==========
+  - name: "阶段9: 验证消息显示"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "${test_data.group_message}"
+        description: "验证消息已显示在群聊中"
+
+  - name: "保存消息发送成功截图"
+    action: "screenshot"
+    filename: "08_group_message_sent.png"
+
+  # ========== 阶段 10: 查看群组成员 ==========
+  - name: "阶段10: 点击群组名称/头像"
+    action: "tap"
+    selector:
+      type: "ByText"
+      text: "${test_data.group_name}"
+    description: "点击群组名称查看详情"
+    fallback_selectors:
+      - type: "ByTooltip"
+        message: "群组详情"
+
+  - name: "等待群组详情页加载"
+    action: "wait"
+    timeout_ms: 1500
+
+  - name: "验证群组成员列表"
+    action: "verify"
+    expect:
+      - type: "widget_exists"
+        selector:
+          type: "ByText"
+          text: "群成员"
+        description: "验证群成员列表存在"
+
+  - name: "保存群组详情截图"
+    action: "screenshot"
+    filename: "08_group_detail.png"
+
+# 清理步骤
+cleanup:
+  - name: "返回群聊"
+    action: "tap"
+    selector:
+      type: "ByTooltip"
+      message: "返回"
+    fallback_selectors:
+      - type: "ByText"
+        text: "返回"
+
+  - name: "测试完成"
+    action: "wait"
+    timeout_ms: 2000
+    description: "保持应用运行方便观察"
+
+# 预期结果
+expected_result:
+  status: "passed"
+  description: "成功创建群组、添加成员、发送群消息"
+
+# 错误处理
+error_handling:
+  common_errors:
+    - error: "Group entry not found"
+      suggestion: "群聊入口位置可能不同，尝试其他路径"
+      action: "try_alternative_navigation"
+
+    - error: "No members available"
+      suggestion: "没有可选择的群成员，需要先添加好友"
+      action: "run_add_friend_test_first"
+
+    - error: "Group creation failed"
+      suggestion: "群组创建失败，可能是网络问题或权限问题"
+      action: "check_network_and_permissions"
+
+    - error: "Message not sent"
+      suggestion: "消息发送失败，检查群组状态"
+      action: "verify_group_status"
+
+# 测试数据准备说明
+setup_required:
+  - name: "准备好友"
+    description: "需要先添加好友作为群成员"
+    reference_test: "06_add_friend_request.yaml"
+    note: "至少需要2个好友才能创建群组"
+
+# 后续测试
+next_tests:
+  - test: "09_group_manage.yaml"
+    description: "群组管理功能测试（修改群名、移除成员等）"

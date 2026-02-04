@@ -11,7 +11,6 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import '../helper/test_helper.dart';
 
 void main() {
@@ -522,7 +521,7 @@ void main() {
       });
 
       test('部分推进已读水位应该部分减少未读数', () {
-        const lastReadAutoId = 100;
+        // const lastReadAutoId = 100; // Reference value for test scenario
 
         final messages = [
           {'auto_id': 101, 'is_author': 0},
@@ -566,7 +565,9 @@ void main() {
 
         final maxAutoId = messages.isEmpty
             ? null
-            : messages.map((msg) => msg['auto_id'] as int).reduce((a, b) => a > b ? a : b);
+            : messages
+                  .map((msg) => msg['auto_id'] as int)
+                  .reduce((a, b) => a > b ? a : b);
 
         expect(maxAutoId, null);
       });
@@ -1045,10 +1046,7 @@ void main() {
           payload: {'text': '原始消息'},
         );
 
-        final conv2 = conv1.copyWith(
-          title: '新标题',
-          unreadNum: 0,
-        );
+        final conv2 = conv1.copyWith(title: '新标题', unreadNum: 0);
 
         // 验证原对象不变
         expect(conv1.title, '原始标题');
@@ -1133,11 +1131,7 @@ void main() {
       });
 
       test('应该支持各种特殊字符', () {
-        final specialTitles = [
-          '用户🎉表情',
-          '用户"引号"测试',
-          "用户'单引号'测试",
-        ];
+        final specialTitles = ['用户🎉表情', '用户"引号"测试', "用户'单引号'测试"];
 
         for (final title in specialTitles) {
           final conv = ConversationModel(

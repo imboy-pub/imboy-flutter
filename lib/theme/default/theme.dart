@@ -285,6 +285,9 @@ class AppTheme {
         isDark: isDark,
       ),
       listTileTheme: ComponentThemeManager.getListTileTheme(isDark: isDark),
+
+      // 9. 页面过渡主题 - 启用 iOS 风格的滑动返回
+      pageTransitionsTheme: _pageTransitionsTheme,
     );
   }
 
@@ -401,4 +404,21 @@ class AppTheme {
   static List<String> validateThemeAccessibility(ThemeData theme) {
     return TextThemeConfig.validateAccessibility(theme.textTheme);
   }
+
+  /// 页面过渡主题 - 统一的 iOS 风格滑动返回
+  ///
+  /// 为所有平台启用 iOS 风格的页面过渡，提供一致的向右滑动返回体验
+  static const PageTransitionsTheme _pageTransitionsTheme =
+      PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          // iOS 使用 Cupertino 风格过渡（原生支持右滑返回）
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          // Android 也使用 Cupertino 风格以获得右滑返回支持
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          // 桌面平台也使用 Cupertino 风格
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+        },
+      );
 }
