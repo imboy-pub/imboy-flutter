@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -12,6 +13,10 @@ import 'package:pointycastle/src/platform_check/platform_check.dart';
 import 'package:asn1lib/asn1lib.dart' as asn1;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
+
+// 👇 条件导入：Web 平台使用真实实现，非 Web 平台使用存根
+import 'rsa_web_stub.dart'
+    if (dart.library.html) 'rsa_web.dart';
 
 /// RSA加密解密服务工具类
 /// 优化要点：
@@ -53,6 +58,11 @@ class RSAService {
       if (strNoEmpty(key)) {
         _cachedPublicKey = key;
         return key!;
+      }
+
+      // 👇 Web 平台备用实现
+      if (kIsWeb) {
+        return await _initializeWeb();
       }
 
       // 初始化密钥对
@@ -132,6 +142,15 @@ class RSAService {
     }
   }
 
+  /// 重置 RSA 服务状态（仅用于测试）
+  ///
+  /// 清除缓存的密钥和初始化状态，强制下次访问时重新生成/读取密钥
+  static void resetForTest() {
+    _isInitialized = false;
+    _cachedPublicKey = null;
+    _cachedPrivateKey = null;
+  }
+
   /// 生成RSA密钥对
   static AsymmetricKeyPair<PublicKey, PrivateKey> _generateRSAKeyPair({
     int bitLength = _defaultKeySize,
@@ -157,9 +176,22 @@ class RSAService {
   /// 创建安全的随机数生成器
   static SecureRandom _createSecureRandom() {
     try {
-      final entropySource = Platform.instance.platformEntropySource();
-      final secureRandom = SecureRandom('Fortuna')
-        ..seed(KeyParameter(entropySource.getBytes(32)));
+      final secureRandom = SecureRandom('Fortuna');
+
+      if (kIsWeb) {
+        // Web 平台：使用 Random.secure() 生成种子
+        final random = Random.secure();
+        final seed = Uint8List(32);
+        for (var i = 0; i < 32; i++) {
+          seed[i] = random.nextInt(256);
+        }
+        secureRandom.seed(KeyParameter(seed));
+      } else {
+        // 移动端：使用平台熵源
+        final entropySource = Platform.instance.platformEntropySource();
+        secureRandom.seed(KeyParameter(entropySource.getBytes(32)));
+      }
+
       return secureRandom;
     } catch (e) {
       throw Exception('创建安全随机数生成器失败: $e');
@@ -280,10 +312,19 @@ class RSAService {
 
   // region 加密解密操作
 
-  /// RSA加密
+  /// RSA 加密（使用 RSA-OAEP-SHA256 填充）
+  ///
+  /// 🔒 安全标准：统一使用 RSA-OAEP-SHA256
+  /// - 用于 E2EE 端对端加密
+  /// - 与 Web Crypto API 和登录密码加密保持一致
+  /// - 抗选择密文攻击（CCA）
+  ///
+  /// ⚠️ 破坏性变更：从 OAEP-SHA1 升级到 OAEP-SHA256
+  /// 旧的 E2EE 消息将无法解密，需要重新交换密钥
   static Uint8List rsaEncrypt(RSAPublicKey publicKey, Uint8List dataToEncrypt) {
     try {
-      final encryptor = OAEPEncoding(RSAEngine())
+      // 🔒 使用 RSA-OAEP-SHA256（统一安全标准）
+      final encryptor = OAEPEncoding.withSHA256(RSAEngine())
         ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
       return _processInBlocks(encryptor, dataToEncrypt);
@@ -292,10 +333,17 @@ class RSAService {
     }
   }
 
-  /// RSA解密
+  /// RSA 解密（使用 RSA-OAEP-SHA256 填充）
+  ///
+  /// 🔒 安全标准：统一使用 RSA-OAEP-SHA256
+  /// - 用于 E2EE 端对端加密
+  /// - 与加密方法保持一致
+  ///
+  /// ⚠️ 破坏性变更：只能解密使用 OAEP-SHA256 加密的数据
   static Uint8List rsaDecrypt(RSAPrivateKey privateKey, Uint8List cipherText) {
     try {
-      final decryptor = OAEPEncoding(RSAEngine())
+      // 🔒 使用 RSA-OAEP-SHA256（统一安全标准）
+      final decryptor = OAEPEncoding.withSHA256(RSAEngine())
         ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
       return _processInBlocks(decryptor, cipherText);
@@ -482,10 +530,30 @@ class RSAService {
     return parsePrivateKeyFromPem(pem);
   }
 
+  /// RSA 加密（使用 RSA-OAEP-SHA256 填充）
+  ///
+  /// 🔒 安全升级：从 PKCS#1 v1.5 升级到 RSA-OAEP
+  /// - OAEP 是可证明安全的填充方案
+  /// - 使用 SHA-256 作为哈希算法（与 Web Crypto API 一致）
+  /// - 抗选择密文攻击（CCA）
+  ///
+  /// 注意：后端必须使用相同的 RSA-OAEP-SHA256 进行解密
   static String rsaEncryptWithPointyCastle(String plaintext, String pubKeyPem) {
+    if (kIsWeb) {
+      // Web 平台：使用真正的 RSA 加密（Web Crypto API）
+      // 注意：这是一个同步函数，但 Web Crypto API 是异步的
+      // 我们需要特殊处理这种情况
+      throw UnsupportedError(
+        'Web 平台请使用 rsaEncryptWithPointyCastleAsync 方法进行 RSA 加密',
+      );
+    }
+
+    // 移动端/桌面端：使用 pointycastle
     final publicKey = parsePublicKeyFromPem(pubKeyPem);
 
-    final engine = PKCS1Encoding(RSAEngine())
+    // 🔒 使用 RSA-OAEP-SHA256 填充（与 Web Crypto API 一致）
+    // pointycastle 4.0.0: 使用 withSHA256 构造函数
+    final engine = OAEPEncoding.withSHA256(RSAEngine())
       ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
     final input = Uint8List.fromList(utf8.encode(plaintext));
@@ -493,4 +561,96 @@ class RSAService {
 
     return base64.encode(encrypted); // 输出保持不变
   }
+
+  /// Web 平台 RSA 加密（异步版本）
+  ///
+  /// 🔒 统一使用 pointycastle（纯 Dart 实现）
+  /// - 绕过 Web Crypto API 的限制
+  /// - 与移动端使用相同的加密库
+  /// - 保证跨平台一致性
+  static Future<String> rsaEncryptWithPointyCastleAsync(
+    String plaintext,
+    String pubKeyPem,
+  ) async {
+    // 所有平台统一使用 pointycastle（纯 Dart 实现）
+    // 这样可以保证跨平台一致性，避免 Web Crypto API 兼容性问题
+    try {
+      debugPrint('🔐 RSA Async: 开始解析公钥...');
+      final publicKey = parsePublicKeyFromPem(pubKeyPem);
+      final modulusStr = publicKey.modulus?.toRadixString(16) ?? 'null';
+      debugPrint('🔐 RSA Async: 公钥解析成功, modulus前20字符=${modulusStr.length > 20 ? modulusStr.substring(0, 20) : modulusStr}...');
+
+      // 🔒 使用 RSA-OAEP-SHA256 填充
+      final engine = OAEPEncoding.withSHA256(RSAEngine())
+        ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
+
+      final input = Uint8List.fromList(utf8.encode(plaintext));
+      debugPrint('🔐 RSA Async: 明文长度=${input.length}');
+
+      final encrypted = engine.process(input);
+      debugPrint('🔐 RSA Async: 加密后长度=${encrypted.length}, 前10字节=${encrypted.length >= 10 ? encrypted.sublist(0, 10) : encrypted}');
+
+      final result = base64.encode(encrypted);
+      debugPrint('🔐 RSA Async: Base64结果长度=${result.length}');
+      return result;
+    } catch (e, stackTrace) {
+      debugPrint('❌ RSA 加密失败: $e');
+      debugPrint('📚 堆栈: $stackTrace');
+      throw Exception('RSA 加密失败: $e');
+    }
+  }
+
+  // region Web 平台备用实现
+
+  /// Web 平台初始化 RSA 密钥对
+  ///
+  /// 🔒 安全修复 (S3): 使用 Web Crypto API 为每个用户生成唯一的密钥对
+  /// 不再使用固定的测试密钥
+  static Future<String> _initializeWeb() async {
+    if (_isInitialized) return _cachedPublicKey!;
+
+    try {
+      // 检查浏览器是否支持 Web Crypto API
+      if (!kIsWeb) {
+        throw UnsupportedError('非 Web 平台不能使用此方法');
+      }
+
+      // 检查是否已有存储的密钥对
+      final storage = webWindow.localStorage;
+      final storedPublicKey = storage.getItem('rsa_public_key');
+      final storedPrivateKey = storage.getItem('rsa_private_key');
+
+      if (storedPublicKey != null && storedPrivateKey != null && storedPrivateKey.isNotEmpty) {
+        _cachedPublicKey = storedPublicKey;
+        _cachedPrivateKey = storedPrivateKey;
+        _isInitialized = true;
+        return storedPublicKey;
+      }
+
+      // 🔒 安全修复：使用 Web Crypto API 为每个用户生成唯一的密钥对
+      // 不再使用固定的测试密钥（安全漏洞 S3）
+      debugPrint('🔐 [RSA] Web 平台生成新的 RSA 密钥对...');
+
+      final keyPair = await generateRSAKeyPairWeb();
+
+      _cachedPublicKey = keyPair['publicKey'];
+      _cachedPrivateKey = keyPair['privateKey'];
+      _isInitialized = true;
+
+      // 存储到 localStorage（每个用户有唯一的密钥）
+      storage.setItem('rsa_public_key', _cachedPublicKey!);
+      storage.setItem('rsa_private_key', _cachedPrivateKey!);
+
+      debugPrint('✅ [RSA] Web 平台 RSA 密钥对已生成并存储');
+      return _cachedPublicKey!;
+    } catch (e) {
+      _isInitialized = false;
+      _cachedPublicKey = null;
+      _cachedPrivateKey = null;
+      debugPrint('❌ [RSA] Web 平台初始化 RSA 密钥对失败: $e');
+      throw Exception('Web 平台初始化 RSA 密钥对失败: $e');
+    }
+  }
+
+  // endregion
 }

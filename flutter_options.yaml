@@ -1,0 +1,3 @@
+# Disable native assets build to avoid NDK requirement
+# This is needed because Android Studio doesn't pass environment variables to Flutter CLI
+--no-native-assets

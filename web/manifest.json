@@ -1,13 +1,16 @@
 {
-    "name": "imboyapp",
-    "short_name": "imboyapp",
+    "name": "ImBoy Web",
+    "short_name": "ImBoy",
+    "description": "ImBoy - 端到端加密即时通讯 Web 版",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#111B21",
+    "theme_color": "#00A884",
+    "orientation": "any",
     "prefer_related_applications": false,
+    "categories": ["social", "communication"],
+    "lang": "zh-CN",
+    "scope": "/",
     "icons": [
         {
             "src": "icons/Icon-192.png",
@@ -31,5 +34,46 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ]
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/chat.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "ImBoy Web 聊天界面"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "新消息",
+            "short_name": "消息",
+            "description": "查看会话列表",
+            "url": "/bottom_navigation?tab=0",
+            "icons": [{ "src": "icons/chat-icon.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "联系人",
+            "short_name": "联系人",
+            "description": "查看联系人列表",
+            "url": "/bottom_navigation?tab=1",
+            "icons": [{ "src": "icons/contact-icon.png", "sizes": "96x96" }]
+        }
+    ],
+    "share_target": {
+        "action": "/share",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url",
+            "files": [
+                {
+                    "name": "media",
+                    "accept": ["image/*", "video/*", "audio/*"]
+                }
+            ]
+        }
+    }
 }
