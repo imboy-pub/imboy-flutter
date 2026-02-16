@@ -431,6 +431,58 @@ final class GroupMemberUpdateEvent extends AppEvent {
 }
 
 // ============================================================================
+// 频道相关事件
+// ============================================================================
+
+/// 频道未读计数更新事件
+///
+/// 当频道未读消息数变化时发布
+final class ChannelUnreadCountUpdatedEvent extends AppEvent {
+  /// 频道ID
+  final String channelId;
+
+  /// 未读消息数
+  final int unreadCount;
+
+  const ChannelUnreadCountUpdatedEvent({
+    required this.channelId,
+    required this.unreadCount,
+  });
+
+  @override
+  List<Object> get props => [channelId, unreadCount];
+
+  @override
+  String toString() {
+    return 'ChannelUnreadCountUpdatedEvent(channelId: $channelId, unreadCount: $unreadCount)';
+  }
+}
+
+/// 频道新消息事件
+///
+/// 当订阅的频道发布新消息时发布
+final class ChannelNewMessageEvent extends AppEvent {
+  /// 频道ID
+  final String channelId;
+
+  /// 消息数据
+  final Map<String, dynamic> message;
+
+  const ChannelNewMessageEvent({
+    required this.channelId,
+    required this.message,
+  });
+
+  @override
+  List<Object> get props => [channelId, message];
+
+  @override
+  String toString() {
+    return 'ChannelNewMessageEvent(channelId: $channelId, messageId: ${message['id']})';
+  }
+}
+
+// ============================================================================
 // UI相关事件
 // ============================================================================
 

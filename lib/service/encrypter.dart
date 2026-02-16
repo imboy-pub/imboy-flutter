@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:math';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/export.dart';
@@ -46,23 +45,61 @@ class EncrypterService {
 
   /// AES-CBC + PKCS7 解密（与 encrypt 库完全一致）
   static String aesDecrypt(String encryptedBase64, String key, String ivStr) {
-    final keyBytes = _getOrCreateCachedKey(key);
-    final ivBytes = _getOrCreateCachedKey(ivStr);
-    final encryptedBytes = base64.decode(encryptedBase64);
+    try {
+      final keyBytes = _getOrCreateCachedKey(key);
+      final ivBytes = _getOrCreateCachedKey(ivStr);
+      final encryptedBytes = base64.decode(encryptedBase64);
 
-    final cipher = CBCBlockCipher(AESEngine());
-    final params = ParametersWithIV<KeyParameter>(
-      KeyParameter(keyBytes),
-      ivBytes,
-    );
+      // 🔍 调试日志：显示密钥和 IV 的 MD5（避免泄露真实值）
+      debugPrint('🔐 [AES_DECRYPT] Key MD5: ${md5(key)}, IV MD5: ${md5(ivStr)}');
+      debugPrint('🔐 [AES_DECRYPT] Encrypted length: ${encryptedBytes.length} bytes');
 
-    cipher.init(false, params); // false = decrypt
+      final cipher = CBCBlockCipher(AESEngine());
+      final params = ParametersWithIV<KeyParameter>(
+        KeyParameter(keyBytes),
+        ivBytes,
+      );
 
-    final decryptedPadded = _processBlocks(cipher, encryptedBytes);
+      cipher.init(false, params); // false = decrypt
 
-    final decrypted = _pkcs7UnPad(decryptedPadded);
+      final decryptedPadded = _processBlocks(cipher, encryptedBytes);
 
-    return utf8.decode(decrypted);
+      final decrypted = _pkcs7UnPad(decryptedPadded);
+
+      debugPrint('🔐 [AES_DECRYPT] Decrypted length: ${decrypted.length} bytes');
+
+      // 尝试解码为 UTF-8，失败则尝试其他编码
+      try {
+        return utf8.decode(decrypted);
+      } on FormatException catch (e) {
+        // UTF-8 解码失败，输出十六进制用于调试
+        debugPrint('❌ [AES_DECRYPT] UTF-8 解码失败: $e');
+        debugPrint('🔍 [AES_DECRYPT] Decrypted bytes (hex): ${bytesToHex(decrypted)}');
+
+        // 尝试 Latin-1 编码（不会失败，但可能显示乱码）
+        final latin1Result = String.fromCharCodes(decrypted);
+        debugPrint('⚠️ [AES_DECRYPT] Latin-1 解码结果（可能乱码）: $latin1Result');
+
+        // 重新抛出异常
+        throw FormatException(
+          'AES 解密后的数据无法解码为 UTF-8。请检查密钥和 IV 是否与服务端匹配。\n'
+          'Key MD5: ${md5(key)}\n'
+          'IV MD5: ${md5(ivStr)}\n'
+          '解密结果 (hex): ${bytesToHex(decrypted).substring(0, 100)}...',
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ [AES_DECRYPT] 解密异常: $e');
+      rethrow;
+    }
+  }
+
+  /// 将字节数组转换为十六进制字符串（用于调试）
+  static String bytesToHex(Uint8List bytes, {bool uppercase = false}) {
+    return bytes
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join(uppercase ? '' : '')
+        .toUpperCase();
   }
 
   /// EncrypterService.sha256

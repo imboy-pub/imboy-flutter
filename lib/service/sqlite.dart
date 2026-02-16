@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -14,6 +13,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/cached_sqlite_service.dart';
 import 'package:imboy/service/migration_service.dart';
+import 'package:imboy/service/sqflite_init.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
@@ -30,7 +30,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
-  static const _dbVersion = 12; // v12: 最终修复 - 确保 msg_* 表包含所有必需字段
+  static const _dbVersion = 13; // v13: Channel 频道功能 - 新增频道相关表
 
   // 单例构造
   SqliteService._privateConstructor();
@@ -91,11 +91,9 @@ class SqliteService {
       return null;
     }
 
-    // 👇 Web 平台 FFI 初始化
-    if (kIsWeb) {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    }
+    // 👇 初始化 SQLite 数据库工厂（Web/桌面平台需要）
+    // 条件导入会自动选择正确的实现
+    initSqfliteFactory();
 
     String path = await dbPath();
     bool exists = await databaseExists(path);
@@ -129,6 +127,7 @@ class SqliteService {
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onDowngrade: _onDowngrade,
+      onOpen: _onOpen,
     );
   }
 
@@ -140,14 +139,6 @@ class SqliteService {
     ///  请记住，回调onCreate onUpgrade onDowngrade已经内部包装在事务中，
     ///  因此无需将语句包装在这些回调内的事务中。
 
-    // 启用WAL模式，允许读写并发，提升性能
-    // 注意：某些平台（如 macOS）可能不支持 WAL 或返回错误，需要捕获处理
-    try {
-      await db.execute('PRAGMA journal_mode = WAL');
-    } catch (e) {
-      AppLogger.debug("WAL mode setup failed, using default: $e");
-      // WAL 失败不影响数据库使用，继续使用默认模式
-    }
     // 启用外键约束
     await db.execute('PRAGMA foreign_keys = ON');
     // 设置同步模式为NORMAL，平衡性能和数据安全
@@ -163,6 +154,25 @@ class SqliteService {
   /// Called when database is created
   Future<void> _onCreate(Database db, int version) async {
     iPrint("SqliteService_onCreate");
+  }
+
+  /// 数据库打开后的回调
+  /// Called when database is opened (after onCreate/onUpgrade/onDowngrade)
+  ///
+  /// 在此回调中设置 WAL 模式，因为此时数据库文件已经完全初始化
+  FutureOr<void> _onOpen(Database db) async {
+    // 启用WAL模式，允许读写并发，提升性能
+    // 注意：某些平台（如某些 Android 设备）可能不支持 WAL 或返回错误，需要捕获处理
+    // 仅在非 Web 平台尝试设置 WAL 模式
+    if (!kIsWeb) {
+      try {
+        await db.execute('PRAGMA journal_mode = WAL');
+      } catch (e) {
+        // WAL 失败不影响数据库使用，继续使用默认模式
+        // 使用简洁的日志，避免显示完整错误堆栈
+        iPrint('WAL mode not available, using default journal mode');
+      }
+    }
   }
 
   /// 数据库升级回调
