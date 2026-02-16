@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showDialog, AlertDialog, TextButton;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/service/websocket_events.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
@@ -27,6 +28,8 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/config/routes.dart';
 
 import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/channel_service.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
 ///
@@ -150,6 +153,35 @@ class MessageS2CService {
         case 'hide':
           // 好友hide提醒
           await _handleUserHide(data, payloadMap);
+          break;
+        case 'e2ee_device_key_changed':
+          // E2EE 设备密钥变更通知
+          await _handleE2EEDeviceKeyChanged(payloadMap);
+          break;
+        // ==================== 频道消息处理 ====================
+        case 'channel_message':
+          // 频道消息推送
+          await _handleChannelMessage(data, payloadMap);
+          break;
+        case 'channel_subscribed':
+          // 频道订阅通知
+          await _handleChannelSubscribed(payloadMap);
+          break;
+        case 'channel_unsubscribed':
+          // 频道取消订阅通知
+          await _handleChannelUnsubscribed(payloadMap);
+          break;
+        case 'channel_updated':
+          // 频道信息更新
+          await _handleChannelUpdated(payloadMap);
+          break;
+        case 'channel_deleted':
+          // 频道删除通知
+          await _handleChannelDeleted(payloadMap);
+          break;
+        case 'channel_unread_count':
+          // 频道未读计数更新
+          await _handleChannelUnreadCount(payloadMap);
           break;
         default:
           debugPrint("⚠️ [S2C] 未知的 action: $action");
@@ -285,11 +317,20 @@ class MessageS2CService {
     final gid = payload['gid'];
     final userIdSum = payload['user_id_sum'] ?? 0;
 
+    iPrint('🔔 [S2C] 收到 group_member_join 消息');
+    iPrint('  ├─ userId: $userId');
+    iPrint('  ├─ nickname: $nickname');
+    iPrint('  ├─ gid: $gid');
+    iPrint('  ├─ userIdSum: $userIdSum');
+    iPrint('  └─ 完整 payload: $payload');
+
     final joinRes = await GroupListService().memberJoin(
       groupId: gid,
       userId: userId,
       userIdSum: userIdSum,
     );
+
+    iPrint('📢 [S2C] 发布 join_group 事件到 ChatExtendEvent');
 
     AppEventBus.fire(
       ChatExtendEvent(
@@ -307,6 +348,8 @@ class MessageS2CService {
         },
       ),
     );
+
+    iPrint('✅ [S2C] group_member_join 事件处理完成');
   }
 
   /// 处理群组解散
@@ -429,13 +472,12 @@ class MessageS2CService {
         // 使用延迟确保 quitLogin 完全执行完毕
         await Future.delayed(const Duration(milliseconds: 100));
 
-        // 安全地进行导航
-        final navigatorState = navigatorKey.currentState;
-        if (navigatorState != null && navigatorState.mounted) {
-          navigatorState.pushNamedAndRemoveUntil(
-            AppRoutes.signIn,
-            (route) => false,
-          );
+        // 使用 go_router 进行导航
+        final context = navigatorKey.currentContext;
+        if (context != null && context.mounted) {
+          // 使用 go_router 的 go 方法替代 Navigator.pushNamedAndRemoveUntil
+          // go_router 会自动清除路由栈
+          context.go(AppRoutes.signIn);
         }
       } catch (e) {
         iPrint("switchS2C error: $e");
@@ -536,13 +578,10 @@ class MessageS2CService {
     // 使用延迟确保 quitLogin 完全执行完毕
     await Future.delayed(const Duration(milliseconds: 100));
 
-    // 安全地进行导航
-    final navigatorState = navigatorKey.currentState;
-    if (navigatorState != null && navigatorState.mounted) {
-      navigatorState.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+    // 使用 go_router 进行导航
+    final context = navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      context.go(AppRoutes.signIn);
     }
   }
 
@@ -672,5 +711,148 @@ class MessageS2CService {
 
     // 可选：更新联系人状态到数据库
     // await ContactRepo.to.updateHideStatus(userId, true);
+  }
+
+  /// 处理 E2EE 设备密钥变更通知
+  ///
+  /// Action: e2ee_device_key_changed
+  /// 触发时机：好友的设备 E2EE 密钥发生变化（如重新安装应用）
+  /// 处理逻辑：清除该好友的公钥缓存，下次发送消息时自动获取新密钥
+  static Future<void> _handleE2EEDeviceKeyChanged(
+    Map<String, dynamic> payload,
+  ) async {
+    final uid = payload['uid']?.toString() ?? '';
+    final deviceId = payload['device_id']?.toString() ?? '';
+    final deviceType = payload['device_type']?.toString() ?? '';
+    final keyId = payload['key_id']?.toString() ?? '';
+
+    iPrint('[S2C] e2ee_device_key_changed: uid=$uid, deviceId=$deviceId, deviceType=$deviceType, keyId=$keyId');
+
+    // 清除该用户的公钥缓存
+    if (uid.isNotEmpty) {
+      E2EEService.clearUserKeyCache(uid);
+      iPrint('🔑 E2EE: 已清除用户 $uid 的公钥缓存（密钥已变更）');
+    }
+  }
+
+  // ============================================
+  // 频道消息处理方法
+  // ============================================
+
+  /// 处理频道消息推送
+  ///
+  /// Action: channel_message
+  /// 触发时机：订阅的频道发布新消息
+  /// 处理逻辑：保存消息到本地，更新未读计数
+  static Future<void> _handleChannelMessage(
+    Map data,
+    Map<String, dynamic> payload,
+  ) async {
+    iPrint('[S2C] channel_message: 收到频道消息');
+
+    try {
+      await ChannelService.to.handleChannelMessage(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_message 处理失败: $e');
+    }
+  }
+
+  /// 处理频道订阅通知
+  ///
+  /// Action: channel_subscribed
+  /// 触发时机：用户成功订阅频道
+  /// 处理逻辑：更新本地订阅状态
+  static Future<void> _handleChannelSubscribed(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    iPrint('[S2C] channel_subscribed: channelId=$channelId');
+
+    try {
+      await ChannelService.to.handleChannelSubscribed(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_subscribed 处理失败: $e');
+    }
+  }
+
+  /// 处理频道取消订阅通知
+  ///
+  /// Action: channel_unsubscribed
+  /// 触发时机：用户取消订阅频道
+  /// 处理逻辑：更新本地订阅状态
+  static Future<void> _handleChannelUnsubscribed(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    iPrint('[S2C] channel_unsubscribed: channelId=$channelId');
+
+    try {
+      await ChannelService.to.handleChannelUnsubscribed(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_unsubscribed 处理失败: $e');
+    }
+  }
+
+  /// 处理频道信息更新通知
+  ///
+  /// Action: channel_updated
+  /// 触发时机：频道信息被管理员更新
+  /// 处理逻辑：更新本地频道信息
+  static Future<void> _handleChannelUpdated(
+    Map<String, dynamic> payload,
+  ) async {
+    iPrint('[S2C] channel_updated: 收到频道更新通知');
+
+    try {
+      await ChannelService.to.handleChannelUpdated(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_updated 处理失败: $e');
+    }
+  }
+
+  /// 处理频道删除通知
+  ///
+  /// Action: channel_deleted
+  /// 触发时机：频道被创建者删除
+  /// 处理逻辑：删除本地频道数据
+  static Future<void> _handleChannelDeleted(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    iPrint('[S2C] channel_deleted: channelId=$channelId');
+
+    try {
+      await ChannelService.to.handleChannelDeleted(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_deleted 处理失败: $e');
+    }
+  }
+
+  /// 处理频道未读计数更新
+  ///
+  /// Action: channel_unread_count
+  /// 触发时机：频道未读消息数变化
+  /// 处理逻辑：更新本地未读计数，发布事件通知 UI 刷新
+  static Future<void> _handleChannelUnreadCount(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    final unreadCount = payload['unread_count'] as int? ?? 0;
+    iPrint('[S2C] channel_unread_count: channelId=$channelId, count=$unreadCount');
+
+    try {
+      // 更新本地未读计数
+      await ChannelService.to.updateUnreadCount(channelId, unreadCount);
+
+      // 发布事件通知 UI 刷新
+      AppEventBus.fire(
+        ChannelUnreadCountUpdatedEvent(
+          channelId: channelId,
+          unreadCount: unreadCount,
+        ),
+      );
+    } catch (e) {
+      debugPrint('[S2C] channel_unread_count 处理失败: $e');
+    }
   }
 }

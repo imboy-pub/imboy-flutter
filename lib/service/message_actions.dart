@@ -64,6 +64,9 @@ class MessageActions {
         case 'message_read':
           await _handleReadAction(data);
           break;
+        case 'message_read_ack':
+          await _handleReadAckAction(data);
+          break;
         case 'message_reaction':
           await _handleReactionAction(data);
           break;
@@ -136,6 +139,70 @@ class MessageActions {
       AckManager.to.sendAckDirect(msgType, msgId);
     } catch (e, s) {
       iPrint('❌ [_handleReadAction] 处理已读消息失败: error=$e\nstacktrace=$s');
+    }
+  }
+
+  /// 处理消息已读确认（message_read_ack）
+  /// 当对方确认收到并查看了我们发送的消息时触发
+  Future<void> _handleReadAckAction(Map data) async {
+    try {
+      final msgType = data['type'] as String? ?? '';
+      final msgId = data['id'] as String? ?? '';
+      final fromId = data['from'] as String? ?? '';
+      final currentUid = UserRepoLocal.to.currentUid;
+
+      // 只有消息发送者才需要处理已读确认
+      if (fromId != currentUid) {
+        iPrint(
+          '⚠️ [_handleReadAckAction] 不是发送自己的消息，忽略: fromId=$fromId, currentUid=$currentUid',
+        );
+        // 仍然发送 ACK 确认
+        AckManager.to.sendAckDirect(msgType, msgId);
+        return;
+      }
+
+      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+      final msgIdsRaw = payload['msg_ids'];
+      final msgIds = msgIdsRaw is List
+          ? msgIdsRaw.map((e) => e.toString()).toList()
+          : <String>[];
+
+      iPrint('📖 [_handleReadAckAction] 处理已读确认: msgId=$msgId, msgIds=$msgIds');
+
+      if (msgIds.isEmpty) {
+        // 单条消息已读确认
+        // 发送 ACK 确认
+        AckManager.to.sendAckDirect(msgType, msgId);
+        return;
+      }
+
+      final repo = MessageService.to.getMessageRepo(msgType);
+      final updated = <Message>[];
+
+      for (final id in msgIds) {
+        // 发布状态更新事件（更新为已读状态）
+        AppEventBus.fire(
+          MessageStatusUpdateRequestedEvent(
+            messageId: id,
+            messageType: msgType,
+            newStatus: IMBoyMessageStatus.seen,
+          ),
+        );
+
+        final m = await repo.find(id);
+        if (m != null) {
+          updated.add(await m.toTypeMessage());
+        }
+      }
+
+      if (updated.isNotEmpty) {
+        AppEventBus.fireData(updated);
+      }
+
+      // 发送 ACK 确认
+      AckManager.to.sendAckDirect(msgType, msgId);
+    } catch (e, s) {
+      iPrint('❌ [_handleReadAckAction] 处理已读确认失败: error=$e\nstacktrace=$s');
     }
   }
 

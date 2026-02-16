@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/func.dart' as func_helper;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -229,7 +230,7 @@ class MessageRepo {
 
   static String getTableName(String type) {
     String tb = '';
-    // iPrint("> rtc msg S_RECEIVED:$res");
+    // func_helper.iPrint("> rtc msg S_RECEIVED:$res");
     switch (type.toUpperCase()) {
       case 'C2C':
         tb = MessageRepo.c2cTable;
@@ -357,7 +358,7 @@ class MessageRepo {
     updateData.remove(MessageRepo.id);
     updateData.remove(MessageRepo.autoId);
 
-    iPrint("message_repo/update $tableName ;");
+    func_helper.iPrint("message_repo/update $tableName ;");
     if (txn != null) {
       return await txn.update(
         tableName,
@@ -406,7 +407,7 @@ class MessageRepo {
     updateData.remove(MessageRepo.id);
     updateData.remove(MessageRepo.autoId);
 
-    iPrint("message_repo/updateWithConditions $tableName ; where: $where");
+    func_helper.iPrint("message_repo/updateWithConditions $tableName ; where: $where");
     if (txn != null) {
       return await txn.update(
         tableName,
@@ -569,7 +570,7 @@ class MessageRepo {
     String where = "1=1";
     List<Object?> whereArgs = [];
 
-    if (strNoEmpty(kwd)) {
+    if (func_helper.strNoEmpty(kwd)) {
       kwd = kwd!.trim();
       String pattern = "%$kwd%";
       // 搜索 payload 中的 text 字段，使用参数化查询防止 SQL 注入
@@ -577,7 +578,7 @@ class MessageRepo {
       whereArgs.add(pattern);
     }
 
-    if (strNoEmpty(conversationUk3)) {
+    if (func_helper.strNoEmpty(conversationUk3)) {
       where = "$where AND ${MessageRepo.conversationUk3}=?";
       whereArgs.add(conversationUk3);
     }
@@ -590,7 +591,7 @@ class MessageRepo {
     }
 
     // 高级过滤：发送者
-    if (strNoEmpty(senderId)) {
+    if (func_helper.strNoEmpty(senderId)) {
       where = "$where AND ${MessageRepo.from}=?";
       whereArgs.add(senderId);
     }
@@ -609,7 +610,7 @@ class MessageRepo {
     String optimizedOrderBy =
         orderBy ?? "${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC";
 
-    iPrint("searchLeading_tag kwd $kwd, where $where");
+    func_helper.iPrint("searchLeading_tag kwd $kwd, where $where");
 
     try {
       List<Map<String, dynamic>> maps = await _db.query(
@@ -695,7 +696,7 @@ class MessageRepo {
         whereArgs: [id],
       );
     }
-    // iPrint("> on MessageRepo/find tb $tableName, id $id, len ${maps.length}; ${maps.toList().toString()}");
+    // func_helper.iPrint("> on MessageRepo/find tb $tableName, id $id, len ${maps.length}; ${maps.toList().toString()}");
     if (maps.isNotEmpty) {
       return MessageModel.fromJson(maps.first);
     }
@@ -821,7 +822,7 @@ class MessageRepo {
         }
 
         if (msgId.isEmpty) {
-          iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
+          func_helper.iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
           continue;
         }
 
@@ -844,7 +845,7 @@ class MessageRepo {
 
           final tableName = MessageRepo.getTableName(type);
           if (tableName.isEmpty) {
-            iPrint("离线消息type不支持，跳过: $type");
+            func_helper.iPrint("离线消息type不支持，跳过: $type");
             continue;
           }
 
@@ -857,7 +858,7 @@ class MessageRepo {
 
           if (existingCount > 0) {
             addAckId(msgId);
-            iPrint("离线消息已存在，跳过: $msgId");
+            func_helper.iPrint("离线消息已存在，跳过: $msgId");
             continue;
           }
 
@@ -877,7 +878,21 @@ class MessageRepo {
 
           // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
           // 获取顶层字段
-          final msgType = (msgData['msg_type'] ?? '').toString();
+          var msgType = (msgData['msg_type'] ?? '').toString();
+
+          func_helper.iPrint('🔍 [DEBUG 离线消息] 原始数据: msgId=$msgId, msgData[\'msg_type\']="${msgData['msg_type']}", payload keys=${payload.keys.toList()}');
+          if (payload.containsKey('custom_type')) {
+            func_helper.iPrint('🔍 [DEBUG 离线消息] payload.custom_type="${payload['custom_type']}"');
+          }
+
+          // 【重构】使用 MessageTypeNormalizer 进行类型归一化
+          // 自动处理：custom -> custom_type, audio -> voice, visit_card -> visitCard
+          msgType = MessageTypeNormalizer.normalize(
+            msgType: msgType,
+            payload: payload,
+          );
+
+          func_helper.iPrint('🔍 [DEBUG 离线消息] 归一化后: msgType="$msgType"');
           final action = (msgData['action'] ?? '').toString();
           final e2ee = msgData['e2ee'];
 
@@ -906,7 +921,7 @@ class MessageRepo {
           }
 
           if (peerId.isEmpty) {
-            iPrint("离线消息缺少peerId，跳过: $msgId, type: $type");
+            func_helper.iPrint("离线消息缺少peerId，跳过: $msgId, type: $type");
             continue;
           }
 
@@ -955,7 +970,7 @@ class MessageRepo {
 
           addAckId(msgId);
 
-          iPrint(
+          func_helper.iPrint(
             "离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3",
           );
         }
@@ -967,18 +982,18 @@ class MessageRepo {
       // 处理 S2C 消息（在事务外）
       // 处理 S2C 消息（在事务外）
       if (s2cMessages.isNotEmpty && onS2CMessage != null) {
-        iPrint("开始处理 ${s2cMessages.length} 条 S2C 消息");
+        func_helper.iPrint("开始处理 ${s2cMessages.length} 条 S2C 消息");
         for (final msgData in s2cMessages) {
           try {
             // 调用回调函数处理 S2C 消息
             await onS2CMessage(msgData);
           } catch (e) {
-            iPrint("处理 S2C 消息失败: ${msgData['id']}, 错误: $e");
+            func_helper.iPrint("处理 S2C 消息失败: ${msgData['id']}, 错误: $e");
           }
         }
       }
     } catch (e) {
-      iPrint("批量插入离线消息失败: $e");
+      func_helper.iPrint("批量插入离线消息失败: $e");
       return ackMsgIds;
     }
     return null;
@@ -1041,6 +1056,7 @@ class MessageRepo {
       } catch (_) {}
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
+      func_helper.iPrint('🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${latest.payload.keys.toList()}');
       final preview = _derivePreview(
         latest.msgType,
         latest.status,
@@ -1070,7 +1086,7 @@ class MessageRepo {
           isShow: 1,
         );
         conv.id = await conversationRepo.insert(conv);
-        iPrint("创建新会话: ${conv.toJson()}, 未读数: ${agg.unreadDelta}");
+        func_helper.iPrint("创建新会话: ${conv.toJson()}, 未读数: ${agg.unreadDelta}");
       } else {
         // 更新现有会话，总是更新最后消息信息
         int newUnreadNum = existing.unreadNum + agg.unreadDelta;
@@ -1088,7 +1104,7 @@ class MessageRepo {
 
         // 重新获取更新后的会话
         conv = (await conversationRepo.findById(existing.id)) ?? existing;
-        iPrint(
+        func_helper.iPrint(
           "更新会话: ${conv.toJson()}, 新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum",
         );
       }
@@ -1108,7 +1124,7 @@ class MessageRepo {
         );
       }
 
-      iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
+      func_helper.iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
     }
 
     if (currentConversationUk3.isNotEmpty) {
@@ -1132,7 +1148,14 @@ class MessageRepo {
     int? status,
     Map<String, dynamic> payload,
   ) {
-    String subtitle = (payload['text'] ?? '').toString();
+    // 【重构】使用 MessageTypeNormalizer 进行类型归一化
+    // 自动处理：custom -> custom_type, audio -> voice
+    final effectiveMsgType = MessageTypeNormalizer.normalize(
+      msgType: msgType,
+      payload: payload,
+    );
+
+    func_helper.iPrint('🔍 [DEBUG _derivePreview] 输入: msgType="$msgType", effective=$effectiveMsgType');
 
     // 方案 D: 检查 status 字段（撤回状态 30-39）
     if (IMBoyMessageStatus.isRevokedStatus(status)) {
@@ -1145,22 +1168,18 @@ class MessageRepo {
       }
     }
 
-    // 检查 custom_type（用于特殊消息类型如 e2ee）
-    final customType = (payload['custom_type'] ?? '').toString();
-    if (customType.isNotEmpty) {
-      if (customType == 'e2ee') {
-        // 加密失败
-        return (msgType: 'custom', subtitle: '[加密消息]');
-      }
-    }
-
-    // 使用传入的 msgType（顶层字段）判断内容类型
-    switch (msgType) {
+    // 【简化】使用 effectiveMsgType 判断内容类型
+    // MessageTypeNormalizer 已处理 custom -> custom_type 和 audio -> voice
+    String subtitle;
+    switch (effectiveMsgType) {
+      case 'text':
+        subtitle = (payload['text'] ?? '').toString();
+        break;
       case 'quote':
         subtitle = (payload['quote_text'] ?? '').toString();
         break;
       case 'location':
-        subtitle = (payload['title'] ?? '').toString();
+        subtitle = (payload['title'] ?? '[位置]').toString();
         break;
       case 'image':
         subtitle = '[图片]';
@@ -1169,18 +1188,34 @@ class MessageRepo {
         subtitle = '[多图]';
         break;
       case 'voice':
-      case 'audio':
         subtitle = '[语音]';
         break;
       case 'video':
         subtitle = '[视频]';
         break;
       case 'file':
-        subtitle = '[文件]';
+        final filename = payload['filename']?.toString() ?? '';
+        final name = payload['name']?.toString() ?? '';
+        subtitle = filename.isNotEmpty ? filename : (name.isNotEmpty ? name : '[文件]');
+        break;
+      case 'webrtcAudio':
+      case 'webrtcVideo':
+        subtitle = '[通话]';
+        break;
+      case 'visitCard':
+        subtitle = '[名片]';
+        break;
+      case 'system':
+        subtitle = '[系统消息]';
+        break;
+      default:
+        // 未知类型，尝试从 text 字段获取
+        subtitle = (payload['text'] ?? '[消息]').toString();
         break;
     }
 
-    return (msgType: msgType, subtitle: subtitle);
+    func_helper.iPrint('🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType, subtitle=$subtitle');
+    return (msgType: effectiveMsgType, subtitle: subtitle);
   }
 
   // 记得及时关闭数据库，防止内存泄漏
@@ -1192,7 +1227,7 @@ class MessageRepo {
   /// 这个方法可以在应用启动时调用，一次性迁移所有历史数据
   static Future<void> migrateLegacyUk3Data() async {
     try {
-      iPrint("开始迁移历史UK3数据...");
+      func_helper.iPrint("开始迁移历史UK3数据...");
 
       final db = SqliteService.to;
       final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
@@ -1201,9 +1236,9 @@ class MessageRepo {
         await _migrateTableUk3(db, table);
       }
 
-      iPrint("历史UK3数据迁移完成");
+      func_helper.iPrint("历史UK3数据迁移完成");
     } catch (e) {
-      iPrint("历史UK3数据迁移失败: $e");
+      func_helper.iPrint("历史UK3数据迁移失败: $e");
     }
   }
 
@@ -1218,11 +1253,11 @@ class MessageRepo {
       );
 
       if (maps.isEmpty) {
-        iPrint("表 $table 无需迁移的UK3数据");
+        func_helper.iPrint("表 $table 无需迁移的UK3数据");
         return;
       }
 
-      iPrint("开始迁移表 $table 的 ${maps.length} 条UK3数据");
+      func_helper.iPrint("开始迁移表 $table 的 ${maps.length} 条UK3数据");
 
       int migratedCount = 0;
 
@@ -1258,9 +1293,9 @@ class MessageRepo {
         }
       }
 
-      iPrint("表 $table 迁移完成，成功迁移 $migratedCount 条记录");
+      func_helper.iPrint("表 $table 迁移完成，成功迁移 $migratedCount 条记录");
     } catch (e) {
-      iPrint("迁移表 $table 失败: $e");
+      func_helper.iPrint("迁移表 $table 失败: $e");
     }
   }
 
@@ -1328,7 +1363,142 @@ class MessageRepo {
 
       return false;
     } catch (e) {
-      iPrint("检查旧格式数据失败: $e");
+      func_helper.iPrint("检查旧格式数据失败: $e");
+      return false;
+    }
+  }
+
+  /// ============================================
+  /// 消息类型归一化迁移
+  /// ============================================
+
+  /// 数据迁移工具：将旧格式消息类型转换为新格式
+  ///
+  /// 迁移规则：
+  /// 1. msg_type='custom' 且 payload.custom_type='audio' → msg_type='voice'
+  /// 2. msg_type='audio' → msg_type='voice'
+  ///
+  /// 这个方法可以在应用启动时调用，一次性迁移所有历史数据
+  static Future<void> migrateLegacyMsgTypeData() async {
+    try {
+      func_helper.iPrint("开始迁移历史消息类型数据...");
+
+      final db = SqliteService.to;
+      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
+
+      for (final table in tables) {
+        await _migrateTableMsgType(db, table);
+      }
+
+      func_helper.iPrint("历史消息类型数据迁移完成");
+    } catch (e) {
+      func_helper.iPrint("历史消息类型数据迁移失败: $e");
+    }
+  }
+
+  /// 迁移单个表的消息类型数据
+  static Future<void> _migrateTableMsgType(SqliteService db, String table) async {
+    try {
+      // 查询所有需要迁移的消息（msg_type='custom' 或 'audio'）
+      final maps = await db.query(
+        table,
+        columns: ['auto_id', 'msg_type', 'payload'],
+        where: "msg_type IN (?, ?)",
+        whereArgs: ['custom', 'audio'],
+      );
+
+      if (maps.isEmpty) {
+        func_helper.iPrint("表 $table 无需迁移的消息类型数据");
+        return;
+      }
+
+      func_helper.iPrint("开始迁移表 $table 的 ${maps.length} 条消息类型数据");
+
+      int migratedCount = 0;
+
+      for (final map in maps) {
+        final autoId = map['auto_id'];
+        final msgType = map['msg_type'] as String?;
+        final payloadData = map['payload'];
+
+        if (msgType == null || msgType.isEmpty) {
+          continue;
+        }
+
+        // 确定新的消息类型
+        String? newMsgType;
+
+        if (msgType == 'custom') {
+          // 检查 payload 中的 custom_type
+          String? customType;
+          if (payloadData is String) {
+            try {
+              final payload = jsonDecode(payloadData) as Map<String, dynamic>;
+              customType = payload['custom_type']?.toString();
+            } catch (e) {
+              // JSON 解析失败，跳过
+            }
+          } else if (payloadData is Map) {
+            customType = payloadData['custom_type']?.toString();
+          }
+
+          // custom_type='audio' → 'voice'
+          if (customType == 'audio' || customType == 'voice') {
+            newMsgType = 'voice';
+          }
+        } else if (msgType == 'audio') {
+          // audio → voice
+          newMsgType = 'voice';
+        }
+
+        // 如果不需要迁移，跳过
+        if (newMsgType == null || newMsgType == msgType) {
+          continue;
+        }
+
+        // 执行迁移
+        final result = await db.update(
+          table,
+          {'msg_type': newMsgType},
+          where: 'auto_id = ?',
+          whereArgs: [autoId],
+        );
+
+        if (result > 0) {
+          migratedCount++;
+        }
+      }
+
+      func_helper.iPrint("表 $table 迁移完成，成功迁移 $migratedCount 条记录");
+    } catch (e) {
+      func_helper.iPrint("迁移表 $table 失败: $e");
+    }
+  }
+
+  /// 检查数据库中是否存在需要迁移的消息类型数据
+  static Future<bool> hasLegacyMsgTypeData() async {
+    try {
+      final db = SqliteService.to;
+      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
+
+      for (final table in tables) {
+        final result = await db.query(
+          table,
+          columns: ['COUNT(*) as count'],
+          where: "msg_type IN (?, ?)",
+          whereArgs: ['custom', 'audio'],
+          limit: 1,
+        );
+
+        final count = result.first['count'] as int;
+        if (count > 0) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      func_helper.iPrint("检查旧消息类型数据失败: $e");
       return false;
     }
   }
@@ -1408,7 +1578,7 @@ class MessageRepo {
       String where = "1=1";
       List<Object?> whereArgs = [];
 
-      if (strNoEmpty(conversationUk3)) {
+      if (func_helper.strNoEmpty(conversationUk3)) {
         where = "$where AND ${MessageRepo.conversationUk3}=?";
         whereArgs.add(conversationUk3);
       }

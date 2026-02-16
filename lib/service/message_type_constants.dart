@@ -344,6 +344,62 @@ abstract class MessageType {
   ///
   /// 客户端无法识别或处理的消息类型
   static const String unsupported = 'unsupported';
+
+  // ==================== 辅助属性 ====================
+
+  /// 所有有效的消息类型列表
+  ///
+  /// 用于类型验证和归一化
+  static const List<String> allTypes = [
+    text,
+    textStream,
+    image,
+    imageMulti,
+    voice,
+    video,
+    file,
+    location,
+    quote,
+    // 自定义消息子类型（通过 custom_type 区分）
+    'webrtcAudio',
+    'webrtcVideo',
+    'visitCard',
+    // 系统消息（用于特殊通知）
+    system,
+    // 兼容旧数据
+    audio,
+  ];
+
+  /// 类型别名映射
+  ///
+  /// 用于类型归一化，将旧类型名映射到新类型名
+  static const Map<String, String> aliases = {
+    'audio': 'voice', // 音频消息统一使用 voice
+  };
+
+  /// 获取标准类型名称（别名转换）
+  ///
+  /// 如果 [type] 是别名，返回标准名称；否则返回原值
+  ///
+  /// ## 示例
+  /// ```dart
+  /// MessageType.getStandardName('audio') // 返回 'voice'
+  /// MessageType.getStandardName('image') // 返回 'image'
+  /// ```
+  static String getStandardName(String type) {
+    return aliases[type] ?? type;
+  }
+
+  /// 判断是否为有效的消息类型
+  ///
+  /// ## 参数
+  /// - [type]: 待验证的类型
+  ///
+  /// ## 返回
+  /// true 如果类型有效，false 否则
+  static bool isValidType(String type) {
+    return allTypes.contains(type) || type == custom || type == unsupported;
+  }
 }
 
 // ============================================
@@ -614,4 +670,97 @@ abstract class MessageFlowType {
 
   /// 服务端到客户端 (通知/指令)
   static const String s2c = 'S2C';
+
+  /// 频道消息 (Channel)
+  static const String channel = 'CHANNEL';
+}
+
+// ============================================
+// 频道消息类型 (Channel Message Types)
+// ============================================
+
+/// 频道消息类型常量
+///
+/// 用于频道消息的 `msg_type` 字段
+/// 频道消息使用 `channel_` 前缀以区分普通消息
+abstract class ChannelMessageType {
+  /// 频道文本消息
+  static const String text = 'channel_text';
+
+  /// 频道图片消息
+  static const String image = 'channel_image';
+
+  /// 频道视频消息
+  static const String video = 'channel_video';
+
+  /// 频道语音消息
+  static const String audio = 'channel_audio';
+
+  /// 频道文件消息
+  static const String file = 'channel_file';
+
+  /// 频道链接消息
+  static const String link = 'channel_link';
+
+  /// 频道位置消息
+  static const String location = 'channel_location';
+
+  /// 所有有效的频道消息类型
+  static const List<String> allTypes = [
+    text,
+    image,
+    video,
+    audio,
+    file,
+    link,
+    location,
+  ];
+
+  /// 判断是否为有效的频道消息类型
+  static bool isValid(String type) {
+    return allTypes.contains(type);
+  }
+
+  /// 从普通消息类型转换为频道消息类型
+  ///
+  /// 例如：'text' -> 'channel_text'
+  static String fromMessageType(String msgType) {
+    if (msgType.startsWith('channel_')) {
+      return msgType;
+    }
+    return 'channel_$msgType';
+  }
+
+  /// 转换为普通消息类型（去除前缀）
+  ///
+  /// 例如：'channel_text' -> 'text'
+  static String toMessageType(String channelMsgType) {
+    if (channelMsgType.startsWith('channel_')) {
+      return channelMsgType.substring(8);
+    }
+    return channelMsgType;
+  }
+}
+
+/// 频道 S2C 动作常量
+///
+/// 用于频道相关的 S2C 消息的 `action` 字段
+abstract class ChannelS2CAction {
+  /// 频道消息推送
+  static const String channelMessage = 'channel_message';
+
+  /// 频道订阅通知
+  static const String channelSubscribed = 'channel_subscribed';
+
+  /// 频道取消订阅通知
+  static const String channelUnsubscribed = 'channel_unsubscribed';
+
+  /// 频道信息更新
+  static const String channelUpdated = 'channel_updated';
+
+  /// 频道删除通知
+  static const String channelDeleted = 'channel_deleted';
+
+  /// 频道新消息计数
+  static const String channelUnreadCount = 'channel_unread_count';
 }

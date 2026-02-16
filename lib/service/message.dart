@@ -6,6 +6,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -14,7 +15,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/config/init.dart' show navigatorKey;
 import 'package:imboy/config/routes.dart' show AppRoutes;
 import 'package:imboy/service/events/events.dart';
@@ -505,8 +506,12 @@ class MessageService with EventSubscriptionManager {
     }
 
     // 【新增】基于消息内容的去重检查
-    // 如果发现相同内容但不同 msg_id 的消息，记录警告
+    // 优先使用 msgId 作为唯一标识（最可靠的去重方式）
     final contentHash = _generateContentHash(data);
+
+    // 【调试】输出哈希值和 msgId 的对应关系
+    iPrint('🔑 [去重检查] contentHash=$contentHash, msgId=$msgId');
+
     if (_recentMessageContents.containsKey(contentHash)) {
       final previousMsgId = _recentMessageContents[contentHash];
       iPrint(
@@ -589,6 +594,7 @@ class MessageService with EventSubscriptionManager {
         topicId: data['topic_id'] ?? 0,
         conversationUk3: tempConv.uk3,
         status: IMBoyMessageStatus.delivered,
+        msgType: data['msg_type'] as String?, // ✅ 修复：传递 msg_type
       );
       iPrint('⏱️ [4] 消息对象构造完成: +${DateTimeHelper.millisecond() - startTime}ms');
 
@@ -693,8 +699,20 @@ class MessageService with EventSubscriptionManager {
 
   /// 生成消息内容的哈希值（用于去重）
   /// Generate content hash for deduplication
-  /// 使用非加密的关键字段：from, to, type, msg_type, created_at, client_send_ts
+  ///
+  /// 优先使用 msgId 作为唯一标识（最可靠的去重方式）
+  /// 只有在没有 msgId 的情况下，才回退到基于内容字段的哈希
   String _generateContentHash(Map data) {
+    // 优先使用 msgId 进行去重（最可靠）
+    final msgId = data['id']?.toString() ?? '';
+
+    if (msgId.isNotEmpty) {
+      // 【调试】输出使用 msgId 的情况
+      // iPrint('🔑 [生成哈希] 使用msgId: $msgId');
+      return msgId;
+    }
+
+    // 如果没有 msgId，使用组合字段生成哈希（回退方案）
     final from = data['from']?.toString() ?? '';
     final to = data['to']?.toString() ?? '';
     final type = data['type']?.toString() ?? '';
@@ -706,8 +724,12 @@ class MessageService with EventSubscriptionManager {
     final clientSendTs = payload?['client_send_ts']?.toString() ?? '';
 
     // 使用关键字段生成哈希（不包含加密的文本内容）
-    // 客户端发送时间戳是唯一的，如果相同说明是同一消息
-    return '$from:$to:$type:$msgType:$createdAt:$clientSendTs';
+    final hash = '$from:$to:$type:$msgType:$createdAt:$clientSendTs';
+
+    // 【调试】输出使用组合字段的情况（应该很少发生）
+    // iPrint('🔑 [生成哈希] 使用组合字段: $hash (msgId为空)');
+
+    return hash;
   }
 
   /// 添加到 LRU 缓存
@@ -762,7 +784,16 @@ class MessageService with EventSubscriptionManager {
     MessageRepo repo,
   ) async {
     final msgId = data['id'] as String;
-    final msgType = data['type'];
+    final msgType = data['type']; // 消息会话类型 (C2C/C2G/C2S)
+    // WebSocket API v2.0: 从顶层读取消息内容类型
+    final rawMsgType = data['msg_type']?.toString(); // voice/audio/text/image 等
+
+    // 【重构】使用 MessageTypeNormalizer 进行类型归一化
+    // 自动处理：custom -> custom_type, audio -> voice
+    final msgContentType = MessageTypeNormalizer.normalize(
+      msgType: rawMsgType,
+      payload: payload,
+    );
 
     try {
       // 并行获取 peer 信息和检查用户状态
@@ -783,7 +814,7 @@ class MessageService with EventSubscriptionManager {
         title: peerInfo['title']!,
         subtitle: tempConv.subtitle,
         type: msgType,
-        msgType: tempConv.msgType,
+        msgType: msgContentType, // 【修复】使用修正后的消息类型
         lastMsgId: msgId,
         lastTime: tempConv.lastTime,
         unreadNum: tempConv.unreadNum,
@@ -793,10 +824,11 @@ class MessageService with EventSubscriptionManager {
 
       // 保存消息到 sqlite
       // Persist message to local DB
+      iPrint('🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType');
       final msg = MessageModel(
         msgId,
         autoId: 0,
-        type: msgType,
+        type: msgType, // 消息会话类型 (C2C/C2G/C2S)
         fromId: data['from'],
         toId: data['to'],
         payload: payload,
@@ -805,8 +837,10 @@ class MessageService with EventSubscriptionManager {
         topicId: tempMsg.topicId,
         conversationUk3: savedConv.uk3,
         status: IMBoyMessageStatus.delivered,
+        msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
       );
       final existed = await repo.save(msg);
+      iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, existed=$existed');
 
       // 【修复】如果消息已存在（count > 0），跳过后续处理
       // save 方法返回的是数据库中已存在的记录数
@@ -1203,6 +1237,10 @@ class MessageService with EventSubscriptionManager {
         'text': '[加密消息]',
         '_e2ee_failed': true,
         '_e2ee_reason': 'missing_e2ee_metadata',
+        // 保存原始密文以便后续重试解密
+        '_e2ee_raw_ciphertext': ciphertext,
+        '_e2ee_raw_e2ee': e2ee,
+        '_e2ee_original_msg_type': originalMsgType,
       };
     }
 
@@ -1221,7 +1259,13 @@ class MessageService with EventSubscriptionManager {
 
       final payload = decoded.cast<String, dynamic>();
 
-      // 5. 保留原始元数据
+      // 5. 保留原始消息类型（如果解密后的内容没有 msg_type）
+      if (!payload.containsKey('msg_type') || payload['msg_type'] == null) {
+        payload['msg_type'] = originalMsgType;
+        iPrint('🔧 [E2EE] 保留原始 msg_type: $originalMsgType');
+      }
+
+      // 6. 保留原始元数据
       if (data.containsKey('client_send_ts')) {
         payload['client_send_ts'] = data['client_send_ts'];
       }
@@ -1231,8 +1275,18 @@ class MessageService with EventSubscriptionManager {
       if (data.containsKey('sender_dtype')) {
         payload['sender_dtype'] = data['sender_dtype'];
       }
+
+      // 7. 保存原始消息元数据（避免循环引用）
       if (!payload.containsKey('_e2ee')) {
-        payload['_e2ee'] = data; // 保存完整的原始消息
+        // 只保存必要的元数据，避免循环引用
+        payload['_e2ee'] = {
+          'id': data['id'],
+          'type': data['type'],
+          'from': data['from'],
+          'to': data['to'],
+          'msg_type': originalMsgType,
+          'created_at': data['created_at'],
+        };
       }
 
       iPrint(
@@ -1250,12 +1304,19 @@ class MessageService with EventSubscriptionManager {
           errorStr.contains('device');
 
       if (isKeyMismatch) {
+        // 获取发送方 UID（消息来源），用于通知发送方刷新我们的公钥缓存
+        final peerId = data['from']?.toString();
+
         // 触发E2EE密钥不匹配事件，引导用户重新登录
         AppEventBus.fire(
-          E2EEKeyMismatchEvent(messageId: msgId, reason: '密钥不匹配'),
+          E2EEKeyMismatchEvent(
+            messageId: msgId,
+            reason: '密钥不匹配',
+            peerId: peerId, // 发送方 UID，用于清除发送方对我们的公钥缓存
+          ),
         );
 
-        // 密钥不匹配：显示友好提示并引导用户重新登录
+        // 密钥不匹配：保存原始密文以便后续重试解密
         return {
           'msg_type': originalMsgType,
           'custom_type': 'e2ee_key_mismatch',
@@ -1265,6 +1326,10 @@ class MessageService with EventSubscriptionManager {
           '_e2ee_reason': 'key_mismatch',
           '_e2ee_error': e.toString(),
           '_show_relogin_button': true, // 标记需要显示重新登录按钮
+          // 保存原始密文以便后续重试解密
+          '_e2ee_raw_ciphertext': ciphertext,
+          '_e2ee_raw_e2ee': e2ee,
+          '_e2ee_original_msg_type': originalMsgType,
         };
       }
 
@@ -1276,6 +1341,10 @@ class MessageService with EventSubscriptionManager {
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
         '_e2ee_error': e.toString(),
+        // 保存原始密文以便后续重试解密
+        '_e2ee_raw_ciphertext': ciphertext,
+        '_e2ee_raw_e2ee': e2ee,
+        '_e2ee_original_msg_type': originalMsgType,
       };
     }
   }
@@ -1394,15 +1463,20 @@ class MessageService with EventSubscriptionManager {
 /// 用于引导用户重新登录或刷新密钥
 final class E2EEKeyMismatchEvent extends AppEvent {
   @override
-  List<Object> get props => [messageId, reason];
+  List<Object?> get props => [messageId, reason, peerId];
 
   final String messageId;
   final String reason;
+  final String? peerId; // 接收方 UID（用于清除发送方的公钥缓存）
 
-  const E2EEKeyMismatchEvent({required this.messageId, required this.reason});
+  const E2EEKeyMismatchEvent({
+    required this.messageId,
+    required this.reason,
+    this.peerId,
+  });
 
   @override
   String toString() {
-    return 'E2EEKeyMismatchEvent(messageId: $messageId, reason: $reason)';
+    return 'E2EEKeyMismatchEvent(messageId: $messageId, reason: $reason, peerId: $peerId)';
   }
 }
