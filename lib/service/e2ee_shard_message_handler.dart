@@ -51,15 +51,38 @@ class E2EEShardMessageHandler {
     try {
       final type = event.type.toUpperCase();
       final data = event.data;
-      final payload = data['payload'] as Map<String, dynamic>?;
+
+      // 【修复】先从顶层 data 读取 msg_type（payload 可能是密文）
+      // 只处理 E2EE 社交恢复分片消息，其他消息直接跳过
+      final msgType = data['msg_type']?.toString() ?? '';
+      if (msgType != 'e2ee_social_shard') {
+        return; // 不是分片消息，让其他处理器处理
+      }
+
+      // 安全地获取 payload - 可能是 Map 或 String（加密消息）
+      final payloadRaw = data['payload'];
+      Map<String, dynamic>? payload;
+
+      if (payloadRaw is Map) {
+        payload = payloadRaw.cast<String, dynamic>();
+      } else if (payloadRaw is String) {
+        // payload 是字符串，可能是加密消息
+        // 尝试解析为 JSON
+        try {
+          final decoded = jsonDecode(payloadRaw);
+          if (decoded is Map) {
+            payload = decoded.cast<String, dynamic>();
+          }
+        } catch (e, s) {
+          // 不是有效的 JSON，跳过此消息
+          print('⚠️ [E2EE] payload 是字符串但不是有效 JSON，跳过 $payloadRaw ; e $e, s: $s ;');
+          return;
+        }
+      }
 
       if (payload == null) return;
 
-      final msgType = payload['msg_type']?.toString() ?? '';
       final action = payload['action']?.toString() ?? '';
-
-      // 只处理 E2EE 社交恢复分片消息
-      if (msgType != 'e2ee_social_shard') return;
 
       print('🔐 [E2EE] 收到分片消息: type=$type, action=$action');
 

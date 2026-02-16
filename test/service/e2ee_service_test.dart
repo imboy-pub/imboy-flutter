@@ -44,6 +44,7 @@ void main() {
     store.clear();
     deviceId = 'did_test_device_1';
     E2EEService.clearKeyCacheForTest();
+    RSAService.resetForTest();
   });
 
   tearDownAll(() async {

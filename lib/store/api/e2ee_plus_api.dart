@@ -181,6 +181,7 @@ class E2EEPlusApi extends HttpClient {
       '/v1/e2ee/social/contacts/add',
       data: {
         'contact_uid': contactUid,
+        // ignore: use_null_aware_elements
         if (nickname != null) 'nickname': nickname,
       },
     );

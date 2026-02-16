@@ -21,6 +21,7 @@ class E2EEKeyRecoveryPage extends StatefulWidget {
   const E2EEKeyRecoveryPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _E2EEKeyRecoveryPageState createState() => _E2EEKeyRecoveryPageState();
 }
 

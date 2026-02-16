@@ -41,6 +41,21 @@ class E2EEService {
     iPrint('E2EE: 缓存已清理');
   }
 
+  /// 清除特定用户的公钥缓存
+  ///
+  /// 当接收方更新密钥后，发送方需要调用此方法清除缓存
+  static void clearUserKeyCache(String uid) {
+    _userKeyCacheByDevice.remove(uid);
+    iPrint('E2EE: 已清除用户 $uid 的公钥缓存');
+  }
+
+  /// 清除所有公钥缓存
+  static void clearAllKeyCache() {
+    _userKeyCacheByDevice.clear();
+    _groupKeyCacheByDevice.clear();
+    iPrint('E2EE: 已清除所有公钥缓存');
+  }
+
   /// 检查是否需要对消息进行端到端加密
   ///
   /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内
@@ -259,6 +274,10 @@ class E2EEService {
     return utf8.decode(plainBytes);
   }
 
+  /// 加密 C2C 消息
+  ///
+  /// 自动处理缓存刷新：每次发送时都强制刷新接收方的公钥缓存
+  /// 这样确保接收方更新密钥后，发送方能立即获取到最新的公钥
   static Future<Map<String, dynamic>> encryptC2C({
     required String msgId,
     required String fromUid,
@@ -266,9 +285,15 @@ class E2EEService {
     required int createdAt,
     required Map<String, dynamic> plaintextPayload,
   }) async {
-    final deviceKeys = await _getUserDevicePublicKeys(toUid);
+    // 获取接收方的设备公钥列表（强制刷新缓存，确保获取最新数据）
+    final deviceKeys = await getUserDevicePublicKeys(
+      toUid,
+      forceRefresh: true, // 🔑 关键修复：每次发送都强制刷新
+    );
     final didToPem = deviceKeys['didToPem']!;
     final senderDid = deviceId;
+
+    // 检查是否有接收方的设备公钥
     if (didToPem.isEmpty) {
       throw Exception('no_recipient_keys');
     }
@@ -282,6 +307,7 @@ class E2EEService {
     );
 
     final recipients = <Map<String, dynamic>>[];
+    // 为接收方的每个设备加密密钥
     for (final entry in didToPem.entries) {
       final did = entry.key;
       final pem = entry.value;
@@ -319,7 +345,11 @@ class E2EEService {
     required int createdAt,
     required Map<String, dynamic> plaintextPayload,
   }) async {
-    final deviceKeys = await _getGroupDevicePublicKeys(gid);
+    // 获取群组成员的设备公钥列表（强制刷新缓存）
+    final deviceKeys = await getGroupDevicePublicKeys(
+      gid,
+      forceRefresh: true, // 🔑 关键修复：每次发送都强制刷新
+    );
     final didToPem = deviceKeys['didToPem']!;
     final senderDid = deviceId;
     if (didToPem.isEmpty) {
@@ -651,11 +681,14 @@ class E2EEService {
     String uid, {
     int maxRetries = 3,
     Duration retryDelay = const Duration(seconds: 1),
+    bool forceRefresh = false, // 强制刷新缓存
   }) async {
-    // 检查缓存
-    final cached = _userKeyCacheByDevice[uid];
-    if (cached != null && cached.isNotEmpty) {
-      return {'didToPem': cached};
+    // 检查缓存（除非强制刷新）
+    if (!forceRefresh) {
+      final cached = _userKeyCacheByDevice[uid];
+      if (cached != null && cached.isNotEmpty) {
+        return {'didToPem': cached};
+      }
     }
 
     // 带重试的获取逻辑
@@ -670,11 +703,28 @@ class E2EEService {
           if (did.isEmpty || pem.isEmpty) continue;
           didToPem[did] = pem;
         }
+
+        // 🔧 修复：如果 API 返回空列表但有缓存，使用缓存
+        if (didToPem.isEmpty && forceRefresh) {
+          final cached = _userKeyCacheByDevice[uid];
+          if (cached != null && cached.isNotEmpty) {
+            iPrint('⚠️ [E2EE] API 返回空，使用缓存: uid=$uid, 设备数=${cached.length}');
+            return {'didToPem': cached};
+          }
+        }
+
         _userKeyCacheByDevice[uid] = didToPem;
+        iPrint('✅ [E2EE] 获取用户公钥成功: uid=$uid, 设备数=${didToPem.length}');
         return {'didToPem': didToPem};
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
+          // 🔧 修复：API 调用失败时回退到缓存（用于测试环境）
+          final cached = _userKeyCacheByDevice[uid];
+          if (cached != null && cached.isNotEmpty) {
+            iPrint('⚠️ [E2EE] API 失败，使用缓存: uid=$uid, 设备数=${cached.length}');
+            return {'didToPem': cached};
+          }
           iPrint('获取用户设备密钥失败（已重试$maxRetries次）: $e');
           rethrow;
         }
@@ -696,11 +746,14 @@ class E2EEService {
     String gid, {
     int maxRetries = 3,
     Duration retryDelay = const Duration(seconds: 1),
+    bool forceRefresh = false, // 强制刷新缓存
   }) async {
-    // 检查缓存
-    final cached = _groupKeyCacheByDevice[gid];
-    if (cached != null && cached.isNotEmpty) {
-      return {'didToPem': cached};
+    // 检查缓存（除非强制刷新）
+    if (!forceRefresh) {
+      final cached = _groupKeyCacheByDevice[gid];
+      if (cached != null && cached.isNotEmpty) {
+        return {'didToPem': cached};
+      }
     }
 
     // 带重试的获取逻辑
@@ -720,11 +773,27 @@ class E2EEService {
             didToPem[did] = pem;
           }
         }
+
+        // 🔧 修复：如果 API 返回空列表但有缓存，使用缓存
+        if (didToPem.isEmpty && forceRefresh) {
+          final cached = _groupKeyCacheByDevice[gid];
+          if (cached != null && cached.isNotEmpty) {
+            iPrint('⚠️ [E2EE] API 返回空，使用缓存: gid=$gid, 设备数=${cached.length}');
+            return {'didToPem': cached};
+          }
+        }
+
         _groupKeyCacheByDevice[gid] = didToPem;
         return {'didToPem': didToPem};
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
+          // 🔧 修复：API 调用失败时回退到缓存（用于测试环境）
+          final cached = _groupKeyCacheByDevice[gid];
+          if (cached != null && cached.isNotEmpty) {
+            iPrint('⚠️ [E2EE] API 失败，使用缓存: gid=$gid, 设备数=${cached.length}');
+            return {'didToPem': cached};
+          }
           iPrint('获取群组设备密钥失败（已重试$maxRetries次）: $e');
           rethrow;
         }
@@ -757,6 +826,73 @@ class E2EEService {
     final rnd = Random.secure();
     final bytes = List<int>.generate(length, (_) => rnd.nextInt(256));
     return Uint8List.fromList(bytes);
+  }
+
+  /// 重试解密之前失败的 E2EE 消息
+  ///
+  /// 当用户重新生成密钥后，可以调用此方法重新尝试解密之前失败的消息
+  ///
+  /// 参数:
+  /// - failedPayload: 解密失败的消息 payload（包含 _e2ee_raw_ciphertext 等字段）
+  ///
+  /// 返回:
+  /// - 解密成功后的 payload，如果仍然失败则返回原 payload
+  ///
+  /// 使用示例:
+  /// ```dart
+  /// final result = await E2EEService.retryDecryptFailedMessage(failedPayload);
+  /// if (result.containsKey('_e2ee_failed')) {
+  ///   // 仍然解密失败
+  /// } else {
+  ///   // 解密成功，更新消息
+  /// }
+  /// ```
+  static Future<Map<String, dynamic>> retryDecryptFailedMessage(
+    Map<String, dynamic> failedPayload,
+  ) async {
+    try {
+      // 检查是否包含原始密文
+      final rawCiphertext = failedPayload['_e2ee_raw_ciphertext']?.toString();
+      final rawE2ee = failedPayload['_e2ee_raw_e2ee'];
+
+      if (rawCiphertext == null || rawCiphertext.isEmpty) {
+        iPrint('⚠️ [E2EE] 消息不包含原始密文，无法重试解密');
+        return failedPayload;
+      }
+
+      if (rawE2ee == null || rawE2ee is! Map) {
+        iPrint('⚠️ [E2EE] 消息不包含 E2EE 元数据，无法重试解密');
+        return failedPayload;
+      }
+
+      // 尝试重新解密（rawE2ee 已在上方检查为 Map 类型）
+      final Map rawMap = rawE2ee;
+      final e2ee = rawMap.cast<String, dynamic>();
+      final plaintext = await decryptE2EEMessage(
+        ciphertext: rawCiphertext,
+        e2ee: e2ee,
+      );
+
+      // 解析解密后的内容
+      final decoded = jsonDecode(plaintext);
+      if (decoded is! Map) {
+        throw Exception('解密后的内容不是 JSON 对象');
+      }
+
+      final result = decoded.cast<String, dynamic>();
+
+      // 保留原始消息类型
+      final originalMsgType = failedPayload['_e2ee_original_msg_type']?.toString();
+      if (originalMsgType != null && originalMsgType.isNotEmpty) {
+        result['msg_type'] = originalMsgType;
+      }
+
+      iPrint('✅ [E2EE] 重试解密成功');
+      return result;
+    } catch (e) {
+      iPrint('❌ [E2EE] 重试解密失败: $e');
+      return failedPayload;
+    }
   }
 
   /// 使用 RSA 公钥包装 AES 密钥

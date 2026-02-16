@@ -1,13 +1,19 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:pointycastle/export.dart' as pg;
-
+import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
 
 /// E2EE 设备间传输服务
-/// 处理密钥在设备间的传输
+///
+/// 处理密钥在设备间的安全传输：
+/// - 创建传输会话
+/// - 接受传输并导入密钥
+/// - 确认传输完成
+/// - 生成/解析二维码数据
+///
+/// @author Imboy Team
+/// @since 2026-02-14
 class E2EETransferService {
   static final E2EEPlusApi _api = E2EEPlusApi();
 
@@ -94,68 +100,70 @@ class E2EETransferService {
   /// 解密并保存密钥
   ///
   /// [encryptedBundle] 加密的密钥包（Base64 编码）
+  ///
+  /// 使用当前设备的私钥解密传输的密钥包，并保存到安全存储
   static Future<void> _decryptAndSaveKey(String encryptedBundle) async {
     try {
-      // 1. 获取新设备的私钥
-      final storage = StorageSecure();
-      final privateKeyPem = await storage.getPrivateKey();
-      if (privateKeyPem == null || privateKeyPem.isEmpty) {
-        throw Exception('新设备私钥不存在');
-      }
+      // 1. 获取当前设备的私钥对象
+      final privateKey = await RSAService.privateKeyObject();
 
-      // 2. 解析私钥 PEM
-      final privateKey = _parsePrivateKeyFromPem(privateKeyPem);
-
-      // 3. Base64 解码加密数据
+      // 2. Base64 解码加密数据
       final encryptedData = base64.decode(encryptedBundle);
 
-      // 4. 使用 RSA-OAEP-256 解密
-      final decryptedData = _decryptRSAOAEP(privateKey, encryptedData);
+      // 3. 使用 RSA-OAEP 解密
+      final decryptedData = RSAService.rsaDecrypt(privateKey, encryptedData);
 
-      // 5. 解析解密后的数据（应该是旧设备的私钥 PEM）
-      final oldPrivateKeyPem = utf8.decode(decryptedData);
+      // 4. 解析解密后的数据（应该是密钥包 JSON）
+      final keyBundle = json.decode(utf8.decode(decryptedData)) as Map<String, dynamic>;
 
-      // 6. 保存旧设备的私钥
-      await storage.savePrivateKey(oldPrivateKeyPem);
+      // 5. 保存密钥信息
+      final privateKeyStr = keyBundle['private_key'] as String?;
+      final publicKeyStr = keyBundle['public_key'] as String?;
+      final deviceId = keyBundle['device_id'] as String?;
+      final keyId = keyBundle['key_id'] as String?;
 
-      // 7. 同时更新其他密钥信息（从传输会话中获取）
-      // 这里需要从服务端获取完整的密钥信息
-      // 暂时只保存私钥，其他信息需要额外处理
+      if (privateKeyStr == null || publicKeyStr == null) {
+        throw Exception('密钥包格式无效：缺少密钥数据');
+      }
+
+      // 6. 保存到安全存储
+      final storage = StorageSecure();
+      await storage.savePrivateKey(privateKeyStr);
+      await storage.savePublicKey(publicKeyStr);
+      if (deviceId != null) {
+        await storage.setDeviceId(deviceId);
+      }
+      if (keyId != null) {
+        await storage.setKeyId(keyId);
+      }
     } catch (e) {
       throw Exception('解密密钥失败: $e');
     }
   }
 
-  /// 从 PEM 格式解析私钥
-  static pg.RSAPrivateKey _parsePrivateKeyFromPem(String pem) {
+  /// 加密密钥包
+  ///
+  /// [keyBundle] 密钥数据 Map
+  /// [publicKeyPem] 目标设备的公钥 PEM
+  /// Returns: Base64 编码的加密数据
+  static Future<String> encryptKeyBundle(
+    Map<String, dynamic> keyBundle,
+    String publicKeyPem,
+  ) async {
     try {
-      // 直接使用现有的 RSA 服务来解析私钥
-      // 这里简化实现，实际应该使用现有的 RSA 服务
-      // 暂时抛出异常，建议使用现有的 RSA 解析方法
-      throw Exception('请使用现有的 RSA 服务解析私钥');
+      // 1. 序列化为 JSON
+      final jsonString = json.encode(keyBundle);
+      final plaintext = base64.encode(utf8.encode(jsonString));
+
+      // 2. 使用 RSA 服务加密
+      final encrypted = await RSAService.rsaEncryptWithPointyCastleAsync(
+        plaintext,
+        publicKeyPem,
+      );
+
+      return encrypted;
     } catch (e) {
-      throw Exception('解析私钥失败: $e');
-    }
-  }
-
-  /// 使用 RSA-OAEP-256 解密数据
-  static Uint8List _decryptRSAOAEP(
-    pg.RSAPrivateKey privateKey,
-    Uint8List encryptedData,
-  ) {
-    try {
-      // 使用 RSA/PKCS1-OAEP 填充模式解密
-      final cipher = pg.AsymmetricBlockCipher('RSA/PKCS1');
-
-      // 初始化解密器
-      cipher.init(false, pg.PrivateKeyParameter(privateKey));
-
-      // 解密数据
-      final decrypted = cipher.process(encryptedData);
-
-      return decrypted;
-    } catch (e) {
-      throw Exception('RSA 解密失败: $e');
+      throw Exception('加密密钥包失败: $e');
     }
   }
 

@@ -1,11 +1,65 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint, compute;
 import 'package:pointycastle/export.dart' as pg;
 import 'package:pointycastle/pointycastle.dart';
 
+import 'package:imboy/config/init.dart' as init_config;
 import 'e2ee_crypto_service.dart';
 import 'storage_secure.dart';
+
+// 👇 条件导入：Web 平台使用真实实现
+import 'rsa_web_stub.dart'
+    if (dart.library.html) 'rsa_web.dart';
+
+/// RSA 密钥大小（位）- 用于 isolate
+const int _rsaKeySize = 2048;
+
+/// 公钥指数 - 用于 isolate
+const int _publicExponent = 65537;
+
+/// Isolate 中运行的 RSA 密钥生成函数
+///
+/// 这个函数在单独的 isolate 中运行，避免阻塞主线程
+AsymmetricKeyPair<pg.PublicKey, pg.PrivateKey> _generateRSAKeyPairIsolate(
+  dynamic _,
+) {
+  try {
+    // 创建安全的随机数生成器（使用 FortunaRandom）
+    final secureRandom = pg.FortunaRandom();
+
+    // 使用安全熵源
+    final seed = Uint8List(32);
+    final random = Random.secure();
+    for (int i = 0; i < 32; i++) {
+      seed[i] = random.nextInt(256);
+    }
+    secureRandom.seed(pg.KeyParameter(seed));
+
+    // 创建 RSA 密钥参数
+    final keyParams = pg.RSAKeyGeneratorParameters(
+      BigInt.from(_publicExponent),
+      _rsaKeySize,
+      64, // 确定性参数
+    );
+
+    // 创建密钥生成器
+    final keyGen = pg.RSAKeyGenerator()
+      ..init(
+        pg.ParametersWithRandom<pg.RSAKeyGeneratorParameters>(
+          keyParams,
+          secureRandom,
+        ),
+      );
+
+    // 生成密钥对
+    return keyGen.generateKeyPair();
+  } catch (e) {
+    throw Exception('生成 RSA 密钥对失败: $e');
+  }
+}
 
 /// RSA 加密 OID (1.2.840.113549.1.1.1)
 const _rsaEncryptionOid = [1, 2, 840, 113549, 1, 1, 1];
@@ -46,19 +100,35 @@ class E2EEKeyService {
   /// ```
   static Future<Map<String, dynamic>> generateKeyPair() async {
     try {
-      // 1. 生成 RSA 密钥对
-      final keyPair = _generateRSAKeyPair();
+      String publicKeyPem;
+      String privateKeyPem;
 
-      // 2. 编码为 PEM 格式
-      final publicKeyPem = _encodePublicKeyToPem(keyPair.publicKey);
-      final privateKeyPem = _encodePrivateKeyToPem(keyPair.privateKey);
+      // 🔧 Web 平台优化：使用 Web Crypto API（非阻塞）
+      if (kIsWeb) {
+        debugPrint('🔐 Web 平台：使用 Web Crypto API 生成密钥...');
+        final keyPairWeb = await generateRSAKeyPairWeb();
+        publicKeyPem = keyPairWeb['publicKey']!;
+        privateKeyPem = keyPairWeb['privateKey']!;
+        debugPrint('✅ Web 平台：密钥生成完成');
+      } else {
+        // 移动端/桌面端：使用 pointycastle
+        // 在 isolate 中运行以避免阻塞主线程
+        final keyPair = await compute(_generateRSAKeyPairIsolate, null);
 
-      // 3. 生成设备 ID 和密钥 ID
-      final deviceId = _generateDeviceId();
+        // 编码为 PEM 格式
+        publicKeyPem = _encodePublicKeyToPem(keyPair.publicKey);
+        privateKeyPem = _encodePrivateKeyToPem(keyPair.privateKey);
+      }
+
+      // 使用全局 deviceId 而不是生成新的随机 ID
+      // 这确保加密/解密时使用相同的设备 ID
+      final deviceId = init_config.deviceId.isNotEmpty
+          ? init_config.deviceId
+          : _generateDeviceId();  // 仅作为备用
       final keyId = _generateKeyId();
       final createdAt = DateTime.now().toUtc().toIso8601String();
 
-      // 4. 保存到安全存储
+      // 保存到安全存储
       final storage = StorageSecure();
       await Future.wait([
         storage.savePrivateKey(privateKeyPem),
@@ -68,7 +138,7 @@ class E2EEKeyService {
         storage.setKeyCreatedAt(createdAt),
       ]);
 
-      // 5. 返回密钥信息
+      // 返回密钥信息
       return {
         'device_id': deviceId,
         'key_id': keyId,
@@ -146,39 +216,33 @@ class E2EEKeyService {
   // 内部方法 - RSA 密钥对生成
   // ================================================================
 
-  /// 生成 RSA 密钥对
-  static AsymmetricKeyPair<pg.PublicKey, pg.PrivateKey> _generateRSAKeyPair() {
-    try {
-      // 创建安全的随机数生成器（使用 FortunaRandom）
-      final secureRandom = pg.FortunaRandom();
-      final seed = Uint8List(32);
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      for (int i = 0; i < 8; i++) {
-        seed[i] = (timestamp >> (i * 8)) & 0xFF;
-      }
-      secureRandom.seed(pg.KeyParameter(seed));
+  /// 生成安全的随机种子
+  ///
+  /// 使用平台提供的安全熵源，而不是时间戳
+  /// 确保密钥生成的不可预测性
+  static Uint8List _generateSecureSeed() {
+    final seed = Uint8List(32);
 
-      // 创建 RSA 密钥参数
-      final keyParams = pg.RSAKeyGeneratorParameters(
-        BigInt.from(publicExponent),
-        rsaKeySize,
-        64, // 确定性参数
-      );
-
-      // 创建密钥生成器
-      final keyGen = pg.RSAKeyGenerator()
-        ..init(
-          pg.ParametersWithRandom<pg.RSAKeyGeneratorParameters>(
-            keyParams,
-            secureRandom,
-          ),
-        );
-
-      // 生成密钥对
-      return keyGen.generateKeyPair();
-    } catch (e) {
-      throw Exception('生成 RSA 密钥对失败: $e');
+    // 使用 Dart 的安全随机数生成器
+    // Random.secure() 使用平台提供的加密安全熵源
+    final random = Random.secure();
+    for (int i = 0; i < 32; i++) {
+      seed[i] = random.nextInt(256);
     }
+
+    // 额外混合一些熵（可选，增加安全性）
+    // 注意：这不依赖时间戳作为主要熵源
+    final extraEntropy = <int>[
+      DateTime.now().microsecondsSinceEpoch % 256,
+      DateTime.now().hashCode % 256,
+      // 使用对象实例的 hashCode
+      Object().hashCode % 256,
+    ];
+    for (int i = 0; i < extraEntropy.length && i < 3; i++) {
+      seed[i] ^= extraEntropy[i];
+    }
+
+    return seed;
   }
 
   /// 将公钥编码为 PEM 格式
@@ -302,15 +366,12 @@ class E2EEKeyService {
   ///
   /// 格式: {8位十六进制}-{8位十六进制}-{8位十六进制}
   /// 例如: a1b2c3d4-e5f67890-a1b2c3d4
+  ///
+  /// 安全说明：使用安全熵源，不再依赖时间戳
   static String _generateDeviceId() {
     final random = pg.FortunaRandom();
-    // 使用时间作为种子
-    final seed = Uint8List(32);
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    for (int i = 0; i < 8; i++) {
-      seed[i] = (timestamp >> (i * 8)) & 0xFF;
-    }
-    random.seed(pg.KeyParameter(seed));
+    // 🔒 安全修复：使用安全熵源
+    random.seed(pg.KeyParameter(_generateSecureSeed()));
 
     final bytes = random.nextBytes(16);
 
@@ -325,15 +386,12 @@ class E2EEKeyService {
   ///
   /// 格式: kid_{8位十六进制}
   /// 例如: kid_a1b2c3d4
+  ///
+  /// 安全说明：使用安全熵源，不再依赖时间戳
   static String _generateKeyId() {
     final random = pg.FortunaRandom();
-    // 使用时间作为种子（与设备 ID 不同）
-    final seed = Uint8List(32);
-    final timestamp = DateTime.now().microsecondsSinceEpoch;
-    for (int i = 0; i < 8; i++) {
-      seed[i + 8] = (timestamp >> (i * 8)) & 0xFF;
-    }
-    random.seed(pg.KeyParameter(seed));
+    // 🔒 安全修复：使用安全熵源
+    random.seed(pg.KeyParameter(_generateSecureSeed()));
 
     final bytes = random.nextBytes(8);
 

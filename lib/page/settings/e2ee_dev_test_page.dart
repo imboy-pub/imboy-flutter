@@ -21,6 +21,7 @@ class E2EEDevTestPage extends StatefulWidget {
   const E2EEDevTestPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _E2EEDevTestPageState createState() => _E2EEDevTestPageState();
 }
 
