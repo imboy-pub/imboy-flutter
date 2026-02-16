@@ -93,6 +93,9 @@ class API {
   static const groupMemberLeave = '/group_member/leave';
   static const groupMemberAlias = '/group_member/alias';
   static const groupMemberSameGroup = '/group_member/same_group';
+  static const groupMemberRole = '/group_member/role';
+  static const groupMemberMute = '/group_member/mute';
+  static const groupTransfer = '/group/transfer';
 
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';
@@ -105,6 +108,7 @@ class API {
   static const userSearch = '/user/search';
 
   static const ftsRecentlyUser = '/fts/recently_user';
+  static const ftsMessage = '/fts/message';
 
   static const userDevicePage = '/user_device/page';
   static const userDeviceChangeName = '/user_device/change_name';

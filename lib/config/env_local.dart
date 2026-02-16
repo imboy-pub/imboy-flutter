@@ -38,6 +38,21 @@ final class EnvLocal implements Env, EnvField {
   @EnviedField(varName: 'JPUSH_APPKEY', obfuscate: false)
   final String jiguangAppKey = _Env.jiguangAppKey;
 
+  // ┌─────────────────────────────────────────────────────────────┐
+  // │ 🤖 AI 测试框架配置                                           │
+  // └─────────────────────────────────────────────────────────────┘
+  @override
+  @EnviedField(defaultValue: '', varName: 'OPENAI_API_KEY', obfuscate: false)
+  final String openaiApiKey = _Env.openaiApiKey;
+
+  @override
+  @EnviedField(defaultValue: '', varName: 'ANTHROPIC_API_KEY', obfuscate: false)
+  final String anthropicApiKey = _Env.anthropicApiKey;
+
+  @override
+  @EnviedField(defaultValue: false, varName: 'AI_TEST_ENABLED', obfuscate: false)
+  final bool aiTestEnabled = _Env.aiTestEnabled;
+
   @override
   String? get wsUrl => null; // 从服务器配置获取
 }

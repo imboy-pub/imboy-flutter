@@ -1,4 +1,7 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:feedback/feedback.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -24,16 +27,32 @@ bool _localeInitialized = false;
 bool _fontSizeInitialized = false;
 
 void run() async {
-  // 强制竖屏 DeviceOrientation.portraitUp
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
-    _,
-  ) {
-    runApp(
-      const ProviderScope(
-        child: BetterFeedback(mode: FeedbackMode.navigate, child: IMBoyApp()),
+  // Web 平台不支持屏幕方向设置
+  if (!kIsWeb) {
+    // 强制竖屏 DeviceOrientation.portraitUp
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
+
+  // Flutter 3.22+ 多视图模式兼容
+  // Web 平台使用 runWidget，非 Web 平台使用 runApp
+  final app = const ProviderScope(
+    child: BetterFeedback(mode: FeedbackMode.navigate, child: IMBoyApp()),
+  );
+
+  if (kIsWeb) {
+    // Web 平台：使用 runWidget 支持多视图模式
+    // 从 PlatformDispatcher 获取默认视图
+    final view = PlatformDispatcher.instance.views.first;
+    runWidget(
+      View(
+        view: view,
+        child: app,
       ),
     );
-  });
+  } else {
+    // 非 Web 平台：继续使用 runApp
+    runApp(app);
+  }
 }
 
 class IMBoyApp extends ConsumerStatefulWidget {

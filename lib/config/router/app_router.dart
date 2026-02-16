@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/init.dart';
@@ -16,6 +17,7 @@ import 'package:imboy/component/location/widget.dart';
 
 // 数据模型
 import 'package:imboy/store/model/feedback_model.dart';
+import 'package:imboy/store/model/channel_model.dart';
 
 /// GoRouter 路由配置
 ///
@@ -86,7 +88,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.signIn,
         name: 'sign_in',
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) {
+          // Web 平台且宽屏使用 WebLoginPage
+          if (kIsWeb) {
+            return const WebLoginPage();
+          }
+          return const LoginPage();
+        },
       ),
       GoRoute(
         path: AppRoutes.signUp,
@@ -229,6 +237,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => AddFriendPage(),
           ),
           GoRoute(
+            path: '/select_friend',
+            name: 'select_friend',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return SelectFriendPage(
+                peer: (extra['peer'] as Map<String, String>?) ?? {},
+                peerIsReceiver: extra['peerIsReceiver'] as bool? ?? false,
+              );
+            },
+          ),
+          GoRoute(
             path: '/people_nearby',
             name: 'people_nearby',
             builder: (context, state) => PeopleNearbyPage(),
@@ -281,6 +300,44 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: '/member',
+            name: 'group_member',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return GroupMemberPage(
+                groupId: extra['groupId']?.toString() ?? '',
+              );
+            },
+          ),
+          GoRoute(
+            path: '/add_member',
+            name: 'group_add_member',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return AddMemberPage(groupId: extra['groupId']?.toString() ?? '');
+            },
+          ),
+          GoRoute(
+            path: '/remove_member',
+            name: 'group_remove_member',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return RemoveMemberPage(
+                groupId: extra['groupId']?.toString() ?? '',
+              );
+            },
+          ),
+          GoRoute(
+            path: '/announcement',
+            name: 'group_announcement',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return GroupAnnouncementPage(
+                groupId: extra['groupId']?.toString() ?? '',
+              );
+            },
+          ),
+          GoRoute(
             path: '/launch_chat',
             name: 'group_launch_chat',
             builder: (context, state) => const LaunchChatPage(),
@@ -309,6 +366,64 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 memberList: memberList.cast(),
               );
             },
+          ),
+        ],
+      ),
+
+      // ==================== 频道相关 ====================
+      GoRoute(
+        path: '/channel',
+        name: 'channel_list',
+        builder: (context, state) => const ChannelListPage(),
+        routes: [
+          // 具体路径必须放在动态参数路由之前，否则 /discover 会被当作 channelId
+          GoRoute(
+            path: '/discover',
+            name: 'channel_discover',
+            builder: (context, state) => const ChannelDiscoverPage(),
+          ),
+          GoRoute(
+            path: '/create',
+            name: 'channel_create',
+            builder: (context, state) => const ChannelCreatePage(),
+          ),
+          GoRoute(
+            path: '/:channelId',
+            name: 'channel_detail',
+            builder: (context, state) {
+              final channelId = state.pathParameters['channelId']!;
+              return ChannelDetailPage(channelId: channelId);
+            },
+            routes: [
+              GoRoute(
+                path: '/edit',
+                name: 'channel_edit',
+                builder: (context, state) {
+                  final channelId = state.pathParameters['channelId']!;
+                  final extra = state.extra;
+                  return ChannelEditPage(
+                    channelId: channelId,
+                    channel: extra is ChannelModel ? extra : null,
+                  );
+                },
+              ),
+              GoRoute(
+                path: '/admins',
+                name: 'channel_admins',
+                builder: (context, state) {
+                  final channelId = state.pathParameters['channelId']!;
+                  return ChannelAdminPage(channelId: channelId);
+                },
+              ),
+              GoRoute(
+                path: '/subscribers',
+                name: 'channel_subscribers',
+                builder: (context, state) {
+                  final channelId = state.pathParameters['channelId']!;
+                  return ChannelSubscriberPage(channelId: channelId);
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -620,6 +735,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return GroupQrCodePage(group: extra as dynamic);
         },
       ),
+      GoRoute(
+        path: '/qrcode/channel',
+        name: 'qrcode_channel',
+        builder: (context, state) {
+          // 从 state.extra 获取频道数据
+          final extra = state.extra as Map<String, dynamic>?;
+          if (extra == null) {
+            return Scaffold(
+              body: Center(child: Text('Channel data not found')),
+            );
+          }
+          return ChannelQrCodePage(channelData: extra);
+        },
+      ),
 
       // ==================== 个人信息相关 ====================
       GoRoute(
@@ -706,6 +835,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             peerAvatar: extra['peerAvatar']?.toString() ?? '',
             peerSign: extra['peerSign']?.toString() ?? '',
           );
+        },
+      ),
+
+      // 消息搜索页面
+      GoRoute(
+        path: '/message_search',
+        name: 'message_search',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return MessageSearchPage(
+            conversationUk3: extra?['conversationUk3']?.toString(),
+            conversationTitle: extra?['conversationTitle']?.toString(),
+            conversationType: extra?['conversationType']?.toString(),
+            peerId: extra?['peerId']?.toString(),
+            peerAvatar: extra?['peerAvatar']?.toString(),
+          );
+        },
+      ),
+
+      // Web 端全局搜索
+      GoRoute(
+        path: '/web_search',
+        name: 'web_search',
+        builder: (context, state) {
+          final query = state.uri.queryParameters['q'];
+          final scope = state.uri.queryParameters['scope'];
+          return WebSearchPage(initialQuery: query, scope: scope);
         },
       ),
 

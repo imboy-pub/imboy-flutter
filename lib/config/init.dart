@@ -40,6 +40,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/e2ee_shard_message_handler.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:xid/xid.dart';
 
 import 'env.dart';
@@ -217,7 +218,10 @@ class AppInitializer {
     _setupHttpClient();
 
     // 清理旧的数据库迁移备份（保留7天）
-    await _cleanupOldMigrationBackups();
+    // Web 平台不支持 path_provider，跳过清理
+    if (!kIsWeb) {
+      await _cleanupOldMigrationBackups();
+    }
   }
 
   /// 清理旧的数据库迁移备份
@@ -398,6 +402,8 @@ class AppInitializer {
 
       debugPrint('🔧 initConfig: 开始解密配置');
       final key = await Env.signKey();
+      debugPrint('🔐 [INIT] signKey 原始值: $key');
+      debugPrint('🔐 [INIT] signKey MD5: ${EncrypterService.md5(key)}');
       Map<String, dynamic> payload = jsonDecode(
         EncrypterService.aesDecrypt(
           encrypted,
@@ -488,8 +494,14 @@ class AppInitializer {
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
 
+    // 【数据修复】修复旧会话数据中 msg_type='custom' 的问题
+    if (UserRepoLocal.to.isLoggedIn) {
+      await ConversationRepo.fixLegacyConversationMsgTypes();
+    }
+
     // 初始化地图服务
-    AMapHelper.setApiKey();
+    AMapHelper.init(); // 设置隐私协议（必须先调用）
+    AMapHelper.setApiKey(); // 设置 API key
   }
 
   static Future<void> _initializeWebSocketServices() async {

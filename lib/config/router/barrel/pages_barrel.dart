@@ -9,6 +9,7 @@ library;
 export 'package:imboy/page/splash/splash_page.dart';
 export 'package:imboy/page/welcome/welcome_page.dart';
 export 'package:imboy/page/passport/login_page.dart';
+export 'package:imboy/page/passport/web_login_page.dart'; // Web 专用登录页面
 export 'package:imboy/page/passport/signup_page.dart';
 export 'package:imboy/page/passport/signup_continue_page.dart';
 export 'package:imboy/page/passport/forgot_password_page.dart';
@@ -23,9 +24,11 @@ export 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 // 会话和聊天
 // ============================================================================
 export 'package:imboy/page/conversation/conversation_page.dart';
+export 'package:imboy/page/conversation/web_conversation_page.dart'; // Web 会话列表
 export 'package:imboy/page/chat/chat/chat_page.dart';
 export 'package:imboy/page/chat/send_to/send_to_page.dart';
 export 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
+export 'package:imboy/page/chat/widget/select_friend.dart';
 
 // ============================================================================
 // 联系人模块
@@ -44,10 +47,25 @@ export 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_page.dart'
 // ============================================================================
 export 'package:imboy/page/group/group_list/group_list_page.dart';
 export 'package:imboy/page/group/group_detail/group_detail_page.dart';
+export 'package:imboy/page/group/group_detail/add_member_page.dart';
+export 'package:imboy/page/group/group_detail/remove_member_page.dart';
+export 'package:imboy/page/group/group_member/group_member_page.dart';
+export 'package:imboy/page/group/announcement/group_announcement_page.dart';
 export 'package:imboy/page/group/launch_chat/launch_chat_page.dart';
 export 'package:imboy/page/group/group_select/group_select_page.dart';
 export 'package:imboy/page/group/face_to_face/face_to_face_page.dart';
 export 'package:imboy/page/group/face_to_face/face_to_face_confirm_page.dart';
+
+// ============================================================================
+// 频道模块
+// ============================================================================
+export 'package:imboy/page/channel/channel_list_page.dart';
+export 'package:imboy/page/channel/channel_detail_page.dart';
+export 'package:imboy/page/channel/channel_discover_page.dart';
+export 'package:imboy/page/channel/channel_create_page.dart';
+export 'package:imboy/page/channel/channel_edit_page.dart';
+export 'package:imboy/page/channel/channel_admin_page.dart';
+export 'package:imboy/page/channel/channel_subscriber_page.dart';
 
 // ============================================================================
 // 个人中心模块
@@ -108,6 +126,8 @@ export 'package:imboy/page/live_room/live_room_list/live_room_list_page.dart';
 export 'package:imboy/page/live_room/publisher/publisher_page.dart';
 export 'package:imboy/page/live_room/subscriber/subscriber_page.dart';
 export 'package:imboy/page/search/search_chat_page.dart';
+export 'package:imboy/page/search/message_search_page.dart'; // 消息搜索页面
+export 'package:imboy/page/search/web_search_page.dart'; // Web 端全局搜索
 export 'package:imboy/page/scanner/scanner_page.dart';
 export 'package:imboy/page/scanner/scanner_result_page.dart';
 export 'package:imboy/page/qrcode/qrcode_page.dart';

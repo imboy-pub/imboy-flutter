@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:envied/envied.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:imboy/config/init.dart';
 
@@ -31,12 +30,15 @@ abstract interface class Env implements EnvField {
   // └─────────────────────────────────────────────────────────────┘
 
   /// OpenAI API 密钥
+  @override
   abstract final String openaiApiKey;
 
   /// Anthropic API 密钥
+  @override
   abstract final String anthropicApiKey;
 
   /// AI 测试是否启用
+  @override
   abstract final bool aiTestEnabled;
 
   // ┌─────────────────────────────────────────────────────────────┐
@@ -55,16 +57,12 @@ abstract interface class Env implements EnvField {
     return EnvPro();
   }
 
-  /// iso 的 buildSignature 未空字符串
-  @EnviedField(obfuscate: true)
+  /// 获取签名密钥
+  /// 始终返回 solidifiedKey，与服务端保持一致
+  /// 注意：不使用 buildSignature，因为 Android 的签名会随构建变化
   static Future<String> signKey() async {
-    String key = (await PackageInfo.fromPlatform()).buildSignature;
-    // debugPrint("aesDecrypt key 1 $key ;");
-    if (key.isEmpty) {
-      key = _to.solidifiedKey;
-    }
-    // debugPrint("aesDecrypt key 2 $key ;");
-    return key;
+    // 始终使用配置的 solidifiedKey，与服务端保持一致
+    return _to.solidifiedKey;
   }
 
   /// WebSocket URL - 优先从环境配置读取，如果没有则从本地存储读取
