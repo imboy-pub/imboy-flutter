@@ -7,6 +7,16 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-02-08
+- **ChatPage Mixin 架构**：完成 chat_page.dart 深度重构
+- 新增 `ChatInitializationHandler` mixin（聊天初始化）
+- chat_page.dart 从 2029 行减少到 1808 行（减少 10.9%）
+- 创建 `doc/CHAT_PAGE_MIXIN_DESIGN.md` - ChatPage Mixin 架构设计规范
+- Mixin 模块总数达到 8 个，实现清晰的关注点分离
+- **资源 URL 授权规范**：所有附件资源 URL 必须通过 `AssetsService.viewUrl` 重新授权
+- **权限 Web 平台适配**：创建 `permission_web.dart` 实现 Web 平台权限处理
+- **音频文件下载修复**：非图片文件下载添加 `validateImageData: false` 参数
+
 ### 2026-01-28
 - **前后端协作说明**：添加后端代码位置信息（`../imboy/`）
 - 新增"前后端协作"章节，说明前后端目录结构和协作开发方式
@@ -164,6 +174,7 @@ graph TD
 | 文档 | 描述 | 链接 |
 |------|------|------|
 | UI/UX 设计规范 | 完整的设计系统文档（颜色、间距、组件等） | [查看](./doc/UI_UX_Design_Spec.md) |
+| ChatPage Mixin 架构 | ChatPage Mixin 设计规范和最佳实践 | [查看](./doc/CHAT_PAGE_MIXIN_DESIGN.md) |
 
 ---
 
@@ -309,5 +320,109 @@ AppLocale currentLocale = LocaleSettings.currentLocale;
 - **支持嵌套**: 支持多层嵌套的翻译结构
 - **缺失翻译检测**: 自动检测缺失的翻译
 - **轻量高效**: 采用懒加载和代码分割，减小包体积
+
+---
+
+## 架构规则 (Architecture Rules)
+
+### ⚠️ 重要：资源 URL 授权规范
+
+**规则**：**所有附件资源 URL 请求都需要经过 `AssetsService.viewUrl` 重新授权**
+
+#### 说明
+
+ImBoy 服务器的资源 URL（图片、视频、音频、文件等）使用带签名的授权机制：
+- `s` - upload scene（上传场景）
+- `a` - authorization token（授权令牌，MD5 哈希）
+- `v` - timestamp（时间戳，用于验证授权是否过期）
+
+**授权有效时间**：3600 秒（1 小时）
+
+#### 正确用法
+
+```dart
+import 'package:imboy/service/assets.dart';
+
+// ✅ 正确 - 使用 AssetsService.viewUrl 重新授权
+final authorizedUrl = AssetsService.viewUrl(originalUrl);
+final file = await IMBoyCacheManager().getSingleFile(authorizedUrl.toString());
+
+// ✅ 正确 - 使用 cachedImageProvider（内部已调用 AssetsService.viewUrl）
+import 'package:imboy/component/helper/func.dart';
+Image(
+  image: cachedImageProvider(imageUrl, w: 400),
+  width: 100,
+  height: 100,
+)
+
+// ✅ 正确 - 使用 dynamicAvatar（内部已调用 AssetsService.viewUrl）
+decoration: BoxDecoration(
+  image: dynamicAvatar(avatarUrl),
+)
+```
+
+#### 错误用法
+
+```dart
+// ❌ 错误 - 直接使用原始 URL
+Image.network(imageUrl)
+
+// ❌ 错误 - 直接使用原始 URL
+CachedNetworkImage(imageUrl)
+
+// ❌ 错误 - 直接下载原始 URL
+await Dio().get(imageUrl)
+```
+
+#### 已正确实现的组件
+
+以下组件**已经正确使用** `AssetsService.viewUrl`，无需额外处理：
+
+| 组件/函数 | 文件 | 说明 |
+|-----------|------|------|
+| `IMBoyCacheManager.getSingleFile()` | `lib/component/extension/imboy_cache_manager.dart:102` | ✅ 内部调用 `AssetsService.viewUrl` |
+| `cachedImageProvider()` | `lib/component/helper/func.dart:365-379` | ✅ 内部调用 `AssetsService.viewUrl` |
+| `dynamicAvatar()` | `lib/component/helper/func.dart:381-393` | ✅ 调用 `cachedImageProvider` |
+| `Avatar` 组件 | `lib/component/ui/avatar.dart` | ✅ 通过 `dynamicAvatar` 使用 |
+| `OctoImage` (在 message.dart 中) | `lib/component/chat/message.dart:276` | ✅ 使用 `cachedImageProvider` |
+
+#### 需要注意的地方
+
+如果直接使用以下组件，**必须先通过** `AssetsService.viewUrl() **处理 URL**：
+
+- `Image.network(url)` ❌
+- `CachedNetworkImage(url)` ❌ (来自 `cross_cache` 包)
+- `Dio().get(url)` ❌
+
+#### 示例修复
+
+**修复前**：
+```dart
+// ❌ 错误
+Image.network(
+  model.avatar ?? '',
+  width: 56,
+  height: 56,
+)
+```
+
+**修复后**：
+```dart
+// ✅ 正确
+Image(
+  image: cachedImageProvider(
+    model.avatar ?? '',
+    w: 56,
+  ),
+  width: 56,
+  height: 56,
+)
+```
+
+#### 相关文件
+
+- `lib/service/assets.dart` - `AssetsService.viewUrl()` 实现
+- `lib/component/helper/func.dart` - `cachedImageProvider()` 工具函数
+- `lib/component/extension/imboy_cache_manager.dart` - 缓存管理器
 
 ---

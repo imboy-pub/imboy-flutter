@@ -47,7 +47,8 @@ dependencies:
   # │ 🌐 Web Platform Support                                         │
   # └─────────────────────────────────────────────────────────────────┘
   sqflite_common: ^2.5.0            # sqflite 公共接口（Web 支持）
-  sqflite_common_ffi: ^2.4.0+2      # Web FFI 实现（SQLite on Web）
+  sqflite_common_ffi: ^2.4.0+2      # 桌面端 FFI 实现（Windows/Linux/macOS）
+  sqflite_common_ffi_web: ^1.1.1    # Web 平台 SQLite 实现（支持 sqlite3 3.x）
   web: ^1.1.0                       # 浏览器 API 封装（IndexedDB、Blob 等）
 
   # ┌─────────────────────────────────────────────────────────────────┐
@@ -173,6 +174,7 @@ dependencies:
   share_plus: ^12.0.1                # Sharing functionality (updated: 12.0.1)
   wakelock_plus: ^1.4.0              # Keep screen on during operations
   r_upgrade:                          # App upgrade utility
+    #path: plugin/r_upgrade
     git:
       url: https://gitee.com/imboy-tripartite-deps/r_upgrade.git
       ref: leeyi
@@ -277,6 +279,10 @@ dev_dependencies:
 
   # ┌─ Code Quality & Linting ───────────────────────────────────────┐
   flutter_lints: ^6.0.0                # Official Flutter linting rules
+
+  # ┌─ Testing ─────────────────────────────────────────────────────┐
+  mocktail: ^1.0.4                     # Mocking library for testing
+  mockito: ^5.4.6                      # Mockito mocking library
 
   # ┌─ Integration Testing ──────────────────────────────────────────┐
   integration_test:

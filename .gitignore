@@ -92,3 +92,4 @@ doc/ai_prompts*
 test_automation/reports/
 android/.kotlin
 test_automation/logs
+*.skip

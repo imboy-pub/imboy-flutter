@@ -332,3 +332,110 @@ ALTER TABLE msg_s2c ADD COLUMN action TEXT DEFAULT '';
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 12;
+
+-- ============================================================
+-- VERSION: 13
+-- DESC: Channel 频道功能 - 新增频道相关表
+-- ============================================================
+-- 功能说明：添加频道（Channel）功能的数据表
+-- 变更内容：
+--   1. 创建 channel 表 - 存储频道基础信息
+--   2. 创建 channel_subscription 表 - 存储订阅关系
+--   3. 创建 channel_message 表 - 存储频道消息
+--   4. 创建 channel_admin 表 - 存储频道管理员
+--
+-- Channel 功能说明：
+--   - 频道是一种单向关注型消息订阅机制
+--   - 消息流向：管理员 → 订阅者
+--   - 成员上限：无限制
+--   - 加入方式：关注/订阅
+--   - 发言权限：仅管理员/指定编辑
+
+-- ============================================================
+-- Step 1: 创建频道基础信息表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS channel (
+    id              TEXT PRIMARY KEY,      -- 频道 ID（UUID）
+    name            TEXT NOT NULL,         -- 频道名称
+    description     TEXT,                  -- 频道描述
+    avatar          TEXT,                  -- 头像 URL
+    type            INTEGER DEFAULT 0,     -- 0:公开 1:私有 2:付费
+    custom_id       TEXT UNIQUE,           -- 自定义 ID (@xxx)
+    creator_id      TEXT NOT NULL,         -- 创建者用户 ID
+    subscriber_count INTEGER DEFAULT 0,    -- 订阅数（本地缓存）
+    is_verified     INTEGER DEFAULT 0,     -- 是否认证
+    tags            TEXT,                  -- 标签 JSON 数组
+    created_at      INTEGER NOT NULL,      -- 创建时间戳（毫秒）
+    updated_at      INTEGER NOT NULL       -- 更新时间戳（毫秒）
+);
+
+-- 频道表索引
+CREATE INDEX IF NOT EXISTS idx_channel_custom_id ON channel(custom_id);
+CREATE INDEX IF NOT EXISTS idx_channel_creator_id ON channel(creator_id);
+CREATE INDEX IF NOT EXISTS idx_channel_type ON channel(type);
+
+-- ============================================================
+-- Step 2: 创建频道订阅关系表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS channel_subscription (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id          TEXT NOT NULL,         -- 频道 ID
+    subscribed_at       INTEGER NOT NULL,      -- 订阅时间戳
+    last_read_at        INTEGER,               -- 最后阅读时间戳
+    last_message_id     TEXT,                  -- 最后已读消息 ID
+    unread_count        INTEGER DEFAULT 0,     -- 未读消息数
+    notifications_enabled INTEGER DEFAULT 1,   -- 是否开启通知
+    is_pinned           INTEGER DEFAULT 0,     -- 是否置顶
+    is_muted            INTEGER DEFAULT 0,     -- 是否免打扰
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE,
+    UNIQUE(channel_id)
+);
+
+-- 订阅关系表索引
+CREATE INDEX IF NOT EXISTS idx_subscription_pinned ON channel_subscription(is_pinned);
+CREATE INDEX IF NOT EXISTS idx_subscription_muted ON channel_subscription(is_muted);
+
+-- ============================================================
+-- Step 3: 创建频道消息表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS channel_message (
+    id                  TEXT PRIMARY KEY,      -- 消息 ID（UUID）
+    channel_id          TEXT NOT NULL,         -- 频道 ID
+    author_id           TEXT,                  -- 发布者用户 ID
+    author_name         TEXT,                  -- 发布者名称（冗余存储）
+    author_avatar       TEXT,                  -- 发布者头像（冗余存储）
+    content             TEXT,                  -- 消息内容（文本或JSON）
+    msg_type            TEXT NOT NULL,         -- 消息类型
+    payload             TEXT,                  -- 扩展数据 JSON
+    created_at          INTEGER NOT NULL,      -- 创建时间戳
+    is_pinned           INTEGER DEFAULT 0,     -- 是否置顶
+    view_count          INTEGER DEFAULT 0,     -- 阅读量（本地缓存）
+    reaction_summary    TEXT,                  -- 反应统计 JSON {"👍":100,"❤️":50}
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE
+);
+
+-- 频道消息表索引
+CREATE INDEX IF NOT EXISTS idx_channel_msg_channel_id ON channel_message(channel_id);
+CREATE INDEX IF NOT EXISTS idx_channel_msg_created_at ON channel_message(channel_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_channel_msg_pinned ON channel_message(channel_id, is_pinned);
+
+-- ============================================================
+-- Step 4: 创建频道管理员表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS channel_admin (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id      TEXT NOT NULL,         -- 频道 ID
+    user_id         TEXT NOT NULL,         -- 管理员用户 ID
+    role            INTEGER DEFAULT 0,     -- 0:编辑 1:管理员 2:创建者
+    added_at        INTEGER NOT NULL,      -- 添加时间戳
+    UNIQUE(channel_id, user_id),
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE
+);
+
+-- 频道管理员表索引
+CREATE INDEX IF NOT EXISTS idx_channel_admin_user ON channel_admin(user_id);
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 13;
