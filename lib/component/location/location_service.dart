@@ -32,43 +32,137 @@ class LocationService {
   ///
   /// 返回 [AMapPosition] 对象，包含经纬度和可能的地址信息
   /// 失败时返回 null
+  ///
+  /// 平台策略：
+  /// - iOS: 优先使用高德地图定位（提供地址信息）
+  /// - Android: 优先使用高德地图，失败时降级到 geolocator
+  /// - macOS/Web: 使用 geolocator 定位
   Future<AMapPosition?> getCurrentPosition() async {
     if (kIsWeb) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isMacOS) {
       return _getCurrentPositionGeolocator();
-    } else if (Platform.isIOS || Platform.isAndroid) {
+    } else if (Platform.isIOS) {
+      // iOS 仅使用高德地图
       return await AMapHelper().startLocation();
+    } else if (Platform.isAndroid) {
+      // Android: 优先高德，失败时降级到 geolocator
+      return await _getCurrentPositionAndroid();
     }
     debugPrint('LocationService: Unsupported platform');
     return null;
   }
 
+  /// Android 平台定位：高德优先，失败时降级到 geolocator
+  ///
+  /// 降级触发条件：
+  /// 1. 高德返回 null（定位失败）
+  /// 2. 高德返回 (0.0, 0.0) 无效坐标（通常表示 Key 认证失败）
+  Future<AMapPosition?> _getCurrentPositionAndroid() async {
+    debugPrint('LocationService: Android 平台开始定位（高德优先）');
+
+    // 尝试使用高德地图定位
+    AMapPosition? amapResult = await AMapHelper().startLocation();
+
+    // 检查高德定位结果是否有效
+    if (amapResult != null) {
+      final lat = amapResult.latLng.latitude;
+      final lng = amapResult.latLng.longitude;
+
+      // 检查是否为有效坐标
+      if (_isValidCoordinate(lat, lng)) {
+        debugPrint(
+          'LocationService: Android 高德定位成功 - '
+          '纬度: $lat, 经度: $lng, 地址: ${amapResult.address}',
+        );
+        return amapResult;
+      } else {
+        debugPrint(
+          'LocationService: Android 高德返回无效坐标 ($lat, $lng)，'
+          '可能原因：高德 Key 认证失败 (INVALID_USER_SCODE)，'
+          '降级到 geolocator',
+        );
+      }
+    } else {
+      debugPrint(
+        'LocationService: Android 高德定位失败（返回 null），'
+        '降级到 geolocator',
+      );
+    }
+
+    // 降级到 geolocator
+    debugPrint('LocationService: Android 使用 geolocator 作为降级方案');
+    return await _getCurrentPositionGeolocator();
+  }
+
+  /// 检查坐标是否有效
+  ///
+  /// 有效坐标条件：
+  /// 1. 不是 (0.0, 0.0)
+  /// 2. 经度在 [-180, 180] 范围内
+  /// 3. 纬度在 [-90, 90] 范围内
+  bool _isValidCoordinate(double latitude, double longitude) {
+    if (latitude == 0.0 && longitude == 0.0) {
+      return false; // (0, 0) 通常表示定位失败
+    }
+    if (longitude < -180 || longitude > 180) {
+      return false; // 经度超出有效范围
+    }
+    if (latitude < -90 || latitude > 90) {
+      return false; // 纬度超出有效范围
+    }
+    return true;
+  }
+
   /// 获取位置变化流（持续监听）
   ///
-  /// 注意：macOS 上使用 geolocator，iOS/Android 上使用高德地图
+  /// 平台策略：
+  /// - iOS: 使用高德地图定位流
+  /// - Android: 优先使用高德地图，首次无效时自动降级到 geolocator 流
+  /// - macOS/Web: 使用 geolocator 定位流
+  ///
   /// 返回 null 表示平台不支持流式定位
   Stream<AMapPosition>? getPositionStream() {
     if (kIsWeb || Platform.isMacOS) {
       return _getPositionStreamGeolocator();
-    } else if (Platform.isIOS || Platform.isAndroid) {
-      final amapHelper = AMapHelper();
-      return amapHelper.onLocationChanged(amapHelper.location).map((result) {
-        final longitude = double.tryParse(result['longitude'].toString()) ?? 0;
-        final latitude = double.tryParse(result['latitude'].toString()) ?? 0;
-        final address = result['address'].toString();
-
-        return AMapPosition(
-          latLng: LatLng(latitude, longitude),
-          id: '',
-          name: '',
-          address: address,
-          adCode: result['adCode'].toString(),
-          distance: '',
-        );
-      });
+    } else if (Platform.isIOS) {
+      return _getPositionStreamAMap();
+    } else if (Platform.isAndroid) {
+      // Android: 使用带降级逻辑的高德定位流
+      return _getPositionStreamAndroid();
     }
     return null;
+  }
+
+  /// iOS 平台：使用高德地图定位流
+  Stream<AMapPosition> _getPositionStreamAMap() {
+    final amapHelper = AMapHelper();
+    return amapHelper.onLocationChanged(amapHelper.location).map((result) {
+      final longitude = double.tryParse(result['longitude'].toString()) ?? 0;
+      final latitude = double.tryParse(result['latitude'].toString()) ?? 0;
+      final address = result['address'].toString();
+
+      return AMapPosition(
+        latLng: LatLng(latitude, longitude),
+        id: '',
+        name: '',
+        address: address,
+        adCode: result['adCode'].toString(),
+        distance: '',
+      );
+    });
+  }
+
+  /// Android 平台：高德优先，失败时降级到 geolocator 流
+  ///
+  /// 由于高德 Key 认证问题会导致整个流失效，
+  /// Android 的持续定位直接使用 geolocator 以保证可靠性
+  Stream<AMapPosition>? _getPositionStreamAndroid() {
+    debugPrint(
+      'LocationService: Android 持续定位使用 geolocator '
+      '(高德 Key 可能不可靠，建议使用一次性定位获取地址)',
+    );
+    return _getPositionStreamGeolocator();
   }
 
   /// 计算两个位置之间的距离（单位：米）

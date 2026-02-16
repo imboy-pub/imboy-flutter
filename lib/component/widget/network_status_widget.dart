@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/network_monitor.dart';
-import 'package:imboy/service/websocket.dart';
-import 'package:imboy/service/websocket_provider.dart';
+import 'package:imboy/service/websocket_status_provider.dart';
 
 class NetworkStatusWidget extends ConsumerStatefulWidget {
   const NetworkStatusWidget({super.key});
@@ -44,7 +43,10 @@ class _NetworkStatusWidgetState extends ConsumerState<NetworkStatusWidget> {
   @override
   Widget build(BuildContext context) {
     // 使用 Provider 监听 WebSocket 状态（响应式）
-    final wsStatus = ref.watch(webSocketStatusProvider);
+    final wsStatusAsync = ref.watch(webSocketStatusProvider);
+
+    // 处理 AsyncValue，提供默认值
+    final wsStatus = wsStatusAsync.value ?? WebSocketConnectionState.disconnected;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -108,14 +110,14 @@ class _NetworkStatusWidgetState extends ConsumerState<NetworkStatusWidget> {
   String _getStatusText(
     NetworkType type,
     bool connected,
-    SocketStatus wsStatus,
+    WebSocketConnectionState wsStatus,
   ) {
     if (!connected) {
       return '无网络';
     }
 
     final networkName = NetworkMonitorService.to.getNetworkTypeName(type);
-    final wsConnected = wsStatus == SocketStatus.connected;
+    final wsConnected = wsStatus == WebSocketConnectionState.connected;
 
     return '$networkName ${wsConnected ? '✓' : '...'}';
   }
@@ -123,13 +125,13 @@ class _NetworkStatusWidgetState extends ConsumerState<NetworkStatusWidget> {
   Color _getStatusColor(
     NetworkType type,
     bool connected,
-    SocketStatus wsStatus,
+    WebSocketConnectionState wsStatus,
   ) {
     if (!connected) {
       return Colors.red;
     }
 
-    final wsConnected = wsStatus == SocketStatus.connected;
+    final wsConnected = wsStatus == WebSocketConnectionState.connected;
     if (!wsConnected) {
       return Colors.orange;
     }

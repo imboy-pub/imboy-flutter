@@ -53,9 +53,13 @@ class MessageScrollManager extends _$MessageScrollManager {
   static const Duration _autoScrollDelay = Duration(milliseconds: 100);
   static const double _scrollThreshold = 100.0; // 距离底部多少算"在底部"
 
+  // 是否已释放标志
+  bool _isDisposed = false;
+
   @override
   MessageScrollState build() {
     ref.onDispose(() {
+      _isDisposed = true;
       _autoScrollTimer?.cancel();
       scrollController.dispose();
     });
@@ -86,7 +90,8 @@ class MessageScrollManager extends _$MessageScrollManager {
 
   /// 滚动到底部
   Future<void> scrollToBottom({bool animated = true}) async {
-    if (!scrollController.hasClients) return;
+    // 检查是否已释放或 ScrollController 无效
+    if (_isDisposed || !scrollController.hasClients) return;
 
     state = state.copyWith(isScrolling: true);
 
@@ -100,7 +105,10 @@ class MessageScrollManager extends _$MessageScrollManager {
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     }
 
-    state = state.copyWith(isAtBottom: true, isScrolling: false);
+    // 再次检查，防止异步操作期间被释放
+    if (!_isDisposed) {
+      state = state.copyWith(isAtBottom: true, isScrolling: false);
+    }
   }
 
   /// 滚动到指定消息（优化版）
@@ -112,60 +120,70 @@ class MessageScrollManager extends _$MessageScrollManager {
     bool highlight = true, // 是否高亮消息
     Duration? duration, // 自定义动画时长
   }) async {
-    if (!scrollController.hasClients) {
-      iPrint('ScrollController没有客户端，无法滚动');
+    // 检查是否已释放或 ScrollController 无效
+    if (_isDisposed || !scrollController.hasClients) {
+      iPrint('ScrollController无效或已释放，无法滚动');
       return;
     }
 
     state = state.copyWith(isScrolling: true);
     final scrollDuration = duration ?? _scrollDuration;
 
-    try {
-      // 首先尝试从缓存获取位置
-      var position = _getMessagePosition(conversationId, messageId);
+    // 首先尝试从缓存获取位置
+    var position = _getMessagePosition(conversationId, messageId);
 
-      // 如果缓存中没有位置，尝试通过事件系统获取
-      if (position == null) {
-        iPrint('缓存中未找到消息位置: $messageId，尝试通过事件系统获取');
-        position = await _getMessagePositionFromUI(messageId);
-      }
+    // 如果缓存中没有位置，尝试通过事件系统获取
+    if (position == null) {
+      iPrint('缓存中未找到消息位置: $messageId，尝试通过事件系统获取');
+      position = await _getMessagePositionFromUI(messageId);
+    }
 
-      if (position == null) {
-        iPrint('无法获取消息位置: $messageId');
-        return;
-      }
+    if (position == null) {
+      state = state.copyWith(isScrolling: false);
+      iPrint('无法获取消息位置: $messageId');
+      return;
+    }
 
-      // 计算目标位置，考虑偏移量
-      final targetPosition = (position - offset).clamp(
-        0.0,
-        scrollController.position.maxScrollExtent,
+    // 再次检查是否已释放或无效（防止异步操作期间被释放）
+    if (_isDisposed || !scrollController.hasClients) {
+      state = state.copyWith(isScrolling: false);
+      iPrint('ScrollController已失效，取消滚动');
+      return;
+    }
+
+    // 计算目标位置，考虑偏移量
+    final targetPosition = (position - offset).clamp(
+      0.0,
+      scrollController.position.maxScrollExtent,
+    );
+
+    if (animated) {
+      // 使用更平滑的动画曲线
+      await scrollController.animateTo(
+        targetPosition,
+        duration: scrollDuration,
+        curve: Curves.easeOutCubic,
       );
+    } else {
+      scrollController.jumpTo(targetPosition);
+    }
 
-      if (animated) {
-        // 使用更平滑的动画曲线
-        await scrollController.animateTo(
-          targetPosition,
-          duration: scrollDuration,
-          curve: Curves.easeOutCubic,
-        );
-      } else {
-        scrollController.jumpTo(targetPosition);
-      }
-
-      // 延迟后高亮消息，确保滚动完成
-      if (highlight) {
-        _autoScrollTimer?.cancel(); // 取消之前的定时器
-        _autoScrollTimer = Timer(_autoScrollDelay, () {
-          highlightMessage(messageId);
-        });
-      }
-
-      iPrint('滚动到消息完成: $messageId, 位置: $targetPosition');
-    } catch (e) {
-      iPrint('滚动到消息失败: $messageId, 错误: $e');
-    } finally {
+    // 更新滚动状态
+    if (!_isDisposed) {
       state = state.copyWith(isScrolling: false);
     }
+
+    // 延迟后高亮消息，确保滚动完成
+    if (highlight && !_isDisposed) {
+      _autoScrollTimer?.cancel(); // 取消之前的定时器
+      _autoScrollTimer = Timer(_autoScrollDelay, () {
+        if (!_isDisposed) {
+          highlightMessage(messageId);
+        }
+      });
+    }
+
+    iPrint('滚动到消息完成: $messageId, 位置: $targetPosition');
   }
 
   /// 从UI层获取消息位置
@@ -182,7 +200,8 @@ class MessageScrollManager extends _$MessageScrollManager {
 
   /// 滚动到指定位置
   Future<void> scrollToPosition(double position, {bool animated = true}) async {
-    if (!scrollController.hasClients) return;
+    // 检查是否已释放或 ScrollController 无效
+    if (_isDisposed || !scrollController.hasClients) return;
 
     state = state.copyWith(isScrolling: true);
 
@@ -196,7 +215,10 @@ class MessageScrollManager extends _$MessageScrollManager {
       scrollController.jumpTo(position);
     }
 
-    state = state.copyWith(isScrolling: false);
+    // 更新滚动状态
+    if (!_isDisposed) {
+      state = state.copyWith(isScrolling: false);
+    }
   }
 
   /// 缓存消息位置（优化版）
@@ -252,25 +274,24 @@ class MessageScrollManager extends _$MessageScrollManager {
 
   /// 高亮消息（优化版）
   void highlightMessage(String messageId) {
-    try {
-      // 发送高亮事件到UI层
-      // 使用全局事件总线
-      _triggerHighlightAnimation(messageId);
-      iPrint('触发消息高亮: $messageId');
-    } catch (e) {
-      iPrint('高亮消息失败: $messageId, 错误: $e');
-    }
+    if (_isDisposed) return;
+    _triggerHighlightAnimation(messageId);
+    iPrint('触发消息高亮: $messageId');
   }
 
   /// 触发高亮动画
   void _triggerHighlightAnimation(String messageId) {
+    if (_isDisposed) return;
+
     // 更新高亮状态
     state = state.copyWith(highlightedMessageId: messageId);
 
     // 设置定时器取消高亮
     _autoScrollTimer?.cancel();
     _autoScrollTimer = Timer(const Duration(milliseconds: 2000), () {
-      _cancelHighlight(messageId);
+      if (!_isDisposed) {
+        _cancelHighlight(messageId);
+      }
     });
   }
 

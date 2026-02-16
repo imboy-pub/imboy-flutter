@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cross_cache/cross_cache.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -25,7 +26,7 @@ class IMBoyCacheManager {
             receiveTimeout: const Duration(seconds: 30),
             sendTimeout: const Duration(seconds: 30),
           ),
-        ),
+        )..interceptors.add(IMBoyInterceptor()),
       );
 
   /// 验证图片数据是否有效
@@ -87,7 +88,12 @@ class IMBoyCacheManager {
     String url, {
     Map<String, String>? headers,
     int maxRetries = 3,
+    /// 是否验证图片数据（音频、视频等非图片文件应设为 false）
+    bool validateImageData = true,
   }) async {
+    // 添加调试日志
+    debugPrint('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
+
     if (url.isEmpty) {
       throw Exception('IMBoyCacheManager getSingleFile url is empty');
     }
@@ -106,8 +112,8 @@ class IMBoyCacheManager {
           debugPrint('缓存为空，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
           throw Exception('Empty cache');
         }
-        // 验证缓存数据是否有效
-        if (!_isValidImageData(bytes)) {
+        // 仅在需要时验证缓存数据是否有效
+        if (validateImageData && !_isValidImageData(bytes)) {
           debugPrint('缓存数据损坏，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
           await _crossCache.delete(cacheKey);
           throw Exception('Invalid cached image data');
@@ -121,11 +127,14 @@ class IMBoyCacheManager {
             viewUri.toString(),
             headers: headers,
           );
+
+          // 调试：输出下载状态
+          debugPrint('📥 下载完成，大小: ${downloaded.length} bytes, validateImageData=$validateImageData');
+
           // 检查下载的文件是否为空
           if (downloaded.isEmpty) {
             debugPrint('下载的文件为空 (尝试 ${retry + 1}/$maxRetries): $url');
             if (retry < maxRetries - 1) {
-              // 删除损坏的缓存，准备重试
               try {
                 await _crossCache.delete(cacheKey);
               } catch (_) {}
@@ -136,9 +145,9 @@ class IMBoyCacheManager {
             );
           }
 
-          // 验证下载的图片数据是否有效
-          if (!_isValidImageData(downloaded)) {
-            // debugPrint('下载的图片数据无效 (尝试 ${retry + 1}/$maxRetries): $url');
+          // 仅在需要时验证下载的图片数据是否有效
+          if (validateImageData && !_isValidImageData(downloaded)) {
+            debugPrint('⚠️ 图片数据验证失败，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
             if (retry < maxRetries - 1) {
               try {
                 await _crossCache.delete(cacheKey);
@@ -153,6 +162,7 @@ class IMBoyCacheManager {
           await _crossCache.set(cacheKey, downloaded);
           await _crossCache.delete(viewUri.toString());
           bytes = downloaded;
+          debugPrint('✅ 下载成功');
           // 下载成功，跳出循环
           break;
         } catch (downloadError) {
@@ -189,7 +199,8 @@ class IMBoyCacheManager {
       if (await file.exists()) {
         try {
           final existingBytes = await file.readAsBytes();
-          if (existingBytes.isNotEmpty && _isValidImageData(existingBytes)) {
+          if (existingBytes.isNotEmpty &&
+              (validateImageData ? _isValidImageData(existingBytes) : true)) {
             // debugPrint('使用现有缓存文件: ${file.path}');
             return file;
           }

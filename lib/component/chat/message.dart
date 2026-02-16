@@ -6,12 +6,14 @@ import 'package:open_file/open_file.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/message_type_normalizer.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'message_spacing.dart';
 import 'message_audio_builder.dart';
+import 'message_image_builder.dart';
 import 'message_image_multi_builder.dart';
 import 'message_location_builder.dart';
 import 'message_quote_builder.dart';
@@ -49,10 +51,27 @@ class CustomMessageBuilder extends StatelessWidget {
     super.key,
     required this.type, // C2C C2G
     required this.message,
+    this.onPlayPause,
+    // 播放状态参数（用于语音消息）
+    this.isPlaying = false,
+    this.isPaused = false,
+    this.currentPositionMs = 0,
+    this.currentDurationMs = 0,
+    // 当前会话的所有消息（用于图片预览时获取其他图片）
+    this.messages,
   });
 
   final String type; // C2C C2G
   final CustomMessage message;
+  final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+      onPlayPause;
+  // 播放状态参数（用于语音消息）
+  final bool isPlaying;
+  final bool isPaused;
+  final int currentPositionMs;
+  final int currentDurationMs;
+  // 当前会话的所有消息
+  final List<dynamic>? messages;
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +89,26 @@ class CustomMessageBuilder extends StatelessWidget {
     const padding = MessageSpacing.bubblePaddingSymmetric;
     Widget content = const SizedBox.shrink();
     try {
-      // WebSocket API v2.0: 优先检查 status 字段（撤回状态 30-39），然后 custom_type，最后 msg_type
-      // 这样可以保留原始内容类型，同时支持特殊状态
-      final msgType = message.metadata?['msg_type'] ?? '';
+      // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
+      // effective_msg_type 已经处理了：custom -> custom_type, audio -> voice
+      var effectiveMsgType = message.metadata?['effective_msg_type'] ??
+          message.metadata?['msg_type'] ??
+          '';
+
+      // 如果 effective_msg_type 是 unsupported，尝试重新计算（修复旧数据）
+      if (effectiveMsgType == 'unsupported' &&
+          message.metadata?.containsKey('custom_type') == true) {
+        final customType = message.metadata?['custom_type']?.toString();
+        if (customType != null && customType.isNotEmpty) {
+          // 使用归一化器重新计算
+          effectiveMsgType = MessageTypeNormalizer.normalize(
+            msgType: 'custom',
+            payload: message.metadata,
+          );
+          debugPrint('🔧 [CustomMessageBuilder] 重新计算 effective_msg_type: $effectiveMsgType');
+        }
+      }
+
       final status = message.metadata?['status'] as int?;
 
       // 方案 D: 检查 status 字段（撤回状态 30-39）
@@ -80,62 +116,76 @@ class CustomMessageBuilder extends StatelessWidget {
         // status = 30 (peer_revoked) 或 31 (my_revoked)
         content = RevokedMessageBuilder(message: message, user: user);
       } else {
-        // status 不是撤回状态，检查 custom_type
-        final customType = message.metadata?['custom_type'] ?? '';
-
-        if (customType == 'webrtc_audio' ||
-            customType == 'webrtcAudio' ||
-            customType == 'webrtc_video' ||
-            customType == 'webrtcVideo') {
-          // WebRTC 消息需要区分音频和视频
-          content = WebRTCMessageBuilder(message: message, user: user);
-        } else if (customType == 'visit_card' || customType == 'visitCard') {
-          content = VisitCardMessageBuilder(message: message, user: user);
-        } else {
-          // 使用 msg_type 判断内容类型
-          switch (msgType) {
-            case 'quote':
-              content = QuoteMessageBuilder(
+        // 使用 effective_msgType 判断内容类型
+        // MessageTypeNormalizer 已处理：custom -> custom_type, audio -> voice
+        switch (effectiveMsgType) {
+          case 'voice':
+            // 语音消息（归一化后的类型）
+            return Padding(
+              padding: padding,
+              child: AudioMessageBuilder(
                 type: type,
                 message: message,
                 user: user,
-              );
-              break;
-            case 'audio':
-            case 'voice': // WebSocket API v2.0 使用 'voice'
-              // 对于 CustomMessage 类型的 audio/voice，使用 AudioMessageBuilder
-              return Padding(
-                padding: padding,
-                child: AudioMessageBuilder(
-                  type: type,
-                  message: message,
-                  user: user,
-                ),
-              );
-            case 'location':
-              content = LocationMessageBuilder(message: message, user: user);
-              break;
-            case 'image_multi':
-            case 'imageMulti':
-              // 多图消息
-              content = ImageMultiMessageBuilder(
-                type: type,
-                message: message,
-                user: user,
-              );
-              break;
-            default:
-              // 未知的消息类型使用 ImUnsupportedMessageBuilder
-              debugPrint(
-                "> on CustomMessageBuilder: 未知的消息类型 (msg_type=$msgType, status=$status, custom_type=$customType)",
-              );
-              content = ImUnsupportedMessageBuilder(
-                type: type,
-                message: message,
-                user: user,
-              );
-              break;
-          }
+                onPlayPause: onPlayPause,
+                // 传递播放状态参数
+                isPlaying: isPlaying,
+                isPaused: isPaused,
+                currentPositionMs: currentPositionMs,
+                currentDurationMs: currentDurationMs,
+              ),
+            );
+          case 'webrtcAudio':
+          case 'webrtcVideo':
+            // WebRTC 消息
+            content = WebRTCMessageBuilder(message: message, user: user);
+            break;
+          case 'visitCard':
+            // 名片消息（直接返回，像语音消息一样使用自己的背景色）
+            return Padding(
+              padding: padding,
+              child: VisitCardMessageBuilder(message: message, user: user),
+            );
+          case 'quote':
+            // 引用消息
+            content = QuoteMessageBuilder(
+              type: type,
+              message: message,
+              user: user,
+            );
+            break;
+          case 'location':
+            // 位置消息
+            content = LocationMessageBuilder(message: message, user: user);
+            break;
+          case 'image':
+            // 单图消息
+            content = MessageImageBuilder(
+              type: type,
+              message: message,
+              user: user,
+              allMessages: messages,
+            );
+            break;
+          case 'imageMulti':
+            // 多图消息
+            content = ImageMultiMessageBuilder(
+              type: type,
+              message: message,
+              user: user,
+            );
+            break;
+          default:
+            // 未知的消息类型使用 ImUnsupportedMessageBuilder
+            debugPrint(
+              "> on CustomMessageBuilder: 未知的消息类型 (effective_msg_type=$effectiveMsgType, status=$status)",
+            );
+            content = ImUnsupportedMessageBuilder(
+              type: type,
+              message: message,
+              user: user,
+            );
+            break;
         }
       }
     } catch (e, s) {
@@ -181,15 +231,15 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
 
   final textStyle = TextStyle(fontSize: 14.0, color: txtColor); // 使用固定字体大小
 
-  // WebSocket API v2.0: 优先使用 msg_type，回退到 custom_type（兼容旧数据）
-  final msgType = msg.metadata?['msg_type'] ?? '';
-  final customType = msg.metadata?['custom_type'] ?? '';
-  final messageType = msgType.isNotEmpty ? msgType : customType;
+  // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
+  // effective_msg_type 已经处理了：custom -> custom_type, audio -> voice
+  final effectiveMsgType = msg.metadata?['effective_msg_type'] ??
+      msg.metadata?['msg_type'] ??
+      '';
 
   Widget content;
-  switch (messageType) {
-    case 'audio':
-    case 'voice': // WebSocket API v2.0 使用 'voice'
+  switch (effectiveMsgType) {
+    case 'voice':
       return AudioMessageBuilder(
         type: msg.metadata?['type'] ?? 'C2C',
         user: user,
@@ -295,7 +345,10 @@ void confirmOpenFile(BuildContext context, String uri) {
           child: Text(t.buttonConfirm),
           onPressed: () async {
             Navigator.of(context).pop();
-            final tmpF = await IMBoyCacheManager().getSingleFile(uri);
+            final tmpF = await IMBoyCacheManager().getSingleFile(
+              uri,
+              validateImageData: false, // 文件下载不验证图片格式
+            );
             await OpenFile.open(tmpF.path);
           },
         ),

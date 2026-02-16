@@ -49,6 +49,7 @@ class DeviceExt extends DeviceInfoPlugin {
       return {
         "cos": "web",
         "did": deviceId,
+        "id": deviceId,  // 👈 后端期望的 id 字段
         "deviceName": "Web Browser",
         "deviceVersion": json.encode({
           'userAgent': userAgent,

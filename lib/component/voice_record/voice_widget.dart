@@ -543,15 +543,36 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
       // 暂时不停止 recorderController，避免与 FlutterSound 冲突
       try {
-        await recorderController.stop();
+        await recorderController.stop().timeout(
+          const Duration(seconds: 2),
+          onTimeout: () {
+            iPrint("recorderController.stop() timeout after 2s");
+            return null;
+          },
+        );
         iPrint("recorderController stopped");
       } catch (e) {
         iPrint("recorderController.stop() error: $e");
       }
 
-      // 停止 FlutterSound recorder
-      String? filepath = await recorder.stopRecorder();
-      iPrint("FlutterSound recorder stopped, filepath: $filepath");
+      // 停止 FlutterSound recorder - 添加超时保护防止永久阻塞
+      String? filepath;
+      try {
+        filepath = await recorder.stopRecorder().timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            iPrint("recorder.stopRecorder() timeout after 5s - returning null");
+            return null;
+          },
+        );
+        iPrint("FlutterSound recorder stopped, filepath: $filepath");
+      } on TimeoutException {
+        iPrint("recorder.stopRecorder() timed out - treating as cancellation");
+        return null;
+      } catch (e) {
+        iPrint("recorder.stopRecorder() error: $e");
+        return null;
+      }
 
       // 再次确保订阅已取消，此时可以停止录音器
       await cancelRecorderSubscriptions(

@@ -48,6 +48,14 @@ class DateTimeHelper {
     return dateTimeFmt(dt, pattern: pattern);
   }
 
+  /// 格式化日期时间（秒级时间戳）
+  /// [timestamp] 秒级时间戳
+  /// [pattern] 格式化模式，默认 'y-MM-dd HH:mm'
+  static String formatDateTime(int timestamp, {String pattern = 'y-MM-dd HH:mm'}) {
+    DateTime dt = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: false);
+    return DateFormat(pattern).format(dt);
+  }
+
   /// RFC3339 字符串转 DateTime，可选返回 local 或 UTC
   static DateTime fromRfc3339(String input, {bool toUtc = true}) {
     DateTime dt = DateTime.parse(input);

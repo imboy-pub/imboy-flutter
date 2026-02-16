@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/service/storage.dart';
 import 'package:ntp/ntp.dart';
 import 'dart:convert';
@@ -13,6 +14,7 @@ import 'dart:convert';
 /// - 本地缓存偏移量（6小时有效期）
 /// - 自动重试机制
 /// - 支持从服务器时间戳更新偏移量
+/// - Web 平台跳过 NTP 同步（使用服务器时间戳）
 ///
 /// 使用方法：
 /// ```dart
@@ -37,6 +39,9 @@ class NtpHelper {
 
   /// 当前时间偏移量（毫秒）
   static int _offset = 0;
+
+  /// 是否为 Web 平台（Web 不支持 NTP 同步）
+  static bool get _isWeb => kIsWeb;
 
   /// 获取当前时间偏移量
   static int get offset => _offset;
@@ -70,6 +75,19 @@ class NtpHelper {
   }
 
   static Future<int> getOffset() async {
+    // Web 平台跳过 NTP 同步（使用服务器时间戳代替）
+    if (_isWeb) {
+      debugPrint('🌐 NtpHelper: Web 平台跳过 NTP 同步，将使用服务器时间戳');
+      // 尝试读取缓存
+      final cachedData = _parseCache(StorageService.to.getString(_cacheKey));
+      if (cachedData != null) {
+        _offset = cachedData.offset;
+        debugPrint('🕐 NtpHelper: 从缓存加载时间偏移: $_offset ms');
+        return _offset;
+      }
+      return 0; // Web 平台返回零偏移，等待服务器时间戳更新
+    }
+
     // 尝试读取缓存
     final cachedData = _parseCache(StorageService.to.getString(_cacheKey));
     if (cachedData != null) {

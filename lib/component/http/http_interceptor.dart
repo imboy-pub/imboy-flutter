@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 
 import 'package:imboy/config/const.dart';
@@ -14,8 +12,8 @@ class IMBoyInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     options.headers['Accept'] = Headers.jsonContentType;
-    options.headers['device-type'] = Platform.operatingSystem;
-    options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
+    options.headers['device-type'] = getOperatingSystem();
+    options.headers['device-type-vsn'] = getSystemVersion();
 
     String tk = await UserRepoLocal.to.accessToken;
     if (strNoEmpty(tk)) {

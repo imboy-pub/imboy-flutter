@@ -4,6 +4,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/page/contact/people_info/people_info_page.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -56,12 +57,34 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
         if (msg == null) {
           return Container(); // 或者一些错误提示
         }
-        return SizedBox(
-          width: MediaQuery.of(context).size.width * 0.618,
-          height: 105,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
+
+        // 判断是否为发送方
+        final bool userIsAuthor = widget.user.id == msg.authorId;
+
+        // 使用与语音消息相同的背景色
+        Color bgColor;
+        if (userIsAuthor) {
+          // 发送方：使用发送消息背景色
+          bgColor = ThemeManager.instance.getChatColor('sendMessageBg');
+        } else {
+          // 接收方：使用与语音消息相同的背景色
+          final isDark = ThemeManager.instance.isDarkMode;
+          bgColor = isDark
+              ? const Color(0xFF2C2C2C)  // 暗色模式：深灰色
+              : Colors.black12;           // 亮色模式：浅灰色
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.618,
+            height: 105,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
@@ -120,6 +143,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                 ),
               ],
             ),
+          ),
           ),
         );
       },

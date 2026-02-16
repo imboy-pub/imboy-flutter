@@ -1,5 +1,7 @@
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
@@ -12,6 +14,45 @@ export 'locale_helper.dart';
 
 void iPrint(String str) {
   return debugPrint("iPrint $str");
+}
+
+/// 获取系统版本（Web 兼容）
+///
+/// 在 Web 平台返回默认值，在移动端返回实际版本
+String getSystemVersion() {
+  if (kIsWeb) {
+    return 'Web Browser';
+  }
+  try {
+    return Platform.operatingSystemVersion;
+  } catch (e) {
+    return 'Unknown';
+  }
+}
+
+/// 获取操作系统类型（Web 兼容）
+///
+/// 在 Web 平台返回 'web'，在移动端返回 'ios' 或 'android'
+String getOperatingSystem() {
+  if (kIsWeb) {
+    return 'web';
+  }
+  try {
+    if (Platform.isIOS) {
+      return 'ios';
+    } else if (Platform.isAndroid) {
+      return 'android';
+    } else if (Platform.isMacOS) {
+      return 'macos';
+    } else if (Platform.isWindows) {
+      return 'windows';
+    } else if (Platform.isLinux) {
+      return 'linux';
+    }
+    return 'unknown';
+  } catch (e) {
+    return 'unknown';
+  }
 }
 
 ///验证网页URl

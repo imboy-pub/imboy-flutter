@@ -5,17 +5,19 @@ import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_location_plus/amap_flutter_location_plus.dart';
 import 'package:amap_flutter_location_plus/amap_location_option.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 
 import 'package:imboy/component/helper/permission.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 
 /// https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
 
 /// LocationInfo? locationInfo = await AMapHelper().startLocation();
 class AMapHelper {
   late AMapFlutterLocation location;
-  late Completer<AMapPosition> completer;
+  late Completer<AMapPosition?> completer;
 
   // 保存单例
   static final AMapHelper _to = AMapHelper._internal();
@@ -24,6 +26,10 @@ class AMapHelper {
   factory AMapHelper() => _to;
 
   static void init() {
+    // 仅在 iOS/Android 平台初始化高德地图隐私协议
+    if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      return;
+    }
     updatePrivacyShow(true, true);
     updatePrivacyAgree(true);
   }
@@ -31,39 +37,72 @@ class AMapHelper {
   /// AMapHelper.setApiKey()
   /// 设置Android和iOS的apikey
   static void setApiKey() {
+    // 仅支持 iOS/Android
+    if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      return;
+    }
+
     if (Platform.isAndroid || Platform.isIOS) {
-      AMapFlutterLocation.setApiKey(Env().aMapAndroidKey, Env().aMapIosKey);
+      final androidKey = Env().aMapAndroidKey;
+      final iosKey = Env().aMapIosKey;
+
+      debugPrint('===== 高德地图 Key 配置调试 =====');
+      debugPrint('当前环境: $currentEnv');
+      debugPrint('Android Key: $androidKey');
+      debugPrint('Android Key 长度: ${androidKey.length}');
+      debugPrint('iOS Key: $iosKey');
+      debugPrint('iOS Key 长度: ${iosKey.length}');
+      debugPrint('===============================');
+
+      AMapFlutterLocation.setApiKey(androidKey, iosKey);
     }
   }
 
   // 私有构造函数
   AMapHelper._internal() {
+    completer = Completer<AMapPosition?>();
+
+    // Web 平台不支持高德地图原生插件，跳过初始化
+    if (kIsWeb) {
+      debugPrint('AMapHelper: Web 平台不支持高德地图定位');
+      return;
+    }
+
     location = AMapFlutterLocation();
-    completer = Completer();
     Stream<Map<String, Object>> stream = onLocationChanged(location);
     stream.listen((Map<String, Object> result) {
       // https://lbs.amap.com/api/android-location-sdk/guide/utilities/location-type
       // https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
       debugPrint("AMapHelper listen result ${result.toString()}");
-      // listen result {
-      // callbackTime: 2023-04-07 14:08:07,
-      // locationTime: 2023-04-07 14:08:07,
-      // locationType: 5,
-      // latitude: 22.591701,
-      // longitude: 113.875861, accuracy: 39.0,
-      // altitude: 0.0, bearing: 0.0, speed: 0.0,
-      // country: 中国,
-      // province: 广东省, city: 深圳市, district: 宝安区, street: 臣田三路,
-      // streetNumber: 38号,
-      // cityCode: 0755,
-      // adCode: 440306,
-      // address: 广东省深圳市宝安区臣田三路38号靠近裕华海鲜(西乡店),
-      // description: 在裕华海鲜(西乡店)附近
-      // }
+
+      // 【增强】检查高德返回的错误码
+      final errorCode = result['errorCode'];
+      final errorInfo = result['errorInfo'];
+
+      if (errorCode != null && errorCode != 0) {
+        debugPrint(
+          '⚠️ AMapHelper 定位失败: errorCode=$errorCode, errorInfo=$errorInfo',
+        );
+        if (!completer.isCompleted) {
+          completer.complete(null);
+        }
+        stopLocation(location);
+        return;
+      }
 
       double longitude = double.tryParse(result['longitude'].toString()) ?? 0;
       double latitude = double.tryParse(result['latitude'].toString()) ?? 0;
       String address = result['address'].toString();
+
+      // 【增强】检查坐标有效性
+      if (latitude == 0.0 && longitude == 0.0) {
+        debugPrint('⚠️ AMapHelper 返回无效坐标 (0, 0)');
+        if (!completer.isCompleted) {
+          completer.complete(null);
+        }
+        stopLocation(location);
+        return;
+      }
 
       AMapPosition p = AMapPosition(
         latLng: LatLng(latitude, longitude),
@@ -84,11 +123,19 @@ class AMapHelper {
 
   /// 设置是否已经包含高德隐私政策并弹窗展示显示用户查看，如果未包含或者没有弹窗展示，高德定位SDK将不会工作
   static void updatePrivacyShow(bool hasContains, bool hasShow) {
+    // 仅支持 iOS/Android 平台
+    if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      return;
+    }
     AMapFlutterLocation.updatePrivacyShow(hasContains, hasShow);
   }
 
   /// 设置是否已经取得用户同意，如果未取得用户同意，高德定位SDK将不会工作
   static void updatePrivacyAgree(bool hasAgree) {
+    // 仅支持 iOS/Android 平台
+    if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      return;
+    }
     AMapFlutterLocation.updatePrivacyAgree(hasAgree);
   }
 
@@ -112,34 +159,86 @@ class AMapHelper {
 
   /// 设置定位参数
   void setLocationOption(AMapFlutterLocation location) {
+    if (kIsWeb) return;
     location.setLocationOption(locationOption);
   }
 
   /// 开始定位
   Future<AMapPosition?> startLocation() async {
-    // debugPrint("AMapHelper Start === ");
-    bool p = await requestLocationPermission();
-    if (!p) {
+    debugPrint("===== AMapHelper.startLocation() 开始 =====");
+
+    // Web 平台不支持高德地图定位
+    if (kIsWeb) {
+      debugPrint('AMapHelper: Web 平台不支持高德地图定位，返回 null');
       return null;
     }
+
+    // 1. 检查权限
+    bool p = await requestLocationPermission();
+    debugPrint("AMapHelper 权限检查结果: $p");
+    if (!p) {
+      debugPrint('❌ AMapHelper 权限被拒绝');
+      return null;
+    }
+
+    // 2. 初始化隐私协议（如果未初始化）
     init();
-    // 开启定位
-    location.startLocation();
-    return completer.future;
+
+    // 3. 设置定位参数
+    setLocationOption(location);
+
+    // 4. 创建新的 Completer（支持多次调用）
+    if (completer.isCompleted) {
+      completer = Completer<AMapPosition?>();
+    }
+
+    // 5. 添加超时保护（15秒）
+    final Future<AMapPosition?> timeoutFuture =
+        Future.delayed(const Duration(seconds: 15), () => null).then((_) {
+          debugPrint('⏰ AMapHelper 定位超时（15秒）');
+          if (!completer.isCompleted) {
+            completer.complete(null);
+          }
+          return null;
+        });
+
+    // 6. 开启定位
+    debugPrint('AMapHelper 调用 location.startLocation()...');
+    try {
+      location.startLocation();
+    } catch (e) {
+      debugPrint('❌ AMapHelper startLocation 异常: $e');
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+    }
+
+    // 7. 等待定位结果或超时
+    final result = await Future.any([completer.future, timeoutFuture]);
+
+    debugPrint(
+      "===== AMapHelper.startLocation() 结束，结果: ${result != null ? '成功' : '失败'} =====",
+    );
+    return result;
   }
 
   /// 停止定位
   void stopLocation(AMapFlutterLocation location) {
+    if (kIsWeb) return;
     location.stopLocation();
   }
 
   ///销毁定位
   void destroy(AMapFlutterLocation location) {
+    if (kIsWeb) return;
     location.destroy();
   }
 
   ///定位结果返回
   Stream<Map<String, Object>> onLocationChanged(AMapFlutterLocation location) {
+    if (kIsWeb) {
+      return const Stream.empty();
+    }
     return location.onLocationChanged();
   }
 }
@@ -147,6 +246,11 @@ class AMapHelper {
 class AMapApi {
   /// 获取城市名称，高德地图的adCode
   static String getCityNameByGaoDe(String code) {
+    // 检查 code 是否为空或长度不足
+    if (code.isEmpty || code.length < 4) {
+      iPrint('⚠️ AMapApi: adCode 无效，使用默认值: code="$code"');
+      return '000000'; // 返回默认的行政区划代码
+    }
     return "${code.substring(0, 4)}00";
   }
 

@@ -287,3 +287,56 @@ void zoomInPhotoViewGallery(BuildContext context, List items) async {
     ),
   );
 }
+
+/// 显示多个图像并支持指定初始页面索引
+///
+/// [items] - 图片 URL 列表
+/// [initialPage] - 初始显示的图片索引（从 0 开始）
+void zoomInPhotoViewGalleryWithInitialPage(
+  BuildContext context,
+  List<String> items,
+  int initialPage,
+) async {
+  iPrint("zoomInPhotoViewGalleryWithInitialPage: initialPage=$initialPage, total=${items.length}");
+  final size = MediaQuery.of(context).size;
+  List<ImageProvider> galleryItems = [];
+  for (var e in items) {
+    galleryItems.add(cachedImageProvider(e, w: size.width.toDouble()));
+  }
+
+  // 确保初始索引在有效范围内
+  final validInitialPage = initialPage.clamp(0, items.length - 1);
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    enableDrag: false,
+    builder: (context) => InkWell(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: PhotoViewGallery.builder(
+        scrollPhysics: const BouncingScrollPhysics(),
+        builder: (BuildContext context, int index) {
+          return PhotoViewGalleryPageOptions(
+            imageProvider: galleryItems[index],
+            initialScale: PhotoViewComputedScale.contained * 0.8,
+          );
+        },
+        itemCount: galleryItems.length,
+        loadingBuilder: (context, event) => Center(
+          child: SizedBox(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+            ),
+          ),
+        ),
+        pageController: PageController(initialPage: validInitialPage),
+      ),
+    ),
+  );
+}

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -20,7 +21,8 @@ class RepaintBoundaryHelper {
     final byteData = await image.toByteData(format: ImageByteFormat.png);
 
     bool permission = true;
-    if (Platform.isIOS || Platform.isAndroid) {
+    // Web 平台不需要存储权限
+    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
       permission = await Permission.storage.isGranted;
     }
     if (permission) {

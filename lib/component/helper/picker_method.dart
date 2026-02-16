@@ -2,6 +2,7 @@
 // [Author] Alex (https://github.com/Alex525)
 // [Date] 2020-05-30 20:56
 //
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
@@ -224,6 +225,13 @@ class PickMethod {
       name: 'Keep scroll offset',
       description: 'Pick assets from same scroll position.',
       method: (BuildContext context, List<AssetEntity> assets) async {
+        // Web 平台不需要请求权限
+        if (kIsWeb) {
+          return AssetPicker.pickAssetsWithDelegate(
+            context,
+            delegate: delegate(),
+          );
+        }
         final PermissionState ps = await PhotoManager.requestPermissionExtend();
         if (ps != PermissionState.authorized && ps != PermissionState.limited) {
           throw StateError('Permission state error with $ps.');

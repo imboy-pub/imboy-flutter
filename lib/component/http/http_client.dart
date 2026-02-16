@@ -4,7 +4,8 @@ import 'package:dio/dio.dart';
 
 // ignore: implementation_imports
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/config/const.dart';
@@ -41,7 +42,7 @@ bool _certificateValidationCallback(X509Certificate cert) {
 
 Future<Map<String, dynamic>> defaultHeaders() async {
   String key = await Env.signKey();
-  String cos = Platform.operatingSystem;
+  String cos = getOperatingSystem();
   return {
     'cos': cos, // device_type: iso android macos web
     'vsn': appVsn,
@@ -101,13 +102,17 @@ class HttpClient {
     if (conf?.interceptors?.isNotEmpty ?? false) {
       _dio.interceptors.addAll(conf!.interceptors!);
     }
-    _dio.httpClientAdapter = Http2Adapter(
-      ConnectionManager(
-        idleTimeout: const Duration(seconds: 10),
-        onClientCreate: (_, config) =>
-            config.onBadCertificate = _certificateValidationCallback,
-      ),
-    );
+
+    // Web 平台使用浏览器默认的 Fetch API，不需要 Http2Adapter
+    if (!kIsWeb) {
+      _dio.httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: const Duration(seconds: 10),
+          onClientCreate: (_, config) =>
+              config.onBadCertificate = _certificateValidationCallback,
+        ),
+      );
+    }
 
     if (conf?.proxy?.isNotEmpty ?? false) {
       setProxy(conf!.proxy!);
@@ -115,6 +120,12 @@ class HttpClient {
   }
 
   void setProxy(String proxy) {
+    // Web 平台不支持代理设置
+    if (kIsWeb) {
+      debugPrint("HttpClient: Web 平台不支持代理设置");
+      return;
+    }
+
     _dio.httpClientAdapter = Http2Adapter(
       ConnectionManager(
         idleTimeout: const Duration(seconds: 10),
@@ -125,6 +136,9 @@ class HttpClient {
       ),
     );
   }
+
+  /// 是否正在处理登录过期（防止重复弹窗）
+  static bool _isHandlingLoginExpired = false;
 
   Future<void> _setDefaultConfig() async {
     if (_dio.options.baseUrl == "") {
@@ -138,7 +152,17 @@ class HttpClient {
       return;
     }
 
+    // 检查 Token 是否为空，如果为空且用户已登录状态，说明 Token 过期或失效
     String tk = await UserRepoLocal.to.accessToken;
+    final isLoggedIn = UserRepoLocal.to.isLoggedIn;
+
+    // 如果用户本地记录显示已登录，但 Token 为空，说明 Token 失效
+    if (isLoggedIn && strEmpty(tk)) {
+      debugPrint("_setDefaultConfig: 用户已登录但 Token 为空，触发重新登录流程");
+      await _handleTokenExpired();
+      return;
+    }
+
     // iPrint("_setDefaultConfig tk: $tk");
     if (tokenExpired(tk) == false) {
       String rtk = await UserRepoLocal.to.refreshToken;
@@ -157,6 +181,56 @@ class HttpClient {
     // 安全日志：不输出包含敏感信息的完整 headers
     debugPrint("_setDefaultConfig: Adding ${headers.length} default headers");
     _dio.options.headers.addAll(headers);
+  }
+
+  /// 处理 Token 过期的后续流程（弹窗提示 + 跳转登录页）
+  Future<void> _handleTokenExpired() async {
+    // 防止重复弹窗
+    if (_isHandlingLoginExpired) {
+      debugPrint("_handleTokenExpired: 正在处理登录过期流程，跳过重复处理");
+      return;
+    }
+
+    _isHandlingLoginExpired = true;
+    debugPrint("_handleTokenExpired: 开始处理登录过期流程");
+
+    try {
+      // 执行登出操作
+      await UserRepoLocal.to.quitLogin();
+
+      // 获取当前 context（用于显示 SnackBar）
+      final context = navigatorKey.currentState?.overlay?.context;
+      if (context != null && context.mounted) {
+        // 延迟显示，确保 UI 已经准备好
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t.loginExpiredMessage),
+              duration: const Duration(seconds: 2),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+
+      // 延迟跳转，让用户看到提示
+      await Future.delayed(const Duration(seconds: 1));
+
+      // 跳转到登录页
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        AppRoutes.signIn,
+        (route) => false,
+      );
+    } catch (e) {
+      debugPrint("_handleTokenExpired: 处理失败 $e");
+    } finally {
+      // 重置标志（延迟重置，防止跳转过程中的重复请求）
+      Future.delayed(const Duration(seconds: 2), () {
+        _isHandlingLoginExpired = false;
+      });
+    }
   }
 
   /// 处理令牌解密失败的后续流程
