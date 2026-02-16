@@ -107,7 +107,9 @@ class ConversationModel {
         return t.youWithdrewAMessage;
       }
     }
-
+    iPrint("conversation_model_msgType $msgType, title $title, subtitle $subtitle,");
+    if (msgType == 'custom') {
+    }
     // 普通消息类型
     if (msgType == 'text' || msgType == '') {
       return subtitle;
@@ -117,7 +119,7 @@ class ConversationModel {
       str = t.image;
     } else if (msgType == 'file') {
       str = t.file;
-    } else if (msgType == 'audio') {
+    } else if (msgType == 'voice' || msgType == 'audio') {
       str = t.voiceMessage;
     } else if (msgType == 'video') {
       str = t.video;
