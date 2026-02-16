@@ -41,6 +41,13 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/services/message_handling_service.dart';
 
+// ===== 新增：导入处理器模块（重构迁移）=====
+import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
+import 'package:imboy/page/chat/chat/providers/chat_message_sender.dart';
+import 'package:imboy/page/chat/chat/providers/chat_message_loader.dart';
+import 'package:imboy/page/chat/chat/providers/chat_e2ee_handler.dart';
+// ===== 导入处理器模块结束 =====
+
 part 'chat_provider.g.dart';
 
 /// 消息处理服务 Provider
@@ -115,6 +122,16 @@ class ChatNotifier extends _$ChatNotifier {
   StreamSubscription<int>? _positionSubscription;
   bool _isDisposed = false;
 
+  // ===== 新增：处理器实例（重构迁移）=====
+  late final ChatAudioHandler _audioHandler;
+  // TODO: 重构迁移中，以下处理器尚未完全集成
+  // ignore: unused_field
+  late final ChatMessageSender _messageSender;
+  late final ChatMessageLoader _messageLoader;
+  // ignore: unused_field
+  late final ChatE2EEHandler _e2eeHandler;
+  // ===== 处理器实例结束 =====
+
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
       'imboy.pending_read_receipts.v1';
@@ -154,10 +171,24 @@ class ChatNotifier extends _$ChatNotifier {
 
   @override
   ChatState build() {
+    // ===== 初始化处理器（重构迁移）=====
+    _audioHandler = ChatAudioHandler();
+    _messageSender = ChatMessageSender();
+    _messageLoader = ChatMessageLoader();
+    _e2eeHandler = ChatE2EEHandler();
+
+    // 设置消息获取回调
+    _audioHandler.setMessagesGetter(() => _chatService?.messages.toList() ?? []);
+    // ===== 处理器初始化结束 =====
+
     // 在 dispose 时清理资源
     ref.onDispose(() {
       iPrint('Chat Provider: 执行 dispose');
       _dispose();
+      // ===== 清理处理器资源 =====
+      _audioHandler.dispose();
+      _messageLoader.dispose();
+      // ===== 处理器清理结束 =====
     });
 
     // 监听在线状态
@@ -456,54 +487,78 @@ class ChatNotifier extends _$ChatNotifier {
     Message message, {
     bool sendToServer = true,
   }) async {
-    String subtitle = MessageModel.conversationSubtitle(message);
-    String msgType = MessageModel.conversationMsgType(message);
-    int createdAt = DateTimeHelper.millisecond();
+    iPrint('📤 [ChatProvider.addMessage] 开始: msgId=${message.id}, type=$type, toId=$toId, sendToServer=$sendToServer');
+    try {
+      String subtitle = MessageModel.conversationSubtitle(message);
+      String msgType = MessageModel.conversationMsgType(message);
+      int createdAt = DateTimeHelper.millisecond();
 
-    ConversationRepo repo = ConversationRepo();
-    ConversationModel? conversation = await repo.findByPeerId(type, toId);
+      ConversationRepo repo = ConversationRepo();
+      ConversationModel? conversation = await repo.findByPeerId(type, toId);
 
-    conversation ??= await ref
-        .read(conversationProvider.notifier)
-        .createConversation(
-          type: type,
-          peerId: toId,
-          avatar: avatar ?? '',
-          title: title,
-          subtitle: "",
-          lastTime: createdAt,
-        );
+      iPrint('📤 [ChatProvider.addMessage] 会话查找: conversation=${conversation != null ? conversation.uk3 : 'null'}');
 
-    if (conversation.id > 0) {
-      await repo.updateById(conversation.id, {
-        ConversationRepo.title: title,
-        ConversationRepo.subtitle: subtitle,
-        ConversationRepo.msgType: msgType,
-        ConversationRepo.lastMsgId: message.id,
-        ConversationRepo.lastTime: createdAt,
-        ConversationRepo.lastMsgStatus: sendToServer ? 10 : 11,
-        ConversationRepo.unreadNum: conversation.unreadNum,
-        ConversationRepo.isShow: 1,
-      });
-    }
+      if (conversation == null) {
+        conversation = await ref
+            .read(conversationProvider.notifier)
+            .createConversation(
+              type: type,
+              peerId: toId,
+              avatar: avatar ?? '',
+              title: title,
+              subtitle: "",
+              lastTime: createdAt,
+            );
+        iPrint('📤 [ChatProvider.addMessage] 创建新会话: ${conversation.uk3}');
+      }
 
-    MessageModel obj = _getMsgFromTMsg(type, conversation.uk3, message);
-    String tb = MessageRepo.getTableName(conversation.type);
-    await (MessageRepo(tableName: tb)).insert(obj);
+      if (conversation.id > 0) {
+        await repo.updateById(conversation.id, {
+          ConversationRepo.title: title,
+          ConversationRepo.subtitle: subtitle,
+          ConversationRepo.msgType: msgType,
+          ConversationRepo.lastMsgId: message.id,
+          ConversationRepo.lastTime: createdAt,
+          ConversationRepo.lastMsgStatus: sendToServer ? 10 : 11,
+          ConversationRepo.unreadNum: conversation.unreadNum,
+          ConversationRepo.isShow: 1,
+        });
+        iPrint('📤 [ChatProvider.addMessage] 更新会话完成: ${conversation.uk3}');
+      }
 
-    AppEventBus.fireData(conversation);
-    iPrint(
-      "sendMessage $sendToServer : ${message.id}, type: $type, toId: $toId",
-    );
+      MessageModel obj = _getMsgFromTMsg(type, conversation.uk3, message);
+      String tb = MessageRepo.getTableName(conversation.type);
+      iPrint('📤 [ChatProvider.addMessage] 准备插入数据库: table=$tb, msgId=${obj.id}');
+      try {
+        final insertResult = await (MessageRepo(tableName: tb)).insert(obj);
+        iPrint('📤 [ChatProvider.addMessage] 数据库插入完成: msgId=${obj.id}, result=$insertResult');
+      } catch (e) {
+        iPrint('❌ [ChatProvider.addMessage] 数据库插入异常: msgId=${obj.id}, error=$e');
+        rethrow;
+      }
 
-    if (sendToServer) {
-      _sendWsMsg(obj);
-    }
+      AppEventBus.fireData(conversation);
+      iPrint(
+        "📤 [ChatProvider.addMessage] 发送事件到 EventBus: msgId=${message.id}, type: $type, toId: $toId, sendToServer=$sendToServer",
+      );
 
-    if (message is ImageMessage) {
-      ref
-          .read(imageGalleryProvider.notifier)
-          .pushToLast(message.id, message.source);
+      if (sendToServer) {
+        iPrint('📤 [ChatProvider.addMessage] 准备通过 WebSocket 发送消息');
+        await _sendWsMsg(obj);
+        iPrint('📤 [ChatProvider.addMessage] WebSocket 发送完成: msgId=${obj.id}');
+      }
+
+      if (message is ImageMessage) {
+        ref
+            .read(imageGalleryProvider.notifier)
+            .pushToLast(message.id, message.source);
+      }
+
+      iPrint('✅ [ChatProvider.addMessage] 完成: msgId=${message.id}');
+    } catch (e, stack) {
+      iPrint('❌ [ChatProvider.addMessage] 异常: msgId=${message.id}, error=$e');
+      iPrint('❌ [ChatProvider.addMessage] stackTrace: $stack');
+      rethrow;
     }
   }
 
@@ -514,6 +569,22 @@ class ChatNotifier extends _$ChatNotifier {
     String conversationUk3,
     Message message,
   ) {
+    // 空值验证（Message.id 和 Message.authorId 是 required String，不会为空）
+    if (message.id.isEmpty) {
+      iPrint('[ERROR] _getMsgFromTMsg: Message ID cannot be empty');
+      throw ArgumentError('Message ID cannot be empty');
+    }
+
+    if (message.authorId.isEmpty) {
+      iPrint('[ERROR] _getMsgFromTMsg: Message authorId cannot be empty');
+      throw ArgumentError('Message authorId cannot be empty');
+    }
+
+    if (message.createdAt == null) {
+      iPrint('[ERROR] _getMsgFromTMsg: Message createdAt cannot be null');
+      throw ArgumentError('Message createdAt cannot be null');
+    }
+
     Map<String, dynamic> payload = {};
     final metadata = message.metadata ?? <String, dynamic>{};
 
@@ -523,12 +594,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (message is TextMessage) {
       msgType = 'text';
       payload = {"text": message.text}; // v2.0: payload 中不包含 msg_type
-      // v2.0: 清理 metadata，移除顶层字段（msg_type, action, e2ee）
-      final cleanMetadata = Map<String, dynamic>.from(metadata);
-      cleanMetadata.remove('msg_type');
-      cleanMetadata.remove('action');
-      cleanMetadata.remove('e2ee');
-      payload.addAll(cleanMetadata);
+      _cleanAndAddMetadata(payload, metadata);
     } else if (message is ImageMessage) {
       msgType = 'image';
       payload = {
@@ -538,14 +604,9 @@ class ChatNotifier extends _$ChatNotifier {
         "uri": message.source,
         "width": message.width,
         "height": message.height,
-        "md5": message.metadata?['md5'],
+        "thumbhash": message.thumbhash,
       };
-      // v2.0: 清理 metadata，移除顶层字段（msg_type, action, e2ee）
-      final cleanMetadata = Map<String, dynamic>.from(metadata);
-      cleanMetadata.remove('msg_type');
-      cleanMetadata.remove('action');
-      cleanMetadata.remove('e2ee');
-      payload.addAll(cleanMetadata);
+      _cleanAndAddMetadata(payload, metadata);
     } else if (message is FileMessage) {
       msgType = 'file';
       payload = {
@@ -556,12 +617,50 @@ class ChatNotifier extends _$ChatNotifier {
         "mime_type": message.mimeType,
         "md5": message.metadata?['md5'],
       };
-      // v2.0: 清理 metadata，移除顶层字段（msg_type, action, e2ee）
-      final cleanMetadata = Map<String, dynamic>.from(metadata);
-      cleanMetadata.remove('msg_type');
-      cleanMetadata.remove('action');
-      cleanMetadata.remove('e2ee');
-      payload.addAll(cleanMetadata);
+      _cleanAndAddMetadata(payload, metadata);
+    } else if (message is VideoMessage) {
+      // 视频消息
+      msgType = 'video';
+      payload = {
+        "name": message.name ?? (message.text ?? ''),
+        "size": message.size,
+        "uri": message.source,
+        "width": message.width,
+        "height": message.height,
+      };
+      if (message.text != null) {
+        payload['text'] = message.text;
+      }
+      _cleanAndAddMetadata(payload, metadata);
+    } else if (message is AudioMessage) {
+      // 语音消息（WebSocket API v2.0 使用 'voice'）
+      msgType = 'voice';
+      payload = {
+        "uri": message.source,
+        "duration_ms": message.duration.inMilliseconds,
+        "size": message.size,
+      };
+      if (message.text != null) {
+        payload['name'] = message.text;
+      }
+      if (message.waveform != null) {
+        payload['waveform'] = message.waveform;
+      }
+      _cleanAndAddMetadata(payload, metadata);
+    } else if (message is TextStreamMessage) {
+      // 文本流消息（用于 AI 对话等流式输出）
+      msgType = 'textStream';
+      payload = {
+        "stream_id": message.streamId,
+      };
+      _cleanAndAddMetadata(payload, metadata);
+    } else if (message is SystemMessage) {
+      // 系统消息
+      msgType = 'system';
+      payload = Map<String, dynamic>.from(metadata);
+      payload.remove('msg_type');
+      payload.remove('action');
+      payload.remove('e2ee');
     } else if (message is CustomMessage) {
       msgType = 'custom';
       // v2.0: 清理 metadata，移除顶层字段（msg_type, action, e2ee）
@@ -571,6 +670,11 @@ class ChatNotifier extends _$ChatNotifier {
       cleanMetadata.remove('e2ee');
       payload = {...cleanMetadata};
       // custom 类型可能有 custom_type 字段
+    } else {
+      // 未知消息类型，默认为 text（兼容性处理）
+      msgType = 'unsupported';
+      iPrint('[WARN] _getMsgFromTMsg: 未知的消息类型: ${message.runtimeType}，默认使用 unsupported');
+      payload = {'error': 'unknown_message_type', 'runtime_type': message.runtimeType.toString()};
     }
 
     String sysPrompt = message.metadata?['sys_prompt'] ?? '';
@@ -598,12 +702,29 @@ class ChatNotifier extends _$ChatNotifier {
     return obj;
   }
 
+  /// 辅助方法：清理 metadata 并添加到 payload
+  /// 移除顶层字段（msg_type, action, e2ee）后合并到 payload
+  void _cleanAndAddMetadata(
+    Map<String, dynamic> payload,
+    Map<String, dynamic> metadata,
+  ) {
+    final cleanMetadata = Map<String, dynamic>.from(metadata);
+    cleanMetadata.remove('msg_type');
+    cleanMetadata.remove('action');
+    cleanMetadata.remove('e2ee');
+    payload.addAll(cleanMetadata);
+  }
+
   /// 通过WebSocket发送消息
   /// WebSocket API v2.0: msg_type/action/e2ee 字段提升到顶层
   /// - 普通消息: payload 是 Map（只包含内容）
   /// - E2EE 消息: payload 是密文字符串
   Future<bool> _sendWsMsg(MessageModel obj) async {
-    if (obj.status != IMBoyMessageStatus.sending) return true;
+    iPrint('📤 [_sendWsMsg] 开始: msgId=${obj.id}, status=${obj.status}');
+    if (obj.status != IMBoyMessageStatus.sending) {
+      iPrint('⚠️ [_sendWsMsg] 消息状态不是 sending，跳过发送: msgId=${obj.id}, status=${obj.status}');
+      return true;
+    }
 
     final clientSendTs = DateTimeHelper.millisecond();
     Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(obj.payload);
@@ -712,7 +833,8 @@ class ChatNotifier extends _$ChatNotifier {
     Map<String, dynamic> msg,
   ) async {
     try {
-      iPrint('消息发送（使用重试机制）: $messageId');
+      iPrint('📤 [_sendWithRetry] 开始发送: msgId=$messageId');
+      iPrint('📤 [_sendWithRetry] 消息内容: ${json.encode(msg)}');
 
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(
@@ -724,10 +846,10 @@ class ChatNotifier extends _$ChatNotifier {
       final type = msg['type']?.toString() ?? 'C2C';
       MessageRetry.to.addToRetryQueue(messageId, type);
 
-      iPrint('消息已提交到重试队列: $messageId');
+      iPrint('✅ [_sendWithRetry] 消息已提交到重试队列: msgId=$messageId');
       return true;
     } catch (e) {
-      iPrint('消息发送失败: $messageId, 错误: $e');
+      iPrint('❌ [_sendWithRetry] 消息发送失败: msgId=$messageId, 错误: $e');
       await _updateMessageStatus(messageId, IMBoyMessageStatus.error);
       return false;
     }
@@ -1151,94 +1273,79 @@ class ChatNotifier extends _$ChatNotifier {
   // ===== 语音播放 =====
 
   /// 播放语音
+  ///
+  /// 重构：委托给 ChatAudioHandler 处理
   Future<void> playVoice({
     required String voiceUrlOrPath,
     required String messageId,
     required int duration,
   }) async {
-    await voicePlaybackService.play(
-      audioPath: voiceUrlOrPath,
+    // 使用新的处理器（推荐）
+    await _audioHandler.playVoice(
+      voiceUrlOrPath: voiceUrlOrPath,
       messageId: messageId,
-      durationMs: duration,
+      duration: duration,
     );
+    // 兼容旧代码（可删除）
+    // await voicePlaybackService.play(
+    //   audioPath: voiceUrlOrPath,
+    //   messageId: messageId,
+    //   durationMs: duration,
+    // );
   }
 
   /// 暂停播放
+  ///
+  /// 重构：委托给 ChatAudioHandler 处理
   Future<void> pauseVoice() async {
-    await voicePlaybackService.pause();
+    await _audioHandler.pauseVoice();
   }
 
   /// 继续播放
+  ///
+  /// 重构：委托给 ChatAudioHandler 处理
   Future<void> resumeVoice() async {
-    await voicePlaybackService.resume();
+    await _audioHandler.resumeVoice();
   }
 
   /// 停止播放
+  ///
+  /// 重构：委托给 ChatAudioHandler 处理
   Future<void> stopCurrentVoice() async {
-    await voicePlaybackService.stop();
+    await _audioHandler.stopCurrentVoice();
   }
 
   /// 查找下一条语音消息
+  ///
+  /// 重构：委托给 ChatAudioHandler 处理
   Future<MessageModel?> findNextAudioMessage(String messageId) async {
-    if (_chatService == null) return null;
-
-    final messages = _chatService!.messages;
-    if (messages.isEmpty) return null;
-
-    int currentIndex = messages.indexWhere((m) => m.id == messageId);
-    if (currentIndex == -1) return null;
-
-    for (int i = currentIndex + 1; i < messages.length; i++) {
-      final message = messages[i];
-      if (message is CustomMessage) {
-        final customType = message.metadata?['custom_type']?.toString();
-        if (customType == 'audio') {
-          for (final tableType in ['C2C', 'C2G', 'C2S']) {
-            final tb = MessageRepo.getTableName(tableType);
-            final repo = MessageRepo(tableName: tb);
-            final msg = await repo.find(message.id);
-            if (msg != null) return msg;
-          }
-        }
-      }
-    }
-
-    return null;
+    return await _audioHandler.findNextAudioMessage(messageId);
   }
 
   /// 播放下一条语音消息
+  ///
+  /// 重构：委托给 ChatAudioHandler 处理
   Future<void> _playNextAudioMessage(String currentMessageId) async {
-    if (currentMessageId.isEmpty) return;
-
-    final nextMessage = await findNextAudioMessage(currentMessageId);
-    if (nextMessage == null) return;
-
-    final customMessage = await nextMessage.toTypeMessage() as CustomMessage;
-    final audioUri = customMessage.metadata?['uri'];
-    if (audioUri == null) return;
-
-    final messageId = customMessage.id;
-    final duration = customMessage.metadata?['duration_ms'] ?? 0;
-
-    try {
-      final audioFile = await IMBoyCacheManager().getSingleFile(audioUri);
-      if (await audioFile.exists()) {
+    await _audioHandler.playNextAudioMessage(
+      currentMessageId,
+      onPlayNext: (messageId, path, duration) async {
         await playVoice(
-          voiceUrlOrPath: audioFile.path,
+          voiceUrlOrPath: path,
           messageId: messageId,
           duration: duration,
         );
-      }
-    } catch (e) {
-      iPrint('播放下一条语音消息失败: $e');
-    }
+      },
+    );
   }
 
   // ===== 文件操作 =====
 
   /// 保存文件
   Future<void> saveFile(String name, String uri) async {
-    File? tmpF = await IMBoyCacheManager().getSingleFile(uri);
+    File? tmpF = await IMBoyCacheManager().getSingleFile(
+      uri,
+      validateImageData: false, // 文件保存不验证图片格式
+    );
 
     String ext = StringHelper.ext(uri);
     MimeType? mt = MimeType.get(ext.toUpperCase());

@@ -143,6 +143,9 @@ class ChatPageState extends ConsumerState<ChatPage>
   final GlobalKey<ChatInputState> _chatInputKey = GlobalKey<ChatInputState>();
   final performanceMonitor = ChatPerformanceMonitor();
 
+  // @提及相关状态
+  List<String> _currentMentionIds = [];
+
   // 消息发送防抖
   DateTime? _lastSendTime;
   static const Duration _sendDebounceDuration = Duration(milliseconds: 500);
@@ -151,6 +154,8 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 可视阈值已读：延迟计时与去重集合
   final Map<String, Timer> _readDelayTimers = {};
   final Set<String> _readCommitted = {};
+  // 防止重复滚动到底部（避免在每次 build 时都创建回调）
+  bool _hasScrolledToBottom = false;
   // 消息ID集合，用于防止 eventBus 重复渲染消息
   final Set<String> msgIds = {};
   final User currentUser = User(
@@ -689,9 +694,21 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
       for (var attempt = 0; attempt < 12; attempt++) {
+        // 检查 widget 是否仍然 mounted（防止页面销毁后继续执行）
+        if (!mounted) {
+          debugPrint("页面已销毁，停止滚动尝试");
+          return;
+        }
+
         await WidgetsBinding.instance.endOfFrame;
         // 渐进式等待：前几次快一点，后面慢一点
         await Future.delayed(Duration(milliseconds: attempt < 3 ? 100 : 200));
+
+        // 再次检查 mounted（防止异步操作期间页面被销毁）
+        if (!mounted) {
+          debugPrint("页面已销毁，停止滚动尝试");
+          return;
+        }
 
         await ref
             .read(chatProvider.notifier)
@@ -715,9 +732,12 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
       }
 
-      ref
-          .read(messageScrollManagerProvider.notifier)
-          .highlightMessage(widget.msgId);
+      // 高亮消息（检查 mounted）
+      if (mounted) {
+        ref
+            .read(messageScrollManagerProvider.notifier)
+            .highlightMessage(widget.msgId);
+      }
     } catch (e) {
       debugPrint("滚动到目标消息失败: $e");
       // 降级处理：使用简单的索引滚动
@@ -728,6 +748,9 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 降级滚动方法
   void _fallbackScrollToMessage() {
     try {
+      // 检查 widget 是否仍然 mounted
+      if (!mounted) return;
+
       final messages =
           ref.read(chatProvider.notifier).chatService?.messages ?? [];
       final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
@@ -756,11 +779,13 @@ class ChatPageState extends ConsumerState<ChatPage>
             .scrollController
             .jumpTo(estimatedOffset);
 
-        // 延迟高亮
+        // 延迟高亮（检查 mounted）
         Future.delayed(const Duration(milliseconds: 300), () {
-          ref
-              .read(messageScrollManagerProvider.notifier)
-              .highlightMessage(widget.msgId);
+          if (mounted) {
+            ref
+                .read(messageScrollManagerProvider.notifier)
+                .highlightMessage(widget.msgId);
+          }
         });
 
         debugPrint("使用降级方法滚动到消息: ${widget.msgId}, 位置: $estimatedOffset");
@@ -880,14 +905,67 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
   }
 
-  /// 处理名片选择（暂未实现）
-  void _handleVisitCardSelection() {
-    EasyLoading.showToast(t.operationFailedAgainLater);
+  /// 处理名片选择
+  Future<void> _handleVisitCardSelection() async {
+    // 构建当前用户信息（用于名片显示）
+    final peer = {
+      'uid': _attachmentHandler.peerId,
+      'nickname': widget.peerTitle,
+      'avatar': widget.peerAvatar,
+    };
+
+    // 打开选择好友页面
+    final result = await context.push<ContactModel>(
+      '/contact/select_friend',
+      extra: {'peer': peer, 'peerIsReceiver': true},
+    );
+
+    // 如果用户选择了好友，发送名片消息
+    if (result != null && mounted) {
+      debugPrint('发送名片消息: uid=${result.peerId}, title=${result.title}');
+      await _attachmentHandler.sendVisitCardMessage(
+        context,
+        result.peerId,
+        result.title,
+        result.avatar,
+      );
+    }
   }
 
-  /// 处理收藏选择（暂未实现）
-  void _handleCollectSelection() {
-    EasyLoading.showToast(t.operationFailedAgainLater);
+  /// 处理收藏选择
+  Future<void> _handleCollectSelection() async {
+    // 构建当前聊天对象信息（用于收藏页面显示）
+    final peer = {
+      'id': _attachmentHandler.peerId,
+      'title': widget.peerTitle,
+      'avatar': widget.peerAvatar,
+      'sign': widget.peerSign,
+    };
+
+    debugPrint('打开收藏选择页面，peer: $peer');
+
+    // 打开收藏页面（选择模式）
+    final result = await Navigator.push<UserCollectModel>(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => UserCollectPage(isSelect: true, peer: peer),
+      ),
+    );
+
+    // 如果用户选择了收藏消息，发送它
+    if (result != null && mounted) {
+      debugPrint('用户选择了收藏消息: kind=${result.kind}, kindId=${result.kindId}');
+      debugPrint('收藏消息 info: ${result.info.toString()}');
+
+      try {
+        await _attachmentHandler.sendCollectMessage(context, result.info);
+      } catch (e, s) {
+        debugPrint('发送收藏消息失败: $e\n堆栈: $s');
+        if (mounted) {
+          EasyLoading.showError(t.operationFailedAgainLater);
+        }
+      }
+    }
   }
 
   // 消息双击事件
@@ -1026,6 +1104,16 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 发送普通文本消息
   Future<bool> _sendTextMessage(String text) async {
+    // 构建 metadata，包含 mentions 字段（仅群聊）
+    final metadata = _withBurnMetadata({'peer_id': widget.peerId});
+
+    // 如果是群聊且有 @提及，添加 mentions 字段
+    if (widget.type == 'C2G' && _currentMentionIds.isNotEmpty) {
+      metadata['mentions'] = _currentMentionIds;
+      // 发送后清空 @提及 列表
+      _currentMentionIds = [];
+    }
+
     final textMessage = TextMessage(
       authorId: currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
@@ -1034,7 +1122,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       ),
       id: Xid().toString(),
       text: text,
-      metadata: _withBurnMetadata({'peer_id': widget.peerId}),
+      metadata: metadata,
     );
     return await _addMessage(textMessage);
   }
@@ -1182,7 +1270,6 @@ class ChatPageState extends ConsumerState<ChatPage>
                     ),
                   ),
                 ),
-                backgroundColor: ThemeManager.instance.getThemeColor('surface'),
                 rightDMActions: topRightWidget,
                 automaticallyImplyLeading: true,
               )
@@ -1250,6 +1337,12 @@ class ChatPageState extends ConsumerState<ChatPage>
       type: widget.type,
       peerId: widget.peerId,
       onSendPressed: _handleSendPressed,
+      // @提及变更回调
+      onMentionsChanged: widget.type == 'C2G'
+          ? (mentionIds) {
+              _currentMentionIds = mentionIds;
+            }
+          : null,
       // sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
       voiceWidget: VoiceWidget(
         startRecord: () {},
@@ -1329,13 +1422,22 @@ class ChatPageState extends ConsumerState<ChatPage>
           // 使用 Column 布局后，不再需要底部的 padding，联动效果更自然
           const bottomGap = 0.0;
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            try {
-              if (widget.msgId.isEmpty) {
-                ref.read(chatProvider.notifier).chatService?.scrollToBottom();
+          // 只在第一次 build 时滚动到底部（防止重复创建回调）
+          if (!_hasScrolledToBottom && widget.msgId.isEmpty) {
+            _hasScrolledToBottom = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              // 检查 widget 是否仍然 mounted（防止页面销毁后执行）
+              if (!mounted) return;
+              try {
+                // 再次检查 mounted，确保安全
+                if (mounted) {
+                  ref.read(chatProvider.notifier).chatService?.scrollToBottom();
+                }
+              } catch (e) {
+                debugPrint('滚动到底部失败: $e');
               }
-            } catch (_) {}
-          });
+            });
+          }
 
           return Padding(
             padding: const EdgeInsets.only(bottom: bottomGap),
@@ -1383,7 +1485,16 @@ class ChatPageState extends ConsumerState<ChatPage>
               required bool isSentByMe,
               MessageGroupStatus? groupStatus,
             }) {
-              return CustomMessageBuilder(type: widget.type, message: message);
+              // 获取当前会话的所有消息，用于图片预览时的跨消息导航
+              final allMessages = ref
+                  .read(chatProvider.notifier)
+                  .chatService
+                  ?.messages;
+              return CustomMessageBuilder(
+                type: widget.type,
+                message: message,
+                messages: allMessages,
+              );
             },
         imageMessageBuilder:
             (
@@ -1393,11 +1504,15 @@ class ChatPageState extends ConsumerState<ChatPage>
               required bool isSentByMe,
               MessageGroupStatus? groupStatus,
             }) {
-              return FlyerChatImageMessage(
-                message: message,
-                index: index,
-                showStatus: false,
-                showTime: true,
+              // 用 GestureDetector 包裹，实现点击预览功能
+              return GestureDetector(
+                onTap: () => _previewImageMessage(message, index),
+                child: FlyerChatImageMessage(
+                  message: message,
+                  index: index,
+                  showStatus: false,
+                  showTime: true,
+                ),
               );
             },
         systemMessageBuilder:
@@ -1582,7 +1697,12 @@ class ChatPageState extends ConsumerState<ChatPage>
                     left: isCurrentUser ? 8 : 0,
                     right: isCurrentUser ? 0 : 8,
                   ),
-                  child: Avatar(userId: message.authorId),
+                  // 使用 flutter_chat_ui 的 Avatar 组件，它会通过 userId
+                  // 自动从 UserCache 获取用户信息和头像
+                  child: flutter_chat_ui.Avatar(
+                    userId: message.authorId,
+                    size: 40,
+                  ),
                 );
               } else if (!isSystemMessage) {
                 avatar = const SizedBox(width: 40);
@@ -1768,24 +1888,35 @@ class ChatPageState extends ConsumerState<ChatPage>
       "conversationUk3": _conversationUk3,
     };
     final chatState = ref.read(chatProvider);
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => widget.type == 'C2G'
-            ? GroupDetailPage(
-                groupId: widget.peerId,
-                memberCount: chatState.memberCount,
-                title: widget.peerTitle,
-                options: options,
-                callBack: (v) {},
-              )
-            : ChatSettingPage(
-                widget.peerId,
-                type: widget.type,
-                options: options,
-              ),
-      ),
-    ).then((value) => _handleChatSettingsResult(value));
+
+    // 使用 go_router 路由跳转
+    if (widget.type == 'C2G') {
+      // 群组聊天 - 跳转到群组详情页
+      context
+          .push<GroupDetailPage>(
+            '/group/${widget.peerId}/detail',
+            extra: {
+              'groupId': widget.peerId,
+              'memberCount': chatState.memberCount,
+              'title': widget.peerTitle,
+              'options': options,
+              'callBack': (v) {},
+            },
+          )
+          .then((value) => _handleChatSettingsResult(value));
+    } else {
+      // 单人聊天 - 跳转到聊天设置页
+      context
+          .push<ChatSettingPage>(
+            '/chat_setting/${widget.peerId}',
+            extra: {
+              'peerId': widget.peerId,
+              'type': widget.type,
+              'options': options,
+            },
+          )
+          .then((value) => _handleChatSettingsResult(value));
+    }
   }
 
   /// 构建优化的消息列表（性能优化版）
@@ -1954,7 +2085,80 @@ class ChatPageState extends ConsumerState<ChatPage>
   /// 重新登录
   void _relogin() {
     EasyLoading.showToast('请重新登录');
-    // 跳转到登录页面
-    context.go('/initial');
+    // 跳转到首页（由路由守卫处理未登录重定向）
+    context.go('/');
+  }
+
+  /// 预览图片消息，支持左右滑动查看会话中的其他图片
+  void _previewImageMessage(ImageMessage message, int currentIndex) {
+    // 获取当前会话中的所有图片 URL
+    final List<String> allImageUrls = _getAllImageUrlsInConversation();
+
+    if (allImageUrls.isEmpty) {
+      // 没有找到图片，不处理
+      return;
+    }
+
+    if (allImageUrls.length == 1) {
+      // 如果只有一张图片，使用单图预览
+      zoomInPhotoView(context, message.source);
+    } else {
+      // 计算当前图片在所有图片中的索引
+      final indexOfCurrentImage = allImageUrls.indexOf(message.source);
+
+      // 使用多图预览功能，并跳转到当前图片
+      final initialPage = indexOfCurrentImage >= 0 ? indexOfCurrentImage : 0;
+      zoomInPhotoViewGalleryWithInitialPage(context, allImageUrls, initialPage);
+    }
+  }
+
+  /// 获取当前会话中的所有图片 URL
+  List<String> _getAllImageUrlsInConversation() {
+    try {
+      final List<String> imageUrls = [];
+      final messages =
+          ref.read(chatProvider.notifier).chatService?.messages ?? [];
+
+      for (final msg in messages) {
+        // ImageMessage 类型
+        if (msg is ImageMessage) {
+          final uri = msg.source;
+          if (uri.isNotEmpty) {
+            imageUrls.add(uri);
+          }
+        }
+        // CustomMessage 类型 - 单图或多图
+        else if (msg is CustomMessage) {
+          final metadata = msg.metadata ?? {};
+          final effectiveMsgType =
+              metadata['effective_msg_type'] ?? metadata['msg_type'] ?? '';
+
+          // 单图消息
+          if (effectiveMsgType == 'image') {
+            final uri = metadata['source'] ?? metadata['uri'] ?? '';
+            if (uri.isNotEmpty) {
+              imageUrls.add(uri);
+            }
+          }
+          // 多图消息
+          else if (effectiveMsgType == 'imageMulti') {
+            final images = metadata['images'] as List<dynamic>?;
+            if (images != null) {
+              for (final img in images) {
+                final uri = img['uri'] ?? '';
+                if (uri.isNotEmpty) {
+                  imageUrls.add(uri);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return imageUrls;
+    } catch (e) {
+      iPrint('获取会话图片列表失败: $e');
+      return [];
+    }
   }
 }

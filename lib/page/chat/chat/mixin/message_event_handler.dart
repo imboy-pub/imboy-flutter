@@ -6,6 +6,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
+// 导入 UserCollectHelper 用于判断消息是否可收藏
+import 'package:imboy/page/mine/user_collect/user_collect_provider.dart' show UserCollectHelper;
+
 /// 消息事件处理器 Mixin
 ///
 /// 提供消息点击、双击、长按等事件处理方法
@@ -40,10 +43,11 @@ mixin MessageEventHandler {
 
   /// 检查消息是否可以收藏
   bool canCollectMessage(Message message) {
-    // 简化的检查逻辑
-    return message is TextMessage ||
-        message is ImageMessage ||
-        message is FileMessage;
+    // 使用 UserCollectHelper 判断消息是否支持收藏
+    // 支持：文本、图片、语音、视频、文件、位置、名片
+    int kind = UserCollectHelper.getCollectKind(message);
+    debugPrint("canCollectMessage: type=${message.runtimeType}, kind=$kind");
+    return kind > 0;
   }
 
   /// 检查消息是否可以重试

@@ -3,6 +3,8 @@
 /// 负责处理消息的各种操作（编辑、删除、复制、收藏、转发等）
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +15,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
@@ -151,25 +154,36 @@ class MessageActionHandler {
     await ref.read(chatProvider.notifier).sendMessage(msg2);
   }
 
-  /// 删除消息（所有人）
+  /// 删除消息（所有人）- 使用 message_revoke action
   Future<void> deleteMessageForEveryone(
     BuildContext context,
     Message msg,
   ) async {
     final nav = Navigator.of(context);
-    final msg2 = {
+    final currentUid = UserRepoLocal.to.currentUid;
+
+    // WebSocket API v2.0: 使用 message_revoke action 撤回消息
+    final revokeMsg = {
       'id': Xid().toString(),
-      'from': msg.authorId,
+      'type': type, // C2C, C2G, etc.
+      'from': currentUid,
       'to': msg.metadata?['peer_id'],
-      'type': 'S2C',
+      // v2.0: 字段提升到顶层
+      'msg_type': 'custom',
+      'action': 'message_revoke',
+      'e2ee': '',
       'payload': {
-        'old_msg_id': msg.id,
-        'to': msg.metadata?['peer_id'],
-        'msg_type': '${type}_DEL_EVERYONE',
+        'original_msg_id': msg.id,
       },
       'created_at': DateTimeHelper.millisecond(),
     };
-    await ref.read(chatProvider.notifier).sendMessage(msg2);
+
+    iPrint('🔄 发送撤回消息请求 (deleteMessageForEveryone): ${json.encode(revokeMsg)}');
+
+    // 发送撤回消息
+    await ref.read(chatProvider.notifier).sendMessage(revokeMsg);
+
+    // 从本地删除消息
     bool res = await ref
         .read(chatProvider.notifier)
         .removeMessage(conversation, msg);

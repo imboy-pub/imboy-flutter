@@ -109,10 +109,26 @@ class ChatEventSubscriptionManager {
             newGroupNameSetter(newName);
           } else if (obj.type == 'clean_msg' &&
               ((obj.payload['uk3'] ?? '') == conversationUk3)) {
+            // 清空聊天记录：重置分页游标并清空 ChatService 中的消息
             widgetRef.read(chatProvider.notifier).updateNextAutoId(0);
+            // 清空 ChatService 中的现有消息，确保 UI 显示最新的空消息列表
+            widgetRef
+                .read(chatProvider.notifier)
+                .chatService
+                ?.setMessages([]);
+            iPrint('清空聊天记录: 已清空 ChatService 消息，重新加载');
+            // 从数据库重新加载（此时数据库已无消息）
             await widgetRef
                 .read(chatProvider.notifier)
                 .loadMoreMessages(conversationGetter(), isInitial: true);
+
+            // 触发会话列表刷新，确保会话列表显示已清空
+            AppEventBus.fire(
+              ChatExtendEvent(
+                type: 'refresh_conversations',
+                payload: {'uk3': conversationUk3},
+              ),
+            );
           } else if (obj.type == 'delete_msg' &&
               obj.payload['conversation'] != null) {
             final conv = conversationGetter();
@@ -137,8 +153,20 @@ class ChatEventSubscriptionManager {
   void _setupMessageListener() {
     _ssMsg = AppEventBus.on<DataWrapperEvent>().listen(
       (event) async {
-        // 检查数据类型，只处理消息类型的事件
-        if (event.dataType != 'Message' && event.dataType != 'message') {
+        // 检查数据类型，处理 Message 及其子类型
+        // flutter_chat_core 包中的消息类型：TextMessage, ImageMessage 等
+        // 它们的 runtimeType 是 'TextMessage' 等，不是抽象的 'Message'
+        final dataType = event.dataType.toLowerCase();
+        final isMessageType = dataType == 'message' ||
+            dataType == 'textmessage' ||
+            dataType == 'imagemessage' ||
+            dataType == 'videomessage' ||
+            dataType == 'audiomessage' ||
+            dataType == 'filemessage' ||
+            dataType == 'locationmessage' ||
+            dataType == 'custommessage';
+
+        if (!isMessageType) {
           return;
         }
 

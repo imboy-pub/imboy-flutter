@@ -75,7 +75,7 @@ class ChatAttachmentHandler {
 
   /// 处理文件选择
   Future<void> handleFileSelection(BuildContext context) async {
-    final result = await FilePicker.pickFiles(type: FileType.any);
+    final result = await FilePicker.platform.pickFiles(type: FileType.any);
     if (result == null || result.files.single.path == null) return;
     await uploadFile(context, result.files.single);
   }
@@ -143,11 +143,14 @@ class ChatAttachmentHandler {
     BuildContext context,
     AssetEntity entity,
   ) async {
+    // 在异步操作前获取屏幕宽度，避免在回调中使用过期的 context
+    final screenWidth = context.mounted ? MediaQuery.of(context).size.width.toInt() : 800;
+
     await AttachmentApi.uploadVideo(
       "camera",
       entity,
       (Map<String, dynamic> resp, String imgUrl) async {
-        imgUrl += "&width=${MediaQuery.of(context).size.width.toInt()}";
+        imgUrl += "&width=$screenWidth";
         if (entity.type == AssetType.image) {
           await handleImageUpload(resp, imgUrl, entity);
         } else if (entity.type == AssetType.video) {
@@ -249,8 +252,13 @@ class ChatAttachmentHandler {
     String imgUrl,
     AssetEntity entity,
   ) async {
-    double w = MediaQuery.of(context).size.width;
-    imgUrl += "&width=${w.toInt()}";
+    // 检查 context 是否仍然有效
+    if (!context.mounted) {
+      debugPrint("handleSelectedImageUpload: context 已失效，取消操作");
+      return;
+    }
+    final screenWidth = MediaQuery.of(context).size.width.toInt();
+    imgUrl += "&width=$screenWidth";
     final message = ImageMessage(
       authorId: _currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
@@ -334,14 +342,15 @@ class ChatAttachmentHandler {
     String longitude,
   ) async {
     if (imageBytes == null) return;
+    // 在异步操作前获取屏幕宽度，避免在回调中使用过期的 context
+    final screenWidth = context.mounted ? MediaQuery.of(context).size.width.toInt() : 800;
     final image = img.decodeImage(imageBytes)!;
     final result = img.encodeJpg(image, quality: 65);
     await AttachmentApi.uploadBytes(
       "location",
       result,
       (Map<String, dynamic> resp, String imgUrl) async {
-        double w = MediaQuery.of(context).size.width;
-        imgUrl += "&width=${w.toInt()}";
+        imgUrl += "&width=$screenWidth";
         final message = CustomMessage(
           authorId: _currentUser.id,
           createdAt: DateTime.fromMillisecondsSinceEpoch(
@@ -411,7 +420,7 @@ class ChatAttachmentHandler {
       ),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
-        'custom_type': 'visit_card',
+        'custom_type': 'visitCard',
         'peer_id': peerId,
         'uid': uid,
         'title': title,
