@@ -7,42 +7,19 @@ class AppColors {
   // 私有构造函数，防止实例化
   AppColors._();
 
-  // ============ Material 3 主色调系统 ============
-  /// 主色 - Material 3 Primary - Blue 600
-  /// 颜色值：#2474E5
-  @Deprecated('使用 primary 代替。将在下个版本移除。')
-  static const Color primaryGreen = Color(0xFF2474E5);
-
   /// 主色 - Material 3 Primary - Blue 600
   /// 颜色值：#2474E5
   static const Color primary = Color(0xFF2474E5);
 
-  /// 主色 - 浅色版本 - Material 3 Primary Light - Blue 50
-  /// 优化理由：调整为更适合深色模式的主色调（更柔和/低饱和度），避免刺眼
-  @Deprecated('使用 primaryLight 代替。将在下个版本移除。')
-  static const Color primaryGreenLight = Color(0xFFE3F2FD);
 
   /// 主色 - 浅色版本 - Material 3 Primary Light - Blue 50
   static const Color primaryLight = Color(0xFFE3F2FD);
 
   /// 主色 - 深色版本 - Material 3 Primary Dark - Blue 700
-  /// 优化理由：保持深色用于深色模式的容器或强调
-  @Deprecated('使用 primaryDark 代替。将在下个版本移除。')
-  static const Color primaryGreenDark = Color(0xFF1565C0);
-
-  /// 主色 - 深色版本 - Material 3 Primary Dark - Blue 700
   static const Color primaryDark = Color(0xFF1565C0);
 
   /// 主色容器背景 - Material 3 Primary Container
-  @Deprecated('使用 primaryContainer 代替。将在下个版本移除。')
-  static const Color greenContainer = Color(0xFFBBDEFB);
-
-  /// 主色容器背景 - Material 3 Primary Container
   static const Color primaryContainer = Color(0xFFBBDEFB);
-
-  /// 主色容器上的文本 - Material 3 On Primary Container
-  @Deprecated('使用 onPrimaryContainer 代替。将在下个版本移除。')
-  static const Color onGreenContainer = Color(0xFF0D47A1);
 
   /// 主色容器上的文本 - Material 3 On Primary Container
   static const Color onPrimaryContainer = Color(0xFF0D47A1);

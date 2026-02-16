@@ -207,6 +207,8 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.light,
       useMaterial3: true,
+      // 使用系统字体，避免 Flutter Web 加载 Google Fonts CDN 的 Roboto 字体
+      fontFamily: '', // 空字符串表示使用系统默认字体
       scaffoldBackgroundColor: AppColors.lightSurface, // 确保Scaffold背景一致
       // 1. Material 3 完整颜色方案
       colorScheme: ColorScheme.light(
@@ -297,6 +299,8 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.dark,
       useMaterial3: true,
+      // 使用系统字体，避免 Flutter Web 加载 Google Fonts CDN 的 Roboto 字体
+      fontFamily: '', // 空字符串表示使用系统默认字体
 
       // 1. Material 3 完整颜色方案 - 暗色模式
       colorScheme: ColorScheme.dark(

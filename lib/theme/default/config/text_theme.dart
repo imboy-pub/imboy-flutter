@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -257,8 +256,74 @@ class TextThemeConfig {
       ),
     );
 
-    // 使用 Google Fonts 的 Inter 字体
-    return GoogleFonts.interTextTheme(baseTextTheme);
+    // 使用系统字体栈（优先使用平台原生字体，避免 Google Fonts CDN 加载问题）
+    // Web 平台：系统默认字体栈
+    // iOS/macOS：SF Pro
+    // Android：Roboto
+    // Windows：Segoe UI
+    return baseTextTheme.copyWith(
+      displayLarge: baseTextTheme.displayLarge?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      displayMedium: baseTextTheme.displayMedium?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      displaySmall: baseTextTheme.displaySmall?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      headlineLarge: baseTextTheme.headlineLarge?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      headlineSmall: baseTextTheme.headlineSmall?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      titleLarge: baseTextTheme.titleLarge?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      titleMedium: baseTextTheme.titleMedium?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      titleSmall: baseTextTheme.titleSmall?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      bodyLarge: baseTextTheme.bodyLarge?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      bodyMedium: baseTextTheme.bodyMedium?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      bodySmall: baseTextTheme.bodySmall?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      labelLarge: baseTextTheme.labelLarge?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      labelMedium: baseTextTheme.labelMedium?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+      labelSmall: baseTextTheme.labelSmall?.copyWith(
+        fontFamily: _getSystemFontFamily(),
+      ),
+    );
+  }
+
+  /// 获取系统字体族
+  ///
+  /// 返回各平台最佳字体栈：
+  /// - 中文：PingFang SC（iOS/macOS）→ Microsoft YaHei（Windows）→ 系统默认
+  /// - 英文：SF Pro（iOS/macOS）→ Segoe UI（Windows）→ Roboto（Android）→ 系统默认
+  static String? _getSystemFontFamily() {
+    // 返回 null 让 Flutter 使用平台默认字体
+    // 这样会自动使用：
+    // - iOS/macOS: SF Pro
+    // - Android: Roboto
+    // - Windows: Segoe UI
+    // - Web: system-ui（浏览器系统字体栈）
+    // - 中文会自动回退到 PingFang SC / Microsoft YaHei 等系统字体
+    return null;
   }
 
   /// 使用 copyWith 方法动态调整现有 TextTheme 的字体大小

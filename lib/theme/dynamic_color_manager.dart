@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dynamic_color/dynamic_color.dart';
 
 import 'default/app_colors.dart';
+import '../component/helper/func.dart';
 
 /// 动态颜色管理器
 ///
@@ -33,8 +35,8 @@ class DynamicColorManager {
     }
 
     try {
-      // 只有 Android 平台支持动态颜色
-      if (!Platform.isAndroid) {
+      // 只有 Android 平台支持动态颜色（Web 平台不支持）
+      if (kIsWeb || !Platform.isAndroid) {
         _isDynamicColorSupported = false;
         return false;
       }
@@ -278,7 +280,7 @@ class DynamicColorManager {
     if (!isSupported) {
       return {
         'supported': false,
-        'platform': Platform.operatingSystem,
+        'platform': getOperatingSystem(),
         'reason': '设备不支持动态颜色或非 Android 平台',
       };
     }
@@ -287,7 +289,7 @@ class DynamicColorManager {
       final schemes = await getDynamicColorSchemes();
       return {
         'supported': true,
-        'platform': Platform.operatingSystem,
+        'platform': getOperatingSystem(),
         'hasLightScheme': schemes?.light != null,
         'hasDarkScheme': schemes?.dark != null,
         'lightPrimary': schemes?.light?.primary.toString(),
@@ -296,7 +298,7 @@ class DynamicColorManager {
     } catch (e) {
       return {
         'supported': true,
-        'platform': Platform.operatingSystem,
+        'platform': getOperatingSystem(),
         'error': e.toString(),
       };
     }

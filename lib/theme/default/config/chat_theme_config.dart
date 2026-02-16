@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -198,7 +197,7 @@ class ChatThemeConfig {
 
     return ChatTypography(
       // Material 3 Body Large - 消息内容
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
           16, // Material 3 Body Large 标准大小
           safeScale,
@@ -210,7 +209,7 @@ class ChatThemeConfig {
         letterSpacing: 0.5, // Material 3字母间距
       ),
       // Material 3 Body Medium - 辅助文本
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
           14, // Material 3 Body Medium 标准大小
           safeScale,
@@ -222,7 +221,7 @@ class ChatThemeConfig {
         letterSpacing: 0.25, // Material 3字母间距
       ),
       // Material 3 Body Small - 小号文本
-      bodySmall: GoogleFonts.inter(
+      bodySmall: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
           12, // Material 3 Body Small 标准大小
           safeScale,
@@ -234,7 +233,7 @@ class ChatThemeConfig {
         letterSpacing: 0.4, // Material 3字母间距
       ),
       // Material 3 Title Small - 用户名
-      labelLarge: GoogleFonts.inter(
+      labelLarge: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
           14, // Material 3 Title Small 标准大小
           safeScale,
@@ -246,7 +245,7 @@ class ChatThemeConfig {
         letterSpacing: 0.1, // Material 3字母间距
       ),
       // Material 3 Label Medium - 中等标签
-      labelMedium: GoogleFonts.inter(
+      labelMedium: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
           12, // Material 3 Label Medium 标准大小
           safeScale,
@@ -258,7 +257,7 @@ class ChatThemeConfig {
         letterSpacing: 0.5, // Material 3字母间距
       ),
       // Material 3 Label Small - 时间戳
-      labelSmall: GoogleFonts.inter(
+      labelSmall: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
           11, // Material 3 Label Small 标准大小
           safeScale,
