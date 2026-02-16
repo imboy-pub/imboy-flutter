@@ -142,8 +142,40 @@ class AttachmentApi {
     } else {
       height = (entity.height / entity.width * width).toInt();
     }
+
+    // Android 9 兼容性：获取文件路径，处理可能的 null 情况
     File? file = await entity.file;
-    String path = file!.path;
+    if (file == null) {
+      debugPrint("❌ uploadVideo: 无法获取文件 entity.file is null");
+      debugPrint("   AssetType: ${entity.type}, title: ${entity.title}");
+      debugPrint("   尝试使用替代方法获取文件...");
+
+      // 尝试使用 originBytes 作为替代方案
+      try {
+        if (entity.type == AssetType.image) {
+          final Uint8List? bytes = await entity.originBytes;
+          if (bytes != null) {
+            // 创建临时文件
+            final tempDir = await Directory.systemTemp.createTemp();
+            final tempFile = File('${tempDir.path}/${Xid().toString()}.jpg');
+            await tempFile.writeAsBytes(bytes);
+            file = tempFile;
+            debugPrint("✅ 使用 originBytes 创建临时文件成功: ${tempFile.path}");
+          }
+        }
+      } catch (e) {
+        debugPrint("❌ 替代方法失败: $e");
+        errorCallback(Exception("无法获取文件，请重试或使用相册选择"));
+        return;
+      }
+
+      if (file == null) {
+        errorCallback(Exception("文件获取失败，Android 9 可能存在兼容性问题"));
+        return;
+      }
+    }
+
+    String path = file.path;
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     // bool uploadOriginalImage = false;
@@ -254,7 +286,43 @@ class AttachmentApi {
         ThumbnailSize(width, height),
         quality: quality,
       );
-      Map<String, dynamic> preData = {'md5': sha1.convert(thumbData!)};
+
+      // Android 9 兼容性：处理 thumbData 为 null 的情况
+      if (thumbData == null || thumbData.isEmpty) {
+        debugPrint("❌ uploadVideo: thumbnailDataWithSize 返回空数据");
+        debugPrint("   尝试使用 originBytes 作为替代...");
+
+        // 尝试使用 originBytes 作为替代
+        final Uint8List? originData = await entity.originBytes;
+        if (originData != null && originData.isNotEmpty) {
+          Map<String, dynamic> preData = {'md5': sha1.convert(originData)};
+          await preUpload(prefix, preData)
+              .then((response) async {
+                Map<String, dynamic> responseData = json.decode(response.data);
+                String status = responseData['status'] ?? '';
+                if (status == 'ok') {
+                  callback(
+                    responseData,
+                    AssetsService.viewUrl(responseData['data']['url']).toString(),
+                  );
+                } else {
+                  Map<String, dynamic> data = {
+                    'file': MultipartFile.fromBytes(originData, filename: name),
+                  };
+                  await _upload(prefix, data, callback, errorCallback);
+                }
+              })
+              .catchError((e) {
+                debugPrint("> on preUpload catchError ${e.toString()}");
+                errorCallback(e);
+              });
+        } else {
+          errorCallback(Exception("无法获取图片数据，请重试"));
+        }
+        return;
+      }
+
+      Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
       await preUpload(prefix, preData)
           .then((response) async {
             Map<String, dynamic> responseData = json.decode(response.data);
@@ -279,7 +347,15 @@ class AttachmentApi {
     } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
       // 不压缩上传
       final Uint8List? thumbData = await entity.originBytes;
-      Map<String, dynamic> preData = {'md5': sha1.convert(thumbData!)};
+
+      // Android 9 兼容性：处理 originBytes 为 null 的情况
+      if (thumbData == null || thumbData.isEmpty) {
+        debugPrint("❌ uploadVideo: originBytes 返回空数据");
+        errorCallback(Exception("无法获取原始图片数据"));
+        return;
+      }
+
+      Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
       await preUpload(prefix, preData)
           .then((response) async {
             Map<String, dynamic> responseData = json.decode(response.data);

@@ -43,7 +43,8 @@ class UserCollectApi extends HttpClient {
     String source,
     Map<String, dynamic> info,
   ) async {
-    // debugPrint("> on UserCollectApi add info: ${info.toString()}");
+    debugPrint("> on UserCollectApi add params: kind=$kind, kindId=$kindId, source=$source");
+    debugPrint("> on UserCollectApi add info keys: ${info.keys.toList()}");
     IMBoyHttpResponse resp = await post(
       API.userCollectAdd,
       data: {'kind': kind, 'kind_id': kindId, 'source': source, 'info': info},
@@ -53,8 +54,16 @@ class UserCollectApi extends HttpClient {
       ),
     );
     debugPrint(
-      "> on UserCollectApi add resp: ${resp.error}; ${resp.payload.toString()}",
+      "> on UserCollectApi add resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
     );
+    debugPrint(
+      "> on UserCollectApi add resp payload: ${resp.payload.toString()}",
+    );
+    // 如果请求失败，显示详细错误信息
+    if (!resp.ok) {
+      debugPrint("> on UserCollectApi add error: ${resp.error?.message}");
+      EasyLoading.showError(resp.msg.isNotEmpty ? resp.msg : '操作失败');
+    }
     EasyLoading.dismiss();
     return resp.ok ? true : false;
   }

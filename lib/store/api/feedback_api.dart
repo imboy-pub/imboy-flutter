@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 
@@ -21,7 +20,7 @@ class FeedbackApi extends HttpClient {
 
   /// 添加用户反馈
   Future<bool> add(Map<String, dynamic> data) async {
-    data['sys_version'] = Platform.operatingSystemVersion;
+    data['sys_version'] = getSystemVersion();
     IMBoyHttpResponse resp = await post(API.feedbackAdd, data: data);
     debugPrint("> on Api/feedbackAdd resp: ${resp.toString()}");
     return resp.ok ? true : false;

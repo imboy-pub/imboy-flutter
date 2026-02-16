@@ -186,4 +186,20 @@ class GroupApi extends HttpClient {
     debugPrint("GroupApi/setRelation resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
+
+  /// 转让群主
+  /// [gid] 群组ID
+  /// [newOwnerUid] 新群主用户ID
+  Future<bool> transfer({
+    required String gid,
+    required String newOwnerUid,
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.groupTransfer,
+      data: {'gid': gid, 'new_owner_uid': newOwnerUid},
+    );
+
+    debugPrint("GroupApi/transfer resp: ${resp.payload.toString()}");
+    return resp.ok;
+  }
 }

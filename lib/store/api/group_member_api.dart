@@ -75,4 +75,40 @@ class GroupMemberApi extends HttpClient {
     }
     return resp.payload;
   }
+
+  /// 更新群成员角色
+  /// [gid] 群组ID
+  /// [userId] 成员用户ID
+  /// [role] 角色: 1 成员  2 嘉宾  3 管理员 4 群主
+  Future<bool> updateRole({
+    required String gid,
+    required String userId,
+    required int role,
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.groupMemberRole,
+      data: {'gid': gid, 'user_id': userId, 'role': role},
+    );
+
+    debugPrint("GroupMemberApi/updateRole resp: ${resp.payload.toString()}");
+    return resp.ok;
+  }
+
+  /// 禁言群成员
+  /// [gid] 群组ID
+  /// [userId] 成员用户ID
+  /// [duration] 禁言时长（秒），0 表示取消禁言
+  Future<bool> mute({
+    required String gid,
+    required String userId,
+    required int duration,
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.groupMemberMute,
+      data: {'gid': gid, 'user_id': userId, 'duration': duration},
+    );
+
+    debugPrint("GroupMemberApi/mute resp: ${resp.payload.toString()}");
+    return resp.ok;
+  }
 }
