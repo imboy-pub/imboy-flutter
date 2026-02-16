@@ -207,7 +207,6 @@ class _GroupMemberDetailPageState
     final t = context.t;
     final service = ref.read(groupMemberDetailServiceProvider);
     final notifier = ref.read(groupMemberDetailProvider.notifier);
-    final state = ref.read(groupMemberDetailProvider);
 
     final durations = [
       {'label': t.muteDuration1hour, 'value': 3600},
@@ -515,7 +514,7 @@ class _GroupMemberDetailPageState
                                                   : member.alias,
                                               style: ThemeManager.instance
                                                   .getTextStyle(
-                                                FontSizeType.xLarge,
+                                                FontSizeType.extraLarge,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),

@@ -12,9 +12,8 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 
 /// 群成员列表页面
 class GroupMemberPage extends ConsumerStatefulWidget {
@@ -27,7 +26,7 @@ class GroupMemberPage extends ConsumerStatefulWidget {
 }
 
 class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
-  final RefreshController _refreshController = RefreshController();
+  final EasyRefreshController _refreshController = EasyRefreshController();
   final ScrollController _scrollController = ScrollController();
 
   List<GroupMemberModel> _memberList = [];
@@ -130,26 +129,21 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       setState(() {
         _isLoading = false;
       });
-      if (refresh) {
-        _refreshController.refreshCompleted();
-      }
     }
   }
 
   Future<void> _loadMore() async {
     if (!_hasMore || _isLoading) {
-      _refreshController.loadNoData();
       return;
     }
 
     _currentPage++;
     await _loadData();
-    _refreshController.loadComplete();
   }
 
   /// 构建角色标签
   Widget _buildRoleBadge(int role) {
-    final t = context.t;
+    
     String label;
     Color color;
 
@@ -187,7 +181,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   Widget _buildListItem(BuildContext context, GroupMemberModel member) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final t = context.t;
+    
 
     return InkWell(
       onTap: () async {
@@ -260,7 +254,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
+    
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -274,12 +268,12 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           ? const Center(child: CircularProgressIndicator())
           : _memberList.isEmpty
               ? NoDataView(text: t.noData)
-              : SmartRefresher(
+              : EasyRefresh(
                   controller: _refreshController,
-                  enablePullDown: true,
-                  enablePullUp: _hasMore,
-                  onRefresh: () => _loadData(refresh: true),
-                  onLoading: _loadMore,
+                  onRefresh: () async {
+                    await _loadData(refresh: true);
+                  },
+                  onLoad: _hasMore ? _loadMore : null,
                   child: ListView.builder(
                     controller: _scrollController,
                     itemCount: _memberList.length,

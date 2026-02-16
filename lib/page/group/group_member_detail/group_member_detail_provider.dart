@@ -1,5 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/group_member_model.dart';
+
+part 'group_member_detail_provider.g.dart';
 
 /// 群成员详情状态
 class GroupMemberDetailState {
@@ -78,8 +80,12 @@ class GroupMemberDetailState {
 }
 
 /// 群成员详情 Notifier
-class GroupMemberDetailNotifier extends StateNotifier<GroupMemberDetailState> {
-  GroupMemberDetailNotifier() : super(const GroupMemberDetailState());
+@Riverpod(keepAlive: true)
+class GroupMemberDetailNotifier extends _$GroupMemberDetailNotifier {
+  @override
+  GroupMemberDetailState build() {
+    return const GroupMemberDetailState();
+  }
 
   /// 设置成员信息
   void setMember(GroupMemberModel member) {
@@ -136,9 +142,3 @@ class GroupMemberDetailNotifier extends StateNotifier<GroupMemberDetailState> {
     state = const GroupMemberDetailState();
   }
 }
-
-/// 群成员详情 Provider
-final groupMemberDetailProvider =
-    StateNotifierProvider<GroupMemberDetailNotifier, GroupMemberDetailState>(
-  (ref) => GroupMemberDetailNotifier(),
-);
