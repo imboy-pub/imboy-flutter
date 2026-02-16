@@ -45,7 +45,10 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
 
   Future<void> initData() async {
     try {
-      File tmpF = await IMBoyCacheManager().getSingleFile(widget.url);
+      File tmpF = await IMBoyCacheManager().getSingleFile(
+        widget.url,
+        validateImageData: false, // Markdown 文件不验证图片格式
+      );
       String content = await tmpF.readAsString();
       if (mounted) {
         setState(() {

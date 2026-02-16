@@ -119,6 +119,13 @@ class ContactNotifier extends _$ContactNotifier {
         bgColor: Colors.blue,
         iconData: const Icon(Icons.local_offer, size: 24, color: Colors.white),
       ),
+      ContactModel(
+        peerId: 'channel',
+        nickname: t.channel.title,
+        nameIndex: '↑',
+        bgColor: const Color(0xFF6366F1), // 紫色
+        iconData: const Icon(Icons.campaign, size: 24, color: Colors.white),
+      ),
     ];
   }
 

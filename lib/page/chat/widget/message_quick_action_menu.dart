@@ -65,6 +65,9 @@ class MessageQuickActionMenu {
     required Message message,
     required VoidCallback onReply,
     required Future<void> Function(String, String) onSaveFile,
+    // 新增：删除回调
+    Future<void> Function()? onDeleteForMe,
+    Future<void> Function()? onDeleteForEveryone,
   }) {
     showModalBottomSheet(
       context: context,
@@ -114,6 +117,25 @@ class MessageQuickActionMenu {
                   onReply();
                 },
               ),
+              // 新增：删除选项（只有自己发送的消息才能删除双方）
+              if (onDeleteForMe != null)
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.orange),
+                  title: Text(t.chatDeleteLocalOnly),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onDeleteForMe();
+                  },
+                ),
+              if (onDeleteForEveryone != null)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: Text(t.deleteForEveryone),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onDeleteForEveryone();
+                  },
+                ),
               const SizedBox(height: 16),
             ],
           ),

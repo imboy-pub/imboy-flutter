@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/api/contact_api.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -63,14 +64,34 @@ class ContactSettingNotifier extends _$ContactSettingNotifier {
   }
 
   /// 将联系人删除，同时删除与该联系人的聊天记录
+  ///
+  /// 使用 ConversationRepo.deleteConversation() 方法，该方法：
+  /// - 在事务中完成所有操作，保证原子性
+  /// - 自动清理重试队列
+  /// - 删除消息和会话记录
   Future<bool> deleteContact(String uid) async {
+    // 先查询会话
+    ConversationModel? model = await ConversationRepo().findByPeerId('C2C', uid);
+
+    if (model != null) {
+      // 使用事务删除会话及其消息（自动清理重试队列）
+      await ConversationRepo().deleteConversation(model);
+    } else {
+      // 即使会话不存在，也要确保消息被删除（兜底逻辑）
+      await MessageRepo(tableName: MessageRepo.c2cTable).deleteByUid(uid);
+      // 尝试删除会话记录（如果存在）
+      await ConversationRepo().delete('C2C', uid);
+    }
+
+    // 删除其他关联数据
+    await NewFriendRepo().deleteByUid(uid);
+
+    // 调用 API 删除联系人
     bool res = await (ContactApi()).deleteContact(uid);
     if (res) {
-      await MessageRepo(tableName: MessageRepo.c2cTable).deleteByUid(uid);
-      await ConversationRepo().delete('C2C', uid);
-      await NewFriendRepo().deleteByUid(uid);
       await ContactRepo().deleteByUid(uid);
     }
+
     return res;
   }
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:imboy/component/ui/debounce_button.dart';
+import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
@@ -246,27 +246,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade200),
           ),
-          child: InternationalPhoneNumberInput(
-            onInputChanged: (PhoneNumber number) {
-              _fullMobile = number.phoneNumber ?? '';
+          child: PhoneInputWidget(
+            initialValue: '',
+            onInputChanged: (String fullNumber) {
+              _fullMobile = fullNumber;
+              // 同步到控制器
+              _mobileController.text = fullNumber.replaceFirst(RegExp(r'^\+\d+'), '');
             },
-            selectorConfig: const SelectorConfig(
-              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-            ),
-            ignoreBlank: false,
-            autoValidateMode: AutovalidateMode.disabled,
-            selectorTextStyle: const TextStyle(color: Colors.black),
-            initialValue: PhoneNumber(isoCode: 'CN'),
-            textFieldController: _mobileController,
-            formatInput: false,
-            keyboardType: const TextInputType.numberWithOptions(
-              signed: true,
-              decimal: true,
-            ),
-            inputDecoration: InputDecoration(
-              hintText: t.passport.hintMobile,
-              border: InputBorder.none,
-            ),
+            hintText: t.passport.hintMobile,
           ),
         ),
         const SizedBox(height: 15),

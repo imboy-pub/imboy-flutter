@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
-import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -133,19 +131,39 @@ class GroupDetailService {
     return false;
   }
 
-  /// 清理数据
+  /// 清理数据（解散群组/退出群聊）
+  ///
+  /// 该方法清理与群组相关的所有数据：
+  /// 1. 使用事务删除会话及其消息（自动清理重试队列）
+  /// 2. 删除群组成员记录
+  /// 3. 删除群组记录
   Future<bool> cleanData(String gid) async {
-    await GroupRepo().delete(gid);
-    await GroupMemberRepo().deleteByGid(gid);
-    String tb = MessageRepo.getTableName('C2G');
-    String uk3 = "c2g_${UserRepoLocal.to.currentUid}_$gid";
-    await MessageRepo(tableName: tb).deleteByConversationId(uk3);
-    await ConversationRepo().delete('C2G', gid);
+    // 1. 先查询会话（如果存在）
+    final convRepo = ConversationRepo();
+    ConversationModel? model = await convRepo.findByPeerId('C2G', gid);
 
-    // 触发会话列表刷新事件
+    if (model != null) {
+      // 使用事务删除会话及其消息（自动清理重试队列）
+      await convRepo.deleteConversation(model);
+    } else {
+      // 即使会话不存在，也要确保消息被删除（兜底逻辑）
+      final tb = MessageRepo.getTableName('C2G');
+      final uk3 = "c2g_${UserRepoLocal.to.currentUid}_$gid";
+      await MessageRepo(tableName: tb).deleteByConversationId(uk3);
+    }
+
+    // 2. 删除群组成员记录
+    await GroupMemberRepo().deleteByGid(gid);
+
+    // 3. 删除群组记录
+    await GroupRepo().delete(gid);
+
+    // 4. 触发会话列表刷新事件
+    final uk3 = "c2g_${UserRepoLocal.to.currentUid}_$gid";
     AppEventBus.fire(
       ChatExtendEvent(type: 'refresh_conversations', payload: {'uk3': uk3}),
     );
+
     return true;
   }
 
@@ -198,46 +216,33 @@ class GroupDetailService {
   }
 
   /// 清空会话聊天记录
+  ///
+  /// 使用 ConversationRepo.clearMessages() 方法，该方法：
+  /// - 在事务中完成所有操作，保证原子性
+  /// - 自动清理重试队列
+  /// - 删除消息并更新会话表
+  /// - 返回更新后的会话模型
   Future<int> cleanMessageByPeerId(String type, String peerId) async {
-    ConversationModel? model = await ConversationRepo().findByPeerId(
-      type,
-      peerId,
-    );
+    final repo = ConversationRepo();
+    ConversationModel? model = await repo.findByPeerId(type, peerId);
     if (model == null) {
       return 0;
     }
-    String tb = MessageRepo.getTableName(model.type);
 
-    // 先查询该会话的所有消息ID，用于清理重试队列
-    final repo = MessageRepo(tableName: tb);
-    final messages = await repo.page(
-      conversationUk3: model.uk3,
-      page: 1,
-      size: 10000,
-    );
-
-    // 清理重试队列中属于该会话的消息
-    // TODO: 迁移到 Riverpod provider 后移除此检查
-    if (messages.isNotEmpty) {
-      try {
-        for (final msg in messages) {
-          if (msg.id != null && msg.id!.isNotEmpty) {
-            MessageRetry.to.removeFromRetryQueue(msg.id!);
-          }
-        }
-        iPrint('已从重试队列清理 ${messages.length} 条消息: conversationUk3=${model.uk3}');
-      } catch (e) {
-        // MessageRetry 可能未注册，忽略错误
-        debugPrint('MessageRetry not registered or error: $e');
-      }
+    // 使用事务清空消息并更新会话，返回更新后的会话模型
+    final updatedModel = await repo.clearMessages(model);
+    if (updatedModel == null) {
+      return model.id;
     }
 
-    // 删除数据库中的消息
-    await repo.deleteByConversationId(model.uk3);
-
+    // 触发 UI 更新事件，传递更新后的完整会话对象
     AppEventBus.fire(
-      ChatExtendEvent(type: 'clean_msg', payload: {'uk3': model.uk3}),
+      ChatExtendEvent(
+        type: 'clean_msg',
+        payload: {'uk3': updatedModel.uk3, 'conversation': updatedModel},
+      ),
     );
+
     return model.id;
   }
 }

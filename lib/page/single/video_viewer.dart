@@ -53,7 +53,10 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
   }
 
   Future<void> initializePlayer() async {
-    File? tmpF = await IMBoyCacheManager().getSingleFile(widget.url);
+    File? tmpF = await IMBoyCacheManager().getSingleFile(
+      widget.url,
+      validateImageData: false, // 视频文件不验证图片格式
+    );
     debugPrint(
       "chat_video_initializePlayer ${AssetsService.viewUrl(widget.url)}",
     );

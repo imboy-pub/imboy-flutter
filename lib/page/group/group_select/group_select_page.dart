@@ -87,7 +87,7 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                       ),
                       onTap: () {
                         context.push(
-                          '/chat',
+                          '/chat/${model.peerId}',
                           extra: {
                             'peerId': model.peerId,
                             'peerTitle': model.title,

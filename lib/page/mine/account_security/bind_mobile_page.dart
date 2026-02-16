@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -155,52 +155,26 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(left: 12),
-                    child: InternationalPhoneNumberInput(
-                      locale: LocaleHelper.sysLang('intl_phone_number_input'),
-                      countries: getRegionCodeList('intl_phone_number_input'),
-                      onInputChanged: (PhoneNumber number) {
+                    child: PhoneInputWidget(
+                      initialValue: '',
+                      onInputChanged: (String fullNumber) {
                         ref
                             .read(bindMobileProvider.notifier)
-                            .updateMobile(number.phoneNumber ?? '');
+                            .updateMobile(fullNumber);
                       },
-                      onInputValidated: (bool value) {
-                        // handled by notifier
-                      },
-                      selectorConfig: const SelectorConfig(
-                        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                        useBottomSheetSafeArea: true,
-                        trailingSpace: false,
-                        leadingPadding: 0,
-                      ),
-                      ignoreBlank: false,
-                      autoValidateMode: AutovalidateMode.disabled,
-                      selectorTextStyle: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: FontSizeType.medium.size,
-                      ),
-                      textStyle: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: FontSizeType.medium.size,
-                      ),
-                      initialValue: PhoneNumber(isoCode: 'CN'),
-                      textFieldController: ref
-                          .read(bindMobileProvider.notifier)
-                          .mobileCtl,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        signed: true,
-                        decimal: true,
-                      ),
-                      inputBorder: InputBorder.none,
-                      inputDecoration: InputDecoration(
+                      hintText: t.enterMobileHint,
+                      decoration: InputDecoration(
                         filled: true,
                         fillColor: AppColors.lightSurfaceContainer,
-                        hintText: t.enterMobileHint,
                         hintStyle: TextStyle(
                           color: AppColors.lightTextSecondary,
                           fontSize: FontSizeType.medium.size,
                         ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.only(bottom: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
                       ),
                     ),
                   ),

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -438,7 +437,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
             size: 20,
           ),
           onPressed: () {
-            context.pop(backDoRefresh);
+            Navigator.pop(context, backDoRefresh);
           },
         ),
         titleWidget: Text(

@@ -72,10 +72,15 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     memberList = List.from(widget.memberList);
     memberList.add(PeopleModel(id: 'last', account: ''));
 
+    iPrint('🔔 [面对面确认] 开始监听 ChatExtendEvent，当前群组 gid: ${widget.gid}');
+    iPrint('👥 [面对面确认] 初始成员列表: ${memberList.map((e) => e.id).toList()}');
+
     // 接收到新的消息订阅
     ssMsg ??= AppEventBus.on<ChatExtendEvent>().listen((
       ChatExtendEvent obj,
     ) async {
+      iPrint('📨 [面对面确认] 收到 ChatExtendEvent - type: ${obj.type}, payload: ${obj.payload}');
+
       // 监听新成员加入
       if (obj.type == 'join_group') {
         final i = memberList.indexWhere(
@@ -83,14 +88,19 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
               e.id == obj.payload['userId'] &&
               widget.gid == obj.payload['groupId'],
         );
+
         iPrint(
-          "face_to_face_confirm widget.gid ${obj.payload['groupId']} = ${widget.gid} - uid ${obj.payload['userId']}; i $i;} $mounted",
+          "✨ [面对面确认] join_group 事件 - widget.gid: ${widget.gid}, event.gid: ${obj.payload['groupId']}, userId: ${obj.payload['userId']}, 找到索引: $i",
         );
+
         if (i == -1) {
           memberList.insert(0, obj.payload['people']);
+          iPrint('➕ [面对面确认] 添加新成员到列表: ${obj.payload['people'].id}');
           if (mounted) {
             setState(() {});
           }
+        } else {
+          iPrint('⚠️ [面对面确认] 成员已存在，跳过添加: ${obj.payload['userId']}');
         }
       }
     });
@@ -165,9 +175,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                           await GroupRepo().save('', group);
 
                           if (context.mounted) {
-                            // 关闭当前页面并导航到聊天页面
-                            context.pop(); // 关闭 confirm 页面
-                            context.push(
+                            // 使用 pushReplacement 替换当前页面为聊天页面
+                            // 避免先 pop 再 push 导致的路由冲突
+                            context.pushReplacement(
                               '/chat/${widget.gid}',
                               extra: {
                                 'type': 'C2G',

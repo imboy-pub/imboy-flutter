@@ -978,19 +978,21 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       debugPrint("userCollectLogic/add 未在数据库中找到消息，尝试从Message对象创建: ${msg.id}");
       try {
         // 创建一个基本的MessageModel
+        final payload = _extractPayloadFromMessage(msg);
         msg2 = MessageModel(
           autoId: 0,
           msg.id,
           type: tb, // 使用表名作为类型
           fromId: msg.authorId,
           toId: msg.metadata?['peer_id'],
-          payload: _extractPayloadFromMessage(msg),
+          payload: payload,
           createdAt:
               msg.createdAt?.millisecondsSinceEpoch ??
               DateTimeHelper.millisecond(),
           isAuthor: msg.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
           conversationUk3: "", // 可能为空，因为我们是直接收藏消息
           status: 10, // 假设为已发送状态
+          msgType: payload['msg_type'] as String?, // ✅ 修复：从 payload 提取 msg_type
         );
       } catch (e) {
         debugPrint("userCollectLogic/add 从Message对象创建失败: $e");
@@ -1014,8 +1016,57 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       info['metadata'] = msg.metadata;
     }
 
+    // ⚠️ 重要：确保 msg_type 在顶层（用于转发时恢复消息）
+    // MessageModel.toJson() 可能不会输出 msg_type（如果它为空）
+    // 所以我们需要显式地确保它存在
+
+    // 优先使用 msg2.msgType（从 MessageModel 获取）
+    String? finalMsgType = msg2.msgType?.toString();
+
+    // 如果 msg2.msgType 为空，尝试从 payload 中获取
+    if (finalMsgType == null || finalMsgType.isEmpty) {
+      if (info['payload'] is Map) {
+        final payloadData = info['payload'] as Map<String, dynamic>;
+        finalMsgType = payloadData['msg_type']?.toString();
+        debugPrint("userCollectLogic/add 从 payload 获取 msg_type: $finalMsgType");
+      }
+    }
+
+    // 如果仍然为空，根据 kind 推断
+    if (finalMsgType == null || finalMsgType.isEmpty) {
+      switch (kind) {
+        case 1:
+          finalMsgType = 'text';
+          break;
+        case 2:
+          finalMsgType = 'image';
+          break;
+        case 3:
+          finalMsgType = 'audio';
+          break;
+        case 4:
+          finalMsgType = 'video';
+          break;
+        case 5:
+          finalMsgType = 'file';
+          break;
+        case 6:
+          finalMsgType = 'location';
+          break;
+        case 7:
+          finalMsgType = 'visitCard';
+          break;
+        default:
+          finalMsgType = 'text';
+      }
+      debugPrint("userCollectLogic/add 根据 kind $kind 推断 msg_type: $finalMsgType");
+    }
+
+    // 强制设置 msg_type 到顶层
+    info['msg_type'] = finalMsgType;
+
     debugPrint(
-      "userCollectLogic/add 准备收藏: kind=$kind, source=$source, msgId=${msg.id}",
+      "userCollectLogic/add 准备收藏: kind=$kind, source=$source, msgId=${msg.id}, msgType=${info['msg_type']}",
     );
 
     // 显示加载状态
@@ -1073,8 +1124,32 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         "mime_type": msg.mimeType ?? "",
       };
     } else if (msg is CustomMessage) {
-      payload = {...?msg.metadata};
-      payload['msg_type'] = 'custom';
+      // CustomMessage 需要特殊处理
+      // 优先使用 metadata 中的 custom_type 作为 msg_type
+      final customType = msg.metadata?['custom_type']?.toString();
+      payload = Map<String, dynamic>.from(msg.metadata ?? {});
+
+      // 根据 custom_type 设置正确的 msg_type
+      switch (customType) {
+        case 'audio':
+          payload['msg_type'] = 'audio';
+          break;
+        case 'video':
+          payload['msg_type'] = 'video';
+          break;
+        case 'location':
+          payload['msg_type'] = 'location';
+          break;
+        case 'visitCard':
+          payload['msg_type'] = 'visitCard';
+          break;
+        default:
+          // 如果 metadata 中已经有 msg_type，使用它；否则默认为 custom
+          if (!payload.containsKey('msg_type')) {
+            payload['msg_type'] = 'custom';
+          }
+      }
+      debugPrint("_extractPayloadFromMessage CustomMessage: customType=$customType, msg_type=${payload['msg_type']}");
     }
 
     // 添加peer_id

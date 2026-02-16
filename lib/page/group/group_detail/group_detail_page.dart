@@ -245,8 +245,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     column: (MediaQuery.of(context).size.width - 72) ~/ 56,
                     onTapAvatar: (PeopleModel p) {
                       context.push(
-                        '/people_info',
-                        extra: {'id': p.id, 'scene': 'group_member'},
+                        '/people_info/${p.id}',
+                        extra: {'scene': 'group_member'},
                       );
                     },
                     onTapAdd: () {

@@ -6,7 +6,13 @@ import 'package:flutter/services.dart';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:imboy/component/ui/image_button.dart' show ImageButton;
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/chat/mention_model.dart';
+import 'package:imboy/component/chat/mention_list_widget.dart';
+import 'package:imboy/component/chat/mention_text_formatter.dart';
+import 'package:imboy/component/chat/mention_provider.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -68,6 +74,8 @@ class ChatInput extends StatefulWidget {
     this.minLines = 1,
     this.maxLength = 1000,
     this.contentInsertionConfiguration,
+    // @提及功能回调
+    this.onMentionsChanged,
   });
 
   final String type; // 聊天类型
@@ -95,6 +103,8 @@ class ChatInput extends StatefulWidget {
   final int? maxLength; // 最大输入长度
   final ValueNotifier<double> composerHeight; // 外部传递的输入区高度notifier（用于丝滑动画）
   final ContentInsertionConfiguration? contentInsertionConfiguration; // 内容插入配置
+  /// @提及变更回调
+  final void Function(List<String> mentionIds)? onMentionsChanged;
 
   @override
   State<ChatInput> createState() => ChatInputState();
@@ -118,7 +128,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _characterCount = ValueNotifier<int>(0); // 字符计数
   final _isFocused = ValueNotifier<bool>(false); // 输入框聚焦状态
   final _showMentionList = ValueNotifier<bool>(false); // 是否显示@提及列表
-  final _mentionCandidates = ValueNotifier<List<String>>([]); // @提及候选列表
+  final _mentionKeyword = ValueNotifier<String>(''); // @提及搜索关键词
   final _showQuickReplies = ValueNotifier<bool>(false); // 是否显示快捷回复
   final _quickReplies = ValueNotifier<List<String>>([
     t.quickReplyOk,
@@ -131,9 +141,18 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     t.quickReplyOkThanks,
   ]); // 快捷回复列表
 
+  /// @提及数据（用于跟踪文本中的 @提及）
+  MentionData _mentionData = const MentionData();
+
+  /// 是否已加载群成员
+  bool _membersLoaded = false;
+
   final double iconSize = 40; // 图标大小
   final double _softKeyHeight = 270; // 软键盘默认高度
-  final double fontSize = 22 * (Platform.isIOS ? 1.2 : 1.0); // 字体大小
+
+  /// 字体大小（Web 兼容）
+  double get fontSize => 22 * (Platform.isIOS ? 1.2 : 1.0);
+
   double _keyboardHeight = 0; // 当前键盘高度
   bool _isTransitioningToTextFromPanel = false; // 是否正在从面板切换回文本（用于丝滑动画）
 
@@ -149,6 +168,21 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _initMentionListener();
 
     _setupKeyboardListener();
+
+    // 如果是群聊，加载群成员列表
+    if (widget.type == 'C2G') {
+      _loadGroupMembers();
+    }
+  }
+
+  /// 加载群成员列表
+  Future<void> _loadGroupMembers() async {
+    if (widget.peerId.isEmpty || _membersLoaded) return;
+
+    // 使用 ProviderScope.containerOf 获取 ProviderContainer
+    final container = ProviderScope.containerOf(context);
+    await container.read(mentionNotifierProvider.notifier).loadGroupMembers(widget.peerId);
+    _membersLoaded = true;
   }
 
   /// 初始化文本控制器（监听输入变化、控制发送按钮显隐）
@@ -254,52 +288,69 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 处理@提及检测
   void _handleMentionDetection() {
+    // 只在群聊中启用 @提及功能
+    if (widget.type != 'C2G') {
+      _showMentionList.value = false;
+      return;
+    }
+
     final text = _textController.text;
     final selection = _textController.selection;
 
-    // 检测@符号
-    if (text.isNotEmpty && selection.extentOffset > 0) {
-      final charBeforeCursor = text.substring(
-        selection.extentOffset - 1,
-        selection.extentOffset,
-      );
-      if (charBeforeCursor == '@') {
-        _showMentionList.value = true;
-        // 模拟群组成员列表
-        _mentionCandidates.value = [
-          t.testUser1,
-          t.testUser2,
-          t.testUser3,
-          t.testUser4,
-          t.testUser5,
-        ];
-      } else {
-        _showMentionList.value = false;
+    // 使用工具方法检测 @提及 触发
+    final (show, keyword) = MentionTextEditorHelper.detectMentionTrigger(text, selection);
+
+    if (show) {
+      _showMentionList.value = true;
+      _mentionKeyword.value = keyword;
+      // 更新 Provider 中的关键词
+      try {
+        final container = ProviderScope.containerOf(context);
+        container.read(mentionNotifierProvider.notifier).updateKeyword(keyword);
+      } catch (_) {
+        // Provider 可能未初始化，忽略
       }
     } else {
       _showMentionList.value = false;
+      _mentionKeyword.value = '';
     }
+
+    // 根据光标位置更新 @提及数据（处理删除操作）
+    _mentionData = _mentionData.removeByCursorPosition(selection.extentOffset);
+    _notifyMentionsChanged();
   }
 
-  /// 插入@提及
-  void _insertMention(String username) {
-    final currentText = _textController.text;
+  /// 处理选择 @提及候选项
+  void _handleMentionSelected(MentionCandidate candidate) {
+    final text = _textController.text;
     final selection = _textController.selection;
 
-    // 找到@符号的位置
-    final atIndex = currentText.lastIndexOf('@', selection.extentOffset - 1);
-    if (atIndex != -1) {
-      final newText =
-          '${currentText.substring(0, atIndex)}@$username ${currentText.substring(selection.extentOffset)}';
-      final newCursorPosition = atIndex + username.length + 2;
+    // 使用工具方法插入 @提及
+    final newValue = MentionTextEditorHelper.insertMention(
+      text: text,
+      selection: selection,
+      candidate: candidate,
+    );
 
-      _textController.value = TextEditingValue(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newCursorPosition),
-      );
+    // 记录 @提及数据
+    final atIndex = text.lastIndexOf('@', selection.extentOffset - 1);
+    if (atIndex != -1) {
+      final displayName = candidate.displayName;
+      final endPos = atIndex + displayName.length + 2;
+      final userId = candidate.isAllMention ? 'all' : candidate.userId;
+
+      _mentionData = _mentionData.addMention(userId, atIndex, endPos);
+      _notifyMentionsChanged();
     }
 
+    _textController.value = newValue;
     _showMentionList.value = false;
+    _mentionKeyword.value = '';
+  }
+
+  /// 通知 @提及变更
+  void _notifyMentionsChanged() {
+    widget.onMentionsChanged?.call(_mentionData.mentionIds);
   }
 
   /// 构建快捷回复面板
@@ -371,37 +422,35 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 构建@提及列表
   Widget _buildMentionList() {
+    // 只在群聊中显示 @提及列表
+    if (widget.type != 'C2G') {
+      return const SizedBox.shrink();
+    }
+
     return ValueListenableBuilder<bool>(
       valueListenable: _showMentionList,
       builder: (context, showMentionList, _) {
         if (!showMentionList) return const SizedBox.shrink();
 
-        return ValueListenableBuilder<List<String>>(
-          valueListenable: _mentionCandidates,
-          builder: (context, candidates, _) {
-            return Container(
-              height: 180,
-              decoration: BoxDecoration(
-                color: ThemeManager.instance.getThemeColor('surface'),
-                borderRadius: AppRadius.borderRadiusMedium,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: candidates.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(candidates[index]),
-                    onTap: () => _insertMention(candidates[index]),
-                  );
-                },
-              ),
+        return ValueListenableBuilder<String>(
+          valueListenable: _mentionKeyword,
+          builder: (context, keyword, _) {
+            // 使用 Builder 获取 ProviderContainer
+            return Builder(
+              builder: (context) {
+                // 从 ProviderContainer 获取状态
+                final container = ProviderScope.containerOf(context);
+                final mentionState = container.read(mentionNotifierProvider);
+
+                return MentionListWidget(
+                  candidates: mentionState.candidates,
+                  keyword: keyword,
+                  showAllMention: mentionState.showAllMention,
+                  isAdmin: mentionState.isAdmin,
+                  onSelected: _handleMentionSelected,
+                  maxHeight: 180,
+                );
+              },
             );
           },
         );
@@ -441,9 +490,20 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _characterCount.dispose();
     _isFocused.dispose();
     _showMentionList.dispose();
-    _mentionCandidates.dispose();
+    _mentionKeyword.dispose();
     _showQuickReplies.dispose();
     _quickReplies.dispose();
+
+    // 清理 @提及状态
+    if (widget.type == 'C2G') {
+      try {
+        final container = ProviderScope.containerOf(context);
+        container.read(mentionNotifierProvider.notifier).clear();
+      } catch (_) {
+        // Provider 可能未初始化，忽略
+      }
+    }
+
     super.dispose();
   }
 
@@ -498,15 +558,26 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// 处理发送按钮点击（异步发送，草稿清理，安全判断 mounted）
   Future<void> _handleSendPressed() async {
     final trimmedText = _textController.text.trim();
+    iPrint('📤 [ChatInput._handleSendPressed] 开始: text="$trimmedText"');
     if (trimmedText.isNotEmpty) {
+      iPrint('📤 [ChatInput._handleSendPressed] 调用 widget.onSendPressed');
       final res = await widget.onSendPressed(trimmedText);
+      iPrint('📤 [ChatInput._handleSendPressed] onSendPressed 返回: $res');
       if (!mounted) return; // 异步gap后安全检查
       if (res) {
         _textController.clear();
         StorageService.to.remove(draftKey);
+        // 清空 @提及数据
+        _mentionData = const MentionData();
+        _notifyMentionsChanged();
+        iPrint('✅ [ChatInput._handleSendPressed] 发送成功，已清空输入框');
         // 发送后自动收起键盘
         FocusScope.of(context).unfocus();
+      } else {
+        iPrint('⚠️ [ChatInput._handleSendPressed] 发送失败，保留输入框内容');
       }
+    } else {
+      iPrint('⚠️ [ChatInput._handleSendPressed] 输入为空，跳过发送');
     }
   }
 
@@ -520,6 +591,36 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// 对外提供unfocus方法，用于收起输入框和面板
   void unfocus() {
     hideAllPanel();
+  }
+
+  /// 获取当前消息的 @提及 ID 列表
+  List<String> getMentionIds() {
+    return _mentionData.mentionIds;
+  }
+
+  /// 获取当前消息的 @提及数据
+  MentionData getMentionData() {
+    return _mentionData;
+  }
+
+  /// 手动触发 @提及列表（供外部调用）
+  void showMentionPicker() {
+    if (widget.type == 'C2G') {
+      // 在光标位置插入 @ 符号
+      final text = _textController.text;
+      final selection = _textController.selection;
+      final newText = text.replaceRange(
+        selection.start,
+        selection.end,
+        '@',
+      );
+      _textController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: selection.start + 1),
+      );
+      // 触发 @提及 检测
+      _handleMentionDetection();
+    }
   }
 
   /// 切换输入类型（文本/语音/表情/扩展面板），优化版本：更平滑的高度过渡

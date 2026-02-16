@@ -11,35 +11,51 @@ class RightButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        showPopover(
-          context: context,
-          bodyBuilder: (context) => const RightButtonList(),
-          direction: PopoverDirection.bottom,
-          width: 160,
-          // 移除固定高度，让内容决定高度
-          arrowHeight: 8,
-          arrowWidth: 16,
-          arrowDxOffset: 0,
-          contentDxOffset: 0,
-          arrowDyOffset: -4,
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          shadow: [
-            BoxShadow(
-              color: Theme.of(
-                context,
-              ).colorScheme.shadow.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        );
-      },
-      icon: Icon(
-        Icons.add_circle_outline,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 搜索按钮
+        IconButton(
+          onPressed: () {
+            context.push('/message_search');
+          },
+          icon: Icon(
+            Icons.search,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        // 添加按钮（弹出菜单）
+        IconButton(
+          onPressed: () {
+            showPopover(
+              context: context,
+              bodyBuilder: (context) => const RightButtonList(),
+              direction: PopoverDirection.bottom,
+              width: 160,
+              // 移除固定高度，让内容决定高度
+              arrowHeight: 8,
+              arrowWidth: 16,
+              arrowDxOffset: 0,
+              contentDxOffset: 0,
+              arrowDyOffset: -4,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              shadow: [
+                BoxShadow(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            );
+          },
+          icon: Icon(
+            Icons.add_circle_outline,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -68,7 +84,7 @@ class RightButtonList extends StatelessWidget {
           title: t.addFriend,
           onTap: () {
             Navigator.of(context).pop();
-            context.push('/add_friend');
+            context.push('/contact/add_friend');
           },
         ),
         _buildDivider(),
@@ -78,7 +94,7 @@ class RightButtonList extends StatelessWidget {
           title: t.newlyRegisteredPeople,
           onTap: () {
             Navigator.of(context).pop();
-            context.push('/recently_registered_user');
+            context.push('/contact/recently_registered_user');
           },
         ),
         _buildDivider(),

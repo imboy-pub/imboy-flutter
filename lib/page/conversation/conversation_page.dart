@@ -18,6 +18,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -37,6 +38,7 @@ class ConversationPage extends ConsumerStatefulWidget {
 
 class _ConversationPageState extends ConsumerState<ConversationPage> {
   StreamSubscription? ssMsg;
+  StreamSubscription? ssExtend; // 监听会话扩展事件（清空聊天记录等）
 
   // 语言变化监听器
   StreamSubscription? _localeSubscription;
@@ -66,6 +68,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   @override
   void dispose() {
     ssMsg?.cancel();
+    ssExtend?.cancel();
     _localeSubscription?.cancel();
     _connectivitySubscription?.cancel();
     super.dispose();
@@ -115,6 +118,42 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         if (messages.first is Message) {
           // 消息列表由其他地方处理，这里跳过或做特殊处理
           debugPrint('收到消息列表事件，跳过会话更新');
+        }
+      }
+    });
+
+    // 监听会话扩展事件（清空聊天记录、删除消息等）
+    ssExtend = AppEventBus.on<ChatExtendEvent>().listen((event) async {
+      if (!mounted) return;
+
+      // 处理会话刷新事件
+      if (event.type == 'refresh_conversations' ||
+          event.type == 'clean_msg') {
+        // 优先使用事件中的完整会话对象
+        if (event.payload['conversation'] is ConversationModel) {
+          final updatedConv =
+              event.payload['conversation'] as ConversationModel;
+          if (updatedConv.id > 0) {
+            await notifier.replace(updatedConv);
+            return;
+          }
+        }
+
+        // 回退：从 uk3 查询
+        final uk3 = event.payload['uk3'] as String?;
+        if (uk3 != null && uk3.isNotEmpty) {
+          // 从 uk3 中解析 type 和 peerId (格式: "C2C_uid1_uid2" 或 "C2G_groupId")
+          final parts = uk3.split('_');
+          if (parts.length >= 3) {
+            final type = parts[0];
+            final peerId = parts.sublist(1).join('_');
+
+            // 从数据库重新加载该会话的信息
+            final updatedConv = await ConversationRepo().findByPeerId(type, peerId);
+            if (updatedConv != null && updatedConv.id > 0) {
+              await notifier.replace(updatedConv);
+            }
+          }
         }
       }
     });

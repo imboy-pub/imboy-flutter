@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/event_bus.dart';
-import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart' show ContactModel;
 import 'package:imboy/store/model/conversation_model.dart';
@@ -350,48 +349,22 @@ class ConversationNotifier extends _$ConversationNotifier {
     } catch (_) {}
   }
 
+  /// 删除会话及其所有消息
+  ///
+  /// 使用 ConversationRepo.deleteConversation() 方法，该方法：
+  /// - 在事务中完成所有操作，保证原子性
+  /// - 自动清理重试队列
+  /// - 删除消息和会话记录
   Future<bool> removeConversation(ConversationModel cm) async {
     if (cm.uk3.isEmpty) return false;
     try {
-      Database? db = await SqliteService.to.db;
-      if (db == null) return false;
+      // 使用事务删除会话及其消息
+      await ConversationRepo().deleteConversation(cm);
 
-      return await db.transaction((txn) async {
-        String tb = MessageRepo.getTableName(cm.type);
-
-        // 先查询该会话的所有消息ID，用于清理重试队列
-        final List<Map<String, dynamic>> messages = await txn.query(
-          tb,
-          columns: ['id'],
-          where: '${MessageRepo.conversationUk3}=?',
-          whereArgs: [cm.uk3],
-        );
-
-        // 清理重试队列中属于该会话的消息
-        if (messages.isNotEmpty) {
-          for (final msg in messages) {
-            final msgId = msg['id'] as String?;
-            if (msgId != null && msgId.isNotEmpty) {
-              MessageRetry.to.removeFromRetryQueue(msgId);
-            }
-          }
-          iPrint('已从重试队列清理 ${messages.length} 条消息: conversationUk3=${cm.uk3}');
-        }
-
-        // 删除数据库中的消息和会话记录
-        await txn.execute(
-          "DELETE FROM $tb WHERE ${MessageRepo.conversationUk3}=?",
-          [cm.uk3],
-        );
-        await txn.execute(
-          "DELETE FROM ${ConversationRepo.tableName} WHERE id=?",
-          [cm.id],
-        );
-
-        removeConversationFromMap(cm.uk3);
-        removeConversationRemind(cm.uk3);
-        return true;
-      });
+      // 清理内存中的会话数据
+      removeConversationFromMap(cm.uk3);
+      removeConversationRemind(cm.uk3);
+      return true;
     } catch (e, s) {
       iPrint('removeConversation error: $e; $s');
       return false;

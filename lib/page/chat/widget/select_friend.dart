@@ -56,7 +56,6 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       height: 30,
-      width: double.infinity,
       alignment: Alignment.centerLeft,
       color: Theme.of(context).colorScheme.surface,
       child: Text(
@@ -129,6 +128,11 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final peer = widget.peer;
     final peerIsReceiver = widget.peerIsReceiver;
+
+    // 根据主题选择按钮文字颜色
+    final Color buttonTextColor = isDarkMode
+        ? const Color.fromRGBO(100, 200, 100, 1)  // 暗色模式：绿色
+        : const Color.fromRGBO(33, 150, 243, 1); // 亮色模式：蓝色
 
     showDialog(
       context: context,
@@ -205,7 +209,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             child: Text(
               t.buttonCancel,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(color: buttonTextColor),
             ),
           ),
           TextButton(
@@ -217,7 +221,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             child: Text(
               t.buttonSend,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(color: buttonTextColor),
             ),
           ),
         ],

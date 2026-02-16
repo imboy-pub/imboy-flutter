@@ -160,6 +160,7 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
         '/api/group/$groupId/announcement',
         data: {
           'content': content,
+          // ignore: use_null_aware_elements
           if (expiredAt != null) 'expired_at': expiredAt,
         },
       );

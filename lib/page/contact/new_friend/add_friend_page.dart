@@ -335,8 +335,11 @@ class AddFriendPage extends ConsumerWidget {
         child: ListTile(
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              model.avatar ?? '',
+            child: Image(
+              image: cachedImageProvider(
+                model.avatar ?? '',
+                w: 56,
+              ),
               width: 56,
               height: 56,
               fit: BoxFit.cover,

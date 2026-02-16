@@ -45,7 +45,7 @@ final class ContactSettingNotifierProvider
 }
 
 String _$contactSettingNotifierHash() =>
-    r'af158dfa09c5bfd39a30ec7bc60486a389f2aeb5';
+    r'f5579b6c683143400fdd7998bbeccdbe30f04fa4';
 
 /// 联系人设置 Notifier
 

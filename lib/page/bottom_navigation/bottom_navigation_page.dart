@@ -8,10 +8,9 @@ import 'package:imboy/page/contact/contact/contact_page.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
-import 'package:imboy/page/discover/discover_page.dart';
+import 'package:imboy/page/channel/channel_list_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
-import 'package:imboy/service/websocket.dart' show SocketStatus;
-import 'package:imboy/service/websocket_provider.dart';
+import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -85,7 +84,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   final List<Widget> pageList = [
     const ConversationPage(),
     ContactPage(),
-    const DiscoverPage(),
+    const ChannelListPage(),
     MinePage(),
   ];
 
@@ -104,7 +103,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     // 监听新好友提醒
     final newFriendCount = ref.watch(newFriendRemindProvider);
     // 监听 WebSocket 状态（使用 Provider 响应式监听）
-    final socketStatus = ref.watch(webSocketStatusProvider);
+    final socketStatusAsync = ref.watch(webSocketStatusProvider);
+    final socketStatus =
+        socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface, // 使用主题背景色
@@ -193,11 +194,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
             },
           ),
           GlassBottomBarItem(
-            icon: Icons.explore_outlined,
-            activeIcon: Icons.explore,
-            label: t.titleDiscover,
+            icon: Icons.campaign_outlined,
+            activeIcon: Icons.campaign,
+            label: t.channel.title,
             iconBuilder: (isSelected) => Icon(
-              isSelected ? Icons.explore : Icons.explore_outlined,
+              isSelected ? Icons.campaign : Icons.campaign_outlined,
               size: 26,
               color: isSelected ? AppColors.primary : null,
             ),
@@ -213,7 +214,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 start: 22,
               ), // 调整在线状态点的位置
               badgeStyle: badges.BadgeStyle(
-                badgeColor: socketStatus == SocketStatus.connected
+                badgeColor: socketStatus == WebSocketConnectionState.connected
                     ? AppColors
                           .success // 在线状态使用成功色
                     : AppColors.messageFailed, // 离线状态使用失败色

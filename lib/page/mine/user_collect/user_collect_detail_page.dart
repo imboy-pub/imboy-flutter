@@ -106,18 +106,89 @@ class UserCollectDetailPage extends ConsumerWidget {
               subtitle: t.shareWithOtherFriends,
               onTap: () async {
                 Navigator.pop(context);
-                obj.info['id'] = Xid().toString();
-                var msg = await MessageModel.fromJson(obj.info).toTypeMessage();
-                // 使用 Navigator.push 替代 Get.to
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => SendToPage(msg: msg),
-                  ),
-                ).then((value) {
-                  // 调用 Provider 的 change 方法
-                  notifier.change(obj.kindId);
-                });
+
+                // 确保 obj.info 有正确的数据结构
+                final Map<String, dynamic> info = Map<String, dynamic>.from(obj.info);
+
+                debugPrint('收藏消息原始 info keys: ${info.keys.toList()}');
+                debugPrint('收藏消息 kind: ${obj.kind}');
+
+                // 多种方式尝试获取 msg_type
+                String? msgType = info['msg_type']?.toString();
+
+                // 方式1：如果顶层没有 msg_type，从 payload 中获取
+                if (msgType == null || msgType.isEmpty) {
+                  if (info['payload'] is Map) {
+                    final payload = info['payload'] as Map<String, dynamic>;
+                    msgType = payload['msg_type']?.toString();
+                    debugPrint('从 payload 获取 msg_type: $msgType');
+                  }
+                }
+
+                // 方式2：根据 kind 字段推断类型（kind 定义：1 文本 2 图片 3 语音 4 视频 5 文件 6 位置 7 名片）
+                if (msgType == null || msgType.isEmpty) {
+                  switch (obj.kind) {
+                    case 1:
+                      msgType = 'text';
+                      break;
+                    case 2:
+                      msgType = 'image';
+                      break;
+                    case 3:
+                      msgType = 'audio';
+                      break;
+                    case 4:
+                      msgType = 'video';
+                      break;
+                    case 5:
+                      msgType = 'file';
+                      break;
+                    case 6:
+                      msgType = 'location';
+                      break;
+                    case 7:
+                      msgType = 'visitCard';
+                      break;
+                    default:
+                      msgType = 'text';
+                  }
+                  debugPrint('根据 kind ${obj.kind} 推断 msg_type: $msgType');
+                }
+
+                // 确保 msg_type 在顶层（msgType 在此处已确保非空）
+                info['msg_type'] = msgType;
+                info['type'] = info['type'] ?? 'C2C';
+
+                // 生成新的消息 ID
+                info['id'] = Xid().toString();
+
+                debugPrint('处理后的 info keys: ${info.keys.toList()}');
+                debugPrint('最终 msg_type: ${info['msg_type']}, type: ${info['type']}');
+                debugPrint('payload 存在: ${info.containsKey('payload')}');
+                if (info['payload'] is Map) {
+                  final payload = info['payload'] as Map<String, dynamic>;
+                  debugPrint('payload keys: ${payload.keys.toList()}');
+                }
+
+                try {
+                  var msg = await MessageModel.fromJson(info).toTypeMessage();
+
+                  debugPrint('创建的 Message 类型: ${msg.runtimeType}');
+
+                  // 使用 Navigator.push 替代 Get.to
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => SendToPage(msg: msg),
+                    ),
+                  ).then((value) {
+                    // 调用 Provider 的 change 方法
+                    notifier.change(obj.kindId);
+                  });
+                } catch (e, s) {
+                  debugPrint('转发收藏消息失败: $e\n堆栈: $s');
+                  EasyLoading.showError(t.operationFailedAgainLater);
+                }
               },
               iconColor: Theme.of(context).colorScheme.secondary,
             ),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -133,6 +134,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
 
   //检查权限
   Future<bool> _checkPermission() async {
+    // Web 平台不需要检查权限
+    if (kIsWeb) {
+      return true;
+    }
     if (!(Platform.isAndroid || Platform.isIOS)) {
       EasyLoading.show(status: t.permissionOnlySupportAndroidAndIos);
       return false;

@@ -971,3 +971,486 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
     });
   }
 }
+
+/// 频道二维码页面
+class ChannelQrCodePage extends ConsumerStatefulWidget {
+  final Map<String, dynamic> channelData;
+
+  const ChannelQrCodePage({super.key, required this.channelData});
+
+  @override
+  ConsumerState<ChannelQrCodePage> createState() => _ChannelQrCodePageState();
+}
+
+class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
+  final GlobalKey globalKey = GlobalKey();
+  final int dayNum = 7;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+
+    // 从 channelData 获取频道信息
+    final channelId = widget.channelData['id'] as String? ?? '';
+    final channelName = widget.channelData['name'] as String? ?? '';
+    final channelAvatar = widget.channelData['avatar'] as String?;
+
+    // 计算二维码数据和过期时间
+    int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
+    String key = Env().solidifiedKey;
+    String tk = EncrypterService.md5("${expiredAt}_$key");
+    Map<String, dynamic> query = {'id': channelId, 'exp': expiredAt, 'tk': tk};
+    String queryStr = query.entries
+        .map(
+          (entry) =>
+              '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}',
+        )
+        .join('&');
+    String qrcodeData =
+        "${Env().apiBaseUrl}/channel/qrcode?$queryStr&$qrcodeDataSuffix";
+
+    return Scaffold(
+      backgroundColor: AppColors.getBackgroundColor(
+        Theme.of(context).brightness,
+      ),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.channel.qrcode,
+        backgroundColor: AppColors.getBackgroundColor(
+          Theme.of(context).brightness,
+        ),
+        rightDMActions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.more_horiz,
+              color: AppColors.getTextColor(Theme.of(context).brightness),
+              size: 24,
+            ),
+            onPressed: () => _showChannelBottomSheet(context),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular * 2,
+          vertical: AppSpacing.regular * 2,
+        ),
+        child: Column(
+          children: [
+            RepaintBoundary(
+              key: globalKey,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: AppRadius.borderRadiusRegular,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(height: AppSpacing.regular * 2),
+
+                    // 频道头像
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadius.borderRadiusMedium,
+                        image: channelAvatar != null && channelAvatar.isNotEmpty
+                            ? dynamicAvatar(channelAvatar)
+                            : null,
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                      ),
+                      child: channelAvatar == null || channelAvatar.isEmpty
+                          ? Icon(
+                              Icons.campaign,
+                              size: 32,
+                              color: AppColors.primary,
+                            )
+                          : null,
+                    ),
+
+                    SizedBox(height: AppSpacing.regular * 1.2),
+
+                    // 频道名称
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.regular * 2,
+                      ),
+                      child: Text(
+                        channelName.isNotEmpty
+                            ? channelName
+                            : t.channel.defaultName,
+                        style: ThemeManager.instance.getTextStyle(
+                          FontSizeType.large,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.lightTextPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    SizedBox(height: AppSpacing.regular * 2),
+
+                    // 二维码
+                    Container(
+                      padding: EdgeInsets.all(AppSpacing.regular),
+                      child: QrImageView(
+                        data: qrcodeData,
+                        version: QrVersions.auto,
+                        errorCorrectionLevel: QrErrorCorrectLevel.H,
+                        size: 240,
+                        gapless: true,
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: Colors.black,
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: Colors.black,
+                        ),
+                        embeddedImage: MediaQuery.of(context).size.height < 640
+                            ? null
+                            : const AssetImage('assets/images/imboy_logo0.png'),
+                      ),
+                    ),
+
+                    // 有效期提示
+                    Padding(
+                      padding: EdgeInsets.all(AppSpacing.regular * 2),
+                      child: Text(
+                        t.channel.qrcodeTips(
+                          days: dayNum.toString(),
+                          date: DateFormat('y-MM-dd').format(
+                            DateTime.fromMillisecondsSinceEpoch(expiredAt),
+                          ),
+                        ),
+                        style: ThemeManager.instance.getTextStyle(
+                          FontSizeType.small,
+                          color: AppColors.lightTextSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            SizedBox(height: AppSpacing.regular * 3),
+
+            // 操作按钮
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    context: context,
+                    icon: Icons.save_alt,
+                    text: t.saveQrCode,
+                    onPressed: () => _saveChannelQrCode(context, channelId),
+                  ),
+                ),
+
+                SizedBox(width: AppSpacing.regular * 2),
+
+                Expanded(
+                  child: _buildActionButton(
+                    context: context,
+                    icon: Icons.share,
+                    text: t.share,
+                    onPressed: () => _shareChannelQrCode(context),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建操作按钮
+  Widget _buildActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      height: 52,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary.withValues(alpha: 0.08),
+            AppColors.primary.withValues(alpha: 0.12),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: AppRadius.borderRadiusRegular,
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: AppRadius.borderRadiusRegular,
+          splashColor: AppColors.primary.withValues(alpha: 0.1),
+          highlightColor: AppColors.primary.withValues(alpha: 0.05),
+          onTap: onPressed,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 1.2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.borderRadiusSmall,
+                  ),
+                  child: Icon(icon, color: AppColors.primary, size: 18),
+                ),
+                SizedBox(width: AppSpacing.regular),
+                Flexible(
+                  child: Text(
+                    text,
+                    style: ThemeManager.instance.getTextStyle(
+                      FontSizeType.medium,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 显示频道底部弹窗
+  void _showChannelBottomSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkCardBackground
+              : AppColors.lightCardBackground,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 顶部指示器
+              Container(
+                width: 36,
+                height: 4,
+                margin: EdgeInsets.only(
+                  top: AppSpacing.regular * 1.2,
+                  bottom: AppSpacing.regular * 2,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.getDividerColor(
+                    Theme.of(context).brightness,
+                  ),
+                  borderRadius: AppRadius.borderRadiusTiny,
+                ),
+              ),
+
+              // 分享选项
+              _buildBottomSheetItem(
+                context: context,
+                icon: Icons.share,
+                text: context.t.share,
+                onTap: () {
+                  Navigator.pop(context);
+                  _shareChannelQrCode(context);
+                },
+              ),
+
+              // 保存选项
+              _buildBottomSheetItem(
+                context: context,
+                icon: Icons.save_alt,
+                text: context.t.saveQrCode,
+                onTap: () {
+                  Navigator.pop(context);
+                  final channelId = widget.channelData['id'] as String? ?? '';
+                  _saveChannelQrCode(context, channelId);
+                },
+              ),
+
+              // 扫一扫选项
+              _buildBottomSheetItem(
+                context: context,
+                icon: Icons.qr_code_scanner,
+                text: context.t.scanQrCode,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const ScannerPage(),
+                    ),
+                  );
+                },
+              ),
+
+              // 分割线
+              Container(
+                height: 8,
+                color: AppColors.getDividerColor(
+                  Theme.of(context).brightness,
+                ).withValues(alpha: 0.3),
+                margin: EdgeInsets.symmetric(vertical: AppSpacing.regular),
+              ),
+
+              // 取消选项
+              _buildBottomSheetItem(
+                context: context,
+                text: context.t.buttonCancel,
+                onTap: () => Navigator.pop(context),
+                isCancel: true,
+              ),
+
+              SizedBox(height: AppSpacing.regular),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  /// 构建底部弹窗选项
+  Widget _buildBottomSheetItem({
+    required BuildContext context,
+    IconData? icon,
+    required String text,
+    required VoidCallback onTap,
+    bool isCancel = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular * 2,
+            vertical: AppSpacing.regular * 1.6,
+          ),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  color: isCancel
+                      ? AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                          isSecondary: true,
+                        )
+                      : AppColors.getTextColor(Theme.of(context).brightness),
+                  size: 22,
+                ),
+                SizedBox(width: AppSpacing.regular * 1.2),
+              ],
+              Text(
+                text,
+                style: ThemeManager.instance.getTextStyle(
+                  FontSizeType.medium,
+                  fontWeight: FontWeight.w400,
+                  color: isCancel
+                      ? AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                          isSecondary: true,
+                        )
+                      : AppColors.getTextColor(Theme.of(context).brightness),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 分享频道二维码
+  void _shareChannelQrCode(BuildContext context) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final res = await RepaintBoundaryHelper().image(context, globalKey);
+      if (res != null) {
+        final t = context.t;
+        final channelName =
+            widget.channelData['name'] as String? ?? t.channel.defaultName;
+        final txt = t.channel.qrcodeTips(
+          days: dayNum.toString(),
+          date: DateTimeHelper.lastTimeFmt(
+            DateTimeHelper.millisecond() + dayNum * 86400 * 1000,
+            pattern: 'y-MM-dd',
+          ),
+        );
+        final result = await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile.fromData(res, mimeType: 'png')],
+            text: '$channelName - $txt',
+          ),
+        );
+        if (result.status == ShareResultStatus.success) {
+          // 分享成功
+        }
+      }
+    });
+  }
+
+  /// 保存频道二维码
+  void _saveChannelQrCode(BuildContext context, String channelId) async {
+    String filename = "${channelId}_qrcode.png";
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final res = await RepaintBoundaryHelper().savePhoto(
+        context,
+        globalKey,
+        filename,
+      );
+      iPrint("savePhoto channel res ${res.toString()}");
+      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
+          ? true
+          : false;
+      if (isSuccess) {
+        EasyLoading.showSuccess(context.t.saveSuccess);
+      }
+    });
+  }
+}

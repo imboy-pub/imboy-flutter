@@ -78,6 +78,33 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     state = state.copyWith(longitude: longitude, latitude: latitude);
   }
 
+  /// 检查坐标是否有效
+  bool _isValidCoordinate(String longitude, String latitude) {
+    if (longitude.isEmpty || latitude.isEmpty) {
+      return false;
+    }
+    if (longitude == "null" || latitude == "null") {
+      return false;
+    }
+    // 尝试解析为 double
+    try {
+      double lng = double.parse(longitude);
+      double lat = double.parse(latitude);
+      // 检查是否为无效坐标 (0, 0) 或超出范围
+      if (lng == 0.0 && lat == 0.0) {
+        return false;
+      }
+      // 经度范围: -180 到 180
+      // 纬度范围: -90 到 90
+      if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// 清空列表
   void clearList() {
     state = state.copyWith(peopleList: []);
@@ -106,7 +133,8 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
     }
 
-    if (state.longitude.isEmpty || state.longitude == "null") {
+    // 检查坐标是否有效（包括 "0.0", "0.0000000" 等无效坐标）
+    if (!_isValidCoordinate(state.longitude, state.latitude)) {
       EasyLoading.showInfo(
         "${t.failedGetLatLong}\n${t.notTurnedLocationService}\n${t.or} ${t.notAuthorizedLatLong}",
       );
@@ -147,6 +175,14 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
 
   /// 让自己可见
   Future<bool> makeMyselfVisible() async {
+    // 检查坐标是否有效
+    if (!_isValidCoordinate(state.longitude, state.latitude)) {
+      EasyLoading.showInfo(
+        "${t.failedGetLatLong}\n${t.notTurnedLocationService}\n${t.or} ${t.notAuthorizedLatLong}",
+      );
+      return false;
+    }
+
     updateVisibility(!state.peopleNearbyVisible);
 
     bool res = await LocationApi().makeMyselfVisible(
