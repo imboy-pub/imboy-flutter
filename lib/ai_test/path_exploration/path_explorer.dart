@@ -114,7 +114,7 @@ class ExplorationResult {
       'prunedNodes': prunedNodes,
       'completed': completed,
       'efficiency': exploredNodes > 0
-          ? (paths.length / exploredNodes * 100).toStringAsFixed(1) + '%'
+          ? '${(paths.length / exploredNodes * 100).toStringAsFixed(1)}%'
           : 'N/A',
     };
   }

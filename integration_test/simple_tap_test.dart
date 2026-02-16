@@ -195,9 +195,10 @@ void main() {
       print('✅ 截图应保存到: test_automation/reports/screenshots/01_simple_tap_after_login.png');
 
       // ========== 测试总结 ==========
-      print('\n' + '='*60);
+      final separator = '=' * 60;
+      print('\n$separator');
       print('📋 测试总结:');
-      print('='*60);
+      print(separator);
       print('✅ 应用启动成功');
       print('✅ Widget 树结构已获取');
       if (loginButtonFound) {

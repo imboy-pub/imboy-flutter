@@ -196,6 +196,7 @@ class EnhancedTestHelper {
     bool required = true,
   }) async {
     final startTime = DateTime.now();
+    // ignore: deprecated_member_use
     _log('🔍 等待元素: ${finder.description}');
 
     while (DateTime.now().difference(startTime) < timeout) {
@@ -209,6 +210,7 @@ class EnhancedTestHelper {
 
     if (required) {
       _log('  ❌ 元素未找到（超时）');
+      // ignore: deprecated_member_use
       throw TimeoutException('元素未找到: ${finder.description}', timeout);
     } else {
       _log('  ⚠️ 元素未找到（可选）');
@@ -225,6 +227,7 @@ class EnhancedTestHelper {
     await waitFor(finder, timeout: timeout, required: required);
     await tester.tap(finder);
     await tester.pumpAndSettle();
+    // ignore: deprecated_member_use
     _log('👆 点击: ${finder.description}');
   }
 

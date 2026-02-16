@@ -75,7 +75,7 @@ void main() {
           '进入联系人页面',
           action: () async {
             // 查找联系人标签（可能的文本）
-            final contactsTab = find.text(t.contacts);
+            final contactsTab = find.text(t.titleContact);
             final addressBookTab = find.text('通讯录');
 
             if (tester.any(contactsTab)) {

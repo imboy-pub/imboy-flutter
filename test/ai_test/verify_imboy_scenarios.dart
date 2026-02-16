@@ -10,8 +10,6 @@
 /// ```
 library;
 
-import 'dart:io';
-import 'package:imboy/ai_test/intent/intent_parser.dart';
 import 'package:imboy/ai_test/utils/ai_test_helper.dart';
 
 /// Imboy E2EE 功能的真实用户故事
@@ -63,24 +61,25 @@ final imboyUserStories = {
 };
 
 Future<void> main() async {
-  print('\n' + '=' * 70);
+  final separator = '=' * 70;
+  print('\n$separator');
   print('🤖 AI 测试框架 - Imboy 实际场景验证');
-  print('=' * 70);
+  print(separator);
 
-  final intentParser = IntentParser();
   final helper = AITestHelper();
 
   var totalTests = 0;
   final results = <String, int>{};
 
   // 测试每个用户故事
+  final dashSeparator = '─' * 70;
   for (final entry in imboyUserStories.entries) {
     final scenario = entry.key;
     final userStory = entry.value;
 
-    print('\n' + '─' * 70);
+    print('\n$dashSeparator');
     print('📝 场景: $scenario');
-    print('─' * 70);
+    print(dashSeparator);
 
     try {
       // 生成测试用例
@@ -128,9 +127,9 @@ Future<void> main() async {
   }
 
   // 总体统计
-  print('\n' + '=' * 70);
+  print('\n$separator');
   print('📊 验证结果汇总');
-  print('=' * 70);
+  print(separator);
   print('总场景数: ${imboyUserStories.length}');
   print('总测试数: $totalTests');
   print('平均每场景: ${(totalTests / imboyUserStories.length).toStringAsFixed(1)} 个');
@@ -155,5 +154,5 @@ Future<void> main() async {
   print('   2. 使用实际 UI 测试执行生成的测试用例');
   print('   3. 收集反馈优化提示词模板');
 
-  print('\n' + '=' * 70);
+  print('\n$separator');
 }

@@ -1,8 +1,9 @@
 /// 测试生成器 - 将 AI 生成的测试用例转换为可执行代码
 library;
 
-import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import '../intent/intent_parser.dart';
 
 /// 测试结果
@@ -201,9 +202,10 @@ class TestGenerator {
   /// 生成测试报告
   String generateReport() {
     final buffer = StringBuffer();
-    buffer.writeln('\n${'=' * 60}');
+    final separator = '=' * 60;
+    buffer.writeln('\n$separator');
     buffer.writeln('📊 AI 测试报告');
-    buffer.writeln('${'=' * 60}');
+    buffer.writeln(separator);
     buffer.writeln('总测试数: ${_passedTests + _failedTests}');
     buffer.writeln('通过: $_passedTests ✅');
     buffer.writeln('失败: $_failedTests ❌');
@@ -211,7 +213,7 @@ class TestGenerator {
       final passRate = (_passedTests / (_passedTests + _failedTests) * 100).toStringAsFixed(1);
       buffer.writeln('通过率: $passRate%');
     }
-    buffer.writeln('${'=' * 60}');
+    buffer.writeln(separator);
 
     for (final result in _results) {
       buffer.writeln('\n${result.passed ? "✅" : "❌"} ${result.testCase.name}');

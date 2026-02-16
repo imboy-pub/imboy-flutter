@@ -19,6 +19,7 @@ class TestHelper {
         return;
       }
     }
+    // ignore: deprecated_member_use
     throw TimeoutException('等待 Widget 超时: ${finder.description}', timeout);
   }
 

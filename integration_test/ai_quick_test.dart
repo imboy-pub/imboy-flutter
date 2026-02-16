@@ -93,7 +93,7 @@ package:flutter_test/src/test_geometry.dart
 
       try {
         throw Exception('元素未找到: 不存在的按钮');
-      } catch (e, s) {
+      } catch (e) {
         print('❌ 测试失败: $e');
         print('📋 错误消息: $errorMessage');
         print('📚 堆栈跟踪:\n$stackTrace');

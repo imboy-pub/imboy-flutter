@@ -289,6 +289,8 @@ void main() {
           verboseLogging: false,
         ),
       );
+      // 验证引擎初始化成功
+      expect(engine, isNotNull);
 
       // 使用明确的 FailureDetails 而不是依赖自动检测
       final failure = const FailureDetails(

@@ -184,13 +184,13 @@ class KnowledgeBase {
 
     // 2. 模式匹配
     if (_config.enablePatternLearning && errorMessage != null) {
-      final patterns = _patternLearner.matchPatterns(errorMessage!);
+      final patterns = _patternLearner.matchPatterns(errorMessage);
       matchedPatterns.addAll(patterns);
     }
 
     // 3. 查找成功解决方案
     if (errorMessage != null) {
-      final solutions = _similarityMatcher.findSuccessfulSolutions(errorMessage!);
+      final solutions = _similarityMatcher.findSuccessfulSolutions(errorMessage);
       recommendedSolutions.addAll(solutions);
     }
 

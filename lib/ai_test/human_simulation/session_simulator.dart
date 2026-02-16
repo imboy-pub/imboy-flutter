@@ -215,7 +215,7 @@ class UserSessionSimulator {
       if (result == false) {
         timedOut = true;
       } else {
-        goalCompleted = result as bool;
+        goalCompleted = result;
       }
 
     } catch (e) {
@@ -372,7 +372,7 @@ class UserSessionSimulator {
 
       // 偶尔点击内容
       if (_random.nextDouble() < 0.2) {
-        final tapResult = await _simulator.tap(targetElement: '#content-item-${i}');
+        final tapResult = await _simulator.tap(targetElement: '#content-item-$i');
         actions.addAll(_simulator.actionHistory.skip(actions.length));
 
         if (tapResult.success) {

@@ -1,9 +1,7 @@
 /// 测试执行结果数据结构
 library;
 
-import 'dart:math';
 import '../human_simulation/session_simulator.dart';
-import '../path_exploration/path_explorer.dart';
 import '../path_exploration/test_path.dart';
 
 /// 测试执行状态

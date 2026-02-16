@@ -2,7 +2,6 @@
 library;
 
 import 'dart:convert';
-import 'dart:math';
 import 'test_history.dart';
 import 'similarity_matcher.dart';
 
@@ -108,7 +107,7 @@ class FailurePattern {
 
   @override
   String toString() =>
-      'FailurePattern($name, ${occurrenceCount}次, ${(successRate * 100).toStringAsFixed(0)}% 成功率)';
+      'FailurePattern($name, $occurrenceCount次, ${(successRate * 100).toStringAsFixed(0)}% 成功率)';
 }
 
 /// 学习配置
@@ -153,6 +152,7 @@ class LearningConfig {
 /// 模式学习器
 class PatternLearner {
   final TestHistoryStorage _history;
+  // ignore: unused_field
   final SimilarityMatcher _similarityMatcher;
   final LearningConfig _config;
 

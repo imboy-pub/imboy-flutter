@@ -1,11 +1,10 @@
 /// 自愈合引擎
 library;
 
-import 'dart:async';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_test/flutter_test.dart';
 import 'failure_analyzer.dart';
 import 'healing_strategy.dart';
-import '../intent/intent_parser.dart';
 import '../core/test_generator.dart';
 
 /// 愈合尝试结果
@@ -212,6 +211,7 @@ enum HealingFailureBehavior {
 class SelfHealingEngine {
   final FailureAnalyzer _analyzer;
   final SelfHealingConfig _config;
+  // ignore: unused_field
   final TestGenerator _testGenerator;
   final Map<String, HealingSession> _activeSessions = {};
 
@@ -386,7 +386,7 @@ class SelfHealingEngine {
 
   /// 生成会话 ID
   String _generateSessionId() {
-    return 'healing_${DateTime.now().millisecondsSinceEpoch}_${_totalHealings}';
+    return 'healing_${DateTime.now().millisecondsSinceEpoch}_$_totalHealings';
   }
 
   /// 记录愈合会话日志

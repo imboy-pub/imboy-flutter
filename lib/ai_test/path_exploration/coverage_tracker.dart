@@ -1,7 +1,6 @@
 /// 覆盖率追踪器 - 追踪测试覆盖率
 library;
 
-import 'dart:collection';
 import 'dart:convert';
 import 'test_path.dart';
 

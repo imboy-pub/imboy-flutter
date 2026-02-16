@@ -1,10 +1,7 @@
 /// 相似度匹配器
 library;
 
-import 'dart:convert';
-import 'dart:math';
 import 'test_history.dart';
-import '../healing/failure_analyzer.dart';
 
 /// 相似度匹配结果
 class SimilarityMatch {

@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_test/flutter_test.dart';
 import '../intent/intent_parser.dart';
 

@@ -1,8 +1,6 @@
 /// 性能监控器 - 追踪测试执行性能
 library;
 
-import 'dart:async';
-
 /// 性能指标
 class PerformanceMetric {
   /// 操作名称

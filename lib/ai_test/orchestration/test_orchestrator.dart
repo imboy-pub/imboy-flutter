@@ -8,7 +8,6 @@ import '../intent/intent_parser.dart';
 import '../healing/self_healing_engine.dart';
 import '../knowledge/knowledge_base.dart';
 import '../path_exploration/path_explorer.dart';
-import '../path_exploration/test_path.dart';
 import '../path_exploration/coverage_tracker.dart';
 import '../human_simulation/human_simulator.dart';
 import '../human_simulation/session_simulator.dart';
@@ -129,6 +128,7 @@ class AITestOrchestrator {
   final PerformanceMonitor _monitor;
 
   late final IntentParser _intentParser;
+  // ignore: unused_field
   late final SelfHealingEngine _healingEngine;
   late final KnowledgeBase _knowledgeBase;
   late final PathExplorer _pathExplorer;

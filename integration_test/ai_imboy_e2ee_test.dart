@@ -11,8 +11,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:imboy/main.dart' as app;
-import 'package:imboy/ai_test/intent/intent_parser.dart';
 import 'package:imboy/ai_test/utils/ai_test_helper.dart';
 
 /// Imboy E2EE 功能的用户故事（来自项目实际需求）
@@ -129,11 +127,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('AI 测试框架 - Imboy E2EE 真实场景', () {
-    late IntentParser intentParser;
     late AITestHelper helper;
 
     setUpAll(() async {
-      intentParser = IntentParser();
       helper = AITestHelper();
       print('\n🔐 Imboy E2EE 功能测试');
       print('═' * 70);
@@ -145,7 +141,7 @@ void main() {
 
       final userStory = imboyE2EEUserStories['local_backup']!;
       print('用户故事：');
-      print(userStory.substring(0, 200) + '...');
+      print('${userStory.substring(0, 200)}...');
 
       // AI 生成测试用例
       print('\n🤖 AI 正在生成测试用例...');
@@ -202,6 +198,7 @@ void main() {
           name.contains('过期') || name.contains('timeout') || name.contains('expire'));
 
       expect(hasTransferTest, isTrue, reason: '应包含传输相关测试');
+      expect(hasTimeoutTest, isTrue, reason: '应包含过期相关测试');
       expect(tests.length, greaterThan(1), reason: '应生成多个测试用例');
     });
 
@@ -314,7 +311,6 @@ void main() {
       // 导出所有测试用例
       const outputPath = 'test_output/imboy_e2ee_tests.json';
       try {
-        final allTestsList = allTests.values.expand((e) => e).toList();
         await helper.generateAndExport(
           imboyE2EEUserStories['comprehensive']!,
           outputPath,
