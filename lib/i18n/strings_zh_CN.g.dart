@@ -1659,6 +1659,129 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '移出成员'
 	String get removeMember => '移出成员';
 
+	/// zh-CN: '群主'
+	String get groupOwner => '群主';
+
+	/// zh-CN: '管理员'
+	String get groupAdmin => '管理员';
+
+	/// zh-CN: '普通成员'
+	String get groupMember => '普通成员';
+
+	/// zh-CN: '设为管理员'
+	String get setAdmin => '设为管理员';
+
+	/// zh-CN: '取消管理员'
+	String get removeAdmin => '取消管理员';
+
+	/// zh-CN: '禁言成员'
+	String get muteMember => '禁言成员';
+
+	/// zh-CN: '取消禁言'
+	String get unmuteMember => '取消禁言';
+
+	/// zh-CN: '移出群聊'
+	String get kickMember => '移出群聊';
+
+	/// zh-CN: '转让群主'
+	String get transferGroup => '转让群主';
+
+	/// zh-CN: '确定将此成员设为管理员吗？'
+	String get setAdminConfirm => '确定将此成员设为管理员吗？';
+
+	/// zh-CN: '确定取消此成员的管理员身份吗？'
+	String get removeAdminConfirm => '确定取消此成员的管理员身份吗？';
+
+	/// zh-CN: '确定禁言此成员吗？'
+	String get muteMemberConfirm => '确定禁言此成员吗？';
+
+	/// zh-CN: '确定取消禁言此成员吗？'
+	String get unmuteMemberConfirm => '确定取消禁言此成员吗？';
+
+	/// zh-CN: '确定将此成员移出群聊吗？'
+	String get kickMemberConfirm => '确定将此成员移出群聊吗？';
+
+	/// zh-CN: '确定将群主身份转让给此成员吗？转让后你将变为管理员。'
+	String get transferGroupConfirm => '确定将群主身份转让给此成员吗？转让后你将变为管理员。';
+
+	/// zh-CN: '已设为管理员'
+	String get setAdminSuccess => '已设为管理员';
+
+	/// zh-CN: '设置管理员失败'
+	String get setAdminFailed => '设置管理员失败';
+
+	/// zh-CN: '已取消管理员'
+	String get removeAdminSuccess => '已取消管理员';
+
+	/// zh-CN: '取消管理员失败'
+	String get removeAdminFailed => '取消管理员失败';
+
+	/// zh-CN: '已禁言'
+	String get muteMemberSuccess => '已禁言';
+
+	/// zh-CN: '禁言失败'
+	String get muteMemberFailed => '禁言失败';
+
+	/// zh-CN: '已取消禁言'
+	String get unmuteMemberSuccess => '已取消禁言';
+
+	/// zh-CN: '取消禁言失败'
+	String get unmuteMemberFailed => '取消禁言失败';
+
+	/// zh-CN: '已移出群聊'
+	String get kickMemberSuccess => '已移出群聊';
+
+	/// zh-CN: '移出群聊失败'
+	String get kickMemberFailed => '移出群聊失败';
+
+	/// zh-CN: '群主已转让'
+	String get transferGroupSuccess => '群主已转让';
+
+	/// zh-CN: '转让群主失败'
+	String get transferGroupFailed => '转让群主失败';
+
+	/// zh-CN: '成员详情'
+	String get memberDetail => '成员详情';
+
+	/// zh-CN: '成员角色'
+	String get memberRole => '成员角色';
+
+	/// zh-CN: '加入时间'
+	String get joinTime => '加入时间';
+
+	/// zh-CN: '禁言至'
+	String get muteUntil => '禁言至';
+
+	/// zh-CN: '已禁言'
+	String get muted => '已禁言';
+
+	/// zh-CN: '未禁言'
+	String get notMuted => '未禁言';
+
+	/// zh-CN: '禁言时长'
+	String get muteDuration => '禁言时长';
+
+	/// zh-CN: '1小时'
+	String get muteDuration1hour => '1小时';
+
+	/// zh-CN: '6小时'
+	String get muteDuration6hours => '6小时';
+
+	/// zh-CN: '12小时'
+	String get muteDuration12hours => '12小时';
+
+	/// zh-CN: '1天'
+	String get muteDuration1day => '1天';
+
+	/// zh-CN: '3天'
+	String get muteDuration3days => '3天';
+
+	/// zh-CN: '7天'
+	String get muteDuration7days => '7天';
+
+	/// zh-CN: '永久'
+	String get muteDurationPermanent => '永久';
+
 	/// zh-CN: '已回复'
 	String get replied => '已回复';
 
@@ -1718,6 +1841,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '搜索'
 	String get search => '搜索';
+
+	/// zh-CN: '搜索范围'
+	String get searchScope => '搜索范围';
+
+	/// zh-CN: '全部消息'
+	String get searchAll => '全部消息';
+
+	/// zh-CN: '单聊'
+	String get singleChat => '单聊';
+
+	/// zh-CN: '私聊'
+	String get privateChat => '私聊';
+
+	/// zh-CN: '群消息'
+	String get groupMessage => '群消息';
 
 	/// zh-CN: '查找聊天内容'
 	String get searchChatContent => '查找聊天内容';
@@ -3590,6 +3728,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	late final TranslationsWelcomeZhCn welcome = TranslationsWelcomeZhCn._(_root);
 	late final TranslationsPassportZhCn passport = TranslationsPassportZhCn._(_root);
+	late final TranslationsChannelZhCn channel = TranslationsChannelZhCn._(_root);
 }
 
 // Path: splash
@@ -3680,6 +3819,354 @@ class TranslationsPassportZhCn {
 
 	/// zh-CN: '一键登录'
 	String get oneKeyLogin => '一键登录';
+}
+
+// Path: channel
+class TranslationsChannelZhCn {
+	TranslationsChannelZhCn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '频道'
+	String get title => '频道';
+
+	/// zh-CN: '加载中...'
+	String get loading => '加载中...';
+
+	/// zh-CN: '已订阅'
+	String get subscribed => '已订阅';
+
+	/// zh-CN: '管理中'
+	String get managed => '管理中';
+
+	/// zh-CN: '发现频道'
+	String get discover => '发现频道';
+
+	/// zh-CN: '搜索频道'
+	String get search => '搜索频道';
+
+	/// zh-CN: '创建频道'
+	String get create => '创建频道';
+
+	/// zh-CN: '搜索频道名称或ID'
+	String get searchHint => '搜索频道名称或ID';
+
+	/// zh-CN: '输入关键词搜索频道'
+	String get searchTip => '输入关键词搜索频道';
+
+	/// zh-CN: '未找到相关频道'
+	String get noResults => '未找到相关频道';
+
+	/// zh-CN: '暂无推荐频道 稍后再来看看吧'
+	String get noRecommendedChannels => '暂无推荐频道\n稍后再来看看吧';
+
+	/// zh-CN: '暂无订阅的频道 去发现更多精彩频道吧'
+	String get noSubscribedChannels => '暂无订阅的频道\n去发现更多精彩频道吧';
+
+	/// zh-CN: '暂无管理的频道 创建一个频道开始你的创作'
+	String get noManagedChannels => '暂无管理的频道\n创建一个频道开始你的创作';
+
+	/// zh-CN: '暂无消息'
+	String get noMessages => '暂无消息';
+
+	/// zh-CN: '订阅者'
+	String get subscribers => '订阅者';
+
+	/// zh-CN: '置顶'
+	String get pinned => '置顶';
+
+	/// zh-CN: '查看'
+	String get view => '查看';
+
+	/// zh-CN: '订阅'
+	String get subscribe => '订阅';
+
+	/// zh-CN: '订阅成功'
+	String get subscribeSuccess => '订阅成功';
+
+	/// zh-CN: '订阅失败'
+	String get subscribeFailed => '订阅失败';
+
+	/// zh-CN: '取消订阅'
+	String get unsubscribe => '取消订阅';
+
+	/// zh-CN: '取消订阅'
+	String get unsubscribeConfirm => '取消订阅';
+
+	/// zh-CN: '确定要取消订阅该频道吗？取消后将不再收到频道消息。'
+	String get unsubscribeConfirmDesc => '确定要取消订阅该频道吗？取消后将不再收到频道消息。';
+
+	/// zh-CN: '分享'
+	String get share => '分享';
+
+	/// zh-CN: '分享功能即将上线'
+	String get shareNotImplemented => '分享功能即将上线';
+
+	/// zh-CN: '频道名称'
+	String get nameLabel => '频道名称';
+
+	/// zh-CN: '请输入频道名称'
+	String get nameHint => '请输入频道名称';
+
+	/// zh-CN: '频道名称不能为空'
+	String get nameRequired => '频道名称不能为空';
+
+	/// zh-CN: '频道名称不能超过50个字符'
+	String get nameTooLong => '频道名称不能超过50个字符';
+
+	/// zh-CN: '频道描述'
+	String get descriptionLabel => '频道描述';
+
+	/// zh-CN: '介绍一下你的频道（选填）'
+	String get descriptionHint => '介绍一下你的频道（选填）';
+
+	/// zh-CN: '自定义ID（选填）'
+	String get customIdLabel => '自定义ID（选填）';
+
+	/// zh-CN: '例如：my_channel'
+	String get customIdHint => '例如：my_channel';
+
+	/// zh-CN: '设置后可通过ID直接搜索到频道'
+	String get customIdHelper => '设置后可通过ID直接搜索到频道';
+
+	/// zh-CN: '只能包含字母、数字和下划线'
+	String get customIdInvalid => '只能包含字母、数字和下划线';
+
+	/// zh-CN: '长度需要在4-30个字符之间'
+	String get customIdLength => '长度需要在4-30个字符之间';
+
+	/// zh-CN: '频道类型'
+	String get typeLabel => '频道类型';
+
+	/// zh-CN: '公开'
+	String get typePublic => '公开';
+
+	/// zh-CN: '私有'
+	String get typePrivate => '私有';
+
+	/// zh-CN: '任何人都可以搜索到并订阅你的频道'
+	String get typePublicDesc => '任何人都可以搜索到并订阅你的频道';
+
+	/// zh-CN: '只有通过邀请链接才能订阅你的频道'
+	String get typePrivateDesc => '只有通过邀请链接才能订阅你的频道';
+
+	/// zh-CN: '创建频道后，你可以发布消息给所有订阅者。频道消息只有管理员可以发布。'
+	String get createTips => '创建频道后，你可以发布消息给所有订阅者。频道消息只有管理员可以发布。';
+
+	/// zh-CN: '今天'
+	String get today => '今天';
+
+	/// zh-CN: '昨天'
+	String get yesterday => '昨天';
+
+	/// zh-CN: '天前'
+	String get daysAgo => '天前';
+
+	/// zh-CN: '消息'
+	String get messages => '消息';
+
+	/// zh-CN: '阅读'
+	String get views => '阅读';
+
+	/// zh-CN: '互动'
+	String get reactions => '互动';
+
+	/// zh-CN: '选择表情'
+	String get selectReaction => '选择表情';
+
+	/// zh-CN: '互动'
+	String get react => '互动';
+
+	/// zh-CN: '管理'
+	String get admin => '管理';
+
+	/// zh-CN: '设置'
+	String get settings => '设置';
+
+	/// zh-CN: '编辑频道'
+	String get editChannel => '编辑频道';
+
+	/// zh-CN: '修改频道名称、描述等信息'
+	String get editChannelDesc => '修改频道名称、描述等信息';
+
+	/// zh-CN: '编辑频道功能即将上线'
+	String get editChannelNotImplemented => '编辑频道功能即将上线';
+
+	/// zh-CN: '管理管理员'
+	String get manageAdmins => '管理管理员';
+
+	/// zh-CN: '添加或移除频道管理员'
+	String get manageAdminsDesc => '添加或移除频道管理员';
+
+	/// zh-CN: '管理管理员功能即将上线'
+	String get manageAdminsNotImplemented => '管理管理员功能即将上线';
+
+	/// zh-CN: '管理订阅者'
+	String get manageSubscribers => '管理订阅者';
+
+	/// zh-CN: '查看和管理频道订阅者'
+	String get manageSubscribersDesc => '查看和管理频道订阅者';
+
+	/// zh-CN: '管理订阅者功能即将上线'
+	String get manageSubscribersNotImplemented => '管理订阅者功能即将上线';
+
+	/// zh-CN: '删除频道'
+	String get deleteChannel => '删除频道';
+
+	/// zh-CN: '删除后将无法恢复'
+	String get deleteChannelDesc => '删除后将无法恢复';
+
+	/// zh-CN: '确定要删除该频道吗？此操作不可恢复。'
+	String get deleteChannelConfirm => '确定要删除该频道吗？此操作不可恢复。';
+
+	/// zh-CN: '删除频道功能即将上线'
+	String get deleteChannelNotImplemented => '删除频道功能即将上线';
+
+	/// zh-CN: '频道已删除'
+	String get channelDeleted => '频道已删除';
+
+	/// zh-CN: '删除频道失败'
+	String get deleteChannelFailed => '删除频道失败';
+
+	/// zh-CN: '发布消息...'
+	String get writeMessage => '发布消息...';
+
+	/// zh-CN: '发布失败'
+	String get publishFailed => '发布失败';
+
+	/// zh-CN: '置顶消息'
+	String get pinMessage => '置顶消息';
+
+	/// zh-CN: '取消置顶'
+	String get unpinMessage => '取消置顶';
+
+	/// zh-CN: '置顶功能即将上线'
+	String get pinMessageNotImplemented => '置顶功能即将上线';
+
+	/// zh-CN: '取消置顶功能即将上线'
+	String get unpinMessageNotImplemented => '取消置顶功能即将上线';
+
+	/// zh-CN: '消息已置顶'
+	String get messagePinned => '消息已置顶';
+
+	/// zh-CN: '已取消置顶'
+	String get messageUnpinned => '已取消置顶';
+
+	/// zh-CN: '删除消息'
+	String get deleteMessage => '删除消息';
+
+	/// zh-CN: '确定要删除这条消息吗？'
+	String get deleteMessageConfirm => '确定要删除这条消息吗？';
+
+	/// zh-CN: '消息已删除'
+	String get messageDeleted => '消息已删除';
+
+	/// zh-CN: '添加管理员'
+	String get addAdmin => '添加管理员';
+
+	/// zh-CN: '管理员添加成功'
+	String get addAdminSuccess => '管理员添加成功';
+
+	/// zh-CN: '添加管理员失败'
+	String get addAdminFailed => '添加管理员失败';
+
+	/// zh-CN: '移除管理员'
+	String get removeAdmin => '移除管理员';
+
+	/// zh-CN: '确定要移除该管理员吗？'
+	String get removeAdminConfirm => '确定要移除该管理员吗？';
+
+	/// zh-CN: '管理员已移除'
+	String get removeAdminSuccess => '管理员已移除';
+
+	/// zh-CN: '移除管理员失败'
+	String get removeAdminFailed => '移除管理员失败';
+
+	/// zh-CN: '更改角色'
+	String get changeRole => '更改角色';
+
+	/// zh-CN: '角色更新成功'
+	String get updateRoleSuccess => '角色更新成功';
+
+	/// zh-CN: '角色更新失败'
+	String get updateRoleFailed => '角色更新失败';
+
+	/// zh-CN: '用户ID'
+	String get userId => '用户ID';
+
+	/// zh-CN: '请输入用户ID'
+	String get userIdHint => '请输入用户ID';
+
+	/// zh-CN: '暂无管理员'
+	String get noAdmins => '暂无管理员';
+
+	/// zh-CN: '创建者'
+	String get roleCreator => '创建者';
+
+	/// zh-CN: '管理员'
+	String get roleAdmin => '管理员';
+
+	/// zh-CN: '编辑'
+	String get roleEditor => '编辑';
+
+	/// zh-CN: '未知'
+	String get roleUnknown => '未知';
+
+	/// zh-CN: '搜索订阅者'
+	String get searchSubscribers => '搜索订阅者';
+
+	/// zh-CN: '输入昵称或ID搜索'
+	String get subscriberSearchHint => '输入昵称或ID搜索';
+
+	/// zh-CN: '未找到匹配的订阅者'
+	String get noSearchResults => '未找到匹配的订阅者';
+
+	/// zh-CN: '暂无订阅者'
+	String get noSubscribers => '暂无订阅者';
+
+	/// zh-CN: '移除订阅者'
+	String get removeSubscriber => '移除订阅者';
+
+	/// zh-CN: '确定要移除该订阅者吗？'
+	String get removeSubscriberConfirm => '确定要移除该订阅者吗？';
+
+	/// zh-CN: '订阅者已移除'
+	String get removeSubscriberSuccess => '订阅者已移除';
+
+	/// zh-CN: '移除订阅者失败'
+	String get removeSubscriberFailed => '移除订阅者失败';
+
+	/// zh-CN: '订阅于'
+	String get subscribedAt => '订阅于';
+
+	/// zh-CN: '查看资料'
+	String get viewProfile => '查看资料';
+
+	/// zh-CN: '频道更新成功'
+	String get updateSuccess => '频道更新成功';
+
+	/// zh-CN: '频道更新失败'
+	String get updateFailed => '频道更新失败';
+
+	/// zh-CN: '创建后不可更改'
+	String get typeCannotChange => '创建后不可更改';
+
+	/// zh-CN: '统计信息'
+	String get stats => '统计信息';
+
+	/// zh-CN: '发送给好友'
+	String get shareToChat => '发送给好友';
+
+	/// zh-CN: '频道二维码'
+	String get qrcode => '频道二维码';
+
+	/// zh-CN: '二维码$days天内（$date前）有效'
+	String qrcodeTips({required Object days, required Object date}) => '二维码${days}天内（${date}前）有效';
+
+	/// zh-CN: '未命名频道'
+	String get defaultName => '未命名频道';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -4233,6 +4720,47 @@ extension on Translations {
 			'remindMeLater' => '下次再说',
 			'removeContactFromTag' => '从标签中移除联系人',
 			'removeMember' => '移出成员',
+			'groupOwner' => '群主',
+			'groupAdmin' => '管理员',
+			'groupMember' => '普通成员',
+			'setAdmin' => '设为管理员',
+			'removeAdmin' => '取消管理员',
+			'muteMember' => '禁言成员',
+			'unmuteMember' => '取消禁言',
+			'kickMember' => '移出群聊',
+			'transferGroup' => '转让群主',
+			'setAdminConfirm' => '确定将此成员设为管理员吗？',
+			'removeAdminConfirm' => '确定取消此成员的管理员身份吗？',
+			'muteMemberConfirm' => '确定禁言此成员吗？',
+			'unmuteMemberConfirm' => '确定取消禁言此成员吗？',
+			'kickMemberConfirm' => '确定将此成员移出群聊吗？',
+			'transferGroupConfirm' => '确定将群主身份转让给此成员吗？转让后你将变为管理员。',
+			'setAdminSuccess' => '已设为管理员',
+			'setAdminFailed' => '设置管理员失败',
+			'removeAdminSuccess' => '已取消管理员',
+			'removeAdminFailed' => '取消管理员失败',
+			'muteMemberSuccess' => '已禁言',
+			'muteMemberFailed' => '禁言失败',
+			'unmuteMemberSuccess' => '已取消禁言',
+			'unmuteMemberFailed' => '取消禁言失败',
+			'kickMemberSuccess' => '已移出群聊',
+			'kickMemberFailed' => '移出群聊失败',
+			'transferGroupSuccess' => '群主已转让',
+			'transferGroupFailed' => '转让群主失败',
+			'memberDetail' => '成员详情',
+			'memberRole' => '成员角色',
+			'joinTime' => '加入时间',
+			'muteUntil' => '禁言至',
+			'muted' => '已禁言',
+			'notMuted' => '未禁言',
+			'muteDuration' => '禁言时长',
+			'muteDuration1hour' => '1小时',
+			'muteDuration6hours' => '6小时',
+			'muteDuration12hours' => '12小时',
+			'muteDuration1day' => '1天',
+			'muteDuration3days' => '3天',
+			'muteDuration7days' => '7天',
+			'muteDurationPermanent' => '永久',
 			'replied' => '已回复',
 			'repliedAt' => '回复于',
 			'reply' => '回复',
@@ -4253,6 +4781,11 @@ extension on Translations {
 			'scanResult' => '扫描结果',
 			'scannerResult' => '扫描结果',
 			'search' => '搜索',
+			'searchScope' => '搜索范围',
+			'searchAll' => '全部消息',
+			'singleChat' => '单聊',
+			'privateChat' => '私聊',
+			'groupMessage' => '群消息',
 			'searchChatContent' => '查找聊天内容',
 			'searchChatRecord' => '查找聊天记录',
 			'searchError' => '搜索错误',
@@ -4670,6 +5203,8 @@ extension on Translations {
 			'otherDevice' => '其他设备',
 			'sendOfflineCommand' => '强制下线',
 			'offlineCommandSent' => '已发送下线指令',
+			_ => null,
+		} ?? switch (path) {
 			'operationOptions' => '操作选项',
 			'copyTextContent' => '复制文本内容',
 			'shareWithOtherFriends' => '分享给其他好友',
@@ -4716,8 +5251,6 @@ extension on Translations {
 			'discover' => '发现',
 			'shake' => '摇一摇',
 			'tip' => '提示',
-			_ => null,
-		} ?? switch (path) {
 			'confirm' => '确认',
 			'success' => '成功',
 			'export' => '导出',
@@ -4897,6 +5430,119 @@ extension on Translations {
 			'passport.getVerifyCode' => '获取验证码',
 			'passport.hasAccount' => '已有账号？',
 			'passport.oneKeyLogin' => '一键登录',
+			'channel.title' => '频道',
+			'channel.loading' => '加载中...',
+			'channel.subscribed' => '已订阅',
+			'channel.managed' => '管理中',
+			'channel.discover' => '发现频道',
+			'channel.search' => '搜索频道',
+			'channel.create' => '创建频道',
+			'channel.searchHint' => '搜索频道名称或ID',
+			'channel.searchTip' => '输入关键词搜索频道',
+			'channel.noResults' => '未找到相关频道',
+			'channel.noRecommendedChannels' => '暂无推荐频道\n稍后再来看看吧',
+			'channel.noSubscribedChannels' => '暂无订阅的频道\n去发现更多精彩频道吧',
+			'channel.noManagedChannels' => '暂无管理的频道\n创建一个频道开始你的创作',
+			'channel.noMessages' => '暂无消息',
+			'channel.subscribers' => '订阅者',
+			'channel.pinned' => '置顶',
+			'channel.view' => '查看',
+			'channel.subscribe' => '订阅',
+			'channel.subscribeSuccess' => '订阅成功',
+			'channel.subscribeFailed' => '订阅失败',
+			'channel.unsubscribe' => '取消订阅',
+			'channel.unsubscribeConfirm' => '取消订阅',
+			'channel.unsubscribeConfirmDesc' => '确定要取消订阅该频道吗？取消后将不再收到频道消息。',
+			'channel.share' => '分享',
+			'channel.shareNotImplemented' => '分享功能即将上线',
+			'channel.nameLabel' => '频道名称',
+			'channel.nameHint' => '请输入频道名称',
+			'channel.nameRequired' => '频道名称不能为空',
+			'channel.nameTooLong' => '频道名称不能超过50个字符',
+			'channel.descriptionLabel' => '频道描述',
+			'channel.descriptionHint' => '介绍一下你的频道（选填）',
+			'channel.customIdLabel' => '自定义ID（选填）',
+			'channel.customIdHint' => '例如：my_channel',
+			'channel.customIdHelper' => '设置后可通过ID直接搜索到频道',
+			'channel.customIdInvalid' => '只能包含字母、数字和下划线',
+			'channel.customIdLength' => '长度需要在4-30个字符之间',
+			'channel.typeLabel' => '频道类型',
+			'channel.typePublic' => '公开',
+			'channel.typePrivate' => '私有',
+			'channel.typePublicDesc' => '任何人都可以搜索到并订阅你的频道',
+			'channel.typePrivateDesc' => '只有通过邀请链接才能订阅你的频道',
+			'channel.createTips' => '创建频道后，你可以发布消息给所有订阅者。频道消息只有管理员可以发布。',
+			'channel.today' => '今天',
+			'channel.yesterday' => '昨天',
+			'channel.daysAgo' => '天前',
+			'channel.messages' => '消息',
+			'channel.views' => '阅读',
+			'channel.reactions' => '互动',
+			'channel.selectReaction' => '选择表情',
+			'channel.react' => '互动',
+			'channel.admin' => '管理',
+			'channel.settings' => '设置',
+			'channel.editChannel' => '编辑频道',
+			'channel.editChannelDesc' => '修改频道名称、描述等信息',
+			'channel.editChannelNotImplemented' => '编辑频道功能即将上线',
+			'channel.manageAdmins' => '管理管理员',
+			'channel.manageAdminsDesc' => '添加或移除频道管理员',
+			'channel.manageAdminsNotImplemented' => '管理管理员功能即将上线',
+			'channel.manageSubscribers' => '管理订阅者',
+			'channel.manageSubscribersDesc' => '查看和管理频道订阅者',
+			'channel.manageSubscribersNotImplemented' => '管理订阅者功能即将上线',
+			'channel.deleteChannel' => '删除频道',
+			'channel.deleteChannelDesc' => '删除后将无法恢复',
+			'channel.deleteChannelConfirm' => '确定要删除该频道吗？此操作不可恢复。',
+			'channel.deleteChannelNotImplemented' => '删除频道功能即将上线',
+			'channel.channelDeleted' => '频道已删除',
+			'channel.deleteChannelFailed' => '删除频道失败',
+			'channel.writeMessage' => '发布消息...',
+			'channel.publishFailed' => '发布失败',
+			'channel.pinMessage' => '置顶消息',
+			'channel.unpinMessage' => '取消置顶',
+			'channel.pinMessageNotImplemented' => '置顶功能即将上线',
+			'channel.unpinMessageNotImplemented' => '取消置顶功能即将上线',
+			'channel.messagePinned' => '消息已置顶',
+			'channel.messageUnpinned' => '已取消置顶',
+			'channel.deleteMessage' => '删除消息',
+			'channel.deleteMessageConfirm' => '确定要删除这条消息吗？',
+			'channel.messageDeleted' => '消息已删除',
+			'channel.addAdmin' => '添加管理员',
+			'channel.addAdminSuccess' => '管理员添加成功',
+			'channel.addAdminFailed' => '添加管理员失败',
+			'channel.removeAdmin' => '移除管理员',
+			'channel.removeAdminConfirm' => '确定要移除该管理员吗？',
+			'channel.removeAdminSuccess' => '管理员已移除',
+			'channel.removeAdminFailed' => '移除管理员失败',
+			'channel.changeRole' => '更改角色',
+			'channel.updateRoleSuccess' => '角色更新成功',
+			'channel.updateRoleFailed' => '角色更新失败',
+			'channel.userId' => '用户ID',
+			'channel.userIdHint' => '请输入用户ID',
+			'channel.noAdmins' => '暂无管理员',
+			'channel.roleCreator' => '创建者',
+			'channel.roleAdmin' => '管理员',
+			'channel.roleEditor' => '编辑',
+			'channel.roleUnknown' => '未知',
+			'channel.searchSubscribers' => '搜索订阅者',
+			'channel.subscriberSearchHint' => '输入昵称或ID搜索',
+			'channel.noSearchResults' => '未找到匹配的订阅者',
+			'channel.noSubscribers' => '暂无订阅者',
+			'channel.removeSubscriber' => '移除订阅者',
+			'channel.removeSubscriberConfirm' => '确定要移除该订阅者吗？',
+			'channel.removeSubscriberSuccess' => '订阅者已移除',
+			'channel.removeSubscriberFailed' => '移除订阅者失败',
+			'channel.subscribedAt' => '订阅于',
+			'channel.viewProfile' => '查看资料',
+			'channel.updateSuccess' => '频道更新成功',
+			'channel.updateFailed' => '频道更新失败',
+			'channel.typeCannotChange' => '创建后不可更改',
+			'channel.stats' => '统计信息',
+			'channel.shareToChat' => '发送给好友',
+			'channel.qrcode' => '频道二维码',
+			'channel.qrcodeTips' => ({required Object days, required Object date}) => '二维码${days}天内（${date}前）有效',
+			'channel.defaultName' => '未命名频道',
 			_ => null,
 		};
 	}
