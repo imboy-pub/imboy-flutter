@@ -9,14 +9,15 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
+    show p2pCallScreenProvider;
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
-    show p2pCallScreenProvider;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:xid/xid.dart';
@@ -59,14 +60,23 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
   }
 
   @override
-  void dispose() async {
+  void dispose() {
+    // 在 dispose 之前发送 bye 消息通知对方
+    if (msgId.isNotEmpty) {
+      ref.read(p2pCallScreenProvider.notifier).sendBye(msgId);
+    }
+
+    // 同步清理：必须在 super.dispose() 之前完成
     msgId = '';
+    subscription?.cancel();
+
+    // 先调用父类 dispose
     super.dispose();
-    final notifier = ref.read(p2pCallScreenProvider.notifier);
-    await subscription?.cancel();
-    await _disposeRenderer();
-    await notifier.cleanUpP2P();
-    notifier.sendBye(msgId);
+
+    // 异步清理：在 super.dispose() 之后执行
+    // 注意：这些操作可能在 widget 已销毁后执行，需要内部检查 mounted 状态
+    _disposeRenderer();
+    ref.read(p2pCallScreenProvider.notifier).cleanUpP2P();
   }
 
   Future<void> _disposeRenderer() async {
@@ -112,9 +122,15 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 if (mounted) {
                   notifier.updateStateTips(t.peerNoResponse);
                 }
-                Future.delayed(const Duration(seconds: 2), () {
-                  _hangUp(sendBye: false, callState: 2);
-                });
+                Future.delayed(
+                  const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
+                  () {
+                    _hangUp(
+                      sendBye: false,
+                      callState: CallStateCode.rejected,
+                    );
+                  },
+                );
               });
               break;
             case WebRTCCallState.callStateRinging:
@@ -127,22 +143,31 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 final state = ref.read(p2pCallScreenProvider);
                 notifier.stopCallTimer();
                 notifier.updateStateTips(t.peerHasHungUp);
-                Future.delayed(const Duration(seconds: 2), () {
-                  _hangUp(
-                    sendBye: false,
-                    callState: state.connected ? 1 : 3,
-                    endAt: DateTimeHelper.millisecond() - 2000,
-                  );
-                });
+                Future.delayed(
+                  const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
+                  () {
+                    _hangUp(
+                      sendBye: false,
+                      callState: state.connected
+                          ? CallStateCode.connected
+                          : CallStateCode.peerHungUp,
+                      endAt: DateTimeHelper.millisecond() -
+                          CallTimeoutConfig.hangupDelay,
+                    );
+                  },
+                );
               }
               break;
             case WebRTCCallState.callStateBusy:
               if (mounted) {
                 notifier.updateStateTips(t.busyTryAgainLater);
               }
-              Future.delayed(const Duration(seconds: 2), () {
-                _hangUp(sendBye: false, callState: 2);
-              });
+              Future.delayed(
+                const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
+                () {
+                  _hangUp(sendBye: false, callState: CallStateCode.busy);
+                },
+              );
               break;
             case WebRTCCallState.callStateConnected:
               _connectedAfter();
@@ -229,7 +254,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
     notifier.updateConnected(true, width: size.width);
     MessageService.to.changeLocalMsgState(
       msgId,
-      1,
+      CallStateCode.connected,
       startAt: DateTimeHelper.millisecond(),
     );
     notifier.startCallTimer(() {
@@ -240,7 +265,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
   Widget _buildPeerInfo() {
     return Center(
       child: Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.3),
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height *
+              CallUILayoutConfig.peerInfoTopRatio,
+        ),
         child: Column(
           children: [
             Avatar(imgUri: widget.peer.avatar, width: 80, height: 80),
@@ -288,7 +316,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                   tooltip: t.hangup,
                   onPressed: () {
                     _hangUp(
-                      callState: state.connected ? 1 : 4,
+                      callState: state.connected
+                          ? CallStateCode.connected
+                          : CallStateCode.localHungUp,
                       endAt: DateTimeHelper.millisecond(),
                     );
                   },
@@ -327,7 +357,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 tooltip: t.hangup,
                 onPressed: () {
                   _hangUp(
-                    callState: state.connected ? 1 : 4,
+                    callState: state.connected
+                        ? CallStateCode.connected
+                        : CallStateCode.localHungUp,
                     endAt: DateTimeHelper.millisecond(),
                   );
                 },
@@ -346,6 +378,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
       child: InkWell(
         onTap: ref.read(p2pCallScreenProvider.notifier).toggleMinimized,
         child: Container(
+          constraints: const BoxConstraints(
+            minWidth: LocalVideoConfig.minWidth,
+            minHeight: LocalVideoConfig.minHeight,
+          ),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.onPrimaryContainer,
             borderRadius: AppRadius.borderRadiusMedium,
@@ -413,8 +449,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
   Widget _buildLocalVideo() {
     final state = ref.watch(p2pCallScreenProvider);
     final notifier = ref.read(p2pCallScreenProvider.notifier);
-    final localWidth = 114.0;
-    final localHeight = 72.0;
+    final localWidth = LocalVideoConfig.width;
+    final localHeight = LocalVideoConfig.height;
 
     return Positioned(
       right: state.localX,
@@ -471,7 +507,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
             Center(
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.2,
+                  top: MediaQuery.of(context).size.height *
+                      CallUILayoutConfig.stateTipsTopRatio,
                 ),
                 child: Text(
                   state.stateTips,
@@ -480,9 +517,18 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               ),
             ),
           if (state.showTool && state.connected)
-            Positioned(bottom: 20, left: 0, right: 0, child: _buildTools()),
+            Positioned(
+              bottom: CallUILayoutConfig.toolbarBottomSpacing,
+              left: 0,
+              right: 0,
+              child: _buildTools(),
+            ),
           if (!state.minimized)
-            Positioned(top: 30, left: 10, child: _buildDragArea()),
+            Positioned(
+              top: CallUILayoutConfig.dragAreaTopSpacing,
+              left: CallUILayoutConfig.dragAreaLeftSpacing,
+              child: _buildDragArea(),
+            ),
         ],
       ),
     );

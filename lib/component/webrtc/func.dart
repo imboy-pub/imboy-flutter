@@ -151,6 +151,8 @@ Future<void> incomingCallScreen(
                         ),
                         fontSize: 12,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(height: 16),

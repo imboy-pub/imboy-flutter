@@ -8,6 +8,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart' show webRTCSessions, p2pCallScreenOn;
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -85,6 +86,11 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   Timer? _answerTimer;
   Timer? _callTimer;
   int _callSeconds = 0;
+
+  // ICE 重启计数器（防止无限重连）
+  int _iceRestartCount = 0;
+  static const int _maxIceRestarts = 3;
+  Timer? _iceDisconnectTimer;
 
   // 回调函数
   Function(RTCSignalingState state)? onSignalingStateChange;
@@ -242,29 +248,35 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     String media,
   ) async {
     if (makingAnswer) {
+      iPrint('> rtc _createAnswer: already making answer, skipping');
       return;
     }
     makingAnswer = true;
-    _privDcConstraint['mandatory']['OfferToReceiveVideo'] = media == 'video'
-        ? true
-        : false;
-    iPrint("> rtc onMessageP2P 3 _createAnswer ${DateTime.now()}");
+    try {
+      _privDcConstraint['mandatory']['OfferToReceiveVideo'] = media == 'video'
+          ? true
+          : false;
+      iPrint("> rtc onMessageP2P 3 _createAnswer ${DateTime.now()}");
 
-    Map<String, dynamic> conf = media == 'data' ? _privDcConstraint : {};
-    final s = await session.pc!.createAnswer(conf);
-    await session.pc!.setLocalDescription(s);
+      Map<String, dynamic> conf = media == 'data' ? _privDcConstraint : {};
+      final s = await session.pc!.createAnswer(conf);
+      await session.pc!.setLocalDescription(s);
 
-    sendWebRTCMsg(
-      'answer',
-      {
-        'media': media,
-        'sd': {'sdp': s.sdp, 'type': s.type},
-      },
-      msgId: msgId,
-      to: session.peerId,
-      debug: 'from_createAnswer',
-    );
-    makingAnswer = false;
+      sendWebRTCMsg(
+        'answer',
+        {
+          'media': media,
+          'sd': {'sdp': s.sdp, 'type': s.type},
+        },
+        msgId: msgId,
+        to: session.peerId,
+        debug: 'from_createAnswer',
+      );
+    } catch (e, s) {
+      iPrint('> rtc _createAnswer error: $e\n$s');
+    } finally {
+      makingAnswer = false;
+    }
   }
 
   Future<MediaStream?> _createStream(String media, bool userScreen) async {
@@ -276,9 +288,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       'video': media == 'video'
           ? {
               'mandatory': {
-                'minWidth': 1280,
-                'minHeight': 720,
-                'minFrameRate': '60',
+                'minWidth': VideoQualityConfig.minVideoWidth,
+                'minHeight': VideoQualityConfig.minVideoHeight,
+                'minFrameRate': VideoQualityConfig.minFrameRate.toString(),
               },
               'facingMode': 'user',
               'optional': [],
@@ -348,18 +360,33 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         iPrint('> rtc pc onIceCandidate: complete!');
         return;
       }
-      sendWebRTCMsg(
-        'candidate',
-        {
-          'candidate': {
-            'sdpMLineIndex': candidate.sdpMLineIndex,
-            'sdpMid': candidate.sdpMid,
-            'candidate': candidate.candidate,
+
+      // 解析并记录 ICE 候选类型（便于调试 NAT 穿透问题）
+      final candidateType = _parseIceCandidateType(candidate.candidate ?? '');
+      iPrint('> rtc ICE candidate type: $candidateType, candidate: ${candidate.candidate}');
+
+      final currentSession = session;
+      if (currentSession == null) {
+        iPrint('> rtc onIceCandidate: session is null, skipping');
+        return;
+      }
+      try {
+        sendWebRTCMsg(
+          'candidate',
+          {
+            'candidate': {
+              'sdpMLineIndex': candidate.sdpMLineIndex,
+              'sdpMid': candidate.sdpMid,
+              'candidate': candidate.candidate,
+            },
           },
-        },
-        msgId: msgId,
-        to: session!.peerId,
-      );
+          msgId: msgId,
+          to: currentSession.peerId,
+        );
+      } catch (e, s) {
+        iPrint('> rtc onIceCandidate send error: $e\n$s');
+        // 网络错误不中断流程，ICE 候选会继续收集
+      }
     };
 
     pc.onSignalingState = (RTCSignalingState state) {
@@ -372,8 +399,40 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
     pc.onIceConnectionState = (RTCIceConnectionState state) {
       iPrint('> rtc pc onIceConnectionState: ${state.toString()}');
-      if (state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
-        pc.restartIce();
+
+      switch (state) {
+        case RTCIceConnectionState.RTCIceConnectionStateConnected:
+        case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+          // 连接成功，重置计数器
+          _iceRestartCount = 0;
+          _iceDisconnectTimer?.cancel();
+          _iceDisconnectTimer = null;
+          updateConnected(true);
+          break;
+
+        case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+          // 断开后等待 5 秒尝试恢复
+          _iceDisconnectTimer?.cancel();
+          _iceDisconnectTimer = Timer(const Duration(seconds: 5), () {
+            if (session?.pc?.iceConnectionState ==
+                RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
+              iPrint('> rtc ICE disconnected timeout, attempting restart');
+              _attemptIceRestart();
+            }
+          });
+          break;
+
+        case RTCIceConnectionState.RTCIceConnectionStateFailed:
+          // ICE 失败时尝试重启
+          _attemptIceRestart();
+          break;
+
+        case RTCIceConnectionState.RTCIceConnectionStateClosed:
+          _iceDisconnectTimer?.cancel();
+          break;
+
+        default:
+          break;
       }
     };
 
@@ -412,47 +471,69 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     required String peer,
     required String media,
   }) async {
+    final currentSession = session;
+    if (currentSession == null) {
+      iPrint('> rtc invitePeer: session is null, cannot invite');
+      return;
+    }
     iPrint("> rtc invitePeer $peer $media");
     if (media == 'data') {
-      _createDataChannel(session!);
+      _createDataChannel(currentSession);
     }
     await _createOffer(msgId, media);
-    onCallStateChange?.call(session!, WebRTCCallState.callStateNew);
+    onCallStateChange?.call(currentSession, WebRTCCallState.callStateNew);
   }
 
   Future<void> _createOffer(String msgId, String m) async {
-    iPrint("> rtc _createOffer media $m sid ${session!.sid}");
+    final currentSession = session;
+    if (currentSession == null) {
+      iPrint('> rtc _createOffer: session is null, skipping');
+      return;
+    }
+    iPrint("> rtc _createOffer media $m sid ${currentSession.sid}");
     if (makingOffer) {
+      iPrint('> rtc _createOffer: already making offer, skipping');
       return;
     }
     makingOffer = true;
-    _privDcConstraint['mandatory']['OfferToReceiveVideo'] = media == 'video'
-        ? true
-        : false;
-    RTCSessionDescription sd = await session!.pc!.createOffer(
-      media == 'data' ? _privDcConstraint : {},
-    );
-    await session!.pc!.setLocalDescription(sd);
-    final description = await session!.pc!.getLocalDescription();
-    sendWebRTCMsg(
-      'offer',
-      {
-        'sd': {'sdp': description!.sdp, 'type': description.type},
-        'media': m,
-      },
-      msgId: msgId,
-      to: session!.peerId,
-      debug: 'from_createOffer',
-    );
+    try {
+      _privDcConstraint['mandatory']['OfferToReceiveVideo'] = media == 'video'
+          ? true
+          : false;
+      RTCSessionDescription sd = await currentSession.pc!.createOffer(
+        media == 'data' ? _privDcConstraint : {},
+      );
+      await currentSession.pc!.setLocalDescription(sd);
+      final description = await currentSession.pc!.getLocalDescription();
+      sendWebRTCMsg(
+        'offer',
+        {
+          'sd': {'sdp': description!.sdp, 'type': description.type},
+          'media': m,
+        },
+        msgId: msgId,
+        to: currentSession.peerId,
+        debug: 'from_createOffer',
+      );
+    } catch (e, s) {
+      iPrint('> rtc _createOffer error: $e\n$s');
+    } finally {
+      makingOffer = false;
+    }
   }
 
   Future<void> _createDataChannel(
     WebRTCSession session, {
-    label = 'fileTransfer',
+    label = DataChannelConfig.defaultLabel,
   }) async {
+    final pc = session.pc;
+    if (pc == null) {
+      iPrint('> rtc _createDataChannel: pc is null, cannot create data channel');
+      return;
+    }
     RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
-      ..maxRetransmits = 30;
-    RTCDataChannel channel = await session.pc!.createDataChannel(
+      ..maxRetransmits = DataChannelConfig.maxRetransmits;
+    RTCDataChannel channel = await pc.createDataChannel(
       label,
       dataChannelDict,
     );
@@ -532,16 +613,60 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void sendBye(String msgId) {
+    final currentSession = session;
+    if (currentSession == null) {
+      iPrint('> rtc sendBye: session is null, skipping');
+      return;
+    }
     sendWebRTCMsg(
       'bye',
-      {'sid': session!.sid},
+      {'sid': currentSession.sid},
       msgId: msgId,
-      to: session!.peerId,
+      to: currentSession.peerId,
     );
-    var s = webRTCSessions[session!.sid];
+    var s = webRTCSessions[currentSession.sid];
     if (s != null) {
       _closeSession(s);
     }
+  }
+
+  /// 尝试 ICE 重启（带重试限制）
+  void _attemptIceRestart() {
+    final currentSession = session;
+    if (currentSession?.pc == null) {
+      iPrint('> rtc _attemptIceRestart: no peer connection');
+      return;
+    }
+
+    if (_iceRestartCount < _maxIceRestarts) {
+      _iceRestartCount++;
+      iPrint('> rtc ICE restart attempt $_iceRestartCount/$_maxIceRestarts');
+      currentSession!.pc!.restartIce();
+    } else {
+      iPrint('> rtc ICE restart max attempts reached, connection failed');
+      // 超过重试次数，通知连接失败
+      onCallStateChange?.call(currentSession!, WebRTCCallState.callStateBye);
+      updateStateTips(t.errorNetwork);
+    }
+  }
+
+  /// 解析 ICE 候选类型
+  /// 返回: host, srflx, prflx, relay, 或 unknown
+  String _parseIceCandidateType(String candidate) {
+    // ICE 候选字符串格式示例:
+    // a=candidate:4234997325 1 udp 2043278322 192.168.0.1 52324 typ host
+    // a=candidate:4234997325 1 udp 2043278322 10.0.0.1 52324 typ srflx
+    // a=candidate:4234997325 1 udp 2043278322 10.0.0.1 52324 typ relay
+    if (candidate.contains('typ host')) {
+      return 'host'; // 本地候选
+    } else if (candidate.contains('typ srflx')) {
+      return 'srflx'; // 服务器反射候选（STUN）
+    } else if (candidate.contains('typ prflx')) {
+      return 'prflx'; // 对等反射候选
+    } else if (candidate.contains('typ relay')) {
+      return 'relay'; // 中继候选（TURN）
+    }
+    return 'unknown';
   }
 
   void switchCamera() {
@@ -604,8 +729,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   void updateConnected(bool isConnected, {double? width}) {
     state = state.copyWith(
       connected: isConnected,
-      localX: width != null ? width - 90 : state.localX,
-      localY: 30,
+      localX: width != null
+          ? width - CallUILayoutConfig.localVideoOffsetX
+          : state.localX,
+      localY: CallUILayoutConfig.localVideoInitialY,
     );
   }
 
@@ -633,9 +760,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void startAnswerTimer(VoidCallback onTimeout) {
-    _answerTimer = Timer(const Duration(seconds: 60), () {
-      onTimeout();
-    });
+    _answerTimer = Timer(
+      const Duration(seconds: CallTimeoutConfig.answerTimeout),
+      () {
+        onTimeout();
+      },
+    );
   }
 
   void toggleShowTool() {
@@ -663,19 +793,38 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     } else if (turnCredential.isEmpty) {
       return null;
     }
+    // 解析 TURN URL 并生成 TCP 版本（用于防火墙/运营商封锁 UDP 时）
+    final turnUrls = turnCredential['turn_urls'];
+    String turnTcpUrl = '';
+    if (turnUrls is String && turnUrls.contains('udp')) {
+      turnTcpUrl = turnUrls.replaceAll('udp', 'tcp');
+    }
+
     return {
       'iceServers': [
+        // STUN 服务器
         {'urls': turnCredential['stun_urls']},
+        // Google STUN 作为备用
+        {'urls': 'stun:stun.l.google.com:19302'},
+        // TURN UDP
         {
-          'urls': turnCredential['turn_urls'],
-          "ttl": turnCredential['ttl'] ?? 86400,
+          'urls': turnUrls,
           'username': turnCredential['username'],
           'credential': turnCredential['credential'],
         },
+        // TURN TCP（关键：用于 UDP 被封锁的场景）
+        if (turnTcpUrl.isNotEmpty)
+          {
+            'urls': turnTcpUrl,
+            'username': turnCredential['username'],
+            'credential': turnCredential['credential'],
+          },
       ],
-      "iceCandidatePoolSize": 0,
+      // 关键修复：从 0 改为 10，确保 ICE 候选充分收集
+      "iceCandidatePoolSize": 10,
       "encodedInsertableStreams": false,
       "bundlePolicy": "balanced",
+      // 使用所有可用传输方式，NAT 穿透困难时会自动使用 TURN relay
       'iceTransportPolicy': 'all',
       "rtcpMuxPolicy": "require",
       'sdpSemantics': 'unified-plan',
@@ -685,5 +834,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   void cleanup() {
     _callTimer?.cancel();
     _answerTimer?.cancel();
+    _iceDisconnectTimer?.cancel();
+    _iceDisconnectTimer = null;
+    _iceRestartCount = 0;
   }
 }
