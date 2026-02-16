@@ -51,7 +51,10 @@
     <application
         android:label="IMBoy"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher_round"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -113,6 +116,14 @@
 
         <!-- 高德定位服务 -->
         <service android:name="com.amap.api.location.APSService"/>
+
+        <!-- 高德地图服务 -->
+        <service android:name="com.amap.api.maps.MapService"/>
+
+        <!-- 高德地图 API Key 配置（通过代码动态设置，这里留空即可） -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value=""/>
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
