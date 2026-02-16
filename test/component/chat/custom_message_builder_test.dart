@@ -21,7 +21,9 @@ void main() {
         createdAt: DateTime.now(),
         metadata: {
           'msg_type': msgType,
+          // ignore: use_null_aware_elements
           if (status != null) 'status': status,
+          // ignore: use_null_aware_elements
           if (customType != null) 'custom_type': customType,
           ...?metadata,
         },

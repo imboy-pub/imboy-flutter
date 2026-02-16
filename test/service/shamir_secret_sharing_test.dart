@@ -137,9 +137,11 @@ void main() {
       expect(recoveredSecret, equals(secret));
     });
 
-    test('should handle large secret', () {
+    test('should handle large secret (within 256 byte limit)', () {
       // Arrange
-      final largeSecret = 'A' * 1000;
+      // 2048 位素数最大支持 256 字节的秘密
+      // 使用 200 字节（安全边界内）
+      final largeSecret = 'A' * 200;
       final secretBytes = Uint8List.fromList(largeSecret.codeUnits);
       const n = 5;
       const k = 3;
