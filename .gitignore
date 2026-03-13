@@ -92,4 +92,8 @@ doc/ai_prompts*
 test_automation/reports/
 android/.kotlin
 test_automation/logs
+test_automation/.state/
+test_automation/.state_yaml/
+test_output/
 *.skip
+plugin/jverify

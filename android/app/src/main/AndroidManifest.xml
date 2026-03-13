@@ -1,6 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="pub.imboy.apk">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 核心权限 -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -13,29 +12,31 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
-    <!-- Android 10+ Scoped Storage -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
 
     <!-- Android 11+ Foreground service types -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
 
     <!-- 定位相关权限 -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
 
     <!-- 推送/通知权限 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
-    <!-- 安装 APK 权限（系统应用/非 Google Play） -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
-    <uses-permission android:name="android.permission.INSTALL_PACKAGES" tools:node="remove" />
-    <uses-permission android:name="android.permission.GET_PACKAGE_SIZE"/>
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <!-- Removed for Play policy compliance when injected by third-party SDKs -->
+    <uses-permission
+        android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:node="remove" />
 
     <!-- 蓝牙权限 -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
@@ -52,9 +53,7 @@
         android:label="IMBoy"
         android:name="${applicationName}"
         android:icon="@drawable/ic_launcher"
-        android:roundIcon="@drawable/ic_launcher_round"
-        android:requestLegacyExternalStorage="true"
-        android:preserveLegacyExternalStorage="true">
+        android:roundIcon="@drawable/ic_launcher_round">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -125,11 +124,6 @@
             android:name="com.amap.api.v2.apikey"
             android:value=""/>
 
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

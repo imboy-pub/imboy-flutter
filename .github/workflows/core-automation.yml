@@ -1,0 +1,153 @@
+name: YAML Automation Pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'test_automation/**'
+      - 'integration_test/**'
+      - 'test/**'
+      - '.github/workflows/core-automation.yml'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'test_automation/**'
+      - 'integration_test/**'
+      - 'test/**'
+      - '.github/workflows/core-automation.yml'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+  workflow_dispatch:
+    inputs:
+      run_mode:
+        description: 'Execution mode'
+        required: true
+        default: 'dry-run'
+        type: choice
+        options:
+          - dry-run
+          - real
+      run_id:
+        description: 'Optional fixed RUN_ID'
+        required: false
+        type: string
+      resume:
+        description: 'Resume existing RUN_ID state'
+        required: false
+        default: false
+        type: boolean
+      rerun_failed:
+        description: 'Only rerun FAILED_SKIPPED cases'
+        required: false
+        default: false
+        type: boolean
+      max_retries:
+        description: 'Retry count for retryable failures'
+        required: false
+        default: '0'
+        type: string
+      task_timeout_seconds:
+        description: 'Hard timeout per case'
+        required: false
+        default: '1200'
+        type: string
+
+env:
+  FLUTTER_VERSION: '3.41.0'
+
+permissions:
+  contents: read
+
+jobs:
+  yaml-automation-smoke:
+    name: YAML Automation Smoke (dry-run)
+    if: github.event_name != 'workflow_dispatch' || inputs.run_mode == 'dry-run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run YAML mapped suite dry-run
+        run: |
+          set -euo pipefail
+          chmod +x test_automation/scripts/run_yaml_mapped_suite.sh
+          bash test_automation/scripts/run_yaml_mapped_suite.sh --dry-run --max-retries 0 --task-timeout-seconds 600
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaml-automation-smoke-${{ github.run_id }}
+          path: |
+            test_automation/.state_yaml/**
+            test_automation/reports/yaml_runs/**
+          if-no-files-found: warn
+
+  yaml-automation-real:
+    name: YAML Automation Real (self-hosted macOS)
+    if: github.event_name == 'workflow_dispatch' && inputs.run_mode == 'real'
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run YAML mapped suite real
+        env:
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+          INPUT_RESUME: ${{ inputs.resume }}
+          INPUT_RERUN_FAILED: ${{ inputs.rerun_failed }}
+          INPUT_MAX_RETRIES: ${{ inputs.max_retries }}
+          INPUT_TASK_TIMEOUT_SECONDS: ${{ inputs.task_timeout_seconds }}
+        run: |
+          set -euo pipefail
+          chmod +x test_automation/scripts/run_yaml_mapped_suite.sh
+          CMD=(bash test_automation/scripts/run_yaml_mapped_suite.sh)
+
+          if [[ -n "${INPUT_RUN_ID}" ]]; then
+            CMD+=(--run-id "${INPUT_RUN_ID}")
+          fi
+          if [[ "${INPUT_RESUME}" == "true" ]]; then
+            CMD+=(--resume)
+          fi
+          if [[ "${INPUT_RERUN_FAILED}" == "true" ]]; then
+            CMD+=(--rerun-failed)
+          fi
+
+          CMD+=(--max-retries "${INPUT_MAX_RETRIES}" --task-timeout-seconds "${INPUT_TASK_TIMEOUT_SECONDS}")
+          "${CMD[@]}"
+
+      - name: Upload real artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaml-automation-real-${{ github.run_id }}
+          path: |
+            test_automation/.state_yaml/**
+            test_automation/reports/yaml_runs/**
+          if-no-files-found: warn

@@ -78,8 +78,10 @@ targets:
           - lib/page/group/group_detail/change_info_provider.dart
           - lib/page/group/group_detail/remove_member_provider.dart
           - lib/page/search/search_provider.dart
+          - lib/page/search/message_search_provider.dart
           - lib/page/qrcode/qrcode_provider.dart
           - lib/page/passport/passport_notifier.dart
+          - lib/page/passport/web_login_page.dart
           - lib/component/image_gallery/image_gallery.dart
           - lib/page/contact/contact/contact_provider.dart
           - lib/page/contact/people_info/people_info_provider.dart
@@ -91,6 +93,8 @@ targets:
           - lib/page/contact/contact_setting/contact_setting_provider.dart
           - lib/page/contact/contact_setting_tag/contact_setting_tag_provider.dart
           - lib/page/conversation/conversation_provider.dart
+          # Channel 模块
+          - lib/page/channel/channel_provider.dart
           - lib/page/chat/chat/chat_provider.dart
           # Personal Info 模块
           - lib/page/personal_info/update/update_provider.dart

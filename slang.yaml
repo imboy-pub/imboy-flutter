@@ -5,3 +5,7 @@ input_file_pattern: .i18n.yaml
 output_localization_file: strings.g.dart
 output_class_name: AppStrings
 enum_name: AppLocale
+
+# Fallback strategy for missing translations
+fallback_strategy: base_locale
+translate_metadata: false

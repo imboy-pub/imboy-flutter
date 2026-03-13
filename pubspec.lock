@@ -388,13 +388,13 @@ packages:
     source: hosted
     version: "1.0.8"
   dart_style:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: dart_style
-      sha256: "15a7db352c8fc6a4d2bc475ba901c25b39fe7157541da4c16eacce6f8be83e49"
+      sha256: a9c30492da18ff84efe2422ba2d319a89942d93e58eb0b73d32abe822ef54b7b
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.5"
+    version: "3.1.3"
   dart_webrtc:
     dependency: transitive
     description:
@@ -1346,10 +1346,9 @@ packages:
   jverify:
     dependency: "direct main"
     description:
-      name: jverify
-      sha256: eb2dd99902529759124671b5f26ef01b558b5118ead40b04277c932c40d46379
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/jverify"
+      relative: true
+    source: path
     version: "3.1.7"
   leak_tracker:
     dependency: transitive
@@ -1954,11 +1953,9 @@ packages:
   r_upgrade:
     dependency: "direct main"
     description:
-      path: "."
-      ref: leeyi
-      resolved-ref: "99e7408739af8ca9fe37b80dbf675db6d96717a8"
-      url: "https://gitee.com/imboy-tripartite-deps/r_upgrade.git"
-    source: git
+      path: "plugin/r_upgrade"
+      relative: true
+    source: path
     version: "0.4.3"
   recase:
     dependency: transitive
@@ -2353,26 +2350,26 @@ packages:
     dependency: transitive
     description:
       name: test
-      sha256: "77cc98ea27006c84e71a7356cf3daf9ddbde2d91d84f77dbfe64cf0e4d9611ae"
+      sha256: "54c516bbb7cee2754d327ad4fca637f78abfc3cbcc5ace83b3eda117e42cd71a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.28.0"
+    version: "1.29.0"
   test_api:
     dependency: transitive
     description:
       name: test_api
-      sha256: "19a78f63e83d3a61f00826d09bc2f60e191bf3504183c001262be6ac75589fb8"
+      sha256: "93167629bfc610f71560ab9312acdda4959de4df6fac7492c89ff0d3886f6636"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.8"
+    version: "0.7.9"
   test_core:
     dependency: transitive
     description:
       name: test_core
-      sha256: f1072617a6657e5fc09662e721307f7fb009b4ed89b19f47175d11d5254a62d4
+      sha256: "394f07d21f0f2255ec9e3989f21e54d3c7dc0e6e9dbce160e5a9c1a6be0e2943"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.14"
+    version: "0.6.15"
   textfield_tags:
     dependency: "direct main"
     description:

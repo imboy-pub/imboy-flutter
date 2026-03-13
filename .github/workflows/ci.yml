@@ -7,21 +7,29 @@ on:
     branches: [ main, dev ]
   workflow_dispatch:
 
+env:
+  FLUTTER_VERSION: '3.41.0'
+
 jobs:
   # ==================== 测试任务 ====================
-  test:
-    name: Run Tests
+  unit-widget-test:
+    name: Run Unit/Widget Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate CI test paths
+        run: .github/scripts/validate_ci_test_paths.sh
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.8.0'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
 
@@ -34,16 +42,77 @@ jobs:
       - name: Analyze code
         run: flutter analyze
 
-      - name: Run tests
+      - name: New code guard (changed dart files)
+        run: .github/scripts/lint_changed_dart.sh
+
+      - name: Run unit/widget tests
+        run: |
+          TEST_FILES="$(find test -type f -name '*_test.dart' ! -path 'test/integration/*' | tr '\n' ' ')"
+          if [ -z "$TEST_FILES" ]; then
+            echo "No unit/widget test files found outside test/integration/"
+            exit 0
+          fi
+          flutter test $TEST_FILES --reporter=github
+
+      - name: Moment regression gate
+        run: |
+          flutter test test/service/message_type_constants_test.dart --reporter=github
+          flutter test test/service/message_s2c_test.dart --reporter=github
+          flutter test test/service/moment_event_test.dart --reporter=github
+          flutter test test/page/moment/moment_routes_test.dart --reporter=github
+
+  test:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run integration tests
         run: flutter test test/integration/ --reporter=github
 
+      - name: Channel regression gate (test/integration)
+        run: flutter test test/integration/channel_integration_test.dart --reporter=github
+
+      - name: Run integration_test suite
+        run: |
+          TEST_FILES="$(find integration_test -type f -name '*_test.dart' | tr '\n' ' ')"
+          if [ -z "$TEST_FILES" ]; then
+            echo "No test files found under integration_test/"
+            exit 0
+          fi
+          flutter test integration_test/ --reporter=github
+
       - name: Generate coverage report
-        run: flutter test test/integration/ --coverage
+        run: |
+          flutter test test/integration/ --coverage
+          mv coverage/lcov.info coverage/lcov.test_integration.info
+
+          TEST_FILES="$(find integration_test -type f -name '*_test.dart' | tr '\n' ' ')"
+          if [ -z "$TEST_FILES" ]; then
+            echo "No test files found under integration_test/, skip integration_test coverage"
+            cp coverage/lcov.test_integration.info coverage/lcov.integration_test.info
+          else
+            flutter test integration_test/ --coverage
+            mv coverage/lcov.info coverage/lcov.integration_test.info
+          fi
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: coverage/lcov.info
+          files: coverage/lcov.test_integration.info,coverage/lcov.integration_test.info
           flags: integration-tests
           name: integration-test-coverage
 
@@ -51,7 +120,7 @@ jobs:
   build:
     name: Build APK
     runs-on: ubuntu-latest
-    needs: test
+    needs: [unit-widget-test, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
@@ -61,7 +130,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.8.0'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
 
@@ -81,7 +150,7 @@ jobs:
   build-ios:
     name: Build iOS
     runs-on: macos-latest
-    needs: test
+    needs: [unit-widget-test, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
@@ -91,7 +160,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.8.0'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
 
@@ -113,7 +182,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.8.0'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
       - name: Get dependencies
@@ -125,7 +194,7 @@ jobs:
       - name: Check code coverage
         run: |
           flutter test --coverage
-          flutter test coverage/lcov.info onlc
+          test -f coverage/lcov.info
 
   # ==================== 性能测试任务 ====================
   performance-test:
@@ -140,7 +209,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.8.0'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
       - name: Get dependencies
@@ -148,5 +217,5 @@ jobs:
 
       - name: Run performance tests
         run: |
-          flutter test test/integration/conversation_state_mock_test.dart --name="性能"
-          flutter test test/integration/message_action_mock_test.dart --name="性能"
+          flutter test test/integration/conversation_state_mock_test.dart --reporter=github
+          flutter test test/integration/message_action_conversation_update_mock_test.dart --name="性能" --reporter=github
