@@ -1,0 +1,452 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/group_album_service.dart';
+
+/// 群相册图片列表页
+class GroupAlbumPhotoPage extends ConsumerStatefulWidget {
+  final String groupId;
+  final String albumId;
+  final String albumName;
+
+  const GroupAlbumPhotoPage({
+    super.key,
+    required this.groupId,
+    required this.albumId,
+    this.albumName = '',
+  });
+
+  @override
+  ConsumerState<GroupAlbumPhotoPage> createState() =>
+      _GroupAlbumPhotoPageState();
+}
+
+class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
+  final ScrollController _scrollController = ScrollController();
+  List<Map<String, dynamic>> _photos = [];
+  Set<String> _selectedPhotoIds = <String>{};
+  bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _isSelectionMode = false;
+  bool _isBatchDeleting = false;
+  bool _hasMore = true;
+  int _nextPage = 1;
+  int _total = 0;
+  static const int _pageSize = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    _loadPhotos(refresh: true);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final threshold = _scrollController.position.maxScrollExtent - 240;
+    if (_scrollController.position.pixels >= threshold) {
+      _loadPhotos();
+    }
+  }
+
+  Future<void> _loadPhotos({bool refresh = false}) async {
+    if (refresh) {
+      setState(() {
+        _isLoading = true;
+        _hasMore = true;
+        _nextPage = 1;
+      });
+    } else {
+      if (_isLoading || _isLoadingMore || !_hasMore) return;
+      setState(() => _isLoadingMore = true);
+    }
+
+    final page = _nextPage;
+    final payload = await GroupAlbumService.to.getPhotos(
+      albumId: widget.albumId,
+      page: page,
+      size: _pageSize,
+    );
+    final list = payload['list'];
+    final total = _toInt(payload['total']);
+    final normalized = list is List
+        ? list
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList()
+        : <Map<String, dynamic>>[];
+
+    final nextPhotos = refresh ? normalized : [..._photos, ...normalized];
+    final hasMore = nextPhotos.length < total && normalized.isNotEmpty;
+    final nextPage = normalized.isEmpty ? page : page + 1;
+
+    final validIds = nextPhotos
+        .map(_resolveDeletePhotoId)
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    final nextSelectedIds = _selectedPhotoIds.where(validIds.contains).toSet();
+
+    if (mounted) {
+      setState(() {
+        _photos = nextPhotos;
+        _total = total;
+        _hasMore = hasMore;
+        _nextPage = nextPage;
+        _selectedPhotoIds = nextSelectedIds;
+        _isSelectionMode = _isSelectionMode && nextSelectedIds.isNotEmpty;
+        _isLoading = false;
+        _isLoadingMore = false;
+      });
+    }
+  }
+
+  void _enterSelectionMode(Map<String, dynamic> photo) {
+    final photoId = _resolveDeletePhotoId(photo);
+    if (photoId.isEmpty) return;
+    setState(() {
+      _isSelectionMode = true;
+      _selectedPhotoIds = {photoId};
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedPhotoIds = <String>{};
+    });
+  }
+
+  void _togglePhotoSelection(Map<String, dynamic> photo) {
+    final photoId = _resolveDeletePhotoId(photo);
+    if (photoId.isEmpty) return;
+    setState(() {
+      if (_selectedPhotoIds.contains(photoId)) {
+        _selectedPhotoIds.remove(photoId);
+      } else {
+        _selectedPhotoIds.add(photoId);
+      }
+      if (_selectedPhotoIds.isEmpty) {
+        _isSelectionMode = false;
+      }
+    });
+  }
+
+  void _toggleSelectAll() {
+    if (_isBatchDeleting) return;
+    final allIds = _photos
+        .map(_resolveDeletePhotoId)
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    setState(() {
+      if (allIds.isEmpty) return;
+      if (_selectedPhotoIds.length == allIds.length) {
+        _selectedPhotoIds.clear();
+      } else {
+        _selectedPhotoIds = allIds;
+      }
+      if (_selectedPhotoIds.isEmpty) {
+        _isSelectionMode = false;
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedPhotos() async {
+    final selectedCount = _selectedPhotoIds.length;
+    if (selectedCount == 0 || _isBatchDeleting) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('批量删除图片'),
+        content: Text('确定删除选中的 $selectedCount 张图片吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(t.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    setState(() => _isBatchDeleting = true);
+    int successCount = 0;
+    final targets = _selectedPhotoIds.toList();
+    for (final photoId in targets) {
+      final success = await GroupAlbumService.to.deletePhoto(photoId);
+      if (success) {
+        successCount++;
+      }
+    }
+    if (!mounted) return;
+
+    setState(() => _isBatchDeleting = false);
+    if (successCount == 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('删除失败，请稍后重试')));
+      return;
+    }
+
+    final failCount = selectedCount - successCount;
+    final message = failCount == 0
+        ? '已删除$successCount张图片'
+        : '已删除$successCount张，$failCount张删除失败';
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+    _exitSelectionMode();
+    await _loadPhotos(refresh: true);
+  }
+
+  Future<void> _deletePhoto(Map<String, dynamic> photo) async {
+    final photoId = _resolveDeletePhotoId(photo);
+    if (photoId.isEmpty) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除图片'),
+        content: const Text('确定删除这张图片吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(t.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    final success = await GroupAlbumService.to.deletePhoto(photoId);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(success ? '图片已删除' : '删除失败，请稍后重试')));
+    if (success) {
+      await _loadPhotos(refresh: true);
+    }
+  }
+
+  String _resolveDeletePhotoId(Map<String, dynamic> photo) {
+    return (photo['photo_id'] ?? photo['id'])?.toString().trim() ?? '';
+  }
+
+  Future<void> _openPhotoDetail(Map<String, dynamic> photo, int index) async {
+    final photoId = _resolveDeletePhotoId(photo);
+    if (photoId.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('图片ID缺失，无法查看详情')));
+      return;
+    }
+
+    final photoIds = _photos
+        .map((item) => _resolveDeletePhotoId(item))
+        .where((id) => id.isNotEmpty)
+        .toList();
+
+    final encodedPhotoId = Uri.encodeComponent(photoId);
+    final encodedAlbumId = Uri.encodeComponent(widget.albumId);
+    final encodedAlbumName = Uri.encodeQueryComponent(widget.albumName);
+    final result = await context.push<bool>(
+      '/group/${widget.groupId}/album/$encodedAlbumId/photo/$encodedPhotoId?album_name=$encodedAlbumName',
+      extra: {'photo_ids': photoIds, 'index': index},
+    );
+    if (result == true && mounted) {
+      await _loadPhotos(refresh: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = widget.albumName.isEmpty ? '相册图片' : widget.albumName;
+    final actionWidgets = _isSelectionMode
+        ? <Widget>[
+            IconButton(
+              key: const Key('group_album_photo_select_all'),
+              tooltip: '全选',
+              onPressed: _isBatchDeleting ? null : _toggleSelectAll,
+              icon: Icon(
+                _selectedPhotoIds.length == _photos.length && _photos.isNotEmpty
+                    ? Icons.remove_done
+                    : Icons.select_all,
+              ),
+            ),
+            IconButton(
+              key: const Key('group_album_photo_batch_delete'),
+              tooltip: '批量删除',
+              onPressed: _selectedPhotoIds.isEmpty || _isBatchDeleting
+                  ? null
+                  : _deleteSelectedPhotos,
+              icon: _isBatchDeleting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.delete_sweep_outlined),
+            ),
+          ]
+        : null;
+
+    return Scaffold(
+      appBar: GlassAppBar(
+        title: _isSelectionMode
+            ? '已选择 ${_selectedPhotoIds.length} 项'
+            : '$title${_total > 0 ? ' ($_total)' : ''}',
+        automaticallyImplyLeading: !_isSelectionMode,
+        leading: _isSelectionMode
+            ? IconButton(
+                tooltip: '退出选择',
+                onPressed: _isBatchDeleting ? null : _exitSelectionMode,
+                icon: const Icon(Icons.close),
+              )
+            : null,
+        rightDMActions: actionWidgets,
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_photos.isEmpty) {
+      return NoDataView(text: '暂无图片', onTop: () => _loadPhotos(refresh: true));
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => _loadPhotos(refresh: true),
+      child: GridView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(12),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1,
+        ),
+        itemCount: _photos.length + (_isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= _photos.length) {
+            return const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            );
+          }
+          return _buildPhotoCell(_photos[index], index);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPhotoCell(Map<String, dynamic> photo, int index) {
+    final photoId = _resolveDeletePhotoId(photo);
+    final isSelected = _selectedPhotoIds.contains(photoId);
+    final url = _resolvePhotoUrl(photo);
+    return InkWell(
+      key: Key('group_album_photo_cell_$index'),
+      borderRadius: BorderRadius.circular(8),
+      onTap: () {
+        if (_isSelectionMode) {
+          _togglePhotoSelection(photo);
+          return;
+        }
+        _openPhotoDetail(photo, index);
+      },
+      onLongPress: () {
+        if (_isSelectionMode) return;
+        _enterSelectionMode(photo);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Container(color: Colors.grey.shade200),
+            if (isSelected) Container(color: Colors.black26),
+            if (url.isNotEmpty)
+              Image.network(
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    const Center(child: Icon(Icons.broken_image_outlined)),
+              )
+            else
+              const Center(child: Icon(Icons.image_not_supported_outlined)),
+            if (_isSelectionMode)
+              Positioned(
+                left: 2,
+                top: 2,
+                child: Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: isSelected ? Colors.lightBlueAccent : Colors.white70,
+                  size: 20,
+                ),
+              ),
+            if (!_isSelectionMode)
+              Positioned(
+                right: 2,
+                top: 2,
+                child: Material(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    key: Key('group_album_photo_delete_$index'),
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _deletePhoto(photo),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.delete_outline,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _resolvePhotoUrl(Map<String, dynamic> photo) {
+    final thumbnail = photo['thumbnail_url']?.toString().trim() ?? '';
+    if (thumbnail.isNotEmpty) return thumbnail;
+    final photoUrl = photo['photo_url']?.toString().trim() ?? '';
+    if (photoUrl.isNotEmpty) return photoUrl;
+    final url = photo['url']?.toString().trim() ?? '';
+    if (url.isNotEmpty) return url;
+    return '';
+  }
+
+  int _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}

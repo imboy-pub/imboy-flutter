@@ -1,0 +1,254 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/group_schedule_service.dart';
+
+/// 群日程详情页
+class GroupScheduleDetailPage extends ConsumerStatefulWidget {
+  final String groupId;
+  final String scheduleId;
+
+  const GroupScheduleDetailPage({
+    super.key,
+    required this.groupId,
+    required this.scheduleId,
+  });
+
+  @override
+  ConsumerState<GroupScheduleDetailPage> createState() =>
+      _GroupScheduleDetailPageState();
+}
+
+class _GroupScheduleDetailPageState
+    extends ConsumerState<GroupScheduleDetailPage> {
+  Map<String, dynamic>? _detail;
+  bool _isLoading = true;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetail();
+  }
+
+  String _toText(dynamic value) {
+    if (value == null) return '';
+    return value.toString().trim();
+  }
+
+  int _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  List<Map<String, dynamic>> _toMapList(dynamic value) {
+    if (value is! List) return const [];
+    return value
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
+  Future<void> _loadDetail() async {
+    setState(() => _isLoading = true);
+    final detail = await GroupScheduleService.to.getSchedule(
+      groupId: widget.groupId,
+      scheduleId: widget.scheduleId,
+    );
+    if (!mounted) return;
+    setState(() {
+      _detail = detail;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _confirm(bool confirm) async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    final success = await GroupScheduleService.to.confirmSchedule(
+      groupId: widget.groupId,
+      scheduleId: widget.scheduleId,
+      confirm: confirm,
+    );
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(success ? '操作成功' : '操作失败，请稍后重试')));
+    if (success) {
+      await _loadDetail();
+    }
+  }
+
+  Future<void> _cancelSchedule() async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    final success = await GroupScheduleService.to.cancelSchedule(
+      groupId: widget.groupId,
+      scheduleId: widget.scheduleId,
+    );
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(success ? '日程已取消' : '取消失败，请稍后重试')));
+    if (success) {
+      await _loadDetail();
+    }
+  }
+
+  String _formatTimestamp(dynamic raw) {
+    final sec = _toInt(raw);
+    if (sec <= 0) return '';
+    final dt = DateTime.fromMillisecondsSinceEpoch(sec * 1000);
+    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} '
+        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    return Scaffold(
+      appBar: GlassAppBar(
+        title: t.groupSchedule.title,
+        automaticallyImplyLeading: true,
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_detail == null) {
+      return NoDataView(
+        text: context.t.groupSchedule.noSchedule,
+        onTop: _loadDetail,
+      );
+    }
+
+    final scheduleRaw = _detail!['schedule'];
+    final schedule = scheduleRaw is Map
+        ? Map<String, dynamic>.from(scheduleRaw)
+        : Map<String, dynamic>.from(_detail!);
+    final participants = _toMapList(_detail!['participants']);
+
+    final status = _toInt(schedule['status']);
+    final startTime = _formatTimestamp(
+      schedule['start_time'] ?? schedule['start_at'],
+    );
+    final endTime = _formatTimestamp(
+      schedule['end_time'] ?? schedule['end_at'],
+    );
+    final location = _toText(schedule['location']);
+    final description = _toText(schedule['description']);
+
+    return RefreshIndicator(
+      onRefresh: _loadDetail,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            _toText(schedule['title']),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Chip(label: Text(status == 4 ? '已取消' : '进行中')),
+          const SizedBox(height: 12),
+          _InfoLine(label: '开始时间', value: startTime),
+          _InfoLine(label: '结束时间', value: endTime),
+          if (location.isNotEmpty)
+            _InfoLine(label: context.t.groupSchedule.location, value: location),
+          if (description.isNotEmpty)
+            _InfoLine(
+              label: context.t.groupTask.taskDescription,
+              value: description,
+            ),
+          const SizedBox(height: 12),
+          _InfoLine(
+            label: '参与人数',
+            value: _toInt(_detail!['participant_count']).toString(),
+          ),
+          if (participants.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            const Text('参与人', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            ...participants
+                .take(20)
+                .map(
+                  (item) => ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.person, size: 18),
+                    title: Text(
+                      _toText(item['nickname']).isEmpty
+                          ? _toText(item['user_id'])
+                          : _toText(item['nickname']),
+                    ),
+                  ),
+                ),
+          ],
+          const SizedBox(height: 16),
+          if (status != 4)
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : () => _confirm(true),
+                    child: const Text('确认参加'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _isSubmitting ? null : () => _confirm(false),
+                    child: const Text('不参加'),
+                  ),
+                ),
+              ],
+            ),
+          if (status != 4) const SizedBox(height: 12),
+          if (status != 4)
+            OutlinedButton(
+              onPressed: _isSubmitting ? null : _cancelSchedule,
+              child: const Text('取消日程'),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoLine extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoLine({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 88,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+}
