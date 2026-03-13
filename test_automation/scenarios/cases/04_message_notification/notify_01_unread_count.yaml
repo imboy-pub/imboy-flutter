@@ -1,0 +1,25 @@
+schema_version: 1
+case_id: "notify_01_unread_count"
+feature_id: "message_notification"
+feature_name_cn: "会话消息提醒"
+title: "未读计数与清零逻辑"
+priority: "P0"
+automation_mode: "auto"
+status: "mapped"
+
+runner:
+  action: "flutter_test"
+  test_file: "test/integration/unread_count_integration_test.dart"
+  device: "macos"
+  timeout_seconds: 600
+  retry: 0
+  dart_defines: "APP_ENV=local_home"
+
+precondition: "flutter_test_env,storage_initialized"
+assertions: "exit_code==0,unread_count_expectation_passed"
+ui_ux_checks: "badge_count_updates_immediately"
+
+steps:
+  - "准备测试环境并校验前置条件：flutter_test_env,storage_initialized"
+  - "执行 Flutter 测试：flutter test test/integration/unread_count_integration_test.dart"
+  - "校验断言与 UI/UX 关键点：exit_code==0,unread_count_expectation_passed | badge_count_updates_immediately"

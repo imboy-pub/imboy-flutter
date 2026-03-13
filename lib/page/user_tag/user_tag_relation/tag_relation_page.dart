@@ -241,6 +241,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           ? Theme.of(context).colorScheme.surface
           : const Color(0xFFF5F5F5),
       appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
         titleWidget: Text(widget.title ?? t.editTags),
         backgroundColor: isDark
             ? Theme.of(context).colorScheme.surface

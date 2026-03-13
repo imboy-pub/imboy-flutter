@@ -32,11 +32,8 @@ enum WebRTCSignalingType {
   /// 离开通话
   leave,
 
-  /// 心跳保活（旧版兼容）
-  keepalive,
-
   // === 新增类型 v2.0 ===
-  /// 会话心跳（替代 keepalive）
+  /// 会话心跳
   heartbeat,
 
   /// 重连请求
@@ -80,8 +77,6 @@ extension WebRTCSignalingTypeExtension on WebRTCSignalingType {
         return 'webrtc_busy';
       case WebRTCSignalingType.leave:
         return 'webrtc_leave';
-      case WebRTCSignalingType.keepalive:
-        return 'webrtc_keepalive';
       case WebRTCSignalingType.heartbeat:
         return 'webrtc_heartbeat';
       case WebRTCSignalingType.reconnect:
@@ -104,7 +99,6 @@ extension WebRTCSignalingTypeExtension on WebRTCSignalingType {
   /// 是否为控制消息（不需要可靠传输）
   bool get isControlMessage {
     return this == WebRTCSignalingType.heartbeat ||
-        this == WebRTCSignalingType.keepalive ||
         this == WebRTCSignalingType.quality_report ||
         this == WebRTCSignalingType.bandwidth_stats;
   }
@@ -129,18 +123,9 @@ extension WebRTCSignalingTypeExtension on WebRTCSignalingType {
     final typeKey = value.replaceFirst('webrtc_', '');
 
     try {
-      return WebRTCSignalingType.values.firstWhere(
-        (e) => e.name == typeKey,
-      );
+      return WebRTCSignalingType.values.firstWhere((e) => e.name == typeKey);
     } catch (_) {
-      // 尝试直接匹配（兼容旧格式）
-      try {
-        return WebRTCSignalingType.values.firstWhere(
-          (e) => e.name == value,
-        );
-      } catch (_) {
-        return null;
-      }
+      return null;
     }
   }
 }
@@ -360,10 +345,7 @@ class WebRTCSignalingBuilder {
       from: from,
       to: to,
       sessionId: sessionId,
-      payload: {
-        'media': mediaType,
-        'sd': sdp,
-      },
+      payload: {'media': mediaType, 'sd': sdp},
     );
   }
 
@@ -382,10 +364,7 @@ class WebRTCSignalingBuilder {
       from: from,
       to: to,
       sessionId: sessionId,
-      payload: {
-        'media': mediaType,
-        'sd': sdp,
-      },
+      payload: {'media': mediaType, 'sd': sdp},
     );
   }
 
@@ -403,9 +382,7 @@ class WebRTCSignalingBuilder {
       from: from,
       to: to,
       sessionId: sessionId,
-      payload: {
-        'candidate': candidate,
-      },
+      payload: {'candidate': candidate},
     );
   }
 
@@ -423,10 +400,7 @@ class WebRTCSignalingBuilder {
       from: from,
       to: to,
       sessionId: sessionId,
-      payload: {
-        'sid': sessionId,
-        'reason': reason,
-      },
+      payload: {'sid': sessionId, 'reason': reason},
     );
   }
 
@@ -548,10 +522,7 @@ class WebRTCSignalingBuilder {
       from: from,
       to: to,
       sessionId: sessionId,
-      payload: {
-        'state': state,
-        'metadata': metadata,
-      },
+      payload: {'state': state, 'metadata': metadata},
     );
   }
 }

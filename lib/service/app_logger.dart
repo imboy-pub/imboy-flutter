@@ -1,5 +1,39 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/base_event.dart';
+
+/// 错误上报事件
+///
+/// 当发生错误时触发，可用于上报到第三方错误监控服务
+///
+/// 使用示例：
+/// ```dart
+/// // 监听错误上报事件
+/// AppEventBus.on<ErrorReportEvent>().listen((event) {
+///   // 上报到 Sentry/Firebase Crashlytics
+///   Sentry.captureException(
+///     event.error,
+///     stackTrace: event.stackTrace,
+///   );
+/// });
+/// ```
+final class ErrorReportEvent extends AppEvent {
+  final String message;
+  final Object? error;
+  final StackTrace? stackTrace;
+  final bool isFatal;
+
+  const ErrorReportEvent({
+    required this.message,
+    this.error,
+    this.stackTrace,
+    this.isFatal = false,
+  });
+
+  @override
+  List<Object?> get props => [message, error, stackTrace, isFatal];
+}
 
 /// 统一日志管理器
 /// 提供分级日志、环境控制、性能监控等功能
@@ -8,6 +42,10 @@ import 'package:logger/logger.dart';
 /// - KISS: 简单易用的日志接口
 /// - 性能优化：生产环境最小化日志开销
 /// - 可维护性：统一的日志格式和配置
+///
+/// 错误上报：
+/// - 生产环境通过 ErrorReportEvent 事件发送错误
+/// - 可以在应用启动时监听此事件并上报到第三方服务（如 Sentry、Firebase Crashlytics）
 class AppLogger {
   /// 是否为调试模式
   static final bool _isDebugMode = kDebugMode;
@@ -42,12 +80,6 @@ class AppLogger {
     }
   }
 
-  /// 详细日志（已弃用，请使用 trace）
-  @Deprecated('Use trace() instead')
-  static void verbose(String message, [Object? error, StackTrace? stackTrace]) {
-    trace(message, error, stackTrace);
-  }
-
   /// 调试日志（仅在调试模式输出）
   static void debug(String message, [Object? error, StackTrace? stackTrace]) {
     if (_isDebugMode) {
@@ -69,26 +101,35 @@ class AppLogger {
   static void error(String message, [Object? error, StackTrace? stackTrace]) {
     _getLogger().e(message, error: error, stackTrace: stackTrace);
 
-    // TODO: 生产环境可以在这里添加错误上报逻辑
-    // if (!_isDebugMode) {
-    //   ErrorReporter.reportError(message, error, stackTrace);
-    // }
+    // 生产环境发送错误上报事件
+    // 可以在应用启动时监听 ErrorReportEvent 并上报到第三方服务
+    if (!_isDebugMode) {
+      AppEventBus.fire(
+        ErrorReportEvent(
+          message: message,
+          error: error,
+          stackTrace: stackTrace,
+          isFatal: false,
+        ),
+      );
+    }
   }
 
   /// 严重错误日志
   static void fatal(String message, [Object? error, StackTrace? stackTrace]) {
     _getLogger().f(message, error: error, stackTrace: stackTrace);
 
-    // TODO: 生产环境立即上报
-    // if (!_isDebugMode) {
-    //   ErrorReporter.reportCriticalError(message, error, stackTrace);
-    // }
-  }
-
-  /// 严重错误日志（已弃用，请使用 fatal）
-  @Deprecated('Use fatal() instead')
-  static void wtf(String message, [Object? error, StackTrace? stackTrace]) {
-    fatal(message, error, stackTrace);
+    // 生产环境发送严重错误上报事件
+    if (!_isDebugMode) {
+      AppEventBus.fire(
+        ErrorReportEvent(
+          message: message,
+          error: error,
+          stackTrace: stackTrace,
+          isFatal: true,
+        ),
+      );
+    }
   }
 
   /// 性能监控日志（用于记录操作耗时）

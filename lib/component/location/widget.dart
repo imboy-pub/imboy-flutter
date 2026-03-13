@@ -79,7 +79,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   AMapPosition? _sendMsg;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     // debugPrint("widget.latLng ${widget.latLng}");
     _currentCenterCoordinate = widget.latLng!;

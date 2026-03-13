@@ -109,7 +109,7 @@ class PassportNotifier extends _$PassportNotifier {
       list = list.sublist(0, 5);
     }
 
-    await StorageService.to.setStringList(key, list);
+    await StorageService.to.setList(key, list);
 
     if (type == 'account') {
       state = state.copyWith(accountHistory: list);
@@ -139,7 +139,7 @@ class PassportNotifier extends _$PassportNotifier {
     }
 
     list.remove(value);
-    await StorageService.to.setStringList(key, list);
+    await StorageService.to.setList(key, list);
 
     if (type == 'account') {
       state = state.copyWith(accountHistory: list);
@@ -519,7 +519,10 @@ class PassportNotifier extends _$PassportNotifier {
           debugPrint('✅ Web RSA 加密完成, 加密后密码长度=${encryptedPassword.length}');
         } else {
           // 移动端/桌面端：使用 pointycastle
-          encryptedPassword = RSAService.rsaEncryptWithPointyCastle(password, pubKeyPem);
+          encryptedPassword = RSAService.rsaEncryptWithPointyCastle(
+            password,
+            pubKeyPem,
+          );
         }
       } else {
         encryptedPassword = password;
@@ -529,13 +532,21 @@ class PassportNotifier extends _$PassportNotifier {
         "password": encryptedPassword,
         "rsa_encrypt": rsaEncrypt,
       };
-      debugPrint('🔐 _encryptPassword 返回: password类型=${result['password'].runtimeType}, password长度=${(result['password'] as String).length}, rsa_encrypt=${result['rsa_encrypt']}');
-      debugPrint('🔐 _encryptPassword 密码前50字符: ${(result['password'] as String).substring(0, (result['password'] as String).length > 50 ? 50 : (result['password'] as String).length)}');
+      debugPrint(
+        '🔐 _encryptPassword 返回: password类型=${result['password'].runtimeType}, password长度=${(result['password'] as String).length}, rsa_encrypt=${result['rsa_encrypt']}',
+      );
+      debugPrint(
+        '🔐 _encryptPassword 密码前50字符: ${(result['password'] as String).substring(0, (result['password'] as String).length > 50 ? 50 : (result['password'] as String).length)}',
+      );
       return result;
     } catch (e, stackTrace) {
       debugPrint('❌ _encryptPassword 异常: $e');
       debugPrint('堆栈: $stackTrace');
-      return <String, dynamic>{"error": "密码加密失败: $e", "password": null, "rsa_encrypt": "0"};
+      return <String, dynamic>{
+        "error": "密码加密失败: $e",
+        "password": null,
+        "rsa_encrypt": "0",
+      };
     }
   }
 
@@ -565,7 +576,9 @@ class PassportNotifier extends _$PassportNotifier {
 
       // 添加日志查看 data['password'] 的值
       final pwdValue = data['password'];
-      debugPrint('🔐 准备构建 postData: data["password"]类型=${pwdValue.runtimeType}, 值=$pwdValue');
+      debugPrint(
+        '🔐 准备构建 postData: data["password"]类型=${pwdValue.runtimeType}, 值=$pwdValue',
+      );
 
       Map<String, dynamic> postData = {
         "type": accountType,
@@ -576,7 +589,9 @@ class PassportNotifier extends _$PassportNotifier {
         "cos": dinfo["cos"],
         "public_key": publicKey,
       };
-      debugPrint('🔐 postData["pwd"]类型=${postData["pwd"].runtimeType}, 值=${postData["pwd"]}');
+      debugPrint(
+        '🔐 postData["pwd"]类型=${postData["pwd"].runtimeType}, 值=${postData["pwd"]}',
+      );
       if (UserRepoLocal.to.lastLoginAccount != account) {
         postData["dname"] = dinfo["deviceName"];
         postData["dvsn"] = dinfo["deviceVersion"];
@@ -612,6 +627,9 @@ class PassportNotifier extends _$PassportNotifier {
           await Future.delayed(const Duration(milliseconds: 100));
           // 直接调用 openSocket 而不是依赖被动触发
           WebSocketService.to.openSocket(from: 'login');
+          unawaited(
+            AppInitializer.triggerGroupMembershipSelfHeal(source: 'login'),
+          );
           debugPrint('✅ WebSocket 连接已触发');
         }
         return 1;
@@ -664,6 +682,11 @@ class PassportNotifier extends _$PassportNotifier {
           // 登录成功后主动连接 WebSocket
           await Future.delayed(const Duration(milliseconds: 100));
           WebSocketService.to.openSocket(from: 'loginByCode');
+          unawaited(
+            AppInitializer.triggerGroupMembershipSelfHeal(
+              source: 'loginByCode',
+            ),
+          );
         }
         return 1;
       }
@@ -911,6 +934,11 @@ class PassportNotifier extends _$PassportNotifier {
       }
       if (status == 1 || status == 2) {
         await UserRepoLocal.to.loginAfter(account, resp2.payload);
+        await Future.delayed(const Duration(milliseconds: 100));
+        WebSocketService.to.openSocket(from: 'quickLogin');
+        unawaited(
+          AppInitializer.triggerGroupMembershipSelfHeal(source: 'quickLogin'),
+        );
       }
       String action = resp2.payload['action'] ?? '';
       if (action == 'need_set_password') {
@@ -1083,7 +1111,7 @@ class PassportNotifier extends _$PassportNotifier {
   /// 这样其他用户才能发送加密消息给当前用户
   Future<void> _reportE2EEPublicKey() async {
     try {
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
 
       // 检查是否已有 E2EE 密钥
       bool hasKey = await storage.hasE2EEKeys();

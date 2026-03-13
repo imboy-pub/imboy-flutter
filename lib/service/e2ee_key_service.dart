@@ -11,8 +11,7 @@ import 'e2ee_crypto_service.dart';
 import 'storage_secure.dart';
 
 // 👇 条件导入：Web 平台使用真实实现
-import 'rsa_web_stub.dart'
-    if (dart.library.html) 'rsa_web.dart';
+import 'rsa_web_stub.dart' if (dart.library.html) 'rsa_web.dart';
 
 /// RSA 密钥大小（位）- 用于 isolate
 const int _rsaKeySize = 2048;
@@ -124,12 +123,12 @@ class E2EEKeyService {
       // 这确保加密/解密时使用相同的设备 ID
       final deviceId = init_config.deviceId.isNotEmpty
           ? init_config.deviceId
-          : _generateDeviceId();  // 仅作为备用
+          : _generateDeviceId(); // 仅作为备用
       final keyId = _generateKeyId();
       final createdAt = DateTime.now().toUtc().toIso8601String();
 
       // 保存到安全存储
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       await Future.wait([
         storage.savePrivateKey(privateKeyPem),
         storage.savePublicKey(publicKeyPem),
@@ -166,7 +165,7 @@ class E2EEKeyService {
   /// }
   /// ```
   static Future<Map<String, dynamic>?> getKeyInfo() async {
-    final storage = StorageSecure();
+    final storage = StorageSecureService.to;
 
     final privateKey = await storage.getPrivateKey();
     final publicKey = await storage.getPublicKey();
@@ -194,7 +193,7 @@ class E2EEKeyService {
   ///
   /// @returns true 如果密钥存在，否则 false
   static Future<bool> hasKey() async {
-    final storage = StorageSecure();
+    final storage = StorageSecureService.to;
     return await storage.hasE2EEKeys();
   }
 
@@ -208,7 +207,7 @@ class E2EEKeyService {
   /// print('密钥已删除');
   /// ```
   static Future<void> deleteKey() async {
-    final storage = StorageSecure();
+    final storage = StorageSecureService.to;
     await storage.deleteAllE2EEKeys();
   }
 

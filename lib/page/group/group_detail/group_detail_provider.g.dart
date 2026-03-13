@@ -45,7 +45,7 @@ final class GroupDetailNotifierProvider
 }
 
 String _$groupDetailNotifierHash() =>
-    r'5ab5a17c2e8dc74a593329e2087fe609b5cbf59b';
+    r'63e1af5b33cde3264d12415fa4888d892bb69904';
 
 /// 群组详情 Notifier
 

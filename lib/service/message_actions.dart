@@ -12,6 +12,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -29,9 +30,6 @@ class MessageActions {
     _instance ??= MessageActions._internal();
     return _instance!;
   }
-
-  /// 兼容旧代码的访问方式
-  static MessageActions get to => instance;
 
   /// 私有构造函数
   MessageActions._internal() {
@@ -94,10 +92,10 @@ class MessageActions {
 
   Future<void> _handleReadAction(Map data) async {
     try {
-      final msgType = data['type'] as String? ?? '';
-      final msgId = data['id'] as String? ?? '';
-      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
-      final fromId = data['from'] as String? ?? '';
+      final msgType = parseModelString(data['type']);
+      final msgId = parseModelString(data['id']);
+      final payload = parseModelJsonMap(data['payload']) ?? {};
+      final fromId = parseModelString(data['from']);
       final currentUid = UserRepoLocal.to.currentUid;
 
       if (fromId == currentUid) return;
@@ -146,9 +144,9 @@ class MessageActions {
   /// 当对方确认收到并查看了我们发送的消息时触发
   Future<void> _handleReadAckAction(Map data) async {
     try {
-      final msgType = data['type'] as String? ?? '';
-      final msgId = data['id'] as String? ?? '';
-      final fromId = data['from'] as String? ?? '';
+      final msgType = parseModelString(data['type']);
+      final msgId = parseModelString(data['id']);
+      final fromId = parseModelString(data['from']);
       final currentUid = UserRepoLocal.to.currentUid;
 
       // 只有消息发送者才需要处理已读确认
@@ -161,7 +159,7 @@ class MessageActions {
         return;
       }
 
-      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+      final payload = parseModelJsonMap(data['payload']) ?? {};
       final msgIdsRaw = payload['msg_ids'];
       final msgIds = msgIdsRaw is List
           ? msgIdsRaw.map((e) => e.toString()).toList()
@@ -208,9 +206,9 @@ class MessageActions {
 
   Future<void> _handleReactionAction(Map data) async {
     try {
-      final msgType = data['type'] as String? ?? '';
-      final msgId = data['id'] as String? ?? '';
-      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+      final msgType = parseModelString(data['type']);
+      final msgId = parseModelString(data['id']);
+      final payload = parseModelJsonMap(data['payload']) ?? {};
 
       final originalMsgId = payload['original_msg_id']?.toString() ?? '';
       final emoji = payload['emoji']?.toString() ?? '';
@@ -277,10 +275,10 @@ class MessageActions {
   /// Handle revoke action messages
   /// 处理撤回action消息
   Future<void> _handleRevokeAction(Map data, {required bool isAck}) async {
-    final msgType = data['type'] as String? ?? '';
-    final msgId = data['id'] as String? ?? '';
-    final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
-    final originalMsgId = payload['original_msg_id'] as String? ?? '';
+    final msgType = parseModelString(data['type']);
+    final msgId = parseModelString(data['id']);
+    final payload = parseModelJsonMap(data['payload']) ?? {};
+    final originalMsgId = parseModelString(payload['original_msg_id']);
 
     iPrint(
       "🔄 处理撤回action: isAck=$isAck, msgType=$msgType, msgId=$msgId, originalMsgId=$originalMsgId",
@@ -298,11 +296,11 @@ class MessageActions {
   /// Process revoke acknowledgment
   /// 处理撤回确认
   Future<void> _processRevokeAck(Map data, String originalMsgId) async {
-    final msgType = data['type'] as String? ?? '';
+    final msgType = parseModelString(data['type']);
     final currentUid = UserRepoLocal.to.currentUid;
 
     // 【重要】从重试队列中移除撤回消息
-    final revokeMsgId = data['id'] as String? ?? '';
+    final revokeMsgId = parseModelString(data['id']);
     if (revokeMsgId.isNotEmpty) {
       AppEventBus.fire(
         RemoveFromRetryQueueRequestedEvent(
@@ -349,14 +347,14 @@ class MessageActions {
     }
 
     // 发送ACK
-    AckManager.to.sendAckDirect(msgType, data['id'] as String? ?? '');
+    AckManager.to.sendAckDirect(msgType, parseModelString(data['id']));
   }
 
   /// Process revoke request
   /// 处理撤回请求
   Future<void> _processRevokeRequest(Map data, String originalMsgId) async {
-    final msgType = data['type'] as String? ?? '';
-    final fromId = data['from'] as String? ?? '';
+    final msgType = parseModelString(data['type']);
+    final fromId = parseModelString(data['from']);
     final currentUid = UserRepoLocal.to.currentUid;
 
     // 只有消息接收者才需要处理撤回请求
@@ -405,11 +403,11 @@ class MessageActions {
   /// Handle edit action messages
   /// 处理编辑action消息
   Future<void> _handleEditAction(Map data, {required bool isAck}) async {
-    final msgType = data['type'] as String? ?? '';
-    final msgId = data['id'] as String? ?? '';
-    final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
-    final originalMsgId = payload['original_msg_id'] as String? ?? '';
-    final newContent = payload['content'] as String? ?? '';
+    final msgType = parseModelString(data['type']);
+    final msgId = parseModelString(data['id']);
+    final payload = parseModelJsonMap(data['payload']) ?? {};
+    final originalMsgId = parseModelString(payload['original_msg_id']);
+    final newContent = parseModelString(payload['content']);
 
     iPrint(
       "🔄 处理编辑action: isAck=$isAck, msgType=$msgType, msgId=$msgId, originalMsgId=$originalMsgId",
@@ -431,12 +429,12 @@ class MessageActions {
     String originalMsgId,
     String newContent,
   ) async {
-    final msgType = data['type'] as String? ?? '';
-    final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+    final msgType = parseModelString(data['type']);
+    final payload = parseModelJsonMap(data['payload']) ?? {};
     final currentUid = UserRepoLocal.to.currentUid;
 
     // 【重要】从重试队列中移除编辑消息
-    final editMsgId = data['id'] as String? ?? '';
+    final editMsgId = parseModelString(data['id']);
     if (editMsgId.isNotEmpty) {
       AppEventBus.fire(
         RemoveFromRetryQueueRequestedEvent(
@@ -486,7 +484,7 @@ class MessageActions {
     }
 
     // 发送ACK
-    AckManager.to.sendAckDirect(msgType, data['id'] as String? ?? '');
+    AckManager.to.sendAckDirect(msgType, parseModelString(data['id']));
   }
 
   /// Process edit request
@@ -496,8 +494,8 @@ class MessageActions {
     String originalMsgId,
     String newContent,
   ) async {
-    final msgType = data['type'] as String? ?? '';
-    final fromId = data['from'] as String? ?? '';
+    final msgType = parseModelString(data['type']);
+    final fromId = parseModelString(data['from']);
     final currentUid = UserRepoLocal.to.currentUid;
 
     // 只有消息接收者才需要处理编辑请求
@@ -553,7 +551,7 @@ class MessageActions {
     String newContent,
   ) async {
     try {
-      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+      final payload = parseModelJsonMap(data['payload']) ?? {};
 
       // 构建新的payload
       final newPayload = Map<String, dynamic>.from(msg.payload);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import '../profile_provider.dart';
@@ -15,7 +16,7 @@ class PrivacySettingsPage extends ConsumerWidget {
     final profileNotifier = ref.read(profileProvider.notifier);
 
     return Scaffold(
-      appBar: GlassAppBar(title: t.privacySettings),
+      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.privacySettings),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -329,24 +330,21 @@ class PrivacySettingsPage extends ConsumerWidget {
   }
 
   /// 显示注销账号对话框
-  void _showDeleteAccountDialog(BuildContext context) {
+  void _showDeleteAccountDialog(BuildContext parentContext) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
         title: Text(t.privacyLogoutAccount),
         content: Text(t.privacyLogoutAccountConfirm),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              // 这里添加注销账号的逻辑
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t.accountDeletionNotAvailable)),
-              );
+              Navigator.pop(dialogContext);
+              parentContext.push('/logout_account');
             },
             child: Text(
               t.buttonConfirm,

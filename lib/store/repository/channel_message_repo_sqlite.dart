@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 /// 频道消息 Repository
@@ -33,8 +34,10 @@ class ChannelMessageRepo {
   // ==================== 消息 CRUD ====================
 
   /// 保存消息
-  Future<void> saveMessage(ChannelMessageModel message,
-      {Transaction? txn}) async {
+  Future<void> saveMessage(
+    ChannelMessageModel message, {
+    Transaction? txn,
+  }) async {
     final map = message.toMap();
     if (txn != null) {
       await txn.insert(
@@ -50,8 +53,10 @@ class ChannelMessageRepo {
   }
 
   /// 批量保存消息
-  Future<void> saveMessages(List<ChannelMessageModel> messages,
-      {Transaction? txn}) async {
+  Future<void> saveMessages(
+    List<ChannelMessageModel> messages, {
+    Transaction? txn,
+  }) async {
     for (final message in messages) {
       await saveMessage(message, txn: txn);
     }
@@ -74,8 +79,7 @@ class ChannelMessageRepo {
   }
 
   /// 更新消息
-  Future<int> updateMessage(
-      String messageId, Map<String, dynamic> data) async {
+  Future<int> updateMessage(String messageId, Map<String, dynamic> data) async {
     data.remove(id); // 移除主键
     return await _db.update(
       tableName,
@@ -174,8 +178,7 @@ class ChannelMessageRepo {
   // ==================== 置顶消息 ====================
 
   /// 获取置顶消息
-  Future<List<ChannelMessageModel>> getPinnedMessages(
-      String channelId) async {
+  Future<List<ChannelMessageModel>> getPinnedMessages(String channelId) async {
     final maps = await _db.query(
       tableName,
       where: '$ChannelMessageRepo.channelId = ? AND $isPinned = ?',
@@ -217,14 +220,12 @@ class ChannelMessageRepo {
   /// 获取频道消息总数
   Future<int> getMessageCount(String channelId) async {
     final result = await _db.rawQuery(
-      'SELECT COUNT(*) as count FROM $tableName WHERE $channelId = ?',
+      'SELECT COUNT(*) as count FROM $tableName '
+      'WHERE ${ChannelMessageRepo.channelId} = ?',
       [channelId],
     );
 
-    if (result.isNotEmpty && result.first['count'] != null) {
-      return result.first['count'] as int;
-    }
-    return 0;
+    return result.isNotEmpty ? parseModelInt(result.first['count']) : 0;
   }
 
   /// 检查消息是否存在
@@ -256,7 +257,9 @@ class ChannelMessageRepo {
 
   /// 更新反应统计
   Future<int> updateReactionSummary(
-      String messageId, Map<String, int> summary) async {
+    String messageId,
+    Map<String, int> summary,
+  ) async {
     return await _db.update(
       tableName,
       {reactionSummary: jsonEncode(summary)},
@@ -305,7 +308,8 @@ class ChannelMessageRepo {
     );
 
     iPrint(
-        'ChannelMessageRepo: 清理频道 $channelId 的旧消息，保留 $keepCount 条，删除 $count 条');
+      'ChannelMessageRepo: 清理频道 $channelId 的旧消息，保留 $keepCount 条，删除 $count 条',
+    );
     return count;
   }
 

@@ -8,6 +8,7 @@ class GroupListState {
   final List<GroupModel> groupList;
   final int page;
   final int size;
+  final String attr;
   final bool isSearch;
   final bool isLoading;
 
@@ -15,6 +16,7 @@ class GroupListState {
     this.groupList = const [],
     this.page = 1,
     this.size = 1000,
+    this.attr = 'all',
     this.isSearch = false,
     this.isLoading = false,
   });
@@ -23,6 +25,7 @@ class GroupListState {
     List<GroupModel>? groupList,
     int? page,
     int? size,
+    String? attr,
     bool? isSearch,
     bool? isLoading,
   }) {
@@ -30,6 +33,7 @@ class GroupListState {
       groupList: groupList ?? this.groupList,
       page: page ?? this.page,
       size: size ?? this.size,
+      attr: attr ?? this.attr,
       isSearch: isSearch ?? this.isSearch,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -52,6 +56,16 @@ class GroupListNotifier extends _$GroupListNotifier {
   /// 设置群组列表
   void setGroupList(List<GroupModel> list) {
     state = state.copyWith(groupList: list);
+  }
+
+  /// 设置当前筛选属性：owner/join/manager
+  void setAttr(String attr) {
+    state = state.copyWith(attr: attr, page: 1, groupList: []);
+  }
+
+  /// 设置页码
+  void setPage(int page) {
+    state = state.copyWith(page: page);
   }
 
   /// 增加页码

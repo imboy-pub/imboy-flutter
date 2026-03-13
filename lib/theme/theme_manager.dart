@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'default/font_types.dart';
 import 'providers/theme_provider.dart';
 
-/// 主题管理器 - 向后兼容层
+/// 主题管理器
 ///
-/// 这是一个兼容层，用于逐步迁移从 GetX 到 Riverpod 的代码。
-/// 内部使用 Riverpod Provider，但保持旧的 API 不变。
+/// 统一封装 Riverpod 主题 Provider 的读取入口。
 ///
 /// 推荐新代码直接使用 themeProvider：
 /// ```dart
@@ -17,12 +16,6 @@ import 'providers/theme_provider.dart';
 ///
 /// // 获取主题
 /// ThemeData lightTheme = themeNotifier.lightTheme;
-/// ```
-///
-/// 旧代码可以继续使用：
-/// ```dart
-/// ThemeManager.instance.lightTheme
-/// ThemeManager.instance.toggleTheme(isDark: true);
 /// ```
 class ThemeManager {
   ThemeManager._();
@@ -35,15 +28,7 @@ class ThemeManager {
 
   ProviderContainer? _container;
 
-  /// 初始化容器（需要在 main 中调用）
-  /// 注意：在新架构中，ThemeManager 通过 ProviderScope 访问状态，
-  /// 不再需要手动初始化独立的 ProviderContainer
-  @Deprecated('不再需要手动初始化，ThemeManager 现在通过 ProviderScope 访问状态')
-  void initialize() {
-    _container ??= ProviderContainer();
-  }
-
-  /// 获取内部 ProviderContainer（向后兼容）
+  /// 获取内部 ProviderContainer
   ProviderContainer get _containerInternal {
     _container ??= ProviderContainer();
     return _container!;
@@ -144,7 +129,7 @@ class ThemeManager {
     await _notifier.updateFontSizeOption(option);
   }
 
-  /// 获取当前字体大小的字符串值（兼容旧版本）
+  /// 获取当前字体大小的字符串值
   String get currentFontSizeValue => _notifier.currentFontSizeValue;
 
   /// 获取所有可用的字体大小选项
@@ -158,21 +143,6 @@ class ThemeManager {
     return _notifier.getRecommendedFontSize(context);
   }
 
-  /// ⚠️ GetX 兼容：获取主间距（用于向后兼容）
-  ///
-  /// Design Token 参考：`lib/theme/default/app_spacing.dart`
-  ///
-  /// 使用示例：
-  /// ```dart
-  /// horizontal: ThemeManager.instance.mainSpace * 2,
-  /// ```
-  @Deprecated('使用 AppSpacing 替代。示例：horizontal: AppSpacing.normal * 2')
-  double get mainSpace => _notifier.mainSpace;
-
-  /// ⚠️ GetX 兼容：获取次要间距
-  @Deprecated('使用 AppSpacing 替代。示例：padding: AppSpacing.small')
-  double get secondarySpace => _notifier.secondarySpace;
-
   /// 预览指定字体大小选项的效果
   Map<String, dynamic> previewFontSize(
     FontSizeOption option, {
@@ -185,14 +155,6 @@ class ThemeManager {
   Map<String, dynamic> getThemeSettings() {
     return _notifier.getThemeSettings();
   }
-
-  /// 获取性能统计信息（兼容旧版本，建议使用 getThemeSettings）
-  @Deprecated('使用 getThemeSettings() 替代')
-  Map<String, dynamic> getPerformanceStats() => getThemeSettings();
-
-  /// 获取缓存统计信息（兼容旧版本，建议使用 getThemeSettings）
-  @Deprecated('使用 getThemeSettings() 替代')
-  Map<String, dynamic> getCacheStats() => getThemeSettings();
 
   /// 更新跟随系统主题设置
   Future<void> updateFollowSystemTheme(bool followSystem) async {

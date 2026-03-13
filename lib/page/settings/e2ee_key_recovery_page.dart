@@ -713,7 +713,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     setState(() => _isLoading = true);
 
     try {
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       final hasKeys = await storage.hasE2EEKeys();
 
       if (hasKeys) {
@@ -866,7 +866,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   /// 删除密钥
   Future<void> _deleteKeys() async {
     try {
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       await storage.deleteAllE2EEKeys();
 
       setState(() => _keyInfo = {});

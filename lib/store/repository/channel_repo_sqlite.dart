@@ -1,6 +1,7 @@
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -59,8 +60,10 @@ class ChannelRepo {
   }
 
   /// 批量保存频道
-  Future<void> saveChannels(List<ChannelModel> channels,
-      {Transaction? txn}) async {
+  Future<void> saveChannels(
+    List<ChannelModel> channels, {
+    Transaction? txn,
+  }) async {
     for (final channel in channels) {
       await saveChannel(channel, txn: txn);
     }
@@ -68,8 +71,7 @@ class ChannelRepo {
   }
 
   /// 获取单个频道
-  Future<ChannelModel?> getChannel(String channelId,
-      {Transaction? txn}) async {
+  Future<ChannelModel?> getChannel(String channelId, {Transaction? txn}) async {
     final List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
@@ -94,11 +96,11 @@ class ChannelRepo {
   }
 
   /// 通过自定义 ID 获取频道
-  Future<ChannelModel?> getChannelByCustomId(String customId) async {
+  Future<ChannelModel?> getChannelByCustomId(String customIdValue) async {
     final maps = await _db.query(
       tableName,
       where: '$customId = ?',
-      whereArgs: [customId],
+      whereArgs: [customIdValue],
       limit: 1,
     );
 
@@ -109,7 +111,8 @@ class ChannelRepo {
   }
 
   /// 获取所有订阅的频道（带订阅信息）
-  Future<List<Map<String, dynamic>>> getSubscribedChannelsWithSubscription() async {
+  Future<List<Map<String, dynamic>>>
+  getSubscribedChannelsWithSubscription() async {
     final results = await _db.rawQuery('''
       SELECT c.*, s.subscribed_at, s.last_read_at, s.last_message_id,
              s.unread_count, s.notifications_enabled, s.is_pinned, s.is_muted
@@ -134,8 +137,10 @@ class ChannelRepo {
   }
 
   /// 搜索本地频道
-  Future<List<ChannelModel>> searchChannels(String keyword,
-      {int limit = 50}) async {
+  Future<List<ChannelModel>> searchChannels(
+    String keyword, {
+    int limit = 50,
+  }) async {
     final results = await _db.query(
       tableName,
       where: '$name LIKE ? OR $description LIKE ? OR $customId LIKE ?',
@@ -177,8 +182,10 @@ class ChannelRepo {
   // ==================== 订阅关系管理 ====================
 
   /// 保存订阅关系
-  Future<void> saveSubscription(ChannelSubscriptionModel subscription,
-      {Transaction? txn}) async {
+  Future<void> saveSubscription(
+    ChannelSubscriptionModel subscription, {
+    Transaction? txn,
+  }) async {
     final map = subscription.toMap();
     if (txn != null) {
       await txn.insert(
@@ -258,10 +265,7 @@ class ChannelRepo {
   Future<int> clearUnreadCount(String channelId) async {
     return await _db.update(
       subscriptionTableName,
-      {
-        unreadCount: 0,
-        lastReadAt: DateTime.now().millisecondsSinceEpoch,
-      },
+      {unreadCount: 0, lastReadAt: DateTime.now().millisecondsSinceEpoch},
       where: '$subChannelId = ?',
       whereArgs: [channelId],
     );
@@ -273,10 +277,7 @@ class ChannelRepo {
       'SELECT SUM($unreadCount) as total FROM $subscriptionTableName',
     );
 
-    if (result.isNotEmpty && result.first['total'] != null) {
-      return result.first['total'] as int;
-    }
-    return 0;
+    return result.isNotEmpty ? parseModelInt(result.first['total']) : 0;
   }
 
   /// 获取有未读消息的频道数量
@@ -285,10 +286,7 @@ class ChannelRepo {
       'SELECT COUNT(*) as count FROM $subscriptionTableName WHERE $unreadCount > 0',
     );
 
-    if (result.isNotEmpty && result.first['count'] != null) {
-      return result.first['count'] as int;
-    }
-    return 0;
+    return result.isNotEmpty ? parseModelInt(result.first['count']) : 0;
   }
 
   // ==================== 置顶和通知设置 ====================

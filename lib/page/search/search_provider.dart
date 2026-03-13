@@ -206,7 +206,7 @@ class SearchNotifier extends _$SearchNotifier {
       history.removeRange(_maxHistoryCount, history.length);
     }
 
-    await StorageService.to.setStringList(_chatSearchHistoryKey, history);
+    await StorageService.to.setList(_chatSearchHistoryKey, history);
     state = state.copyWith(searchHistory: history);
   }
 

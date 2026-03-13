@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../default/theme.dart';
 import '../default/app_colors.dart';
-import '../default/app_spacing.dart';
 import '../default/font_types.dart';
 import '../default/config/text_theme.dart';
 import '../dynamic_color_manager.dart';
@@ -415,14 +414,6 @@ class ThemeNotifier extends _$ThemeNotifier {
     };
   }
 
-  /// 获取性能统计信息（兼容旧版本，建议使用 getThemeSettings）
-  @Deprecated('使用 getThemeSettings() 替代')
-  Map<String, dynamic> getPerformanceStats() => getThemeSettings();
-
-  /// 获取缓存统计信息（兼容旧版本，建议使用 getThemeSettings）
-  @Deprecated('使用 getThemeSettings() 替代')
-  Map<String, dynamic> getCacheStats() => getThemeSettings();
-
   /// 更新跟随系统主题设置
   Future<void> updateFollowSystemTheme(bool followSystem) async {
     state = state.copyWith(followSystemTheme: followSystem);
@@ -459,12 +450,4 @@ class ThemeNotifier extends _$ThemeNotifier {
   Future<Map<String, dynamic>> getDynamicColorInfo() async {
     return await DynamicColorManager.instance.getDynamicColorInfo();
   }
-
-  /// Design Token 兼容：获取主要间距（已废弃，使用 AppSpacing.regular）
-  @Deprecated('使用 AppSpacing.regular 替代')
-  double get mainSpace => AppSpacing.regular;
-
-  /// Design Token 兼容：获取次要间距（已废弃，使用 AppSpacing.small）
-  @Deprecated('使用 AppSpacing.small 替代')
-  double get secondarySpace => AppSpacing.small;
 }

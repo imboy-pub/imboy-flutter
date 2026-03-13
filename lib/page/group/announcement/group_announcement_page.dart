@@ -40,6 +40,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
         title: t.groupAnnouncement,
         rightDMActions: [
           IconButton(

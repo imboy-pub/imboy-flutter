@@ -16,6 +16,8 @@ import 'package:imboy/page/conversation/widget/right_button.dart'
     show RightButton;
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/websocket_events.dart'
+    show WebSocketStatusChangedEvent;
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -45,6 +47,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
   // 网络状态监听器
   StreamSubscription? _connectivitySubscription;
+  StreamSubscription? _websocketStatusSubscription;
 
   @override
   void initState() {
@@ -71,6 +74,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     ssExtend?.cancel();
     _localeSubscription?.cancel();
     _connectivitySubscription?.cancel();
+    _websocketStatusSubscription?.cancel();
     super.dispose();
   }
 
@@ -102,6 +106,17 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       }
     });
 
+    _websocketStatusSubscription = AppEventBus.on<WebSocketStatusChangedEvent>()
+        .listen((event) {
+          if (!mounted) return;
+          if (event.status.toLowerCase() != 'connected') return;
+          unawaited(
+            notifier.syncAuthoritativeConversationList(
+              trigger: 'websocket_connected',
+            ),
+          );
+        });
+
     // 监听会话消息
     ssMsg = AppEventBus.on<DataWrapperEvent>().listen((event) async {
       if (!mounted) return;
@@ -127,8 +142,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       if (!mounted) return;
 
       // 处理会话刷新事件
-      if (event.type == 'refresh_conversations' ||
-          event.type == 'clean_msg') {
+      if (event.type == 'refresh_conversations' || event.type == 'clean_msg') {
         // 优先使用事件中的完整会话对象
         if (event.payload['conversation'] is ConversationModel) {
           final updatedConv =
@@ -149,7 +163,10 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             final peerId = parts.sublist(1).join('_');
 
             // 从数据库重新加载该会话的信息
-            final updatedConv = await ConversationRepo().findByPeerId(type, peerId);
+            final updatedConv = await ConversationRepo().findByPeerId(
+              type,
+              peerId,
+            );
             if (updatedConv != null && updatedConv.id > 0) {
               await notifier.replace(updatedConv);
             }
@@ -161,7 +178,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     // 加载会话记录
     final state = ref.read(conversationProvider);
     if (state.conversationMap.isEmpty) {
-      await notifier.conversationsList();
+      await notifier.syncAuthoritativeConversationList(
+        trigger: 'page_init',
+      );
     }
   }
 
@@ -228,6 +247,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                               children: [
                                 CustomSlidableAction(
                                   onPressed: (_) async {
+                                    final targetUnread = model.unreadNum > 0
+                                        ? 0
+                                        : 1;
                                     if (model.unreadNum > 0) {
                                       // 当前有未读消息，标记为已读
                                       // 同步将该会话未读消息状态从 delivered 改为 seen
@@ -270,9 +292,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                         1,
                                       );
                                     }
-                                    // 更新本地模型（通过更新状态触发 UI 刷新）
-                                    await notifier.conversationsList(
-                                      recalculateRemind: false,
+                                    notifier.applyConversationSnapshot(
+                                      model.copyWith(unreadNum: targetUnread),
                                     );
                                   },
                                   autoClose: true,

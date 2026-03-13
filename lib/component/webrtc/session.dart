@@ -7,7 +7,9 @@ class WebRTCSession {
     required this.sid,
     this.pc,
     this.dc,
-    // required this.media, // TODO 2022-11-16 00:08:17
+    // TODO(功能扩展): 添加 media 属性支持多媒体类型标识
+    // 如需区分 audio-only/video/audio-video 会话，取消注释：
+    // required this.media,
   });
 
   // peerId

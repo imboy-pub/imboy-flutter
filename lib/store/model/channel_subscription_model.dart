@@ -1,3 +1,5 @@
+import 'package:imboy/store/model/model_parse_utils.dart';
+
 /// 频道订阅关系模型
 ///
 /// 存储当前用户对频道的订阅信息，包括：
@@ -28,20 +30,19 @@ class ChannelSubscriptionModel {
 
   factory ChannelSubscriptionModel.fromJson(Map<String, dynamic> json) {
     return ChannelSubscriptionModel(
-      channelId: json['channel_id'] as String,
-      subscribedAt: json['subscribed_at'] is int
-          ? DateTime.fromMillisecondsSinceEpoch(json['subscribed_at'] as int)
-          : DateTime.parse(json['subscribed_at'] as String),
+      channelId: parseModelString(json['channel_id']),
+      subscribedAt: parseModelDateTime(json['subscribed_at']),
       lastReadAt: json['last_read_at'] != null
-          ? (json['last_read_at'] is int
-              ? DateTime.fromMillisecondsSinceEpoch(json['last_read_at'] as int)
-              : DateTime.parse(json['last_read_at'] as String))
+          ? parseModelDateTime(json['last_read_at'])
           : null,
-      lastMessageId: json['last_message_id'] as String?,
-      unreadCount: json['unread_count'] as int? ?? 0,
-      notificationsEnabled: (json['notifications_enabled'] as int? ?? 1) == 1,
-      isPinned: (json['is_pinned'] as int? ?? 0) == 1,
-      isMuted: (json['is_muted'] as int? ?? 0) == 1,
+      lastMessageId: parseModelNullableString(json['last_message_id']),
+      unreadCount: parseModelInt(json['unread_count']),
+      notificationsEnabled: parseModelBool(
+        json['notifications_enabled'],
+        defaultValue: true,
+      ),
+      isPinned: parseModelBool(json['is_pinned']),
+      isMuted: parseModelBool(json['is_muted']),
     );
   }
 
@@ -61,17 +62,19 @@ class ChannelSubscriptionModel {
   /// 从 SQLite Map 创建
   factory ChannelSubscriptionModel.fromMap(Map<String, dynamic> map) {
     return ChannelSubscriptionModel(
-      channelId: map['channel_id'] as String,
-      subscribedAt: DateTime.fromMillisecondsSinceEpoch(
-          map['subscribed_at'] as int),
+      channelId: parseModelString(map['channel_id']),
+      subscribedAt: parseModelDateTime(map['subscribed_at']),
       lastReadAt: map['last_read_at'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['last_read_at'] as int)
+          ? parseModelDateTime(map['last_read_at'])
           : null,
-      lastMessageId: map['last_message_id'] as String?,
-      unreadCount: map['unread_count'] as int? ?? 0,
-      notificationsEnabled: (map['notifications_enabled'] as int? ?? 1) == 1,
-      isPinned: (map['is_pinned'] as int? ?? 0) == 1,
-      isMuted: (map['is_muted'] as int? ?? 0) == 1,
+      lastMessageId: parseModelNullableString(map['last_message_id']),
+      unreadCount: parseModelInt(map['unread_count']),
+      notificationsEnabled: parseModelBool(
+        map['notifications_enabled'],
+        defaultValue: true,
+      ),
+      isPinned: parseModelBool(map['is_pinned']),
+      isMuted: parseModelBool(map['is_muted']),
     );
   }
 

@@ -17,6 +17,10 @@ class WebRTCReconnectManager {
   /// 重连回调
   final Future<void> Function() onReconnect;
 
+  /// 心跳发送回调（可选）
+  /// 返回 true 表示心跳发送成功，false 表示发送失败
+  final Future<bool> Function()? onSendHeartbeat;
+
   /// 当前重试次数
   int _retryCount = 0;
 
@@ -49,6 +53,7 @@ class WebRTCReconnectManager {
   WebRTCReconnectManager({
     required this.config,
     required this.onReconnect,
+    this.onSendHeartbeat,
   });
 
   /// 连接成功时调用
@@ -148,12 +153,27 @@ class WebRTCReconnectManager {
   }
 
   /// 发送心跳
-  void _sendHeartbeat() {
-    if (_isConnected && _isReconnecting) {
+  Future<void> _sendHeartbeat() async {
+    if (_isConnected && !_isReconnecting) {
       _lastHeartbeatTime = DateTime.now();
 
-      // TODO: 通过数据通道发送心跳消息
-      debugPrint('Heartbeat sent at ${_lastHeartbeatTime!.toIso8601String()}');
+      // 尝试通过回调发送心跳消息
+      bool heartbeatSent = false;
+      if (onSendHeartbeat != null) {
+        try {
+          heartbeatSent = await onSendHeartbeat!();
+        } catch (e) {
+          debugPrint('Heartbeat send error: $e');
+          heartbeatSent = false;
+        }
+      }
+
+      // 如果没有心跳回调或发送失败，仅记录日志
+      if (heartbeatSent) {
+        debugPrint('Heartbeat sent at ${_lastHeartbeatTime!.toIso8601String()}');
+      } else {
+        debugPrint('Heartbeat skipped (no callback or send failed)');
+      }
 
       // 设置心跳超时检测
       _heartbeatTimeoutTimer?.cancel();

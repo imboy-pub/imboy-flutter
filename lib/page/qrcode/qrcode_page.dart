@@ -19,6 +19,7 @@ import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -522,6 +523,29 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   final GlobalKey globalKey = GlobalKey();
   final int dayNum = 7;
 
+  /// 加载群成员头像列表
+  ///
+  /// 用于 SmartGroupAvatar 显示群组头像
+  /// 返回最多 9 个群成员的头像 URL
+  Future<List<String>> _loadGroupMemberAvatars(String groupId) async {
+    try {
+      final repo = GroupMemberRepo();
+      final members = await repo.page(
+        where: '${GroupMemberRepo.groupId} = ?',
+        whereArgs: [groupId],
+        limit: 9,
+      );
+
+      return members
+          .map((m) => m.avatar)
+          .where((a) => a.isNotEmpty)
+          .toList();
+    } catch (e) {
+      iPrint('加载群成员头像失败: $e');
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -595,7 +619,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                     SmartGroupAvatar(
                       avatar: widget.group.avatar,
                       groupId: widget.group.groupId,
-                      avatarLoader: null, // TODO: 需要从 GroupListLogic 获取
+                      avatarLoader: _loadGroupMemberAvatars,
                     ),
 
                     SizedBox(height: AppSpacing.regular * 1.2),

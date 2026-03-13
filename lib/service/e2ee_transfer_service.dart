@@ -114,7 +114,8 @@ class E2EETransferService {
       final decryptedData = RSAService.rsaDecrypt(privateKey, encryptedData);
 
       // 4. 解析解密后的数据（应该是密钥包 JSON）
-      final keyBundle = json.decode(utf8.decode(decryptedData)) as Map<String, dynamic>;
+      final keyBundle =
+          json.decode(utf8.decode(decryptedData)) as Map<String, dynamic>;
 
       // 5. 保存密钥信息
       final privateKeyStr = keyBundle['private_key'] as String?;
@@ -127,7 +128,7 @@ class E2EETransferService {
       }
 
       // 6. 保存到安全存储
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       await storage.savePrivateKey(privateKeyStr);
       await storage.savePublicKey(publicKeyStr);
       if (deviceId != null) {

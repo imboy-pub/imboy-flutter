@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +17,13 @@ import 'package:highlight_text/highlight_text.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/api/fts_api.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 搜索结果类型
 enum SearchItemType {
@@ -140,16 +147,19 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
   /// 加载最近搜索记录
   Future<void> _loadRecentSearches() async {
-    // TODO: 从本地存储加载搜索历史
-    setState(() {
-      _state = _state.copyWith(
-        recentSearches: [
-          'Hello',
-          'Meeting',
-          'Project',
-        ],
-      );
-    });
+    try {
+      final jsonStr = StorageService.to.getString('web_search_history');
+      if (jsonStr.isNotEmpty) {
+        final List<dynamic> history = jsonDecode(jsonStr);
+        setState(() {
+          _state = _state.copyWith(
+            recentSearches: history.cast<String>(),
+          );
+        });
+      }
+    } catch (e) {
+      debugPrint('加载搜索历史失败: $e');
+    }
   }
 
   /// 防抖搜索
@@ -186,40 +196,24 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     if (query.trim().isEmpty) return;
 
     try {
-      // TODO: 调用实际搜索 API
-      // 模拟搜索结果
-      await Future.delayed(const Duration(milliseconds: 500));
+      final results = <SearchItem>[];
 
-      final results = <SearchItem>[
-        // 模拟会话结果
-        SearchItem(
-          type: SearchItemType.conversation,
-          id: 'conv_1',
-          title: 'John Doe',
-          subtitle: 'Last message preview...',
-          avatar: '',
-          highlightText: query,
-        ),
-        // 模拟消息结果
-        SearchItem(
-          type: SearchItemType.message,
-          id: 'msg_1',
-          title: 'John Doe',
-          subtitle: 'This is a message containing "$query"',
-          avatar: '',
-          highlightText: query,
-          metadata: {'timestamp': DateTime.now().millisecondsSinceEpoch},
-        ),
-        // 模拟联系人结果
-        SearchItem(
-          type: SearchItemType.contact,
-          id: 'contact_1',
-          title: 'Jane Smith',
-          subtitle: 'jane@example.com',
-          avatar: '',
-          highlightText: query,
-        ),
-      ];
+      // 并行执行所有搜索
+      final futures = await Future.wait([
+        // 1. 搜索消息（使用 FTS API）
+        _searchMessages(query),
+        // 2. 搜索联系人
+        _searchContacts(query),
+        // 3. 搜索群组
+        _searchGroups(query),
+        // 4. 搜索会话
+        _searchConversations(query),
+      ]);
+
+      // 合并所有搜索结果
+      for (final items in futures) {
+        results.addAll(items);
+      }
 
       setState(() {
         _state = _state.copyWith(
@@ -241,17 +235,161 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     }
   }
 
+  /// 搜索消息
+  Future<List<SearchItem>> _searchMessages(String query) async {
+    final results = <SearchItem>[];
+    try {
+      final response = await FtsApi.to.searchMessages(
+        keyword: query,
+        page: 1,
+        size: 10,
+        type: 'all',
+      );
+
+      if (response != null && response.items.isNotEmpty) {
+        for (final item in response.items) {
+          // 判断消息的发送者/接收者
+          final isAuthor = item.fromId == UserRepoLocal.to.currentUid;
+          final peerId = isAuthor ? item.toId : item.fromId;
+
+          results.add(SearchItem(
+            type: SearchItemType.message,
+            id: item.id,
+            title: peerId, // 后续需要获取联系人名称
+            subtitle: item.content,
+            avatar: '',
+            highlightText: query,
+            metadata: {
+              'timestamp': item.createdAt * 1000,
+              'conversationId': item.type == 'C2G' ? item.toId : peerId,
+              'type': item.type,
+              'fromId': item.fromId,
+              'toId': item.toId,
+            },
+          ));
+        }
+      }
+    } catch (e) {
+      debugPrint('Search messages error: $e');
+    }
+    return results;
+  }
+
+  /// 搜索联系人
+  Future<List<SearchItem>> _searchContacts(String query) async {
+    final results = <SearchItem>[];
+    try {
+      final contactRepo = ContactRepo();
+      final contacts = await contactRepo.search(kwd: query, limit: 20);
+
+      for (final contact in contacts) {
+        results.add(SearchItem(
+          type: SearchItemType.contact,
+          id: contact.peerId,
+          title: (contact.remark.isNotEmpty)
+              ? contact.remark
+              : contact.nickname,
+          subtitle: contact.sign,
+          avatar: contact.avatar,
+          highlightText: query,
+        ));
+      }
+    } catch (e) {
+      debugPrint('Search contacts error: $e');
+    }
+    return results;
+  }
+
+  /// 搜索群组
+  Future<List<SearchItem>> _searchGroups(String query) async {
+    final results = <SearchItem>[];
+    try {
+      final groupRepo = GroupRepo();
+      final groups = await groupRepo.search(kwd: query, limit: 20);
+
+      for (final group in groups) {
+        results.add(SearchItem(
+          type: SearchItemType.group,
+          id: group.groupId,
+          title: group.title,
+          subtitle: group.introduction.isNotEmpty
+              ? group.introduction
+              : '${group.memberCount} ${t.groupMembers}',
+          avatar: group.avatar,
+          highlightText: query,
+        ));
+      }
+    } catch (e) {
+      debugPrint('Search groups error: $e');
+    }
+    return results;
+  }
+
+  /// 搜索会话
+  Future<List<SearchItem>> _searchConversations(String query) async {
+    final results = <SearchItem>[];
+    try {
+      final convRepo = ConversationRepo();
+      final conversations = await convRepo.search(
+        "${ConversationRepo.title} LIKE ?",
+        ['%$query%'],
+      );
+
+      for (final conv in conversations) {
+        results.add(SearchItem(
+          type: SearchItemType.conversation,
+          id: conv.peerId,
+          title: conv.title,
+          subtitle: conv.subtitle,
+          avatar: conv.avatar,
+          highlightText: query,
+          metadata: {
+            'type': conv.type,
+            'lastTime': conv.lastTime,
+          },
+        ));
+      }
+    } catch (e) {
+      debugPrint('Search conversations error: $e');
+    }
+    return results;
+  }
+
   /// 保存搜索记录
   Future<void> _saveSearchHistory(String query) async {
-    // TODO: 保存到本地存储
+    try {
+      final history = List<String>.from(_state.recentSearches);
+      // 移除重复项
+      history.remove(query);
+      // 添加到开头
+      history.insert(0, query);
+      // 限制数量为 20
+      if (history.length > 20) {
+        history.removeRange(20, history.length);
+      }
+      // 保存到本地存储
+      await StorageService.to.setString(
+        'web_search_history',
+        jsonEncode(history),
+      );
+      setState(() {
+        _state = _state.copyWith(recentSearches: history);
+      });
+    } catch (e) {
+      debugPrint('保存搜索历史失败: $e');
+    }
   }
 
   /// 清除搜索记录
   Future<void> _clearSearchHistory() async {
-    setState(() {
-      _state = _state.copyWith(recentSearches: []);
-    });
-    // TODO: 从本地存储清除
+    try {
+      await StorageService.to.remove('web_search_history');
+      setState(() {
+        _state = _state.copyWith(recentSearches: []);
+      });
+    } catch (e) {
+      debugPrint('清除搜索历史失败: $e');
+    }
   }
 
   @override
@@ -403,7 +541,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'recentSearches', // TODO: 添加翻译键
+                t.searchHistory,
                 style: TextStyle(
                   color:
                       isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),

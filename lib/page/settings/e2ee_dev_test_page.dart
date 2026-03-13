@@ -33,6 +33,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
         title: 'E2EE 开发测试',
         titleWidget: const Text('E2EE 开发测试'),
       ),
@@ -267,7 +268,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
       final stopwatch = Stopwatch()..start();
 
       // 清理旧密钥
-      await StorageSecure().deleteAllE2EEKeys();
+      await StorageSecureService.to.deleteAllE2EEKeys();
 
       // 生成新密钥
       final keyInfo = await E2EEKeyService.generateKeyPair();
@@ -292,8 +293,8 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
       }
 
       // 验证 PEM 格式
-      final privateKey = await StorageSecure().getPrivateKey();
-      final publicKey = await StorageSecure().getPublicKey();
+      final privateKey = await StorageSecureService.to.getPrivateKey();
+      final publicKey = await StorageSecureService.to.getPublicKey();
 
       if (privateKey == null ||
           !privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
@@ -373,10 +374,10 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
         await E2EEKeyService.generateKeyPair();
       }
 
-      final privateKey = await StorageSecure().getPrivateKey();
-      final publicKey = await StorageSecure().getPublicKey();
-      final deviceId = await StorageSecure().getDeviceId();
-      final keyId = await StorageSecure().getKeyId();
+      final privateKey = await StorageSecureService.to.getPrivateKey();
+      final publicKey = await StorageSecureService.to.getPublicKey();
+      final deviceId = await StorageSecureService.to.getDeviceId();
+      final keyId = await StorageSecureService.to.getKeyId();
 
       if (privateKey == null ||
           publicKey == null ||
@@ -402,7 +403,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
       }
 
       // 删除密钥
-      await StorageSecure().deleteAllE2EEKeys();
+      await StorageSecureService.to.deleteAllE2EEKeys();
 
       // 导入备份
       final restored = await E2EELocalBackupService.importBackup(
@@ -421,8 +422,12 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
       }
 
       // 恢复密钥到存储
-      await StorageSecure().savePrivateKey(restored['private_key'] as String);
-      await StorageSecure().savePublicKey(restored['public_key'] as String);
+      await StorageSecureService.to.savePrivateKey(
+        restored['private_key'] as String,
+      );
+      await StorageSecureService.to.savePublicKey(
+        restored['public_key'] as String,
+      );
 
       stopwatch.stop();
       _addResult(
@@ -442,7 +447,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
     try {
       final stopwatch = Stopwatch()..start();
 
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
 
       // 测试写入
       await storage.savePrivateKey('test_private_key');

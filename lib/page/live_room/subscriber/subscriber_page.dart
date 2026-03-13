@@ -45,6 +45,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
 
     return Scaffold(
       appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
         titleWidget: const Text('WHIP Subscribe Sample'),
         rightDMActions: const [],
       ),

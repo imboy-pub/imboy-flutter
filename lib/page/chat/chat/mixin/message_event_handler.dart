@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 // 导入 UserCollectHelper 用于判断消息是否可收藏
-import 'package:imboy/page/mine/user_collect/user_collect_provider.dart' show UserCollectHelper;
+import 'package:imboy/page/mine/user_collect/user_collect_provider.dart'
+    show UserCollectHelper;
 
 /// 消息事件处理器 Mixin
 ///
@@ -35,8 +36,8 @@ mixin MessageEventHandler {
     } else if (message is FileMessage) {
       return true;
     } else if (message is CustomMessage) {
-      final customType = message.metadata?['custom_type'] ?? '';
-      return customType == 'video' || customType == 'audio';
+      final msgType = message.metadata?['msg_type'] ?? '';
+      return msgType == 'video' || msgType == 'voice';
     }
     return false;
   }

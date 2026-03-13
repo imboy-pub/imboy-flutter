@@ -21,46 +21,30 @@ void main() {
       expect(v2Data.containsKey('action'), isTrue);
     });
 
-    test('应该支持向后兼容旧格式', () {
-      // v1.x 格式：action 在 payload.msg_type
-      final v1Data = {
+    test('缺少顶层 action 时应判定为空动作', () {
+      final dataWithoutAction = {
         'id': 'msg_124',
         'type': 'S2C',
-        // 没有顶层 action
         'from': 'server',
         'to': 'client',
-        'payload': {
-          'msg_type': 'pull_offline_msg', // 旧格式
-          'data': 'test',
-        },
+        'payload': {'data': 'test'},
       };
 
-      // 验证 payload.msg_type 字段存在
-      final payload = v1Data['payload'] as Map;
-      expect(payload['msg_type'], equals('pull_offline_msg'));
-
-      // 模拟兼容逻辑
-      final action = v1Data['action'] ?? payload['msg_type'] ?? '';
-      expect(action, equals('pull_offline_msg'));
+      final action = dataWithoutAction['action'] ?? '';
+      expect(action, equals(''));
     });
 
     test('应该优先使用顶层 action', () {
-      // 同时存在顶层 action 和 payload.msg_type
       final data = {
         'id': 'msg_125',
         'type': 'S2C',
-        'action': 'please_refresh_token', // 顶层（优先）
+        'action': 'please_refresh_token',
         'from': 'server',
         'to': 'client',
-        'payload': {
-          'msg_type': 'pull_offline_msg', // 旧格式（被忽略）
-          'data': 'test',
-        },
+        'payload': {'data': 'test'},
       };
 
-      // 验证优先级
-      final payload = data['payload'] as Map;
-      final action = data['action'] ?? payload['msg_type'] ?? '';
+      final action = data['action'] ?? '';
       expect(action, equals('please_refresh_token'));
     });
 
@@ -88,6 +72,10 @@ void main() {
         'online',
         'offline',
         'hide',
+        'moment_new',
+        'moment_like',
+        'moment_comment',
+        'moment_deleted',
       ];
 
       for (final action in supportedActions) {
@@ -144,8 +132,7 @@ void main() {
         'payload': {}, // 没有 msg_type
       };
 
-      final action =
-          data['action'] ?? (data['payload'] as Map)['msg_type'] ?? '';
+      final action = data['action'] ?? '';
       expect(action, equals(''));
     });
   });
@@ -187,6 +174,10 @@ void main() {
         'please_refresh_token': '_handlePleaseRefreshToken',
         'app_upgrade': '_handleAppUpgrade',
         'device_force_offline': '_handleDeviceForceOffline',
+        'moment_new': '_handleMomentAction',
+        'moment_like': '_handleMomentAction',
+        'moment_comment': '_handleMomentAction',
+        'moment_deleted': '_handleMomentAction',
       };
 
       // 验证映射关系
@@ -194,59 +185,6 @@ void main() {
         expect(action.isNotEmpty, isTrue);
         expect(method.startsWith('_handle'), isTrue);
       });
-    });
-  });
-
-  group('MessageS2CService - 向后兼容性', () {
-    test('应该正确处理 v1.x 格式的消息', () {
-      // v1.x 格式示例
-      final v1Messages = [
-        {
-          'id': 'msg_128',
-          'type': 'S2C',
-          'payload': {'msg_type': 'pull_offline_msg'},
-        },
-        {
-          'id': 'msg_129',
-          'type': 'S2C',
-          'payload': {'msg_type': 'c2c_revoke'},
-        },
-        {
-          'id': 'msg_130',
-          'type': 'S2C',
-          'payload': {'msg_type': 'please_refresh_token'},
-        },
-      ];
-
-      for (final msg in v1Messages) {
-        final payload = msg['payload'] as Map;
-        final action = msg['action'] ?? payload['msg_type'] ?? '';
-        expect(action, isNotEmpty);
-      }
-    });
-
-    test('应该正确处理 v2.0 格式的消息', () {
-      // v2.0 格式示例
-      final v2Messages = [
-        {
-          'id': 'msg_131',
-          'type': 'S2C',
-          'action': 'pull_offline_msg',
-          'payload': {},
-        },
-        {'id': 'msg_132', 'type': 'S2C', 'action': 'c2c_revoke', 'payload': {}},
-        {
-          'id': 'msg_133',
-          'type': 'S2C',
-          'action': 'please_refresh_token',
-          'payload': {},
-        },
-      ];
-
-      for (final msg in v2Messages) {
-        final action = msg['action'] ?? '';
-        expect(action, isNotEmpty);
-      }
     });
   });
 }

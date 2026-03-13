@@ -1,0 +1,25 @@
+schema_version: 1
+case_id: "moment_04_publish_ui_flow"
+feature_id: "moment_system"
+feature_name_cn: "朋友圈"
+title: "朋友圈发布与互动 UI 回归"
+priority: "P1"
+automation_mode: "auto"
+status: "mapped"
+
+runner:
+  action: "flutter_test"
+  test_file: "test/pending/moment/moment_publish_ui_flow_test.dart"
+  device: "macos"
+  timeout_seconds: 900
+  retry: 0
+  dart_defines: "APP_ENV=local_home"
+
+precondition: "flutter_test_env"
+assertions: "exit_code==0,moment_publish_ui_flow_passed"
+ui_ux_checks: "publish_feedback_clear,like_comment_feedback_clear"
+
+steps:
+  - "准备测试环境并校验前置条件：flutter_test_env"
+  - "执行 Flutter 测试：flutter test test/pending/moment/moment_publish_ui_flow_test.dart"
+  - "校验断言与 UI/UX 关键点：exit_code==0,moment_publish_ui_flow_passed | publish_feedback_clear,like_comment_feedback_clear"

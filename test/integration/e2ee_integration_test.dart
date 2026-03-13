@@ -136,7 +136,7 @@ void main() {
         // Arrange - 模拟 AES-256 密钥（32 字节）
         // 注意：避免以 0 开头，因为 Shamir 会忽略前导零
         final secret = Uint8List.fromList(
-          List.generate(32, (i) => (i + 1) * 7 % 256),  // i+1 确保不为 0
+          List.generate(32, (i) => (i + 1) * 7 % 256), // i+1 确保不为 0
         );
         const n = 5; // 总分片数
         const k = 3; // 恢复阈值
@@ -159,7 +159,7 @@ void main() {
       test('should recover with minimum shares', () async {
         // Arrange - 使用非零开头的秘密
         final secret = Uint8List.fromList(
-          List.generate(32, (i) => i + 1),  // 1, 2, 3, ..., 32
+          List.generate(32, (i) => i + 1), // 1, 2, 3, ..., 32
         );
         const n = 5;
         const k = 3;
@@ -168,9 +168,11 @@ void main() {
         final shares = ShamirSecretSharing.splitSecret(secret, n, k);
 
         // 只使用 k 个分片（最小数量）
-        final recoveredSecret = ShamirSecretSharing.combineShares(
-          [shares[0], shares[2], shares[4]],
-        );
+        final recoveredSecret = ShamirSecretSharing.combineShares([
+          shares[0],
+          shares[2],
+          shares[4],
+        ]);
 
         // Assert
         expect(recoveredSecret, equals(secret));
@@ -201,7 +203,11 @@ void main() {
           final recovered = ShamirSecretSharing.combineShares(selectedShares);
 
           // Assert
-          expect(recovered, equals(secret), reason: 'Failed for combination $combo');
+          expect(
+            recovered,
+            equals(secret),
+            reason: 'Failed for combination $combo',
+          );
         }
       });
 
@@ -306,7 +312,7 @@ void main() {
       test('should create valid key bundle JSON', () async {
         // Arrange
         await E2EEKeyService.generateKeyPair();
-        final storage = StorageSecure();
+        final storage = StorageSecureService.to;
         final privateKey = await storage.getPrivateKey();
         final publicKey = await storage.getPublicKey();
         final deviceId = await storage.getDeviceId();
@@ -336,7 +342,7 @@ void main() {
       test('should contain PEM format keys', () async {
         // Arrange
         await E2EEKeyService.generateKeyPair();
-        final storage = StorageSecure();
+        final storage = StorageSecureService.to;
         final publicKey = await storage.getPublicKey();
         final privateKey = await storage.getPrivateKey();
 
@@ -361,32 +367,35 @@ void main() {
         } catch (_) {}
       });
 
-      test('should use consistent device ID when global deviceId is set', () async {
-        // 注意：当全局 deviceId 存在时，E2EEKeyService 会使用它而不是生成新的
-        // 这是设计预期行为，确保设备间通信的一致性
+      test(
+        'should use consistent device ID when global deviceId is set',
+        () async {
+          // 注意：当全局 deviceId 存在时，E2EEKeyService 会使用它而不是生成新的
+          // 这是设计预期行为，确保设备间通信的一致性
 
-        // Act
-        await E2EEKeyService.generateKeyPair();
-        final device1 = await StorageSecure().getDeviceId();
+          // Act
+          await E2EEKeyService.generateKeyPair();
+          final device1 = await StorageSecureService.to.getDeviceId();
 
-        await E2EEKeyService.deleteKey();
-        await E2EEKeyService.generateKeyPair();
-        final device2 = await StorageSecure().getDeviceId();
+          await E2EEKeyService.deleteKey();
+          await E2EEKeyService.generateKeyPair();
+          final device2 = await StorageSecureService.to.getDeviceId();
 
-        // Assert - 使用全局 deviceId 时，设备 ID 应该保持一致
-        expect(device1, equals(init_config.deviceId));
-        expect(device2, equals(init_config.deviceId));
-        expect(device1, equals(device2));
-      });
+          // Assert - 使用全局 deviceId 时，设备 ID 应该保持一致
+          expect(device1, equals(init_config.deviceId));
+          expect(device2, equals(init_config.deviceId));
+          expect(device1, equals(device2));
+        },
+      );
 
       test('should generate unique key IDs', () async {
         // Act
         await E2EEKeyService.generateKeyPair();
-        final keyId1 = await StorageSecure().getKeyId();
+        final keyId1 = await StorageSecureService.to.getKeyId();
 
         await E2EEKeyService.deleteKey();
         await E2EEKeyService.generateKeyPair();
-        final keyId2 = await StorageSecure().getKeyId();
+        final keyId2 = await StorageSecureService.to.getKeyId();
 
         // Assert
         expect(keyId1, isNot(equals(keyId2)));
@@ -394,9 +403,7 @@ void main() {
 
       test('should validate Shamir share integrity', () async {
         // Arrange - 使用非零开头的秘密
-        final secret = Uint8List.fromList(
-          List.generate(32, (i) => i + 1),
-        );
+        final secret = Uint8List.fromList(List.generate(32, (i) => i + 1));
         const n = 5;
         const k = 3;
 
@@ -456,7 +463,7 @@ void main() {
 
         // 1. 源设备生成密钥
         await E2EEKeyService.generateKeyPair();
-        final sourceStorage = StorageSecure();
+        final sourceStorage = StorageSecureService.to;
         final sourcePrivateKey = await sourceStorage.getPrivateKey();
         final sourcePublicKey = await sourceStorage.getPublicKey();
         final sourceDeviceId = await sourceStorage.getDeviceId();

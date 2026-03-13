@@ -2,11 +2,15 @@
 
 [根目录](../../CLAUDE.md) > [lib](../) > **theme**
 
-> 最后更新：2026-01-14 12:00:00 CST
+> 最后更新：2026-02-18 07:35:00 CST
 
 ---
 
 ## 变更记录 (Changelog)
+
+### 2026-02-18
+- **死代码清理**：删除已废弃的 `app_text_size.dart`（已完全迁移到 `FontSizeType`）
+- 移除文档中对废弃文件的引用
 
 ### 2026-01-14
 - 新增 Design Token 系统（app_spacing, app_radius, app_shadows 等）
@@ -48,7 +52,6 @@
 | `app_curves.dart` | 动画曲线（11种标准曲线） | ✅ 新增 |
 | `app_sizes.dart` | 组件尺寸（按钮、输入框、头像等） | ✅ 新增 |
 | `font_types.dart` | 字体类型（FontSizeType、FontWeight） | ✅ 已更新 |
-| `app_text_size.dart` | 旧字体系统（已废弃） | ⚠️ @Deprecated |
 
 ### 使用示例
 
@@ -70,7 +73,7 @@ Container(
 ```
 
 ### 设计规范文档
-- 完整的 UI/UX 设计规范：[doc/UI_UX_Design_Spec.md](../../doc/UI_UX_Design_Spec.md)
+- UI/UX 最小规范（统一维护）：[README.md#uiux-minimal-rules](../../README.md#uiux-minimal-rules)
 - Design Token 迁移指南：[DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md)
 
 ---
@@ -91,7 +94,6 @@ Container(
 | `default/app_curves.dart` | Design Token - 动画曲线 | ✅ 新增 |
 | `default/app_sizes.dart` | Design Token - 组件尺寸 | ✅ 新增 |
 | `default/font_types.dart` | 字体类型（已统一） | ✅ 已更新 |
-| `default/app_text_size.dart` | 旧字体系统（已废弃） | ⚠️ @Deprecated |
 | `default/config/text_theme.dart` | 文本主题 | - |
 | `default/config/component_theme_manager.dart` | 组件主题管理 | - |
 | `default/config/chat_theme_config.dart` | 聊天主题 | - |
@@ -626,7 +628,6 @@ A: 使用 `ThemeManager.instance.addListener()` 监听主题变化。
 - `lib/theme/default/app_curves.dart` - 动画曲线（新增）
 - `lib/theme/default/app_sizes.dart` - 组件尺寸（新增）
 - `lib/theme/default/font_types.dart` - 字体类型（已更新）
-- `lib/theme/default/app_text_size.dart` - 旧字体系统（已废弃）
 
 ### 核心文件
 - `lib/theme/theme_manager.dart` - 主题管理器
@@ -641,7 +642,7 @@ A: 使用 `ThemeManager.instance.addListener()` 监听主题变化。
 - `assets/images/` - 主题相关图片
 
 ### 设计文档
-- [doc/UI_UX_Design_Spec.md](../../doc/UI_UX_Design_Spec.md) - 完整的 UI/UX 设计规范
+- [README.md#uiux-minimal-rules](../../README.md#uiux-minimal-rules) - UI/UX 最小规范
 - [DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md) - Design Token 迁移指南
 
 ---

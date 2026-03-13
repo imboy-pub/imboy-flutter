@@ -1,4 +1,5 @@
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 class PeopleModel {
   String id;
@@ -30,20 +31,18 @@ class PeopleModel {
   });
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
-    var g = json["gender"] ?? 0;
-    var dist = json["distance"] ?? 0.0;
     return PeopleModel(
-      id: json["id"],
-      account: json["account"] ?? '',
-      nickname: json["nickname"],
-      avatar: json["avatar"] ?? '',
-      gender: g is String ? int.parse(g) : g,
-      region: json["region"] ?? '',
-      sign: json["sign"] ?? '',
-      distance: dist is double ? dist : double.parse(dist.toString()),
-      distanceUnit: json["unit"] ?? "m",
-      isFriend: json['is_friend'] ?? false,
-      remark: json['remark'] ?? '',
+      id: parseModelString(json["id"]),
+      account: parseModelString(json["account"]),
+      nickname: parseModelString(json["nickname"]),
+      avatar: parseModelString(json["avatar"]),
+      gender: parseModelInt(json["gender"]),
+      region: parseModelString(json["region"]),
+      sign: parseModelString(json["sign"]),
+      distance: parseModelDouble(json["distance"]),
+      distanceUnit: parseModelString(json["unit"], defaultValue: "m"),
+      isFriend: parseModelBool(json['is_friend']),
+      remark: parseModelString(json['remark']),
       createdAt: DateTimeHelper.parseTimestamp(json['friend_created_at']),
     );
   }

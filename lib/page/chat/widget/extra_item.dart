@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/func.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -90,9 +89,9 @@ class ExtraItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
-                    color: ThemeManager.instance
-                        .getThemeColor('onSurface')
-                        .withValues(alpha: 0.8),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.8),
                     height: 1.1,
                   ),
                   textAlign: TextAlign.center,
@@ -142,6 +141,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
   @override
   Widget build(BuildContext context) {
     final t = context.t; // 获取翻译实例
+    final colorScheme = Theme.of(context).colorScheme;
     const double iconSize = 28; // 调整图标大小
     var items = [
       // 第一页
@@ -263,13 +263,11 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       child: Container(
         // height: 240, // Remove fixed height to adapt to panel height
         decoration: BoxDecoration(
-          color: ThemeManager.instance.getThemeColor('surface'),
+          color: colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           border: Border(
             top: BorderSide(
-              color: ThemeManager.instance
-                  .getThemeColor('outline')
-                  .withValues(alpha: 0.12),
+              color: colorScheme.outline.withValues(alpha: 0.12),
               width: 0.5,
             ),
           ),
@@ -282,9 +280,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
               height: 4,
               margin: const EdgeInsets.only(top: 12, bottom: 8),
               decoration: BoxDecoration(
-                color: ThemeManager.instance
-                    .getThemeColor('outline')
-                    .withValues(alpha: 0.4),
+                color: colorScheme.outline.withValues(alpha: 0.4),
                 borderRadius: AppRadius.borderRadiusTiny,
               ),
             ),
@@ -325,10 +321,8 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: _current == entry.key
-                              ? ThemeManager.instance.getThemeColor('primary')
-                              : ThemeManager.instance
-                                    .getThemeColor('outline')
-                                    .withValues(alpha: 0.3),
+                              ? colorScheme.primary
+                              : colorScheme.outline.withValues(alpha: 0.3),
                         ),
                       ),
                     );

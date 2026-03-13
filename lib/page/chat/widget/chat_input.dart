@@ -14,6 +14,7 @@ import 'package:imboy/component/chat/mention_list_widget.dart';
 import 'package:imboy/component/chat/mention_text_formatter.dart';
 import 'package:imboy/component/chat/mention_provider.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -156,6 +157,12 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   double _keyboardHeight = 0; // 当前键盘高度
   bool _isTransitioningToTextFromPanel = false; // 是否正在从面板切换回文本（用于丝滑动画）
 
+  ThemeNotifier get _themeNotifier =>
+      ProviderScope.containerOf(context).read(themeProvider.notifier);
+  Color _themeColor(String key) => _themeNotifier.getThemeColor(key);
+  double _themeFontSize(FontSizeType type) =>
+      _themeNotifier.getFontSize(type, context: context);
+
   @override
   void initState() {
     super.initState();
@@ -181,7 +188,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     // 使用 ProviderScope.containerOf 获取 ProviderContainer
     final container = ProviderScope.containerOf(context);
-    await container.read(mentionNotifierProvider.notifier).loadGroupMembers(widget.peerId);
+    await container
+        .read(mentionNotifierProvider.notifier)
+        .loadGroupMembers(widget.peerId);
     _membersLoaded = true;
   }
 
@@ -298,7 +307,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     final selection = _textController.selection;
 
     // 使用工具方法检测 @提及 触发
-    final (show, keyword) = MentionTextEditorHelper.detectMentionTrigger(text, selection);
+    final (show, keyword) = MentionTextEditorHelper.detectMentionTrigger(
+      text,
+      selection,
+    );
 
     if (show) {
       _showMentionList.value = true;
@@ -366,12 +378,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             return Container(
               height: 60,
               decoration: BoxDecoration(
-                color: ThemeManager.instance.getThemeColor('surface'),
+                color: _themeColor('surface'),
                 border: Border(
                   top: BorderSide(
-                    color: ThemeManager.instance
-                        .getThemeColor('outline')
-                        .withValues(alpha: 0.1),
+                    color: _themeColor('outline').withValues(alpha: 0.1),
                     width: 0.5,
                   ),
                 ),
@@ -386,12 +396,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     child: ElevatedButton(
                       onPressed: () => _insertQuickReply(replies[index]),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ThemeManager.instance
-                            .getThemeColor('primary')
-                            .withValues(alpha: 0.1),
-                        foregroundColor: ThemeManager.instance.getThemeColor(
+                        backgroundColor: _themeColor(
                           'primary',
-                        ),
+                        ).withValues(alpha: 0.1),
+                        foregroundColor: _themeColor('primary'),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
@@ -609,11 +617,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // 在光标位置插入 @ 符号
       final text = _textController.text;
       final selection = _textController.selection;
-      final newText = text.replaceRange(
-        selection.start,
-        selection.end,
-        '@',
-      );
+      final newText = text.replaceRange(selection.start, selection.end, '@');
       _textController.value = TextEditingValue(
         text: newText,
         selection: TextSelection.collapsed(offset: selection.start + 1),
@@ -725,29 +729,17 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         horizontalSpacing: 4,
                         recentsLimit: columns * 3 - 2,
                         buttonMode: ButtonMode.MATERIAL,
-                        backgroundColor: ThemeManager.instance.getThemeColor(
-                          'surface',
-                        ),
+                        backgroundColor: _themeColor('surface'),
                       ),
                       skinToneConfig: SkinToneConfig(
-                        indicatorColor: ThemeManager.instance.getThemeColor(
-                          'surface',
-                        ),
+                        indicatorColor: _themeColor('surface'),
                       ),
                       categoryViewConfig: CategoryViewConfig(
                         tabBarHeight: 48,
-                        backgroundColor: ThemeManager.instance.getThemeColor(
-                          'surface',
-                        ),
-                        iconColor: ThemeManager.instance.getThemeColor(
-                          'textSecondary',
-                        ),
-                        iconColorSelected: ThemeManager.instance.getThemeColor(
-                          'primary',
-                        ),
-                        indicatorColor: ThemeManager.instance.getThemeColor(
-                          'primary',
-                        ),
+                        backgroundColor: _themeColor('surface'),
+                        iconColor: _themeColor('textSecondary'),
+                        iconColorSelected: _themeColor('primary'),
+                        indicatorColor: _themeColor('primary'),
                         categoryIcons: const CategoryIcons(
                           recentIcon: Icons.access_time_outlined,
                           smileyIcon: Icons.emoji_emotions_outlined,
@@ -762,21 +754,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       ),
                       bottomActionBarConfig: BottomActionBarConfig(
                         enabled: true,
-                        backgroundColor: ThemeManager.instance.getThemeColor(
-                          'surface',
-                        ),
-                        buttonColor: ThemeManager.instance.getThemeColor(
-                          'primary',
-                        ),
+                        backgroundColor: _themeColor('surface'),
+                        buttonColor: _themeColor('primary'),
                         buttonIconColor: Colors.white,
                       ),
                       searchViewConfig: SearchViewConfig(
-                        backgroundColor: ThemeManager.instance.getThemeColor(
-                          'surface',
-                        ),
-                        buttonIconColor: ThemeManager.instance.getThemeColor(
-                          'primary',
-                        ),
+                        backgroundColor: _themeColor('surface'),
+                        buttonIconColor: _themeColor('primary'),
                       ),
                     ),
                   ),
@@ -812,24 +796,20 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                color: ThemeManager.instance.getThemeColor('textSecondary'),
-                fontSize: ThemeManager.instance.getFontSize(
-                  FontSizeType.medium,
-                ),
+                color: _themeColor('textSecondary'),
+                fontSize: _themeFontSize(FontSizeType.medium),
               ),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
               counterText: '',
               filled: isFocused,
               fillColor: isFocused
-                  ? ThemeManager.instance
-                        .getThemeColor('primary')
-                        .withValues(alpha: 0.05)
+                  ? _themeColor('primary').withValues(alpha: 0.05)
                   : Colors.transparent,
             ),
             style: TextStyle(
-              color: ThemeManager.instance.getThemeColor('textPrimary'),
-              fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),
+              color: _themeColor('textPrimary'),
+              fontSize: _themeFontSize(FontSizeType.medium),
             ),
             onChanged: (val) {
               _handleTextControllerChange();
@@ -967,10 +947,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           child: sendButtonVisible
               ? IconButton(
                   key: const ValueKey('send_button'),
-                  icon: Icon(
-                    Icons.send,
-                    color: ThemeManager.instance.getThemeColor('primary'),
-                  ),
+                  icon: Icon(Icons.send, color: _themeColor('primary')),
                   onPressed: _handleSendPressed,
                   padding: const EdgeInsets.only(left: 0),
                 )
@@ -1047,9 +1024,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
 
     return Container(
-      color:
-          widget.backgroundColor ??
-          ThemeManager.instance.getThemeColor('surface'),
+      color: widget.backgroundColor ?? _themeColor('surface'),
       child: Column(
         children: [
           // 引用消息提示条
@@ -1083,9 +1058,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     ),
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: ThemeManager.instance
-                          .getThemeColor('surface')
-                          .withValues(alpha: 0.1),
+                      color: _themeColor('surface').withValues(alpha: 0.1),
                       borderRadius: AppRadius.borderRadiusLarge,
                       border: Border.all(color: Colors.transparent, width: 1.5),
                     ),

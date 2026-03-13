@@ -230,8 +230,9 @@ class WebRTCNetworkQualityMonitor {
 
     debugPrint('Adjusting bitrate: $quality -> $targetBitrate bps');
 
-    // TODO: 通过 RTP 发送者设置码率
-    // 这需要访问 RTCPeerConnection 的 senders
+    // TODO(WebRTC内部): 通过 RTP 发送者动态设置码率
+    // 需要访问 RTCPeerConnection 的 senders 并设置 encoding 参数
+    // 注意：此功能需要 flutter_webrtc 包的完整 API 支持
     try {
       final pc = connection.peerConnection;
       if (pc == null) return;

@@ -16,15 +16,25 @@ class DefaultHttpTransformer extends HttpTransformer {
     if (response.data is! Map) {
       return IMBoyHttpResponse.failure();
     }
-    if (response.data["code"] == 0) {
-      return IMBoyHttpResponse.success(response.data['payload']);
-    } else {
-      return IMBoyHttpResponse.failure(
-        errMsg: response.data['msg'],
-        errCode: response.data['code'],
-        payload: response.data['payload'],
-      );
+    final data = response.data as Map;
+    final code = _normalizeCode(data['code']);
+    final msg = '${data['msg'] ?? 'error'}';
+    final payload = data['payload'];
+
+    if (code == 0) {
+      return IMBoyHttpResponse.success(payload);
     }
+    return IMBoyHttpResponse.failure(
+      errMsg: msg,
+      errCode: code,
+      payload: payload,
+    );
+  }
+
+  static int _normalizeCode(dynamic raw) {
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    return int.tryParse('$raw') ?? 1;
   }
 
   /// 单例对象

@@ -315,6 +315,43 @@ final class ConversationDeleteEvent extends AppEvent {
   List<Object> get props => [conversationId, conversationType];
 }
 
+/// 会话权威同步来源事件
+///
+/// 用于观测会话列表是否按约定走“服务端权威拉取”链路。
+final class ConversationAuthoritySyncEvent extends AppEvent {
+  /// 触发来源（page_init/websocket_connected/manual 等）
+  final String trigger;
+
+  /// 来源标记（固定：server_authoritative_pull）
+  final String source;
+
+  /// 拉取到的服务端条目数
+  final int fetchedCount;
+
+  /// 同步写入本地的条目数
+  final int syncedCount;
+
+  /// 是否成功
+  final bool success;
+
+  const ConversationAuthoritySyncEvent({
+    required this.trigger,
+    required this.source,
+    required this.fetchedCount,
+    required this.syncedCount,
+    required this.success,
+  });
+
+  @override
+  List<Object> get props => [
+    trigger,
+    source,
+    fetchedCount,
+    syncedCount,
+    success,
+  ];
+}
+
 // ============================================================================
 // 网络相关事件
 // ============================================================================
@@ -482,6 +519,72 @@ final class ChannelNewMessageEvent extends AppEvent {
   }
 }
 
+/// 朋友圈时间线变更事件
+///
+/// 用于接收 `moment_new/moment_like/moment_comment/moment_deleted` 推送后，
+/// 通知页面刷新数据。
+final class MomentTimelineChangedEvent extends AppEvent {
+  /// S2C action
+  final String action;
+
+  /// 朋友圈动态 ID（HashID）
+  final String momentId;
+
+  /// 原始 payload
+  final Map<String, dynamic> payload;
+
+  const MomentTimelineChangedEvent({
+    required this.action,
+    required this.momentId,
+    required this.payload,
+  });
+
+  @override
+  List<Object> get props => [action, momentId, payload];
+
+  @override
+  String toString() {
+    return 'MomentTimelineChangedEvent(action: $action, momentId: $momentId)';
+  }
+}
+
+/// 频道未读汇总同步来源事件
+///
+/// 用于观测未读是否按约定走“服务端 pull 汇总 + 本地对账”链路。
+final class ChannelUnreadSummarySyncEvent extends AppEvent {
+  /// 触发来源（channel_list_load/ws_connected/cache_start/manual 等）
+  final String trigger;
+
+  /// 来源标记（固定：server_unread_summary_pull）
+  final String source;
+
+  /// 服务端汇总总未读
+  final int totalUnread;
+
+  /// 本地订阅表本次变更条目数
+  final int changedSubscriptions;
+
+  /// 是否成功
+  final bool success;
+
+  const ChannelUnreadSummarySyncEvent({
+    required this.trigger,
+    required this.source,
+    required this.totalUnread,
+    required this.changedSubscriptions,
+    required this.success,
+  });
+
+  @override
+  List<Object> get props => [
+    trigger,
+    source,
+    totalUnread,
+    changedSubscriptions,
+    success,
+  ];
+}
+
 // ============================================================================
 // UI相关事件
 // ============================================================================
@@ -597,13 +700,12 @@ final class AppErrorEvent extends AppEvent {
 }
 
 // ============================================================================
-// 通用数据事件（用于兼容旧代码）
+// 通用数据事件
 // ============================================================================
 
 /// 通用数据包装事件
 ///
 /// 用于包装非 AppEvent 类型的数据，使其可以通过事件总线传递
-/// 这是一个临时兼容方案，建议后续逐步迁移到专门的事件类型
 final class DataWrapperEvent<T> extends AppEvent {
   /// 包装的数据
   final T data;
@@ -684,6 +786,115 @@ final class AckSendRequestedEvent extends AppEvent {
   }
 }
 
+/// ACK RTT 指标更新事件
+///
+/// 用于上报 ACK 确认链路的 RTT 样本和分位统计。
+final class AckRttMetricsUpdatedEvent extends AppEvent {
+  /// 消息 ID
+  final String messageId;
+
+  /// 消息类型（C2C, C2G 等）
+  final String messageType;
+
+  /// 本次 ACK RTT（毫秒）
+  final int rttMs;
+
+  /// 本次确认前经历的重试次数
+  final int retryCount;
+
+  /// 当前样本数
+  final int sampleCount;
+
+  /// P50 RTT（毫秒）
+  final int p50Ms;
+
+  /// P90 RTT（毫秒）
+  final int p90Ms;
+
+  /// P95 RTT（毫秒）
+  final int p95Ms;
+
+  /// P99 RTT（毫秒）
+  final int p99Ms;
+
+  const AckRttMetricsUpdatedEvent({
+    required this.messageId,
+    required this.messageType,
+    required this.rttMs,
+    required this.retryCount,
+    required this.sampleCount,
+    required this.p50Ms,
+    required this.p90Ms,
+    required this.p95Ms,
+    required this.p99Ms,
+  });
+
+  @override
+  List<Object> get props => [
+    messageId,
+    messageType,
+    rttMs,
+    retryCount,
+    sampleCount,
+    p50Ms,
+    p90Ms,
+    p95Ms,
+    p99Ms,
+  ];
+
+  @override
+  String toString() {
+    return 'AckRttMetricsUpdatedEvent(messageId: $messageId, messageType: $messageType, rttMs: $rttMs, retryCount: $retryCount, samples: $sampleCount, p50: $p50Ms, p90: $p90Ms, p95: $p95Ms, p99: $p99Ms)';
+  }
+}
+
+/// ACK 重试命中上限事件
+///
+/// 用于告警弱网/异常场景下 ACK 重试达到上限，便于运维侧定位链路问题。
+final class AckRetryCeilingReachedEvent extends AppEvent {
+  /// 消息 ID
+  final String messageId;
+
+  /// 消息类型（C2C, C2G 等）
+  final String messageType;
+
+  /// 当前重试次数
+  final int retryCount;
+
+  /// 最大重试上限
+  final int maxRetryCount;
+
+  /// 触发时待确认 ACK 数量
+  final int pendingCount;
+
+  /// 触发时间戳（毫秒）
+  final int occurredAtMs;
+
+  const AckRetryCeilingReachedEvent({
+    required this.messageId,
+    required this.messageType,
+    required this.retryCount,
+    required this.maxRetryCount,
+    required this.pendingCount,
+    required this.occurredAtMs,
+  });
+
+  @override
+  List<Object> get props => [
+    messageId,
+    messageType,
+    retryCount,
+    maxRetryCount,
+    pendingCount,
+    occurredAtMs,
+  ];
+
+  @override
+  String toString() {
+    return 'AckRetryCeilingReachedEvent(messageId: $messageId, messageType: $messageType, retry: $retryCount/$maxRetryCount, pendingCount: $pendingCount, occurredAtMs: $occurredAtMs)';
+  }
+}
+
 /// 消息状态更新请求事件
 ///
 /// 当需要更新消息状态时发布
@@ -730,7 +941,7 @@ final class MessageStatusUpdateRequestedEvent extends AppEvent {
 /// 从重试队列移除请求事件
 ///
 /// 当需要从重试队列移除消息时发布
-/// 替代直接调用 MessageRetry.to.removeFromRetryQueue()
+/// 替代直接调用 MessageRetry.instance.removeFromRetryQueue()
 final class RemoveFromRetryQueueRequestedEvent extends AppEvent {
   /// 消息 ID
   final String messageId;
@@ -759,7 +970,7 @@ final class RemoveFromRetryQueueRequestedEvent extends AppEvent {
 /// 重试消息请求事件
 ///
 /// 当需要触发失败消息重试时发布
-/// 替代直接调用 MessageRetry.to.retryFailedMessages()
+/// 替代直接调用 MessageRetry.instance.retryFailedMessages()
 final class RetryMessagesRequestedEvent extends AppEvent {
   /// 触发来源（网络恢复、手动触发等）
   final String source;
@@ -781,7 +992,7 @@ final class RetryMessagesRequestedEvent extends AppEvent {
 /// 离线消息拉取请求事件
 ///
 /// 当服务端通知客户端拉取离线消息时发布
-/// 替代直接调用 MessageOfflineService.to.pullOfflineMessages()
+/// 替代直接调用 MessageOfflineService.instance.pullOfflineMessages()
 final class OfflineMessagesPullRequestedEvent extends AppEvent {
   /// 触发来源（S2C消息、手动触发等）
   final String source;

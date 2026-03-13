@@ -165,7 +165,9 @@ Future<void> incomingCallScreen(
               heroTag: "RejectCall",
               backgroundColor: theme.colorScheme.error,
               onPressed: () async {
-                // TODO: mark message as read after ChatLogic migration
+                // TODO(ChatLogic迁移): 标记消息已读
+                // 依赖 ChatLogic 的 markAsRead 方法
+                // 当前仅更新本地消息状态，未同步到服务端
                 MessageService.to.changeLocalMsgState(msgId, 5);
                 gTimer?.cancel();
                 gTimer = null;
@@ -183,7 +185,8 @@ Future<void> incomingCallScreen(
               heroTag: "AcceptCall",
               backgroundColor: theme.colorScheme.primary,
               onPressed: () async {
-                // TODO: mark message as read after ChatLogic migration
+                // TODO(ChatLogic迁移): 标记消息已读
+                // 依赖 ChatLogic 的 markAsRead 方法
                 gTimer?.cancel();
                 gTimer = null;
                 if (dialogContext.mounted) {

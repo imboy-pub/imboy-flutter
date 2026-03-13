@@ -1,7 +1,16 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/service/event_bus.dart' show AppEventBus;
+import 'package:imboy/service/events/common_events.dart'
+    show
+        ChannelNewMessageEvent,
+        ChannelUnreadCountUpdatedEvent,
+        ChannelUnreadSummarySyncEvent;
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/store/model/channel_order_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
@@ -12,11 +21,24 @@ import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 /// 包括：数据同步、消息处理、订阅管理等
 class ChannelService {
   static final ChannelService to = ChannelService._privateConstructor();
-  ChannelService._privateConstructor();
 
-  final ChannelApi _api = ChannelApi();
-  final ChannelRepo _repo = ChannelRepo();
-  final ChannelMessageRepo _messageRepo = ChannelMessageRepo();
+  final ChannelApi _api;
+  final ChannelRepo _repo;
+  final ChannelMessageRepo _messageRepo;
+
+  ChannelService._privateConstructor()
+    : _api = ChannelApi(),
+      _repo = ChannelRepo(),
+      _messageRepo = ChannelMessageRepo();
+
+  @visibleForTesting
+  ChannelService.forTest({
+    required ChannelApi api,
+    required ChannelRepo repo,
+    ChannelMessageRepo? messageRepo,
+  }) : _api = api,
+       _repo = repo,
+       _messageRepo = messageRepo ?? ChannelMessageRepo();
 
   // ==================== 频道同步 ====================
 
@@ -215,6 +237,79 @@ class ChannelService {
     }
   }
 
+  /// 拉取服务端未读汇总并对账到本地订阅表
+  ///
+  /// 用于冷启动或页面刷新时的权威修正，避免仅依赖推送增量。
+  Future<Map<String, dynamic>> syncUnreadSummary({
+    String trigger = 'manual',
+  }) async {
+    const source = 'server_unread_summary_pull';
+    int changed = 0;
+    int totalUnread = 0;
+    try {
+      final summary = await _api.getUnreadSummary();
+      final rawChannels = summary['channels'];
+      final authoritativeByChannel = <String, int>{};
+
+      if (rawChannels is List) {
+        for (final item in rawChannels.whereType<Map>()) {
+          final row = Map<String, dynamic>.from(item);
+          final channelId = parseModelString(row['channel_id']);
+          if (channelId.isEmpty) continue;
+          authoritativeByChannel[channelId] = parseModelInt(
+            row['unread_count'],
+          );
+        }
+      }
+
+      final subscriptions = await _repo.getAllSubscriptions();
+      for (final sub in subscriptions) {
+        final nextUnread = authoritativeByChannel[sub.channelId] ?? 0;
+        if (sub.unreadCount == nextUnread) continue;
+        await _repo.updateUnreadCount(sub.channelId, nextUnread);
+        changed++;
+        AppEventBus.fire(
+          ChannelUnreadCountUpdatedEvent(
+            channelId: sub.channelId,
+            unreadCount: nextUnread,
+          ),
+        );
+      }
+
+      totalUnread = parseModelInt(summary['total_unread']);
+      AppEventBus.fire(
+        ChannelUnreadCountUpdatedEvent(
+          channelId: 'unread_summary',
+          unreadCount: totalUnread,
+        ),
+      );
+      AppEventBus.fireTracked(
+        ChannelUnreadSummarySyncEvent(
+          trigger: trigger,
+          source: source,
+          totalUnread: totalUnread,
+          changedSubscriptions: changed,
+          success: true,
+        ),
+      );
+
+      iPrint('ChannelService: 未读汇总同步完成 - changed=$changed, total=$totalUnread');
+      return summary;
+    } catch (e) {
+      iPrint('ChannelService: 同步未读汇总失败 - $e');
+      AppEventBus.fireTracked(
+        ChannelUnreadSummarySyncEvent(
+          trigger: trigger,
+          source: source,
+          totalUnread: totalUnread,
+          changedSubscriptions: changed,
+          success: false,
+        ),
+      );
+      return const {};
+    }
+  }
+
   /// 标记频道消息已读
   Future<bool> markAsRead(String channelId, String messageId) async {
     try {
@@ -232,6 +327,110 @@ class ChannelService {
     }
   }
 
+  // ==================== 订单相关（付费频道） ====================
+
+  /// 创建订单
+  Future<ChannelOrderModel?> createOrder(String channelId) async {
+    try {
+      final order = await _api.createOrder(channelId: channelId);
+      if (order == null) return null;
+      iPrint('ChannelService: 创建订单成功 - ${order.orderNo}');
+      return order;
+    } catch (e) {
+      iPrint('ChannelService: 创建订单失败 - $e');
+      return null;
+    }
+  }
+
+  /// 支付订单
+  Future<bool> payOrder(String orderNo) async {
+    try {
+      final success = await _api.payOrder(orderNo: orderNo);
+      iPrint('ChannelService: 支付订单${success ? "成功" : "失败"} - $orderNo');
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 支付订单失败 - $e');
+      return false;
+    }
+  }
+
+  /// 创建并支付订单（最小闭环）
+  Future<ChannelOrderModel?> createAndPayOrder(String channelId) async {
+    final order = await createOrder(channelId);
+    if (order == null) return null;
+
+    final paid = await payOrder(order.orderNo);
+    if (!paid) return null;
+
+    return await getOrder(order.orderNo);
+  }
+
+  /// 获取我的订单列表
+  Future<List<ChannelOrderModel>> getMyOrders() async {
+    try {
+      return await _api.getMyOrders();
+    } catch (e) {
+      iPrint('ChannelService: 获取我的订单失败 - $e');
+      return [];
+    }
+  }
+
+  /// 获取订单详情
+  Future<ChannelOrderModel?> getOrder(String orderNo) async {
+    try {
+      return await _api.getOrder(orderNo: orderNo);
+    } catch (e) {
+      iPrint('ChannelService: 获取订单详情失败 - $e');
+      return null;
+    }
+  }
+
+  // ==================== 邀请相关（私有频道） ====================
+
+  /// 获取我收到的邀请
+  Future<List<Map<String, dynamic>>> getMyInvitations() async {
+    try {
+      return await _api.getMyInvitations();
+    } catch (e) {
+      iPrint('ChannelService: 获取我的邀请失败 - $e');
+      return [];
+    }
+  }
+
+  /// 获取我发出的邀请
+  Future<List<Map<String, dynamic>>> getSentInvitations() async {
+    try {
+      return await _api.getSentInvitations();
+    } catch (e) {
+      iPrint('ChannelService: 获取已发邀请失败 - $e');
+      return [];
+    }
+  }
+
+  /// 接受邀请
+  Future<bool> acceptInvitation(String invitationId) async {
+    try {
+      final success = await _api.acceptInvitation(invitationId: invitationId);
+      iPrint('ChannelService: 接受邀请${success ? "成功" : "失败"} - $invitationId');
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 接受邀请失败 - $e');
+      return false;
+    }
+  }
+
+  /// 拒绝邀请
+  Future<bool> rejectInvitation(String invitationId) async {
+    try {
+      final success = await _api.rejectInvitation(invitationId: invitationId);
+      iPrint('ChannelService: 拒绝邀请${success ? "成功" : "失败"} - $invitationId');
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 拒绝邀请失败 - $e');
+      return false;
+    }
+  }
+
   // ==================== WebSocket 消息处理 ====================
 
   /// 处理 WebSocket 推送的频道消息
@@ -240,6 +439,13 @@ class ChannelService {
   Future<void> handleChannelMessage(Map<String, dynamic> data) async {
     try {
       final message = ChannelMessageModel.fromJson(data);
+      if (message.channelId.isEmpty || message.id.isEmpty) {
+        iPrint(
+          'ChannelService: 忽略无效频道消息 - '
+          'channelId=${message.channelId}, messageId=${message.id}',
+        );
+        return;
+      }
 
       // 保存消息
       await _messageRepo.saveMessage(message);
@@ -249,8 +455,13 @@ class ChannelService {
 
       iPrint('ChannelService: 收到频道消息 - ${message.id}');
 
-      // TODO: 发送事件通知 UI 刷新
-      // EventBus.instance.emit(ChannelEvents.newMessage, message);
+      // 发送事件通知 UI 刷新
+      AppEventBus.fire(
+        ChannelNewMessageEvent(
+          channelId: message.channelId,
+          message: message.toMap(),
+        ),
+      );
     } catch (e) {
       iPrint('ChannelService: 处理频道消息失败 - $e');
     }
@@ -259,7 +470,8 @@ class ChannelService {
   /// 处理频道订阅通知
   Future<void> handleChannelSubscribed(Map<String, dynamic> data) async {
     try {
-      final channelId = data['channel_id'] as String;
+      final channelId = parseModelString(data['channel_id']);
+      if (channelId.isEmpty) return;
 
       // 检查本地是否已有订阅
       final existing = await _repo.getSubscription(channelId);
@@ -286,7 +498,8 @@ class ChannelService {
   /// 处理频道取消订阅通知
   Future<void> handleChannelUnsubscribed(Map<String, dynamic> data) async {
     try {
-      final channelId = data['channel_id'] as String;
+      final channelId = parseModelString(data['channel_id']);
+      if (channelId.isEmpty) return;
       await _repo.deleteSubscription(channelId);
 
       iPrint('ChannelService: 收到取消订阅通知 - $channelId');
@@ -310,7 +523,8 @@ class ChannelService {
   /// 处理频道删除通知
   Future<void> handleChannelDeleted(Map<String, dynamic> data) async {
     try {
-      final channelId = data['channel_id'] as String;
+      final channelId = parseModelString(data['channel_id']);
+      if (channelId.isEmpty) return;
       await _repo.deleteChannel(channelId);
 
       iPrint('ChannelService: 收到频道删除通知 - $channelId');

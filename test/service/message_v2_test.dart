@@ -110,14 +110,14 @@ void main() {
       expect(filePayload['filename'], 'document.pdf');
     });
 
-    test('v2.0 E2EE 加密消息格式', () {
+    test('v2.0 E2EE 加密消息格式（保留原始 msg_type）', () {
       // 模拟 v2.0 E2EE 加密消息
       final v2E2EEMessage = {
         'id': 'msg103',
         'type': 'C2C',
         'from': 'user1',
         'to': 'user2',
-        'msg_type': 'e2ee', // v2.0: msg_type 为 e2ee
+        'msg_type': 'text', // v2.0: 保留原始业务类型
         'action': '',
         'e2ee':
             '{'
@@ -139,7 +139,7 @@ void main() {
         'created_at': 1642579200000,
       };
 
-      expect(v2E2EEMessage['msg_type'], 'e2ee');
+      expect(v2E2EEMessage['msg_type'], 'text');
       expect(v2E2EEMessage['payload'], isA<String>());
       expect((v2E2EEMessage['payload'] as String).contains('.'), true);
     });
@@ -223,55 +223,10 @@ void main() {
 
     test('自定义消息副标题', () {
       final payload = {
-        'custom_type': 'typing_indicator',
+        'msg_type': 'typingIndicator',
         'data': {'user_id': 'user1'},
       };
-      expect(payload['custom_type'], 'typing_indicator');
-    });
-  });
-
-  group('v2.0 向后兼容性测试', () {
-    test('兼容 v1.0 格式（msg_type 在 payload 内）', () {
-      // v1.0 格式：msg_type 在 payload 内
-      final v1Message = {
-        'id': 'msg123',
-        'type': 'C2C',
-        'from': 'user1',
-        'to': 'user2',
-        'payload': {'msg_type': 'text', 'text': 'Hello, world!'},
-        'created_at': 1642579200000,
-      };
-
-      // 检查 payload 中有 msg_type
-      final v1Payload = v1Message['payload'] as Map<String, dynamic>;
-      expect(v1Payload['msg_type'], 'text');
-    });
-
-    test('兼容 v1.0 E2EE 格式（e2ee 在 payload 内）', () {
-      // v1.0 E2EE 格式
-      final v1E2EEMessage = {
-        'id': 'msg124',
-        'type': 'C2C',
-        'from': 'user1',
-        'to': 'user2',
-        'payload': {
-          'msg_type': 'e2ee',
-          'e2ee': {
-            'v': 1,
-            'alg': 'rsa-oaep+aes-256-gcm',
-            'iv': 'base64_iv',
-            'ct': 'base64_ciphertext',
-            'recipients': [
-              {'did': 'deviceA', 'ek': 'base64_wrapped_key'},
-            ],
-          },
-        },
-        'created_at': 1642579200000,
-      };
-
-      final v1Payload = v1E2EEMessage['payload'] as Map<String, dynamic>;
-      expect(v1Payload['msg_type'], 'e2ee');
-      expect(v1Payload['e2ee'], isNotNull);
+      expect(payload['msg_type'], 'typingIndicator');
     });
   });
 }

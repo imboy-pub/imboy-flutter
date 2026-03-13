@@ -41,12 +41,7 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/services/message_handling_service.dart';
 
-// ===== 新增：导入处理器模块（重构迁移）=====
 import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
-import 'package:imboy/page/chat/chat/providers/chat_message_sender.dart';
-import 'package:imboy/page/chat/chat/providers/chat_message_loader.dart';
-import 'package:imboy/page/chat/chat/providers/chat_e2ee_handler.dart';
-// ===== 导入处理器模块结束 =====
 
 part 'chat_provider.g.dart';
 
@@ -122,15 +117,7 @@ class ChatNotifier extends _$ChatNotifier {
   StreamSubscription<int>? _positionSubscription;
   bool _isDisposed = false;
 
-  // ===== 新增：处理器实例（重构迁移）=====
   late final ChatAudioHandler _audioHandler;
-  // TODO: 重构迁移中，以下处理器尚未完全集成
-  // ignore: unused_field
-  late final ChatMessageSender _messageSender;
-  late final ChatMessageLoader _messageLoader;
-  // ignore: unused_field
-  late final ChatE2EEHandler _e2eeHandler;
-  // ===== 处理器实例结束 =====
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
@@ -166,29 +153,23 @@ class ChatNotifier extends _$ChatNotifier {
   VoicePlaybackState get voicePlaybackState =>
       ref.read(voicePlaybackServiceProvider);
 
-  // VoicePlaybackHelper 访问器（兼容旧代码）
-  VoicePlaybackHelper get voicePlaybackService => VoicePlaybackHelper.to;
-
   @override
   ChatState build() {
-    // ===== 初始化处理器（重构迁移）=====
-    _audioHandler = ChatAudioHandler();
-    _messageSender = ChatMessageSender();
-    _messageLoader = ChatMessageLoader();
-    _e2eeHandler = ChatE2EEHandler();
+    _audioHandler = ChatAudioHandler(
+      getVoicePlaybackNotifier: () =>
+          ref.read(voicePlaybackServiceProvider.notifier),
+    );
 
     // 设置消息获取回调
-    _audioHandler.setMessagesGetter(() => _chatService?.messages.toList() ?? []);
-    // ===== 处理器初始化结束 =====
+    _audioHandler.setMessagesGetter(
+      () => _chatService?.messages.toList() ?? [],
+    );
 
     // 在 dispose 时清理资源
     ref.onDispose(() {
       iPrint('Chat Provider: 执行 dispose');
       _dispose();
-      // ===== 清理处理器资源 =====
       _audioHandler.dispose();
-      _messageLoader.dispose();
-      // ===== 处理器清理结束 =====
     });
 
     // 监听在线状态
@@ -243,10 +224,6 @@ class ChatNotifier extends _$ChatNotifier {
 
   SqliteChatService? get chatService => _chatService;
 
-  /// 保持向后兼容：获取聊天控制器（别名）
-  @Deprecated('使用 chatService 代替')
-  SqliteChatService? get chatController => _chatService;
-
   bool get isDisposed => _isDisposed;
 
   // ===== 初始化方法 =====
@@ -278,12 +255,6 @@ class ChatNotifier extends _$ChatNotifier {
     iPrint(
       'initChatService: 聊天服务初始化完成，当前消息数: ${_chatService?.messages.length ?? 0}',
     );
-  }
-
-  /// 保持向后兼容：初始化聊天控制器（别名）
-  @Deprecated('使用 initChatService 代替')
-  void initChatController(String chatType) {
-    initChatService(chatType);
   }
 
   // ===== 状态更新方法 =====
@@ -487,7 +458,9 @@ class ChatNotifier extends _$ChatNotifier {
     Message message, {
     bool sendToServer = true,
   }) async {
-    iPrint('📤 [ChatProvider.addMessage] 开始: msgId=${message.id}, type=$type, toId=$toId, sendToServer=$sendToServer');
+    iPrint(
+      '📤 [ChatProvider.addMessage] 开始: msgId=${message.id}, type=$type, toId=$toId, sendToServer=$sendToServer',
+    );
     try {
       String subtitle = MessageModel.conversationSubtitle(message);
       String msgType = MessageModel.conversationMsgType(message);
@@ -496,7 +469,9 @@ class ChatNotifier extends _$ChatNotifier {
       ConversationRepo repo = ConversationRepo();
       ConversationModel? conversation = await repo.findByPeerId(type, toId);
 
-      iPrint('📤 [ChatProvider.addMessage] 会话查找: conversation=${conversation != null ? conversation.uk3 : 'null'}');
+      iPrint(
+        '📤 [ChatProvider.addMessage] 会话查找: conversation=${conversation != null ? conversation.uk3 : 'null'}',
+      );
 
       if (conversation == null) {
         conversation = await ref
@@ -528,12 +503,18 @@ class ChatNotifier extends _$ChatNotifier {
 
       MessageModel obj = _getMsgFromTMsg(type, conversation.uk3, message);
       String tb = MessageRepo.getTableName(conversation.type);
-      iPrint('📤 [ChatProvider.addMessage] 准备插入数据库: table=$tb, msgId=${obj.id}');
+      iPrint(
+        '📤 [ChatProvider.addMessage] 准备插入数据库: table=$tb, msgId=${obj.id}',
+      );
       try {
         final insertResult = await (MessageRepo(tableName: tb)).insert(obj);
-        iPrint('📤 [ChatProvider.addMessage] 数据库插入完成: msgId=${obj.id}, result=$insertResult');
+        iPrint(
+          '📤 [ChatProvider.addMessage] 数据库插入完成: msgId=${obj.id}, result=$insertResult',
+        );
       } catch (e) {
-        iPrint('❌ [ChatProvider.addMessage] 数据库插入异常: msgId=${obj.id}, error=$e');
+        iPrint(
+          '❌ [ChatProvider.addMessage] 数据库插入异常: msgId=${obj.id}, error=$e',
+        );
         rethrow;
       }
 
@@ -650,9 +631,7 @@ class ChatNotifier extends _$ChatNotifier {
     } else if (message is TextStreamMessage) {
       // 文本流消息（用于 AI 对话等流式输出）
       msgType = 'textStream';
-      payload = {
-        "stream_id": message.streamId,
-      };
+      payload = {"stream_id": message.streamId};
       _cleanAndAddMetadata(payload, metadata);
     } else if (message is SystemMessage) {
       // 系统消息
@@ -662,19 +641,24 @@ class ChatNotifier extends _$ChatNotifier {
       payload.remove('action');
       payload.remove('e2ee');
     } else if (message is CustomMessage) {
-      msgType = 'custom';
+      final customMsgType = message.metadata?['msg_type']?.toString() ?? '';
+      msgType = customMsgType.isNotEmpty ? customMsgType : 'custom';
       // v2.0: 清理 metadata，移除顶层字段（msg_type, action, e2ee）
       final cleanMetadata = Map<String, dynamic>.from(message.metadata ?? {});
       cleanMetadata.remove('msg_type');
       cleanMetadata.remove('action');
       cleanMetadata.remove('e2ee');
       payload = {...cleanMetadata};
-      // custom 类型可能有 custom_type 字段
     } else {
-      // 未知消息类型，默认为 text（兼容性处理）
+      // 未知消息类型，标记为 unsupported
       msgType = 'unsupported';
-      iPrint('[WARN] _getMsgFromTMsg: 未知的消息类型: ${message.runtimeType}，默认使用 unsupported');
-      payload = {'error': 'unknown_message_type', 'runtime_type': message.runtimeType.toString()};
+      iPrint(
+        '[WARN] _getMsgFromTMsg: 未知的消息类型: ${message.runtimeType}，默认使用 unsupported',
+      );
+      payload = {
+        'error': 'unknown_message_type',
+        'runtime_type': message.runtimeType.toString(),
+      };
     }
 
     String sysPrompt = message.metadata?['sys_prompt'] ?? '';
@@ -722,7 +706,9 @@ class ChatNotifier extends _$ChatNotifier {
   Future<bool> _sendWsMsg(MessageModel obj) async {
     iPrint('📤 [_sendWsMsg] 开始: msgId=${obj.id}, status=${obj.status}');
     if (obj.status != IMBoyMessageStatus.sending) {
-      iPrint('⚠️ [_sendWsMsg] 消息状态不是 sending，跳过发送: msgId=${obj.id}, status=${obj.status}');
+      iPrint(
+        '⚠️ [_sendWsMsg] 消息状态不是 sending，跳过发送: msgId=${obj.id}, status=${obj.status}',
+      );
       return true;
     }
 
@@ -742,10 +728,7 @@ class ChatNotifier extends _$ChatNotifier {
     // 检查是否需要端到端加密（action 消息不加密）
     final needEncrypt =
         action.isEmpty &&
-        E2EEService.shouldEncryptOutgoingPayload(
-          obj.type ?? 'C2C',
-          payloadWithTs,
-        );
+        E2EEService.shouldEncryptOutgoingPayload(obj.type ?? 'C2C');
 
     if (needEncrypt) {
       try {
@@ -792,10 +775,19 @@ class ChatNotifier extends _$ChatNotifier {
 
         // v2.0: msg_type 保持原始类型，e2ee 字段表示已加密
         // msgType = obj.msgType ?? '';  // 保持原始值
-      } catch (e) {
-        iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, error=$e，降级为明文发送');
-        // 加密失败，降级为明文发送
-        finalPayload = payloadWithTs;
+      } catch (e, stackTrace) {
+        iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, error=$e');
+        AppLogger.error(
+          'E2EE加密失败(_sendWsMsg) - msgId:${obj.id} msgType:${obj.type} to:${obj.toId}',
+          e,
+          stackTrace,
+        );
+        EasyLoading.showToast(_getE2EEErrorMessage(e));
+        if (obj.id != null && obj.id!.isNotEmpty) {
+          await _updateMessageStatus(obj.id!, IMBoyMessageStatus.error);
+        }
+        // fail-close：加密失败时阻止发送，不降级明文
+        return false;
       }
     } else {
       // v2.0: 普通消息的 payload 只包含内容（不包含 msg_type/action/e2ee）
@@ -844,7 +836,7 @@ class ChatNotifier extends _$ChatNotifier {
       );
 
       final type = msg['type']?.toString() ?? 'C2C';
-      MessageRetry.to.addToRetryQueue(messageId, type);
+      MessageRetry.instance.addToRetryQueue(messageId, type);
 
       iPrint('✅ [_sendWithRetry] 消息已提交到重试队列: msgId=$messageId');
       return true;
@@ -901,7 +893,7 @@ class ChatNotifier extends _$ChatNotifier {
       // 检查是否需要加密（C2C/C2G 消息，非 action 操作）
       final needEncrypt =
           msgAction.isEmpty &&
-          E2EEService.shouldEncryptOutgoingPayload(msgType, payload);
+          E2EEService.shouldEncryptOutgoingPayload(msgType);
 
       if (needEncrypt) {
         try {
@@ -994,7 +986,7 @@ class ChatNotifier extends _$ChatNotifier {
     final msgId = msg['id']?.toString();
     if (msgId != null && msgId.isNotEmpty) {
       final type = msg['type']?.toString() ?? 'C2C';
-      MessageRetry.to.addToRetryQueue(msgId, type);
+      MessageRetry.instance.addToRetryQueue(msgId, type);
     }
 
     iPrint('Chat.sendMessage已提交: ${msg['id']}');
@@ -1039,7 +1031,7 @@ class ChatNotifier extends _$ChatNotifier {
 
     // MessageRetry 现在是单例服务，始终可用
     try {
-      MessageRetry.to.removeFromRetryQueue(msg.id);
+      MessageRetry.instance.removeFromRetryQueue(msg.id);
     } catch (e) {
       // MessageRetry 可能未初始化，忽略错误
     }
@@ -1254,7 +1246,7 @@ class ChatNotifier extends _$ChatNotifier {
         );
 
         final type = map['type']?.toString() ?? 'C2C';
-        MessageRetry.to.addToRetryQueue(messageId, type);
+        MessageRetry.instance.addToRetryQueue(messageId, type);
       }
 
       await sp.setString(key, '[]');
@@ -1286,12 +1278,6 @@ class ChatNotifier extends _$ChatNotifier {
       messageId: messageId,
       duration: duration,
     );
-    // 兼容旧代码（可删除）
-    // await voicePlaybackService.play(
-    //   audioPath: voiceUrlOrPath,
-    //   messageId: messageId,
-    //   durationMs: duration,
-    // );
   }
 
   /// 暂停播放
@@ -1386,7 +1372,7 @@ class ChatNotifier extends _$ChatNotifier {
     try {
       iPrint('开始重试消息: $messageId');
 
-      final success = await MessageRetry.to.retryMessage(
+      final success = await MessageRetry.instance.retryMessage(
         messageId,
         messageType,
       );
@@ -1482,7 +1468,10 @@ class ChatNotifier extends _$ChatNotifier {
         ),
       );
 
-      MessageRetry.to.addToRetryQueue(actionMessage['id'].toString(), chatType);
+      MessageRetry.instance.addToRetryQueue(
+        actionMessage['id'].toString(),
+        chatType,
+      );
 
       return isAdd;
     } catch (_) {
@@ -1524,10 +1513,10 @@ class ChatNotifier extends _$ChatNotifier {
     List<popupmenu.MenuItemProvider> items = [];
 
     bool canCopy = false;
-    String customType = message.metadata?['custom_type'] ?? '';
+    String msgType = message.metadata?['msg_type'] ?? '';
     if (message is TextMessage) {
       canCopy = true;
-    } else if (customType == 'quote') {
+    } else if (msgType == 'quote') {
       canCopy = true;
     }
 
@@ -1547,7 +1536,7 @@ class ChatNotifier extends _$ChatNotifier {
       canSave = true;
     } else if (message is FileMessage) {
       canSave = true;
-    } else if (customType == 'video' || customType == 'audio') {
+    } else if (msgType == 'video' || msgType == 'voice') {
       canSave = true;
     }
 
@@ -1580,10 +1569,11 @@ class ChatNotifier extends _$ChatNotifier {
       );
     }
 
+    final msgTypeForMenu = message.metadata?['msg_type']?.toString() ?? '';
     bool isRevoked =
         (message is CustomMessage) &&
-        customType.toUpperCase().contains('REVOKE');
-    if (customType == 'webrtc_audio' || customType == 'webrtc_video') {
+        msgTypeForMenu.toUpperCase().contains('REVOKE');
+    if (msgTypeForMenu == 'webrtcAudio' || msgTypeForMenu == 'webrtcVideo') {
       isRevoked = true;
     }
 
@@ -2341,7 +2331,7 @@ class ChatNotifier extends _$ChatNotifier {
 
       // 直接从数据库删除，不使用墓碑标记
       // 从重试队列中移除该消息
-      MessageRetry.to.removeFromRetryQueue(messageId);
+      MessageRetry.instance.removeFromRetryQueue(messageId);
       await repo.delete(messageId);
 
       // 记录已删除的消息ID，防止服务端重复投递
@@ -2404,38 +2394,40 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 检查是否是当前正在播放的消息
   bool isCurrentPlayingMessage(String voiceUrlOrPath) {
-    return voicePlaybackService.currentAudioPath == voiceUrlOrPath &&
-        voicePlaybackService.isPlaying;
+    final playbackState = voicePlaybackState;
+    return playbackState.currentAudioPath == voiceUrlOrPath &&
+        playbackState.isPlaying;
   }
 
   /// 检查是否是当前正在暂停的消息
   bool isCurrentPausedMessage(String voiceUrlOrPath) {
-    return voicePlaybackService.currentAudioPath == voiceUrlOrPath &&
-        voicePlaybackService.isPaused;
+    final playbackState = voicePlaybackState;
+    return playbackState.currentAudioPath == voiceUrlOrPath &&
+        playbackState.isPaused;
   }
 
   /// 获取当前播放进度（0.0 到 1.0）
   double? getCurrentPlaybackProgress() {
-    if (voicePlaybackService.currentDuration == 0) {
+    final playbackState = voicePlaybackState;
+    if (playbackState.currentDuration == 0) {
       return null;
     }
-    return voicePlaybackService.currentPosition /
-        voicePlaybackService.currentDuration;
+    return playbackState.currentPosition / playbackState.currentDuration;
   }
 
   /// 获取当前播放位置
   int getCurrentPlaybackPosition() {
-    return voicePlaybackService.currentPosition;
+    return voicePlaybackState.currentPosition;
   }
 
   /// 检查当前是否正在播放语音
-  bool get isPlayingVoice => voicePlaybackService.isPlaying;
+  bool get isPlayingVoice => voicePlaybackState.isPlaying;
 
   /// 检查当前是否处于暂停状态
-  bool get isPausedVoice => voicePlaybackService.isPaused;
+  bool get isPausedVoice => voicePlaybackState.isPaused;
 
   /// 获取当前播放的消息ID
-  String get currentPlayingMessageId => voicePlaybackService.currentMessageId;
+  String get currentPlayingMessageId => voicePlaybackState.currentMessageId;
 
   // ===== 队列管理公共方法 =====
 
@@ -2455,13 +2447,13 @@ class ChatNotifier extends _$ChatNotifier {
   /// 调试音频播放状态
   void debugAudioState() {
     iPrint('=== Audio Debug Info ===');
-    final playbackService = voicePlaybackService;
-    iPrint('Current Audio Path: ${playbackService.currentAudioPath}');
-    iPrint('Current Message ID: ${playbackService.currentMessageId}');
-    iPrint('Is Playing: ${playbackService.isPlaying}');
-    iPrint('Is Paused: ${playbackService.isPaused}');
-    iPrint('Current Position: ${playbackService.currentPosition}ms');
-    iPrint('Current Duration: ${playbackService.currentDuration}ms');
+    final playbackState = voicePlaybackState;
+    iPrint('Current Audio Path: ${playbackState.currentAudioPath}');
+    iPrint('Current Message ID: ${playbackState.currentMessageId}');
+    iPrint('Is Playing: ${playbackState.isPlaying}');
+    iPrint('Is Paused: ${playbackState.isPaused}');
+    iPrint('Current Position: ${playbackState.currentPosition}ms');
+    iPrint('Current Duration: ${playbackState.currentDuration}ms');
     iPrint('Chat Controller: ${_chatService != null ? "initialized" : "null"}');
     if (_chatService != null) {
       iPrint('Messages Count: ${_chatService!.messages.length}');

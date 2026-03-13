@@ -1,6 +1,6 @@
 /// 组件层枚举定义
 ///
-/// CustomMessageType 已迁移至 lib/service/message_type_constants.dart
+/// 消息类型常量统一在 lib/service/message_type_constants.dart 维护
 library;
 
 // ============================================================================

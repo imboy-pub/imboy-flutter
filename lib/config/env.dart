@@ -18,8 +18,6 @@ final envMap = {
   'dev': EnvDev(),
   'local_home': EnvLocalHome(),
   'local_office': EnvLocalOffice(),
-  // 保留 'local' 作为向后兼容，默认使用 local_office
-  'local': EnvLocalOffice(),
 };
 
 abstract interface class Env implements EnvField {

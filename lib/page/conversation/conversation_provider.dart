@@ -5,10 +5,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart'
+    show ConversationAuthoritySyncEvent;
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/api/conversation_api.dart';
 import 'package:imboy/store/model/contact_model.dart' show ContactModel;
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
@@ -63,6 +67,10 @@ class ConversationState {
 @riverpod
 class ConversationNotifier extends _$ConversationNotifier {
   final Map<String, Timer> _debounceTimers = {};
+  final ConversationApi _conversationApi;
+
+  ConversationNotifier({ConversationApi? conversationApi})
+    : _conversationApi = conversationApi ?? ConversationApi();
 
   @override
   ConversationState build() {
@@ -114,6 +122,17 @@ class ConversationNotifier extends _$ConversationNotifier {
     final newRemindMap = Map<String, int>.from(state.conversationRemind);
     newRemindMap[uk3] = val;
     state = state.copyWith(conversationRemind: newRemindMap);
+  }
+
+  // Apply a full conversation snapshot from backend/local persistence.
+  // This keeps in-memory list/remind state aligned with one authoritative model.
+  void applyConversationSnapshot(ConversationModel conversation) {
+    if (conversation.uk3.isEmpty) return;
+    replaceConversation(conversation);
+    setConversationRemindLocal(
+      conversation.uk3,
+      conversation.unreadNum > 0 ? conversation.unreadNum : 0,
+    );
   }
 
   // Remove conversation remind
@@ -289,11 +308,211 @@ class ConversationNotifier extends _$ConversationNotifier {
     }
   }
 
+  String _normalizeAuthoritativeType(String rawType) {
+    switch (rawType.trim().toLowerCase()) {
+      case 'c2c':
+        return 'C2C';
+      case 'c2g':
+        return 'C2G';
+      default:
+        return '';
+    }
+  }
+
+  int _parseAuthoritativeServerTs(dynamic rawTs) {
+    final ts = parseModelInt(rawTs);
+    if (ts > 0) return ts;
+    return parseModelDateTime(
+      rawTs,
+      defaultValue: DateTime.fromMillisecondsSinceEpoch(0),
+    ).millisecondsSinceEpoch;
+  }
+
+  String _resolveAuthoritativeMsgType(Map<String, dynamic> lastMsg) {
+    final payload =
+        parseModelJsonMap(lastMsg['payload']) ?? <String, dynamic>{};
+    final msgType = parseModelString(
+      lastMsg['msg_type'] ?? payload['msg_type'] ?? lastMsg['type'],
+    );
+    if (msgType.isNotEmpty) return msgType;
+    final text = parseModelString(lastMsg['text'] ?? payload['text']);
+    return text.isNotEmpty ? 'text' : '';
+  }
+
+  String _resolveAuthoritativeSubtitle(
+    Map<String, dynamic> lastMsg,
+    String msgType,
+  ) {
+    final payload =
+        parseModelJsonMap(lastMsg['payload']) ?? <String, dynamic>{};
+    final text = parseModelString(lastMsg['text'] ?? payload['text']);
+    if (text.isNotEmpty) return text;
+    if (msgType == 'text' || msgType == 'quote') {
+      return parseModelString(lastMsg['content'] ?? payload['content']);
+    }
+    return '';
+  }
+
+  String _resolveAuthoritativeAvatar(Map<String, dynamic> lastMsg) {
+    final payload =
+        parseModelJsonMap(lastMsg['payload']) ?? <String, dynamic>{};
+    return parseModelString(
+      lastMsg['avatar'] ??
+          lastMsg['from_avatar'] ??
+          payload['avatar'] ??
+          payload['from_avatar'],
+    );
+  }
+
+  Map<String, dynamic> _mergeAuthoritativePayload({
+    required Map<String, dynamic>? existingPayload,
+    required int serverTs,
+    required bool isPinned,
+    required Map<String, dynamic> lastMsg,
+  }) {
+    return <String, dynamic>{
+      ...?existingPayload,
+      'authoritative': <String, dynamic>{
+        'server_ts': serverTs,
+        'is_pinned': isPinned,
+        'last_msg': lastMsg,
+      },
+    };
+  }
+
+  Future<void> syncAuthoritativeConversations({
+    String trigger = 'manual',
+  }) async {
+    const source = 'server_authoritative_pull';
+    int fetchedCount = 0;
+    int synced = 0;
+    try {
+      final entries = await _conversationApi.listMine();
+      fetchedCount = entries.length;
+      if (entries.isEmpty) {
+        AppEventBus.fireTracked(
+          ConversationAuthoritySyncEvent(
+            trigger: trigger,
+            source: source,
+            fetchedCount: fetchedCount,
+            syncedCount: synced,
+            success: true,
+          ),
+        );
+        return;
+      }
+
+      final repo = ConversationRepo();
+
+      for (final entry in entries) {
+        final peerId = parseModelString(entry['conversation_id']);
+        final type = _normalizeAuthoritativeType(
+          parseModelString(entry['conversation_type']),
+        );
+        if (peerId.isEmpty || type.isEmpty) {
+          continue;
+        }
+
+        final serverTs = _parseAuthoritativeServerTs(entry['server_ts']);
+        final lastMsgId = parseModelString(entry['last_msg_id']);
+        final lastMsg =
+            parseModelJsonMap(entry['last_msg']) ?? <String, dynamic>{};
+        final isPinned = parseModelBool(entry['is_pinned']);
+        final msgType = _resolveAuthoritativeMsgType(lastMsg);
+        final subtitle = _resolveAuthoritativeSubtitle(lastMsg, msgType);
+        final avatar = _resolveAuthoritativeAvatar(lastMsg);
+
+        final existing = await repo.findByPeerId(type, peerId);
+        if (existing == null) {
+          final created = ConversationModel(
+            id: 0,
+            peerId: peerId,
+            avatar: avatar,
+            title: '',
+            subtitle: subtitle,
+            type: type,
+            msgType: msgType,
+            lastTime: serverTs,
+            lastMsgId: lastMsgId,
+            unreadNum: 0,
+            isShow: 1,
+            payload: _mergeAuthoritativePayload(
+              existingPayload: null,
+              serverTs: serverTs,
+              isPinned: isPinned,
+              lastMsg: lastMsg,
+            ),
+          );
+          await repo.insert(created);
+          synced++;
+          continue;
+        }
+
+        final shouldAdvance = serverTs > 0 && serverTs >= existing.lastTime;
+        final data = <String, dynamic>{
+          ConversationRepo.isShow: 1,
+          ConversationRepo.payload: _mergeAuthoritativePayload(
+            existingPayload: existing.payload,
+            serverTs: serverTs,
+            isPinned: isPinned,
+            lastMsg: lastMsg,
+          ),
+        };
+
+        if (shouldAdvance) {
+          data[ConversationRepo.lastTime] = serverTs;
+          if (lastMsgId.isNotEmpty) {
+            data[ConversationRepo.lastMsgId] = lastMsgId;
+          }
+          if (msgType.isNotEmpty) {
+            data[ConversationRepo.msgType] = msgType;
+          }
+          data[ConversationRepo.subtitle] = subtitle;
+          if (existing.avatar.isEmpty && avatar.isNotEmpty) {
+            data[ConversationRepo.avatar] = avatar;
+          }
+        }
+
+        await repo.updateById(existing.id, data);
+        synced++;
+      }
+
+      iPrint(
+        'ConversationNotifier: authoritative sync finished, items=$synced',
+      );
+      AppEventBus.fireTracked(
+        ConversationAuthoritySyncEvent(
+          trigger: trigger,
+          source: source,
+          fetchedCount: fetchedCount,
+          syncedCount: synced,
+          success: true,
+        ),
+      );
+    } catch (e, s) {
+      iPrint('ConversationNotifier: authoritative sync failed: $e; $s');
+      AppEventBus.fireTracked(
+        ConversationAuthoritySyncEvent(
+          trigger: trigger,
+          source: source,
+          fetchedCount: fetchedCount,
+          syncedCount: synced,
+          success: false,
+        ),
+      );
+    }
+  }
+
   Future<List<ConversationModel>> conversationsList({
     String type = '',
     bool recalculateRemind = true,
+    bool syncAuthoritative = false,
+    String syncTrigger = 'manual',
   }) async {
     try {
+      if (syncAuthoritative) {
+        await syncAuthoritativeConversations(trigger: syncTrigger);
+      }
       List<ConversationModel> li = await (ConversationRepo()).list(type: type);
       await Future.wait(
         li.map((obj) async {
@@ -319,6 +538,18 @@ class ConversationNotifier extends _$ConversationNotifier {
     } finally {
       state = state.copyWith(isLoading: false);
     }
+  }
+
+  Future<void> syncAuthoritativeConversationList({
+    String trigger = 'manual',
+  }) async {
+    await conversationsList(syncAuthoritative: true, syncTrigger: trigger);
+  }
+
+  Future<void> refreshConversationListLocal({
+    bool recalculateRemind = true,
+  }) async {
+    await conversationsList(recalculateRemind: recalculateRemind);
   }
 
   Future<void> _cleanupExpiredBurnLastMessages(

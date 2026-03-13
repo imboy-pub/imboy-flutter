@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:feedback/feedback.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
+import 'package:imboy/service/feature_registry.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -18,6 +21,24 @@ import 'package:imboy/component/location/widget.dart';
 // 数据模型
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
+
+bool _matchesPublicPath(String currentPath, String publicPath) {
+  if (publicPath == AppRoutes.initial) {
+    return currentPath == AppRoutes.initial;
+  }
+  return currentPath == publicPath || currentPath.startsWith('$publicPath/');
+}
+
+bool _isPublicPath(String currentPath) {
+  const publicPaths = [
+    AppRoutes.initial,
+    AppRoutes.signIn,
+    AppRoutes.signUp,
+    '/welcome',
+    AppRoutes.forgotPassword,
+  ];
+  return publicPaths.any((path) => _matchesPublicPath(currentPath, path));
+}
 
 /// GoRouter 路由配置
 ///
@@ -37,40 +58,42 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final isLogin = UserRepoLocal.to.isLoggedIn;
       final currentPath = state.matchedLocation;
 
-      // 免登录页面列表
-      const publicPaths = [
-        AppRoutes.initial,
-        AppRoutes.signIn,
-        AppRoutes.signUp,
-        '/welcome',
-        AppRoutes.forgotPassword,
-      ];
-
-      // 如果是免登录页面，直接放行
-      if (publicPaths.any((path) => currentPath.startsWith(path))) {
+      if (_isPublicPath(currentPath)) {
         return null;
       }
 
-      // 如果已登录，放行
-      if (isLogin) {
-        return null;
+      if (!isLogin) {
+        Future.delayed(const Duration(seconds: 1), () {
+          if (context.mounted) {
+            final t = context.t;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(t.loginExpiredMessage),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        });
+
+        return AppRoutes.signIn;
       }
 
-      // 未登录且不是免登录页面，跳转到登录页
-      // 显示登录过期提示
-      Future.delayed(const Duration(seconds: 1), () {
-        if (context.mounted) {
-          final t = context.t;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t.loginExpiredMessage),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      });
+      final featureKey = AppFeatureRegistry.featureForPath(currentPath);
+      if (featureKey != null && !AppFeatureRegistry.isEnabled(featureKey)) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('当前功能未启用'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        });
+        return '/bottom_navigation';
+      }
 
-      return AppRoutes.signIn;
+      return null;
     },
 
     routes: [
@@ -136,76 +159,118 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ConversationPage(),
       ),
 
+      // ==================== 朋友圈相关 ====================
+      GoRoute(
+        path: AppRoutes.momentFeed,
+        name: 'moment_feed',
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const MomentFeedPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.momentCreate,
+        name: 'moment_create',
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const MomentCreatePage()),
+      ),
+      GoRoute(
+        path: '${AppRoutes.momentRoot}/:momentId',
+        name: 'moment_detail',
+        pageBuilder: (context, state) {
+          final momentId = state.pathParameters['momentId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: MomentDetailPage(momentId: momentId),
+          );
+        },
+      ),
+
       // ==================== 聊天相关 ====================
-      // 聊天页面路由
+      // 聊天页面路由 - 使用 CupertinoPage 支持 iOS 风格滑动返回
       GoRoute(
         path: '/chat/:peerId',
         name: 'chat',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final peerId = state.pathParameters['peerId'] ?? '';
           // 支持两种传参方式：queryParameters 和 extra
           final type = state.uri.queryParameters['type'] ?? 'C2C';
+          final msgId = state.uri.queryParameters['msg_id'] ?? '';
           final title = state.uri.queryParameters['title'] ?? '';
           final avatar = state.uri.queryParameters['avatar'] ?? '';
           final sign = state.uri.queryParameters['sign'] ?? '';
           final extra = state.extra as Map<String, dynamic>? ?? {};
           // extra 参数优先级更高
-          return ChatPage(
-            peerId: peerId,
-            type: extra['type']?.toString() ?? type,
-            peerTitle: extra['title']?.toString() ?? title,
-            peerAvatar: extra['avatar']?.toString() ?? avatar,
-            peerSign: extra['sign']?.toString() ?? sign,
-            options: extra['options'] as Map<String, dynamic>?,
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ChatPage(
+              peerId: peerId,
+              type: extra['type']?.toString() ?? type,
+              peerTitle: extra['title']?.toString() ?? title,
+              peerAvatar: extra['avatar']?.toString() ?? avatar,
+              peerSign: extra['sign']?.toString() ?? sign,
+              msgId: extra['msg_id']?.toString() ?? msgId,
+              options: extra['options'] as Map<String, dynamic>?,
+            ),
           );
         },
       ),
-      // 聊天设置页
+      // 聊天设置页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
       GoRoute(
         path: '/chat_setting/:peerId',
         name: 'chat_setting',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final peerId = state.pathParameters['peerId'] ?? '';
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ChatSettingPage(
-            peerId,
-            type: extra['type']?.toString() ?? 'C2C',
-            options: extra['options'] as Map<String, dynamic>?,
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ChatSettingPage(
+              peerId,
+              type: extra['type']?.toString() ?? 'C2C',
+              options: extra['options'] as Map<String, dynamic>?,
+            ),
           );
         },
       ),
-      // 转发消息页
+      // 转发消息页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
       GoRoute(
         path: '/chat/send_to',
         name: 'send_to',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return SendToPage(msg: extra?['msg']);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: SendToPage(msg: extra?['msg']),
+          );
         },
       ),
       // 发起聊天页（顶层路由，用于从任何地方发起聊天）
       GoRoute(
         path: '/launch_chat',
         name: 'launch_chat',
-        builder: (context, state) => const LaunchChatPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const LaunchChatPage()),
       ),
       // 新路由（使用 Riverpod 版本的 ChatPageRiverpod）
       // 示例：/chat_riverpod/user123?type=C2C&title=测试&avatar=xxx
       GoRoute(
         path: '/chat_riverpod/:peerId',
         name: 'chat_riverpod',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final peerId = state.pathParameters['peerId'] ?? '';
           final type = state.uri.queryParameters['type'] ?? 'C2C';
+          final msgId = state.uri.queryParameters['msg_id'] ?? '';
           final title = state.uri.queryParameters['title'] ?? '';
           final avatar = state.uri.queryParameters['avatar'] ?? '';
           final sign = state.uri.queryParameters['sign'] ?? '';
-          return ChatPage(
-            peerId: peerId,
-            type: type,
-            peerTitle: title,
-            peerAvatar: avatar,
-            peerSign: sign,
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ChatPage(
+              peerId: peerId,
+              type: type,
+              peerTitle: title,
+              peerAvatar: avatar,
+              peerSign: sign,
+              msgId: msgId,
+            ),
           );
         },
       ),
@@ -219,56 +284,72 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/people/:id',
             name: 'people_info',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final id = state.pathParameters['id'] ?? '';
               final scene =
                   state.uri.queryParameters['scene'] ?? 'contact_page';
-              return PeopleInfoPage(id: id, scene: scene);
+              return CupertinoPage(
+                key: state.pageKey,
+                child: PeopleInfoPage(id: id, scene: scene),
+              );
             },
           ),
           GoRoute(
             path: '/new_friend',
             name: 'new_friend',
-            builder: (context, state) => NewFriendPage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: NewFriendPage()),
           ),
           GoRoute(
             path: '/add_friend',
             name: 'add_friend',
-            builder: (context, state) => AddFriendPage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: AddFriendPage()),
           ),
           GoRoute(
             path: '/select_friend',
             name: 'select_friend',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return SelectFriendPage(
-                peer: (extra['peer'] as Map<String, String>?) ?? {},
-                peerIsReceiver: extra['peerIsReceiver'] as bool? ?? false,
+              return CupertinoPage(
+                key: state.pageKey,
+                child: SelectFriendPage(
+                  peer: (extra['peer'] as Map<String, String>?) ?? {},
+                  peerIsReceiver: extra['peerIsReceiver'] as bool? ?? false,
+                ),
               );
             },
           ),
           GoRoute(
             path: '/people_nearby',
             name: 'people_nearby',
-            builder: (context, state) => PeopleNearbyPage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: PeopleNearbyPage()),
           ),
           GoRoute(
             path: '/recently_registered_user',
             name: 'recently_registered_user',
-            builder: (context, state) => RecentlyRegisteredUserPage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: RecentlyRegisteredUserPage(),
+            ),
           ),
           GoRoute(
             path: '/people_info_more/:id',
             name: 'people_info_more',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final id = state.pathParameters['id'] ?? '';
-              return PeopleInfoMorePage(id: id);
+              return CupertinoPage(
+                key: state.pageKey,
+                child: PeopleInfoMorePage(id: id),
+              );
             },
           ),
           GoRoute(
             path: '/tags',
             name: 'user_tag_list',
-            builder: (context, state) => ContactTagListPage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: ContactTagListPage()),
           ),
         ],
       ),
@@ -287,83 +368,113 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/detail/:groupId',
             name: 'group_detail',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final groupId = state.pathParameters['groupId']!;
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return GroupDetailPage(
-                groupId: groupId,
-                title: extra['title']?.toString() ?? '',
-                memberCount:
-                    int.tryParse(extra['memberCount']?.toString() ?? '0') ?? 0,
-                options: extra['options'] as Map<String, dynamic>?,
+              return CupertinoPage(
+                key: state.pageKey,
+                child: GroupDetailPage(
+                  groupId: groupId,
+                  title: extra['title']?.toString() ?? '',
+                  memberCount:
+                      int.tryParse(extra['memberCount']?.toString() ?? '0') ??
+                      0,
+                  options: extra['options'] as Map<String, dynamic>?,
+                ),
               );
             },
           ),
           GoRoute(
             path: '/member',
             name: 'group_member',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return GroupMemberPage(
-                groupId: extra['groupId']?.toString() ?? '',
+              return CupertinoPage(
+                key: state.pageKey,
+                child: GroupMemberPage(
+                  groupId: extra['groupId']?.toString() ?? '',
+                ),
               );
             },
           ),
           GoRoute(
             path: '/add_member',
             name: 'group_add_member',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return AddMemberPage(groupId: extra['groupId']?.toString() ?? '');
+              return CupertinoPage(
+                key: state.pageKey,
+                child: AddMemberPage(
+                  groupId: extra['groupId']?.toString() ?? '',
+                ),
+              );
             },
           ),
           GoRoute(
             path: '/remove_member',
             name: 'group_remove_member',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return RemoveMemberPage(
-                groupId: extra['groupId']?.toString() ?? '',
+              return CupertinoPage(
+                key: state.pageKey,
+                child: RemoveMemberPage(
+                  groupId: extra['groupId']?.toString() ?? '',
+                ),
               );
             },
           ),
           GoRoute(
             path: '/announcement',
             name: 'group_announcement',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              return GroupAnnouncementPage(
-                groupId: extra['groupId']?.toString() ?? '',
+              return CupertinoPage(
+                key: state.pageKey,
+                child: GroupAnnouncementPage(
+                  groupId: extra['groupId']?.toString() ?? '',
+                ),
               );
             },
           ),
           GoRoute(
             path: '/launch_chat',
             name: 'group_launch_chat',
-            builder: (context, state) => const LaunchChatPage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const LaunchChatPage(),
+            ),
           ),
           GoRoute(
             path: '/select',
             name: 'group_select',
-            builder: (context, state) => const GroupSelectPage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const GroupSelectPage(),
+            ),
           ),
           GoRoute(
             path: '/face_to_face',
             name: 'face_to_face',
-            builder: (context, state) => const FaceToFacePage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const FaceToFacePage(),
+            ),
           ),
           GoRoute(
             path: '/face_to_face_confirm',
             name: 'face_to_face_confirm',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               final code = extra?['code']?.toString() ?? '';
               final gid = extra?['gid']?.toString() ?? '';
               final memberList = extra?['memberList'] as List<dynamic>? ?? [];
-              return FaceToFaceConfirmPage(
-                gid: gid,
-                code: code,
-                memberList: memberList.cast(),
+              return CupertinoPage(
+                key: state.pageKey,
+                child: FaceToFaceConfirmPage(
+                  gid: gid,
+                  code: code,
+                  memberList: memberList.cast(),
+                ),
               );
             },
           ),
@@ -380,47 +491,73 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/discover',
             name: 'channel_discover',
-            builder: (context, state) => const ChannelDiscoverPage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const ChannelDiscoverPage(),
+            ),
           ),
           GoRoute(
             path: '/create',
             name: 'channel_create',
-            builder: (context, state) => const ChannelCreatePage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const ChannelCreatePage(),
+            ),
+          ),
+          GoRoute(
+            path: '/invitations',
+            name: 'channel_invitations',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const ChannelInvitationPage(),
+            ),
           ),
           GoRoute(
             path: '/:channelId',
             name: 'channel_detail',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final channelId = state.pathParameters['channelId']!;
-              return ChannelDetailPage(channelId: channelId);
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ChannelDetailPage(channelId: channelId),
+              );
             },
             routes: [
               GoRoute(
                 path: '/edit',
                 name: 'channel_edit',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final channelId = state.pathParameters['channelId']!;
                   final extra = state.extra;
-                  return ChannelEditPage(
-                    channelId: channelId,
-                    channel: extra is ChannelModel ? extra : null,
+                  return CupertinoPage(
+                    key: state.pageKey,
+                    child: ChannelEditPage(
+                      channelId: channelId,
+                      channel: extra is ChannelModel ? extra : null,
+                    ),
                   );
                 },
               ),
               GoRoute(
                 path: '/admins',
                 name: 'channel_admins',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final channelId = state.pathParameters['channelId']!;
-                  return ChannelAdminPage(channelId: channelId);
+                  return CupertinoPage(
+                    key: state.pageKey,
+                    child: ChannelAdminPage(channelId: channelId),
+                  );
                 },
               ),
               GoRoute(
                 path: '/subscribers',
                 name: 'channel_subscribers',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final channelId = state.pathParameters['channelId']!;
-                  return ChannelSubscriberPage(channelId: channelId);
+                  return CupertinoPage(
+                    key: state.pageKey,
+                    child: ChannelSubscriberPage(channelId: channelId),
+                  );
                 },
               ),
             ],
@@ -437,158 +574,216 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/mine/setting',
         name: 'mine_setting',
-        builder: (context, state) => const SettingPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const SettingPage()),
       ),
       GoRoute(
         path: '/wallet',
         name: 'wallet',
-        builder: (context, state) => const WalletPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const WalletPage()),
       ),
       GoRoute(
         path: '/favorites',
         name: 'favorites',
-        builder: (context, state) => const UserCollectPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const UserCollectPage()),
       ),
       GoRoute(
         path: '/denylist',
         name: 'denylist',
-        builder: (context, state) => DenylistPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: DenylistPage()),
       ),
       GoRoute(
         path: '/storage_space',
         name: 'storage_space',
-        builder: (context, state) => StorageSpacePage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: StorageSpacePage()),
       ),
       GoRoute(
         path: '/devices',
         name: 'devices',
-        builder: (context, state) => const UserDevicePage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const UserDevicePage()),
       ),
       GoRoute(
         path: '/settings',
         name: 'settings',
-        builder: (context, state) => SettingPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: SettingPage()),
       ),
       GoRoute(
         path: '/account_security',
         name: 'account_security',
-        builder: (context, state) => const AccountSecurityPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const AccountSecurityPage(),
+        ),
       ),
       GoRoute(
         path: '/language',
         name: 'language',
-        builder: (context, state) => const LanguagePage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const LanguagePage()),
       ),
       GoRoute(
         path: '/dark_model',
         name: 'dark_model',
-        builder: (context, state) => const DarkModelPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const DarkModelPage()),
       ),
       GoRoute(
         path: '/font_size',
         name: 'font_size',
-        builder: (context, state) => const FontSizePage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const FontSizePage()),
       ),
       GoRoute(
         path: '/logout_account',
         name: 'logout_account',
-        builder: (context, state) => const LogoutAccountPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const LogoutAccountPage()),
       ),
       GoRoute(
         path: '/e2ee_key_recovery',
         name: 'e2ee_key_recovery',
-        builder: (context, state) => const E2EEKeyRecoveryPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const E2EEKeyRecoveryPage(),
+        ),
       ),
       GoRoute(
         path: '/e2ee_transfer',
         name: 'e2ee_transfer',
-        builder: (context, state) => const E2EETransferPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const E2EETransferPage()),
       ),
       GoRoute(
         path: '/e2ee_social',
         name: 'e2ee_social',
-        builder: (context, state) => const E2EESocialPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const E2EESocialPage()),
       ),
       GoRoute(
         path: '/e2ee_social_create',
         name: 'e2ee_social_create',
-        builder: (context, state) => const E2EESocialCreatePage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const E2EESocialCreatePage(),
+        ),
       ),
       GoRoute(
         path: '/e2ee_social_recover',
         name: 'e2ee_social_recover',
-        builder: (context, state) => const E2EESocialRecoverPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const E2EESocialRecoverPage(),
+        ),
       ),
       GoRoute(
         path: '/e2ee_social_manage',
         name: 'e2ee_social_manage',
-        builder: (context, state) => const E2EESocialManagePage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const E2EESocialManagePage(),
+        ),
       ),
       GoRoute(
         path: '/e2ee_proxy_selector',
         name: 'e2ee_proxy_selector',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           final selectedUids = extra['selectedUids'] as List<String>? ?? [];
           final requiredCount = extra['requiredCount'] as int? ?? 3;
-          return E2EEProxySelectorPage(
-            selectedUids: selectedUids,
-            requiredCount: requiredCount,
+          return CupertinoPage(
+            key: state.pageKey,
+            child: E2EEProxySelectorPage(
+              selectedUids: selectedUids,
+              requiredCount: requiredCount,
+            ),
           );
         },
       ),
       GoRoute(
         path: '/e2ee_backup_export',
         name: 'e2ee_backup_export',
-        builder: (context, state) => const E2EEBackupExportPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const E2EEBackupExportPage(),
+        ),
       ),
       GoRoute(
         path: '/e2ee_backup_import',
         name: 'e2ee_backup_import',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           final initialFilePath = extra['initialFilePath'] as String?;
-          return E2EEBackupImportPage(initialFilePath: initialFilePath);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: E2EEBackupImportPage(initialFilePath: initialFilePath),
+          );
         },
       ),
       GoRoute(
         path: '/e2ee_transfer_send',
         name: 'e2ee_transfer_send',
-        builder: (context, state) => const E2EETransferSendPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const E2EETransferSendPage(),
+        ),
       ),
       GoRoute(
         path: '/e2ee_transfer_receive',
         name: 'e2ee_transfer_receive',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           final sessionId = extra['sessionId'] as String?;
-          return E2EETransferReceivePage(sessionId: sessionId);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: E2EETransferReceivePage(sessionId: sessionId),
+          );
         },
       ),
       GoRoute(
         path: '/change_password',
         name: 'change_password',
-        builder: (context, state) => const ChangePasswordPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const ChangePasswordPage(),
+        ),
       ),
       GoRoute(
         path: '/feedback',
         name: 'feedback',
-        builder: (context, state) => const FeedbackPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const BetterFeedback(
+            mode: FeedbackMode.navigate,
+            child: FeedbackPage(),
+          ),
+        ),
         routes: [
           GoRoute(
             path: '/detail/:feedbackId',
             name: 'feedback_detail',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               // 从状态管理或其他方式获取 model 数据
               // 这里需要传递 FeedbackModel，可以通过 state.extra 或其他方式
               final extra = state.extra as Map<String, dynamic>?;
               final model = extra?['model'] as FeedbackModel?;
               if (model == null) {
-                return Scaffold(
-                  body: Center(child: Text('Feedback model not found')),
+                return CupertinoPage(
+                  key: state.pageKey,
+                  child: Scaffold(
+                    body: Center(child: Text('Feedback model not found')),
+                  ),
                 );
               }
-              return FeedbackDetailPage(model: model);
+              return CupertinoPage(
+                key: state.pageKey,
+                child: FeedbackDetailPage(model: model),
+              );
             },
           ),
         ],
@@ -596,7 +791,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/select_region',
         name: 'select_region',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           // 从 state.extra 获取参数
           final extra = state.extra as Map<String, dynamic>?;
           final parent = extra?['parent']?.toString() ?? '';
@@ -608,11 +803,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               extra?['outCallback'] as Future<bool> Function(String)? ??
               (a) async => true;
 
-          return SelectRegionPage(
-            parent: parent,
-            children: children,
-            callback: callback,
-            outCallback: outCallback,
+          return CupertinoPage(
+            key: state.pageKey,
+            child: SelectRegionPage(
+              parent: parent,
+              children: children,
+              callback: callback,
+              outCallback: outCallback,
+            ),
           );
         },
       ),
@@ -621,47 +819,59 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/markdown',
         name: 'markdown',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final title = state.uri.queryParameters['title'] ?? '';
           final url = state.uri.queryParameters['url'] ?? '';
           final selectable = state.uri.queryParameters['selectable'] == 'true';
-          return MarkdownPage(title: title, url: url, selectable: selectable);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: MarkdownPage(title: title, url: url, selectable: selectable),
+          );
         },
       ),
       GoRoute(
         path: '/video_viewer',
         name: 'video_viewer',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final url = state.uri.queryParameters['url'] ?? '';
           final thumb = state.uri.queryParameters['thumb'] ?? '';
-          return VideoViewerPage(url: url, thumb: thumb);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: VideoViewerPage(url: url, thumb: thumb),
+          );
         },
       ),
       GoRoute(
         path: '/upgrade',
         name: 'upgrade',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final downLoadUrl = state.uri.queryParameters['downLoadUrl'] ?? '';
           final message = state.uri.queryParameters['message'] ?? '';
           final version = state.uri.queryParameters['version'] ?? '';
           final isForce = state.uri.queryParameters['isForce'] == 'true';
-          return UpgradePage(
-            downLoadUrl: downLoadUrl,
-            message: message,
-            version: version,
-            isForce: isForce,
+          return CupertinoPage(
+            key: state.pageKey,
+            child: UpgradePage(
+              downLoadUrl: downLoadUrl,
+              message: message,
+              version: version,
+              isForce: isForce,
+            ),
           );
         },
       ),
       GoRoute(
         path: '/network_failure_guidance',
         name: 'network_failure_guidance',
-        builder: (context, state) => const NetworkFailureGuidancePage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const NetworkFailureGuidancePage(),
+        ),
       ),
       GoRoute(
         path: '/map_location_picker',
         name: 'map_location_picker',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           // 从 state.extra 获取参数
           final extra = state.extra as Map<String, dynamic>? ?? {};
           final lat = extra['lat'] as double? ?? 39.909187;
@@ -669,13 +879,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final citycode = extra['citycode']?.toString() ?? '';
           final isMapImage = extra['isMapImage'] as bool? ?? false;
 
-          return MapLocationPicker(
-            arguments: {
-              'lat': lat,
-              'lng': lng,
-              'citycode': citycode,
-              'isMapImage': isMapImage,
-            },
+          return CupertinoPage(
+            key: state.pageKey,
+            child: MapLocationPicker(
+              arguments: {
+                'lat': lat,
+                'lng': lng,
+                'citycode': citycode,
+                'isMapImage': isMapImage,
+              },
+            ),
           );
         },
       ),
@@ -689,12 +902,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/publisher',
             name: 'live_room_publisher',
-            builder: (context, state) => const PublisherPage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: const PublisherPage()),
           ),
           GoRoute(
             path: '/subscriber',
             name: 'live_room_subscriber',
-            builder: (context, state) => const SubscriberPage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const SubscriberPage(),
+            ),
           ),
         ],
       ),
@@ -703,14 +920,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/scanner',
         name: 'scanner',
-        builder: (context, state) => const ScannerPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const ScannerPage()),
       ),
       GoRoute(
         path: '/scanner/result',
         name: 'scanner_result',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final scanResult = state.uri.queryParameters['result'] ?? '';
-          return ScannerResultPage(scanResult: scanResult);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ScannerResultPage(scanResult: scanResult),
+          );
         },
       ),
       GoRoute(
@@ -721,32 +942,47 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/qrcode/user',
         name: 'qrcode_user',
-        builder: (context, state) => UserQrCodePage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: UserQrCodePage()),
       ),
       GoRoute(
         path: '/qrcode/group',
         name: 'qrcode_group',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           // 从 state.extra 获取 GroupModel
           final extra = state.extra;
           if (extra == null) {
-            return Scaffold(body: Center(child: Text('Group data not found')));
+            return CupertinoPage(
+              key: state.pageKey,
+              child: Scaffold(
+                body: Center(child: Text('Group data not found')),
+              ),
+            );
           }
-          return GroupQrCodePage(group: extra as dynamic);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupQrCodePage(group: extra as dynamic),
+          );
         },
       ),
       GoRoute(
         path: '/qrcode/channel',
         name: 'qrcode_channel',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           // 从 state.extra 获取频道数据
           final extra = state.extra as Map<String, dynamic>?;
           if (extra == null) {
-            return Scaffold(
-              body: Center(child: Text('Channel data not found')),
+            return CupertinoPage(
+              key: state.pageKey,
+              child: Scaffold(
+                body: Center(child: Text('Channel data not found')),
+              ),
             );
           }
-          return ChannelQrCodePage(channelData: extra);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ChannelQrCodePage(channelData: extra),
+          );
         },
       ),
 
@@ -754,37 +990,45 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/personal_info',
         name: 'personal_info',
-        builder: (context, state) => const PersonalInfoPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const PersonalInfoPage()),
         routes: [
           GoRoute(
             path: '/set_nickname',
             name: 'set_nickname',
-            builder: (context, state) => const SetNicknamePage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const SetNicknamePage(),
+            ),
           ),
           GoRoute(
             path: '/set_gender',
             name: 'set_gender',
-            builder: (context, state) => const SetGenderPage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: const SetGenderPage()),
           ),
           GoRoute(
             path: '/set_region',
             name: 'set_region',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final title = state.uri.queryParameters['title'] ?? '';
               final currentValue =
                   state.uri.queryParameters['currentValue'] ?? '';
 
-              return SetRegionPage(
-                title: title.isNotEmpty ? title : t.setRegion,
-                currentValue: currentValue,
-                onSave: (val) async => true,
+              return CupertinoPage(
+                key: state.pageKey,
+                child: SetRegionPage(
+                  title: title.isNotEmpty ? title : t.setRegion,
+                  currentValue: currentValue,
+                  onSave: (val) async => true,
+                ),
               );
             },
           ),
           GoRoute(
             path: '/update',
             name: 'update',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final title = state.uri.queryParameters['title'] ?? '';
               final value = state.uri.queryParameters['value'] ?? '';
               final field = state.uri.queryParameters['field'] ?? 'input';
@@ -794,29 +1038,37 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   ) ??
                   56;
 
-              return UpdatePage(
-                title: title.isNotEmpty ? title : '',
-                value: value,
-                field: field,
-                maxLength: maxLength,
-                callback: (val) async => true,
+              return CupertinoPage(
+                key: state.pageKey,
+                child: UpdatePage(
+                  title: title.isNotEmpty ? title : '',
+                  value: value,
+                  field: field,
+                  maxLength: maxLength,
+                  callback: (val) async => true,
+                ),
               );
             },
           ),
           GoRoute(
             path: '/more',
             name: 'more',
-            builder: (context, state) => const MorePage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: const MorePage()),
           ),
           GoRoute(
             path: '/profile',
             name: 'profile',
-            builder: (context, state) => const ProfilePage(),
+            pageBuilder: (context, state) =>
+                CupertinoPage(key: state.pageKey, child: const ProfilePage()),
           ),
           GoRoute(
             path: '/privacy_settings',
             name: 'privacy_settings',
-            builder: (context, state) => const PrivacySettingsPage(),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const PrivacySettingsPage(),
+            ),
           ),
         ],
       ),
@@ -825,15 +1077,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/search_chat',
         name: 'search_chat',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          return SearchChatPage(
-            conversationUk3: extra['conversationUk3']?.toString() ?? '',
-            type: extra['type']?.toString() ?? 'C2C',
-            peerId: extra['peerId']?.toString() ?? '',
-            peerTitle: extra['peerTitle']?.toString() ?? '',
-            peerAvatar: extra['peerAvatar']?.toString() ?? '',
-            peerSign: extra['peerSign']?.toString() ?? '',
+          return CupertinoPage(
+            key: state.pageKey,
+            child: SearchChatPage(
+              conversationUk3: extra['conversationUk3']?.toString() ?? '',
+              type: extra['type']?.toString() ?? 'C2C',
+              peerId: extra['peerId']?.toString() ?? '',
+              peerTitle: extra['peerTitle']?.toString() ?? '',
+              peerAvatar: extra['peerAvatar']?.toString() ?? '',
+              peerSign: extra['peerSign']?.toString() ?? '',
+            ),
           );
         },
       ),
@@ -842,14 +1097,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/message_search',
         name: 'message_search',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return MessageSearchPage(
-            conversationUk3: extra?['conversationUk3']?.toString(),
-            conversationTitle: extra?['conversationTitle']?.toString(),
-            conversationType: extra?['conversationType']?.toString(),
-            peerId: extra?['peerId']?.toString(),
-            peerAvatar: extra?['peerAvatar']?.toString(),
+          return CupertinoPage(
+            key: state.pageKey,
+            child: MessageSearchPage(
+              conversationUk3: extra?['conversationUk3']?.toString(),
+              conversationTitle: extra?['conversationTitle']?.toString(),
+              conversationType: extra?['conversationType']?.toString(),
+              peerId: extra?['peerId']?.toString(),
+              peerAvatar: extra?['peerAvatar']?.toString(),
+            ),
           );
         },
       ),
@@ -858,10 +1116,213 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/web_search',
         name: 'web_search',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final query = state.uri.queryParameters['q'];
           final scope = state.uri.queryParameters['scope'];
-          return WebSearchPage(initialQuery: query, scope: scope);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: WebSearchPage(initialQuery: query, scope: scope),
+          );
+        },
+      ),
+
+      // ==================== 群功能增强 ====================
+      // 群分组
+      GoRoute(
+        path: '/group/category',
+        name: 'group_category',
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const GroupCategoryPage()),
+      ),
+      // 群标签
+      GoRoute(
+        path: '/group/:groupId/tag',
+        name: 'group_tag',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupTagPage(groupId: groupId),
+          );
+        },
+      ),
+      // 群文件
+      GoRoute(
+        path: '/group/:groupId/file',
+        name: 'group_file',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupFilePage(groupId: groupId),
+          );
+        },
+      ),
+      // 群相册
+      GoRoute(
+        path: '/group/:groupId/album',
+        name: 'group_album',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupAlbumPage(groupId: groupId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/group/:groupId/album/:albumId/photos',
+        name: 'group_album_photos',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          final albumId = state.pathParameters['albumId'] ?? '';
+          final albumName = state.uri.queryParameters['album_name'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupAlbumPhotoPage(
+              groupId: groupId,
+              albumId: albumId,
+              albumName: albumName,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/group/:groupId/album/:albumId/photo/:photoId',
+        name: 'group_album_photo_detail',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          final albumId = state.pathParameters['albumId'] ?? '';
+          final photoId = state.pathParameters['photoId'] ?? '';
+          final albumName = state.uri.queryParameters['album_name'] ?? '';
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final rawPhotoIds = extra['photo_ids'];
+          final photoIds = rawPhotoIds is List
+              ? rawPhotoIds
+                    .where((item) => item != null)
+                    .map((item) => item.toString().trim())
+                    .where((id) => id.isNotEmpty)
+                    .toList()
+              : const <String>[];
+          final rawIndex = extra['index'];
+          final initialIndex = rawIndex is int
+              ? rawIndex
+              : int.tryParse(rawIndex?.toString() ?? '') ?? 0;
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupAlbumPhotoDetailPage(
+              groupId: groupId,
+              albumId: albumId,
+              photoId: photoId,
+              albumName: albumName,
+              photoIds: photoIds,
+              initialIndex: initialIndex,
+            ),
+          );
+        },
+      ),
+      // 群投票
+      GoRoute(
+        path: '/group/:groupId/vote',
+        name: 'group_vote',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupVotePage(groupId: groupId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/group/:groupId/vote/:voteId',
+        name: 'group_vote_detail',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          final voteId = state.pathParameters['voteId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupVoteDetailPage(groupId: groupId, voteId: voteId),
+          );
+        },
+      ),
+      // 群日程
+      GoRoute(
+        path: '/group/:groupId/schedule',
+        name: 'group_schedule',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupSchedulePage(groupId: groupId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/group/:groupId/schedule/:scheduleId',
+        name: 'group_schedule_detail',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          final scheduleId = state.pathParameters['scheduleId'] ?? '';
+          if (scheduleId.isEmpty) {
+            return CupertinoPage(
+              key: state.pageKey,
+              child: const Scaffold(
+                body: Center(child: Text('Invalid schedule id')),
+              ),
+            );
+          }
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupScheduleDetailPage(
+              groupId: groupId,
+              scheduleId: scheduleId,
+            ),
+          );
+        },
+      ),
+      // 群作业
+      GoRoute(
+        path: '/group/:groupId/task',
+        name: 'group_task',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupTaskPage(groupId: groupId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/group/:groupId/task/:taskId',
+        name: 'group_task_detail',
+        pageBuilder: (context, state) {
+          final groupId = state.pathParameters['groupId'] ?? '';
+          final taskId = state.pathParameters['taskId'] ?? '';
+          if (taskId.isEmpty) {
+            return CupertinoPage(
+              key: state.pageKey,
+              child: const Scaffold(
+                body: Center(child: Text('Invalid task id')),
+              ),
+            );
+          }
+          return CupertinoPage(
+            key: state.pageKey,
+            child: GroupTaskDetailPage(groupId: groupId, taskId: taskId),
+          );
+        },
+      ),
+
+      // ==================== @提及 ====================
+      GoRoute(
+        path: '/mention',
+        name: 'mention_list',
+        pageBuilder: (context, state) {
+          final groupId = state.uri.queryParameters['groupId'];
+          return CupertinoPage(
+            key: state.pageKey,
+            child: MentionListPage(groupId: groupId),
+          );
         },
       ),
 
@@ -869,10 +1330,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/people_info/:id',
         name: 'people_info_top',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
           final scene = state.uri.queryParameters['scene'] ?? 'contact_page';
-          return PeopleInfoPage(id: id, scene: scene);
+          return CupertinoPage(
+            key: state.pageKey,
+            child: PeopleInfoPage(id: id, scene: scene),
+          );
         },
       ),
     ],

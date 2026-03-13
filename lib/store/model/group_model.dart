@@ -1,5 +1,6 @@
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
 class GroupModel {
@@ -43,19 +44,19 @@ class GroupModel {
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     iPrint("GroupModel.fromJson ${json.toString()}");
     return GroupModel(
-      groupId: json['group_id'] ?? (json['id'] ?? json['gid']),
-      type: json['type'],
-      joinLimit: json['join_limit'],
-      contentLimit: json['content_limit'],
-      userIdSum: json['user_id_sum'] ?? 0,
-      ownerUid: json['owner_uid'],
-      creatorUid: json['creator_uid'],
-      memberMax: json['member_max'],
-      memberCount: json['member_count'],
-      introduction: json['introduction'] ?? '',
-      avatar: json['avatar'] ?? '',
-      title: json['title'] ?? '',
-      status: json['status'] ?? 1,
+      groupId: parseModelString(json['group_id'] ?? json['id'] ?? json['gid']),
+      type: parseModelInt(json['type']),
+      joinLimit: parseModelInt(json['join_limit']),
+      contentLimit: parseModelInt(json['content_limit']),
+      userIdSum: parseModelInt(json['user_id_sum']),
+      ownerUid: parseModelString(json['owner_uid']),
+      creatorUid: parseModelString(json['creator_uid']),
+      memberMax: parseModelInt(json['member_max']),
+      memberCount: parseModelInt(json['member_count']),
+      introduction: parseModelString(json['introduction']),
+      avatar: parseModelString(json['avatar']),
+      title: parseModelString(json['title']),
+      status: parseModelInt(json['status'], defaultValue: 1),
       updatedAt: DateTimeHelper.parseTimestamp(
         json['updated_at'],
         defaultValue: 0,

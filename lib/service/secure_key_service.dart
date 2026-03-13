@@ -49,7 +49,7 @@ class SecureKeyService {
     if (_currentAesKey != null) {
       final oldKeys = _oldAesKeys ?? [];
       oldKeys.add(_currentAesKey!);
-      await StorageSecureService().write(
+      await StorageSecureService.to.write(
         key: _oldKeysStorageKey,
         value: jsonEncode(oldKeys),
       );
@@ -60,11 +60,11 @@ class SecureKeyService {
       DateTimeHelper.millisecond(),
     ).add(Duration(days: keyValidDays));
 
-    await StorageSecureService().write(
+    await StorageSecureService.to.write(
       key: _currentKeyStorageKey,
       value: _currentAesKey!,
     );
-    await StorageSecureService().write(
+    await StorageSecureService.to.write(
       key: _keyExpireAtStorageKey,
       value: _expireAt!.toIso8601String(),
     );
@@ -73,11 +73,11 @@ class SecureKeyService {
   static Future<void> _loadKeys() async {
     if (_currentAesKey != null) return;
 
-    _currentAesKey = await StorageSecureService().read(
+    _currentAesKey = await StorageSecureService.to.read(
       key: _currentKeyStorageKey,
     );
 
-    final oldKeysStr = await StorageSecureService().read(
+    final oldKeysStr = await StorageSecureService.to.read(
       key: _oldKeysStorageKey,
     );
     if (oldKeysStr != null && oldKeysStr.isNotEmpty) {
@@ -86,7 +86,7 @@ class SecureKeyService {
       _oldAesKeys = [];
     }
 
-    final expireAtStr = await StorageSecureService().read(
+    final expireAtStr = await StorageSecureService.to.read(
       key: _keyExpireAtStorageKey,
     );
     if (expireAtStr != null && expireAtStr.isNotEmpty) {
@@ -106,8 +106,8 @@ class SecureKeyService {
     _oldAesKeys = null;
     _expireAt = null;
 
-    await StorageSecureService().delete(key: _currentKeyStorageKey);
-    await StorageSecureService().delete(key: _oldKeysStorageKey);
-    await StorageSecureService().delete(key: _keyExpireAtStorageKey);
+    await StorageSecureService.to.delete(key: _currentKeyStorageKey);
+    await StorageSecureService.to.delete(key: _oldKeysStorageKey);
+    await StorageSecureService.to.delete(key: _keyExpireAtStorageKey);
   }
 }

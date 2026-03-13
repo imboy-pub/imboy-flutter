@@ -269,4 +269,24 @@ class GroupMemberRepo {
       whereArgs: [gid],
     );
   }
+
+  /// 获取用户所在的所有群组 ID 列表
+  ///
+  /// [userId] 用户 ID
+  /// Returns: 群组 ID 列表
+  Future<List<String>> groupIdsByUserId(String userId) async {
+    try {
+      final maps = await _db.query(
+        GroupMemberRepo.tableName,
+        columns: [GroupMemberRepo.groupId],
+        where: '${GroupMemberRepo.userId} = ?',
+        whereArgs: [userId],
+        distinct: true,
+      );
+      return maps.map((m) => m[GroupMemberRepo.groupId]?.toString() ?? '').where((id) => id.isNotEmpty).toList();
+    } catch (e) {
+      debugPrint('GroupMemberRepo.groupIdsByUserId error: $e');
+      return [];
+    }
+  }
 }

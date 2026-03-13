@@ -1,31 +1,114 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/websocket_events.dart'
+    show WebSocketStatusChangedEvent;
 
 part 'channel_provider.g.dart';
+
+/// 频道未读总数缓存（进程内）
+///
+/// 通过事件总线监听未读变化，在内存中维护一个同步可读的最新值，
+/// 供 sync Provider 直接返回。
+class _ChannelUnreadCountCache {
+  _ChannelUnreadCountCache._();
+
+  static final _ChannelUnreadCountCache instance = _ChannelUnreadCountCache._();
+
+  final StreamController<void> _updates = StreamController<void>.broadcast();
+  StreamSubscription<ChannelUnreadCountUpdatedEvent>? _unreadCountSub;
+  StreamSubscription<ChannelNewMessageEvent>? _newMessageSub;
+  StreamSubscription<WebSocketStatusChangedEvent>? _websocketStatusSub;
+
+  bool _started = false;
+  int _value = 0;
+
+  int get value => _value;
+  Stream<void> get updates => _updates.stream;
+
+  void start() {
+    if (_started) return;
+    _started = true;
+
+    // 冷启动优先做一次服务端权威对账，再刷新本地总未读缓存。
+    unawaited(_syncFromServerAndDb(trigger: 'cache_start'));
+
+    _unreadCountSub ??= AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
+      (_) {
+        unawaited(_syncFromDb());
+      },
+    );
+    _newMessageSub ??= AppEventBus.on<ChannelNewMessageEvent>().listen((_) {
+      unawaited(_syncFromDb());
+    });
+    _websocketStatusSub ??= AppEventBus.on<WebSocketStatusChangedEvent>()
+        .listen((event) {
+          if (event.status.toLowerCase() != 'connected') return;
+          unawaited(_syncFromServerAndDb(trigger: 'ws_connected'));
+        });
+  }
+
+  Future<int> refresh() => _syncFromDb();
+
+  Future<void> _syncFromServerAndDb({required String trigger}) async {
+    await ChannelService.to.syncUnreadSummary(trigger: trigger);
+    await _syncFromDb();
+  }
+
+  Future<int> _syncFromDb() async {
+    try {
+      final total = await ChannelService.to.getTotalUnreadCount();
+      if (total != _value) {
+        _value = total;
+        if (!_updates.isClosed) {
+          _updates.add(null);
+        }
+      }
+      return _value;
+    } catch (_) {
+      return _value;
+    }
+  }
+}
+
+final _channelUnreadCountCache = _ChannelUnreadCountCache.instance;
 
 /// 频道列表状态
 class ChannelListState {
   final List<ChannelModel> channels;
   final bool isLoading;
+  final bool hasMore;
+  final String? cursor;
   final String? error;
 
   const ChannelListState({
     this.channels = const [],
     this.isLoading = false,
+    this.hasMore = false,
+    this.cursor,
     this.error,
   });
 
   ChannelListState copyWith({
     List<ChannelModel>? channels,
     bool? isLoading,
+    bool? hasMore,
+    String? cursor,
     String? error,
+    bool clearCursor = false,
   }) {
     return ChannelListState(
       channels: channels ?? this.channels,
       isLoading: isLoading ?? this.isLoading,
+      hasMore: hasMore ?? this.hasMore,
+      cursor: clearCursor ? null : (cursor ?? this.cursor),
       error: error,
     );
   }
@@ -46,13 +129,47 @@ class ChannelListNotifier extends _$ChannelListNotifier {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final channels = await _api.getSubscribedChannels();
+      final result = await _api.getSubscribedChannelsPage(limit: 50);
       // 检查 provider 是否仍然有效
       if (!ref.mounted) return;
-      state = ChannelListState(channels: channels, isLoading: false);
+      state = ChannelListState(
+        channels: result.list,
+        isLoading: false,
+        hasMore: result.hasMore,
+        cursor: result.nextCursor,
+      );
+      // 列表可用后异步对账未读汇总，失败不阻断页面渲染。
+      unawaited(
+        ChannelService.to.syncUnreadSummary(trigger: 'channel_list_load'),
+      );
     } catch (e) {
       if (!ref.mounted) return;
       state = ChannelListState(isLoading: false, error: e.toString());
+    }
+  }
+
+  /// 加载更多订阅频道
+  Future<void> loadMoreSubscribedChannels() async {
+    if (state.isLoading || !state.hasMore || state.cursor == null) return;
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final result = await _api.getSubscribedChannelsPage(
+        cursor: state.cursor,
+        limit: 50,
+      );
+      if (!ref.mounted) return;
+
+      state = state.copyWith(
+        channels: [...state.channels, ...result.list],
+        isLoading: false,
+        hasMore: result.hasMore,
+        cursor: result.nextCursor,
+      );
+    } catch (e) {
+      if (!ref.mounted) return;
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -63,7 +180,12 @@ class ChannelListNotifier extends _$ChannelListNotifier {
     try {
       final channels = await _api.getManagedChannels();
       if (!ref.mounted) return;
-      state = ChannelListState(channels: channels, isLoading: false);
+      state = ChannelListState(
+        channels: channels,
+        isLoading: false,
+        hasMore: false,
+        cursor: null,
+      );
     } catch (e) {
       if (!ref.mounted) return;
       state = ChannelListState(isLoading: false, error: e.toString());
@@ -111,6 +233,7 @@ class ChannelDetailState {
   final ChannelModel? channel;
   final List<ChannelMessageModel> messages;
   final bool isLoading;
+  final bool isPublishing;
   final bool hasMore;
   final String? error;
 
@@ -118,6 +241,7 @@ class ChannelDetailState {
     this.channel,
     this.messages = const [],
     this.isLoading = false,
+    this.isPublishing = false,
     this.hasMore = true,
     this.error,
   });
@@ -126,6 +250,7 @@ class ChannelDetailState {
     ChannelModel? channel,
     List<ChannelMessageModel>? messages,
     bool? isLoading,
+    bool? isPublishing,
     bool? hasMore,
     String? error,
     bool clearChannel = false,
@@ -134,6 +259,7 @@ class ChannelDetailState {
       channel: clearChannel ? null : (channel ?? this.channel),
       messages: messages ?? this.messages,
       isLoading: isLoading ?? this.isLoading,
+      isPublishing: isPublishing ?? this.isPublishing,
       hasMore: hasMore ?? this.hasMore,
       error: error,
     );
@@ -145,28 +271,48 @@ class ChannelDetailState {
 class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   final ChannelApi _api = ChannelApi();
   String? _channelId;
+  StreamSubscription<ChannelNewMessageEvent>? _channelNewMessageSub;
 
   @override
   ChannelDetailState build() {
+    _channelNewMessageSub ??= AppEventBus.on<ChannelNewMessageEvent>().listen((
+      event,
+    ) {
+      _handleRealtimeMessage(event);
+    });
+    ref.onDispose(() {
+      _channelNewMessageSub?.cancel();
+      _channelNewMessageSub = null;
+    });
+
     return const ChannelDetailState();
   }
 
   /// 加载频道详情
   Future<void> loadChannel(String channelId) async {
-    _channelId = channelId;
+    // 避免加载失败后仍误用旧 channelId 进行发布等操作。
+    _channelId = null;
     state = state.copyWith(isLoading: true, error: null, clearChannel: true);
 
     try {
-      final channel = await _api.getChannel(channelId);
+      ChannelModel? channel = await _api.getChannel(channelId);
+      // 兼容通过 custom_id 进入详情的场景
+      channel ??= await _api.getChannelByCustomId(channelId);
       if (!ref.mounted) return;
       if (channel != null) {
+        final effectiveChannelId = channel.id.isNotEmpty
+            ? channel.id
+            : channelId;
+        _channelId = effectiveChannelId;
         state = state.copyWith(channel: channel, isLoading: false);
         // 加载消息
-        await loadMessages(channelId);
+        await loadMessages(effectiveChannelId);
       } else {
+        _channelId = null;
         state = state.copyWith(isLoading: false, error: '频道不存在');
       }
     } catch (e) {
+      _channelId = null;
       if (!ref.mounted) return;
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -221,24 +367,38 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     required String msgType,
     Map<String, dynamic>? payload,
   }) async {
-    if (_channelId == null) return false;
+    if (_channelId == null || state.isPublishing) return false;
+
+    state = state.copyWith(isPublishing: true);
 
     try {
+      final normalizedType = ChannelMessageType.fromMessageType(msgType);
       final message = await _api.publishMessage(
         channelId: _channelId!,
         content: content,
-        msgType: msgType,
+        msgType: normalizedType,
         payload: payload,
       );
 
       if (!ref.mounted) return false;
       if (message != null) {
         // 添加到消息列表开头
-        state = state.copyWith(messages: [message, ...state.messages]);
+        state = state.copyWith(
+          messages: [message, ...state.messages],
+          isPublishing: false,
+          error: null,
+        );
         return true;
       }
+      state = state.copyWith(isPublishing: false, error: '发布失败');
       return false;
     } catch (e) {
+      if (ref.mounted) {
+        state = state.copyWith(
+          isPublishing: false,
+          error: e.toString().replaceFirst('Exception: ', ''),
+        );
+      }
       return false;
     }
   }
@@ -247,6 +407,21 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   Future<void> markAsRead(String messageId) async {
     if (_channelId == null) return;
     await _api.markAsRead(_channelId!, messageId);
+  }
+
+  void _handleRealtimeMessage(ChannelNewMessageEvent event) {
+    if (_channelId == null || event.channelId != _channelId) return;
+    if (!ref.mounted) return;
+
+    try {
+      final incoming = ChannelMessageModel.fromJson(event.message);
+      final exists = state.messages.any((msg) => msg.id == incoming.id);
+      if (exists) return;
+
+      state = state.copyWith(messages: [incoming, ...state.messages]);
+    } catch (_) {
+      // 忽略解析失败，保留现有状态
+    }
   }
 }
 
@@ -337,15 +512,21 @@ class CreateChannelNotifier extends _$CreateChannelNotifier {
 /// 频道未读计数 Provider（简单同步版本，用于快速访问）
 @riverpod
 int channelUnreadCount(Ref ref) {
-  // 从 ChannelService 获取未读总数
-  // 注意：这是一个同步 Provider，不会自动更新
-  // 需要通过 refreshChannelUnreadCount() 手动刷新
-  return 0; // 默认值，实际值由 ChannelService 管理
+  _channelUnreadCountCache.start();
+
+  final sub = _channelUnreadCountCache.updates.listen((_) {
+    if (ref.mounted) {
+      ref.invalidateSelf();
+    }
+  });
+
+  ref.onDispose(sub.cancel);
+  return _channelUnreadCountCache.value;
 }
 
 /// 刷新频道未读计数
 ///
 /// 调用此方法从数据库获取最新的未读总数
 Future<int> refreshChannelUnreadCount() async {
-  return await ChannelService.to.getTotalUnreadCount();
+  return await _channelUnreadCountCache.refresh();
 }

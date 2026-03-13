@@ -5,7 +5,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 
 /// Web 平台占位符音频组件
@@ -20,7 +19,7 @@ class AudioMessageBuilder extends StatefulWidget {
   final int currentPositionMs;
   final int currentDurationMs;
   final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
-      onPlayPause;
+  onPlayPause;
 
   const AudioMessageBuilder({
     super.key,
@@ -43,10 +42,11 @@ class AudioMessageBuilder extends StatefulWidget {
 class _AudioMessageBuilderStubState extends State<AudioMessageBuilder> {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       constraints: const BoxConstraints(minWidth: 200, minHeight: 60),
       decoration: BoxDecoration(
-        color: ThemeManager.instance.getThemeColor('surfaceContainerLow'),
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -56,10 +56,7 @@ class _AudioMessageBuilderStubState extends State<AudioMessageBuilder> {
           children: [
             const Icon(Icons.audiotrack, size: 24),
             const SizedBox(width: 12),
-            Text(
-              'Web 平台暂不支持语音消息播放',
-              style: const TextStyle(fontSize: 14),
-            ),
+            Text('Web 平台暂不支持语音消息播放', style: const TextStyle(fontSize: 14)),
           ],
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_page.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'contact_setting_tag_provider.dart';
@@ -61,7 +62,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
     });
 
     // 设置备注文本
-    final remark = widget.peerRemark == 'null' ? '' : widget.peerRemark;
+    final remark = parseModelString(widget.peerRemark);
     ref.read(contactSettingTagProvider.notifier).remarkTextController.text =
         remark;
   }

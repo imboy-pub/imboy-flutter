@@ -1,8 +1,20 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+
+/// 图片资源不存在异常（404）
+class ImageNotFoundException implements Exception {
+  final String url;
+  final String message;
+  ImageNotFoundException(this.url, [String? message])
+    : message = message ?? 'Image not found (404): $url';
+
+  @override
+  String toString() => 'ImageNotFoundException: $message';
+}
 
 class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
   const IMBoyCachedImageProvider(this.url, this.headers);
@@ -83,6 +95,12 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
           rethrow;
         }
       } on Exception catch (e) {
+        // 404 错误不需要重试
+        if (_isNotFoundError(e)) {
+          debugPrint('❌ 图片资源不存在 (404): $url');
+          throw ImageNotFoundException(url);
+        }
+
         debugPrint(
           '❌ IMBoyCachedImageProvider 加载失败 (尝试 ${attempt + 1}/$maxAttempts): $url',
         );
@@ -138,4 +156,14 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
 
   @override
   String toString() => 'IMBoyCachedImageProvider("$url")';
+
+  /// 检测是否为 404 或资源不存在错误
+  bool _isNotFoundError(Exception e) {
+    if (e is DioException) {
+      return e.response?.statusCode == 404;
+    }
+    // 检查异常消息中是否包含 404 或 not found
+    final msg = e.toString().toLowerCase();
+    return msg.contains('404') || msg.contains('not found');
+  }
 }

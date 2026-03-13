@@ -3,6 +3,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// FTS (Full-Text Search) API 提供者的 Riverpod Provider
 /// 提供对 FtsApi 单例的访问
@@ -35,28 +36,18 @@ class MessageSearchResult {
   });
 
   factory MessageSearchResult.fromJson(Map<String, dynamic> json) {
+    final statusValue = json['status'];
     return MessageSearchResult(
-      id: json['id']?.toString() ?? '',
-      content: json['content']?.toString() ?? '',
-      fromId: json['from_id']?.toString() ?? '',
-      toId: json['to_id']?.toString() ?? '',
-      type: json['type']?.toString() ?? 'C2C',
-      createdAt: _parseTimestamp(json['created_at']),
-      msgType: json['msg_type']?.toString(),
-      payload: json['payload'] is Map<String, dynamic>
-          ? json['payload']
-          : null,
-      status: json['status'] as int?,
+      id: parseModelString(json['id']),
+      content: parseModelString(json['content']),
+      fromId: parseModelString(json['from_id']),
+      toId: parseModelString(json['to_id']),
+      type: parseModelString(json['type'], defaultValue: 'C2C'),
+      createdAt: parseModelInt(json['created_at']),
+      msgType: parseModelNullableString(json['msg_type']),
+      payload: parseModelJsonMap(json['payload']),
+      status: statusValue == null ? null : parseModelInt(statusValue),
     );
-  }
-
-  static int _parseTimestamp(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is String) {
-      return int.tryParse(value) ?? 0;
-    }
-    return 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -96,18 +87,19 @@ class MessageSearchResponse {
   final List<MessageSearchResult> items;
   final int total;
 
-  MessageSearchResponse({
-    required this.items,
-    required this.total,
-  });
+  MessageSearchResponse({required this.items, required this.total});
 
   factory MessageSearchResponse.fromJson(Map<String, dynamic> json) {
     final itemsList = json['items'] as List<dynamic>? ?? [];
     return MessageSearchResponse(
       items: itemsList
-          .map((item) => MessageSearchResult.fromJson(item as Map<String, dynamic>))
+          .whereType<Map>()
+          .map(
+            (item) =>
+                MessageSearchResult.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList(),
-      total: json['total'] as int? ?? 0,
+      total: parseModelInt(json['total']),
     );
   }
 }

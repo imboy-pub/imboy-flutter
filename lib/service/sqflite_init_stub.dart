@@ -3,6 +3,8 @@
 /// 用于 iOS、Android、macOS、Windows、Linux 等平台
 library;
 
+import 'dart:io' show Platform;
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -13,7 +15,13 @@ void initSqfliteFactory() {
   if (kIsWeb) {
     throw UnsupportedError('initSqfliteFactory_stub 不应在 Web 平台调用');
   }
-  // 桌面平台需要 FFI 初始化
+
+  // Android/iOS 使用 sqflite 原生实现，不应切换到 ffi factory。
+  if (Platform.isAndroid || Platform.isIOS) {
+    return;
+  }
+
+  // 桌面平台需要 FFI 初始化。
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
 }

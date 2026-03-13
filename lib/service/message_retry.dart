@@ -7,6 +7,7 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// MessageRetry
 /// 消息重试机制，处理失败消息的重试逻辑
@@ -21,9 +22,6 @@ class MessageRetry with EventSubscriptionManager {
     return _instance!;
   }
 
-  /// 兼容旧代码的访问方式
-  static MessageRetry get to => instance;
-
   /// 私有构造函数
   MessageRetry._internal() {
     _init();
@@ -32,6 +30,9 @@ class MessageRetry with EventSubscriptionManager {
   /// 消息重试队列，存储发送失败的消息
   /// Message retry queue for failed messages.
   final Map<String, MessageRetryInfo> _retryQueue = {};
+
+  /// 最大自动重试次数（不含首次发送）
+  static const int _maxRetryAttempts = 4;
 
   /// 重试定时器
   /// Retry timer.
@@ -92,9 +93,17 @@ class MessageRetry with EventSubscriptionManager {
   /// 释放资源
   void dispose() {
     _retryTimer?.cancel();
+    _retryTimer = null;
+    _retryQueue.clear();
     // 【新增】使用 EventSubscriptionManager 统一取消所有事件订阅
     // Cancel all event subscriptions using EventSubscriptionManager
     cancelAllSubscriptions();
+    _instance = null;
+  }
+
+  /// 清空重试队列（不影响订阅和定时器）
+  void clearRetryQueue() {
+    _retryQueue.clear();
   }
 
   /// 启动重试定时器
@@ -114,6 +123,12 @@ class MessageRetry with EventSubscriptionManager {
   /// Scan failed messages from database and add to retry queue.
   Future<void> _scanAndRetryFailedMessages() async {
     try {
+      // 测试/早期启动阶段可能尚未初始化 StorageService，跳过扫描避免噪音日志
+      if (!_isStorageReadyForRetryScan()) {
+        iPrint('⚠️ [RETRY_SCAN] Storage 未就绪，跳过失败消息扫描');
+        return;
+      }
+
       iPrint('🔍 [RETRY_SCAN] 开始扫描失败消息...');
 
       // 需要重试的消息状态：sending（发送中）和 error（错误）
@@ -177,16 +192,35 @@ class MessageRetry with EventSubscriptionManager {
     }
   }
 
+  bool _isStorageReadyForRetryScan() {
+    try {
+      // 触发一次最小读取验证 StorageService 是否可用
+      UserRepoLocal.to.currentUid;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// 将消息添加到重试队列
   /// Add message to retry queue.
   void addToRetryQueue(String messageId, String type) {
+    final normalizedType = _normalizeMessageType(type);
+    final existing = _retryQueue[messageId];
+    if (existing != null) {
+      iPrint(
+        '⚠️ [RETRY_QUEUE] 消息已在重试队列中，跳过重复添加: $messageId, retryCount=${existing.retryCount}',
+      );
+      return;
+    }
+
     _retryQueue[messageId] = MessageRetryInfo(
       messageId: messageId,
-      type: type,
+      type: normalizedType,
       retryCount: 0,
       lastRetryTime: DateTimeHelper.millisecond(),
     );
-    iPrint('消息加入重试队列: $messageId');
+    iPrint('消息加入重试队列: $messageId, type=$normalizedType');
   }
 
   /// 从重试队列中移除消息
@@ -204,16 +238,17 @@ class MessageRetry with EventSubscriptionManager {
 
     final now = DateTimeHelper.millisecond();
 
-    // 【修复】重试间隔配置：3秒、5秒、10秒、20秒
-    final intervals = [3000, 5000, 10000, 20000];
+    // 重试间隔配置：3秒、5秒、10秒、20秒
+    const intervals = [3000, 5000, 10000, 20000];
 
     // 筛选需要重试的消息
     final List<MessageRetryInfo> toRemove = [];
     final retryList = <MessageRetryInfo>[];
 
     for (final info in _retryQueue.values) {
-      // 检查是否超过最大重试次数（改为 4 次）
-      if (info.retryCount >= 4) {
+      // 检查是否超过最大重试次数
+      if (info.retryCount >= _maxRetryAttempts) {
+        await _markMessageAsError(info);
         toRemove.add(info);
         continue;
       }
@@ -225,7 +260,7 @@ class MessageRetry with EventSubscriptionManager {
         continue;
       }
 
-      // 检查消息状态，如果已经是 sent 则跳过
+      // 检查消息状态，已成功则无需重试
       final repo = getMessageRepo(info.type);
       final msg = await repo.find(info.messageId);
 
@@ -235,9 +270,13 @@ class MessageRetry with EventSubscriptionManager {
         continue;
       }
 
-      if (msg.status == IMBoyMessageStatus.sent) {
-        // 消息已确认，从队列移除
-        iPrint('✅ [RETRY] 消息已确认（状态为 sent），从重试队列移除: ${info.messageId}');
+      if (msg.status == IMBoyMessageStatus.sent ||
+          msg.status == IMBoyMessageStatus.delivered ||
+          msg.status == IMBoyMessageStatus.seen) {
+        // 消息已成功，从队列移除
+        iPrint(
+          '✅ [RETRY] 消息已成功，从重试队列移除: ${info.messageId}, status=${msg.status}',
+        );
         toRemove.add(info);
         continue;
       }
@@ -265,13 +304,16 @@ class MessageRetry with EventSubscriptionManager {
     try {
       final repo = getMessageRepo(info.type);
 
-      // 【修复 H3】使用 CAS (Compare-And-Set) 操作防止竞态条件
-      // 只更新特定状态的消息，避免与其他操作冲突
-      // 只重试 error 状态的消息（41=发送失败）
+      // 使用 CAS (Compare-And-Set) 防止并发状态覆盖：
+      // 仅允许 error/sending 状态进入重试发送路径。
       final updatedRows = await repo.updateWithConditions(
         {'id': info.messageId, 'status': IMBoyMessageStatus.sending},
-        where: "id = ? AND status = ?",
-        whereArgs: [info.messageId, IMBoyMessageStatus.error],
+        where: "id = ? AND status IN (?, ?)",
+        whereArgs: [
+          info.messageId,
+          IMBoyMessageStatus.error,
+          IMBoyMessageStatus.sending,
+        ],
       );
 
       // 如果没有更新任何行，说明消息状态已被其他操作改变，跳过重试
@@ -288,7 +330,10 @@ class MessageRetry with EventSubscriptionManager {
         return;
       }
 
-      iPrint('重试发送消息: ${info.messageId}, 第${info.retryCount + 1}次重试');
+      // 记录一次重试尝试（发送提交即记一次，ACK 到达后由外部移除队列）
+      info.retryCount++;
+      info.lastRetryTime = DateTimeHelper.millisecond();
+      iPrint('重试发送消息: ${info.messageId}, 第${info.retryCount}次重试');
 
       // 重新读取消息数据（构造完整的消息对象）
       final msg = await repo.find(info.messageId);
@@ -321,9 +366,8 @@ class MessageRetry with EventSubscriptionManager {
         ),
       );
 
-      // 【调整】从重试队列中移除（假设发送成功，失败时会通过其他机制重新加入队列）
-      _retryQueue.remove(info.messageId);
-      iPrint('消息重试已提交: ${info.messageId}');
+      // 闭环策略：重试提交后保留在队列中，等待 SERVER_ACK 或状态成功后移除
+      iPrint('消息重试已提交，等待确认: ${info.messageId}');
 
       // 更新UI状态
       final updatedMsg = await repo.find(info.messageId);
@@ -333,8 +377,13 @@ class MessageRetry with EventSubscriptionManager {
       }
     } catch (e) {
       iPrint('重试消息错误: ${info.messageId}, $e');
+      // 异常也计入一次尝试，避免异常场景无穷重试
       info.retryCount++;
       info.lastRetryTime = DateTimeHelper.millisecond();
+      if (info.retryCount >= _maxRetryAttempts) {
+        await _markMessageAsError(info);
+        _retryQueue.remove(info.messageId);
+      }
     }
   }
 
@@ -342,7 +391,8 @@ class MessageRetry with EventSubscriptionManager {
   /// Manually retry message.
   Future<bool> retryMessage(String messageId, String type) async {
     try {
-      final repo = getMessageRepo(type);
+      final normalizedType = _normalizeMessageType(type);
+      final repo = getMessageRepo(normalizedType);
       final msg = await repo.find(messageId);
       if (msg == null) {
         iPrint('⚠️ [MANUAL_RETRY] 消息不存在: $messageId');
@@ -390,9 +440,14 @@ class MessageRetry with EventSubscriptionManager {
         ),
       );
 
-      // 从重试队列中移除（假设发送成功）
-      _retryQueue.remove(messageId);
-      iPrint('手动重试已提交: $messageId');
+      // 手动重试也纳入闭环：等待 ACK/状态成功后移除
+      addToRetryQueue(messageId, normalizedType);
+      final retryInfo = _retryQueue[messageId];
+      if (retryInfo != null) {
+        retryInfo.retryCount++;
+        retryInfo.lastRetryTime = DateTimeHelper.millisecond();
+      }
+      iPrint('手动重试已提交，等待确认: $messageId');
 
       // 更新UI状态
       final updatedMsg = await repo.find(messageId);
@@ -407,6 +462,58 @@ class MessageRetry with EventSubscriptionManager {
       return false;
     }
   }
+
+  String _normalizeMessageType(String type) {
+    final t = type.trim().toUpperCase();
+    switch (t) {
+      case 'MSG_C2C':
+      case 'C2C':
+        return 'C2C';
+      case 'MSG_C2G':
+      case 'C2G':
+        return 'C2G';
+      case 'MSG_C2S':
+      case 'C2S':
+        return 'C2S';
+      case 'MSG_S2C':
+      case 'S2C':
+        return 'S2C';
+      default:
+        return t;
+    }
+  }
+
+  Future<void> _markMessageAsError(MessageRetryInfo info) async {
+    try {
+      final repo = getMessageRepo(info.type);
+      final msg = await repo.find(info.messageId);
+      if (msg == null) return;
+
+      if (msg.status == IMBoyMessageStatus.sent ||
+          msg.status == IMBoyMessageStatus.delivered ||
+          msg.status == IMBoyMessageStatus.seen) {
+        return;
+      }
+
+      await repo.update({
+        'id': info.messageId,
+        'status': IMBoyMessageStatus.error,
+      });
+
+      final updated = await repo.find(info.messageId);
+      if (updated != null) {
+        final updatedMessage = await updated.toTypeMessage();
+        AppEventBus.fireData([updatedMessage], 'List<Message>');
+      }
+      iPrint('❌ [RETRY] 达到最大重试次数，标记消息失败: ${info.messageId}');
+    } catch (e) {
+      iPrint('⚠️ [RETRY] 标记消息失败时出错: ${info.messageId}, $e');
+    }
+  }
+
+  // ---- 仅用于测试/调试 ----
+  int get retryQueueSize => _retryQueue.length;
+  MessageRetryInfo? getRetryInfo(String messageId) => _retryQueue[messageId];
 }
 
 /// 消息重试信息类

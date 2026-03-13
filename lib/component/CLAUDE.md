@@ -116,7 +116,7 @@ Navigator.push(
 );
 ```
 
-**详细文档**: [doc/GESTURE_NAVIGATION_GUIDE.md](../../../doc/GESTURE_NAVIGATION_GUIDE.md)
+**详细文档**: [README.md#uiux-minimal-rules](../../README.md#uiux-minimal-rules)
 
 ### 聊天组件
 

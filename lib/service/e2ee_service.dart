@@ -64,10 +64,7 @@ class E2EEService {
   /// 1. E2EE功能已启用（通过[E2EESettings.isEnabled]检查）
   /// 2. 消息类型为 C2C 或 C2G
   /// 3. 非action操作消息（action消息不加密）
-  static bool shouldEncryptOutgoingPayload(
-    String msgType,
-    Map<String, dynamic> payload,
-  ) {
+  static bool shouldEncryptOutgoingPayload(String msgType) {
     // 检查E2EE全局开关（用户设置）
     if (!E2EESettings.isEnabled()) {
       return false;
@@ -76,8 +73,7 @@ class E2EEService {
     // 只对 C2C 和 C2G 消息加密
     if (msgType != 'C2C' && msgType != 'C2G') return false;
 
-    // 注意：不再检查 payload 中的 msg_type/action（v2.0 中它们在顶层）
-    // action检查由调用方完成（通过msgAction参数）
+    // action 检查由调用方完成
     return true;
   }
 
@@ -274,134 +270,7 @@ class E2EEService {
     return utf8.decode(plainBytes);
   }
 
-  /// 加密 C2C 消息
-  ///
-  /// 自动处理缓存刷新：每次发送时都强制刷新接收方的公钥缓存
-  /// 这样确保接收方更新密钥后，发送方能立即获取到最新的公钥
-  static Future<Map<String, dynamic>> encryptC2C({
-    required String msgId,
-    required String fromUid,
-    required String toUid,
-    required int createdAt,
-    required Map<String, dynamic> plaintextPayload,
-  }) async {
-    // 获取接收方的设备公钥列表（强制刷新缓存，确保获取最新数据）
-    final deviceKeys = await getUserDevicePublicKeys(
-      toUid,
-      forceRefresh: true, // 🔑 关键修复：每次发送都强制刷新
-    );
-    final didToPem = deviceKeys['didToPem']!;
-    final senderDid = deviceId;
-
-    // 检查是否有接收方的设备公钥
-    if (didToPem.isEmpty) {
-      throw Exception('no_recipient_keys');
-    }
-
-    final aesKey = _secureRandomBytes(32);
-    final aad = utf8.encode('$msgId|$fromUid|$toUid|$createdAt|$senderDid');
-    final encrypted = EncrypterService.aesGcmEncryptBytes(
-      Uint8List.fromList(utf8.encode(jsonEncode(plaintextPayload))),
-      aesKey,
-      aad: Uint8List.fromList(aad),
-    );
-
-    final recipients = <Map<String, dynamic>>[];
-    // 为接收方的每个设备加密密钥
-    for (final entry in didToPem.entries) {
-      final did = entry.key;
-      final pem = entry.value;
-      final pubKey = RSAService.parsePublicKeyFromPem(pem);
-      final ek = RSAService.rsaEncrypt(pubKey, aesKey);
-      recipients.add({'did': did, 'ek': base64.encode(ek)});
-    }
-
-    final sigInput = utf8.encode(
-      '$msgId|$fromUid|$toUid|$createdAt|$senderDid|${encrypted['iv']}|${encrypted['ct']}',
-    );
-    final privateKeyObj = await RSAService.privateKeyObject();
-    final sig = RSAService.rsaSign(privateKeyObj, Uint8List.fromList(sigInput));
-
-    // WebSocket API v2.0: 只返回 e2ee 元数据，不包含 msg_type
-    // msg_type 应该由调用者设置（保留原始类型：text, image 等）
-    return {
-      'e2ee': {
-        'e2ee': true,
-        'e2ee_ver': 1,
-        'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
-        'sender_did': senderDid,
-        'iv': encrypted['iv'],
-        'ct': encrypted['ct'],
-        'recipients': recipients,
-        'sig': base64.encode(sig),
-      },
-    };
-  }
-
-  static Future<Map<String, dynamic>> encryptC2G({
-    required String msgId,
-    required String fromUid,
-    required String gid,
-    required int createdAt,
-    required Map<String, dynamic> plaintextPayload,
-  }) async {
-    // 获取群组成员的设备公钥列表（强制刷新缓存）
-    final deviceKeys = await getGroupDevicePublicKeys(
-      gid,
-      forceRefresh: true, // 🔑 关键修复：每次发送都强制刷新
-    );
-    final didToPem = deviceKeys['didToPem']!;
-    final senderDid = deviceId;
-    if (didToPem.isEmpty) {
-      throw Exception('no_recipient_keys');
-    }
-
-    final aesKey = _secureRandomBytes(32);
-    final aad = utf8.encode('$msgId|$fromUid|$gid|$createdAt|$senderDid');
-    final encrypted = EncrypterService.aesGcmEncryptBytes(
-      Uint8List.fromList(utf8.encode(jsonEncode(plaintextPayload))),
-      aesKey,
-      aad: Uint8List.fromList(aad),
-    );
-
-    final recipients = <Map<String, dynamic>>[];
-    for (final entry in didToPem.entries) {
-      final did = entry.key;
-      final pem = entry.value;
-      final pubKey = RSAService.parsePublicKeyFromPem(pem);
-      final ek = RSAService.rsaEncrypt(pubKey, aesKey);
-      recipients.add({'did': did, 'ek': base64.encode(ek)});
-    }
-
-    final sigInput = utf8.encode(
-      '$msgId|$fromUid|$gid|$createdAt|$senderDid|${encrypted['iv']}|${encrypted['ct']}',
-    );
-    final privateKeyObj = await RSAService.privateKeyObject();
-    final sig = RSAService.rsaSign(privateKeyObj, Uint8List.fromList(sigInput));
-
-    // WebSocket API v2.0: 只返回 e2ee 元数据，不包含 msg_type
-    // msg_type 应该由调用者设置（保留原始类型：text, image 等）
-    return {
-      'e2ee': {
-        'e2ee': true,
-        'e2ee_ver': 1,
-        'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
-        'sender_did': senderDid,
-        'scope': 'group',
-        'gid': gid,
-        'iv': encrypted['iv'],
-        'ct': encrypted['ct'],
-        'recipients': recipients,
-        'sig': base64.encode(sig),
-      },
-    };
-  }
-
   /// 解密接收到的消息 payload
-  ///
-  /// ## v2.0 支持
-  /// - v2.0 E2EE: payload 为字符串（密文），e2ee 元数据在顶层
-  /// - v1.0 E2EE: payload 为 Map，包含 e2ee 字段
   ///
   /// ## v2.0 E2EE 格式
   /// ```json
@@ -425,170 +294,78 @@ class E2EEService {
   /// }
   /// ```
   ///
-  /// ## v1.0 E2EE 格式
-  /// ```json
-  /// {
-  ///   "msg_type": "e2ee",
-  ///   "e2ee": {
-  ///     "v": 1,
-  ///     "alg": "rsa-oaep+aes-256-gcm",
-  ///     "sender_did": "device1",
-  ///     "iv": "base64_iv",
-  ///     "ct": "base64_ciphertext",
-  ///     "recipients": [
-  ///       {"did": "deviceA", "ek": "base64_wrapped_key"}
-  ///     ],
-  ///     "sig": "base64_signature"
-  ///   }
-  /// }
-  /// ```
-  ///
   /// 返回解密后的 payload，如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
   static Future<Map<String, dynamic>> decryptIncomingPayload({
-    required String msgId,
-    required String msgType,
-    required String fromUid,
-    required String toUid,
-    required int createdAt,
     required Map<String, dynamic> payload,
   }) async {
-    // 检查是否为 E2EE 消息
-    // WebSocket API v2.0: 只检查 e2ee 字段是否存在（不再检查 msg_type == 'e2ee'）
-    // v1.0 格式（msg_type == 'e2ee'）已废弃
     final e2ee = payload['e2ee'];
-    final isV2Format = e2ee != null && e2ee != '';
-
-    if (!isV2Format) return payload;
+    if (e2ee == null || e2ee == '') return payload;
 
     final e2eeData = e2ee is Map ? e2ee.cast<String, dynamic>() : null;
     if (e2eeData is! Map) {
-      // 解密失败时保留原始 msg_type，不修改为 'custom'
-      return _decryptFailedPayload(
-        payload,
-        msgType: msgType,
-        reason: 'invalid_e2ee',
-      );
+      return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
     }
 
     final e = e2ee.cast<String, dynamic>();
 
-    // v2.0 格式支持（v1.0 已废弃）
-    final isV2 = payload['_e2ee_v2'] == true;
-
-    // v2.0: 从 keys 数组中查找当前设备的密钥
-    final keysOrRecipients = e['keys'] ?? e['recipients'];
-    if (keysOrRecipients is! List) {
-      return _decryptFailedPayload(
-        payload,
-        msgType: msgType,
-        reason: 'invalid_recipients',
-      );
+    final keys = e['keys'];
+    if (keys is! List || keys.isEmpty) {
+      return _decryptFailedPayload(payload, reason: 'invalid_keys');
     }
 
     final myDid = deviceId;
-    final me = keysOrRecipients
+    final me = keys
         .whereType<Map>()
         .map((x) => x.cast<String, dynamic>())
-        .firstWhere(
-          (r) => r['did'] == myDid || r['device_id'] == myDid,
-          orElse: () => {},
-        );
+        .firstWhere((r) => r['did'] == myDid, orElse: () => {});
     if (me.isEmpty) {
-      return _decryptFailedPayload(
-        payload,
-        msgType: msgType,
-        reason: 'no_device_key',
-      );
+      return _decryptFailedPayload(payload, reason: 'no_device_key');
     }
 
-    // 提取加密密钥、IV 和密文
-    final ekB64 = me['ek']?.toString() ?? me['encrypted_key']?.toString() ?? '';
-    String iv = '';
-    String ct = '';
-
-    if (isV2) {
-      // v2.0: ciphertext 格式为 "base64(nonce).base64(ciphertext)"
-      // e2ee 元数据中包含 nonce
-      final ciphertext = e['ciphertext']?.toString() ?? '';
-      if (ciphertext.isEmpty) {
-        return _decryptFailedPayload(
-          payload,
-          msgType: msgType,
-          reason: 'missing_ciphertext',
-        );
-      }
-
-      // 分割 nonce 和密文
-      final parts = ciphertext.split('.');
-      if (parts.length != 2) {
-        return _decryptFailedPayload(
-          payload,
-          msgType: msgType,
-          reason: 'invalid_ciphertext_format',
-        );
-      }
-
-      iv = parts[0]; // nonce (IV)
-      ct = parts[1]; // 实际密文
-    } else {
-      // v1.0 格式已废弃，但保留兼容性
-      iv = e['nonce']?.toString() ?? e['iv']?.toString() ?? '';
-      ct = e['ciphertext']?.toString() ?? e['ct']?.toString() ?? '';
+    final ekB64 = me['ek']?.toString() ?? '';
+    if (ekB64.isEmpty) {
+      return _decryptFailedPayload(payload, reason: 'missing_fields');
     }
 
-    if (iv.isEmpty || ct.isEmpty || ekB64.isEmpty) {
+    final ciphertext = payload['payload']?.toString() ?? '';
+    if (ciphertext.isEmpty) {
+      return _decryptFailedPayload(payload, reason: 'missing_ciphertext');
+    }
+
+    final parts = ciphertext.split('.');
+    if (parts.length != 2 || parts[0].isEmpty || parts[1].isEmpty) {
       return _decryptFailedPayload(
         payload,
-        msgType: msgType,
-        reason: 'missing_fields',
+        reason: 'invalid_ciphertext_format',
       );
+    }
+    final iv = parts[0];
+    final nonce = e['nonce']?.toString() ?? '';
+    if (nonce.isNotEmpty && nonce != iv) {
+      return _decryptFailedPayload(payload, reason: 'nonce_mismatch');
     }
 
     try {
-      // 1. 使用私钥解密 AES 密钥
-      final encKeyBytes = base64.decode(base64.normalize(ekB64));
-      final privateKeyObj = await RSAService.privateKeyObject();
-      final aesKey = RSAService.rsaDecrypt(
-        privateKeyObj,
-        Uint8List.fromList(encKeyBytes),
+      final plaintext = await decryptE2EEMessage(
+        ciphertext: ciphertext,
+        e2ee: e,
       );
 
-      // 2. 使用 AES 密钥解密消息
-      final senderDid =
-          payload['sender_did']?.toString() ??
-          e['sender_did']?.toString() ??
-          '';
-      final aad = utf8.encode('$msgId|$fromUid|$toUid|$createdAt|$senderDid');
-      final plainBytes = EncrypterService.aesGcmDecryptBytes(
-        iv,
-        ct,
-        aesKey,
-        aad: Uint8List.fromList(aad),
-      );
-
-      // 3. 解析明文
-      final decoded = jsonDecode(utf8.decode(plainBytes));
+      final decoded = jsonDecode(plaintext);
       if (decoded is! Map) {
-        return _decryptFailedPayload(
-          payload,
-          msgType: msgType,
-          reason: 'invalid_plaintext',
-        );
+        return _decryptFailedPayload(payload, reason: 'invalid_plaintext');
       }
 
       final plain = decoded.cast<String, dynamic>();
 
-      // 4. 保留原始元数据
+      // 保留原始元数据
       if (payload.containsKey('client_send_ts')) {
         plain['client_send_ts'] = payload['client_send_ts'];
       }
       if (plain['sender_did'] == null) {
         final injected = payload['sender_did'];
-        final fromEnvelope = e['sender_did'];
         if (injected != null) {
           plain['sender_did'] = injected;
-        } else if (fromEnvelope != null) {
-          plain['sender_did'] = fromEnvelope;
         }
       }
       if (payload.containsKey('sender_dtype')) {
@@ -598,75 +375,19 @@ class E2EEService {
         plain['_e2ee'] = payload;
       }
 
-      // 5. 验证签名（如果存在）
-      final sigB64 = e['signature']?.toString() ?? e['sig']?.toString() ?? '';
-      if (sigB64.isNotEmpty) {
-        Map<String, String> didToPem = {};
-        if (msgType == 'C2G') {
-          didToPem = (await _getGroupDevicePublicKeys(toUid))['didToPem']!;
-        } else if (msgType == 'C2C') {
-          didToPem = (await _getUserDevicePublicKeys(fromUid))['didToPem']!;
-        }
-        final ok = didToPem.isEmpty
-            ? false
-            : _verifySignatureWithKeys(
-                didToPem: didToPem,
-                msgId: msgId,
-                fromUid: fromUid,
-                toUid: toUid,
-                createdAt: createdAt,
-                senderDid: senderDid,
-                iv: iv,
-                ct: ct,
-                sigB64: sigB64,
-              );
-        plain['_e2ee_verified'] = ok;
-      }
-
       return plain;
     } catch (e) {
-      return _decryptFailedPayload(
-        payload,
-        msgType: msgType,
-        reason: 'decrypt_error',
-      );
+      return _decryptFailedPayload(payload, reason: 'decrypt_error');
     }
-  }
-
-  static bool _verifySignatureWithKeys({
-    required Map<String, String> didToPem,
-    required String msgId,
-    required String fromUid,
-    required String toUid,
-    required int createdAt,
-    required String senderDid,
-    required String iv,
-    required String ct,
-    required String sigB64,
-  }) {
-    if (senderDid.isEmpty) return false;
-    final pem = didToPem[senderDid];
-    if (pem == null || pem.isEmpty) return false;
-    final pubKey = RSAService.parsePublicKeyFromPem(pem);
-    final sig = base64.decode(base64.normalize(sigB64));
-    final sigInput = utf8.encode(
-      '$msgId|$fromUid|$toUid|$createdAt|$senderDid|$iv|$ct',
-    );
-    return RSAService.rsaVerify(
-      pubKey,
-      Uint8List.fromList(sigInput),
-      Uint8List.fromList(sig),
-    );
   }
 
   static Map<String, dynamic> _decryptFailedPayload(
     Map<String, dynamic> payload, {
-    required String msgType,
     required String reason,
   }) {
+    final msgType = payload['msg_type']?.toString() ?? 'text';
     return {
       'msg_type': msgType, // 保留原始消息类型
-      'custom_type': 'e2ee',
       'text': '[加密消息]',
       '_e2ee_failed': true,
       '_e2ee_reason': reason,
@@ -808,20 +529,6 @@ class E2EEService {
     );
   }
 
-  /// 内部方法：获取用户设备公钥（保留向后兼容）
-  static Future<Map<String, Map<String, String>>> _getUserDevicePublicKeys(
-    String uid,
-  ) async {
-    return getUserDevicePublicKeys(uid);
-  }
-
-  /// 内部方法：获取群组设备公钥（保留向后兼容）
-  static Future<Map<String, Map<String, String>>> _getGroupDevicePublicKeys(
-    String gid,
-  ) async {
-    return getGroupDevicePublicKeys(gid);
-  }
-
   static Uint8List _secureRandomBytes(int length) {
     final rnd = Random.secure();
     final bytes = List<int>.generate(length, (_) => rnd.nextInt(256));
@@ -882,7 +589,8 @@ class E2EEService {
       final result = decoded.cast<String, dynamic>();
 
       // 保留原始消息类型
-      final originalMsgType = failedPayload['_e2ee_original_msg_type']?.toString();
+      final originalMsgType = failedPayload['_e2ee_original_msg_type']
+          ?.toString();
       if (originalMsgType != null && originalMsgType.isNotEmpty) {
         result['msg_type'] = originalMsgType;
       }

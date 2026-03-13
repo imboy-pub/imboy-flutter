@@ -20,7 +20,7 @@ void main() {
     late MessageRepo messageRepo;
 
     setUp(() {
-      messageRetry = MessageRetry.to;
+      messageRetry = MessageRetry.instance;
       messageRepo = MessageRepo(tableName: 'msg_c2c');
     });
 
@@ -40,7 +40,7 @@ void main() {
     group('重试队列基础功能', () {
       test('应该成功创建单例服务', () {
         expect(messageRetry, isNotNull);
-        expect(messageRetry == MessageRetry.to, true);
+        expect(messageRetry == MessageRetry.instance, true);
       });
 
       test('应该能够添加消息到重试队列', () {

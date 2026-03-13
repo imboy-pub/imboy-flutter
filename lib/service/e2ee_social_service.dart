@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:imboy/service/shamir_secret_sharing.dart';
+import 'package:imboy/service/rsa.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/e2ee_shard_message_handler.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// E2EE 社交恢复服务
 /// 使用 Shamir Secret Sharing 将密钥分割成多个分片
@@ -277,51 +282,368 @@ class E2EESocialService {
 
   /// 验证代理公钥
   ///
-  /// 验证代理的公钥是否有效
+  /// 零信任架构：完整验证代理的公钥是否有效
+  /// 包括格式验证、长度验证、算法验证和有效性验证
+  ///
+  /// 验证步骤：
+  /// 1. 非空检查
+  /// 2. PEM 格式验证
+  /// 3. 密钥长度验证（至少 2048 位）
+  /// 4. 公钥可解析性验证
+  /// 5. 公钥指数验证
   static Future<bool> validateProxyPublicKey(
     String proxyUid,
     String publicKey,
   ) async {
     try {
+      // 1. 非空检查
       if (proxyUid.isEmpty || publicKey.isEmpty) {
+        print('⚠️ [E2EE] 公钥验证失败: 参数为空');
         return false;
       }
 
-      // 验证公钥格式是否为有效的 PEM 格式
+      // 2. PEM 格式验证
       if (!publicKey.contains('BEGIN PUBLIC KEY') &&
           !publicKey.contains('BEGIN RSA PUBLIC KEY')) {
+        print('⚠️ [E2EE] 公钥验证失败: PEM 格式不正确');
         return false;
       }
 
-      // 尝试解析公钥以验证其有效性
-      // TODO: 添加更完整的公钥验证逻辑
+      // 3. 尝试解析公钥
+      final rsaPublicKey = RSAService.parsePublicKeyFromPem(publicKey);
+
+      // 4. 密钥长度验证（至少 2048 位）
+      final modulus = rsaPublicKey.modulus;
+      if (modulus == null) {
+        print('⚠️ [E2EE] 公钥验证失败: modulus 为空');
+        return false;
+      }
+
+      final bitLength = modulus.bitLength;
+      if (bitLength < 2048) {
+        print('⚠️ [E2EE] 公钥验证失败: 密钥长度不足 ($bitLength < 2048)');
+        return false;
+      }
+
+      // 5. 公钥指数验证
+      final exponent = rsaPublicKey.exponent;
+      if (exponent == null) {
+        print('⚠️ [E2EE] 公钥验证失败: exponent 为空');
+        return false;
+      }
+
+      // 6. 验证公钥指数是否为常见的安全值（65537）
+      if (exponent != BigInt.from(65537)) {
+        print('⚠️ [E2EE] 公钥警告: 非标准指数 $exponent');
+        // 不直接返回 false，仅记录警告
+      }
+
+      print('✅ [E2EE] 公钥验证成功: proxyUid=$proxyUid, bitLength=$bitLength');
       return true;
     } catch (e) {
+      print('❌ [E2EE] 公钥验证异常: $e');
       return false;
     }
   }
 
   /// 推荐恢复代理
   ///
-  /// 基于好友关系和活跃度推荐代理
-  /// 返回推荐的好友列表，按推荐度排序
+  /// 零信任架构：基于多因素的推荐算法
+  /// 权重因子：
+  /// - 好友关系时长：30%
+  /// - 最近互动频率：25%
+  /// - 好友备注名称：15%
+  /// - 共同群组数量：15%
+  /// - 在线状态：15%
+  ///
+  /// [count] 推荐数量（默认 3）
+  /// [currentUserId] 当前用户 ID（可选）
+  /// Returns: 按推荐度排序的好友列表
   static Future<List<Map<String, dynamic>>> recommendProxies({
     int count = 3,
     String? currentUserId,
   }) async {
     try {
-      // TODO: 实现基于以下因素的推荐算法
-      // 1. 好友关系时长（认识时间越长越推荐）
-      // 2. 最近互动频率（最近消息多的更推荐）
-      // 3. 好友备注名称（有备注的说明关系密切）
-      // 4. 共同群组数量（共同群多说明关系密切）
-      // 5. 在线状态（在线的更推荐）
+      // 1. 获取可信联系人列表
+      final contacts = await getTrustedContacts();
+      if (contacts.isEmpty) {
+        print('📦 [E2EE] 没有可信联系人可用于推荐');
+        return [];
+      }
 
-      // 目前返回空列表，待实现
-      return [];
+      print('📦 [E2EE] 开始计算 ${contacts.length} 个联系人的推荐分数');
+
+      // 2. 计算每个好友的推荐分数
+      final scoredContacts = <Map<String, dynamic>>[];
+
+      for (final contact in contacts) {
+        final contactUid = contact['uid']?.toString() ?? '';
+        if (contactUid.isEmpty) continue;
+
+        // 计算各因素得分
+        final relationScore = await _calculateRelationDurationScore(contactUid);
+        final interactionScore = await _calculateInteractionFrequencyScore(
+          contactUid,
+        );
+        final remarkScore = _calculateRemarkScore(contact);
+        final groupScore = await _calculateCommonGroupScore(contactUid);
+        final onlineScore = await _calculateOnlineStatusScore(contactUid);
+
+        // 加权总分
+        final totalScore = (relationScore * 0.30) +
+            (interactionScore * 0.25) +
+            (remarkScore * 0.15) +
+            (groupScore * 0.15) +
+            (onlineScore * 0.15);
+
+        scoredContacts.add({
+          ...contact,
+          'recommend_score': totalScore,
+          'score_details': {
+            'relation': relationScore,
+            'interaction': interactionScore,
+            'remark': remarkScore,
+            'group': groupScore,
+            'online': onlineScore,
+          },
+        });
+
+        print(
+          '📊 [E2EE] 联系人 $contactUid 得分: $totalScore (关系=$relationScore, 互动=$interactionScore, 备注=$remarkScore, 群组=$groupScore, 在线=$onlineScore)',
+        );
+      }
+
+      // 3. 按分数排序并返回前 N 个
+      scoredContacts.sort(
+        (a, b) => (b['recommend_score'] as double).compareTo(
+          a['recommend_score'] as double,
+        ),
+      );
+
+      final result = scoredContacts.take(count).toList();
+      print('✅ [E2EE] 推荐代理完成，返回 ${result.length} 个候选');
+
+      return result;
     } catch (e) {
+      print('❌ [E2EE] 推荐代理失败: $e');
       return [];
     }
+  }
+
+  /// 计算好友关系时长得分（0-100）
+  ///
+  /// 基于好友添加时间计算得分：
+  /// - 30天以下: 20分
+  /// - 30-90天: 40分
+  /// - 90-365天: 70分
+  /// - 1年以上: 100分
+  static Future<double> _calculateRelationDurationScore(String contactUid) async {
+    try {
+      // 从联系人仓库获取好友添加时间
+      final contactRepo = ContactRepo();
+      final contact = await contactRepo.findByUid(contactUid);
+
+      // ContactModel 没有 createdAt 属性，使用 updatedAt 替代
+      if (contact == null || contact.updatedAt == 0) {
+        return 30.0; // 默认中等偏低分数
+      }
+
+      final updatedAt = DateTime.fromMillisecondsSinceEpoch(
+        contact.updatedAt,
+      );
+      final days = DateTime.now().difference(updatedAt).inDays;
+
+      if (days < 30) {
+        return 20.0;
+      } else if (days < 90) {
+        return 40.0;
+      } else if (days < 365) {
+        return 70.0;
+      } else {
+        return 100.0;
+      }
+    } catch (e) {
+      print('⚠️ [E2EE] 计算关系时长得分失败: $e');
+      return 30.0;
+    }
+  }
+
+  /// 计算最近互动频率得分（0-100）
+  ///
+  /// 基于最近30天的消息数量计算得分：
+  /// - 0条: 0分
+  /// - 1-10条: 30分
+  /// - 11-50条: 60分
+  /// - 50条以上: 100分
+  static Future<double> _calculateInteractionFrequencyScore(
+    String contactUid,
+  ) async {
+    try {
+      // 从消息仓库获取最近30天的消息数量
+      final messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+      final thirtyDaysAgo = DateTime.now().subtract(Duration(days: 30));
+      final since = thirtyDaysAgo.millisecondsSinceEpoch;
+
+      final count = await messageRepo.countMessagesWithUser(
+        contactUid,
+        since: since,
+      );
+
+      if (count == 0) {
+        return 0.0;
+      } else if (count <= 10) {
+        return 30.0;
+      } else if (count <= 50) {
+        return 60.0;
+      } else {
+        return 100.0;
+      }
+    } catch (e) {
+      print('⚠️ [E2EE] 计算互动频率得分失败: $e');
+      return 30.0;
+    }
+  }
+
+  /// 计算好友备注得分（0-100）
+  ///
+  /// 有备注说明关系密切
+  static double _calculateRemarkScore(Map<String, dynamic> contact) {
+    final remark = contact['remark']?.toString() ?? '';
+    return remark.isNotEmpty ? 100.0 : 30.0;
+  }
+
+  /// 计算共同群组得分（0-100）
+  ///
+  /// 基于共同群组数量计算得分：
+  /// - 0个: 10分
+  /// - 1-2个: 40分
+  /// - 3-5个: 70分
+  /// - 5个以上: 100分
+  static Future<double> _calculateCommonGroupScore(String contactUid) async {
+    try {
+      // 从群组成员仓库获取共同群组数量
+      final groupMemberRepo = GroupMemberRepo();
+      final currentUid = UserRepoLocal.to.currentUid;
+
+      // 获取当前用户的群组列表
+      final myGroups = await groupMemberRepo.groupIdsByUserId(currentUid);
+      // 获取联系人的群组列表
+      final contactGroups = await groupMemberRepo.groupIdsByUserId(contactUid);
+
+      // 计算交集
+      final commonGroups = myGroups.toSet().intersection(
+        contactGroups.toSet(),
+      );
+      final count = commonGroups.length;
+
+      if (count == 0) {
+        return 10.0;
+      } else if (count <= 2) {
+        return 40.0;
+      } else if (count <= 5) {
+        return 70.0;
+      } else {
+        return 100.0;
+      }
+    } catch (e) {
+      print('⚠️ [E2EE] 计算共同群组得分失败: $e');
+      return 30.0;
+    }
+  }
+
+  /// 计算在线状态得分（0-100）
+  ///
+  /// 基于用户在线状态计算得分：
+  /// - 离线: 20分
+  /// - 在线: 100分
+  /// - 未知: 50分
+  static Future<double> _calculateOnlineStatusScore(String contactUid) async {
+    try {
+      // 从在线状态缓存获取
+      final isOnline = await _getOnlineStatus(contactUid);
+
+      if (isOnline == null) {
+        // 未知状态，返回中等分数
+        return 50.0;
+      }
+
+      return isOnline ? 100.0 : 20.0;
+    } catch (e) {
+      print('⚠️ [E2EE] 计算在线状态得分失败: $e');
+      return 50.0;
+    }
+  }
+
+  /// 在线状态缓存
+  ///
+  /// 存储用户的在线状态，key 为用户 ID，value 为在线状态
+  /// 使用 LRU 缓存策略，最多存储 1000 个用户状态
+  static final Map<String, bool> _onlineStatusCache = {};
+  static final Map<String, int> _onlineStatusTimestamp = {};
+
+  /// 获取用户在线状态
+  ///
+  /// 从缓存中获取用户在线状态，如果缓存过期则返回 null
+  ///
+  /// [uid] 用户 ID
+  /// Returns: true=在线, false=离线, null=未知
+  static Future<bool?> _getOnlineStatus(String uid) async {
+    try {
+      // 检查缓存是否存在且未过期（5分钟有效期）
+      final timestamp = _onlineStatusTimestamp[uid];
+      if (timestamp != null) {
+        final age = DateTime.now().millisecondsSinceEpoch - timestamp;
+        if (age < 5 * 60 * 1000) {
+          // 5分钟内有效
+          return _onlineStatusCache[uid];
+        }
+      }
+
+      // 缓存过期，尝试从 WebSocket 服务获取
+      // 注意：这需要 WebSocket 服务支持在线状态查询
+      // 目前返回 null 表示未知状态
+      return null;
+    } catch (e) {
+      print('⚠️ [E2EE] 获取在线状态失败: $e');
+      return null;
+    }
+  }
+
+  /// 更新用户在线状态缓存
+  ///
+  /// 当收到用户上线/下线通知时调用此方法更新缓存
+  ///
+  /// [uid] 用户 ID
+  /// [isOnline] 是否在线
+  static void updateOnlineStatus(String uid, bool isOnline) {
+    _onlineStatusCache[uid] = isOnline;
+    _onlineStatusTimestamp[uid] = DateTime.now().millisecondsSinceEpoch;
+
+    // 限制缓存大小，移除最旧的条目
+    if (_onlineStatusCache.length > 1000) {
+      // 找到最旧的条目并移除
+      String? oldestKey;
+      int oldestTime = DateTime.now().millisecondsSinceEpoch;
+      for (final entry in _onlineStatusTimestamp.entries) {
+        if (entry.value < oldestTime) {
+          oldestTime = entry.value;
+          oldestKey = entry.key;
+        }
+      }
+      if (oldestKey != null) {
+        _onlineStatusCache.remove(oldestKey);
+        _onlineStatusTimestamp.remove(oldestKey);
+      }
+    }
+
+    print('📡 [E2EE] 更新在线状态缓存: uid=$uid, isOnline=$isOnline');
+  }
+
+  /// 清除在线状态缓存
+  static void clearOnlineStatusCache() {
+    _onlineStatusCache.clear();
+    _onlineStatusTimestamp.clear();
+    print('🧹 [E2EE] 已清除在线状态缓存');
   }
 
   // ================================================================
@@ -423,16 +745,39 @@ class E2EESocialService {
 
   /// 获取本地存储的分片（代理端）
   ///
-  /// 零信任架构：代理从本地安全存储读取分片
+  /// 零信任架构：代理从本地安全存储读取所有分片
+  /// 通过维护的分片 ID 列表遍历所有分片
   ///
   /// Returns: 本地存储的分片列表
   static Future<List<Map<String, dynamic>>> getStoredShards() async {
     try {
-      // TODO: 实现遍历安全存储中所有 e2ee_shard_ 开头的键
-      // 由于 flutter_secure_storage 没有直接列出所有键的方法
-      // 需要维护一个分片 ID 列表
-      return [];
+      // 1. 获取所有分片 ID
+      final shardIds = await StorageSecureService.to.getShardIdList();
+      if (shardIds.isEmpty) {
+        print('📦 [E2EE] 本地没有存储的分片');
+        return [];
+      }
+
+      // 2. 遍历读取每个分片
+      final shards = <Map<String, dynamic>>[];
+      for (final shardId in shardIds) {
+        try {
+          final shardJson = await StorageSecureService.to.read(
+            key: 'e2ee_shard_$shardId',
+          );
+          if (shardJson != null && shardJson.isNotEmpty) {
+            final shard = jsonDecode(shardJson) as Map<String, dynamic>;
+            shards.add(shard);
+          }
+        } catch (e) {
+          print('⚠️ [E2EE] 读取分片失败: shardId=$shardId, error=$e');
+        }
+      }
+
+      print('📦 [E2EE] 读取到 ${shards.length} 个本地分片');
+      return shards;
     } catch (e) {
+      print('❌ [E2EE] 获取本地分片列表失败: $e');
       return [];
     }
   }
@@ -440,16 +785,17 @@ class E2EESocialService {
   /// 解密并返回分片（代理端）
   ///
   /// 零信任架构：代理使用自己的私钥解密分片，返回给密钥所有者
+  /// 分片是通过 RSA-OAEP-SHA256 加密的
   ///
   /// [shardId] 分片 ID
   /// [requesterUid] 请求者用户 ID
-  /// Returns: 解密后的分片数据
+  /// Returns: 解密后的分片数据（Base64 编码）
   static Future<String?> decryptShardForRequester({
     required String shardId,
     required int requesterUid,
   }) async {
     try {
-      // 从安全存储读取分片
+      // 1. 从安全存储读取分片
       final shardJson = await StorageSecureService.to.read(
         key: 'e2ee_shard_$shardId',
       );
@@ -459,20 +805,38 @@ class E2EESocialService {
 
       final shard = jsonDecode(shardJson) as Map<String, dynamic>;
 
-      // 验证请求者是否是分片所有者
+      // 2. 验证请求者是否是分片所有者
       if (shard['uid'] != requesterUid) {
         throw Exception('无权访问此分片');
       }
 
       final encryptedShard = shard['encrypted_shard']?.toString() ?? '';
+      if (encryptedShard.isEmpty) {
+        throw Exception('分片数据为空');
+      }
 
-      // TODO: 使用代理的私钥解密分片
-      // 这里需要调用加密库进行 RSA-OAEP 解密
-      // 目前返回加密的分片，待实现解密逻辑
+      // 3. 获取代理的私钥
+      final privateKeyPem = await RSAService.privateKey();
+      if (privateKeyPem == null || privateKeyPem.isEmpty) {
+        throw Exception('代理私钥不存在');
+      }
 
-      return encryptedShard;
+      // 4. 解析私钥
+      final privateKey = RSAService.parsePrivateKeyFromPem(privateKeyPem);
+
+      // 5. 解码 Base64 加密分片
+      final encryptedBytes = base64Decode(encryptedShard);
+
+      // 6. 使用 RSA-OAEP-SHA256 解密
+      final decryptedBytes = RSAService.rsaDecrypt(privateKey, encryptedBytes);
+
+      // 7. 重新编码为 Base64 以便传输
+      final decryptedShard = base64.encode(decryptedBytes);
+
+      print('✅ [E2EE] 分片解密成功: shardId=$shardId');
+      return decryptedShard;
     } catch (e) {
-      print('解密分片失败: $e');
+      print('❌ [E2EE] 分片解密失败: $e');
       return null;
     }
   }

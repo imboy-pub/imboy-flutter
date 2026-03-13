@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 import 'contact_model.dart';
@@ -40,7 +41,7 @@ class DenylistModel extends ISuspensionBean {
   final String remark;
   final String region;
   final String sign;
-  final String source; // 朋友来源 visit_card | qrcode | people_nearby
+  final String source; // 朋友来源 visitCard | qrcode | people_nearby
   int createdAt;
 
   //
@@ -71,24 +72,26 @@ class DenylistModel extends ISuspensionBean {
   }
 
   factory DenylistModel.fromJson(Map<String, dynamic> json) {
-    String avatar = json[UserDenylistRepo.avatar] ?? '';
+    final avatar = parseModelString(json[UserDenylistRepo.avatar]);
     return DenylistModel(
-      deniedUid: json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? ""),
-      account: json[UserDenylistRepo.account].toString(),
-      nickname: json[UserDenylistRepo.nickname].toString(),
+      deniedUid: parseModelString(
+        json["id"] ?? json[UserDenylistRepo.deniedUid],
+      ),
+      account: parseModelString(json[UserDenylistRepo.account]),
+      nickname: parseModelString(json[UserDenylistRepo.nickname]),
       avatar: avatar,
-      remark: json[UserDenylistRepo.remark].toString(),
+      remark: parseModelString(json[UserDenylistRepo.remark]),
 
-      sign: json[UserDenylistRepo.sign].toString(),
+      sign: parseModelString(json[UserDenylistRepo.sign]),
       // 单位毫秒，13位时间戳  1561021145560
       createdAt: DateTimeHelper.parseTimestamp(
         json[UserDenylistRepo.createdAt],
       ),
 
-      gender: json[UserDenylistRepo.gender] ?? 0,
-      region: json[UserDenylistRepo.region].toString(),
+      gender: parseModelInt(json[UserDenylistRepo.gender]),
+      region: parseModelString(json[UserDenylistRepo.region]),
 
-      source: json[UserDenylistRepo.source].toString(),
+      source: parseModelString(json[UserDenylistRepo.source]),
     );
   }
 

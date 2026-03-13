@@ -153,7 +153,10 @@ class UserRepoLocal {
         token is! String ||
         token.trim().isEmpty ||
         token.length < _minTokenLength) {
-      debugPrint('❌ loginAfter 验证失败: token 无效 (token=$token)');
+      // 安全考虑：不在日志中记录敏感 token 值
+      debugPrint(
+        '❌ loginAfter 验证失败: token 无效 (长度: ${token is String ? token.length : "非字符串"})',
+      );
       throw ArgumentError(
         '登录响应包含无效的 token 字段: token 不能为空且长度必须大于 $_minTokenLength',
       );
@@ -190,12 +193,12 @@ class UserRepoLocal {
     List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
     if (li == null) {
       li = [account];
-      StorageService.to.setStringList(Keys.loginHistory, li);
+      StorageService.to.setList(Keys.loginHistory, li);
     } else {
       // 移除已存在的账号（如果有），然后插入到最前面
       li.remove(account);
       li.insert(0, account);
-      StorageService.to.setStringList(Keys.loginHistory, li);
+      StorageService.to.setList(Keys.loginHistory, li);
     }
 
     await StorageService.to.setString(Keys.currentUid, payload['uid']);

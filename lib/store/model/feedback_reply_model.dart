@@ -1,5 +1,6 @@
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 class FeedbackReplyModel {
   int feedbackReplyId;
@@ -26,13 +27,13 @@ class FeedbackReplyModel {
 
   factory FeedbackReplyModel.fromJson(Map<String, dynamic> json) {
     return FeedbackReplyModel(
-      feedbackReplyId: json['feedback_reply_id'] ?? (json['id'] ?? 0),
-      feedbackId: json['feedback_id'],
-      feedbackReplyPid: json['feedback_reply_pid'],
-      replierUserId: json['replier_user_id'],
-      replierName: json['replier_name'],
-      body: json['body'],
-      status: json['status'],
+      feedbackReplyId: parseModelInt(json['feedback_reply_id'] ?? json['id']),
+      feedbackId: parseModelInt(json['feedback_id']),
+      feedbackReplyPid: parseModelInt(json['feedback_reply_pid']),
+      replierUserId: parseModelInt(json['replier_user_id']),
+      replierName: parseModelString(json['replier_name']),
+      body: parseModelString(json['body']),
+      status: parseModelInt(json['status']),
       updatedAt: DateTimeHelper.parseTimestamp(json['updated_at']),
       createdAt: DateTimeHelper.parseTimestamp(json['created_at']),
     );

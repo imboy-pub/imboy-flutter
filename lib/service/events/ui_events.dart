@@ -654,3 +654,122 @@ enum DataLoadingType {
   /// 其他加载
   other,
 }
+
+// ============================================================
+// E2EE 社交恢复相关事件
+// ============================================================
+
+/// E2EE 分片存储成功事件
+///
+/// 零信任架构：当代理确认已成功存储分片时触发
+/// UI 层可以监听此事件以更新界面状态或显示提示
+final class E2EEShardStoredEvent extends AppEvent {
+  @override
+  List<Object> get props => [shardId, keyVersion ?? ''];
+
+  /// 分片 ID
+  final String shardId;
+
+  /// 密钥版本号
+  final String? keyVersion;
+
+  /// 代理用户 ID（存储分片的代理）
+  final String? proxyUid;
+
+  /// 分片索引
+  final int? shardIndex;
+
+  /// 总分片数
+  final int? totalShards;
+
+  /// 恢复阈值
+  final int? threshold;
+
+  const E2EEShardStoredEvent({
+    required this.shardId,
+    this.keyVersion,
+    this.proxyUid,
+    this.shardIndex,
+    this.totalShards,
+    this.threshold,
+  });
+
+  @override
+  String toString() {
+    return 'E2EEShardStoredEvent(shardId: $shardId, keyVersion: $keyVersion, proxyUid: $proxyUid, index: $shardIndex/$totalShards, threshold: $threshold)';
+  }
+}
+
+/// E2EE 分片存储失败事件
+///
+/// 当分片存储失败时触发
+final class E2EEShardStoreFailedEvent extends AppEvent {
+  @override
+  List<Object> get props => [shardId, errorMessage];
+
+  /// 分片 ID
+  final String shardId;
+
+  /// 错误消息
+  final String errorMessage;
+
+  /// 代理用户 ID
+  final String? proxyUid;
+
+  const E2EEShardStoreFailedEvent({
+    required this.shardId,
+    required this.errorMessage,
+    this.proxyUid,
+  });
+
+  @override
+  String toString() {
+    return 'E2EEShardStoreFailedEvent(shardId: $shardId, error: $errorMessage, proxyUid: $proxyUid)';
+  }
+}
+
+/// E2EE 密钥恢复进度事件
+///
+/// 当密钥恢复过程中收集分片时触发，用于显示恢复进度
+final class E2EERecoveryProgressEvent extends AppEvent {
+  @override
+  List<Object> get props => [collected, total, threshold];
+
+  /// 已收集的分片数
+  final int collected;
+
+  /// 总分片数
+  final int total;
+
+  /// 恢复阈值
+  final int threshold;
+
+  /// 当前正在请求的分片 ID
+  final String? currentShardId;
+
+  /// 是否恢复成功
+  final bool isSuccess;
+
+  /// 错误消息（如果失败）
+  final String? errorMessage;
+
+  const E2EERecoveryProgressEvent({
+    required this.collected,
+    required this.total,
+    required this.threshold,
+    this.currentShardId,
+    this.isSuccess = false,
+    this.errorMessage,
+  });
+
+  /// 是否已收集足够的分片
+  bool get hasEnoughShards => collected >= threshold;
+
+  /// 恢复进度（0.0 - 1.0）
+  double get progress => total > 0 ? collected / threshold : 0.0;
+
+  @override
+  String toString() {
+    return 'E2EERecoveryProgressEvent(collected: $collected/$threshold, total: $total, progress: ${(progress * 100).toStringAsFixed(1)}%, success: $isSuccess)';
+  }
+}

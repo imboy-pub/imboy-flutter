@@ -295,9 +295,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           case 'tag':
             context.push('/contact/tags');
             break;
-          case 'channel':
-            context.push('/channel');
-            break;
         }
       },
       child: _buildChatItem(

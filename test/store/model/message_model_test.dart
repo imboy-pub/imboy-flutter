@@ -104,7 +104,7 @@ void main() {
     });
   });
 
-  group('MessageModel TDD Tests - audio/voice 命名统一', () {
+  group('MessageModel TDD Tests - voice 命名规范', () {
     test('应该正确识别 voice 消息类型（新规范）', () {
       // GIVEN: 一个使用 voice 类型的 JSON
       final json = {
@@ -133,35 +133,6 @@ void main() {
       // THEN: msgType 应该是 voice
       expect(model.msgType, equals(MessageType.voice));
       expect(model.payload['duration_ms'], equals(15000));
-    });
-
-    test('应该兼容 audio 消息类型（已废弃）', () {
-      // GIVEN: 一个使用 audio 类型的 JSON（旧命名）
-      final json = {
-        'id': 'msg123',
-        'auto_id': 1,
-        'type': 'C2C',
-        'status': 11,
-        'from': 'user1',
-        'to': 'user2',
-        'msg_type': MessageType.audio, // 使用旧的 audio
-        'payload': '''
-        {
-          "uri": "https://example.com/voice.mp3",
-          "duration_ms": 15000
-        }
-        ''',
-        'created_at': 1642579200000,
-        'is_author': 1,
-        'topic_id': 0,
-        'conversation_uk3': 'C2C_user1_user2',
-      };
-
-      // WHEN: 解析为 MessageModel
-      final model = MessageModel.fromJson(json);
-
-      // THEN: msgType 应该是 audio（向后兼容）
-      expect(model.msgType, equals(MessageType.audio));
     });
   });
 
@@ -262,28 +233,6 @@ void main() {
       expect(subtitle, equals('[语音]'));
     });
 
-    test('应该正确显示语音消息的副标题（audio 类型，向后兼容）', () {
-      // GIVEN: 一个语音消息（audio 类型，旧命名）
-      final model = MessageModel(
-        'msg123',
-        autoId: 1,
-        type: 'C2C',
-        status: 11,
-        fromId: 'user1',
-        toId: 'user2',
-        msgType: MessageType.audio,
-        payload: {'duration_ms': 15000},
-        isAuthor: 1,
-        conversationUk3: 'C2C_user1_user2',
-      );
-
-      // WHEN: 获取会话副标题
-      final subtitle = MessageModel.conversationSubtitleFromModel(model);
-
-      // THEN: 应该显示 [语音]
-      expect(subtitle, equals('[语音]'));
-    });
-
     test('应该正确显示视频消息的副标题', () {
       // GIVEN: 一个视频消息
       final model = MessageModel(
@@ -356,6 +305,43 @@ void main() {
 
       // THEN: 应该显示位置标题
       expect(subtitle, equals('北京市朝阳区'));
+    });
+  });
+
+  group('MessageModel TDD Tests - mixed primitive parsing', () {
+    test('fromJson should parse mixed primitive types without cast errors', () {
+      final json = {
+        'id': 999,
+        'auto_id': '12',
+        'type': 123,
+        'status': '20',
+        'from': 1001,
+        'to': 1002,
+        'msg_type': 88,
+        'action': true,
+        'payload': '{"text":"hello"}',
+        'created_at': '1767225600000',
+        'is_author': '1',
+        'topic_id': '6',
+        'conversation_uk3': 12345,
+        'e2ee': '{"algorithm":"xchacha20","key_id":"k1"}',
+      };
+
+      final model = MessageModel.fromJson(json);
+
+      expect(model.id, '999');
+      expect(model.autoId, 12);
+      expect(model.type, '123');
+      expect(model.status, 20);
+      expect(model.fromId, '1001');
+      expect(model.toId, '1002');
+      expect(model.msgType, '88');
+      expect(model.action, 'true');
+      expect(model.isAuthor, 1);
+      expect(model.topicId, 6);
+      expect(model.conversationUk3, '12345');
+      expect(model.payload, {'text': 'hello'});
+      expect(model.e2ee?['algorithm'], 'xchacha20');
     });
   });
 }

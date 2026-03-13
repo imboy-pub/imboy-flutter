@@ -15,6 +15,10 @@ void main() {
     await StorageService.init();
     // 设置测试用户 ID
     await StorageService.to.setString(Keys.currentUid, 'user1');
+    await StorageService.to.setString(
+      Keys.currentUser,
+      '{"uid": "user1", "nickname": "测试用户", "account": "", "email": "", "mobile": "", "avatar": "", "role": null, "gender": 0, "region": "", "sign": "", "setting": {}}',
+    );
   });
 
   group('Message Routing TDD Tests', () {
@@ -155,32 +159,6 @@ void main() {
         expect(audioMsg.duration.inMilliseconds, equals(15000));
       });
 
-      test('audio 消息应该路由到 AudioMessage（向后兼容）', () async {
-        // GIVEN: 一个 audio 类型的 MessageModel（旧命名）
-        final model = MessageModel(
-          'msg123',
-          autoId: 1,
-          type: 'C2C',
-          status: 11,
-          fromId: 'user1',
-          toId: 'user2',
-          msgType: MessageType.audio, // 使用旧的 audio
-          payload: {
-            'uri': 'https://example.com/voice.mp3',
-            'duration_ms': 15000,
-          },
-          isAuthor: 1,
-          conversationUk3: 'C2C_user1_user2',
-          createdAt: 1642579200000,
-        );
-
-        // WHEN: 转换为 Message
-        final message = await model.toTypeMessage();
-
-        // THEN: 应该是 AudioMessage
-        expect(message, isA<AudioMessage>());
-      });
-
       test('location 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 location 类型的 MessageModel
         final model = MessageModel(
@@ -305,7 +283,7 @@ void main() {
           fromId: 'user1',
           toId: 'user2',
           msgType: 'unknown_type',
-          payload: {},
+          payload: <String, dynamic>{},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
           createdAt: 1642579200000,

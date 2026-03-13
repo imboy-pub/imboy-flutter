@@ -83,9 +83,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     if (longitude.isEmpty || latitude.isEmpty) {
       return false;
     }
-    if (longitude == "null" || latitude == "null") {
-      return false;
-    }
+
     // 尝试解析为 double
     try {
       double lng = double.parse(longitude);

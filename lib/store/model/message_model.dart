@@ -9,6 +9,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -33,7 +34,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 /// - `seen (21)`: 接收方已阅读
 ///
 /// ## 后端协议对齐
-/// - ACK 确认机制：../imboy/doc/libraries/message-ack.md
+/// - ACK 确认机制：../imboy/doc/api/websocket-api-2.md
 /// - WebSocket API v2.0：../imboy/doc/api/websocket-api-2.md
 class IMBoyMessageStatus {
   // ==================== 发送状态 (10-19) ====================
@@ -89,7 +90,7 @@ class IMBoyMessageStatus {
   /// 含义：消息被对方撤回
   /// 触发时机：对方执行撤回操作，收到服务端的 C2C_REVOKE S2C 消息
   /// UI 表现：显示"对方撤回"文字，原消息内容不可见
-  /// 状态码：30 表示对方撤回，与 payload.custom_type 配合使用
+  /// 状态码：30 表示对方撤回
   /// 流转：终态
   static const int peerRevoked = 30;
 
@@ -99,7 +100,7 @@ class IMBoyMessageStatus {
   /// 触发时机：用户执行撤回操作（2分钟内）
   /// 约束条件：只能撤回 2 分钟内发送的消息
   /// UI 表现：显示"已撤回"文字，原消息内容不可见
-  /// 状态码：31 表示自己撤回，与 payload.custom_type 配合使用
+  /// 状态码：31 表示自己撤回
   /// 流转：终态
   static const int myRevoked = 31;
 
@@ -220,12 +221,14 @@ class MessageModel {
 
   factory MessageModel.fromJson(Map<String, dynamic> data) {
     // 解析 type
-    final type = data[MessageRepo.type] as String? ?? 'C2C';
+    final type = parseModelString(data[MessageRepo.type], defaultValue: 'C2C');
+    final fromRaw = data[MessageRepo.from] ?? data['from'];
+    final toRaw = data[MessageRepo.to] ?? data['to'];
 
     // WebSocket API v2.0: 从顶层读取 msg_type、action、e2ee
     // 所有消息类型都可能包含这三个字段
-    final msgType = data['msg_type'] as String?;
-    final action = data['action'] as String?; // ✅ 所有类型都读取 action
+    final msgType = parseModelNullableString(data['msg_type']);
+    final action = parseModelNullableString(data['action']); // ✅ 所有类型都读取 action
 
     // 解析 e2ee 字段（仅 C2C/C2G 有）
     Map<String, dynamic>? e2eeData;
@@ -240,8 +243,8 @@ class MessageModel {
             debugPrint('MessageModel: e2ee 解析失败: $e');
           }
         }
-      } else if (data['e2ee'] is Map<String, dynamic>) {
-        e2eeData = data['e2ee'] as Map<String, dynamic>;
+      } else if (data['e2ee'] is Map) {
+        e2eeData = parseModelJsonMap(data['e2ee']);
       }
     }
 
@@ -264,20 +267,20 @@ class MessageModel {
     }
 
     return MessageModel(
-      data[MessageRepo.id] ?? '',
-      autoId: data[MessageRepo.autoId] ?? 0,
+      parseModelNullableString(data[MessageRepo.id]),
+      autoId: parseModelInt(data[MessageRepo.autoId]),
       type: type,
-      status: int.parse('${data[MessageRepo.status] ?? 0}'),
-      fromId: data[MessageRepo.from] ?? '',
-      toId: data[MessageRepo.to] ?? '',
+      status: parseModelInt(data[MessageRepo.status]),
+      fromId: parseModelString(fromRaw),
+      toId: parseModelString(toRaw),
       payload: p,
       createdAt: DateTimeHelper.parseTimestamp(
         data[MessageRepo.createdAt],
         defaultValue: 0,
       ),
-      isAuthor: data[MessageRepo.isAuthor] ?? 0,
-      topicId: data[MessageRepo.topicId] ?? 0,
-      conversationUk3: data[MessageRepo.conversationUk3] ?? '',
+      isAuthor: parseModelInt(data[MessageRepo.isAuthor]),
+      topicId: parseModelInt(data[MessageRepo.topicId]),
+      conversationUk3: parseModelString(data[MessageRepo.conversationUk3]),
       msgType: msgType,
       action: action,
       e2ee: e2eeData,
@@ -341,8 +344,8 @@ class MessageModel {
   /// 获取有效的消息类型（归一化后）
   ///
   /// 自动处理以下情况：
-  /// 1. audio → voice（类型归一化）
-  /// 2. custom → 从 payload.custom_type 获取（兼容旧数据）
+  /// 1. 去除首尾空白
+  /// 2. custom → 保持 custom（不再依赖 payload 子类型字段）
   /// 3. 无效类型 → 'unsupported'
   ///
   /// ## 使用示例
@@ -381,13 +384,15 @@ class MessageModel {
     return MessageStatus.error;
   }
 
-  /// 获取消息类型枚举（兼容 flutter_chat_core）
+  /// 获取消息类型枚举
   ///
-  /// WebSocket API v2.0: 优先使用顶层的 msgType 字段
+  /// WebSocket API v2.0: 仅使用顶层的 msgType 字段
   /// 返回 MsgTypeEnum 用于 UI 类型判断
   MsgTypeEnum get customMsgType {
-    // WebSocket API v2.0: 优先使用顶层的 msgType 字段
-    final typeValue = msgType ?? (payload is Map ? payload['msg_type'] : null);
+    final typeValue = msgType;
+    if (typeValue == null || typeValue.isEmpty) {
+      return MsgTypeEnum.unsupported;
+    }
 
     // 使用 MsgTypeEnumExtension.fromValue 进行转换
     return MsgTypeEnumExtension.fromValue(typeValue) ?? MsgTypeEnum.unsupported;
@@ -398,7 +403,7 @@ class MessageModel {
   /// 直接从数据库字段读取，不依赖 metadata
   ///
   /// ## 返回值说明
-  /// - 基础类型：text, image, file, audio, video, location, quote
+  /// - 基础类型：text, image, file, voice, video, location, quote
   /// - 撤回消息：保留原始类型（如 text），UI 根据 action 判断撤回状态
   static String conversationMsgTypeFromModel(MessageModel model) {
     // 直接从数据库字段读取（v2.0 规范）
@@ -414,7 +419,7 @@ class MessageModel {
   /// 从 metadata 读取（兼容 flutter_chat_core）
   ///
   /// ## 返回值说明
-  /// - 基础类型：text, image, file, audio, video, location, quote
+  /// - 基础类型：text, image, file, voice, video, location, quote
   /// - 撤回消息：保留原始类型（如 text），UI 根据 action 判断撤回状态
   static String conversationMsgType(Message message) {
     // 1. 优先从顶层 metadata 获取 msg_type（v2.0 规范）
@@ -436,8 +441,8 @@ class MessageModel {
       if (customMsgType is String && customMsgType.isNotEmpty) {
         return customMsgType;
       }
-      // 兼容旧的 custom_type（用于自定义消息子类型）
-      return message.metadata?['custom_type'] ?? MessageType.unsupported;
+      // 不再从 payload 子类型字段推断
+      return MessageType.unsupported;
     }
 
     return MessageType.unsupported;
@@ -451,7 +456,7 @@ class MessageModel {
   /// - text: 显示文本内容
   /// - image: [图片]
   /// - video: [视频]
-  /// - audio: [语音]
+  /// - voice: [语音]
   /// - file: [文件] 或文件名
   /// - quote: 引用的文本内容
   /// - location: 位置标题
@@ -478,7 +483,6 @@ class MessageModel {
       case MessageType.video:
         return '[视频]';
 
-      case MessageType.audio:
       case MessageType.voice:
         return '[语音]';
 
@@ -499,23 +503,7 @@ class MessageModel {
         return payload['title']?.toString() ?? '[位置]';
 
       case MessageType.custom:
-        // 自定义消息：根据 custom_type 处理
-        final customType = payload['custom_type']?.toString() ?? '';
-        if (customType == 'audio' || customType == 'voice') {
-          return '[语音]';
-        }
-        if (customType == 'location') {
-          return payload['title']?.toString() ?? '[位置]';
-        }
-        if (customType == 'visit_card' || customType == 'visitCard') {
-          return payload['title']?.toString() ?? '[名片]';
-        }
-        if (customType.startsWith('webrtc')) {
-          return '[通话]';
-        }
-        if (customType == 'image_multi' || customType == 'imageMulti') {
-          return '[多图]';
-        }
+        // 自定义消息不再通过 payload 子类型字段解析
         return '';
 
       default:
@@ -532,7 +520,7 @@ class MessageModel {
   /// - text: 显示文本内容
   /// - image: [图片]
   /// - video: [视频]
-  /// - audio: [语音]
+  /// - voice: [语音]
   /// - file: [文件] 或文件名
   /// - quote: 引用的文本内容
   /// - location: 位置标题
@@ -540,7 +528,8 @@ class MessageModel {
     final metadata = message.metadata ?? {};
 
     // WebSocket API v2.0: 优先检查 status 字段（撤回状态 30-39）
-    final status = metadata['status'] as int?;
+    final statusValue = metadata['status'];
+    final status = statusValue == null ? null : parseModelInt(statusValue);
     if (IMBoyMessageStatus.isRevokedStatus(status)) {
       // 撤回消息的预览由 conversationModel 另外处理
       return '';
@@ -562,7 +551,6 @@ class MessageModel {
       case MessageType.video:
         return '[视频]';
 
-      case MessageType.audio:
       case MessageType.voice:
         return '[语音]';
 
@@ -583,11 +571,7 @@ class MessageModel {
         return metadata['title']?.toString() ?? '[位置]';
 
       case MessageType.custom:
-        // 自定义消息：根据 custom_type 处理
-        final customType = metadata['custom_type']?.toString() ?? '';
-        if (customType == 'visit_card') {
-          return metadata['title']?.toString() ?? '[名片]';
-        }
+        // 自定义消息不再通过 payload 子类型字段解析
         return '';
 
       default:
@@ -620,7 +604,7 @@ class MessageModel {
   }
 
   Future<Message> toTypeMessage() async {
-    // WebSocket API v2.0: 兼容新的 payload 结构（可能是 Map 或 String）
+    // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
     Map<String, dynamic> payloadData;
 
     if (payload is String) {
@@ -654,7 +638,7 @@ class MessageModel {
           );
         }
       } else {
-        // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析（可能是旧数据）
+        // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析
         try {
           payloadData = jsonDecode(payload) as Map<String, dynamic>;
         } catch (e) {
@@ -710,8 +694,7 @@ class MessageModel {
       isValidMsgType = (currentAction != null && currentAction.isNotEmpty);
     } else {
       // 非 S2C 消息：msg_type 必须非空
-      isValidMsgType =
-          (currentMsgType != null && currentMsgType.isNotEmpty);
+      isValidMsgType = (currentMsgType != null && currentMsgType.isNotEmpty);
     }
 
     if (!isValidMsgType) {
@@ -738,8 +721,8 @@ class MessageModel {
     //
     // 【重构】使用 effectiveMsgType getter 获取归一化后的类型
     // 该 getter 会自动处理：
-    // 1. custom -> payload.custom_type
-    // 2. audio -> voice
+    // 1. custom -> 保持 custom
+    // 2. 去除首尾空白
     // 3. 无效类型 -> 'unsupported'
     String effectiveMsgType;
     if (currentType == 'S2C') {
@@ -751,7 +734,7 @@ class MessageModel {
       }
     } else {
       // C2C/C2G/C2S 消息：使用 effectiveMsgType getter 进行归一化
-      // 这样可以自动处理 custom -> custom_type 和 audio -> voice 的转换
+      // 统一做消息类型归一化
       effectiveMsgType = this.effectiveMsgType;
       // 这里应该不会为空，因为已经通过了 isValidMsgType 检查
     }
@@ -839,11 +822,9 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'video' ||
-        effectiveMsgType == 'voice' ||
-        effectiveMsgType == 'audio') {
+    } else if (effectiveMsgType == 'video' || effectiveMsgType == 'voice') {
       // 视频/语音消息：使用 VideoMessage 或 AudioMessage
-      // 兼容旧的 'audio' 命名（现在统一使用 'voice'）
+      // 语音消息统一使用 voice 命名
       if (effectiveMsgType == 'video') {
         message = VideoMessage(
           authorId: author.id,
@@ -860,7 +841,7 @@ class MessageModel {
           metadata: {...metadata, ...payloadData},
         );
       } else {
-        // voice/audio 消息使用 AudioMessage
+        // voice 消息使用 AudioMessage
         message = AudioMessage(
           authorId: author.id,
           createdAt: createdDt,
@@ -877,7 +858,7 @@ class MessageModel {
           metadata: {...metadata, ...payloadData},
         );
       }
-    } else if (payloadData['custom_type'] == 'quote') {
+    } else if (effectiveMsgType == 'quote') {
       message = CustomMessage(
         authorId: author.id,
         id: safeId,
@@ -885,8 +866,7 @@ class MessageModel {
         // peerId: toId,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'textStream' ||
-        effectiveMsgType == 'text_stream') {
+    } else if (effectiveMsgType == 'textStream') {
       // 文本流消息：使用 TextMessage，带额外的流式 metadata
       message = TextMessage(
         authorId: author.id,
@@ -902,8 +882,7 @@ class MessageModel {
           'stream_id': payloadData['stream_id'],
         },
       );
-    } else if (effectiveMsgType == 'imageMulti' ||
-        effectiveMsgType == 'image_multi') {
+    } else if (effectiveMsgType == 'imageMulti') {
       // 多图消息：使用 CustomMessage，带 images 数组
       message = CustomMessage(
         authorId: author.id,
@@ -1017,11 +996,13 @@ class MessageModel {
       payload['msg_type'] = 'system';
       payload.addAll(message.metadata ?? {});
     } else if (message is CustomMessage) {
-      msgType = 'custom';
-      payload['msg_type'] = 'custom';
-      if (message.metadata?['custom_type'] != null) {
-        payload['custom_type'] = message.metadata!['custom_type'];
-      }
+      final customMsgType = parseModelNullableString(
+        message.metadata?['msg_type'],
+      );
+      msgType = (customMsgType != null && customMsgType.isNotEmpty)
+          ? customMsgType
+          : 'custom';
+      payload['msg_type'] = msgType;
       payload.addAll(message.metadata ?? {});
     }
 
@@ -1047,8 +1028,10 @@ class MessageModel {
       status: 0,
       // WebSocket API v2.0: 设置顶层字段
       msgType: type == 'S2C' ? null : msgType,
-      action: type == 'S2C' ? (metadata['action'] as String?) : null,
-      e2ee: type == 'S2C' ? null : (metadata['e2ee'] as Map<String, dynamic>?),
+      action: type == 'S2C'
+          ? parseModelNullableString(metadata['action'])
+          : null,
+      e2ee: type == 'S2C' ? null : parseModelJsonMap(metadata['e2ee']),
     );
   }
 }

@@ -80,7 +80,7 @@ class MessageHandlingService {
         : UserRepoLocal.to.current.nickname;
 
     final metadata = {
-      'custom_type': 'quote',
+      'msg_type': 'quote',
       'peer_id': peerId,
       'quote_msg': quoteMessage.toJson(),
       'quote_msg_author_name': quoteMsgAuthorName,
@@ -460,8 +460,8 @@ class MessageHandlingService {
     } else if (message is FileMessage) {
       return true;
     } else if (message is CustomMessage) {
-      final customType = message.metadata?['custom_type'] ?? '';
-      return customType == 'video' || customType == 'audio';
+      final msgType = message.metadata?['msg_type'] ?? '';
+      return msgType == 'video' || msgType == 'voice';
     }
     return false;
   }
@@ -509,7 +509,7 @@ class MessageHandlingService {
       ),
       id: Xid().toString(),
       metadata: {
-        'custom_type': 'visit_card',
+        'msg_type': 'visitCard',
         'peer_id': peerId,
         'uid': contact['peerId'],
         'title': contact['title'],

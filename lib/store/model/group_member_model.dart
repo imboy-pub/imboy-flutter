@@ -1,4 +1,5 @@
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 
 /// 群组成员数据模型
@@ -47,20 +48,20 @@ class GroupMemberModel {
   factory GroupMemberModel.fromJson(Map<String, dynamic> json) {
     // iPrint("GroupMemberModel.fromJson ${json.toString()}");
     return GroupMemberModel(
-      id: json[GroupMemberRepo.id] ?? 0,
-      groupId: json[GroupMemberRepo.groupId],
-      userId: json[GroupMemberRepo.userId],
-      nickname: "${json[GroupMemberRepo.nickname]}",
-      avatar: "${json[GroupMemberRepo.avatar] ?? ''}",
-      sign: "${json[GroupMemberRepo.sign] ?? ''}",
-      account: json[GroupMemberRepo.account].toString(),
-      inviteCode: json[GroupMemberRepo.inviteCode],
-      alias: "${json[GroupMemberRepo.alias]}",
-      description: "${json[GroupMemberRepo.description]}",
-      role: json[GroupMemberRepo.role],
-      isJoin: json[GroupMemberRepo.isJoin],
-      joinMode: json[GroupMemberRepo.joinMode] ?? '',
-      status: json[GroupMemberRepo.status] ?? 1,
+      id: parseModelInt(json[GroupMemberRepo.id]),
+      groupId: parseModelString(json[GroupMemberRepo.groupId]),
+      userId: parseModelString(json[GroupMemberRepo.userId]),
+      nickname: parseModelString(json[GroupMemberRepo.nickname]),
+      avatar: parseModelString(json[GroupMemberRepo.avatar]),
+      sign: parseModelString(json[GroupMemberRepo.sign]),
+      account: parseModelString(json[GroupMemberRepo.account]),
+      inviteCode: parseModelString(json[GroupMemberRepo.inviteCode]),
+      alias: parseModelString(json[GroupMemberRepo.alias]),
+      description: parseModelString(json[GroupMemberRepo.description]),
+      role: parseModelInt(json[GroupMemberRepo.role], defaultValue: 1),
+      isJoin: parseModelInt(json[GroupMemberRepo.isJoin], defaultValue: 1),
+      joinMode: parseModelString(json[GroupMemberRepo.joinMode]),
+      status: parseModelInt(json[GroupMemberRepo.status], defaultValue: 1),
       updatedAt: DateTimeHelper.parseTimestamp(json[GroupMemberRepo.updatedAt]),
       createdAt: DateTimeHelper.parseTimestamp(json[GroupMemberRepo.createdAt]),
     );

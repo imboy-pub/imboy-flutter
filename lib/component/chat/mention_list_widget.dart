@@ -6,7 +6,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 /// @提及相关文本（简化版，避免依赖 slang 生成的字符串）
 class MentionStrings {
@@ -57,7 +56,7 @@ class MentionListWidget extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
       decoration: BoxDecoration(
-        color: ThemeManager.instance.getThemeColor('surface'),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,
         boxShadow: [
           BoxShadow(
@@ -72,7 +71,7 @@ class MentionListWidget extends StatelessWidget {
         padding: EdgeInsets.zero,
         itemCount: filteredCandidates.length,
         itemBuilder: (context, index) {
-          return _buildMentionItem(filteredCandidates[index]);
+          return _buildMentionItem(context, filteredCandidates[index]);
         },
       ),
     );
@@ -83,7 +82,9 @@ class MentionListWidget extends StatelessWidget {
     final result = <MentionCandidate>[];
 
     // 如果有关键词且匹配 "所有人"，且用户是管理员，添加 @所有人 选项
-    if (showAllMention && isAdmin && '所有人'.toLowerCase().contains(keyword.toLowerCase())) {
+    if (showAllMention &&
+        isAdmin &&
+        '所有人'.toLowerCase().contains(keyword.toLowerCase())) {
       result.add(MentionCandidate.all());
     }
 
@@ -92,8 +93,8 @@ class MentionListWidget extends StatelessWidget {
       result.addAll(candidates);
     } else {
       result.addAll(
-        candidates.where((c) =>
-          c.displayName.toLowerCase().contains(keyword.toLowerCase())
+        candidates.where(
+          (c) => c.displayName.toLowerCase().contains(keyword.toLowerCase()),
         ),
       );
     }
@@ -102,7 +103,8 @@ class MentionListWidget extends StatelessWidget {
   }
 
   /// 构建单个 @提及项
-  Widget _buildMentionItem(MentionCandidate candidate) {
+  Widget _buildMentionItem(BuildContext context, MentionCandidate candidate) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -112,7 +114,7 @@ class MentionListWidget extends StatelessWidget {
           child: Row(
             children: [
               // 头像
-              _buildAvatar(candidate),
+              _buildAvatar(context, candidate),
               const SizedBox(width: 10),
               // 名称和角色
               Expanded(
@@ -125,14 +127,14 @@ class MentionListWidget extends StatelessWidget {
                         Flexible(
                           child: Text(
                             candidate.isAllMention
-                              ? MentionStrings.mentionAll
-                              : candidate.displayName,
+                                ? MentionStrings.mentionAll
+                                : candidate.displayName,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: candidate.isAllMention
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                              color: ThemeManager.instance.getThemeColor('textPrimary'),
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                              color: colorScheme.onSurface,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -145,14 +147,20 @@ class MentionListWidget extends StatelessWidget {
                               vertical: 1,
                             ),
                             decoration: BoxDecoration(
-                              color: _getRoleBackgroundColor(candidate.role),
+                              color: _getRoleBackgroundColor(
+                                candidate.role,
+                                colorScheme,
+                              ),
                               borderRadius: BorderRadius.circular(3),
                             ),
                             child: Text(
                               candidate.roleText,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: _getRoleTextColor(candidate.role),
+                                color: _getRoleTextColor(
+                                  candidate.role,
+                                  colorScheme,
+                                ),
                               ),
                             ),
                           ),
@@ -164,7 +172,7 @@ class MentionListWidget extends StatelessWidget {
                         MentionStrings.mentionAllHint,
                         style: TextStyle(
                           fontSize: 12,
-                          color: ThemeManager.instance.getThemeColor('textSecondary'),
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                   ],
@@ -174,7 +182,7 @@ class MentionListWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -182,7 +190,7 @@ class MentionListWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: ThemeManager.instance.getThemeColor('primary'),
+                    color: colorScheme.primary,
                   ),
                 ),
               ),
@@ -194,21 +202,18 @@ class MentionListWidget extends StatelessWidget {
   }
 
   /// 构建头像
-  Widget _buildAvatar(MentionCandidate candidate) {
+  Widget _buildAvatar(BuildContext context, MentionCandidate candidate) {
+    final colorScheme = Theme.of(context).colorScheme;
     if (candidate.isAllMention) {
       // @所有人 的图标
       return Container(
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
+          color: colorScheme.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          Icons.group,
-          size: 24,
-          color: ThemeManager.instance.getThemeColor('primary'),
-        ),
+        child: Icon(Icons.group, size: 24, color: colorScheme.primary),
       );
     }
 
@@ -221,22 +226,23 @@ class MentionListWidget extends StatelessWidget {
           height: 40,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return _buildDefaultAvatar(candidate.displayName);
+            return _buildDefaultAvatar(context, candidate.displayName);
           },
         ),
       );
     }
 
-    return _buildDefaultAvatar(candidate.displayName);
+    return _buildDefaultAvatar(context, candidate.displayName);
   }
 
   /// 构建默认头像
-  Widget _buildDefaultAvatar(String name) {
+  Widget _buildDefaultAvatar(BuildContext context, String name) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.2),
+        color: colorScheme.primary.withValues(alpha: 0.2),
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -245,7 +251,7 @@ class MentionListWidget extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: ThemeManager.instance.getThemeColor('primary'),
+            color: colorScheme.primary,
           ),
         ),
       ),
@@ -253,26 +259,26 @@ class MentionListWidget extends StatelessWidget {
   }
 
   /// 获取角色标签背景颜色
-  Color _getRoleBackgroundColor(int role) {
+  Color _getRoleBackgroundColor(int role, ColorScheme colorScheme) {
     switch (role) {
       case 4: // 群主
-        return ThemeManager.instance.getThemeColor('warning').withValues(alpha: 0.1);
+        return const Color(0xFFFF9800).withValues(alpha: 0.1);
       case 3: // 管理员
-        return ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1);
+        return colorScheme.primary.withValues(alpha: 0.1);
       default:
-        return ThemeManager.instance.getThemeColor('surface');
+        return colorScheme.surface;
     }
   }
 
   /// 获取角色标签文字颜色
-  Color _getRoleTextColor(int role) {
+  Color _getRoleTextColor(int role, ColorScheme colorScheme) {
     switch (role) {
       case 4: // 群主
-        return ThemeManager.instance.getThemeColor('warning');
+        return const Color(0xFFFF9800);
       case 3: // 管理员
-        return ThemeManager.instance.getThemeColor('primary');
+        return colorScheme.primary;
       default:
-        return ThemeManager.instance.getThemeColor('textSecondary');
+        return colorScheme.onSurfaceVariant;
     }
   }
 }
@@ -311,9 +317,10 @@ class MentionListPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: ThemeManager.instance.getThemeColor('surface'),
+        color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -333,7 +340,7 @@ class MentionListPopup extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: ThemeManager.instance.getThemeColor('outline').withValues(alpha: 0.2),
+                    color: colorScheme.outline.withValues(alpha: 0.2),
                     width: 0.5,
                   ),
                 ),
@@ -345,7 +352,7 @@ class MentionListPopup extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: ThemeManager.instance.getThemeColor('textSecondary'),
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const Spacer(),
@@ -355,7 +362,7 @@ class MentionListPopup extends StatelessWidget {
                       child: Icon(
                         Icons.close,
                         size: 20,
-                        color: ThemeManager.instance.getThemeColor('textSecondary'),
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                 ],

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
+import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// E2EE 密钥传输 - 发送页面
 /// 显示二维码，供新设备扫描
@@ -42,10 +45,8 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
         return;
       }
 
-      // TODO: 需要接收方用户 ID
-      // 这里简化处理，实际使用时需要用户输入或选择
+      // 密钥存在，显示输入对话框让用户输入接收方用户 ID
       setState(() {
-        _errorMessage = '请输入接收方用户 ID';
         _isLoading = false;
       });
     } catch (e) {
@@ -56,16 +57,60 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
     }
   }
 
-  Future<void> _createTransfer(int toUid) async {
+  Future<void> _createTransfer(String toUid) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
+      // 1. 获取接收方的公钥
+      final keyData = await E2EEService.getUserDevicePublicKeys(toUid);
+      final didToPem = keyData['didToPem'] ?? {};
+
+      if (didToPem.isEmpty) {
+        setState(() {
+          _errorMessage = '接收方没有可用的公钥';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // 获取第一个可用设备的公钥
+      final recipientPublicKey = didToPem.values.first;
+
+      // 2. 构建密钥包
+      final storage = StorageSecureService.to;
+      final privateKey = await storage.getPrivateKey();
+      final publicKey = await storage.getPublicKey();
+      final deviceId = await storage.getDeviceId();
+      final keyId = await storage.getKeyId();
+
+      if (privateKey == null || publicKey == null) {
+        setState(() {
+          _errorMessage = '密钥未找到';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final keyBundle = {
+        'private_key': privateKey,
+        'public_key': publicKey,
+        'device_id': deviceId,
+        'key_id': keyId,
+      };
+
+      // 3. 使用接收方公钥加密密钥包
+      final encryptedKeyBundle = await E2EETransferService.encryptKeyBundle(
+        keyBundle,
+        recipientPublicKey,
+      );
+
+      // 4. 创建传输会话
       final result = await E2EETransferService.createTransfer(
-        toUid: toUid.toString(),
-        encryptedKeyBundle: '', // TODO: 使用接收方公钥加密密钥包
+        toUid: toUid,
+        encryptedKeyBundle: encryptedKeyBundle,
       );
       setState(() {
         _sessionId = result['session_id'] as String;
@@ -112,7 +157,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               Text(_errorMessage!, textAlign: TextAlign.center),
               const SizedBox(height: 24),
               CupertinoButton.filled(
-                child: const Text('重试'),
+                child: Text(t.buttonRetry),
                 onPressed: () {
                   // 显示输入对话框
                   _showToUidDialog();
@@ -202,7 +247,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
     final controller = TextEditingController();
     showCupertinoDialog(
       context: context,
-      builder: (context) {
+      builder: (ctx) {
         return CupertinoAlertDialog(
           title: const Text('输入接收方用户 ID'),
           content: Padding(
@@ -210,31 +255,30 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             child: CupertinoTextField(
               controller: controller,
               placeholder: '接收方用户 ID',
-              keyboardType: TextInputType.number,
             ),
           ),
           actions: [
             CupertinoDialogAction(
-              child: const Text('取消'),
+              child: Text(t.cancel),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(ctx);
               },
             ),
             CupertinoDialogAction(
               isDefaultAction: true,
               child: const Text('创建'),
               onPressed: () {
-                final toUid = int.tryParse(controller.text);
-                if (toUid == null) {
+                final toUid = controller.text.trim();
+                if (toUid.isEmpty) {
                   showCupertinoDialog(
                     context: context,
-                    builder: (context) {
+                    builder: (c) {
                       return CupertinoAlertDialog(
                         content: const Text('请输入有效的用户 ID'),
                         actions: [
                           CupertinoDialogAction(
-                            child: const Text('确定'),
-                            onPressed: () => Navigator.pop(context),
+                            child: Text(t.confirm),
+                            onPressed: () => Navigator.pop(c),
                           ),
                         ],
                       );
@@ -242,7 +286,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
                   );
                   return;
                 }
-                Navigator.pop(context);
+                Navigator.pop(ctx);
                 _createTransfer(toUid);
               },
             ),

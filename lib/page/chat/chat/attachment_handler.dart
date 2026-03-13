@@ -144,7 +144,9 @@ class ChatAttachmentHandler {
     AssetEntity entity,
   ) async {
     // 在异步操作前获取屏幕宽度，避免在回调中使用过期的 context
-    final screenWidth = context.mounted ? MediaQuery.of(context).size.width.toInt() : 800;
+    final screenWidth = context.mounted
+        ? MediaQuery.of(context).size.width.toInt()
+        : 800;
 
     await AttachmentApi.uploadVideo(
       "camera",
@@ -192,18 +194,28 @@ class ChatAttachmentHandler {
 
   /// 处理视频上传
   Future<void> handleVideoUpload(Map<String, dynamic> resp) async {
-    final message = CustomMessage(
+    final thumb = (resp['thumb'] as EntityImage).toJson();
+    final video = resp['video'] as EntityVideo;
+
+    final message = VideoMessage(
       authorId: _currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
         DateTimeHelper.millisecond(),
         isUtc: true,
       ),
       id: Xid().toString(),
+      source: video.uri,
+      text: video.name,
+      name: video.name,
+      size: video.size ?? 0,
+      width: video.width.toDouble(),
+      height: video.height.toDouble(),
       metadata: _withBurnMetadata({
-        'custom_type': 'video',
         'peer_id': peerId,
-        'thumb': (resp['thumb'] as EntityImage).toJson(),
-        'video': (resp['video'] as EntityVideo).toJson(),
+        'md5': video.md5,
+        'thumb': thumb,
+        if (video.duration != null)
+          'duration_ms': (video.duration! * 1000).round(),
       }),
     );
     await onMessageCreated(message);
@@ -281,18 +293,28 @@ class ChatAttachmentHandler {
 
   /// 处理选择的视频上传
   Future<void> handleSelectedVideoUpload(Map<String, dynamic> resp) async {
-    final message = CustomMessage(
+    final thumb = (resp['thumb'] as EntityImage).toJson();
+    final video = resp['video'] as EntityVideo;
+
+    final message = VideoMessage(
       authorId: _currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
         DateTimeHelper.millisecond(),
         isUtc: true,
       ),
       id: Xid().toString(),
+      source: video.uri,
+      text: video.name,
+      name: video.name,
+      size: video.size ?? 0,
+      width: video.width.toDouble(),
+      height: video.height.toDouble(),
       metadata: _withBurnMetadata({
-        'custom_type': 'video',
         'peer_id': peerId,
-        'thumb': (resp['thumb'] as EntityImage).toJson(),
-        'video': (resp['video'] as EntityVideo).toJson(),
+        'md5': video.md5,
+        'thumb': thumb,
+        if (video.duration != null)
+          'duration_ms': (video.duration! * 1000).round(),
       }),
     );
     await onMessageCreated(message);
@@ -305,22 +327,23 @@ class ChatAttachmentHandler {
       'audio',
       obj.file,
       (Map<String, dynamic> resp, String uri) async {
-        final message = CustomMessage(
+        final fileSize = (await obj.file.readAsBytes()).length;
+        final message = AudioMessage(
           authorId: _currentUser.id,
           createdAt: DateTime.fromMillisecondsSinceEpoch(
             DateTimeHelper.millisecond(),
             isUtc: true,
           ),
           id: Xid().toString(),
+          source: uri,
+          text: '',
+          size: fileSize,
+          duration: obj.duration,
+          waveform: obj.waveform,
           metadata: _withBurnMetadata({
-            'custom_type': 'audio',
             'peer_id': peerId,
-            'uri': uri,
-            'size': (await obj.file.readAsBytes()).length,
-            'duration_ms': obj.duration.inMilliseconds,
-            'waveform': obj.waveform,
-            'mime_type': obj.mimeType,
             'md5': resp['data']['md5'].toString(),
+            'mime_type': obj.mimeType,
           }),
         );
         obj.file.delete(recursive: true);
@@ -343,7 +366,9 @@ class ChatAttachmentHandler {
   ) async {
     if (imageBytes == null) return;
     // 在异步操作前获取屏幕宽度，避免在回调中使用过期的 context
-    final screenWidth = context.mounted ? MediaQuery.of(context).size.width.toInt() : 800;
+    final screenWidth = context.mounted
+        ? MediaQuery.of(context).size.width.toInt()
+        : 800;
     final image = img.decodeImage(imageBytes)!;
     final result = img.encodeJpg(image, quality: 65);
     await AttachmentApi.uploadBytes(
@@ -359,7 +384,7 @@ class ChatAttachmentHandler {
           ),
           id: Xid().toString(),
           metadata: _withBurnMetadata({
-            'custom_type': 'location',
+            'msg_type': 'location',
             'peer_id': peerId,
             'title': title,
             'address': address,
@@ -420,7 +445,7 @@ class ChatAttachmentHandler {
       ),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
-        'custom_type': 'visitCard',
+        'msg_type': 'visitCard',
         'peer_id': peerId,
         'uid': uid,
         'title': title,

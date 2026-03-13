@@ -1,0 +1,16 @@
+schema_version: 1
+domain_id: "moment_system"
+feature_name_cn: "朋友圈"
+description: "覆盖朋友圈事件和路由能力，预留时间流/发布 UI 自动化入口。"
+priority: "P1"
+case_count: 4
+auto_cases: 2
+manual_assist_cases: 2
+case_files:
+  - "test_automation/scenarios/cases/10_moment/moment_01_event_service.yaml"
+  - "test_automation/scenarios/cases/10_moment/moment_02_routes_page.yaml"
+  - "test_automation/scenarios/cases/10_moment/moment_03_feed_ui_flow.yaml"
+  - "test_automation/scenarios/cases/10_moment/moment_04_publish_ui_flow.yaml"
+ui_ux_focus:
+  - "时间流滚动与卡片稳定性"
+  - "发布、点赞、评论反馈清晰"

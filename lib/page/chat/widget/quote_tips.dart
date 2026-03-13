@@ -114,8 +114,8 @@ class QuoteTipsWidget extends StatelessWidget {
       );
     }
 
-    // WebSocket API v2.0: 获取 customType 和 status
-    String customType = message?.metadata?['custom_type'] ?? '';
+    // WebSocket API v2.0: 读取 msg_type 和 status
+    String msgType = message?.metadata?['msg_type'] ?? '';
     final status = message?.metadata?['status'] as int?;
 
     // 优先检查 status 字段（撤回状态 30-39）
@@ -137,7 +137,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (customType == 'quote') {
+    } else if (msgType == 'quote') {
       String txt = message?.metadata?['quote_text'] ?? '';
       body = Row(
         children: [
@@ -157,7 +157,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (customType == 'audio' || customType == 'voice') {
+    } else if (msgType == 'voice') {
       double durationMS = (message?.metadata?["duration_ms"] ?? 0) / 1000;
       body = Row(
         children: [
@@ -173,7 +173,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (customType == 'location') {
+    } else if (msgType == 'location') {
       body = Row(
         children: [
           Icon(
@@ -192,7 +192,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (customType == 'video') {
+    } else if (msgType == 'video') {
       body = Row(
         children: [
           Icon(
@@ -226,7 +226,7 @@ class QuoteTipsWidget extends StatelessWidget {
             ),
         ],
       );
-    } else if (customType == 'visit_card') {
+    } else if (msgType == 'visitCard') {
       body = Row(
         children: [
           Icon(

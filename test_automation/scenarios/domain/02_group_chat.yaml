@@ -1,0 +1,16 @@
+schema_version: 1
+domain_id: "group_chat"
+feature_name_cn: "群聊"
+description: "覆盖群聊主链路、群管理、群相册与群文件页面能力。"
+priority: "P0"
+case_count: 4
+auto_cases: 4
+manual_assist_cases: 0
+case_files:
+  - "test_automation/scenarios/cases/02_group_chat/group_01_group_chat_ui.yaml"
+  - "test_automation/scenarios/cases/02_group_chat/group_02_group_manage_ui.yaml"
+  - "test_automation/scenarios/cases/02_group_chat/group_03_group_album_navigation.yaml"
+  - "test_automation/scenarios/cases/02_group_chat/group_04_group_file_page.yaml"
+ui_ux_focus:
+  - "群消息列表更新和输入反馈"
+  - "群详情入口、成员操作反馈和页面导航"

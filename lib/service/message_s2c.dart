@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showDialog, AlertDialog, TextButton;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -9,6 +8,7 @@ import 'package:imboy/service/websocket_events.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
+import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -30,6 +30,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
 ///
@@ -67,10 +68,8 @@ class MessageS2CService {
 
     try {
       // v2.0: 从顶层读取 action 字段（不再兼容旧格式）
-      final payload = data['payload'] ?? {};
-      final Map<String, dynamic> payloadMap = payload is String
-          ? json.decode(payload)
-          : payload as Map<String, dynamic>;
+      final payloadMap =
+          parseModelJsonMap(data['payload']) ?? <String, dynamic>{};
 
       // v2.0: action 必须在顶层，不存在则报错
       final action = data['action']?.toString() ?? '';
@@ -115,8 +114,9 @@ class MessageS2CService {
           break;
         case 'apply_friend':
           // 添加朋友申请
-          // TODO: 迁移到 Riverpod - 需要使用 newFriendProvider
-          debugPrint("TODO: apply_friend 需要迁移到 Riverpod");
+          await _providerContainer
+              .read(newFriendProvider.notifier)
+              .receivedAddFriend(data);
           break;
         case 'apply_friend_confirm':
           await _handleApplyFriendConfirm(data, payloadMap);
@@ -182,6 +182,12 @@ class MessageS2CService {
         case 'channel_unread_count':
           // 频道未读计数更新
           await _handleChannelUnreadCount(payloadMap);
+          break;
+        case 'moment_new':
+        case 'moment_like':
+        case 'moment_comment':
+        case 'moment_deleted':
+          await _handleMomentAction(action, payloadMap);
           break;
         default:
           debugPrint("⚠️ [S2C] 未知的 action: $action");
@@ -452,8 +458,9 @@ class MessageS2CService {
         .receivedConfirmFriend(json);
 
     // 修正好友申请状态
-    // TODO: 迁移到 Riverpod - 需要使用 newFriendProvider
-    debugPrint("TODO: apply_friend_confirm 需要迁移到 Riverpod");
+    await _providerContainer
+        .read(newFriendProvider.notifier)
+        .receivedConfirmFriend(true, data);
   }
 
   /// 处理异地登录
@@ -593,7 +600,7 @@ class MessageS2CService {
     Map data,
     Map<String, dynamic> payload,
   ) async {
-    final msgId = data['id'] as String?;
+    final msgId = parseModelNullableString(data['id']);
     final msgType = data['type']?.toString() ?? 'C2C';
 
     // 使用公共辅助类处理非好友错误（消除代码重复）
@@ -608,7 +615,7 @@ class MessageS2CService {
     Map data,
     Map<String, dynamic> payload,
   ) async {
-    final msgId = data['id'] as String?;
+    final msgId = parseModelNullableString(data['id']);
     final msgType = data['type']?.toString() ?? 'C2C';
 
     // 使用公共辅助类处理黑名单错误（消除代码重复）
@@ -726,7 +733,9 @@ class MessageS2CService {
     final deviceType = payload['device_type']?.toString() ?? '';
     final keyId = payload['key_id']?.toString() ?? '';
 
-    iPrint('[S2C] e2ee_device_key_changed: uid=$uid, deviceId=$deviceId, deviceType=$deviceType, keyId=$keyId');
+    iPrint(
+      '[S2C] e2ee_device_key_changed: uid=$uid, deviceId=$deviceId, deviceType=$deviceType, keyId=$keyId',
+    );
 
     // 清除该用户的公钥缓存
     if (uid.isNotEmpty) {
@@ -738,6 +747,22 @@ class MessageS2CService {
   // ============================================
   // 频道消息处理方法
   // ============================================
+
+  /// 处理朋友圈相关 S2C 通知
+  static Future<void> _handleMomentAction(
+    String action,
+    Map<String, dynamic> payload,
+  ) async {
+    final momentId = payload['moment_id']?.toString() ?? '';
+    iPrint('[S2C] $action: momentId=$momentId');
+    AppEventBus.fire(
+      MomentTimelineChangedEvent(
+        action: action,
+        momentId: momentId,
+        payload: payload,
+      ),
+    );
+  }
 
   /// 处理频道消息推送
   ///
@@ -837,8 +862,10 @@ class MessageS2CService {
     Map<String, dynamic> payload,
   ) async {
     final channelId = payload['channel_id']?.toString() ?? '';
-    final unreadCount = payload['unread_count'] as int? ?? 0;
-    iPrint('[S2C] channel_unread_count: channelId=$channelId, count=$unreadCount');
+    final unreadCount = parseModelInt(payload['unread_count']);
+    iPrint(
+      '[S2C] channel_unread_count: channelId=$channelId, count=$unreadCount',
+    );
 
     try {
       // 更新本地未读计数

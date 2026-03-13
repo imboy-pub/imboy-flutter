@@ -10,7 +10,7 @@ class GroupApi extends HttpClient {
   Future<Map<String, dynamic>?> page({
     int page = 1,
     int size = 10,
-    String attr = '', // owner | join
+    String attr = '', // owner | join | manager
   }) async {
     IMBoyHttpResponse resp = await get(
       API.groupPage,

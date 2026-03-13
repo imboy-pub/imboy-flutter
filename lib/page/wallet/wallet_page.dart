@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -26,7 +27,12 @@ class WalletPage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.more_horiz),
             onPressed: () {
-              // TODO: Wallet settings
+              // TODO(后端对接): 钱包设置页面
+              // 需要：
+              // - 后端钱包 API 支持
+              // - 支付系统集成
+              // - 账单明细接口
+              EasyLoading.showToast(t.comingSoon);
             },
           ),
         ],
@@ -47,14 +53,15 @@ class WalletPage extends ConsumerWidget {
                     color: Colors.white,
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    '¥ 88,888.88',
-                    style: TextStyle(
-                      fontSize: 36,
+                  // TODO(后端对接): 钱包余额需要从后端 API 获取
+                  // 需要实现 GET /api/wallet/balance 接口
+                  // 目前显示功能开发中提示
+                  Text(
+                    t.comingSoon,
+                    style: const TextStyle(
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      fontFamily:
-                          'Roboto', // Monospace for numbers looks better
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -81,23 +88,30 @@ class WalletPage extends ConsumerWidget {
                     icon: Icons.qr_code_scanner,
                     label: t.receivePayment,
                     color: primaryColor,
-                    onTap: () {},
+                    // TODO(后端对接): 收款功能需要后端支付系统集成
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildTopActionItem(
                     context,
                     icon: Icons.account_balance,
                     label: t.smallChange,
                     color: Colors.orange,
-                    subtitle: '¥256.00',
-                    onTap: () {},
+                    // TODO(后端对接): 零钱余额需要从后端 API 获取
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildTopActionItem(
                     context,
                     icon: Icons.credit_card,
                     label: t.bankCard,
                     color: Colors.blue,
-                    subtitle: '3${t.cards}',
-                    onTap: () {},
+                    // TODO(后端对接): 银行卡数量需要从后端 API 获取
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                 ],
               ),
@@ -138,63 +152,81 @@ class WalletPage extends ConsumerWidget {
                     icon: Icons.credit_score,
                     label: t.creditCardRepayment,
                     color: Colors.green,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.mobile_friendly,
                     label: t.mobileRecharge,
                     color: Colors.green,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.savings,
                     label: t.financialManagement,
                     color: Colors.orange,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.bolt,
                     label: t.lifePayment,
                     color: Colors.green,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.local_hospital,
                     label: t.medicalHealth,
                     color: Colors.blue,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.directions_car,
                     label: t.traffic,
                     color: Colors.green,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.shopping_bag,
                     label: t.jdShopping,
                     color: Colors.red,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.local_mall,
                     label: t.meituanDelivery,
                     color: Colors.orange,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                   _buildGridServiceItem(
                     context,
                     icon: Icons.movie,
                     label: t.entertainment,
                     color: Colors.red,
-                    onTap: () {},
+                    onTap: () {
+                      EasyLoading.showToast(t.comingSoon);
+                    },
                   ),
                 ],
               ),

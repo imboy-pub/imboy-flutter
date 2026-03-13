@@ -1,0 +1,25 @@
+schema_version: 1
+case_id: "ws_04_retry_queue"
+feature_id: "websocket_retry_ack"
+feature_name_cn: "WebSocket重试确认"
+title: "重试队列稳定性单测"
+priority: "P1"
+automation_mode: "auto"
+status: "mapped"
+
+runner:
+  action: "flutter_test"
+  test_file: "test/service/message_retry_queue_test.dart"
+  device: "macos"
+  timeout_seconds: 300
+  retry: 0
+  dart_defines: "APP_ENV=local_home"
+
+precondition: "flutter_test_env"
+assertions: "exit_code==0,retry_queue_passed"
+ui_ux_checks: "queue_depth_tracking_stable"
+
+steps:
+  - "准备测试环境并校验前置条件：flutter_test_env"
+  - "执行 Flutter 测试：flutter test test/service/message_retry_queue_test.dart"
+  - "校验断言与 UI/UX 关键点：exit_code==0,retry_queue_passed | queue_depth_tracking_stable"

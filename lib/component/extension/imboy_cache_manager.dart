@@ -166,6 +166,11 @@ class IMBoyCacheManager {
           // 下载成功，跳出循环
           break;
         } catch (downloadError) {
+          // 404 错误不需要重试
+          if (_isNotFoundError(downloadError)) {
+            debugPrint('❌ 资源不存在 (404): $url');
+            rethrow;
+          }
           debugPrint('下载失败 (尝试 ${retry + 1}/$maxRetries): $downloadError');
           if (retry == maxRetries - 1) {
             rethrow;
@@ -274,5 +279,15 @@ class IMBoyCacheManager {
 
   void dispose() {
     _crossCache.dispose();
+  }
+
+  /// 检测是否为 404 或资源不存在错误
+  bool _isNotFoundError(Object error) {
+    if (error is DioException) {
+      return error.response?.statusCode == 404;
+    }
+    // 检查错误消息中是否包含 404 或 not found
+    final msg = error.toString().toLowerCase();
+    return msg.contains('404') || msg.contains('not found');
   }
 }

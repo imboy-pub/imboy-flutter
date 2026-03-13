@@ -1,0 +1,25 @@
+schema_version: 1
+case_id: "moment_02_routes_page"
+feature_id: "moment_system"
+feature_name_cn: "朋友圈"
+title: "朋友圈路由与入口"
+priority: "P0"
+automation_mode: "auto"
+status: "mapped"
+
+runner:
+  action: "flutter_test"
+  test_file: "test/page/moment/moment_routes_test.dart"
+  device: "macos"
+  timeout_seconds: 300
+  retry: 0
+  dart_defines: "APP_ENV=local_home"
+
+precondition: "flutter_test_env"
+assertions: "exit_code==0,moment_routes_passed"
+ui_ux_checks: "moment_entry_and_back_navigation_ok"
+
+steps:
+  - "准备测试环境并校验前置条件：flutter_test_env"
+  - "执行 Flutter 测试：flutter test test/page/moment/moment_routes_test.dart"
+  - "校验断言与 UI/UX 关键点：exit_code==0,moment_routes_passed | moment_entry_and_back_navigation_ok"

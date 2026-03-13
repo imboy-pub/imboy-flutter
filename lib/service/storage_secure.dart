@@ -28,7 +28,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// 迁移说明：
 /// - 使用标准 Dart 单例模式
 /// - 提供 `.to` 静态访问方式（与项目其他服务保持一致）
-/// - 保留 factory 构造函数以向后兼容
 class StorageSecureService {
   // 单例实例
   static final StorageSecureService _instance =
@@ -40,12 +39,6 @@ class StorageSecureService {
   /// 获取单例实例（推荐使用）
   /// Get singleton instance (recommended)
   static StorageSecureService get to => _instance;
-
-  /// Factory 构造函数（向后兼容）
-  /// Factory constructor (for backward compatibility)
-  factory StorageSecureService() {
-    return _instance;
-  }
 
   /// 私有构造函数
   /// Private constructor
@@ -388,7 +381,3 @@ class StorageSecureService {
     await saveE2EEShardMetadataList(filtered);
   }
 }
-
-/// 类型别名，用于向后兼容
-/// Type alias for backward compatibility
-typedef StorageSecure = StorageSecureService;

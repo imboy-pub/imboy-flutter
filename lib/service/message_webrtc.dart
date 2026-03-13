@@ -28,9 +28,9 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// ## 使用方式
 ///
-/// ### 方式1：通过单例（兼容旧代码）
+/// ### 方式1：通过单例
 /// ```dart
-/// MessageWebrtc.to.addLocalMsg(...);
+/// MessageWebrtc.instance.addLocalMsg(...);
 /// MessageWebrtc.instance.changeLocalMsgState(...);
 /// ```
 ///
@@ -54,9 +54,6 @@ class MessageWebrtc {
     _instance ??= MessageWebrtc._internal();
     return _instance!;
   }
-
-  /// 兼容旧代码的访问方式
-  static MessageWebrtc get to => instance;
 
   /// 私有构造函数
   MessageWebrtc._internal() {
@@ -168,7 +165,7 @@ class MessageWebrtc {
         status: MessageStatus.delivered,
         metadata: {
           'peer_id': peer.peerId,
-          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
+          'msg_type': media == 'video' ? 'webrtcVideo' : 'webrtcAudio',
           'media': media,
           'start_at': 0,
           'end_at': 0,
@@ -212,8 +209,8 @@ class MessageWebrtc {
     webrtcMsgIds.clear();
 
     final metadata = (msg.payload as Map?)?.cast<String, dynamic>() ?? {};
-    final customType = metadata['custom_type'] ?? '';
-    if (!['webrtc_video', 'webrtc_audio'].contains(customType)) return;
+    final msgType = metadata['msg_type'] ?? '';
+    if (!['webrtcVideo', 'webrtcAudio'].contains(msgType)) return;
 
     metadata['state'] = state;
     if (startAt >= 0 && metadata['start_at'] == 0) {

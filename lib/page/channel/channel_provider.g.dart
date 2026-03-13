@@ -8,18 +8,21 @@ part of 'channel_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// 频道列表 Notifier
 
 @ProviderFor(ChannelListNotifier)
-final channelListNotifierProvider = ChannelListNotifierProvider._();
+final channelListProvider = ChannelListNotifierProvider._();
 
+/// 频道列表 Notifier
 final class ChannelListNotifierProvider
     extends $NotifierProvider<ChannelListNotifier, ChannelListState> {
+  /// 频道列表 Notifier
   ChannelListNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'channelListNotifierProvider',
+        name: r'channelListProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
@@ -41,7 +44,10 @@ final class ChannelListNotifierProvider
   }
 }
 
-String _$channelListNotifierHash() => r'channel_list_notifier_hash_placeholder';
+String _$channelListNotifierHash() =>
+    r'443a4ec766c477ae1c675822bcd2d015c615e0a8';
+
+/// 频道列表 Notifier
 
 abstract class _$ChannelListNotifier extends $Notifier<ChannelListState> {
   ChannelListState build();
@@ -61,17 +67,21 @@ abstract class _$ChannelListNotifier extends $Notifier<ChannelListState> {
   }
 }
 
-@ProviderFor(ChannelDetailNotifier)
-final channelDetailNotifierProvider = ChannelDetailNotifierProvider._();
+/// 频道详情 Notifier
 
+@ProviderFor(ChannelDetailNotifier)
+final channelDetailProvider = ChannelDetailNotifierProvider._();
+
+/// 频道详情 Notifier
 final class ChannelDetailNotifierProvider
     extends $NotifierProvider<ChannelDetailNotifier, ChannelDetailState> {
+  /// 频道详情 Notifier
   ChannelDetailNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'channelDetailNotifierProvider',
+        name: r'channelDetailProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
@@ -94,7 +104,9 @@ final class ChannelDetailNotifierProvider
 }
 
 String _$channelDetailNotifierHash() =>
-    r'channel_detail_notifier_hash_placeholder';
+    r'a7884fe2be3001857124f05b5dfc331d8ea7f84c';
+
+/// 频道详情 Notifier
 
 abstract class _$ChannelDetailNotifier extends $Notifier<ChannelDetailState> {
   ChannelDetailState build();
@@ -114,17 +126,21 @@ abstract class _$ChannelDetailNotifier extends $Notifier<ChannelDetailState> {
   }
 }
 
-@ProviderFor(CreateChannelNotifier)
-final createChannelNotifierProvider = CreateChannelNotifierProvider._();
+/// 创建频道 Notifier
 
+@ProviderFor(CreateChannelNotifier)
+final createChannelProvider = CreateChannelNotifierProvider._();
+
+/// 创建频道 Notifier
 final class CreateChannelNotifierProvider
     extends $NotifierProvider<CreateChannelNotifier, CreateChannelState> {
+  /// 创建频道 Notifier
   CreateChannelNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'createChannelNotifierProvider',
+        name: r'createChannelProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
@@ -147,7 +163,9 @@ final class CreateChannelNotifierProvider
 }
 
 String _$createChannelNotifierHash() =>
-    r'create_channel_notifier_hash_placeholder';
+    r'ec9c0b61025de6bc7348b45c83dbcd3052b6e201';
+
+/// 创建频道 Notifier
 
 abstract class _$CreateChannelNotifier extends $Notifier<CreateChannelState> {
   CreateChannelState build();
@@ -167,12 +185,17 @@ abstract class _$CreateChannelNotifier extends $Notifier<CreateChannelState> {
   }
 }
 
+/// 频道未读计数 Provider（简单同步版本，用于快速访问）
+
 @ProviderFor(channelUnreadCount)
 final channelUnreadCountProvider = ChannelUnreadCountProvider._();
+
+/// 频道未读计数 Provider（简单同步版本，用于快速访问）
 
 final class ChannelUnreadCountProvider
     extends $FunctionalProvider<int, int, int>
     with $Provider<int> {
+  /// 频道未读计数 Provider（简单同步版本，用于快速访问）
   ChannelUnreadCountProvider._()
     : super(
         from: null,
@@ -206,4 +229,5 @@ final class ChannelUnreadCountProvider
   }
 }
 
-String _$channelUnreadCountHash() => r'channel_unread_count_hash_placeholder';
+String _$channelUnreadCountHash() =>
+    r'2b864c1fe011da9bbf34ff94625c2a0e041b4c71';

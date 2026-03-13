@@ -6,6 +6,7 @@ import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/rsa.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// E2EE 分片消息处理器
 ///
@@ -61,25 +62,7 @@ class E2EEShardMessageHandler {
 
       // 安全地获取 payload - 可能是 Map 或 String（加密消息）
       final payloadRaw = data['payload'];
-      Map<String, dynamic>? payload;
-
-      if (payloadRaw is Map) {
-        payload = payloadRaw.cast<String, dynamic>();
-      } else if (payloadRaw is String) {
-        // payload 是字符串，可能是加密消息
-        // 尝试解析为 JSON
-        try {
-          final decoded = jsonDecode(payloadRaw);
-          if (decoded is Map) {
-            payload = decoded.cast<String, dynamic>();
-          }
-        } catch (e, s) {
-          // 不是有效的 JSON，跳过此消息
-          print('⚠️ [E2EE] payload 是字符串但不是有效 JSON，跳过 $payloadRaw ; e $e, s: $s ;');
-          return;
-        }
-      }
-
+      final payload = parseModelJsonMap(payloadRaw);
       if (payload == null) return;
 
       final action = payload['action']?.toString() ?? '';
@@ -180,12 +163,36 @@ class E2EEShardMessageHandler {
   }
 
   /// 处理分片存储确认
+  ///
+  /// 零信任架构：当代理确认分片已成功存储时触发
+  /// 通过事件总线通知 UI 层更新状态
   void _handleShardStored(Map<String, dynamic> payload) {
     final shardId = payload['shard_id']?.toString() ?? '';
-    print('✅ [E2EE] 代理已确认存储分片: shardId=$shardId');
+    final keyVersion = payload['key_version']?.toString();
+    final proxyUid = payload['proxy_uid']?.toString();
+    final shardIndex = payload['shard_index'] == null
+        ? null
+        : parseModelInt(payload['shard_index']);
+    final totalShards = payload['total_shards'] == null
+        ? null
+        : parseModelInt(payload['total_shards']);
+    final threshold = payload['threshold'] == null
+        ? null
+        : parseModelInt(payload['threshold']);
 
-    // TODO: 更新 UI 状态，通知用户分片已成功存储
-    // 可以通过事件总线发送通知
+    print('✅ [E2EE] 代理已确认存储分片: shardId=$shardId, proxyUid=$proxyUid');
+
+    // 通过事件总线发送通知，UI 层可以监听此事件
+    AppEventBus.fire(
+      E2EEShardStoredEvent(
+        shardId: shardId,
+        keyVersion: keyVersion,
+        proxyUid: proxyUid,
+        shardIndex: shardIndex,
+        totalShards: totalShards,
+        threshold: threshold,
+      ),
+    );
   }
 
   /// 处理 C2C 消息（客户端到客户端）
@@ -231,7 +238,12 @@ class E2EEShardMessageHandler {
               return;
             }
 
-            final shard = jsonDecode(shardJson) as Map<String, dynamic>;
+            final shard = parseModelJsonMap(shardJson);
+            if (shard == null) {
+              print('❌ [E2EE] 分片数据格式错误: shardId=$shardId');
+              _sendDecryptShardError(shardId, '分片数据格式错误');
+              return;
+            }
             final requesterUid = payload['uid'] ?? 0;
 
             // 验证请求者是否是分片所有者

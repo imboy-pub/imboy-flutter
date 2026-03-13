@@ -80,10 +80,23 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
 
       state = state.copyWith(longitude: lon, latitude: lat);
 
-      return lon.isNotEmpty && lon != "0.0" && lon != "null";
+      return _isValidCoordinate(lon, lat);
     } catch (e) {
       return false;
     }
+  }
+
+  bool _isValidCoordinate(String lon, String lat) {
+    if (lon.isEmpty || lat.isEmpty) return false;
+
+    final longitude = double.tryParse(lon);
+    final latitude = double.tryParse(lat);
+    if (longitude == null || latitude == null) return false;
+
+    if (longitude == 0.0 && latitude == 0.0) return false;
+    if (longitude < -180 || longitude > 180) return false;
+    if (latitude < -90 || latitude > 90) return false;
+    return true;
   }
 
   /// 面对面建群
@@ -108,7 +121,9 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
 
     iPrint('📡 [面对面建群] API 响应: ${payload.toString()}');
     iPrint('📦 [面对面建群] 返回的 gid: ${payload['gid'] ?? '空'}');
-    iPrint('👥 [面对面建群] 返回的 member_list: ${(payload['member_list'] ?? []).toString()}');
+    iPrint(
+      '👥 [面对面建群] 返回的 member_list: ${(payload['member_list'] ?? []).toString()}',
+    );
 
     // 解析成员列表
     List<dynamic> memberList = payload['member_list'] ?? [];

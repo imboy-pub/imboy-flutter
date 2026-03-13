@@ -204,29 +204,13 @@ class AppColors {
 
   // ============ 透明度变体 ============
   /// 主色 - 10% 透明度
-  @Deprecated('使用 primaryAlpha10 代替。')
-  static Color get primaryGreenAlpha10 => primary.withValues(alpha: 0.1);
-
-  /// 主色 - 10% 透明度
   static Color get primaryAlpha10 => primary.withValues(alpha: 0.1);
-
-  /// 主色 - 20% 透明度
-  @Deprecated('使用 primaryAlpha20 代替。')
-  static Color get primaryGreenAlpha20 => primary.withValues(alpha: 0.2);
 
   /// 主色 - 20% 透明度
   static Color get primaryAlpha20 => primary.withValues(alpha: 0.2);
 
   /// 主色 - 30% 透明度
-  @Deprecated('使用 primaryAlpha30 代替。')
-  static Color get primaryGreenAlpha30 => primary.withValues(alpha: 0.3);
-
-  /// 主色 - 30% 透明度
   static Color get primaryAlpha30 => primary.withValues(alpha: 0.3);
-
-  /// 主色 - 50% 透明度
-  @Deprecated('使用 primaryAlpha50 代替。')
-  static Color get primaryGreenAlpha50 => primary.withValues(alpha: 0.5);
 
   /// 主色 - 50% 透明度
   static Color get primaryAlpha50 => primary.withValues(alpha: 0.5);

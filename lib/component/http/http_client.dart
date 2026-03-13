@@ -11,7 +11,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/config/routes.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
@@ -32,9 +31,26 @@ import 'package:imboy/i18n/strings.g.dart';
 /// 安全的证书验证回调
 /// 生产环境严格验证证书，开发环境允许自签名证书
 bool _certificateValidationCallback(X509Certificate cert) {
-  // 仅在开发环境接受自签名证书
+  // dio_http2_adapter 当前版本回调不再提供 host/port。
+  // 仅在开发环境接受自签名证书，生产环境保持严格校验。
   if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
-    return true;
+    final subject = cert.subject.toLowerCase();
+    final issuer = cert.issuer.toLowerCase();
+    final whitelistTokens = <String>[
+      'dev.imboy.pub',
+      'localhost',
+      '127.0.0.1',
+      'imboy',
+    ];
+    final allowed = whitelistTokens.any(
+      (token) => subject.contains(token) || issuer.contains(token),
+    );
+    if (!allowed) {
+      debugPrint(
+        "HttpClient: reject dev certificate, subject=${cert.subject}, issuer=${cert.issuer}",
+      );
+    }
+    return allowed;
   }
   // 生产环境进行严格验证
   return false;
@@ -58,6 +74,7 @@ Future<Map<String, dynamic>> defaultHeaders() async {
 
 class HttpClient {
   static HttpClient get client => serviceContainer.get<HttpClient>();
+  static VoidCallback? onAuthExpired;
   late Dio _dio;
 
   HttpClient({BaseOptions? options, HttpConfig? conf}) {
@@ -140,6 +157,15 @@ class HttpClient {
   /// 是否正在处理登录过期（防止重复弹窗）
   static bool _isHandlingLoginExpired = false;
 
+  void _notifyAuthExpired({String reason = ''}) {
+    debugPrint("HttpClient: auth expired event emitted, reason=$reason");
+    if (onAuthExpired != null) {
+      onAuthExpired!.call();
+      return;
+    }
+    navigateToSignIn(source: 'http_client_auth_expired');
+  }
+
   Future<void> _setDefaultConfig() async {
     if (_dio.options.baseUrl == "") {
       _dio.options.baseUrl = Env().apiBaseUrl;
@@ -218,11 +244,7 @@ class HttpClient {
       // 延迟跳转，让用户看到提示
       await Future.delayed(const Duration(seconds: 1));
 
-      // 跳转到登录页
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+      _notifyAuthExpired(reason: 'token_expired');
     } catch (e) {
       debugPrint("_handleTokenExpired: 处理失败 $e");
     } finally {
@@ -240,11 +262,7 @@ class HttpClient {
     UserRepoLocal.to.clearTokenDecryptionFailureFlag();
     // 执行登出操作
     await UserRepoLocal.to.quitLogin();
-    // 跳转到登录页
-    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      AppRoutes.signIn,
-      (route) => false,
-    );
+    _notifyAuthExpired(reason: 'token_decryption_failure');
   }
 
   Future<IMBoyHttpResponse> get(
@@ -279,28 +297,9 @@ class HttpClient {
         uri: uri,
         httpTransformer: httpTransformer,
       );
-      // 处理认证相关错误：401 (新标准) 和 706/707 (旧版兼容)
       if (ErrorCode.shouldReLogin(resp.code)) {
         UserRepoLocal.to.quitLogin();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.signIn,
-          (route) => false,
-        );
-      } else if (resp.code == ErrorCode.TOKEN_EXPIRED) {
-        // Token 过期，尝试刷新
-        EasyLoading.showInfo(resp.msg);
-        response = await _dio.get(
-          uri,
-          queryParameters: queryParameters,
-          options: options,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-        );
-        resp = handleResponse(
-          response,
-          uri: uri,
-          httpTransformer: httpTransformer,
-        );
+        _notifyAuthExpired(reason: 'api_relogin_required');
       }
 
       return resp;

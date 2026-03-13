@@ -3,7 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// 毛玻璃效果的导航栏
-/// 参考 GlassBottomNavigationBar 的设计风格
+///
+/// 提供类似 iOS 的毛玻璃效果，支持自动显示/隐藏返回按钮。
+///
+/// ## 使用示例
+///
+/// ```dart
+/// Scaffold(
+///   appBar: GlassAppBar(
+///     title: '我的页面',
+///     automaticallyImplyLeading: true,
+///   ),
+/// )
+/// ```
+///
+/// ## 参数说明
+///
+/// - [automaticallyImplyLeading]: 当为 true 且可以返回时自动显示返回按钮
+/// - [popTime]: 点击返回按钮时返回的层数，默认为 1，范围 1-10
+/// - [blur]: 毛玻璃模糊度，默认 20.0，范围 0-50
+/// - [opacity]: 背景透明度，默认 0.75，范围 0-1
 class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   const GlassAppBar({
     super.key,
@@ -18,7 +37,11 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.toolbarHeight,
     this.blur = 20.0,
     this.opacity = 0.75,
-  });
+  })  : assert(popTime >= 1, 'popTime must be at least 1'),
+        assert(popTime <= 10, 'popTime cannot exceed 10 for safety'),
+        assert(blur >= 0 && blur <= 50, 'blur must be between 0 and 50'),
+        assert(
+            opacity >= 0 && opacity <= 1, 'opacity must be between 0 and 1');
 
   final Widget? leading;
   final double? leadingWidth;
@@ -116,8 +139,9 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildDefaultLeading(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        NavigatorState nav = Navigator.of(context);
-        for (int i = 0; i < popTime; i++) {
+        final nav = Navigator.of(context);
+        // 安全的 pop 循环：每次检查是否可以 pop
+        for (int i = 0; i < popTime && nav.canPop(); i++) {
           nav.pop();
         }
       },

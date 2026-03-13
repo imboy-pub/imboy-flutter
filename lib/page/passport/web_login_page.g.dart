@@ -43,7 +43,7 @@ final class QRLoginProvider extends $NotifierProvider<QRLogin, QRLoginState> {
   }
 }
 
-String _$qRLoginHash() => r'c4e3b2a1d0f9e8d7c6b5a4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4';
+String _$qRLoginHash() => r'e6d871927eb19a6de6ab484c0fd1817c1cc80b26';
 
 /// QR 码登录状态管理
 

@@ -10,6 +10,7 @@ import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -17,6 +18,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import '../set_nickname/set_nickname_page.dart';
+import '../widget/more_page.dart';
 import 'personal_info_provider.dart';
 
 /// 个人信息页面
@@ -447,15 +449,28 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 ),
                 showArrow: true,
                 onTap: () {
-                  // TODO: 导航到二维码页面
+                  // 导航到二维码页面
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (_) => UserQrCodePage(),
+                    ),
+                  );
                 },
               ),
               _buildInfoItem(
                 context: context,
                 title: t.moreInfo,
                 value: ' ',
+                showArrow: true,
                 onTap: () {
-                  // TODO: 导航到更多信息页面
+                  // 导航到更多信息页面
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (_) => const MorePage(),
+                    ),
+                  );
                 },
               ),
             ]),

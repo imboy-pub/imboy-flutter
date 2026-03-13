@@ -1,0 +1,443 @@
+schema_version: 1
+description: "Scheme B layered YAML executable case index for 10 features"
+
+defaults:
+  action: "flutter_test"
+  device: "macos"
+  timeout_seconds: 900
+  retry: 0
+  enabled: true
+  dart_defines: "APP_ENV=local_home"
+
+cases:
+  - case_id: "c2c_01_send_message_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/01_single_chat/c2c_01_send_message_ui.yaml"
+    precondition: "flutter_installed,device=macos,login_ready,friend_ready"
+    action: "flutter_test"
+    test_file: "integration_test/chat/c2c_chat_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,no_unhandled_exception"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "c2c_02_dual_role_delivery"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/01_single_chat/c2c_02_dual_role_delivery.yaml"
+    precondition: "flutter_installed,device=macos,dual_role_accounts_ready"
+    action: "flutter_test"
+    test_file: "integration_test/chat/c2c_dual_role_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,delivery_consistent"
+    timeout_seconds: 1200
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "c2c_03_e2e_chat_flow"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/01_single_chat/c2c_03_e2e_chat_flow.yaml"
+    precondition: "flutter_installed,device=macos,login_ready"
+    action: "flutter_test"
+    test_file: "integration_test/e2e_chat_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,e2e_flow_passed"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "c2c_04_message_routing"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/01_single_chat/c2c_04_message_routing.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/component/chat/message_routing_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,routing_expectation_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "group_01_group_chat_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/02_group_chat/group_01_group_chat_ui.yaml"
+    precondition: "flutter_installed,device=macos,login_ready,group_ready"
+    action: "flutter_test"
+    test_file: "integration_test/chat/group_chat_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,group_send_success"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "group_02_group_manage_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/02_group_chat/group_02_group_manage_ui.yaml"
+    precondition: "flutter_installed,device=macos,login_ready,group_owner_ready"
+    action: "flutter_test"
+    test_file: "integration_test/group_manage_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,group_manage_actions_passed"
+    timeout_seconds: 1200
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "group_03_group_album_navigation"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/02_group_chat/group_03_group_album_navigation.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/page/group/album/group_album_photo_navigation_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,album_navigation_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "group_04_group_file_page"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/02_group_chat/group_04_group_file_page.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/page/group/file/group_file_page_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,file_page_state_valid"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "conv_01_conversation_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/03_conversation_management/conv_01_conversation_ui.yaml"
+    precondition: "flutter_installed,device=macos,login_ready"
+    action: "flutter_test"
+    test_file: "integration_test/chat/conversation_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,conversation_ops_passed"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "conv_02_conversation_state_integration"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/03_conversation_management/conv_02_conversation_state_integration.yaml"
+    precondition: "flutter_test_env,plugin_mock_ready"
+    action: "flutter_test"
+    test_file: "test/integration/conversation_state_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,state_sync_passed"
+    timeout_seconds: 600
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "conv_03_conversation_update_logic"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/03_conversation_management/conv_03_conversation_update_logic.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/integration/conversation_update_logic_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,update_logic_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "notify_01_unread_count"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/04_message_notification/notify_01_unread_count.yaml"
+    precondition: "flutter_test_env,storage_initialized"
+    action: "flutter_test"
+    test_file: "test/integration/unread_count_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,unread_count_expectation_passed"
+    timeout_seconds: 600
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "notify_02_authority_sync_event"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/04_message_notification/notify_02_authority_sync_event.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/page/conversation/conversation_authority_sync_event_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,authority_event_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "notify_03_unread_summary_sync"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/04_message_notification/notify_03_unread_summary_sync.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/service/channel_service_unread_summary_sync_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,summary_sync_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "ws_01_websocket_api_v2"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/05_websocket_retry_ack/ws_01_websocket_api_v2.yaml"
+    precondition: "flutter_test_env,network_mock_ready"
+    action: "flutter_test"
+    test_file: "test/integration/websocket_api_v2_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,ws_api_contract_passed"
+    timeout_seconds: 600
+    retry: 1
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "ws_02_message_retry_flow"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/05_websocket_retry_ack/ws_02_message_retry_flow.yaml"
+    precondition: "flutter_test_env,network_toggle_ready"
+    action: "flutter_test"
+    test_file: "test/integration/message_retry_flow_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,retry_flow_passed"
+    timeout_seconds: 600
+    retry: 1
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "ws_03_message_ack_flow"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/05_websocket_retry_ack/ws_03_message_ack_flow.yaml"
+    precondition: "flutter_test_env,ack_path_ready"
+    action: "flutter_test"
+    test_file: "test/integration/message_ack_flow_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,ack_flow_passed"
+    timeout_seconds: 600
+    retry: 1
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "ws_04_retry_queue"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/05_websocket_retry_ack/ws_04_retry_queue.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/service/message_retry_queue_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,retry_queue_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "e2ee_01_integration"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/06_e2ee/e2ee_01_integration.yaml"
+    precondition: "flutter_test_env,key_material_ready"
+    action: "flutter_test"
+    test_file: "test/integration/e2ee_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,e2ee_integration_passed"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "e2ee_02_service"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/06_e2ee/e2ee_02_service.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/service/e2ee_service_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,e2ee_service_contract_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "e2ee_03_transfer"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/06_e2ee/e2ee_03_transfer.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/service/e2ee_transfer_service_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,e2ee_transfer_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "e2ee_04_health_check"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/06_e2ee/e2ee_04_health_check.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/service/e2ee_health_check_service_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,e2ee_health_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "tag_01_user_tag_api"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/07_tag_system/tag_01_user_tag_api.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/store/api/user_tag_api_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,user_tag_api_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "tag_02_contact_tag_relation_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/07_tag_system/tag_02_contact_tag_relation_ui.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/pending/tag/contact_tag_relation_ui_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,contact_tag_relation_ui_passed"
+    timeout_seconds: 600
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "tag_03_group_tag_manage_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/07_tag_system/tag_03_group_tag_manage_ui.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/pending/tag/group_tag_manage_ui_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,group_tag_manage_ui_passed"
+    timeout_seconds: 600
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "collect_01_user_collect_api"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/08_favorite_system/collect_01_user_collect_api.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/store/api/user_collect_api_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,user_collect_api_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "collect_02_collect_tag_relation"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/08_favorite_system/collect_02_collect_tag_relation.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/store/api/user_tag_api_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,collect_scene_route_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "collect_03_collect_ui_flow"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/08_favorite_system/collect_03_collect_ui_flow.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/pending/collect/collect_ui_flow_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,collect_ui_flow_passed"
+    timeout_seconds: 600
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "channel_01_channel_integration"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/09_channel_system/channel_01_channel_integration.yaml"
+    precondition: "flutter_test_env,channel_seed_data_ready"
+    action: "flutter_test"
+    test_file: "test/integration/channel_integration_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,channel_integration_passed"
+    timeout_seconds: 600
+    retry: 1
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "channel_02_channel_publish_ui"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/09_channel_system/channel_02_channel_publish_ui.yaml"
+    precondition: "flutter_installed,device=macos,channel_publisher_ready"
+    action: "flutter_test"
+    test_file: "integration_test/channel/channel_publish_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,channel_publish_passed"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "channel_03_channel_edit_persistence"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/09_channel_system/channel_03_channel_edit_persistence.yaml"
+    precondition: "flutter_installed,device=macos,channel_admin_ready"
+    action: "flutter_test"
+    test_file: "integration_test/channel/channel_edit_persistence_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,channel_edit_persistence_passed"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "channel_04_channel_subscribed_consistency"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/09_channel_system/channel_04_channel_subscribed_consistency.yaml"
+    precondition: "flutter_installed,device=macos,subscribed_channel_data_ready"
+    action: "flutter_test"
+    test_file: "integration_test/channel/channel_subscribed_detail_consistency_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,subscribed_detail_consistency_passed"
+    timeout_seconds: 900
+    retry: 1
+    dart_defines: "APP_ENV=pro"
+
+  - case_id: "moment_01_event_service"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/10_moment/moment_01_event_service.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/service/moment_event_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,moment_event_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "moment_02_routes_page"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/10_moment/moment_02_routes_page.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/page/moment/moment_routes_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,moment_routes_passed"
+    timeout_seconds: 300
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "moment_03_feed_ui_flow"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/10_moment/moment_03_feed_ui_flow.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/pending/moment/moment_feed_ui_flow_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,moment_feed_ui_flow_passed"
+    timeout_seconds: 900
+    retry: 0
+    dart_defines: "APP_ENV=local_home"
+
+  - case_id: "moment_04_publish_ui_flow"
+    enabled: true
+    scenario_file: "test_automation/scenarios/cases/10_moment/moment_04_publish_ui_flow.yaml"
+    precondition: "flutter_test_env"
+    action: "flutter_test"
+    test_file: "test/pending/moment/moment_publish_ui_flow_test.dart"
+    device: "macos"
+    assertions: "exit_code==0,moment_publish_ui_flow_passed"
+    timeout_seconds: 900
+    retry: 0
+    dart_defines: "APP_ENV=local_home"

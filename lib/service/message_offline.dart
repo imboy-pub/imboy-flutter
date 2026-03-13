@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -23,31 +23,59 @@ class MessageOfflineService {
     return _instance!;
   }
 
-  /// 兼容旧代码的访问方式
-  static MessageOfflineService get to => instance;
-
   /// 私有构造函数
   MessageOfflineService._internal() {
     onInit();
   }
 
+  static const int _maxPullCount = 20;
+  static const Duration _pagePullDelay = Duration(milliseconds: 300);
+  static const Duration _minPullInterval = Duration(milliseconds: 1200);
+  static const Duration _idlePullCooldown = Duration(seconds: 5);
+  static const Duration _maxFailureBackoff = Duration(seconds: 30);
+
   /// 离线消息拉取请求事件的订阅
   StreamSubscription<OfflineMessagesPullRequestedEvent>?
   _pullRequestedSubscription;
 
+  /// 当前正在执行的拉取任务（用于并发合并）
+  Future<bool>? _inFlightPull;
+
+  /// 拉取过程中收到新请求时，标记完成后补拉一次
+  bool _hasPendingPullRequest = false;
+
+  /// 下次允许拉取的时间点（用于节流和失败退避）
+  DateTime? _nextAllowedPullAt;
+
+  /// 连续失败次数（指数退避）
+  int _consecutivePullFailures = 0;
+
+  // ==================== 拉取埋点指标 ====================
+  int _requestedTotal = 0;
+  int _forceRequestedTotal = 0;
+  int _mergedTotal = 0;
+  int _skippedCooldownTotal = 0;
+  int _executedTotal = 0;
+  int _succeededTotal = 0;
+  int _failedTotal = 0;
+  int _httpRequestsTotal = 0;
+  int _fetchedMessagesTotal = 0;
+
+  DateTime? _lastPullStartedAt;
+  DateTime? _lastPullFinishedAt;
+  String? _lastSource;
+  String? _lastReason;
+  String _lastResult = 'none';
+  int _lastPullHttpRequests = 0;
+  int _lastPullFetchedMessages = 0;
+
   /// 初始化服务（订阅事件）
   void onInit() {
-    // 订阅离线消息拉取请求事件（解耦：通过事件总线接收拉取请求）
-    _pullRequestedSubscription =
+    _pullRequestedSubscription ??=
         AppEventBus.on<OfflineMessagesPullRequestedEvent>().listen((event) {
           // 异步处理，避免阻塞事件总线
           Future.microtask(() async {
-            try {
-              await pullOfflineMessages();
-              iPrint("离线消息处理完成，来源: ${event.source}");
-            } catch (e) {
-              iPrint("离线消息处理失败: $e");
-            }
+            await requestPull(source: event.source, reason: event.reason);
           });
         });
   }
@@ -55,105 +83,297 @@ class MessageOfflineService {
   /// 释放资源（取消订阅）
   void onDispose() {
     _pullRequestedSubscription?.cancel();
+    _pullRequestedSubscription = null;
+    _inFlightPull = null;
+    _hasPendingPullRequest = false;
+    _instance = null;
   }
 
-  /// 拉取离线消息
-  Future<bool> pullOfflineMessages() async {
+  /// 离线消息拉取指标快照（用于排障与监控）
+  Map<String, dynamic> getPullStats() {
+    final now = DateTime.now();
+    final nextAllowedAt = _nextAllowedPullAt;
+    final nextAllowedInMs = nextAllowedAt == null
+        ? 0
+        : nextAllowedAt.isAfter(now)
+        ? nextAllowedAt.difference(now).inMilliseconds
+        : 0;
+
+    return {
+      'requested_total': _requestedTotal,
+      'force_requested_total': _forceRequestedTotal,
+      'merged_total': _mergedTotal,
+      'skipped_cooldown_total': _skippedCooldownTotal,
+      'executed_total': _executedTotal,
+      'succeeded_total': _succeededTotal,
+      'failed_total': _failedTotal,
+      'http_requests_total': _httpRequestsTotal,
+      'fetched_messages_total': _fetchedMessagesTotal,
+      'in_flight': _inFlightPull != null,
+      'pending_pull_request': _hasPendingPullRequest,
+      'consecutive_failures': _consecutivePullFailures,
+      'next_allowed_pull_at': _toIsoString(nextAllowedAt),
+      'next_allowed_in_ms': nextAllowedInMs,
+      'last_source': _lastSource,
+      'last_reason': _lastReason,
+      'last_result': _lastResult,
+      'last_pull_started_at': _toIsoString(_lastPullStartedAt),
+      'last_pull_finished_at': _toIsoString(_lastPullFinishedAt),
+      'last_pull_http_requests': _lastPullHttpRequests,
+      'last_pull_fetched_messages': _lastPullFetchedMessages,
+    };
+  }
+
+  /// 主动打印离线拉取指标快照
+  void logPullStats({String tag = 'snapshot'}) {
+    _logPullMetrics(tag);
+  }
+
+  /// 离线消息拉取统一入口
+  ///
+  /// 策略：
+  /// 1. 并发合并：同一时刻只允许一个拉取任务执行。
+  /// 2. 频率控制：短时间重复触发会被跳过，避免高频请求。
+  /// 3. 失败退避：连续失败时指数退避，降低无效重试压力。
+  Future<bool> requestPull({
+    required String source,
+    String? reason,
+    bool force = false,
+  }) async {
+    final now = DateTime.now();
+
+    _requestedTotal++;
+    if (force) {
+      _forceRequestedTotal++;
+    }
+    _lastSource = source;
+    _lastReason = reason;
+
+    // 有拉取进行中：合并请求，等待当前任务结束
+    if (_inFlightPull != null) {
+      _mergedTotal++;
+      _hasPendingPullRequest = true;
+      _lastResult = 'merged';
+      iPrint('离线消息拉取请求已合并（进行中） source=$source reason=${reason ?? "-"}');
+      _logPullMetrics('merged');
+      return _inFlightPull!;
+    }
+
+    // 冷却期内：跳过本次请求
+    if (!force &&
+        _nextAllowedPullAt != null &&
+        now.isBefore(_nextAllowedPullAt!)) {
+      final waitMs = _nextAllowedPullAt!.difference(now).inMilliseconds;
+      _skippedCooldownTotal++;
+      _lastResult = 'skipped_cooldown';
+      _lastPullHttpRequests = 0;
+      _lastPullFetchedMessages = 0;
+      _lastPullFinishedAt = DateTime.now();
+      iPrint('离线消息拉取请求过于频繁，跳过本次 source=$source wait_ms=$waitMs');
+      _logPullMetrics('skipped_cooldown', extra: {'wait_ms': waitMs});
+      return true;
+    }
+
+    _executedTotal++;
+    _lastResult = 'running';
+    _lastPullStartedAt = DateTime.now();
+
+    final pullFuture = _pullOfflineMessagesInternal(
+      source: source,
+      reason: reason,
+    );
+    _inFlightPull = pullFuture;
+
     try {
-      iPrint("开始拉取离线消息");
+      return await pullFuture;
+    } finally {
+      _inFlightPull = null;
+
+      // 如果拉取期间又来了新请求，则补拉一次（force=true，确保不会被冷却窗口吞掉）
+      if (_hasPendingPullRequest) {
+        _hasPendingPullRequest = false;
+        unawaited(
+          requestPull(
+            source: 'merged_pending',
+            reason: '拉取过程中收到新的离线拉取请求',
+            force: true,
+          ),
+        );
+      }
+    }
+  }
+
+  /// 拉取离线消息（兼容旧调用）
+  Future<bool> pullOfflineMessages() {
+    return requestPull(source: 'direct_call', reason: '兼容旧调用');
+  }
+
+  Future<bool> _pullOfflineMessagesInternal({
+    required String source,
+    String? reason,
+  }) async {
+    try {
+      iPrint('开始拉取离线消息 source=$source reason=${reason ?? "-"}');
 
       bool hasMore = true;
       int pullCount = 0;
-      const int maxPullCount = 20; // 防止无限循环
+      int totalFetched = 0;
+      int currentPullHttpRequests = 0;
 
-      while (hasMore && pullCount < maxPullCount) {
+      while (hasMore && pullCount < _maxPullCount) {
         pullCount++;
-        iPrint("第 $pullCount 次拉取离线消息");
+        iPrint('第 $pullCount 次拉取离线消息');
 
         // 调用 /msg/offline 接口
+        currentPullHttpRequests++;
+        _httpRequestsTotal++;
         final resp = await HttpClient.client.get(API.msgOffline);
 
         if (resp.code != 0) {
-          iPrint("拉取离线消息失败: ${resp.msg}");
+          _failedTotal++;
+          _lastResult = 'failed_code';
+          _lastPullFinishedAt = DateTime.now();
+          _lastPullHttpRequests = currentPullHttpRequests;
+          _lastPullFetchedMessages = totalFetched;
+          _markPullFailure();
+          iPrint('拉取离线消息失败: ${resp.msg}');
+          _logPullMetrics('failed_code', extra: {'resp_code': resp.code});
           EasyLoading.showError('${t.pullOfflineMessagesFailed}: ${resp.msg}');
           return false;
         }
 
-        // 修复双重嵌套问题：根据日志，resp.payload已经包含payload数据
-        Map<String, dynamic> payload = resp.payload ?? {};
-        iPrint("解析离线消息payload: ${payload.keys}");
-        iPrint("完整响应数据结构: ${resp.payload}");
+        final payload = resp.payload is Map<String, dynamic>
+            ? resp.payload as Map<String, dynamic>
+            : <String, dynamic>{};
+
         bool overallHasMore = false;
+        int currentBatchFetched = 0;
 
         // 处理 C2C 离线消息
-        Map<String, dynamic> c2cData = payload['c2c'] ?? {};
-        iPrint("C2C数据: $c2cData");
-        if (c2cData.isNotEmpty) {
-          List<dynamic> c2cMessages = c2cData['list'] ?? [];
-          iPrint("C2C消息列表长度: ${c2cMessages.length}");
-          if (c2cMessages.isNotEmpty) {
-            await _processOfflineMessages(c2cMessages, 'C2C');
-          }
-          if (c2cData['has_more'] == true) {
-            overallHasMore = true;
-          }
-        } else {
-          iPrint("C2C数据为空");
+        currentBatchFetched += await _processTypeBatch(
+          payload: payload,
+          typeKey: 'c2c',
+          msgType: 'C2C',
+        );
+        if (_hasMore(payload['c2c'])) {
+          overallHasMore = true;
         }
 
         // 处理 C2G 离线消息
-        Map<String, dynamic> c2gData = payload['c2g'] ?? {};
-        iPrint("C2G数据: $c2gData");
-        if (c2gData.isNotEmpty) {
-          List<dynamic> c2gMessages = c2gData['list'] ?? [];
-          iPrint("C2G消息列表长度: ${c2gMessages.length}");
-          if (c2gMessages.isNotEmpty) {
-            await _processOfflineMessages(c2gMessages, 'C2G');
-          }
-          if (c2gData['has_more'] == true) {
-            overallHasMore = true;
-          }
-        } else {
-          iPrint("C2G数据为空");
+        currentBatchFetched += await _processTypeBatch(
+          payload: payload,
+          typeKey: 'c2g',
+          msgType: 'C2G',
+        );
+        if (_hasMore(payload['c2g'])) {
+          overallHasMore = true;
         }
 
         // 处理 S2C 离线消息
-        Map<String, dynamic> s2cData = payload['s2c'] ?? {};
-        iPrint("S2C数据: $s2cData");
-        if (s2cData.isNotEmpty) {
-          List<dynamic> s2cMessages = s2cData['list'] ?? [];
-          iPrint("S2C消息列表长度: ${s2cMessages.length}");
-          if (s2cMessages.isNotEmpty) {
-            await _processOfflineMessages(s2cMessages, 'S2C');
-          }
-          if (s2cData['has_more'] == true) {
-            overallHasMore = true;
-          }
-        } else {
-          iPrint("S2C数据为空");
+        currentBatchFetched += await _processTypeBatch(
+          payload: payload,
+          typeKey: 's2c',
+          msgType: 'S2C',
+        );
+        if (_hasMore(payload['s2c'])) {
+          overallHasMore = true;
         }
 
+        totalFetched += currentBatchFetched;
         hasMore = overallHasMore;
 
+        iPrint(
+          '离线消息批次处理完成 pull=$pullCount fetched=$currentBatchFetched has_more=$hasMore',
+        );
+
         if (hasMore) {
-          iPrint("还有更多离线消息，继续拉取");
-          // 短暂延迟，避免频繁请求
-          await Future.delayed(const Duration(milliseconds: 500));
+          // 短暂延迟，避免分页场景下连续高频请求
+          await Future.delayed(_pagePullDelay);
         }
       }
 
-      iPrint("离线消息拉取完成，共拉取 $pullCount 次");
-
-      // 主动刷新会话列表，确保UI及时更新
-      // 注意：会话列表现在通过 Riverpod provider 管理，
-      // UI 会自动响应数据变化，无需手动刷新
-
+      _succeededTotal++;
+      _fetchedMessagesTotal += totalFetched;
+      _lastResult = 'success';
+      _lastPullFinishedAt = DateTime.now();
+      _lastPullHttpRequests = currentPullHttpRequests;
+      _lastPullFetchedMessages = totalFetched;
+      _markPullSuccess(totalFetched: totalFetched);
+      iPrint('离线消息拉取完成 total_pull=$pullCount total_fetched=$totalFetched');
+      _logPullMetrics(
+        'success',
+        extra: {
+          'current_pull_http_requests': currentPullHttpRequests,
+          'current_pull_fetched_messages': totalFetched,
+        },
+      );
       return true;
     } catch (e) {
-      iPrint("拉取离线消息异常: $e");
+      _failedTotal++;
+      _lastResult = 'failed_exception';
+      _lastPullFinishedAt = DateTime.now();
+      _markPullFailure();
+      iPrint('拉取离线消息异常: $e');
+      _logPullMetrics('failed_exception');
       EasyLoading.showError('${t.pullOfflineMessagesAbnormal}: $e');
       return false;
     }
+  }
+
+  Future<int> _processTypeBatch({
+    required Map<String, dynamic> payload,
+    required String typeKey,
+    required String msgType,
+  }) async {
+    final section = payload[typeKey];
+    if (section is! Map) {
+      return 0;
+    }
+
+    final rawList = section['list'];
+    if (rawList is! List || rawList.isEmpty) {
+      return 0;
+    }
+
+    await _processOfflineMessages(rawList, msgType);
+    return rawList.length;
+  }
+
+  bool _hasMore(dynamic section) {
+    if (section is! Map) {
+      return false;
+    }
+    return section['has_more'] == true;
+  }
+
+  void _markPullSuccess({required int totalFetched}) {
+    _consecutivePullFailures = 0;
+    final cooldown = totalFetched == 0 ? _idlePullCooldown : _minPullInterval;
+    _nextAllowedPullAt = DateTime.now().add(cooldown);
+  }
+
+  void _markPullFailure() {
+    _consecutivePullFailures += 1;
+
+    int backoffSeconds = 1 << (_consecutivePullFailures - 1);
+    if (backoffSeconds < 2) {
+      backoffSeconds = 2;
+    }
+    if (backoffSeconds > _maxFailureBackoff.inSeconds) {
+      backoffSeconds = _maxFailureBackoff.inSeconds;
+    }
+
+    _nextAllowedPullAt = DateTime.now().add(Duration(seconds: backoffSeconds));
+  }
+
+  String? _toIsoString(DateTime? time) {
+    return time?.toIso8601String();
+  }
+
+  void _logPullMetrics(String tag, {Map<String, dynamic>? extra}) {
+    final snapshot = getPullStats();
+    final merged = extra == null ? snapshot : {...snapshot, ...extra};
+    iPrint('[OFFLINE_PULL_METRICS][$tag] $merged');
   }
 
   /// 处理离线消息
@@ -161,29 +381,26 @@ class MessageOfflineService {
     List<dynamic> messages,
     String type,
   ) async {
-    iPrint("进入 _processOfflineMessages 方法，类型: $type, 消息数量: ${messages.length}");
     if (messages.isEmpty) {
-      iPrint("消息列表为空，直接返回");
       return;
     }
 
-    iPrint("开始处理 $type 离线消息，共 ${messages.length} 条");
+    iPrint('开始处理 $type 离线消息，共 ${messages.length} 条');
 
     try {
-      // 直接调用批量插入，无需创建 MessageRepo 实例
       // 转换消息数据格式，避免修改原始数据
-      List<Map<String, dynamic>> processedMessages = [];
+      final processedMessages = <Map<String, dynamic>>[];
       for (final msg in messages) {
         if (msg is Map<String, dynamic>) {
           // 创建新的消息副本，避免修改原始数据
-          Map<String, dynamic> msgCopy = Map<String, dynamic>.from(msg);
+          final msgCopy = Map<String, dynamic>.from(msg);
           msgCopy['type'] = type;
           processedMessages.add(msgCopy);
         }
       }
 
       // 使用静态方法批量插入消息
-      List<String>? msgIds =
+      final msgIds =
           await MessageRepo(
             tableName: MessageRepo.getTableName(type),
           ).batchInsertOfflineMessages(
@@ -198,9 +415,9 @@ class MessageOfflineService {
         // 发送确认消息
         await _sendOfflineAck(type, msgIds);
       }
-      iPrint("$type 离线消息处理完成");
+      iPrint('$type 离线消息处理完成');
     } catch (e) {
-      iPrint("处理 $type 离线消息失败: $e");
+      iPrint('处理 $type 离线消息失败: $e');
       rethrow;
     }
   }
@@ -210,15 +427,13 @@ class MessageOfflineService {
     try {
       final resp = await HttpClient.client.post(
         API.msgOfflineAck,
-        data: {"type": type, "msg_ids": msgIds},
+        data: {'type': type, 'msg_ids': msgIds},
       );
       if (resp.code != 0) {
-        iPrint("发送离线消息确认失败: ${resp.msg}");
-      } else {
-        // iPrint("发送离线消息确认成功");
+        iPrint('发送离线消息确认失败: ${resp.msg}');
       }
     } catch (e, s) {
-      iPrint("发送离线消息确认异常: $e $s");
+      iPrint('发送离线消息确认异常: $e $s');
     }
   }
 }

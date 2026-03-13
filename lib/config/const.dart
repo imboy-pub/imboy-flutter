@@ -19,6 +19,7 @@ class Keys {
   static const String uploadUrl = "upload_url";
   static const String uploadKey = "upload_key";
   static const String uploadScene = "upload_scene";
+  static const String appFeatures = "app_features";
 
   static const String publicKey = "public_key";
   static const String privateKey = "private_key";
@@ -42,110 +43,113 @@ class Keys {
   static const refreshTokenKey = 'imboy-refreshtoken';
 
   static String lastLoginAccount = 'lastLoginAccount';
-  static String loginHistory =
-      'loginHistory'; // Keep for backward compatibility or general list
+  static String loginHistory = 'loginHistory';
   static String loginHistoryAccount = 'loginHistoryAccount';
   static String loginHistoryMobile = 'loginHistoryMobile';
   static String loginHistoryEmail = 'loginHistoryEmail';
   static String themeType = 'theme_type';
   static String needSetPwd = 'need_set_password';
+  static const String groupMembershipSelfHealPrefix =
+      'group_membership_self_heal';
 }
 
 class API {
-  static const initConfig = '/init';
-  static const refreshToken = '/refreshtoken';
-  static const login = '/passport/login';
-  static const signup = '/passport/signup';
-  static const getCode = '/passport/getcode';
-  static const quickLogin = '/passport/quick_login';
-  static const findPassword = '/passport/findpassword';
-  static const assetsToken = '/auth/get_token';
-  static const appVersionCheck = '/app_version/check';
-  static const sqliteUpgradeDdl = '/app_ddl/get?type=upgrade';
-  static const sqliteDowngradeDdl = '/app_ddl/get?type=downgrade';
+  static const initConfig = '/v1/init';
+  static const refreshToken = '/v1/refreshtoken';
+  static const login = '/v1/passport/login';
+  static const signup = '/v1/passport/signup';
+  static const getCode = '/v1/passport/getcode';
+  static const quickLogin = '/v1/passport/quick_login';
+  static const findPassword = '/v1/passport/findpassword';
+  static const assetsToken = '/v1/auth/assets';
+  static const appVersionCheck = '/v1/app_version/check';
+  static const appFeatures = '/v1/app/features';
+  static const sqliteUpgradeDdl = '/v1/app_ddl/get?type=upgrade';
+  static const sqliteDowngradeDdl = '/v1/app_ddl/get?type=downgrade';
 
-  static const addFriend = '/friend/add';
-  static const confirmFriend = '/friend/confirm';
-  static const deleteFriend = '/friend/delete';
-  static const friendList = '/friend/list';
-  static const friendChangeRemark = '/friend/change_remark';
+  static const addFriend = '/v1/friend/add';
+  static const confirmFriend = '/v1/friend/confirm';
+  static const deleteFriend = '/v1/friend/delete';
+  static const friendList = '/v1/friend/list';
+  static const friendChangeRemark = '/v1/friend/change_remark';
 
-  static const conversationList = '/conversation/mine';
+  static const conversationList = '/v1/conversation/mine';
   // 拉取离线
-  static const msgOffline = '/msg/offline';
+  static const msgOffline = '/v1/msg/offline';
   // 确认离线消息已处理
-  static const msgOfflineAck = '/msg/offline_ack';
+  static const msgOfflineAck = '/v1/msg/offline_ack';
 
-  static const denylistAdd = '/friend/denylist/add';
-  static const denylistRemove = '/friend/denylist/remove';
-  static const denylistPage = '/friend/denylist/page';
+  static const denylistAdd = '/v1/friend/denylist/add';
+  static const denylistRemove = '/v1/friend/denylist/remove';
+  static const denylistPage = '/v1/friend/denylist/page';
 
-  static const groupFace2face = '/group/face2face';
-  static const groupFace2faceSave = '/group/face2face_save';
-  static const groupAdd = '/group/add';
-  static const groupEdit = '/group/edit';
-  static const groupDetail = '/group/detail';
-  static const groupDissolve = '/group/dissolve';
-  static const groupPage = '/group/page';
-  static const groupMsgPage = '/group/msg_page';
-  static const groupMemberPage = '/group_member/page';
-  static const groupMemberJoin = '/group_member/join';
-  static const groupMemberLeave = '/group_member/leave';
-  static const groupMemberAlias = '/group_member/alias';
-  static const groupMemberSameGroup = '/group_member/same_group';
-  static const groupMemberRole = '/group_member/role';
-  static const groupMemberMute = '/group_member/mute';
-  static const groupTransfer = '/group/transfer';
+  static const groupFace2face = '/v1/group/face2face';
+  static const groupFace2faceSave = '/v1/group/face2face_save';
+  static const groupAdd = '/v1/group/add';
+  static const groupEdit = '/v1/group/edit';
+  static const groupDetail = '/v1/group/detail';
+  static const groupDissolve = '/v1/group/dissolve';
+  static const groupPage = '/v1/group/page';
+  static const groupMsgPage = '/v1/group/msg_page';
+  static const groupMemberPage = '/v1/group_member/page';
+  static const groupMemberJoin = '/v1/group_member/join';
+  static const groupMemberLeave = '/v1/group_member/leave';
+  static const groupMemberAlias = '/v1/group_member/alias';
+  static const groupMemberSameGroup = '/v1/group_member/same_group';
+  static const groupMemberRole = '/v1/group_member/role';
+  static const groupMemberMute = '/v1/group_member/mute';
+  static const groupTransfer = '/v1/group/transfer';
 
-  static const userShow = '/user/show';
-  static const turnCredential = '/user/credential';
-  static const userUpdate = '/user/update';
-  static const userSetting = '/user/setting';
-  static const userChangePassword = '/user/change_password';
-  static const userSetPassword = '/user/set_password';
-  static const userApplyLogout = '/user/apply_logout';
-  static const userCancelLogout = '/user/cancel_logout';
-  static const userSearch = '/user/search';
+  static const userShow = '/v1/user/show';
+  static const turnCredential = '/v1/user/credential';
+  static const userUpdate = '/v1/user/update';
+  static const userSetting = '/v1/user/setting';
+  static const userChangePassword = '/v1/user/change_password';
+  static const userSetPassword = '/v1/user/set_password';
+  static const userApplyLogout = '/v1/user/apply_logout';
+  static const userCancelLogout = '/v1/user/cancel_logout';
+  static const userSearch = '/v1/user/search';
 
-  static const ftsRecentlyUser = '/fts/recently_user';
-  static const ftsMessage = '/fts/message';
+  static const ftsRecentlyUser = '/v1/fts/recently_user';
+  static const ftsMessage = '/v1/fts/msg';
 
-  static const userDevicePage = '/user_device/page';
-  static const userDeviceChangeName = '/user_device/change_name';
-  static const userDeviceDelete = '/user_device/delete';
-  static const userDeviceSessions = '/user_device/sessions';
-  static const userDeviceCheckLogin = '/user_device/check_login';
-  static const userDeviceKick = '/user_device/kick';
-  static const userDeviceKickOthers = '/user_device/kick-others';
-  static const userDeviceAdd = '/user_device/add';
+  static const userDevicePage = '/v1/user_device/page';
+  static const userDeviceChangeName = '/v1/user_device/change_name';
+  static const userDeviceDelete = '/v1/user_device/delete';
+  static const userDeviceSessions = '/v1/user_device/sessions';
+  static const userDeviceCheckLogin = '/v1/user_device/check_login';
+  static const userDeviceKick = '/v1/user_device/kick';
+  static const userDeviceKickOthers = '/v1/user_device/kick-others';
+  static const userDeviceAdd = '/v1/user_device/add';
 
-  static const userCollectPage = '/user_collect/page';
-  static const userCollectAdd = '/user_collect/add';
-  static const userCollectRemove = '/user_collect/remove';
-  static const userCollectChange = '/user_collect/change';
+  static const userCollectPage = '/v1/user_collect/page';
+  static const userCollectAdd = '/v1/user_collect/add';
+  static const userCollectRemove = '/v1/user_collect/remove';
+  static const userCollectChange = '/v1/user_collect/change';
 
-  static const userTagPage = '/user_tag/page';
-  static const userTagAdd = '/user_tag/add';
-  static const userTagDelete = '/user_tag/delete';
-  static const userTagChangeName = '/user_tag/change_name';
+  static const userTagPage = '/v1/user_tag/page';
+  static const userTagAdd = '/v1/user_tag/add';
+  static const userTagDelete = '/v1/user_tag/delete';
+  static const userTagChangeName = '/v1/user_tag/change_name';
 
-  static const userTagRelationFriendPage = '/user_tag_relation/friend_page';
-  static const userTagRelationCollectPage = '/user_tag_relation/collect_page';
-  static const userTagRelationAdd = '/user_tag_relation/add';
-  static const userTagRelationSet = '/user_tag_relation/set';
-  static const userTagRelationRemove = '/user_tag_relation/remove';
+  static const userTagRelationFriendPage = '/v1/user_tag_relation/friend_page';
+  static const userTagRelationCollectPage =
+      '/v1/user_tag_relation/collect_page';
+  static const userTagRelationAdd = '/v1/user_tag_relation/add';
+  static const userTagRelationSet = '/v1/user_tag_relation/set';
+  static const userTagRelationRemove = '/v1/user_tag_relation/remove';
 
-  static const feedbackPage = '/feedback/page';
-  static const feedbackAdd = '/feedback/add';
-  static const feedbackRemove = '/feedback/remove';
-  static const feedbackChange = '/feedback/change';
-  static const feedbackPageReply = '/feedback/page_reply';
-  static const feedbackReply = '/feedback/reply';
+  static const feedbackPage = '/v1/feedback/page';
+  static const feedbackAdd = '/v1/feedback/add';
+  static const feedbackRemove = '/v1/feedback/remove';
+  static const feedbackChange = '/v1/feedback/change';
+  static const feedbackPageReply = '/v1/feedback/page_reply';
+  static const feedbackReply = '/v1/feedback/reply';
 
   // 附近的人
-  static const peopleNearby = '/location/peopleNearby';
-  static const makeMyselfVisible = '/location/makeMyselfVisible';
-  static const makeMyselfUnVisible = '/location/makeMyselfUnvisible';
+  static const peopleNearby = '/v1/location/peopleNearby';
+  static const makeMyselfVisible = '/v1/location/makeMyselfVisible';
+  static const makeMyselfUnVisible = '/v1/location/makeMyselfUnvisible';
 
   static const avatarUrl = 'http://www.lorempixel.com/200/200/';
   static const cat = 'https://api.thecatapi.com/v1/images/search';

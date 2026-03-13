@@ -163,11 +163,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         final e2ee = item.info['e2ee'];
         if (e2ee == null || e2ee == '') continue;
         final decrypted = await E2EEService.decryptIncomingPayload(
-          msgId: item.kindId,
-          msgType: 'C2C',
-          fromUid: item.userId,
-          toUid: item.userId,
-          createdAt: item.createdAt,
           payload: item.info,
         );
         if (!identical(decrypted, item.info)) {
@@ -1059,7 +1054,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         default:
           finalMsgType = 'text';
       }
-      debugPrint("userCollectLogic/add 根据 kind $kind 推断 msg_type: $finalMsgType");
+      debugPrint(
+        "userCollectLogic/add 根据 kind $kind 推断 msg_type: $finalMsgType",
+      );
     }
 
     // 强制设置 msg_type 到顶层
@@ -1125,31 +1122,15 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       };
     } else if (msg is CustomMessage) {
       // CustomMessage 需要特殊处理
-      // 优先使用 metadata 中的 custom_type 作为 msg_type
-      final customType = msg.metadata?['custom_type']?.toString();
       payload = Map<String, dynamic>.from(msg.metadata ?? {});
+      final msgType = payload['msg_type']?.toString() ?? '';
 
-      // 根据 custom_type 设置正确的 msg_type
-      switch (customType) {
-        case 'audio':
-          payload['msg_type'] = 'audio';
-          break;
-        case 'video':
-          payload['msg_type'] = 'video';
-          break;
-        case 'location':
-          payload['msg_type'] = 'location';
-          break;
-        case 'visitCard':
-          payload['msg_type'] = 'visitCard';
-          break;
-        default:
-          // 如果 metadata 中已经有 msg_type，使用它；否则默认为 custom
-          if (!payload.containsKey('msg_type')) {
-            payload['msg_type'] = 'custom';
-          }
+      if (msgType.isEmpty) {
+        payload['msg_type'] = 'custom';
       }
-      debugPrint("_extractPayloadFromMessage CustomMessage: customType=$customType, msg_type=${payload['msg_type']}");
+      debugPrint(
+        "_extractPayloadFromMessage CustomMessage: msg_type=${payload['msg_type']}",
+      );
     }
 
     // 添加peer_id
@@ -1227,7 +1208,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (message == null) return 0;
 
     try {
-      String customType = message.metadata?['custom_type'] ?? '';
+      String msgType = message.metadata?['msg_type'] ?? '';
       String messageType = message.runtimeType.toString();
 
       // 判断文本消息
@@ -1242,14 +1223,14 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
       // 判断自定义消息类型
       if (messageType.contains('CustomMessage')) {
-        switch (customType) {
-          case 'audio':
+        switch (msgType) {
+          case 'voice':
             return 3;
           case 'video':
             return 4;
           case 'location':
             return 6;
-          case 'visit_card':
+          case 'visitCard':
             return 7;
           default:
             // 检查payload中的msg_type
@@ -1266,7 +1247,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 if (message.metadata?['uri'] != null) {
                   // 有uri可能是图片、视频或音频
                   if (message.metadata?['duration_ms'] != null) {
-                    return customType == 'video' ? 4 : 3;
+                    return msgType == 'video' ? 4 : 3;
                   }
                   return 2;
                 }

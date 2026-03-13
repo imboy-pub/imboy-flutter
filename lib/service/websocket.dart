@@ -16,13 +16,13 @@ import 'package:imboy/component/http/http_client.dart' show defaultHeaders;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/storage.dart';
 import '../component/helper/datetime.dart' show DateTimeHelper;
 import 'websocket_message_queue.dart';
-import 'package:imboy/config/routes.dart' show AppRoutes;
-import 'package:imboy/config/init.dart' show navigatorKey;
+import 'package:imboy/config/init.dart' show navigateToSignIn;
 
 enum SocketStatus { connecting, connected, disconnected }
 
@@ -317,9 +317,10 @@ class WebSocketService {
         // 如果有 ts 字段，则打印延迟
         // Log latency if timestamp provided
         if (msg.containsKey('ts')) {
-          iPrint(
-            "> msg latency: ${DateTimeHelper.millisecond() - (msg['ts'] as int)} ms",
-          );
+          final ts = parseModelInt(msg['ts']);
+          if (ts > 0) {
+            iPrint("> msg latency: ${DateTimeHelper.millisecond() - ts} ms");
+          }
         }
 
         // ⚡ 非阻塞处理：通过事件总线发布消息，解耦 WebSocket 和 MessageService
@@ -412,11 +413,11 @@ class WebSocketService {
 
       while (!_messageQueue.isEmpty && _status == SocketStatus.connected) {
         if (_channel == null) break;
-        final message = _messageQueue.dequeue();
-        if (message == null) continue;
+        final queued = _messageQueue.dequeueByPriority();
+        if (queued == null) continue;
 
         try {
-          _channel!.sink.add(message);
+          _channel!.sink.add(queued.data);
           sentCount++;
           if (sentCount >= maxBatch) {
             await Future.delayed(Duration(milliseconds: 300));
@@ -426,7 +427,11 @@ class WebSocketService {
           }
         } catch (e, s) {
           iPrint('> ws: flushMessageQueue failed: $e\n$s');
-          _messageQueue.enqueueLegacy(message);
+          _messageQueue.enqueue(
+            queued.id,
+            queued.data,
+            priority: queued.priority,
+          );
           break;
         }
         if (_status != SocketStatus.connected) break;
@@ -446,10 +451,7 @@ class WebSocketService {
     } catch (e, s) {
       iPrint("$e; $s");
       UserRepoLocal.to.quitLogin();
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+      navigateToSignIn(source: 'websocket_relogin');
       return '';
     }
   }
@@ -484,10 +486,7 @@ class WebSocketService {
     switch (closeCode) {
       case 4006:
         UserRepoLocal.to.quitLogin();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.signIn,
-          (route) => false,
-        );
+        navigateToSignIn(source: 'websocket_relogin');
         break;
       default:
         _cancelStream();
@@ -716,6 +715,15 @@ class WebSocketService {
     if (_pendingMessages.remove(messageId)) {
       iPrint('> ws: 消息已确认: $messageId');
       _notifyMessageSendResult(messageId, true);
+
+      // 通知消息重试队列移除（覆盖 action-ack 场景，形成发送闭环）
+      AppEventBus.fire(
+        RemoveFromRetryQueueRequestedEvent(
+          messageId: messageId,
+          messageType: 'UNKNOWN',
+          reason: 'ws_action_ack',
+        ),
+      );
     }
   }
 
@@ -786,9 +794,10 @@ class WebSocketService {
 
   /// 消息入队处理
   void _enqueueMessage(String message) {
-    if (!_messageQueue.messageStrings.contains(message)) {
-      _messageQueue.enqueueLegacy(message);
-      iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messageStrings.length}）');
+    final exists = _messageQueue.messages.any((m) => m.data == message);
+    if (!exists) {
+      _messageQueue.enqueue(message.hashCode.toString(), message, priority: 0);
+      iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
     }
   }
 

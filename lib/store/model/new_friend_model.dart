@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 
 class NewFriendModel {
@@ -36,21 +37,30 @@ class NewFriendModel {
   }
 
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
-    var status = json["status"] ?? 0;
     return NewFriendModel(
-      source: json[NewFriendRepo.source] ?? '',
-      uid: json[NewFriendRepo.uid],
-      from: json[NewFriendRepo.from] ?? json['from'],
-      to: json[NewFriendRepo.to] ?? json['to'],
-      nickname: json[NewFriendRepo.nickname].toString(),
-      avatar: json[NewFriendRepo.avatar].toString(),
-      status: status is String ? int.parse(status) : status,
-      msg: json[NewFriendRepo.msg].toString(),
+      source: parseModelString(json[NewFriendRepo.source]),
+      uid: parseModelString(json[NewFriendRepo.uid]),
+      from: parseModelString(json[NewFriendRepo.from] ?? json['from']),
+      to: parseModelString(json[NewFriendRepo.to] ?? json['to']),
+      nickname: parseModelString(json[NewFriendRepo.nickname]),
+      avatar: parseModelNullableString(json[NewFriendRepo.avatar]),
+      status: parseModelInt(json[NewFriendRepo.status]),
+      msg: parseModelString(json[NewFriendRepo.msg]),
       // 单位毫秒，13位时间戳  1561021145560
       updatedAt: DateTimeHelper.parseTimestamp(json[NewFriendRepo.updatedAt]),
       createdAt: DateTimeHelper.parseTimestamp(json[NewFriendRepo.createdAt]),
-      payload: json["payload"],
+      payload: _parsePayload(json[NewFriendRepo.payload] ?? json['payload']),
     );
+  }
+
+  static String _parsePayload(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value;
+    try {
+      return jsonEncode(value);
+    } catch (_) {
+      return value.toString();
+    }
   }
 
   Map<String, dynamic> toJson() => {

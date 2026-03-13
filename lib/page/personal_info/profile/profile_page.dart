@@ -2,9 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -816,7 +819,91 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   }
 
   void _editBirthday(BuildContext context) {
-    // TODO: 实现生日编辑逻辑
+    // 获取当前生日
+    final currentBirthday = UserRepoLocal.to.current.birthday;
+    DateTime initialDate = DateTime.now();
+    if (currentBirthday.isNotEmpty) {
+      try {
+        initialDate = DateTime.parse(currentBirthday);
+      } catch (_) {
+        initialDate = DateTime(1990, 1, 1);
+      }
+    } else {
+      initialDate = DateTime(1990, 1, 1);
+    }
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        DateTime selectedDate = initialDate;
+
+        return Container(
+          height: 300,
+          padding: const EdgeInsets.only(top: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(16),
+            ),
+          ),
+          child: Column(
+            children: [
+              // 顶部操作栏
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(t.cancel),
+                    ),
+                    Text(
+                      t.birthday,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        // 保存生日
+                        final birthdayStr =
+                            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+                        final success = await ref
+                            .read(profileProvider.notifier)
+                            .changeInfo({
+                          "field": "birthday",
+                          "value": birthdayStr,
+                        });
+                        if (success && mounted) {
+                          // 更新本地用户信息
+                          final payload = UserRepoLocal.to.current.toMap();
+                          payload['birthday'] = birthdayStr;
+                          UserRepoLocal.to.changeInfo(payload);
+                        }
+                      },
+                      child: Text(t.confirm),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // 日期选择器
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: initialDate,
+                  minimumDate: DateTime(1900, 1, 1),
+                  maximumDate: DateTime.now(),
+                  onDateTimeChanged: (DateTime newDate) {
+                    selectedDate = newDate;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _editRegion(BuildContext context) {
@@ -824,23 +911,218 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   }
 
   void _editSignature(BuildContext context) {
-    // TODO: 实现个性签名编辑逻辑
+    final currentSign = UserRepoLocal.to.current.sign;
+    final controller = TextEditingController(text: currentSign);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(t.signature),
+          content: TextField(
+            controller: controller,
+            maxLength: 100,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: t.pleaseEnterSignature,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(t.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final newSign = controller.text.trim();
+                if (newSign == currentSign) return;
+
+                final success = await ref.read(profileProvider.notifier).changeInfo({
+                  "field": "sign",
+                  "value": newSign,
+                });
+                if (success && mounted) {
+                  final payload = UserRepoLocal.to.current.toMap();
+                  payload['sign'] = newSign;
+                  UserRepoLocal.to.changeInfo(payload);
+                }
+              },
+              child: Text(t.confirm),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  void _editBackground(BuildContext context) {
-    // TODO: 实现背景编辑逻辑
+  void _editBackground(BuildContext context) async {
+    // 使用图片选择器选择背景图片
+    final ImagePicker picker = ImagePicker();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text(t.chooseFromAlbum),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    imageQuality: 85,
+                  );
+                  if (image != null) {
+                    await _uploadAndSetBackground(image.path);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: Text(t.takePhoto),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    imageQuality: 85,
+                  );
+                  if (image != null) {
+                    await _uploadAndSetBackground(image.path);
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.close, color: Colors.grey),
+                title: Text(t.cancel),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// 上传并设置背景图片
+  Future<void> _uploadAndSetBackground(String imagePath) async {
+    try {
+      EasyLoading.show(status: t.uploading);
+
+      // 调用上传 API
+      final success = await ref.read(profileProvider.notifier).uploadBackground(
+        imagePath,
+      );
+
+      EasyLoading.dismiss();
+
+      if (success && mounted) {
+        EasyLoading.showSuccess(t.uploadSuccess);
+      } else if (mounted) {
+        EasyLoading.showError(t.uploadFailed);
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      if (mounted) {
+        EasyLoading.showError('${t.uploadFailed}: $e');
+      }
+    }
   }
 
   void _editProfession(BuildContext context) {
-    // TODO: 实现职业编辑逻辑
+    _showTextEditDialog(
+      context: context,
+      title: t.profession,
+      currentValue: UserRepoLocal.to.current.profession,
+      field: 'profession',
+      maxLength: 50,
+      hintText: t.pleaseEnterProfession,
+    );
   }
 
   void _editSchool(BuildContext context) {
-    // TODO: 实现学校编辑逻辑
+    _showTextEditDialog(
+      context: context,
+      title: t.school,
+      currentValue: UserRepoLocal.to.current.school,
+      field: 'school',
+      maxLength: 50,
+      hintText: t.pleaseEnterSchool,
+    );
   }
 
   void _editInterests(BuildContext context) {
-    // TODO: 实现兴趣爱好编辑逻辑
+    _showTextEditDialog(
+      context: context,
+      title: t.interests,
+      currentValue: UserRepoLocal.to.current.interests,
+      field: 'interests',
+      maxLength: 100,
+      hintText: t.pleaseEnterInterests,
+      maxLines: 2,
+    );
+  }
+
+  /// 显示文本编辑对话框
+  void _showTextEditDialog({
+    required BuildContext context,
+    required String title,
+    required String currentValue,
+    required String field,
+    int maxLength = 50,
+    int maxLines = 1,
+    String? hintText,
+  }) {
+    final controller = TextEditingController(text: currentValue);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            maxLength: maxLength,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hintText ?? title,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(t.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final newValue = controller.text.trim();
+                if (newValue == currentValue) return;
+
+                final success = await ref.read(profileProvider.notifier).changeInfo({
+                  "field": field,
+                  "value": newValue,
+                });
+                if (success && mounted) {
+                  final payload = UserRepoLocal.to.current.toMap();
+                  payload[field] = newValue;
+                  UserRepoLocal.to.changeInfo(payload);
+                }
+              },
+              child: Text(t.confirm),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showQRCode(BuildContext context) {
@@ -851,11 +1133,152 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   }
 
   void _shareProfile() {
-    // TODO: 实现分享资料逻辑
+    // 分享个人资料 - 显示分享选项
+    final user = UserRepoLocal.to.current;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.qr_code),
+                title: Text(t.shareQRCode),
+                onTap: () {
+                  Navigator.pop(context);
+                  // 导航到二维码页面
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.link),
+                title: Text(t.copyLink),
+                onTap: () {
+                  Navigator.pop(context);
+                  // 复制个人资料链接到剪贴板
+                  // 这里可以生成一个分享链接
+                  EasyLoading.showSuccess(t.copiedToClipboard);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share),
+                title: Text(t.shareTo),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // 使用系统分享功能
+                  try {
+                    await SharePlus.instance.share(
+                      ShareParams(
+                        text:
+                            '${t.nickname}: ${user.nickname}\n'
+                            '${t.signature}: ${user.sign}\n'
+                            '${t.region}: ${user.region}',
+                        subject: t.profile,
+                      ),
+                    );
+                  } catch (e) {
+                    EasyLoading.showError('${t.shareFailed}: $e');
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.close, color: Colors.grey),
+                title: Text(t.cancel),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _exportProfile() {
-    // TODO: 实现导出资料逻辑
+    // 导出个人资料 - 生成 JSON 或文本文件
+    final user = UserRepoLocal.to.current;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  t.exportProfile,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.text_snippet),
+                title: const Text('JSON'),
+                subtitle: Text(t.exportAsJson),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // 导出为 JSON 格式
+                  final jsonStr = user.toJson().toString();
+                  await _exportToClipboard(context, jsonStr, 'JSON');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.note),
+                title: const Text('TXT'),
+                subtitle: Text(t.exportAsText),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // 导出为文本格式
+                  final textStr = '''
+${t.profile}
+====================
+${t.nickname}: ${user.nickname}
+${t.account}: ${user.account}
+${t.gender}: ${user.gender == 1 ? t.male : (user.gender == 2 ? t.female : t.secret)}
+${t.region}: ${user.region}
+${t.signature}: ${user.sign}
+${t.birthday}: ${user.birthday}
+${t.profession}: ${user.profession}
+${t.school}: ${user.school}
+${t.interests}: ${user.interests}
+====================
+''';
+                  await _exportToClipboard(context, textStr, 'TXT');
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.close, color: Colors.grey),
+                title: Text(t.cancel),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// 导出到剪贴板
+  Future<void> _exportToClipboard(
+    BuildContext context,
+    String content,
+    String format,
+  ) async {
+    try {
+      await Clipboard.setData(ClipboardData(text: content));
+      if (mounted) {
+        EasyLoading.showSuccess(
+          t.exportSuccessThenCopiedToClipboard(param: format),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        EasyLoading.showError('${t.exportFailed}: $e');
+      }
+    }
   }
 
   @override

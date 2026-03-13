@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 消息气泡样式配置类
@@ -10,12 +9,12 @@ class MessageBubbleStyle {
 
   /// 获取优化后的消息气泡装饰
   static BoxDecoration getBubbleDecoration({
+    required BuildContext context,
     required bool isSentByMe,
     MessageGroupStatus? groupStatus,
     bool isHighlighted = false,
   }) {
-    final theme = ThemeManager.instance;
-    final isDark = theme.isDarkMode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // 根据消息位置确定圆角
     BorderRadius borderRadius = _getBubbleBorderRadius(

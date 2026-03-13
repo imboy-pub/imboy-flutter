@@ -33,7 +33,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // 暂时逻辑：已登录 -> Home, 未登录 -> Welcome
 
     if (isLoggedIn) {
-      // TODO: Replace with actual Home route
+      // 导航到主页（底部导航页）
       context.go('/bottom_navigation');
     } else {
       context.go('/welcome');

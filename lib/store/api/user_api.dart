@@ -15,8 +15,7 @@ import 'package:imboy/service/secure_token_storage_service.dart'
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/config/init.dart' show navigatorKey;
-import 'package:imboy/config/routes.dart';
+import 'package:imboy/config/init.dart' show navigateToSignIn;
 
 /// 用户 API 提供者的 Riverpod Provider
 /// 提供对 UserApi 单例的访问
@@ -54,10 +53,7 @@ class UserApi extends HttpClient {
   }) async {
     if (strEmpty(refreshToken)) {
       UserRepoLocal.to.quitLogin();
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+      navigateToSignIn(source: 'user_api_relogin');
       return "";
     }
     Map<String, dynamic> headers = await defaultHeaders();
@@ -69,17 +65,13 @@ class UserApi extends HttpClient {
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);
     // 处理 token 相关错误（401 UNAUTHORIZED 包含了所有 token 失效情况）
-    // 兼容旧版 705/706 错误码
     if (ErrorCode.shouldReLogin(resp.code)) {
       checkNewToken = true;
     }
     String newToken = resp.payload?['token'] ?? '';
     if (checkNewToken && strEmpty(newToken)) {
       UserRepoLocal.to.quitLogin();
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+      navigateToSignIn(source: 'user_api_relogin');
       return "";
     }
     await SecureTokenStorageService.saveToken(newToken);

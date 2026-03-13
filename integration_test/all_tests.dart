@@ -8,6 +8,11 @@ import 'chat/c2c_chat_test.dart' as c2c;
 import 'chat/group_chat_test.dart' as group;
 import 'chat/conversation_test.dart' as conversation;
 import 'contact/friend_management_test.dart' as friend;
+import 'channel/channel_e2e_test.dart' as channel;
+import 'channel/channel_publish_test.dart' as channel_publish;
+import 'channel/channel_edit_persistence_test.dart' as channel_edit_persistence;
+import 'channel/channel_subscribed_detail_consistency_test.dart'
+    as channel_subscribed_consistency;
 
 void main() {
   print('');
@@ -22,6 +27,10 @@ void main() {
   group.main();
   conversation.main();
   friend.main();
+  channel.main();
+  channel_publish.main();
+  channel_edit_persistence.main();
+  channel_subscribed_consistency.main();
 
   print('');
   print('╔════════════════════════════════════════════════════════════╗');

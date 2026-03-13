@@ -8,8 +8,10 @@
 /// 5. ACK 超时后自动重试
 /// 6. 网络恢复后重新发送失败的 ACK
 ///
-/// 后端协议参考：../imboy/doc/libraries/message-ack.md
+/// 后端协议参考：../imboy/doc/api/websocket-api-2.md
 library;
+
+import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/ack_manager.dart';
@@ -162,6 +164,65 @@ void main() {
         await subscription.cancel();
       });
 
+      test('ACK确认后应该更新 RTT 分位统计并触发事件', () async {
+        const msgId = 'ack_rtt_msg_001';
+        AckRttMetricsUpdatedEvent? capturedEvent;
+
+        final StreamSubscription<AckRttMetricsUpdatedEvent> subscription =
+            AppEventBus.on<AckRttMetricsUpdatedEvent>().listen((event) {
+              if (event.messageId == msgId) {
+                capturedEvent = event;
+              }
+            });
+
+        ackManager.sendAck('C2C', msgId, overrideDeviceId: 'test_device');
+        await Future.delayed(const Duration(milliseconds: 15));
+        ackManager.ackConfirmed(msgId);
+        await Future.delayed(const Duration(milliseconds: 30));
+
+        final stats = ackManager.getStats();
+        expect(capturedEvent, isNotNull);
+        expect(stats['ack_rtt_sample_count'], 1);
+        expect(stats['ack_rtt_last_ms'], isA<int>());
+        expect(stats['ack_rtt_p50_ms'], isA<int>());
+        expect(stats['ack_rtt_p90_ms'], isA<int>());
+        expect(stats['ack_rtt_p95_ms'], isA<int>());
+        expect(stats['ack_rtt_p99_ms'], isA<int>());
+        expect(capturedEvent!.sampleCount, 1);
+        expect(capturedEvent!.rttMs, greaterThanOrEqualTo(0));
+
+        await subscription.cancel();
+      });
+
+      test('重试达到上限时应该触发告警事件并累计统计', () async {
+        const msgId = 'ack_retry_ceiling_msg_001';
+        AckRetryCeilingReachedEvent? capturedEvent;
+
+        final StreamSubscription<AckRetryCeilingReachedEvent> subscription =
+            AppEventBus.on<AckRetryCeilingReachedEvent>().listen((event) {
+              if (event.messageId == msgId) {
+                capturedEvent = event;
+              }
+            });
+
+        ackManager.debugMarkRetryCeilingReached(
+          messageId: msgId,
+          messageType: 'C2C',
+          retryCount: 3,
+        );
+        await Future.delayed(const Duration(milliseconds: 20));
+
+        final stats = ackManager.getStats();
+        expect(capturedEvent, isNotNull);
+        expect(stats['retry_ceiling_hit_count'], 1);
+        expect(stats['recent_retry_ceiling_hits'], isA<List>());
+        expect((stats['recent_retry_ceiling_hits'] as List).isNotEmpty, isTrue);
+        expect(capturedEvent!.retryCount, 3);
+        expect(capturedEvent!.maxRetryCount, 3);
+
+        await subscription.cancel();
+      });
+
       test('应该能够获取 ACK 统计信息', () {
         ackManager.sendAck('C2C', 'msg1', overrideDeviceId: 'test_device');
         ackManager.sendAck('C2G', 'msg2', overrideDeviceId: 'test_device');
@@ -173,6 +234,10 @@ void main() {
         expect(stats['retry_interval_ms'], 3000);
         expect(stats['pending_ack_list'], contains('msg1'));
         expect(stats['pending_ack_list'], contains('msg2'));
+        expect(stats['ack_rtt_sample_count'], 0);
+        expect(stats['retry_ceiling_hit_count'], 0);
+        expect(stats['ack_rtt_p50_ms'], 0);
+        expect(stats['ack_rtt_p95_ms'], 0);
       });
     });
 

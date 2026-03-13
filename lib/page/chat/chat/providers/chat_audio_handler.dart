@@ -18,7 +18,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 ///
 /// 封装所有语音播放相关逻辑，与 ChatNotifier 解耦
 class ChatAudioHandler {
-  final VoicePlaybackHelper _voicePlaybackService;
+  final VoicePlaybackService Function() _getVoicePlaybackNotifier;
 
   /// 全局播放控制器（用于波形显示）
   PlayerController? globalPlayerController;
@@ -33,26 +33,12 @@ class ChatAudioHandler {
   List<Message> Function()? _getMessages;
 
   ChatAudioHandler({
-    VoicePlaybackHelper? voicePlaybackService,
-  }) : _voicePlaybackService = voicePlaybackService ?? VoicePlaybackHelper.to;
+    required VoicePlaybackService Function() getVoicePlaybackNotifier,
+  }) : _getVoicePlaybackNotifier = getVoicePlaybackNotifier;
 
   /// 设置消息获取回调
   void setMessagesGetter(List<Message> Function() getter) {
     _getMessages = getter;
-  }
-
-  /// 获取语音播放状态
-  /// 注意：实际使用时应通过 Riverpod 的 ref.read(voicePlaybackServiceProvider) 获取
-  VoicePlaybackState get voicePlaybackState {
-    // 返回默认状态，实际使用时应该通过 Riverpod Provider 获取
-    return const VoicePlaybackState(
-      currentAudioPath: '',
-      currentMessageId: '',
-      isPlaying: false,
-      isPaused: false,
-      currentPosition: 0,
-      currentDuration: 0,
-    );
   }
 
   /// 初始化播放控制器
@@ -66,8 +52,8 @@ class ChatAudioHandler {
     required String messageId,
     required int duration,
   }) async {
-    await _voicePlaybackService.play(
-      audioPath: voiceUrlOrPath,
+    await _getVoicePlaybackNotifier().play(
+      path: voiceUrlOrPath,
       messageId: messageId,
       durationMs: duration,
     );
@@ -75,17 +61,17 @@ class ChatAudioHandler {
 
   /// 暂停播放
   Future<void> pauseVoice() async {
-    await _voicePlaybackService.pause();
+    await _getVoicePlaybackNotifier().pause();
   }
 
   /// 继续播放
   Future<void> resumeVoice() async {
-    await _voicePlaybackService.resume();
+    await _getVoicePlaybackNotifier().resume();
   }
 
   /// 停止播放
   Future<void> stopCurrentVoice() async {
-    await _voicePlaybackService.stop();
+    await _getVoicePlaybackNotifier().stop();
   }
 
   /// 查找下一条语音消息
@@ -98,17 +84,21 @@ class ChatAudioHandler {
 
     for (int i = currentIndex + 1; i < messages.length; i++) {
       final message = messages[i];
-      if (message is CustomMessage) {
-        final customType = message.metadata?['custom_type']?.toString();
-        if (customType == 'audio') {
-          // 在数据库中查找完整消息
-          for (final tableType in ['C2C', 'C2G', 'C2S']) {
-            final tb = MessageRepo.getTableName(tableType);
-            final repo = MessageRepo(tableName: tb);
-            final msg = await repo.find(message.id);
-            if (msg != null) return msg;
-          }
-        }
+
+      final isVoiceMessage =
+          message is AudioMessage ||
+          (message is CustomMessage &&
+              message.metadata?['msg_type'] == 'voice');
+      if (!isVoiceMessage) {
+        continue;
+      }
+
+      // 在数据库中查找完整消息
+      for (final tableType in ['C2C', 'C2G', 'C2S']) {
+        final tb = MessageRepo.getTableName(tableType);
+        final repo = MessageRepo(tableName: tb);
+        final msg = await repo.find(message.id);
+        if (msg != null) return msg;
       }
     }
 
@@ -119,19 +109,30 @@ class ChatAudioHandler {
   Future<void> playNextAudioMessage(
     String currentMessageId, {
     required void Function(String messageId, String path, int duration)
-        onPlayNext,
+    onPlayNext,
   }) async {
     if (currentMessageId.isEmpty) return;
 
     final nextMessage = await findNextAudioMessage(currentMessageId);
     if (nextMessage == null) return;
 
-    final customMessage = await nextMessage.toTypeMessage() as CustomMessage;
-    final audioUri = customMessage.metadata?['uri'];
-    if (audioUri == null) return;
+    final typedMessage = await nextMessage.toTypeMessage();
 
-    final messageId = customMessage.id;
-    final duration = customMessage.metadata?['duration_ms'] ?? 0;
+    String? audioUri;
+    int duration = 0;
+    final messageId = typedMessage.id;
+
+    if (typedMessage is AudioMessage) {
+      audioUri = typedMessage.source;
+      duration = typedMessage.duration.inMilliseconds;
+    } else if (typedMessage is CustomMessage) {
+      audioUri = typedMessage.metadata?['uri'];
+      duration = typedMessage.metadata?['duration_ms'] ?? 0;
+    }
+
+    if (audioUri == null || audioUri.isEmpty) {
+      return;
+    }
 
     try {
       final audioFile = await IMBoyCacheManager().getSingleFile(

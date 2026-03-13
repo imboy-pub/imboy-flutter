@@ -4,6 +4,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'connection_state.dart';
@@ -54,6 +55,10 @@ class WebRTCConnection {
   final StreamController<RTCIceCandidate> _iceCandidateController =
       StreamController<RTCIceCandidate>.broadcast();
 
+  /// 数据通道消息流控制器
+  final StreamController<String> _dataChannelMessageController =
+      StreamController<String>.broadcast();
+
   /// ICE 候选收集完成标志
   bool _iceGatheringComplete = false;
 
@@ -74,6 +79,10 @@ class WebRTCConnection {
   /// ICE 候选流
   Stream<RTCIceCandidate> get iceCandidateStream =>
       _iceCandidateController.stream;
+
+  /// 数据通道消息流
+  Stream<String> get dataChannelMessageStream =>
+      _dataChannelMessageController.stream;
 
   /// 当前状态
   WebRTCConnectionState get state => _state;
@@ -144,6 +153,24 @@ class WebRTCConnection {
           config: config.reconnectConfig,
           onReconnect: () async {
             await _restartIce();
+          },
+          onSendHeartbeat: () async {
+            // 通过数据通道发送心跳消息
+            if (_dataChannel != null &&
+                _dataChannel!.state == RTCDataChannelState.RTCDataChannelOpen) {
+              try {
+                final heartbeatMsg = jsonEncode({
+                  'type': 'heartbeat',
+                  'timestamp': DateTime.now().millisecondsSinceEpoch,
+                });
+                _dataChannel!.send(RTCDataChannelMessage(heartbeatMsg));
+                return true;
+              } catch (e) {
+                debugPrint('Failed to send heartbeat: $e');
+                return false;
+              }
+            }
+            return false;
           },
         );
       }
@@ -285,6 +312,9 @@ class WebRTCConnection {
 
       // 清理 ICE 候选流
       await _iceCandidateController.close();
+
+      // 清理数据通道消息流
+      await _dataChannelMessageController.close();
 
       // 关闭数据通道
       await _dataChannel?.close();
@@ -538,11 +568,31 @@ class WebRTCConnection {
 
     channel.onDataChannelState = (state) {
       debugPrint('Data channel state: $state');
+      // 数据通道状态变化时通知外部
+      if (state == RTCDataChannelState.RTCDataChannelOpen) {
+        debugPrint('Data channel is open and ready');
+      } else if (state == RTCDataChannelState.RTCDataChannelClosed) {
+        debugPrint('Data channel is closed');
+      }
     };
 
-    channel.onMessage = (data) {
-      debugPrint('Data channel message: $data');
-      // TODO: 处理数据通道消息
+    channel.onMessage = (RTCDataChannelMessage data) {
+      // 处理数据通道消息
+      String message;
+      if (data.isBinary) {
+        // 二进制数据（用于文件传输）
+        debugPrint('Data channel received binary data: ${data.binary.length} bytes');
+        message = 'BINARY:${data.binary.length}';
+      } else {
+        // 文本消息（用于控制信令、心跳等）
+        message = data.text;
+        debugPrint('Data channel received text message: $message');
+      }
+
+      // 将消息发送到流中，让外部处理
+      if (!_dataChannelMessageController.isClosed) {
+        _dataChannelMessageController.add(message);
+      }
     };
   }
 
@@ -600,9 +650,8 @@ class WebRTCConnection {
     final videoTracks = _localStream!.getVideoTracks();
     if (videoTracks.isEmpty) return;
 
-    // TODO: 实现摄像头切换逻辑
-    // final track = videoTracks.first;
-    // Helper.switchCamera(track);
+    final track = videoTracks.first;
+    await Helper.switchCamera(track);
   }
 
   /// 切换扬声器
@@ -612,9 +661,10 @@ class WebRTCConnection {
     final audioTracks = _localStream!.getAudioTracks();
     if (audioTracks.isEmpty) return;
 
-    // TODO: 实现扬声器切换逻辑
-    // final track = audioTracks.first;
-    // track.enableSpeakerphone(enable);
+    // 使用 flutter_webrtc 的 Helper.setSpeakerphoneOn 方法
+    // 当 enable=true 时，使用扬声器；当 enable=false 时，使用听筒
+    // 注意：如果连接了蓝牙或有线耳机，会优先使用耳机
+    await Helper.setSpeakerphoneOn(enable);
   }
 
   /// 静音/取消静音麦克风

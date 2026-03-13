@@ -1,0 +1,16 @@
+schema_version: 1
+domain_id: "websocket_retry_ack"
+feature_name_cn: "WebSocket重试确认机制"
+description: "覆盖 WebSocket API、消息重试、ACK 确认和重试队列。"
+priority: "P0"
+case_count: 4
+auto_cases: 4
+manual_assist_cases: 0
+case_files:
+  - "test_automation/scenarios/cases/05_websocket_retry_ack/ws_01_websocket_api_v2.yaml"
+  - "test_automation/scenarios/cases/05_websocket_retry_ack/ws_02_message_retry_flow.yaml"
+  - "test_automation/scenarios/cases/05_websocket_retry_ack/ws_03_message_ack_flow.yaml"
+  - "test_automation/scenarios/cases/05_websocket_retry_ack/ws_04_retry_queue.yaml"
+ui_ux_focus:
+  - "网络抖动下发送状态可见"
+  - "ACK 后状态转移与重试停止"

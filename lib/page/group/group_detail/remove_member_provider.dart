@@ -3,6 +3,7 @@ import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 part 'remove_member_provider.g.dart';
 
@@ -126,7 +127,7 @@ class RemoveMemberNotifier extends _$RemoveMemberNotifier {
 
 /// 移除群成员服务
 class RemoveMemberService {
-  final String currentUid = ''; // TODO: 从 UserRepoLocal 获取
+  String get currentUid => UserRepoLocal.to.currentUid;
 
   Future<bool> leaveGroup(String groupId, List<String> memberUserIds) async {
     final provider = GroupMemberApi();

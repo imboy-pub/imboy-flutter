@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
 
 /// 聊天背景状态
 class ChatBackgroundState {
@@ -131,13 +131,14 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
 
   /// 获取当前背景装饰
   BoxDecoration getCurrentBackgroundDecoration() {
-    final theme = ThemeManager.instance;
+    final themeNotifier = ref.read(themeProvider.notifier);
+    final surfaceColor = themeNotifier.getThemeColor('surface');
     final currentState = state;
 
     switch (currentState.currentBackground) {
       case 'pattern_1':
         return BoxDecoration(
-          color: theme.getThemeColor('surface'),
+          color: surfaceColor,
           image: DecorationImage(
             image: AssetImage('assets/images/chat_backgrounds/pattern_1.png'),
             repeat: ImageRepeat.repeat,
@@ -147,7 +148,7 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
 
       case 'pattern_2':
         return BoxDecoration(
-          color: theme.getThemeColor('surface'),
+          color: surfaceColor,
           image: DecorationImage(
             image: AssetImage('assets/images/chat_backgrounds/pattern_2.png'),
             repeat: ImageRepeat.repeat,
@@ -157,7 +158,7 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
 
       case 'pattern_3':
         return BoxDecoration(
-          color: theme.getThemeColor('surface'),
+          color: surfaceColor,
           image: DecorationImage(
             image: AssetImage('assets/images/chat_backgrounds/pattern_3.png'),
             repeat: ImageRepeat.repeat,
@@ -203,24 +204,22 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
               ? currentState.customColor.withValues(
                   alpha: currentState.backgroundOpacity,
                 )
-              : theme.getThemeColor('surface'),
+              : surfaceColor,
         );
 
       case 'custom_image':
         // 注意：自定义图片功能待实现，目前返回默认背景
-        return BoxDecoration(color: theme.getThemeColor('surface'));
+        return BoxDecoration(color: surfaceColor);
 
       case 'default':
       default:
         return BoxDecoration(
-          color: theme.getThemeColor('surface'),
+          color: surfaceColor,
           image: DecorationImage(
             image: AssetImage('assets/images/pattern.png'),
             repeat: ImageRepeat.repeat,
             colorFilter: ColorFilter.mode(
-              theme
-                  .getThemeColor('surface')
-                  .withValues(alpha: currentState.backgroundOpacity),
+              surfaceColor.withValues(alpha: currentState.backgroundOpacity),
               BlendMode.srcIn,
             ),
           ),
@@ -245,7 +244,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
     final state = ref.watch(chatBackgroundManagerProvider);
 
     return Scaffold(
-      appBar: GlassAppBar(title: t.chatSettingBackground),
+      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.chatSettingBackground),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

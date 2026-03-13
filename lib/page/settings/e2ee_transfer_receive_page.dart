@@ -67,11 +67,11 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
       });
 
       // 获取当前设备的设备 ID
-      final deviceId = await StorageSecure().getDeviceId();
+      final deviceId = await StorageSecureService.to.getDeviceId();
       if (deviceId == null || deviceId.isEmpty) {
         // 生成新设备 ID
         await E2EEKeyService.generateKeyPair();
-        final newDeviceId = await StorageSecure().getDeviceId();
+        final newDeviceId = await StorageSecureService.to.getDeviceId();
         if (newDeviceId == null || newDeviceId.isEmpty) {
           throw Exception('无法获取设备 ID');
         }
@@ -79,7 +79,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
 
       final result = await E2EETransferService.acceptTransfer(
         sessionId: sessionId,
-        deviceId: deviceId ?? await StorageSecure().getDeviceId() ?? '',
+        deviceId: deviceId ?? await StorageSecureService.to.getDeviceId() ?? '',
       );
 
       // 确认传输

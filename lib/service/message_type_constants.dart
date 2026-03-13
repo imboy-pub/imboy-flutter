@@ -25,7 +25,7 @@ library;
 /// 用户消息类型枚举
 ///
 /// 提供 类型安全的消息类型定义
-/// 迁移自 lib/component/chat/enum.dart 的 CustomMessageType
+/// 统一映射 `MessageType` 中定义的消息类型常量
 ///
 /// 使用示例：
 /// ```dart
@@ -54,17 +54,11 @@ enum MsgTypeEnum {
   /// 语音消息（使用 voice 命名，符合 WebSocket API v2.0 规范）
   voice,
 
-  /// @deprecated 使用 voice 代替
-  audio,
-
   /// 视频消息
   video,
 
   /// 不支持的消息类型
   unsupported,
-
-  /// 系统消息
-  system,
 
   /// 自定义消息
   custom,
@@ -98,20 +92,16 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.location;
       case MsgTypeEnum.voice:
         return MessageType.voice;
-      case MsgTypeEnum.audio:
-        return MessageType.audio;
       case MsgTypeEnum.video:
         return MessageType.video;
       case MsgTypeEnum.unsupported:
         return MessageType.unsupported;
-      case MsgTypeEnum.system:
-        return MessageType.system;
       case MsgTypeEnum.custom:
         return MessageType.custom;
       case MsgTypeEnum.webrtcAudio:
-        return CustomMessageType.webrtcAudio;
+        return MessageType.webrtcAudio;
       case MsgTypeEnum.webrtcVideo:
-        return CustomMessageType.webrtcVideo;
+        return MessageType.webrtcVideo;
       case MsgTypeEnum.quote:
         return MessageType.quote;
     }
@@ -134,19 +124,15 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.location;
       case MessageType.voice:
         return MsgTypeEnum.voice;
-      case MessageType.audio:
-        return MsgTypeEnum.audio;
       case MessageType.video:
         return MsgTypeEnum.video;
       case MessageType.unsupported:
         return MsgTypeEnum.unsupported;
-      case MessageType.system:
-        return MsgTypeEnum.system;
       case MessageType.custom:
         return MsgTypeEnum.custom;
-      case CustomMessageType.webrtcAudio:
+      case MessageType.webrtcAudio:
         return MsgTypeEnum.webrtcAudio;
-      case CustomMessageType.webrtcVideo:
+      case MessageType.webrtcVideo:
         return MsgTypeEnum.webrtcVideo;
       case MessageType.quote:
         return MsgTypeEnum.quote;
@@ -283,62 +269,30 @@ abstract class MessageType {
   /// ```
   static const String quote = 'quote';
 
+  /// WebRTC 音频通话信令
+  static const String webrtcAudio = 'webrtcAudio';
+
+  /// WebRTC 视频通话信令
+  static const String webrtcVideo = 'webrtcVideo';
+
+  /// 个人名片消息
+  static const String visitCard = 'visitCard';
+
   /// 自定义消息
   ///
-  /// 通过 `custom_type` 字段子类型区分具体类型
-  /// payload 结构示例：
+  /// 作为通用兜底类型使用。
+  /// 推荐直接使用具体 `msg_type`（如 `webrtcAudio`、`visitCard`）。
+  /// payload 结构示例（兜底场景）：
   /// ```json
   /// {
-  ///   "custom_type": "webrtc_audio",
+  ///   "event": "unknown_custom_event",
   ///   "call_type": "offer",
   ///   "sdp": "..."
   /// }
   /// ```
   static const String custom = 'custom';
 
-  // ==================== E2EE 加密消息 ====================
-
-  /// 端到端加密消息（已废弃，仅用于向后兼容）
-  ///
-  /// **WebSocket API v2.0 变更**：
-  /// - ❌ **不再**使用 `msg_type = 'e2ee'` 来标识加密消息
-  /// - ✅ **保留**原始消息的 `msg_type`（text, image, video 等）
-  /// - ✅ **通过** `e2ee` 字段（Map 类型）是否存在判断是否为加密消息
-  ///
-  /// v2.0 消息结构：
-  /// ```json
-  /// {
-  ///   "msg_type": "text",  // 保留原始消息类型
-  ///   "e2ee": {
-  ///     "e2ee": true,
-  ///     "e2ee_ver": 1,
-  ///     "e2ee_suite": "RSA-OAEP-256+AES-256-GCM",
-  ///     "iv": "base64_encoded_iv",
-  ///     "ct": "base64_encoded_ciphertext",
-  ///     "recipients": [...],
-  ///     "sig": "base64_signature"
-  ///   },
-  ///   "payload": "base64(iv).base64(ciphertext)"
-  /// }
-  /// ```
-  ///
-  /// v1.0 旧格式（已废弃）：
-  /// ```json
-  /// {
-  ///   "msg_type": "e2ee",
-  ///   "payload": "base64(nonce).base64(ciphertext)"
-  /// }
-  /// ```
-  @Deprecated('WebSocket API v2.0: 使用原始 msg_type + e2ee 字段代替')
-  static const String e2ee = 'e2ee';
-
-  // ==================== 已废弃/兼容性类型 ====================
-
-  /// @Deprecated 使用 'voice' 代替
-  static const String audio = 'audio';
-
-  /// @Deprecated 使用 'custom' 代替
-  static const String system = 'system';
+  // ==================== 特殊类型 ====================
 
   /// 不支持的消息类型
   ///
@@ -360,35 +314,11 @@ abstract class MessageType {
     file,
     location,
     quote,
-    // 自定义消息子类型（通过 custom_type 区分）
-    'webrtcAudio',
-    'webrtcVideo',
-    'visitCard',
-    // 系统消息（用于特殊通知）
-    system,
-    // 兼容旧数据
-    audio,
+    // 业务消息类型（直接作为 msg_type 使用）
+    webrtcAudio,
+    webrtcVideo,
+    visitCard,
   ];
-
-  /// 类型别名映射
-  ///
-  /// 用于类型归一化，将旧类型名映射到新类型名
-  static const Map<String, String> aliases = {
-    'audio': 'voice', // 音频消息统一使用 voice
-  };
-
-  /// 获取标准类型名称（别名转换）
-  ///
-  /// 如果 [type] 是别名，返回标准名称；否则返回原值
-  ///
-  /// ## 示例
-  /// ```dart
-  /// MessageType.getStandardName('audio') // 返回 'voice'
-  /// MessageType.getStandardName('image') // 返回 'image'
-  /// ```
-  static String getStandardName(String type) {
-    return aliases[type] ?? type;
-  }
 
   /// 判断是否为有效的消息类型
   ///
@@ -400,45 +330,6 @@ abstract class MessageType {
   static bool isValidType(String type) {
     return allTypes.contains(type) || type == custom || type == unsupported;
   }
-}
-
-// ============================================
-// 自定义消息子类型 (custom_type)
-// ============================================
-
-/// 自定义消息子类型常量
-///
-/// 当 `msg_type` 为 `custom` 时，通过 `custom_type` 区分子类型
-abstract class CustomMessageType {
-  /// 消息撤回 (自己撤回)
-  ///
-  /// 用户主动撤回消息时使用
-  static const String messageRevoke = 'message_revoke';
-
-  /// 正在输入提示
-  ///
-  /// 显示对方正在输入状态
-  static const String typingIndicator = 'typing_indicator';
-
-  /// WebRTC 音频通话
-  ///
-  /// WebRTC 音频通话邀请/信令
-  static const String webrtcAudio = 'webrtcAudio';
-
-  /// WebRTC 视频通话
-  ///
-  /// WebRTC 视频通话邀请/信令
-  static const String webrtcVideo = 'webrtcVideo';
-
-  /// 个人名片
-  ///
-  /// 分享联系人名片
-  static const String visitCard = 'visitCard';
-
-  /// 实时通话邀请
-  ///
-  /// WebRTC 实时通话邀请信令
-  static const String rtcCall = 'rtc_call';
 }
 
 // ============================================
@@ -588,6 +479,20 @@ abstract class S2CAction {
   /// 处理方式：检查版本，显示升级提示
   static const String appUpgrade = 'app_upgrade';
 
+  // ==================== 朋友圈通知 ====================
+
+  /// 朋友圈新动态
+  static const String momentNew = 'moment_new';
+
+  /// 朋友圈点赞
+  static const String momentLike = 'moment_like';
+
+  /// 朋友圈评论
+  static const String momentComment = 'moment_comment';
+
+  /// 朋友圈删除
+  static const String momentDeleted = 'moment_deleted';
+
   // ==================== 辅助方法 ====================
 
   /// 判断是否为有效的 S2C action
@@ -623,6 +528,10 @@ abstract class S2CAction {
     deviceForceOffline,
     pleaseRefreshToken,
     appUpgrade,
+    momentNew,
+    momentLike,
+    momentComment,
+    momentDeleted,
   ];
 
   /// Action 显示名称映射
@@ -648,6 +557,10 @@ abstract class S2CAction {
     deviceForceOffline: '强制下线',
     pleaseRefreshToken: '刷新令牌',
     appUpgrade: '应用升级',
+    momentNew: '朋友圈新动态',
+    momentLike: '朋友圈点赞',
+    momentComment: '朋友圈评论',
+    momentDeleted: '朋友圈删除',
   };
 }
 
@@ -673,6 +586,25 @@ abstract class MessageFlowType {
 
   /// 频道消息 (Channel)
   static const String channel = 'CHANNEL';
+
+  /// 客户端发起的聊天流向类型（不包含 S2C/CHANNEL）
+  static const List<String> _chatFlows = [c2c, c2g, c2s];
+
+  /// 判断是否为客户端聊天流向类型（C2C/C2G/C2S）
+  static bool isChatFlow(String? type) {
+    if (type == null) return false;
+    return _chatFlows.contains(type.trim().toUpperCase());
+  }
+
+  /// 归一化聊天流向类型，非法值回落到 [fallback]
+  ///
+  /// 设计目标：
+  /// - 统一处理历史脏值（如 `'null'`、空字符串）
+  /// - 保证发送/读取链路仅流通 C2C/C2G/C2S
+  static String normalize(String? type, {String fallback = c2c}) {
+    final normalized = (type ?? '').trim().toUpperCase();
+    return isChatFlow(normalized) ? normalized : fallback;
+  }
 }
 
 // ============================================

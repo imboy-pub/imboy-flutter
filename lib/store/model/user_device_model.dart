@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 class UserDeviceModel {
   String deviceId;
@@ -29,19 +28,14 @@ class UserDeviceModel {
   }
 
   factory UserDeviceModel.fromJson(Map<String, dynamic> json) {
-    var deviceVsn = json['device_vsn'] ?? '{}';
-    try {
-      deviceVsn = jsonDecode(deviceVsn);
-    } catch (e) {
-      deviceVsn = {};
-    }
+    final deviceVsn = parseModelJsonMap(json['device_vsn']) ?? {};
     return UserDeviceModel(
-      deviceId: json['device_id'],
-      deviceName: json['device_name'],
-      deviceType: json['device_type'],
+      deviceId: parseModelString(json['device_id']),
+      deviceName: parseModelString(json['device_name']),
+      deviceType: parseModelString(json['device_type']),
       lastActiveAt: DateTimeHelper.parseTimestamp(json['last_active_at']),
       // 本地数据库 online ，线上获取有 online
-      online: json['online'] ?? false,
+      online: parseModelBool(json['online']),
       deviceVsn: deviceVsn,
     );
   }

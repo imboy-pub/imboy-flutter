@@ -13,6 +13,7 @@ class GroupDetailState {
   final bool isAdmin;
   final int role;
   final String? myGroupAlias;
+  final String? groupRemark; // 群备注（仅自己可见）
   final bool isLoading;
 
   const GroupDetailState({
@@ -23,6 +24,7 @@ class GroupDetailState {
     this.isAdmin = false,
     this.role = 0,
     this.myGroupAlias,
+    this.groupRemark,
     this.isLoading = false,
   });
 
@@ -34,6 +36,7 @@ class GroupDetailState {
     bool? isAdmin,
     int? role,
     String? myGroupAlias,
+    String? groupRemark,
     bool? isLoading,
   }) {
     return GroupDetailState(
@@ -44,6 +47,7 @@ class GroupDetailState {
       isAdmin: isAdmin ?? this.isAdmin,
       role: role ?? this.role,
       myGroupAlias: myGroupAlias ?? this.myGroupAlias,
+      groupRemark: groupRemark ?? this.groupRemark,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -110,5 +114,10 @@ class GroupDetailNotifier extends _$GroupDetailNotifier {
   /// 设置我的群组别名
   void setMyGroupAlias(String? alias) {
     state = state.copyWith(myGroupAlias: alias);
+  }
+
+  /// 设置群备注（仅自己可见）
+  void setGroupRemark(String? remark) {
+    state = state.copyWith(groupRemark: remark);
   }
 }

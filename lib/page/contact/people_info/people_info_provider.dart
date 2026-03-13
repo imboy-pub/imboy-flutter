@@ -117,8 +117,8 @@ class PeopleInfoNotifier extends _$PeopleInfoNotifier {
     switch (scene) {
       case 'qrcode':
         return 'qrcode';
-      case 'visit_card':
-        return 'visit_card';
+      case 'visitCard':
+        return 'visitCard';
       case 'people_nearby':
         return 'people_nearby';
       case 'recently_user':

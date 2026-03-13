@@ -59,7 +59,8 @@ class E2EEHealthCheckService {
   // ================================================================
 
   E2EEHealthCheckService._internal();
-  static final E2EEHealthCheckService _instance = E2EEHealthCheckService._internal();
+  static final E2EEHealthCheckService _instance =
+      E2EEHealthCheckService._internal();
   static E2EEHealthCheckService get to => _instance;
 
   // ================================================================
@@ -88,7 +89,7 @@ class E2EEHealthCheckService {
   }) async {
     try {
       // 获取当前密钥 ID
-      final currentKeyId = await StorageSecure().getKeyId();
+      final currentKeyId = await StorageSecureService.to.getKeyId();
 
       // 获取最新的设备密钥（强制刷新）
       final deviceKeys = await E2EEService.getUserDevicePublicKeys(
@@ -172,10 +173,7 @@ class E2EEHealthCheckService {
   Future<bool> syncFriendPublicKey(String uid) async {
     try {
       // 强制刷新缓存
-      await E2EEService.getUserDevicePublicKeys(
-        uid,
-        forceRefresh: true,
-      );
+      await E2EEService.getUserDevicePublicKeys(uid, forceRefresh: true);
 
       debugPrint('✅ [E2EE] 已同步好友 $uid 的公钥');
       return true;
@@ -310,7 +308,9 @@ class E2EEHealthCheckService {
   ///
   /// [conversationUk3] 会话 UK3（可选）
   /// Returns: 失败消息列表
-  Future<List<MessageModel>> _findFailedE2EEMessages(String? conversationUk3) async {
+  Future<List<MessageModel>> _findFailedE2EEMessages(
+    String? conversationUk3,
+  ) async {
     try {
       final db = await SqliteService.to.db;
       if (db == null) {
@@ -321,10 +321,7 @@ class E2EEHealthCheckService {
       final List<MessageModel> failedMessages = [];
 
       // 查询所有消息表
-      final tables = [
-        MessageRepo.c2cTable,
-        MessageRepo.c2gTable,
-      ];
+      final tables = [MessageRepo.c2cTable, MessageRepo.c2gTable];
 
       for (final table in tables) {
         // 检查表是否存在
@@ -437,13 +434,16 @@ class E2EEHealthCheckService {
       final result = await E2EEService.retryDecryptFailedMessage(payloadMap);
 
       // 检查是否解密成功
-      if (result.containsKey('_e2ee_failed') && result['_e2ee_failed'] == true) {
+      if (result.containsKey('_e2ee_failed') &&
+          result['_e2ee_failed'] == true) {
         debugPrint('⚠️ [E2EE] 消息 ${msg.id} 重试解密仍然失败');
         return false;
       }
 
       // 解密成功，更新数据库
-      final table = msg.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+      final table = msg.type == 'C2G'
+          ? MessageRepo.c2gTable
+          : MessageRepo.c2cTable;
       final repo = MessageRepo(tableName: table);
 
       await repo.update({
@@ -473,10 +473,7 @@ class E2EEHealthCheckService {
       }
 
       // 查询所有消息表
-      final tables = [
-        MessageRepo.c2cTable,
-        MessageRepo.c2gTable,
-      ];
+      final tables = [MessageRepo.c2cTable, MessageRepo.c2gTable];
 
       int totalMessages = 0;
       int failedMessages = 0;
@@ -518,7 +515,9 @@ class E2EEHealthCheckService {
       }
 
       final rate = failedMessages / totalMessages;
-      debugPrint('📊 [E2EE] 会话 $conversationUk3 解密失败率: ${(rate * 100).toStringAsFixed(2)}% ($failedMessages/$totalMessages)');
+      debugPrint(
+        '📊 [E2EE] 会话 $conversationUk3 解密失败率: ${(rate * 100).toStringAsFixed(2)}% ($failedMessages/$totalMessages)',
+      );
 
       return rate;
     } catch (e) {

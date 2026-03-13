@@ -355,13 +355,12 @@ class QuoteMessageBuilder extends StatelessWidget {
         ],
       );
     } else if (quoteMsg is CustomMessage) {
-      String customType = quoteMsg.metadata?['custom_type'] ?? '';
+      String msgType = quoteMsg.metadata?['msg_type'] ?? '';
       String displayText = '';
       IconData iconData = Icons.help_outline;
 
-      switch (customType) {
+      switch (msgType) {
         case 'voice':
-        case 'audio':
           displayText = t.voiceMessage;
           iconData = Icons.mic;
           break;
@@ -373,7 +372,7 @@ class QuoteMessageBuilder extends StatelessWidget {
           displayText = quoteMsg.metadata?['title'] ?? t.locationMessage;
           iconData = Icons.location_on;
           break;
-        case 'visit_card':
+        case 'visitCard':
           displayText = quoteMsg.metadata?['title'] ?? t.card;
           iconData = Icons.person;
           break;

@@ -431,7 +431,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           builder: (_) => MarkdownPage(
                             title: t.helpDocument,
                             url:
-                                "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/help_document.md",
+                                "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md",
                           ),
                         ),
                       );

@@ -23,8 +23,10 @@ class ChannelDiscoverPage extends ConsumerStatefulWidget {
 
 class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ChannelApi _api = ChannelApi();
   List<ChannelModel> _searchResults = [];
   List<ChannelModel> _recommendedChannels = [];
+  final Set<String> _subscribedChannelIds = <String>{};
   bool _isSearching = false;
   bool _hasSearched = false;
   bool _isLoadingRecommended = true;
@@ -32,13 +34,38 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   @override
   void initState() {
     super.initState();
-    _loadRecommendedChannels();
+    _loadInitialData();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadInitialData() async {
+    await Future.wait<void>([
+      _loadSubscribedChannelIds(),
+      _loadRecommendedChannels(),
+    ]);
+  }
+
+  Future<void> _loadSubscribedChannelIds() async {
+    try {
+      final channels = await _api.getSubscribedChannels(limit: 200);
+      if (!mounted) return;
+      setState(() {
+        _subscribedChannelIds
+          ..clear()
+          ..addAll(channels.map((e) => e.id));
+      });
+    } catch (_) {
+      // 忽略异常，保持当前页面可用
+    }
+  }
+
+  bool _isSubscribed(ChannelModel channel) {
+    return _subscribedChannelIds.contains(channel.id) || channel.isSubscribed;
   }
 
   /// 加载推荐频道
@@ -48,8 +75,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     });
 
     try {
-      final api = ChannelApi();
-      final channels = await api.discoverChannels(limit: 50);
+      final channels = await _api.discoverChannels(limit: 50);
       if (mounted) {
         setState(() {
           _recommendedChannels = channels;
@@ -82,7 +108,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
     try {
       final results = await ref
-          .read(channelListNotifierProvider.notifier)
+          .read(channelListProvider.notifier)
           .searchChannels(keyword);
       setState(() {
         _searchResults = results;
@@ -171,14 +197,21 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     }
 
     return RefreshIndicator(
-      onRefresh: _loadRecommendedChannels,
+      onRefresh: () async {
+        await Future.wait<void>([
+          _loadSubscribedChannelIds(),
+          _loadRecommendedChannels(),
+        ]);
+      },
       child: ListView.builder(
         itemCount: _recommendedChannels.length,
         itemBuilder: (context, index) {
           final channel = _recommendedChannels[index];
           return _SearchResultItem(
             channel: channel,
+            isSubscribed: _isSubscribed(channel),
             onSubscribe: () => _subscribeChannel(channel),
+            onUnsubscribe: () => _unsubscribeChannel(channel),
           );
         },
       ),
@@ -202,18 +235,27 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         final channel = _searchResults[index];
         return _SearchResultItem(
           channel: channel,
+          isSubscribed: _isSubscribed(channel),
           onSubscribe: () => _subscribeChannel(channel),
+          onUnsubscribe: () => _unsubscribeChannel(channel),
         );
       },
     );
   }
 
-  Future<void> _subscribeChannel(ChannelModel channel) async {
+  Future<bool> _subscribeChannel(ChannelModel channel) async {
     final t = context.t;
 
     final success = await ref
-        .read(channelListNotifierProvider.notifier)
+        .read(channelListProvider.notifier)
         .subscribeChannel(channel.id);
+
+    if (success && mounted) {
+      setState(() {
+        _subscribedChannelIds.add(channel.id);
+      });
+      await _loadSubscribedChannelIds();
+    }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -224,22 +266,79 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         ),
       );
     }
+
+    return success;
+  }
+
+  Future<bool> _unsubscribeChannel(ChannelModel channel) async {
+    final t = context.t;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.channel.unsubscribeConfirm),
+        content: Text(t.channel.unsubscribeConfirmDesc),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(t.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return false;
+
+    final success = await ref
+        .read(channelListProvider.notifier)
+        .unsubscribeChannel(channel.id);
+
+    if (success && mounted) {
+      setState(() {
+        _subscribedChannelIds.remove(channel.id);
+      });
+      await _loadSubscribedChannelIds();
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(success ? t.tipSuccess : t.tipFailed)),
+      );
+    }
+
+    return success;
   }
 }
 
 /// 搜索结果项
-class _SearchResultItem extends StatefulWidget {
+class _SearchResultItem extends ConsumerStatefulWidget {
   final ChannelModel channel;
-  final VoidCallback onSubscribe;
+  final bool isSubscribed;
+  final Future<bool> Function() onSubscribe;
+  final Future<bool> Function() onUnsubscribe;
 
-  const _SearchResultItem({required this.channel, required this.onSubscribe});
+  const _SearchResultItem({
+    required this.channel,
+    required this.isSubscribed,
+    required this.onSubscribe,
+    required this.onUnsubscribe,
+  });
 
   @override
-  State<_SearchResultItem> createState() => _SearchResultItemState();
+  ConsumerState<_SearchResultItem> createState() => _SearchResultItemState();
 }
 
-class _SearchResultItemState extends State<_SearchResultItem> {
-  bool _isSubscribed = false;
+class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
+  bool _isSubmitting = false;
+
+  String _detailRouteId(ChannelModel channel) {
+    final customId = channel.customId?.trim() ?? '';
+    if (customId.isNotEmpty) return customId;
+    return channel.id;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -312,24 +411,45 @@ class _SearchResultItemState extends State<_SearchResultItem> {
         ],
       ),
       isThreeLine: true,
-      trailing: _isSubscribed
-          ? OutlinedButton(
-              onPressed: () {
-                context.push('/channel/${widget.channel.id}');
-              },
-              child: Text(t.channel.view),
+      trailing: widget.isSubscribed
+          ? TextButton(
+              onPressed: _isSubmitting
+                  ? null
+                  : () async {
+                      setState(() => _isSubmitting = true);
+                      await widget.onUnsubscribe();
+                      if (mounted) {
+                        setState(() => _isSubmitting = false);
+                      }
+                    },
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(t.channel.unsubscribe),
             )
           : TextButton(
-              onPressed: () async {
-                widget.onSubscribe();
-                setState(() {
-                  _isSubscribed = true;
-                });
-              },
-              child: Text(t.channel.subscribe),
+              onPressed: _isSubmitting
+                  ? null
+                  : () async {
+                      setState(() => _isSubmitting = true);
+                      await widget.onSubscribe();
+                      if (mounted) {
+                        setState(() => _isSubmitting = false);
+                      }
+                    },
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(t.channel.subscribe),
             ),
       onTap: () {
-        context.push('/channel/${widget.channel.id}');
+        context.push('/channel/${_detailRouteId(widget.channel)}');
       },
     );
   }

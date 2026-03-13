@@ -49,7 +49,7 @@ class ClipPainter extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) {
-    // TODO: implement shouldReclip
+    // 始终重新裁剪，因为这是一个静态裁剪路径
     return true;
   }
 }

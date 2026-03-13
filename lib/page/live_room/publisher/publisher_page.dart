@@ -48,6 +48,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
 
     return Scaffold(
       appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
         titleWidget: const Text('WHIP Publisher Sample'),
         rightDMActions: const [],
       ),

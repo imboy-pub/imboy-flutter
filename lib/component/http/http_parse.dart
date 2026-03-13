@@ -41,15 +41,17 @@ IMBoyHttpResponse handleResponse(
     }
     // 安全访问响应数据
     final data = response.data;
-    final code = data is Map ? data['code'] : response.statusCode;
+    final code = data is Map
+        ? _normalizeErrorCode(data['code'], response.statusCode)
+        : (response.statusCode ?? 1);
     final msg = data is Map
-        ? data['msg']
+        ? '${data['msg'] ?? _getErrorMessageForStatusCode(response.statusCode)}'
         : _getErrorMessageForStatusCode(response.statusCode);
     final payload = data is Map ? data['payload'] : null;
 
     // 处理 429 Too Many Requests
     if (int.tryParse('$code') == ErrorCode.TOO_MANY_REQUESTS) {
-      EasyLoading.showError('$msg');
+      EasyLoading.showError(msg);
     }
     // 接口调用失败
     return IMBoyHttpResponse.failure(
@@ -64,6 +66,14 @@ IMBoyHttpResponse handleException(String uri, Exception exception) {
   var parseException = _parseException(exception);
   debugPrint("> on handleException $uri: ${parseException.message.toString()}");
   return IMBoyHttpResponse.failureFromError(error: parseException);
+}
+
+int _normalizeErrorCode(dynamic rawCode, int? fallbackStatus) {
+  if (rawCode is int) return rawCode;
+  if (rawCode is num) return rawCode.toInt();
+  final parsed = int.tryParse('$rawCode');
+  if (parsed != null) return parsed;
+  return fallbackStatus ?? 1;
 }
 
 /// 请求成功

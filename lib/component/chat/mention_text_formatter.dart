@@ -6,7 +6,6 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/mention_model.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 /// @提及文本格式化器
 class MentionTextFormatter {
@@ -21,7 +20,10 @@ class MentionTextFormatter {
   /// [mentionIds] 消息中的 mentionIds 列表
   ///
   /// 返回解析后的结果，包含文本和 @提及范围
-  static MentionParseResult parseMentions(String text, List<String>? mentionIds) {
+  static MentionParseResult parseMentions(
+    String text,
+    List<String>? mentionIds,
+  ) {
     if (mentionIds == null || mentionIds.isEmpty) {
       return MentionParseResult(text: text, mentionData: const MentionData());
     }
@@ -36,11 +38,13 @@ class MentionTextFormatter {
       // 检查是否是有效的 @提及（在 mentionIds 中）
       // 这里简化处理，实际应该匹配用户名
       if (mentionIds.contains(mentionText) || mentionText == '所有人') {
-        ranges.add(MentionRange(
-          start: match.start,
-          end: match.end,
-          userId: mentionText == '所有人' ? 'all' : mentionText,
-        ));
+        ranges.add(
+          MentionRange(
+            start: match.start,
+            end: match.end,
+            userId: mentionText == '所有人' ? 'all' : mentionText,
+          ),
+        );
       }
     }
 
@@ -78,7 +82,8 @@ class MentionTextFormatter {
     }
 
     // 检查当前用户是否被 @
-    final isMentioned = mentionIds.contains(currentUserId) || mentionIds.contains('all');
+    final isMentioned =
+        mentionIds.contains(currentUserId) || mentionIds.contains('all');
 
     // 构建富文本
     final spans = <InlineSpan>[];
@@ -87,10 +92,9 @@ class MentionTextFormatter {
     for (final range in ranges) {
       // 添加普通文本
       if (range.start > lastEnd) {
-        spans.add(TextSpan(
-          text: text.substring(lastEnd, range.start),
-          style: style,
-        ));
+        spans.add(
+          TextSpan(text: text.substring(lastEnd, range.start), style: style),
+        );
       }
 
       // 添加 @提及文本
@@ -98,28 +102,30 @@ class MentionTextFormatter {
 
       // 高亮样式
       final mentionStyle = style.copyWith(
-        color: _getMentionColor(isCurrentUser: isCurrentUser, isMentioned: isMentioned),
+        color: _getMentionColor(
+          isCurrentUser: isCurrentUser,
+          isMentioned: isMentioned,
+        ),
         fontWeight: FontWeight.w600,
       );
 
-      spans.add(TextSpan(
-        text: mentionText,
-        style: mentionStyle,
-        recognizer: onMentionTap != null
-            ? (TapGestureRecognizer()
-              ..onTap = () => onMentionTap(range.userId))
-            : null,
-      ));
+      spans.add(
+        TextSpan(
+          text: mentionText,
+          style: mentionStyle,
+          recognizer: onMentionTap != null
+              ? (TapGestureRecognizer()
+                  ..onTap = () => onMentionTap(range.userId))
+              : null,
+        ),
+      );
 
       lastEnd = range.end;
     }
 
     // 添加剩余的普通文本
     if (lastEnd < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastEnd),
-        style: style,
-      ));
+      spans.add(TextSpan(text: text.substring(lastEnd), style: style));
     }
 
     return RichText(
@@ -132,15 +138,17 @@ class MentionTextFormatter {
     required bool isCurrentUser,
     required bool isMentioned,
   }) {
+    const primaryColor = Color(0xFF1976D2);
+    const sentPrimaryColor = Color(0xFF90CAF9);
     if (isCurrentUser) {
       // 当前用户发送的消息
-      return ThemeManager.instance.getThemeColor('primaryLight');
+      return sentPrimaryColor;
     } else if (isMentioned) {
       // 当前用户被 @
-      return ThemeManager.instance.getThemeColor('primary');
+      return primaryColor;
     } else {
       // 其他 @提及
-      return ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.8);
+      return primaryColor.withValues(alpha: 0.8);
     }
   }
 
@@ -149,7 +157,11 @@ class MentionTextFormatter {
   /// [text] 文本内容
   /// [mentionIds] @提及 ID 列表
   /// [currentUserId] 当前用户ID
-  static bool isUserMentioned(String text, List<String>? mentionIds, String currentUserId) {
+  static bool isUserMentioned(
+    String text,
+    List<String>? mentionIds,
+    String currentUserId,
+  ) {
     if (mentionIds == null || mentionIds.isEmpty) {
       return false;
     }
@@ -160,7 +172,10 @@ class MentionTextFormatter {
   ///
   /// [text] 文本内容
   /// [candidateNames] 候选用户名映射 (displayName -> userId)
-  static List<String> extractMentionIds(String text, Map<String, String> candidateNames) {
+  static List<String> extractMentionIds(
+    String text,
+    Map<String, String> candidateNames,
+  ) {
     final mentionIds = <String>[];
     final matches = _mentionRegex.allMatches(text);
 
@@ -202,10 +217,7 @@ class MentionTextEditorHelper {
     final atIndex = text.lastIndexOf('@', selection.extentOffset - 1);
 
     if (atIndex == -1) {
-      return TextEditingValue(
-        text: text,
-        selection: selection,
-      );
+      return TextEditingValue(text: text, selection: selection);
     }
 
     // 构建新文本
@@ -231,7 +243,10 @@ class MentionTextEditorHelper {
   /// [selection] 当前光标位置
   ///
   /// 返回 (是否显示, 搜索关键词)
-  static (bool, String) detectMentionTrigger(String text, TextSelection selection) {
+  static (bool, String) detectMentionTrigger(
+    String text,
+    TextSelection selection,
+  ) {
     if (text.isEmpty || selection.extentOffset <= 0) {
       return (false, '');
     }

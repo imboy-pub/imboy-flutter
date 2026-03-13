@@ -206,17 +206,14 @@ class E2EETransferHandler {
       }
 
       // 2. 获取当前设备的密钥信息
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       final privateKey = await storage.getPrivateKey();
       final publicKey = await storage.getPublicKey();
       final deviceId = await storage.getDeviceId();
       final keyId = await storage.getKeyId();
 
       if (privateKey == null || publicKey == null) {
-        return TransferResult.failure(
-          '密钥信息不完整',
-          errorCode: 'incomplete_key',
-        );
+        return TransferResult.failure('密钥信息不完整', errorCode: 'incomplete_key');
       }
 
       // 3. 构建密钥包
@@ -231,7 +228,9 @@ class E2EETransferHandler {
       // 4. 获取目标用户的公钥用于加密
       // 注意：这里需要从服务器获取目标用户的公钥
       // 暂时使用明文传输（需要后续完善）
-      final encryptedBundle = base64.encode(utf8.encode(json.encode(keyBundle)));
+      final encryptedBundle = base64.encode(
+        utf8.encode(json.encode(keyBundle)),
+      );
 
       // 5. 调用服务创建传输会话
       final response = await E2EETransferService.createTransfer(
@@ -248,10 +247,7 @@ class E2EETransferHandler {
             ? DateTime.parse(response['expires_at'] as String)
             : null,
         createdAt: DateTime.now(),
-        metadata: {
-          'from_device_id': deviceId,
-          ...?extraMetadata,
-        },
+        metadata: {'from_device_id': deviceId, ...?extraMetadata},
       );
 
       return TransferResult.success(session);
@@ -269,7 +265,10 @@ class E2EETransferHandler {
   /// [extraData] 额外数据（可选）
   ///
   /// 返回可用于生成二维码的字符串
-  String generateQRCodeData(TransferSession session, {Map<String, dynamic>? extraData}) {
+  String generateQRCodeData(
+    TransferSession session, {
+    Map<String, dynamic>? extraData,
+  }) {
     return E2EETransferService.generateQRCodeData(
       session.sessionId,
       extra: {
@@ -305,7 +304,7 @@ class E2EETransferHandler {
   }) async {
     try {
       // 1. 获取当前设备 ID
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       final currentDeviceId = deviceId ?? await storage.getDeviceId() ?? '';
 
       // 2. 调用服务接受传输

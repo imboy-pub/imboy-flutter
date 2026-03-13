@@ -32,6 +32,10 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
   bool _isLoading = true;
   List<ContactModel> _contacts = [];
 
+  /// 缓存好友的公钥信息，避免重复请求
+  /// Key: peerId, Value: deviceId -> publicKey map
+  final Map<String, Map<String, String>> _cachedPublicKeys = {};
+
   @override
   void initState() {
     super.initState();
@@ -65,10 +69,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           );
           final didToPem = keyData['didToPem'] ?? {};
 
-          // 获取第一个可用设备的公钥
+          // 缓存公钥信息供后续使用
           if (didToPem.isNotEmpty) {
-            // TODO: 存储公钥信息供后续使用
-            didToPem.values.first;
+            _cachedPublicKeys[contact.peerId] = Map<String, String>.from(didToPem);
           }
 
           contactsWithKeys.add(contact);
@@ -130,10 +133,16 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         if (!_selectedUids.contains(contact.peerId)) continue;
 
         try {
-          final keyData = await E2EEService.getUserDevicePublicKeys(
-            contact.peerId,
-          );
-          final didToPem = keyData['didToPem'] ?? {};
+          // 优先使用缓存的公钥，避免重复请求
+          Map<String, String> didToPem = _cachedPublicKeys[contact.peerId] ?? {};
+
+          // 如果缓存中没有，从服务获取
+          if (didToPem.isEmpty) {
+            final keyData = await E2EEService.getUserDevicePublicKeys(
+              contact.peerId,
+            );
+            didToPem = Map<String, String>.from(keyData['didToPem'] ?? {});
+          }
 
           // 获取第一个可用设备的公钥
           String publicKey = '';

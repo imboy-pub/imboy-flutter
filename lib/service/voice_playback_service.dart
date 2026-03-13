@@ -52,9 +52,6 @@ class VoicePlaybackService extends _$VoicePlaybackService {
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<Duration?>? _durationSubscription;
 
-  // 播放完成回调，用于自动连播
-  Future<void> Function(String currentMessageId)? onPlaybackCompleted;
-
   @override
   VoicePlaybackState build() {
     // 初始化音频播放器
@@ -96,11 +93,7 @@ class VoicePlaybackService extends _$VoicePlaybackService {
       );
 
       if (playerState.processingState == ProcessingState.completed) {
-        final finishedId = state.currentMessageId;
         await stop();
-        if (onPlaybackCompleted != null) {
-          await onPlaybackCompleted!(finishedId);
-        }
       }
     });
 
@@ -175,138 +168,4 @@ class VoicePlaybackService extends _$VoicePlaybackService {
     await _audioPlayer?.stop();
     state = const VoicePlaybackState();
   }
-}
-
-/// 向后兼容的辅助类
-/// 用于支持仍在使用 GetX 单例模式的旧代码
-/// 新代码应该直接使用 voicePlaybackServiceProvider
-class VoicePlaybackHelper {
-  VoicePlaybackHelper._();
-
-  static ProviderContainer? _container;
-
-  /// 初始化容器（需要在应用启动时调用）
-  static void init(ProviderContainer container) {
-    _container = container;
-  }
-
-  /// 获取当前播放的音频路径
-  String get currentAudioPath {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    return _container!.read(voicePlaybackServiceProvider).currentAudioPath;
-  }
-
-  /// 获取当前播放的消息ID
-  String get currentMessageId {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    return _container!.read(voicePlaybackServiceProvider).currentMessageId;
-  }
-
-  /// 检查是否正在播放
-  bool get isPlaying {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    return _container!.read(voicePlaybackServiceProvider).isPlaying;
-  }
-
-  /// 检查是否暂停
-  bool get isPaused {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    return _container!.read(voicePlaybackServiceProvider).isPaused;
-  }
-
-  /// 获取当前播放位置
-  int get currentPosition {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    return _container!.read(voicePlaybackServiceProvider).currentPosition;
-  }
-
-  /// 获取当前音频时长
-  int get currentDuration {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    return _container!.read(voicePlaybackServiceProvider).currentDuration;
-  }
-
-  /// 单例访问（向后兼容）
-  static final VoicePlaybackHelper to = VoicePlaybackHelper._();
-
-  /// 播放音频
-  Future<void> play({
-    required String audioPath,
-    required String messageId,
-    int? durationMs,
-    Future<void> Function(String)? onPlaybackCompleted,
-  }) async {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    final notifier = _container!.read(voicePlaybackServiceProvider.notifier);
-    notifier.onPlaybackCompleted = onPlaybackCompleted;
-    await notifier.play(
-      path: audioPath,
-      messageId: messageId,
-      durationMs: durationMs,
-    );
-  }
-
-  /// 暂停播放
-  Future<void> pause() async {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    await _container!.read(voicePlaybackServiceProvider.notifier).pause();
-  }
-
-  /// 恢复播放
-  Future<void> resume() async {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    await _container!.read(voicePlaybackServiceProvider.notifier).resume();
-  }
-
-  /// 停止播放
-  Future<void> stop() async {
-    if (_container == null) {
-      throw Exception(
-        'VoicePlaybackHelper not initialized. Call init() first.',
-      );
-    }
-    await _container!.read(voicePlaybackServiceProvider.notifier).stop();
-  }
-}
-
-/// 向后兼容：VoicePlaybackService.to 访问方式
-/// 旧代码可以使用 VoicePlaybackService.to 来访问服务
-extension VoicePlaybackServiceExtension on VoicePlaybackService {
-  static VoicePlaybackHelper get to => VoicePlaybackHelper.to;
 }

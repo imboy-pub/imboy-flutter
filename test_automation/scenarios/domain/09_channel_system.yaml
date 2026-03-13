@@ -1,0 +1,16 @@
+schema_version: 1
+domain_id: "channel_system"
+feature_name_cn: "频道系统"
+description: "覆盖频道集成契约、发布、编辑持久化和订阅详情一致性。"
+priority: "P0"
+case_count: 4
+auto_cases: 4
+manual_assist_cases: 0
+case_files:
+  - "test_automation/scenarios/cases/09_channel_system/channel_01_channel_integration.yaml"
+  - "test_automation/scenarios/cases/09_channel_system/channel_02_channel_publish_ui.yaml"
+  - "test_automation/scenarios/cases/09_channel_system/channel_03_channel_edit_persistence.yaml"
+  - "test_automation/scenarios/cases/09_channel_system/channel_04_channel_subscribed_consistency.yaml"
+ui_ux_focus:
+  - "频道详情与消息流可达性"
+  - "发布与编辑操作反馈一致"

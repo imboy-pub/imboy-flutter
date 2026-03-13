@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -198,10 +200,10 @@ class ProfileNotifier extends _$ProfileNotifier {
     String completenessLevel;
     Color completenessColor;
     if (completeness >= 80) {
-      completenessLevel = '优秀'; // TODO: 使用国际化
+      completenessLevel = t.good; // 使用 "很棒" / "Great"
       completenessColor = Colors.green;
     } else if (completeness >= 60) {
-      completenessLevel = '良好';
+      completenessLevel = t.good; // 使用 "很棒" / "Great"
       completenessColor = Colors.orange;
     } else {
       completenessLevel = t.toBeCompleted;
@@ -328,6 +330,22 @@ class ProfileNotifier extends _$ProfileNotifier {
     }
   }
 
+  /// 修改用户信息的便捷方法
+  /// 
+  /// 参数 data 格式: {"field": "字段名", "value": "值"}
+  /// 返回: 成功返回 true，失败返回 false
+  Future<bool> changeInfo(Map<String, dynamic> data) async {
+    final field = data['field'] as String?;
+    final value = data['value'];
+    
+    if (field == null) {
+      iPrint('changeInfo: field 不能为空');
+      return false;
+    }
+    
+    return updateUserInfo(field, value);
+  }
+
   /// 选择图片
   Future<File?> pickImage(ImageSource source) async {
     try {
@@ -365,6 +383,74 @@ class ProfileNotifier extends _$ProfileNotifier {
       return success;
     } catch (e) {
       iPrint('上传头像失败: $e');
+      return false;
+    } finally {
+      state = state.copyWith(isUploading: false);
+    }
+  }
+
+  /// 上传背景图片
+  ///
+  /// [imagePath] 图片本地路径
+  /// Returns: 上传成功返回 true，否则返回 false
+  Future<bool> uploadBackground(String imagePath) async {
+    try {
+      state = state.copyWith(isUploading: true);
+
+      final imageFile = File(imagePath);
+      if (!await imageFile.exists()) {
+        iPrint('背景图片文件不存在: $imagePath');
+        return false;
+      }
+
+      // 使用 AttachmentApi 上传文件
+      Completer<bool> completer = Completer<bool>();
+      String? backgroundUrl;
+
+      await AttachmentApi.uploadFile(
+        'background',
+        imageFile,
+        (Map<String, dynamic> resp, String url) {
+          String status = resp['status'] ?? '';
+          if (status == 'ok') {
+            backgroundUrl = url;
+            iPrint('背景图片上传成功: $backgroundUrl');
+            completer.complete(true);
+          } else {
+            iPrint('背景图片上传失败: ${resp['message'] ?? '未知错误'}');
+            completer.complete(false);
+          }
+        },
+        (error) {
+          iPrint('背景图片上传异常: $error');
+          completer.complete(false);
+        },
+        process: true,
+      );
+
+      // 等待上传完成
+      final uploadSuccess = await completer.future;
+
+      if (!uploadSuccess || backgroundUrl == null) {
+        return false;
+      }
+
+      // 更新背景图片字段到用户信息
+      bool success = await changeInfo({
+        "field": "background",
+        "value": backgroundUrl,
+      });
+
+      if (success) {
+        // 更新本地用户信息
+        final payload = UserRepoLocal.to.current.toMap();
+        payload['background'] = backgroundUrl;
+        UserRepoLocal.to.changeInfo(payload);
+      }
+
+      return success;
+    } catch (e) {
+      iPrint('上传背景图片失败: $e');
       return false;
     } finally {
       state = state.copyWith(isUploading: false);

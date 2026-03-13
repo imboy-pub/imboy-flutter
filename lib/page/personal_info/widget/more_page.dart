@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import '../update/update_page.dart';
 import '../set_gender/set_gender_page.dart';
 import '../set_region/set_region_page.dart';
+import '../personal_info/personal_info_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -221,8 +222,17 @@ class MorePage extends ConsumerWidget {
           title: t.region,
           currentValue: UserRepoLocal.to.current.region,
           onSave: (val) async {
-            // TODO: 实现地区更新逻辑
-            return true;
+            final success = await ref
+                .read(personalInfoProvider.notifier)
+                .changeInfo({"field": "region", "value": val});
+            if (success) {
+              // 更新本地数据
+              final payload = UserRepoLocal.to.current.toMap();
+              payload['region'] = val;
+              UserRepoLocal.to.changeInfo(payload);
+              return true;
+            }
+            return false;
           },
         ),
       ),
@@ -240,8 +250,17 @@ class MorePage extends ConsumerWidget {
           field: 'input',
           maxLength: 200, // 签名通常可以长一点
           callback: (val) async {
-            // TODO: 实现签名更新逻辑
-            return true;
+            final success = await ref
+                .read(personalInfoProvider.notifier)
+                .changeInfo({"field": "sign", "value": val});
+            if (success) {
+              // 更新本地数据
+              final payload = UserRepoLocal.to.current.toMap();
+              payload['sign'] = val;
+              UserRepoLocal.to.changeInfo(payload);
+              return true;
+            }
+            return false;
           },
         ),
       ),

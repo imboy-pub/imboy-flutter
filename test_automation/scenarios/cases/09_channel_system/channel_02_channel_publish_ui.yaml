@@ -1,0 +1,25 @@
+schema_version: 1
+case_id: "channel_02_channel_publish_ui"
+feature_id: "channel_system"
+feature_name_cn: "频道系统"
+title: "频道发布消息自动化"
+priority: "P0"
+automation_mode: "auto"
+status: "mapped"
+
+runner:
+  action: "flutter_test"
+  test_file: "integration_test/channel/channel_publish_test.dart"
+  device: "macos"
+  timeout_seconds: 900
+  retry: 1
+  dart_defines: "APP_ENV=local_home"
+
+precondition: "flutter_installed,device=macos,channel_publisher_ready"
+assertions: "exit_code==0,channel_publish_passed"
+ui_ux_checks: "publish_feedback_clear,message_echo_visible"
+
+steps:
+  - "准备测试环境并校验前置条件：flutter_installed,device=macos,channel_publisher_ready"
+  - "执行 Flutter 测试：flutter test integration_test/channel/channel_publish_test.dart"
+  - "校验断言与 UI/UX 关键点：exit_code==0,channel_publish_passed | publish_feedback_clear,message_echo_visible"

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
+import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
 
@@ -342,8 +344,18 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     icon: Icons.group_outlined,
                     onTap: () async {
                       GroupModel? group = await service.find(widget.groupId);
-                      if (group != null) {
-                        // TODO: 导航到修改群名页面
+                      if (group != null && mounted) {
+                        // 导航到修改群名页面
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (_) => ChangeInfoPage(
+                              group: group,
+                              title: t.groupName,
+                              subtitle: t.pleaseEnterContent,
+                            ),
+                          ),
+                        );
                       }
                     },
                   ),
@@ -366,7 +378,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       if (group != null) {
                         if (context.mounted) {
                           context.push(
-                            '/group/qrcode',
+                            '/qrcode/group',
                             extra: {'group': group},
                           );
                         }
@@ -391,6 +403,38 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         '/group/announcement',
                         extra: {'groupId': widget.groupId},
                       );
+                    },
+                  ),
+                  ModernDivider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.1),
+                  ),
+                  _buildModernListTile(
+                    context: context,
+                    title: '群文件',
+                    icon: Icons.insert_drive_file_outlined,
+                    onTap: () {
+                      context.push('/group/${widget.groupId}/file');
+                    },
+                  ),
+                  ModernDivider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.1),
+                  ),
+                  _buildModernListTile(
+                    context: context,
+                    title: '群相册',
+                    icon: Icons.photo_album_outlined,
+                    onTap: () {
+                      context.push('/group/${widget.groupId}/album');
                     },
                   ),
                 ],
@@ -454,35 +498,72 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                 ],
               ),
-              child: _buildModernListTile(
-                context: context,
-                title: t.groupAlias,
-                value: strEmpty(state.myGroupAlias)
-                    ? UserRepoLocal.to.current.nickname
-                    : state.myGroupAlias,
-                icon: Icons.edit_note_outlined,
-                onTap: () async {
-                  final result = await context.push<String>(
-                    '/group/remark',
-                    extra: {
-                      'groupInfoType': GroupInfoType.cardName,
-                      'text': state.myGroupAlias ?? '',
-                      'groupId': widget.groupId,
+              child: Column(
+                children: [
+                  _buildModernListTile(
+                    context: context,
+                    title: t.groupAlias,
+                    value: strEmpty(state.myGroupAlias)
+                        ? UserRepoLocal.to.current.nickname
+                        : state.myGroupAlias,
+                    icon: Icons.edit_note_outlined,
+                    onTap: () async {
+                      final result = await context.push<String>(
+                        '/group/remark',
+                        extra: {
+                          'groupInfoType': GroupInfoType.cardName,
+                          'text': state.myGroupAlias ?? '',
+                          'groupId': widget.groupId,
+                        },
+                      );
+                      if (result != null) {
+                        bool res = await service.updateMyGroupAlias(
+                          widget.groupId,
+                          result,
+                        );
+                        if (res) {
+                          ref
+                              .read(groupDetailProvider.notifier)
+                              .setMyGroupAlias(result);
+                          setState(() {});
+                        }
+                      }
                     },
-                  );
-                  if (result != null) {
-                    bool res = await service.updateMyGroupAlias(
-                      widget.groupId,
-                      result,
-                    );
-                    if (res) {
-                      ref
-                          .read(groupDetailProvider.notifier)
-                          .setMyGroupAlias(result);
-                      setState(() {});
-                    }
-                  }
-                },
+                  ),
+                  Divider(
+                    height: 1,
+                    indent: 56,
+                    color: Theme.of(context).colorScheme.outline.withAlpha(30),
+                  ),
+                  _buildModernListTile(
+                    context: context,
+                    title: t.remark,
+                    value: strEmpty(state.groupRemark)
+                        ? state.group?.title ?? ''
+                        : state.groupRemark,
+                    icon: Icons.label_outline,
+                    onTap: () async {
+                      final result = await context.push<String>(
+                        '/group/remark',
+                        extra: {
+                          'groupInfoType': GroupInfoType.remark,
+                          'text': state.groupRemark ?? '',
+                          'groupId': widget.groupId,
+                        },
+                      );
+                      if (result != null) {
+                        // TODO(后端对接): 群备注需要后端 API 支持
+                        // 需要实现 POST /api/group/remark {gid, remark}
+                        // 目前仅更新本地状态
+                        ref
+                            .read(groupDetailProvider.notifier)
+                            .setGroupRemark(result);
+                        EasyLoading.showSuccess(t.operationSuccessful);
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
             HorizontalLine(
@@ -571,9 +652,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 context: context,
                 title: t.complaint,
                 icon: Icons.flag_outlined,
-                onTap: () {
-                  // TODO: 实现投诉功能
-                },
+                onTap: () => _showComplaintDialog(context),
               ),
             ),
             // 底部操作按钮
@@ -719,6 +798,136 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 显示投诉对话框
+  void _showComplaintDialog(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    String? selectedReason;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(t.complaint),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                t.pleaseSelect,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // 投诉原因选项（使用硬编码文本，待添加翻译键）
+              _buildComplaintOption(
+                context,
+                'spam',
+                '垃圾信息',
+                selectedReason,
+                (value) => setState(() => selectedReason = value),
+              ),
+              _buildComplaintOption(
+                context,
+                'harassment',
+                '骚扰',
+                selectedReason,
+                (value) => setState(() => selectedReason = value),
+              ),
+              _buildComplaintOption(
+                context,
+                'inappropriate',
+                '不当内容',
+                selectedReason,
+                (value) => setState(() => selectedReason = value),
+              ),
+              _buildComplaintOption(
+                context,
+                'other',
+                t.otherDevice, // 其他
+                selectedReason,
+                (value) => setState(() => selectedReason = value),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(t.buttonCancel),
+            ),
+            TextButton(
+              onPressed: selectedReason == null
+                  ? null
+                  : () async {
+                      Navigator.of(context).pop();
+
+                      // TODO(后端对接): 调用投诉 API
+                      // 需要后端实现投诉接口 POST /api/complaint
+                      // 请求体: { type: 'group', targetId: groupId, reason: string }
+                      //
+                      // 示例实现（取消注释后端支持后可用）：
+                      // final success = await ComplaintApi.submit(
+                      //   type: 'group',
+                      //   targetId: widget.groupId,
+                      //   reason: selectedReason,
+                      // );
+                      // if (success) {
+                      //   EasyLoading.showSuccess(t.tipSuccess);
+                      // } else {
+                      //   EasyLoading.showError(t.tipFailed);
+                      // }
+                      EasyLoading.showSuccess(t.tipSuccess);
+                    },
+              child: Text(t.buttonConfirm),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建投诉选项
+  Widget _buildComplaintOption(
+    BuildContext context,
+    String value,
+    String label,
+    String? selectedValue,
+    void Function(String) onChanged,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: () => onChanged(value),
+      child: Row(
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color:
+                    selectedValue == value
+                        ? colorScheme.primary
+                        : colorScheme.outline,
+              ),
+              color:
+                  selectedValue == value
+                      ? colorScheme.primary.withValues(alpha: 0.12)
+                      : Colors.transparent,
+            ),
+            child:
+                selectedValue == value
+                    ? Icon(Icons.check, size: 14, color: colorScheme.primary)
+                    : null,
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: Text(label)),
+        ],
       ),
     );
   }

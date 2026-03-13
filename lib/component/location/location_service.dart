@@ -263,11 +263,3 @@ class LocationService {
     }
   }
 }
-
-// 为了保持向后兼容，提供一个便捷方法
-///
-/// 获取当前位置的便捷方法
-/// 直接调用 LocationService().getCurrentPosition()
-Future<AMapPosition?> getCurrentPosition() {
-  return LocationService().getCurrentPosition();
-}

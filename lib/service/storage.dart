@@ -26,7 +26,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// 迁移说明：
 /// - 已从 GetxService 迁移为标准 Dart 单例模式
-/// - 保持与原有代码的 API 兼容性（StorageService.to 访问方式）
 /// - 移除了 GetX 依赖
 class StorageService {
   // 单例实例
@@ -142,12 +141,6 @@ class StorageService {
       throw Exception('StorageService not initialized. Call init() first.');
     }
     return _prefs!.getStringList(key);
-  }
-
-  /// 存储字符串列表（别名方法）
-  /// Store string list (alias method)
-  Future<bool> setStringList(String key, List<String> value) async {
-    return await setList(key, value);
   }
 
   /// 删除指定键的值

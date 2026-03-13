@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/store/model/model_parse_utils.dart';
+
 /// 频道消息模型
 ///
 /// 频道消息与普通 C2C/Group 消息的区别：
@@ -36,48 +38,21 @@ class ChannelMessageModel {
   });
 
   factory ChannelMessageModel.fromJson(Map<String, dynamic> json) {
-    Map<String, dynamic>? payloadData;
-    if (json['payload'] != null) {
-      if (json['payload'] is String) {
-        try {
-          payloadData = jsonDecode(json['payload'] as String)
-              as Map<String, dynamic>?;
-        } catch (_) {
-          payloadData = null;
-        }
-      } else if (json['payload'] is Map<String, dynamic>) {
-        payloadData = json['payload'] as Map<String, dynamic>;
-      }
-    }
-
-    Map<String, int>? reactions;
-    if (json['reaction_summary'] != null) {
-      if (json['reaction_summary'] is String) {
-        try {
-          reactions = Map<String, int>.from(
-              jsonDecode(json['reaction_summary'] as String));
-        } catch (_) {
-          reactions = null;
-        }
-      } else if (json['reaction_summary'] is Map) {
-        reactions = Map<String, int>.from(json['reaction_summary'] as Map);
-      }
-    }
+    final payloadData = _parsePayload(json['payload']);
+    final reactions = _parseReactionSummary(json['reaction_summary']);
 
     return ChannelMessageModel(
-      id: json['id'] as String,
-      channelId: json['channel_id'] as String,
-      authorId: json['author_id'] as String?,
-      authorName: json['author_name'] as String?,
-      authorAvatar: json['author_avatar'] as String?,
-      content: json['content'] as String? ?? '',
-      msgType: json['msg_type'] as String? ?? 'channel_text',
+      id: parseModelString(json['id']),
+      channelId: parseModelString(json['channel_id']),
+      authorId: parseModelNullableString(json['author_id']),
+      authorName: parseModelNullableString(json['author_name']),
+      authorAvatar: parseModelNullableString(json['author_avatar']),
+      content: parseModelString(json['content']),
+      msgType: parseModelString(json['msg_type'], defaultValue: 'channel_text'),
       payload: payloadData,
-      createdAt: json['created_at'] is int
-          ? DateTime.fromMillisecondsSinceEpoch(json['created_at'] as int)
-          : DateTime.parse(json['created_at'] as String),
-      isPinned: (json['is_pinned'] as int? ?? 0) == 1,
-      viewCount: json['view_count'] as int? ?? 0,
+      createdAt: parseModelDateTime(json['created_at']),
+      isPinned: parseModelBool(json['is_pinned']),
+      viewCount: parseModelInt(json['view_count']),
       reactionSummary: reactions,
     );
   }
@@ -95,48 +70,59 @@ class ChannelMessageModel {
       'created_at': createdAt.millisecondsSinceEpoch,
       'is_pinned': isPinned ? 1 : 0,
       'view_count': viewCount,
-      'reaction_summary':
-          reactionSummary != null ? jsonEncode(reactionSummary) : null,
+      'reaction_summary': reactionSummary != null
+          ? jsonEncode(reactionSummary)
+          : null,
     };
   }
 
   /// 从 SQLite Map 创建
   factory ChannelMessageModel.fromMap(Map<String, dynamic> map) {
-    Map<String, dynamic>? payloadData;
-    if (map['payload'] != null && map['payload'].toString().isNotEmpty) {
-      try {
-        payloadData =
-            jsonDecode(map['payload'] as String) as Map<String, dynamic>?;
-      } catch (_) {
-        payloadData = null;
-      }
-    }
-
-    Map<String, int>? reactions;
-    if (map['reaction_summary'] != null &&
-        map['reaction_summary'].toString().isNotEmpty) {
-      try {
-        reactions = Map<String, int>.from(
-            jsonDecode(map['reaction_summary'] as String));
-      } catch (_) {
-        reactions = null;
-      }
-    }
+    final payloadData = _parsePayload(map['payload']);
+    final reactions = _parseReactionSummary(map['reaction_summary']);
 
     return ChannelMessageModel(
-      id: map['id'] as String,
-      channelId: map['channel_id'] as String,
-      authorId: map['author_id'] as String?,
-      authorName: map['author_name'] as String?,
-      authorAvatar: map['author_avatar'] as String?,
-      content: map['content'] as String? ?? '',
-      msgType: map['msg_type'] as String? ?? 'channel_text',
+      id: parseModelString(map['id']),
+      channelId: parseModelString(map['channel_id']),
+      authorId: parseModelNullableString(map['author_id']),
+      authorName: parseModelNullableString(map['author_name']),
+      authorAvatar: parseModelNullableString(map['author_avatar']),
+      content: parseModelString(map['content']),
+      msgType: parseModelString(map['msg_type'], defaultValue: 'channel_text'),
       payload: payloadData,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      isPinned: (map['is_pinned'] as int? ?? 0) == 1,
-      viewCount: map['view_count'] as int? ?? 0,
+      createdAt: parseModelDateTime(map['created_at']),
+      isPinned: parseModelBool(map['is_pinned']),
+      viewCount: parseModelInt(map['view_count']),
       reactionSummary: reactions,
     );
+  }
+
+  static Map<String, dynamic>? _parsePayload(dynamic value) {
+    return parseModelJsonMap(value);
+  }
+
+  static Map<String, int>? _parseReactionSummary(dynamic value) {
+    if (value == null) return null;
+
+    dynamic source = value;
+    if (source is String) {
+      if (source.isEmpty) return null;
+      try {
+        source = jsonDecode(source);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    if (source is Map) {
+      final result = <String, int>{};
+      for (final entry in source.entries) {
+        result[entry.key.toString()] = parseModelInt(entry.value);
+      }
+      return result;
+    }
+
+    return null;
   }
 
   /// 转换为 SQLite Map
@@ -153,8 +139,9 @@ class ChannelMessageModel {
       'created_at': createdAt.millisecondsSinceEpoch,
       'is_pinned': isPinned ? 1 : 0,
       'view_count': viewCount,
-      'reaction_summary':
-          reactionSummary != null ? jsonEncode(reactionSummary) : null,
+      'reaction_summary': reactionSummary != null
+          ? jsonEncode(reactionSummary)
+          : null,
     };
   }
 
@@ -164,9 +151,7 @@ class ChannelMessageModel {
   String get contentPreview {
     switch (msgType) {
       case 'channel_text':
-        return content.length > 50
-            ? '${content.substring(0, 50)}...'
-            : content;
+        return content.length > 50 ? '${content.substring(0, 50)}...' : content;
       case 'channel_image':
         return '[图片]';
       case 'channel_video':

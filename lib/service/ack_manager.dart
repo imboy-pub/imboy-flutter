@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
@@ -67,6 +68,24 @@ class AckManager {
   /// 重试间隔（毫秒）
   static const int _retryInterval = 3000; // 3秒
 
+  /// ACK RTT 观测窗口大小（用于分位统计）
+  static const int _maxAckRttSamples = 200;
+
+  /// 最近重试上限告警事件保留条数
+  static const int _maxRetryCeilingEvents = 20;
+
+  /// ACK RTT 样本（毫秒）
+  final List<int> _ackRttSamples = [];
+
+  /// 最近重试上限命中记录
+  final List<Map<String, dynamic>> _recentRetryCeilingHits = [];
+
+  /// 重试上限命中总次数
+  int _retryCeilingHitCount = 0;
+
+  /// 最新 ACK RTT（毫秒）
+  int? _lastAckRttMs;
+
   void _init() {
     if (_isInitialized) return;
 
@@ -94,6 +113,7 @@ class AckManager {
     _timerCleanupTimer = null;
     // 清理待确认 ACK
     _pendingAcks.clear();
+    _resetRuntimeStats();
     _isInitialized = false;
     iPrint('🗑️ [ACK_MANAGER] dispose 完成，所有资源已清理');
   }
@@ -113,6 +133,111 @@ class AckManager {
     if (timer != null) {
       timer.cancel();
     }
+  }
+
+  void _resetRuntimeStats() {
+    _ackRttSamples.clear();
+    _recentRetryCeilingHits.clear();
+    _retryCeilingHitCount = 0;
+    _lastAckRttMs = null;
+  }
+
+  _AckRttPercentiles _computeAckPercentiles() {
+    if (_ackRttSamples.isEmpty) {
+      return const _AckRttPercentiles();
+    }
+    final sorted = List<int>.from(_ackRttSamples)..sort();
+    return _AckRttPercentiles(
+      p50: _percentileOfSorted(sorted, 0.50),
+      p90: _percentileOfSorted(sorted, 0.90),
+      p95: _percentileOfSorted(sorted, 0.95),
+      p99: _percentileOfSorted(sorted, 0.99),
+    );
+  }
+
+  int _percentileOfSorted(List<int> sorted, double percentile) {
+    if (sorted.isEmpty) return 0;
+    final rawIndex = ((sorted.length - 1) * percentile).round();
+    final index = rawIndex.clamp(0, sorted.length - 1);
+    return sorted[index];
+  }
+
+  void _recordAckConfirmationMetrics(_PendingAck ack) {
+    final now = DateTimeHelper.millisecond();
+    final rttMs = (now - ack.sendTime).clamp(0, 24 * 60 * 60 * 1000).toInt();
+
+    _lastAckRttMs = rttMs;
+    _ackRttSamples.add(rttMs);
+    if (_ackRttSamples.length > _maxAckRttSamples) {
+      _ackRttSamples.removeAt(0);
+    }
+
+    final percentiles = _computeAckPercentiles();
+    AppEventBus.fire(
+      AckRttMetricsUpdatedEvent(
+        messageId: ack.msgId,
+        messageType: ack.type,
+        rttMs: rttMs,
+        retryCount: ack.retryCount,
+        sampleCount: _ackRttSamples.length,
+        p50Ms: percentiles.p50,
+        p90Ms: percentiles.p90,
+        p95Ms: percentiles.p95,
+        p99Ms: percentiles.p99,
+      ),
+    );
+
+    iPrint(
+      '📈 [ACK_MANAGER] ACK RTT: msgId=${ack.msgId}, rtt=${rttMs}ms, p50=${percentiles.p50}ms, p95=${percentiles.p95}ms',
+    );
+  }
+
+  void _recordRetryCeilingHit(_PendingAck ack) {
+    final now = DateTimeHelper.millisecond();
+    _retryCeilingHitCount++;
+
+    final ceilingEvent = <String, dynamic>{
+      'message_id': ack.msgId,
+      'message_type': ack.type,
+      'retry_count': ack.retryCount,
+      'max_retry_count': _maxRetries,
+      'occurred_at_ms': now,
+    };
+    _recentRetryCeilingHits.add(ceilingEvent);
+    if (_recentRetryCeilingHits.length > _maxRetryCeilingEvents) {
+      _recentRetryCeilingHits.removeAt(0);
+    }
+
+    AppEventBus.fire(
+      AckRetryCeilingReachedEvent(
+        messageId: ack.msgId,
+        messageType: ack.type,
+        retryCount: ack.retryCount,
+        maxRetryCount: _maxRetries,
+        pendingCount: _pendingAcks.length,
+        occurredAtMs: now,
+      ),
+    );
+
+    iPrint(
+      '🚨 [ACK_MANAGER] ACK重试达到上限: msgId=${ack.msgId}, retry=${ack.retryCount}/$_maxRetries',
+    );
+  }
+
+  @visibleForTesting
+  void debugMarkRetryCeilingReached({
+    required String messageId,
+    String messageType = 'C2C',
+    int retryCount = _maxRetries,
+  }) {
+    final mockAck = _PendingAck(
+      msgId: messageId,
+      type: messageType,
+      content: '',
+      sendTime: DateTimeHelper.millisecond(),
+      retryCount: retryCount,
+    );
+    _recordRetryCeilingHit(mockAck);
   }
 
   /// 发送ACK（带重试机制）
@@ -271,6 +396,7 @@ class AckManager {
 
         // 达到最大重试次数
         if (ack.retryCount >= _maxRetries) {
+          _recordRetryCeilingHit(ack);
           iPrint('❌ [ACK_MANAGER] ACK发送失败，已达最大重试次数: msgId=$msgId');
           _pendingAcks.remove(msgId);
           return;
@@ -308,7 +434,9 @@ class AckManager {
   void ackConfirmed(String msgId) {
     // 【修复】取消对应的 Timer
     _cancelTimer(msgId);
-    if (_pendingAcks.remove(msgId) != null) {
+    final ack = _pendingAcks.remove(msgId);
+    if (ack != null) {
+      _recordAckConfirmationMetrics(ack);
       iPrint('✅ [ACK_MANAGER] ACK已确认: msgId=$msgId');
     }
   }
@@ -325,6 +453,7 @@ class AckManager {
     _cancelAllTimers();
     final count = _pendingAcks.length;
     _pendingAcks.clear();
+    _resetRuntimeStats();
     iPrint('🗑️ [ACK_MANAGER] 已清理 $count 个待确认ACK');
   }
 
@@ -375,13 +504,38 @@ class AckManager {
 
   /// 获取ACK统计信息
   Map<String, dynamic> getStats() {
+    final percentiles = _computeAckPercentiles();
     return {
       'pending_count': _pendingAcks.length,
       'max_retries': _maxRetries,
       'retry_interval_ms': _retryInterval,
       'pending_ack_list': pendingAckList,
+      'ack_rtt_sample_count': _ackRttSamples.length,
+      'ack_rtt_last_ms': _lastAckRttMs,
+      'ack_rtt_p50_ms': percentiles.p50,
+      'ack_rtt_p90_ms': percentiles.p90,
+      'ack_rtt_p95_ms': percentiles.p95,
+      'ack_rtt_p99_ms': percentiles.p99,
+      'retry_ceiling_hit_count': _retryCeilingHitCount,
+      'recent_retry_ceiling_hits': List<Map<String, dynamic>>.from(
+        _recentRetryCeilingHits,
+      ),
     };
   }
+}
+
+class _AckRttPercentiles {
+  final int p50;
+  final int p90;
+  final int p95;
+  final int p99;
+
+  const _AckRttPercentiles({
+    this.p50 = 0,
+    this.p90 = 0,
+    this.p95 = 0,
+    this.p99 = 0,
+  });
 }
 
 /// 待确认的ACK

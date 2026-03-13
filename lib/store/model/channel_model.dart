@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/store/model/model_parse_utils.dart';
+
 /// 频道类型
 enum ChannelType {
   public, // 公开频道 (0)
@@ -13,7 +15,7 @@ enum ChannelUserRole {
   subscriber, // 订阅者 (0) - 从订阅角度
   editor, // 编辑 (1) - 可以发布消息
   admin, // 管理员 (2) - 可以管理频道
-  creator, // 创建者 (3) - 最高权限
+  creator // 创建者 (3) - 最高权限
   ;
 
   /// 从整数值获取角色
@@ -123,62 +125,31 @@ class ChannelModel {
   bool get canPublish => userRole.canPublish;
 
   factory ChannelModel.fromJson(Map<String, dynamic> json) {
-    // 处理 is_verified 可能是 boolean 或 integer 的情况
-    bool parseVerified(dynamic value) {
-      if (value is bool) return value;
-      if (value is int) return value == 1;
-      return false;
-    }
-
-    // 处理 tags 可能是 List 或 JSON String 的情况
-    List<String>? parseTags(dynamic value) {
-      if (value == null) return null;
-      if (value is List) return List<String>.from(value);
-      if (value is String && value.isNotEmpty) {
-        try {
-          return List<String>.from(jsonDecode(value) as List);
-        } catch (_) {
-          return null;
-        }
-      }
-      return null;
-    }
-
-    // 处理时间字段可能是 int 或 String 的情况
-    DateTime parseDateTime(dynamic value) {
-      if (value is int) {
-        return DateTime.fromMillisecondsSinceEpoch(value);
-      }
-      return DateTime.parse(value as String);
-    }
-
-    // 处理 is_subscribed 可能是 boolean 或 integer 的情况
-    bool parseSubscribed(dynamic value) {
-      if (value is bool) return value;
-      if (value is int) return value == 1 || value > 0;
-      return false;
-    }
-
+    final parsedCustomId = parseModelNullableString(json['custom_id']);
+    final parsedId = parseModelString(
+      json['id'],
+      defaultValue: parsedCustomId ?? '',
+    );
     return ChannelModel(
-      id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      description: json['description'] as String?,
-      avatar: json['avatar'] as String?,
-      type: ChannelType.values[json['type'] as int? ?? 0],
-      customId: json['custom_id'] as String?,
+      id: parsedId,
+      name: parseModelString(json['name']),
+      description: parseModelNullableString(json['description']),
+      avatar: parseModelNullableString(json['avatar']),
+      type: _parseChannelType(json['type']),
+      customId: parsedCustomId,
       // 后端返回 creator_uid 或 creator_id
-      creatorId: (json['creator_uid'] ?? json['creator_id'])?.toString() ?? '',
-      subscriberCount: json['subscriber_count'] as int? ?? 0,
-      isVerified: parseVerified(json['is_verified']),
-      tags: parseTags(json['tags']),
+      creatorId: parseModelString(json['creator_uid'] ?? json['creator_id']),
+      subscriberCount: parseModelInt(json['subscriber_count']),
+      isVerified: parseModelBool(json['is_verified']),
+      tags: parseModelStringList(json['tags']),
       createdAt: json['created_at'] != null
-          ? parseDateTime(json['created_at'])
+          ? parseModelDateTime(json['created_at'])
           : DateTime.now(),
       updatedAt: json['updated_at'] != null
-          ? parseDateTime(json['updated_at'])
+          ? parseModelDateTime(json['updated_at'])
           : DateTime.now(),
-      userRole: ChannelUserRole.fromInt(json['user_role'] as int?),
-      isSubscribed: parseSubscribed(json['is_subscribed']),
+      userRole: ChannelUserRole.fromInt(parseModelInt(json['user_role'])),
+      isSubscribed: parseModelBool(json['is_subscribed']),
     );
   }
 
@@ -203,31 +174,35 @@ class ChannelModel {
 
   /// 从 SQLite Map 创建
   factory ChannelModel.fromMap(Map<String, dynamic> map) {
-    List<String>? tagsList;
-    if (map['tags'] != null && map['tags'].toString().isNotEmpty) {
-      try {
-        tagsList = List<String>.from(jsonDecode(map['tags'] as String) as List);
-      } catch (_) {
-        tagsList = null;
-      }
-    }
-
-    return ChannelModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      description: map['description'] as String?,
-      avatar: map['avatar'] as String?,
-      type: ChannelType.values[map['type'] as int? ?? 0],
-      customId: map['custom_id'] as String?,
-      creatorId: map['creator_id'] as String,
-      subscriberCount: map['subscriber_count'] as int? ?? 0,
-      isVerified: (map['is_verified'] as int? ?? 0) == 1,
-      tags: tagsList,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
-      userRole: ChannelUserRole.fromInt(map['user_role'] as int?),
-      isSubscribed: (map['is_subscribed'] as int? ?? 0) == 1,
+    final parsedCustomId = parseModelNullableString(map['custom_id']);
+    final parsedId = parseModelString(
+      map['id'],
+      defaultValue: parsedCustomId ?? '',
     );
+    return ChannelModel(
+      id: parsedId,
+      name: parseModelString(map['name']),
+      description: parseModelNullableString(map['description']),
+      avatar: parseModelNullableString(map['avatar']),
+      type: _parseChannelType(map['type']),
+      customId: parsedCustomId,
+      creatorId: parseModelString(map['creator_id']),
+      subscriberCount: parseModelInt(map['subscriber_count']),
+      isVerified: parseModelBool(map['is_verified']),
+      tags: parseModelStringList(map['tags']),
+      createdAt: parseModelDateTime(map['created_at']),
+      updatedAt: parseModelDateTime(map['updated_at']),
+      userRole: ChannelUserRole.fromInt(parseModelInt(map['user_role'])),
+      isSubscribed: parseModelBool(map['is_subscribed']),
+    );
+  }
+
+  static ChannelType _parseChannelType(dynamic value) {
+    final index = parseModelInt(value);
+    if (index < 0 || index >= ChannelType.values.length) {
+      return ChannelType.public;
+    }
+    return ChannelType.values[index];
   }
 
   /// 转换为 SQLite Map

@@ -55,6 +55,31 @@ export 'package:imboy/page/group/launch_chat/launch_chat_page.dart';
 export 'package:imboy/page/group/group_select/group_select_page.dart';
 export 'package:imboy/page/group/face_to_face/face_to_face_page.dart';
 export 'package:imboy/page/group/face_to_face/face_to_face_confirm_page.dart';
+// 群功能增强
+export 'package:imboy/page/group/category/group_category_page.dart';
+export 'package:imboy/page/group/tag/group_tag_page.dart';
+export 'package:imboy/page/group/vote/group_vote_page.dart';
+export 'package:imboy/page/group/vote/group_vote_detail_page.dart';
+export 'package:imboy/page/group/schedule/group_schedule_page.dart';
+export 'package:imboy/page/group/schedule/group_schedule_detail_page.dart';
+export 'package:imboy/page/group/task/group_task_page.dart';
+export 'package:imboy/page/group/task/group_task_detail_page.dart';
+export 'package:imboy/page/group/file/group_file_page.dart';
+export 'package:imboy/page/group/album/group_album_page.dart';
+export 'package:imboy/page/group/album/group_album_photo_page.dart';
+export 'package:imboy/page/group/album/group_album_photo_detail_page.dart';
+
+// ============================================================================
+// @提及模块
+// ============================================================================
+export 'package:imboy/page/mention/mention_list_page.dart';
+
+// ============================================================================
+// 朋友圈模块
+// ============================================================================
+export 'package:imboy/page/moment/moment_feed_page.dart';
+export 'package:imboy/page/moment/moment_create_page.dart';
+export 'package:imboy/page/moment/moment_detail_page.dart';
 
 // ============================================================================
 // 频道模块
@@ -66,6 +91,7 @@ export 'package:imboy/page/channel/channel_create_page.dart';
 export 'package:imboy/page/channel/channel_edit_page.dart';
 export 'package:imboy/page/channel/channel_admin_page.dart';
 export 'package:imboy/page/channel/channel_subscriber_page.dart';
+export 'package:imboy/page/channel/channel_invitation_page.dart';
 
 // ============================================================================
 // 个人中心模块

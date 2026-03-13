@@ -7,7 +7,6 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -142,7 +141,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       if (msg == null) {
         // 如果 widget.message 为空，尝试从 info 构建
         if (widget.info != null) {
-          final builtMsg = await MessageModel.fromJson(widget.info!).toTypeMessage() as CustomMessage;
+          final builtMsg =
+              await MessageModel.fromJson(widget.info!).toTypeMessage()
+                  as CustomMessage;
           _loadAudioFile(builtMsg);
           return;
         }
@@ -170,16 +171,18 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       iPrint('🎵 开始加载音频文件: $uri');
 
       // 添加30秒超时保护
-      final tmpF = await IMBoyCacheManager().getSingleFile(
-        uri,
-        validateImageData: false, // 音频文件不验证图片格式
-      ).timeout(
-        const Duration(seconds: 30),
-        onTimeout: () {
-          iPrint('⏰ 音频文件加载超时: $uri');
-          throw Exception('音频文件加载超时（30秒）');
-        },
-      );
+      final tmpF = await IMBoyCacheManager()
+          .getSingleFile(
+            uri,
+            validateImageData: false, // 音频文件不验证图片格式
+          )
+          .timeout(
+            const Duration(seconds: 30),
+            onTimeout: () {
+              iPrint('⏰ 音频文件加载超时: $uri');
+              throw Exception('音频文件加载超时（30秒）');
+            },
+          );
 
       iPrint('✅ Audio file loaded: ${tmpF.path}');
       if (await tmpF.exists()) {
@@ -271,10 +274,11 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
   }
 
   Widget _buildLoadingWidget() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       constraints: const BoxConstraints(minWidth: 200, minHeight: 60),
       decoration: BoxDecoration(
-        color: ThemeManager.instance.getThemeColor('surfaceContainerLow'),
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Center(
@@ -282,9 +286,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           padding: MessageSpacing.bubblePaddingAll,
           child: CircularProgressIndicator(
             strokeWidth: 2.0,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              ThemeManager.instance.getThemeColor('primary'),
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
           ),
         ),
       ),
@@ -292,10 +294,11 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
   }
 
   Widget _buildErrorWidget(String errorMsg) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       constraints: const BoxConstraints(minWidth: 200, minHeight: 60),
       decoration: BoxDecoration(
-        color: ThemeManager.instance.getThemeColor('surfaceContainerLow'),
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
       ),
       child: InkWell(
@@ -313,18 +316,14 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 20,
-                color: ThemeManager.instance.getThemeColor('error'),
-              ),
+              Icon(Icons.error_outline, size: 20, color: colorScheme.error),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   '点击重试',
                   style: TextStyle(
                     fontSize: 12,
-                    color: ThemeManager.instance.getThemeColor('onSurfaceVariant'),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -346,11 +345,16 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     // 准备波形（仅一次）
     _prepareWaveformIfNeeded(audioPath);
 
-    // 使用主题管理器的颜色方案
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     Color bgColor, iconColor, textColor, waveformColor;
 
     if (userIsAuthor) {
-      bgColor = ThemeManager.instance.getChatColor('sendMessageBg');
+      bgColor = isDark
+          ? AppColors.darkSentMessageBackground
+          : AppColors.lightSentMessageBackground;
       iconColor = AppColors.sentMessageText;
       textColor = AppColors.sentMessageText;
       waveformColor = Colors.white70;
@@ -358,7 +362,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       // 使用对比度更高的灰色区分接收的语音消息
       // 亮色模式：使用明显灰色（与纯白背景 #FFFFFF 对比）
       // 暗色模式：使用稍浅的灰色（与深黑背景 #121212 对比）
-      final isDark = ThemeManager.instance.isDarkMode;
       if (isDark) {
         // 暗色模式：深灰色，明显区别于 #121212 背景
         bgColor = const Color(0xFF2C2C2C);
@@ -366,13 +369,11 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         // 亮色模式：浅的灰色，明显区别于 #FFFFFF 背景
         bgColor = Colors.black12;
       }
-      iconColor = ThemeManager.instance.getThemeColor('primary');
-      textColor = ThemeManager.instance.isDarkMode
+      iconColor = colorScheme.primary;
+      textColor = isDark
           ? AppColors.darkReceivedMessageText
           : AppColors.lightReceivedMessageText;
-      waveformColor = ThemeManager.instance
-          .getThemeColor('primary')
-          .withValues(alpha: 0.7);
+      waveformColor = colorScheme.primary.withValues(alpha: 0.7);
     }
 
     return Container(
@@ -679,8 +680,10 @@ class _SimpleWaveformPainter extends CustomPainter {
       // 生成类似音频波形的随机高度模式
       final baseHeight = size.height * 0.3;
       final variance = size.height * 0.4;
-      final waveHeight = baseHeight +
-          (variance * (0.5 + 0.5 * (i % 3 == 0 ? 1.0 : (i % 5 == 0 ? 0.8 : 0.3))));
+      final waveHeight =
+          baseHeight +
+          (variance *
+              (0.5 + 0.5 * (i % 3 == 0 ? 1.0 : (i % 5 == 0 ? 0.8 : 0.3))));
 
       paint.color = isActive && (i % 5 < 3) ? color : inactiveColor;
 

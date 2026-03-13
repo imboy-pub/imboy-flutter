@@ -8,6 +8,7 @@ import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/store/api/user_device_api.dart' as api;
 import 'package:imboy/store/repository/user_device_repo_sqlite.dart';
@@ -111,8 +112,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
         Map<dynamic, dynamic> deviceVsn = {};
         if (deviceInfo != null && deviceInfo['deviceVersion'] != null) {
           try {
-            final vsnStr = deviceInfo['deviceVersion'].toString();
-            if (vsnStr.isNotEmpty && vsnStr != 'null') {
+            final vsnStr = parseModelString(deviceInfo['deviceVersion']);
+            if (vsnStr.isNotEmpty) {
               deviceVsn = jsonDecode(vsnStr);
             }
           } catch (_) {

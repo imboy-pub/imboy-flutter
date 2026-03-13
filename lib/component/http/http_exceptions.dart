@@ -39,7 +39,8 @@ class NetworkException extends HttpException {
 
 /// 401
 class UnauthorisedException extends HttpException {
-  UnauthorisedException({String? message, int? code = 401}) : super(message);
+  UnauthorisedException({String? message, int? code = 401})
+    : super(message, code);
 }
 
 class BadResponseException extends HttpException {

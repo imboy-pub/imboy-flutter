@@ -18,6 +18,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
 import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 
@@ -57,8 +58,8 @@ class MessageActionHandler {
   /// 编辑消息ID变更回调
   final void Function(String?) onEditingMessageIdChanged;
 
-  /// 获取聊天类型（处理 'null' 情况）
-  String get _chatType => type == 'null' ? 'C2C' : type;
+  /// 获取归一化后的聊天类型，非法值统一回落到 C2C
+  String get _chatType => MessageFlowType.normalize(type);
 
   /// 编辑消息
   Future<void> editMessage(Message message) async {
@@ -120,7 +121,7 @@ class MessageActionHandler {
     bool pop = true,
   }) async {
     final nav = Navigator.of(context);
-    if (type == 'C2G') {
+    if (_chatType == MessageFlowType.c2g) {
       await _sendDeleteForMeMessage(msg);
     }
     bool res = await ref
@@ -147,7 +148,7 @@ class MessageActionHandler {
       'payload': {
         'old_msg_id': msg.id,
         'to': msg.metadata?['peer_id'],
-        'msg_type': '${type}_DEL_FOR_ME',
+        'msg_type': '${_chatType}_DEL_FOR_ME',
       },
       'created_at': DateTimeHelper.millisecond(),
     };
@@ -165,16 +166,14 @@ class MessageActionHandler {
     // WebSocket API v2.0: 使用 message_revoke action 撤回消息
     final revokeMsg = {
       'id': Xid().toString(),
-      'type': type, // C2C, C2G, etc.
+      'type': _chatType, // C2C, C2G, etc.
       'from': currentUid,
       'to': msg.metadata?['peer_id'],
       // v2.0: 字段提升到顶层
       'msg_type': 'custom',
       'action': 'message_revoke',
       'e2ee': '',
-      'payload': {
-        'original_msg_id': msg.id,
-      },
+      'payload': {'original_msg_id': msg.id},
       'created_at': DateTimeHelper.millisecond(),
     };
 
@@ -221,7 +220,7 @@ class MessageActionHandler {
 
   /// 收藏消息
   Future<void> collectMessage(Message msg) async {
-    String tb = MessageRepo.getTableName(type);
+    String tb = MessageRepo.getTableName(_chatType);
     final collectNotifier = UserCollectNotifier();
     bool res = await collectNotifier.add(tb: tb, msg: msg);
     EasyLoading.showToast(res ? t.collected : t.operationFailedAgainLater);
@@ -233,10 +232,13 @@ class MessageActionHandler {
       // 显示加载状态
       EasyLoading.show(status: t.revoking);
 
-      iPrint('🔍 撤回消息: msgId=${msg.id}, type=$type');
+      iPrint('🔍 撤回消息: msgId=${msg.id}, type=$_chatType');
 
       // 使用新的MessageActions撤回机制
-      bool result = await MessageActions.to.sendRevokeMessage(msg.id, type);
+      bool result = await MessageActions.instance.sendRevokeMessage(
+        msg.id,
+        _chatType,
+      );
       iPrint('🔍 撤回消息发送结果: $result');
 
       EasyLoading.dismiss();

@@ -413,15 +413,6 @@ class SqliteService {
     }
   }
 
-  /// 执行原始查询（不带缓存的版本，用于兼容性）
-  @Deprecated('使用 rawQuery(sql, arguments, false) 代替。此方法将在 v2.0.0 版本移除。')
-  Future<List<Map<String, Object?>>> rawQueryNoCache(
-    String sql, [
-    List<Object?>? arguments,
-  ]) async {
-    return await rawQuery(sql, arguments, false);
-  }
-
   /// 执行原始 SQL 更新语句（带重试机制）
   /// Execute raw update SQL (with retry logic)
   Future<int> execute(

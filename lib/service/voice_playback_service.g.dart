@@ -45,7 +45,7 @@ final class VoicePlaybackServiceProvider
 }
 
 String _$voicePlaybackServiceHash() =>
-    r'cd9edade6ad69588a637322668be9ab92bbcc99e';
+    r'4c0cb577fc4ca4d9fc27ee35dc0786d11867f410';
 
 /// 语音播放服务
 

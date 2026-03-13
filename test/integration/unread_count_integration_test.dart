@@ -8,17 +8,55 @@
 /// 5. 批量消息已读处理
 library;
 
+import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const MethodChannel pathProviderChannel = MethodChannel(
+    'plugins.flutter.io/path_provider',
+  );
+
+  setUpAll(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(pathProviderChannel, (methodCall) async {
+          switch (methodCall.method) {
+            case 'getTemporaryDirectory':
+            case 'getApplicationDocumentsDirectory':
+            case 'getApplicationSupportDirectory':
+            case 'getDatabasesPath':
+              return Directory.systemTemp.path;
+            default:
+              return Directory.systemTemp.path;
+          }
+        });
+
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, 'test_uid_unread');
+    await SqliteService.to.db;
+  });
+
+  tearDownAll(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(pathProviderChannel, null);
+  });
+
   group('未读消息数管理集成测试', () {
     late ConversationRepo conversationRepo;
     late MessageRepo messageRepo;
 
     setUp(() async {
+      await StorageService.to.setString(Keys.currentUid, 'test_uid_unread');
       conversationRepo = ConversationRepo();
       messageRepo = MessageRepo(tableName: 'msg_c2c');
     });

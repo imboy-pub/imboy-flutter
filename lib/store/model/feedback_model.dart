@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 反馈类型枚举
 enum FeedbackType { bugReport, featureRequest }
@@ -92,27 +93,38 @@ class FeedbackModel {
   });
 
   factory FeedbackModel.fromJson(Map<String, dynamic> json) {
-    var deviceVsn = json['device_vsn'] ?? '{}';
-    try {
-      deviceVsn = jsonDecode(deviceVsn);
-    } catch (e) {
-      deviceVsn = {};
-    }
+    final attach = _parseAttach(json['attach']);
     return FeedbackModel(
-      feedbackId: json['feedback_id'] ?? (json['id'] ?? 0),
+      feedbackId: parseModelInt(json['feedback_id'] ?? json['id']),
       // deviceId: json['device_id'],
       // clientOperatingSystem: json['client_operating_system'],
       // clientOperatingSystemVsn: json['client_operating_system_vsn'],
-      appVsn: json['app_vsn'],
-      type: json['type'],
-      rating: json['rating'].toString(),
-      body: json['body'],
-      attach: json['attach'] ?? [],
-      replyCount: json['reply_count'],
-      status: json['status'],
+      appVsn: parseModelString(json['app_vsn']),
+      type: parseModelString(json['type']),
+      rating: parseModelDouble(json['rating']).toString(),
+      body: parseModelString(json['body']),
+      attach: attach,
+      replyCount: parseModelInt(json['reply_count']),
+      status: parseModelInt(json['status']),
       updatedAt: DateTimeHelper.parseTimestamp(json['updated_at']),
       createdAt: DateTimeHelper.parseTimestamp(json['created_at']),
     );
+  }
+
+  static List<dynamic> _parseAttach(dynamic value) {
+    if (value == null) return [];
+    if (value is List) return value;
+    if (value is String && value.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) {
+          return decoded;
+        }
+      } catch (_) {
+        return [];
+      }
+    }
+    return [];
   }
 
   Map<String, dynamic> toMap() {

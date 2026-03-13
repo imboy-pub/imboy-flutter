@@ -195,7 +195,10 @@ class SocialRecoveryResult {
   }
 
   /// 失败结果
-  factory SocialRecoveryResult.failure(String errorMessage, {String? errorCode}) {
+  factory SocialRecoveryResult.failure(
+    String errorMessage, {
+    String? errorCode,
+  }) {
     return SocialRecoveryResult._(
       success: false,
       errorMessage: errorMessage,
@@ -229,7 +232,7 @@ class E2EESocialHandler {
   }) async {
     try {
       // 1. 检查本地是否有有效的 E2EE 私钥
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       final privateKey = await storage.getPrivateKey();
 
       if (privateKey == null || privateKey.isEmpty) {
@@ -284,7 +287,10 @@ class E2EESocialHandler {
 
       // 2. 使用代理公钥加密
       final pubKey = RSAService.parsePublicKeyFromPem(trusteePublicKey);
-      final encryptedBytes = RSAService.rsaEncrypt(pubKey, Uint8List.fromList(shareBytes));
+      final encryptedBytes = RSAService.rsaEncrypt(
+        pubKey,
+        Uint8List.fromList(shareBytes),
+      );
 
       // 3. Base64 编码
       final encryptedData = base64.encode(encryptedBytes);
@@ -339,10 +345,7 @@ class E2EESocialHandler {
     try {
       // 1. 验证分片数量
       if (shares.isEmpty) {
-        return SocialRecoveryResult.failure(
-          '没有提供分片',
-          errorCode: 'no_shares',
-        );
+        return SocialRecoveryResult.failure('没有提供分片', errorCode: 'no_shares');
       }
 
       // 2. 获取阈值信息
@@ -386,7 +389,7 @@ class E2EESocialHandler {
       }
 
       // 8. 保存到本地安全存储
-      final storage = StorageSecure();
+      final storage = StorageSecureService.to;
       await storage.savePrivateKey(recoveredKey);
 
       // 9. 返回成功结果

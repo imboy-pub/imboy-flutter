@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -82,7 +83,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
 
     return Scaffold(
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
-      appBar: GlassAppBar(title: widget.title),
+      appBar: GlassAppBar(automaticallyImplyLeading: true, title: widget.title),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
@@ -118,8 +119,17 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                     groupId: widget.group.groupId,
                     size: 44,
                     avatarLoader: (groupId) async {
-                      // TODO: 从服务获取头像
-                      return [];
+                      // 从本地数据库获取群成员头像
+                      final members = await GroupMemberRepo().page(
+                        limit: 9,
+                        where: "${GroupMemberRepo.groupId} = ?",
+                        whereArgs: [groupId],
+                        orderBy: "${GroupMemberRepo.role} DESC",
+                      );
+                      return members
+                          .map((m) => m.avatar)
+                          .where((a) => a.isNotEmpty)
+                          .toList();
                     },
                   ),
                   const SizedBox(width: 12),

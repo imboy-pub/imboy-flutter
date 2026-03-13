@@ -200,6 +200,7 @@ class _MessageBubble extends StatelessWidget {
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: bubble_style.MessageBubbleStyle.getBubbleDecoration(
+            context: context,
             isSentByMe: isMe,
           ),
           child: const Column(

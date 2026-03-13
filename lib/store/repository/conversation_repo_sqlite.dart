@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/message_retry.dart';
-import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -398,7 +397,7 @@ class ConversationRepo {
       if (msgIds.isNotEmpty) {
         for (final msgId in msgIds) {
           try {
-            MessageRetry.to.removeFromRetryQueue(msgId);
+            MessageRetry.instance.removeFromRetryQueue(msgId);
           } catch (e) {
             debugPrint('清理重试队列失败: $msgId, error: $e');
           }
@@ -427,7 +426,9 @@ class ConversationRepo {
         whereArgs: [model.id],
       );
 
-      iPrint('清空聊天记录: 已更新会话 last_msg, conversationUk3=${model.uk3}, 删除消息数=$deletedCount');
+      iPrint(
+        '清空聊天记录: 已更新会话 last_msg, conversationUk3=${model.uk3}, 删除消息数=$deletedCount',
+      );
 
       // 5. 在同一事务中重新查询更新后的会话数据
       final maps = await txn.query(
@@ -489,7 +490,7 @@ class ConversationRepo {
       if (msgIds.isNotEmpty) {
         for (final msgId in msgIds) {
           try {
-            MessageRetry.to.removeFromRetryQueue(msgId);
+            MessageRetry.instance.removeFromRetryQueue(msgId);
           } catch (e) {
             debugPrint('清理重试队列失败: $msgId, error: $e');
           }
@@ -511,7 +512,9 @@ class ConversationRepo {
         whereArgs: [model.id],
       );
 
-      iPrint('删除会话: 已删除会话及其消息, conversationUk3=${model.uk3}, 删除消息数=$deletedCount');
+      iPrint(
+        '删除会话: 已删除会话及其消息, conversationUk3=${model.uk3}, 删除消息数=$deletedCount',
+      );
 
       return deletedCount;
     });
@@ -520,103 +523,6 @@ class ConversationRepo {
   // 记得及时关闭数据库，防止内存泄漏
   Future<void> close() async {
     //await _db.close();
-  }
-
-  /// 修复旧的会话数据：将 msgType='custom' 的会话从最后一条消息重新获取正确的 msgType
-  ///
-  /// 【重构】使用 MessageTypeNormalizer 进行类型归一化
-  /// 这是一个一次性修复方法，用于修复历史数据中 msg_type='custom' 或 'audio' 的问题
-  /// 在应用初始化时调用一次即可
-  static Future<void> fixLegacyConversationMsgTypes() async {
-    try {
-      final db = SqliteService.to;
-
-      // 查找所有需要修复的会话（msg_type='custom' 或 'audio'）
-      final result = await db.query(
-        tableName,
-        columns: [id, peerId, type, lastMsgId, msgType],
-        where: '$msgType IN (?, ?)',
-        whereArgs: ['custom', 'audio'],
-      );
-
-      if (result.isEmpty) {
-        iPrint('✅ [数据修复] 没有需要修复的会话（msg_type=custom/audio）');
-        return;
-      }
-
-      iPrint('🔧 [数据修复] 发现 ${result.length} 个需要修复的会话');
-
-      int fixedCount = 0;
-      for (final row in result) {
-        final convId = row[id] as int;
-        final convPeerId = row[peerId] as String;
-        final convType = row[type] as String;
-        final finalMsgId = row[lastMsgId] as String;
-        final currentMsgType = row[msgType] as String?;
-
-        try {
-          // 获取该会话的最后一条消息
-          final msgTable = MessageRepo.getTableName(convType);
-          final msgResult = await db.query(
-            msgTable,
-            columns: [MessageRepo.id, MessageRepo.msgType, MessageRepo.payload],
-            where: '${MessageRepo.id} = ?',
-            whereArgs: [finalMsgId],
-            limit: 1,
-          );
-
-          if (msgResult.isEmpty) {
-            iPrint('⚠️ [数据修复] 会话 $convId 的消息 $finalMsgId 不存在，跳过');
-            continue;
-          }
-
-          final msgMsgType = msgResult.first[MessageRepo.msgType] as String?;
-          final payloadStr = msgResult.first[MessageRepo.payload] as String?;
-
-          // 【重构】使用 MessageTypeNormalizer 进行类型归一化
-          // 自动处理：custom -> custom_type, audio -> voice
-          Map<String, dynamic>? payloadData;
-          if (payloadStr != null && payloadStr.isNotEmpty) {
-            try {
-              payloadData = jsonDecode(payloadStr) as Map<String, dynamic>;
-            } catch (_) {}
-          }
-
-          final normalizedMsgType = MessageTypeNormalizer.normalize(
-            msgType: msgMsgType,
-            payload: payloadData,
-          );
-
-          // 如果归一化后的类型与当前类型相同，跳过
-          if (normalizedMsgType == currentMsgType) {
-            continue;
-          }
-
-          // 如果归一化失败（返回 unsupported），跳过
-          if (normalizedMsgType == 'unsupported') {
-            iPrint('⚠️ [数据修复] 会话 $convId 的消息类型归一化失败，跳过');
-            continue;
-          }
-
-          // 更新会话的 msg_type
-          await db.update(
-            tableName,
-            {msgType: normalizedMsgType},
-            where: '$id = ?',
-            whereArgs: [convId],
-          );
-
-          fixedCount++;
-          iPrint('✅ [数据修复] 修复会话 $convId ($convType/$convPeerId): $currentMsgType -> $normalizedMsgType');
-        } catch (e) {
-          iPrint('❌ [数据修复] 修复会话 $convId 失败: $e');
-        }
-      }
-
-      iPrint('🎉 [数据修复] 完成！共修复 $fixedCount/${result.length} 个会话');
-    } catch (e) {
-      iPrint('❌ [数据修复] 执行失败: $e');
-    }
   }
 
   Future<void> update(String value, Map<String, int> map) async {}

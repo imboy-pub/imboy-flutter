@@ -121,11 +121,6 @@ class PersistentMessageQueue {
     return List.unmodifiable(result);
   }
 
-  /// 向下兼容：获取消息字符串列表
-  List<String> get messageStrings {
-    return messages.map((msg) => msg.data).toList();
-  }
-
   /// 获取各优先级队列统计
   Map<int, int> get priorityStats => {
     0: _priorityQueues[0]!.length,
@@ -160,14 +155,6 @@ class PersistentMessageQueue {
     iPrint('📥 [QUEUE] 入队: $id, priority=$priority, 总数=$_totalSize');
   }
 
-  /// 向下兼容的旧接口（仅消息内容）
-  ///
-  /// 使用消息内容的 hash 作为 ID，默认普通优先级
-  void enqueueLegacy(String message) {
-    final id = message.hashCode.toString();
-    enqueue(id, message, priority: 0);
-  }
-
   /// 按优先级出队（优先返回高优先级消息）
   ///
   /// 出队顺序：2(重试) > 1(高优先级) > 0(普通)
@@ -184,12 +171,6 @@ class PersistentMessageQueue {
       }
     }
     return null;
-  }
-
-  /// 向下兼容的旧接口（FIFO 顺序）
-  String? dequeue() {
-    final msg = dequeueByPriority();
-    return msg?.data;
   }
 
   /// 更新消息优先级

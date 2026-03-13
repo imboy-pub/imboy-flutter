@@ -7,6 +7,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/service/events/events.dart';
@@ -20,6 +21,10 @@ class SendToLogic {
   List<ConversationModel> get conversations => _conversations;
   List<ConversationModel> get searchResults => _searchResults;
   List<ConversationModel> get selectedContacts => List.from(_selectedContacts);
+
+  String _normalizeConversationType(String? type) {
+    return MessageFlowType.normalize(type);
+  }
 
   /// 最近聊天
   Future<void> conversationsList() async {
@@ -37,11 +42,8 @@ class SendToLogic {
         if (msg.metadata != null) ...msg.metadata!,
       };
 
-      // 获取消息类型
-      final msgType = conversation.type;
-      if (msgType == 'null') {
-        return false;
-      }
+      // 获取并归一化消息类型，历史脏值统一按 C2C 处理
+      final msgType = _normalizeConversationType(conversation.type);
 
       // 创建 MessageModel
       final msgModel = MessageModel(

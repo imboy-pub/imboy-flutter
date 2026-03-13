@@ -1,9 +1,16 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
 
@@ -23,11 +30,47 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _customIdController;
+  final _tagController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
 
   bool _isLoading = false;
   bool _isSaving = false;
+  bool _isUploadingAvatar = false;
   ChannelModel? _channel;
   int _selectedType = 0;
+  String? _avatarUrl;
+  File? _avatarFile;
+  final List<String> _tags = [];
+  static const int _maxTags = 8;
+
+  bool _isUpdateApplied({
+    required ChannelModel channel,
+    required String name,
+    required String description,
+    String? avatar,
+    List<String>? tags,
+  }) {
+    final avatarMatched = avatar == null || (channel.avatar ?? '') == avatar;
+    final tagsMatched = tags == null || _sameTags(channel.tags, tags);
+    return channel.name == name &&
+        (channel.description ?? '') == description &&
+        avatarMatched &&
+        tagsMatched;
+  }
+
+  List<String> _normalizeTags(List<String>? tags) {
+    final normalized = (tags ?? const <String>[])
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
+    return normalized;
+  }
+
+  bool _sameTags(List<String>? left, List<String>? right) {
+    return listEquals(_normalizeTags(left), _normalizeTags(right));
+  }
 
   @override
   void initState() {
@@ -40,11 +83,12 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       text: widget.channel?.customId ?? '',
     );
     _selectedType = widget.channel?.type.index ?? 0;
+    _avatarUrl = widget.channel?.avatar;
+    _tags
+      ..clear()
+      ..addAll(widget.channel?.tags ?? const []);
     _channel = widget.channel;
-
-    if (_channel == null) {
-      _loadChannel();
-    }
+    _loadChannel(showLoading: _channel == null);
   }
 
   @override
@@ -52,26 +96,36 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     _nameController.dispose();
     _descriptionController.dispose();
     _customIdController.dispose();
+    _tagController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadChannel() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadChannel({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() => _isLoading = true);
+    }
 
     try {
       final api = ChannelApi();
-      final channel = await api.getChannel(widget.channelId);
+      ChannelModel? channel = await api.getChannel(widget.channelId);
+      channel ??= await api.getChannelByCustomId(widget.channelId);
       if (mounted && channel != null) {
+        final latest = channel;
         setState(() {
-          _channel = channel;
-          _nameController.text = channel.name;
-          _descriptionController.text = channel.description ?? '';
-          _customIdController.text = channel.customId ?? '';
-          _selectedType = channel.type.index;
+          _channel = latest;
+          _nameController.text = latest.name;
+          _descriptionController.text = latest.description ?? '';
+          _customIdController.text = latest.customId ?? '';
+          _selectedType = latest.type.index;
+          _avatarUrl = latest.avatar;
+          _avatarFile = null;
+          _tags
+            ..clear()
+            ..addAll(latest.tags ?? const []);
         });
       }
     } finally {
-      if (mounted) {
+      if (mounted && showLoading) {
         setState(() => _isLoading = false);
       }
     }
@@ -84,18 +138,34 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
     try {
       final api = ChannelApi();
+      final channelId =
+          (_channel?.id.isNotEmpty ?? false) ? _channel!.id : widget.channelId;
+      final targetName = _nameController.text.trim();
+      final targetDescription = _descriptionController.text.trim();
+      final targetAvatar = _avatarUrl?.trim();
+      final targetTags = _normalizeTags(_tags);
       final result = await api.updateChannel(
-        widget.channelId,
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim(),
+        channelId,
+        name: targetName,
+        description: targetDescription,
+        avatar: targetAvatar,
+        tags: targetTags,
       );
 
       if (mounted) {
-        if (result != null) {
+        if (result != null &&
+            _isUpdateApplied(
+              channel: result,
+              name: targetName,
+              description: targetDescription,
+              avatar: targetAvatar,
+              tags: targetTags,
+            )) {
+          _channel = result;
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.updateSuccess)));
-          context.pop(true); // 返回 true 表示已更新
+          context.pop(result); // 返回最新频道对象，避免详情页继续使用旧数据
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -121,6 +191,120 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     }
   }
 
+  Future<void> _pickAvatar(ImageSource source) async {
+    Navigator.of(context).pop();
+    try {
+      final image = await _picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (image == null || !mounted) return;
+
+      final file = File(image.path);
+      setState(() => _avatarFile = file);
+      await _uploadAvatar(file);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+    }
+  }
+
+  Future<void> _uploadAvatar(File file) async {
+    if (_isUploadingAvatar) return;
+    setState(() => _isUploadingAvatar = true);
+
+    String? uploadedUrl;
+    final completer = Completer<bool>();
+
+    await AttachmentApi.uploadFile(
+      'avatar',
+      file,
+      (Map<String, dynamic> resp, String url) {
+        if (completer.isCompleted) return;
+        final status = resp['status']?.toString() ?? '';
+        if (status == 'ok') {
+          uploadedUrl = url;
+          completer.complete(true);
+        } else {
+          completer.complete(false);
+        }
+      },
+      (_) {
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
+      },
+      process: true,
+    );
+
+    final success = await completer.future;
+    if (!mounted) return;
+
+    setState(() {
+      _isUploadingAvatar = false;
+      _avatarUrl = success ? uploadedUrl : _avatarUrl;
+    });
+
+    if (!success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+    }
+  }
+
+  void _showAvatarPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: Text(context.t.takePhoto),
+              onTap: () => _pickAvatar(ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: Text(context.t.selectFromAlbum),
+              onTap: () => _pickAvatar(ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: Text(context.t.buttonCancel),
+              onTap: () => Navigator.of(ctx).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addTag([String? input]) {
+    final tag = (input ?? _tagController.text).trim();
+    if (tag.isEmpty) return;
+    if (_tags.contains(tag)) {
+      _tagController.clear();
+      return;
+    }
+    if (_tags.length >= _maxTags) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('最多可添加 8 个标签')));
+      return;
+    }
+    setState(() => _tags.add(tag));
+    _tagController.clear();
+  }
+
+  void _removeTag(String tag) {
+    setState(() => _tags.remove(tag));
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -138,7 +322,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           TextButton(
-            onPressed: _isSaving ? null : _saveChanges,
+            onPressed: (_isSaving || _isUploadingAvatar) ? null : _saveChanges,
             child: _isSaving
                 ? const SizedBox(
                     width: 20,
@@ -154,6 +338,68 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // 频道名称
+            Text(t.avatar, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Center(
+              child: InkWell(
+                onTap: (_isSaving || _isUploadingAvatar) ? null : _showAvatarPicker,
+                borderRadius: BorderRadius.circular(48),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 44,
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      backgroundImage: _avatarFile != null
+                          ? FileImage(_avatarFile!)
+                          : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
+                          ? cachedImageProvider(_avatarUrl!, w: 176)
+                          : null,
+                      child: (_avatarFile == null &&
+                              (_avatarUrl == null || _avatarUrl!.isEmpty))
+                          ? const Icon(Icons.camera_alt_outlined, size: 30)
+                          : null,
+                    ),
+                    if (_isUploadingAvatar)
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(44),
+                        ),
+                        child: const Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // 频道名称
             TextFormField(
               controller: _nameController,
@@ -199,20 +445,53 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 hintText: t.channel.customIdHint,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.alternate_email),
-                helperText: t.channel.customIdHelper,
+                helperText: '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
               ),
-              validator: (value) {
-                if (value != null && value.isNotEmpty) {
-                  if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-                    return t.channel.customIdInvalid;
-                  }
-                  if (value.length < 4 || value.length > 30) {
-                    return t.channel.customIdLength;
-                  }
-                }
-                return null;
-              },
+              readOnly: true,
+              enabled: false,
             ),
+            const SizedBox(height: 16),
+
+            // 标签
+            Text(
+              t.groupTag.addTag,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _tagController,
+                    decoration: InputDecoration(
+                      hintText: t.groupTag.tagName,
+                      border: const OutlineInputBorder(),
+                    ),
+                    onSubmitted: _addTag,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _addTag(),
+                  icon: const Icon(Icons.add_circle_outline),
+                  tooltip: t.groupTag.addTag,
+                ),
+              ],
+            ),
+            if (_tags.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _tags
+                    .map(
+                      (tag) => InputChip(
+                        label: Text(tag),
+                        onDeleted: () => _removeTag(tag),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
             const SizedBox(height: 16),
 
             // 频道类型（只读显示）

@@ -1,13 +1,11 @@
-import 'dart:convert';
-
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
-import 'package:imboy/i18n/strings.g.dart';
 
 /// 会话数据模型
 /// 纯数据模型，不包含响应式状态
@@ -107,9 +105,10 @@ class ConversationModel {
         return t.youWithdrewAMessage;
       }
     }
-    iPrint("conversation_model_msgType $msgType, title $title, subtitle $subtitle,");
-    if (msgType == 'custom') {
-    }
+    iPrint(
+      "conversation_model_msgType $msgType, title $title, subtitle $subtitle,",
+    );
+    if (msgType == 'custom') {}
     // 普通消息类型
     if (msgType == 'text' || msgType == '') {
       return subtitle;
@@ -119,15 +118,15 @@ class ConversationModel {
       str = t.image;
     } else if (msgType == 'file') {
       str = t.file;
-    } else if (msgType == 'voice' || msgType == 'audio') {
+    } else if (msgType == 'voice') {
       str = t.voiceMessage;
     } else if (msgType == 'video') {
       str = t.video;
-    } else if (msgType == 'webrtc_audio') {
+    } else if (msgType == 'webrtcAudio') {
       str = t.voiceCall;
-    } else if (msgType == 'webrtc_video') {
+    } else if (msgType == 'webrtcVideo') {
       str = t.videoCall;
-    } else if (msgType == 'visit_card') {
+    } else if (msgType == 'visitCard') {
       str = t.personalCard;
       return "[$str]$subtitle";
     } else if (msgType == 'location') {
@@ -143,42 +142,42 @@ class ConversationModel {
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     // iPrint("ConversationModel_payload 1 $payload");
-    dynamic payload =
-        json[ConversationRepo.payload] ?? json[ConversationRepo.payload];
+    dynamic payload = json[ConversationRepo.payload];
 
     // Handle payload parsing
-    if (payload is String) {
-      try {
-        payload = jsonDecode(payload);
-      } catch (e) {
-        payload = null;
-      }
+    if (payload is String || payload is Map) {
+      payload = parseModelJsonMap(payload);
+    } else if (payload != null && payload is! Map<String, dynamic>) {
+      payload = null;
     }
+
     // 处理 last_time（可以是 DateTime、int 或 ISO8601 字符串）
     final rawLastTime = json['last_time'] ?? json[ConversationRepo.lastTime];
-    int lastTime = DateTimeHelper.parseTimestamp(rawLastTime, defaultValue: 0);
+    final lastTime = parseModelDateTime(rawLastTime).millisecondsSinceEpoch;
+
+    final avatarRaw = json[ConversationRepo.avatar];
+    final avatarValue = parseModelString(avatarRaw);
+    final msgTypeRaw = json[ConversationRepo.msgType];
 
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
-      id: json[ConversationRepo.id]?.toInt() ?? 0,
-      peerId: json[ConversationRepo.peerId]?.toString() ?? '',
-      avatar: (json[ConversationRepo.avatar]?.toString() ?? '').isEmpty
-          ? ''
-          : json['avatar'].toString(),
-      title: json[ConversationRepo.title]?.toString() ?? '',
-      region: json[ConversationRepo.region]?.toString() ?? '',
-      sign: json[ConversationRepo.sign]?.toString() ?? '',
-      subtitle: json[ConversationRepo.subtitle]?.toString() ?? '',
+      id: parseModelInt(json[ConversationRepo.id]),
+      peerId: parseModelString(json[ConversationRepo.peerId]),
+      avatar: avatarValue,
+      title: parseModelString(json[ConversationRepo.title]),
+      region: parseModelString(json[ConversationRepo.region]),
+      sign: parseModelString(json[ConversationRepo.sign]),
+      subtitle: parseModelString(json[ConversationRepo.subtitle]),
       lastTime: lastTime,
-      lastMsgId: json[ConversationRepo.lastMsgId]?.toString() ?? '',
-      lastMsgStatus: json[ConversationRepo.lastMsgStatus]?.toInt() ?? 11,
-      unreadNum: json[ConversationRepo.unreadNum]?.toInt() ?? 0,
-      type: json[ConversationRepo.type]?.toString() ?? '',
-      msgType:
-          json[ConversationRepo.msgType] ??
-          json[ConversationRepo.msgType]?.toString() ??
-          '',
-      isShow: json[ConversationRepo.isShow]?.toInt() ?? 1,
+      lastMsgId: parseModelString(json[ConversationRepo.lastMsgId]),
+      lastMsgStatus: parseModelInt(
+        json[ConversationRepo.lastMsgStatus],
+        defaultValue: 11,
+      ),
+      unreadNum: parseModelInt(json[ConversationRepo.unreadNum]),
+      type: parseModelString(json[ConversationRepo.type]),
+      msgType: parseModelString(msgTypeRaw),
+      isShow: parseModelInt(json[ConversationRepo.isShow], defaultValue: 1),
       payload: payload != null ? Map<String, dynamic>.from(payload) : null,
     );
   }

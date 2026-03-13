@@ -1,6 +1,5 @@
 import 'http_exceptions.dart';
 import 'package:imboy/component/helper/ntp.dart';
-import 'package:imboy/i18n/strings.g.dart';
 
 class IMBoyHttpResponse {
   late bool ok;
@@ -32,7 +31,7 @@ class IMBoyHttpResponse {
     error = BadRequestException(message: errMsg, code: errCode);
     msg = errMsg ?? 'unknown error';
     code = errCode ?? 1;
-    payload = payload ?? {};
+    this.payload = payload ?? {};
     ok = false;
     // iPrint("IMBoyHttpResponse_failure code $code");
     // iPrint("IMBoyHttpResponse_failure msg $msg");
@@ -41,6 +40,9 @@ class IMBoyHttpResponse {
 
   IMBoyHttpResponse.failureFormResponse({dynamic payload}) {
     error = BadResponseException(payload);
+    code = 1;
+    msg = 'bad response';
+    this.payload = payload ?? {};
     ok = false;
   }
 
@@ -49,9 +51,10 @@ class IMBoyHttpResponse {
     int? errCode,
     String? errMsg,
   }) {
-    error = error ?? UnknownException();
-    code = errCode ?? 1;
-    msg = errMsg ?? t.errorUnexpected;
+    this.error = error ?? UnknownException();
+    code = errCode ?? this.error!.code;
+    msg = errMsg ?? this.error!.message;
+    payload = {};
     ok = false;
   }
 }

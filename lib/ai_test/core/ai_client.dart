@@ -1,6 +1,8 @@
 /// AI 客户端 - 封装 LLM API 调用
 library;
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 /// AI 客户端异常
@@ -228,13 +230,57 @@ $stackTrace
       );
 
       final content = response.data['choices'][0]['message']['content'] as String;
-      // TODO: 解析 JSON 响应
-      return TestFailureAnalysis(
-        type: FailureType.selectorHealing,
-        rootCause: content,
-        recommendedFix: '请参考 AI 分析结果',
-        confidence: 0.8,
-      );
+
+      // 尝试解析 JSON 响应
+      try {
+        // 提取 JSON 内容（可能包含在 markdown 代码块中）
+        String jsonStr = content.trim();
+        if (jsonStr.contains('```json')) {
+          jsonStr = jsonStr.replaceAll(RegExp(r'```json\s*'), '').replaceAll(RegExp(r'\s*```'), '').trim();
+        } else if (jsonStr.contains('```')) {
+          jsonStr = jsonStr.replaceAll(RegExp(r'```\s*'), '').replaceAll(RegExp(r'\s*```'), '').trim();
+        }
+
+        final json = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+        // 解析失败类型
+        FailureType type;
+        final typeStr = json['type'] as String? ?? 'other';
+        switch (typeStr) {
+          case 'selectorHealing':
+            type = FailureType.selectorHealing;
+            break;
+          case 'timeout':
+            type = FailureType.timeout;
+            break;
+          case 'dataError':
+            type = FailureType.dataError;
+            break;
+          case 'logicError':
+            type = FailureType.logicError;
+            break;
+          case 'networkError':
+            type = FailureType.networkError;
+            break;
+          default:
+            type = FailureType.other;
+        }
+
+        return TestFailureAnalysis(
+          type: type,
+          rootCause: json['rootCause'] as String? ?? content,
+          recommendedFix: json['recommendedFix'] as String? ?? '请参考 AI 分析结果',
+          confidence: (json['confidence'] as num?)?.toDouble() ?? 0.8,
+        );
+      } catch (e) {
+        // JSON 解析失败，返回原始内容
+        return TestFailureAnalysis(
+          type: FailureType.other,
+          rootCause: content,
+          recommendedFix: '请参考 AI 分析结果',
+          confidence: 0.7,
+        );
+      }
     } catch (e) {
       // 返回默认分析
       return TestFailureAnalysis(

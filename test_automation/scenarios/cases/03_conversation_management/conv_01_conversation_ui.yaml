@@ -1,0 +1,25 @@
+schema_version: 1
+case_id: "conv_01_conversation_ui"
+feature_id: "conversation_management"
+feature_name_cn: "会话管理"
+title: "会话列表操作与菜单"
+priority: "P0"
+automation_mode: "auto"
+status: "mapped"
+
+runner:
+  action: "flutter_test"
+  test_file: "integration_test/chat/conversation_test.dart"
+  device: "macos"
+  timeout_seconds: 900
+  retry: 1
+  dart_defines: "APP_ENV=local_home"
+
+precondition: "flutter_installed,device=macos,login_ready"
+assertions: "exit_code==0,conversation_ops_passed"
+ui_ux_checks: "conversation_swipe_menu_visible,operation_feedback_clear"
+
+steps:
+  - "准备测试环境并校验前置条件：flutter_installed,device=macos,login_ready"
+  - "执行 Flutter 测试：flutter test integration_test/chat/conversation_test.dart"
+  - "校验断言与 UI/UX 关键点：exit_code==0,conversation_ops_passed | conversation_swipe_menu_visible,operation_feedback_clear"

@@ -94,7 +94,7 @@ class ChatPageUtils {
   /// 返回 true 如果消息是音频消息类型
   static bool isAudioMessage(Message message) {
     final type = message.metadata?['msg_type'] ?? '';
-    return type == 'audio' || type == 'voice';
+    return type == 'voice';
   }
 
   /// 验证消息是否为文件消息

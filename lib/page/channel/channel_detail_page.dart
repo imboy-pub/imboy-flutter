@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,12 +10,18 @@ import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:intl/intl.dart';
+import 'package:imboy/service/feature_registry.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'channel_provider.dart';
@@ -38,6 +46,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   final FocusNode _messageFocusNode = FocusNode();
   ChannelStatsModel? _stats;
   final ChannelApi _api = ChannelApi();
+  bool _isUploadingMedia = false;
+  bool _isPaying = false;
+  bool _isLoadingStats = false;
+  String? _statsRequestedChannelId;
 
   @override
   void initState() {
@@ -45,21 +57,33 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     // 加载频道详情
     Future.microtask(() {
-      ref
-          .read(channelDetailNotifierProvider.notifier)
-          .loadChannel(widget.channelId);
-      _loadStats();
+      ref.read(channelDetailProvider.notifier).loadChannel(widget.channelId);
     });
 
     _scrollController.addListener(_onScroll);
   }
 
-  Future<void> _loadStats() async {
-    final stats = await _api.getChannelStats(widget.channelId);
-    if (mounted && stats != null) {
-      setState(() {
-        _stats = stats;
-      });
+  String _resolveChannelId([ChannelModel? channel]) {
+    final id = channel?.id;
+    if (id != null && id.isNotEmpty) return id;
+    return widget.channelId;
+  }
+
+  Future<void> _loadStats([String? channelId]) async {
+    if (_isLoadingStats) return;
+    final id = (channelId != null && channelId.isNotEmpty)
+        ? channelId
+        : widget.channelId;
+    _isLoadingStats = true;
+    try {
+      final stats = await _api.getChannelStats(id);
+      if (mounted && stats != null) {
+        setState(() {
+          _stats = stats;
+        });
+      }
+    } finally {
+      _isLoadingStats = false;
     }
   }
 
@@ -75,15 +99,23 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      ref.read(channelDetailNotifierProvider.notifier).loadMoreMessages();
+      ref.read(channelDetailProvider.notifier).loadMoreMessages();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final state = ref.watch(channelDetailNotifierProvider);
+    final state = ref.watch(channelDetailProvider);
     final channel = state.channel;
+    if (channel != null &&
+        (_stats == null || _stats!.channelId != channel.id) &&
+        _statsRequestedChannelId != channel.id) {
+      _statsRequestedChannelId = channel.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadStats(channel.id);
+      });
+    }
 
     return Scaffold(
       appBar: GlassAppBar(
@@ -94,7 +126,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       body: _buildBody(state),
       // 管理员/创建者显示消息输入框
       bottomNavigationBar: channel?.canPublish == true
-          ? _buildMessageInput(channel!)
+          ? _buildMessageInput(
+              channel!,
+              state.isPublishing || _isUploadingMedia,
+            )
           : null,
     );
   }
@@ -104,9 +139,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (channel == null) return [];
 
     final isManaged = channel.isManaged;
-    final isSubscribed = channel.isSubscribed;
 
     return [
+      if (channel.canPublish)
+        IconButton(
+          icon: const Icon(Icons.campaign_outlined),
+          onPressed: _focusPublishInput,
+          tooltip: context.t.publish,
+        ),
       // 管理员显示设置按钮
       if (isManaged)
         IconButton(
@@ -120,21 +160,38 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert),
         onSelected: (value) => _handleMenuAction(value, channel),
-        itemBuilder: (context) => _buildMenuItems(isManaged, isSubscribed),
+        itemBuilder: (context) => _buildMenuItems(channel),
       ),
     ];
   }
 
   /// 构建菜单项
-  List<PopupMenuEntry<String>> _buildMenuItems(
-    bool isManaged,
-    bool isSubscribed,
-  ) {
+
+  List<PopupMenuEntry<String>> _buildMenuItems(ChannelModel channel) {
     final t = context.t;
+    final isManaged = channel.isManaged;
+    final isSubscribed = channel.isSubscribed;
+    final canPublish = channel.canPublish;
+    final invitationEnabled = AppFeatureRegistry.isEnabled(
+      'channel_invitation',
+    );
+    final orderEnabled = AppFeatureRegistry.isEnabled('channel_order');
     final items = <PopupMenuEntry<String>>[];
 
+    if (canPublish) {
+      items.add(
+        PopupMenuItem(
+          value: 'publish',
+          child: ListTile(
+            leading: const Icon(Icons.campaign_outlined),
+            title: Text(t.publish),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      );
+    }
+
     if (isManaged) {
-      // 管理员菜单
       items.addAll([
         PopupMenuItem(
           value: 'edit_channel',
@@ -162,7 +219,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         ),
       ]);
     } else if (isSubscribed) {
-      // 订阅者菜单
       items.add(
         PopupMenuItem(
           value: 'unsubscribe',
@@ -175,7 +231,18 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       );
     }
 
-    // 通用菜单
+    if (invitationEnabled) {
+      items.add(
+        const PopupMenuItem(
+          value: 'invitation_center',
+          child: ListTile(
+            leading: Icon(Icons.mark_email_unread_outlined),
+            title: Text('邀请中心 / Invitations'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      );
+    }
     items.add(
       PopupMenuItem(
         value: 'share',
@@ -186,12 +253,29 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         ),
       ),
     );
+    if (channel.type == ChannelType.paid && orderEnabled) {
+      items.add(
+        const PopupMenuItem(
+          value: 'my_orders',
+          child: ListTile(
+            leading: Icon(Icons.receipt_long_outlined),
+            title: Text('我的订单 / My Orders'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      );
+    }
 
     return items;
   }
 
+  void _focusPublishInput() {
+    if (!_messageFocusNode.canRequestFocus) return;
+    _messageFocusNode.requestFocus();
+  }
+
   /// 构建消息输入框
-  Widget _buildMessageInput(ChannelModel channel) {
+  Widget _buildMessageInput(ChannelModel channel, bool isBusy) {
     return Container(
       padding: EdgeInsets.only(
         left: 16,
@@ -210,13 +294,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           // 附件按钮
           IconButton(
             icon: Icon(Icons.attach_file, color: Colors.grey[600]),
-            onPressed: () => _pickAndSendMedia(channel),
+            onPressed: isBusy ? null : () => _pickAndSendMedia(channel),
           ),
           // 输入框
           Expanded(
             child: TextField(
               controller: _messageController,
               focusNode: _messageFocusNode,
+              enabled: !isBusy,
               decoration: InputDecoration(
                 hintText: context.t.channel.writeMessage,
                 border: OutlineInputBorder(
@@ -233,14 +318,24 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               maxLines: 4,
               minLines: 1,
               textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _sendMessage(channel),
+              onSubmitted: (_) {
+                if (!isBusy) {
+                  _sendMessage(channel);
+                }
+              },
             ),
           ),
           const SizedBox(width: 8),
           // 发送按钮
           FloatingActionButton.small(
-            onPressed: () => _sendMessage(channel),
-            child: const Icon(Icons.send, size: 20),
+            onPressed: isBusy ? null : () => _sendMessage(channel),
+            child: isBusy
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send, size: 20),
           ),
         ],
       ),
@@ -249,24 +344,46 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   /// 发送消息
   Future<void> _sendMessage(ChannelModel channel) async {
+    if (ref.read(channelDetailProvider).isPublishing || _isUploadingMedia) {
+      return;
+    }
     final content = _messageController.text.trim();
     if (content.isEmpty) return;
 
-    _messageController.clear();
-
     final success = await ref
-        .read(channelDetailNotifierProvider.notifier)
-        .publishMessage(content: content, msgType: 'text');
+        .read(channelDetailProvider.notifier)
+        .publishMessage(content: content, msgType: ChannelMessageType.text);
 
-    if (!success && mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
+    if (success) {
+      if (mounted) {
+        _messageController.clear();
+      }
+      return;
+    }
+
+    if (mounted) {
+      final err = ref.read(channelDetailProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (err == null || err.isEmpty)
+                ? context.t.channel.publishFailed
+                : '${context.t.channel.publishFailed}: $err',
+          ),
+        ),
+      );
     }
   }
 
   /// 选择并发送媒体文件
   Future<void> _pickAndSendMedia(ChannelModel channel) async {
+    if (ref.read(channelDetailProvider).isPublishing || _isUploadingMedia) {
+      return;
+    }
+    if (mounted) {
+      setState(() => _isUploadingMedia = true);
+    }
+
     final assets = await AssetPicker.pickAssets(
       context,
       pickerConfig: AssetPickerConfig(
@@ -276,47 +393,169 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       ),
     );
 
-    if (assets == null || assets.isEmpty) return;
-
-    for (final asset in assets) {
-      final file = await asset.file;
-      if (file == null) continue;
-
-      // 根据类型发送不同消息
-      String msgType = 'file';
-      Map<String, dynamic> payload = {
-        'uri': file.path,
-        'name': asset.title ?? file.path.split('/').last,
-        'size': await file.length(),
-      };
-
-      if (asset.type == AssetType.image) {
-        msgType = 'image';
-      } else if (asset.type == AssetType.video) {
-        msgType = 'video';
-        // 获取视频缩略图
-        payload['thumb'] = {'uri': file.path};
-        payload['duration'] = asset.duration;
+    if (assets == null || assets.isEmpty) {
+      if (mounted) {
+        setState(() => _isUploadingMedia = false);
       }
+      return;
+    }
 
-      final success = await ref
-          .read(channelDetailNotifierProvider.notifier)
-          .publishMessage(
-            content: asset.title ?? '',
-            msgType: msgType,
-            payload: payload,
-          );
+    try {
+      for (final asset in assets) {
+        final file = await asset.file;
+        if (file == null) continue;
 
-      if (!success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t.channel.publishFailed)),
+        // 根据类型发送不同消息
+        String msgType = ChannelMessageType.file;
+        String uploadPrefix = 'files';
+        Map<String, dynamic> payload = {
+          'name': asset.title ?? file.path.split('/').last,
+          'size': await file.length(),
+        };
+
+        if (asset.type == AssetType.image) {
+          msgType = ChannelMessageType.image;
+          uploadPrefix = 'img';
+        } else if (asset.type == AssetType.video) {
+          msgType = ChannelMessageType.video;
+          uploadPrefix = 'camera';
+          payload['duration'] = asset.duration;
+        }
+
+        final uploadedUri = await _uploadChannelFile(
+          file,
+          prefix: uploadPrefix,
         );
+        if (!mounted) return;
+        if (uploadedUri == null || uploadedUri.isEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+          continue;
+        }
+
+        payload['uri'] = uploadedUri;
+        if (msgType == ChannelMessageType.video) {
+          final thumbData = await asset.thumbnailDataWithSize(
+            const ThumbnailSize(480, 480),
+            quality: 75,
+          );
+          final thumbUri = thumbData == null
+              ? null
+              : await _uploadChannelBytes(
+                  thumbData,
+                  prefix: uploadPrefix,
+                  path: 'thumb.jpg',
+                );
+          if (thumbUri != null && thumbUri.isNotEmpty) {
+            payload['thumb'] = {'uri': thumbUri};
+          } else {
+            payload['thumb'] = {'uri': ''};
+          }
+        }
+
+        final fileName = asset.title ?? file.path.split('/').last;
+        final content = (fileName).trim().isEmpty ? '[media]' : fileName;
+
+        final success = await ref
+            .read(channelDetailProvider.notifier)
+            .publishMessage(
+              content: content,
+              msgType: msgType,
+              payload: payload,
+            );
+
+        if (!success && mounted) {
+          final err = ref.read(channelDetailProvider).error;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                (err == null || err.isEmpty)
+                    ? context.t.channel.publishFailed
+                    : '${context.t.channel.publishFailed}: $err',
+              ),
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingMedia = false);
       }
     }
   }
 
+  Future<String?> _uploadChannelBytes(
+    Uint8List file, {
+    required String prefix,
+    String path = 'file.jpg',
+  }) async {
+    String? uploadedUrl;
+    final completer = Completer<bool>();
+
+    await AttachmentApi.uploadBytes(
+      prefix,
+      file,
+      (Map<String, dynamic> resp, String url) {
+        if (completer.isCompleted) return;
+        final status = resp['status']?.toString() ?? '';
+        if (status == 'ok') {
+          uploadedUrl = url;
+          completer.complete(true);
+        } else {
+          completer.complete(false);
+        }
+      },
+      (_) {
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
+      },
+      path: path,
+      process: false,
+    );
+
+    final success = await completer.future;
+    if (!success) return null;
+    return uploadedUrl;
+  }
+
+  Future<String?> _uploadChannelFile(
+    File file, {
+    required String prefix,
+  }) async {
+    String? uploadedUrl;
+    final completer = Completer<bool>();
+
+    await AttachmentApi.uploadFile(
+      prefix,
+      file,
+      (Map<String, dynamic> resp, String url) {
+        if (completer.isCompleted) return;
+        final status = resp['status']?.toString() ?? '';
+        if (status == 'ok') {
+          uploadedUrl = url;
+          completer.complete(true);
+        } else {
+          completer.complete(false);
+        }
+      },
+      (_) {
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
+      },
+      process: true,
+    );
+
+    final success = await completer.future;
+    if (!success) return null;
+    return uploadedUrl;
+  }
+
   /// 显示频道设置
   void _showChannelSettings(ChannelModel channel) {
+    final channelId = _resolveChannelId(channel);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -354,12 +593,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 leading: const Icon(Icons.edit_outlined),
                 title: Text(context.t.channel.editChannel),
                 subtitle: Text(context.t.channel.editChannelDesc),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  context.push(
-                    '/channel/${widget.channelId}/edit',
-                    extra: channel,
-                  );
+                  await _openChannelEdit(channel);
                 },
               ),
               ListTile(
@@ -368,7 +604,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 subtitle: Text(context.t.channel.manageAdminsDesc),
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/channel/${widget.channelId}/admins');
+                  context.push('/channel/$channelId/admins');
                 },
               ),
               ListTile(
@@ -377,7 +613,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 subtitle: Text(context.t.channel.manageSubscribersDesc),
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/channel/${widget.channelId}/subscribers');
+                  context.push('/channel/$channelId/subscribers');
                 },
               ),
               if (channel.userRole.isCreator)
@@ -451,9 +687,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                ref
-                    .read(channelDetailNotifierProvider.notifier)
-                    .loadChannel(widget.channelId);
+                final channel = ref.read(channelDetailProvider).channel;
+                final reloadId = _resolveChannelId(channel);
+                ref.read(channelDetailProvider.notifier).loadChannel(reloadId);
               },
               child: Text(context.t.buttonRetry),
             ),
@@ -464,53 +700,301 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        await ref
-            .read(channelDetailNotifierProvider.notifier)
-            .loadChannel(widget.channelId);
-        await _loadStats();
+        final reloadId = _resolveChannelId(state.channel);
+        await ref.read(channelDetailProvider.notifier).loadChannel(reloadId);
+        _statsRequestedChannelId = null;
+        await _loadStats(reloadId);
       },
       child: CustomScrollView(
         controller: _scrollController,
         slivers: [
           // 统计信息头部
           SliverToBoxAdapter(child: _buildStatsHeader()),
-          // 消息列表
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (state.messages.isEmpty && !state.isLoading) {
-                  return NoDataView(
-                    icon: Icons.article_outlined,
-                    text: context.t.channel.noMessages,
+          if (_isPaidChannelLocked(state.channel))
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildPaidLockedView(state.channel!),
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (state.messages.isEmpty && !state.isLoading) {
+                    return NoDataView(
+                      icon: Icons.article_outlined,
+                      text: context.t.channel.noMessages,
+                    );
+                  }
+
+                  final message = state.messages[index];
+                  final showDate = _shouldShowDate(state.messages, index);
+
+                  return Column(
+                    children: [
+                      if (showDate) _buildDateDivider(message),
+                      _ChannelMessageItem(
+                        message: message,
+                        channelId: _resolveChannelId(state.channel),
+                        isManaged: state.channel?.isManaged ?? false,
+                        onReactionChanged: () {
+                          // 刷新统计
+                          _loadStats(_resolveChannelId(state.channel));
+                        },
+                      ),
+                    ],
                   );
-                }
-
-                final message = state.messages[index];
-                final showDate = _shouldShowDate(state.messages, index);
-
-                return Column(
-                  children: [
-                    if (showDate) _buildDateDivider(message),
-                    _ChannelMessageItem(
-                      message: message,
-                      channelId: widget.channelId,
-                      isManaged: state.channel?.isManaged ?? false,
-                      onReactionChanged: () {
-                        // 刷新统计
-                        _loadStats();
-                      },
-                    ),
-                  ],
-                );
-              },
-              childCount: state.messages.isEmpty
-                  ? 1
-                  : state.messages.length + (state.hasMore ? 1 : 0),
+                },
+                childCount: state.messages.isEmpty
+                    ? 1
+                    : state.messages.length + (state.hasMore ? 1 : 0),
+              ),
             ),
+        ],
+      ),
+    );
+  }
+
+  bool _isPaidChannelLocked(ChannelModel? channel) {
+    if (channel == null) return false;
+    return channel.type == ChannelType.paid &&
+        !channel.isSubscribed &&
+        !channel.isManaged;
+  }
+
+  Widget _buildPaidLockedView(ChannelModel channel) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 460),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.lock_outline, color: Colors.amber),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '付费频道内容已锁定 / Paid Channel Locked',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                '购买后可解锁频道历史消息与后续更新内容。',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _isPaying
+                          ? null
+                          : () => _buyAndUnlock(channel),
+                      icon: _isPaying
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.shopping_cart_checkout_outlined),
+                      label: Text(_isPaying ? '支付中...' : '立即购买并解锁'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  OutlinedButton.icon(
+                    onPressed: () => _showMyOrdersSheet(channel.id),
+                    icon: const Icon(Icons.receipt_long_outlined),
+                    label: const Text('我的订单'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _buyAndUnlock(ChannelModel channel) async {
+    if (_isPaying) return;
+    final channelId = _resolveChannelId(channel);
+
+    setState(() {
+      _isPaying = true;
+    });
+
+    try {
+      final order = await ChannelService.to.createAndPayOrder(channelId);
+      if (!mounted) return;
+
+      if (order == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('购买失败，请稍后重试')));
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('购买成功，订单号: ${order.orderNo}')));
+
+      await ref.read(channelListProvider.notifier).loadSubscribedChannels();
+      await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
+      _statsRequestedChannelId = null;
+      await _loadStats(channelId);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPaying = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _showMyOrdersSheet(String channelId) async {
+    final allOrders = await ChannelService.to.getMyOrders();
+    if (!mounted) return;
+
+    final orders = allOrders.where((o) => o.channelId == channelId).toList();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.of(ctx).size.height * 0.62,
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              const Text(
+                '我的订单 / My Orders',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: orders.isEmpty
+                    ? const Center(child: Text('暂无订单'))
+                    : ListView.separated(
+                        itemCount: orders.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final order = orders[index];
+                          return ListTile(
+                            title: Text(order.orderNo),
+                            subtitle: Text(
+                              '${order.currency} ${order.amount.toStringAsFixed(2)} · '
+                              '${DateFormat('yyyy-MM-dd HH:mm').format(order.createdAt)}',
+                            ),
+                            trailing: Text(
+                              _orderStatusLabel(order.status),
+                              style: TextStyle(
+                                color: _orderStatusColor(order.status),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            onTap: () => _showOrderDetail(order.orderNo),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showOrderDetail(String orderNo) async {
+    final order = await ChannelService.to.getOrder(orderNo);
+    if (!mounted) return;
+
+    if (order == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('订单详情加载失败')));
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('订单详情'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('订单号: ${order.orderNo}'),
+            const SizedBox(height: 6),
+            Text('状态: ${_orderStatusLabel(order.status)}'),
+            const SizedBox(height: 6),
+            Text('金额: ${order.currency} ${order.amount.toStringAsFixed(2)}'),
+            const SizedBox(height: 6),
+            Text(
+              '创建时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(order.createdAt)}',
+            ),
+            if (order.paymentAt != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                '支付时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(order.paymentAt!)}',
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.t.confirm),
           ),
         ],
       ),
     );
+  }
+
+  String _orderStatusLabel(int status) {
+    switch (status) {
+      case ChannelOrderStatus.pending:
+        return '待支付';
+      case ChannelOrderStatus.paid:
+        return '已支付';
+      case ChannelOrderStatus.refunded:
+        return '已退款';
+      case ChannelOrderStatus.cancelled:
+        return '已取消';
+      case ChannelOrderStatus.expired:
+        return '已过期';
+      default:
+        return '未知';
+    }
+  }
+
+  Color _orderStatusColor(int status) {
+    switch (status) {
+      case ChannelOrderStatus.paid:
+        return Colors.green;
+      case ChannelOrderStatus.pending:
+        return Colors.orange;
+      case ChannelOrderStatus.refunded:
+      case ChannelOrderStatus.cancelled:
+      case ChannelOrderStatus.expired:
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildStatsHeader() {
@@ -634,6 +1118,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   void _handleMenuAction(String action, ChannelModel? channel) {
     final t = context.t;
+    final channelId = _resolveChannelId(channel);
 
     switch (action) {
       case 'unsubscribe':
@@ -651,8 +1136,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 onPressed: () async {
                   Navigator.pop(context);
                   final success = await ref
-                      .read(channelListNotifierProvider.notifier)
-                      .unsubscribeChannel(widget.channelId);
+                      .read(channelListProvider.notifier)
+                      .unsubscribeChannel(channelId);
                   if (success && mounted) {
                     context.pop();
                   }
@@ -663,19 +1148,54 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
         );
         break;
+      case 'publish':
+        _focusPublishInput();
+        break;
       case 'share':
         _shareChannel(channel);
         break;
+      case 'invitation_center':
+        if (!AppFeatureRegistry.isEnabled('channel_invitation')) {
+          break;
+        }
+        context.push('/channel/invitations');
+        break;
+      case 'my_orders':
+        if (!AppFeatureRegistry.isEnabled('channel_order')) {
+          break;
+        }
+        _showMyOrdersSheet(channelId);
+        break;
       case 'edit_channel':
-        context.push('/channel/${widget.channelId}/edit', extra: channel);
+        if (channel != null) {
+          _openChannelEdit(channel);
+        }
         break;
       case 'manage_admins':
-        context.push('/channel/${widget.channelId}/admins');
+        context.push('/channel/$channelId/admins');
         break;
       case 'manage_subscribers':
-        context.push('/channel/${widget.channelId}/subscribers');
+        context.push('/channel/$channelId/subscribers');
         break;
     }
+  }
+
+  Future<void> _openChannelEdit(ChannelModel channel) async {
+    final channelId = _resolveChannelId(channel);
+    final result = await context.push(
+      '/channel/$channelId/edit',
+      extra: channel,
+    );
+    if (!mounted) return;
+    if (result == null || result == false) return;
+
+    final reloadId = result is ChannelModel && result.id.isNotEmpty
+        ? result.id
+        : _resolveChannelId(result is ChannelModel ? result : channel);
+
+    await ref.read(channelDetailProvider.notifier).loadChannel(reloadId);
+    _statsRequestedChannelId = null;
+    await _loadStats(reloadId);
   }
 
   /// 分享频道
@@ -784,9 +1304,7 @@ class _ChannelMessageItem extends StatelessWidget {
     }
   }
 
-  /// 移除消息反应
-  /// TODO: 实现长按已添加的表情来移除功能
-  // ignore: unused_element
+  /// 移除消息反应（通过长按反应标签触发）
   Future<void> _removeReaction(
     BuildContext context,
     String reactionType,
@@ -1042,7 +1560,7 @@ class _ChannelMessageItem extends StatelessWidget {
               if (message.reactionSummary != null &&
                   message.reactionSummary!.isNotEmpty) ...[
                 const SizedBox(width: 8),
-                _buildReactionSummary(),
+                _buildReactionSummary(context),
               ],
             ],
           ),
@@ -1100,7 +1618,6 @@ class _ChannelMessageItem extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              // TODO: 实现删除消息
               final api = ChannelApi();
               final success = await api.deleteMessage(channelId, message.id);
               if (success && context.mounted) {
@@ -1118,26 +1635,56 @@ class _ChannelMessageItem extends StatelessWidget {
     );
   }
 
-  Widget _buildReactionSummary() {
+  /// 构建反应摘要（支持长按移除自己的反应）
+  Widget _buildReactionSummary(BuildContext context) {
     final summary = message.reactionSummary!;
     final List<Widget> reactionWidgets = [];
 
     summary.forEach((type, count) {
       final emoji = ChannelReactionType.getIcon(type);
       reactionWidgets.add(
-        Container(
-          margin: const EdgeInsets.only(right: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
+        GestureDetector(
+          onLongPress: () => _showRemoveReactionDialog(context, type),
+          child: Container(
+            margin: const EdgeInsets.only(right: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text('$emoji $count', style: const TextStyle(fontSize: 11)),
           ),
-          child: Text('$emoji $count', style: const TextStyle(fontSize: 11)),
         ),
       );
     });
 
     return Row(children: reactionWidgets);
+  }
+
+  /// 显示移除反应确认对话框
+  void _showRemoveReactionDialog(BuildContext context, String reactionType) {
+    final emoji = ChannelReactionType.getIcon(reactionType);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('移除反应'),
+        content: Text('确定要移除 $emoji 反应吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.t.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _removeReaction(context, reactionType);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(context.t.confirm),
+          ),
+        ],
+      ),
+    );
   }
 
   String _formatTime(DateTime time) {
@@ -1157,12 +1704,15 @@ class _ChannelMessageItem extends StatelessWidget {
 
   Widget _buildMessageContent(BuildContext context) {
     switch (message.msgType) {
+      case ChannelMessageType.image:
       case 'image':
         return _buildImageContent(context);
+      case ChannelMessageType.video:
       case 'video':
         return _buildVideoContent(context);
+      case ChannelMessageType.file:
       case 'file':
-        return _buildFileContent();
+        return _buildFileContent(context);
       default:
         return _buildTextContent();
     }
@@ -1199,7 +1749,13 @@ class _ChannelMessageItem extends StatelessWidget {
 
   Widget _buildVideoContent(BuildContext context) {
     final payload = message.payload;
-    final thumb = payload?['thumb']?['uri'] as String?;
+    String? thumb;
+    final dynamic thumbRaw = payload?['thumb'];
+    if (thumbRaw is String) {
+      thumb = thumbRaw;
+    } else if (thumbRaw is Map) {
+      thumb = thumbRaw['uri']?.toString();
+    }
     final videoUri = payload?['uri'] as String?;
 
     return GestureDetector(
@@ -1214,13 +1770,22 @@ class _ChannelMessageItem extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (thumb != null)
+          if (thumb != null && thumb.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image(
                 image: cachedImageProvider(thumb, w: 400),
                 fit: BoxFit.cover,
                 width: double.infinity,
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
           Container(
@@ -1236,41 +1801,69 @@ class _ChannelMessageItem extends StatelessWidget {
     );
   }
 
-  Widget _buildFileContent() {
+  Widget _buildFileContent(BuildContext context) {
     final payload = message.payload;
     final name = payload?['name'] as String? ?? '文件';
     final size = payload?['size'] as int? ?? 0;
+    final uri = payload?['uri']?.toString();
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.insert_drive_file, color: Colors.grey[600], size: 32),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  _formatFileSize(size),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-              ],
+    return InkWell(
+      onTap: (uri == null || uri.isEmpty)
+          ? null
+          : () async {
+              await _openFile(context, uri);
+            },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.insert_drive_file, color: Colors.grey[600], size: 32),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    _formatFileSize(size),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.download, color: Colors.grey[600]),
-        ],
+            Icon(Icons.download, color: Colors.grey[600]),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _openFile(BuildContext context, String uri) async {
+    final parsed = Uri.tryParse(uri);
+    if (parsed == null) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('文件链接无效')));
+      return;
+    }
+    if (!await canLaunchUrl(parsed)) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('无法打开该文件')));
+      return;
+    }
+    await launchUrl(parsed, mode: LaunchMode.externalApplication);
   }
 
   String _formatFileSize(int bytes) {

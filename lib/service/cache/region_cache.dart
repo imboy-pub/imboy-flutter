@@ -82,11 +82,11 @@ class RegionCache {
 
   /// 保存地区数据版本号（后端对接占位方法）
   /// 用途：记录当前缓存数据对应的服务器版本，用于版本比较
-  /// 参数：version 版本号字符串
+  /// 参数：version 版本号字符串（格式待后端 API 确认，建议使用语义化版本如 "1.0.0" 或时间戳）
   /// 返回：`Future<void>`
   /// 异常：SharedPreferences 操作异常
   ///
-  /// TODO: 待后端接口确认版本号格式后完善
+  /// 注意：版本号格式需要与后端 API 对齐，当前实现为通用字符串存储
   static Future<void> saveDataVersion(String version) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyDataVersion, version);
@@ -98,7 +98,7 @@ class RegionCache {
   /// 返回：`Future<String>` 版本号字符串，无缓存时返回空字符串
   /// 异常：SharedPreferences 操作异常
   ///
-  /// TODO: 待后端接口确认版本号格式后完善
+  /// 注意：返回值格式取决于 saveDataVersion 的存储格式
   static Future<String> getDataVersion() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyDataVersion) ?? '';
@@ -130,13 +130,16 @@ class RegionCache {
     ]);
   }
 
-  /// 检查缓存是否过期（后端对接占位方法）
+  /// 检查缓存是否过期
   /// 用途：根据最后更新时间判断缓存是否需要刷新
   /// 参数：maxAgeHours 最大缓存时间（小时），默认 24 小时
   /// 返回：`Future<bool>` 是否过期
   /// 异常：无
   ///
-  /// TODO: 根据实际业务需求调整过期策略
+  /// 过期策略说明：
+  /// - 默认 24 小时过期，适合地区数据变化不频繁的场景
+  /// - 如需更激进的更新策略，可传入较小的 maxAgeHours 值
+  /// - 建议结合后端版本号比较实现增量更新
   static Future<bool> isCacheExpired({int maxAgeHours = 24}) async {
     final lastUpdate = await getLastUpdateTime();
     if (lastUpdate == 0) return true; // 无更新记录视为过期

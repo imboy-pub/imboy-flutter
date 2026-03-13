@@ -20,15 +20,13 @@ class WebRTCMessageBuilder extends StatelessWidget {
 
   Widget _buildBody(
     BuildContext context,
-    String messageType, // 改名：customType -> messageType，更准确
+    String messageType,
     String title,
     bool userIsAuthor,
   ) {
     Widget row;
-    // 根据 messageType 判断是否为视频通话
-    // 支持：webrtcVideo, webrtc_video (旧格式)
-    final isVideo =
-        messageType == 'webrtcVideo' || messageType == 'webrtc_video';
+    // 根据 messageType 判断是否为视频通话（仅支持 v2 规范）
+    final isVideo = messageType == 'webrtcVideo';
 
     if (userIsAuthor) {
       row = Row(
@@ -97,13 +95,11 @@ class WebRTCMessageBuilder extends StatelessWidget {
     int state = message.metadata?['state'] ?? 0;
 
     // 优先使用 msg_type 判断（WebSocket API v2.0）
-    // 兼容新旧数据格式
     final msgType = message.metadata?['msg_type'] ?? '';
-    final customType = message.metadata?['custom_type'] ?? '';
 
     // 新格式：msg_type = 'webrtcAudio' 或 'webrtcVideo'
-    // 旧格式：custom_type = 'webrtc_audio' 或 'webrtc_video'
-    final isVideo = msgType == 'webrtcVideo' || customType == 'webrtc_video';
+    // 统一使用 msg_type = webrtcAudio / webrtcVideo
+    final isVideo = msgType == 'webrtcVideo';
     String media = isVideo ? 'video' : 'audio';
 
     int startAt = message.metadata?['start_at'] ?? 0;
@@ -135,7 +131,6 @@ class WebRTCMessageBuilder extends StatelessWidget {
     if (title.isEmpty && callCuration.isNotEmpty) {
       title = "${t.callDuration} $callCuration";
     }
-    // iPrint("message_webrtc_builder $title; $state; $customType;");
     if (title.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -160,52 +155,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
-        child: _buildBody(
-          context,
-          msgType.isNotEmpty ? msgType : customType,
-          title,
-          userIsAuthor,
-        ),
+        child: _buildBody(context, msgType, title, userIsAuthor),
       ),
     );
-    /*
-    return Bubble(
-      // color: userIsAuthor
-      //     ? AppColors.ChatSendMessageBgColor
-      //     : AppColors.ChatReceivedMessageBodyBgColor,
-      // color: AppColors.ChatReceivedMessageBodyBgColor,
-      nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
-      // style: const BubbleStyle(nipWidth: 16),
-      nipRadius: 4,
-      alignment: userIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
-      child: InkWell(
-        onTap: () async {
-          ContactModel? peer = await ContactRepo().findByUid(peerId);
-          // UserModel peer = UserModel(
-          //   uid: peerId,
-          //   account: c!.account,
-          //   nickname: c.nickname,
-          //   avatar: c.avatar,
-          // );
-          if (peer != null) {
-            openCallScreen(
-              context,
-              peer,
-              // session: s,
-              {
-                'media': media,
-              },
-              caller: true,
-            );
-          }
-        },
-        child: _buildBody(
-          customType,
-          title,
-          userIsAuthor,
-        ),
-      ),
-    );
-    */
   }
 }

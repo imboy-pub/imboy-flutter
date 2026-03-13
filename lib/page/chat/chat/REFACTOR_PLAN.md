@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-`chat_provider.dart` 当前有 **2,462 行代码**，严重违反单一职责原则（SRP）。本方案将其拆分为 **7 个独立模块**，每个模块职责清晰。
+`chat_provider.dart` 当前有 **2,462 行代码**，严重违反单一职责原则（SRP）。本方案将其拆分为 **4 个独立模块**，每个模块职责清晰。
 
 ## 🎯 目标
 
@@ -18,10 +18,7 @@ lib/page/chat/chat/
 ├── chat_provider.dart              # 核心 Notifier（精简版，~300行）
 ├── chat_state.dart                 # 状态类定义（~100行）
 ├── providers/
-│   ├── chat_message_sender.dart    # 消息发送逻辑
-│   ├── chat_message_loader.dart    # 消息加载逻辑
 │   ├── chat_audio_handler.dart     # 音频播放管理
-│   ├── chat_e2ee_handler.dart      # E2EE 加密处理
 │   ├── chat_reaction_handler.dart  # 消息反应处理
 │   └── chat_burn_handler.dart      # 阅后即焚处理
 └── mixin/
@@ -34,10 +31,7 @@ lib/page/chat/chat/
 |------|------|----------|
 | `chat_provider.dart` | 状态管理入口、协调各 Handler | ~300 |
 | `chat_state.dart` | 状态类定义、不可变数据 | ~100 |
-| `chat_message_sender.dart` | 消息发送、WebSocket 通信、重试 | ~400 |
-| `chat_message_loader.dart` | 分页加载、消息转换 | ~300 |
 | `chat_audio_handler.dart` | 语音播放、自动播放下一条 | ~200 |
-| `chat_e2ee_handler.dart` | 端到端加密、密钥管理 | ~350 |
 | `chat_reaction_handler.dart` | 消息反应、更新 UI | ~200 |
 | `chat_burn_handler.dart` | 阅后即焚定时器、清理 | ~250 |
 | `chat_event_handler.dart` | EventBus 订阅、事件分发 | ~300 |
@@ -54,12 +48,7 @@ lib/page/chat/chat/
 2. 提取 `ChatBurnHandler`
 3. 提取 `ChatReactionHandler`
 
-### Phase 3: 提取核心逻辑（高风险）
-1. 提取 `ChatMessageSender`
-2. 提取 `ChatMessageLoader`
-3. 提取 `ChatE2EEHandler`
-
-### Phase 4: 重构主 Provider
+### Phase 3: 重构主 Provider
 1. 简化 `ChatNotifier`
 2. 整合 Handler
 3. 更新测试
@@ -83,9 +72,8 @@ lib/page/chat/chat/
 
 - Phase 1: 2-3 小时
 - Phase 2: 4-5 小时
-- Phase 3: 6-8 小时
-- Phase 4: 3-4 小时
-- **总计: 15-20 小时**
+- Phase 3: 3-4 小时
+- **总计: 9-12 小时**
 
 ## ✅ 验收标准
 

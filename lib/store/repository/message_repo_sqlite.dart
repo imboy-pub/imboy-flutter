@@ -24,24 +24,6 @@ class MessageRepo {
   static String c2sTable = 'msg_c2s';
   static String s2cTable = 'msg_s2c';
 
-  // 旧表名常量（用于迁移期兼容）
-  static const String _legacyC2cTable = 'message';
-  static const String _legacyC2gTable = 'group_message';
-  static const String _legacyC2sTable = 'c2s_message';
-  static const String _legacyS2cTable = 's2c_message';
-
-  // 表名映射：新表名 -> 旧表名（用于向后兼容）
-  static final Map<String, String> _legacyTableMapping = {
-    c2cTable: _legacyC2cTable,
-    c2gTable: _legacyC2gTable,
-    c2sTable: _legacyC2sTable,
-    s2cTable: _legacyS2cTable,
-  };
-
-  // 数据库版本标记（用于判断是否已完成迁移）
-  static int _dbVersion = 9;
-  static bool _hasCheckedMigration = false;
-
   static String autoId = 'auto_id';
   static String id = 'id'; // message_id
 
@@ -61,7 +43,7 @@ class MessageRepo {
   static String topicId = 'topic_id';
 
   // v2.0 新增字段（从 payload 中提取到顶层）
-  static String msgType = 'msg_type'; // 消息类型：text, image, audio, video, file 等
+  static String msgType = 'msg_type'; // 消息类型：text, image, voice, video, file 等
   static String action = 'action'; // S2C 消息指令
   static String e2ee = 'e2ee'; // 端到端加密信息（JSON 字符串）
 
@@ -106,67 +88,10 @@ class MessageRepo {
     }
   }
 
-  /// 获取实际使用的表名（处理迁移期兼容性）
-  /// 如果新表存在则使用新表名，否则尝试使用旧表名
+  /// 获取实际使用的表名。
+  /// 项目未发布，统一使用当前版本标准表名。
   Future<String> getActualTableName() async {
-    if (!_hasCheckedMigration) {
-      await _checkDatabaseVersion();
-    }
-
-    // 如果数据库版本 >= 10，使用新表名
-    if (_dbVersion >= 10) {
-      return tableName;
-    }
-
-    // 否则检查新表是否存在
-    final db = await _db.db;
-    final count = Sqflite.firstIntValue(
-      await db!.rawQuery(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
-        [tableName],
-      ),
-    );
-
-    if (count != null && count > 0) {
-      // 新表存在，使用新表名
-      return tableName;
-    }
-
-    // 新表不存在，尝试使用旧表名
-    final legacyTableName = _legacyTableMapping[tableName];
-    if (legacyTableName != null) {
-      final legacyCount = Sqflite.firstIntValue(
-        await db.rawQuery(
-          "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
-          [legacyTableName],
-        ),
-      );
-
-      if (legacyCount != null && legacyCount > 0) {
-        debugPrint('MessageRepo: 使用旧表名 $legacyTableName 替代 $tableName');
-        return legacyTableName;
-      }
-    }
-
-    // 都不存在，返回新表名（会报错，但这是预期的）
     return tableName;
-  }
-
-  /// 检查数据库版本
-  Future<void> _checkDatabaseVersion() async {
-    try {
-      final db = await _db.db;
-      final version = Sqflite.firstIntValue(
-        await db!.rawQuery('PRAGMA user_version'),
-      );
-      _dbVersion = version ?? 9;
-      _hasCheckedMigration = true;
-      debugPrint('MessageRepo: 数据库版本 v$_dbVersion');
-    } catch (e) {
-      debugPrint('MessageRepo: 检查数据库版本失败: $e');
-      _dbVersion = 9;
-      _hasCheckedMigration = true;
-    }
   }
 
   // 数据验证：验证必填字段
@@ -407,7 +332,9 @@ class MessageRepo {
     updateData.remove(MessageRepo.id);
     updateData.remove(MessageRepo.autoId);
 
-    func_helper.iPrint("message_repo/updateWithConditions $tableName ; where: $where");
+    func_helper.iPrint(
+      "message_repo/updateWithConditions $tableName ; where: $where",
+    );
     if (txn != null) {
       return await txn.update(
         tableName,
@@ -880,13 +807,11 @@ class MessageRepo {
           // 获取顶层字段
           var msgType = (msgData['msg_type'] ?? '').toString();
 
-          func_helper.iPrint('🔍 [DEBUG 离线消息] 原始数据: msgId=$msgId, msgData[\'msg_type\']="${msgData['msg_type']}", payload keys=${payload.keys.toList()}');
-          if (payload.containsKey('custom_type')) {
-            func_helper.iPrint('🔍 [DEBUG 离线消息] payload.custom_type="${payload['custom_type']}"');
-          }
+          func_helper.iPrint(
+            '🔍 [DEBUG 离线消息] 原始数据: msgId=$msgId, msgData[\'msg_type\']="${msgData['msg_type']}", payload keys=${payload.keys.toList()}',
+          );
 
-          // 【重构】使用 MessageTypeNormalizer 进行类型归一化
-          // 自动处理：custom -> custom_type, audio -> voice, visit_card -> visitCard
+          // 【重构】使用 MessageTypeNormalizer 做类型合法性校验
           msgType = MessageTypeNormalizer.normalize(
             msgType: msgType,
             payload: payload,
@@ -1056,7 +981,9 @@ class MessageRepo {
       } catch (_) {}
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
-      func_helper.iPrint('🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${latest.payload.keys.toList()}');
+      func_helper.iPrint(
+        '🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${latest.payload.keys.toList()}',
+      );
       final preview = _derivePreview(
         latest.msgType,
         latest.status,
@@ -1148,14 +1075,15 @@ class MessageRepo {
     int? status,
     Map<String, dynamic> payload,
   ) {
-    // 【重构】使用 MessageTypeNormalizer 进行类型归一化
-    // 自动处理：custom -> custom_type, audio -> voice
+    // 【重构】使用 MessageTypeNormalizer 做类型合法性校验
     final effectiveMsgType = MessageTypeNormalizer.normalize(
       msgType: msgType,
       payload: payload,
     );
 
-    func_helper.iPrint('🔍 [DEBUG _derivePreview] 输入: msgType="$msgType", effective=$effectiveMsgType');
+    func_helper.iPrint(
+      '🔍 [DEBUG _derivePreview] 输入: msgType="$msgType", effective=$effectiveMsgType',
+    );
 
     // 方案 D: 检查 status 字段（撤回状态 30-39）
     if (IMBoyMessageStatus.isRevokedStatus(status)) {
@@ -1169,7 +1097,6 @@ class MessageRepo {
     }
 
     // 【简化】使用 effectiveMsgType 判断内容类型
-    // MessageTypeNormalizer 已处理 custom -> custom_type 和 audio -> voice
     String subtitle;
     switch (effectiveMsgType) {
       case 'text':
@@ -1196,7 +1123,9 @@ class MessageRepo {
       case 'file':
         final filename = payload['filename']?.toString() ?? '';
         final name = payload['name']?.toString() ?? '';
-        subtitle = filename.isNotEmpty ? filename : (name.isNotEmpty ? name : '[文件]');
+        subtitle = filename.isNotEmpty
+            ? filename
+            : (name.isNotEmpty ? name : '[文件]');
         break;
       case 'webrtcAudio':
       case 'webrtcVideo':
@@ -1214,7 +1143,9 @@ class MessageRepo {
         break;
     }
 
-    func_helper.iPrint('🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType, subtitle=$subtitle');
+    func_helper.iPrint(
+      '🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType, subtitle=$subtitle',
+    );
     return (msgType: effectiveMsgType, subtitle: subtitle);
   }
 
@@ -1223,286 +1154,7 @@ class MessageRepo {
   //   await _db.close();
   // }
 
-  /// 数据迁移工具：将旧格式UK3转换为新格式
-  /// 这个方法可以在应用启动时调用，一次性迁移所有历史数据
-  static Future<void> migrateLegacyUk3Data() async {
-    try {
-      func_helper.iPrint("开始迁移历史UK3数据...");
-
-      final db = SqliteService.to;
-      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
-
-      for (final table in tables) {
-        await _migrateTableUk3(db, table);
-      }
-
-      func_helper.iPrint("历史UK3数据迁移完成");
-    } catch (e) {
-      func_helper.iPrint("历史UK3数据迁移失败: $e");
-    }
-  }
-
-  /// 迁移单个表的UK3数据
-  static Future<void> _migrateTableUk3(SqliteService db, String table) async {
-    try {
-      // 查询所有需要迁移的消息
-      final maps = await db.query(
-        table,
-        columns: ['auto_id', 'conversation_uk3', 'from_id', 'to_id'],
-        where: "conversation_uk3 IS NOT NULL AND conversation_uk3 != ''",
-      );
-
-      if (maps.isEmpty) {
-        func_helper.iPrint("表 $table 无需迁移的UK3数据");
-        return;
-      }
-
-      func_helper.iPrint("开始迁移表 $table 的 ${maps.length} 条UK3数据");
-
-      int migratedCount = 0;
-
-      for (final map in maps) {
-        final autoId = map['auto_id'];
-        final oldUk3 = map['conversation_uk3'] as String?;
-        final fromId = map['from_id'] as String?;
-        final toId = map['to_id'] as String?;
-
-        if (oldUk3 == null ||
-            oldUk3.isEmpty ||
-            fromId == null ||
-            toId == null) {
-          continue;
-        }
-
-        // 检查是否需要迁移（新旧格式是否不同）
-        final newUk3 = _generateNewUk3(oldUk3, fromId, toId);
-        if (newUk3 == oldUk3) {
-          continue; // 格式相同，无需迁移
-        }
-
-        // 执行迁移
-        final result = await db.update(
-          table,
-          {'conversation_uk3': newUk3},
-          where: 'auto_id = ?',
-          whereArgs: [autoId],
-        );
-
-        if (result > 0) {
-          migratedCount++;
-        }
-      }
-
-      func_helper.iPrint("表 $table 迁移完成，成功迁移 $migratedCount 条记录");
-    } catch (e) {
-      func_helper.iPrint("迁移表 $table 失败: $e");
-    }
-  }
-
-  /// 根据旧格式UK3和用户信息生成新格式UK3
-  static String _generateNewUk3(String oldUk3, String fromId, String toId) {
-    try {
-      final parts = oldUk3.split('_');
-      if (parts.length < 3) return oldUk3;
-
-      final type = parts[0].toUpperCase();
-
-      // 如果已经是新格式，直接返回
-      if (type == oldUk3.split('_')[0]) {
-        // 检查是否已经是标准化格式（用户ID已排序）
-        if (type == 'C2C') {
-          final normalizedIds = _normalizeUserIds(fromId, toId);
-          final expectedNewUk3 = 'C2C_$normalizedIds';
-          if (oldUk3.toUpperCase() == expectedNewUk3) {
-            return oldUk3; // 已经是新格式
-          }
-        }
-      }
-
-      // 生成新格式
-      switch (type) {
-        case 'C2C':
-          final normalizedIds = _normalizeUserIds(fromId, toId);
-          return 'C2C_$normalizedIds';
-        case 'C2G':
-          return 'C2G_${fromId}_$toId'; // 群组消息保持原始格式
-        default:
-          return oldUk3;
-      }
-    } catch (e) {
-      return oldUk3;
-    }
-  }
-
-  /// 标准化用户ID顺序（按字母排序）
-  static String _normalizeUserIds(String id1, String id2) {
-    final sortedIds = [id1, id2]..sort();
-    return '${sortedIds.first}_${sortedIds.last}';
-  }
-
-  /// 检查数据库中是否存在旧格式数据
-  static Future<bool> hasLegacyUk3Data() async {
-    try {
-      final db = SqliteService.to;
-      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
-
-      for (final table in tables) {
-        final result = await db.query(
-          table,
-          columns: ['COUNT(*) as count'],
-          where: "conversation_uk3 LIKE ? OR conversation_uk3 LIKE ?",
-          whereArgs: ['c2c_%', 'c2g_%'],
-          limit: 1,
-        );
-
-        final count = result.first['count'] as int;
-        if (count > 0) {
-          return true;
-        }
-      }
-
-      return false;
-    } catch (e) {
-      func_helper.iPrint("检查旧格式数据失败: $e");
-      return false;
-    }
-  }
-
   /// ============================================
-  /// 消息类型归一化迁移
-  /// ============================================
-
-  /// 数据迁移工具：将旧格式消息类型转换为新格式
-  ///
-  /// 迁移规则：
-  /// 1. msg_type='custom' 且 payload.custom_type='audio' → msg_type='voice'
-  /// 2. msg_type='audio' → msg_type='voice'
-  ///
-  /// 这个方法可以在应用启动时调用，一次性迁移所有历史数据
-  static Future<void> migrateLegacyMsgTypeData() async {
-    try {
-      func_helper.iPrint("开始迁移历史消息类型数据...");
-
-      final db = SqliteService.to;
-      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
-
-      for (final table in tables) {
-        await _migrateTableMsgType(db, table);
-      }
-
-      func_helper.iPrint("历史消息类型数据迁移完成");
-    } catch (e) {
-      func_helper.iPrint("历史消息类型数据迁移失败: $e");
-    }
-  }
-
-  /// 迁移单个表的消息类型数据
-  static Future<void> _migrateTableMsgType(SqliteService db, String table) async {
-    try {
-      // 查询所有需要迁移的消息（msg_type='custom' 或 'audio'）
-      final maps = await db.query(
-        table,
-        columns: ['auto_id', 'msg_type', 'payload'],
-        where: "msg_type IN (?, ?)",
-        whereArgs: ['custom', 'audio'],
-      );
-
-      if (maps.isEmpty) {
-        func_helper.iPrint("表 $table 无需迁移的消息类型数据");
-        return;
-      }
-
-      func_helper.iPrint("开始迁移表 $table 的 ${maps.length} 条消息类型数据");
-
-      int migratedCount = 0;
-
-      for (final map in maps) {
-        final autoId = map['auto_id'];
-        final msgType = map['msg_type'] as String?;
-        final payloadData = map['payload'];
-
-        if (msgType == null || msgType.isEmpty) {
-          continue;
-        }
-
-        // 确定新的消息类型
-        String? newMsgType;
-
-        if (msgType == 'custom') {
-          // 检查 payload 中的 custom_type
-          String? customType;
-          if (payloadData is String) {
-            try {
-              final payload = jsonDecode(payloadData) as Map<String, dynamic>;
-              customType = payload['custom_type']?.toString();
-            } catch (e) {
-              // JSON 解析失败，跳过
-            }
-          } else if (payloadData is Map) {
-            customType = payloadData['custom_type']?.toString();
-          }
-
-          // custom_type='audio' → 'voice'
-          if (customType == 'audio' || customType == 'voice') {
-            newMsgType = 'voice';
-          }
-        } else if (msgType == 'audio') {
-          // audio → voice
-          newMsgType = 'voice';
-        }
-
-        // 如果不需要迁移，跳过
-        if (newMsgType == null || newMsgType == msgType) {
-          continue;
-        }
-
-        // 执行迁移
-        final result = await db.update(
-          table,
-          {'msg_type': newMsgType},
-          where: 'auto_id = ?',
-          whereArgs: [autoId],
-        );
-
-        if (result > 0) {
-          migratedCount++;
-        }
-      }
-
-      func_helper.iPrint("表 $table 迁移完成，成功迁移 $migratedCount 条记录");
-    } catch (e) {
-      func_helper.iPrint("迁移表 $table 失败: $e");
-    }
-  }
-
-  /// 检查数据库中是否存在需要迁移的消息类型数据
-  static Future<bool> hasLegacyMsgTypeData() async {
-    try {
-      final db = SqliteService.to;
-      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
-
-      for (final table in tables) {
-        final result = await db.query(
-          table,
-          columns: ['COUNT(*) as count'],
-          where: "msg_type IN (?, ?)",
-          whereArgs: ['custom', 'audio'],
-          limit: 1,
-        );
-
-        final count = result.first['count'] as int;
-        if (count > 0) {
-          return true;
-        }
-      }
-
-      return false;
-    } catch (e) {
-      func_helper.iPrint("检查旧消息类型数据失败: $e");
-      return false;
-    }
-  }
-
   /// 从多个表（msg_c2c、msg_c2g）查询消息
   /// 按创建时间排序返回
   ///
@@ -1612,6 +1264,42 @@ class MessageRepo {
     } catch (e) {
       debugPrint("_getMessagesFromTable error: $e, table: $table");
       return [];
+    }
+  }
+
+  /// 计算与某个用户的消息数量
+  ///
+  /// [peerId] 对方用户 ID
+  /// [since] 起始时间戳（毫秒），可选
+  /// Returns: 消息数量
+  Future<int> countMessagesWithUser(String peerId, {int? since}) async {
+    try {
+      int total = 0;
+
+      // 遍历所有消息表
+      for (final table in [c2cTable, c2gTable]) {
+        String where = '(${MessageRepo.from} = ? OR ${MessageRepo.to} = ?)';
+        List<Object?> whereArgs = [peerId, peerId];
+
+        if (since != null) {
+          where = '$where AND ${MessageRepo.createdAt} >= ?';
+          whereArgs.add(since ~/ 1000); // 转换为秒
+        }
+
+        final count = await _db.pluck<int>(
+          "COUNT(*) as count",
+          table,
+          where: where,
+          whereArgs: whereArgs,
+        );
+
+        total += count ?? 0;
+      }
+
+      return total;
+    } catch (e) {
+      debugPrint('MessageRepo.countMessagesWithUser error: $e');
+      return 0;
     }
   }
 }

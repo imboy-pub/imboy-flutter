@@ -147,8 +147,9 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
       final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       final AndroidDeviceInfo info = await deviceInfoPlugin.androidInfo;
       iPrint("_checkPermission info.version.sdkInt ${info.version.sdkInt}");
-      if ((info.version.sdkInt) >= 30) {
-        status = await Permission.manageExternalStorage.request();
+      if ((info.version.sdkInt) >= 33) {
+        // Android 13+ 使用应用私有目录下载 APK，不再依赖旧版存储权限。
+        return true;
       } else {
         status = await Permission.storage.request();
       }

@@ -2,6 +2,12 @@
 //
 // 使用方法：
 // flutter test integration_test/e2e_chat_test.dart --dart-define=APP_ENV=local_office
+//
+// 带测试账号运行：
+// flutter test integration_test/e2e_chat_test.dart \
+//   --dart-define=APP_ENV=local_office \
+//   --dart-define=TEST_PHONE=13800138000 \
+//   --dart-define=TEST_PASSWORD=test123456
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +15,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/main.dart' as app;
 import 'test_helper.dart';
+import 'test_config.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -17,20 +24,38 @@ void main() {
     testWidgets('完整聊天流程测试', (WidgetTester tester) async {
       TestHelper.log('🚀 开始端到端聊天测试');
 
+      // 打印配置信息
+      TestConfig.printHelp();
+
       // 步骤 1: 启动应用
-      TestHelper.log('步骤 1/5: 启动应用');
+      TestHelper.log('步骤 1/6: 启动应用');
       app.main();
       await tester.pumpAndSettle();
       await Future.delayed(const Duration(seconds: 3));
       await TestHelper.screenshot(tester, '01_app_launch');
 
-      // 步骤 2: 检查登录状态
-      TestHelper.log('步骤 2/5: 检查登录状态');
+      // 步骤 2: 检查登录状态并自动登录
+      TestHelper.log('步骤 2/6: 检查登录状态');
 
       final loginButton = find.text('登录');
       if (tester.any(loginButton)) {
         TestHelper.log('📝 需要登录');
-        // TODO: 添加登录逻辑
+
+        // 使用 TestConfig 配置自动登录
+        if (!TestConfig.isConfigured) {
+          TestHelper.log('⚠️ 测试账号未配置，跳过登录测试');
+          TestHelper.log(
+            '提示：使用 --dart-define=TEST_PHONE=xxx --dart-define=TEST_PASSWORD=xxx 配置',
+          );
+        } else {
+          // 执行自动登录
+          final success = await TestHelper.autoLogin(tester);
+          if (success) {
+            TestHelper.log('✅ 登录成功');
+          } else {
+            TestHelper.log('❌ 登录失败');
+          }
+        }
       } else {
         TestHelper.log('✅ 已登录或自动登录');
       }
@@ -39,7 +64,7 @@ void main() {
       await TestHelper.screenshot(tester, '02_after_login_check');
 
       // 步骤 3: 进入会话列表
-      TestHelper.log('步骤 3/5: 进入会话列表');
+      TestHelper.log('步骤 3/6: 进入会话列表');
 
       final conversationTab = find.text('会话');
       final chatTab = find.text('聊天');
@@ -62,7 +87,7 @@ void main() {
       await TestHelper.screenshot(tester, '03_conversation_list');
 
       // 步骤 4: 尝试打开聊天
-      TestHelper.log('步骤 4/5: 尝试打开聊天');
+      TestHelper.log('步骤 4/6: 尝试打开聊天');
 
       // 查找第一个会话项
       final listTile = find.byType(ListTile);
@@ -78,7 +103,7 @@ void main() {
       await TestHelper.screenshot(tester, '04_chat_opened');
 
       // 步骤 5: 测试输入框
-      TestHelper.log('步骤 5/5: 测试消息输入');
+      TestHelper.log('步骤 5/6: 测试消息输入');
 
       final textField = find.byType(TextField);
       if (tester.any(textField)) {
@@ -114,6 +139,10 @@ void main() {
       } else {
         TestHelper.log('⚠️ 未找到输入框');
       }
+
+      // 步骤 6: 测试完成
+      TestHelper.log('步骤 6/6: 测试完成');
+      await TestHelper.screenshot(tester, '07_test_complete');
 
       TestHelper.log('✅ 端到端测试完成');
     });

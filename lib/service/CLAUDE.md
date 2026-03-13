@@ -85,7 +85,7 @@
 4. DeviceExt.did                       // 设备信息
 5. HttpClient                          // HTTP 客户端
 6. NetworkMonitorService               // 网络监控
-7. VoicePlaybackService                // 语音播放（使用 voicePlaybackProvider，无需手动初始化）
+7. VoicePlaybackService                // 语音播放（使用 voicePlaybackServiceProvider，无需手动初始化）
 8. WebSocket 相关服务                   // WebSocket 服务群
 ```
 
@@ -310,7 +310,7 @@ WebSocketService.to.send(json.encode({
 - 自动连播支持
 
 **架构设计**：
-- 使用 `StateNotifier` 管理播放状态
+- 使用 Riverpod Notifier 管理播放状态
 - 状态包含：音频路径、消息ID、播放状态、暂停状态、播放位置、音频时长
 - 支持响应式 UI 更新
 
@@ -320,7 +320,7 @@ WebSocketService.to.send(json.encode({
 class MyWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playbackState = ref.watch(voicePlaybackProvider);
+    final playbackState = ref.watch(voicePlaybackServiceProvider);
 
     return Column(
       children: [
@@ -328,7 +328,7 @@ class MyWidget extends ConsumerWidget {
         Text('进度: ${playbackState.currentPosition}/${playbackState.currentDuration}'),
         ElevatedButton(
           onPressed: () {
-            ref.read(voicePlaybackProvider.notifier).play(
+            ref.read(voicePlaybackServiceProvider.notifier).play(
               path: 'audio.mp3',
               messageId: 'msg123',
             );
@@ -342,13 +342,7 @@ class MyWidget extends ConsumerWidget {
 
 // 在 Notifier 中使用
 class ChatNotifier extends StateNotifier<ChatState> {
-  ChatNotifier(this.ref) : super(ChatState()) {
-    // 设置播放完成回调
-    final playbackNotifier = ref.read(voicePlaybackProvider.notifier);
-    playbackNotifier.onPlaybackCompleted = (messageId) async {
-      await _playNextAudioMessage(messageId);
-    };
-  }
+  ChatNotifier(this.ref) : super(ChatState());
 
   final Ref ref;
 
@@ -357,7 +351,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     required String messageId,
     required int duration,
   }) async {
-    await ref.read(voicePlaybackProvider.notifier).play(
+    await ref.read(voicePlaybackServiceProvider.notifier).play(
       path: voiceUrlOrPath,
       messageId: messageId,
       durationMs: duration,
@@ -365,11 +359,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 }
 ```
-
-**向后兼容**：
-- 旧代码可以继续使用 `VoicePlaybackService.to` API
-- 向后兼容层会自动转发到 Riverpod Provider
-- 详细迁移指南：[VOICE_PLAYBACK_MIGRATION.md](./VOICE_PLAYBACK_MIGRATION.md)
 
 ### SqliteService
 SQLite 数据库服务，提供统一的数据库操作接口。

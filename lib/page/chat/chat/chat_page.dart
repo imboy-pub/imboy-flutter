@@ -35,6 +35,8 @@ import '../widget/message_quick_action_menu.dart';
 // 显式导入需要特殊处理的
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
@@ -184,22 +186,31 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // ===== 便利访问器（替代 UIEventHandlerMixinState 接口） =====
 
-  // 获取消息滚动管理器（兼容旧代码）
+  // 获取消息滚动管理器
   MessageScrollManager get messageScrollNotifier =>
       ref.read(messageScrollManagerProvider.notifier);
 
   // 安全获取 conversationUk3
-  // 避免 LateInitializationError：优先从 widget.options 获取，否则从已初始化的 conversation 获取
+  // 避免 LateInitializationError：优先使用路由参数/已初始化会话，否则通过标准生成器生成
   String get _conversationUk3 {
-    // 优先从 widget.options 获取（如果页面是通过路由参数传过来的）
-    return widget.options?['conversationUk3'] ??
-        // 如果 conversation 已初始化，直接使用
-        (_isConversationInitialized ? conversation.uk3 : null) ??
-        // 否则根据 type、peerId 和 currentUid 动态构造
-        (widget.type == 'C2C' || widget.type == 'C2G' || widget.type == 'C2S'
-            ? '${widget.type}_${widget.peerId}_${UserRepoLocal.to.currentUid}'
-            : '');
+    final fromOptions = widget.options?['conversationUk3'];
+    if (fromOptions is String && fromOptions.isNotEmpty) {
+      return fromOptions;
+    }
+
+    if (_isConversationInitialized) {
+      return conversation.uk3;
+    }
+
+    return ConversationUk3Generator.generateSmart(
+      type: _chatType,
+      currentUserId: UserRepoLocal.to.currentUid,
+      peerId: widget.peerId,
+    );
   }
+
+  /// 统一归一化聊天类型，避免历史脏值（如 'null'）继续向下游扩散
+  String get _chatType => MessageFlowType.normalize(widget.type);
 
   // 检查 conversation 是否已初始化
   bool get _isConversationInitialized {
@@ -290,7 +301,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 获取 ChatLogic 实例
       // logic 已移除 - 使用 Riverpod Provider
 
-      ref.read(chatProvider.notifier).initChatService(widget.type);
+      ref.read(chatProvider.notifier).initChatService(_chatType);
       // 创建或获取会话
       await _setupConversation();
       await _reloadConversationSettings();
@@ -373,7 +384,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
 
     try {
-      if (widget.type == 'C2G') {
+      if (_chatType == MessageFlowType.c2g) {
         // 群组：预加载群组成员设备密钥
         await E2EEService.getGroupDevicePublicKeys(widget.peerId);
         debugPrint('E2EE: 已预加载群组设备密钥 ${widget.peerId}');
@@ -395,7 +406,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     final conversationResult = await ref
         .read(conversationProvider.notifier)
         .createConversation(
-          type: widget.type,
+          type: _chatType,
           peerId: widget.peerId,
           avatar: widget.peerAvatar,
           title: widget.peerTitle,
@@ -414,10 +425,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   Future<void> _reloadConversationSettings() async {
     try {
-      final c = await ConversationRepo().findByPeerId(
-        widget.type,
-        widget.peerId,
-      );
+      final c = await ConversationRepo().findByPeerId(_chatType, widget.peerId);
       if (c != null) {
         conversation = c;
       }
@@ -443,7 +451,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       // 初始化消息操作处理器
       _messageActionHandler = MessageActionHandler(
-        type: widget.type,
+        type: _chatType,
         peerId: widget.peerId,
         conversation: conversation,
         ref: ref,
@@ -482,7 +490,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 初始化群组信息
   Future<void> _initGroupInfo() async {
-    if (widget.type == 'C2G') {
+    if (_chatType == MessageFlowType.c2g) {
       final memberCount = widget.options?['memberCount'] ?? 0;
       ref.read(chatProvider.notifier).updateMemberCount(memberCount);
       newGroupName = await ref
@@ -505,7 +513,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         widgetRef: ref,
         peerId: widget.peerId,
         peerTitle: widget.peerTitle,
-        chatType: widget.type,
+        chatType: _chatType,
         conversationUk3: _conversationUk3,
         msgIds: msgIds,
         editingMessageIdSetter: (id) {
@@ -615,11 +623,11 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
 
     try {
-      final conversationUk3 = ConversationUk3Generator.generateSmart(
-        type: widget.type,
-        currentUserId: UserRepoLocal.to.currentUid,
-        peerId: widget.peerId,
-      );
+      final conversationUk3 = _conversationUk3;
+      if (conversationUk3.isEmpty) {
+        debugPrint('_notifyChatActive: 会话UK3为空，跳过更新');
+        return;
+      }
 
       // 使用 Riverpod Provider 管理活跃会话状态
       if (isActive) {
@@ -649,10 +657,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 不直接使用 conversation 字段（可能尚未初始化）
       // 而是通过 peerId 和 type 从数据库或 provider 中获取会话对象
       final ConversationRepo repo = ConversationRepo();
-      final conv = await repo.findByPeerId(
-        widget.type == 'null' ? 'C2C' : widget.type,
-        widget.peerId,
-      );
+      final conv = await repo.findByPeerId(_chatType, widget.peerId);
 
       if (conv == null) {
         debugPrint('_clearUnreadOnEnter: 会话未找到，跳过清空未读数');
@@ -806,7 +811,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             widget.peerId,
             widget.peerAvatar,
             widget.peerTitle,
-            widget.type == 'null' ? 'C2C' : widget.type,
+            _chatType,
             message,
           );
       await ref
@@ -837,7 +842,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       final success = await ref
           .read(chatProvider.notifier)
-          .retryMessage(messageId, widget.type);
+          .retryMessage(messageId, _chatType);
 
       EasyLoading.dismiss();
 
@@ -1074,9 +1079,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       iPrint('执行编辑消息: messageId=$_editingMessageId, newContent=$text');
 
       // 发送编辑消息
-      bool result = await MessageActions.to.sendEditMessage(
+      bool result = await MessageActions.instance.sendEditMessage(
         _editingMessageId!,
-        widget.type,
+        _chatType,
         text,
       );
 
@@ -1108,7 +1113,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     final metadata = _withBurnMetadata({'peer_id': widget.peerId});
 
     // 如果是群聊且有 @提及，添加 mentions 字段
-    if (widget.type == 'C2G' && _currentMentionIds.isNotEmpty) {
+    if (_chatType == MessageFlowType.c2g && _currentMentionIds.isNotEmpty) {
       metadata['mentions'] = _currentMentionIds;
       // 发送后清空 @提及 列表
       _currentMentionIds = [];
@@ -1140,7 +1145,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       ),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
-        'custom_type': 'quote',
+        'msg_type': 'quote',
         'peer_id': widget.peerId,
         'quote_msg': quoteMessage?.toJson(),
         'quote_msg_author_name': quoteMsgAuthorName,
@@ -1194,7 +1199,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (message is TextMessage) {
           copyMessageText(message);
         } else if (message is CustomMessage &&
-            message.metadata?['custom_type'] == 'quote') {
+            message.metadata?['msg_type'] == 'quote') {
           // 引用消息的复制功能
           final quoteText = message.metadata?['quote_text'] ?? '';
           if (quoteText.isNotEmpty) {
@@ -1225,6 +1230,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatProvider);
+    final themeNotifier = ref.read(themeProvider.notifier);
     // state = chatState; // 不再需要本地 state 引用
 
     // 更新 composerHeightNotifier（响应 composerHeight 变化）
@@ -1238,7 +1244,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         onPressed: _navigateToChatSettings,
         icon: Icon(
           Icons.more_horiz,
-          color: ThemeManager.instance.getThemeColor('textPrimary'),
+          color: themeNotifier.getThemeColor('textPrimary'),
         ),
       ),
     ];
@@ -1264,10 +1270,8 @@ class ChatPageState extends ConsumerState<ChatPage>
                 titleWidget: Text(
                   newGroupName.isEmpty ? widget.peerTitle : newGroupName,
                   style: TextStyle(
-                    color: ThemeManager.instance.getThemeColor('textPrimary'),
-                    fontSize: ThemeManager.instance.getFontSize(
-                      FontSizeType.title,
-                    ),
+                    color: themeNotifier.getThemeColor('textPrimary'),
+                    fontSize: themeNotifier.getFontSize(FontSizeType.title),
                   ),
                 ),
                 rightDMActions: topRightWidget,
@@ -1334,11 +1338,11 @@ class ChatPageState extends ConsumerState<ChatPage>
     return ChatInput(
       key: _chatInputKey,
       composerHeight: composerHeightNotifier, // 使用可动画的高度
-      type: widget.type,
+      type: _chatType,
       peerId: widget.peerId,
       onSendPressed: _handleSendPressed,
       // @提及变更回调
-      onMentionsChanged: widget.type == 'C2G'
+      onMentionsChanged: _chatType == MessageFlowType.c2g
           ? (mentionIds) {
               _currentMentionIds = mentionIds;
             }
@@ -1351,7 +1355,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         margin: EdgeInsets.zero,
       ),
       extraWidget: ExtraItems(
-        type: widget.type,
+        type: _chatType,
         handleImageSelection: _handleImageSelection,
         handleFileSelection: _handleFileSelection,
         handlePickerSelection: _handlePickerSelection,
@@ -1394,6 +1398,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   ) {
     // 使用 provider 获取聊天背景状态
     final backgroundState = ref.watch(chatBackgroundManagerProvider);
+    final themeNotifier = ref.read(themeProvider.notifier);
 
     // 使用 flutter_chat_ui 的 Chat widget
     return flutter_chat_ui.Chat(
@@ -1491,7 +1496,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                   .chatService
                   ?.messages;
               return CustomMessageBuilder(
-                type: widget.type,
+                type: _chatType,
                 message: message,
                 messages: allMessages,
               );
@@ -1662,7 +1667,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                   statusIcon = Icon(
                     Icons.access_time,
                     size: 16,
-                    color: ThemeManager.instance.getThemeColor('textSecondary'),
+                    color: themeNotifier.getThemeColor('textSecondary'),
                   );
                   break;
                 case MessageStatus.sent:
@@ -1670,21 +1675,21 @@ class ChatPageState extends ConsumerState<ChatPage>
                   statusIcon = Icon(
                     Icons.done_all,
                     size: 16,
-                    color: ThemeManager.instance.getThemeColor('primary'),
+                    color: themeNotifier.getThemeColor('primary'),
                   );
                   break;
                 case MessageStatus.seen:
                   statusIcon = Icon(
                     Icons.done_all,
                     size: 16,
-                    color: ThemeManager.instance.getChatColor('sendMessageBg'),
+                    color: themeNotifier.getChatColor('sendMessageBg'),
                   );
                   break;
                 case MessageStatus.error:
                   statusIcon = Icon(
                     Icons.error_outline,
                     size: 16,
-                    color: ThemeManager.instance.getThemeColor('error'),
+                    color: themeNotifier.getThemeColor('error'),
                   );
                   break;
                 default:
@@ -1841,12 +1846,9 @@ class ChatPageState extends ConsumerState<ChatPage>
                           try {
                             final ok = await ref
                                 .read(chatProvider.notifier)
-                                .markAsRead(
-                                  widget.type == 'null' ? 'C2C' : widget.type,
-                                  widget.peerId,
-                                  [message.id],
-                                  syncToServer: true,
-                                );
+                                .markAsRead(_chatType, widget.peerId, [
+                                  message.id,
+                                ], syncToServer: true);
                             if (ok) {
                               _readCommitted.add(message.id);
                               if (_isBurnMessage(message) &&
@@ -1890,7 +1892,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     final chatState = ref.read(chatProvider);
 
     // 使用 go_router 路由跳转
-    if (widget.type == 'C2G') {
+    if (_chatType == MessageFlowType.c2g) {
       // 群组聊天 - 跳转到群组详情页
       context
           .push<GroupDetailPage>(
@@ -1911,7 +1913,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             '/chat_setting/${widget.peerId}',
             extra: {
               'peerId': widget.peerId,
-              'type': widget.type,
+              'type': _chatType,
               'options': options,
             },
           )

@@ -52,120 +52,93 @@ void main() {
         .setMockMethodCallHandler(storageChannel, null);
   });
 
-  group('v1.0 API Tests', () {
-    test('C2C encrypt/decrypt roundtrip and signature verify', () async {
+  group('decryptIncomingPayload v2 Tests', () {
+    test('decryptIncomingPayload 能解密 v2 格式并保留元数据', () async {
       final pubPem = await RSAService.publicKey();
+      final recipients = [
+        RecipientDevice(deviceId: deviceId, keyId: 'key_v1', publicKey: pubPem),
+      ];
 
-      E2EEService.setUserDeviceKeyCacheForTest('to_uid', {deviceId: pubPem});
-      E2EEService.setUserDeviceKeyCacheForTest('from_uid', {deviceId: pubPem});
-
-      const msgId = 'm1';
-      const fromUid = 'from_uid';
-      const toUid = 'to_uid';
-      const createdAt = 1710000000000;
       final plaintext = <String, dynamic>{
         'msg_type': 'text',
         'text': 'hello',
         'n': 1,
       };
-
-      final encrypted = await E2EEService.encryptC2C(
-        msgId: msgId,
-        fromUid: fromUid,
-        toUid: toUid,
-        createdAt: createdAt,
-        plaintextPayload: plaintext,
+      final encrypted = await E2EEService.buildE2EEData(
+        plaintext: jsonEncode(plaintext),
+        recipients: recipients,
       );
 
+      final payload = <String, dynamic>{
+        'msg_type': 'text',
+        'client_send_ts': 1710000000000,
+        'sender_did': deviceId,
+        'e2ee': encrypted['e2ee'],
+        'payload': encrypted['ciphertext'],
+      };
+
       final decrypted = await E2EEService.decryptIncomingPayload(
-        msgId: msgId,
-        msgType: 'C2C',
-        fromUid: fromUid,
-        toUid: toUid,
-        createdAt: createdAt,
-        payload: encrypted,
+        payload: payload,
       );
 
       expect(decrypted['msg_type'], 'text');
       expect(decrypted['text'], 'hello');
+      expect(decrypted['n'], 1);
       expect(decrypted['sender_did'], deviceId);
+      expect(decrypted['client_send_ts'], 1710000000000);
       expect(decrypted['_e2ee'], isA<Map>());
-      expect(decrypted['_e2ee_verified'], true);
     });
 
-    test('C2G encrypt/decrypt roundtrip and signature verify', () async {
+    test('decryptIncomingPayload 对非法密文格式返回失败标记', () async {
       final pubPem = await RSAService.publicKey();
+      final recipients = [
+        RecipientDevice(deviceId: deviceId, keyId: 'key_v1', publicKey: pubPem),
+      ];
+      final encrypted = await E2EEService.buildE2EEData(
+        plaintext: jsonEncode({'msg_type': 'text', 'text': 'x'}),
+        recipients: recipients,
+      );
 
-      E2EEService.setGroupDeviceKeyCacheForTest('gid_1', {deviceId: pubPem});
-      E2EEService.setUserDeviceKeyCacheForTest('from_uid', {deviceId: pubPem});
-
-      const msgId = 'm2';
-      const fromUid = 'from_uid';
-      const gid = 'gid_1';
-      const createdAt = 1710000000001;
-      final plaintext = <String, dynamic>{
+      final payload = <String, dynamic>{
         'msg_type': 'text',
-        'text': 'hello group',
+        'e2ee': encrypted['e2ee'],
+        'payload': 'invalid_ciphertext',
       };
 
-      final encrypted = await E2EEService.encryptC2G(
-        msgId: msgId,
-        fromUid: fromUid,
-        gid: gid,
-        createdAt: createdAt,
-        plaintextPayload: plaintext,
-      );
-
       final decrypted = await E2EEService.decryptIncomingPayload(
-        msgId: msgId,
-        msgType: 'C2G',
-        fromUid: fromUid,
-        toUid: gid,
-        createdAt: createdAt,
-        payload: encrypted,
-      );
-
-      expect(decrypted['msg_type'], 'text');
-      expect(decrypted['text'], 'hello group');
-      expect(decrypted['sender_did'], deviceId);
-      expect(decrypted['_e2ee_verified'], true);
-    });
-
-    test('Tampered injected sender_did causes decrypt failure', () async {
-      final pubPem = await RSAService.publicKey();
-
-      E2EEService.setUserDeviceKeyCacheForTest('to_uid', {deviceId: pubPem});
-      E2EEService.setUserDeviceKeyCacheForTest('from_uid', {deviceId: pubPem});
-
-      const msgId = 'm3';
-      const fromUid = 'from_uid';
-      const toUid = 'to_uid';
-      const createdAt = 1710000000002;
-      final plaintext = <String, dynamic>{'msg_type': 'text', 'text': 'x'};
-
-      final encrypted = await E2EEService.encryptC2C(
-        msgId: msgId,
-        fromUid: fromUid,
-        toUid: toUid,
-        createdAt: createdAt,
-        plaintextPayload: plaintext,
-      );
-
-      final tampered = Map<String, dynamic>.from(encrypted);
-      tampered['sender_did'] = 'did_evil';
-
-      final decrypted = await E2EEService.decryptIncomingPayload(
-        msgId: msgId,
-        msgType: 'C2C',
-        fromUid: fromUid,
-        toUid: toUid,
-        createdAt: createdAt,
-        payload: tampered,
+        payload: payload,
       );
 
       expect(decrypted['_e2ee_failed'], true);
-      expect(decrypted['_e2ee_reason'], isNotEmpty);
-      expect(decrypted['_e2ee_raw'], isA<Map>());
+      expect(decrypted['_e2ee_reason'], 'invalid_ciphertext_format');
+    });
+
+    test('decryptIncomingPayload 找不到当前设备密钥时应失败', () async {
+      final pubPem = await RSAService.publicKey();
+      final recipients = [
+        RecipientDevice(
+          deviceId: 'other_device',
+          keyId: 'key_v1',
+          publicKey: pubPem,
+        ),
+      ];
+      final encrypted = await E2EEService.buildE2EEData(
+        plaintext: jsonEncode({'msg_type': 'text', 'text': 'x'}),
+        recipients: recipients,
+      );
+
+      final payload = <String, dynamic>{
+        'msg_type': 'text',
+        'e2ee': encrypted['e2ee'],
+        'payload': encrypted['ciphertext'],
+      };
+
+      final decrypted = await E2EEService.decryptIncomingPayload(
+        payload: payload,
+      );
+
+      expect(decrypted['_e2ee_failed'], true);
+      expect(decrypted['_e2ee_reason'], 'no_device_key');
     });
   });
 

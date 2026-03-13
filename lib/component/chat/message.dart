@@ -6,7 +6,6 @@ import 'package:open_file/open_file.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/service/message_type_normalizer.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -22,28 +21,6 @@ import 'message_unsupported_builder.dart';
 import 'message_webrtc_builder.dart';
 import 'message_visit_card_builder.dart';
 import 'package:imboy/i18n/strings.g.dart';
-
-/// Material 3消息圆角半径 - Medium圆角 (16dp)
-/// @deprecated 请使用 MessageSpacing.bubbleBorderRadius
-const BorderRadius kMsgBorderRadius = BorderRadius.all(Radius.circular(16));
-
-/// Material 3发送消息圆角 - 右下角小圆角
-/// @deprecated 请使用 MessageSpacing.getBubbleBorderRadius(true)
-const BorderRadius kSentMsgBorderRadius = BorderRadius.only(
-  topLeft: Radius.circular(16),
-  topRight: Radius.circular(4), // 小圆角表示消息方向
-  bottomLeft: Radius.circular(16),
-  bottomRight: Radius.circular(16),
-);
-
-/// Material 3接收消息圆角 - 左下角小圆角
-/// @deprecated 请使用 MessageSpacing.getBubbleBorderRadius(false)
-const BorderRadius kReceivedMsgBorderRadius = BorderRadius.only(
-  topLeft: Radius.circular(4), // 小圆角表示消息方向
-  topRight: Radius.circular(16),
-  bottomLeft: Radius.circular(16),
-  bottomRight: Radius.circular(16),
-);
 
 /// 构建自定义消息主入口
 class CustomMessageBuilder extends StatelessWidget {
@@ -64,7 +41,7 @@ class CustomMessageBuilder extends StatelessWidget {
   final String type; // C2C C2G
   final CustomMessage message;
   final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
-      onPlayPause;
+  onPlayPause;
   // 播放状态参数（用于语音消息）
   final bool isPlaying;
   final bool isPaused;
@@ -90,24 +67,10 @@ class CustomMessageBuilder extends StatelessWidget {
     Widget content = const SizedBox.shrink();
     try {
       // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
-      // effective_msg_type 已经处理了：custom -> custom_type, audio -> voice
-      var effectiveMsgType = message.metadata?['effective_msg_type'] ??
+      var effectiveMsgType =
+          message.metadata?['effective_msg_type'] ??
           message.metadata?['msg_type'] ??
           '';
-
-      // 如果 effective_msg_type 是 unsupported，尝试重新计算（修复旧数据）
-      if (effectiveMsgType == 'unsupported' &&
-          message.metadata?.containsKey('custom_type') == true) {
-        final customType = message.metadata?['custom_type']?.toString();
-        if (customType != null && customType.isNotEmpty) {
-          // 使用归一化器重新计算
-          effectiveMsgType = MessageTypeNormalizer.normalize(
-            msgType: 'custom',
-            payload: message.metadata,
-          );
-          debugPrint('🔧 [CustomMessageBuilder] 重新计算 effective_msg_type: $effectiveMsgType');
-        }
-      }
 
       final status = message.metadata?['status'] as int?;
 
@@ -117,7 +80,6 @@ class CustomMessageBuilder extends StatelessWidget {
         content = RevokedMessageBuilder(message: message, user: user);
       } else {
         // 使用 effective_msgType 判断内容类型
-        // MessageTypeNormalizer 已处理：custom -> custom_type, audio -> voice
         switch (effectiveMsgType) {
           case 'voice':
             // 语音消息（归一化后的类型）
@@ -193,9 +155,7 @@ class CustomMessageBuilder extends StatelessWidget {
     }
 
     // Material 3消息气泡样式
-    final borderRadius = isSentByMe
-        ? kSentMsgBorderRadius
-        : kReceivedMsgBorderRadius;
+    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
     final colorScheme = theme.colorScheme;
     final backgroundColor = isSentByMe
         ? colorScheme.primaryContainer
@@ -232,10 +192,8 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
   final textStyle = TextStyle(fontSize: 14.0, color: txtColor); // 使用固定字体大小
 
   // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
-  // effective_msg_type 已经处理了：custom -> custom_type, audio -> voice
-  final effectiveMsgType = msg.metadata?['effective_msg_type'] ??
-      msg.metadata?['msg_type'] ??
-      '';
+  final effectiveMsgType =
+      msg.metadata?['effective_msg_type'] ?? msg.metadata?['msg_type'] ?? '';
 
   Widget content;
   switch (effectiveMsgType) {
@@ -317,7 +275,10 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
       break;
   }
   // 新增：所有引用消息都包裹圆角
-  return ClipRRect(borderRadius: kMsgBorderRadius, child: content);
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
+    child: content,
+  );
 }
 
 /// 双击文本消息的时候全屏显示文本消息

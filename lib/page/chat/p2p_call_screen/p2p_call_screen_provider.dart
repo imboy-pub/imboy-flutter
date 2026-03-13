@@ -210,7 +210,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           _closeSession(s2);
         }
         break;
-      case 'keepalive':
+      case 'heartbeat':
         break;
       default:
         break;
@@ -363,7 +363,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
       // 解析并记录 ICE 候选类型（便于调试 NAT 穿透问题）
       final candidateType = _parseIceCandidateType(candidate.candidate ?? '');
-      iPrint('> rtc ICE candidate type: $candidateType, candidate: ${candidate.candidate}');
+      iPrint(
+        '> rtc ICE candidate type: $candidateType, candidate: ${candidate.candidate}',
+      );
 
       final currentSession = session;
       if (currentSession == null) {
@@ -528,15 +530,14 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }) async {
     final pc = session.pc;
     if (pc == null) {
-      iPrint('> rtc _createDataChannel: pc is null, cannot create data channel');
+      iPrint(
+        '> rtc _createDataChannel: pc is null, cannot create data channel',
+      );
       return;
     }
     RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
       ..maxRetransmits = DataChannelConfig.maxRetransmits;
-    RTCDataChannel channel = await pc.createDataChannel(
-      label,
-      dataChannelDict,
-    );
+    RTCDataChannel channel = await pc.createDataChannel(label, dataChannelDict);
     _addDataChannel(session, channel);
   }
 

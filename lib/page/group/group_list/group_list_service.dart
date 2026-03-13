@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -16,6 +17,219 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
 /// 群组列表服务类 - 处理业务逻辑
 class GroupListService {
+  String _normalizeAttr(String attr) {
+    switch (attr) {
+      case 'all':
+      case 'join':
+      case 'manager':
+      case 'owner':
+        return attr;
+      default:
+        return 'all';
+    }
+  }
+
+  Future<List<GroupModel>> _pullAndSyncAllViews({
+    required int page,
+    required int size,
+    required int offset,
+  }) async {
+    final repo = GroupRepo();
+    final merged = <String, GroupModel>{};
+    for (final attr in const ['manager', 'join', 'owner']) {
+      final payload = await GroupApi().page(page: page, size: size, attr: attr);
+      if (payload == null) {
+        continue;
+      }
+      final rows = payload['list'];
+      if (rows is! List || rows.isEmpty) {
+        continue;
+      }
+      for (final item in rows) {
+        if (item is! Map) {
+          continue;
+        }
+        final json = Map<String, dynamic>.from(item);
+        final group = await repo.save('', json);
+        await _syncSelfMembershipShadow(attr: attr, group: group);
+        merged[group.groupId] = group;
+      }
+    }
+
+    if (merged.isEmpty) {
+      // 远端为空时使用本地激活群兜底，避免因关系字段脏数据导致整页空白。
+      return repo.pageActive(limit: size, offset: offset);
+    }
+    final local = await repo.pageByAttr(
+      attr: 'all',
+      limit: size,
+      offset: offset,
+    );
+    if (local.isNotEmpty) {
+      return local;
+    }
+    final list = merged.values.toList();
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
+  Future<void> _syncSelfMembershipShadow({
+    required String attr,
+    required GroupModel group,
+  }) async {
+    final currentUid = UserRepoLocal.to.currentUid;
+    if (currentUid.isEmpty || group.groupId.isEmpty) {
+      return;
+    }
+
+    final gmRepo = GroupMemberRepo();
+    final existed = await gmRepo.findByUserId(group.groupId, currentUid);
+    if (existed != null) {
+      final patch = <String, dynamic>{};
+      if (existed.status != 1) {
+        patch[GroupMemberRepo.status] = 1;
+      }
+      if (group.ownerUid == currentUid) {
+        if (existed.role < 4) {
+          patch[GroupMemberRepo.role] = 4;
+        }
+        if (existed.isJoin != 0) {
+          patch[GroupMemberRepo.isJoin] = 0;
+        }
+      } else {
+        if (attr == 'manager' && existed.role < 3) {
+          patch[GroupMemberRepo.role] = 3;
+        }
+        if (existed.isJoin != 1) {
+          patch[GroupMemberRepo.isJoin] = 1;
+        }
+      }
+      if (patch.isNotEmpty) {
+        await gmRepo.update(group.groupId, currentUid, patch);
+      }
+      return;
+    }
+
+    final now = DateTimeHelper.millisecond();
+    int role = 1;
+    int isJoin = 1;
+    if (group.ownerUid == currentUid) {
+      role = 4;
+      isJoin = 0;
+    } else if (attr == 'manager') {
+      role = 3;
+    }
+
+    await gmRepo.insert(
+      GroupMemberModel(
+        id: null,
+        groupId: group.groupId,
+        userId: currentUid,
+        nickname: UserRepoLocal.to.current.nickname,
+        avatar: UserRepoLocal.to.current.avatar,
+        sign: UserRepoLocal.to.current.sign,
+        account: UserRepoLocal.to.current.account,
+        alias: '',
+        role: role,
+        isJoin: isJoin,
+        joinMode: 'page_sync_$attr',
+        status: 1,
+        updatedAt: now,
+        createdAt: now,
+      ),
+    );
+  }
+
+  Future<int> _pullAndSyncByAttr({
+    required String attr,
+    int pageSize = 200,
+    int maxPages = 20,
+  }) async {
+    final normalizedAttr = _normalizeAttr(attr);
+    int syncedCount = 0;
+    final repo = GroupRepo();
+
+    for (int p = 1; p <= maxPages; p++) {
+      final payload = await GroupApi().page(
+        page: p,
+        size: pageSize,
+        attr: normalizedAttr,
+      );
+      if (payload == null) {
+        break;
+      }
+      final rows = payload['list'];
+      if (rows is! List || rows.isEmpty) {
+        break;
+      }
+
+      for (final item in rows) {
+        if (item is! Map) {
+          continue;
+        }
+        final json = Map<String, dynamic>.from(item);
+        final group = await repo.save('', json);
+        await _syncSelfMembershipShadow(attr: normalizedAttr, group: group);
+        syncedCount += 1;
+      }
+
+      if (rows.length < pageSize) {
+        break;
+      }
+    }
+
+    return syncedCount;
+  }
+
+  Future<Map<String, int>> selfHealMembershipShadows({
+    int pageSize = 200,
+    int maxPages = 20,
+  }) async {
+    final repo = GroupRepo();
+    final beforeOwner = await repo.countByAttr(attr: 'owner');
+    final beforeJoin = await repo.countByAttr(attr: 'join');
+    final beforeManager = await repo.countByAttr(attr: 'manager');
+
+    int groupRows = 0;
+    int errors = 0;
+    final perAttr = <String, int>{'owner': 0, 'join': 0, 'manager': 0};
+    for (final attr in const ['manager', 'join', 'owner']) {
+      try {
+        final count = await _pullAndSyncByAttr(
+          attr: attr,
+          pageSize: pageSize,
+          maxPages: maxPages,
+        );
+        perAttr[attr] = count;
+        groupRows += count;
+      } catch (e, s) {
+        iPrint("selfHealMembershipShadows attr=$attr error: $e\n$s");
+        errors += 1;
+      }
+    }
+
+    final afterOwner = await repo.countByAttr(attr: 'owner');
+    final afterJoin = await repo.countByAttr(attr: 'join');
+    final afterManager = await repo.countByAttr(attr: 'manager');
+
+    return {
+      'groupRows': groupRows,
+      'errors': errors,
+      'ownerRows': perAttr['owner'] ?? 0,
+      'joinRows': perAttr['join'] ?? 0,
+      'managerRows': perAttr['manager'] ?? 0,
+      'beforeOwner': beforeOwner,
+      'beforeJoin': beforeJoin,
+      'beforeManager': beforeManager,
+      'afterOwner': afterOwner,
+      'afterJoin': afterJoin,
+      'afterManager': afterManager,
+      'deltaOwner': afterOwner - beforeOwner,
+      'deltaJoin': afterJoin - beforeJoin,
+      'deltaManager': afterManager - beforeManager,
+    };
+  }
+
   /// 计算群组头像
   Future<List<String>> computeAvatar(String gid) async {
     const limit = 9;
@@ -149,28 +363,37 @@ class GroupListService {
     int page = 1,
     int size = 10,
     bool onRefresh = false,
-    String attr = 'owner',
+    String attr = 'all',
   }) async {
+    final normalizedAttr = _normalizeAttr(attr);
     List<GroupModel> list = [];
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
     var repo = GroupRepo();
     if (onRefresh == false) {
-      list = await repo.page(limit: size, offset: offset);
+      list = await repo.pageByAttr(
+        attr: normalizedAttr,
+        limit: size,
+        offset: offset,
+      );
     }
     if (list.isNotEmpty) {
       return list;
     }
+    if (normalizedAttr == 'all') {
+      return _pullAndSyncAllViews(page: page, size: size, offset: offset);
+    }
     Map<String, dynamic>? payload = await GroupApi().page(
       page: page,
       size: size,
-      attr: attr,
+      attr: normalizedAttr,
     );
     if (payload == null) {
       return [];
     }
     for (var json in payload['list']) {
       GroupModel m = await repo.save('', json);
+      await _syncSelfMembershipShadow(attr: normalizedAttr, group: m);
       list.add(m);
     }
     return list;
@@ -196,7 +419,11 @@ class GroupListService {
     GroupModel? g = await gRepo.findById(groupId);
     iPrint("memberJoin g ${g?.toJson().toString()};");
     if (g == null) {
-      return null;
+      // 群记录不存在时，先从服务端补齐群详情，避免 join 事件被丢弃
+      g = await GroupDetailService().detail(gid: groupId, sync: true);
+      if (g == null) {
+        return null;
+      }
     }
     GroupMemberRepo gmRepo = GroupMemberRepo();
     GroupMemberModel? gm = await gmRepo.findByUserId(groupId, userId);
@@ -248,7 +475,7 @@ class GroupListService {
 
   /// 获取群组列表
   Future<List<GroupModel>> listGroup() async {
-    return await page(page: 1, size: 100);
+    return await page(page: 1, size: 100, attr: 'all');
   }
 
   /// 根据 ID 查找群组

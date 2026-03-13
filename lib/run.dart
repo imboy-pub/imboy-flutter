@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +9,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -25,8 +26,20 @@ import 'config/router/app_router.dart';
 /// 应用初始化标志（防止重复初始化）
 bool _localeInitialized = false;
 bool _fontSizeInitialized = false;
+const String appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'pro');
 
-void run() async {
+/// `flutter run --target lib/run.dart` requires a top-level `main` entrypoint.
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
+    await run();
+  } catch (e, s) {
+    debugPrint("Application initialization failed: $e, $s");
+  }
+}
+
+Future<void> run() async {
   // Web 平台不支持屏幕方向设置
   if (!kIsWeb) {
     // 强制竖屏 DeviceOrientation.portraitUp
@@ -35,20 +48,13 @@ void run() async {
 
   // Flutter 3.22+ 多视图模式兼容
   // Web 平台使用 runWidget，非 Web 平台使用 runApp
-  final app = const ProviderScope(
-    child: BetterFeedback(mode: FeedbackMode.navigate, child: IMBoyApp()),
-  );
+  const app = ProviderScope(child: IMBoyApp());
 
   if (kIsWeb) {
     // Web 平台：使用 runWidget 支持多视图模式
     // 从 PlatformDispatcher 获取默认视图
     final view = PlatformDispatcher.instance.views.first;
-    runWidget(
-      View(
-        view: view,
-        child: app,
-      ),
-    );
+    runWidget(View(view: view, child: app));
   } else {
     // 非 Web 平台：继续使用 runApp
     runApp(app);
@@ -65,18 +71,27 @@ class IMBoyApp extends ConsumerStatefulWidget {
 class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   /// 当前语言环境（用于触发重建）
   AppLocale _currentLocale = LocaleSettings.currentLocale;
+  late final GoRouter _router;
+  StreamSubscription<AppLocale>? _localeSubscription;
 
   @override
   void initState() {
     super.initState();
+    _router = ref.read(goRouterProvider);
     // 监听语言变化
-    LocaleSettings.getLocaleStream().listen((locale) {
+    _localeSubscription = LocaleSettings.getLocaleStream().listen((locale) {
       if (mounted && _currentLocale != locale) {
         setState(() {
           _currentLocale = locale;
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _localeSubscription?.cancel();
+    super.dispose();
   }
 
   /// 初始化 slang locale
@@ -138,8 +153,6 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
       _initFontSize(ref);
     });
 
-    final router = ref.watch(goRouterProvider);
-
     // 监听主题状态
     final themeState = ref.watch(themeProvider);
     final themeMode = ref.watch(themeModeProvider);
@@ -161,9 +174,7 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
             debugShowCheckedModeBanner: false,
 
             // go_router 配置
-            routerDelegate: router.routerDelegate,
-            routeInformationParser: router.routeInformationParser,
-            routeInformationProvider: router.routeInformationProvider,
+            routerConfig: _router,
 
             // 配置本地化代理
             localizationsDelegates: const [

@@ -27,6 +27,7 @@ import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/session.dart';
+import 'package:imboy/page/group/group_list/group_list_service.dart';
 
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_actions.dart';
@@ -37,14 +38,15 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/feature_registry.dart';
 import 'package:imboy/service/e2ee_shard_message_handler.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:xid/xid.dart';
 
 import 'env.dart';
 import 'package:go_router/go_router.dart';
+import 'routes.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
@@ -62,6 +64,7 @@ var logger = Logger();
 /// initConfig 缓存（避免重复请求）
 Map<String, dynamic>? _initConfigCache;
 Completer<Map<String, dynamic>>? _initConfigCompleter;
+Completer<Map<String, int>>? _groupSelfHealCompleter;
 
 OverlayEntry? p2pEntry;
 // ice 配置信息
@@ -75,7 +78,37 @@ OverlayEntry? p2pEntry;
 dynamic eventBus = AppEventBus.i;
 // 全局timer
 Timer? gTimer;
-GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root_navigator',
+);
+
+bool _isNavigatingToSignIn = false;
+
+void navigateToSignIn({String source = 'unknown'}) {
+  if (_isNavigatingToSignIn) {
+    logger.i('navigateToSignIn skipped (in-flight), source=$source');
+    return;
+  }
+
+  _isNavigatingToSignIn = true;
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    try {
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        context.go(AppRoutes.signIn);
+      } else {
+        logger.w(
+          'navigateToSignIn skipped: context unavailable, source=$source',
+        );
+      }
+    } finally {
+      Future<void>.delayed(const Duration(milliseconds: 300), () {
+        _isNavigatingToSignIn = false;
+      });
+    }
+  });
+}
 
 Map<String, WebRTCSession> webRTCSessions = {};
 
@@ -266,6 +299,7 @@ class AppInitializer {
       await StorageService.to.remove(Keys.uploadUrl);
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
+      await AppFeatureRegistry.clear();
 
       logger.i(
         '🔄 Cleared all cached configurations due to environment change',
@@ -331,6 +365,9 @@ class AppInitializer {
       interceptors: [IMBoyInterceptor()],
     );
     serviceContainer.put(HttpClient(conf: dioConfig));
+    HttpClient.onAuthExpired = () {
+      navigateToSignIn(source: 'http_auth_expired_callback');
+    };
   }
 
   static Future<Map<String, dynamic>> initConfig() async {
@@ -491,13 +528,10 @@ class AppInitializer {
       logger.i('✅ Using cached initConfig (apiPublicKey exists)');
     }
 
+    await AppFeatureRegistry.refresh();
+
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
-
-    // 【数据修复】修复旧会话数据中 msg_type='custom' 的问题
-    if (UserRepoLocal.to.isLoggedIn) {
-      await ConversationRepo.fixLegacyConversationMsgTypes();
-    }
 
     // 初始化地图服务
     AMapHelper.init(); // 设置隐私协议（必须先调用）
@@ -538,6 +572,101 @@ class AppInitializer {
     // 如果已登录，尝试连接WebSocket
     if (UserRepoLocal.to.isLoggedIn) {
       await wsService.openSocket(from: 'initialization');
+      unawaited(triggerGroupMembershipSelfHeal(source: 'initialization'));
+    }
+  }
+
+  static Future<Map<String, int>> triggerGroupMembershipSelfHeal({
+    bool force = false,
+    String source = 'manual',
+  }) async {
+    if (_groupSelfHealCompleter != null) {
+      logger.i('Group membership self-heal already running, source=$source');
+      return _groupSelfHealCompleter!.future;
+    }
+    _groupSelfHealCompleter = Completer<Map<String, int>>();
+    try {
+      final result = await _runGroupMembershipSelfHeal(
+        force: force,
+        source: source,
+      );
+      if (!_groupSelfHealCompleter!.isCompleted) {
+        _groupSelfHealCompleter!.complete(result);
+      }
+      return result;
+    } catch (e, s) {
+      final fallback = {'skipped': 1, 'errors': 1, 'reason': 500};
+      logger.w('Group membership self-heal trigger failed: $e\n$s');
+      if (!_groupSelfHealCompleter!.isCompleted) {
+        _groupSelfHealCompleter!.complete(fallback);
+      }
+      return fallback;
+    } finally {
+      _groupSelfHealCompleter = null;
+    }
+  }
+
+  static Future<Map<String, int>> _runGroupMembershipSelfHeal({
+    bool force = false,
+    String source = 'internal',
+  }) async {
+    if (!UserRepoLocal.to.isLoggedIn) {
+      return {'skipped': 1, 'errors': 0, 'reason': 401};
+    }
+    final uid = UserRepoLocal.to.currentUid;
+    if (uid.isEmpty) {
+      return {'skipped': 1, 'errors': 0, 'reason': 400};
+    }
+
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      logger.i('Group membership self-heal skipped (offline), source=$source');
+      return {'skipped': 1, 'errors': 0, 'reason': 0};
+    }
+
+    final dayMark = DateTime.now().toIso8601String().split('T').first;
+    final markerKey =
+        '${Keys.groupMembershipSelfHealPrefix}_${currentEnv}_$uid';
+    final lastMark = StorageService.to.getString(markerKey);
+    if (!force && lastMark == dayMark) {
+      logger.i(
+        'Group membership self-heal skipped (already done today), source=$source',
+      );
+      return {'skipped': 1, 'errors': 0, 'reason': 1};
+    }
+
+    try {
+      final result = await GroupListService().selfHealMembershipShadows();
+      final errors = result['errors'] ?? 0;
+      final groupRows = result['groupRows'] ?? 0;
+      final ownerRows = result['ownerRows'] ?? 0;
+      final joinRows = result['joinRows'] ?? 0;
+      final managerRows = result['managerRows'] ?? 0;
+      final beforeOwner = result['beforeOwner'] ?? 0;
+      final beforeJoin = result['beforeJoin'] ?? 0;
+      final beforeManager = result['beforeManager'] ?? 0;
+      final afterOwner = result['afterOwner'] ?? 0;
+      final afterJoin = result['afterJoin'] ?? 0;
+      final afterManager = result['afterManager'] ?? 0;
+      final deltaOwner = result['deltaOwner'] ?? 0;
+      final deltaJoin = result['deltaJoin'] ?? 0;
+      final deltaManager = result['deltaManager'] ?? 0;
+      if (errors == 0) {
+        await StorageService.to.setString(markerKey, dayMark);
+      }
+      logger.i(
+        'Group membership self-heal done: '
+        'groupRows=$groupRows, ownerRows=$ownerRows, joinRows=$joinRows, '
+        'managerRows=$managerRows, '
+        'before(owner/join/manager)=($beforeOwner/$beforeJoin/$beforeManager), '
+        'after(owner/join/manager)=($afterOwner/$afterJoin/$afterManager), '
+        'delta(owner/join/manager)=($deltaOwner/$deltaJoin/$deltaManager), '
+        'errors=$errors, source=$source',
+      );
+      return result;
+    } catch (e, s) {
+      logger.w('Group membership self-heal failed: $e\n$s');
+      return {'skipped': 0, 'errors': 1, 'reason': 500};
     }
   }
 
@@ -581,7 +710,11 @@ class AppInitializer {
           if (wsService.status == SocketStatus.connected) {
             logger.i('App恢复，WebSocket已连接，拉取离线消息...');
             // 【关键优化】App恢复时主动拉取离线消息，兜底处理
-            await MessageOfflineService.to.pullOfflineMessages();
+            await MessageOfflineService.instance.requestPull(
+              source: 'AppResume',
+              reason: '应用恢复',
+            );
+            unawaited(triggerGroupMembershipSelfHeal(source: 'app_resume'));
           } else {
             logger.i('App恢复，WebSocket未连接，跳过重连（会自动重连）');
           }
@@ -670,7 +803,7 @@ class AppInitializer {
 
     // 清理MessageOfflineService资源
     try {
-      MessageOfflineService.to.onDispose();
+      MessageOfflineService.instance.onDispose();
     } catch (e) {
       logger.w('Failed to dispose MessageOfflineService: $e');
     }

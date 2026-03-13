@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 /// 联系人数据模型
 /// 纯数据模型，不包含响应式状态
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 String getSourceTr(String? source) {
   debugPrint("getSourceTr $source");
@@ -20,7 +20,7 @@ String getSourceTr(String? source) {
   // 通过QQ好友添加
   // 通过群聊添加
   switch (source.toLowerCase()) {
-    case 'visit_card':
+    case 'visitcard':
       sourceTr = t.personalCard;
       break;
     case 'qrcode':
@@ -34,9 +34,6 @@ String getSourceTr(String? source) {
       break;
     case 'user_search':
       sourceTr = t.search;
-      break;
-    case 'null':
-      sourceTr = '';
       break;
     default:
       sourceTr = source.toString();
@@ -89,7 +86,7 @@ class ContactModel extends ISuspensionBean {
   final String sign;
 
   // source 可能的值
-  // visit_card | qrcode | people_nearby | user_search
+  // visitCard | qrcode | people_nearby | user_search
   // recently_user
   final String source;
   final int updatedAt;
@@ -117,7 +114,7 @@ class ContactModel extends ISuspensionBean {
 
   /// 联系人title显示规则： remark > nickname > account
   String get title {
-    if (strNoEmpty(remark) && remark != 'null') {
+    if (strNoEmpty(remark)) {
       return remark;
     } else if (strNoEmpty(nickname)) {
       return nickname;
@@ -127,40 +124,47 @@ class ContactModel extends ISuspensionBean {
   }
 
   factory ContactModel.fromMap(Map<String, dynamic> json) {
-    var isFrom = json[ContactRepo.isFrom] ?? 0;
-    if (isFrom is String) {
-      isFrom = int.tryParse(isFrom) ?? 0;
-    }
-    String tag = json[ContactRepo.tag] ?? '';
+    final isFrom = parseModelInt(json[ContactRepo.isFrom]);
+    String tag = parseModelString(json[ContactRepo.tag]);
     tag = tag.replaceAll(',,', ',');
     tag = tag.endsWith(',') ? tag.substring(0, tag.length - 1) : tag;
 
-    String peerId = json['id'] ?? (json[ContactRepo.peerId] ?? '');
+    final peerId = parseModelString(json['id'] ?? json[ContactRepo.peerId]);
     if (peerId.isEmpty) {
       throw Exception('ContactModel peerId is empty');
     }
 
-    var updateAt = DateTimeHelper.parseTimestamp(json[ContactRepo.updatedAt]);
+    final rawLastSeenAt = json['last_seen_at'];
+    int? lastSeenAt;
+    if (rawLastSeenAt != null && rawLastSeenAt.toString().isNotEmpty) {
+      if (rawLastSeenAt is num) {
+        lastSeenAt = rawLastSeenAt.toInt();
+      } else {
+        lastSeenAt = int.tryParse(rawLastSeenAt.toString());
+      }
+    }
+
+    final updateAt = parseModelDateTime(
+      json[ContactRepo.updatedAt],
+    ).millisecondsSinceEpoch;
     return ContactModel(
       peerId: peerId,
-      account: json["account"].toString(),
-      nickname: json["nickname"].toString(),
-      avatar: json["avatar"].toString(),
-      gender: int.tryParse(json["gender"].toString()) ?? 0,
-      status: json["status"] ?? '',
-      lastSeenAt: json["last_seen_at"] == ""
-          ? null
-          : int.tryParse(json["last_seen_at"].toString()),
-      remark: json["remark"].toString(),
+      account: parseModelString(json['account']),
+      nickname: parseModelString(json['nickname']),
+      avatar: parseModelString(json['avatar']),
+      gender: parseModelInt(json['gender']),
+      status: parseModelString(json['status']),
+      lastSeenAt: lastSeenAt,
+      remark: parseModelString(json['remark']),
       tag: tag,
-      region: "${json["region"] ?? ''}",
-      source: json["source"].toString(),
-      sign: json["sign"].toString(),
+      region: parseModelString(json['region']),
+      source: parseModelString(json['source']),
+      sign: parseModelString(json['sign']),
       // 单位毫秒，13位时间戳  1561021145560
       updatedAt: updateAt,
-      isFriend: int.tryParse(json[ContactRepo.isFriend].toString()) ?? 0,
-      categoryId: int.tryParse(json[ContactRepo.categoryId].toString()) ?? 0,
-      isFrom: int.tryParse('$isFrom') ?? 0,
+      isFriend: parseModelInt(json[ContactRepo.isFriend]),
+      categoryId: parseModelInt(json[ContactRepo.categoryId]),
+      isFrom: isFrom,
     );
   }
 

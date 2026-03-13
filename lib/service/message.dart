@@ -6,18 +6,19 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
-import 'package:imboy/config/init.dart' show navigatorKey;
-import 'package:imboy/config/routes.dart' show AppRoutes;
+import 'package:imboy/config/init.dart' show AppInitializer, navigateToSignIn;
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/events/base_event.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
@@ -118,7 +119,7 @@ class MessageService with EventSubscriptionManager {
     return _instance!;
   }
 
-  /// 兼容旧代码的访问方式
+  /// 静态访问器
   static MessageService get to => instance;
 
   /// 私有构造函数
@@ -219,6 +220,11 @@ class MessageService with EventSubscriptionManager {
               reason: 'WebSocket 连接恢复',
             ),
           );
+          unawaited(
+            AppInitializer.triggerGroupMembershipSelfHeal(
+              source: 'ws_connected',
+            ),
+          );
         }
       }),
     );
@@ -246,7 +252,7 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
-  /// 改变消息状态（兼容旧调用）
+  /// 改变消息状态
   Future<MessageModel?> changeStatus(String tb, String msgId, int status) {
     final repo = MessageRepo(tableName: tb);
     return updateStatus(repo, msgId, status);
@@ -386,8 +392,12 @@ class MessageService with EventSubscriptionManager {
   /// ```
   Future<void> _receiveMessage(Map data) async {
     final startTime = DateTimeHelper.millisecond();
-    final msgId = data['id'] as String;
-    final msgType = data['type'] as String;
+    final msgId = parseModelString(data['id']);
+    final msgType = parseModelString(data['type']);
+    if (msgId.isEmpty || msgType.isEmpty) {
+      iPrint('❌ [消息格式] 缺少 id/type 字段: id=$msgId, type=$msgType');
+      return;
+    }
     iPrint('⏱️ [1] _receiveMessage 开始: $startTime, msgId: $msgId');
 
     // ACK已在websocket.dart:_onMessage中发送，此处不再重复发送
@@ -427,9 +437,10 @@ class MessageService with EventSubscriptionManager {
       createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
       data['created_at'] = createdAt;
     }
-    final createdAtMs = (data['created_at'] is int)
-        ? data['created_at'] as int
-        : DateTimeHelper.millisecond();
+    final createdAtMs = parseModelInt(
+      data['created_at'],
+      defaultValue: DateTimeHelper.millisecond(),
+    );
 
     // v2.0: E2EE 解密处理（复用前面解析的 e2ee 变量）
     // 检查是否有 e2ee 字段（表示消息已加密）
@@ -453,12 +464,12 @@ class MessageService with EventSubscriptionManager {
     } else {
       // 普通（非 E2EE）消息：payload 应该是 Map
       if (payloadRaw is Map) {
-        payload = payloadRaw.cast<String, dynamic>();
+        payload = parseModelJsonMap(payloadRaw);
       } else if (payloadRaw is String && payloadRaw.isNotEmpty) {
         try {
           final decoded = jsonDecode(payloadRaw);
           if (decoded is Map) {
-            payload = decoded.cast<String, dynamic>();
+            payload = parseModelJsonMap(decoded);
           }
         } catch (e) {
           iPrint('❌ [Payload] 无法解析 payload 字符串: msgId=$msgId, error=$e');
@@ -481,9 +492,11 @@ class MessageService with EventSubscriptionManager {
     // 计算端到端延迟：从发送客户端到接收客户端的总延迟
     // Calculate end-to-end latency: from sender client to receiver client
     if (payload.containsKey('client_send_ts')) {
-      final clientSendTs = payload['client_send_ts'] as int;
-      final e2eLatency = startTime - clientSendTs;
-      iPrint('📊 [端到端延迟] $msgId: ${e2eLatency}ms (A发送 → B接收)');
+      final clientSendTs = parseModelInt(payload['client_send_ts']);
+      if (clientSendTs > 0) {
+        final e2eLatency = startTime - clientSendTs;
+        iPrint('📊 [端到端延迟] $msgId: ${e2eLatency}ms (A发送 → B接收)');
+      }
     }
 
     // 确保 payload 为 non-nullable（用于后续调用）
@@ -549,7 +562,11 @@ class MessageService with EventSubscriptionManager {
     try {
       // 先构造基本消息对象用于UI显示（使用默认peer信息）
       // First create basic message for UI display with default peer info
-      final peerId = msgType == 'C2G' ? data['to'] : data['from'];
+      final peerId = resolveConversationPeerId(
+        msgType: msgType,
+        data: data,
+        currentUid: UserRepoLocal.to.currentUid,
+      );
       final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
 
       // v2.0: 从顶层读取 msg_type（不再兼容 v1.0）
@@ -576,7 +593,7 @@ class MessageService with EventSubscriptionManager {
         msgType: messageType,
         lastMsgId: msgId,
         lastTime: data['created_at'] ?? DateTimeHelper.millisecond(),
-        unreadNum: isFromCurrentUser ? 0 : 1,
+        unreadNum: 0,
         id: 0,
       );
 
@@ -586,15 +603,18 @@ class MessageService with EventSubscriptionManager {
         msgId,
         autoId: 0,
         type: msgType,
-        fromId: data['from'],
-        toId: data['to'],
+        fromId: parseModelString(data['from']),
+        toId: parseModelString(data['to']),
         payload: nonNullPayload,
-        createdAt: data['created_at'] ?? DateTimeHelper.millisecond(),
+        createdAt: parseModelInt(
+          data['created_at'],
+          defaultValue: DateTimeHelper.millisecond(),
+        ),
         isAuthor: isFromCurrentUser ? 1 : 0,
-        topicId: data['topic_id'] ?? 0,
+        topicId: parseModelInt(data['topic_id']),
         conversationUk3: tempConv.uk3,
         status: IMBoyMessageStatus.delivered,
-        msgType: data['msg_type'] as String?, // ✅ 修复：传递 msg_type
+        msgType: parseModelNullableString(data['msg_type']), // ✅ 修复：传递 msg_type
       );
       iPrint('⏱️ [4] 消息对象构造完成: +${DateTimeHelper.millisecond() - startTime}ms');
 
@@ -718,9 +738,9 @@ class MessageService with EventSubscriptionManager {
     final type = data['type']?.toString() ?? '';
     final createdAt = data['created_at']?.toString() ?? '';
 
-    // v2.0: 从顶层读取 msg_type（后备兼容从 payload 读取）
+    // v2.0: 只从顶层读取 msg_type
     final msgType = data['msg_type']?.toString() ?? '';
-    final payload = data['payload'] as Map?;
+    final payload = parseModelJsonMap(data['payload']);
     final clientSendTs = payload?['client_send_ts']?.toString() ?? '';
 
     // 使用关键字段生成哈希（不包含加密的文本内容）
@@ -783,13 +803,13 @@ class MessageService with EventSubscriptionManager {
     MessageModel tempMsg,
     MessageRepo repo,
   ) async {
-    final msgId = data['id'] as String;
-    final msgType = data['type']; // 消息会话类型 (C2C/C2G/C2S)
+    final msgId = parseModelString(data['id']);
+    final msgType = parseModelString(data['type']); // 消息会话类型 (C2C/C2G/C2S)
     // WebSocket API v2.0: 从顶层读取消息内容类型
-    final rawMsgType = data['msg_type']?.toString(); // voice/audio/text/image 等
+    final rawMsgType = data['msg_type']?.toString(); // voice/text/image 等
 
     // 【重构】使用 MessageTypeNormalizer 进行类型归一化
-    // 自动处理：custom -> custom_type, audio -> voice
+    // 仅做合法性校验与空白处理（不做旧命名兼容）
     final msgContentType = MessageTypeNormalizer.normalize(
       msgType: rawMsgType,
       payload: payload,
@@ -804,10 +824,16 @@ class MessageService with EventSubscriptionManager {
       ]);
 
       final peerInfo = results[0] as Map<String, String>;
-      final isUserInChat = results[1] as bool;
+      final isUserInChat = parseModelBool(results[1]);
 
       // 更新会话信息
       // Update conversation with complete peer info
+      final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
+      final unreadIncrement = computeConversationUnreadIncrement(
+        isFromCurrentUser: isFromCurrentUser,
+        isUserInChat: isUserInChat,
+      );
+
       final conv = ConversationModel(
         peerId: peerInfo['peerId']!,
         avatar: peerInfo['avatar']!,
@@ -817,24 +843,29 @@ class MessageService with EventSubscriptionManager {
         msgType: msgContentType, // 【修复】使用修正后的消息类型
         lastMsgId: msgId,
         lastTime: tempConv.lastTime,
-        unreadNum: tempConv.unreadNum,
+        unreadNum: unreadIncrement,
         id: 0,
       );
       final savedConv = await _conversationRepo.save(conv);
 
       // 保存消息到 sqlite
       // Persist message to local DB
-      iPrint('🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType');
+      iPrint(
+        '🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType',
+      );
       final msg = MessageModel(
         msgId,
         autoId: 0,
         type: msgType, // 消息会话类型 (C2C/C2G/C2S)
-        fromId: data['from'],
-        toId: data['to'],
+        fromId: parseModelString(data['from']),
+        toId: parseModelString(data['to']),
         payload: payload,
-        createdAt: data['created_at'] ?? DateTimeHelper.millisecond(),
+        createdAt: parseModelInt(
+          data['created_at'],
+          defaultValue: DateTimeHelper.millisecond(),
+        ),
         isAuthor: tempMsg.isAuthor,
-        topicId: tempMsg.topicId,
+        topicId: parseModelInt(data['topic_id'], defaultValue: tempMsg.topicId),
         conversationUk3: savedConv.uk3,
         status: IMBoyMessageStatus.delivered,
         msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
@@ -850,12 +881,8 @@ class MessageService with EventSubscriptionManager {
         return;
       }
 
-      // 更新未读计数
-      // Update unread count
-      final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
-      if (!isUserInChat && !isFromCurrentUser) {
-        await _conversationNotifier.increaseConversationRemind(savedConv, 1);
-      }
+      // 单一来源：以会话快照统一同步会话与提醒，避免局部字段漂移
+      _conversationNotifier.applyConversationSnapshot(savedConv);
 
       // 再次触发 UI 更新以显示完整的 peer 信息
       // Trigger UI update again to show complete peer info
@@ -930,7 +957,7 @@ class MessageService with EventSubscriptionManager {
     String peerId, avatar, title;
 
     if (msgType == 'C2G') {
-      peerId = data['to'];
+      peerId = parseModelString(data['to']);
 
       // 检查内存缓存
       // Check memory cache first
@@ -968,8 +995,12 @@ class MessageService with EventSubscriptionManager {
       avatar = g?.avatar ?? '';
       title = g?.title ?? '群聊';
     } else {
-      peerId = data['from'];
-      final ct = await _contactRepo.findByUid(data['from']);
+      peerId = resolveConversationPeerId(
+        msgType: msgType,
+        data: data,
+        currentUid: UserRepoLocal.to.currentUid,
+      );
+      final ct = await _contactRepo.findByUid(peerId);
       avatar = ct?.avatar ?? '';
       title = ct?.title ?? '用户';
     }
@@ -994,8 +1025,9 @@ class MessageService with EventSubscriptionManager {
   /// Handle server-side ACK for sent messages
   /// 处理服务端发送确认
   Future<void> _receiveServerAck(Map data) async {
-    final msgId = data['id'] as String;
-    final type = data['type'] as String;
+    final msgId = parseModelString(data['id']);
+    final type = parseModelString(data['type']);
+    if (msgId.isEmpty || type.isEmpty) return;
 
     // 【改进】添加SERVER_ACK接收日志
     iPrint('📥 [SERVER_ACK] 收到服务端ACK: msgId=$msgId, type=$type');
@@ -1054,10 +1086,7 @@ class MessageService with EventSubscriptionManager {
     // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content 字段
     if (ErrorCode.shouldReLogin(code)) {
       UserRepoLocal.to.quitLogin();
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        AppRoutes.signIn,
-        (route) => false,
-      );
+      navigateToSignIn(source: 'message_service_relogin');
     }
   }
 
@@ -1118,8 +1147,7 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
-  // 兼容性方法，保持原有 API
-  // Compatibility methods to maintain original API
+  // 便捷转发方法
 
   /// Add a local WebRTC message record (UI only)
   /// 本地添加一条 WebRTC 消息记录，仅更新 UI
@@ -1195,7 +1223,10 @@ class MessageService with EventSubscriptionManager {
     required int createdAtMs,
   }) async {
     // WebSocket API v2.0: 保留原始消息的 msg_type（内容类型）
-    final originalMsgType = data['msg_type'] as String? ?? 'text';
+    final originalMsgType = parseModelString(
+      data['msg_type'],
+      defaultValue: 'text',
+    );
 
     // 1. 获取密文字符串
     final ciphertext = data['payload']?.toString();
@@ -1203,7 +1234,6 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] payload 为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'custom_type': 'e2ee',
         'text': '[加密消息]',
         '_e2ee_failed': true,
         '_e2ee_reason': 'empty_payload',
@@ -1233,7 +1263,6 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] e2ee 元数据为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'custom_type': 'e2ee',
         'text': '[加密消息]',
         '_e2ee_failed': true,
         '_e2ee_reason': 'missing_e2ee_metadata',
@@ -1319,7 +1348,6 @@ class MessageService with EventSubscriptionManager {
         // 密钥不匹配：保存原始密文以便后续重试解密
         return {
           'msg_type': originalMsgType,
-          'custom_type': 'e2ee_key_mismatch',
           'text':
               '🔒 此消息无法解密\n\n可能原因：\n• 您在其他设备上登录\n• 设备密钥已过期\n\n建议：\n点击下方按钮重新登录以获取最新密钥',
           '_e2ee_failed': true,
@@ -1336,7 +1364,6 @@ class MessageService with EventSubscriptionManager {
       // 其他解密错误
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'custom_type': 'e2ee',
         'text': '🔒 [加密消息无法解密]\n\n错误：${e.toString()}',
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
@@ -1400,8 +1427,11 @@ class MessageService with EventSubscriptionManager {
 
   /// 处理自定义消息
   void _handleCustomMessage(Map data, Map<String, dynamic> payload) {
-    final customType = payload['custom_type']?.toString() ?? '';
-    iPrint('🔧 [自定义消息] 类型: $customType');
+    final contentType =
+        data['msg_type']?.toString() ??
+        payload['msg_type']?.toString() ??
+        'custom';
+    iPrint('🔧 [自定义消息] 类型: $contentType');
   }
 
   /// 根据 msg_type 分发消息处理（v2.0）

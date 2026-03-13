@@ -4,6 +4,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 // ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
@@ -42,7 +43,7 @@ class ContactCard extends StatelessWidget {
       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
     );
 
-    String? title = (remark == null || remark == 'null') ? '' : remark;
+    String title = parseModelString(remark);
     if (strEmpty(title)) {
       title = nickname!;
       nickname = '';
@@ -51,12 +52,7 @@ class ContactCard extends StatelessWidget {
       Row(
         children: [
           Expanded(
-            child: Text(
-              title ?? '',
-
-              maxLines: 6,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: Text(title, maxLines: 6, overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(width: 3.33),
           genderIcon(gender),
@@ -79,8 +75,9 @@ class ContactCard extends StatelessWidget {
         ),
       );
     }
-    if (strNoEmpty(region) && region != 'null') {
-      items.add(Text("${t.region}：$region", style: labelStyle));
+    final normalizedRegion = parseModelString(region);
+    if (strNoEmpty(normalizedRegion)) {
+      items.add(Text("${t.region}：$normalizedRegion", style: labelStyle));
     }
     return Container(
       decoration: BoxDecoration(

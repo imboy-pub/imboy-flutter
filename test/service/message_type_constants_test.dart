@@ -7,22 +7,6 @@ void main() {
       // THEN: voice 常量应该存在
       expect(MessageType.voice, equals('voice'));
     });
-
-    test('audio 常量应该存在且值为 "audio"（已废弃）', () {
-      // THEN: audio 常量应该存在（向后兼容）
-      expect(MessageType.audio, equals('audio'));
-    });
-
-    test('audio 和 voice 应该是不同的值', () {
-      // THEN: audio 和 voice 应该是不同的字符串
-      expect(MessageType.audio, isNot(equals(MessageType.voice)));
-    });
-
-    test('MsgTypeEnum.audio 应该对应 MessageType.audio', () {
-      // WHEN: 获取 MsgTypeEnum.audio 的值
-      // THEN: 应该是 "audio"
-      expect(MsgTypeEnum.audio.value, equals(MessageType.audio));
-    });
   });
 
   group('MsgTypeEnumExtension TDD Tests', () {
@@ -34,14 +18,6 @@ void main() {
       expect(enumValue, equals(MsgTypeEnum.voice));
     });
 
-    test('fromValue 应该正确识别 audio 类型', () {
-      // WHEN: 从 "audio" 字符串获取枚举
-      final enumValue = MsgTypeEnumExtension.fromValue('audio');
-
-      // THEN: 应该返回 MsgTypeEnum.audio
-      expect(enumValue, equals(MsgTypeEnum.audio));
-    });
-
     test('所有基础消息类型应该有对应的枚举值', () {
       // THEN: 验证所有基础类型都有对应的枚举
       expect(MsgTypeEnum.text.value, equals(MessageType.text));
@@ -51,8 +27,12 @@ void main() {
       expect(MsgTypeEnum.file.value, equals(MessageType.file));
       expect(MsgTypeEnum.location.value, equals(MessageType.location));
       expect(MsgTypeEnum.voice.value, equals(MessageType.voice));
-      expect(MsgTypeEnum.audio.value, equals(MessageType.audio)); // 向后兼容
       expect(MsgTypeEnum.video.value, equals(MessageType.video));
+    });
+
+    test('fromValue 不应再识别 audio 旧类型', () {
+      final enumValue = MsgTypeEnumExtension.fromValue('audio');
+      expect(enumValue, isNull);
     });
 
     test('fromValue 应该处理未知类型返回 null', () {
@@ -64,20 +44,20 @@ void main() {
     });
   });
 
-  group('CustomMessageTypeConstants TDD Tests', () {
+  group('ExtendedMessageTypeConstants TDD Tests', () {
     test('webrtcAudio 应该使用驼峰命名', () {
       // THEN: webrtcAudio 应该使用驼峰命名
-      expect(CustomMessageType.webrtcAudio, equals('webrtcAudio'));
+      expect(MessageType.webrtcAudio, equals('webrtcAudio'));
     });
 
     test('webrtcVideo 应该使用驼峰命名', () {
       // THEN: webrtcVideo 应该使用驼峰命名
-      expect(CustomMessageType.webrtcVideo, equals('webrtcVideo'));
+      expect(MessageType.webrtcVideo, equals('webrtcVideo'));
     });
 
     test('visitCard 应该使用驼峰命名', () {
       // THEN: visitCard 应该使用驼峰命名
-      expect(CustomMessageType.visitCard, equals('visitCard'));
+      expect(MessageType.visitCard, equals('visitCard'));
     });
 
     test('WebRTC 相关枚举应该使用驼峰命名', () {
@@ -121,6 +101,10 @@ void main() {
       expect(S2CAction.applyFriend, equals('apply_friend'));
       expect(S2CAction.online, equals('online'));
       expect(S2CAction.offline, equals('offline'));
+      expect(S2CAction.momentNew, equals('moment_new'));
+      expect(S2CAction.momentLike, equals('moment_like'));
+      expect(S2CAction.momentComment, equals('moment_comment'));
+      expect(S2CAction.momentDeleted, equals('moment_deleted'));
     });
 
     test('isValid 应该正确验证 action', () {
@@ -128,6 +112,7 @@ void main() {
       // THEN: 应该返回 true
       expect(S2CAction.isValid('pull_offline_msg'), isTrue);
       expect(S2CAction.isValid('c2c_revoke'), isTrue);
+      expect(S2CAction.isValid('moment_new'), isTrue);
       expect(S2CAction.isValid('invalid_action'), isFalse);
     });
 
@@ -136,6 +121,7 @@ void main() {
       // THEN: 应该返回中文名称
       expect(S2CAction.getDisplayName('pull_offline_msg'), equals('拉取离线消息'));
       expect(S2CAction.getDisplayName('c2c_revoke'), equals('消息撤回'));
+      expect(S2CAction.getDisplayName('moment_deleted'), equals('朋友圈删除'));
       expect(S2CAction.getDisplayName('unknown'), equals('unknown'));
     });
   });

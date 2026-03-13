@@ -220,10 +220,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
   /// 清除搜索范围（切换到全局搜索）
   void clearSearchScope() {
-    state = state.copyWith(
-      conversationUk3: null,
-      conversationTitle: null,
-    );
+    state = state.copyWith(conversationUk3: null, conversationTitle: null);
   }
 
   Future<void> addToHistory(String query) async {
@@ -237,7 +234,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
       history.removeRange(_maxHistoryCount, history.length);
     }
 
-    await StorageService.to.setStringList(_messageSearchHistoryKey, history);
+    await StorageService.to.setList(_messageSearchHistoryKey, history);
     state = state.copyWith(searchHistory: history);
   }
 
@@ -245,7 +242,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     final List<String> history = List.from(state.searchHistory);
     history.remove(query);
 
-    await StorageService.to.setStringList(_messageSearchHistoryKey, history);
+    await StorageService.to.setList(_messageSearchHistoryKey, history);
     state = state.copyWith(searchHistory: history);
   }
 
@@ -269,7 +266,10 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
   }
 
   /// 执行搜索
-  Future<void> performSearch({required String query, bool loadMore = false}) async {
+  Future<void> performSearch({
+    required String query,
+    bool loadMore = false,
+  }) async {
     if (query.trim().isEmpty) return;
 
     final effectiveQuery = query.trim();

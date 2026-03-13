@@ -90,62 +90,6 @@ class AppTheme {
     return getDarkTheme(fontScale: option.scale, context: context);
   }
 
-  // ==================== 静态主题（向后兼容） ====================
-  // 这里的实现保留用于向后兼容，但建议切换到 ComponentThemeManager
-  static final ThemeData lightTheme = _baseLightTheme;
-
-  // ==================== 暗色主题 ====================
-  static final ThemeData darkTheme = _baseDarkTheme;
-
-  // ==================== 聊天相关颜色（向后兼容） ====================
-  // 注意：建议使用 ChatThemeConfig 类来获取聊天主题配置
-
-  // 亮色主题聊天颜色
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatSendMessageBg => AppColors.lightSentMessageBackground;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatSentMessageText => AppColors.sentMessageText;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatReceivedMessageText =>
-      AppColors.lightReceivedMessageText;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatReceivedMessageBg =>
-      AppColors.lightReceivedMessageBackground;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatInputBg => AppColors.lightSurface;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatInputBorder => AppColors.lightBorder;
-
-  // 暗色主题聊天颜色
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatSendMessageBg => AppColors.darkSentMessageBackground;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatSentMessageText => AppColors.sentMessageText;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatReceivedMessageText =>
-      AppColors.darkReceivedMessageText;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatReceivedMessageBg =>
-      AppColors.darkReceivedMessageBackground;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatInputBg => AppColors.darkSurface;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatInputBorder => AppColors.darkBorder;
-
-  // 聊天颜色常量（向后兼容，建议使用 ChatThemeConfig）
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatSendMessageBgColor => chatSendMessageBg;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatSentMessageBodyTextColor => chatSentMessageText;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatReceivedMessageBodyTextColor => chatReceivedMessageText;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatReceivedMessageBodyBgColor => chatReceivedMessageBg;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get chatInputFillColor => chatInputBg;
-  @Deprecated('Use ChatThemeConfig instead')
-  static Color get darkChatInputFillColor => darkChatInputBg;
-
   // ==================== 核心主题构建方法 ====================
 
   /// 构建主题的核心方法
@@ -301,7 +245,6 @@ class AppTheme {
       useMaterial3: true,
       // 使用系统字体，避免 Flutter Web 加载 Google Fonts CDN 的 Roboto 字体
       fontFamily: '', // 空字符串表示使用系统默认字体
-
       // 1. Material 3 完整颜色方案 - 暗色模式
       colorScheme: ColorScheme.dark(
         // Primary colors - 主色系

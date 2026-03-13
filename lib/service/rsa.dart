@@ -15,8 +15,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 
 // 👇 条件导入：Web 平台使用真实实现，非 Web 平台使用存根
-import 'rsa_web_stub.dart'
-    if (dart.library.html) 'rsa_web.dart';
+import 'rsa_web_stub.dart' if (dart.library.html) 'rsa_web.dart';
 
 /// RSA加密解密服务工具类
 /// 优化要点：
@@ -54,7 +53,7 @@ class RSAService {
 
     try {
       // 尝试从安全存储读取
-      String? key = await StorageSecureService().read(key: Keys.publicKey);
+      String? key = await StorageSecureService.to.read(key: Keys.publicKey);
       if (strNoEmpty(key)) {
         _cachedPublicKey = key;
         return key!;
@@ -83,7 +82,7 @@ class RSAService {
 
     try {
       // 尝试从安全存储读取
-      String? key = await StorageSecureService().read(key: Keys.privateKey);
+      String? key = await StorageSecureService.to.read(key: Keys.privateKey);
       if (strNoEmpty(key)) {
         _cachedPrivateKey = key;
         return key;
@@ -123,11 +122,11 @@ class RSAService {
 
       // 存储到安全存储
       await Future.wait([
-        StorageSecureService().write(
+        StorageSecureService.to.write(
           key: Keys.publicKey,
           value: _cachedPublicKey!,
         ),
-        StorageSecureService().write(
+        StorageSecureService.to.write(
           key: Keys.privateKey,
           value: _cachedPrivateKey!,
         ),
@@ -578,7 +577,9 @@ class RSAService {
       debugPrint('🔐 RSA Async: 开始解析公钥...');
       final publicKey = parsePublicKeyFromPem(pubKeyPem);
       final modulusStr = publicKey.modulus?.toRadixString(16) ?? 'null';
-      debugPrint('🔐 RSA Async: 公钥解析成功, modulus前20字符=${modulusStr.length > 20 ? modulusStr.substring(0, 20) : modulusStr}...');
+      debugPrint(
+        '🔐 RSA Async: 公钥解析成功, modulus前20字符=${modulusStr.length > 20 ? modulusStr.substring(0, 20) : modulusStr}...',
+      );
 
       // 🔒 使用 RSA-OAEP-SHA256 填充
       final engine = OAEPEncoding.withSHA256(RSAEngine())
@@ -588,7 +589,9 @@ class RSAService {
       debugPrint('🔐 RSA Async: 明文长度=${input.length}');
 
       final encrypted = engine.process(input);
-      debugPrint('🔐 RSA Async: 加密后长度=${encrypted.length}, 前10字节=${encrypted.length >= 10 ? encrypted.sublist(0, 10) : encrypted}');
+      debugPrint(
+        '🔐 RSA Async: 加密后长度=${encrypted.length}, 前10字节=${encrypted.length >= 10 ? encrypted.sublist(0, 10) : encrypted}',
+      );
 
       final result = base64.encode(encrypted);
       debugPrint('🔐 RSA Async: Base64结果长度=${result.length}');
@@ -620,7 +623,9 @@ class RSAService {
       final storedPublicKey = storage.getItem('rsa_public_key');
       final storedPrivateKey = storage.getItem('rsa_private_key');
 
-      if (storedPublicKey != null && storedPrivateKey != null && storedPrivateKey.isNotEmpty) {
+      if (storedPublicKey != null &&
+          storedPrivateKey != null &&
+          storedPrivateKey.isNotEmpty) {
         _cachedPublicKey = storedPublicKey;
         _cachedPrivateKey = storedPrivateKey;
         _isInitialized = true;

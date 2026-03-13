@@ -52,7 +52,7 @@ class ConversationTestHelper {
       str = '[图片]';
     } else if (conv.msgType == 'file') {
       str = '[文件]';
-    } else if (conv.msgType == 'voice' || conv.msgType == 'audio') {
+    } else if (conv.msgType == 'voice') {
       str = '[语音]';
     } else if (conv.msgType == 'video') {
       str = '[视频]';

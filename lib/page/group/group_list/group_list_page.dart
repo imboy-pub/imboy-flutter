@@ -10,6 +10,7 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -54,28 +55,79 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
   }
 
   /// 初始化数据
-  Future<void> initData() async {
+  Future<void> initData({bool onRefresh = false}) async {
     final notifier = ref.read(groupListProvider.notifier);
     final service = ref.read(groupListServiceProvider);
     final state = ref.read(groupListProvider);
+    var currentAttr = state.attr;
 
     notifier.setLoading(true);
     try {
-      if (state.page == 1) {
-        List<GroupModel> list = await service.page(
-          page: state.page,
+      List<GroupModel> list = await service.page(
+        page: 1,
+        size: state.size,
+        onRefresh: onRefresh,
+        attr: currentAttr,
+      );
+      if (list.isEmpty && currentAttr != 'all') {
+        final fallback = await service.page(
+          page: 1,
           size: state.size,
+          onRefresh: true,
+          attr: 'all',
         );
-        List<GroupModel> list2 = [];
-        for (GroupModel m in list) {
-          if (strEmpty(m.title)) {
-            m.computeTitle = await service.computeTitle(m.groupId);
-          }
-          list2.add(m);
+        if (fallback.isNotEmpty) {
+          currentAttr = 'all';
+          notifier.setAttr('all');
+          list = fallback;
         }
-        notifier.setGroupList(list2);
-        notifier.incrementPage();
       }
+      List<GroupModel> list2 = [];
+      for (GroupModel m in list) {
+        if (strEmpty(m.title)) {
+          m.computeTitle = await service.computeTitle(m.groupId);
+        }
+        list2.add(m);
+      }
+      notifier.setGroupList(list2);
+      notifier.setPage(2);
+    } finally {
+      notifier.setLoading(false);
+    }
+  }
+
+  String _attrLabel(String attr) {
+    switch (attr) {
+      case 'all':
+        return '全部';
+      case 'owner':
+        return '我创建';
+      case 'manager':
+        return '我管理';
+      case 'join':
+      default:
+        return '我加入';
+    }
+  }
+
+  Future<void> _switchAttr(String attr) async {
+    final state = ref.read(groupListProvider);
+    if (state.attr == attr) {
+      return;
+    }
+    ref.read(groupListProvider.notifier).setAttr(attr);
+    await initData(onRefresh: true);
+  }
+
+  Future<void> _refreshWithSelfHeal() async {
+    final notifier = ref.read(groupListProvider.notifier);
+    notifier.setLoading(true);
+    try {
+      await AppInitializer.triggerGroupMembershipSelfHeal(
+        force: true,
+        source: 'group_list_refresh',
+      );
+      await initData(onRefresh: true);
     } finally {
       notifier.setLoading(false);
     }
@@ -99,6 +151,14 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
       appBar: GlassAppBar(
         titleWidget: Text("${t.groupChat}(${state.groupList.length})"),
         automaticallyImplyLeading: true,
+        rightDMActions: [
+          IconButton(
+            onPressed: _refreshWithSelfHeal,
+            icon: const Icon(Icons.refresh),
+            tooltip: '刷新',
+            splashRadius: 20,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -126,7 +186,8 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                 searchLabel: t.search,
                 hintText: t.search,
                 queryTips: t.groupSearchTips,
-                doSearch: ((query) => GroupRepo().search(kwd: query)),
+                doSearch: ((query) =>
+                    GroupRepo().searchByAttr(attr: state.attr, kwd: query)),
                 onTapForItem: (model) {
                   if (model is GroupModel) {
                     context.push(
@@ -143,6 +204,27 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                   }
                 },
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ['all', 'join', 'manager', 'owner'].map((attr) {
+                      final selected = state.attr == attr;
+                      return ChoiceChip(
+                        selected: selected,
+                        label: Text(_attrLabel(attr)),
+                        onSelected: (_) => _switchAttr(attr),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ),
           ),
 

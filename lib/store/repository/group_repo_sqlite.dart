@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -47,6 +48,40 @@ class GroupRepo {
 
   final SqliteService _db = SqliteService.to;
 
+  String _normalizeAttr(String attr) {
+    switch (attr) {
+      case 'all':
+      case 'join':
+      case 'manager':
+      case 'owner':
+        return attr;
+      default:
+        return 'all';
+    }
+  }
+
+  List<GroupModel> _mapsToModels(List<Map<String, dynamic>> maps) {
+    if (maps.isEmpty) {
+      return [];
+    }
+    List<GroupModel> items = [];
+    for (int i = 0; i < maps.length; i++) {
+      items.add(GroupModel.fromJson(maps[i]));
+    }
+    return items;
+  }
+
+  int _firstCount(List<Map<String, Object?>> maps) {
+    if (maps.isEmpty) {
+      return 0;
+    }
+    final raw = maps.first['count'];
+    if (raw is int) {
+      return raw;
+    }
+    return int.tryParse('${raw ?? 0}') ?? 0;
+  }
+
   Future<List<GroupModel>> page({
     int limit = 1000,
     int offset = 0,
@@ -55,7 +90,7 @@ class GroupRepo {
     String orderBy = '',
   }) async {
     if (where.isEmpty) {
-      where = "${GroupRepo.ownerUid} = ?";
+      where = "${GroupRepo.ownerUid} = ? AND ${GroupRepo.status} = 1";
       whereArgs = [UserRepoLocal.to.currentUid];
     }
     if (orderBy.isEmpty) {
@@ -73,15 +108,171 @@ class GroupRepo {
     debugPrint(
       "GroupRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
     );
-    if (maps.isEmpty) {
-      return [];
+    return _mapsToModels(maps);
+  }
+
+  Future<List<GroupModel>> pageByAttr({
+    required String attr,
+    int limit = 1000,
+    int offset = 0,
+  }) async {
+    final normalizedAttr = _normalizeAttr(attr);
+    final currentUid = UserRepoLocal.to.currentUid;
+
+    if (normalizedAttr == 'owner') {
+      return page(limit: limit, offset: offset);
     }
 
-    List<GroupModel> items = [];
-    for (int i = 0; i < maps.length; i++) {
-      items.add(GroupModel.fromJson(maps[i]));
+    final groupTable = '"${GroupRepo.tableName}"';
+    final gmTable = GroupMemberRepo.tableName;
+    final orderBy = "g.${GroupRepo.createdAt} DESC";
+
+    String sql;
+    List<Object?> params;
+    if (normalizedAttr == 'join') {
+      sql =
+          '''
+        SELECT g.*
+        FROM $groupTable g
+        INNER JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+        WHERE g.${GroupRepo.status} = 1
+          AND gm.${GroupMemberRepo.status} = 1
+          AND gm.${GroupMemberRepo.userId} = ?
+          AND g.${GroupRepo.ownerUid} != ?
+        ORDER BY $orderBy
+        LIMIT ? OFFSET ?
+      ''';
+      params = [currentUid, currentUid, limit, offset];
+    } else if (normalizedAttr == 'all') {
+      sql =
+          '''
+        SELECT DISTINCT g.*
+        FROM $groupTable g
+        LEFT JOIN $gmTable gm
+          ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+         AND gm.${GroupMemberRepo.userId} = ?
+         AND gm.${GroupMemberRepo.status} = 1
+        WHERE g.${GroupRepo.status} = 1
+          AND (
+            g.${GroupRepo.ownerUid} = ?
+            OR gm.${GroupMemberRepo.userId} = ?
+          )
+        ORDER BY $orderBy
+        LIMIT ? OFFSET ?
+      ''';
+      params = [currentUid, currentUid, currentUid, limit, offset];
+    } else {
+      sql =
+          '''
+        SELECT DISTINCT g.*
+        FROM $groupTable g
+        LEFT JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+        WHERE g.${GroupRepo.status} = 1
+          AND (
+            g.${GroupRepo.ownerUid} = ?
+            OR (
+              gm.${GroupMemberRepo.userId} = ?
+              AND gm.${GroupMemberRepo.status} = 1
+              AND gm.${GroupMemberRepo.role} >= 3
+            )
+          )
+        ORDER BY $orderBy
+        LIMIT ? OFFSET ?
+      ''';
+      params = [currentUid, currentUid, limit, offset];
     }
-    return items;
+
+    final maps = await _db.rawQuery(sql, params);
+    return _mapsToModels(List<Map<String, dynamic>>.from(maps));
+  }
+
+  /// 兜底读取当前账号下本地激活群（不依赖 owner/member 关系字段）。
+  Future<List<GroupModel>> pageActive({
+    int limit = 1000,
+    int offset = 0,
+  }) async {
+    final sql =
+        '''
+      SELECT *
+      FROM "${GroupRepo.tableName}"
+      WHERE ${GroupRepo.status} = 1
+      ORDER BY ${GroupRepo.createdAt} DESC
+      LIMIT ? OFFSET ?
+    ''';
+    final maps = await _db.rawQuery(sql, [limit, offset]);
+    return _mapsToModels(List<Map<String, dynamic>>.from(maps));
+  }
+
+  Future<int> countByAttr({required String attr}) async {
+    final normalizedAttr = _normalizeAttr(attr);
+    final currentUid = UserRepoLocal.to.currentUid;
+    if (currentUid.isEmpty) {
+      return 0;
+    }
+
+    final groupTable = '"${GroupRepo.tableName}"';
+    final gmTable = GroupMemberRepo.tableName;
+    String sql;
+    List<Object?> params;
+
+    if (normalizedAttr == 'owner') {
+      sql =
+          '''
+        SELECT COUNT(*) AS count
+        FROM $groupTable g
+        WHERE g.${GroupRepo.status} = 1
+          AND g.${GroupRepo.ownerUid} = ?
+      ''';
+      params = [currentUid];
+    } else if (normalizedAttr == 'join') {
+      sql =
+          '''
+        SELECT COUNT(DISTINCT g.${GroupRepo.groupId}) AS count
+        FROM $groupTable g
+        INNER JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+        WHERE g.${GroupRepo.status} = 1
+          AND gm.${GroupMemberRepo.status} = 1
+          AND gm.${GroupMemberRepo.userId} = ?
+          AND g.${GroupRepo.ownerUid} != ?
+      ''';
+      params = [currentUid, currentUid];
+    } else if (normalizedAttr == 'all') {
+      sql =
+          '''
+        SELECT COUNT(DISTINCT g.${GroupRepo.groupId}) AS count
+        FROM $groupTable g
+        LEFT JOIN $gmTable gm
+          ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+         AND gm.${GroupMemberRepo.userId} = ?
+         AND gm.${GroupMemberRepo.status} = 1
+        WHERE g.${GroupRepo.status} = 1
+          AND (
+            g.${GroupRepo.ownerUid} = ?
+            OR gm.${GroupMemberRepo.userId} = ?
+          )
+      ''';
+      params = [currentUid, currentUid, currentUid];
+    } else {
+      sql =
+          '''
+        SELECT COUNT(DISTINCT g.${GroupRepo.groupId}) AS count
+        FROM $groupTable g
+        LEFT JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+        WHERE g.${GroupRepo.status} = 1
+          AND (
+            g.${GroupRepo.ownerUid} = ?
+            OR (
+              gm.${GroupMemberRepo.userId} = ?
+              AND gm.${GroupMemberRepo.status} = 1
+              AND gm.${GroupMemberRepo.role} >= 3
+            )
+          )
+      ''';
+      params = [currentUid, currentUid];
+    }
+
+    final maps = await _db.rawQuery(sql, params);
+    return _firstCount(List<Map<String, Object?>>.from(maps));
   }
 
   Future<List<GroupModel>> search({
@@ -93,7 +284,7 @@ class GroupRepo {
       GroupRepo.tableName,
       columns: defaultColumns,
       where:
-          '${GroupRepo.ownerUid}=? and ('
+          '${GroupRepo.ownerUid}=? AND ${GroupRepo.status}=1 and ('
           '${GroupRepo.title} like ? or ${GroupRepo.introduction} like ?'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid, pattern, pattern],
@@ -101,15 +292,94 @@ class GroupRepo {
       limit: limit,
     );
     debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
-    if (maps.isEmpty) {
-      return [];
+    return _mapsToModels(maps);
+  }
+
+  Future<List<GroupModel>> searchByAttr({
+    required String attr,
+    required String kwd,
+    int limit = 1000,
+  }) async {
+    final normalizedAttr = _normalizeAttr(attr);
+    if (normalizedAttr == 'owner') {
+      return search(kwd: kwd, limit: limit);
     }
 
-    List<GroupModel> items = [];
-    for (int i = 0; i < maps.length; i++) {
-      items.add(GroupModel.fromJson(maps[i]));
+    final currentUid = UserRepoLocal.to.currentUid;
+    final pattern = "%$kwd%";
+    final groupTable = '"${GroupRepo.tableName}"';
+    final gmTable = GroupMemberRepo.tableName;
+    final orderBy = "g.${GroupRepo.createdAt} DESC";
+
+    String sql;
+    List<Object?> params;
+    if (normalizedAttr == 'join') {
+      sql =
+          '''
+        SELECT g.*
+        FROM $groupTable g
+        INNER JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+        WHERE g.${GroupRepo.status} = 1
+          AND gm.${GroupMemberRepo.status} = 1
+          AND gm.${GroupMemberRepo.userId} = ?
+          AND g.${GroupRepo.ownerUid} != ?
+          AND (
+            g.${GroupRepo.title} LIKE ?
+            OR g.${GroupRepo.introduction} LIKE ?
+          )
+        ORDER BY $orderBy
+        LIMIT ?
+      ''';
+      params = [currentUid, currentUid, pattern, pattern, limit];
+    } else if (normalizedAttr == 'all') {
+      sql =
+          '''
+        SELECT DISTINCT g.*
+        FROM $groupTable g
+        LEFT JOIN $gmTable gm
+          ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+         AND gm.${GroupMemberRepo.userId} = ?
+         AND gm.${GroupMemberRepo.status} = 1
+        WHERE g.${GroupRepo.status} = 1
+          AND (
+            g.${GroupRepo.ownerUid} = ?
+            OR gm.${GroupMemberRepo.userId} = ?
+          )
+          AND (
+            g.${GroupRepo.title} LIKE ?
+            OR g.${GroupRepo.introduction} LIKE ?
+          )
+        ORDER BY $orderBy
+        LIMIT ?
+      ''';
+      params = [currentUid, currentUid, currentUid, pattern, pattern, limit];
+    } else {
+      sql =
+          '''
+        SELECT DISTINCT g.*
+        FROM $groupTable g
+        LEFT JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
+        WHERE g.${GroupRepo.status} = 1
+          AND (
+            g.${GroupRepo.ownerUid} = ?
+            OR (
+              gm.${GroupMemberRepo.userId} = ?
+              AND gm.${GroupMemberRepo.status} = 1
+              AND gm.${GroupMemberRepo.role} >= 3
+            )
+          )
+          AND (
+            g.${GroupRepo.title} LIKE ?
+            OR g.${GroupRepo.introduction} LIKE ?
+          )
+        ORDER BY $orderBy
+        LIMIT ?
+      ''';
+      params = [currentUid, currentUid, pattern, pattern, limit];
     }
-    return items;
+
+    final maps = await _db.rawQuery(sql, params);
+    return _mapsToModels(List<Map<String, dynamic>>.from(maps));
   }
 
   // 插入一条数据
@@ -144,8 +414,8 @@ class GroupRepo {
   Future<int> delete(String gid) async {
     return await _db.delete(
       GroupRepo.tableName,
-      where: '${GroupRepo.ownerUid} = ? and ${GroupRepo.groupId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, gid],
+      where: '${GroupRepo.groupId} = ?',
+      whereArgs: [gid],
     );
   }
 
@@ -156,33 +426,53 @@ class GroupRepo {
     Transaction? txn,
   }) async {
     Map<String, Object?> data = {};
-    String? title = json[GroupRepo.title];
-    if (title != null) {
-      data[GroupRepo.title] = json[GroupRepo.title];
+    // 服务端全量同步与本地局部更新都走这里：
+    // 使用 containsKey 判断，保证旧脏数据可被回填修复。
+    if (json.containsKey(GroupRepo.type)) {
+      data[GroupRepo.type] = json[GroupRepo.type];
     }
-    // data[GroupRepo.title] = '';
-
-    String? avatar = json[GroupRepo.avatar];
-    if (avatar != null) {
-      data[GroupRepo.avatar] = json[GroupRepo.avatar];
+    if (json.containsKey(GroupRepo.joinLimit)) {
+      data[GroupRepo.joinLimit] = json[GroupRepo.joinLimit];
     }
-    String? introduction = json[GroupRepo.introduction];
-    if (introduction != null) {
+    if (json.containsKey(GroupRepo.contentLimit)) {
+      data[GroupRepo.contentLimit] = json[GroupRepo.contentLimit];
+    }
+    if (json.containsKey(GroupRepo.userIdSum)) {
+      data[GroupRepo.userIdSum] = json[GroupRepo.userIdSum];
+    }
+    if (json.containsKey(GroupRepo.ownerUid)) {
+      data[GroupRepo.ownerUid] = json[GroupRepo.ownerUid];
+    }
+    if (json.containsKey(GroupRepo.creatorUid)) {
+      data[GroupRepo.creatorUid] = json[GroupRepo.creatorUid];
+    }
+    if (json.containsKey(GroupRepo.memberMax)) {
+      data[GroupRepo.memberMax] = json[GroupRepo.memberMax];
+    }
+    if (json.containsKey(GroupRepo.memberCount)) {
+      data[GroupRepo.memberCount] = json[GroupRepo.memberCount];
+    }
+    if (json.containsKey(GroupRepo.introduction)) {
       data[GroupRepo.introduction] = json[GroupRepo.introduction];
     }
-
-    int memberCount = json[GroupRepo.memberCount] ?? 0;
-    if (memberCount > 0) {
-      data[GroupRepo.memberCount] = memberCount;
+    if (json.containsKey(GroupRepo.avatar)) {
+      data[GroupRepo.avatar] = json[GroupRepo.avatar];
     }
-    int userIdSum = json[GroupRepo.userIdSum] ?? 0;
-    if (userIdSum > 0) {
-      data[GroupRepo.userIdSum] = userIdSum;
+    if (json.containsKey(GroupRepo.title)) {
+      data[GroupRepo.title] = json[GroupRepo.title];
+    }
+    if (json.containsKey(GroupRepo.status)) {
+      data[GroupRepo.status] = json[GroupRepo.status];
+    }
+    if (json.containsKey(GroupRepo.updatedAt)) {
+      data[GroupRepo.updatedAt] = json[GroupRepo.updatedAt];
+    }
+    if (json.containsKey(GroupRepo.createdAt)) {
+      data[GroupRepo.createdAt] = json[GroupRepo.createdAt];
     }
 
-    int updatedAt = json[GroupRepo.updatedAt] ?? 0;
-    if (updatedAt > 0) {
-      data[GroupRepo.updatedAt] = updatedAt;
+    if (data.isEmpty) {
+      return 0;
     }
     if (gid.isEmpty) {
       gid =

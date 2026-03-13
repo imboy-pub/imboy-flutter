@@ -2,8 +2,11 @@
 //
 // 提供常用的测试辅助方法
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'test_config.dart';
 
 class TestHelper {
   /// 等待 Widget 出现
@@ -34,12 +37,13 @@ class TestHelper {
 
   /// 安全点击（如果存在则点击）
   static Future<bool> safeTap(WidgetTester tester, Finder finder) async {
-    if (tester.any(finder)) {
-      await tester.tap(finder);
-      await tester.pumpAndSettle();
-      return true;
-    }
-    return false;
+    if (!tester.any(finder)) return false;
+
+    // 当 Finder 匹配多个组件时，优先点击第一个，避免 ambiguous finder 异常。
+    final target = finder.evaluate().length > 1 ? finder.first : finder;
+    await tester.tap(target);
+    await tester.pumpAndSettle();
+    return true;
   }
 
   /// 输入文本到指定字段
@@ -62,7 +66,18 @@ class TestHelper {
     if (waitForReady) {
       await tester.pumpAndSettle();
     }
-    await IntegrationTestWidgetsFlutterBinding.instance.takeScreenshot(name);
+    final binding = IntegrationTestWidgetsFlutterBinding.instance;
+
+    // Android 设备截图前通常需要先转换渲染表面；其他平台会忽略该步骤。
+    try {
+      await binding.convertFlutterSurfaceToImage();
+    } catch (_) {}
+
+    try {
+      await binding.takeScreenshot(name);
+    } catch (e) {
+      log('⚠️ 截图失败($name): $e');
+    }
   }
 
   /// 打印测试步骤
@@ -85,6 +100,133 @@ class TestHelper {
       }
     }
     throw StateError('重试失败');
+  }
+
+  // ============================================================
+  // 登录辅助方法
+  // ============================================================
+
+  /// 执行登录流程
+  ///
+  /// [phone] 手机号
+  /// [password] 密码（可选）
+  /// [code] 验证码（可选）
+  /// Returns: 登录是否成功
+  static Future<bool> performLogin(
+    WidgetTester tester, {
+    required String phone,
+    String? password,
+    String? code,
+  }) async {
+    log('🔐 开始登录流程: phone=$phone');
+
+    try {
+      // 1. 查找手机号输入框（通常是第一个 TextField）
+      final phoneFields = find.byType(TextField);
+      if (!tester.any(phoneFields)) {
+        log('❌ 未找到输入框');
+        return false;
+      }
+
+      // 2. 输入手机号
+      final phoneField = phoneFields.first;
+      await enterText(tester, phoneField, phone);
+      log('✅ 已输入手机号');
+      await tester.pumpAndSettle();
+
+      // 3. 如果有密码，输入密码
+      if (password != null && password.isNotEmpty) {
+        // 查找密码输入框（通常是第二个 TextField）
+        if (tester.any(phoneFields.at(1))) {
+          await enterText(tester, phoneFields.at(1), password);
+          log('✅ 已输入密码');
+        }
+      }
+
+      // 4. 如果有验证码，输入验证码
+      if (code != null && code.isNotEmpty) {
+        // 查找验证码输入框
+        if (tester.any(phoneFields.at(1))) {
+          await enterText(tester, phoneFields.at(1), code);
+          log('✅ 已输入验证码');
+        }
+      }
+
+      // 5. 点击登录按钮
+      final loginButton = find.text('登录');
+      final loginButton2 = find.text('登 录');
+      final loginButton3 = find.text('Login');
+
+      bool tapped = false;
+      if (await safeTap(tester, loginButton)) {
+        log('✅ 已点击登录按钮');
+        tapped = true;
+      } else if (await safeTap(tester, loginButton2)) {
+        log('✅ 已点击登录按钮');
+        tapped = true;
+      } else if (await safeTap(tester, loginButton3)) {
+        log('✅ 已点击登录按钮');
+        tapped = true;
+      }
+
+      if (!tapped) {
+        log('⚠️ 未找到登录按钮，尝试按回车提交');
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      }
+
+      // 6. 等待登录完成
+      await tester.pumpAndSettle();
+      await Future.delayed(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+
+      // 登录动作提交后若仍停留在登录页，视为登录失败，避免误判成功。
+      if (needsLogin(tester)) {
+        log('❌ 登录后仍停留在登录页，判定登录失败');
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      log('❌ 登录流程失败: $e');
+      return false;
+    }
+  }
+
+  /// 检查是否需要登录
+  ///
+  /// Returns: true 如果需要登录
+  static bool needsLogin(WidgetTester tester) {
+    final loginButton = find.text('登录');
+    final loginButton2 = find.text('登 录');
+    return tester.any(loginButton) || tester.any(loginButton2);
+  }
+
+  /// 执行自动登录（使用 TestConfig 配置）
+  ///
+  /// Returns: true 如果登录成功或已登录
+  static Future<bool> autoLogin(WidgetTester tester) async {
+    // 检查是否需要登录
+    if (!needsLogin(tester)) {
+      log('✅ 已登录，无需重新登录');
+      return true;
+    }
+
+    // 检查配置
+    if (!TestConfig.isConfigured) {
+      log('⚠️ 测试账号未配置，跳过自动登录');
+      TestConfig.printHelp();
+      return false;
+    }
+
+    // 执行登录
+    return performLogin(
+      tester,
+      phone: TestConfig.testPhone,
+      password: TestConfig.testPassword.isNotEmpty
+          ? TestConfig.testPassword
+          : null,
+      code: TestConfig.testCode.isNotEmpty ? TestConfig.testCode : null,
+    );
   }
 }
 

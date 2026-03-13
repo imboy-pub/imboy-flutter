@@ -1,4 +1,5 @@
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 class UserSettingModel {
   // allow_search 用户允许被搜索 1 是  2 否
@@ -40,49 +41,28 @@ class UserSettingModel {
   });
 
   factory UserSettingModel.fromJson(Map<String, dynamic> json) {
-    // 解析数值工具
-    double toDouble(dynamic v, double dft) {
-      if (v == null) return dft;
-      if (v is num) return v.toDouble();
-      if (v is String) return double.tryParse(v) ?? dft;
-      return dft;
-    }
-
-    int toInt(dynamic v, int dft) {
-      if (v == null) return dft;
-      if (v is num) return v.toInt();
-      if (v is String) return int.tryParse(v) ?? dft;
-      return dft;
-    }
-
     // 注意：不要使用 ?? true 作为默认值，这会导致用户关闭开关后被自动打开
-    // 使用严格检查：只有显式设置为 true/1/'1' 时才为 true，否则为 false
+    // 使用显式解析，支持 bool/int/string 并且避免运行时类型异常
     return UserSettingModel(
-      allowSearch:
-          json['allow_search'] == true ||
-          json['allow_search'] == 1 ||
-          json['allow_search'] == '1',
-      peopleNearbyVisible:
-          json['people_nearby_visible'] == true ||
-          json['people_nearby_visible'] == 1 ||
-          json['people_nearby_visible'] == '1',
-      chatState: json['chat_state'] ?? 'hide',
-      fontSize: json['font_size'] ?? 'normal',
-      enableVisibilityRead: json['enable_visibility_read'] ?? true,
-      visibilityReadFraction: toDouble(json['visibility_read_fraction'], 0.6),
-      visibilityReadDelayMs: toInt(json['visibility_read_delay_ms'], 400),
-      showOnlineStatus:
-          json['show_online_status'] == true ||
-          json['show_online_status'] == 1 ||
-          json['show_online_status'] == '1',
-      allowAddByPhone:
-          json['allow_add_by_phone'] == true ||
-          json['allow_add_by_phone'] == 1 ||
-          json['allow_add_by_phone'] == '1',
-      allowAddByQR:
-          json['allow_add_by_qr'] == true ||
-          json['allow_add_by_qr'] == 1 ||
-          json['allow_add_by_qr'] == '1',
+      allowSearch: parseModelBool(json['allow_search']),
+      peopleNearbyVisible: parseModelBool(json['people_nearby_visible']),
+      chatState: parseModelString(json['chat_state'], defaultValue: 'hide'),
+      fontSize: parseModelString(json['font_size'], defaultValue: 'normal'),
+      enableVisibilityRead: parseModelBool(
+        json['enable_visibility_read'],
+        defaultValue: true,
+      ),
+      visibilityReadFraction: parseModelDouble(
+        json['visibility_read_fraction'],
+        defaultValue: 0.6,
+      ),
+      visibilityReadDelayMs: parseModelInt(
+        json['visibility_read_delay_ms'],
+        defaultValue: 400,
+      ),
+      showOnlineStatus: parseModelBool(json['show_online_status']),
+      allowAddByPhone: parseModelBool(json['allow_add_by_phone']),
+      allowAddByQR: parseModelBool(json['allow_add_by_qr']),
     );
   }
 
@@ -115,6 +95,12 @@ class UserModel {
   String sign;
   Map<String, dynamic>? setting;
 
+  // 扩展信息
+  String birthday;
+  String profession;
+  String school;
+  String interests;
+
   UserModel({
     required this.uid,
     required this.account,
@@ -127,6 +113,10 @@ class UserModel {
     this.role,
     this.sign = '',
     this.setting,
+    this.birthday = '',
+    this.profession = '',
+    this.school = '',
+    this.interests = '',
   });
 
   String get genderTitle {
@@ -141,19 +131,23 @@ class UserModel {
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    var g = json["gender"] ?? 0;
+    final roleValue = json['role'];
     return UserModel(
-      uid: json["uid"] ?? json["id"],
-      account: json["account"] ?? '',
-      email: json["email"] ?? '',
-      mobile: json["mobile"] ?? '',
-      nickname: json["nickname"],
-      avatar: json["avatar"] ?? '',
-      role: json["role"]?.toInt(),
-      gender: g is String ? int.parse(g) : g,
-      region: json["region"] ?? '',
-      sign: json["sign"] ?? '',
-      setting: json["setting"] ?? {},
+      uid: parseModelString(json['uid'] ?? json['id']),
+      account: parseModelString(json['account']),
+      email: parseModelString(json['email']),
+      mobile: parseModelString(json['mobile']),
+      nickname: parseModelString(json['nickname']),
+      avatar: parseModelString(json['avatar']),
+      role: roleValue == null ? null : parseModelInt(roleValue),
+      gender: parseModelInt(json['gender']),
+      region: parseModelString(json['region']),
+      sign: parseModelString(json['sign']),
+      setting: parseModelJsonMap(json['setting']) ?? <String, dynamic>{},
+      birthday: parseModelString(json['birthday']),
+      profession: parseModelString(json['profession']),
+      school: parseModelString(json['school']),
+      interests: parseModelString(json['interests']),
     );
   }
 
@@ -170,6 +164,13 @@ class UserModel {
     data["region"] = region;
     data["sign"] = sign;
     data["setting"] = setting;
+    data["birthday"] = birthday;
+    data["profession"] = profession;
+    data["school"] = school;
+    data["interests"] = interests;
     return data;
   }
+
+  /// toJson 是 toMap 的别名，方便调用
+  Map<String, dynamic> toJson() => toMap();
 }

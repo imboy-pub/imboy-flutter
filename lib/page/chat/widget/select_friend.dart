@@ -131,7 +131,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
 
     // 根据主题选择按钮文字颜色
     final Color buttonTextColor = isDarkMode
-        ? const Color.fromRGBO(100, 200, 100, 1)  // 暗色模式：绿色
+        ? const Color.fromRGBO(100, 200, 100, 1) // 暗色模式：绿色
         : const Color.fromRGBO(33, 150, 243, 1); // 亮色模式：蓝色
 
     showDialog(
@@ -189,7 +189,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               const Divider(),
               Expanded(
                 child: Text(
-                  // visit_card
+                  // visitCard
                   peerIsReceiver
                       ? "[${t.personalCard}]${peer['nickname']}"
                       : "[${t.personalCard}]${model.nickname}",

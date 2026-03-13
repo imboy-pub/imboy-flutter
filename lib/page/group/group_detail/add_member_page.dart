@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
@@ -47,8 +48,12 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
     notifier.setGroupMemberList(list);
 
     // 加载联系人列表
-    // TODO: 从联系人 repository 加载
-    // notifier.handleContactList(contacts);
+    final contactState = ref.read(contactProvider);
+    if (contactState.contactList.isEmpty) {
+      await ref.read(contactProvider.notifier).loadData();
+    }
+    final contacts = ref.read(contactProvider).contactList;
+    notifier.handleContactList(contacts);
   }
 
   Widget _buildListItem(BuildContext context, ContactModel model) {

@@ -41,8 +41,7 @@ void main() {
 
   group('TDD: MessageModel.toTypeMessage() - S2C msg_type 验证', () {
     group('S2C 消息 - action 有效时 msg_type 可以为空', () {
-      test('应该接受 S2C 消息的空 msg_type 当 action 为 pull_offline_msg 时',
-          () async {
+      test('应该接受 S2C 消息的空 msg_type 当 action 为 pull_offline_msg 时', () async {
         // GIVEN: 一个 S2C 消息，action 有效，msg_type 为空
         final model = MessageModel(
           'msg123',
@@ -68,8 +67,7 @@ void main() {
         expect(message.metadata?['action'], equals(S2CAction.pullOfflineMsg));
       });
 
-      test('应该接受 S2C 消息的空 msg_type 当 action 为 c2c_revoke 时',
-          () async {
+      test('应该接受 S2C 消息的空 msg_type 当 action 为 c2c_revoke 时', () async {
         // GIVEN: 一个 S2C 撤回消息，action 有效，msg_type 为空
         final model = MessageModel(
           'msg123',
@@ -80,10 +78,7 @@ void main() {
           toId: 'user1',
           msgType: '', // 空 msg_type
           action: S2CAction.c2cRevoke, // 有效的 action
-          payload: {
-            'msg_id': 'original_msg_id',
-            'operator_id': 'user2',
-          },
+          payload: {'msg_id': 'original_msg_id', 'operator_id': 'user2'},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user2',
           createdAt: 1642579200000,
@@ -98,8 +93,7 @@ void main() {
         expect(message.metadata?['action'], equals(S2CAction.c2cRevoke));
       });
 
-      test('应该接受 S2C 消息的空 msg_type 当 action 为 apply_friend 时',
-          () async {
+      test('应该接受 S2C 消息的空 msg_type 当 action 为 apply_friend 时', () async {
         // GIVEN: 一个 S2C 好友申请消息，action 有效，msg_type 为空
         final model = MessageModel(
           'msg123',
@@ -110,10 +104,7 @@ void main() {
           toId: 'user1',
           msgType: '', // 空 msg_type
           action: S2CAction.applyFriend, // 有效的 action
-          payload: {
-            'remark': '我是张三',
-            'extra': '请加我好友',
-          },
+          payload: {'remark': '我是张三', 'extra': '请加我好友'},
           isAuthor: 0,
           conversationUk3: 'S2C_user1',
           createdAt: 1642579200000,
@@ -128,8 +119,7 @@ void main() {
         expect(message.metadata?['action'], equals(S2CAction.applyFriend));
       });
 
-      test('应该接受 S2C 消息的空 msg_type 当 action 为 group_member_join 时',
-          () async {
+      test('应该接受 S2C 消息的空 msg_type 当 action 为 group_member_join 时', () async {
         // GIVEN: 一个 S2C 群成员加入消息，action 有效，msg_type 为空
         final model = MessageModel(
           'msg123',
@@ -156,10 +146,7 @@ void main() {
         // THEN: 应该成功转换，不是错误消息
         expect(message, isA<CustomMessage>());
         expect(message.metadata?['error'], isNull);
-        expect(
-          message.metadata?['action'],
-          equals(S2CAction.groupMemberJoin),
-        );
+        expect(message.metadata?['action'], equals(S2CAction.groupMemberJoin));
       });
 
       test('应该拒绝 S2C 消息当 action 为空且 msg_type 为空时', () async {
@@ -331,10 +318,7 @@ void main() {
           fromId: 'user1',
           toId: 'user2',
           msgType: MessageType.image,
-          payload: {
-            'uri': 'https://example.com/image.jpg',
-            'size': 102400,
-          },
+          payload: {'uri': 'https://example.com/image.jpg', 'size': 102400},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
           createdAt: 1642579200000,
@@ -360,10 +344,7 @@ void main() {
           fromId: 'user1',
           toId: 'user2',
           msgType: MessageType.location,
-          payload: {
-            'latitude': 39.9042,
-            'longitude': 116.4074,
-          },
+          payload: {'latitude': 39.9042, 'longitude': 116.4074},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
           createdAt: 1642579200000,
@@ -406,8 +387,8 @@ void main() {
         expect(message.metadata?['effective_msg_type'], equals('visitCard'));
       });
 
-      test('应该正确处理 C2C 消息的 custom 类型 (visit_card → visitCard)', () async {
-        // GIVEN: 一个 C2C 消息，msg_type=custom, custom_type=visit_card
+      test('应该拒绝 C2C 消息的下划线类型 (visit_card)', () async {
+        // GIVEN: 一个 C2C 消息，msg_type=visit_card（非标准命名）
         final model = MessageModel(
           'msg123',
           autoId: 1,
@@ -415,9 +396,8 @@ void main() {
           status: 11,
           fromId: 'user1',
           toId: 'user2',
-          msgType: 'custom',
+          msgType: 'visit_card',
           payload: {
-            'custom_type': 'visit_card',
             'uid': 'user123',
             'title': '张三',
             'avatar': 'https://example.com/avatar.jpg',
@@ -430,10 +410,14 @@ void main() {
         // WHEN: 转换为 Message
         final message = await model.toTypeMessage();
 
-        // THEN: 应该成功转换为 CustomMessage，且 effective_msg_type 为 visitCard
+        // THEN: 应该落入 unsupported 分支
         expect(message, isA<CustomMessage>());
-        expect(message.metadata?['effective_msg_type'], equals('visitCard'),
-           reason: 'visit_card 应该被归一化为 visitCard');
+        expect(
+          message.metadata?['effective_msg_type'],
+          equals('unsupported'),
+          reason: 'visit_card 不应再被归一化',
+        );
+        expect(message.metadata?['error'], equals('unknown_msg_type'));
       });
     });
 

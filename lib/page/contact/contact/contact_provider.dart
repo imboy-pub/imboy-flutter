@@ -5,6 +5,7 @@ import 'package:imboy/store/api/contact_api.dart' as contact_provider;
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/feature_registry.dart';
 import 'package:azlistview/azlistview.dart';
 
 part 'contact_provider.g.dart';
@@ -87,17 +88,25 @@ class ContactNotifier extends _$ContactNotifier {
   }
 
   // 构建顶部功能项
+
   List<ContactModel> _buildTopItems() {
-    return [
-      ContactModel(
-        peerId: 'people_nearby',
-        nickname: t.findNearbyPeople,
-        nameIndex: '↑',
-        bgColor: Colors.orange,
-        iconData: const Center(
-          child: Icon(Icons.person_pin_circle, size: 24, color: Colors.white),
+    final topItems = <ContactModel>[];
+
+    if (AppFeatureRegistry.isEnabled('location')) {
+      topItems.add(
+        ContactModel(
+          peerId: 'people_nearby',
+          nickname: t.findNearbyPeople,
+          nameIndex: '↑',
+          bgColor: Colors.orange,
+          iconData: const Center(
+            child: Icon(Icons.person_pin_circle, size: 24, color: Colors.white),
+          ),
         ),
-      ),
+      );
+    }
+
+    topItems.addAll([
       ContactModel(
         peerId: 'new_friend',
         nickname: t.newFriend,
@@ -119,14 +128,9 @@ class ContactNotifier extends _$ContactNotifier {
         bgColor: Colors.blue,
         iconData: const Icon(Icons.local_offer, size: 24, color: Colors.white),
       ),
-      ContactModel(
-        peerId: 'channel',
-        nickname: t.channel.title,
-        nameIndex: '↑',
-        bgColor: const Color(0xFF6366F1), // 紫色
-        iconData: const Icon(Icons.campaign, size: 24, color: Colors.white),
-      ),
-    ];
+    ]);
+
+    return topItems;
   }
 
   // 获取好友列表

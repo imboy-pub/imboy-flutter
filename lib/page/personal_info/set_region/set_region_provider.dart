@@ -601,6 +601,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
         title: widget.title,
         rightDMActions: [
           TextButton(

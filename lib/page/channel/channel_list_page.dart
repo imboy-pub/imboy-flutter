@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/config/routes.dart';
+import 'package:imboy/service/feature_registry.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -33,7 +35,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
 
     // 加载数据
     Future.microtask(() {
-      ref.read(channelListNotifierProvider.notifier).loadSubscribedChannels();
+      ref.read(channelListProvider.notifier).loadSubscribedChannels();
     });
   }
 
@@ -47,7 +49,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   void _onTabChanged() {
     if (_tabController.indexIsChanging) return;
 
-    final notifier = ref.read(channelListNotifierProvider.notifier);
+    final notifier = ref.read(channelListProvider.notifier);
     if (_tabController.index == 0) {
       notifier.loadSubscribedChannels();
     } else {
@@ -58,20 +60,38 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final state = ref.watch(channelListNotifierProvider);
+    final state = ref.watch(channelListProvider);
 
     return Scaffold(
       appBar: GlassAppBar(
         title: t.channel.title,
         automaticallyImplyLeading: true,
+
         rightDMActions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              context.push('/channel/discover');
-            },
-            tooltip: t.channel.search,
-          ),
+          if (AppFeatureRegistry.isEnabled('moment'))
+            IconButton(
+              icon: const Icon(Icons.dynamic_feed_outlined),
+              onPressed: () {
+                context.push(AppRoutes.momentFeed);
+              },
+              tooltip: t.moments,
+            ),
+          if (AppFeatureRegistry.isEnabled('channel_invitation'))
+            IconButton(
+              icon: const Icon(Icons.mark_email_unread_outlined),
+              onPressed: () {
+                context.push('/channel/invitations');
+              },
+              tooltip: '频道邀请',
+            ),
+          if (AppFeatureRegistry.isEnabled('channel_discover'))
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                context.push('/channel/discover');
+              },
+              tooltip: t.channel.search,
+            ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -130,7 +150,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                final notifier = ref.read(channelListNotifierProvider.notifier);
+                final notifier = ref.read(channelListProvider.notifier);
                 if (isSubscribed) {
                   notifier.loadSubscribedChannels();
                 } else {
@@ -155,19 +175,44 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
 
     return RefreshIndicator(
       onRefresh: () async {
-        final notifier = ref.read(channelListNotifierProvider.notifier);
+        final notifier = ref.read(channelListProvider.notifier);
         if (isSubscribed) {
           await notifier.loadSubscribedChannels();
         } else {
           await notifier.loadManagedChannels();
         }
       },
-      child: ListView.builder(
-        itemCount: state.channels.length,
-        itemBuilder: (context, index) {
-          final channel = state.channels[index];
-          return _ChannelListItem(channel: channel, showRole: showRole);
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (!isSubscribed) return false;
+          if (notification.metrics.pixels <
+              notification.metrics.maxScrollExtent - 200) {
+            return false;
+          }
+          ref.read(channelListProvider.notifier).loadMoreSubscribedChannels();
+          return false;
         },
+        child: ListView.builder(
+          itemCount:
+              state.channels.length + (isSubscribed && state.hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (isSubscribed && index >= state.channels.length) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              );
+            }
+
+            final channel = state.channels[index];
+            return _ChannelListItem(channel: channel, showRole: showRole);
+          },
+        ),
       ),
     );
   }
@@ -179,6 +224,12 @@ class _ChannelListItem extends StatelessWidget {
   final bool showRole;
 
   const _ChannelListItem({required this.channel, this.showRole = false});
+
+  String _detailRouteId(ChannelModel channel) {
+    final customId = channel.customId?.trim() ?? '';
+    if (customId.isNotEmpty) return customId;
+    return channel.id;
+  }
 
   /// 获取角色颜色
   Color _getRoleColor(ChannelUserRole role) {
@@ -290,7 +341,7 @@ class _ChannelListItem extends StatelessWidget {
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
-        context.push('/channel/${channel.id}');
+        context.push('/channel/${_detailRouteId(channel)}');
       },
     );
   }

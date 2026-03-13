@@ -12,6 +12,10 @@
 | `login_test.dart` | 登录流程测试 |
 | `chat_test.dart` | 聊天功能测试 |
 | `e2e_chat_test.dart` | 端到端聊天测试 |
+| `channel/channel_e2e_test.dart` | 频道端到端验收测试（进入详情 + 发布消息 + 创建频道后发布） |
+| `channel/channel_publish_test.dart` | 频道发布消息自动化测试（API 选可发布频道 -> 发布 -> 回查） |
+| `channel/channel_edit_persistence_test.dart` | 频道编辑持久化测试（更新描述 -> 二次读取校验 -> 恢复原值） |
+| `channel/channel_subscribed_detail_consistency_test.dart` | 订阅频道详情一致性测试（订阅列表项逐个校验可解析详情） |
 
 ## 运行测试
 
@@ -42,7 +46,24 @@ flutter test integration_test/chat_test.dart --dart-define=APP_ENV=local_office 
 
 # 运行端到端测试
 flutter test integration_test/e2e_chat_test.dart --dart-define=APP_ENV=local_office -d macos
+
+# 运行频道端到端验收测试
+flutter test integration_test/channel/channel_e2e_test.dart --dart-define=APP_ENV=local_office -d macos
+
+# 运行频道发布消息自动化测试
+flutter test integration_test/channel/channel_publish_test.dart --dart-define=APP_ENV=local_home -d macos
+
+# 运行频道编辑持久化自动化测试
+flutter test integration_test/channel/channel_edit_persistence_test.dart --dart-define=APP_ENV=local_home -d macos
+
+# 运行订阅频道详情一致性自动化测试
+flutter test integration_test/channel/channel_subscribed_detail_consistency_test.dart --dart-define=APP_ENV=local_home -d macos
 ```
+
+说明：`channel/channel_e2e_test.dart` 含“创建频道后发布消息”场景，需要后端可访问且当前会话具备有效登录态。
+说明：`channel/channel_publish_test.dart` 不依赖“创建频道”，优先从可发布频道中执行发消息验证。
+说明：`channel/channel_edit_persistence_test.dart` 会修改目标频道描述并在结束后尝试恢复原值。
+说明：`channel/channel_subscribed_detail_consistency_test.dart` 用于提前发现“列表有数据但详情不存在”的后端数据一致性问题。
 
 ## 测试输出
 

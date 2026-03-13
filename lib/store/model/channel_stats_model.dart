@@ -1,3 +1,5 @@
+import 'package:imboy/store/model/model_parse_utils.dart';
+
 /// 频道统计数据模型
 class ChannelStatsModel {
   final String channelId;
@@ -16,11 +18,11 @@ class ChannelStatsModel {
 
   factory ChannelStatsModel.fromJson(Map<String, dynamic> json) {
     return ChannelStatsModel(
-      channelId: json['channel_id'] as String,
-      subscriberCount: json['subscriber_count'] as int? ?? 0,
-      totalMessages: json['total_messages'] as int? ?? 0,
-      totalViews: json['total_views'] as int? ?? 0,
-      totalReactions: json['total_reactions'] as int? ?? 0,
+      channelId: parseModelString(json['channel_id']),
+      subscriberCount: parseModelInt(json['subscriber_count']),
+      totalMessages: parseModelInt(json['total_messages']),
+      totalViews: parseModelInt(json['total_views']),
+      totalReactions: parseModelInt(json['total_reactions']),
     );
   }
 
@@ -61,15 +63,15 @@ class ChannelDailyStatsModel {
 
   factory ChannelDailyStatsModel.fromJson(Map<String, dynamic> json) {
     return ChannelDailyStatsModel(
-      channelId: json['channel_id'] as String,
-      statsDate: DateTime.parse(json['stats_date'] as String),
-      newSubscribers: json['new_subscribers'] as int? ?? 0,
-      unsubscribers: json['unsubscribers'] as int? ?? 0,
-      netSubscribers: json['net_subscribers'] as int? ?? 0,
-      messagesCount: json['messages_count'] as int? ?? 0,
-      totalViews: json['total_views'] as int? ?? 0,
-      totalReactions: json['total_reactions'] as int? ?? 0,
-      activeViewers: json['active_viewers'] as int? ?? 0,
+      channelId: parseModelString(json['channel_id']),
+      statsDate: parseModelDateTime(json['stats_date']),
+      newSubscribers: parseModelInt(json['new_subscribers']),
+      unsubscribers: parseModelInt(json['unsubscribers']),
+      netSubscribers: parseModelInt(json['net_subscribers']),
+      messagesCount: parseModelInt(json['messages_count']),
+      totalViews: parseModelInt(json['total_views']),
+      totalReactions: parseModelInt(json['total_reactions']),
+      activeViewers: parseModelInt(json['active_viewers']),
     );
   }
 
@@ -108,14 +110,12 @@ class ChannelReactionModel {
 
   factory ChannelReactionModel.fromJson(Map<String, dynamic> json) {
     return ChannelReactionModel(
-      id: json['id'] as String,
-      messageId: json['message_id'] as String,
-      channelId: json['channel_id'] as String,
-      userId: json['user_id'] as String,
-      reactionType: json['reaction_type'] as String,
-      createdAt: json['created_at'] is int
-          ? DateTime.fromMillisecondsSinceEpoch(json['created_at'] as int)
-          : DateTime.parse(json['created_at'] as String),
+      id: parseModelString(json['id']),
+      messageId: parseModelString(json['message_id']),
+      channelId: parseModelString(json['channel_id']),
+      userId: parseModelString(json['user_id']),
+      reactionType: parseModelString(json['reaction_type']),
+      createdAt: parseModelDateTime(json['created_at']),
     );
   }
 

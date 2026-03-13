@@ -20,7 +20,7 @@ void main() {
     late MessageRepo messageRepo;
 
     setUp(() {
-      offlineService = MessageOfflineService.to;
+      offlineService = MessageOfflineService.instance;
       messageRepo = MessageRepo(tableName: 'msg_c2c');
     });
 
@@ -42,7 +42,7 @@ void main() {
     group('基础功能测试', () {
       test('应该成功创建单例服务', () {
         expect(offlineService, isNotNull);
-        expect(offlineService == MessageOfflineService.to, true);
+        expect(offlineService == MessageOfflineService.instance, true);
       });
 
       test('应该初始化事件订阅', () {
