@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsItIt({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsItIt _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateLog => 'Registro aggiornamenti';
 	@override String get updateNow => 'Aggiorna ora';
 	@override String get upgrade => 'Aggiorna';
-	@override String get uploading => 'Caricamento in corso';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => 'Spazio utilizzato';
 	@override String get userData => 'Dati utente';
 	@override String get userDataTips => 'Include file necessari per l\'esecuzione dell\'APP e tutti i dati registrati come messaggi chat, relazioni amicizia ecc.';
@@ -1071,13 +1075,27 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => 'Professione';
 	@override String get school => 'Scuola';
 	@override String get hobbiesAndInterests => 'Hobby & Interessi';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => 'Impostazioni funzioni';
 	@override String get myQRCode => 'Il mio codice QR';
 	@override String get manageVisibility => 'Gestisci visibilità delle info personali';
 	@override String get shareProfile => 'Condividi profilo';
 	@override String get shareWithFriends => 'Condividi profilo con amici';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => 'Esporta profilo';
 	@override String get exportToLocal => 'Esporta profilo localmente';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => 'Seleziona dalla galleria';
 	@override String get setRegion => 'Imposta regione';
 	@override String get setSignature => 'Imposta firma';
@@ -1272,8 +1290,8 @@ class TranslationsItIt with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: splash
-class _TranslationsSplashItIt implements TranslationsSplashZhCn {
-	_TranslationsSplashItIt._(this._root);
+class _TranslationsSplashItIt extends TranslationsSplashZhCn {
+	_TranslationsSplashItIt._(TranslationsItIt root) : this._root = root, super.internal(root);
 
 	final TranslationsItIt _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashItIt implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeItIt implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeItIt._(this._root);
+class _TranslationsWelcomeItIt extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeItIt._(TranslationsItIt root) : this._root = root, super.internal(root);
 
 	final TranslationsItIt _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeItIt implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportItIt implements TranslationsPassportZhCn {
-	_TranslationsPassportItIt._(this._root);
+class _TranslationsPassportItIt extends TranslationsPassportZhCn {
+	_TranslationsPassportItIt._(TranslationsItIt root) : this._root = root, super.internal(root);
 
 	final TranslationsItIt _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportItIt implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelItIt implements TranslationsChannelZhCn {
-	_TranslationsChannelItIt._(this._root);
+class _TranslationsChannelItIt extends TranslationsChannelZhCn {
+	_TranslationsChannelItIt._(TranslationsItIt root) : this._root = root, super.internal(root);
 
 	final TranslationsItIt _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsItIt {
 			'updateLog' => 'Registro aggiornamenti',
 			'updateNow' => 'Aggiorna ora',
 			'upgrade' => 'Aggiorna',
-			'uploading' => 'Caricamento in corso',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => 'Spazio utilizzato',
 			'userData' => 'Dati utente',
 			'userDataTips' => 'Include file necessari per l\'esecuzione dell\'APP e tutti i dati registrati come messaggi chat, relazioni amicizia ecc.',
@@ -2473,10 +2493,10 @@ extension on TranslationsItIt {
 			'markRead' => 'Segna come letto',
 			'markUnread' => 'Segna come non letto',
 			'discover' => 'Scopri',
-			'shake' => 'Scuoti',
-			'tip' => 'Suggerimento',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => 'Scuoti',
+			'tip' => 'Suggerimento',
 			'confirm' => 'Conferma',
 			'success' => 'Successo',
 			'export' => 'Esporta',
@@ -2488,13 +2508,27 @@ extension on TranslationsItIt {
 			'profession' => 'Professione',
 			'school' => 'Scuola',
 			'hobbiesAndInterests' => 'Hobby & Interessi',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => 'Impostazioni funzioni',
 			'myQRCode' => 'Il mio codice QR',
 			'manageVisibility' => 'Gestisci visibilità delle info personali',
 			'shareProfile' => 'Condividi profilo',
 			'shareWithFriends' => 'Condividi profilo con amici',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => 'Esporta profilo',
 			'exportToLocal' => 'Esporta profilo localmente',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => 'Seleziona dalla galleria',
 			'setRegion' => 'Imposta regione',
 			'setSignature' => 'Imposta firma',

@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsZhHant({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsZhHant _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 	@override String get updateLog => '更新記錄';
 	@override String get updateNow => '立即更新';
 	@override String get upgrade => '升級';
-	@override String get uploading => '上傳中';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => '已使用空間';
 	@override String get userData => '用家資料';
 	@override String get userDataTips => '包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。';
@@ -1071,13 +1075,27 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 	@override String get profession => '職業';
 	@override String get school => '學校';
 	@override String get hobbiesAndInterests => '興趣愛好';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => '功能設定';
 	@override String get myQRCode => '我的二維碼';
 	@override String get manageVisibility => '管理個人資訊的可見性';
 	@override String get shareProfile => '分享資料';
 	@override String get shareWithFriends => '將個人資料分享給好友';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => '匯出資料';
 	@override String get exportToLocal => '匯出個人資料到本地';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => '從相簿選擇';
 	@override String get setRegion => '設定地區';
 	@override String get setSignature => '設定個性簽名';
@@ -1272,8 +1290,8 @@ class TranslationsZhHant with BaseTranslations<AppLocale, Translations> implemen
 }
 
 // Path: splash
-class _TranslationsSplashZhHant implements TranslationsSplashZhCn {
-	_TranslationsSplashZhHant._(this._root);
+class _TranslationsSplashZhHant extends TranslationsSplashZhCn {
+	_TranslationsSplashZhHant._(TranslationsZhHant root) : this._root = root, super.internal(root);
 
 	final TranslationsZhHant _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashZhHant implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeZhHant implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeZhHant._(this._root);
+class _TranslationsWelcomeZhHant extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeZhHant._(TranslationsZhHant root) : this._root = root, super.internal(root);
 
 	final TranslationsZhHant _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeZhHant implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportZhHant implements TranslationsPassportZhCn {
-	_TranslationsPassportZhHant._(this._root);
+class _TranslationsPassportZhHant extends TranslationsPassportZhCn {
+	_TranslationsPassportZhHant._(TranslationsZhHant root) : this._root = root, super.internal(root);
 
 	final TranslationsZhHant _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportZhHant implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelZhHant implements TranslationsChannelZhCn {
-	_TranslationsChannelZhHant._(this._root);
+class _TranslationsChannelZhHant extends TranslationsChannelZhCn {
+	_TranslationsChannelZhHant._(TranslationsZhHant root) : this._root = root, super.internal(root);
 
 	final TranslationsZhHant _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsZhHant {
 			'updateLog' => '更新記錄',
 			'updateNow' => '立即更新',
 			'upgrade' => '升級',
-			'uploading' => '上傳中',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => '已使用空間',
 			'userData' => '用家資料',
 			'userDataTips' => '包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。',
@@ -2473,10 +2493,10 @@ extension on TranslationsZhHant {
 			'markRead' => '標記已讀',
 			'markUnread' => '標記未讀',
 			'discover' => '發現',
-			'shake' => '搖一搖',
-			'tip' => '提示',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => '搖一搖',
+			'tip' => '提示',
 			'confirm' => '確認',
 			'success' => '成功',
 			'export' => '匯出',
@@ -2488,13 +2508,27 @@ extension on TranslationsZhHant {
 			'profession' => '職業',
 			'school' => '學校',
 			'hobbiesAndInterests' => '興趣愛好',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => '功能設定',
 			'myQRCode' => '我的二維碼',
 			'manageVisibility' => '管理個人資訊的可見性',
 			'shareProfile' => '分享資料',
 			'shareWithFriends' => '將個人資料分享給好友',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => '匯出資料',
 			'exportToLocal' => '匯出個人資料到本地',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => '從相簿選擇',
 			'setRegion' => '設定地區',
 			'setSignature' => '設定個性簽名',

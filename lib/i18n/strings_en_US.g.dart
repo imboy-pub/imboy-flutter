@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsEnUs({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsEnUs _root = this; // ignore: unused_field
 
@@ -141,6 +143,7 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override String get canNotAddYourselfFriend => 'You cannot add yourself as a friend';
 	@override String get cancel => _root.buttonCancel;
 	@override String get ok => _root.buttonOk;
+	@override String get operationSuccessful => 'Operation successful';
 	@override String get save => _root.buttonSave;
 	@override String get reset => 'Reset';
 	@override String get clear => 'Clear';
@@ -755,6 +758,8 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateNow => 'Update now';
 	@override String get upgrade => 'Upgrade';
 	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => 'Used space';
 	@override String get userData => 'User data';
 	@override String get userDataTips => 'Includes app runtime files and all user data like chat messages and friend connections.';
@@ -1103,13 +1108,27 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => 'Profession';
 	@override String get school => 'School';
 	@override String get hobbiesAndInterests => 'Hobbies & Interests';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => 'Function Settings';
 	@override String get myQRCode => 'My QR Code';
 	@override String get manageVisibility => 'Manage visibility of personal info';
 	@override String get shareProfile => 'Share Profile';
 	@override String get shareWithFriends => 'Share profile with friends';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => 'Export Profile';
 	@override String get exportToLocal => 'Export profile to local';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => 'Select from Album';
 	@override String get setRegion => 'Set Region';
 	@override String get setSignature => 'Set Signature';
@@ -1269,11 +1288,17 @@ class TranslationsEnUs with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsWelcomeEnUs welcome = _TranslationsWelcomeEnUs._(_root);
 	@override late final _TranslationsPassportEnUs passport = _TranslationsPassportEnUs._(_root);
 	@override late final _TranslationsChannelEnUs channel = _TranslationsChannelEnUs._(_root);
+	@override late final _TranslationsGroupCategoryEnUs groupCategory = _TranslationsGroupCategoryEnUs._(_root);
+	@override late final _TranslationsGroupTagEnUs groupTag = _TranslationsGroupTagEnUs._(_root);
+	@override late final _TranslationsGroupVoteEnUs groupVote = _TranslationsGroupVoteEnUs._(_root);
+	@override late final _TranslationsGroupScheduleEnUs groupSchedule = _TranslationsGroupScheduleEnUs._(_root);
+	@override late final _TranslationsGroupTaskEnUs groupTask = _TranslationsGroupTaskEnUs._(_root);
+	@override late final _TranslationsMentionEnUs mention = _TranslationsMentionEnUs._(_root);
 }
 
 // Path: splash
-class _TranslationsSplashEnUs implements TranslationsSplashZhCn {
-	_TranslationsSplashEnUs._(this._root);
+class _TranslationsSplashEnUs extends TranslationsSplashZhCn {
+	_TranslationsSplashEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -1283,8 +1308,8 @@ class _TranslationsSplashEnUs implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeEnUs implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeEnUs._(this._root);
+class _TranslationsWelcomeEnUs extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -1301,8 +1326,8 @@ class _TranslationsWelcomeEnUs implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportEnUs implements TranslationsPassportZhCn {
-	_TranslationsPassportEnUs._(this._root);
+class _TranslationsPassportEnUs extends TranslationsPassportZhCn {
+	_TranslationsPassportEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -1320,8 +1345,8 @@ class _TranslationsPassportEnUs implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelEnUs implements TranslationsChannelZhCn {
-	_TranslationsChannelEnUs._(this._root);
+class _TranslationsChannelEnUs extends TranslationsChannelZhCn {
+	_TranslationsChannelEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -1441,6 +1466,135 @@ class _TranslationsChannelEnUs implements TranslationsChannelZhCn {
 	@override String get defaultName => 'Unnamed Channel';
 }
 
+// Path: groupCategory
+class _TranslationsGroupCategoryEnUs extends TranslationsGroupCategoryZhCn {
+	_TranslationsGroupCategoryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Group Categories';
+	@override String get createCategory => 'Create Category';
+	@override String get categoryName => 'Category Name';
+	@override String get categoryDesc => 'Description (Optional)';
+	@override String get noCategory => 'No categories yet';
+	@override String get createFirst => 'Create your first category';
+	@override String get addGroup => 'Add Group to Category';
+	@override String get removeGroup => 'Remove from Category';
+	@override String get deleteCategory => 'Delete Category';
+	@override String get deleteCategoryConfirm => 'Are you sure? Groups won\'t be deleted.';
+	@override String get categoryCreated => 'Category created';
+	@override String get categoryDeleted => 'Category deleted';
+}
+
+// Path: groupTag
+class _TranslationsGroupTagEnUs extends TranslationsGroupTagZhCn {
+	_TranslationsGroupTagEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Group Tags';
+	@override String get addTag => 'Add Tag';
+	@override String get tagName => 'Tag Name';
+	@override String get tagColor => 'Tag Color';
+	@override String get noTag => 'No tags yet';
+	@override String get tagAdded => 'Tag added';
+	@override String get tagRemoved => 'Tag removed';
+}
+
+// Path: groupVote
+class _TranslationsGroupVoteEnUs extends TranslationsGroupVoteZhCn {
+	_TranslationsGroupVoteEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Group Votes';
+	@override String get createVote => 'Create Vote';
+	@override String get voteTitle => 'Vote Title';
+	@override String get voteOptions => 'Options';
+	@override String get addOption => 'Add Option';
+	@override String get allowMultiple => 'Allow Multiple Choice';
+	@override String get anonymous => 'Anonymous Vote';
+	@override String get deadline => 'Deadline';
+	@override String get noDeadline => 'No deadline';
+	@override String get noVote => 'No votes yet';
+	@override String get voteEnded => 'Vote ended';
+	@override String totalVotes({required Object count}) => '${count} votes';
+	@override String get voteSuccess => 'Voted successfully';
+	@override String get hasVoted => 'Already voted';
+	@override String get viewResults => 'View Results';
+}
+
+// Path: groupSchedule
+class _TranslationsGroupScheduleEnUs extends TranslationsGroupScheduleZhCn {
+	_TranslationsGroupScheduleEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Group Schedule';
+	@override String get createSchedule => 'Create Schedule';
+	@override String get scheduleTitle => 'Title';
+	@override String get selectDate => 'Select Date';
+	@override String get selectTime => 'Select Time';
+	@override String get location => 'Location';
+	@override String get reminder => 'Reminder';
+	@override String get noReminder => 'No reminder';
+	@override String get noSchedule => 'No schedules yet';
+	@override String get scheduleCreated => 'Schedule created';
+	@override String get scheduleUpdated => 'Schedule updated';
+	@override String get reminder15min => '15 minutes before';
+	@override String get reminder1hour => '1 hour before';
+	@override String get reminder1day => '1 day before';
+}
+
+// Path: groupTask
+class _TranslationsGroupTaskEnUs extends TranslationsGroupTaskZhCn {
+	_TranslationsGroupTaskEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Group Tasks';
+	@override String get createTask => 'Create Task';
+	@override String get taskTitle => 'Task Title';
+	@override String get taskDescription => 'Description';
+	@override String get assignTo => 'Assign To';
+	@override String get deadline => 'Deadline';
+	@override String get noDeadline => 'No deadline';
+	@override String get noTask => 'No tasks yet';
+	@override String get all => 'All';
+	@override String get pending => 'Pending';
+	@override String get completed => 'Completed';
+	@override String get taskCreated => 'Task created';
+	@override String get taskSubmitted => 'Task submitted';
+	@override String get taskCompleted => 'Task completed';
+	@override String get overdue => 'Overdue';
+	@override String daysLeft({required Object days}) => '${days} days left';
+	@override String hoursLeft({required Object hours}) => '${hours} hours left';
+	@override String get dueSoon => 'Due soon';
+}
+
+// Path: mention
+class _TranslationsMentionEnUs extends TranslationsMentionZhCn {
+	_TranslationsMentionEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@Mentions';
+	@override String get noMention => 'No mentions yet';
+	@override String get allRead => 'All read';
+	@override String get markAsRead => 'Mark as read';
+	@override String get newMention => 'New mention';
+	@override String get fromGroup => 'From group';
+	@override String get fromChat => 'From chat';
+	@override String get viewContext => 'View context';
+	@override String mentionCount({required Object count}) => '${count} new mentions';
+}
+
 /// The flat map containing all translations for locale <en-US>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -1554,6 +1708,7 @@ extension on TranslationsEnUs {
 			'canNotAddYourselfFriend' => 'You cannot add yourself as a friend',
 			'cancel' => _root.buttonCancel,
 			'ok' => _root.buttonOk,
+			'operationSuccessful' => 'Operation successful',
 			'save' => _root.buttonSave,
 			'reset' => 'Reset',
 			'clear' => 'Clear',
@@ -1960,9 +2115,9 @@ extension on TranslationsEnUs {
 			'recoverPasswordDesc' => 'Please enter your email to receive password reset instructions',
 			'recoverPasswordIntro' => 'No worries, this happens to everyone.',
 			'recoverPasswordSuccess' => 'Verification code sent successfully',
-			'birthday' => 'Birthday',
 			_ => null,
 		} ?? switch (path) {
+			'birthday' => 'Birthday',
 			'region' => 'Region',
 			'regionCancel' => 'Cancel',
 			'regionConfirm' => 'OK',
@@ -2170,6 +2325,8 @@ extension on TranslationsEnUs {
 			'updateNow' => 'Update now',
 			'upgrade' => 'Upgrade',
 			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => 'Used space',
 			'userData' => 'User data',
 			'userDataTips' => 'Includes app runtime files and all user data like chat messages and friend connections.',
@@ -2472,11 +2629,11 @@ extension on TranslationsEnUs {
 			'changeSuccess' => 'Changed successfully',
 			'loginPasswordUpdated' => 'Login password updated',
 			'loginPassword' => 'Login Password',
+			_ => null,
+		} ?? switch (path) {
 			'loginPasswordDesc' => 'Used to login IMBoy account',
 			'oldPassword' => 'Old Password',
 			'enterOldPassword' => 'Please enter old password',
-			_ => null,
-		} ?? switch (path) {
 			'lengthOk' => 'Length OK',
 			'enterNewPassword' => 'Please enter new password',
 			'confirmNewPassword' => 'Confirm New Password',
@@ -2520,13 +2677,27 @@ extension on TranslationsEnUs {
 			'profession' => 'Profession',
 			'school' => 'School',
 			'hobbiesAndInterests' => 'Hobbies & Interests',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => 'Function Settings',
 			'myQRCode' => 'My QR Code',
 			'manageVisibility' => 'Manage visibility of personal info',
 			'shareProfile' => 'Share Profile',
 			'shareWithFriends' => 'Share profile with friends',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => 'Export Profile',
 			'exportToLocal' => 'Export profile to local',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => 'Select from Album',
 			'setRegion' => 'Set Region',
 			'setSignature' => 'Set Signature',
@@ -2815,6 +2986,81 @@ extension on TranslationsEnUs {
 			'channel.qrcode' => 'Channel QR Code',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QR code valid for ${days} days (until ${date})',
 			'channel.defaultName' => 'Unnamed Channel',
+			'groupCategory.title' => 'Group Categories',
+			'groupCategory.createCategory' => 'Create Category',
+			'groupCategory.categoryName' => 'Category Name',
+			'groupCategory.categoryDesc' => 'Description (Optional)',
+			'groupCategory.noCategory' => 'No categories yet',
+			'groupCategory.createFirst' => 'Create your first category',
+			'groupCategory.addGroup' => 'Add Group to Category',
+			'groupCategory.removeGroup' => 'Remove from Category',
+			'groupCategory.deleteCategory' => 'Delete Category',
+			'groupCategory.deleteCategoryConfirm' => 'Are you sure? Groups won\'t be deleted.',
+			'groupCategory.categoryCreated' => 'Category created',
+			'groupCategory.categoryDeleted' => 'Category deleted',
+			'groupTag.title' => 'Group Tags',
+			'groupTag.addTag' => 'Add Tag',
+			'groupTag.tagName' => 'Tag Name',
+			'groupTag.tagColor' => 'Tag Color',
+			'groupTag.noTag' => 'No tags yet',
+			'groupTag.tagAdded' => 'Tag added',
+			'groupTag.tagRemoved' => 'Tag removed',
+			'groupVote.title' => 'Group Votes',
+			'groupVote.createVote' => 'Create Vote',
+			'groupVote.voteTitle' => 'Vote Title',
+			'groupVote.voteOptions' => 'Options',
+			'groupVote.addOption' => 'Add Option',
+			'groupVote.allowMultiple' => 'Allow Multiple Choice',
+			'groupVote.anonymous' => 'Anonymous Vote',
+			'groupVote.deadline' => 'Deadline',
+			'groupVote.noDeadline' => 'No deadline',
+			'groupVote.noVote' => 'No votes yet',
+			'groupVote.voteEnded' => 'Vote ended',
+			'groupVote.totalVotes' => ({required Object count}) => '${count} votes',
+			'groupVote.voteSuccess' => 'Voted successfully',
+			'groupVote.hasVoted' => 'Already voted',
+			'groupVote.viewResults' => 'View Results',
+			'groupSchedule.title' => 'Group Schedule',
+			'groupSchedule.createSchedule' => 'Create Schedule',
+			'groupSchedule.scheduleTitle' => 'Title',
+			'groupSchedule.selectDate' => 'Select Date',
+			'groupSchedule.selectTime' => 'Select Time',
+			'groupSchedule.location' => 'Location',
+			'groupSchedule.reminder' => 'Reminder',
+			'groupSchedule.noReminder' => 'No reminder',
+			'groupSchedule.noSchedule' => 'No schedules yet',
+			'groupSchedule.scheduleCreated' => 'Schedule created',
+			'groupSchedule.scheduleUpdated' => 'Schedule updated',
+			'groupSchedule.reminder15min' => '15 minutes before',
+			'groupSchedule.reminder1hour' => '1 hour before',
+			'groupSchedule.reminder1day' => '1 day before',
+			'groupTask.title' => 'Group Tasks',
+			'groupTask.createTask' => 'Create Task',
+			'groupTask.taskTitle' => 'Task Title',
+			'groupTask.taskDescription' => 'Description',
+			'groupTask.assignTo' => 'Assign To',
+			'groupTask.deadline' => 'Deadline',
+			'groupTask.noDeadline' => 'No deadline',
+			'groupTask.noTask' => 'No tasks yet',
+			'groupTask.all' => 'All',
+			'groupTask.pending' => 'Pending',
+			'groupTask.completed' => 'Completed',
+			'groupTask.taskCreated' => 'Task created',
+			'groupTask.taskSubmitted' => 'Task submitted',
+			'groupTask.taskCompleted' => 'Task completed',
+			'groupTask.overdue' => 'Overdue',
+			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
+			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} hours left',
+			'groupTask.dueSoon' => 'Due soon',
+			'mention.title' => '@Mentions',
+			'mention.noMention' => 'No mentions yet',
+			'mention.allRead' => 'All read',
+			'mention.markAsRead' => 'Mark as read',
+			'mention.newMention' => 'New mention',
+			'mention.fromGroup' => 'From group',
+			'mention.fromChat' => 'From chat',
+			'mention.viewContext' => 'View context',
+			'mention.mentionCount' => ({required Object count}) => '${count} new mentions',
 			_ => null,
 		};
 	}

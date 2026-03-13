@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsJaJp({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsJaJp _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateLog => '更新ログ';
 	@override String get updateNow => '今すぐ更新';
 	@override String get upgrade => 'アップグレード';
-	@override String get uploading => 'アップロード中';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => '使用済み容量';
 	@override String get userData => 'ユーザーデータ';
 	@override String get userDataTips => 'アプリ実行に必要なファイル、チャットメッセージ、友達関係などすべての記録データが含まれます。';
@@ -1071,13 +1075,27 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => '職業';
 	@override String get school => '学校';
 	@override String get hobbiesAndInterests => '趣味と興味';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => '機能設定';
 	@override String get myQRCode => 'マイQRコード';
 	@override String get manageVisibility => '個人情報の表示設定を管理';
 	@override String get shareProfile => 'プロフィールを共有';
 	@override String get shareWithFriends => '友達とプロフィールを共有';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => 'プロフィールをエクスポート';
 	@override String get exportToLocal => 'プロフィールをローカルにエクスポート';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => 'アルバムから選択';
 	@override String get setRegion => '地域を設定';
 	@override String get setSignature => '署名を設定';
@@ -1272,8 +1290,8 @@ class TranslationsJaJp with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: splash
-class _TranslationsSplashJaJp implements TranslationsSplashZhCn {
-	_TranslationsSplashJaJp._(this._root);
+class _TranslationsSplashJaJp extends TranslationsSplashZhCn {
+	_TranslationsSplashJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashJaJp implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeJaJp implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeJaJp._(this._root);
+class _TranslationsWelcomeJaJp extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeJaJp implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportJaJp implements TranslationsPassportZhCn {
-	_TranslationsPassportJaJp._(this._root);
+class _TranslationsPassportJaJp extends TranslationsPassportZhCn {
+	_TranslationsPassportJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportJaJp implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelJaJp implements TranslationsChannelZhCn {
-	_TranslationsChannelJaJp._(this._root);
+class _TranslationsChannelJaJp extends TranslationsChannelZhCn {
+	_TranslationsChannelJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsJaJp {
 			'updateLog' => '更新ログ',
 			'updateNow' => '今すぐ更新',
 			'upgrade' => 'アップグレード',
-			'uploading' => 'アップロード中',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => '使用済み容量',
 			'userData' => 'ユーザーデータ',
 			'userDataTips' => 'アプリ実行に必要なファイル、チャットメッセージ、友達関係などすべての記録データが含まれます。',
@@ -2473,10 +2493,10 @@ extension on TranslationsJaJp {
 			'markRead' => '既読にする',
 			'markUnread' => '未読にする',
 			'discover' => '発見',
-			'shake' => 'シェイク',
-			'tip' => 'ヒント',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => 'シェイク',
+			'tip' => 'ヒント',
 			'confirm' => '確認',
 			'success' => '成功',
 			'export' => 'エクスポート',
@@ -2488,13 +2508,27 @@ extension on TranslationsJaJp {
 			'profession' => '職業',
 			'school' => '学校',
 			'hobbiesAndInterests' => '趣味と興味',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => '機能設定',
 			'myQRCode' => 'マイQRコード',
 			'manageVisibility' => '個人情報の表示設定を管理',
 			'shareProfile' => 'プロフィールを共有',
 			'shareWithFriends' => '友達とプロフィールを共有',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => 'プロフィールをエクスポート',
 			'exportToLocal' => 'プロフィールをローカルにエクスポート',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => 'アルバムから選択',
 			'setRegion' => '地域を設定',
 			'setSignature' => '署名を設定',

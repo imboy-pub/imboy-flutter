@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsKoKr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsKoKr _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateLog => '업데이트 로그';
 	@override String get updateNow => '지금 업데이트';
 	@override String get upgrade => '업그레이드';
-	@override String get uploading => '업로드 중';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => '사용된 공간';
 	@override String get userData => '사용자 데이터';
 	@override String get userDataTips => '앱 실행에 필요한 파일과 채팅 메시지, 친구 관계 등 모든 기록 데이터를 포함합니다.';
@@ -1071,13 +1075,27 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => '직업';
 	@override String get school => '학교';
 	@override String get hobbiesAndInterests => '취미 및 관심사';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => '기능 설정';
 	@override String get myQRCode => '내 QR코드';
 	@override String get manageVisibility => '개인정보 표시 관리';
 	@override String get shareProfile => '프로필 공유';
 	@override String get shareWithFriends => '친구와 프로필 공유';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => '프로필 내보내기';
 	@override String get exportToLocal => '프로필을 로컬로 내보내기';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => '앨범에서 선택';
 	@override String get setRegion => '지역 설정';
 	@override String get setSignature => '서명 설정';
@@ -1272,8 +1290,8 @@ class TranslationsKoKr with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: splash
-class _TranslationsSplashKoKr implements TranslationsSplashZhCn {
-	_TranslationsSplashKoKr._(this._root);
+class _TranslationsSplashKoKr extends TranslationsSplashZhCn {
+	_TranslationsSplashKoKr._(TranslationsKoKr root) : this._root = root, super.internal(root);
 
 	final TranslationsKoKr _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashKoKr implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeKoKr implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeKoKr._(this._root);
+class _TranslationsWelcomeKoKr extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeKoKr._(TranslationsKoKr root) : this._root = root, super.internal(root);
 
 	final TranslationsKoKr _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeKoKr implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportKoKr implements TranslationsPassportZhCn {
-	_TranslationsPassportKoKr._(this._root);
+class _TranslationsPassportKoKr extends TranslationsPassportZhCn {
+	_TranslationsPassportKoKr._(TranslationsKoKr root) : this._root = root, super.internal(root);
 
 	final TranslationsKoKr _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportKoKr implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelKoKr implements TranslationsChannelZhCn {
-	_TranslationsChannelKoKr._(this._root);
+class _TranslationsChannelKoKr extends TranslationsChannelZhCn {
+	_TranslationsChannelKoKr._(TranslationsKoKr root) : this._root = root, super.internal(root);
 
 	final TranslationsKoKr _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsKoKr {
 			'updateLog' => '업데이트 로그',
 			'updateNow' => '지금 업데이트',
 			'upgrade' => '업그레이드',
-			'uploading' => '업로드 중',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => '사용된 공간',
 			'userData' => '사용자 데이터',
 			'userDataTips' => '앱 실행에 필요한 파일과 채팅 메시지, 친구 관계 등 모든 기록 데이터를 포함합니다.',
@@ -2473,10 +2493,10 @@ extension on TranslationsKoKr {
 			'markRead' => '읽음으로 표시',
 			'markUnread' => '읽지 않음으로 표시',
 			'discover' => '발견',
-			'shake' => '흔들기',
-			'tip' => '팁',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => '흔들기',
+			'tip' => '팁',
 			'confirm' => '확인',
 			'success' => '성공',
 			'export' => '내보내기',
@@ -2488,13 +2508,27 @@ extension on TranslationsKoKr {
 			'profession' => '직업',
 			'school' => '학교',
 			'hobbiesAndInterests' => '취미 및 관심사',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => '기능 설정',
 			'myQRCode' => '내 QR코드',
 			'manageVisibility' => '개인정보 표시 관리',
 			'shareProfile' => '프로필 공유',
 			'shareWithFriends' => '친구와 프로필 공유',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => '프로필 내보내기',
 			'exportToLocal' => '프로필을 로컬로 내보내기',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => '앨범에서 선택',
 			'setRegion' => '지역 설정',
 			'setSignature' => '서명 설정',

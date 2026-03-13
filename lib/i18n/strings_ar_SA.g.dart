@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsArSa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsArSa _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateLog => 'سجل التحديث';
 	@override String get updateNow => 'التحديث الآن';
 	@override String get upgrade => 'ترقية';
-	@override String get uploading => 'جارٍ الرفع';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => 'المساحة المستخدمة';
 	@override String get userData => 'بيانات المستخدم';
 	@override String get userDataTips => 'يحتوي على الملفات الضرورية لتشغيل التطبيق، وجميع بيانات السجل مثل رسائل الدردشة وعلاقات الأصدقاء.';
@@ -1071,13 +1075,27 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => 'المهنة';
 	@override String get school => 'المدرسة';
 	@override String get hobbiesAndInterests => 'الهوايات والاهتمامات';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => 'إعدادات الوظائف';
 	@override String get myQRCode => 'رمز QR الخاص بي';
 	@override String get manageVisibility => 'إدارة رؤية المعلومات الشخصية';
 	@override String get shareProfile => 'مشاركة الملف الشخصي';
 	@override String get shareWithFriends => 'مشاركة الملف الشخصي مع الأصدقاء';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => 'تصدير الملف الشخصي';
 	@override String get exportToLocal => 'تصدير الملف الشخصي إلى محلي';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => 'اختيار من الألبوم';
 	@override String get setRegion => 'تعيين المنطقة';
 	@override String get setSignature => 'تعيين التوقيع الشخصي';
@@ -1272,8 +1290,8 @@ class TranslationsArSa with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: splash
-class _TranslationsSplashArSa implements TranslationsSplashZhCn {
-	_TranslationsSplashArSa._(this._root);
+class _TranslationsSplashArSa extends TranslationsSplashZhCn {
+	_TranslationsSplashArSa._(TranslationsArSa root) : this._root = root, super.internal(root);
 
 	final TranslationsArSa _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashArSa implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeArSa implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeArSa._(this._root);
+class _TranslationsWelcomeArSa extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeArSa._(TranslationsArSa root) : this._root = root, super.internal(root);
 
 	final TranslationsArSa _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeArSa implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportArSa implements TranslationsPassportZhCn {
-	_TranslationsPassportArSa._(this._root);
+class _TranslationsPassportArSa extends TranslationsPassportZhCn {
+	_TranslationsPassportArSa._(TranslationsArSa root) : this._root = root, super.internal(root);
 
 	final TranslationsArSa _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportArSa implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelArSa implements TranslationsChannelZhCn {
-	_TranslationsChannelArSa._(this._root);
+class _TranslationsChannelArSa extends TranslationsChannelZhCn {
+	_TranslationsChannelArSa._(TranslationsArSa root) : this._root = root, super.internal(root);
 
 	final TranslationsArSa _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsArSa {
 			'updateLog' => 'سجل التحديث',
 			'updateNow' => 'التحديث الآن',
 			'upgrade' => 'ترقية',
-			'uploading' => 'جارٍ الرفع',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => 'المساحة المستخدمة',
 			'userData' => 'بيانات المستخدم',
 			'userDataTips' => 'يحتوي على الملفات الضرورية لتشغيل التطبيق، وجميع بيانات السجل مثل رسائل الدردشة وعلاقات الأصدقاء.',
@@ -2473,10 +2493,10 @@ extension on TranslationsArSa {
 			'markRead' => 'تعليم كمقروء',
 			'markUnread' => 'تعليم كغير مقروء',
 			'discover' => 'اكتشاف',
-			'shake' => 'هز',
-			'tip' => 'تلميح',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => 'هز',
+			'tip' => 'تلميح',
 			'confirm' => 'تأكيد',
 			'success' => 'نجح',
 			'export' => 'تصدير',
@@ -2488,13 +2508,27 @@ extension on TranslationsArSa {
 			'profession' => 'المهنة',
 			'school' => 'المدرسة',
 			'hobbiesAndInterests' => 'الهوايات والاهتمامات',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => 'إعدادات الوظائف',
 			'myQRCode' => 'رمز QR الخاص بي',
 			'manageVisibility' => 'إدارة رؤية المعلومات الشخصية',
 			'shareProfile' => 'مشاركة الملف الشخصي',
 			'shareWithFriends' => 'مشاركة الملف الشخصي مع الأصدقاء',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => 'تصدير الملف الشخصي',
 			'exportToLocal' => 'تصدير الملف الشخصي إلى محلي',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => 'اختيار من الألبوم',
 			'setRegion' => 'تعيين المنطقة',
 			'setSignature' => 'تعيين التوقيع الشخصي',

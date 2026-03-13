@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsDeDe({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsDeDe _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateLog => 'Update-Protokoll';
 	@override String get updateNow => 'Jetzt aktualisieren';
 	@override String get upgrade => 'Aktualisieren';
-	@override String get uploading => 'Wird hochgeladen...';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => 'Verwendeter Speicherplatz';
 	@override String get userData => 'Benutzerdaten';
 	@override String get userDataTips => 'Enthält notwendige App-Dateien sowie alle Daten wie Chatnachrichten und Kontakte.';
@@ -1071,13 +1075,27 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => 'Beruf';
 	@override String get school => 'Schule';
 	@override String get hobbiesAndInterests => 'Hobbys & Interessen';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => 'Funktionseinstellungen';
 	@override String get myQRCode => 'Mein QR-Code';
 	@override String get manageVisibility => 'Sichtbarkeit persönlicher Informationen verwalten';
 	@override String get shareProfile => 'Profil teilen';
 	@override String get shareWithFriends => 'Profil mit Freunden teilen';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => 'Profil exportieren';
 	@override String get exportToLocal => 'Profil lokal exportieren';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => 'Aus Album auswählen';
 	@override String get setRegion => 'Region festlegen';
 	@override String get setSignature => 'Signatur festlegen';
@@ -1272,8 +1290,8 @@ class TranslationsDeDe with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: splash
-class _TranslationsSplashDeDe implements TranslationsSplashZhCn {
-	_TranslationsSplashDeDe._(this._root);
+class _TranslationsSplashDeDe extends TranslationsSplashZhCn {
+	_TranslationsSplashDeDe._(TranslationsDeDe root) : this._root = root, super.internal(root);
 
 	final TranslationsDeDe _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashDeDe implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeDeDe implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeDeDe._(this._root);
+class _TranslationsWelcomeDeDe extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeDeDe._(TranslationsDeDe root) : this._root = root, super.internal(root);
 
 	final TranslationsDeDe _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeDeDe implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportDeDe implements TranslationsPassportZhCn {
-	_TranslationsPassportDeDe._(this._root);
+class _TranslationsPassportDeDe extends TranslationsPassportZhCn {
+	_TranslationsPassportDeDe._(TranslationsDeDe root) : this._root = root, super.internal(root);
 
 	final TranslationsDeDe _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportDeDe implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelDeDe implements TranslationsChannelZhCn {
-	_TranslationsChannelDeDe._(this._root);
+class _TranslationsChannelDeDe extends TranslationsChannelZhCn {
+	_TranslationsChannelDeDe._(TranslationsDeDe root) : this._root = root, super.internal(root);
 
 	final TranslationsDeDe _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsDeDe {
 			'updateLog' => 'Update-Protokoll',
 			'updateNow' => 'Jetzt aktualisieren',
 			'upgrade' => 'Aktualisieren',
-			'uploading' => 'Wird hochgeladen...',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => 'Verwendeter Speicherplatz',
 			'userData' => 'Benutzerdaten',
 			'userDataTips' => 'Enthält notwendige App-Dateien sowie alle Daten wie Chatnachrichten und Kontakte.',
@@ -2473,10 +2493,10 @@ extension on TranslationsDeDe {
 			'markRead' => 'Als gelesen markieren',
 			'markUnread' => 'Als ungelesen markieren',
 			'discover' => 'Entdecken',
-			'shake' => 'Schütteln',
-			'tip' => 'Tipp',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => 'Schütteln',
+			'tip' => 'Tipp',
 			'confirm' => 'Bestätigen',
 			'success' => 'Erfolg',
 			'export' => 'Exportieren',
@@ -2488,13 +2508,27 @@ extension on TranslationsDeDe {
 			'profession' => 'Beruf',
 			'school' => 'Schule',
 			'hobbiesAndInterests' => 'Hobbys & Interessen',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => 'Funktionseinstellungen',
 			'myQRCode' => 'Mein QR-Code',
 			'manageVisibility' => 'Sichtbarkeit persönlicher Informationen verwalten',
 			'shareProfile' => 'Profil teilen',
 			'shareWithFriends' => 'Profil mit Freunden teilen',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => 'Profil exportieren',
 			'exportToLocal' => 'Profil lokal exportieren',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => 'Aus Album auswählen',
 			'setRegion' => 'Region festlegen',
 			'setSignature' => 'Signatur festlegen',

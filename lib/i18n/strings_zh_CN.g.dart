@@ -40,7 +40,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
-	late final TranslationsSplashZhCn splash = TranslationsSplashZhCn._(_root);
+	late final TranslationsSplashZhCn splash = TranslationsSplashZhCn.internal(_root);
 
 	/// zh-CN: '关于'
 	String get about => '关于';
@@ -350,6 +350,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '确定'
 	String get ok => _root.buttonOk;
+
+	/// zh-CN: '操作成功'
+	String get operationSuccessful => '操作成功';
 
 	/// zh-CN: '保存'
 	String get save => _root.buttonSave;
@@ -2235,6 +2238,12 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '上传中'
 	String get uploading => '上传中';
 
+	/// zh-CN: '上传成功'
+	String get uploadSuccess => '上传成功';
+
+	/// zh-CN: '上传失败'
+	String get uploadFailed => '上传失败';
+
 	/// zh-CN: '已使用空间'
 	String get usedSpace => '已使用空间';
 
@@ -3279,6 +3288,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '兴趣爱好'
 	String get hobbiesAndInterests => '兴趣爱好';
 
+	/// zh-CN: '兴趣爱好'
+	String get interests => '兴趣爱好';
+
+	/// zh-CN: '请输入职业'
+	String get pleaseEnterProfession => '请输入职业';
+
+	/// zh-CN: '请输入学校'
+	String get pleaseEnterSchool => '请输入学校';
+
+	/// zh-CN: '请输入兴趣爱好'
+	String get pleaseEnterInterests => '请输入兴趣爱好';
+
+	/// zh-CN: '请输入个性签名'
+	String get pleaseEnterSignature => '请输入个性签名';
+
 	/// zh-CN: '功能设置'
 	String get functionSettings => '功能设置';
 
@@ -3294,11 +3318,38 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '将个人资料分享给好友'
 	String get shareWithFriends => '将个人资料分享给好友';
 
+	/// zh-CN: '分享二维码'
+	String get shareQRCode => '分享二维码';
+
+	/// zh-CN: '复制链接'
+	String get copyLink => '复制链接';
+
+	/// zh-CN: '分享到'
+	String get shareTo => '分享到';
+
+	/// zh-CN: '分享失败'
+	String get shareFailed => '分享失败';
+
 	/// zh-CN: '导出资料'
 	String get exportProfile => '导出资料';
 
 	/// zh-CN: '导出个人资料到本地'
 	String get exportToLocal => '导出个人资料到本地';
+
+	/// zh-CN: '导出为 JSON 格式'
+	String get exportAsJson => '导出为 JSON 格式';
+
+	/// zh-CN: '导出为文本格式'
+	String get exportAsText => '导出为文本格式';
+
+	/// zh-CN: '$param 格式资料已导出并复制到剪贴板'
+	String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} 格式资料已导出并复制到剪贴板';
+
+	/// zh-CN: '导出失败'
+	String get exportFailed => '导出失败';
+
+	/// zh-CN: '个人资料'
+	String get profile => '个人资料';
 
 	/// zh-CN: '从相册选择'
 	String get selectFromAlbum => '从相册选择';
@@ -3726,14 +3777,20 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '填入'
 	String get fillIn => '填入';
 
-	late final TranslationsWelcomeZhCn welcome = TranslationsWelcomeZhCn._(_root);
-	late final TranslationsPassportZhCn passport = TranslationsPassportZhCn._(_root);
-	late final TranslationsChannelZhCn channel = TranslationsChannelZhCn._(_root);
+	late final TranslationsWelcomeZhCn welcome = TranslationsWelcomeZhCn.internal(_root);
+	late final TranslationsPassportZhCn passport = TranslationsPassportZhCn.internal(_root);
+	late final TranslationsChannelZhCn channel = TranslationsChannelZhCn.internal(_root);
+	late final TranslationsGroupCategoryZhCn groupCategory = TranslationsGroupCategoryZhCn.internal(_root);
+	late final TranslationsGroupTagZhCn groupTag = TranslationsGroupTagZhCn.internal(_root);
+	late final TranslationsGroupVoteZhCn groupVote = TranslationsGroupVoteZhCn.internal(_root);
+	late final TranslationsGroupScheduleZhCn groupSchedule = TranslationsGroupScheduleZhCn.internal(_root);
+	late final TranslationsGroupTaskZhCn groupTask = TranslationsGroupTaskZhCn.internal(_root);
+	late final TranslationsMentionZhCn mention = TranslationsMentionZhCn.internal(_root);
 }
 
 // Path: splash
 class TranslationsSplashZhCn {
-	TranslationsSplashZhCn._(this._root);
+	TranslationsSplashZhCn.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -3748,7 +3805,7 @@ class TranslationsSplashZhCn {
 
 // Path: welcome
 class TranslationsWelcomeZhCn {
-	TranslationsWelcomeZhCn._(this._root);
+	TranslationsWelcomeZhCn.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -3784,7 +3841,7 @@ class TranslationsWelcomeZhCn {
 
 // Path: passport
 class TranslationsPassportZhCn {
-	TranslationsPassportZhCn._(this._root);
+	TranslationsPassportZhCn.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -3823,7 +3880,7 @@ class TranslationsPassportZhCn {
 
 // Path: channel
 class TranslationsChannelZhCn {
-	TranslationsChannelZhCn._(this._root);
+	TranslationsChannelZhCn.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -4169,6 +4226,285 @@ class TranslationsChannelZhCn {
 	String get defaultName => '未命名频道';
 }
 
+// Path: groupCategory
+class TranslationsGroupCategoryZhCn {
+	TranslationsGroupCategoryZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '群分组'
+	String get title => '群分组';
+
+	/// zh-CN: '创建分组'
+	String get createCategory => '创建分组';
+
+	/// zh-CN: '分组名称'
+	String get categoryName => '分组名称';
+
+	/// zh-CN: '分组描述（可选）'
+	String get categoryDesc => '分组描述（可选）';
+
+	/// zh-CN: '暂无分组'
+	String get noCategory => '暂无分组';
+
+	/// zh-CN: '创建第一个分组吧'
+	String get createFirst => '创建第一个分组吧';
+
+	/// zh-CN: '添加群聊到分组'
+	String get addGroup => '添加群聊到分组';
+
+	/// zh-CN: '从分组移除'
+	String get removeGroup => '从分组移除';
+
+	/// zh-CN: '删除分组'
+	String get deleteCategory => '删除分组';
+
+	/// zh-CN: '确定要删除该分组吗？群聊不会被删除。'
+	String get deleteCategoryConfirm => '确定要删除该分组吗？群聊不会被删除。';
+
+	/// zh-CN: '分组创建成功'
+	String get categoryCreated => '分组创建成功';
+
+	/// zh-CN: '分组已删除'
+	String get categoryDeleted => '分组已删除';
+}
+
+// Path: groupTag
+class TranslationsGroupTagZhCn {
+	TranslationsGroupTagZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '群标签'
+	String get title => '群标签';
+
+	/// zh-CN: '添加标签'
+	String get addTag => '添加标签';
+
+	/// zh-CN: '标签名称'
+	String get tagName => '标签名称';
+
+	/// zh-CN: '标签颜色'
+	String get tagColor => '标签颜色';
+
+	/// zh-CN: '暂无标签'
+	String get noTag => '暂无标签';
+
+	/// zh-CN: '标签添加成功'
+	String get tagAdded => '标签添加成功';
+
+	/// zh-CN: '标签已移除'
+	String get tagRemoved => '标签已移除';
+}
+
+// Path: groupVote
+class TranslationsGroupVoteZhCn {
+	TranslationsGroupVoteZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '群投票'
+	String get title => '群投票';
+
+	/// zh-CN: '创建投票'
+	String get createVote => '创建投票';
+
+	/// zh-CN: '投票标题'
+	String get voteTitle => '投票标题';
+
+	/// zh-CN: '投票选项'
+	String get voteOptions => '投票选项';
+
+	/// zh-CN: '添加选项'
+	String get addOption => '添加选项';
+
+	/// zh-CN: '允许多选'
+	String get allowMultiple => '允许多选';
+
+	/// zh-CN: '匿名投票'
+	String get anonymous => '匿名投票';
+
+	/// zh-CN: '截止时间'
+	String get deadline => '截止时间';
+
+	/// zh-CN: '无截止时间'
+	String get noDeadline => '无截止时间';
+
+	/// zh-CN: '暂无投票'
+	String get noVote => '暂无投票';
+
+	/// zh-CN: '投票已结束'
+	String get voteEnded => '投票已结束';
+
+	/// zh-CN: '共 $count 票'
+	String totalVotes({required Object count}) => '共 ${count} 票';
+
+	/// zh-CN: '投票成功'
+	String get voteSuccess => '投票成功';
+
+	/// zh-CN: '已投票'
+	String get hasVoted => '已投票';
+
+	/// zh-CN: '查看结果'
+	String get viewResults => '查看结果';
+}
+
+// Path: groupSchedule
+class TranslationsGroupScheduleZhCn {
+	TranslationsGroupScheduleZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '群日程'
+	String get title => '群日程';
+
+	/// zh-CN: '创建日程'
+	String get createSchedule => '创建日程';
+
+	/// zh-CN: '日程标题'
+	String get scheduleTitle => '日程标题';
+
+	/// zh-CN: '选择日期'
+	String get selectDate => '选择日期';
+
+	/// zh-CN: '选择时间'
+	String get selectTime => '选择时间';
+
+	/// zh-CN: '地点'
+	String get location => '地点';
+
+	/// zh-CN: '提醒'
+	String get reminder => '提醒';
+
+	/// zh-CN: '不提醒'
+	String get noReminder => '不提醒';
+
+	/// zh-CN: '暂无日程'
+	String get noSchedule => '暂无日程';
+
+	/// zh-CN: '日程创建成功'
+	String get scheduleCreated => '日程创建成功';
+
+	/// zh-CN: '日程更新成功'
+	String get scheduleUpdated => '日程更新成功';
+
+	/// zh-CN: '提前15分钟'
+	String get reminder15min => '提前15分钟';
+
+	/// zh-CN: '提前1小时'
+	String get reminder1hour => '提前1小时';
+
+	/// zh-CN: '提前1天'
+	String get reminder1day => '提前1天';
+}
+
+// Path: groupTask
+class TranslationsGroupTaskZhCn {
+	TranslationsGroupTaskZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '群作业'
+	String get title => '群作业';
+
+	/// zh-CN: '创建任务'
+	String get createTask => '创建任务';
+
+	/// zh-CN: '任务标题'
+	String get taskTitle => '任务标题';
+
+	/// zh-CN: '任务描述'
+	String get taskDescription => '任务描述';
+
+	/// zh-CN: '指派给'
+	String get assignTo => '指派给';
+
+	/// zh-CN: '截止时间'
+	String get deadline => '截止时间';
+
+	/// zh-CN: '无截止时间'
+	String get noDeadline => '无截止时间';
+
+	/// zh-CN: '暂无任务'
+	String get noTask => '暂无任务';
+
+	/// zh-CN: '全部'
+	String get all => '全部';
+
+	/// zh-CN: '待完成'
+	String get pending => '待完成';
+
+	/// zh-CN: '已完成'
+	String get completed => '已完成';
+
+	/// zh-CN: '任务创建成功'
+	String get taskCreated => '任务创建成功';
+
+	/// zh-CN: '任务已提交'
+	String get taskSubmitted => '任务已提交';
+
+	/// zh-CN: '任务已完成'
+	String get taskCompleted => '任务已完成';
+
+	/// zh-CN: '已过期'
+	String get overdue => '已过期';
+
+	/// zh-CN: '$days 天后截止'
+	String daysLeft({required Object days}) => '${days} 天后截止';
+
+	/// zh-CN: '$hours 小时后截止'
+	String hoursLeft({required Object hours}) => '${hours} 小时后截止';
+
+	/// zh-CN: '即将截止'
+	String get dueSoon => '即将截止';
+}
+
+// Path: mention
+class TranslationsMentionZhCn {
+	TranslationsMentionZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '@提及'
+	String get title => '@提及';
+
+	/// zh-CN: '暂无@提及'
+	String get noMention => '暂无@提及';
+
+	/// zh-CN: '全部已读'
+	String get allRead => '全部已读';
+
+	/// zh-CN: '标记为已读'
+	String get markAsRead => '标记为已读';
+
+	/// zh-CN: '新的@提及'
+	String get newMention => '新的@提及';
+
+	/// zh-CN: '来自群聊'
+	String get fromGroup => '来自群聊';
+
+	/// zh-CN: '来自聊天'
+	String get fromChat => '来自聊天';
+
+	/// zh-CN: '查看上下文'
+	String get viewContext => '查看上下文';
+
+	/// zh-CN: '$count 条新提及'
+	String mentionCount({required Object count}) => '${count} 条新提及';
+}
+
 /// The flat map containing all translations for locale <zh-CN>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -4282,6 +4618,7 @@ extension on Translations {
 			'canNotAddYourselfFriend' => '你不能添加自己为好友',
 			'cancel' => _root.buttonCancel,
 			'ok' => _root.buttonOk,
+			'operationSuccessful' => '操作成功',
 			'save' => _root.buttonSave,
 			'reset' => '重置',
 			'clear' => '清空',
@@ -4688,9 +5025,9 @@ extension on Translations {
 			'qrCodeBusinessCard' => '二维码名片',
 			'quickFilters' => '快速筛选',
 			'quote' => '引用',
-			'quoteReply' => '引用回复',
 			_ => null,
 		} ?? switch (path) {
+			'quoteReply' => '引用回复',
 			'rating' => '评级',
 			'reEdit' => '重新编辑',
 			'readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
@@ -4912,6 +5249,8 @@ extension on Translations {
 			'updateNow' => '立即更新',
 			'upgrade' => '升级',
 			'uploading' => '上传中',
+			'uploadSuccess' => '上传成功',
+			'uploadFailed' => '上传失败',
 			'usedSpace' => '已使用空间',
 			'userData' => '用户数据',
 			'userDataTips' => '包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。',
@@ -5200,11 +5539,11 @@ extension on Translations {
 			'understood' => '明白了',
 			'noProblem' => '没问题',
 			'onMyWay' => '马上到',
+			_ => null,
+		} ?? switch (path) {
 			'otherDevice' => '其他设备',
 			'sendOfflineCommand' => '强制下线',
 			'offlineCommandSent' => '已发送下线指令',
-			_ => null,
-		} ?? switch (path) {
 			'operationOptions' => '操作选项',
 			'copyTextContent' => '复制文本内容',
 			'shareWithOtherFriends' => '分享给其他好友',
@@ -5262,13 +5601,27 @@ extension on Translations {
 			'profession' => '职业',
 			'school' => '学校',
 			'hobbiesAndInterests' => '兴趣爱好',
+			'interests' => '兴趣爱好',
+			'pleaseEnterProfession' => '请输入职业',
+			'pleaseEnterSchool' => '请输入学校',
+			'pleaseEnterInterests' => '请输入兴趣爱好',
+			'pleaseEnterSignature' => '请输入个性签名',
 			'functionSettings' => '功能设置',
 			'myQRCode' => '我的二维码',
 			'manageVisibility' => '管理个人信息的可见性',
 			'shareProfile' => '分享资料',
 			'shareWithFriends' => '将个人资料分享给好友',
+			'shareQRCode' => '分享二维码',
+			'copyLink' => '复制链接',
+			'shareTo' => '分享到',
+			'shareFailed' => '分享失败',
 			'exportProfile' => '导出资料',
 			'exportToLocal' => '导出个人资料到本地',
+			'exportAsJson' => '导出为 JSON 格式',
+			'exportAsText' => '导出为文本格式',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} 格式资料已导出并复制到剪贴板',
+			'exportFailed' => '导出失败',
+			'profile' => '个人资料',
 			'selectFromAlbum' => '从相册选择',
 			'setRegion' => '设置地区',
 			'setSignature' => '设置个性签名',
@@ -5543,6 +5896,81 @@ extension on Translations {
 			'channel.qrcode' => '频道二维码',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => '二维码${days}天内（${date}前）有效',
 			'channel.defaultName' => '未命名频道',
+			'groupCategory.title' => '群分组',
+			'groupCategory.createCategory' => '创建分组',
+			'groupCategory.categoryName' => '分组名称',
+			'groupCategory.categoryDesc' => '分组描述（可选）',
+			'groupCategory.noCategory' => '暂无分组',
+			'groupCategory.createFirst' => '创建第一个分组吧',
+			'groupCategory.addGroup' => '添加群聊到分组',
+			'groupCategory.removeGroup' => '从分组移除',
+			'groupCategory.deleteCategory' => '删除分组',
+			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',
+			'groupCategory.categoryCreated' => '分组创建成功',
+			'groupCategory.categoryDeleted' => '分组已删除',
+			'groupTag.title' => '群标签',
+			'groupTag.addTag' => '添加标签',
+			'groupTag.tagName' => '标签名称',
+			'groupTag.tagColor' => '标签颜色',
+			'groupTag.noTag' => '暂无标签',
+			'groupTag.tagAdded' => '标签添加成功',
+			'groupTag.tagRemoved' => '标签已移除',
+			'groupVote.title' => '群投票',
+			'groupVote.createVote' => '创建投票',
+			'groupVote.voteTitle' => '投票标题',
+			'groupVote.voteOptions' => '投票选项',
+			'groupVote.addOption' => '添加选项',
+			'groupVote.allowMultiple' => '允许多选',
+			'groupVote.anonymous' => '匿名投票',
+			'groupVote.deadline' => '截止时间',
+			'groupVote.noDeadline' => '无截止时间',
+			'groupVote.noVote' => '暂无投票',
+			'groupVote.voteEnded' => '投票已结束',
+			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
+			'groupVote.voteSuccess' => '投票成功',
+			'groupVote.hasVoted' => '已投票',
+			'groupVote.viewResults' => '查看结果',
+			'groupSchedule.title' => '群日程',
+			'groupSchedule.createSchedule' => '创建日程',
+			'groupSchedule.scheduleTitle' => '日程标题',
+			'groupSchedule.selectDate' => '选择日期',
+			'groupSchedule.selectTime' => '选择时间',
+			'groupSchedule.location' => '地点',
+			'groupSchedule.reminder' => '提醒',
+			'groupSchedule.noReminder' => '不提醒',
+			'groupSchedule.noSchedule' => '暂无日程',
+			'groupSchedule.scheduleCreated' => '日程创建成功',
+			'groupSchedule.scheduleUpdated' => '日程更新成功',
+			'groupSchedule.reminder15min' => '提前15分钟',
+			'groupSchedule.reminder1hour' => '提前1小时',
+			'groupSchedule.reminder1day' => '提前1天',
+			'groupTask.title' => '群作业',
+			'groupTask.createTask' => '创建任务',
+			'groupTask.taskTitle' => '任务标题',
+			'groupTask.taskDescription' => '任务描述',
+			'groupTask.assignTo' => '指派给',
+			'groupTask.deadline' => '截止时间',
+			'groupTask.noDeadline' => '无截止时间',
+			'groupTask.noTask' => '暂无任务',
+			'groupTask.all' => '全部',
+			'groupTask.pending' => '待完成',
+			'groupTask.completed' => '已完成',
+			'groupTask.taskCreated' => '任务创建成功',
+			'groupTask.taskSubmitted' => '任务已提交',
+			'groupTask.taskCompleted' => '任务已完成',
+			'groupTask.overdue' => '已过期',
+			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
+			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
+			'groupTask.dueSoon' => '即将截止',
+			'mention.title' => '@提及',
+			'mention.noMention' => '暂无@提及',
+			'mention.allRead' => '全部已读',
+			'mention.markAsRead' => '标记为已读',
+			'mention.newMention' => '新的@提及',
+			'mention.fromGroup' => '来自群聊',
+			'mention.fromChat' => '来自聊天',
+			'mention.viewContext' => '查看上下文',
+			'mention.mentionCount' => ({required Object count}) => '${count} 条新提及',
 			_ => null,
 		};
 	}

@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsFrFr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsFrFr _root = this; // ignore: unused_field
 
@@ -722,7 +724,9 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 	@override String get updateLog => 'Journal des mises à jour';
 	@override String get updateNow => 'Mettre à jour maintenant';
 	@override String get upgrade => 'Mise à niveau';
-	@override String get uploading => 'Téléversement en cours';
+	@override String get uploading => 'Uploading';
+	@override String get uploadSuccess => 'Upload successful';
+	@override String get uploadFailed => 'Upload failed';
 	@override String get usedSpace => 'Espace utilisé';
 	@override String get userData => 'Données utilisateur';
 	@override String get userDataTips => 'Contient les fichiers nécessaires au fonctionnement de l\'application, ainsi que tous les enregistrements de données tels que les messages de conversation et les relations d\'amis.';
@@ -1071,13 +1075,27 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 	@override String get profession => 'Profession';
 	@override String get school => 'École';
 	@override String get hobbiesAndInterests => 'Loisirs et intérêts';
+	@override String get interests => 'Interests';
+	@override String get pleaseEnterProfession => 'Please enter profession';
+	@override String get pleaseEnterSchool => 'Please enter school';
+	@override String get pleaseEnterInterests => 'Please enter interests';
+	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get functionSettings => 'Paramètres des fonctions';
 	@override String get myQRCode => 'Mon code QR';
 	@override String get manageVisibility => 'Gérer la visibilité des informations personnelles';
 	@override String get shareProfile => 'Partager le profil';
 	@override String get shareWithFriends => 'Partager le profil avec des amis';
+	@override String get shareQRCode => 'Share QR Code';
+	@override String get copyLink => 'Copy Link';
+	@override String get shareTo => 'Share To';
+	@override String get shareFailed => 'Share failed';
 	@override String get exportProfile => 'Exporter le profil';
 	@override String get exportToLocal => 'Exporter le profil localement';
+	@override String get exportAsJson => 'Export as JSON format';
+	@override String get exportAsText => 'Export as text format';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get exportFailed => 'Export failed';
+	@override String get profile => 'Profile';
 	@override String get selectFromAlbum => 'Sélectionner depuis l\'album';
 	@override String get setRegion => 'Définir la région';
 	@override String get setSignature => 'Définir la signature';
@@ -1272,8 +1290,8 @@ class TranslationsFrFr with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: splash
-class _TranslationsSplashFrFr implements TranslationsSplashZhCn {
-	_TranslationsSplashFrFr._(this._root);
+class _TranslationsSplashFrFr extends TranslationsSplashZhCn {
+	_TranslationsSplashFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1283,8 +1301,8 @@ class _TranslationsSplashFrFr implements TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeFrFr implements TranslationsWelcomeZhCn {
-	_TranslationsWelcomeFrFr._(this._root);
+class _TranslationsWelcomeFrFr extends TranslationsWelcomeZhCn {
+	_TranslationsWelcomeFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1301,8 +1319,8 @@ class _TranslationsWelcomeFrFr implements TranslationsWelcomeZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportFrFr implements TranslationsPassportZhCn {
-	_TranslationsPassportFrFr._(this._root);
+class _TranslationsPassportFrFr extends TranslationsPassportZhCn {
+	_TranslationsPassportFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1320,8 +1338,8 @@ class _TranslationsPassportFrFr implements TranslationsPassportZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelFrFr implements TranslationsChannelZhCn {
-	_TranslationsChannelFrFr._(this._root);
+class _TranslationsChannelFrFr extends TranslationsChannelZhCn {
+	_TranslationsChannelFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -2137,7 +2155,9 @@ extension on TranslationsFrFr {
 			'updateLog' => 'Journal des mises à jour',
 			'updateNow' => 'Mettre à jour maintenant',
 			'upgrade' => 'Mise à niveau',
-			'uploading' => 'Téléversement en cours',
+			'uploading' => 'Uploading',
+			'uploadSuccess' => 'Upload successful',
+			'uploadFailed' => 'Upload failed',
 			'usedSpace' => 'Espace utilisé',
 			'userData' => 'Données utilisateur',
 			'userDataTips' => 'Contient les fichiers nécessaires au fonctionnement de l\'application, ainsi que tous les enregistrements de données tels que les messages de conversation et les relations d\'amis.',
@@ -2473,10 +2493,10 @@ extension on TranslationsFrFr {
 			'markRead' => 'Marquer comme lu',
 			'markUnread' => 'Marquer comme non lu',
 			'discover' => 'Découvrir',
-			'shake' => 'Secouer',
-			'tip' => 'Conseil',
 			_ => null,
 		} ?? switch (path) {
+			'shake' => 'Secouer',
+			'tip' => 'Conseil',
 			'confirm' => 'Confirmer',
 			'success' => 'Succès',
 			'export' => 'Exporter',
@@ -2488,13 +2508,27 @@ extension on TranslationsFrFr {
 			'profession' => 'Profession',
 			'school' => 'École',
 			'hobbiesAndInterests' => 'Loisirs et intérêts',
+			'interests' => 'Interests',
+			'pleaseEnterProfession' => 'Please enter profession',
+			'pleaseEnterSchool' => 'Please enter school',
+			'pleaseEnterInterests' => 'Please enter interests',
+			'pleaseEnterSignature' => 'Please enter signature',
 			'functionSettings' => 'Paramètres des fonctions',
 			'myQRCode' => 'Mon code QR',
 			'manageVisibility' => 'Gérer la visibilité des informations personnelles',
 			'shareProfile' => 'Partager le profil',
 			'shareWithFriends' => 'Partager le profil avec des amis',
+			'shareQRCode' => 'Share QR Code',
+			'copyLink' => 'Copy Link',
+			'shareTo' => 'Share To',
+			'shareFailed' => 'Share failed',
 			'exportProfile' => 'Exporter le profil',
 			'exportToLocal' => 'Exporter le profil localement',
+			'exportAsJson' => 'Export as JSON format',
+			'exportAsText' => 'Export as text format',
+			'exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'exportFailed' => 'Export failed',
+			'profile' => 'Profile',
 			'selectFromAlbum' => 'Sélectionner depuis l\'album',
 			'setRegion' => 'Définir la région',
 			'setSignature' => 'Définir la signature',
