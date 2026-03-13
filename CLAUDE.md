@@ -7,11 +7,15 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-02-20
+- **Android 开发设备规则**：后续开发、调试、联调与自动化测试统一使用 Android 真机
+- 禁止使用 Android 模拟器作为默认开发或测试设备
+
 ### 2026-02-08
 - **ChatPage Mixin 架构**：完成 chat_page.dart 深度重构
 - 新增 `ChatInitializationHandler` mixin（聊天初始化）
 - chat_page.dart 从 2029 行减少到 1808 行（减少 10.9%）
-- 创建 `doc/CHAT_PAGE_MIXIN_DESIGN.md` - ChatPage Mixin 架构设计规范
+- ChatPage Mixin 规范已并入 `README.md#chatpage-mixin-rules`
 - Mixin 模块总数达到 8 个，实现清晰的关注点分离
 - **资源 URL 授权规范**：所有附件资源 URL 必须通过 `AssetsService.viewUrl` 重新授权
 - **权限 Web 平台适配**：创建 `permission_web.dart` 实现 Web 平台权限处理
@@ -173,8 +177,8 @@ graph TD
 ### 设计文档
 | 文档 | 描述 | 链接 |
 |------|------|------|
-| UI/UX 设计规范 | 完整的设计系统文档（颜色、间距、组件等） | [查看](./doc/UI_UX_Design_Spec.md) |
-| ChatPage Mixin 架构 | ChatPage Mixin 设计规范和最佳实践 | [查看](./doc/CHAT_PAGE_MIXIN_DESIGN.md) |
+| UI/UX 最小规范 | 统一设计约束（颜色、间距、组件等） | [查看](./README.md#uiux-minimal-rules) |
+| ChatPage Mixin 规则 | 聊天页 Mixin 分层和依赖约束 | [查看](./README.md#chatpage-mixin-rules) |
 
 ---
 
@@ -184,6 +188,11 @@ graph TD
 - Flutter SDK 3.8.0+
 - Dart SDK 3.8.0+
 - Xcode（iOS 开发）或 Android Studio（Android 开发）
+
+### Android 设备规则
+- 日常开发、调试、联调、自动化测试必须优先使用 Android 真机。
+- 非特殊说明情况下，不使用 Android 模拟器执行功能验证。
+- 连接方式可使用 USB 或 ADB 无线连接，但设备类型必须为真机。
 
 ### 常用命令
 
