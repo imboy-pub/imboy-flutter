@@ -1,0 +1,3 @@
+class PluginServices {
+  const PluginServices();
+}

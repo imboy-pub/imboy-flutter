@@ -4,6 +4,8 @@ import 'package:flutter_chat_core/flutter_chat_core.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+import 'package:imboy/plugins/builtin/register_builtin_plugins.dart';
+import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -332,5 +334,20 @@ void main() {
       // THEN: 应该渲染 UnsupportedMessageBuilder
       expect(find.byType(CustomMessageBuilder), findsOneWidget);
     });
+  });
+
+  group('built-in message type plugins', () {
+    test(
+      'registerBuiltinPlugins exposes text image and unsupported fallback',
+      () {
+        final registry = MessageTypeRegistry();
+
+        registerBuiltinPlugins(registry);
+
+        expect(registry.resolve(MessageType.text).type, MessageType.text);
+        expect(registry.resolve(MessageType.image).type, MessageType.image);
+        expect(registry.resolve('unknown-type').type, MessageType.unsupported);
+      },
+    );
   });
 }
