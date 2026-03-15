@@ -18,9 +18,17 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+/// Temporary compatibility wrapper for the messaging module shell.
+/// New callers should prefer `package:imboy/modules/messaging/public.dart`.
+///
 /// MessageActions
 /// 消息操作功能，包含撤回、编辑等操作
 /// Message operations including revoke, edit, etc.
+///
+/// Compatibility note:
+/// New module-facing callers should prefer
+/// `package:imboy/modules/messaging/public.dart`. This class stays as the
+/// temporary action implementation behind the messaging module facade.
 class MessageActions {
   /// 单例实例
   static MessageActions? _instance;
@@ -975,12 +983,12 @@ class MessageActions {
       final fromId = parseModelString(data['from']);
       final payload = parseModelJsonMap(data['payload']) ?? {};
       final statusStr = payload['status']?.toString() ?? 'start';
-      
+
       final currentUid = UserRepoLocal.to.currentUid;
       if (fromId == currentUid) return;
 
-      final TypingStatus status = statusStr == 'stop' 
-          ? TypingStatus.stop 
+      final TypingStatus status = statusStr == 'stop'
+          ? TypingStatus.stop
           : TypingStatus.start;
 
       // 获取 conversationUk3

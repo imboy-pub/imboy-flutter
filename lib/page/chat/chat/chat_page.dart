@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/modules/messaging/public.dart';
 
 // Barrel exports - 减少导入语句
 import 'barrel/ui_packages.dart';
@@ -20,9 +21,6 @@ import 'message_action_handler.dart';
 
 // 事件订阅管理器
 import 'mixin/chat_event_subscription_manager.dart';
-
-// E2EE相关
-import 'package:imboy/service/message.dart';
 
 // 消息事件处理器
 import 'mixin/message_event_handler.dart';
@@ -1072,8 +1070,11 @@ class ChatPageState extends ConsumerState<ChatPage>
       onForward: () => _messageActionHandler.forwardMessage(context, message),
       onCollect: () => _messageActionHandler.collectMessage(message),
       onRevoke: () => _messageActionHandler.revokeMessage(message),
-      onDelete: () =>
-          _messageActionHandler.deleteMessageForMe(context, message, pop: false),
+      onDelete: () => _messageActionHandler.deleteMessageForMe(
+        context,
+        message,
+        pop: false,
+      ),
     );
   }
 
@@ -1105,7 +1106,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 发送输入状态
   void _sendTypingStatus(TypingStatus status) {
-    MessageActions.instance.sendInputStatus(
+    MessagingFacade.instance.sendInputStatus(
       conversationUk3: _conversationUk3,
       toId: widget.peerId,
       msgType: _chatType,
@@ -1132,7 +1133,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       iPrint('执行编辑消息: messageId=$_editingMessageId, newContent=$text');
 
       // 发送编辑消息
-      bool result = await MessageActions.instance.sendEditMessage(
+      bool result = await MessagingFacade.instance.sendEditMessage(
         _editingMessageId!,
         _chatType,
         text,

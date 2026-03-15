@@ -34,10 +34,18 @@ import 'message_webrtc.dart';
 import 'notification.dart';
 import 'notification_provider.dart';
 
+/// Temporary compatibility wrapper for the messaging module shell.
+/// New callers should prefer `package:imboy/modules/messaging/public.dart`.
+///
 /// MessageService
 ///
 /// 负责消息处理的核心服务，包括可靠传递、状态同步、UI 通知。
 /// Core service for message handling: reliable delivery, state sync, UI updates.
+///
+/// Compatibility note:
+/// Prefer importing `package:imboy/modules/messaging/public.dart` in upper
+/// layers. This service remains as the legacy implementation behind the
+/// messaging module facade during the migration.
 ///
 /// ## 架构说明
 ///
@@ -1293,6 +1301,20 @@ class MessageService with EventSubscriptionManager {
     String messageType,
     String newContent,
   ) => actions.sendEditMessage(messageId, messageType, newContent);
+
+  /// 发送输入状态
+  /// Send input status (typing/stopped).
+  Future<void> sendInputStatus({
+    required String conversationUk3,
+    required String toId,
+    required String msgType,
+    required TypingStatus status,
+  }) => actions.sendInputStatus(
+    conversationUk3: conversationUk3,
+    toId: toId,
+    msgType: msgType,
+    status: status,
+  );
 
   /// 检查消息是否可以撤回
   /// Check if message can be revoked.
