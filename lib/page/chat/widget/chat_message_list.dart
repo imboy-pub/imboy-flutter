@@ -151,10 +151,7 @@ class _ReceivedMessageWrapper extends StatelessWidget {
 
 /// 发送方消息包装器（优化版 - 避免条件渲染）
 class _SentMessageWrapper extends StatelessWidget {
-  const _SentMessageWrapper({
-    required this.message,
-    this.messageTypeRegistry,
-  });
+  const _SentMessageWrapper({required this.message, this.messageTypeRegistry});
 
   final Message message;
   final MessageTypeRegistry? messageTypeRegistry;
