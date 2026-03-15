@@ -522,6 +522,7 @@ class AckManager {
     return {
       'pending_count': _pendingAcks.length,
       'max_retries': _maxRetries,
+      'retry_interval_ms': _retryIntervals.first,
       'retry_intervals_ms': _retryIntervals,
       'pending_ack_list': pendingAckList,
       'ack_rtt_sample_count': _ackRttSamples.length,
