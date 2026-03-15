@@ -27,7 +27,7 @@ void main() {
     test('内建消息类型插件注册包含 text/image/unsupported', () {
       final registry = MessageTypeRegistry();
 
-      registerBuiltinMessageTypePlugins(registry);
+      registerBuiltinPlugins(registry);
 
       expect(registry.resolve(MessageType.text).type, MessageType.text);
       expect(registry.resolve(MessageType.image).type, MessageType.image);
