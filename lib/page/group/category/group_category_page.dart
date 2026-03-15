@@ -121,7 +121,11 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       subtitle: Text('${category['group_count'] ?? 0} 个群聊'),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
-        // TODO: 跳转到分组详情
+        // 跳转到分组详情页面
+        // context.push('/group/category/${category['id']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('功能开发中...')),
+        );
       },
     );
   }

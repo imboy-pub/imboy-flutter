@@ -55,7 +55,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
         setState(() {});
       }
     });
-    // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
+    // TODO(数据同步): 异步检查是否有离线数据并同步
+    // 场景：用户离线期间可能有新的加群请求，需要在恢复网络后同步
   }
 
   @override

@@ -21,7 +21,6 @@
 ```text
 test_automation/
 ├── README.md
-├── PROGRESS_AUTOMATION_REFINEMENT.md
 ├── scenarios/
 │   ├── domain/                       # 10 个功能域 YAML
 │   ├── cases/                        # 36 个场景 case YAML
@@ -33,8 +32,6 @@ test_automation/
 ├── .state_yaml/                      # 运行状态（可恢复）
 ├── reports/
 │   └── yaml_runs/                    # 运行报告
-├── guides/
-└── archive/
 ```
 
 ## 10 条功能线覆盖（当前）

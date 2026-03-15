@@ -80,6 +80,9 @@ class MessageActions {
         case 'message_edit_ack':
           await _handleEditAction(data, isAck: true);
           break;
+        case 'message_input':
+          await _handleInputAction(data);
+          break;
         default:
           iPrint('⚠️ [handleActionMessage] 未知的action类型: $action');
       }
@@ -962,6 +965,93 @@ class MessageActions {
     } catch (e, s) {
       iPrint("❌ 检查编辑条件异常: $e; $s");
       return false;
+    }
+  }
+
+  /// 处理输入状态消息
+  Future<void> _handleInputAction(Map data) async {
+    try {
+      final msgType = parseModelString(data['type']);
+      final fromId = parseModelString(data['from']);
+      final payload = parseModelJsonMap(data['payload']) ?? {};
+      final statusStr = payload['status']?.toString() ?? 'start';
+      
+      final currentUid = UserRepoLocal.to.currentUid;
+      if (fromId == currentUid) return;
+
+      final TypingStatus status = statusStr == 'stop' 
+          ? TypingStatus.stop 
+          : TypingStatus.start;
+
+      // 获取 conversationUk3
+      // 如果是 C2C，conversationUk3 应该由 fromId 决定（因为是对方发来的）
+      // 如果是 C2G，conversationUk3 应该由 toId (groupId) 决定
+      String conversationUk3 = '';
+      if (msgType == 'C2C') {
+        // C2C: peerId 就是对方ID (fromId)
+        // uk3 = ConversationModel.getUk3(msgType, fromId, currentUid)
+        // 但这里为了简便，我们直接使用 ConversationModel 的辅助方法或者通过 Repo 查找
+        final conv = await _conversationRepo.findByPeerId(msgType, fromId);
+        if (conv != null) {
+          conversationUk3 = conv.uk3;
+        }
+      } else if (msgType == 'C2G') {
+        final groupId = parseModelString(data['to']);
+        final conv = await _conversationRepo.findByPeerId(msgType, groupId);
+        if (conv != null) {
+          conversationUk3 = conv.uk3;
+        }
+      }
+
+      if (conversationUk3.isNotEmpty) {
+        AppEventBus.fire(
+          MessageTypingEvent(
+            conversationUk3: conversationUk3,
+            typierId: fromId,
+            status: status,
+          ),
+        );
+        // iPrint('✅ [INPUT] 触发输入状态事件: from=$fromId, status=$status');
+      }
+    } catch (e, s) {
+      iPrint('❌ [_handleInputAction] 处理输入状态异常: $e; $s');
+    }
+  }
+
+  /// 发送输入状态
+  /// Send input status (typing/stopped)
+  Future<void> sendInputStatus({
+    required String conversationUk3,
+    required String toId,
+    required String msgType,
+    required TypingStatus status,
+  }) async {
+    try {
+      final currentUid = UserRepoLocal.to.currentUid;
+      final statusStr = status == TypingStatus.start ? 'start' : 'stop';
+
+      final inputMessage = {
+        'id': Xid().toString(),
+        'type': msgType,
+        'from': currentUid,
+        'to': toId,
+        'msg_type': 'custom',
+        'action': 'message_input',
+        'e2ee': '',
+        'payload': {'status': statusStr},
+      };
+
+      // iPrint('🔄 发送输入状态: $statusStr, to=$toId');
+
+      // 通过事件发送消息（fire-and-forget）
+      AppEventBus.fire(
+        WebSocketMessageSendRequestEvent(
+          message: json.encode(inputMessage),
+          messageId: inputMessage['id'].toString(),
+        ),
+      );
+    } catch (e, s) {
+      iPrint('❌ [sendInputStatus] 发送异常: $e; $s');
     }
   }
 

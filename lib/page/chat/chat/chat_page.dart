@@ -10,6 +10,8 @@ import 'barrel/page_packages.dart';
 import 'barrel/store_packages.dart';
 import 'barrel/chat_widgets.dart';
 
+import 'package:imboy/service/events/events.dart';
+
 // 附件处理器
 import 'attachment_handler.dart';
 
@@ -31,6 +33,7 @@ import 'mixin/selection_handler.dart';
 // UI 组件
 import '../widget/burn_badge.dart';
 import '../widget/message_quick_action_menu.dart';
+import '../widget/typing_indicator.dart';
 
 // 显式导入需要特殊处理的
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
@@ -150,6 +153,10 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 消息发送防抖
   DateTime? _lastSendTime;
+  // 输入状态发送防抖
+  DateTime? _lastTypingSendTime;
+  Timer? _typingTimer;
+
   static const Duration _sendDebounceDuration = Duration(milliseconds: 500);
   late final ValueNotifier<double> composerHeightNotifier;
   Timer? _cleanupTimer;
@@ -1057,6 +1064,52 @@ class ChatPageState extends ConsumerState<ChatPage>
       onReply: () => updateQuoteMessage(message),
       onSaveFile: (name, uri) =>
           ref.read(chatProvider.notifier).saveFile(name, uri),
+      onCopy: () {
+        if (message is TextMessage) {
+          _messageActionHandler.copyMessageText(message);
+        }
+      },
+      onForward: () => _messageActionHandler.forwardMessage(context, message),
+      onCollect: () => _messageActionHandler.collectMessage(message),
+      onRevoke: () => _messageActionHandler.revokeMessage(message),
+      onDelete: () =>
+          _messageActionHandler.deleteMessageForMe(context, message, pop: false),
+    );
+  }
+
+  // 处理输入状态变化
+  void _handleInputChanged(String text) {
+    // 仅单聊支持输入状态
+    if (_chatType != 'C2C') return;
+
+    if (text.isEmpty) {
+      // Send stop typing
+      _sendTypingStatus(TypingStatus.stop);
+      return;
+    }
+
+    final now = DateTime.now();
+    // 每3秒发送一次正在输入状态
+    if (_lastTypingSendTime == null ||
+        now.difference(_lastTypingSendTime!) > const Duration(seconds: 3)) {
+      _sendTypingStatus(TypingStatus.start);
+      _lastTypingSendTime = now;
+    }
+
+    // Reset timer to send stop if no input for 5 seconds
+    _typingTimer?.cancel();
+    _typingTimer = Timer(const Duration(seconds: 5), () {
+      _sendTypingStatus(TypingStatus.stop);
+    });
+  }
+
+  // 发送输入状态
+  void _sendTypingStatus(TypingStatus status) {
+    MessageActions.instance.sendInputStatus(
+      conversationUk3: _conversationUk3,
+      toId: widget.peerId,
+      msgType: _chatType,
+      status: status,
     );
   }
 
@@ -1264,7 +1317,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: true, // 启用系统键盘避让，获得更丝滑的交互体验
+        resizeToAvoidBottomInset: false, // 禁用系统自动避让，改为手动控制高度以避免抖动
         appBar: _showAppBar
             ? GlassAppBar(
                 titleWidget: Text(
@@ -1322,6 +1375,12 @@ class ChatPageState extends ConsumerState<ChatPage>
                 ),
               ),
             ),
+            // 输入状态指示器
+            TypingIndicatorWidget(
+              conversationUk3: _conversationUk3,
+              peerId: widget.peerId,
+              peerTitle: widget.peerTitle,
+            ),
             // 将输入框移出 Stack，放入 Column 底部，实现消息列表与输入框的自然联动
             ChatInputHeightListener(
               composerHeight: composerHeightNotifier,
@@ -1341,6 +1400,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       type: _chatType,
       peerId: widget.peerId,
       onSendPressed: _handleSendPressed,
+      onTextChanged: _handleInputChanged,
       // @提及变更回调
       onMentionsChanged: _chatType == MessageFlowType.c2g
           ? (mentionIds) {

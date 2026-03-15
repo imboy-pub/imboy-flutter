@@ -558,26 +558,37 @@ class E2EEService {
     Map<String, dynamic> failedPayload,
   ) async {
     try {
-      // 检查是否包含原始密文
-      final rawCiphertext = failedPayload['_e2ee_raw_ciphertext']?.toString();
-      final rawE2ee = failedPayload['_e2ee_raw_e2ee'];
+      // 1. 尝试从 _e2ee_raw 中提取原始数据（兼容 _decryptFailedPayload 的存储结构）
+      final rawPayload = failedPayload['_e2ee_raw'];
+      String? rawCiphertext;
+      Map<String, dynamic>? rawE2ee;
+
+      if (rawPayload is Map) {
+        rawCiphertext = rawPayload['payload']?.toString();
+        final e2eeData = rawPayload['e2ee'];
+        if (e2eeData is Map) {
+          rawE2ee = e2eeData.cast<String, dynamic>();
+        }
+      }
+
+      // 2. 如果 _e2ee_raw 中没有，尝试直接读取（兼容旧格式或直接传递的情况）
+      rawCiphertext ??= failedPayload['_e2ee_raw_ciphertext']?.toString();
+      rawE2ee ??= failedPayload['_e2ee_raw_e2ee'] as Map<String, dynamic>?;
 
       if (rawCiphertext == null || rawCiphertext.isEmpty) {
         iPrint('⚠️ [E2EE] 消息不包含原始密文，无法重试解密');
         return failedPayload;
       }
 
-      if (rawE2ee == null || rawE2ee is! Map) {
+      if (rawE2ee == null) {
         iPrint('⚠️ [E2EE] 消息不包含 E2EE 元数据，无法重试解密');
         return failedPayload;
       }
 
-      // 尝试重新解密（rawE2ee 已在上方检查为 Map 类型）
-      final Map rawMap = rawE2ee;
-      final e2ee = rawMap.cast<String, dynamic>();
+      // 3. 尝试重新解密
       final plaintext = await decryptE2EEMessage(
         ciphertext: rawCiphertext,
-        e2ee: e2ee,
+        e2ee: rawE2ee,
       );
 
       // 解析解密后的内容

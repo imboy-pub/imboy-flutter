@@ -553,13 +553,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       );
                       if (result != null) {
                         // TODO(后端对接): 群备注需要后端 API 支持
-                        // 需要实现 POST /api/group/remark {gid, remark}
-                        // 目前仅更新本地状态
-                        ref
-                            .read(groupDetailProvider.notifier)
-                            .setGroupRemark(result);
-                        EasyLoading.showSuccess(t.operationSuccessful);
-                        setState(() {});
+                      // 目前仅更新本地状态，且显示"功能开发中"提示
+                      // ref.read(groupDetailProvider.notifier).setGroupRemark(result);
+                      EasyLoading.showToast("功能开发中");
+                      // setState(() {});
                       }
                     },
                   ),
@@ -824,32 +821,32 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              // 投诉原因选项（使用硬编码文本，待添加翻译键）
+              // 投诉原因选项
               _buildComplaintOption(
                 context,
                 'spam',
-                '垃圾信息',
+                t.complaintReason.spam,
                 selectedReason,
                 (value) => setState(() => selectedReason = value),
               ),
               _buildComplaintOption(
                 context,
                 'harassment',
-                '骚扰',
+                t.complaintReason.harassment,
                 selectedReason,
                 (value) => setState(() => selectedReason = value),
               ),
               _buildComplaintOption(
                 context,
                 'inappropriate',
-                '不当内容',
+                t.complaintReason.inappropriate,
                 selectedReason,
                 (value) => setState(() => selectedReason = value),
               ),
               _buildComplaintOption(
                 context,
                 'other',
-                t.otherDevice, // 其他
+                t.complaintReason.other,
                 selectedReason,
                 (value) => setState(() => selectedReason = value),
               ),
@@ -867,21 +864,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       Navigator.of(context).pop();
 
                       // TODO(后端对接): 调用投诉 API
-                      // 需要后端实现投诉接口 POST /api/complaint
-                      // 请求体: { type: 'group', targetId: groupId, reason: string }
-                      //
-                      // 示例实现（取消注释后端支持后可用）：
-                      // final success = await ComplaintApi.submit(
-                      //   type: 'group',
-                      //   targetId: widget.groupId,
-                      //   reason: selectedReason,
-                      // );
-                      // if (success) {
-                      //   EasyLoading.showSuccess(t.tipSuccess);
-                      // } else {
-                      //   EasyLoading.showError(t.tipFailed);
-                      // }
-                      EasyLoading.showSuccess(t.tipSuccess);
+                      // 模拟成功
+                      EasyLoading.showSuccess(t.complaintSuccess);
                     },
               child: Text(t.buttonConfirm),
             ),

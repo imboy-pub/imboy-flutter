@@ -209,14 +209,20 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             const SizedBox.shrink(),
           Expanded(
             child: SlidableAutoCloseBehavior(
-              child: state.isLoading
-                  ? const ShimmerList()
-                  : state.conversations.isEmpty
-                  ? NoDataView(text: t.noConversationMessages)
-                  : ListView.builder(
-                      itemExtent: 88.0,
-                      itemCount: state.conversations.length,
-                      itemBuilder: (BuildContext context, int index) {
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await notifier.syncAuthoritativeConversationList(
+                    trigger: 'pull_to_refresh',
+                  );
+                },
+                child: state.isLoading
+                    ? const ShimmerList()
+                    : state.conversations.isEmpty
+                    ? NoDataView(text: t.noConversationMessages)
+                    : ListView.builder(
+                        itemExtent: 88.0,
+                        itemCount: state.conversations.length,
+                        itemBuilder: (BuildContext context, int index) {
                         if (index >= state.conversations.length) {
                           return const SizedBox.shrink();
                         }
@@ -367,6 +373,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         );
                       },
                     ),
+              ),
             ),
           ),
         ],

@@ -2,13 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart'; // 引入 cachedImageProvider
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/assets.dart'; // 引入 AssetsService
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/api/moment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:octo_image/octo_image.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:video_player/video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class MomentFeedPage extends StatefulWidget {
   const MomentFeedPage({super.key});
@@ -188,6 +196,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     }
   }
 
+  // 视频可见回调
+  void _onVideoVisible(String url) {
+    // 可以在这里实现互斥播放逻辑
+    // 目前仅作为占位符，消除 unused_element_parameter 警告
+    // debugPrint("Video visible: $url");
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -203,16 +218,14 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const ShimmerList(itemHeight: 140)
           : RefreshIndicator(
               onRefresh: _refresh,
               child: _items.isEmpty
-                  ? ListView(
-                      children: const [
-                        SizedBox(height: 220),
-                        Center(child: Text('暂无动态')),
-                      ],
-                    )
+                  ? NoDataView(
+              text: '暂无动态',
+              icon: Icons.photo_library_outlined,
+            )
                   : ListView.separated(
                       controller: _scrollController,
                       itemCount: _items.length + (_isLoadingMore ? 1 : 0),
@@ -246,6 +259,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                           onDeleteTap: canDelete
                               ? () => _deleteMoment(item)
                               : null,
+                          onVideoVisible: _onVideoVisible
                         );
                       },
                     ),
@@ -260,6 +274,8 @@ class _MomentCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
+  // 用于自动播放控制
+  final Function(String videoUrl)? onVideoVisible;
 
   const _MomentCard({
     required this.item,
@@ -267,6 +283,7 @@ class _MomentCard extends StatelessWidget {
     required this.onTap,
     required this.onLikeTap,
     this.onDeleteTap,
+    this.onVideoVisible,
   });
 
   @override
@@ -320,7 +337,10 @@ class _MomentCard extends StatelessWidget {
             if (media.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: _MomentMediaPreview(media: media),
+                child: _MomentMediaPreview(
+                  media: media,
+                  onVideoVisible: onVideoVisible,
+                ),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 10),
@@ -355,14 +375,19 @@ class _MomentCard extends StatelessWidget {
 
 class _MomentMediaPreview extends StatelessWidget {
   final List<Map<String, dynamic>> media;
+  final Function(String videoUrl)? onVideoVisible;
 
-  const _MomentMediaPreview({required this.media});
+  const _MomentMediaPreview({required this.media, this.onVideoVisible});
 
   @override
   Widget build(BuildContext context) {
     if (media.length == 1) {
       final item = media.first;
-      return _MomentMediaCell(item: item, size: 200);
+      return _MomentMediaCell(
+        item: item,
+        size: 200,
+        onVideoVisible: onVideoVisible,
+      );
     }
     return Wrap(
       spacing: 6,
@@ -374,39 +399,155 @@ class _MomentMediaPreview extends StatelessWidget {
   }
 }
 
-class _MomentMediaCell extends StatelessWidget {
+class _MomentMediaCell extends StatefulWidget {
   final Map<String, dynamic> item;
   final double size;
+  final Function(String videoUrl)? onVideoVisible;
 
-  const _MomentMediaCell({required this.item, required this.size});
+  const _MomentMediaCell({
+    required this.item,
+    required this.size,
+    this.onVideoVisible,
+  });
+
+  @override
+  State<_MomentMediaCell> createState() => _MomentMediaCellState();
+}
+
+class _MomentMediaCellState extends State<_MomentMediaCell> {
+  VideoPlayerController? _videoController;
+  bool _isPlaying = false;
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
+  }
+
+  void _disposeVideoController() {
+    _videoController?.dispose();
+    _videoController = null;
+    if (mounted) setState(() => _isPlaying = false);
+  }
+
+  void _initVideoController(String url) {
+    if (_videoController != null) return;
+    
+    // 使用 AssetsService.viewUrl 获取授权 URL
+    final authorizedUrl = AssetsService.viewUrl(url);
+    
+    _videoController = VideoPlayerController.networkUrl(authorizedUrl)
+      ..initialize().then((_) {
+        if (mounted) setState(() {});
+      })
+      ..setLooping(true)
+      ..setVolume(0); // 默认静音播放
+  }
+
+  void _play() {
+    if (_videoController != null && !_isPlaying) {
+      _videoController!.play();
+      if (mounted) setState(() => _isPlaying = true);
+    }
+  }
+
+  void _pause() {
+    if (_videoController != null && _isPlaying) {
+      _videoController!.pause();
+      if (mounted) setState(() => _isPlaying = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final type = parseModelString(item['type']);
-    final url = parseModelString(item['url']);
+    final type = parseModelString(widget.item['type']);
+    final url = parseModelString(widget.item['url']);
     final isVideo = type == 'video';
 
-    return Stack(
-      children: [
-        Container(
-          width: size,
-          height: size,
-          color: Colors.black12,
-          child: url.isEmpty
-              ? const Icon(Icons.broken_image_outlined)
-              : Image.network(url, fit: BoxFit.cover),
-        ),
-        if (isVideo)
-          const Positioned.fill(
-            child: Center(
-              child: Icon(
+    if (!isVideo) {
+      return Container(
+        width: widget.size,
+        height: widget.size,
+        color: Colors.black12,
+        child: url.isEmpty
+            ? const Icon(Icons.broken_image_outlined)
+            : OctoImage(
+                image: cachedImageProvider(url),
+                fit: BoxFit.cover,
+                placeholderBuilder: (context) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
+                ),
+                errorBuilder: (context, error, stacktrace) =>
+                    const Icon(Icons.broken_image_outlined),
+              ),
+      );
+    }
+
+    // 视频处理逻辑
+    return VisibilityDetector(
+      key: Key('video_$url'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.8) {
+          // 80% 可见时初始化并播放
+          _initVideoController(url);
+          _play();
+          widget.onVideoVisible?.call(url);
+        } else if (info.visibleFraction < 0.2) {
+          _pause();
+          // 释放资源，避免内存泄漏
+          _disposeVideoController();
+        }
+      },
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (_videoController != null && _videoController!.value.isInitialized)
+              AspectRatio(
+                aspectRatio: _videoController!.value.aspectRatio,
+                child: VideoPlayer(_videoController!),
+              )
+            else
+              // 视频加载前显示缩略图（如果有）或黑屏
+              url.isEmpty
+                  ? const Icon(Icons.broken_image_outlined)
+                  : OctoImage(
+                      image: cachedImageProvider(url), // 很多时候视频URL也是封面图URL
+                      fit: BoxFit.cover,
+                      width: widget.size,
+                      height: widget.size,
+                      placeholderBuilder: (context) => Shimmer.fromColors(
+                        baseColor: Colors.grey[800]!,
+                        highlightColor: Colors.grey[700]!,
+                        child: Container(color: Colors.black),
+                      ),
+                      errorBuilder: (_, _, _) =>
+                          Container(color: Colors.black),
+                    ),
+            
+            // 播放状态指示器
+            if (!_isPlaying)
+              const Icon(
                 Icons.play_circle_fill,
                 color: Colors.white,
                 size: 30,
               ),
-            ),
-          ),
-      ],
+              
+            // 静音图标提示
+            if (_isPlaying)
+              const Positioned(
+                bottom: 8,
+                right: 8,
+                child: Icon(Icons.volume_off, color: Colors.white54, size: 16),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

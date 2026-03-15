@@ -528,6 +528,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '投诉'
 	String get complaint => '投诉';
 
+	late final TranslationsComplaintReasonZhCn complaintReason = TranslationsComplaintReasonZhCn.internal(_root);
+
+	/// zh-CN: '投诉已提交'
+	String get complaintSuccess => '投诉已提交';
+
 	/// zh-CN: '已完结'
 	String get completed => '已完结';
 
@@ -3803,6 +3808,27 @@ class TranslationsSplashZhCn {
 	String get security => '安全可靠 · 自主可控';
 }
 
+// Path: complaintReason
+class TranslationsComplaintReasonZhCn {
+	TranslationsComplaintReasonZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '垃圾信息'
+	String get spam => '垃圾信息';
+
+	/// zh-CN: '骚扰'
+	String get harassment => '骚扰';
+
+	/// zh-CN: '不当内容'
+	String get inappropriate => '不当内容';
+
+	/// zh-CN: '其他'
+	String get other => '其他';
+}
+
 // Path: welcome
 class TranslationsWelcomeZhCn {
 	TranslationsWelcomeZhCn.internal(this._root);
@@ -4677,6 +4703,11 @@ extension on Translations {
 			'codeSentToMobile' => '验证码已发送到手机',
 			'collected' => '已收藏',
 			'complaint' => '投诉',
+			'complaintReason.spam' => '垃圾信息',
+			'complaintReason.harassment' => '骚扰',
+			'complaintReason.inappropriate' => '不当内容',
+			'complaintReason.other' => '其他',
+			'complaintSuccess' => '投诉已提交',
 			'completed' => '已完结',
 			'confirmCode' => '确认码',
 			'confirmCodeError' => '确认码为空',
@@ -5020,13 +5051,13 @@ extension on Translations {
 			'pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'pleaseSelect' => '请选择',
 			'pleaseSelectMembersForAdd' => '请选择要添加的成员',
+			_ => null,
+		} ?? switch (path) {
 			'privateReply' => '私聊回复',
 			'profileSettings' => '资料设置',
 			'qrCodeBusinessCard' => '二维码名片',
 			'quickFilters' => '快速筛选',
 			'quote' => '引用',
-			_ => null,
-		} ?? switch (path) {
 			'quoteReply' => '引用回复',
 			'rating' => '评级',
 			'reEdit' => '重新编辑',
@@ -5534,13 +5565,13 @@ extension on Translations {
 			'announcementContentCannotBeEmpty' => '公告内容不能为空',
 			'announcementPublishSuccess' => '公告发布成功',
 			'unsupportedMessageType' => '不支持的消息类型',
+			_ => null,
+		} ?? switch (path) {
 			'tips' => '提示',
 			'featureComingSoon' => '功能暂未实现',
 			'understood' => '明白了',
 			'noProblem' => '没问题',
 			'onMyWay' => '马上到',
-			_ => null,
-		} ?? switch (path) {
 			'otherDevice' => '其他设备',
 			'sendOfflineCommand' => '强制下线',
 			'offlineCommandSent' => '已发送下线指令',

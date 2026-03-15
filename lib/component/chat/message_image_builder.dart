@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:octo_image/octo_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
@@ -109,13 +110,16 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
       );
     }
 
+    // final thumbHash = metadata['thumbhash'];
+
     return OctoImage(
       image: cachedImageProvider(_imageUrl),
       fit: BoxFit.cover,
-      placeholderBuilder: (context) => Container(
-        color: Colors.grey[200],
-        child: const Center(
-          child: CircularProgressIndicator(strokeWidth: 2),
+      placeholderBuilder: (context) => Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          color: Colors.white,
         ),
       ),
       errorBuilder: (context, error, stacktrace) => Container(

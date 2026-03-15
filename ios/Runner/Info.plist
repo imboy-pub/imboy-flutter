@@ -58,7 +58,7 @@
 		<key>NSCalendarsUsageDescription</key>
 		<string>IMBoy does not need this permission</string>
 		<key>NSCameraUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
+		<string>IMBoy needs camera access to take photos, scan QR codes, and make video calls.</string>
 		<key>NSContactsUsageDescription</key>
 		<string>IMBoy does not need this permission</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

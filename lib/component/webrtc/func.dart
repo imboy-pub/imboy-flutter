@@ -92,8 +92,10 @@ Future<void> incomingCallScreen(
 
   await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
 
-  // 标记消息已读 - TODO: 需要在 ChatLogic 迁移后更新
-  // 目前暂时跳过此功能，因为 ChatLogic 仍在使用 GetX
+  // TODO(ChatLogic迁移): 标记消息已读
+  // 需要在 ChatLogic 迁移到 Riverpod 后实现
+  // 依赖 ChatLogic 的 markAsRead 方法
+  // 目前暂时跳过此功能
 
   if (!context.mounted) return;
 

@@ -1,115 +1,103 @@
-### Flutter apk最简单的瘦身方式
+# IMBoy 常见问题
 
-* Flutter apk最简单的瘦身方式  https://juejin.cn/post/6844904186446872584
-* Flutter Notes｜Flutter-Apk 大小优化探索  https://segmentfault.com/a/1190000023163171
-* 贝壳 Flutter 瘦身实践  https://xie.infoq.cn/article/f66dc029f4279cf755a29de0f
-* Flutter-Apk 大小优化探索  https://cloud.tencent.com/developer/article/1661684
-* Flutter包大小治理上的探索与实践  https://tech.meituan.com/2020/09/18/flutter-in-meituan.html
+本文档保留给设置页“帮助文档”入口使用，只放和 IMBoy 直接相关的常见问题，不再堆放零散外链和个人排障笔记。
 
-下面这个 需要把 ./android/app/build.gradle ndk 去掉才不会保存
-
-```
-
+```agsl
 flutter build apk --release \
   --obfuscate \
   --split-debug-info=debugInfo \
   --target-platform=android-arm,android-arm64,android-x64 \
   --split-per-abi \
-  -t lib/main_pro.dart
-
-💪 Building with sound null safety 💪
-
-Running Gradle task 'assembleRelease'...                            8.4s
-✓  Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (49.7MB).
-✓  Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (59.4MB).
-✓  Built build/app/outputs/flutter-apk/app-x86_64-release.apk (62.8MB).
-
-mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ~/Downloads/
-```
-
-```
-flutter build apk --analyze-size --target-platform=android-arm64
-
-
-💪 Building with sound null safety 💪
-
-Running Gradle task 'assembleRelease'...                           57.1s
-✓  Built build/app/outputs/flutter-apk/app-release.apk (130.9MB).
-▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
-app-release.apk (total compressed)                                        131 MB
+  -t lib/main.dart --dart-define=APP_ENV=pro
 
 ```
 
-针对不同 CPU 架构所代表含义，尤其 Flutter 打包 Apk 生成的三种 CPU 架构分别对应什么含义：
+## 使用问题
 
-* x86_64： Intel 64 位，一般用于平板或者模拟器，支持 x86 以及 x86_64 CPU 架构设备。
-* arm64-v8a： 第 8 代 64 位，包含 AArch32、AArch64 两个执行状态，且对应 32 、64 bit，并且支持
-  armeabi、armeabi-v7a 以及 arm64-v8a。
-* armeabi-v7a： 第 7 代 arm v7，使用硬件浮点运算，具有高级拓展功能，兼容 armeabi 以及
-  armeabi-v7a，而且目前大部分手机都是这个架构。
+### 1. 登录失败怎么办？
 
-> flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+- 先确认当前环境是否正确，例如 `local_home`、`local_office`、`dev`、`pro`。
+- 确认账号、密码、验证码或登录方式与当前环境一致。
+- 如果提示 token 失效或登录状态异常，退出后重新登录一次。
+- 如果是开发环境，请同时确认后端 API 和 WebSocket 服务可用。
 
-* 首先 flutter build apk 表示当前构建 release 包；
-* 后面 android-arm,android-arm64,android-x64 则是指定生成对应架构的 release 包；
-* 最后的 --split-per-abi 则表示告知需要按照我们指定的类型分别打包，如果移除则直接构建包含所有 CPU 架构的
-  Apk 包。
+### 2. 收不到消息或消息延迟很高怎么办？
 
-### Mac本下Android项目获取调试版SHA1和发布版SHA1
+- 先检查网络是否稳定，弱网下消息和 ACK 都可能延迟。
+- 确认应用没有被系统挂起，尤其是移动端切到后台较久之后。
+- 打开应用后观察 WebSocket 连接状态是否恢复正常。
+- 如果消息长时间停留在发送中，可重新进入会话触发状态同步。
 
-```
-keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+### 3. 会话未读数和实际消息不一致怎么办？
 
-keytool -list -v -keystore ~/.android/debug.keystore
-```
+- 先返回会话列表，再重新进入对应会话，触发本地状态刷新。
+- 如果切换账号、切换设备或异常退出过，建议重新登录一次。
+- 开发联调时，优先检查会话表、本地草稿和 ACK 回执是否一致。
 
-输入密钥库口令 android 回车键，就可以看到调试版SHA1啦！
+### 4. 图片、视频、语音发送失败怎么办？
 
-### 临时解决 CocoaPods not installed. Skipping pod install
+- 先检查网络和文件大小。
+- 确认系统已经授予相册、相机、麦克风权限。
+- 大文件上传慢时，优先在稳定网络下重试。
+- 如果是开发环境，需同时确认文件上传接口和存储服务正常。
 
-https://github.com/flutter/flutter/issues/97251
+### 5. 推送或消息提醒不生效怎么办？
 
-```
-open /Applications/Android\ Studio\ 4.2\ Preview.app
-```
+- 检查系统通知权限是否开启。
+- 检查应用内是否开启提醒、会话是否设置了免打扰。
+- iOS 设备需要确认系统通知样式、后台刷新和网络权限。
+- Android 设备需要确认系统通知渠道没有被手动关闭。
 
-### flutter项目报错：Error: Entrypoint isn‘t within the current project
+## 隐私与安全
 
-https://blog.csdn.net/lifengli123/article/details/129009577
+### 6. IMBoy 是否支持端到端加密？
 
-Error: Entrypoint isn't within the current project
+IMBoy 已实现端到端加密相关能力，客户端会处理密钥、分片和消息解密流程。实际效果仍依赖当前环境配置、密钥状态以及消息链路是否完整。
 
-网上看到很多中解决办法，但是我都试了都不行；然后换了一种搜索方式搜到一篇[文章](https://stackoverflow.com/questions/57154394/webstorm-has-marked-all-files-in-a-directory-as-non-project-files)
+### 7. 聊天记录保存在什么位置？
 
-大概是我不小心把lib文件加标记成了no project了，然后试着删掉 idea android ios
-dart_tool文件夹，重启as，右键项目文件夹，选择 Mark Directory as 选择 Sources Root
+- 会话和消息会保存在本地数据库中，用于列表展示、搜索和离线恢复。
+- 媒体文件会缓存到本地目录，便于重复查看和重试发送。
+- 具体表结构和服务实现请以代码为准，不以本 FAQ 作为技术规范。
 
-### 解决  flutter doctor --android-licenses 报错
+## 开发排障
 
-https://gist.github.com/tommysdk/35053b71293d1a28d5f207ebb5abbf93
+### 8. Flutter 项目拉起失败怎么办？
 
-in ~/.config/fish/config.fish
+推荐按下面顺序排查：
 
-```
-set -x JAVA_HOME (/usr/libexec/java_home -v 19)
-```
-
-java -version
-
-### 各个 Android Gradle 插件版本所需的 Gradle 版本
-
-https://developer.android.google.cn/studio/releases/gradle-plugin?hl=zh-cn
-
-Preferences -> Build -> Build Tools -> Gradle -> Gradle JDK
-
-```
-./gradlew wrapper
+```bash
+flutter clean
+flutter pub get
+flutter analyze
+flutter run --dart-define=APP_ENV=local_home
 ```
 
-### The code signature version is no longer supported.
+如果是 iOS 依赖问题，再进入 `ios/` 执行 `pod install`。
 
-解决方法
-TARGETS -> General -> Frameworks,Libraries,and EmbeddedContent -> 将Embed and Sign 设置为 Do Not
-Embed。
+### 9. 集成测试怎么执行？
 
-https://blog.csdn.net/LIUXIAOXIAOBO/article/details/126799270
+IMBoy 当前统一使用 `test_automation/scripts/run_yaml_mapped_suite.sh` 作为 10 条功能线的可恢复执行入口。
+
+常用命令：
+
+```bash
+bash test_automation/scripts/run_yaml_mapped_suite.sh --dry-run
+bash test_automation/scripts/run_yaml_mapped_suite.sh --run-id yaml_manual_20260301
+bash test_automation/scripts/run_yaml_mapped_suite.sh --resume --run-id yaml_manual_20260301
+```
+
+执行状态会写入 `test_automation/.state_yaml/<RUN_ID>/`，适合终端被打断后继续跑。
+
+### 10. 反馈问题时应提供什么信息？
+
+建议至少附上以下信息：
+
+- 平台和设备信息
+- 应用版本
+- 当前环境
+- 问题发生时间
+- 复现步骤
+- 截图或日志
+
+这样更容易区分是 UI 问题、数据问题、接口问题还是 WebSocket 链路问题。

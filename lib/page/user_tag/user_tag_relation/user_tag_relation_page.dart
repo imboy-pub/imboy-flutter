@@ -13,6 +13,7 @@ import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/tag.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:lpinyin/lpinyin.dart'; // 引入 lpinyin
 
 // ignore: implementation_imports
 import 'package:textfield_tags/textfield_tags.dart';
@@ -357,6 +358,34 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                 validateSelectedItem: (list, val) {
                   ///  identify if item is selected or not
                   return list!.contains(val);
+                },
+                // 支持拼音搜索
+                onItemSearch: (item, query) {
+                  if (query.isEmpty) {
+                    return true;
+                  }
+                  final lowerQuery = query.toLowerCase();
+                  // 1. 匹配原始文本
+                  if (item.toLowerCase().contains(lowerQuery)) {
+                    return true;
+                  }
+                  // 2. 匹配拼音全拼
+                  String pinyin = PinyinHelper.getPinyinE(
+                    item,
+                    separator: '',
+                    format: PinyinFormat.WITHOUT_TONE,
+                  ).toLowerCase();
+                  if (pinyin.contains(lowerQuery)) {
+                    return true;
+                  }
+                  // 3. 匹配拼音首字母
+                  String shortPinyin = PinyinHelper.getShortPinyin(
+                    item,
+                  ).toLowerCase();
+                  if (shortPinyin.contains(lowerQuery)) {
+                    return true;
+                  }
+                  return false;
                 },
               ),
       ),

@@ -31,6 +31,8 @@ import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'message_actions.dart';
 import 'message_s2c.dart';
 import 'message_webrtc.dart';
+import 'notification.dart';
+import 'notification_provider.dart';
 
 /// MessageService
 ///
@@ -144,6 +146,10 @@ class MessageService with EventSubscriptionManager {
   // 获取活跃会话管理的 Riverpod Provider
   ActiveConversationNotifier get _activeConversationNotifier =>
       _providerContainer.read(activeConversationProvider.notifier);
+
+  // 获取通知服务的 Riverpod Provider
+  NotificationService get _notificationService =>
+      _providerContainer.read(notificationServiceProvider);
 
   // 缓存常用仓库实例
   final ConversationRepo _conversationRepo = ConversationRepo();
@@ -890,6 +896,18 @@ class MessageService with EventSubscriptionManager {
       final tMsg = await msg.toTypeMessage();
       AppEventBus.fireData(tMsg);
 
+      // 触发消息通知（如果需要）
+      // 只有当用户不在当前会话且消息不是自己发送的时候才显示通知
+      if (!isFromCurrentUser && !isUserInChat) {
+        _showMessageNotification(
+          msg: msg,
+          senderName: peerInfo['title'] ?? '',
+          conversationUk3: savedConv.uk3,
+          peerId: peerInfo['peerId'] ?? '',
+          msgType: msgType,
+        );
+      }
+
       iPrint('✅ 消息后台处理完成: $msgId, peer: ${peerInfo['title']}');
     } catch (e, stack) {
       iPrint('❌ 消息后台处理失败: $msgId, 错误: $e');
@@ -1074,6 +1092,96 @@ class MessageService with EventSubscriptionManager {
     } catch (e) {
       iPrint('❌ [ACTIVE_CONVERSATION] 检查失败: $e');
       return false; // 失败时返回 false，保守增加未读数
+    }
+  }
+
+  /// 显示消息通知
+  ///
+  /// 当收到新消息且用户不在当前会话时，显示系统通知
+  /// 通知点击后可以跳转到对应的会话
+  ///
+  /// [msg] 消息模型
+  /// [senderName] 发送者昵称
+  /// [conversationUk3] 会话 UK3
+  /// [peerId] 对方 ID
+  /// [msgType] 消息类型（C2C 或 C2G）
+  Future<void> _showMessageNotification({
+    required MessageModel msg,
+    required String senderName,
+    required String conversationUk3,
+    required String peerId,
+    required String msgType,
+  }) async {
+    try {
+      // 获取通知内容
+      final content = _getNotificationContent(msg);
+
+      // 调用通知服务显示通知
+      await _notificationService.showMessageNotification(
+        senderName: senderName,
+        content: content,
+        conversationUk3: conversationUk3,
+        peerId: peerId,
+        msgType: msgType,
+      );
+
+      iPrint(
+        '🔔 [Notification] 消息通知已触发: '
+        'sender=$senderName, uk3=$conversationUk3',
+      );
+    } catch (e) {
+      iPrint('❌ [Notification] 显示消息通知失败: $e');
+    }
+  }
+
+  /// 获取通知内容
+  ///
+  /// 根据消息类型生成适合在通知中显示的内容文本
+  String _getNotificationContent(MessageModel msg) {
+    final msgType = msg.msgType;
+    final payload = msg.payload;
+
+    switch (msgType) {
+      case 'text':
+        // 文本消息：直接显示文本
+        return payload['text']?.toString() ?? '';
+
+      case 'image':
+        return '[图片]';
+
+      case 'voice':
+        final duration = payload['duration']?.toInt() ?? 0;
+        return duration > 0 ? '[语音 $duration"]' : '[语音]';
+
+      case 'video':
+        return '[视频]';
+
+      case 'file':
+        final filename = payload['filename']?.toString() ?? '';
+        return filename.isNotEmpty ? '[文件] $filename' : '[文件]';
+
+      case 'quote':
+        return payload['quote_text']?.toString() ?? '[引用消息]';
+
+      case 'location':
+        return '[位置] ${payload['title']?.toString() ?? ''}';
+
+      case 'webrtc_audio':
+        return '[语音通话]';
+
+      case 'webrtc_video':
+        return '[视频通话]';
+
+      case 'revoked':
+        return '[消息已撤回]';
+
+      default:
+        // 尝试从 payload 获取文本
+        final text = payload['text']?.toString();
+        if (text != null && text.isNotEmpty) {
+          return text;
+        }
+        return '[新消息]';
     }
   }
 

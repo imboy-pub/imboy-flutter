@@ -4,10 +4,9 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter/services.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
@@ -65,14 +64,26 @@ class MessageQuickActionMenu {
     required Message message,
     required VoidCallback onReply,
     required Future<void> Function(String, String) onSaveFile,
-    // 新增：删除回调
-    Future<void> Function()? onDeleteForMe,
-    Future<void> Function()? onDeleteForEveryone,
+    required VoidCallback onCopy,
+    required VoidCallback onForward,
+    required VoidCallback onCollect,
+    required VoidCallback onRevoke,
+    required VoidCallback onDelete,
   }) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
+        final isMe = message.authorId == UserRepoLocal.to.currentUid;
+        // 检查是否在撤回有效期内（例如2分钟）
+        final canRevoke = isMe &&
+            DateTime.now().difference(
+                  DateTime.fromMillisecondsSinceEpoch(
+                    message.createdAt!.millisecondsSinceEpoch,
+                  ),
+                ) <
+                const Duration(minutes: 2);
+
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
@@ -81,63 +92,104 @@ class MessageQuickActionMenu {
               topRight: Radius.circular(16),
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 根据消息类型显示不同的选项
-              if (message is TextMessage) ...[
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 8),
+                // 顶部指示条
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // 复制 (仅文本)
+                if (message is TextMessage)
+                  ListTile(
+                    leading: const Icon(Icons.copy_rounded),
+                    title: Text(t.buttonCopy),
+                    onTap: () {
+                      Navigator.pop(context);
+                      onCopy();
+                    },
+                  ),
+
+                // 转发
                 ListTile(
-                  leading: const Icon(Icons.copy),
-                  title: Text(t.buttonCopy),
+                  leading: const Icon(Icons.forward_rounded),
+                  title: Text(t.forward),
                   onTap: () {
                     Navigator.pop(context);
-                    Clipboard.setData(ClipboardData(text: message.text));
-                    EasyLoading.showToast(t.copied);
+                    onForward();
                   },
                 ),
+
+                // 收藏
+                ListTile(
+                  leading: const Icon(Icons.favorite_border_rounded),
+                  title: Text(t.favorites),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onCollect();
+                  },
+                ),
+
+                // 回复
+                ListTile(
+                  leading: const Icon(Icons.reply_rounded),
+                  title: Text(t.reply),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onReply();
+                  },
+                ),
+
+                // 保存 (图片/视频/文件)
+                if (message is ImageMessage || message is FileMessage || message is VideoMessage)
+                  ListTile(
+                    leading: const Icon(Icons.save_alt_rounded),
+                    title: Text(t.chatSaveImage), // 这里可能需要通用的 save 文本
+                    onTap: () async {
+                      Navigator.pop(context);
+                      // TODO: 处理保存逻辑
+                      await onSaveFile(
+                        message.metadata?['name'] ?? message.id,
+                        message.metadata?['uri'] ?? message.metadata?['source'] ?? '',
+                      );
+                    },
+                  ),
+
+                const Divider(),
+
+                // 撤回 (仅限自己且在有效期内)
+                if (canRevoke)
+                  ListTile(
+                    leading: const Icon(Icons.undo_rounded, color: Colors.orange),
+                    title: Text(t.revoke),
+                    onTap: () {
+                      Navigator.pop(context);
+                      onRevoke();
+                    },
+                  ),
+
+                // 删除
+                ListTile(
+                  leading: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                  title: Text(t.buttonDelete),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onDelete();
+                  },
+                ),
+                
+                const SizedBox(height: 16),
               ],
-              if (message is ImageMessage) ...[
-                ListTile(
-                  leading: const Icon(Icons.save_alt),
-                  title: Text(t.chatSaveImage),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await onSaveFile(
-                      message.text ?? message.id,
-                      message.source,
-                    );
-                  },
-                ),
-              ],
-              ListTile(
-                leading: const Icon(Icons.reply),
-                title: Text(t.chatReply),
-                onTap: () {
-                  Navigator.pop(context);
-                  onReply();
-                },
-              ),
-              // 新增：删除选项（只有自己发送的消息才能删除双方）
-              if (onDeleteForMe != null)
-                ListTile(
-                  leading: const Icon(Icons.delete_outline, color: Colors.orange),
-                  title: Text(t.chatDeleteLocalOnly),
-                  onTap: () {
-                    Navigator.pop(context);
-                    onDeleteForMe();
-                  },
-                ),
-              if (onDeleteForEveryone != null)
-                ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: Text(t.deleteForEveryone),
-                  onTap: () {
-                    Navigator.pop(context);
-                    onDeleteForEveryone();
-                  },
-                ),
-              const SizedBox(height: 16),
-            ],
+            ),
           ),
         );
       },

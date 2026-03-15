@@ -880,8 +880,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             }
           },
           image: inputType != InputType.voice
-              ? Icon(Icons.keyboard_voice_outlined, size: iconSize)
-              : Icon(Icons.keyboard_alt_outlined, size: iconSize),
+              ? Icon(Icons.keyboard_voice_outlined, size: 28)
+              : Icon(Icons.keyboard_alt_outlined, size: 28),
         );
       },
     );
@@ -893,9 +893,11 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       valueListenable: _inputType,
       builder: (context, inputType, _) {
         return ImageButton(
+          width: 48,
+          height: 48,
           image: inputType != InputType.emoji
-              ? Icon(Icons.emoji_emotions_outlined, size: iconSize)
-              : Icon(Icons.keyboard_alt_outlined, size: iconSize),
+              ? Icon(Icons.emoji_emotions_outlined, size: 28)
+              : Icon(Icons.keyboard_alt_outlined, size: 28),
           onPressed: () {
             updateState(
               inputType != InputType.emoji ? InputType.emoji : InputType.text,
@@ -919,8 +921,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           child: sendButtonVisible
               ? const SizedBox.shrink(key: ValueKey('empty_extra'))
               : ImageButton(
+                  width: 48,
+                  height: 48,
                   key: const ValueKey('extra_button'),
-                  image: const Icon(Icons.control_point, size: 40),
+                  image: Icon(Icons.add_circle_outline, size: 28),
                   onPressed: () {
                     updateState(
                       _inputType.value != InputType.extra
@@ -1000,24 +1004,20 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       panelHeight = max(0, targetPanelHeight - bottomInset);
     } else if (_inputType.value == InputType.text) {
       // 文本模式：
-      // 如果正在从面板切换回文本，且键盘还未完全弹出，保持面板填充剩余空间
+      // 由于 resizeToAvoidBottomInset: false，我们需要手动增加面板高度以避让键盘
       if (_isTransitioningToTextFromPanel) {
-        if (bottomInset > 0) {
-          // 键盘开始弹起，面板高度 = 目标高度 - 当前键盘高度
-          // 这样 键盘高度 + 面板高度 ≈ 目标高度，实现无缝过渡
-          panelHeight = max(0, targetPanelHeight - bottomInset);
+        // 从面板切换到键盘：保持高度为两者的最大值，实现无缝过渡
+        // 键盘弹起过程中，bottomInset 从 0 增加到 targetPanelHeight
+        // 取最大值可以确保在键盘完全弹起前，面板区域不会塌陷
+        panelHeight = max(targetPanelHeight, bottomInset);
 
-          // 当键盘高度接近完全展开时，结束过渡状态
-          if (bottomInset >= targetPanelHeight * 0.9) {
-            _isTransitioningToTextFromPanel = false;
-            panelHeight = 0;
-          }
-        } else {
-          // 键盘未弹起时，保持面板高度，避免闪烁
-          panelHeight = targetPanelHeight;
+        // 当键盘高度接近完全展开时，结束过渡状态
+        if (bottomInset >= targetPanelHeight * 0.9) {
+          _isTransitioningToTextFromPanel = false;
         }
       } else {
-        panelHeight = 0;
+        // 正常文本输入模式，跟随键盘高度
+        panelHeight = bottomInset;
       }
     } else {
       panelHeight = 0;

@@ -439,3 +439,51 @@ CREATE INDEX IF NOT EXISTS idx_channel_admin_user ON channel_admin(user_id);
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 13;
+
+-- ============================================================
+-- VERSION: 14
+-- DESC: 性能优化 - 添加未读计数和重试队列专用索引
+-- ============================================================
+-- 功能说明：为核心高频查询添加覆盖索引，提升性能
+-- 变更内容：
+--   1. 添加 unread_count 专用索引：(conversation_uk3, is_author, auto_id)
+--   2. 添加 retry_queue 专用索引：(status)
+--
+-- 优化场景：
+--   - 未读数计算：COUNT(*) WHERE conversation_uk3=? AND is_author=0 AND auto_id>?
+--   - 消息重试：SELECT * WHERE status IN (error, sending)
+
+-- ============================================================
+-- Step 1: 创建未读计数专用索引
+-- ============================================================
+-- msg_c2c
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_unread_count
+  ON msg_c2c (conversation_uk3, is_author, auto_id);
+
+-- msg_c2g
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_unread_count
+  ON msg_c2g (conversation_uk3, is_author, auto_id);
+
+-- msg_c2s
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_unread_count
+  ON msg_c2s (conversation_uk3, is_author, auto_id);
+
+-- ============================================================
+-- Step 2: 创建重试队列专用索引
+-- ============================================================
+-- msg_c2c
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_status
+  ON msg_c2c (status);
+
+-- msg_c2g
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_status
+  ON msg_c2g (status);
+
+-- msg_c2s
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_status
+  ON msg_c2s (status);
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 14;

@@ -65,8 +65,16 @@ class AckManager {
   /// 最大重试次数
   static const int _maxRetries = 3;
 
-  /// 重试间隔（毫秒）
-  static const int _retryInterval = 3000; // 3秒
+  /// 重试间隔策略（毫秒）
+  /// 采用指数退避：3s -> 5s -> 10s
+  static const List<int> _retryIntervals = [3000, 5000, 10000];
+
+  /// 获取当前重试次数对应的间隔
+  int _getRetryInterval(int retryCount) {
+    if (retryCount < 0) return _retryIntervals.first;
+    if (retryCount >= _retryIntervals.length) return _retryIntervals.last;
+    return _retryIntervals[retryCount];
+  }
 
   /// ACK RTT 观测窗口大小（用于分位统计）
   static const int _maxAckRttSamples = 200;
@@ -380,8 +388,14 @@ class AckManager {
     // 【修复】取消之前的 Timer（如果存在）
     _cancelTimer(msgId);
 
+    final ack = _pendingAcks[msgId];
+    if (ack == null) return;
+
+    // 计算重试间隔
+    final interval = _getRetryInterval(ack.retryCount);
+
     // 【修复 H2】创建新的 Timer 并跟踪，添加异常保护
-    final timer = Timer(Duration(milliseconds: _retryInterval), () {
+    final timer = Timer(Duration(milliseconds: interval), () {
       try {
         // 从跟踪表中移除
         _activeTimers.remove(msgId);
@@ -508,7 +522,7 @@ class AckManager {
     return {
       'pending_count': _pendingAcks.length,
       'max_retries': _maxRetries,
-      'retry_interval_ms': _retryInterval,
+      'retry_intervals_ms': _retryIntervals,
       'pending_ack_list': pendingAckList,
       'ack_rtt_sample_count': _ackRttSamples.length,
       'ack_rtt_last_ms': _lastAckRttMs,

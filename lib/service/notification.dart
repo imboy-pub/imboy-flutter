@@ -1,4 +1,11 @@
+import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/component/helper/func.dart';
+
+/// 通知点击响应回调类型
+typedef NotificationTapCallback = void Function(String? payload);
 
 /// 通知服务
 ///
@@ -9,12 +16,19 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// - 从 GetX 迁移到 Riverpod
 /// - 移除单例模式，使用 Provider 管理
 /// - 所有功能保持不变
+///
+/// 2026-03-14 更新:
+/// - 添加通知点击跳转支持
+/// - 添加会话消息通知专用方法
 class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
+
+  /// 通知点击回调（可选）
+  NotificationTapCallback? onTapCallback;
 
   /// 初始化通知服务
   ///
@@ -42,13 +56,92 @@ class NotificationService {
     // 初始化插件
     await _plugin.initialize(
       settings: initializationSettings,
-      // onDidReceiveNotificationResponse: (NotificationResponse response) {
-      //   // 处理通知点击事件
-      //   _handleNotificationResponse(response);
-      // },
+      onDidReceiveNotificationResponse: _handleNotificationResponse,
     );
 
     _isInitialized = true;
+    iPrint('🔔 [Notification] 服务初始化完成');
+  }
+
+  /// 处理通知点击响应
+  void _handleNotificationResponse(NotificationResponse response) {
+    final payload = response.payload;
+    iPrint('🔔 [Notification] 通知被点击: payload=$payload');
+
+    // 先调用自定义回调
+    onTapCallback?.call(payload);
+
+    // 处理通知点击跳转
+    if (payload != null && payload.isNotEmpty) {
+      _handleNavigation(payload);
+    }
+  }
+
+  /// 处理通知点击后的导航
+  void _handleNavigation(String payload) {
+    try {
+      final data = json.decode(payload) as Map<String, dynamic>;
+      final type = data['type'] as String?;
+      final conversationUk3 = data['conversationUk3'] as String?;
+      final peerId = data['peerId'] as String?;
+      final msgType = data['msgType'] as String?;
+
+      iPrint('🔔 [Notification] 解析导航数据: type=$type, uk3=$conversationUk3, peerId=$peerId');
+
+      // 获取导航上下文
+      final context = navigatorKey.currentContext;
+      if (context == null) {
+        iPrint('⚠️ [Notification] 无法获取导航上下文');
+        return;
+      }
+
+      // 根据通知类型进行导航
+      switch (type) {
+        case 'message':
+          // 消息通知：跳转到聊天页面
+          if (conversationUk3 != null && peerId != null && msgType != null) {
+            _navigateToChat(context, conversationUk3, peerId, msgType);
+          }
+          break;
+        case 'friend_request':
+          // 好友请求：跳转到新朋友页面
+          context.push('/contact/new_friend');
+          break;
+        case 'group_invite':
+          // 群邀请：跳转到群详情
+          if (peerId != null) {
+            context.push('/group/$peerId/detail');
+          }
+          break;
+        default:
+          iPrint('🔔 [Notification] 未知通知类型: $type');
+      }
+    } catch (e) {
+      iPrint('❌ [Notification] 解析导航数据失败: $e');
+    }
+  }
+
+  /// 导航到聊天页面
+  void _navigateToChat(
+    dynamic context,
+    String conversationUk3,
+    String peerId,
+    String msgType,
+  ) {
+    try {
+      // 构建聊天页面路径
+      // 格式: /chat/{peerId}?type={msgType}
+      // 注意：路由配置是 /chat/:peerId，type 通过 query 参数传递
+      final path = '/chat/$peerId?type=$msgType';
+      iPrint('🔔 [Notification] 导航到聊天页面: $path');
+
+      // 使用 go_router 导航
+      if (context != null && context.mounted) {
+        context.push(path);
+      }
+    } catch (e) {
+      iPrint('❌ [Notification] 导航到聊天页面失败: $e');
+    }
   }
 
   /// 显示通知
@@ -95,6 +188,92 @@ class NotificationService {
       title: title,
       body: body,
       notificationDetails: details,
+      payload: payload,
+    );
+  }
+
+  /// 显示消息通知（专用方法）
+  ///
+  /// 用于在收到新消息时显示系统通知
+  ///
+  /// [senderName] 发送者昵称
+  /// [content] 消息内容（已格式化）
+  /// [conversationUk3] 会话 UK3
+  /// [peerId] 对方 ID（用户 ID 或群组 ID）
+  /// [msgType] 消息类型（C2C 或 C2G）
+  /// [senderAvatar] 发送者头像（可选）
+  Future<void> showMessageNotification({
+    required String senderName,
+    required String content,
+    required String conversationUk3,
+    required String peerId,
+    required String msgType,
+    String? senderAvatar,
+  }) async {
+    // 构建通知负载（用于点击跳转）
+    final payload = json.encode({
+      'type': 'message',
+      'conversationUk3': conversationUk3,
+      'peerId': peerId,
+      'msgType': msgType,
+    });
+
+    // 使用会话 UK3 的哈希值作为通知 ID（同一会话的消息复用通知）
+    final notificationId = conversationUk3.hashCode;
+
+    await show(
+      id: notificationId,
+      title: senderName,
+      body: content,
+      payload: payload,
+    );
+
+    iPrint(
+      '🔔 [Notification] 消息通知已显示: sender=$senderName, '
+      'uk3=$conversationUk3, id=$notificationId',
+    );
+  }
+
+  /// 显示好友请求通知
+  ///
+  /// [requesterName] 请求者昵称
+  /// [requesterId] 请求者 ID
+  Future<void> showFriendRequestNotification({
+    required String requesterName,
+    required String requesterId,
+  }) async {
+    final payload = json.encode({
+      'type': 'friend_request',
+      'requesterId': requesterId,
+    });
+
+    await show(
+      id: requesterId.hashCode,
+      title: '好友请求',
+      body: '$requesterName 请求添加您为好友',
+      payload: payload,
+    );
+  }
+
+  /// 显示群邀请通知
+  ///
+  /// [groupName] 群名称
+  /// [inviterName] 邀请者昵称
+  /// [groupId] 群 ID
+  Future<void> showGroupInviteNotification({
+    required String groupName,
+    required String inviterName,
+    required String groupId,
+  }) async {
+    final payload = json.encode({
+      'type': 'group_invite',
+      'peerId': groupId,
+    });
+
+    await show(
+      id: groupId.hashCode,
+      title: '群邀请',
+      body: '$inviterName 邀请您加入群组 $groupName',
       payload: payload,
     );
   }
