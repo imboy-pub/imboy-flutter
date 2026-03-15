@@ -7,11 +7,15 @@ import 'plugin_services.dart';
 
 typedef MessageViewModel = CustomMessage;
 
+enum MessagePluginSurface { bubble, standalone }
+
 class MessageRenderContext {
   const MessageRenderContext({
     required this.context,
     required this.type,
     required this.user,
+    required this.isSentByMe,
+    required this.bubbleWrapper,
     this.onPlayPause,
     this.isPlaying = false,
     this.isPaused = false,
@@ -24,6 +28,8 @@ class MessageRenderContext {
   final BuildContext context;
   final String type;
   final User user;
+  final bool isSentByMe;
+  final Widget Function(Widget child) bubbleWrapper;
   final void Function(
     String audioPath,
     CustomMessage msg,
@@ -40,6 +46,8 @@ class MessageRenderContext {
 
 abstract interface class MessageTypePlugin implements AppPlugin {
   String get type;
+
+  MessagePluginSurface get surface;
 
   Widget build(MessageViewModel message, MessageRenderContext context);
 }

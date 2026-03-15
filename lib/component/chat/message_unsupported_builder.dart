@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/plugins/contracts/message_type_plugin.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 /// 不支持的消息类型构建器
 ///
@@ -66,6 +68,56 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class UnsupportedMessageTypePlugin implements MessageTypePlugin {
+  const UnsupportedMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.unsupported}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.unsupported;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return ImUnsupportedMessageBuilder(
+      type: context.type,
+      message: message,
+      user: context.user,
+    );
+  }
+}
+
+class VideoMessageTypePlugin implements MessageTypePlugin {
+  const VideoMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.video}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.video;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return ImUnsupportedMessageBuilder(
+      type: context.type,
+      message: message,
+      user: context.user,
     );
   }
 }

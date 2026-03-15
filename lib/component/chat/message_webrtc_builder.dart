@@ -3,6 +3,8 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:imboy/component/webrtc/func.dart';
 
+import 'package:imboy/plugins/contracts/message_type_plugin.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -158,5 +160,47 @@ class WebRTCMessageBuilder extends StatelessWidget {
         child: _buildBody(context, msgType, title, userIsAuthor),
       ),
     );
+  }
+}
+
+class WebrtcAudioMessageTypePlugin implements MessageTypePlugin {
+  const WebrtcAudioMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.webrtcAudio}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.webrtcAudio;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return WebRTCMessageBuilder(message: message, user: context.user);
+  }
+}
+
+class WebrtcVideoMessageTypePlugin implements MessageTypePlugin {
+  const WebrtcVideoMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.webrtcVideo}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.webrtcVideo;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return WebRTCMessageBuilder(message: message, user: context.user);
   }
 }

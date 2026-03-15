@@ -7,20 +7,18 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/plugins/builtin/register_builtin_plugins.dart';
+import 'package:imboy/plugins/contracts/message_type_plugin.dart';
+import 'package:imboy/plugins/registry/message_type_registry.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'message_spacing.dart';
 import 'message_audio_builder.dart';
-import 'message_image_builder.dart';
-import 'message_image_multi_builder.dart';
 import 'message_location_builder.dart';
-import 'message_quote_builder.dart';
 import 'message_revoked_builder.dart';
-import 'message_unsupported_builder.dart';
-import 'message_webrtc_builder.dart';
-import 'message_visit_card_builder.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 构建自定义消息主入口
@@ -29,6 +27,7 @@ class CustomMessageBuilder extends StatelessWidget {
     super.key,
     required this.type, // C2C C2G
     required this.message,
+    this.registry,
     this.onPlayPause,
     // 播放状态参数（用于语音消息）
     this.isPlaying = false,
@@ -41,6 +40,7 @@ class CustomMessageBuilder extends StatelessWidget {
 
   final String type; // C2C C2G
   final CustomMessage message;
+  final MessageTypeRegistry? registry;
   final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
   onPlayPause;
   // 播放状态参数（用于语音消息）
@@ -50,6 +50,35 @@ class CustomMessageBuilder extends StatelessWidget {
   final int currentDurationMs;
   // 当前会话的所有消息
   final List<dynamic>? messages;
+
+  Widget _wrapWithDefaultBubble(
+    BuildContext context,
+    Widget child,
+    bool isSentByMe,
+  ) {
+    final theme = Theme.of(context);
+    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
+    final colorScheme = theme.colorScheme;
+    final backgroundColor = isSentByMe
+        ? colorScheme.primaryContainer
+        : colorScheme.surfaceContainerLow;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: borderRadius,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isSentByMe ? 0.1 : 0.05),
+            blurRadius: isSentByMe ? 4 : 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: MessageSpacing.bubblePaddingSymmetric,
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,123 +91,56 @@ class CustomMessageBuilder extends StatelessWidget {
       imageSource: UserRepoLocal.to.current.avatar,
     );
     bool isSentByMe = message.authorId == user.id;
-    final theme = Theme.of(context);
-    // 使用统一间距 12dp（之前是 horizontal: 10, vertical: 8）
-    const padding = MessageSpacing.bubblePaddingSymmetric;
     Widget content = const SizedBox.shrink();
     try {
-      // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
-      var effectiveMsgType =
+      final effectiveMsgType =
           message.metadata?['effective_msg_type'] ??
           message.metadata?['msg_type'] ??
           '';
-
       final status = message.metadata?['status'] as int?;
 
       // 方案 D: 检查 status 字段（撤回状态 30-39）
       if (IMBoyMessageStatus.isRevokedStatus(status)) {
         // status = 30 (peer_revoked) 或 31 (my_revoked)
-        content = RevokedMessageBuilder(message: message, user: user);
+        content = _wrapWithDefaultBubble(
+          context,
+          RevokedMessageBuilder(message: message, user: user),
+          isSentByMe,
+        );
       } else {
-        // 使用 effective_msgType 判断内容类型
-        switch (effectiveMsgType) {
-          case 'voice':
-            // 语音消息（归一化后的类型）
-            return Padding(
-              padding: padding,
-              child: AudioMessageBuilder(
-                type: type,
-                message: message,
-                user: user,
-                onPlayPause: onPlayPause,
-                // 传递播放状态参数
-                isPlaying: isPlaying,
-                isPaused: isPaused,
-                currentPositionMs: currentPositionMs,
-                currentDurationMs: currentDurationMs,
-              ),
-            );
-          case 'webrtcAudio':
-          case 'webrtcVideo':
-            // WebRTC 消息
-            content = WebRTCMessageBuilder(message: message, user: user);
-            break;
-          case 'visitCard':
-            // 名片消息（直接返回，像语音消息一样使用自己的背景色）
-            return Padding(
-              padding: padding,
-              child: VisitCardMessageBuilder(message: message, user: user),
-            );
-          case 'quote':
-            // 引用消息
-            content = QuoteMessageBuilder(
-              type: type,
-              message: message,
-              user: user,
-            );
-            break;
-          case 'location':
-            // 位置消息
-            content = LocationMessageBuilder(message: message, user: user);
-            break;
-          case 'image':
-            // 单图消息
-            content = MessageImageBuilder(
-              type: type,
-              message: message,
-              user: user,
-              allMessages: messages,
-            );
-            break;
-          case 'imageMulti':
-            // 多图消息
-            content = ImageMultiMessageBuilder(
-              type: type,
-              message: message,
-              user: user,
-            );
-            break;
-          default:
-            // 未知的消息类型使用 ImUnsupportedMessageBuilder
-            debugPrint(
-              "> on CustomMessageBuilder: 未知的消息类型 (effective_msg_type=$effectiveMsgType, status=$status)",
-            );
-            content = ImUnsupportedMessageBuilder(
-              type: type,
-              message: message,
-              user: user,
-            );
-            break;
-        }
+        final messageType = effectiveMsgType.toString();
+        final pluginRegistry = registry ?? defaultMessageTypeRegistry;
+        final renderContext = MessageRenderContext(
+          context: context,
+          type: type,
+          user: user,
+          isSentByMe: isSentByMe,
+          bubbleWrapper: (child) =>
+              _wrapWithDefaultBubble(context, child, isSentByMe),
+          onPlayPause: onPlayPause,
+          isPlaying: isPlaying,
+          isPaused: isPaused,
+          currentPositionMs: currentPositionMs,
+          currentDurationMs: currentDurationMs,
+          messages: messages,
+        );
+        final plugin = pluginRegistry.resolve(
+          messageType.isEmpty ? MessageType.unsupported : messageType,
+        );
+        final builtContent = plugin.build(message, renderContext);
+        content = plugin.surface == MessagePluginSurface.bubble
+            ? _wrapWithDefaultBubble(context, builtContent, isSentByMe)
+            : builtContent;
       }
     } catch (e, s) {
       debugPrint("> on CustomMessageBuilder e ${e.toString()}; $s");
+      content = _wrapWithDefaultBubble(
+        context,
+        ImUnsupportedMessageBuilder(type: type, message: message, user: user),
+        isSentByMe,
+      );
     }
-
-    // Material 3消息气泡样式
-    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
-    final colorScheme = theme.colorScheme;
-    final backgroundColor = isSentByMe
-        ? colorScheme.primaryContainer
-        : colorScheme.surfaceContainerLow;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius,
-        // Material 3阴影效果
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isSentByMe ? 0.1 : 0.05),
-            blurRadius: isSentByMe ? 4 : 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      // Material 3间距系统
-      padding: padding,
-      child: content,
-    );
+    return content;
   }
 }
 
@@ -271,9 +233,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
           placeholderBuilder: (context) => Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
-            child: Container(
-              color: Colors.white,
-            ),
+            child: Container(color: Colors.white),
           ),
           errorBuilder: (context, error, stacktrace) => const Icon(Icons.error),
         );

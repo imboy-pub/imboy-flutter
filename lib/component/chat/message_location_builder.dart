@@ -11,6 +11,8 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/plugins/contracts/message_type_plugin.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 class LocationMessageBuilder extends StatefulWidget {
   final User user;
@@ -170,5 +172,26 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
         ],
       ),
     );
+  }
+}
+
+class LocationMessageTypePlugin implements MessageTypePlugin {
+  const LocationMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.location}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.location;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return LocationMessageBuilder(message: message, user: context.user);
   }
 }

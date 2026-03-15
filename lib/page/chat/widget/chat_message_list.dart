@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
 import 'package:imboy/page/chat/widget/message_bubble_style.dart'
     as bubble_style;
+import 'package:imboy/plugins/registry/message_type_registry.dart';
 
 /// 聊天消息列表组件（性能优化版）
 /// 移除 Dismissible 和 AnimatedBuilder 以提升滚动性能
@@ -28,6 +30,7 @@ class ChatMessageList extends StatelessWidget {
     this.scrollController,
     this.onEndReached,
     this.onStartReached,
+    this.messageTypeRegistry,
   });
 
   final List<Message> messages;
@@ -38,6 +41,7 @@ class ChatMessageList extends StatelessWidget {
   final ScrollController? scrollController;
   final Future<void> Function()? onEndReached;
   final Future<void> Function()? onStartReached;
+  final MessageTypeRegistry? messageTypeRegistry;
 
   // 估算的消息项高度，用于 ListView 滚动优化
   static const double _estimatedItemExtent = 80.0;
@@ -59,6 +63,7 @@ class ChatMessageList extends StatelessWidget {
         return _MessageItem(
           message: message,
           isMe: isMe,
+          messageTypeRegistry: messageTypeRegistry,
           onTap: () => onMessageTap?.call(message),
           onLongPress: () {
             HapticFeedback.mediumImpact();
@@ -79,6 +84,7 @@ class _MessageItem extends StatelessWidget {
   const _MessageItem({
     required this.message,
     required this.isMe,
+    this.messageTypeRegistry,
     required this.onTap,
     required this.onLongPress,
     required this.onDoubleTap,
@@ -86,6 +92,7 @@ class _MessageItem extends StatelessWidget {
 
   final Message message;
   final bool isMe;
+  final MessageTypeRegistry? messageTypeRegistry;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
@@ -97,17 +104,27 @@ class _MessageItem extends StatelessWidget {
       onLongPress: onLongPress,
       onDoubleTap: onDoubleTap,
       child: isMe
-          ? _SentMessageWrapper(message: message)
-          : _ReceivedMessageWrapper(message: message),
+          ? _SentMessageWrapper(
+              message: message,
+              messageTypeRegistry: messageTypeRegistry,
+            )
+          : _ReceivedMessageWrapper(
+              message: message,
+              messageTypeRegistry: messageTypeRegistry,
+            ),
     );
   }
 }
 
 /// 接收方消息包装器（优化版 - 避免条件渲染）
 class _ReceivedMessageWrapper extends StatelessWidget {
-  const _ReceivedMessageWrapper({required this.message});
+  const _ReceivedMessageWrapper({
+    required this.message,
+    this.messageTypeRegistry,
+  });
 
   final Message message;
+  final MessageTypeRegistry? messageTypeRegistry;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +136,13 @@ class _ReceivedMessageWrapper extends StatelessWidget {
         children: [
           _Avatar(),
           SizedBox(width: 8),
-          Flexible(child: _MessageBubble(isMe: false)),
+          Flexible(
+            child: _MessageBubble(
+              message: message,
+              isMe: false,
+              messageTypeRegistry: messageTypeRegistry,
+            ),
+          ),
         ],
       ),
     );
@@ -128,9 +151,13 @@ class _ReceivedMessageWrapper extends StatelessWidget {
 
 /// 发送方消息包装器（优化版 - 避免条件渲染）
 class _SentMessageWrapper extends StatelessWidget {
-  const _SentMessageWrapper({required this.message});
+  const _SentMessageWrapper({
+    required this.message,
+    this.messageTypeRegistry,
+  });
 
   final Message message;
+  final MessageTypeRegistry? messageTypeRegistry;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +167,13 @@ class _SentMessageWrapper extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Flexible(child: _MessageBubble(isMe: true)),
+          Flexible(
+            child: _MessageBubble(
+              message: message,
+              isMe: true,
+              messageTypeRegistry: messageTypeRegistry,
+            ),
+          ),
           SizedBox(width: 8),
           _MessageStatusIcon(),
         ],
@@ -186,12 +219,27 @@ class _MessageStatusIcon extends StatelessWidget {
 
 /// 消息气泡组件
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.isMe});
+  const _MessageBubble({
+    required this.message,
+    required this.isMe,
+    this.messageTypeRegistry,
+  });
 
+  final Message message;
   final bool isMe;
+  final MessageTypeRegistry? messageTypeRegistry;
 
   @override
   Widget build(BuildContext context) {
+    if (message is CustomMessage) {
+      final customMessage = message as CustomMessage;
+      return CustomMessageBuilder(
+        type: customMessage.metadata?['type']?.toString() ?? 'C2C',
+        message: customMessage,
+        registry: messageTypeRegistry,
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth * 0.7;

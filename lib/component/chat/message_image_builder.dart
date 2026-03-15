@@ -12,6 +12,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoView, zoomInPhotoViewGalleryWithInitialPage;
+import 'package:imboy/plugins/contracts/message_type_plugin.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 /// 单图消息构建器
 class MessageImageBuilder extends StatefulWidget {
@@ -53,7 +55,9 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
     final height = metadata['height'];
 
     _width = width is double ? width : (width is int ? width.toDouble() : 0.0);
-    _height = height is double ? height : (height is int ? height.toDouble() : 0.0);
+    _height = height is double
+        ? height
+        : (height is int ? height.toDouble() : 0.0);
   }
 
   @override
@@ -118,9 +122,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
       placeholderBuilder: (context) => Shimmer.fromColors(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
-        child: Container(
-          color: Colors.white,
-        ),
+        child: Container(color: Colors.white),
       ),
       errorBuilder: (context, error, stacktrace) => Container(
         color: Colors.grey[300],
@@ -164,11 +166,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
         );
       } else {
         // 如果找不到当前图片，从第一张开始
-        zoomInPhotoViewGalleryWithInitialPage(
-          context,
-          allImageUrls,
-          0,
-        );
+        zoomInPhotoViewGalleryWithInitialPage(context, allImageUrls, 0);
       }
     }
   }
@@ -184,9 +182,8 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
         for (final msg in widget.allMessages!) {
           if (msg is CustomMessage) {
             final metadata = msg.metadata ?? {};
-            final effectiveMsgType = metadata['effective_msg_type'] ??
-                metadata['msg_type'] ??
-                '';
+            final effectiveMsgType =
+                metadata['effective_msg_type'] ?? metadata['msg_type'] ?? '';
 
             // 单图消息
             if (effectiveMsgType == 'image') {
@@ -221,5 +218,31 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
   /// 显示单图预览（降级方案）
   void _showSingleImagePreview() {
     zoomInPhotoView(context, _imageUrl);
+  }
+}
+
+class ImageMessageTypePlugin implements MessageTypePlugin {
+  const ImageMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.image}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.image;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return MessageImageBuilder(
+      type: context.type,
+      message: message,
+      user: context.user,
+      allMessages: context.messages,
+    );
   }
 }

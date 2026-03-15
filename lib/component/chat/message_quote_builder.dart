@@ -5,6 +5,8 @@ import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/plugins/contracts/message_type_plugin.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/assets.dart';
 
 class QuoteMessageBuilder extends StatelessWidget {
@@ -421,5 +423,30 @@ class QuoteMessageBuilder extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       );
     }
+  }
+}
+
+class QuoteMessageTypePlugin implements MessageTypePlugin {
+  const QuoteMessageTypePlugin();
+
+  @override
+  String get id => 'builtin:${MessageType.quote}';
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
+  String get type => MessageType.quote;
+
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) {
+    return QuoteMessageBuilder(
+      type: context.type,
+      message: message,
+      user: context.user,
+    );
   }
 }

@@ -16,6 +16,9 @@ class _FakeMessageTypePlugin implements MessageTypePlugin {
   final bool isEnabled;
 
   @override
+  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+
+  @override
   Widget build(MessageViewModel message, MessageRenderContext context) {
     return const SizedBox.shrink();
   }
