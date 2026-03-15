@@ -446,11 +446,11 @@ void main() {
         const pixels = 800.0;
         const maxScrollExtent = 1000.0;
 
-        // ignore: dead_code - This is intentional: testing that loadMore
-        // returns false when hasMore is false, regardless of scroll position
-        final shouldLoadMore = !isLoadingMore &&
-            hasMore && // hasMore is false, so this short-circuits
-            pixels >= maxScrollExtent - threshold;
+        final shouldLoadMore = <bool>[
+          !isLoadingMore,
+          hasMore,
+          pixels >= maxScrollExtent - threshold,
+        ].every((value) => value);
 
         expect(shouldLoadMore, isFalse);
       });
