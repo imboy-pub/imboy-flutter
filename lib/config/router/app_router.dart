@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:feedback/feedback.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
-import 'package:imboy/service/feature_registry.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -78,19 +78,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return AppRoutes.signIn;
       }
 
-      final featureKey = AppFeatureRegistry.featureForPath(currentPath);
-      if (featureKey != null && !AppFeatureRegistry.isEnabled(featureKey)) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('当前功能未启用'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          }
-        });
-        return '/bottom_navigation';
+      final featureRedirect = RouteFeatureGuard.redirectPath(
+        isLoggedIn: isLogin,
+        currentPath: currentPath,
+      );
+      if (featureRedirect != null) {
+        RouteFeatureGuard.notifyDisabledFeatureRedirect(context);
+        return featureRedirect;
       }
 
       return null;

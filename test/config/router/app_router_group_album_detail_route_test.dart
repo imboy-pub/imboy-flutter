@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/page/group/album/group_album_photo_detail_page.dart';
@@ -92,5 +93,12 @@ void main() {
 
     expect(detail.photoIds, isEmpty);
     expect(detail.initialIndex, 0);
+  });
+
+  test('group album detail route is not gated by feature flags', () {
+    expect(
+      RouteFeatureGuard.featureForPath('/group/g1/album/a1/photo/p2'),
+      isNull,
+    );
   });
 }
