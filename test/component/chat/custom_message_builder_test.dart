@@ -24,6 +24,19 @@ void main() {
   });
 
   group('CustomMessageBuilder TDD Tests', () {
+    test('内建消息类型插件注册包含 text/image/unsupported', () {
+      final registry = MessageTypeRegistry();
+
+      registerBuiltinMessageTypePlugins(registry);
+
+      expect(registry.resolve(MessageType.text).type, MessageType.text);
+      expect(registry.resolve(MessageType.image).type, MessageType.image);
+      expect(
+        registry.resolve('not-supported-yet').type,
+        MessageType.unsupported,
+      );
+    });
+
     // Helper function to create a CustomMessage for testing
     CustomMessage createTestMessage({
       required String msgType,
