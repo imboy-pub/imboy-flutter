@@ -135,11 +135,27 @@ class CustomMessageBuilder extends StatelessWidget {
       }
     } catch (e, s) {
       debugPrint("> on CustomMessageBuilder e ${e.toString()}; $s");
-      content = _wrapWithDefaultBubble(
-        context,
-        ImUnsupportedMessageBuilder(type: type, message: message, user: user),
-        isSentByMe,
+      final fallbackPlugin = (registry ?? defaultMessageTypeRegistry).resolve(
+        MessageType.unsupported,
       );
+      final fallbackContext = MessageRenderContext(
+        context: context,
+        type: type,
+        user: user,
+        isSentByMe: isSentByMe,
+        bubbleWrapper: (child) =>
+            _wrapWithDefaultBubble(context, child, isSentByMe),
+        onPlayPause: onPlayPause,
+        isPlaying: isPlaying,
+        isPaused: isPaused,
+        currentPositionMs: currentPositionMs,
+        currentDurationMs: currentDurationMs,
+        messages: messages,
+      );
+      final fallbackContent = fallbackPlugin.build(message, fallbackContext);
+      content = fallbackPlugin.surface == MessagePluginSurface.bubble
+          ? _wrapWithDefaultBubble(context, fallbackContent, isSentByMe)
+          : fallbackContent;
     }
     return content;
   }
