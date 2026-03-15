@@ -19,7 +19,6 @@ import 'message_spacing.dart';
 import 'message_audio_builder.dart';
 import 'message_location_builder.dart';
 import 'message_revoked_builder.dart';
-import 'message_unsupported_builder.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 构建自定义消息主入口

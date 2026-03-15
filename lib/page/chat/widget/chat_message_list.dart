@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart'
+    hide CustomMessageBuilder;
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
 import 'package:imboy/page/chat/widget/message_bubble_style.dart'
     as bubble_style;
@@ -130,12 +131,12 @@ class _ReceivedMessageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _Avatar(),
-          SizedBox(width: 8),
+          const _Avatar(),
+          const SizedBox(width: 8),
           Flexible(
             child: _MessageBubble(
               message: message,
@@ -160,7 +161,7 @@ class _SentMessageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -171,8 +172,8 @@ class _SentMessageWrapper extends StatelessWidget {
               messageTypeRegistry: messageTypeRegistry,
             ),
           ),
-          SizedBox(width: 8),
-          _MessageStatusIcon(),
+          const SizedBox(width: 8),
+          const _MessageStatusIcon(),
         ],
       ),
     );
