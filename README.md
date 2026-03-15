@@ -5,6 +5,10 @@
 
 IMBoy 是一个基于 Flutter 的即时通讯客户端，当前仓库包含聊天、联系人、群组、频道、朋友圈、收藏、Tag、通知与端到端加密等相关实现。
 
+## Related Decisions / 相关 ADR
+
+- [2026-03-15-feature-module-boundaries](doc/adr/2026-03-15-feature-module-boundaries.md)
+
 ## 项目概览
 
 - Flutter 3.41.x 客户端工程
