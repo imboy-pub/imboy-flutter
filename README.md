@@ -203,6 +203,7 @@ lib/
 ### 常用命令
 
 ```bash
+dart run tool/check_module_boundaries.dart
 flutter analyze
 flutter test
 flutter test integration_test/
@@ -210,6 +211,12 @@ flutter build apk --release
 flutter build appbundle --release
 flutter build ios --release
 ```
+
+## Architecture Gates / 架构门禁
+
+- Flutter 模块边界检查：`dart run tool/check_module_boundaries.dart`
+- 静态分析：`flutter analyze`
+- 约束规则：域外代码只能通过 `lib/modules/<domain>/public.dart` 使用模块能力，不能直接导入模块内部文件
 
 ### 平台说明
 

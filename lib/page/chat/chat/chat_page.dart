@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/modules/messaging/public.dart';
 
 // Barrel exports - 减少导入语句
 import 'barrel/ui_packages.dart';
@@ -10,8 +9,6 @@ import 'barrel/imboy_packages.dart';
 import 'barrel/page_packages.dart';
 import 'barrel/store_packages.dart';
 import 'barrel/chat_widgets.dart';
-
-import 'package:imboy/service/events/events.dart';
 
 // 附件处理器
 import 'attachment_handler.dart';
