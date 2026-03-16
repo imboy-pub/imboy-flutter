@@ -6,6 +6,9 @@ import 'package:imboy/store/api/group_task_api.dart';
 /// 群作业/任务服务
 ///
 /// 负责协调 API 和本地存储，处理群作业业务逻辑
+///
+/// Temporary compatibility wrapper for the group_collab module shell.
+/// New callers should prefer `package:imboy/modules/group_collab/public.dart`.
 class GroupTaskService {
   static final GroupTaskService to = GroupTaskService._privateConstructor();
   GroupTaskService._privateConstructor();

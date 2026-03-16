@@ -23,11 +23,10 @@ import 'package:synchronized/synchronized.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-
 import 'change_info_page.dart';
 import 'group_detail_provider.dart';
-import 'group_detail_service.dart';
 
 /// 群组详情服务 Provider
 final groupDetailServiceProvider = Provider<GroupDetailService>((ref) {
@@ -553,10 +552,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       );
                       if (result != null) {
                         // TODO(后端对接): 群备注需要后端 API 支持
-                      // 目前仅更新本地状态，且显示"功能开发中"提示
-                      // ref.read(groupDetailProvider.notifier).setGroupRemark(result);
-                      EasyLoading.showToast("功能开发中");
-                      // setState(() {});
+                        // 目前仅更新本地状态，且显示"功能开发中"提示
+                        // ref.read(groupDetailProvider.notifier).setGroupRemark(result);
+                        EasyLoading.showToast("功能开发中");
+                        // setState(() {});
                       }
                     },
                   ),
@@ -894,20 +893,17 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color:
-                    selectedValue == value
-                        ? colorScheme.primary
-                        : colorScheme.outline,
+                color: selectedValue == value
+                    ? colorScheme.primary
+                    : colorScheme.outline,
               ),
-              color:
-                  selectedValue == value
-                      ? colorScheme.primary.withValues(alpha: 0.12)
-                      : Colors.transparent,
+              color: selectedValue == value
+                  ? colorScheme.primary.withValues(alpha: 0.12)
+                  : Colors.transparent,
             ),
-            child:
-                selectedValue == value
-                    ? Icon(Icons.check, size: 14, color: colorScheme.primary)
-                    : null,
+            child: selectedValue == value
+                ? Icon(Icons.check, size: 14, color: colorScheme.primary)
+                : null,
           ),
           const SizedBox(width: 8),
           Expanded(child: Text(label)),

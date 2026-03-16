@@ -6,6 +6,9 @@ import 'package:imboy/store/api/group_vote_api.dart';
 /// 群投票服务
 ///
 /// 负责协调 API 和本地存储，处理群投票业务逻辑
+///
+/// Temporary compatibility wrapper for the group_collab module shell.
+/// New callers should prefer `package:imboy/modules/group_collab/public.dart`.
 class GroupVoteService {
   static final GroupVoteService to = GroupVoteService._privateConstructor();
   GroupVoteService._privateConstructor();
