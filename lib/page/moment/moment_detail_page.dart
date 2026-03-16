@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/moment_social/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
-import 'package:imboy/store/api/moment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -18,7 +18,7 @@ class MomentDetailPage extends StatefulWidget {
 }
 
 class _MomentDetailPageState extends State<MomentDetailPage> {
-  final MomentApi _api = MomentApi();
+  final MomentFacade _api = MomentFacade.instance;
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -184,6 +184,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     descController.dispose();
   }
 
+  String _currentUidOrEmpty() {
+    try {
+      return UserRepoLocal.to.current.uid;
+    } catch (_) {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final post = _moment;
@@ -195,7 +203,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       return const Scaffold(body: Center(child: Text('动态不存在或无权限查看')));
     }
 
-    final currentUid = UserRepoLocal.to.current.uid;
+    final currentUid = _currentUidOrEmpty();
     final authorUid = parseModelString(post['author_uid']);
     final canDeletePost = currentUid == authorUid;
     final content = parseModelString(post['content']);

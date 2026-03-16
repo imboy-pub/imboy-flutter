@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/moment_social/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/api/attachment_api.dart';
-import 'package:imboy/store/api/moment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_compress/video_compress.dart';
@@ -20,7 +20,7 @@ class MomentCreatePage extends StatefulWidget {
 }
 
 class _MomentCreatePageState extends State<MomentCreatePage> {
-  final MomentApi _api = MomentApi();
+  final MomentFacade _api = MomentFacade.instance;
   final ImagePicker _picker = ImagePicker();
 
   final TextEditingController _contentController = TextEditingController();

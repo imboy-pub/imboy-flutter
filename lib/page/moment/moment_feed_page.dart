@@ -3,14 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart'; // 引入 cachedImageProvider
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/moment_social/public.dart';
 import 'package:imboy/service/assets.dart'; // 引入 AssetsService
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
-import 'package:imboy/store/api/moment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:octo_image/octo_image.dart';
@@ -26,7 +25,7 @@ class MomentFeedPage extends StatefulWidget {
 }
 
 class _MomentFeedPageState extends State<MomentFeedPage> {
-  final MomentApi _api = MomentApi();
+  final MomentFacade _api = MomentFacade.instance;
   final ScrollController _scrollController = ScrollController();
 
   List<Map<String, dynamic>> _items = [];
@@ -196,6 +195,14 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     }
   }
 
+  String _currentUidOrEmpty() {
+    try {
+      return UserRepoLocal.to.current.uid;
+    } catch (_) {
+      return '';
+    }
+  }
+
   // 视频可见回调
   void _onVideoVisible(String url) {
     // 可以在这里实现互斥播放逻辑
@@ -222,10 +229,24 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
           : RefreshIndicator(
               onRefresh: _refresh,
               child: _items.isEmpty
-                  ? NoDataView(
-              text: '暂无动态',
-              icon: Icons.photo_library_outlined,
-            )
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 96,
+                      ),
+                      children: const [
+                        Center(
+                          child: Icon(
+                            Icons.photo_library_outlined,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Center(child: Text('暂无动态')),
+                      ],
+                    )
                   : ListView.separated(
                       controller: _scrollController,
                       itemCount: _items.length + (_isLoadingMore ? 1 : 0),
@@ -247,7 +268,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                           );
                         }
                         final item = _items[index];
-                        final currentUid = UserRepoLocal.to.current.uid;
+                        final currentUid = _currentUidOrEmpty();
                         final canDelete =
                             parseModelString(item['author_uid']) == currentUid;
                         return _MomentCard(
@@ -259,7 +280,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                           onDeleteTap: canDelete
                               ? () => _deleteMoment(item)
                               : null,
-                          onVideoVisible: _onVideoVisible
+                          onVideoVisible: _onVideoVisible,
                         );
                       },
                     ),
@@ -432,10 +453,10 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
 
   void _initVideoController(String url) {
     if (_videoController != null) return;
-    
+
     // 使用 AssetsService.viewUrl 获取授权 URL
     final authorizedUrl = AssetsService.viewUrl(url);
-    
+
     _videoController = VideoPlayerController.networkUrl(authorizedUrl)
       ..initialize().then((_) {
         if (mounted) setState(() {});
@@ -507,7 +528,8 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (_videoController != null && _videoController!.value.isInitialized)
+            if (_videoController != null &&
+                _videoController!.value.isInitialized)
               AspectRatio(
                 aspectRatio: _videoController!.value.aspectRatio,
                 child: VideoPlayer(_videoController!),
@@ -526,18 +548,13 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
                         highlightColor: Colors.grey[700]!,
                         child: Container(color: Colors.black),
                       ),
-                      errorBuilder: (_, _, _) =>
-                          Container(color: Colors.black),
+                      errorBuilder: (_, _, _) => Container(color: Colors.black),
                     ),
-            
+
             // 播放状态指示器
             if (!_isPlaying)
-              const Icon(
-                Icons.play_circle_fill,
-                color: Colors.white,
-                size: 30,
-              ),
-              
+              const Icon(Icons.play_circle_fill, color: Colors.white, size: 30),
+
             // 静音图标提示
             if (_isPlaying)
               const Positioned(
