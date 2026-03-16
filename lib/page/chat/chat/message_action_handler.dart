@@ -17,7 +17,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
-import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
@@ -234,8 +234,8 @@ class MessageActionHandler {
 
       iPrint('🔍 撤回消息: msgId=${msg.id}, type=$_chatType');
 
-      // 使用新的MessageActions撤回机制
-      bool result = await MessageActions.instance.sendRevokeMessage(
+      // 通过 messaging module 公共边界发送撤回动作。
+      bool result = await MessagingFacade.instance.sendRevokeMessage(
         msg.id,
         _chatType,
       );

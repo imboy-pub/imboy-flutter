@@ -24,8 +24,8 @@ import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/service/e2ee_service.dart';
-import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -173,7 +173,7 @@ class ChatNotifier extends _$ChatNotifier {
     });
 
     // 监听在线状态
-    final onlineSub = MessageService.to.onlineStatusStream.listen((online) {
+    final onlineSub = MessagingFacade.instance.onlineStatusStream.listen((online) {
       if (online) {
         _flushPendingReadReceipts();
         _flushPendingReactions();
@@ -1165,7 +1165,7 @@ class ChatNotifier extends _$ChatNotifier {
   ) async {
     if (msgIds.isEmpty) return;
     try {
-      final repo = MessageService.to.getMessageRepo(type);
+      final repo = MessagingFacade.instance.getMessageRepo(type);
       final updated = <Message>[];
       for (final id in msgIds) {
         final m = await repo.find(id);
@@ -1223,7 +1223,7 @@ class ChatNotifier extends _$ChatNotifier {
   }
 
   Future<void> _flushPending(String key) async {
-    if (!MessageService.to.isOnline) return;
+    if (!MessagingFacade.instance.isOnline) return;
     try {
       final sp = await SharedPreferences.getInstance();
       final raw = sp.getString(key);
@@ -1399,7 +1399,7 @@ class ChatNotifier extends _$ChatNotifier {
     required String emoji,
   }) async {
     try {
-      final repo = MessageService.to.getMessageRepo(chatType);
+      final repo = MessagingFacade.instance.getMessageRepo(chatType);
       final msg = await repo.find(messageId);
       if (msg == null) return null;
       final currentUid = UserRepoLocal.to.currentUid;

@@ -5,8 +5,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
-import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
@@ -373,8 +373,11 @@ class MessageHandlingService {
       iPrint('🔍 ${t.messageId}: ${msg.id}');
       iPrint('🔍 ${t.chatType}: $chatType');
 
-      // 使用新的MessageService发送撤回请求
-      bool result = await MessageService.to.sendRevokeMessage(msg.id, chatType);
+      // 通过 messaging module 公共边界发送撤回请求。
+      bool result = await MessagingFacade.instance.sendRevokeMessage(
+        msg.id,
+        chatType,
+      );
       iPrint('🔍 ${t.revokeMessageSendResult}: $result');
 
       if (result) {
@@ -423,8 +426,8 @@ class MessageHandlingService {
       iPrint('🔍 ${t.chatType}: $chatType');
       iPrint('🔍 ${t.newContent}: $newContent');
 
-      // 使用新的MessageService发送编辑请求
-      bool result = await MessageService.to.sendEditMessage(
+      // 通过 messaging module 公共边界发送编辑请求。
+      bool result = await MessagingFacade.instance.sendEditMessage(
         msg.id,
         chatType,
         newContent.trim(),
