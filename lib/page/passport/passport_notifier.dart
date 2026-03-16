@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+/// Temporary compatibility implementation for the identity module shell.
+/// New module-facing callers should prefer `package:imboy/modules/identity/public.dart`.
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';

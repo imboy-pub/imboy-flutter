@@ -8,12 +8,7 @@ library;
 // ============================================================================
 export 'package:imboy/page/splash/splash_page.dart';
 export 'package:imboy/page/welcome/welcome_page.dart';
-export 'package:imboy/page/passport/login_page.dart';
-export 'package:imboy/page/passport/web_login_page.dart'; // Web 专用登录页面
-export 'package:imboy/page/passport/signup_page.dart';
-export 'package:imboy/page/passport/signup_continue_page.dart';
-export 'package:imboy/page/passport/forgot_password_page.dart';
-export 'package:imboy/page/passport/manage_account_page.dart';
+export 'package:imboy/modules/identity/public.dart';
 
 // ============================================================================
 // 主框架
