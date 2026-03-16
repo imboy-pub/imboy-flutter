@@ -39,7 +39,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/feature_registry.dart';
-import 'package:imboy/service/e2ee_shard_message_handler.dart';
+import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';

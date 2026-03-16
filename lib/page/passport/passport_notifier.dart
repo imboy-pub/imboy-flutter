@@ -26,7 +26,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/service/e2ee_key_service.dart';
+import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';

@@ -9,6 +9,9 @@ import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 
+/// Temporary compatibility service for the security_privacy module shell.
+/// New upper-layer imports should prefer
+/// `package:imboy/modules/security_privacy/public.dart`.
 class E2EEService {
   static final Map<String, Map<String, String>> _userKeyCacheByDevice = {};
   static final Map<String, Map<String, String>> _groupKeyCacheByDevice = {};

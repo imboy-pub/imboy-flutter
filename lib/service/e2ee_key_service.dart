@@ -13,6 +13,9 @@ import 'storage_secure.dart';
 // 👇 条件导入：Web 平台使用真实实现
 import 'rsa_web_stub.dart' if (dart.library.html) 'rsa_web.dart';
 
+/// Temporary compatibility service for the security_privacy module shell.
+/// New upper-layer imports should prefer
+/// `package:imboy/modules/security_privacy/public.dart`.
 /// RSA 密钥大小（位）- 用于 isolate
 const int _rsaKeySize = 2048;
 

@@ -21,8 +21,7 @@ export 'package:imboy/page/chat/widget/chat_message_list.dart';
 // 服务
 export 'package:imboy/config/init.dart';
 export 'package:imboy/service/event_bus.dart';
-export 'package:imboy/service/e2ee_service.dart';
-export 'package:imboy/service/e2ee_settings.dart';
+export 'package:imboy/modules/security_privacy/public.dart';
 export 'package:imboy/modules/messaging/public.dart';
 export 'package:imboy/service/active_conversation_notifier.dart';
 export 'package:imboy/service/voice_playback_service.dart';
