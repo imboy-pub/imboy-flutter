@@ -5,8 +5,8 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -23,7 +23,6 @@ class ChannelDiscoverPage extends ConsumerStatefulWidget {
 
 class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   final TextEditingController _searchController = TextEditingController();
-  final ChannelApi _api = ChannelApi();
   List<ChannelModel> _searchResults = [];
   List<ChannelModel> _recommendedChannels = [];
   final Set<String> _subscribedChannelIds = <String>{};
@@ -52,7 +51,9 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
   Future<void> _loadSubscribedChannelIds() async {
     try {
-      final channels = await _api.getSubscribedChannels(limit: 200);
+      final channels = await ChannelService.to.getSubscribedChannels(
+        limit: 200,
+      );
       if (!mounted) return;
       setState(() {
         _subscribedChannelIds
@@ -75,7 +76,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     });
 
     try {
-      final channels = await _api.discoverChannels(limit: 50);
+      final channels = await ChannelService.to.discoverChannels(limit: 50);
       if (mounted) {
         setState(() {
           _recommendedChannels = channels;

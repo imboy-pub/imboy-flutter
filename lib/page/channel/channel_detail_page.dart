@@ -13,7 +13,6 @@ import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
-import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -45,7 +44,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _messageFocusNode = FocusNode();
   ChannelStatsModel? _stats;
-  final ChannelApi _api = ChannelApi();
+  final ChannelService _channelService = ChannelService.to;
   bool _isUploadingMedia = false;
   bool _isPaying = false;
   bool _isLoadingStats = false;
@@ -76,7 +75,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         : widget.channelId;
     _isLoadingStats = true;
     try {
-      final stats = await _api.getChannelStats(id);
+      final stats = await _channelService.getChannelStats(id);
       if (mounted && stats != null) {
         setState(() {
           _stats = stats;
@@ -652,7 +651,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final success = await _api.deleteChannel(channel.id);
+              final success = await _channelService.deleteChannel(channel.id);
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(t.channel.channelDeleted)),
@@ -1293,8 +1292,7 @@ class _ChannelMessageItem extends StatelessWidget {
   });
 
   Future<void> _addReaction(BuildContext context, String reactionType) async {
-    final api = ChannelApi();
-    final success = await api.addReaction(
+    final success = await ChannelService.to.addReaction(
       channelId: channelId,
       messageId: message.id,
       reactionType: reactionType,
@@ -1309,8 +1307,7 @@ class _ChannelMessageItem extends StatelessWidget {
     BuildContext context,
     String reactionType,
   ) async {
-    final api = ChannelApi();
-    final success = await api.removeReaction(
+    final success = await ChannelService.to.removeReaction(
       channelId: channelId,
       messageId: message.id,
       reactionType: reactionType,
@@ -1586,8 +1583,11 @@ class _ChannelMessageItem extends StatelessWidget {
 
   /// 设置消息置顶状态
   Future<void> _setPinned(BuildContext context, bool pinned) async {
-    final api = ChannelApi();
-    final success = await api.setMessagePinned(channelId, message.id, pinned);
+    final success = await ChannelService.to.setMessagePinned(
+      channelId,
+      message.id,
+      pinned,
+    );
     if (success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1618,8 +1618,10 @@ class _ChannelMessageItem extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              final api = ChannelApi();
-              final success = await api.deleteMessage(channelId, message.id);
+              final success = await ChannelService.to.deleteMessage(
+                channelId,
+                message.id,
+              );
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(t.channel.messageDeleted)),

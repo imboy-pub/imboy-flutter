@@ -10,6 +10,7 @@ import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
+import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
@@ -17,7 +18,8 @@ import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 
 /// Channel 服务
 ///
-/// 负责协调 API 和本地存储，处理频道业务逻辑
+/// 负责协调 API 和本地存储，处理频道业务逻辑。
+/// 这是 channel_content 在 Flutter 侧的稳定模块边界，页面层应优先依赖这里。
 /// 包括：数据同步、消息处理、订阅管理等
 class ChannelService {
   static final ChannelService to = ChannelService._privateConstructor();
@@ -69,6 +71,16 @@ class ChannelService {
       return channels;
     } catch (e) {
       iPrint('ChannelService: 同步频道失败 - $e');
+      return [];
+    }
+  }
+
+  /// 获取订阅频道列表（服务端权威）。
+  Future<List<ChannelModel>> getSubscribedChannels({int limit = 50}) async {
+    try {
+      return await _api.getSubscribedChannels(limit: limit);
+    } catch (e) {
+      iPrint('ChannelService: 获取订阅频道失败 - $e');
       return [];
     }
   }
@@ -212,6 +224,20 @@ class ChannelService {
     );
   }
 
+  /// 删除频道。
+  Future<bool> deleteChannel(String channelId) async {
+    try {
+      final success = await _api.deleteChannel(channelId);
+      if (!success) return false;
+      await _repo.deleteChannel(channelId);
+      iPrint('ChannelService: 删除频道成功 - $channelId');
+      return true;
+    } catch (e) {
+      iPrint('ChannelService: 删除频道失败 - $e');
+      return false;
+    }
+  }
+
   // ==================== 未读计数 ====================
 
   /// 获取频道未读总数
@@ -327,6 +353,40 @@ class ChannelService {
     }
   }
 
+  /// 设置消息置顶状态。
+  Future<bool> setMessagePinned(
+    String channelId,
+    String messageId,
+    bool pinned,
+  ) async {
+    try {
+      final success = await _api.setMessagePinned(channelId, messageId, pinned);
+      iPrint(
+        'ChannelService: 设置消息置顶${success ? "成功" : "失败"} - '
+        '$channelId/$messageId/$pinned',
+      );
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 设置消息置顶失败 - $e');
+      return false;
+    }
+  }
+
+  /// 删除频道消息。
+  Future<bool> deleteMessage(String channelId, String messageId) async {
+    try {
+      final success = await _api.deleteMessage(channelId, messageId);
+      iPrint(
+        'ChannelService: 删除频道消息${success ? "成功" : "失败"} - '
+        '$channelId/$messageId',
+      );
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 删除频道消息失败 - $e');
+      return false;
+    }
+  }
+
   // ==================== 订单相关（付费频道） ====================
 
   /// 创建订单
@@ -427,6 +487,58 @@ class ChannelService {
       return success;
     } catch (e) {
       iPrint('ChannelService: 拒绝邀请失败 - $e');
+      return false;
+    }
+  }
+
+  // ==================== 统计和互动 ====================
+
+  /// 获取频道统计。
+  Future<ChannelStatsModel?> getChannelStats(String channelId) async {
+    try {
+      return await _api.getChannelStats(channelId);
+    } catch (e) {
+      iPrint('ChannelService: 获取频道统计失败 - $e');
+      return null;
+    }
+  }
+
+  /// 添加消息反应。
+  Future<bool> addReaction({
+    required String channelId,
+    required String messageId,
+    required String reactionType,
+  }) async {
+    try {
+      final success = await _api.addReaction(
+        channelId: channelId,
+        messageId: messageId,
+        reactionType: reactionType,
+      );
+      iPrint('ChannelService: 添加消息反应${success ? "成功" : "失败"} - $messageId');
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 添加消息反应失败 - $e');
+      return false;
+    }
+  }
+
+  /// 移除消息反应。
+  Future<bool> removeReaction({
+    required String channelId,
+    required String messageId,
+    required String reactionType,
+  }) async {
+    try {
+      final success = await _api.removeReaction(
+        channelId: channelId,
+        messageId: messageId,
+        reactionType: reactionType,
+      );
+      iPrint('ChannelService: 移除消息反应${success ? "成功" : "失败"} - $messageId');
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 移除消息反应失败 - $e');
       return false;
     }
   }
@@ -548,8 +660,11 @@ class ChannelService {
   }
 
   /// 发现频道（推荐）
-  Future<List<ChannelModel>> discoverChannels({String? category}) async {
-    return await _api.discoverChannels(category: category);
+  Future<List<ChannelModel>> discoverChannels({
+    String? category,
+    int limit = 20,
+  }) async {
+    return await _api.discoverChannels(category: category, limit: limit);
   }
 
   // ==================== 辅助方法 ====================
