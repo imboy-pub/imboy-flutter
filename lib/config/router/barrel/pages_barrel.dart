@@ -28,14 +28,7 @@ export 'package:imboy/page/chat/widget/select_friend.dart';
 // ============================================================================
 // 联系人模块
 // ============================================================================
-export 'package:imboy/page/contact/contact/contact_page.dart';
-export 'package:imboy/page/contact/people_info/people_info_page.dart';
-export 'package:imboy/page/contact/new_friend/new_friend_page.dart';
-export 'package:imboy/page/contact/new_friend/add_friend_page.dart';
-export 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
-export 'package:imboy/page/contact/recently_registered_user/recently_registered_user_page.dart';
-export 'package:imboy/page/contact/people_info_more/people_info_more_page.dart';
-export 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_page.dart';
+export 'package:imboy/modules/social_graph/public.dart';
 
 // ============================================================================
 // 群组模块
@@ -65,11 +58,6 @@ export 'package:imboy/page/group/album/group_album_photo_page.dart';
 export 'package:imboy/page/group/album/group_album_photo_detail_page.dart';
 
 // ============================================================================
-// @提及模块
-// ============================================================================
-export 'package:imboy/page/mention/mention_list_page.dart';
-
-// ============================================================================
 // 朋友圈模块
 // ============================================================================
 export 'package:imboy/page/moment/moment_feed_page.dart';
@@ -96,7 +84,6 @@ export 'package:imboy/page/mine/setting/setting_page.dart';
 export 'package:imboy/page/mine/account_security/account_security_page.dart';
 export 'package:imboy/page/mine/change_password/change_password_page.dart';
 export 'package:imboy/page/mine/change_password/set_password_page.dart';
-export 'package:imboy/page/mine/user_collect/user_collect_page.dart';
 export 'package:imboy/page/mine/denylist/denylist_page.dart';
 export 'package:imboy/page/mine/storage_space/storage_space_page.dart';
 export 'package:imboy/page/mine/user_device/user_device_page.dart';

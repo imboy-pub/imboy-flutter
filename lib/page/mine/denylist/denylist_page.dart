@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/contact/people_info/people_info_page.dart';
+import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 

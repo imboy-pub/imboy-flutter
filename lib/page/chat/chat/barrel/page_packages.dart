@@ -8,9 +8,8 @@ export 'package:imboy/page/chat/send_to/send_to_page.dart';
 // 群组页面
 export 'package:imboy/page/group/group_detail/group_detail_page.dart';
 
-// 收藏页面
-export 'package:imboy/page/mine/user_collect/user_collect_page.dart';
-export 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
+// 社交关系页面
+export 'package:imboy/modules/social_graph/public.dart';
 
 // 会话
 export 'package:imboy/page/conversation/conversation_provider.dart';

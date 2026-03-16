@@ -23,8 +23,8 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
-import 'package:imboy/page/mine/user_collect/user_collect_provider.dart';
 import 'package:imboy/modules/messaging/public.dart';
+import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/voice_playback_service.dart';
@@ -33,9 +33,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -173,7 +171,9 @@ class ChatNotifier extends _$ChatNotifier {
     });
 
     // 监听在线状态
-    final onlineSub = MessagingFacade.instance.onlineStatusStream.listen((online) {
+    final onlineSub = MessagingFacade.instance.onlineStatusStream.listen((
+      online,
+    ) {
       if (online) {
         _flushPendingReadReceipts();
         _flushPendingReactions();

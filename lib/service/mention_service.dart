@@ -3,6 +3,8 @@ import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/base_event.dart';
 import 'package:imboy/store/api/mention_api.dart';
 
+/// Temporary compatibility service for the social graph module shell.
+/// New upper-layer imports should prefer `package:imboy/modules/social_graph/public.dart`.
 /// @提及服务
 ///
 /// 负责协调 API 和本地存储，处理@提及业务逻辑

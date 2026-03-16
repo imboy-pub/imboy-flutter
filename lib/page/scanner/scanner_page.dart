@@ -11,7 +11,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/contact/people_info/people_info_page.dart';
+import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/page/scanner/scanner_result_page.dart';

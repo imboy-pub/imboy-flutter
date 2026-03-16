@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/contact/people_info/people_info_page.dart';
+import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:imboy/store/model/message_model.dart';

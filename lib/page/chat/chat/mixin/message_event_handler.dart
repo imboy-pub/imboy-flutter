@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 // 导入 UserCollectHelper 用于判断消息是否可收藏
-import 'package:imboy/page/mine/user_collect/user_collect_provider.dart'
-    show UserCollectHelper;
+import 'package:imboy/modules/social_graph/public.dart' show UserCollectHelper;
 
 /// 消息事件处理器 Mixin
 ///

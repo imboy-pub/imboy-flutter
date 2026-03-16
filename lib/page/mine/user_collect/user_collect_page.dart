@@ -15,6 +15,9 @@ import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Temporary compatibility page for the social graph module shell.
+/// New upper-layer imports should prefer `package:imboy/modules/social_graph/public.dart`.
+
 import 'user_collect_detail_page.dart';
 import 'user_collect_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';

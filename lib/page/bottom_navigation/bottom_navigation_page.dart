@@ -4,7 +4,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/page/contact/contact/contact_page.dart';
+import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
