@@ -12,10 +12,9 @@ import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
     show p2pCallScreenProvider;
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
-import 'package:imboy/service/message.dart';
-import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';

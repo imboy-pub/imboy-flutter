@@ -18,14 +18,16 @@ import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class MomentFeedPage extends StatefulWidget {
-  const MomentFeedPage({super.key});
+  const MomentFeedPage({super.key, this.facade});
+
+  final MomentFacade? facade;
 
   @override
   State<MomentFeedPage> createState() => _MomentFeedPageState();
 }
 
 class _MomentFeedPageState extends State<MomentFeedPage> {
-  final MomentFacade _api = MomentFacade.instance;
+  MomentFacade get _api => widget.facade ?? MomentFacade.instance;
   final ScrollController _scrollController = ScrollController();
 
   List<Map<String, dynamic>> _items = [];

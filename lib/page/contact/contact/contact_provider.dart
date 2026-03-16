@@ -5,7 +5,7 @@ import 'package:imboy/store/api/contact_api.dart' as contact_provider;
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/service/feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:azlistview/azlistview.dart';
 
 part 'contact_provider.g.dart';

@@ -9,11 +9,10 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 
 import 'package:imboy/config/init.dart';
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_page.dart';
-import 'package:imboy/service/message.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/network_monitor.dart';
-import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 

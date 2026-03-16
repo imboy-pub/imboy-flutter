@@ -14,12 +14,12 @@ import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:intl/intl.dart';
-import 'package:imboy/service/feature_registry.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 

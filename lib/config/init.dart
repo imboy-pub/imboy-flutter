@@ -29,8 +29,6 @@ import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 
-import 'package:imboy/service/message.dart';
-import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
@@ -38,7 +36,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/event_bus.dart';
-import 'package:imboy/service/feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';

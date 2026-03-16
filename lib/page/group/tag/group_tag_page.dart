@@ -8,8 +8,9 @@ import 'package:imboy/i18n/strings.g.dart';
 /// 群标签页面
 class GroupTagPage extends ConsumerStatefulWidget {
   final String groupId;
+  final GroupTagService? service;
 
-  const GroupTagPage({super.key, required this.groupId});
+  const GroupTagPage({super.key, required this.groupId, this.service});
 
   @override
   ConsumerState<GroupTagPage> createState() => _GroupTagPageState();
@@ -19,6 +20,8 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
   List<Map<String, dynamic>> _tags = [];
   bool _isLoading = true;
 
+  GroupTagService get _service => widget.service ?? GroupTagService.to;
+
   @override
   void initState() {
     super.initState();
@@ -27,7 +30,7 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
 
   Future<void> _loadTags() async {
     setState(() => _isLoading = true);
-    final tags = await GroupTagService.to.getGroupTags(widget.groupId);
+    final tags = await _service.getGroupTags(widget.groupId);
     if (mounted) {
       setState(() {
         _tags = tags;
@@ -61,7 +64,7 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
     );
 
     if (result == true && controller.text.isNotEmpty) {
-      final success = await GroupTagService.to.addTag(
+      final success = await _service.addTag(
         groupId: widget.groupId,
         name: controller.text,
       );
@@ -152,7 +155,7 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
             if (tagName.isEmpty) {
               return;
             }
-            final success = await GroupTagService.to.removeTag(
+            final success = await _service.removeTag(
               groupId: widget.groupId,
               tagName: tagName,
             );

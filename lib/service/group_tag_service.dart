@@ -7,10 +7,11 @@ import 'package:imboy/store/api/group_tag_api.dart';
 ///
 /// 负责协调 API 和本地存储，处理群标签业务逻辑
 class GroupTagService {
-  static final GroupTagService to = GroupTagService._privateConstructor();
-  GroupTagService._privateConstructor();
+  GroupTagService({GroupTagApi? api}) : _api = api ?? GroupTagApi();
 
-  final GroupTagApi _api = GroupTagApi();
+  static final GroupTagService to = GroupTagService();
+
+  final GroupTagApi _api;
 
   // ==================== 标签管理 ====================
 

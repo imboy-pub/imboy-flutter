@@ -40,14 +40,20 @@ void main() {
         maxBackoff: const Duration(seconds: 32),
       );
 
-      // 指数退避：1, 2, 4, 8, 16, 32(max)
-      expect(config.calculateRetryDelay(0), equals(const Duration(seconds: 1)));
-      expect(config.calculateRetryDelay(1), equals(const Duration(seconds: 2)));
-      expect(config.calculateRetryDelay(2), equals(const Duration(seconds: 4)));
-      expect(config.calculateRetryDelay(3), equals(const Duration(seconds: 8)));
-      expect(config.calculateRetryDelay(4), equals(const Duration(seconds: 16)));
-      expect(config.calculateRetryDelay(5), equals(const Duration(seconds: 32))); // max
-      expect(config.calculateRetryDelay(6), equals(const Duration(seconds: 32))); // max
+      // 指数退避：2, 4, 8, 16, 32，在达到 maxRetries 后停止
+      expect(config.calculateRetryDelay(0), equals(const Duration(seconds: 2)));
+      expect(config.calculateRetryDelay(1), equals(const Duration(seconds: 4)));
+      expect(config.calculateRetryDelay(2), equals(const Duration(seconds: 8)));
+      expect(
+        config.calculateRetryDelay(3),
+        equals(const Duration(seconds: 16)),
+      );
+      expect(
+        config.calculateRetryDelay(4),
+        equals(const Duration(seconds: 32)),
+      );
+      expect(config.calculateRetryDelay(5), equals(Duration.zero));
+      expect(config.calculateRetryDelay(6), equals(Duration.zero));
     });
 
     test('should calculate retry delay for linear strategy', () {
@@ -58,12 +64,12 @@ void main() {
         maxBackoff: const Duration(seconds: 5),
       );
 
-      // 线性增长：1, 2, 3, 4, 5(max) - 使用 retryDelay * (retryCount + 1)
+      // 线性增长：1, 2, 3, 4，在达到 maxRetries 后停止
       expect(config.calculateRetryDelay(0), equals(const Duration(seconds: 1)));
       expect(config.calculateRetryDelay(1), equals(const Duration(seconds: 2)));
       expect(config.calculateRetryDelay(2), equals(const Duration(seconds: 3)));
       expect(config.calculateRetryDelay(3), equals(const Duration(seconds: 4)));
-      expect(config.calculateRetryDelay(4), equals(const Duration(seconds: 5))); // max
+      expect(config.calculateRetryDelay(4), equals(Duration.zero));
     });
 
     test('should respect max backoff limit', () {
@@ -75,7 +81,10 @@ void main() {
       );
 
       // 即使计算值超过 maxBackoff，也应该被限制
-      expect(config.calculateRetryDelay(10), equals(const Duration(seconds: 30)));
+      expect(
+        config.calculateRetryDelay(4),
+        equals(const Duration(seconds: 30)),
+      );
     });
 
     test('should create heartbeat disabled config', () {

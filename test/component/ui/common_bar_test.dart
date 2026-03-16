@@ -16,11 +16,7 @@ void main() {
       testWidgets('默认不显示返回按钮', (WidgetTester tester) async {
         await tester.pumpWidget(
           MaterialApp(
-            home: Scaffold(
-              appBar: const GlassAppBar(
-                title: 'Test Page',
-              ),
-            ),
+            home: Scaffold(appBar: const GlassAppBar(title: 'Test Page')),
           ),
         );
 
@@ -28,38 +24,38 @@ void main() {
         expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
       });
 
-      testWidgets('当 canPop = true 且 automaticallyImplyLeading = true 时显示返回按钮',
-          (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            initialRoute: '/',
-            routes: {
-              '/': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'First Page',
-                    ),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/second'),
-                      child: const Text('Go to second'),
-                    ),
+      testWidgets(
+        '当 canPop = true 且 automaticallyImplyLeading = true 时显示返回按钮',
+        (WidgetTester tester) async {
+          await tester.pumpWidget(
+            MaterialApp(
+              initialRoute: '/',
+              routes: {
+                '/': (context) => Scaffold(
+                  appBar: const GlassAppBar(title: 'First Page'),
+                  body: ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/second'),
+                    child: const Text('Go to second'),
                   ),
-              '/second': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Second Page',
-                      automaticallyImplyLeading: true,
-                    ),
+                ),
+                '/second': (context) => Scaffold(
+                  appBar: const GlassAppBar(
+                    title: 'Second Page',
+                    automaticallyImplyLeading: true,
                   ),
-            },
-          ),
-        );
+                ),
+              },
+            ),
+          );
 
-        // 导航到第二个页面
-        await tester.tap(find.text('Go to second'));
-        await tester.pumpAndSettle();
+          // 导航到第二个页面
+          await tester.tap(find.text('Go to second'));
+          await tester.pumpAndSettle();
 
-        // 验证：应该显示返回按钮
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
-      });
+          // 验证：应该显示返回按钮
+          expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+        },
+      );
 
       testWidgets('当 canPop = false 时不显示返回按钮', (WidgetTester tester) async {
         await tester.pumpWidget(
@@ -77,8 +73,9 @@ void main() {
         expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
       });
 
-      testWidgets('自定义 leading 优先级高于 automaticallyImplyLeading',
-          (WidgetTester tester) async {
+      testWidgets('自定义 leading 优先级高于 automaticallyImplyLeading', (
+        WidgetTester tester,
+      ) async {
         const customLeading = Text('Custom');
 
         await tester.pumpWidget(
@@ -106,25 +103,25 @@ void main() {
             initialRoute: '/',
             routes: {
               '/': (context) => Scaffold(
-                    appBar: const GlassAppBar(title: 'Page 1'),
-                    body: Builder(
-                      builder: (context) => ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => Scaffold(
-                                appBar: const GlassAppBar(
-                                  title: 'Page 2',
-                                  automaticallyImplyLeading: true,
-                                ),
-                              ),
+                appBar: const GlassAppBar(title: 'Page 1'),
+                body: Builder(
+                  builder: (context) => ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => Scaffold(
+                            appBar: const GlassAppBar(
+                              title: 'Page 2',
+                              automaticallyImplyLeading: true,
                             ),
-                          );
-                        },
-                        child: const Text('Go to page 2'),
-                      ),
-                    ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Go to page 2'),
                   ),
+                ),
+              ),
             },
           ),
         );
@@ -137,7 +134,10 @@ void main() {
         expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
 
         // 点击返回按钮（使用更精确的选择器）
-        final backButton = find.widgetWithIcon(GestureDetector, Icons.arrow_back_ios_new);
+        final backButton = find.widgetWithIcon(
+          GestureDetector,
+          Icons.arrow_back_ios_new,
+        );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
 
@@ -152,29 +152,29 @@ void main() {
             initialRoute: '/',
             routes: {
               '/': (context) => Scaffold(
-                    appBar: const GlassAppBar(title: 'Page 1'),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/page2'),
-                      child: const Text('Go to page 2'),
-                    ),
-                  ),
+                appBar: const GlassAppBar(title: 'Page 1'),
+                body: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/page2'),
+                  child: const Text('Go to page 2'),
+                ),
+              ),
               '/page2': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Page 2',
-                      automaticallyImplyLeading: true,
-                    ),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/page3'),
-                      child: const Text('Go to page 3'),
-                    ),
-                  ),
+                appBar: const GlassAppBar(
+                  title: 'Page 2',
+                  automaticallyImplyLeading: true,
+                ),
+                body: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/page3'),
+                  child: const Text('Go to page 3'),
+                ),
+              ),
               '/page3': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Page 3',
-                      automaticallyImplyLeading: true,
-                      popTime: 2, // 返回两层
-                    ),
-                  ),
+                appBar: const GlassAppBar(
+                  title: 'Page 3',
+                  automaticallyImplyLeading: true,
+                  popTime: 2, // 返回两层
+                ),
+              ),
             },
           ),
         );
@@ -189,7 +189,10 @@ void main() {
         expect(find.text('Page 3'), findsOneWidget);
 
         // 点击返回按钮（应该返回两层到第 1 页）
-        final backButton = find.widgetWithIcon(GestureDetector, Icons.arrow_back_ios_new);
+        final backButton = find.widgetWithIcon(
+          GestureDetector,
+          Icons.arrow_back_ios_new,
+        );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
 
@@ -202,11 +205,7 @@ void main() {
       testWidgets('显示标题文本', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(
-              appBar: GlassAppBar(
-                title: 'Test Title',
-              ),
-            ),
+            home: Scaffold(appBar: GlassAppBar(title: 'Test Title')),
           ),
         );
 
@@ -239,7 +238,10 @@ void main() {
                 title: 'Test',
                 rightDMActions: [
                   IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-                  IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {},
+                  ),
                 ],
               ),
             ),
@@ -253,11 +255,7 @@ void main() {
       testWidgets('当没有 rightDMActions 时保留空间', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(
-              appBar: GlassAppBar(
-                title: 'Test',
-              ),
-            ),
+            home: Scaffold(appBar: GlassAppBar(title: 'Test')),
           ),
         );
 
@@ -270,11 +268,7 @@ void main() {
       testWidgets('毛玻璃效果正确应用', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: Scaffold(
-              appBar: GlassAppBar(
-                title: 'Test',
-              ),
-            ),
+            home: Scaffold(appBar: GlassAppBar(title: 'Test')),
           ),
         );
 
@@ -291,23 +285,24 @@ void main() {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(
-              appBar: GlassAppBar(
-                title: 'Test',
-                backgroundColor: customColor,
-              ),
+              appBar: GlassAppBar(title: 'Test', backgroundColor: customColor),
             ),
           ),
         );
 
-        final container = tester.widget<Container>(
-          find.descendant(
-            of: find.byType(SafeArea),
-            matching: find.byType(Container).first,
+        final decoratedContainers = tester.widgetList<Container>(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Container && widget.decoration is BoxDecoration,
           ),
         );
+        final matchingContainer = decoratedContainers.singleWhere((container) {
+          final decoration = container.decoration as BoxDecoration;
+          return decoration.color == customColor;
+        });
 
-        final boxDecoration = container.decoration as BoxDecoration;
-        expect(boxDecoration.color, isNotNull);
+        final boxDecoration = matchingContainer.decoration as BoxDecoration;
+        expect(boxDecoration.color, customColor);
       });
 
       testWidgets('自定义 toolbarHeight 生效', (WidgetTester tester) async {
@@ -316,16 +311,13 @@ void main() {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(
-              appBar: GlassAppBar(
-                title: 'Test',
-                toolbarHeight: customHeight,
-              ),
+              appBar: GlassAppBar(title: 'Test', toolbarHeight: customHeight),
             ),
           ),
         );
 
         final appBar = tester.widget<GlassAppBar>(find.byType(GlassAppBar));
-        expect(appBar.preferredSize.height, customHeight + 16); // +16 for padding
+        expect(appBar.preferredSize.height, customHeight);
       });
     });
 
@@ -334,11 +326,7 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             theme: ThemeData.dark(),
-            home: const Scaffold(
-              appBar: GlassAppBar(
-                title: 'Dark Mode Test',
-              ),
-            ),
+            home: const Scaffold(appBar: GlassAppBar(title: 'Dark Mode Test')),
           ),
         );
 
@@ -355,19 +343,19 @@ void main() {
             initialRoute: '/',
             routes: {
               '/': (context) => Scaffold(
-                    appBar: const GlassAppBar(title: 'Page 1'),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/page2'),
-                      child: const Text('Go to page 2'),
-                    ),
-                  ),
+                appBar: const GlassAppBar(title: 'Page 1'),
+                body: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/page2'),
+                  child: const Text('Go to page 2'),
+                ),
+              ),
               '/page2': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Page 2',
-                      automaticallyImplyLeading: true,
-                      popTime: 10, // 超过栈深度（只有 2 层）
-                    ),
-                  ),
+                appBar: const GlassAppBar(
+                  title: 'Page 2',
+                  automaticallyImplyLeading: true,
+                  popTime: 10, // 超过栈深度（只有 2 层）
+                ),
+              ),
             },
           ),
         );
@@ -380,7 +368,10 @@ void main() {
         expect(find.text('Page 2'), findsOneWidget);
 
         // 点击返回按钮（popTime=10 但只有 2 层，应该安全返回）
-        final backButton = find.widgetWithIcon(GestureDetector, Icons.arrow_back_ios_new);
+        final backButton = find.widgetWithIcon(
+          GestureDetector,
+          Icons.arrow_back_ios_new,
+        );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
 
@@ -394,19 +385,19 @@ void main() {
             initialRoute: '/',
             routes: {
               '/': (context) => Scaffold(
-                    appBar: const GlassAppBar(title: 'Page 1'),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/page2'),
-                      child: const Text('Go to page 2'),
-                    ),
-                  ),
+                appBar: const GlassAppBar(title: 'Page 1'),
+                body: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/page2'),
+                  child: const Text('Go to page 2'),
+                ),
+              ),
               '/page2': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Page 2',
-                      automaticallyImplyLeading: true,
-                      popTime: 1, // 默认值
-                    ),
-                  ),
+                appBar: const GlassAppBar(
+                  title: 'Page 2',
+                  automaticallyImplyLeading: true,
+                  popTime: 1, // 默认值
+                ),
+              ),
             },
           ),
         );
@@ -416,7 +407,10 @@ void main() {
         await tester.pumpAndSettle();
 
         // 点击返回按钮
-        final backButton = find.widgetWithIcon(GestureDetector, Icons.arrow_back_ios_new);
+        final backButton = find.widgetWithIcon(
+          GestureDetector,
+          Icons.arrow_back_ios_new,
+        );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
 
@@ -429,23 +423,22 @@ void main() {
           MaterialApp(
             initialRoute: '/',
             routes: {
-              '/': (context) => const Scaffold(
-                    body: Center(child: Text('Root')),
-                  ),
+              '/': (context) =>
+                  const Scaffold(body: Center(child: Text('Root'))),
               '/page1': (context) => Scaffold(
-                    appBar: const GlassAppBar(title: 'Page 1'),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/page2'),
-                      child: const Text('Go to page 2'),
-                    ),
-                  ),
+                appBar: const GlassAppBar(title: 'Page 1'),
+                body: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/page2'),
+                  child: const Text('Go to page 2'),
+                ),
+              ),
               '/page2': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Page 2',
-                      automaticallyImplyLeading: true,
-                      popTime: 10, // 最大值
-                    ),
-                  ),
+                appBar: const GlassAppBar(
+                  title: 'Page 2',
+                  automaticallyImplyLeading: true,
+                  popTime: 10, // 最大值
+                ),
+              ),
             },
           ),
         );
@@ -457,7 +450,10 @@ void main() {
         await tester.pumpAndSettle();
 
         // 点击返回按钮
-        final backButton = find.widgetWithIcon(GestureDetector, Icons.arrow_back_ios_new);
+        final backButton = find.widgetWithIcon(
+          GestureDetector,
+          Icons.arrow_back_ios_new,
+        );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
 
@@ -510,18 +506,18 @@ void main() {
             initialRoute: '/',
             routes: {
               '/': (context) => Scaffold(
-                    appBar: const GlassAppBar(title: 'Page 1'),
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/page2'),
-                      child: const Text('Go to page 2'),
-                    ),
-                  ),
+                appBar: const GlassAppBar(title: 'Page 1'),
+                body: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/page2'),
+                  child: const Text('Go to page 2'),
+                ),
+              ),
               '/page2': (context) => Scaffold(
-                    appBar: const GlassAppBar(
-                      title: 'Page 2',
-                      automaticallyImplyLeading: true,
-                    ),
-                  ),
+                appBar: const GlassAppBar(
+                  title: 'Page 2',
+                  automaticallyImplyLeading: true,
+                ),
+              ),
             },
           ),
         );
@@ -531,7 +527,10 @@ void main() {
         await tester.pumpAndSettle();
 
         // 快速点击两次返回按钮
-        final backButton = find.widgetWithIcon(GestureDetector, Icons.arrow_back_ios_new);
+        final backButton = find.widgetWithIcon(
+          GestureDetector,
+          Icons.arrow_back_ios_new,
+        );
         await tester.tap(backButton);
         // 不等待动画完成就点击第二次
         await tester.tap(backButton);

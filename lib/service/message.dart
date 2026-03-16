@@ -34,6 +34,9 @@ import 'message_webrtc.dart';
 import 'notification.dart';
 import 'notification_provider.dart';
 
+// Legacy compatibility surface. External callers should now import
+// `package:imboy/modules/messaging/public.dart`; this file remains the
+// implementation behind the messaging facade until internal migration ends.
 /// Temporary compatibility wrapper for the messaging module shell.
 /// New callers should prefer `package:imboy/modules/messaging/public.dart`.
 ///

@@ -18,11 +18,86 @@ import 'package:imboy/store/api/group_tag_api.dart';
 
 /// 构建测试用的 GroupTagPage
 Widget _buildGroupTagPage({String groupId = 'g_1001'}) {
+  final service = GroupTagService(
+    api: _FakeGroupTagApi(seed: {groupId: <Map<String, dynamic>>[]}),
+  );
+
   return TranslationProvider(
     child: ProviderScope(
-      child: MaterialApp(home: GroupTagPage(groupId: groupId)),
+      child: MaterialApp(
+        home: GroupTagPage(groupId: groupId, service: service),
+      ),
     ),
   );
+}
+
+class _FakeGroupTagApi extends GroupTagApi {
+  _FakeGroupTagApi({Map<String, List<Map<String, dynamic>>>? seed})
+    : _tagsByGroup = {
+        for (final entry
+            in (seed ?? const <String, List<Map<String, dynamic>>>{}).entries)
+          entry.key: entry.value.map(Map<String, dynamic>.from).toList(),
+      };
+
+  final Map<String, List<Map<String, dynamic>>> _tagsByGroup;
+
+  List<Map<String, dynamic>> _tagsFor(String groupId) {
+    return _tagsByGroup.putIfAbsent(groupId, () => <Map<String, dynamic>>[]);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getGroupTags(String groupId) async {
+    return _tagsFor(groupId).map(Map<String, dynamic>.from).toList();
+  }
+
+  @override
+  Future<bool> addTag({
+    required String groupId,
+    required String name,
+    String? color,
+  }) async {
+    _tagsFor(
+      groupId,
+    ).add({'tag_name': name, 'name': name, 'color': color ?? '0xFF2196F3'});
+    return true;
+  }
+
+  @override
+  Future<bool> removeTag({
+    required String groupId,
+    required String tagName,
+  }) async {
+    _tagsFor(groupId).removeWhere(
+      (tag) => tag['name'] == tagName || tag['tag_name'] == tagName,
+    );
+    return true;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> searchByTag(
+    String tagName, {
+    int limit = 20,
+  }) async {
+    return _tagsByGroup.values
+        .expand((tags) => tags)
+        .where(
+          (tag) =>
+              (tag['name']?.toString() ?? '').contains(tagName) ||
+              (tag['tag_name']?.toString() ?? '').contains(tagName),
+        )
+        .take(limit)
+        .map(Map<String, dynamic>.from)
+        .toList();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getHotTags({int limit = 20}) async {
+    return _tagsByGroup.values
+        .expand((tags) => tags)
+        .take(limit)
+        .map(Map<String, dynamic>.from)
+        .toList();
+  }
 }
 
 void main() {
@@ -277,13 +352,22 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // 当有标签时显示 RefreshIndicator，无标签时显示 NoDataView
-      final hasRefreshIndicator = find.byType(RefreshIndicator).evaluate().isNotEmpty;
+      final hasRefreshIndicator = find
+          .byType(RefreshIndicator)
+          .evaluate()
+          .isNotEmpty;
       final hasNoDataView = find.text(t.groupTag.noTag).evaluate().isNotEmpty;
-      final hasLoading = find.byType(CircularProgressIndicator).evaluate().isNotEmpty;
+      final hasLoading = find
+          .byType(CircularProgressIndicator)
+          .evaluate()
+          .isNotEmpty;
 
       // 验证页面处于以下状态之一
-      expect(hasRefreshIndicator || hasNoDataView || hasLoading, isTrue,
-          reason: '页面应该显示 RefreshIndicator、NoDataView 或加载指示器');
+      expect(
+        hasRefreshIndicator || hasNoDataView || hasLoading,
+        isTrue,
+        reason: '页面应该显示 RefreshIndicator、NoDataView 或加载指示器',
+      );
     });
   });
 
@@ -293,37 +377,76 @@ void main() {
       expect(service, isNotNull);
     });
 
-    test('getGroupTags 返回 List 类型', () async {
-      final service = GroupTagService.to;
-      final tags = await service.getGroupTags('test_group_id');
-
-      expect(tags, isA<List<Map<String, dynamic>>>());
+    test('getGroupTags 暴露列表查询方法', () async {
+      final service = GroupTagService(
+        api: _FakeGroupTagApi(
+          seed: {
+            'test_group_id': [
+              {'tag_name': 'test_tag', 'name': 'test_tag'},
+            ],
+          },
+        ),
+      );
+      await expectLater(
+        service.getGroupTags('test_group_id'),
+        completion(isA<List<Map<String, dynamic>>>()),
+      );
     });
 
     test('addTag 返回 bool 类型', () async {
-      final service = GroupTagService.to;
-      // 由于需要 API，这里只验证方法存在
-      expect(service.addTag, isA<Function>());
+      final service = GroupTagService(api: _FakeGroupTagApi());
+      await expectLater(
+        service.addTag(groupId: 'g_1001', name: 'new_tag'),
+        completion(isTrue),
+      );
     });
 
     test('removeTag 返回 bool 类型', () async {
-      final service = GroupTagService.to;
-      // 由于需要 API，这里只验证方法存在
-      expect(service.removeTag, isA<Function>());
+      final service = GroupTagService(
+        api: _FakeGroupTagApi(
+          seed: {
+            'g_1001': [
+              {'tag_name': 'remove_me', 'name': 'remove_me'},
+            ],
+          },
+        ),
+      );
+      await expectLater(
+        service.removeTag(groupId: 'g_1001', tagName: 'remove_me'),
+        completion(isTrue),
+      );
     });
 
-    test('searchByTag 返回 List 类型', () async {
-      final service = GroupTagService.to;
-      final results = await service.searchByTag('test_tag');
-
-      expect(results, isA<List<Map<String, dynamic>>>());
+    test('searchByTag 暴露搜索方法', () async {
+      final service = GroupTagService(
+        api: _FakeGroupTagApi(
+          seed: {
+            'g_1001': [
+              {'tag_name': 'test_tag', 'name': 'test_tag'},
+            ],
+          },
+        ),
+      );
+      await expectLater(
+        service.searchByTag('test_tag'),
+        completion(isA<List<Map<String, dynamic>>>()),
+      );
     });
 
-    test('getHotTags 返回 List 类型', () async {
-      final service = GroupTagService.to;
-      final tags = await service.getHotTags();
-
-      expect(tags, isA<List<Map<String, dynamic>>>());
+    test('getHotTags 暴露热门标签查询方法', () async {
+      final service = GroupTagService(
+        api: _FakeGroupTagApi(
+          seed: {
+            'g_1001': [
+              {'tag_name': 'hot_tag', 'name': 'hot_tag'},
+            ],
+          },
+        ),
+      );
+      await expectLater(
+        service.getHotTags(),
+        completion(isA<List<Map<String, dynamic>>>()),
+      );
     });
   });
 
@@ -353,20 +476,14 @@ void main() {
 
   group('TagAddedEvent - 事件测试', () {
     test('事件正确携带数据', () {
-      const event = TagAddedEvent(
-        groupId: 'g_1001',
-        tagName: '测试标签',
-      );
+      const event = TagAddedEvent(groupId: 'g_1001', tagName: '测试标签');
 
       expect(event.groupId, equals('g_1001'));
       expect(event.tagName, equals('测试标签'));
     });
 
     test('事件 props 正确', () {
-      const event = TagAddedEvent(
-        groupId: 'g_1001',
-        tagName: '测试标签',
-      );
+      const event = TagAddedEvent(groupId: 'g_1001', tagName: '测试标签');
 
       expect(event.props, equals(['g_1001', '测试标签']));
     });
@@ -374,20 +491,14 @@ void main() {
 
   group('TagRemovedEvent - 事件测试', () {
     test('事件正确携带数据', () {
-      const event = TagRemovedEvent(
-        groupId: 'g_1002',
-        tagName: '删除标签',
-      );
+      const event = TagRemovedEvent(groupId: 'g_1002', tagName: '删除标签');
 
       expect(event.groupId, equals('g_1002'));
       expect(event.tagName, equals('删除标签'));
     });
 
     test('事件 props 正确', () {
-      const event = TagRemovedEvent(
-        groupId: 'g_1002',
-        tagName: '删除标签',
-      );
+      const event = TagRemovedEvent(groupId: 'g_1002', tagName: '删除标签');
 
       expect(event.props, equals(['g_1002', '删除标签']));
     });
@@ -419,7 +530,8 @@ void main() {
 
     test('空颜色使用默认值', () {
       const colorString = null;
-      final colorValue = int.tryParse(colorString ?? '0xFF2196F3') ?? 0xFF2196F3;
+      final colorValue =
+          int.tryParse(colorString ?? '0xFF2196F3') ?? 0xFF2196F3;
 
       expect(colorValue, equals(0xFF2196F3));
     });

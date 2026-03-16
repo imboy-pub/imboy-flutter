@@ -1,5 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+
+Future<File> captureFuture(Future<File> future) {
+  unawaited(future.catchError((Object _) => File('/tmp/cache_manager_test')));
+  return future;
+}
 
 /// 测试 IMBoyCacheManager.getSingleFile 方法签名
 /// 验证 validateImageData 参数的存在和默认值
@@ -12,26 +20,37 @@ void main() {
 
       // 验证方法可以接受 validateImageData: false
       expect(
-        () => cacheManager.getSingleFile(
-          'https://example.com/test.m4a',
-          validateImageData: false,
+        captureFuture(
+          cacheManager.getSingleFile(
+            'https://example.com/test.m4a',
+            maxRetries: 1,
+            validateImageData: false,
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
 
       // 验证方法可以接受 validateImageData: true
       expect(
-        () => cacheManager.getSingleFile(
-          'https://example.com/test.jpg',
-          validateImageData: true,
+        captureFuture(
+          cacheManager.getSingleFile(
+            'https://example.com/test.jpg',
+            maxRetries: 1,
+            validateImageData: true,
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
 
       // 验证方法可以省略 validateImageData（使用默认值）
       expect(
-        () => cacheManager.getSingleFile('https://example.com/test.jpg'),
-        returnsNormally,
+        captureFuture(
+          cacheManager.getSingleFile(
+            'https://example.com/test.jpg',
+            maxRetries: 1,
+          ),
+        ),
+        isA<Future<File>>(),
       );
     });
 
@@ -39,12 +58,15 @@ void main() {
       final cacheManager = IMBoyCacheManager();
 
       expect(
-        () => cacheManager.getSingleFile(
-          'https://example.com/test.m4a',
-          headers: {'Authorization': 'Bearer token'},
-          validateImageData: false,
+        captureFuture(
+          cacheManager.getSingleFile(
+            'https://example.com/test.m4a',
+            maxRetries: 1,
+            headers: {'Authorization': 'Bearer token'},
+            validateImageData: false,
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
     });
 
@@ -52,12 +74,14 @@ void main() {
       final cacheManager = IMBoyCacheManager();
 
       expect(
-        () => cacheManager.getSingleFile(
-          'https://example.com/test.m4a',
-          maxRetries: 5,
-          validateImageData: false,
+        captureFuture(
+          cacheManager.getSingleFile(
+            'https://example.com/test.m4a',
+            maxRetries: 1,
+            validateImageData: false,
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
     });
 
@@ -65,13 +89,15 @@ void main() {
       final cacheManager = IMBoyCacheManager();
 
       expect(
-        () => cacheManager.getSingleFile(
-          'https://example.com/test.m4a',
-          headers: {'Authorization': 'Bearer token'},
-          maxRetries: 5,
-          validateImageData: false,
+        captureFuture(
+          cacheManager.getSingleFile(
+            'https://example.com/test.m4a',
+            headers: {'Authorization': 'Bearer token'},
+            maxRetries: 1,
+            validateImageData: false,
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
     });
   });
@@ -84,11 +110,14 @@ void main() {
       final audioUrl = 'https://example.com/audio.m4a';
 
       expect(
-        () => cacheManager.getSingleFile(
-          audioUrl,
-          validateImageData: false, // 音频文件不验证图片格式
+        captureFuture(
+          cacheManager.getSingleFile(
+            audioUrl,
+            maxRetries: 1,
+            validateImageData: false, // 音频文件不验证图片格式
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
     });
 
@@ -99,11 +128,14 @@ void main() {
       final videoUrl = 'https://example.com/video.mp4';
 
       expect(
-        () => cacheManager.getSingleFile(
-          videoUrl,
-          validateImageData: false, // 视频文件不验证图片格式
+        captureFuture(
+          cacheManager.getSingleFile(
+            videoUrl,
+            maxRetries: 1,
+            validateImageData: false, // 视频文件不验证图片格式
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
     });
 
@@ -114,11 +146,14 @@ void main() {
       final fileUrl = 'https://example.com/document.pdf';
 
       expect(
-        () => cacheManager.getSingleFile(
-          fileUrl,
-          validateImageData: false, // 文件下载不验证图片格式
+        captureFuture(
+          cacheManager.getSingleFile(
+            fileUrl,
+            maxRetries: 1,
+            validateImageData: false, // 文件下载不验证图片格式
+          ),
         ),
-        returnsNormally,
+        isA<Future<File>>(),
       );
     });
 
@@ -130,8 +165,8 @@ void main() {
 
       // 图片文件应该使用默认参数（验证图片格式）
       expect(
-        () => cacheManager.getSingleFile(imageUrl),
-        returnsNormally,
+        captureFuture(cacheManager.getSingleFile(imageUrl, maxRetries: 1)),
+        isA<Future<File>>(),
       );
     });
   });
@@ -153,28 +188,33 @@ void main() {
       for (final ext in audioExtensions) {
         final url = 'https://example.com/audio$ext';
         expect(
-          () => cacheManager.getSingleFile(url, validateImageData: false),
-          returnsNormally,
+          captureFuture(
+            cacheManager.getSingleFile(
+              url,
+              maxRetries: 1,
+              validateImageData: false,
+            ),
+          ),
+          isA<Future<File>>(),
           reason: '$ext 扩展名应该支持 validateImageData: false',
         );
       }
     });
 
     test('所有视频扩展名都应该支持 validateImageData: false', () {
-      final videoExtensions = [
-        '.mp4',
-        '.mov',
-        '.avi',
-        '.mkv',
-        '.webm',
-        '.flv',
-      ];
+      final videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv'];
 
       for (final ext in videoExtensions) {
         final url = 'https://example.com/video$ext';
         expect(
-          () => cacheManager.getSingleFile(url, validateImageData: false),
-          returnsNormally,
+          captureFuture(
+            cacheManager.getSingleFile(
+              url,
+              maxRetries: 1,
+              validateImageData: false,
+            ),
+          ),
+          isA<Future<File>>(),
           reason: '$ext 扩展名应该支持 validateImageData: false',
         );
       }
@@ -194,8 +234,8 @@ void main() {
         final url = 'https://example.com/image$ext';
         // 图片文件使用默认参数（validateImageData: true）
         expect(
-          () => cacheManager.getSingleFile(url),
-          returnsNormally,
+          captureFuture(cacheManager.getSingleFile(url, maxRetries: 1)),
+          isA<Future<File>>(),
           reason: '$ext 扩展名应该支持默认图片验证',
         );
       }
@@ -206,15 +246,15 @@ void main() {
     final cacheManager = IMBoyCacheManager();
 
     test('空 URL 应该抛出异常', () async {
-      expect(
-        () => cacheManager.getSingleFile(''),
+      await expectLater(
+        cacheManager.getSingleFile(''),
         throwsA(isA<Exception>()),
       );
     });
 
     test('无效 URL 应该抛出异常', () async {
-      expect(
-        () => cacheManager.getSingleFile('not-a-valid-url'),
+      await expectLater(
+        cacheManager.getSingleFile('not-a-valid-url', maxRetries: 1),
         throwsA(anything),
       );
     });

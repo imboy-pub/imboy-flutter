@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 
 void main() {

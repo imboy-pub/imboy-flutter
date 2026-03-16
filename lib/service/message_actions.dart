@@ -18,6 +18,9 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+// Legacy compatibility surface. External callers should now import
+// `package:imboy/modules/messaging/public.dart`; this file remains the action
+// implementation behind the messaging facade until internal migration ends.
 /// Temporary compatibility wrapper for the messaging module shell.
 /// New callers should prefer `package:imboy/modules/messaging/public.dart`.
 ///
