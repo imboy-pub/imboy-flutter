@@ -291,7 +291,7 @@ cases:
     scenario_file: "test_automation/scenarios/cases/07_tag_system/tag_02_contact_tag_relation_ui.yaml"
     precondition: "flutter_test_env"
     action: "flutter_test"
-    test_file: "test/pending/tag/contact_tag_relation_ui_test.dart"
+    test_file: "test/integration/tag/contact_tag_relation_ui_test.dart"
     device: "macos"
     assertions: "exit_code==0,contact_tag_relation_ui_passed"
     timeout_seconds: 600
@@ -303,7 +303,7 @@ cases:
     scenario_file: "test_automation/scenarios/cases/07_tag_system/tag_03_group_tag_manage_ui.yaml"
     precondition: "flutter_test_env"
     action: "flutter_test"
-    test_file: "test/pending/tag/group_tag_manage_ui_test.dart"
+    test_file: "test/integration/tag/group_tag_manage_ui_test.dart"
     device: "macos"
     assertions: "exit_code==0,group_tag_manage_ui_passed"
     timeout_seconds: 600
@@ -339,7 +339,7 @@ cases:
     scenario_file: "test_automation/scenarios/cases/08_favorite_system/collect_03_collect_ui_flow.yaml"
     precondition: "flutter_test_env"
     action: "flutter_test"
-    test_file: "test/pending/collect/collect_ui_flow_test.dart"
+    test_file: "test/integration/collect/collect_ui_flow_test.dart"
     device: "macos"
     assertions: "exit_code==0,collect_ui_flow_passed"
     timeout_seconds: 600
@@ -423,7 +423,7 @@ cases:
     scenario_file: "test_automation/scenarios/cases/10_moment/moment_03_feed_ui_flow.yaml"
     precondition: "flutter_test_env"
     action: "flutter_test"
-    test_file: "test/pending/moment/moment_feed_ui_flow_test.dart"
+    test_file: "test/integration/moment/moment_feed_ui_flow_test.dart"
     device: "macos"
     assertions: "exit_code==0,moment_feed_ui_flow_passed"
     timeout_seconds: 900
@@ -435,7 +435,7 @@ cases:
     scenario_file: "test_automation/scenarios/cases/10_moment/moment_04_publish_ui_flow.yaml"
     precondition: "flutter_test_env"
     action: "flutter_test"
-    test_file: "test/pending/moment/moment_publish_ui_flow_test.dart"
+    test_file: "test/integration/moment/moment_publish_ui_flow_test.dart"
     device: "macos"
     assertions: "exit_code==0,moment_publish_ui_flow_passed"
     timeout_seconds: 900
