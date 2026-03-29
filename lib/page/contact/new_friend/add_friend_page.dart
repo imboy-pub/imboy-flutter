@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/page/group/face_to_face/face_to_face_page.dart';
+import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_page.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
@@ -336,10 +336,7 @@ class AddFriendPage extends ConsumerWidget {
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image(
-              image: cachedImageProvider(
-                model.avatar ?? '',
-                w: 56,
-              ),
+              image: cachedImageProvider(model.avatar ?? '', w: 56),
               width: 56,
               height: 56,
               fit: BoxFit.cover,

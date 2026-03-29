@@ -20,7 +20,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/config/init.dart' show AppInitializer, navigateToSignIn;
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/events/base_event.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1617,29 +1616,5 @@ class MessageService with EventSubscriptionManager {
       default:
         iPrint('⚠️ [未知消息类型] messageType=$messageType');
     }
-  }
-}
-
-/// E2EE密钥不匹配事件
-///
-/// 当接收端无法解密消息（设备密钥不匹配）时触发
-/// 用于引导用户重新登录或刷新密钥
-final class E2EEKeyMismatchEvent extends AppEvent {
-  @override
-  List<Object?> get props => [messageId, reason, peerId];
-
-  final String messageId;
-  final String reason;
-  final String? peerId; // 接收方 UID（用于清除发送方的公钥缓存）
-
-  const E2EEKeyMismatchEvent({
-    required this.messageId,
-    required this.reason,
-    this.peerId,
-  });
-
-  @override
-  String toString() {
-    return 'E2EEKeyMismatchEvent(messageId: $messageId, reason: $reason, peerId: $peerId)';
   }
 }

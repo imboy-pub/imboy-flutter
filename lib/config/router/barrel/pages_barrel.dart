@@ -33,48 +33,17 @@ export 'package:imboy/modules/social_graph/public.dart';
 // ============================================================================
 // 群组模块
 // ============================================================================
-export 'package:imboy/page/group/group_list/group_list_page.dart';
-export 'package:imboy/page/group/group_detail/group_detail_page.dart';
-export 'package:imboy/page/group/group_detail/add_member_page.dart';
-export 'package:imboy/page/group/group_detail/remove_member_page.dart';
-export 'package:imboy/page/group/group_member/group_member_page.dart';
-export 'package:imboy/page/group/announcement/group_announcement_page.dart';
-export 'package:imboy/page/group/launch_chat/launch_chat_page.dart';
-export 'package:imboy/page/group/group_select/group_select_page.dart';
-export 'package:imboy/page/group/face_to_face/face_to_face_page.dart';
-export 'package:imboy/page/group/face_to_face/face_to_face_confirm_page.dart';
-// 群功能增强
-export 'package:imboy/page/group/category/group_category_page.dart';
-export 'package:imboy/page/group/tag/group_tag_page.dart';
-export 'package:imboy/page/group/vote/group_vote_page.dart';
-export 'package:imboy/page/group/vote/group_vote_detail_page.dart';
-export 'package:imboy/page/group/schedule/group_schedule_page.dart';
-export 'package:imboy/page/group/schedule/group_schedule_detail_page.dart';
-export 'package:imboy/page/group/task/group_task_page.dart';
-export 'package:imboy/page/group/task/group_task_detail_page.dart';
-export 'package:imboy/page/group/file/group_file_page.dart';
-export 'package:imboy/page/group/album/group_album_page.dart';
-export 'package:imboy/page/group/album/group_album_photo_page.dart';
-export 'package:imboy/page/group/album/group_album_photo_detail_page.dart';
+export 'package:imboy/modules/group_collab/public.dart';
 
 // ============================================================================
 // 朋友圈模块
 // ============================================================================
-export 'package:imboy/page/moment/moment_feed_page.dart';
-export 'package:imboy/page/moment/moment_create_page.dart';
-export 'package:imboy/page/moment/moment_detail_page.dart';
+export 'package:imboy/modules/moment_social/public.dart';
 
 // ============================================================================
 // 频道模块
 // ============================================================================
-export 'package:imboy/page/channel/channel_list_page.dart';
-export 'package:imboy/page/channel/channel_detail_page.dart';
-export 'package:imboy/page/channel/channel_discover_page.dart';
-export 'package:imboy/page/channel/channel_create_page.dart';
-export 'package:imboy/page/channel/channel_edit_page.dart';
-export 'package:imboy/page/channel/channel_admin_page.dart';
-export 'package:imboy/page/channel/channel_subscriber_page.dart';
-export 'package:imboy/page/channel/channel_invitation_page.dart';
+export 'package:imboy/modules/channel_content/public.dart';
 
 // ============================================================================
 // 个人中心模块
@@ -87,8 +56,7 @@ export 'package:imboy/page/mine/change_password/set_password_page.dart';
 export 'package:imboy/page/mine/denylist/denylist_page.dart';
 export 'package:imboy/page/mine/storage_space/storage_space_page.dart';
 export 'package:imboy/page/mine/user_device/user_device_page.dart';
-export 'package:imboy/page/mine/feedback/feedback_page.dart';
-export 'package:imboy/page/mine/feedback/feedback_detail_page.dart';
+export 'package:imboy/modules/ops_governance/public.dart';
 export 'package:imboy/page/mine/select_region/select_region_page.dart';
 export 'package:imboy/page/mine/language/language_page.dart';
 export 'package:imboy/page/mine/dark_model/dark_model_page.dart';
@@ -127,5 +95,4 @@ export 'package:imboy/page/scanner/scanner_result_page.dart';
 export 'package:imboy/page/qrcode/qrcode_page.dart';
 export 'package:imboy/page/single/markdown.dart';
 export 'package:imboy/page/single/video_viewer.dart';
-export 'package:imboy/page/single/upgrade.dart';
 export 'package:imboy/page/single/network_failure_guidance.dart';

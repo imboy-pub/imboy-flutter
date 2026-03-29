@@ -24,7 +24,7 @@ PODS:
     - FlutterMacOS
   - flutter_webrtc (1.2.0):
     - FlutterMacOS
-    - WebRTC-SDK (= 137.7151.04)
+    - WebRTC-SDK (= 137.7151.12)
   - FlutterMacOS (1.0.0)
   - geolocator_apple (1.2.0):
     - Flutter
@@ -48,7 +48,7 @@ PODS:
     - PhoneNumberKit/PhoneNumberKitCore (= 3.8.0)
     - PhoneNumberKit/UIKit (= 3.8.0)
   - PhoneNumberKit/PhoneNumberKitCore (3.8.0)
-  - photo_manager (3.8.3):
+  - photo_manager (3.9.0):
     - Flutter
     - FlutterMacOS
   - share_plus (0.0.1):
@@ -68,7 +68,7 @@ PODS:
     - FlutterMacOS
   - wakelock_plus (0.0.1):
     - FlutterMacOS
-  - WebRTC-SDK (137.7151.04)
+  - WebRTC-SDK (137.7151.12)
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -103,12 +103,12 @@ DEPENDENCIES:
   - video_compress (from `Flutter/ephemeral/.symlinks/plugins/video_compress/macos`)
   - video_player_avfoundation (from `Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin`)
   - wakelock_plus (from `Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos`)
+  - WebRTC-SDK (from `./Pods/WebRTC-SDK`)
   - webview_flutter_wkwebview (from `Flutter/ephemeral/.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
     - PhoneNumberKit
-    - WebRTC-SDK
 
 EXTERNAL SOURCES:
   audio_session:
@@ -167,6 +167,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin
   wakelock_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos
+  WebRTC-SDK:
+    :path: "./Pods/WebRTC-SDK"
   webview_flutter_wkwebview:
     :path: Flutter/ephemeral/.symlinks/plugins/webview_flutter_wkwebview/darwin
 
@@ -182,7 +184,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
   flutter_sound: fbd52f5161931ee0ffb3c6be0bcd423d491323b7
-  flutter_webrtc: 718eae22a371cd94e5d56aa4f301443ebc5bb737
+  flutter_webrtc: 7cda18a9cd917db2f8bfcde8011804f6018a12df
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   ic_storage_space: e207731aed98a6126d5712cc63c4bcc6e04d6d1d
@@ -192,7 +194,7 @@ SPEC CHECKSUMS:
   open_file_mac: 76f06c8597551249bdb5e8fd8827a98eae0f4585
   package_info_plus: f0052d280d17aa382b932f399edf32507174e870
   PhoneNumberKit: ec00ab8cef5342c1dc49fadb99d23fa7e66cf0ef
-  photo_manager: fe4cbb0808b96f8be4af7ce6ae18dcd9c9b983c6
+  photo_manager: 25fd77df14f4f0ba5ef99e2c61814dde77e2bceb
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
@@ -200,9 +202,9 @@ SPEC CHECKSUMS:
   video_compress: 752b161da855df2492dd1a8fa899743cc8fe9534
   video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
   wakelock_plus: 917609be14d812ddd9e9528876538b2263aaa03b
-  WebRTC-SDK: 40d4f5ba05cadff14e4db5614aec402a633f007e
+  WebRTC-SDK: ef2d3ddbb7035810bdc789f560dedf89ba4984d0
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 330caf7d6ee80ee060575e9b2d328dc144f0c356
+PODFILE CHECKSUM: 7545dd8f31d67eedcad4ab0d19d97b9abfe4571e
 
 COCOAPODS: 1.16.2

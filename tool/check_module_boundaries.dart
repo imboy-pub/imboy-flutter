@@ -1,6 +1,34 @@
 import 'dart:io';
 
 final _directivePattern = RegExp(r'''^\s*(import|export)\s+['"]([^'"]+)['"]''');
+const _legacyDomainRoots = <String, List<String>>{
+  'identity': ['lib/page/passport/'],
+  'social_graph': [
+    'lib/page/contact/',
+    'lib/page/mention/',
+    'lib/page/mine/user_collect/',
+    'lib/service/mention_service.dart',
+  ],
+  'group_collab': [
+    'lib/page/group/',
+    'lib/service/group_schedule_service.dart',
+    'lib/service/group_task_service.dart',
+    'lib/service/group_vote_service.dart',
+  ],
+  'channel_content': ['lib/page/channel/', 'lib/service/channel_service.dart'],
+  'moment_social': ['lib/page/moment/'],
+  'security_privacy': [
+    'lib/page/settings/e2ee_',
+    'lib/service/e2ee/',
+    'lib/service/e2ee_',
+  ],
+  'ops_governance': [
+    'lib/page/mine/feedback/',
+    'lib/page/single/upgrade.dart',
+    'lib/service/notification.dart',
+    'lib/service/notification_provider.dart',
+  ],
+};
 
 void main() {
   final repoRoot = Directory.current.absolute;
@@ -12,12 +40,17 @@ void main() {
       continue;
     }
 
-    for (final entity in directory.listSync(recursive: true, followLinks: false)) {
+    for (final entity in directory.listSync(
+      recursive: true,
+      followLinks: false,
+    )) {
       if (entity is! File || !entity.path.endsWith('.dart')) {
         continue;
       }
 
-      final importerRel = _normalizeRepoPath(_relativePath(repoRoot.path, entity.path));
+      final importerRel = _normalizeRepoPath(
+        _relativePath(repoRoot.path, entity.path),
+      );
       final importerDomain = _moduleDomain(importerRel);
       final lines = entity.readAsLinesSync();
 
@@ -38,8 +71,10 @@ void main() {
           continue;
         }
 
-        final isSameDomainInternal = importerDomain != null && importerDomain == targetDomain;
-        final isPublicEntry = targetRel == 'lib/modules/$targetDomain/public.dart';
+        final isSameDomainInternal =
+            importerDomain != null && importerDomain == targetDomain;
+        final isPublicEntry =
+            targetRel == 'lib/modules/$targetDomain/public.dart';
 
         if (isSameDomainInternal || isPublicEntry) {
           continue;
@@ -67,7 +102,11 @@ void main() {
   exitCode = 1;
 }
 
-String? _resolveModuleTarget(Directory repoRoot, String importerRel, String uri) {
+String? _resolveModuleTarget(
+  Directory repoRoot,
+  String importerRel,
+  String uri,
+) {
   if (uri.startsWith('package:imboy/modules/')) {
     return _normalizeRepoPath('lib/${uri.substring('package:imboy/'.length)}');
   }
@@ -93,8 +132,16 @@ String? _resolveModuleTarget(Directory repoRoot, String importerRel, String uri)
 }
 
 String? _moduleDomain(String repoRel) {
-  final parts = _normalizeRepoPath(repoRel).split('/');
+  final normalized = _normalizeRepoPath(repoRel);
+  final parts = normalized.split('/');
   if (parts.length < 4 || parts[0] != 'lib' || parts[1] != 'modules') {
+    for (final entry in _legacyDomainRoots.entries) {
+      for (final root in entry.value) {
+        if (normalized.startsWith(root)) {
+          return entry.key;
+        }
+      }
+    }
     return null;
   }
   return parts[2];

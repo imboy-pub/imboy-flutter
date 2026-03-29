@@ -37,3 +37,6 @@
 ## Migration Note
 
 Existing `service/` and `page/` files may remain as compatibility wrappers during migration, but new imports should converge on module public entries rather than reaching into module internals.
+The boundary gate treats the documented same-domain legacy roots, such as `lib/page/moment/` and `lib/page/group/`, as internal to their module while physical moves are still in progress.
+
+Current status: upper-layer messaging callers now consume `lib/modules/messaging/public.dart` and `MessagingFacade`; route and page-barrel entry points for `moment_social` and `group_collab` now also converge on module public entries while their legacy page trees remain the implementation roots behind those entries.

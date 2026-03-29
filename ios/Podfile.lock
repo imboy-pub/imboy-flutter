@@ -72,7 +72,7 @@ PODS:
   - flutter_sound_core (9.30.0)
   - flutter_webrtc (1.2.0):
     - Flutter
-    - WebRTC-SDK (= 137.7151.04)
+    - WebRTC-SDK (= 137.7151.12)
   - geolocator_apple (1.2.0):
     - Flutter
     - FlutterMacOS
@@ -116,7 +116,7 @@ PODS:
   - PhoneNumberKit/PhoneNumberKitCore (3.8.0)
   - PhoneNumberKit/UIKit (3.8.0):
     - PhoneNumberKit/PhoneNumberKitCore
-  - photo_manager (3.8.3):
+  - photo_manager (3.9.0):
     - Flutter
     - FlutterMacOS
   - r_upgrade (0.0.1):
@@ -144,7 +144,7 @@ PODS:
     - FlutterMacOS
   - wakelock_plus (0.0.1):
     - Flutter
-  - WebRTC-SDK (137.7151.04)
+  - WebRTC-SDK (137.7151.12)
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -315,7 +315,7 @@ SPEC CHECKSUMS:
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
   flutter_sound: d95194f6476c9ad211d22b3a414d852c12c7ca44
   flutter_sound_core: 7f2626d249d3a57bfa6da892ef7e22d234482c1a
-  flutter_webrtc: c3e21fc0dcd9d8eb246ae4d5256fcbeb2f5ecd22
+  flutter_webrtc: 7de9a15705f7deede4413924a2f1409d39796ab5
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   image_crop: d83cf4373d8a94b985477cb57af0a050274a9c8c
@@ -333,7 +333,7 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PhoneNumberKit: ec00ab8cef5342c1dc49fadb99d23fa7e66cf0ef
-  photo_manager: fe4cbb0808b96f8be4af7ce6ae18dcd9c9b983c6
+  photo_manager: 25fd77df14f4f0ba5ef99e2c61814dde77e2bceb
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
   SDWebImage: 1bb6a1b84b6fe87b972a102bdc77dd589df33477
   sensors_plus: 6a11ed0c2e1d0bd0b20b4029d3bad27d96e0c65b
@@ -345,9 +345,9 @@ SPEC CHECKSUMS:
   video_compress: f2133a07762889d67f0711ac831faa26f956980e
   video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
-  WebRTC-SDK: 40d4f5ba05cadff14e4db5614aec402a633f007e
+  WebRTC-SDK: 1762e2de812354d27a8407d1b2c532064ec39fce
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 5e0c0dbdbc5c6be459f8664d71d6b3399d5afe14
+PODFILE CHECKSUM: b7246fae0babbf3133ecd7953cf5724e8a483dae
 
 COCOAPODS: 1.16.2

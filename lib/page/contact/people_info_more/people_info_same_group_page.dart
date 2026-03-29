@@ -10,7 +10,7 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/page/group/group_list/group_list_service.dart';
+import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 

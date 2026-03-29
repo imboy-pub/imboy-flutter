@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/moment_social/public.dart';
+import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';

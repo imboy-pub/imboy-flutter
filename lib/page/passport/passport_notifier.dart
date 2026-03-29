@@ -573,7 +573,7 @@ class PassportNotifier extends _$PassportNotifier {
       debugPrint('✅ 设备信息获取完成: did=${dinfo!["did"]}');
 
       debugPrint('🔐 步骤3: 获取RSA公钥');
-      final publicKey = await RSAService.publicKey();
+      final publicKey = await _getLoginPublicKey();
       debugPrint('✅ RSA公钥获取完成');
 
       // 添加日志查看 data['password'] 的值
@@ -660,7 +660,7 @@ class PassportNotifier extends _$PassportNotifier {
         "code": code,
         "did": dinfo!["did"],
         "cos": dinfo["cos"],
-        "public_key": await RSAService.publicKey(),
+        "public_key": await _getLoginPublicKey(),
       };
       if (UserRepoLocal.to.lastLoginAccount != account) {
         postData["dname"] = dinfo["deviceName"];
@@ -695,6 +695,21 @@ class PassportNotifier extends _$PassportNotifier {
     } on PlatformException {
       safeUpdateState((state) => state.copyWith(error: '网络故障，请稍后重试'));
       return 0;
+    }
+  }
+
+  /// 登录阶段的设备公钥仅用于补充设备信息，Keychain 异常时不阻断认证。
+  Future<String> _getLoginPublicKey() async {
+    try {
+      return await RSAService.publicKey();
+    } on PlatformException catch (e, stackTrace) {
+      debugPrint('⚠️ 登录设备公钥获取失败，降级为空继续登录: $e');
+      debugPrint('堆栈: $stackTrace');
+      return '';
+    } catch (e, stackTrace) {
+      debugPrint('⚠️ 登录设备公钥获取失败，降级为空继续登录: $e');
+      debugPrint('堆栈: $stackTrace');
+      return '';
     }
   }
 

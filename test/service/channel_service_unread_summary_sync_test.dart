@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/api/channel_api.dart';

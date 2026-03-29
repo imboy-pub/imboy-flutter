@@ -1,6 +1,29 @@
 // Stable module entry for group_collab flows.
-// Keep legacy services in place and import this file from upper layers.
+// Keep legacy pages/services in place and import this file from upper layers.
+export '../../page/group/group_list/group_list_page.dart';
+export '../../page/group/group_list/group_list_service.dart';
+export '../../page/group/group_detail/group_detail_page.dart';
 export '../../page/group/group_detail/group_detail_service.dart';
+export '../../page/group/group_detail/add_member_page.dart';
+export '../../page/group/group_detail/remove_member_page.dart';
+export '../../page/group/group_member/group_member_page.dart';
+export '../../page/group/announcement/group_announcement_page.dart';
+export '../../page/group/launch_chat/launch_chat_page.dart';
+export '../../page/group/group_select/group_select_page.dart';
+export '../../page/group/face_to_face/face_to_face_page.dart';
+export '../../page/group/face_to_face/face_to_face_confirm_page.dart';
+export '../../page/group/category/group_category_page.dart';
+export '../../page/group/tag/group_tag_page.dart';
+export '../../page/group/vote/group_vote_page.dart';
+export '../../page/group/vote/group_vote_detail_page.dart';
+export '../../page/group/schedule/group_schedule_page.dart';
+export '../../page/group/schedule/group_schedule_detail_page.dart';
+export '../../page/group/task/group_task_page.dart';
+export '../../page/group/task/group_task_detail_page.dart';
+export '../../page/group/file/group_file_page.dart';
+export '../../page/group/album/group_album_page.dart';
+export '../../page/group/album/group_album_photo_page.dart';
+export '../../page/group/album/group_album_photo_detail_page.dart';
 export '../../service/group_schedule_service.dart';
 export '../../service/group_task_service.dart';
 export '../../service/group_vote_service.dart';

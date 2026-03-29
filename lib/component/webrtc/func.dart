@@ -71,7 +71,7 @@ Future<void> incomingCallScreen(
       webRTCSessions[sid] ?? WebRTCSession(peerId: peer.peerId, sid: sid);
   option['msgId'] = msgId;
 
-  await MessageService.to.addLocalMsg(
+  await MessagingFacade.instance.addLocalMsg(
     media: option['media'],
     caller: false,
     msgId: msgId,
@@ -79,7 +79,7 @@ Future<void> incomingCallScreen(
   );
 
   gTimer = Timer(const Duration(seconds: 60), () {
-    MessageService.to.changeLocalMsgState(msgId, 5);
+    MessagingFacade.instance.changeLocalMsgState(msgId, 5);
     // Check if dialog is still open and close it
     if (navigatorKey.currentState?.overlay != null) {
       navigatorKey.currentState?.pop();
@@ -169,7 +169,7 @@ Future<void> incomingCallScreen(
                 // TODO(ChatLogic迁移): 标记消息已读
                 // 依赖 ChatLogic 的 markAsRead 方法
                 // 当前仅更新本地消息状态，未同步到服务端
-                MessageService.to.changeLocalMsgState(msgId, 5);
+                MessagingFacade.instance.changeLocalMsgState(msgId, 5);
                 gTimer?.cancel();
                 gTimer = null;
                 await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);

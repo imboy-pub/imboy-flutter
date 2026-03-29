@@ -10,14 +10,14 @@ import 'package:imboy/service/storage.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('MessageService network monitoring', () {
+  group('MessagingFacade network monitoring', () {
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
       await StorageService.init();
     });
 
     test('fires retry request when websocket becomes connected', () async {
-      final service = MessageService.instance;
+      final facade = MessagingFacade.instance;
 
       String? source;
       String? reason;
@@ -31,13 +31,13 @@ void main() {
         }
       });
 
-      // ensure microtask-based subscription in MessageService._init is ready
+      // ensure microtask-based subscription in the legacy messaging service is ready
       await Future<void>.delayed(const Duration(milliseconds: 30));
 
       AppEventBus.fire(const WebSocketStatusChangedEvent(status: 'connected'));
 
       await completer.future.timeout(const Duration(seconds: 2));
-      expect(service.isOnline, isTrue);
+      expect(facade.isOnline, isTrue);
       expect(source, 'WebSocketConnected');
       expect(reason, 'WebSocket 连接恢复');
 

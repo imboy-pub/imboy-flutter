@@ -221,7 +221,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
 
     // 发起或接听通话
     if (widget.caller) {
-      await MessageService.to.addLocalMsg(
+      await MessagingFacade.instance.addLocalMsg(
         media: media,
         caller: widget.caller,
         msgId: msgId,
@@ -251,7 +251,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
     final size = MediaQuery.of(context).size;
     notifier.stopAnswerTimer();
     notifier.updateConnected(true, width: size.width);
-    MessageService.to.changeLocalMsgState(
+    MessagingFacade.instance.changeLocalMsgState(
       msgId,
       CallStateCode.connected,
       startAt: DateTimeHelper.millisecond(),
@@ -483,7 +483,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
       notifier.sendBye(msgId);
     }
     if (callState > 0) {
-      MessageService.to.changeLocalMsgState(
+      MessagingFacade.instance.changeLocalMsgState(
         msgId,
         callState,
         endAt: endAt > 0 ? endAt : DateTimeHelper.millisecond(),

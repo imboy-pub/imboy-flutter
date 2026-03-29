@@ -9,6 +9,8 @@ import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
+import 'package:imboy/modules/channel_content/public.dart';
+import 'package:imboy/modules/ops_governance/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -18,8 +20,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
-import 'package:imboy/page/single/upgrade.dart';
-import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/api/user_api.dart';
 
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -29,7 +29,6 @@ import 'package:imboy/config/routes.dart';
 
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
-import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）

@@ -6,7 +6,6 @@ import 'package:imboy/component/helper/func.dart'; // 引入 cachedImageProvider
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/moment_social/public.dart';
 import 'package:imboy/service/assets.dart'; // 引入 AssetsService
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -16,6 +15,8 @@ import 'package:octo_image/octo_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 
 class MomentFeedPage extends StatefulWidget {
   const MomentFeedPage({super.key, this.facade});

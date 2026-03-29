@@ -27,7 +27,6 @@ import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/page/group/group_list/group_list_service.dart';
 
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message_retry.dart';
@@ -37,6 +36,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -546,8 +546,7 @@ class AppInitializer {
     // 使用lazyPut注册消息相关服务，避免循环依赖问题
     // 注册顺序很重要，被依赖的模块必须先注册
     // AckManager 使用单例模式，通过 AckManager.to 访问，无需手动注册
-    serviceContainer.lazyPut<MessageService>(() => MessageService.instance);
-    serviceContainer.lazyPut<MessageActions>(() => MessageActions.instance);
+    serviceContainer.lazyPut<MessagingFacade>(() => MessagingFacade.instance);
     serviceContainer.lazyPut<MessageWebrtc>(() => MessageWebrtc.instance);
     serviceContainer.lazyPut<MessageOfflineService>(
       () => MessageOfflineService.instance,

@@ -32,6 +32,26 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+def apply_jverify_header_fix
+  plugin_file = File.expand_path(File.join('..', 'plugin', 'jverify', 'ios', 'Classes', 'JverifyPlugin.m'), __dir__)
+  return unless File.exist?(plugin_file)
+
+  old_import = '#import <JCore/JGInforCollectionAuth.h>'
+  new_import = <<~'OBJC'.strip
+    #if __has_include("JGInforCollectionAuth.h")
+    #import "JGInforCollectionAuth.h"
+    #elif __has_include(<JCore/JGInforCollectionAuth.h>)
+    #import <JCore/JGInforCollectionAuth.h>
+    #endif
+  OBJC
+
+  contents = File.read(plugin_file)
+  return if contents.include?(new_import)
+  return unless contents.include?(old_import)
+
+  File.write(plugin_file, contents.sub(old_import, new_import))
+end
+
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
@@ -96,6 +116,8 @@ post_install do |installer|
       ]
      end
   end
+
+  apply_jverify_header_fix
 end
 
 

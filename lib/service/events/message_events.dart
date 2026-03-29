@@ -178,6 +178,30 @@ enum MessageFailureReason {
   other,
 }
 
+/// E2EE密钥不匹配事件
+///
+/// 当接收端无法解密消息（设备密钥不匹配）时触发，
+/// 用于引导用户重新登录或刷新密钥。
+final class E2EEKeyMismatchEvent extends AppEvent {
+  @override
+  List<Object?> get props => [messageId, reason, peerId];
+
+  final String messageId;
+  final String reason;
+  final String? peerId;
+
+  const E2EEKeyMismatchEvent({
+    required this.messageId,
+    required this.reason,
+    this.peerId,
+  });
+
+  @override
+  String toString() {
+    return 'E2EEKeyMismatchEvent(messageId: $messageId, reason: $reason, peerId: $peerId)';
+  }
+}
+
 /// 消息状态变更事件
 ///
 /// 当消息状态发生变化时触发（如：发送中 → 已发送 → 已送达 → 已读）

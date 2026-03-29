@@ -75,6 +75,14 @@ Future<Map<String, dynamic>> defaultHeaders() async {
 class HttpClient {
   static HttpClient get client => serviceContainer.get<HttpClient>();
   static VoidCallback? onAuthExpired;
+  static const Set<String> _publicEndpoints = <String>{
+    API.initConfig,
+    API.login,
+    API.signup,
+    API.getCode,
+    API.quickLogin,
+    API.findPassword,
+  };
   late Dio _dio;
 
   HttpClient({BaseOptions? options, HttpConfig? conf}) {
@@ -166,9 +174,26 @@ class HttpClient {
     navigateToSignIn(source: 'http_client_auth_expired');
   }
 
-  Future<void> _setDefaultConfig() async {
+  bool _shouldSkipAuthForUri(String uri) {
+    final parsed = Uri.tryParse(uri);
+    final path = parsed?.path;
+    final normalized = (path != null && path.isNotEmpty) ? path : uri;
+    return _publicEndpoints.contains(normalized);
+  }
+
+  Future<void> _setDefaultConfig(String uri) async {
     if (_dio.options.baseUrl == "") {
       _dio.options.baseUrl = Env().apiBaseUrl;
+    }
+
+    if (_shouldSkipAuthForUri(uri)) {
+      _dio.options.headers.remove(Keys.tokenKey);
+      _dio.options.headers.remove(Keys.refreshTokenKey);
+
+      final headers = await defaultHeaders();
+      debugPrint("_setDefaultConfig: skip auth bootstrap for public uri=$uri");
+      _dio.options.headers.addAll(headers);
+      return;
     }
 
     // 检查是否存在令牌解密失败标记，如果有则触发重新登录
@@ -274,7 +299,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      await _setDefaultConfig();
+      await _setDefaultConfig(uri);
       // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
       if (serviceContainer.isRegistered<NetworkMonitorService>() &&
           !NetworkMonitorService.to.hasNetwork) {
@@ -327,7 +352,7 @@ class HttpClient {
     }
     try {
       debugPrint("http_post $uri");
-      await _setDefaultConfig();
+      await _setDefaultConfig(uri);
       var response = await _dio.post(
         uri,
         data: data,
@@ -366,7 +391,7 @@ class HttpClient {
       return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
-      await _setDefaultConfig();
+      await _setDefaultConfig(uri);
       var response = await _dio.delete(
         uri,
         data: data,
@@ -402,7 +427,7 @@ class HttpClient {
       return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
-      await _setDefaultConfig();
+      await _setDefaultConfig(uri);
       var response = await _dio.patch(
         uri,
         data: data,
@@ -437,7 +462,7 @@ class HttpClient {
       return handleException(uri, NetworkException(message: t.tipConnectDesc));
     }
     try {
-      await _setDefaultConfig();
+      await _setDefaultConfig(uri);
       var response = await _dio.put(
         uri,
         data: data,
@@ -468,7 +493,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      await _setDefaultConfig();
+      await _setDefaultConfig(urlPath);
       var response = await _dio.download(
         urlPath,
         savePath,
