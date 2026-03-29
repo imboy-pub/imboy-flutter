@@ -1,7 +1,8 @@
 # IMBoy Flutter Module Map
 
-> Date: 2026-03-15
+> Date: 2026-03-29
 > Scope: client-side feature module boundaries, public entry rules, and plugin extension points
+> Status: All domain modules have stable public.dart entries. dart analyze clean.
 
 ## Module Layout
 
