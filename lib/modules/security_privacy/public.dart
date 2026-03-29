@@ -3,9 +3,6 @@
 /// import this file from upper layers.
 library;
 
-export '../../page/settings/e2ee_backup_export_page.dart';
-export '../../page/settings/e2ee_backup_import_page.dart';
-export '../../page/settings/e2ee_backup_manage_page.dart';
 export '../../page/settings/e2ee_dev_test_page.dart';
 export '../../page/settings/e2ee_key_recovery_page.dart';
 export '../../page/settings/e2ee_proxy_selector_page.dart';
