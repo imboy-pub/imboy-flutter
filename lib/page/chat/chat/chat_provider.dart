@@ -132,6 +132,7 @@ class ChatNotifier extends _$ChatNotifier {
   final Map<String, Timer> _burnPurgeTimers = {};
 
   // Constants
+  static const int _maxBurnTimers = 500;
   static const int _burnLastMessageScanLimit = 40;
   static const int _deletedMessageRetentionMs = 24 * 60 * 60 * 1000;
 
@@ -991,6 +992,61 @@ class ChatNotifier extends _$ChatNotifier {
 
     iPrint('Chat.sendMessage已提交: ${msg['id']}');
     return true;
+  }
+
+  /// E2EE 加密结果
+  /// 返回加密后的 {e2ee, payload}，或 null 表示不需要加密
+  /// 失败时抛出异常，调用方负责处理
+  Future<Map<String, dynamic>?> _encryptPayload({
+    required String chatType,
+    required String toId,
+    required Map<String, dynamic> plaintextMap,
+    required String action,
+    List<String> removeKeys = const [],
+  }) async {
+    final needEncrypt =
+        action.isEmpty &&
+        E2EEService.shouldEncryptOutgoingPayload(chatType);
+    if (!needEncrypt) return null;
+
+    // 1. 获取接收方设备公钥
+    final deviceKeys = await (chatType == 'C2G'
+        ? E2EEService.getGroupDevicePublicKeys(toId)
+        : E2EEService.getUserDevicePublicKeys(toId));
+    final didToPem = deviceKeys['didToPem'] ?? {};
+    if (didToPem.isEmpty) {
+      throw Exception('no_recipient_keys');
+    }
+
+    // 2. 构造接收方设备列表
+    final recipients = <RecipientDevice>[];
+    for (final entry in didToPem.entries) {
+      recipients.add(
+        RecipientDevice(
+          deviceId: entry.key,
+          keyId: entry.key,
+          publicKey: entry.value,
+        ),
+      );
+    }
+
+    // 3. 构造明文
+    final plaintextPayload = Map<String, dynamic>.from(plaintextMap);
+    for (final key in removeKeys) {
+      plaintextPayload.remove(key);
+    }
+    final plaintext = jsonEncode(plaintextPayload);
+
+    // 4. 加密
+    final result = await E2EEService.buildE2EEData(
+      plaintext: plaintext,
+      recipients: recipients,
+    );
+
+    return {
+      'e2ee': result['e2ee'] as Map<String, dynamic>,
+      'payload': result['ciphertext'] as String,
+    };
   }
 
   /// 生成E2EE加密失败的用户友好错误消息
@@ -2232,6 +2288,11 @@ class ChatNotifier extends _$ChatNotifier {
     if (delayMs <= 0) {
       await _deleteBurnMessage(conversation, messageId);
       return;
+    }
+    // 防止内存泄漏： 超过上限时移除最早的定时器
+    if (_burnDeleteTimers.length >= _maxBurnTimers) {
+      final oldestKey = _burnDeleteTimers.keys.first;
+      _burnDeleteTimers.remove(oldestKey)?.cancel();
     }
     _burnDeleteTimers[messageId] = Timer(
       Duration(milliseconds: delayMs),
