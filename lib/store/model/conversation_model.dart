@@ -1,5 +1,6 @@
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -39,6 +40,15 @@ class ConversationModel {
 
   // 如果 title 为空，零时计算title
   String computeTitle = '';
+
+  bool get isPinned {
+    final authoritative =
+        parseModelJsonMap(payload?['authoritative']) ?? <String, dynamic>{};
+    if (authoritative.containsKey('is_pinned')) {
+      return parseModelBool(authoritative['is_pinned']);
+    }
+    return parseModelBool(payload?['is_pinned']);
+  }
 
   ConversationModel({
     required this.id,
@@ -108,31 +118,31 @@ class ConversationModel {
     iPrint(
       "conversation_model_msgType $msgType, title $title, subtitle $subtitle,",
     );
-    if (msgType == 'custom') {}
+    if (msgType == MessageType.custom) {}
     // 普通消息类型
-    if (msgType == 'text' || msgType == '') {
+    if (msgType == MessageType.text || msgType == '') {
       return subtitle;
-    } else if (msgType == 'quote') {
+    } else if (msgType == MessageType.quote) {
       return subtitle;
-    } else if (msgType == 'image') {
+    } else if (msgType == MessageType.image) {
       str = t.image;
-    } else if (msgType == 'file') {
+    } else if (msgType == MessageType.file) {
       str = t.file;
-    } else if (msgType == 'voice') {
+    } else if (msgType == MessageType.voice) {
       str = t.voiceMessage;
-    } else if (msgType == 'video') {
+    } else if (msgType == MessageType.video) {
       str = t.video;
-    } else if (msgType == 'webrtcAudio') {
+    } else if (msgType == MessageType.webrtcAudio) {
       str = t.voiceCall;
-    } else if (msgType == 'webrtcVideo') {
+    } else if (msgType == MessageType.webrtcVideo) {
       str = t.videoCall;
-    } else if (msgType == 'visitCard') {
+    } else if (msgType == MessageType.visitCard) {
       str = t.personalCard;
       return "[$str]$subtitle";
-    } else if (msgType == 'location') {
+    } else if (msgType == MessageType.location) {
       str = t.location;
       return "[$str]$subtitle";
-    } else if (msgType == 'custom') {
+    } else if (msgType == MessageType.custom) {
       str = subtitle;
     } else if (msgType == 'empty') {
       return '';
@@ -217,10 +227,13 @@ class ConversationModel {
   });
 
   ConversationModel copyWith({
+    int? id,
     String? peerId,
     String? avatar,
     String? title,
     String? subtitle,
+    String? region,
+    String? sign,
     int? lastTime,
     String? lastMsgId,
     int? lastMsgStatus,
@@ -231,10 +244,13 @@ class ConversationModel {
     Map<String, dynamic>? payload,
   }) {
     return ConversationModel.fromJson({
+      ConversationRepo.id: id ?? this.id,
       ConversationRepo.peerId: peerId ?? this.peerId,
       ConversationRepo.avatar: avatar ?? this.avatar,
       ConversationRepo.title: title ?? this.title,
       ConversationRepo.subtitle: subtitle ?? this.subtitle,
+      ConversationRepo.region: region ?? this.region,
+      ConversationRepo.sign: sign ?? this.sign,
       ConversationRepo.lastTime: lastTime ?? this.lastTime,
       ConversationRepo.lastMsgId: lastMsgId ?? this.lastMsgId,
       ConversationRepo.lastMsgStatus: lastMsgStatus ?? this.lastMsgStatus,

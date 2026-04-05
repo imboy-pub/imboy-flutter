@@ -5,7 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-
+import 'package:imboy/service/message_type_constants.dart';
 // 导入 UserCollectHelper 用于判断消息是否可收藏
 import 'package:imboy/modules/social_graph/public.dart' show UserCollectHelper;
 
@@ -36,7 +36,7 @@ mixin MessageEventHandler {
       return true;
     } else if (message is CustomMessage) {
       final msgType = message.metadata?['msg_type'] ?? '';
-      return msgType == 'video' || msgType == 'voice';
+      return msgType == MessageType.video || msgType == MessageType.voice;
     }
     return false;
   }

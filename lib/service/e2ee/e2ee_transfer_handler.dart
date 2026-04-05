@@ -11,11 +11,10 @@
 /// @since 2026-02-14
 library;
 
-import 'dart:convert';
-
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 
 /// 传输会话状态
 enum TransferSessionStatus {
@@ -226,10 +225,26 @@ class E2EETransferHandler {
       };
 
       // 4. 获取目标用户的公钥用于加密
-      // 注意：这里需要从服务器获取目标用户的公钥
-      // 暂时使用明文传输（需要后续完善）
-      final encryptedBundle = base64.encode(
-        utf8.encode(json.encode(keyBundle)),
+      final recipientKeys = await E2EEApi().userKeys(uid: toUid);
+      if (recipientKeys.isEmpty) {
+        return TransferResult.failure(
+          '无法获取目标用户的公钥，请确认对方已开启 E2EE',
+          errorCode: 'no_recipient_key',
+        );
+      }
+      final recipientPublicKeyPem =
+          recipientKeys.first['public_key'] as String?;
+      if (recipientPublicKeyPem == null || recipientPublicKeyPem.isEmpty) {
+        return TransferResult.failure(
+          '目标用户的公钥无效',
+          errorCode: 'invalid_recipient_key',
+        );
+      }
+
+      // 使用接收方公钥加密密钥包（RSA-OAEP）
+      final encryptedBundle = await E2EETransferService.encryptKeyBundle(
+        keyBundle,
+        recipientPublicKeyPem,
       );
 
       // 5. 调用服务创建传输会话

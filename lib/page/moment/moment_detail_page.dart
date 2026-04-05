@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+
+import 'moment_utils.dart';
 
 class MomentDetailPage extends StatefulWidget {
   final String momentId;
@@ -50,15 +52,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
 
   Future<void> _loadAll() async {
     if (!mounted) return;
-    setState(() {
-      _loading = true;
-    });
-    final post = await _api.getPost(widget.momentId);
-    final comments = await _api.listComments(widget.momentId, limit: 50);
+    setState(() => _loading = true);
+    final results = await Future.wait([
+      _api.getPost(widget.momentId),
+      _api.listComments(widget.momentId, limit: 50),
+    ]);
     if (!mounted) return;
     setState(() {
-      _moment = post;
-      _comments = comments.list;
+      _moment = results[0] as Map<String, dynamic>?;
+      _comments = (results[1] as dynamic).list as List<Map<String, dynamic>>;
       _loading = false;
     });
   }
@@ -121,7 +123,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         _comments = [added, ..._comments];
       }
     });
-    await _loadAll();
   }
 
   Future<void> _deleteComment(String commentId) async {
@@ -132,7 +133,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           .where((item) => parseModelString(item['id']) != commentId)
           .toList(growable: false);
     });
-    await _loadAll();
   }
 
   Future<void> _reportMoment() async {
@@ -184,13 +184,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     descController.dispose();
   }
 
-  String _currentUidOrEmpty() {
-    try {
-      return UserRepoLocal.to.current.uid;
-    } catch (_) {
-      return '';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +196,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       return const Scaffold(body: Center(child: Text('动态不存在或无权限查看')));
     }
 
-    final currentUid = _currentUidOrEmpty();
+    final currentUid = currentUidOrEmpty();
     final authorUid = parseModelString(post['author_uid']);
     final canDeletePost = currentUid == authorUid;
     final content = parseModelString(post['content']);
@@ -214,7 +207,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         : const <String, dynamic>{};
     final likeCount = parseModelInt(stats['like_count']);
     final commentCount = parseModelInt(stats['comment_count']);
-    final media = _normalizeMedia(post['media']);
+    final media = normalizeMedia(post['media']);
 
     return Scaffold(
       appBar: AppBar(
@@ -284,7 +277,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                                   color: Colors.black12,
                                   child: url.isEmpty
                                       ? const Icon(Icons.broken_image_outlined)
-                                      : Image.network(url, fit: BoxFit.cover),
+                                      : Image(
+                          image: cachedImageProvider(url),
+                          fit: BoxFit.cover,
+                        ),
                                 ),
                                 if (type == 'video')
                                   const Positioned.fill(
@@ -401,12 +397,4 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       ),
     );
   }
-}
-
-List<Map<String, dynamic>> _normalizeMedia(dynamic rawMedia) {
-  if (rawMedia is! List) return const [];
-  return rawMedia
-      .whereType<Map>()
-      .map((item) => Map<String, dynamic>.from(item))
-      .toList(growable: false);
 }

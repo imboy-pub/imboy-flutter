@@ -173,7 +173,7 @@ class DenylistNotifier extends _$DenylistNotifier {
     return res;
   }
 
-  /// 刷新数据（需要 GetX 的 ContactLogic，暂时保留）
+  /// 刷新黑名单数据
   Future<void> refreshData() async {
     // 刷新黑名单列表
     var list2 = await page(page: 1, size: 1000);

@@ -212,6 +212,24 @@ class UserApi extends HttpClient {
     return true;
   }
 
+  /// 导出用户数据（个人信息、联系人、聊天记录等）
+  /// 返回 JSON 格式的用户数据，失败时返回 null
+  Future<Map<String, dynamic>?> exportUserData() async {
+    try {
+      IMBoyHttpResponse resp = await get(API.userExportData);
+      iPrint("> on UserApi/exportUserData resp: ${resp.payload.toString()}");
+      if (!resp.ok) {
+        EasyLoading.showError(resp.msg);
+        return null;
+      }
+      return resp.payload;
+    } catch (e) {
+      iPrint("> on UserApi/exportUserData error: $e");
+      EasyLoading.showError(t.operationFailedAgainLater);
+      return null;
+    }
+  }
+
   Future<bool> changeSetting(Map<String, dynamic> map) async {
     IMBoyHttpResponse resp = await post(API.userSetting, data: map);
     iPrint("> on UserApi/changeSetting resp: ${resp.payload.toString()}");

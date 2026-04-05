@@ -53,14 +53,8 @@
 			<key>NSAllowsArbitraryLoadsInWebContent</key>
 			<true/>
 		</dict>
-		<key>NSAppleMusicUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
-		<key>NSCalendarsUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
 		<key>NSCameraUsageDescription</key>
 		<string>IMBoy needs camera access to take photos, scan QR codes, and make video calls.</string>
-		<key>NSContactsUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>This app needs access to location when open and in the background.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
@@ -71,14 +65,10 @@
 		<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
-		<key>NSMotionUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>请允许$(PRODUCT_NAME)保存图片到相册</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>请允许$(PRODUCT_NAME)访问您的相册</string>
-		<key>NSSpeechRecognitionUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>
@@ -89,14 +79,9 @@
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>audio</string>
-			<string>bluetooth-central</string>
-			<string>bluetooth-peripheral</string>
-			<string>external-accessory</string>
 			<string>fetch</string>
 			<string>location</string>
-			<string>nearby-interaction</string>
 			<string>processing</string>
-			<string>push-to-talk</string>
 			<string>remote-notification</string>
 			<string>voip</string>
 		</array>

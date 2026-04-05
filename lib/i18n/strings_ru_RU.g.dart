@@ -838,6 +838,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyClearChatHistoryConfirm => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.';
 	@override String get privacyLogoutAccount => 'Удалить аккаунт';
 	@override String get privacyLogoutAccountConfirm => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.';
+	@override String get privacyPolicy => 'Политика конфиденциальности';
 	@override String get privacySettings => 'Настройки конфиденциальности';
 	@override String get searchSettings => 'Настройки поиска';
 	@override String get allowSearchByAccount => 'Разрешить поиск по аккаунту';
@@ -2269,6 +2270,7 @@ extension on TranslationsRuRu {
 			'privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
 			'privacyLogoutAccount' => 'Удалить аккаунт',
 			'privacyLogoutAccountConfirm' => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.',
+			'privacyPolicy' => 'Политика конфиденциальности',
 			'privacySettings' => 'Настройки конфиденциальности',
 			'searchSettings' => 'Настройки поиска',
 			'allowSearchByAccount' => 'Разрешить поиск по аккаунту',
@@ -2492,9 +2494,9 @@ extension on TranslationsRuRu {
 			'saveFailed' => 'Не удалось сохранить',
 			'markRead' => 'Пометить как прочитанное',
 			'markUnread' => 'Пометить как непрочитанное',
-			'discover' => 'Обзор',
 			_ => null,
 		} ?? switch (path) {
+			'discover' => 'Обзор',
 			'shake' => 'Встряхнуть',
 			'tip' => 'Совет',
 			'confirm' => 'Подтвердить',

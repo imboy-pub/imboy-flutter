@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/service/voice_playback_service.dart';
@@ -88,7 +89,7 @@ class ChatAudioHandler {
       final isVoiceMessage =
           message is AudioMessage ||
           (message is CustomMessage &&
-              message.metadata?['msg_type'] == 'voice');
+              message.metadata?['msg_type'] == MessageType.voice);
       if (!isVoiceMessage) {
         continue;
       }

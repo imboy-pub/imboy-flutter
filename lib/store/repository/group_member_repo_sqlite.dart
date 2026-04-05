@@ -64,9 +64,6 @@ class GroupMemberRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint(
-      "GroupMemberRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
-    );
     if (maps.isEmpty) {
       return [];
     }
@@ -101,7 +98,6 @@ class GroupMemberRepo {
       GroupMemberRepo.updatedAt: obj.updatedAt,
       GroupMemberRepo.createdAt: obj.createdAt,
     };
-    debugPrint("GroupMemberRepo/insert/1 $insert");
     if (txn != null) {
       await txn.insert(GroupMemberRepo.tableName, insert);
     } else {

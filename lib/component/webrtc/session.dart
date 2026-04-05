@@ -7,9 +7,8 @@ class WebRTCSession {
     required this.sid,
     this.pc,
     this.dc,
-    // TODO(功能扩展): 添加 media 属性支持多媒体类型标识
-    // 如需区分 audio-only/video/audio-video 会话，取消注释：
-    // required this.media,
+    // DONE(2026-04-04): 添加 media 属性支持多媒体类型标识
+    this.media,
   });
 
   // peerId
@@ -18,8 +17,8 @@ class WebRTCSession {
   // sessionId
   final String sid;
 
-  // video audio data
-  // String media;
+  /// 会话媒体类型：'audio' | 'video'，null 表示未指定
+  String? media;
 
   RTCPeerConnection? pc;
   RTCDataChannel? dc;

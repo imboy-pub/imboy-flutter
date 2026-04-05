@@ -219,7 +219,7 @@ errorInvalidFileOrDirectory: "@:error"  # 优化: 合并到通用error
 errorInvalidJson: "@:error"  # 优化: 合并到通用error
 errorInvalidRequest: "@:error"  # 优化: 合并到通用error
 errorLengthBetween: "$param length must be between $min and $max"
-errorManyRequest: "@:error"  # 优化: 合并到通用error
+errorManyRequest: "Too many requests"
 errorNoPackageToRemove: "@:error"  # 优化: 合并到通用error
 errorNoValidFileOrUrl: "@:error"  # 优化: 合并到通用error
 errorNonexistentDirectory: "@:error"  # 优化: 合并到通用error
@@ -349,6 +349,9 @@ loginEmail: "Login email"
 logoutAccount: "Delete account"
 loggingOut: "Logging out..."
 logoutNotice: "Account Deletion Notice"
+exportMyData: "Export My Data"
+exportDataSuccess: "Data exported successfully"
+exportDataDesc: "Export your personal info, contacts, and chat history"
 loudspeaker: "Speaker"
 makeYourselfInvisible: "Make yourself invisible"
 makeYourselfVisible: "Make yourself visible"
@@ -577,6 +580,12 @@ muteDuration1day: "1 Day"
 muteDuration3days: "3 Days"
 muteDuration7days: "7 Days"
 muteDurationPermanent: "Permanent"
+# Throttle/Mute hints
+throttleWarning: "Too many requests, please try again later"
+throttleRetryAfter: "Too many requests, please retry after $seconds seconds"
+youAreMuted: "You are muted"
+youAreMutedWithTime: "You are muted, $minutes minutes remaining"
+mutedCannotSend: "Cannot send messages while muted"
 replied: "Replied"
 repliedAt: "Replied at"
 reply: "Reply"
@@ -857,6 +866,7 @@ privacyClearChatHistory: "Clear chat history"
 privacyClearChatHistoryConfirm: "Are you sure you want to clear all chat history? This action cannot be undone."
 privacyLogoutAccount: "Delete account"
 privacyLogoutAccountConfirm: "Are you sure you want to delete your account? This action will permanently delete your account and all data, and cannot be undone."
+privacyPolicy: "Privacy Policy"
 privacySettings: "Privacy settings"
 searchSettings: "Search settings"
 allowSearchByAccount: "Allow search by account"

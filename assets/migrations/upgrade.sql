@@ -484,6 +484,30 @@ CREATE INDEX IF NOT EXISTS idx_msg_c2s_status
   ON msg_c2s (status);
 
 -- ============================================================
+-- V15: 本地全文搜索 (FTS5)
+-- ============================================================
+
+-- C2C 消息全文搜索虚拟表
+-- content='' 表示外部内容表模式，减少存储开销
+-- tokenize='unicode61' 支持中文分词（基于 unicode 字符边界）
+CREATE VIRTUAL TABLE IF NOT EXISTS msg_c2c_fts USING fts5(
+  id,                     -- 消息 ID (用于关联原表)
+  conversation_uk3,       -- 会话标识 (用于按会话过滤)
+  text_content,           -- 可搜索的文本内容
+  content='',             -- 外部内容模式
+  tokenize='unicode61 remove_diacritics 2'
+);
+
+-- C2G 消息全文搜索虚拟表
+CREATE VIRTUAL TABLE IF NOT EXISTS msg_c2g_fts USING fts5(
+  id,
+  conversation_uk3,
+  text_content,
+  content='',
+  tokenize='unicode61 remove_diacritics 2'
+);
+
+-- ============================================================
 -- 更新版本号
 -- ============================================================
-PRAGMA user_version = 14;
+PRAGMA user_version = 15;

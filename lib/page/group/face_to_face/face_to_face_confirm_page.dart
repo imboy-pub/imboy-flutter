@@ -10,6 +10,8 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/network_monitor.dart';
+import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -43,6 +45,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   // 防抖状态
   bool _isJoiningGroup = false;
 
+  // 网络恢复同步标记：记录最后一次网络状态，用于检测从离线恢复
+  bool _wasOffline = false;
+
   @override
   void initState() {
     //监听Widget是否绘制完毕
@@ -55,8 +60,10 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
         setState(() {});
       }
     });
-    // TODO(数据同步): 异步检查是否有离线数据并同步
+    // DONE(2026-04-04): 异步检查是否有离线数据并同步
     // 场景：用户离线期间可能有新的加群请求，需要在恢复网络后同步
+    _wasOffline = !NetworkMonitorService.to.hasNetwork;
+    NetworkMonitorService.to.addNetworkChangeListener(_onNetworkChanged);
   }
 
   @override
@@ -65,7 +72,62 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     memberList = [];
     ssMsg?.cancel();
     _localeSubscription?.cancel();
+    NetworkMonitorService.to.removeNetworkChangeListener(_onNetworkChanged);
     super.dispose();
+  }
+
+  /// 网络状态变化回调：从离线恢复时同步最新成员列表
+  void _onNetworkChanged(NetworkType oldType, NetworkType networkType) {
+    final isOnline = networkType != NetworkType.none;
+    if (isOnline && _wasOffline) {
+      _syncMembersFromServer();
+    }
+    _wasOffline = !isOnline;
+  }
+
+  /// 从服务端同步最新群成员列表，补充离线期间加入的成员
+  Future<void> _syncMembersFromServer() async {
+    if (widget.gid.isEmpty) return;
+
+    try {
+      final payload = await GroupMemberApi().page(
+        gid: widget.gid,
+        page: 1,
+        size: 200,
+      );
+      if (payload == null || !mounted) return;
+
+      final list = payload['list'];
+      if (list is! List) return;
+
+      final existingIds = memberList.map((m) => m.id).toSet();
+      bool hasNewMembers = false;
+
+      for (final item in list) {
+        if (item is! Map) continue;
+        final uid = item['user_id']?.toString() ?? '';
+        if (uid.isEmpty || existingIds.contains(uid)) continue;
+        memberList.insert(
+          0,
+          PeopleModel(
+            id: uid,
+            account: item['account']?.toString() ?? '',
+            avatar: item['avatar']?.toString() ?? '',
+            nickname:
+                item['alias']?.toString() ?? item['nickname']?.toString() ?? '',
+          ),
+        );
+        existingIds.add(uid);
+        hasNewMembers = true;
+      }
+
+      if (hasNewMembers && mounted) {
+        setState(() {});
+        iPrint('🔄 [面对面确认] 网络恢复后同步到 ${list.length} 个成员');
+      }
+    } catch (e) {
+      iPrint('⚠️ [面对面确认] 网络恢复同步失败: $e');
+    }
   }
 
   /// 初始化一些数据
@@ -80,7 +142,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     ssMsg ??= AppEventBus.on<ChatExtendEvent>().listen((
       ChatExtendEvent obj,
     ) async {
-      iPrint('📨 [面对面确认] 收到 ChatExtendEvent - type: ${obj.type}, payload: ${obj.payload}');
+      iPrint(
+        '📨 [面对面确认] 收到 ChatExtendEvent - type: ${obj.type}, payload: ${obj.payload}',
+      );
 
       // 监听新成员加入
       if (obj.type == 'join_group') {

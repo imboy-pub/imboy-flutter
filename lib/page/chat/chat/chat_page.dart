@@ -507,6 +507,12 @@ class ChatPageState extends ConsumerState<ChatPage>
   // AppErrorEvent 监听器订阅（需要单独处理以显示 SnackBar）
   StreamSubscription<AppErrorEvent>? _ssAppErrorLocal;
   StreamSubscription<E2EEKeyMismatchEvent>? _ssE2EEKeyMismatch;
+  // 禁言事件监听
+  StreamSubscription<UserMutedEvent>? _ssUserMuted;
+  StreamSubscription<UserUnmutedEvent>? _ssUserUnmuted;
+  Timer? _muteExpiryTimer;
+  bool _isMuted = false;
+  String? _muteMessage;
 
   void _setupEventListeners() {
     try {
@@ -563,8 +569,78 @@ class ChatPageState extends ConsumerState<ChatPage>
           debugPrint('E2EEKeyMismatchEvent listener error: $error');
         },
       );
+
+      // 监听禁言事件
+      _ssUserMuted = AppEventBus.on<UserMutedEvent>().listen(
+        (event) {
+          if (!mounted) return;
+          // 如果有 conversationId，只在对应会话中显示禁言
+          if (event.conversationId != null &&
+              event.conversationId!.isNotEmpty &&
+              event.conversationId != _conversationUk3) {
+            return;
+          }
+          _applyMuteState(event);
+        },
+        onError: (error) {
+          debugPrint('UserMutedEvent listener error: $error');
+        },
+      );
+
+      _ssUserUnmuted = AppEventBus.on<UserUnmutedEvent>().listen(
+        (event) {
+          if (!mounted) return;
+          if (event.conversationId != null &&
+              event.conversationId!.isNotEmpty &&
+              event.conversationId != _conversationUk3) {
+            return;
+          }
+          _clearMuteState();
+        },
+        onError: (error) {
+          debugPrint('UserUnmutedEvent listener error: $error');
+        },
+      );
     } catch (e) {
       debugPrint('_setupEventListeners error: $e');
+    }
+  }
+
+  /// 应用禁言状态
+  void _applyMuteState(UserMutedEvent event) {
+    _muteExpiryTimer?.cancel();
+
+    if (!event.isMuted) {
+      _clearMuteState();
+      return;
+    }
+
+    setState(() {
+      _isMuted = true;
+      final minutes = event.remainingMinutes;
+      if (minutes > 0) {
+        _muteMessage = t.youAreMutedWithTime(minutes: '$minutes');
+        // 设置定时器在禁言到期时自动解除
+        final remaining =
+            event.muteUntilMs - DateTime.now().millisecondsSinceEpoch;
+        _muteExpiryTimer = Timer(Duration(milliseconds: remaining), () {
+          if (mounted) _clearMuteState();
+        });
+      } else {
+        _muteMessage = t.youAreMuted;
+      }
+    });
+  }
+
+  /// 清除禁言状态
+  void _clearMuteState() {
+    _muteExpiryTimer?.cancel();
+    _muteExpiryTimer = null;
+    if (_isMuted && mounted) {
+      setState(() {
+        _isMuted = false;
+        _muteMessage = null;
+      });
     }
   }
 
@@ -582,6 +658,11 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 取消 E2EE密钥不匹配事件监听器
     _ssE2EEKeyMismatch?.cancel();
+
+    // 取消禁言事件监听
+    _ssUserMuted?.cancel();
+    _ssUserUnmuted?.cancel();
+    _muteExpiryTimer?.cancel();
 
     // 取消网络状态监听
     _connectivitySubscription?.cancel();
@@ -1117,7 +1198,13 @@ class ChatPageState extends ConsumerState<ChatPage>
       'handleSendPressed 开始: text=$text, _editingMessageId=$_editingMessageId',
     );
 
-    // 防抖：检查是否在短时间内重复发送
+    // 禁言检查
+    if (_isMuted) {
+      EasyLoading.showInfo(t.mutedCannotSend);
+      return false;
+    }
+
+    // 防抖：检查是否在短时间内��复发送
     final now = DateTime.now();
     if (_lastSendTime != null &&
         now.difference(_lastSendTime!) < _sendDebounceDuration) {
@@ -1250,7 +1337,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (message is TextMessage) {
           copyMessageText(message);
         } else if (message is CustomMessage &&
-            message.metadata?['msg_type'] == 'quote') {
+            message.metadata?['msg_type'] == MessageType.quote) {
           // 引用消息的复制功能
           final quoteText = message.metadata?['quote_text'] ?? '';
           if (quoteText.isNotEmpty) {
@@ -1399,6 +1486,8 @@ class ChatPageState extends ConsumerState<ChatPage>
       peerId: widget.peerId,
       onSendPressed: _handleSendPressed,
       onTextChanged: _handleInputChanged,
+      isMuted: _isMuted,
+      muteMessage: _muteMessage,
       // @提及变更回调
       onMentionsChanged: _chatType == MessageFlowType.c2g
           ? (mentionIds) {
@@ -1613,11 +1702,14 @@ class ChatPageState extends ConsumerState<ChatPage>
               required bool isSentByMe,
               MessageGroupStatus? groupStatus,
             }) {
-              // 暂时使用加载状态显示，等待流式状态管理实现
+              // 从 ChatStreamStateNotifier 获取该消息的实时流状态
+              final streamStateMap = ref.watch(chatStreamStateNotifierProvider);
+              final streamState =
+                  streamStateMap[message.id] ?? const StreamStateLoading();
               return FlyerChatTextStreamMessage(
                 message: message,
                 index: index,
-                streamState: const StreamStateLoading(),
+                streamState: streamState,
                 showStatus: false,
                 showTime: true,
                 loadingText: '...',
@@ -2194,14 +2286,14 @@ class ChatPageState extends ConsumerState<ChatPage>
               metadata['effective_msg_type'] ?? metadata['msg_type'] ?? '';
 
           // 单图消息
-          if (effectiveMsgType == 'image') {
+          if (effectiveMsgType == MessageType.image) {
             final uri = metadata['source'] ?? metadata['uri'] ?? '';
             if (uri.isNotEmpty) {
               imageUrls.add(uri);
             }
           }
           // 多图消息
-          else if (effectiveMsgType == 'imageMulti') {
+          else if (effectiveMsgType == MessageType.imageMulti) {
             final images = metadata['images'] as List<dynamic>?;
             if (images != null) {
               for (final img in images) {

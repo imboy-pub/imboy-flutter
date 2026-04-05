@@ -329,6 +329,35 @@ class IntentParser {
         .toList();
   }
 
+  /// 解析视觉模型返回的 JSON 数组到测试用例列表
+  List<GeneratedTestCase> _parseVisionResponse(String response) {
+    String jsonStr = response.trim();
+    // 去掉 Markdown 代码块
+    if (jsonStr.contains('```')) {
+      jsonStr = jsonStr
+          .split('\n')
+          .skipWhile((l) => !l.startsWith('```'))
+          .skip(1)
+          .takeWhile((l) => !l.startsWith('```'))
+          .join('\n')
+          .trim();
+    }
+
+    final decoded = jsonDecode(jsonStr);
+    final List<dynamic> items;
+    if (decoded is List) {
+      items = decoded;
+    } else if (decoded is Map && decoded.containsKey('test_cases')) {
+      items = decoded['test_cases'] as List;
+    } else {
+      throw ParseException('视觉模型返回格式不正确');
+    }
+
+    return items
+        .map((tc) => GeneratedTestCase.fromJson(tc as Map<String, dynamic>))
+        .toList();
+  }
+
   /// 从 API 文档生成测试用例
   Future<List<GeneratedTestCase>> parseFromApiDoc(String apiDoc) async {
     final prompt = Prompts.generateTestsFromApiDoc(apiDoc);
@@ -354,35 +383,57 @@ class IntentParser {
   ///
   /// 当前返回基础 UI 测试用例作为占位实现
   Future<List<GeneratedTestCase>> parseFromScreenshot(String imagePath) async {
-    // TODO(视觉模型集成): 使用 GPT-4V 或 Gemini Vision 分析 UI
-    // 需要实现：
-    // 1. 将图像编码为 base64
-    // 2. 调用视觉模型 API (multimodal chat completion)
-    // 3. 解析视觉模型返回的 UI 结构
-    //
-    // 示例实现方向：
-    // final imageBase64 = base64Encode(File(imagePath).readAsBytesSync());
-    // final response = await _aiClient.callVisionModel(
-    //   image: imageBase64,
-    //   prompt: '分析这个 UI 界面，识别所有可交互元素并生成测试用例',
-    // );
-    // return _parseVisionResponse(response);
-    //
-    // 目前返回一些基础的 UI 测试用例
-    return [
-      GeneratedTestCase(
-        name: 'UI 响应式布局测试',
-        description: '验证 UI 在不同屏幕尺寸下的响应式表现',
-        type: 'normal',
-        priority: 'high',
-        preconditions: ['应用已启动'],
-        steps: [
-          TestStep(action: '调整窗口大小', expected: 'UI 自适应调整'),
-          TestStep(action: '检查关键元素可见性', expected: '所有重要元素都可见'),
-        ],
-        testData: {'window_sizes': ['small', 'medium', 'large']},
-      ),
-    ];
+    // DONE(2026-04-04): 使用 GPT-4V 兼容 API 分析 UI 截图并生成测试用例
+    if (!_aiClient.hasApiKey) {
+      // 无 API Key 时返回基础测试用例
+      return [
+        GeneratedTestCase(
+          name: 'UI 响应式布局测试',
+          description: '验证 UI 在不同屏幕尺寸下的响应式表现',
+          type: 'normal',
+          priority: 'high',
+          preconditions: ['应用已启动'],
+          steps: [
+            TestStep(action: '调整窗口大小', expected: 'UI 自适应调整'),
+            TestStep(action: '检查关键元素可见性', expected: '所有重要元素都可见'),
+          ],
+          testData: {'window_sizes': ['small', 'medium', 'large']},
+        ),
+      ];
+    }
+
+    try {
+      const systemPrompt =
+          '你是一个专业的移动应用 UI 测试工程师。根据提供的截图分析界面结构，'
+          '识别所有可交互元素（按钮、输入框、列表项等），并生成全面的测试用例。'
+          '必须以 JSON 数组格式返回，每个对象包含字段：'
+          'name(字符串), description(字符串), type(normal/edge/negative), '
+          'priority(high/medium/low), preconditions(字符串数组), '
+          'steps(对象数组，每个对象含 action 和 expected 字段), testData(对象)。';
+
+      final response = await _aiClient.callVisionModel(
+        imagePath,
+        '分析这个 UI 截图，识别所有可交互元素并生成 3-5 个测试用例，覆盖正常流程和边界情况。',
+        systemPrompt: systemPrompt,
+      );
+
+      return _parseVisionResponse(response);
+    } catch (e) {
+      // 视觉模型调用失败时降级为基础测试用例
+      return [
+        GeneratedTestCase(
+          name: 'UI 截图分析测试（降级）',
+          description: '视觉分析失败（$e），使用基础测试用例',
+          type: 'normal',
+          priority: 'medium',
+          preconditions: ['应用已启动'],
+          steps: [
+            TestStep(action: '截图路径: $imagePath', expected: '页面正常显示'),
+          ],
+          testData: {},
+        ),
+      ];
+    }
   }
 
   /// 优化现有测试用例

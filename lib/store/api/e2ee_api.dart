@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart';
 
 class E2EEApi extends HttpClient {
   /// 上报当前设备的 E2EE 公钥
@@ -26,7 +27,7 @@ class E2EEApi extends HttpClient {
     required String keyId,
   }) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/report_device_key',
+      API.e2eeReportDeviceKey,
       data: {
         'device_id': deviceId,
         'device_type': deviceType,
@@ -40,7 +41,7 @@ class E2EEApi extends HttpClient {
 
   Future<List<Map<String, dynamic>>> userKeys({required String uid}) async {
     IMBoyHttpResponse resp = await get(
-      '/v1/e2ee/user_keys',
+      API.e2eeUserKeys,
       queryParameters: {'uid': uid},
     );
     if (!resp.ok) return [];
@@ -56,7 +57,7 @@ class E2EEApi extends HttpClient {
     required String gid,
   }) async {
     IMBoyHttpResponse resp = await get(
-      '/v1/e2ee/group_member_keys',
+      API.e2eeGroupMemberKeys,
       queryParameters: {'gid': gid},
     );
     if (!resp.ok) return [];
@@ -72,5 +73,15 @@ class E2EEApi extends HttpClient {
     if (kDebugMode) {
       debugPrint('E2EEApi.userKeys count=${list.length}');
     }
+  }
+
+  /// 获取当前活跃的合规公钥
+  ///
+  /// 返回 {key_id, public_key} 或 null
+  /// 用于 compliance_e2ee 模式的双密钥加密
+  Future<Map<String, dynamic>?> getComplianceKey() async {
+    IMBoyHttpResponse resp = await get(API.e2eeComplianceKey);
+    if (!resp.ok) return null;
+    return resp.payload;
   }
 }

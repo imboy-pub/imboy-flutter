@@ -7,6 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:image_picker/image_picker.dart';
@@ -306,7 +307,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                       color: Colors.black12,
                       child: url.isEmpty
                           ? const Icon(Icons.broken_image_outlined)
-                          : Image.network(url, fit: BoxFit.cover),
+                          : Image(
+                              image: cachedImageProvider(url),
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     if (type == 'video')
                       const Positioned.fill(

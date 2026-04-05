@@ -213,6 +213,9 @@ class FailureAnalyzer {
 
   FailureAnalyzer({AIClient? aiClient}) : _aiClient = aiClient ?? AIClient();
 
+  /// 暴露 AIClient 供愈合引擎使用
+  AIClient get aiClient => _aiClient;
+
   /// 分析测试失败并生成愈合策略
   Future<AnalysisResult> analyzeFailure(FailureDetails failure) async {
     // 基础策略生成（不依赖 AI）

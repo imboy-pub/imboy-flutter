@@ -1,5 +1,7 @@
 import 'package:imboy/modules/messaging/domain/message_models.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 /// Temporary adapter that exposes a stable module contract while delegating to
 /// the legacy message services.
@@ -69,4 +71,42 @@ class MessageServiceAdapter {
     msgType: msgType,
     status: status,
   );
+
+  /// 标记消息为已读（轻量版，仅操作本地数据库，不触发 UI Provider 刷新）
+  ///
+  /// 适用于非 Widget 上下文（如 WebRTC 来电处理），避免 Riverpod 依赖。
+  Future<bool> markAsRead(
+    String type,
+    String peerId,
+    List<String> msgIds,
+  ) async {
+    if (msgIds.isEmpty) return false;
+    final db = await SqliteService.to.db;
+    if (db == null) return false;
+
+    final c = await ConversationRepo().findByPeerId(type, peerId);
+    if (c == null) return false;
+
+    final tb = MessageRepo.getTableName(c.type);
+    final newUnread = c.unreadNum - msgIds.length;
+    c.unreadNum = newUnread > 0 ? newUnread : 0;
+
+    return db.transaction((txn) async {
+      await txn.update(
+        ConversationRepo.tableName,
+        {ConversationRepo.unreadNum: c.unreadNum},
+        where: '${ConversationRepo.id}=?',
+        whereArgs: [c.id],
+      );
+      for (final id in msgIds) {
+        await txn.update(
+          tb,
+          {MessageRepo.status: IMBoyMessageStatus.seen},
+          where: '${MessageRepo.id}=?',
+          whereArgs: [id],
+        );
+      }
+      return true;
+    });
+  }
 }

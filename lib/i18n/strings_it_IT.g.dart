@@ -838,6 +838,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyClearChatHistoryConfirm => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.';
 	@override String get privacyLogoutAccount => 'Disattiva account';
 	@override String get privacyLogoutAccountConfirm => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.';
+	@override String get privacyPolicy => 'Informativa sulla privacy';
 	@override String get privacySettings => 'Impostazioni privacy';
 	@override String get searchSettings => 'Impostazioni ricerca';
 	@override String get allowSearchByAccount => 'Consenti ricerca per account';
@@ -2269,6 +2270,7 @@ extension on TranslationsItIt {
 			'privacyClearChatHistoryConfirm' => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.',
 			'privacyLogoutAccount' => 'Disattiva account',
 			'privacyLogoutAccountConfirm' => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.',
+			'privacyPolicy' => 'Informativa sulla privacy',
 			'privacySettings' => 'Impostazioni privacy',
 			'searchSettings' => 'Impostazioni ricerca',
 			'allowSearchByAccount' => 'Consenti ricerca per account',
@@ -2492,9 +2494,9 @@ extension on TranslationsItIt {
 			'saveFailed' => 'Salvataggio non riuscito',
 			'markRead' => 'Segna come letto',
 			'markUnread' => 'Segna come non letto',
-			'discover' => 'Scopri',
 			_ => null,
 		} ?? switch (path) {
+			'discover' => 'Scopri',
 			'shake' => 'Scuoti',
 			'tip' => 'Suggerimento',
 			'confirm' => 'Conferma',

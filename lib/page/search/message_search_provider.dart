@@ -6,6 +6,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/service/storage.dart';
 
 part 'message_search_provider.g.dart';
@@ -265,7 +266,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     });
   }
 
-  /// 执行搜索
+  /// 执行搜索（优先本地 FTS，降级到服务端 API）
   Future<void> performSearch({
     required String query,
     bool loadMore = false,
@@ -285,10 +286,18 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     try {
       int page = loadMore ? state.currentPage + 1 : 1;
 
+      // 优先尝试本地 FTS 搜索
+      final localResults = await _searchLocal(effectiveQuery, page: page);
+      if (localResults != null) {
+        _applySearchResults(localResults, loadMore: loadMore, page: page);
+        if (!loadMore) await addToHistory(effectiveQuery);
+        return;
+      }
+
+      // 本地 FTS 无结果或不可用，降级到服务端 API
       MessageSearchResponse? response;
 
       if (state.conversationUk3 != null && state.conversationUk3!.isNotEmpty) {
-        // 当前会话搜索
         response = await FtsApi.to.searchConversationMessages(
           keyword: effectiveQuery,
           conversationUk3: state.conversationUk3!,
@@ -296,7 +305,6 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
           size: 20,
         );
       } else {
-        // 全局搜索
         response = await FtsApi.to.searchMessages(
           keyword: effectiveQuery,
           page: page,
@@ -308,30 +316,8 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
       }
 
       if (response != null) {
-        if (loadMore) {
-          state = state.copyWith(
-            searchResults: [...state.searchResults, ...response.items],
-            currentPage: page,
-            hasMore: response.items.length >= 20,
-            totalResults: state.totalResults + response.items.length,
-            isLoading: false,
-            isSearching: false,
-          );
-        } else {
-          state = state.copyWith(
-            searchResults: response.items,
-            currentPage: page,
-            hasMore: response.items.length >= 20,
-            totalResults: response.total,
-            isLoading: false,
-            isSearching: false,
-          );
-          // 保存到搜索历史
-          await addToHistory(effectiveQuery);
-        }
-
-        // 预加载联系人信息
-        _preloadContacts(response.items);
+        _applySearchResults(response, loadMore: loadMore, page: page);
+        if (!loadMore) await addToHistory(effectiveQuery);
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -346,6 +332,88 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         errorMessage: '搜索出错: $e',
       );
     }
+  }
+
+  /// 本地 FTS 搜索
+  ///
+  /// 返回 null 表示 FTS 不可用或查询失败，应降级到服务端
+  Future<MessageSearchResponse?> _searchLocal(
+    String query, {
+    int page = 1,
+  }) async {
+    try {
+      final ftsRepo = MessageFtsRepo();
+      final limit = 20;
+
+      List<FtsSearchResult> ftsResults;
+
+      if (state.conversationUk3 != null && state.conversationUk3!.isNotEmpty) {
+        // 会话内搜索
+        ftsResults = await ftsRepo.searchAll(
+          query: query,
+          conversationUk3: state.conversationUk3,
+          limit: limit,
+        );
+      } else {
+        // 全局搜索
+        ftsResults = await ftsRepo.searchAll(
+          query: query,
+          limit: limit,
+        );
+      }
+
+      if (ftsResults.isEmpty) return null;
+
+      // 转换为 MessageSearchResult
+      final items = ftsResults.map((fts) {
+        return MessageSearchResult(
+          id: fts.id,
+          content: fts.snippet,
+          fromId: '',
+          toId: '',
+          type: '',
+          createdAt: 0,
+        );
+      }).toList();
+
+      return MessageSearchResponse(
+        items: items,
+        total: items.length,
+      );
+    } catch (e) {
+      // FTS 查询失败，降级到服务端
+      return null;
+    }
+  }
+
+  /// 应用搜索结果到状态
+  void _applySearchResults(
+    MessageSearchResponse response, {
+    required bool loadMore,
+    required int page,
+  }) {
+    if (loadMore) {
+      state = state.copyWith(
+        searchResults: [...state.searchResults, ...response.items],
+        currentPage: page,
+        hasMore: response.items.length >= 20,
+        totalResults: state.totalResults + response.items.length,
+        isLoading: false,
+        isSearching: false,
+      );
+    } else {
+      state = state.copyWith(
+        searchResults: response.items,
+        currentPage: page,
+        hasMore: response.items.length >= 20,
+        totalResults: response.total,
+        isLoading: false,
+        isSearching: false,
+      );
+    }
+
+    // 预加载联系人信息
+    _preloadContacts(response.items);
   }
 
   /// 预加载联系人信息

@@ -437,6 +437,28 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
                   _buildDivider(context),
 
+                  // 隐私政策
+                  _buildSettingItem(
+                    context,
+                    title: t.privacyPolicy,
+                    leadingIcon: Icons.privacy_tip_outlined,
+                    leadingIconColor: AppColors.warning,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => MarkdownPage(
+                            title: t.privacyPolicy,
+                            url:
+                                "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md",
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  _buildDivider(context),
+
                   // 关于应用
                   _buildSettingItem(
                     context,

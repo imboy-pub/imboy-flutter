@@ -10,8 +10,9 @@ import 'package:imboy/service/assets.dart'; // 引入 AssetsService
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:octo_image/octo_image.dart';
+
+import 'moment_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -198,20 +199,6 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     }
   }
 
-  String _currentUidOrEmpty() {
-    try {
-      return UserRepoLocal.to.current.uid;
-    } catch (_) {
-      return '';
-    }
-  }
-
-  // 视频可见回调
-  void _onVideoVisible(String url) {
-    // 可以在这里实现互斥播放逻辑
-    // 目前仅作为占位符，消除 unused_element_parameter 警告
-    // debugPrint("Video visible: $url");
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +258,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                           );
                         }
                         final item = _items[index];
-                        final currentUid = _currentUidOrEmpty();
+                        final currentUid = currentUidOrEmpty();
                         final canDelete =
                             parseModelString(item['author_uid']) == currentUid;
                         return _MomentCard(
@@ -283,7 +270,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                           onDeleteTap: canDelete
                               ? () => _deleteMoment(item)
                               : null,
-                          onVideoVisible: _onVideoVisible,
+                          onVideoVisible: null,
                         );
                       },
                     ),
@@ -321,7 +308,7 @@ class _MomentCard extends StatelessWidget {
         : const <String, dynamic>{};
     final likeCount = parseModelInt(stats['like_count']);
     final commentCount = parseModelInt(stats['comment_count']);
-    final media = _normalizeMedia(item['media']);
+    final media = normalizeMedia(item['media']);
 
     return InkWell(
       onTap: onTap,
@@ -570,12 +557,4 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
       ),
     );
   }
-}
-
-List<Map<String, dynamic>> _normalizeMedia(dynamic rawMedia) {
-  if (rawMedia is! List) return const [];
-  return rawMedia
-      .whereType<Map>()
-      .map((item) => Map<String, dynamic>.from(item))
-      .toList(growable: false);
 }

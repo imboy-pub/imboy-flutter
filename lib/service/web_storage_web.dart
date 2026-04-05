@@ -23,7 +23,7 @@ Future<void> put(
 ) async {
   // Web 平台的 IndexedDB put 操作
   // 注意：完整实现需要使用 package:web/web.dart 的 IndexedDB API
-  print('IndexedDB.put: $storeName/$key');
+  // IndexedDB write not implemented for Web platform stub
 }
 
 /// 获取数据（Web 实现）
@@ -34,7 +34,7 @@ Future<String?> get(
 ) async {
   // Web 平台的 IndexedDB get 操作
   // 注意：完整实现需要使用 package:web/web.dart 的 IndexedDB API
-  print('IndexedDB.get: $storeName/$key');
+  // IndexedDB read not implemented for Web platform stub
   return null;
 }
 
@@ -46,5 +46,5 @@ Future<void> delete(
 ) async {
   // Web 平台的 IndexedDB delete 操作
   // 注意：完整实现需要使用 package:web/web.dart 的 IndexedDB API
-  print('IndexedDB.delete: $storeName/$key');
+  // IndexedDB delete not implemented for Web platform stub
 }

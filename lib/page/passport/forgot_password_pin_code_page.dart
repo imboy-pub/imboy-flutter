@@ -30,10 +30,7 @@ class PinCodeVerificationPage extends ConsumerStatefulWidget {
 
 class _PinCodeVerificationPageState
     extends ConsumerState<PinCodeVerificationPage> {
-  TextEditingController textEditingController = TextEditingController();
-
-  // ignore: close_sinks
-  StreamController<ErrorAnimationType>? errorController;
+  final _pinController = PinInputController();
 
   bool hasError = false;
   String currentText = "";
@@ -43,7 +40,6 @@ class _PinCodeVerificationPageState
 
   @override
   void initState() {
-    errorController = StreamController<ErrorAnimationType>();
     super.initState();
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
@@ -56,8 +52,7 @@ class _PinCodeVerificationPageState
   @override
   void dispose() {
     _localeSubscription?.cancel();
-    errorController!.close();
-    textEditingController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -124,59 +119,32 @@ class _PinCodeVerificationPageState
                           const SizedBox(height: 30),
                           Form(
                             key: formKey,
-                            child: PinCodeTextField(
-                              appContext: context,
-                              pastedTextStyle: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: MaterialPinField(
                               length: 6,
+                              pinController: _pinController,
                               obscureText: true,
-                              obscuringCharacter: '*',
                               obscuringWidget: Icon(
                                 Icons.safety_check,
                                 color: AppColors.primary,
                                 size: 24,
                               ),
                               blinkWhenObscuring: true,
-                              animationType: AnimationType.fade,
-                              validator: (v) {
-                                if (v!.length < 3) {
-                                  return "Validate me";
-                                } else {
-                                  return null;
-                                }
-                              },
-                              pinTheme: PinTheme(
-                                shape: PinCodeFieldShape.box,
+                              theme: MaterialPinTheme(
+                                shape: MaterialPinShape.outlined,
+                                cellSize: const Size(40, 50),
                                 borderRadius: AppRadius.borderRadiusSmall,
-                                fieldHeight: 50,
-                                fieldWidth: 40,
-                                activeFillColor:
+                                borderColor: AppColors.lightBorder,
+                                focusedBorderColor: AppColors.primary,
+                                filledBorderColor: AppColors.primary,
+                                fillColor:
                                     AppColors.lightSurfaceContainer,
-                                inactiveFillColor:
-                                    AppColors.lightSurfaceContainer,
-                                selectedFillColor:
-                                    AppColors.lightSurfaceContainer,
-                                selectedColor: AppColors.primary,
-                                activeColor: AppColors.primary,
-                                inactiveColor: AppColors.lightBorder,
-                              ),
-                              cursorColor: AppColors.lightTextPrimary,
-                              animationDuration: const Duration(
-                                milliseconds: 300,
-                              ),
-                              enableActiveFill: true,
-                              errorAnimationController: errorController,
-                              controller: textEditingController,
-                              keyboardType: TextInputType.number,
-                              boxShadows: [
-                                BoxShadow(
-                                  offset: const Offset(0, 1),
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 10,
+                                textStyle: TextStyle(
+                                  color: AppColors.lightTextPrimary,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
+                              ),
+                              keyboardType: TextInputType.number,
                               onCompleted: (v) {
                                 debugPrint("Completed");
                               },
@@ -185,10 +153,6 @@ class _PinCodeVerificationPageState
                                 setState(() {
                                   currentText = value;
                                 });
-                              },
-                              beforeTextPaste: (text) {
-                                debugPrint("Allowing to paste $text");
-                                return true;
                               },
                             ),
                           ),
@@ -343,9 +307,7 @@ class _PinCodeVerificationPageState
                               child: ElevatedButton(
                                 onPressed: () async {
                                   if (currentText.length != 6) {
-                                    errorController!.add(
-                                      ErrorAnimationType.shake,
-                                    );
+                                    _pinController.triggerError();
                                     setState(() => hasError = true);
                                     return;
                                   }

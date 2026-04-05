@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/api/user_api.dart';
 
 part 'change_password_provider.g.dart';
 
@@ -154,16 +155,16 @@ class ChangeLoginPassword extends _$ChangeLoginPassword {
 
     state = state.copyWith(isLoading: true);
     try {
-      await Future.delayed(const Duration(milliseconds: 1200));
-
-      final ok = DateTime.now().millisecondsSinceEpoch % 5 != 0;
+      final ok = await UserApi.to.changePassword(
+        newPwd: state.newPassword,
+        existingPwd: state.existingPassword,
+      );
       if (ok) {
         EasyLoading.showSuccess(t.changeSuccess);
         // 清空表单
         state = ChangeLoginPasswordState();
-      } else {
-        EasyLoading.showError(t.changeFailed);
       }
+      // 失败时 UserApi.changePassword 已调用 EasyLoading.showError
     } finally {
       state = state.copyWith(isLoading: false);
     }

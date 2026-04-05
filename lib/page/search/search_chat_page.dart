@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -75,21 +77,56 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     notifier.setError('');
 
     try {
-      // 这里调用实际的搜索逻辑
-      // 由于原 search_logic.dart 中有复杂的搜索逻辑，
-      // 我们需要将搜索方法提取到 Notifier 中
-      // 暂时保留基本框架
-      await Future.delayed(const Duration(milliseconds: 500));
+      final response = await FtsApi.to.searchConversationMessages(
+        keyword: effectiveQuery,
+        conversationUk3: widget.conversationUk3,
+        page: 1,
+        size: 50,
+      );
 
-      // 模拟搜索结果
-      // 实际应该调用搜索 API
-      notifier.setLoading(false);
-      notifier.stopSearching();
+      if (response == null) {
+        notifier.setError(t.searchError);
+        return;
+      }
+
+      // 将 MessageSearchResult 转换为 flutter_chat_core Message
+      final messages = response.items.map((item) {
+        final text = item.payload?['text'] as String? ?? item.content;
+        return CustomMessage(
+          authorId: item.fromId,
+          createdAt: DateTime.fromMillisecondsSinceEpoch(
+            item.createdAt,
+            isUtc: true,
+          ),
+          id: item.id,
+          metadata: {
+            'text': text,
+            'msg_type': item.msgType ?? MessageType.text,
+            ...?item.payload,
+          },
+        );
+      }).toList();
+
+      notifier.updateSearchResults(messages);
+      notifier.addToHistory(effectiveQuery);
+
+      // 高亮关键词
+      setState(() {
+        words = {
+          effectiveQuery: HighlightedWord(
+            textStyle: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        };
+      });
     } catch (e) {
-      notifier.setLoading(false);
-      notifier.stopSearching();
       notifier.setError(t.searchError);
       debugPrint('Search error: $e');
+    } finally {
+      notifier.setLoading(false);
+      notifier.stopSearching();
     }
   }
 
@@ -462,7 +499,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 _buildQuickFilterChip(
                   context,
                   t.textMessage,
-                  state.selectedMessageType == 'text',
+                  state.selectedMessageType == MessageType.text,
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
                     performSearch(query: state.currentQuery);
@@ -473,7 +510,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 _buildQuickFilterChip(
                   context,
                   t.imageMessage,
-                  state.selectedMessageType == 'image',
+                  state.selectedMessageType == MessageType.image,
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
                     performSearch(query: state.currentQuery);

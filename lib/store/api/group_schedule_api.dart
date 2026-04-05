@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群日程 API 客户端
 ///
@@ -75,8 +74,7 @@ class GroupScheduleApi extends HttpClient {
     if (location != null) data['location'] = location;
     if (remindBefore != null) data['remind_before'] = remindBefore;
 
-    final resp = await post('/v1/group_schedule/create', data: data);
-    debugPrint("GroupScheduleApi_createSchedule resp: ok=${resp.ok}");
+    final resp = await post(API.groupScheduleCreate, data: data);
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -110,8 +108,7 @@ class GroupScheduleApi extends HttpClient {
     if (location != null) data['location'] = location;
     if (remindBefore != null) data['remind_before'] = remindBefore;
 
-    final resp = await post('/v1/group_schedule/update', data: data);
-    debugPrint("GroupScheduleApi_updateSchedule resp: ok=${resp.ok}");
+    final resp = await post(API.groupScheduleUpdate, data: data);
     return resp.ok;
   }
 
@@ -124,10 +121,9 @@ class GroupScheduleApi extends HttpClient {
     if (scheduleIdText.isEmpty) return false;
 
     final resp = await post(
-      '/v1/group_schedule/cancel',
+      API.groupScheduleCancel,
       data: {'group_id': groupId, 'schedule_id': scheduleIdText},
     );
-    debugPrint("GroupScheduleApi_cancelSchedule resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -140,10 +136,9 @@ class GroupScheduleApi extends HttpClient {
     if (scheduleIdText.isEmpty) return null;
 
     final resp = await get(
-      '/v1/group_schedule/detail',
+      API.groupScheduleDetail,
       queryParameters: {'group_id': groupId, 'schedule_id': scheduleIdText},
     );
-    debugPrint("GroupScheduleApi_getSchedule resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -176,8 +171,7 @@ class GroupScheduleApi extends HttpClient {
     if (startTime != null) query['start_at'] = startTime;
     if (endTime != null) query['end_at'] = endTime;
 
-    final resp = await get('/v1/group_schedule/list', queryParameters: query);
-    debugPrint("GroupScheduleApi_getSchedules resp: ok=${resp.ok}");
+    final resp = await get(API.groupScheduleList, queryParameters: query);
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -198,10 +192,9 @@ class GroupScheduleApi extends HttpClient {
     if (endTime != null) query['end_at'] = endTime;
 
     final resp = await get(
-      '/v1/group_schedule/my_list',
+      API.groupScheduleMyList,
       queryParameters: query,
     );
-    debugPrint("GroupScheduleApi_getMySchedules resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -220,14 +213,13 @@ class GroupScheduleApi extends HttpClient {
     if (scheduleIdText.isEmpty) return false;
 
     final resp = await post(
-      '/v1/group_schedule/confirm',
+      API.groupScheduleConfirm,
       data: {
         'group_id': groupId,
         'schedule_id': scheduleIdText,
         'accept': confirm,
       },
     );
-    debugPrint("GroupScheduleApi_confirmSchedule resp: ok=${resp.ok}");
     return resp.ok;
   }
 }

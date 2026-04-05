@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/api/e2ee_plus_api.dart';
 
 /// E2EE 备份管理页面
 ///
@@ -111,29 +111,21 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
 
   Future<void> _loadBackupHistory() async {
     setState(() => _isLoading = true);
-
     try {
-      // TODO: 从服务器获取备份历史
-      // 这里使用模拟数据
-      final deviceId = await StorageSecureService.to.getDeviceId() ?? '未知';
-      setState(() {
-        _backupHistory = [
-          {
-            'id': 1,
-            'device_id': deviceId,
-            'backup_version': 1,
-            'created_at': DateTime.now().toIso8601String(),
-            'file_size': 2048,
-            'user_notes': '主手机备份',
-          },
-        ];
-        _isLoading = false;
-      });
+      final backups = await E2EEPlusApi().listBackups();
+      if (mounted) {
+        setState(() {
+          _backupHistory = backups;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _backupHistory = [];
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _backupHistory = [];
+        });
+      }
     }
   }
 
@@ -210,13 +202,19 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   }
 
   Future<void> _deleteBackup(int backupId) async {
-    // TODO: 调用 API 删除备份记录
-    setState(() {
-      _backupHistory.removeWhere((b) => b['id'] == backupId);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('备份记录已删除'), backgroundColor: Colors.green),
-    );
+    final success = await E2EEPlusApi().deleteBackup(backupId);
+    if (!mounted) return;
+    if (success) {
+      setState(() {
+        _backupHistory.removeWhere((b) => b['id'] == backupId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('备份记录已删除'), backgroundColor: Colors.green),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('删除失败，请重试'), backgroundColor: Colors.red),
+      );
+    }
   }
 }

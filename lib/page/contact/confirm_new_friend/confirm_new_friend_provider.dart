@@ -11,6 +11,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
 
 part 'confirm_new_friend_provider.g.dart';
 
@@ -118,9 +119,9 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
 
         // 触发新好友提醒计数重新计算
         Future.delayed(const Duration(seconds: 1), () {
-          // 触发新好友提醒计数重新计算
-          // 需要通过 WidgetRef 访问，这里暂时注释
-          // ref.read(newFriendRemindProvider.notifier).countReminders();
+          if (ref.mounted) {
+            ref.read(newFriendRemindProvider.notifier).countReminders();
+          }
         });
 
         return true;

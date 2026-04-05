@@ -67,8 +67,12 @@ Future<void> incomingCallScreen(
   p2pCallScreenOn = true;
 
   final sid = sessionId(peer.peerId);
-  WebRTCSession? s =
-      webRTCSessions[sid] ?? WebRTCSession(peerId: peer.peerId, sid: sid);
+  WebRTCSession? s = webRTCSessions[sid] ??
+      WebRTCSession(
+        peerId: peer.peerId,
+        sid: sid,
+        media: option['media']?.toString(),
+      );
   option['msgId'] = msgId;
 
   await MessagingFacade.instance.addLocalMsg(
@@ -91,10 +95,8 @@ Future<void> incomingCallScreen(
 
   await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
 
-  // TODO(ChatLogic迁移): 标记消息已读
-  // 需要在 ChatLogic 迁移到 Riverpod 后实现
-  // 依赖 ChatLogic 的 markAsRead 方法
-  // 目前暂时跳过此功能
+  // DONE(2026-04-04): 标记来电消息为已读
+  MessagingFacade.instance.markAsRead('C2C', peer.peerId, [msgId]);
 
   if (!context.mounted) return;
 
@@ -166,9 +168,8 @@ Future<void> incomingCallScreen(
               heroTag: "RejectCall",
               backgroundColor: theme.colorScheme.error,
               onPressed: () async {
-                // TODO(ChatLogic迁移): 标记消息已读
-                // 依赖 ChatLogic 的 markAsRead 方法
-                // 当前仅更新本地消息状态，未同步到服务端
+                // DONE(2026-04-04): 标记消息已读
+                MessagingFacade.instance.markAsRead('C2C', peer.peerId, [msgId]);
                 MessagingFacade.instance.changeLocalMsgState(msgId, 5);
                 gTimer?.cancel();
                 gTimer = null;
@@ -186,8 +187,8 @@ Future<void> incomingCallScreen(
               heroTag: "AcceptCall",
               backgroundColor: theme.colorScheme.primary,
               onPressed: () async {
-                // TODO(ChatLogic迁移): 标记消息已读
-                // 依赖 ChatLogic 的 markAsRead 方法
+                // DONE(2026-04-04): 标记消息已读
+                MessagingFacade.instance.markAsRead('C2C', peer.peerId, [msgId]);
                 gTimer?.cancel();
                 gTimer = null;
                 if (dialogContext.mounted) {
@@ -227,7 +228,15 @@ Future<void> openCallScreen(
   p2pCallScreenOn = true;
 
   final sid = sessionId(peer.peerId);
-  session ??= WebRTCSession(peerId: peer.peerId, sid: sid);
+  session ??= WebRTCSession(
+    peerId: peer.peerId,
+    sid: sid,
+    media: option['media']?.toString(),
+  );
+  // 如果已有 session 但 media 未设置，补充 media 信息
+  if (session.media == null && option['media'] != null) {
+    session.media = option['media']?.toString();
+  }
   webRTCSessions[sid] = session;
 
   p2pEntry = OverlayEntry(

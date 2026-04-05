@@ -41,7 +41,7 @@ final class ContactNotifierProvider
   }
 }
 
-String _$contactNotifierHash() => r'1087c58c25e37c84af19504efe05d7611970b60e';
+String _$contactNotifierHash() => r'5c24d8610a9ff9ef091ac4465eefeb53d76732c3';
 
 abstract class _$ContactNotifier extends $Notifier<ContactState> {
   ContactState build();

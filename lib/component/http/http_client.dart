@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
@@ -298,40 +297,57 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    try {
-      await _setDefaultConfig(uri);
-      // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-      if (serviceContainer.isRegistered<NetworkMonitorService>() &&
-          !NetworkMonitorService.to.hasNetwork) {
-        return handleException(
-          uri,
-          NetworkException(message: t.tipConnectDesc),
-        );
-      }
-      // iPrint("http_client/get $uri ?   queryParameters ${queryParameters.toString()}");
-      var response = await _dio.get(
+    return _executeWithNetworkCheck(
+      uri,
+      () => _dio.get(
         uri,
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
-      );
-      // iPrint("http_client/get/resp ${response.toString()}");
-      IMBoyHttpResponse resp = handleResponse(
+      ),
+      httpTransformer: httpTransformer,
+      onResponse: _checkAuthExpired,
+    );
+  }
+
+  /// 检查网络连通性
+  bool get _isNetworkAvailable {
+    return !serviceContainer.isRegistered<NetworkMonitorService>() ||
+        NetworkMonitorService.to.hasNetwork;
+  }
+
+  /// 统一的认证过期响应处理
+  void _checkAuthExpired(IMBoyHttpResponse resp) {
+    if (ErrorCode.shouldReLogin(resp.code)) {
+      UserRepoLocal.to.quitLogin();
+      _notifyAuthExpired(reason: 'api_relogin_required');
+    }
+  }
+
+  /// 带网络检查的通用请求执行器（DRY）
+  Future<IMBoyHttpResponse> _executeWithNetworkCheck(
+    String uri,
+    Future<Response> Function() requestFn, {
+    HttpTransformer? httpTransformer,
+    void Function(IMBoyHttpResponse)? onResponse,
+  }) async {
+    if (!_isNetworkAvailable) {
+      return handleException(uri, NetworkException(message: t.tipConnectDesc));
+    }
+    try {
+      await _setDefaultConfig(uri);
+      final response = await requestFn();
+      final resp = handleResponse(
         response,
         uri: uri,
         httpTransformer: httpTransformer,
       );
-      if (ErrorCode.shouldReLogin(resp.code)) {
-        UserRepoLocal.to.quitLogin();
-        _notifyAuthExpired(reason: 'api_relogin_required');
-      }
-
+      onResponse?.call(resp);
       return resp;
     } on Exception catch (e) {
-      debugPrint("> $uri on Exception: $e");
       return handleException(uri, e);
-    } finally {}
+    }
   }
 
   Future<IMBoyHttpResponse> post(
@@ -344,16 +360,9 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
-        !NetworkMonitorService.to.hasNetwork) {
-      // EasyLoading.showError(t.tipConnectDesc);
-      return handleException(uri, NetworkException(message: t.tipConnectDesc));
-    }
-    try {
-      debugPrint("http_post $uri");
-      await _setDefaultConfig(uri);
-      var response = await _dio.post(
+    return _executeWithNetworkCheck(
+      uri,
+      () => _dio.post(
         uri,
         data: data,
         queryParameters: queryParameters,
@@ -361,19 +370,10 @@ class HttpClient {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-      );
-      // 安全日志：不输出完整响应数据，可能包含敏感信息
-      debugPrint("http_post $uri completed with status ${response.statusCode}");
-      IMBoyHttpResponse resp = handleResponse(
-        response,
-        uri: uri,
-        httpTransformer: httpTransformer,
-      );
-      return resp;
-    } on Exception catch (e) {
-      debugPrint("$uri http_post error: ${e.toString()}");
-      return handleException(uri, e);
-    }
+      ),
+      httpTransformer: httpTransformer,
+      onResponse: _checkAuthExpired,
+    );
   }
 
   Future<IMBoyHttpResponse> delete(
@@ -384,30 +384,18 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
-        !NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError(t.tipConnectDesc);
-      return handleException(uri, NetworkException(message: t.tipConnectDesc));
-    }
-    try {
-      await _setDefaultConfig(uri);
-      var response = await _dio.delete(
+    return _executeWithNetworkCheck(
+      uri,
+      () => _dio.delete(
         uri,
         data: data,
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
-      );
-      IMBoyHttpResponse resp = handleResponse(
-        response,
-        uri: uri,
-        httpTransformer: httpTransformer,
-      );
-      return resp;
-    } on Exception catch (e) {
-      return handleException(uri, e);
-    }
+      ),
+      httpTransformer: httpTransformer,
+      onResponse: _checkAuthExpired,
+    );
   }
 
   Future<IMBoyHttpResponse> patch(
@@ -420,15 +408,9 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
-        !NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError(t.tipConnectDesc);
-      return handleException(uri, NetworkException(message: t.tipConnectDesc));
-    }
-    try {
-      await _setDefaultConfig(uri);
-      var response = await _dio.patch(
+    return _executeWithNetworkCheck(
+      uri,
+      () => _dio.patch(
         uri,
         data: data,
         queryParameters: queryParameters,
@@ -436,15 +418,10 @@ class HttpClient {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-      );
-      return handleResponse(
-        response,
-        uri: uri,
-        httpTransformer: httpTransformer,
-      );
-    } on Exception catch (e) {
-      return handleException(uri, e);
-    }
+      ),
+      httpTransformer: httpTransformer,
+      onResponse: _checkAuthExpired,
+    );
   }
 
   Future<IMBoyHttpResponse> put(
@@ -455,29 +432,18 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
-    if (serviceContainer.isRegistered<NetworkMonitorService>() &&
-        !NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError(t.tipConnectDesc);
-      return handleException(uri, NetworkException(message: t.tipConnectDesc));
-    }
-    try {
-      await _setDefaultConfig(uri);
-      var response = await _dio.put(
+    return _executeWithNetworkCheck(
+      uri,
+      () => _dio.put(
         uri,
         data: data,
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
-      );
-      return handleResponse(
-        response,
-        uri: uri,
-        httpTransformer: httpTransformer,
-      );
-    } on Exception catch (e) {
-      return handleException(uri, e);
-    }
+      ),
+      httpTransformer: httpTransformer,
+      onResponse: _checkAuthExpired,
+    );
   }
 
   Future<Response> download(
@@ -492,22 +458,17 @@ class HttpClient {
     Options? options,
     HttpTransformer? httpTransformer,
   }) async {
-    try {
-      await _setDefaultConfig(urlPath);
-      var response = await _dio.download(
-        urlPath,
-        savePath,
-        onReceiveProgress: onReceiveProgress,
-        queryParameters: queryParameters,
-        cancelToken: cancelToken,
-        deleteOnError: deleteOnError,
-        lengthHeader: lengthHeader,
-        data: data,
-        options: data,
-      );
-      return response;
-    } catch (e) {
-      rethrow;
-    }
+    await _setDefaultConfig(urlPath);
+    return _dio.download(
+      urlPath,
+      savePath,
+      onReceiveProgress: onReceiveProgress,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+      deleteOnError: deleteOnError,
+      lengthHeader: lengthHeader,
+      data: data,
+      options: options,
+    );
   }
 }

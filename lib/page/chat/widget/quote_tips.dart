@@ -3,6 +3,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/helper/func.dart' show formatBytes;
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -137,7 +138,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (msgType == 'quote') {
+    } else if (msgType == MessageType.quote) {
       String txt = message?.metadata?['quote_text'] ?? '';
       body = Row(
         children: [
@@ -157,7 +158,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (msgType == 'voice') {
+    } else if (msgType == MessageType.voice) {
       double durationMS = (message?.metadata?["duration_ms"] ?? 0) / 1000;
       body = Row(
         children: [
@@ -173,7 +174,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (msgType == 'location') {
+    } else if (msgType == MessageType.location) {
       body = Row(
         children: [
           Icon(
@@ -192,7 +193,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ],
       );
-    } else if (msgType == 'video') {
+    } else if (msgType == MessageType.video) {
       body = Row(
         children: [
           Icon(
@@ -226,7 +227,7 @@ class QuoteTipsWidget extends StatelessWidget {
             ),
         ],
       );
-    } else if (msgType == 'visitCard') {
+    } else if (msgType == MessageType.visitCard) {
       body = Row(
         children: [
           Icon(

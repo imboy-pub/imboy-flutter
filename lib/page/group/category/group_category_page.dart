@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/service/group_category_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/category/group_category_detail_page.dart';
 
 /// 群分组页面
 class GroupCategoryPage extends ConsumerStatefulWidget {
@@ -121,11 +122,17 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       subtitle: Text('${category['group_count'] ?? 0} 个群聊'),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
-        // 跳转到分组详情页面
-        // context.push('/group/category/${category['id']}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('功能开发中...')),
-        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => GroupCategoryDetailPage(
+              categoryId: category['id'],
+              categoryName: category['name'] ?? '',
+            ),
+          ),
+        ).then((result) {
+          if (result == true) _loadCategories();
+        });
       },
     );
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
@@ -165,7 +166,7 @@ class MessageWebrtc {
         status: MessageStatus.delivered,
         metadata: {
           'peer_id': peer.peerId,
-          'msg_type': media == 'video' ? 'webrtcVideo' : 'webrtcAudio',
+          'msg_type': media == 'video' ? MessageType.webrtcVideo : MessageType.webrtcAudio,
           'media': media,
           'start_at': 0,
           'end_at': 0,
@@ -210,7 +211,7 @@ class MessageWebrtc {
 
     final metadata = (msg.payload as Map?)?.cast<String, dynamic>() ?? {};
     final msgType = metadata['msg_type'] ?? '';
-    if (!['webrtcVideo', 'webrtcAudio'].contains(msgType)) return;
+    if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType)) return;
 
     metadata['state'] = state;
     if (startAt >= 0 && metadata['start_at'] == 0) {

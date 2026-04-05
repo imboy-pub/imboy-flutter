@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/component/ui/common.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/live_room_list/live_room_list_provider.dart';
+import 'package:imboy/store/api/live_room_api.dart';
 import 'package:imboy/store/model/live_room_model.dart';
 
 class LiveRoomListPage extends ConsumerStatefulWidget {
@@ -20,38 +21,83 @@ class LiveRoomListPage extends ConsumerStatefulWidget {
 
 class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
   StreamSubscription? _localeSubscription;
+  final _scrollController = ScrollController();
+  final _api = LiveRoomApi();
 
   @override
   void initState() {
     super.initState();
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
+    });
+    _scrollController.addListener(_onScroll);
+    // 页面首次加载时从后端拉取数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(liveRoomListProvider.notifier).loadFirst();
     });
   }
 
   @override
   void dispose() {
     _localeSubscription?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void initData() {
-    var list = <LiveRoomModel>[];
-    list.add(
-      LiveRoomModel(
-        userId: "1",
-        tagId: 1,
-        scene: 1,
-        name: "name",
-        subtitle: "subtitle",
-        refererTime: 0,
-        updatedAt: 0,
-        createdAt: 0,
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 100) {
+      ref.read(liveRoomListProvider.notifier).loadMore();
+    }
+  }
+
+  /// 弹出创建直播间对话框，成功后跳转到推流页
+  Future<void> _showCreateRoomDialog() async {
+    final titleController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('创建直播间'),
+        content: TextField(
+          controller: titleController,
+          decoration: const InputDecoration(
+            labelText: '直播间标题',
+            hintText: '请输入直播间标题',
+          ),
+          autofocus: true,
+          maxLength: 100,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('创建'),
+          ),
+        ],
       ),
     );
-    ref.read(liveRoomListProvider.notifier).setItems(list);
+
+    if (confirmed != true || !mounted) return;
+    final title = titleController.text.trim();
+    if (title.isEmpty) {
+      EasyLoading.showToast('标题不能为空');
+      return;
+    }
+
+    EasyLoading.show(status: '创建中...');
+    final room = await _api.create(title: title);
+    EasyLoading.dismiss();
+
+    if (!mounted) return;
+    if (room == null) return; // create() 内部已显示错误
+
+    // 跳转到推流页，携带 roomId 和 streamKey
+    context.push('/live_room/publisher', extra: room);
+    // 刷新列表
+    ref.read(liveRoomListProvider.notifier).loadFirst();
   }
 
   @override
@@ -59,83 +105,100 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     final t = context.t;
     final state = ref.watch(liveRoomListProvider);
 
-    // 初始化数据
-    initData();
-
     return Scaffold(
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.myLive),
-      body: SingleChildScrollView(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 10),
-                  child: state.items.isEmpty
-                      ? NoDataView(text: t.noData)
-                      : ListView.builder(
-                          itemCount: state.items.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Column(
-                              children: [
-                                ListTile(
-                                  contentPadding: const EdgeInsets.only(
-                                    left: 0,
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Text(t.liveBroadcast),
-                                      const Space(width: 10),
-                                    ],
-                                  ),
-                                  subtitle: Row(
-                                    children: [Text(t.publisherPage)],
-                                  ),
-                                  trailing: navigateNextIcon,
-                                  onTap: () {
-                                    context.push('/live_room/publisher');
-                                  },
-                                ),
-                                const Divider(
-                                  height: 8.0,
-                                  indent: 0.0,
-                                  color: Colors.black26,
-                                ),
-                                ListTile(
-                                  contentPadding: const EdgeInsets.only(
-                                    left: 0,
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Text(t.liveBroadcast),
-                                      const Space(width: 10),
-                                    ],
-                                  ),
-                                  subtitle: Row(children: [Text(t.subscriber)]),
-                                  trailing: navigateNextIcon,
-                                  onTap: () {
-                                    context.push('/live_room/subscriber');
-                                  },
-                                ),
-                                const Divider(
-                                  height: 8.0,
-                                  indent: 0.0,
-                                  color: Colors.black26,
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                ),
-              ),
-            ],
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.myLive,
+        rightDMActions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _showCreateRoomDialog,
           ),
-        ),
+        ],
       ),
+      body: RefreshIndicator(
+        onRefresh: () => ref.read(liveRoomListProvider.notifier).loadFirst(),
+        child: state.isLoading && state.items.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : state.items.isEmpty
+                ? NoDataView(text: t.noData)
+                : ListView.separated(
+                    controller: _scrollController,
+                    itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, indent: 16),
+                    itemBuilder: (context, index) {
+                      if (index == state.items.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return _buildRoomTile(context, state.items[index]);
+                    },
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildRoomTile(BuildContext context, LiveRoomModel room) {
+    return ListTile(
+      leading: room.cover.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image(
+                image: cachedImageProvider(room.cover),
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const Icon(Icons.live_tv),
+              ),
+            )
+          : const Icon(Icons.live_tv, size: 40),
+      title: Text(
+        room.title.isNotEmpty ? room.title : 'Live Room',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Row(
+        children: [
+          Icon(
+            Icons.circle,
+            size: 8,
+            color: room.isLive ? Colors.red : Colors.grey,
+          ),
+          const SizedBox(width: 4),
+          Text(room.isLive ? 'LIVE' : 'Idle'),
+          const SizedBox(width: 12),
+          const Icon(Icons.remove_red_eye, size: 12, color: Colors.grey),
+          const SizedBox(width: 2),
+          Text(
+            '${room.viewerCount}',
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (room.isLive)
+            IconButton(
+              icon: const Icon(Icons.play_circle_outline),
+              tooltip: '观看直播',
+              onPressed: () => context.push('/live_room/subscriber', extra: room),
+            ),
+          const Icon(Icons.navigate_next),
+        ],
+      ),
+      onTap: () {
+        if (room.isLive) {
+          // 直播中：跳转到订阅者（观看）页面，携带房间信息
+          context.push('/live_room/subscriber', extra: room);
+        } else {
+          // 非直播中：跳转到推流页（继续推流）
+          context.push('/live_room/publisher', extra: room);
+        }
+      },
     );
   }
 }

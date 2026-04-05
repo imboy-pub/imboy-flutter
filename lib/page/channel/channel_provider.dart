@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -271,7 +272,11 @@ class ChannelDetailState {
 class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   final ChannelApi _api = ChannelApi();
   String? _channelId;
+  @visibleForTesting
+  void debugSetChannelId(String? channelId) => _channelId = channelId;
   StreamSubscription<ChannelNewMessageEvent>? _channelNewMessageSub;
+  StreamSubscription<ChannelMessageDeletedEvent>? _channelMessageDeletedSub;
+  StreamSubscription<ChannelStateChangedEvent>? _channelStateChangedSub;
 
   @override
   ChannelDetailState build() {
@@ -280,9 +285,21 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     ) {
       _handleRealtimeMessage(event);
     });
+    _channelMessageDeletedSub ??= AppEventBus.on<ChannelMessageDeletedEvent>()
+        .listen((event) {
+          _handleRealtimeMessageDeleted(event);
+        });
+    _channelStateChangedSub ??= AppEventBus.on<ChannelStateChangedEvent>()
+        .listen((event) {
+          _handleChannelStateChanged(event);
+        });
     ref.onDispose(() {
       _channelNewMessageSub?.cancel();
       _channelNewMessageSub = null;
+      _channelMessageDeletedSub?.cancel();
+      _channelMessageDeletedSub = null;
+      _channelStateChangedSub?.cancel();
+      _channelStateChangedSub = null;
     });
 
     return const ChannelDetailState();
@@ -422,6 +439,66 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     } catch (_) {
       // 忽略解析失败，保留现有状态
     }
+  }
+
+  void _handleRealtimeMessageDeleted(ChannelMessageDeletedEvent event) {
+    handleMessageDeletedEvent(event);
+  }
+
+  /// 让外部（测试或事件回调）明确执行删除逻辑
+  void handleMessageDeletedEvent(ChannelMessageDeletedEvent event) {
+    if (_channelId == null || event.channelId != _channelId) return;
+    if (!ref.mounted) return;
+
+    final nextMessages = state.messages
+        .where((message) => message.id != event.messageId)
+        .toList(growable: false);
+    if (nextMessages.length == state.messages.length) {
+      return;
+    }
+    state = state.copyWith(messages: nextMessages);
+  }
+
+  void _handleChannelStateChanged(ChannelStateChangedEvent event) {
+    if (_channelId == null || event.channelId != _channelId) return;
+    if (!ref.mounted) return;
+
+    switch (event.action) {
+      case 'channel_updated':
+        final channelData = event.payload['channel'];
+        if (channelData is Map) {
+          state = state.copyWith(
+            channel: ChannelModel.fromJson(
+              Map<String, dynamic>.from(channelData),
+            ),
+          );
+        }
+        break;
+      case 'channel_deleted':
+        state = state.copyWith(clearChannel: true, error: '频道已删除');
+        break;
+      default:
+        break;
+    }
+  }
+
+  /// 立刻更新消息的置顶状态，不等待后端推送
+  void updateMessagePinned(String messageId, bool pinned) {
+    final updated = state.messages
+        .map((message) => message.id == messageId
+            ? message.copyWith(isPinned: pinned)
+            : message)
+        .toList(growable: false);
+    state = state.copyWith(messages: updated);
+  }
+
+  /// 立刻从列表移除指定消息
+  void removeMessageLocally(String messageId) {
+    final nextMessages = state.messages
+        .where((message) => message.id != messageId)
+        .toList(growable: false);
+    if (nextMessages.length == state.messages.length) return;
+    state = state.copyWith(messages: nextMessages);
   }
 }
 

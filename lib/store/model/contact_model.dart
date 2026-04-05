@@ -12,7 +12,6 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 String getSourceTr(String? source) {
-  debugPrint("getSourceTr $source");
   if (source == null) {
     return '';
   }

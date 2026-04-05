@@ -178,9 +178,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     // 加载会话记录
     final state = ref.read(conversationProvider);
     if (state.conversationMap.isEmpty) {
-      await notifier.syncAuthoritativeConversationList(
-        trigger: 'page_init',
-      );
+      await notifier.syncAuthoritativeConversationList(trigger: 'page_init');
     }
   }
 
@@ -223,156 +221,171 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         itemExtent: 88.0,
                         itemCount: state.conversations.length,
                         itemBuilder: (BuildContext context, int index) {
-                        if (index >= state.conversations.length) {
-                          return const SizedBox.shrink();
-                        }
-                        ConversationModel model = state.conversations[index];
-                        return InkWell(
-                          onTap: () {
-                            context.push(
-                              '/chat/${model.peerId}',
-                              extra: {
-                                'type': strEmpty(model.type)
-                                    ? 'C2C'
-                                    : model.type,
-                                'title': model.title,
-                                'avatar': model.avatar,
-                                'sign': model.sign,
-                              },
-                            );
-                          },
-                          onTapDown: (TapDownDetails details) {},
-                          onLongPress: () {},
-                          child: Slidable(
-                            key: ValueKey(model.id),
-                            groupTag: '0',
-                            closeOnScroll: true,
-                            endActionPane: ActionPane(
-                              extentRatio: 0.618,
-                              motion: const StretchMotion(),
-                              children: [
-                                CustomSlidableAction(
-                                  onPressed: (_) async {
-                                    final targetUnread = model.unreadNum > 0
-                                        ? 0
-                                        : 1;
-                                    if (model.unreadNum > 0) {
-                                      // 当前有未读消息，标记为已读
-                                      // 同步将该会话未读消息状态从 delivered 改为 seen
-                                      try {
-                                        final db = await SqliteService.to.db;
-                                        if (db != null) {
-                                          final tb = MessageRepo.getTableName(
-                                            model.type,
-                                          );
-                                          await db.update(
-                                            tb,
-                                            {
-                                              MessageRepo.status:
-                                                  IMBoyMessageStatus.seen,
-                                            },
-                                            where:
-                                                "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
-                                            whereArgs: [
-                                              model.uk3,
-                                              IMBoyMessageStatus.delivered,
-                                              0,
-                                            ],
-                                          );
-                                        }
-                                      } catch (e) {
-                                        // 忽略异常以保证交互流畅
-                                      }
-                                      // 推进水位到该会话来自对方的最新消息
-                                      await notifier.advanceWatermarkToLatest(
-                                        model,
-                                      );
-                                      await notifier.setConversationRemind(
-                                        model,
-                                        0,
-                                      );
-                                    } else {
-                                      // 当前没有未读消息，标记为未读
-                                      await notifier.setConversationRemind(
-                                        model,
-                                        1,
-                                      );
-                                    }
-                                    notifier.applyConversationSnapshot(
-                                      model.copyWith(unreadNum: targetUnread),
-                                    );
-                                  },
-                                  autoClose: true,
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.primary,
-                                  flex: 2,
-                                  child: Builder(
-                                    builder: (context) {
-                                      final currentNum = model.unreadNum > 0
+                          if (index >= state.conversations.length) {
+                            return const SizedBox.shrink();
+                          }
+                          ConversationModel model = state.conversations[index];
+                          return InkWell(
+                            onTap: () {
+                              context.push(
+                                '/chat/${model.peerId}',
+                                extra: {
+                                  'type': strEmpty(model.type)
+                                      ? 'C2C'
+                                      : model.type,
+                                  'title': model.title,
+                                  'avatar': model.avatar,
+                                  'sign': model.sign,
+                                },
+                              );
+                            },
+                            onTapDown: (TapDownDetails details) {},
+                            onLongPress: () {},
+                            child: Slidable(
+                              key: ValueKey(model.id),
+                              groupTag: '0',
+                              closeOnScroll: true,
+                              endActionPane: ActionPane(
+                                extentRatio: 0.618,
+                                motion: const StretchMotion(),
+                                children: [
+                                  CustomSlidableAction(
+                                    onPressed: (_) async {
+                                      final targetUnread = model.unreadNum > 0
                                           ? 0
                                           : 1;
-                                      return Text(
-                                        currentNum > 0
-                                            ? t.markRead
-                                            : t.markUnread,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
+                                      if (model.unreadNum > 0) {
+                                        // 当前有未读消息，标记为已读
+                                        // 同步将该会话未读消息状态从 delivered 改为 seen
+                                        try {
+                                          final db = await SqliteService.to.db;
+                                          if (db != null) {
+                                            final tb = MessageRepo.getTableName(
+                                              model.type,
+                                            );
+                                            await db.update(
+                                              tb,
+                                              {
+                                                MessageRepo.status:
+                                                    IMBoyMessageStatus.seen,
+                                              },
+                                              where:
+                                                  "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
+                                              whereArgs: [
+                                                model.uk3,
+                                                IMBoyMessageStatus.delivered,
+                                                0,
+                                              ],
+                                            );
+                                          }
+                                        } catch (e) {
+                                          // 忽略异常以保证交互流畅
+                                        }
+                                        // 推进水位到该会话来自对方的最新消息
+                                        await notifier.advanceWatermarkToLatest(
+                                          model,
+                                        );
+                                        await notifier.setConversationRemind(
+                                          model,
+                                          0,
+                                        );
+                                      } else {
+                                        // 当前没有未读消息，标记为未读
+                                        await notifier.setConversationRemind(
+                                          model,
+                                          1,
+                                        );
+                                      }
+                                      notifier.applyConversationSnapshot(
+                                        model.copyWith(unreadNum: targetUnread),
                                       );
                                     },
+                                    autoClose: true,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    flex: 2,
+                                    child: Builder(
+                                      builder: (context) {
+                                        final currentNum = model.unreadNum > 0
+                                            ? 0
+                                            : 1;
+                                        return Text(
+                                          currentNum > 0
+                                              ? t.markRead
+                                              : t.markUnread,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
-                                SlidableAction(
-                                  key: ValueKey("hide_$index"),
-                                  flex: 3,
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.secondary,
-                                  onPressed: (_) async {
-                                    await notifier.hideConversation(model.id);
-                                    notifier.removeConversationFromMap(
-                                      model.uk3,
-                                    );
-                                    notifier.removeConversationRemind(
-                                      model.uk3,
-                                    );
-                                  },
-                                  label: t.notShow,
-                                  spacing: 1,
-                                ),
-                                SlidableAction(
-                                  key: ValueKey("delete_$index"),
-                                  flex: 2,
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.error,
-                                  foregroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.onError,
-                                  onPressed: (_) async {
-                                    await notifier.removeConversation(model);
-                                    // 从 Map 中移除已在 removeConversation 中处理
-                                  },
-                                  label: t.buttonDelete,
-                                  spacing: 1,
-                                ),
-                              ],
+                                  SlidableAction(
+                                    key: ValueKey("pin_$index"),
+                                    flex: 3,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.tertiary,
+                                    onPressed: (_) async {
+                                      final targetPinned = !model.isPinned;
+                                      final ok = await notifier
+                                          .setConversationPinned(
+                                            model,
+                                            targetPinned,
+                                          );
+                                      if (!context.mounted || ok) {
+                                        return;
+                                      }
+                                      ScaffoldMessenger.maybeOf(
+                                        context,
+                                      )?.showSnackBar(
+                                        SnackBar(content: Text(t.tipFailed)),
+                                      );
+                                    },
+                                    label: model.isPinned ? t.unpin : t.pin,
+                                    spacing: 1,
+                                  ),
+                                  SlidableAction(
+                                    key: ValueKey("delete_$index"),
+                                    flex: 2,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.error,
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onError,
+                                    onPressed: (_) async {
+                                      final ok = await notifier
+                                          .deleteConversationRemote(model);
+                                      if (!context.mounted || ok) {
+                                        return;
+                                      }
+                                      ScaffoldMessenger.maybeOf(
+                                        context,
+                                      )?.showSnackBar(
+                                        SnackBar(content: Text(t.tipFailed)),
+                                      );
+                                    },
+                                    label: t.buttonDelete,
+                                    spacing: 1,
+                                  ),
+                                ],
+                              ),
+                              child: ConversationItem(
+                                model: model,
+                                onTapAvatar: () {
+                                  context.push(
+                                    '/contact/people/${model.peerId}',
+                                    extra: {'scene': ''},
+                                  );
+                                },
+                              ),
                             ),
-                            child: ConversationItem(
-                              model: model,
-                              onTapAvatar: () {
-                                context.push(
-                                  '/contact/people/${model.peerId}',
-                                  extra: {'scene': ''},
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
               ),
             ),
           ),

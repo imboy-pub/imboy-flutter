@@ -32,8 +32,13 @@ import 'channel_provider.dart';
 /// - 管理员/创建者：发布消息、管理频道、置顶/删除消息
 class ChannelDetailPage extends ConsumerStatefulWidget {
   final String channelId;
+  final bool autoLoadStats;
 
-  const ChannelDetailPage({super.key, required this.channelId});
+  const ChannelDetailPage({
+    super.key,
+    required this.channelId,
+    this.autoLoadStats = true,
+  });
 
   @override
   ConsumerState<ChannelDetailPage> createState() => _ChannelDetailPageState();
@@ -107,7 +112,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final t = context.t;
     final state = ref.watch(channelDetailProvider);
     final channel = state.channel;
-    if (channel != null &&
+    if (widget.autoLoadStats &&
+        channel != null &&
         (_stats == null || _stats!.channelId != channel.id) &&
         _statsRequestedChannelId != channel.id) {
       _statsRequestedChannelId = channel.id;
@@ -739,6 +745,16 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                           // 刷新统计
                           _loadStats(_resolveChannelId(state.channel));
                         },
+                        onPinned: (pinned) {
+                          ref
+                              .read(channelDetailProvider.notifier)
+                              .updateMessagePinned(message.id, pinned);
+                        },
+                        onDeleted: () {
+                          ref
+                              .read(channelDetailProvider.notifier)
+                              .removeMessageLocally(message.id);
+                        },
                       ),
                     ],
                   );
@@ -1283,12 +1299,16 @@ class _ChannelMessageItem extends StatelessWidget {
   final String channelId;
   final bool isManaged;
   final VoidCallback? onReactionChanged;
+  final ValueChanged<bool>? onPinned;
+  final VoidCallback? onDeleted;
 
   const _ChannelMessageItem({
     required this.message,
     required this.channelId,
     this.isManaged = false,
     this.onReactionChanged,
+    this.onPinned,
+    this.onDeleted,
   });
 
   Future<void> _addReaction(BuildContext context, String reactionType) async {
@@ -1599,6 +1619,7 @@ class _ChannelMessageItem extends StatelessWidget {
         ),
       );
       onReactionChanged?.call();
+      onPinned?.call(pinned);
     }
   }
 
@@ -1627,6 +1648,7 @@ class _ChannelMessageItem extends StatelessWidget {
                   SnackBar(content: Text(t.channel.messageDeleted)),
                 );
                 onReactionChanged?.call();
+                onDeleted?.call();
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),

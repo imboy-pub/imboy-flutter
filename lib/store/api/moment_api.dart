@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 class MomentPageResult<T> {
@@ -38,7 +39,7 @@ class MomentApi extends HttpClient {
       body['deny_uids'] = denyUids;
     }
 
-    final resp = await post('/v1/moment/create', data: body);
+    final resp = await post(API.momentCreate, data: body);
     debugPrint('MomentApi.createPost ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok || resp.payload == null || resp.payload is! Map) {
       return null;
@@ -47,7 +48,7 @@ class MomentApi extends HttpClient {
   }
 
   Future<Map<String, dynamic>?> getPost(String momentId) async {
-    final resp = await get('/v1/moment/$momentId');
+    final resp = await get(API.momentDetail(momentId));
     debugPrint('MomentApi.getPost ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok || resp.payload == null || resp.payload is! Map) {
       return null;
@@ -56,7 +57,7 @@ class MomentApi extends HttpClient {
   }
 
   Future<bool> deletePost(String momentId) async {
-    final resp = await post('/v1/moment/$momentId/delete', data: {});
+    final resp = await post(API.momentDelete(momentId), data: {});
     return resp.ok;
   }
 
@@ -68,7 +69,7 @@ class MomentApi extends HttpClient {
     if (cursor != null && cursor.isNotEmpty) {
       params['cursor'] = cursor;
     }
-    final resp = await get('/v1/moments/feed', queryParameters: params);
+    final resp = await get(API.momentsFeed, queryParameters: params);
     debugPrint('MomentApi.getFeedPage ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok || resp.payload == null || resp.payload is! Map) {
       return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
@@ -98,7 +99,7 @@ class MomentApi extends HttpClient {
     if (cursor != null && cursor.isNotEmpty) {
       params['cursor'] = cursor;
     }
-    final resp = await get('/v1/moments/user/$uid', queryParameters: params);
+    final resp = await get(API.momentsUser(uid), queryParameters: params);
     debugPrint('MomentApi.getUserPostsPage ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok || resp.payload == null || resp.payload is! Map) {
       return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
@@ -120,12 +121,12 @@ class MomentApi extends HttpClient {
   }
 
   Future<bool> likePost(String momentId) async {
-    final resp = await post('/v1/moment/$momentId/like', data: {});
+    final resp = await post(API.momentLike(momentId), data: {});
     return resp.ok;
   }
 
   Future<bool> unlikePost(String momentId) async {
-    final resp = await post('/v1/moment/$momentId/unlike', data: {});
+    final resp = await post(API.momentUnlike(momentId), data: {});
     return resp.ok;
   }
 
@@ -139,7 +140,7 @@ class MomentApi extends HttpClient {
       body['reply_to_uid'] = replyToUid;
     }
 
-    final resp = await post('/v1/moment/$momentId/comment', data: body);
+    final resp = await post(API.momentComment(momentId), data: body);
     if (!resp.ok || resp.payload == null || resp.payload is! Map) {
       return null;
     }
@@ -156,7 +157,7 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(
-      '/v1/moment/$momentId/comments',
+      API.momentComments(momentId),
       queryParameters: params,
     );
     if (!resp.ok || resp.payload == null || resp.payload is! Map) {
@@ -180,7 +181,7 @@ class MomentApi extends HttpClient {
 
   Future<bool> deleteComment(String momentId, String commentId) async {
     final resp = await post(
-      '/v1/moment/$momentId/comment/$commentId/delete',
+      API.momentCommentDelete(momentId, commentId),
       data: {},
     );
     return resp.ok;
@@ -192,7 +193,7 @@ class MomentApi extends HttpClient {
     String description = '',
   }) async {
     final resp = await post(
-      '/v1/moment/$momentId/report',
+      API.momentReport(momentId),
       data: <String, dynamic>{'reason': reason, 'description': description},
     );
     return resp.ok;

@@ -86,69 +86,53 @@ class PassportNotifier extends _$PassportNotifier {
   /// 保存历史记录
   Future<void> saveHistory(String type, String value) async {
     if (value.isEmpty) return;
+    final info = _historyInfoFor(type);
+    if (info == null) return;
 
-    List<String> list = [];
-    String key = '';
-
-    if (type == 'account') {
-      list = List.from(state.accountHistory);
-      key = Keys.loginHistoryAccount;
-    } else if (type == 'mobile') {
-      list = List.from(state.mobileHistory);
-      key = Keys.loginHistoryMobile;
-    } else if (type == 'email') {
-      list = List.from(state.emailHistory);
-      key = Keys.loginHistoryEmail;
-    } else {
-      return;
-    }
-
-    // Remove if exists to move to top
+    final list = List<String>.from(info.currentList);
     list.remove(value);
     list.insert(0, value);
-    // Limit to 5
-    if (list.length > 5) {
-      list = list.sublist(0, 5);
-    }
+    final trimmed = list.length > 5 ? list.sublist(0, 5) : list;
 
-    await StorageService.to.setList(key, list);
-
-    if (type == 'account') {
-      state = state.copyWith(accountHistory: list);
-    } else if (type == 'mobile') {
-      state = state.copyWith(mobileHistory: list);
-    } else if (type == 'email') {
-      state = state.copyWith(emailHistory: list);
-    }
+    await StorageService.to.setList(info.key, trimmed);
+    info.updateState(trimmed);
   }
 
   /// 删除历史记录
   Future<void> removeHistory(String type, String value) async {
-    List<String> list = [];
-    String key = '';
+    final info = _historyInfoFor(type);
+    if (info == null) return;
 
-    if (type == 'account') {
-      list = List.from(state.accountHistory);
-      key = Keys.loginHistoryAccount;
-    } else if (type == 'mobile') {
-      list = List.from(state.mobileHistory);
-      key = Keys.loginHistoryMobile;
-    } else if (type == 'email') {
-      list = List.from(state.emailHistory);
-      key = Keys.loginHistoryEmail;
-    } else {
-      return;
-    }
-
+    final list = List<String>.from(info.currentList);
     list.remove(value);
-    await StorageService.to.setList(key, list);
 
-    if (type == 'account') {
-      state = state.copyWith(accountHistory: list);
-    } else if (type == 'mobile') {
-      state = state.copyWith(mobileHistory: list);
-    } else if (type == 'email') {
-      state = state.copyWith(emailHistory: list);
+    await StorageService.to.setList(info.key, list);
+    info.updateState(list);
+  }
+
+  /// 统一获取历史记录映射（消除 saveHistory/removeHistory 中的重复 if-else）
+  _HistoryInfo? _historyInfoFor(String type) {
+    switch (type) {
+      case 'account':
+        return _HistoryInfo(
+          currentList: state.accountHistory,
+          key: Keys.loginHistoryAccount,
+          updateState: (l) => state = state.copyWith(accountHistory: l),
+        );
+      case 'mobile':
+        return _HistoryInfo(
+          currentList: state.mobileHistory,
+          key: Keys.loginHistoryMobile,
+          updateState: (l) => state = state.copyWith(mobileHistory: l),
+        );
+      case 'email':
+        return _HistoryInfo(
+          currentList: state.emailHistory,
+          key: Keys.loginHistoryEmail,
+          updateState: (l) => state = state.copyWith(emailHistory: l),
+        );
+      default:
+        return null;
     }
   }
 
@@ -384,51 +368,7 @@ class PassportNotifier extends _$PassportNotifier {
   ) async {
     try {
       int status = await _login(accountType, account, password);
-      if (status == 1) {
-        state = state.copyWith(error: '', loginPwd: '');
-        return null;
-      } else if (status == 2) {
-        // 显示取消登录对话框
-        final context = navigatorKey.currentContext;
-        if (context != null) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(t.cancelLogoutTitle),
-              content: SizedBox(
-                height: 108,
-                child: Text(
-                  t.cancelLogoutBody,
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(t.buttonCancel),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    await ref.read(userApiProvider).cancelLogout();
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => const BottomNavigationPage(),
-                      ),
-                    );
-                  },
-                  child: Text(t.login),
-                ),
-              ],
-            ),
-          );
-        }
-        return t.cancelLogoutTitle;
-      } else {
-        return state.error;
-      }
+      return _handleLoginStatus(status);
     } catch (e, s) {
       iPrint('state.error: $e; ${s.toString()}');
       return e.toString();
@@ -442,54 +382,64 @@ class PassportNotifier extends _$PassportNotifier {
   ) async {
     try {
       int status = await _loginByCode(accountType, account, code);
-      if (status == 1) {
-        state = state.copyWith(error: '', loginPwd: '');
-        return null;
-      } else if (status == 2) {
-        final context = navigatorKey.currentContext;
-        if (context != null) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(t.cancelLogoutTitle),
-              content: SizedBox(
-                height: 108,
-                child: Text(
-                  t.cancelLogoutBody,
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(t.buttonCancel),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    await ref.read(userApiProvider).cancelLogout();
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => const BottomNavigationPage(),
-                      ),
-                    );
-                  },
-                  child: Text(t.login),
-                ),
-              ],
-            ),
-          );
-        }
-        return t.cancelLogoutTitle;
-      } else {
-        return state.error;
-      }
+      return _handleLoginStatus(status);
     } catch (e, s) {
       iPrint('state.error: $e; ${s.toString()}');
       return e.toString();
     }
+  }
+
+  /// 处理登录结果状态（消除重复代码）
+  String? _handleLoginStatus(int status) {
+    if (status == 1) {
+      state = state.copyWith(error: '', loginPwd: '');
+      return null;
+    } else if (status == 2) {
+      _showCancelLogoutDialog();
+      return t.cancelLogoutTitle;
+    } else {
+      return state.error;
+    }
+  }
+
+  /// 显示"取消注销"确认对话框
+  void _showCancelLogoutDialog() {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.cancelLogoutTitle),
+        content: SizedBox(
+          height: 108,
+          child: Text(
+            t.cancelLogoutBody,
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref.read(userApiProvider).cancelLogout();
+              if (!ctx.mounted) return;
+              Navigator.pop(ctx);
+              Navigator.pushReplacement(
+                ctx,
+                CupertinoPageRoute(
+                  builder: (_) => const BottomNavigationPage(),
+                ),
+              );
+            },
+            child: Text(t.login),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 加密密码
@@ -638,11 +588,16 @@ class PassportNotifier extends _$PassportNotifier {
       }
     } on PlatformException catch (e) {
       debugPrint('❌ PlatformException: $e');
-      safeUpdateState((state) => state.copyWith(error: '网络故障，请稍后重试'));
+      if (e.code.contains('34018') || e.message?.contains('entitlement') == true) {
+        // iOS Keychain 权限缺失（-34018 / errSecEntitlementMissing），非网络问题
+        safeUpdateState((state) => state.copyWith(error: '安全存储初始化失败，请重启应用'));
+      } else {
+        safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
+      }
       return 0;
     } catch (e) {
       debugPrint('❌ 异常: $e');
-      safeUpdateState((state) => state.copyWith(error: '登录失败: $e'));
+      safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       return 0;
     }
   }
@@ -1194,4 +1149,17 @@ class PassportNotifier extends _$PassportNotifier {
     }
     return Platform.operatingSystemVersion;
   }
+}
+
+/// 历史记录辅助类（用于消除 saveHistory/removeHistory 中的重复 if-else）
+class _HistoryInfo {
+  final List<String> currentList;
+  final String key;
+  final void Function(List<String>) updateState;
+
+  const _HistoryInfo({
+    required this.currentList,
+    required this.key,
+    required this.updateState,
+  });
 }

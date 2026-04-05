@@ -21,6 +21,7 @@ import 'package:imboy/component/location/widget.dart';
 // 数据模型
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/live_room_model.dart';
 
 bool _matchesPublicPath(String currentPath, String publicPath) {
   if (publicPath == AppRoutes.initial) {
@@ -896,15 +897,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/publisher',
             name: 'live_room_publisher',
-            pageBuilder: (context, state) =>
-                CupertinoPage(key: state.pageKey, child: const PublisherPage()),
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: PublisherPage(room: state.extra as LiveRoomModel?),
+            ),
           ),
           GoRoute(
             path: '/subscriber',
             name: 'live_room_subscriber',
             pageBuilder: (context, state) => CupertinoPage(
               key: state.pageKey,
-              child: const SubscriberPage(),
+              child: SubscriberPage(room: state.extra as LiveRoomModel?),
             ),
           ),
         ],

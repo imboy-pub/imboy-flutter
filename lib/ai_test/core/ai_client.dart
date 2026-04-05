@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 
@@ -151,6 +152,71 @@ $userStory
   }
 
   /// 通用 LLM 调用方法
+  /// 调用视觉模型分析截图（支持 GPT-4V 兼容 API）
+  ///
+  /// 将图片 base64 编码后作为多模态消息发送，适用于 UI 截图解析
+  ///
+  /// [imagePath] 本地图片文件路径
+  /// [prompt] 分析指令
+  /// [systemPrompt] 可选系统提示
+  Future<String> callVisionModel(
+    String imagePath,
+    String prompt, {
+    String? systemPrompt,
+    String model = 'gpt-4o-mini',
+  }) async {
+    if (_apiKey.isEmpty) {
+      throw AIClientException('无 API Key，无法调用视觉模型');
+    }
+
+    final file = File(imagePath);
+    if (!file.existsSync()) {
+      throw AIClientException('图片文件不存在: $imagePath');
+    }
+
+    final imageBytes = await file.readAsBytes();
+    final imageBase64 = base64Encode(imageBytes);
+
+    // 根据扩展名确定 MIME 类型
+    final ext = imagePath.split('.').last.toLowerCase();
+    final mimeType = switch (ext) {
+      'png' => 'image/png',
+      'jpg' || 'jpeg' => 'image/jpeg',
+      'gif' => 'image/gif',
+      'webp' => 'image/webp',
+      _ => 'image/png',
+    };
+
+    final messages = <Map<String, dynamic>>[];
+    if (systemPrompt != null) {
+      messages.add({'role': 'system', 'content': systemPrompt});
+    }
+    messages.add({
+      'role': 'user',
+      'content': [
+        {
+          'type': 'image_url',
+          'image_url': {'url': 'data:$mimeType;base64,$imageBase64'},
+        },
+        {'type': 'text', 'text': prompt},
+      ],
+    });
+
+    try {
+      final response = await _dio.post(
+        '$_baseUrl/chat/completions',
+        data: {
+          'model': model,
+          'messages': messages,
+          'max_tokens': 2000,
+        },
+      );
+      return response.data['choices'][0]['message']['content'] as String;
+    } catch (e) {
+      throw AIClientException('视觉模型调用失败: $e');
+    }
+  }
+
   Future<String> callLLM(String prompt, {String? systemPrompt}) async {
     if (_apiKey.isEmpty) {
       throw AIClientException('无 API Key，无法调用 LLM');

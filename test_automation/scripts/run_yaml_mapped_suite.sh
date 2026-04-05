@@ -6,6 +6,7 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PLAN_FILE="$PROJECT_DIR/test_automation/scenarios/executable_cases.yaml"
 STATE_ROOT="$PROJECT_DIR/test_automation/.state_yaml"
 RESULT_ROOT="$PROJECT_DIR/test_automation/reports/yaml_runs"
+NULL_FIELD="__YAML_RUNNER_EMPTY__"
 
 RUN_ID_INPUT="${RUN_ID:-}"
 RESUME=0
@@ -37,7 +38,7 @@ Options:
   --run-id <id>          Fixed RUN_ID.
   --resume               Resume existing RUN_ID state (or latest when --run-id omitted).
   --dry-run              Parse plan and print planned execution only.
-  --rerun-failed         Re-run cases with FAILED_SKIPPED state.
+  --rerun-failed         Re-run cases with FAIL state.
   --max-retries <n>      Global retry cap for retryable failures (default: 0).
   --task-timeout-seconds <sec>  Per-case hard timeout (default: 1200).
   -h, --help             Show help.
@@ -119,6 +120,9 @@ write_meta() {
   local assertions="${13}"
   local log_file="${14}"
   local enabled="${15}"
+  local test_layer="${16}"
+  local verification_level="${17}"
+  local truth_source="${18}"
 
   cat >"$(meta_file "$run_state_dir" "$case_id")" <<EOF
 case_id=$case_id
@@ -135,6 +139,9 @@ precondition=$precondition
 assertions=$assertions
 log_file=$log_file
 enabled=$enabled
+test_layer=$test_layer
+verification_level=$verification_level
+truth_source=$truth_source
 EOF
 }
 
@@ -195,7 +202,7 @@ run_with_timeout() {
 parse_plan_to_tsv() {
   local plan_file="$1"
   local output_tsv="$2"
-  awk '
+  awk -v null_field="$NULL_FIELD" '
   function trim(s) {
     gsub(/^[ \t]+|[ \t]+$/, "", s);
     return s;
@@ -204,6 +211,12 @@ parse_plan_to_tsv() {
     s = trim(s);
     if (s ~ /^".*"$/) {
       s = substr(s, 2, length(s) - 2);
+    }
+    return s;
+  }
+  function nz(s) {
+    if (s == "") {
+      return null_field;
     }
     return s;
   }
@@ -217,8 +230,11 @@ parse_plan_to_tsv() {
     if (timeout_seconds == "") timeout_seconds = def_timeout;
     if (retry == "") retry = def_retry;
     if (dart_defines == "") dart_defines = def_dart_defines;
-    printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", \
-      case_id, scenario_file, test_file, action, device, timeout_seconds, retry, enabled, precondition, assertions, dart_defines;
+    if (test_layer == "") test_layer = def_test_layer;
+    if (verification_level == "") verification_level = def_verification_level;
+    if (truth_source == "") truth_source = def_truth_source;
+    printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", \
+      nz(case_id), nz(scenario_file), nz(test_file), nz(action), nz(device), nz(timeout_seconds), nz(retry), nz(enabled), nz(precondition), nz(assertions), nz(dart_defines), nz(test_layer), nz(verification_level), nz(truth_source);
   }
   BEGIN {
     def_action = "flutter_test";
@@ -227,6 +243,9 @@ parse_plan_to_tsv() {
     def_retry = "0";
     def_enabled = "true";
     def_dart_defines = "";
+    def_test_layer = "";
+    def_verification_level = "strict";
+    def_truth_source = "";
     in_defaults = 0;
     in_cases = 0;
     case_id = "";
@@ -267,6 +286,15 @@ parse_plan_to_tsv() {
       } else if (line ~ /^dart_defines:/) {
         sub(/^dart_defines:[ \t]*/, "", line);
         def_dart_defines = deq(line);
+      } else if (line ~ /^test_layer:/) {
+        sub(/^test_layer:[ \t]*/, "", line);
+        def_test_layer = deq(line);
+      } else if (line ~ /^verification_level:/) {
+        sub(/^verification_level:[ \t]*/, "", line);
+        def_verification_level = deq(line);
+      } else if (line ~ /^truth_source:/) {
+        sub(/^truth_source:[ \t]*/, "", line);
+        def_truth_source = deq(line);
       }
       next;
     }
@@ -286,6 +314,9 @@ parse_plan_to_tsv() {
         timeout_seconds = "";
         retry = "";
         dart_defines = "";
+        test_layer = "";
+        verification_level = "";
+        truth_source = "";
       } else if (line ~ /^enabled:/) {
         sub(/^enabled:[ \t]*/, "", line);
         enabled = tolower(deq(line));
@@ -316,6 +347,15 @@ parse_plan_to_tsv() {
       } else if (line ~ /^dart_defines:/) {
         sub(/^dart_defines:[ \t]*/, "", line);
         dart_defines = deq(line);
+      } else if (line ~ /^test_layer:/) {
+        sub(/^test_layer:[ \t]*/, "", line);
+        test_layer = deq(line);
+      } else if (line ~ /^verification_level:/) {
+        sub(/^verification_level:[ \t]*/, "", line);
+        verification_level = deq(line);
+      } else if (line ~ /^truth_source:/) {
+        sub(/^truth_source:[ \t]*/, "", line);
+        truth_source = deq(line);
       }
     }
   }
@@ -333,6 +373,85 @@ xml_escape() {
   value="${value//\"/&quot;}"
   value="${value//\'/&apos;}"
   printf '%s' "$value"
+}
+
+restore_null_field() {
+  local value="$1"
+  if [[ "$value" == "$NULL_FIELD" ]]; then
+    printf ''
+    return
+  fi
+  printf '%s' "$value"
+}
+
+normalize_plan_record_vars() {
+  local field value
+  for field in \
+    case_id scenario_file test_file action device timeout_seconds retry enabled \
+    precondition assertions dart_defines test_layer verification_level truth_source; do
+    value="${!field-}"
+    printf -v "$field" '%s' "$(restore_null_field "$value")"
+  done
+}
+
+derive_test_layer() {
+  local explicit="$1"
+  local test_file="$2"
+  if [[ -n "$explicit" ]]; then
+    printf '%s' "$explicit"
+    return
+  fi
+
+  case "$test_file" in
+    integration_test/*)
+      printf '%s' "client_ui_integration"
+      ;;
+    test/integration/*)
+      printf '%s' "client_logic_integration"
+      ;;
+    test/page/*|test/component/*)
+      printf '%s' "client_component_regression"
+      ;;
+    test/service/*|test/store/*)
+      printf '%s' "client_logic_regression"
+      ;;
+    *)
+      printf '%s' "client_mixed_regression"
+      ;;
+  esac
+}
+
+derive_verification_level() {
+  local explicit="$1"
+  if [[ -n "$explicit" ]]; then
+    printf '%s' "$explicit"
+    return
+  fi
+  printf '%s' "strict"
+}
+
+derive_truth_source() {
+  local explicit="$1"
+  local action="$2"
+  local test_file="$3"
+  if [[ -n "$explicit" ]]; then
+    printf '%s' "$explicit"
+    return
+  fi
+
+  if [[ "$test_file" == integration_test/* ]]; then
+    printf '%s' "flutter_integration_test"
+    return
+  fi
+
+  case "$action" in
+    flutter_test)
+      printf '%s' "flutter_test"
+      ;;
+    *)
+      printf '%s' "$action"
+      ;;
+  esac
 }
 
 while [[ $# -gt 0 ]]; do
@@ -438,6 +557,7 @@ EOF
 fi
 
 while IFS=$'\t' read -r case_id _; do
+  normalize_plan_record_vars
   if [[ ! -f "$(status_file "$RUN_STATE_DIR" "$case_id")" ]]; then
     write_status "$RUN_STATE_DIR" "$case_id" "PENDING"
   fi
@@ -456,59 +576,67 @@ fi
 any_failed=0
 total_cases=0
 
-while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_seconds retry enabled precondition assertions dart_defines; do
+while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_seconds retry enabled precondition assertions dart_defines test_layer verification_level truth_source; do
+  normalize_plan_record_vars
   total_cases=$((total_cases + 1))
   case_status="$(read_status "$RUN_STATE_DIR" "$case_id")"
   case_log="$RUN_RESULT_DIR/${case_id}.runner.log"
+  resolved_test_layer="$(derive_test_layer "$test_layer" "$test_file")"
+  resolved_verification_level="$(derive_verification_level "$verification_level")"
+  resolved_truth_source="$(derive_truth_source "$truth_source" "$action" "$test_file")"
 
   enabled_lc="$(echo "$enabled" | tr '[:upper:]' '[:lower:]')"
   if [[ "$enabled_lc" != "true" && "$enabled_lc" != "1" && "$enabled_lc" != "yes" ]]; then
-    write_status "$RUN_STATE_DIR" "$case_id" "DISABLED"
-    write_meta "$RUN_STATE_DIR" "$case_id" "-" "-" "0" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc"
+    write_status "$RUN_STATE_DIR" "$case_id" "SKIPPED"
+    write_meta "$RUN_STATE_DIR" "$case_id" "-" "-" "0" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc" "$resolved_test_layer" "$resolved_verification_level" "$resolved_truth_source"
     info "Skip $case_id (disabled in plan)"
     continue
   fi
 
-  if [[ "$case_status" == "DONE" ]]; then
-    info "Skip $case_id (already DONE)"
+  if [[ "$case_status" == "PASS_STRICT" ]]; then
+    info "Skip $case_id (already PASS_STRICT)"
     continue
   fi
-  if [[ "$case_status" == "SOFT_SKIPPED" ]]; then
-    info "Skip $case_id (already SOFT_SKIPPED)"
+  if [[ "$case_status" == "PASS_WEAK" ]]; then
+    info "Skip $case_id (already PASS_WEAK)"
     continue
   fi
-  if [[ "$case_status" == "FAILED_SKIPPED" && $RERUN_FAILED -eq 0 ]]; then
-    warn "Skip $case_id (FAILED_SKIPPED). Use --rerun-failed to retry."
+  if [[ "$case_status" == "BLOCKED" ]]; then
+    info "Skip $case_id (already BLOCKED)"
+    continue
+  fi
+  if [[ "$case_status" == "FAIL" && $RERUN_FAILED -eq 0 ]]; then
+    warn "Skip $case_id (FAIL). Use --rerun-failed to retry."
     any_failed=1
     continue
   fi
 
   if [[ ! -f "$PROJECT_DIR/$scenario_file" ]]; then
     error "Scenario file missing for $case_id: $scenario_file"
-    write_status "$RUN_STATE_DIR" "$case_id" "FAILED_SKIPPED"
-    write_meta "$RUN_STATE_DIR" "$case_id" "$(date +'%Y-%m-%d %H:%M:%S')" "$(date +'%Y-%m-%d %H:%M:%S')" "127" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc"
+    write_status "$RUN_STATE_DIR" "$case_id" "FAIL"
+    write_meta "$RUN_STATE_DIR" "$case_id" "$(date +'%Y-%m-%d %H:%M:%S')" "$(date +'%Y-%m-%d %H:%M:%S')" "127" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc" "$resolved_test_layer" "$resolved_verification_level" "$resolved_truth_source"
     any_failed=1
     continue
   fi
 
   if [[ ! -f "$PROJECT_DIR/$test_file" ]]; then
     error "Test file missing for $case_id: $test_file"
-    write_status "$RUN_STATE_DIR" "$case_id" "FAILED_SKIPPED"
-    write_meta "$RUN_STATE_DIR" "$case_id" "$(date +'%Y-%m-%d %H:%M:%S')" "$(date +'%Y-%m-%d %H:%M:%S')" "127" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc"
+    write_status "$RUN_STATE_DIR" "$case_id" "FAIL"
+    write_meta "$RUN_STATE_DIR" "$case_id" "$(date +'%Y-%m-%d %H:%M:%S')" "$(date +'%Y-%m-%d %H:%M:%S')" "127" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc" "$resolved_test_layer" "$resolved_verification_level" "$resolved_truth_source"
     any_failed=1
     continue
   fi
 
   if [[ "$action" != "flutter_test" ]]; then
     error "Unsupported action for $case_id: $action"
-    write_status "$RUN_STATE_DIR" "$case_id" "FAILED_SKIPPED"
-    write_meta "$RUN_STATE_DIR" "$case_id" "$(date +'%Y-%m-%d %H:%M:%S')" "$(date +'%Y-%m-%d %H:%M:%S')" "2" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc"
+    write_status "$RUN_STATE_DIR" "$case_id" "FAIL"
+    write_meta "$RUN_STATE_DIR" "$case_id" "$(date +'%Y-%m-%d %H:%M:%S')" "$(date +'%Y-%m-%d %H:%M:%S')" "2" "0" "$scenario_file" "$test_file" "$action" "$timeout_seconds" "$retry" "$precondition" "$assertions" "$case_log" "$enabled_lc" "$resolved_test_layer" "$resolved_verification_level" "$resolved_truth_source"
     any_failed=1
     continue
   fi
 
   if [[ $DRY_RUN -eq 1 ]]; then
-    info "Plan case: $case_id -> $action $test_file (device=$device timeout=${timeout_seconds}s retry=$retry defines=$dart_defines)"
+    info "Plan case: $case_id -> $action $test_file (layer=$resolved_test_layer verification=$resolved_verification_level truth=$resolved_truth_source device=$device timeout=${timeout_seconds}s retry=$retry defines=$dart_defines)"
     continue
   fi
 
@@ -553,22 +681,25 @@ while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_se
     set -e
 
     ended_at="$(date +'%Y-%m-%d %H:%M:%S')"
-    write_meta "$RUN_STATE_DIR" "$case_id" "$started_at" "$ended_at" "$rc" "$attempt" "$scenario_file" "$test_file" "$action" "$case_timeout" "$effective_retry" "$precondition" "$assertions" "$case_log" "$enabled_lc"
+    write_meta "$RUN_STATE_DIR" "$case_id" "$started_at" "$ended_at" "$rc" "$attempt" "$scenario_file" "$test_file" "$action" "$case_timeout" "$effective_retry" "$precondition" "$assertions" "$case_log" "$enabled_lc" "$resolved_test_layer" "$resolved_verification_level" "$resolved_truth_source"
 
     if [[ "$rc" -eq 0 ]]; then
       if is_soft_skip_log "$case_log"; then
-        write_status "$RUN_STATE_DIR" "$case_id" "SOFT_SKIPPED"
-        warn "Case SOFT_SKIPPED: $case_id (attempt=$attempt)"
+        write_status "$RUN_STATE_DIR" "$case_id" "BLOCKED"
+        warn "Case BLOCKED: $case_id (soft-skip attempt=$attempt)"
+      elif [[ "$resolved_verification_level" == "weak" ]]; then
+        write_status "$RUN_STATE_DIR" "$case_id" "PASS_WEAK"
+        warn "Case PASS_WEAK: $case_id (attempt=$attempt)"
       else
-        write_status "$RUN_STATE_DIR" "$case_id" "DONE"
-        log "Case DONE: $case_id (attempt=$attempt)"
+        write_status "$RUN_STATE_DIR" "$case_id" "PASS_STRICT"
+        log "Case PASS_STRICT: $case_id (attempt=$attempt)"
       fi
       break
     fi
 
     if is_infra_soft_skip_failure "$rc" "$case_log"; then
-      write_status "$RUN_STATE_DIR" "$case_id" "SOFT_SKIPPED"
-      warn "Case SOFT_SKIPPED: $case_id (infra_blocked rc=$rc, attempt=$attempt)"
+      write_status "$RUN_STATE_DIR" "$case_id" "BLOCKED"
+      warn "Case BLOCKED: $case_id (infra rc=$rc, attempt=$attempt)"
       break
     fi
 
@@ -578,8 +709,8 @@ while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_se
       continue
     fi
 
-    write_status "$RUN_STATE_DIR" "$case_id" "FAILED_SKIPPED"
-    error "Case FAILED_SKIPPED: $case_id (rc=$rc, attempt=$attempt)"
+    write_status "$RUN_STATE_DIR" "$case_id" "FAIL"
+    error "Case FAIL: $case_id (rc=$rc, attempt=$attempt)"
     warn "See case log: $case_log"
     any_failed=1
     break
@@ -587,8 +718,9 @@ while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_se
 done <"$PARSED_PLAN_TSV"
 
 {
-  echo -e "case_id\tstatus\trc\tattempt\tscenario_file\ttest_file\taction\ttimeout_seconds\tretry\tprecondition\tassertions\tstarted_at\tended_at\tduration_seconds\tlog_file"
-  while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_seconds retry enabled precondition assertions dart_defines; do
+  echo -e "case_id\tstatus\trc\tattempt\tscenario_file\ttest_file\taction\ttest_layer\tverification_level\ttruth_source\ttimeout_seconds\tretry\tprecondition\tassertions\tstarted_at\tended_at\tduration_seconds\tlog_file"
+  while IFS=$'\t' read -r case_id scenario_file test_file action device timeout_seconds retry enabled precondition assertions dart_defines test_layer verification_level truth_source; do
+    normalize_plan_record_vars
     status="$(read_status "$RUN_STATE_DIR" "$case_id")"
     mfile="$(meta_file "$RUN_STATE_DIR" "$case_id")"
     rc="-"
@@ -599,6 +731,9 @@ done <"$PARSED_PLAN_TSV"
     timeout_from_meta="$timeout_seconds"
     retry_from_meta="$retry"
     duration_seconds="-"
+    test_layer_from_meta="$(derive_test_layer "$test_layer" "$test_file")"
+    verification_from_meta="$(derive_verification_level "$verification_level")"
+    truth_from_meta="$(derive_truth_source "$truth_source" "$action" "$test_file")"
     if [[ -f "$mfile" ]]; then
       rc="$(awk -F= '$1=="rc"{print $2}' "$mfile" | tail -1)"
       attempt="$(awk -F= '$1=="attempt"{print $2}' "$mfile" | tail -1)"
@@ -607,6 +742,9 @@ done <"$PARSED_PLAN_TSV"
       log_file="$(awk -F= '$1=="log_file"{print $2}' "$mfile" | tail -1)"
       timeout_from_meta="$(awk -F= '$1=="timeout_seconds"{print $2}' "$mfile" | tail -1)"
       retry_from_meta="$(awk -F= '$1=="retry"{print $2}' "$mfile" | tail -1)"
+      test_layer_from_meta="$(awk -F= '$1=="test_layer"{print $2}' "$mfile" | tail -1)"
+      verification_from_meta="$(awk -F= '$1=="verification_level"{print $2}' "$mfile" | tail -1)"
+      truth_from_meta="$(awk -F= '$1=="truth_source"{print $2}' "$mfile" | tail -1)"
       if [[ "$started_at" != "-" && "$ended_at" != "-" ]]; then
         start_epoch=$(date -j -f "%Y-%m-%d %H:%M:%S" "$started_at" "+%s" 2>/dev/null || echo "")
         end_epoch=$(date -j -f "%Y-%m-%d %H:%M:%S" "$ended_at" "+%s" 2>/dev/null || echo "")
@@ -615,9 +753,29 @@ done <"$PARSED_PLAN_TSV"
         fi
       fi
     fi
-    echo -e "${case_id}\t${status}\t${rc}\t${attempt}\t${scenario_file}\t${test_file}\t${action}\t${timeout_from_meta}\t${retry_from_meta}\t${precondition}\t${assertions}\t${started_at}\t${ended_at}\t${duration_seconds}\t${log_file}"
+    echo -e "${case_id}\t${status}\t${rc}\t${attempt}\t${scenario_file}\t${test_file}\t${action}\t${test_layer_from_meta}\t${verification_from_meta}\t${truth_from_meta}\t${timeout_from_meta}\t${retry_from_meta}\t${precondition}\t${assertions}\t${started_at}\t${ended_at}\t${duration_seconds}\t${log_file}"
   done <"$PARSED_PLAN_TSV"
 } >"$SUMMARY_TSV"
+
+strict_pass=0
+weak_pass=0
+blocked=0
+skipped=0
+pending=0
+failures=0
+while IFS=$'\t' read -r case_id status _; do
+  if [[ "$case_id" == "case_id" ]]; then
+    continue
+  fi
+  case "$status" in
+    PASS_STRICT) strict_pass=$((strict_pass + 1)) ;;
+    PASS_WEAK) weak_pass=$((weak_pass + 1)) ;;
+    BLOCKED) blocked=$((blocked + 1)) ;;
+    SKIPPED) skipped=$((skipped + 1)) ;;
+    PENDING) pending=$((pending + 1)) ;;
+    FAIL) failures=$((failures + 1)) ;;
+  esac
+done <"$SUMMARY_TSV"
 
 {
   echo "# YAML Mapped Suite Summary"
@@ -629,14 +787,20 @@ done <"$PARSED_PLAN_TSV"
   echo "- Summary TSV: \`$SUMMARY_TSV\`"
   echo "- JSON Result: \`$RESULT_JSON\`"
   echo "- JUnit XML: \`$JUNIT_XML\`"
+  echo "- PASS_STRICT: \`$strict_pass\`"
+  echo "- PASS_WEAK: \`$weak_pass\`"
+  echo "- BLOCKED: \`$blocked\`"
+  echo "- SKIPPED: \`$skipped\`"
+  echo "- PENDING: \`$pending\`"
+  echo "- FAIL: \`$failures\`"
   echo ""
-  echo "| Case | Status | RC | Attempt | Timeout | Retry | Started | Ended | Duration(s) | Log |"
-  echo "|------|--------|----|---------|---------|-------|---------|-------|-------------|-----|"
-  while IFS=$'\t' read -r case_id status rc attempt scenario_file test_file action timeout_seconds retry precondition assertions started_at ended_at duration_seconds log_file; do
+  echo "| Case | Layer | Verification | Truth | Status | RC | Attempt | Timeout | Retry | Started | Ended | Duration(s) | Log |"
+  echo "|------|-------|--------------|-------|--------|----|---------|---------|-------|---------|-------|-------------|-----|"
+  while IFS=$'\t' read -r case_id status rc attempt scenario_file test_file action test_layer verification_level truth_source timeout_seconds retry precondition assertions started_at ended_at duration_seconds log_file; do
     if [[ "$case_id" == "case_id" ]]; then
       continue
     fi
-    echo "| $case_id | $status | $rc | $attempt | $timeout_seconds | $retry | $started_at | $ended_at | $duration_seconds | $log_file |"
+    echo "| $case_id | $test_layer | $verification_level | $truth_source | $status | $rc | $attempt | $timeout_seconds | $retry | $started_at | $ended_at | $duration_seconds | $log_file |"
   done <"$SUMMARY_TSV"
 } >"$SUMMARY_MD"
 
@@ -657,7 +821,7 @@ NR==1 { next }
 {
   if (!first) print ",";
   first=0;
-  printf "    {\"case_id\":\"%s\",\"status\":\"%s\",\"rc\":\"%s\",\"attempt\":\"%s\",\"scenario_file\":\"%s\",\"test_file\":\"%s\",\"action\":\"%s\",\"timeout_seconds\":\"%s\",\"retry\":\"%s\",\"precondition\":\"%s\",\"assertions\":\"%s\",\"started_at\":\"%s\",\"ended_at\":\"%s\",\"duration_seconds\":\"%s\",\"log_file\":\"%s\"}", esc($1), esc($2), esc($3), esc($4), esc($5), esc($6), esc($7), esc($8), esc($9), esc($10), esc($11), esc($12), esc($13), esc($14), esc($15);
+  printf "    {\"case_id\":\"%s\",\"status\":\"%s\",\"rc\":\"%s\",\"attempt\":\"%s\",\"scenario_file\":\"%s\",\"test_file\":\"%s\",\"action\":\"%s\",\"test_layer\":\"%s\",\"verification_level\":\"%s\",\"truth_source\":\"%s\",\"timeout_seconds\":\"%s\",\"retry\":\"%s\",\"precondition\":\"%s\",\"assertions\":\"%s\",\"started_at\":\"%s\",\"ended_at\":\"%s\",\"duration_seconds\":\"%s\",\"log_file\":\"%s\"}", esc($1), esc($2), esc($3), esc($4), esc($5), esc($6), esc($7), esc($8), esc($9), esc($10), esc($11), esc($12), esc($13), esc($14), esc($15), esc($16), esc($17), esc($18);
 }
 END {
   print "";
@@ -674,9 +838,9 @@ while IFS=$'\t' read -r case_id status rc _; do
     continue
   fi
   total_tests=$((total_tests + 1))
-  if [[ "$status" == "DONE" ]]; then
+  if [[ "$status" == "PASS_STRICT" || "$status" == "PASS_WEAK" ]]; then
     :
-  elif [[ "$status" == "DISABLED" || "$status" == "PENDING" || "$status" == "SOFT_SKIPPED" ]]; then
+  elif [[ "$status" == "SKIPPED" || "$status" == "PENDING" || "$status" == "BLOCKED" ]]; then
     skipped=$((skipped + 1))
   else
     failures=$((failures + 1))
@@ -686,7 +850,7 @@ done <"$SUMMARY_TSV"
 {
   echo '<?xml version="1.0" encoding="UTF-8"?>'
   echo "<testsuite name=\"yaml_mapped_suite\" tests=\"$total_tests\" failures=\"$failures\" skipped=\"$skipped\" timestamp=\"$(date +'%Y-%m-%dT%H:%M:%S')\">"
-  while IFS=$'\t' read -r case_id status rc attempt scenario_file test_file action timeout_seconds retry precondition assertions started_at ended_at duration_seconds log_file; do
+  while IFS=$'\t' read -r case_id status rc attempt scenario_file test_file action test_layer verification_level truth_source timeout_seconds retry precondition assertions started_at ended_at duration_seconds log_file; do
     if [[ "$case_id" == "case_id" ]]; then
       continue
     fi
@@ -697,14 +861,17 @@ done <"$SUMMARY_TSV"
       duration_attr="$duration_seconds"
     fi
     echo "  <testcase classname=\"$classname\" name=\"$name\" time=\"$duration_attr\">"
-    if [[ "$status" == "DONE" ]]; then
+    if [[ "$status" == "PASS_STRICT" ]]; then
       :
-    elif [[ "$status" == "DISABLED" || "$status" == "PENDING" || "$status" == "SOFT_SKIPPED" ]]; then
+    elif [[ "$status" == "PASS_WEAK" ]]; then
+      detail="$(xml_escape "test_layer=$test_layer verification_level=$verification_level truth_source=$truth_source")"
+      echo "    <system-out>$detail</system-out>"
+    elif [[ "$status" == "SKIPPED" || "$status" == "PENDING" || "$status" == "BLOCKED" ]]; then
       msg="$(xml_escape "status=$status")"
       echo "    <skipped message=\"$msg\"/>"
     else
       msg="$(xml_escape "status=$status rc=$rc attempt=$attempt")"
-      detail="$(xml_escape "scenario=$scenario_file test=$test_file timeout=$timeout_seconds retry=$retry log=$log_file precondition=$precondition assertions=$assertions")"
+      detail="$(xml_escape "scenario=$scenario_file test=$test_file layer=$test_layer verification=$verification_level truth=$truth_source timeout=$timeout_seconds retry=$retry log=$log_file precondition=$precondition assertions=$assertions")"
       echo "    <failure message=\"$msg\">$detail</failure>"
     fi
     echo "  </testcase>"

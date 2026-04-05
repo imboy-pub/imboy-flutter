@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
 
 part 'logout_account_page.g.dart';
@@ -46,6 +52,30 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
     );
   }
 
+  /// 导出用户数据
+  Future<String?> exportUserData() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final userApi = ref.read(userApiProvider);
+      final data = await userApi.exportUserData();
+      if (data == null) {
+        state = state.copyWith(isLoading: false);
+        return null;
+      }
+      // 将 JSON 数据写入临时文件
+      final tempDir = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final file = File('${tempDir.path}/imboy_data_$timestamp.json');
+      final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+      await file.writeAsString(jsonStr);
+      state = state.copyWith(isLoading: false);
+      return file.path;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return null;
+    }
+  }
+
   /// 注销账户
   Future<bool> applyLogout() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -83,6 +113,39 @@ class LogoutAccountPage extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
           child: Column(
             children: [
+              // 导出数据按钮
+              Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: ListTile(
+                  leading: Icon(Icons.download, color: cs.primary),
+                  title: Text(t.exportMyData),
+                  subtitle: Text(
+                    t.exportDataDesc,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: state.isLoading
+                      ? null
+                      : () async {
+                          EasyLoading.show(status: t.loading);
+                          final filePath = await ref
+                              .read(logoutAccountProvider.notifier)
+                              .exportUserData();
+                          EasyLoading.dismiss();
+                          if (filePath == null) return;
+                          // 使用 share_plus 让用户选择保存位置
+                          final result = await SharePlus.instance.share(
+                            ShareParams(
+                              files: [XFile(filePath)],
+                              text: t.exportMyData,
+                            ),
+                          );
+                          if (result.status == ShareResultStatus.success) {
+                            EasyLoading.showSuccess(t.exportDataSuccess);
+                          }
+                        },
+                ),
+              ),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: agreed,

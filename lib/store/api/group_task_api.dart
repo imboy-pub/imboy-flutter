@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群作业/任务 API 客户端
 ///
@@ -37,8 +36,7 @@ class GroupTaskApi extends HttpClient {
     if (deadline != null) data['deadline'] = deadline;
     if (assigneeIds != null) data['user_ids'] = assigneeIds;
 
-    final resp = await post('/v1/group/task/create', data: data);
-    debugPrint("GroupTaskApi_createTask resp: ok=${resp.ok}");
+    final resp = await post(API.groupTaskCreate, data: data);
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -65,8 +63,7 @@ class GroupTaskApi extends HttpClient {
     if (deadline != null) data['deadline'] = deadline;
     if (status != null) data['status'] = status;
 
-    final resp = await post('/v1/group/task/update', data: data);
-    debugPrint("GroupTaskApi_updateTask resp: ok=${resp.ok}");
+    final resp = await post(API.groupTaskUpdate, data: data);
     return resp.ok;
   }
 
@@ -80,14 +77,13 @@ class GroupTaskApi extends HttpClient {
     if (taskIdText.isEmpty) return false;
 
     final resp = await post(
-      '/v1/group/task/assign',
+      API.groupTaskAssign,
       data: {
         'group_id': groupId,
         'task_id': taskIdText,
         'user_ids': assigneeIds,
       },
     );
-    debugPrint("GroupTaskApi_assignTask resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -105,8 +101,7 @@ class GroupTaskApi extends HttpClient {
     if (content != null) data['content'] = content;
     if (attachments != null) data['attachments'] = attachments;
 
-    final resp = await post('/v1/group/task/submit', data: data);
-    debugPrint("GroupTaskApi_submitTask resp: ok=${resp.ok}");
+    final resp = await post(API.groupTaskSubmit, data: data);
     return resp.ok;
   }
 
@@ -127,8 +122,7 @@ class GroupTaskApi extends HttpClient {
     };
     if (comment != null) data['comment'] = comment;
 
-    final resp = await post('/v1/group/task/review', data: data);
-    debugPrint("GroupTaskApi_reviewTask resp: ok=${resp.ok}");
+    final resp = await post(API.groupTaskReview, data: data);
     return resp.ok;
   }
 
@@ -148,8 +142,7 @@ class GroupTaskApi extends HttpClient {
     if (status != null) query['status'] = status;
     if (assigneeId != null) query['assignee_id'] = assigneeId;
 
-    final resp = await get('/v1/group/task/list', queryParameters: query);
-    debugPrint("GroupTaskApi_getTasks resp: ok=${resp.ok}");
+    final resp = await get(API.groupTaskList, queryParameters: query);
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -167,10 +160,9 @@ class GroupTaskApi extends HttpClient {
     if (taskIdText.isEmpty) return null;
 
     final resp = await get(
-      '/v1/group/task/detail',
+      API.groupTaskDetail,
       queryParameters: {'group_id': groupId, 'task_id': taskIdText},
     );
-    debugPrint("GroupTaskApi_getTask resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -188,8 +180,7 @@ class GroupTaskApi extends HttpClient {
     final query = <String, dynamic>{'page': page, 'size': size};
     if (status != null) query['status'] = status;
 
-    final resp = await get('/v1/group/task/my', queryParameters: query);
-    debugPrint("GroupTaskApi_getMyTasks resp: ok=${resp.ok}");
+    final resp = await get(API.groupTaskMy, queryParameters: query);
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -205,10 +196,9 @@ class GroupTaskApi extends HttpClient {
     int size = 20,
   }) async {
     final resp = await get(
-      '/v1/group/task/pending',
+      API.groupTaskPending,
       queryParameters: {'task_id': taskId, 'page': page, 'size': size},
     );
-    debugPrint("GroupTaskApi_getPendingReview resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];

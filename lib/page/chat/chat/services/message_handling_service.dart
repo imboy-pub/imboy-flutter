@@ -4,6 +4,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/modules/social_graph/public.dart';
@@ -145,10 +146,8 @@ class MessageHandlingService {
     try {
       EasyLoading.show(status: t.deletingMessage);
 
-      // 发送删除通知（群聊需要通知服务器）
-      // 注意：这里暂时跳过发送通知，因为需要 sendFn 参数
-      // 调用者需要手动处理群聊的删除通知
-
+      // 群聊通知由调用方 MessageActionHandler.deleteMessageForMe 处理
+      // （判断 c2g 类型后调用 _sendDeleteForMeMessage），此方法只负责本地删除
       // 从本地删除消息
       iPrint('deleteMessageForMe - 开始从本地删除消息: ${msg.id}');
       bool res = await deleteFn(conversation, msg);
@@ -462,7 +461,7 @@ class MessageHandlingService {
       return true;
     } else if (message is CustomMessage) {
       final msgType = message.metadata?['msg_type'] ?? '';
-      return msgType == 'video' || msgType == 'voice';
+      return msgType == MessageType.video || msgType == MessageType.voice;
     }
     return false;
   }

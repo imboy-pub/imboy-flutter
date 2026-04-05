@@ -1,5 +1,6 @@
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart';
 
 /// E2EE+ API 客户端
 ///
@@ -33,7 +34,7 @@ class E2EEPlusApi extends HttpClient {
     required String encryptedKeyBundle,
   }) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/transfer/create',
+      API.e2eeTransferCreate,
       data: {'to_uid': toUid, 'encrypted_key_bundle': encryptedKeyBundle},
     );
     if (!resp.ok) {
@@ -64,7 +65,7 @@ class E2EEPlusApi extends HttpClient {
     required String deviceId,
   }) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/transfer/accept',
+      API.e2eeTransferAccept,
       data: {'session_id': sessionId, 'device_id': deviceId},
     );
     if (!resp.ok) {
@@ -86,7 +87,7 @@ class E2EEPlusApi extends HttpClient {
   /// - message: 成功消息
   Future<void> confirmTransfer({required String sessionId}) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/transfer/confirm',
+      API.e2eeTransferConfirm,
       data: {'session_id': sessionId},
     );
     if (!resp.ok) {
@@ -111,7 +112,7 @@ class E2EEPlusApi extends HttpClient {
     required String sessionId,
   }) async {
     IMBoyHttpResponse resp = await get(
-      '/v1/e2ee/transfer/info',
+      API.e2eeTransferInfo,
       queryParameters: {'session_id': sessionId},
     );
     if (!resp.ok) {
@@ -129,7 +130,7 @@ class E2EEPlusApi extends HttpClient {
   /// 返回:
   /// - transfers: 传输会话列表
   Future<List<Map<String, dynamic>>> getPendingTransfers() async {
-    IMBoyHttpResponse resp = await get('/v1/e2ee/transfer/pending');
+    IMBoyHttpResponse resp = await get(API.e2eeTransferPending);
     if (!resp.ok) {
       throw Exception(resp.msg);
     }
@@ -154,7 +155,7 @@ class E2EEPlusApi extends HttpClient {
   /// 返回:
   /// - contacts: 联系人列表
   Future<List<Map<String, dynamic>>> getTrustedContacts() async {
-    IMBoyHttpResponse resp = await get('/v1/e2ee/social/contacts');
+    IMBoyHttpResponse resp = await get(API.e2eeSocialContacts);
     if (!resp.ok) {
       throw Exception(resp.msg);
     }
@@ -178,7 +179,7 @@ class E2EEPlusApi extends HttpClient {
     String? nickname,
   }) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/social/contacts/add',
+      API.e2eeSocialContactsAdd,
       data: {
         'contact_uid': contactUid,
         // ignore: use_null_aware_elements
@@ -198,7 +199,7 @@ class E2EEPlusApi extends HttpClient {
   /// - contact_uid: 联系人用户 ID（HashID 编码）
   Future<void> removeTrustedContact({required String contactUid}) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/social/contacts/remove',
+      API.e2eeSocialContactsRemove,
       data: {'contact_uid': contactUid},
     );
     if (!resp.ok) {
@@ -228,7 +229,7 @@ class E2EEPlusApi extends HttpClient {
     required List<Map<String, dynamic>> proxies,
   }) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/social/create_shards',
+      API.e2eeSocialCreateShards,
       data: {
         'total_shards': totalShards,
         'threshold': threshold,
@@ -254,7 +255,7 @@ class E2EEPlusApi extends HttpClient {
     String keyVersion = 'latest',
   }) async {
     IMBoyHttpResponse resp = await get(
-      '/v1/e2ee/social/shards',
+      API.e2eeSocialShards,
       queryParameters: {'key_version': keyVersion},
     );
     if (!resp.ok) {
@@ -278,7 +279,7 @@ class E2EEPlusApi extends HttpClient {
   /// - decrypted_shards: 已解密的分片列表（从代理获取）
   Future<void> recoverKey({required List<String> decryptedShards}) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/social/recover',
+      API.e2eeSocialRecover,
       data: {'decrypted_shards': decryptedShards},
     );
     if (!resp.ok) {
@@ -295,7 +296,7 @@ class E2EEPlusApi extends HttpClient {
   /// 返回:
   /// - shards: 代理分片列表
   Future<List<Map<String, dynamic>>> getProxyShards() async {
-    IMBoyHttpResponse resp = await get('/v1/e2ee/social/proxy_shards');
+    IMBoyHttpResponse resp = await get(API.e2eeSocialProxyShards);
     if (!resp.ok) {
       throw Exception(resp.msg);
     }
@@ -320,12 +321,49 @@ class E2EEPlusApi extends HttpClient {
   /// - decrypted_shard: 解密后的分片数据
   Future<Map<String, dynamic>> decryptShard({required String shardId}) async {
     IMBoyHttpResponse resp = await post(
-      '/v1/e2ee/social/decrypt_shard',
+      API.e2eeSocialDecryptShard,
       data: {'shard_id': shardId},
     );
     if (!resp.ok) {
       throw Exception(resp.msg);
     }
     return resp.payload as Map<String, dynamic>;
+  }
+
+  // ================================================================
+  // 本地备份 API
+  // ================================================================
+
+  /// 获取当前用户的备份历史列表
+  ///
+  /// GET /v1/e2ee/backup/list
+  ///
+  /// 返回:
+  /// - list: 备份记录列表，每条包含 id, device_id, backup_version, key_checksum, file_size, user_notes, created_at
+  Future<List<Map<String, dynamic>>> listBackups() async {
+    IMBoyHttpResponse resp = await get(API.e2eeBackupList);
+    if (!resp.ok) return [];
+    final payload = resp.payload;
+    final list = payload['list'];
+    if (list is List) {
+      return list.map((e) => (e as Map).cast<String, dynamic>()).toList();
+    }
+    return [];
+  }
+
+  /// 删除备份记录
+  ///
+  /// POST /v1/e2ee/backup/delete
+  ///
+  /// 请求参数:
+  /// - backup_id: 备份 ID
+  ///
+  /// 返回 true 表示删除成功
+  Future<bool> deleteBackup(int backupId) async {
+    IMBoyHttpResponse resp = await post(
+      API.e2eeBackupDelete,
+      data: {'backup_id': backupId},
+    );
+    return resp.ok;
   }
 }

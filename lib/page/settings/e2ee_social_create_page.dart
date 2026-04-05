@@ -261,12 +261,12 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         final shards = result['shards'] as List;
 
         // 零信任架构：通过 WebSocket 将分片发送给代理
-        print('📤 [E2EE] 开始发送分片到 ${shards.length} 个代理...');
+        debugPrint('📤 [E2EE] 开始发送分片到 ${shards.length} 个代理...');
         final sentCount = await E2EESocialService.sendShardsToProxies(
           shards.cast<Map<String, dynamic>>(),
         );
 
-        print('✅ [EEE] 已成功发送 $sentCount/$sentCount 个分片');
+        debugPrint('✅ [EEE] 已成功发送 $sentCount/$sentCount 个分片');
 
         showCupertinoDialog(
           context: context,

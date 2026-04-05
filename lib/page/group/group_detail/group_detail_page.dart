@@ -12,6 +12,8 @@ import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/api/group_api.dart';
+import 'package:imboy/store/api/report_api.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -551,11 +553,15 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         },
                       );
                       if (result != null) {
-                        // TODO(后端对接): 群备注需要后端 API 支持
-                        // 目前仅更新本地状态，且显示"功能开发中"提示
-                        // ref.read(groupDetailProvider.notifier).setGroupRemark(result);
-                        EasyLoading.showToast("功能开发中");
-                        // setState(() {});
+                        final success = await GroupApi().updateRemark(
+                          gid: widget.groupId,
+                          remark: result,
+                        );
+                        if (success) {
+                          ref
+                              .read(groupDetailProvider.notifier)
+                              .setGroupRemark(result);
+                        }
                       }
                     },
                   ),
@@ -862,9 +868,16 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   : () async {
                       Navigator.of(context).pop();
 
-                      // TODO(后端对接): 调用投诉 API
-                      // 模拟成功
-                      EasyLoading.showSuccess(t.complaintSuccess);
+                      final success = await ReportApi().create(
+                        targetType: 'group',
+                        targetId: widget.groupId,
+                        reason: selectedReason!,
+                      );
+                      if (success) {
+                        EasyLoading.showSuccess(t.complaintSuccess);
+                      } else {
+                        EasyLoading.showError('投诉失败，请稍后再试');
+                      }
                     },
               child: Text(t.buttonConfirm),
             ),

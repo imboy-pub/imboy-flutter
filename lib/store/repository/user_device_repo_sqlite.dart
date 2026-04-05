@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -36,7 +35,6 @@ class UserDeviceRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on page ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -61,8 +59,6 @@ class UserDeviceRepo {
       UserDeviceRepo.lastActiveAt: obj.lastActiveAt,
       UserDeviceRepo.deviceVsn: jsonEncode(obj.deviceVsn),
     };
-    debugPrint("> on UserDeviceRepo/insert/1 $insert");
-
     if (txn != null) {
       await txn.insert(UserDeviceRepo.tableName, insert);
     } else {

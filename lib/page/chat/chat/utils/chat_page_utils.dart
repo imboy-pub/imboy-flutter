@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 /// ChatPage 工具类
 class ChatPageUtils {
@@ -56,10 +57,13 @@ class ChatPageUtils {
     required int burnAfterMs,
   }) {
     if (!burnEnabled) return base;
+    // expire_secs: 后端 msg_burn_logic 使用秒级精度设置 expire_at
+    final expireSecs = (burnAfterMs / 1000).round();
     return <String, dynamic>{
       ...base,
       'burn': true,
       'burn_after_ms': burnAfterMs,
+      if (expireSecs > 0) 'expire_secs': expireSecs,
     };
   }
 
@@ -85,7 +89,7 @@ class ChatPageUtils {
   /// 返回 true 如果消息是视频消息类型
   static bool isVideoMessage(Message message) {
     final type = message.metadata?['msg_type'] ?? '';
-    return type == 'video';
+    return type == MessageType.video;
   }
 
   /// 验证消息是否为音频消息
@@ -94,7 +98,7 @@ class ChatPageUtils {
   /// 返回 true 如果消息是音频消息类型
   static bool isAudioMessage(Message message) {
     final type = message.metadata?['msg_type'] ?? '';
-    return type == 'voice';
+    return type == MessageType.voice;
   }
 
   /// 验证消息是否为文件消息
@@ -103,7 +107,7 @@ class ChatPageUtils {
   /// 返回 true 如果消息是文件消息类型
   static bool isFileMessage(Message message) {
     final type = message.metadata?['msg_type'] ?? '';
-    return type == 'file';
+    return type == MessageType.file;
   }
 
   /// 获取消息类型

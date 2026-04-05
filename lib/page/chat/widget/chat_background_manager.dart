@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -12,12 +15,14 @@ class ChatBackgroundState {
   final double backgroundOpacity;
   final bool useCustomColor;
   final String customColorHex;
+  final String? customImagePath;
 
   const ChatBackgroundState({
     this.currentBackground = 'default',
     this.backgroundOpacity = 0.3,
     this.useCustomColor = false,
     this.customColorHex = '#F5F5F5',
+    this.customImagePath,
   });
 
   ChatBackgroundState copyWith({
@@ -25,12 +30,14 @@ class ChatBackgroundState {
     double? backgroundOpacity,
     bool? useCustomColor,
     String? customColorHex,
+    String? customImagePath,
   }) {
     return ChatBackgroundState(
       currentBackground: currentBackground ?? this.currentBackground,
       backgroundOpacity: backgroundOpacity ?? this.backgroundOpacity,
       useCustomColor: useCustomColor ?? this.useCustomColor,
       customColorHex: customColorHex ?? this.customColorHex,
+      customImagePath: customImagePath ?? this.customImagePath,
     );
   }
 
@@ -80,6 +87,7 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
         : 0.3;
     final useCustomColor = StorageService.to.getBool('chat_use_custom_color');
     final customColorHex = StorageService.to.getString('chat_custom_color');
+    final customImagePath = StorageService.to.getString('chat_custom_image_path');
 
     state = ChatBackgroundState(
       currentBackground: currentBackground.isNotEmpty
@@ -88,6 +96,7 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
       backgroundOpacity: backgroundOpacity,
       useCustomColor: useCustomColor ?? false,
       customColorHex: customColorHex.isNotEmpty ? customColorHex : '#F5F5F5',
+      customImagePath: customImagePath.isNotEmpty ? customImagePath : null,
     );
   }
 
@@ -101,6 +110,10 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
     );
     StorageService.to.setBool('chat_use_custom_color', state.useCustomColor);
     StorageService.to.setString('chat_custom_color', state.customColorHex);
+    StorageService.to.setString(
+      'chat_custom_image_path',
+      state.customImagePath ?? '',
+    );
   }
 
   /// 设置背景
@@ -127,6 +140,22 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
         '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     state = state.copyWith(customColorHex: hexValue);
     _saveSettings();
+  }
+
+  /// 选择并设置自定义图片背景
+  Future<bool> pickCustomImage() async {
+    final picker = ImagePicker();
+    final XFile? file = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (file == null) return false;
+    state = state.copyWith(
+      customImagePath: file.path,
+      currentBackground: 'custom_image',
+    );
+    _saveSettings();
+    return true;
   }
 
   /// 获取当前背景装饰
@@ -208,7 +237,19 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
         );
 
       case 'custom_image':
-        // 注意：自定义图片功能待实现，目前返回默认背景
+        final imagePath = currentState.customImagePath;
+        if (imagePath != null && imagePath.isNotEmpty) {
+          final file = File(imagePath);
+          if (file.existsSync()) {
+            return BoxDecoration(
+              image: DecorationImage(
+                image: FileImage(file),
+                fit: BoxFit.cover,
+                opacity: currentState.backgroundOpacity,
+              ),
+            );
+          }
+        }
         return BoxDecoration(color: surfaceColor);
 
       case 'default':
@@ -334,7 +375,13 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                 ChatBackgroundManager.backgroundNames[option] ?? option;
 
             return GestureDetector(
-              onTap: () => manager.setBackground(option),
+              onTap: () async {
+                if (option == 'custom_image') {
+                  await manager.pickCustomImage();
+                } else {
+                  manager.setBackground(option);
+                }
+              },
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: AppRadius.borderRadiusSmall,
@@ -356,7 +403,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                           ),
                           color: Colors.grey.withValues(alpha: 0.1),
                         ),
-                        child: _buildBackgroundPreviewThumbnail(option),
+                        child: _buildBackgroundPreviewThumbnail(option, state),
                       ),
                     ),
                     Container(
@@ -386,7 +433,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
   }
 
   /// 构建背景缩略图
-  Widget _buildBackgroundPreviewThumbnail(String option) {
+  Widget _buildBackgroundPreviewThumbnail(String option, ChatBackgroundState state) {
     switch (option) {
       case 'gradient_1':
         return Container(
@@ -408,6 +455,18 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         return Container(
           color: Colors.grey[300],
           child: const Icon(Icons.color_lens, color: Colors.grey),
+        );
+      case 'custom_image':
+        final path = state.customImagePath;
+        if (path != null && path.isNotEmpty) {
+          final file = File(path);
+          if (file.existsSync()) {
+            return Image.file(file, fit: BoxFit.cover, width: double.infinity);
+          }
+        }
+        return Container(
+          color: Colors.grey[200],
+          child: const Icon(Icons.add_photo_alternate, color: Colors.grey),
         );
       default:
         return Container(

@@ -137,6 +137,17 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
     return list;
   }
 
+  /// 更新 refererTime（联系人数量）
+  void updateRefererTime(int value) {
+    state = state.copyWith(refererTime: value);
+  }
+
+  /// 减少 refererTime（移除一个联系人后调用）
+  void decrementRefererTime() {
+    final newVal = state.refererTime > 0 ? state.refererTime - 1 : 0;
+    state = state.copyWith(refererTime: newVal);
+  }
+
   /// 移除标签关联
   Future<bool> removeRelation({
     required int tagId,

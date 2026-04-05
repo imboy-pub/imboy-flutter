@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -292,9 +293,41 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     );
   }
 
+  /// 获取当前加密模式（从会话选项或默认配置）
+  EncryptionMode get _currentEncryptionMode {
+    final modeStr = widget.options?['encryption_mode'] as String?;
+    return EncryptionModeExt.fromApiString(modeStr);
+  }
+
+  /// 构建加密模式图标
+  IconData _encryptionIcon(EncryptionMode mode) {
+    switch (mode) {
+      case EncryptionMode.plaintext:
+        return Icons.lock_open_outlined;
+      case EncryptionMode.complianceE2ee:
+        return Icons.admin_panel_settings_outlined;
+      case EncryptionMode.strictE2ee:
+        return Icons.lock_outlined;
+    }
+  }
+
   /// 构建设置列表
   List<Widget> _buildSettingsList(BuildContext context) {
+    final mode = _currentEncryptionMode;
     return [
+      _buildSettingTile(
+        title: mode.displayName,
+        icon: _encryptionIcon(mode),
+        iconColor: mode.requiresEncryption
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+        subtitle: mode == EncryptionMode.complianceE2ee
+            ? '消息受合规密钥保护'
+            : mode == EncryptionMode.strictE2ee
+                ? '消息仅收发双方可读'
+                : '消息未加密传输',
+        isFirst: true,
+      ),
       _buildSwitchTile(
         t.burnAfterReading,
         _burnEnabled,
@@ -308,7 +341,6 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         subtitle: _burnEnabled
             ? t.burnEnabledMessage(duration: _formatBurnAfterMs(_burnAfterMs))
             : t.burnDisabledMessage,
-        isFirst: true,
       ),
       if (_burnEnabled)
         _buildSettingTile(

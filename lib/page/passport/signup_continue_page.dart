@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/widget/fadeanimation.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -31,10 +32,7 @@ class SignupContinuePage extends ConsumerStatefulWidget {
 }
 
 class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
-  TextEditingController textEditingController = TextEditingController();
-
-  // ignore: close_sinks
-  StreamController<ErrorAnimationType>? errorController;
+  final _pinController = PinInputController();
 
   bool hasError = false;
   String currentText = "";
@@ -54,7 +52,6 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
 
   @override
   void initState() {
-    errorController = StreamController<ErrorAnimationType>();
     super.initState();
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
@@ -67,8 +64,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
   @override
   void dispose() {
     _localeSubscription?.cancel();
-    errorController!.close();
-    textEditingController.dispose();
+    _pinController.dispose();
     // 清理临时数据
     ref.read(passportProvider.notifier).clearSignupData();
     super.dispose();
@@ -163,58 +159,32 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                           const SizedBox(height: 30),
                           Form(
                             key: formKey,
-                            child: PinCodeTextField(
-                              appContext: context,
-                              pastedTextStyle: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: MaterialPinField(
                               length: 6,
+                              pinController: _pinController,
                               obscureText: true,
-                              obscuringCharacter: '*',
                               obscuringWidget: Icon(
                                 Icons.safety_check,
                                 color: AppColors.primary,
                                 size: 24,
                               ),
                               blinkWhenObscuring: true,
-                              animationType: AnimationType.fade,
-                              validator: (v) {
-                                if (v == null || v.trim().isEmpty) {
-                                  return t.confirmCodeError;
-                                }
-                                return null;
-                              },
-                              pinTheme: PinTheme(
-                                shape: PinCodeFieldShape.box,
+                              theme: MaterialPinTheme(
+                                shape: MaterialPinShape.outlined,
+                                cellSize: const Size(40, 50),
                                 borderRadius: AppRadius.borderRadiusSmall,
-                                fieldHeight: 50,
-                                fieldWidth: 40,
-                                activeFillColor:
+                                borderColor: AppColors.lightBorder,
+                                focusedBorderColor: AppColors.primary,
+                                filledBorderColor: AppColors.primary,
+                                fillColor:
                                     AppColors.lightSurfaceContainer,
-                                inactiveFillColor:
-                                    AppColors.lightSurfaceContainer,
-                                selectedFillColor:
-                                    AppColors.lightSurfaceContainer,
-                                selectedColor: AppColors.primary,
-                                activeColor: AppColors.primary,
-                                inactiveColor: AppColors.lightBorder,
-                              ),
-                              cursorColor: AppColors.lightTextPrimary,
-                              animationDuration: const Duration(
-                                milliseconds: 300,
-                              ),
-                              enableActiveFill: true,
-                              errorAnimationController: errorController,
-                              controller: textEditingController,
-                              keyboardType: TextInputType.number,
-                              boxShadows: [
-                                BoxShadow(
-                                  offset: const Offset(0, 1),
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 10,
+                                textStyle: TextStyle(
+                                  color: AppColors.lightTextPrimary,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
+                              ),
+                              keyboardType: TextInputType.number,
                               onCompleted: (v) {
                                 debugPrint("Completed");
                               },
@@ -223,10 +193,6 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 setState(() {
                                   currentText = value;
                                 });
-                              },
-                              beforeTextPaste: (text) {
-                                debugPrint("Allowing to paste $text");
-                                return true;
                               },
                             ),
                           ),

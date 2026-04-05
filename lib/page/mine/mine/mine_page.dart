@@ -190,19 +190,16 @@ class _MinePageState extends ConsumerState<MinePage> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // TODO(功能规划): 钱包功能暂时隐藏
-                // 需要支付牌照和第三方支付集成后才能启用
-                // 钱包功能包括：收款、零钱、银行卡、充值、理财等
-                // _buildMenuSection(context, [
-                //   _buildMenuItem(
-                //     context,
-                //     title: t.wallet,
-                //     leadingIcon: Icons.account_balance_wallet_outlined,
-                //     leadingIconColor: Colors.orange,
-                //     onTap: () => context.push('/wallet'),
-                //   ),
-                // ]),
-                // const SizedBox(height: 16),
+                _buildMenuSection(context, [
+                  _buildMenuItem(
+                    context,
+                    title: t.wallet,
+                    leadingIcon: Icons.account_balance_wallet_outlined,
+                    leadingIconColor: Colors.orange,
+                    onTap: () => context.push('/wallet'),
+                  ),
+                ]),
+                const SizedBox(height: 16),
 
                 // 常用功能
                 _buildMenuSection(context, [

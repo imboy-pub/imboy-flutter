@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -104,9 +103,6 @@ class GroupRepo {
       orderBy: orderBy,
       limit: limit,
       offset: offset,
-    );
-    debugPrint(
-      "GroupRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
     );
     return _mapsToModels(maps);
   }
@@ -291,7 +287,6 @@ class GroupRepo {
       orderBy: "${GroupRepo.createdAt} desc",
       limit: limit,
     );
-    debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
     return _mapsToModels(maps);
   }
 
@@ -401,7 +396,6 @@ class GroupRepo {
       GroupRepo.updatedAt: obj.updatedAt,
       GroupRepo.createdAt: obj.createdAt,
     };
-    debugPrint("GroupRepo/insert/1 $insert");
     if (txn != null) {
       await txn.insert(GroupRepo.tableName, insert);
     } else {

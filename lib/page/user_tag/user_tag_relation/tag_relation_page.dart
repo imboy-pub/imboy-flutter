@@ -34,6 +34,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
   List<String> _currentTags = [];
   List<String> _suggestedTags = [];
   Map<String, int> _tagUsageCount = {};
+  Map<String, int> _tagIdByName = {};
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -51,18 +52,16 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       });
 
       // 解析当前标签
-      _originalTags = widget.peerTag
-          .split(',')
-          .where((tag) => tag.trim().isNotEmpty)
-          .toList();
+      _originalTags = normalizeTagNames(widget.peerTag.split(','));
       _currentTags = List.from(_originalTags);
 
       // 获取标签统计信息
       final statistics = await ref
           .read(userTagRelationProvider.notifier)
-          .getTagStatistics(widget.scene);
+          .getTagStatistics(widget.scene, ensureTags: _originalTags);
       _suggestedTags = List<String>.from(statistics['tags'] ?? []);
       _tagUsageCount = Map<String, int>.from(statistics['usage_count'] ?? {});
+      _tagIdByName = Map<String, int>.from(statistics['tag_id_by_name'] ?? {});
 
       // 确保当前标签包含在建议列表中
       for (String tag in _currentTags) {
@@ -111,7 +110,13 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
 
       final success = await ref
           .read(userTagRelationProvider.notifier)
-          .add(widget.scene, widget.peerId, _currentTags);
+          .syncFinalState(
+            scene: widget.scene,
+            objectId: widget.peerId,
+            originalTags: _originalTags,
+            nextTags: _currentTags,
+            tagIdByName: _tagIdByName,
+          );
 
       EasyLoading.dismiss();
 
@@ -120,7 +125,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         // 触觉反馈
         HapticFeedback.lightImpact();
         if (mounted) {
-          Navigator.of(context).pop(_currentTags.join(','));
+          Navigator.of(context).pop(normalizeTagNames(_currentTags).join(','));
         }
       } else {
         EasyLoading.showError(t.saveFailed);

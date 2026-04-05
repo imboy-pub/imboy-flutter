@@ -3,7 +3,9 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/common_events.dart'
     show
+        ChannelMessageDeletedEvent,
         ChannelNewMessageEvent,
+        ChannelStateChangedEvent,
         ChannelUnreadCountUpdatedEvent,
         ChannelUnreadSummarySyncEvent;
 import 'package:imboy/store/api/channel_api.dart';
@@ -361,6 +363,9 @@ class ChannelService {
   ) async {
     try {
       final success = await _api.setMessagePinned(channelId, messageId, pinned);
+      if (success) {
+        await _messageRepo.setMessagePinned(messageId, pinned);
+      }
       iPrint(
         'ChannelService: 设置消息置顶${success ? "成功" : "失败"} - '
         '$channelId/$messageId/$pinned',
@@ -376,6 +381,16 @@ class ChannelService {
   Future<bool> deleteMessage(String channelId, String messageId) async {
     try {
       final success = await _api.deleteMessage(channelId, messageId);
+      if (success) {
+        await _messageRepo.deleteMessage(messageId);
+        AppEventBus.fire(
+          ChannelMessageDeletedEvent(
+            channelId: channelId,
+            messageId: messageId,
+            reason: 'deleted',
+          ),
+        );
+      }
       iPrint(
         'ChannelService: 删除频道消息${success ? "成功" : "失败"} - '
         '$channelId/$messageId',
@@ -623,8 +638,24 @@ class ChannelService {
   /// 处理频道更新通知
   Future<void> handleChannelUpdated(Map<String, dynamic> data) async {
     try {
-      final channel = ChannelModel.fromJson(data);
+      final channelData = parseModelJsonMap(data['channel']);
+      if (channelData == null || channelData.isEmpty) {
+        iPrint('ChannelService: 忽略缺少 channel 的更新通知');
+        return;
+      }
+      final channel = ChannelModel.fromJson(channelData);
+      if (channel.id.isEmpty) {
+        iPrint('ChannelService: 忽略缺少 channel.id 的更新通知');
+        return;
+      }
       await _repo.saveChannel(channel);
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channel.id,
+          action: 'channel_updated',
+          payload: data,
+        ),
+      );
 
       iPrint('ChannelService: 收到频道更新通知 - ${channel.id}');
     } catch (e) {
@@ -638,10 +669,117 @@ class ChannelService {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
       await _repo.deleteChannel(channelId);
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_deleted',
+          payload: data,
+        ),
+      );
 
       iPrint('ChannelService: 收到频道删除通知 - $channelId');
     } catch (e) {
       iPrint('ChannelService: 处理频道删除通知失败 - $e');
+    }
+  }
+
+  Future<void> handleChannelMessageDeleted(Map<String, dynamic> data) async {
+    try {
+      final channelId = parseModelString(data['channel_id']);
+      final messageId = parseModelString(data['message_id']);
+      if (channelId.isEmpty || messageId.isEmpty) {
+        return;
+      }
+      await _messageRepo.deleteMessage(messageId);
+      AppEventBus.fire(
+        ChannelMessageDeletedEvent(
+          channelId: channelId,
+          messageId: messageId,
+          reason: 'deleted',
+        ),
+      );
+      iPrint('ChannelService: 收到频道删消息通知 - $channelId/$messageId');
+    } catch (e) {
+      iPrint('ChannelService: 处理频道删消息通知失败 - $e');
+    }
+  }
+
+  Future<void> handleChannelMessageRevoked(Map<String, dynamic> data) async {
+    try {
+      final channelId = parseModelString(data['channel_id']);
+      final messageId = parseModelString(data['message_id']);
+      if (channelId.isEmpty || messageId.isEmpty) {
+        return;
+      }
+      await _messageRepo.deleteMessage(messageId);
+      AppEventBus.fire(
+        ChannelMessageDeletedEvent(
+          channelId: channelId,
+          messageId: messageId,
+          reason: 'revoked',
+        ),
+      );
+      iPrint('ChannelService: 收到频道撤回通知 - $channelId/$messageId');
+    } catch (e) {
+      iPrint('ChannelService: 处理频道撤回通知失败 - $e');
+    }
+  }
+
+  Future<void> handleChannelInvitationCreated(Map<String, dynamic> data) async {
+    try {
+      final channelId = parseModelString(data['channel_id']);
+      if (channelId.isEmpty) return;
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_invitation_created',
+          payload: data,
+        ),
+      );
+      iPrint('ChannelService: 收到频道邀请创建通知 - $channelId');
+    } catch (e) {
+      iPrint('ChannelService: 处理频道邀请创建通知失败 - $e');
+    }
+  }
+
+  Future<void> handleChannelInvitationAccepted(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final channelId = parseModelString(data['channel_id']);
+      if (channelId.isEmpty) return;
+      final channel = await _api.getChannel(channelId);
+      if (channel != null) {
+        await _repo.saveChannel(channel);
+      }
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_invitation_accepted',
+          payload: data,
+        ),
+      );
+      iPrint('ChannelService: 收到频道邀请接受通知 - $channelId');
+    } catch (e) {
+      iPrint('ChannelService: 处理频道邀请接受通知失败 - $e');
+    }
+  }
+
+  Future<void> handleChannelOrderPaid(Map<String, dynamic> data) async {
+    try {
+      final channelId = parseModelString(data['channel_id']);
+      if (channelId.isEmpty) return;
+      await handleChannelSubscribed(data);
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_order_paid',
+          payload: data,
+        ),
+      );
+      iPrint('ChannelService: 收到频道订单支付通知 - $channelId');
+    } catch (e) {
+      iPrint('ChannelService: 处理频道订单支付通知失败 - $e');
     }
   }
 

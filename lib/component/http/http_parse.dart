@@ -51,7 +51,17 @@ IMBoyHttpResponse handleResponse(
 
     // 处理 429 Too Many Requests
     if (int.tryParse('$code') == ErrorCode.TOO_MANY_REQUESTS) {
-      EasyLoading.showError(msg);
+      // 检查 Retry-After header，显示倒计时提示
+      final retryAfter = response.headers.value('retry-after');
+      final retrySeconds = int.tryParse(retryAfter ?? '');
+      if (retrySeconds != null && retrySeconds > 0) {
+        EasyLoading.showError(
+          t.throttleRetryAfter(seconds: '$retrySeconds'),
+          duration: Duration(seconds: retrySeconds.clamp(2, 10)),
+        );
+      } else {
+        EasyLoading.showError(t.throttleWarning);
+      }
     }
     // 接口调用失败
     return IMBoyHttpResponse.failure(

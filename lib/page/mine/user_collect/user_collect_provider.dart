@@ -6,6 +6,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
@@ -1247,7 +1248,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 if (message.metadata?['uri'] != null) {
                   // 有uri可能是图片、视频或音频
                   if (message.metadata?['duration_ms'] != null) {
-                    return msgType == 'video' ? 4 : 3;
+                    return msgType == MessageType.video ? 4 : 3;
                   }
                   return 2;
                 }

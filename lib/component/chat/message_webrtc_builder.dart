@@ -28,7 +28,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
   ) {
     Widget row;
     // 根据 messageType 判断是否为视频通话（仅支持 v2 规范）
-    final isVideo = messageType == 'webrtcVideo';
+    final isVideo = messageType == MessageType.webrtcVideo;
 
     if (userIsAuthor) {
       row = Row(
@@ -101,7 +101,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
 
     // 新格式：msg_type = 'webrtcAudio' 或 'webrtcVideo'
     // 统一使用 msg_type = webrtcAudio / webrtcVideo
-    final isVideo = msgType == 'webrtcVideo';
+    final isVideo = msgType == MessageType.webrtcVideo;
     String media = isVideo ? 'video' : 'audio';
 
     int startAt = message.metadata?['start_at'] ?? 0;

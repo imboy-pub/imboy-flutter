@@ -371,16 +371,30 @@ class ProfileNotifier extends _$ProfileNotifier {
     try {
       state = state.copyWith(isUploading: true);
 
-      // 这里应该调用实际的上传接口
-      // 暂时模拟上传成功
-      await Future.delayed(const Duration(seconds: 2));
+      final Completer<bool> completer = Completer<bool>();
+      String? avatarUrl;
 
-      // 模拟返回的头像URL
-      String avatarUrl =
-          'https://example.com/avatar/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await AttachmentApi.uploadFile(
+        'avatar',
+        imageFile,
+        (Map<String, dynamic> resp, String url) async {
+          final status = resp['status'] ?? '';
+          if (status == 'ok') {
+            avatarUrl = url;
+          }
+          completer.complete(status == 'ok');
+        },
+        (e) {
+          iPrint('上传头像失败: $e');
+          completer.complete(false);
+        },
+        process: true,
+      );
 
-      bool success = await updateUserInfo('avatar', avatarUrl);
-      return success;
+      final uploaded = await completer.future;
+      if (!uploaded || avatarUrl == null) return false;
+
+      return await updateUserInfo('avatar', avatarUrl!);
     } catch (e) {
       iPrint('上传头像失败: $e');
       return false;

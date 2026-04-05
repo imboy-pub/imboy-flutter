@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
@@ -30,14 +31,14 @@ class E2EEShardMessageHandler {
   /// 在应用启动时调用，开始监听 WebSocket 消息
   void init() {
     if (_messageSubscription != null) {
-      print('E2EE分片消息处理器已初始化');
+      debugPrint('E2EE分片消息处理器已初始化');
       return;
     }
 
     _messageSubscription = AppEventBus.on<WebSocketMessageReceivedEvent>()
         .listen(_handleWebSocketMessage);
 
-    print('E2EE分片消息处理器已初始化');
+    debugPrint('E2EE分片消息处理器已初始化');
   }
 
   /// 释放资源
@@ -67,7 +68,7 @@ class E2EEShardMessageHandler {
 
       final action = payload['action']?.toString() ?? '';
 
-      print('🔐 [E2EE] 收到分片消息: type=$type, action=$action');
+      debugPrint('🔐 [E2EE] 收到分片消息: type=$type, action=$action');
 
       switch (type) {
         case 'S2C':
@@ -78,7 +79,7 @@ class E2EEShardMessageHandler {
           break;
       }
     } catch (e) {
-      print('E2EE分片消息处理失败: $e');
+      debugPrint('E2EE分片消息处理失败: $e');
     }
   }
 
@@ -98,7 +99,7 @@ class E2EEShardMessageHandler {
         _handleShardStored(payload);
         break;
       default:
-        print('未知的 S2C action: $action');
+        debugPrint('未知的 S2C action: $action');
     }
   }
 
@@ -109,11 +110,11 @@ class E2EEShardMessageHandler {
     try {
       final shardId = payload['shard_id']?.toString() ?? '';
       if (shardId.isEmpty) {
-        print('分片 ID 为空，跳过存储');
+        debugPrint('分片 ID 为空，跳过存储');
         return;
       }
 
-      print('📦 [E2EE] 存储分片: shardId=$shardId');
+      debugPrint('📦 [E2EE] 存储分片: shardId=$shardId');
 
       // 存储分片到安全存储
       E2EESocialService.storeReceivedShard(payload)
@@ -121,16 +122,16 @@ class E2EEShardMessageHandler {
             // 添加到分片 ID 列表
             StorageSecureService.to.addShardId(shardId);
 
-            print('✅ [E2EE] 分片存储成功: shardId=$shardId');
+            debugPrint('✅ [E2EE] 分片存储成功: shardId=$shardId');
 
             // 发送确认消息给服务端
             _sendShardStoredConfirmation(shardId, payload);
           })
           .catchError((error) {
-            print('❌ [E2EE] 分片存储失败: $error');
+            debugPrint('❌ [E2EE] 分片存储失败: $error');
           });
     } catch (e) {
-      print('❌ [E2EE] 处理 store_shard 失败: $e');
+      debugPrint('❌ [E2EE] 处理 store_shard 失败: $e');
     }
   }
 
@@ -156,9 +157,9 @@ class E2EEShardMessageHandler {
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(confirmMessage), messageId);
 
-      print('✅ [E2EE] 已发送分片存储确认: shardId=$shardId');
+      debugPrint('✅ [E2EE] 已发送分片存储确认: shardId=$shardId');
     } catch (e) {
-      print('❌ [E2EE] 发送分片存储确认失败: $e');
+      debugPrint('❌ [E2EE] 发送分片存储确认失败: $e');
     }
   }
 
@@ -180,7 +181,7 @@ class E2EEShardMessageHandler {
         ? null
         : parseModelInt(payload['threshold']);
 
-    print('✅ [E2EE] 代理已确认存储分片: shardId=$shardId, proxyUid=$proxyUid');
+    debugPrint('✅ [E2EE] 代理已确认存储分片: shardId=$shardId, proxyUid=$proxyUid');
 
     // 通过事件总线发送通知，UI 层可以监听此事件
     AppEventBus.fire(
@@ -211,7 +212,7 @@ class E2EEShardMessageHandler {
         _handleDecryptedShardResponse(payload);
         break;
       default:
-        print('未知的 C2C action: $action');
+        debugPrint('未知的 C2C action: $action');
     }
   }
 
@@ -222,25 +223,25 @@ class E2EEShardMessageHandler {
     try {
       final shardId = payload['shard_id']?.toString() ?? '';
       if (shardId.isEmpty) {
-        print('分片 ID 为空，跳过解密');
+        debugPrint('分片 ID 为空，跳过解密');
         return;
       }
 
-      print('🔓 [E2EE] 收到解密请求: shardId=$shardId');
+      debugPrint('🔓 [E2EE] 收到解密请求: shardId=$shardId');
 
       // 从安全存储读取分片
       StorageSecureService.to
           .getE2EEShard(shardId)
           .then((shardJson) {
             if (shardJson == null) {
-              print('❌ [E2EE] 分片不存在: shardId=$shardId');
+              debugPrint('❌ [E2EE] 分片不存在: shardId=$shardId');
               _sendDecryptShardError(shardId, '分片不存在');
               return;
             }
 
             final shard = parseModelJsonMap(shardJson);
             if (shard == null) {
-              print('❌ [E2EE] 分片数据格式错误: shardId=$shardId');
+              debugPrint('❌ [E2EE] 分片数据格式错误: shardId=$shardId');
               _sendDecryptShardError(shardId, '分片数据格式错误');
               return;
             }
@@ -248,7 +249,7 @@ class E2EEShardMessageHandler {
 
             // 验证请求者是否是分片所有者
             if (shard['uid'] != requesterUid) {
-              print('❌ [E2EE] 无权访问此分片: shardId=$shardId');
+              debugPrint('❌ [E2EE] 无权访问此分片: shardId=$shardId');
               _sendDecryptShardError(shardId, '无权访问此分片');
               return;
             }
@@ -262,24 +263,24 @@ class E2EEShardMessageHandler {
             _decryptShardWithPrivateKey(shardId, encryptedShard, payload)
                 .then((decryptedShard) {
                   if (decryptedShard != null) {
-                    print('✅ [E2EE] 分片解密成功: shardId=$shardId');
+                    debugPrint('✅ [E2EE] 分片解密成功: shardId=$shardId');
                     _sendDecryptedShard(shardId, decryptedShard, payload);
                   } else {
-                    print('❌ [E2EE] 分片解密失败: shardId=$shardId');
+                    debugPrint('❌ [E2EE] 分片解密失败: shardId=$shardId');
                     _sendDecryptShardError(shardId, '解密失败');
                   }
                 })
                 .catchError((error) {
-                  print('❌ [E2EE] 解密过程中出错: $error');
+                  debugPrint('❌ [E2EE] 解密过程中出错: $error');
                   _sendDecryptShardError(shardId, '解密过程中出错');
                 });
           })
           .catchError((error) {
-            print('❌ [E2EE] 读取分片失败: $error');
+            debugPrint('❌ [E2EE] 读取分片失败: $error');
             _sendDecryptShardError(shardId, '读取分片失败');
           });
     } catch (e) {
-      print('❌ [E2EE] 处理 decrypt_shard 失败: $e');
+      debugPrint('❌ [E2EE] 处理 decrypt_shard 失败: $e');
     }
   }
 
@@ -307,9 +308,9 @@ class E2EEShardMessageHandler {
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(responseMessage), messageId);
 
-      print('✅ [E2EE] 已发送解密分片: shardId=$shardId');
+      debugPrint('✅ [E2EE] 已发送解密分片: shardId=$shardId');
     } catch (e) {
-      print('❌ [E2EE] 发送解密分片失败: $e');
+      debugPrint('❌ [E2EE] 发送解密分片失败: $e');
     }
   }
 
@@ -331,9 +332,9 @@ class E2EEShardMessageHandler {
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(errorMessage), messageId);
 
-      print('❌ [E2EE] 已发送解密错误: shardId=$shardId, error=$error');
+      debugPrint('❌ [E2EE] 已发送解密错误: shardId=$shardId, error=$error');
     } catch (e) {
-      print('❌ [E2EE] 发送解密错误失败: $e');
+      debugPrint('❌ [E2EE] 发送解密错误失败: $e');
     }
   }
 
@@ -355,7 +356,7 @@ class E2EEShardMessageHandler {
       // 1. 获取代理的私钥
       final privateKeyPem = await RSAService.privateKey();
       if (privateKeyPem == null || privateKeyPem.isEmpty) {
-        print('❌ [E2EE] 代理私钥不存在');
+        debugPrint('❌ [E2EE] 代理私钥不存在');
         return null;
       }
 
@@ -371,10 +372,10 @@ class E2EEShardMessageHandler {
       // 5. 重新编码为 Base64 以便传输
       final decryptedShard = base64.encode(decryptedBytes);
 
-      print('✅ [E2EE] RSA-OAEP 解密成功: shardId=$shardId');
+      debugPrint('✅ [E2EE] RSA-OAEP 解密成功: shardId=$shardId');
       return decryptedShard;
     } catch (e) {
-      print('❌ [E2EE] RSA-OAEP 解密失败: shardId=$shardId, error=$e');
+      debugPrint('❌ [E2EE] RSA-OAEP 解密失败: shardId=$shardId, error=$e');
       return null;
     }
   }
@@ -386,16 +387,16 @@ class E2EEShardMessageHandler {
     final shardId = payload['shard_id']?.toString() ?? '';
     final decryptedShard = payload['decrypted_shard']?.toString() ?? '';
 
-    print('🔓 [E2EE] 收到解密分片: shardId=$shardId');
+    debugPrint('🔓 [E2EE] 收到解密分片: shardId=$shardId');
 
     // 通知等待的 Completer
     final completer = _decryptRequests[shardId];
     if (completer != null && !completer.isCompleted) {
       completer.complete(decryptedShard);
       _decryptRequests.remove(shardId);
-      print('✅ [E2EE] 已通知解密请求: shardId=$shardId');
+      debugPrint('✅ [E2EE] 已通知解密请求: shardId=$shardId');
     } else {
-      print('⚠️ [E2EE] 未找到对应的解密请求: shardId=$shardId');
+      debugPrint('⚠️ [E2EE] 未找到对应的解密请求: shardId=$shardId');
     }
   }
 
@@ -413,7 +414,7 @@ class E2EEShardMessageHandler {
     int timeout = 30,
   }) async {
     try {
-      print('🔓 [E2EE] 请求代理解密分片: shardId=$shardId, proxyUid=$proxyUid');
+      debugPrint('🔓 [E2EE] 请求代理解密分片: shardId=$shardId, proxyUid=$proxyUid');
 
       // 创建 Completer 用于等待响应
       final completer = Completer<String?>();
@@ -436,7 +437,7 @@ class E2EEShardMessageHandler {
 
       if (!success) {
         _decryptRequests.remove(shardId);
-        print('❌ [E2EE] 发送解密请求失败');
+        debugPrint('❌ [E2EE] 发送解密请求失败');
         return null;
       }
 
@@ -445,7 +446,7 @@ class E2EEShardMessageHandler {
         Duration(seconds: timeout),
         onTimeout: () {
           _decryptRequests.remove(shardId);
-          print('❌ [E2EE] 解密请求超时: shardId=$shardId');
+          debugPrint('❌ [E2EE] 解密请求超时: shardId=$shardId');
           return null;
         },
       );
@@ -453,7 +454,7 @@ class E2EEShardMessageHandler {
       return result;
     } catch (e) {
       _decryptRequests.remove(shardId);
-      print('❌ [E2EE] 请求解密分片失败: $e');
+      debugPrint('❌ [E2EE] 请求解密分片失败: $e');
       return null;
     }
   }

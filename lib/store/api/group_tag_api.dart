@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群标签 API 客户端
 ///
@@ -21,7 +22,7 @@ class GroupTagApi extends HttpClient {
   /// 获取群的标签列表
   Future<List<Map<String, dynamic>>> getGroupTags(String groupId) async {
     final resp = await get(
-      '/v1/group/tag/list',
+      API.groupTagList,
       queryParameters: {'gid': groupId},
     );
     debugPrint("GroupTagApi_getGroupTags resp: ok=${resp.ok}");
@@ -42,7 +43,7 @@ class GroupTagApi extends HttpClient {
     final data = <String, dynamic>{'gid': groupId, 'tag_name': name};
     if (color != null) data['color'] = color;
 
-    final resp = await post('/v1/group/tag/add', data: data);
+    final resp = await post(API.groupTagAdd, data: data);
     debugPrint("GroupTagApi_addTag resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -53,7 +54,7 @@ class GroupTagApi extends HttpClient {
     required String tagName,
   }) async {
     final resp = await post(
-      '/v1/group/tag/remove',
+      API.groupTagRemove,
       data: {'gid': groupId, 'tag_name': tagName},
     );
     debugPrint("GroupTagApi_removeTag resp: ok=${resp.ok}");
@@ -66,7 +67,7 @@ class GroupTagApi extends HttpClient {
     int limit = 20,
   }) async {
     final resp = await get(
-      '/v1/group/tag/search',
+      API.groupTagSearch,
       queryParameters: {'tag_name': tagName, 'limit': limit},
     );
     debugPrint("GroupTagApi_searchByTag resp: ok=${resp.ok}");
@@ -81,7 +82,7 @@ class GroupTagApi extends HttpClient {
   /// 获取热门标签
   Future<List<Map<String, dynamic>>> getHotTags({int limit = 20}) async {
     final resp = await get(
-      '/v1/group/tag/hot',
+      API.groupTagHot,
       queryParameters: {'limit': limit},
     );
     debugPrint("GroupTagApi_getHotTags resp: ok=${resp.ok}");

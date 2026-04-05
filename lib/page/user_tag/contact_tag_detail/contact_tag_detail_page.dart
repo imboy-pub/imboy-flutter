@@ -437,22 +437,18 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                           newContactList,
                                                         );
 
-                                                    ref.read(
-                                                      contactTagDetailProvider
-                                                          .notifier,
-                                                    );
+                                                    // DONE(2026-04-04): 更新 refererTime
+                                                    ref
+                                                        .read(
+                                                          contactTagDetailProvider
+                                                              .notifier,
+                                                        )
+                                                        .decrementRefererTime();
                                                     final currentRefererTime = ref
                                                         .read(
                                                           contactTagDetailProvider,
                                                         )
                                                         .refererTime;
-                                                    // 更新 refererTime
-                                                    ref.read(
-                                                      contactTagDetailProvider
-                                                          .notifier,
-                                                    );
-                                                    // 更新状态需要通过 notifier 的方法
-                                                    // 这里暂时跳过，因为没有直接的更新方法
 
                                                     // 更新标签列表中的标签
                                                     UserTagModel
@@ -464,10 +460,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                       subtitle:
                                                           '${widget.tag.subtitle.replaceFirst('${model.title},', '')},',
                                                       refererTime:
-                                                          currentRefererTime > 0
-                                                          ? currentRefererTime -
-                                                                1
-                                                          : 0,
+                                                          currentRefererTime,
                                                       updatedAt:
                                                           widget.tag.updatedAt,
                                                       createdAt:

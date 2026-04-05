@@ -25,14 +25,15 @@ class ConversationItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(conversationProvider);
-
-    // 当前会话未读消息数量
-    int remindCounter = state.conversationRemind[model.uk3] ?? model.unreadNum;
-
-    // 获取最新的会话数据以检查消息状态
-    ConversationModel? latestModel = state.conversationMap[model.uk3];
-    ConversationModel currentModel = latestModel ?? model;
+    // 使用 select 精确监听，避免整个会话列表变化时重建所有 item
+    final int remindCounter = ref.watch(
+      conversationProvider.select(
+        (s) => s.conversationRemind[model.uk3] ?? model.unreadNum,
+      ),
+    );
+    final ConversationModel currentModel = ref.watch(
+      conversationProvider.select((s) => s.conversationMap[model.uk3] ?? model),
+    );
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -177,15 +178,30 @@ class ConversationItem extends ConsumerWidget {
       displayTitle = currentModel.peerId;
     }
 
-    return Text(
-      displayTitle,
-      style: TextStyle(
-        fontSize: FontSizeType.medium.size,
-        fontWeight: FontWeight.w600,
-        color: theme.textTheme.titleMedium?.color,
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
+    return Row(
+      children: [
+        if (currentModel.isPinned)
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Icon(
+              Icons.push_pin_rounded,
+              size: 14,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        Expanded(
+          child: Text(
+            displayTitle,
+            style: TextStyle(
+              fontSize: FontSizeType.medium.size,
+              fontWeight: FontWeight.w600,
+              color: theme.textTheme.titleMedium?.color,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 

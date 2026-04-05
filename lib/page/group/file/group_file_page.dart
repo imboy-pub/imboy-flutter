@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -313,8 +314,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                   minScale: 0.8,
                   maxScale: 4.0,
                   child: Center(
-                    child: Image.network(
-                      url,
+                    child: Image(
+                      image: cachedImageProvider(url),
                       fit: BoxFit.contain,
                       errorBuilder: (_, _, _) => const Column(
                         mainAxisSize: MainAxisSize.min,

@@ -40,6 +40,8 @@ cases:
     precondition: "flutter_installed,device=macos,login_ready"
     action: "flutter_test"
     test_file: "integration_test/e2e_chat_test.dart"
+    test_layer: "client_ui_smoke"
+    verification_level: "weak"
     device: "macos"
     assertions: "exit_code==0,e2e_flow_passed"
     timeout_seconds: 900

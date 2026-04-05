@@ -90,21 +90,6 @@ Future<bool> requestPhotoPermission() async {
       return false;
     }
   }
-  // else {
-  //   try {
-  //     final PermissionState ps = await PhotoManager.requestPermissionExtend();
-  //     if (ps == PermissionState.authorized || ps == PermissionState.limited) {
-  //       return true;
-  //     } else {
-  //       EasyLoading.showInfo(t.noPermission);
-  //       return false;
-  //     }
-  //   } catch (e, s) {
-  //     debugPrint("requestPhotoPermission error: $e, stack: $s");
-  //     EasyLoading.showInfo(t.permissionAcquisitionFailed);
-  //     return false;
-  //   }
-  // }
   try {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
     if (ps == PermissionState.authorized || ps == PermissionState.limited) {

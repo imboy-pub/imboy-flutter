@@ -8,11 +8,96 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'user_tag_relation_provider.g.dart';
 
+List<String> normalizeTagNames(Iterable<dynamic> tags) {
+  final normalized = <String>[];
+  final seen = <String>{};
+  for (final rawTag in tags) {
+    final tag = rawTag.toString().trim();
+    if (tag.isEmpty || !seen.add(tag)) {
+      continue;
+    }
+    normalized.add(tag);
+  }
+  return normalized;
+}
+
+Map<String, int> buildTagIdByNameMap(List<dynamic> items) {
+  final tagIdByName = <String, int>{};
+  for (final item in items.whereType<Map>()) {
+    final name = item['name']?.toString().trim() ?? '';
+    final rawTagId = item['tag_id'] ?? item['id'];
+    final tagId = rawTagId is int
+        ? rawTagId
+        : int.tryParse(rawTagId?.toString() ?? '');
+    if (name.isEmpty || tagId == null || tagId <= 0) {
+      continue;
+    }
+    tagIdByName[name] = tagId;
+  }
+  return tagIdByName;
+}
+
+Map<String, int> buildTagUsageCountMap(List<dynamic> items) {
+  final usageCount = <String, int>{};
+  for (final item in items.whereType<Map>()) {
+    final name = item['name']?.toString().trim() ?? '';
+    if (name.isEmpty) {
+      continue;
+    }
+    final rawCount = item['usage_count'];
+    final count = rawCount is int
+        ? rawCount
+        : int.tryParse(rawCount?.toString() ?? '') ?? 1;
+    usageCount[name] = (usageCount[name] ?? 0) + count;
+  }
+  return usageCount;
+}
+
+List<String> buildTagNameList(List<dynamic> items) {
+  return normalizeTagNames(
+    items.whereType<Map>().map((item) => item['name']?.toString() ?? ''),
+  );
+}
+
+class TagSyncPlan {
+  final List<String> originalTags;
+  final List<String> finalTags;
+  final List<String> toAdd;
+  final List<String> toRemove;
+
+  const TagSyncPlan({
+    required this.originalTags,
+    required this.finalTags,
+    required this.toAdd,
+    required this.toRemove,
+  });
+
+  bool get hasChanges => toAdd.isNotEmpty || toRemove.isNotEmpty;
+}
+
+TagSyncPlan buildTagSyncPlan({
+  required Iterable<dynamic> originalTags,
+  required Iterable<dynamic> nextTags,
+}) {
+  final original = normalizeTagNames(originalTags);
+  final next = normalizeTagNames(nextTags);
+  final originalSet = original.toSet();
+  final nextSet = next.toSet();
+
+  return TagSyncPlan(
+    originalTags: original,
+    finalTags: next,
+    toAdd: next.where((tag) => !originalSet.contains(tag)).toList(),
+    toRemove: original.where((tag) => !nextSet.contains(tag)).toList(),
+  );
+}
+
 /// UserTagRelation 模块的状态
 class UserTagRelationState {
   final List<String> tagItems;
   final List<String> recentTagItems;
   final Map<String, int> tagUsageCount;
+  final Map<String, int> tagIdByName;
   final Map<String, dynamic> tagStatistics;
   final bool useAdvancedMode;
   final String searchQuery;
@@ -27,6 +112,7 @@ class UserTagRelationState {
     this.tagItems = const [],
     this.recentTagItems = const [],
     this.tagUsageCount = const {},
+    this.tagIdByName = const {},
     this.tagStatistics = const {},
     this.useAdvancedMode = true,
     this.searchQuery = '',
@@ -42,6 +128,7 @@ class UserTagRelationState {
     List<String>? tagItems,
     List<String>? recentTagItems,
     Map<String, int>? tagUsageCount,
+    Map<String, int>? tagIdByName,
     Map<String, dynamic>? tagStatistics,
     bool? useAdvancedMode,
     String? searchQuery,
@@ -56,6 +143,7 @@ class UserTagRelationState {
       tagItems: tagItems ?? this.tagItems,
       recentTagItems: recentTagItems ?? this.recentTagItems,
       tagUsageCount: tagUsageCount ?? this.tagUsageCount,
+      tagIdByName: tagIdByName ?? this.tagIdByName,
       tagStatistics: tagStatistics ?? this.tagStatistics,
       useAdvancedMode: useAdvancedMode ?? this.useAdvancedMode,
       searchQuery: searchQuery ?? this.searchQuery,
@@ -71,6 +159,18 @@ class UserTagRelationState {
 
 @riverpod
 class UserTagRelationNotifier extends _$UserTagRelationNotifier {
+  final UserTagApi _userTagApi;
+  final ContactRepo _contactRepo;
+  final UserCollectRepo _userCollectRepo;
+
+  UserTagRelationNotifier({
+    UserTagApi? userTagApi,
+    ContactRepo? contactRepo,
+    UserCollectRepo? userCollectRepo,
+  }) : _userTagApi = userTagApi ?? UserTagApi(),
+       _contactRepo = contactRepo ?? ContactRepo(),
+       _userCollectRepo = userCollectRepo ?? UserCollectRepo();
+
   @override
   UserTagRelationState build() {
     return const UserTagRelationState();
@@ -78,102 +178,223 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
 
   /// 添加标签关联
   Future<bool> add(String scene, String objectId, List<dynamic> tag) async {
-    bool res = await UserTagApi().relationAdd(
+    final normalizedTags = normalizeTagNames(tag);
+    bool res = await _userTagApi.relationAdd(
       scene: scene,
       objectId: objectId,
-      tag: tag,
+      tag: normalizedTags,
     );
     if (res) {
-      if (scene == 'friend') {
-        await ContactRepo().update({
-          ContactRepo.peerId: objectId,
-          ContactRepo.tag: tag.join(','),
-        });
-      } else if (scene == 'collect') {
-        await UserCollectRepo().update(objectId, {
-          UserCollectRepo.kindId: objectId,
-          UserCollectRepo.tag: tag.join(','),
-        });
-      }
-    }
-    return res;
-  }
-
-  /// 获取最近的标签项
-  Future<List<String>> getRecentTagItems(String scene) async {
-    Map<String, dynamic>? resp = await UserTagApi().page(
-      scene: scene,
-      size: 100,
-    );
-    List<dynamic> items = resp?['list'] ?? [];
-
-    List<String> res = [];
-    for (var item in items) {
-      String tag = "${item['name'] ?? ''}";
-      // 去除重复和空白字符串
-      if (tag.isNotEmpty && !res.contains(tag)) {
-        res.add(tag);
-      }
-    }
-    return res;
-  }
-
-  /// 获取标签使用频率统计
-  /// 返回 Map<标签名, 使用次数>
-  Future<Map<String, int>> getTagUsageCount(String scene) async {
-    try {
-      Map<String, dynamic>? resp = await UserTagApi().page(
+      await _updateLocalTags(
         scene: scene,
-        size: 200, // 获取更多数据用于统计
+        objectId: objectId,
+        tags: normalizedTags,
       );
-      List<dynamic> items = resp?['list'] ?? [];
+    }
+    return res;
+  }
 
-      Map<String, int> usageCount = {};
-      for (var item in items) {
-        String tag = "${item['name'] ?? ''}";
-        if (tag.isNotEmpty) {
-          // 这里可以根据实际API返回的数据结构调整
-          // 假设API返回包含使用次数的字段，如果没有则默认为1
-          int count = item['usage_count'] ?? 1;
-          usageCount[tag] = (usageCount[tag] ?? 0) + count;
-        }
-      }
-      return usageCount;
-    } catch (e) {
-      debugPrint('getTagUsageCount error: $e');
-      return {};
+  Future<void> _updateLocalTags({
+    required String scene,
+    required String objectId,
+    required List<String> tags,
+  }) async {
+    final joinedTags = tags.join(',');
+    if (scene == 'friend') {
+      await _contactRepo.update({
+        ContactRepo.peerId: objectId,
+        ContactRepo.tag: joinedTags,
+      });
+      return;
+    }
+    if (scene == 'collect') {
+      await _userCollectRepo.update(objectId, {
+        UserCollectRepo.kindId: objectId,
+        UserCollectRepo.tag: joinedTags,
+      });
     }
   }
 
-  /// 获取标签统计信息
-  /// 返回包含标签列表和使用频率的完整信息
-  Future<Map<String, dynamic>> getTagStatistics(String scene) async {
-    try {
-      final tagList = await getRecentTagItems(scene);
-      final usageCount = await getTagUsageCount(scene);
+  Future<List<Map<String, dynamic>>> _fetchTagPageItems({
+    required String scene,
+    int size = 200,
+    String kwd = '',
+  }) async {
+    final resp = await _userTagApi.page(scene: scene, size: size, kwd: kwd);
+    final rawItems = resp?['list'];
+    if (rawItems is! List) {
+      return const [];
+    }
+    return rawItems
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList(growable: false);
+  }
 
-      // 按使用频率排序标签
+  Future<Map<String, dynamic>> _loadTagStatistics(
+    String scene, {
+    List<String> ensureTags = const [],
+  }) async {
+    try {
+      final items = <Map<String, dynamic>>[
+        ...await _fetchTagPageItems(scene: scene),
+      ];
+      final requiredTags = normalizeTagNames(ensureTags);
+      var tagIdByName = buildTagIdByNameMap(items);
+      for (final tagName in requiredTags) {
+        if (tagIdByName.containsKey(tagName)) {
+          continue;
+        }
+        final searchedItems = await _fetchTagPageItems(
+          scene: scene,
+          size: 20,
+          kwd: tagName,
+        );
+        for (final item in searchedItems) {
+          final name = item['name']?.toString().trim() ?? '';
+          if (name == tagName) {
+            items.add(item);
+          }
+        }
+        tagIdByName = buildTagIdByNameMap(items);
+      }
+
+      final tagList = buildTagNameList(items);
+      final usageCount = buildTagUsageCountMap(items);
       tagList.sort((a, b) {
         final countA = usageCount[a] ?? 0;
         final countB = usageCount[b] ?? 0;
         return countB.compareTo(countA);
       });
 
-      return {
+      final statistics = <String, dynamic>{
         'tags': tagList,
         'usage_count': usageCount,
+        'tag_id_by_name': tagIdByName,
         'total_tags': tagList.length,
         'most_used': tagList.isNotEmpty ? tagList.first : '',
       };
+      updateTagStatistics(statistics);
+      return statistics;
     } catch (e) {
       debugPrint('getTagStatistics error: $e');
-      return {
+      const emptyStatistics = <String, dynamic>{
         'tags': <String>[],
         'usage_count': <String, int>{},
+        'tag_id_by_name': <String, int>{},
         'total_tags': 0,
         'most_used': '',
       };
+      updateTagStatistics(emptyStatistics);
+      return emptyStatistics;
     }
+  }
+
+  /// 获取最近的标签项
+  Future<List<String>> getRecentTagItems(
+    String scene, {
+    List<String> ensureTags = const [],
+  }) async {
+    final statistics = await _loadTagStatistics(scene, ensureTags: ensureTags);
+    return List<String>.from(statistics['tags'] ?? const <String>[]);
+  }
+
+  /// 获取标签使用频率统计
+  /// 返回 Map<标签名, 使用次数>
+  Future<Map<String, int>> getTagUsageCount(
+    String scene, {
+    List<String> ensureTags = const [],
+  }) async {
+    final statistics = await _loadTagStatistics(scene, ensureTags: ensureTags);
+    return Map<String, int>.from(statistics['usage_count'] ?? const {});
+  }
+
+  /// 获取标签统计信息
+  /// 返回包含标签列表和使用频率的完整信息
+  Future<Map<String, dynamic>> getTagStatistics(
+    String scene, {
+    List<String> ensureTags = const [],
+  }) async {
+    return _loadTagStatistics(scene, ensureTags: ensureTags);
+  }
+
+  Future<bool> syncFinalState({
+    required String scene,
+    required String objectId,
+    required List<String> originalTags,
+    required List<String> nextTags,
+    Map<String, int> tagIdByName = const {},
+  }) async {
+    final plan = buildTagSyncPlan(
+      originalTags: originalTags,
+      nextTags: nextTags,
+    );
+    if (!plan.hasChanges) {
+      state = state.copyWith(tagItems: plan.finalTags, hasChanges: false);
+      return true;
+    }
+
+    final resolvedTagIdByName = Map<String, int>.from(tagIdByName);
+    if (plan.toRemove.isNotEmpty) {
+      final missingTagIds = plan.toRemove
+          .where((tagName) => !resolvedTagIdByName.containsKey(tagName))
+          .toList();
+      if (missingTagIds.isNotEmpty) {
+        final statistics = await _loadTagStatistics(
+          scene,
+          ensureTags: missingTagIds,
+        );
+        resolvedTagIdByName.addAll(
+          Map<String, int>.from(statistics['tag_id_by_name'] ?? const {}),
+        );
+      }
+      final unresolved = plan.toRemove
+          .where((tagName) => !resolvedTagIdByName.containsKey(tagName))
+          .toList();
+      if (unresolved.isNotEmpty) {
+        debugPrint('syncFinalState missing tag ids: $unresolved');
+        return false;
+      }
+    }
+
+    for (final tagName in plan.toRemove) {
+      final tagId = resolvedTagIdByName[tagName];
+      if (tagId == null || tagId <= 0) {
+        debugPrint('syncFinalState invalid tag id for $tagName');
+        return false;
+      }
+      final removed = await _userTagApi.removeRelation(
+        tagId: tagId,
+        objectId: objectId,
+        scene: scene,
+      );
+      if (!removed) {
+        return false;
+      }
+    }
+
+    if (plan.toAdd.isNotEmpty) {
+      final added = await _userTagApi.relationAdd(
+        scene: scene,
+        objectId: objectId,
+        tag: plan.toAdd,
+      );
+      if (!added) {
+        return false;
+      }
+    }
+
+    await _updateLocalTags(
+      scene: scene,
+      objectId: objectId,
+      tags: plan.finalTags,
+    );
+    state = state.copyWith(
+      tagItems: plan.finalTags,
+      tagIdByName: resolvedTagIdByName,
+      hasChanges: false,
+    );
+    return true;
   }
 
   /// 批量更新标签
@@ -223,7 +444,13 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
         updatedTags.addAll(tagsToAdd);
 
         // 更新标签
-        final success = await add(scene, objectId, updatedTags.toList());
+        final success = await syncFinalState(
+          scene: scene,
+          objectId: objectId,
+          originalTags: currentTags,
+          nextTags: updatedTags.toList(),
+          tagIdByName: state.tagIdByName,
+        );
         if (!success) {
           allSuccess = false;
         }
@@ -252,16 +479,16 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
       tagStatistics: statistics,
       recentTagItems: List<String>.from(statistics['tags'] ?? []),
       tagUsageCount: Map<String, int>.from(statistics['usage_count'] ?? {}),
+      tagIdByName: Map<String, int>.from(statistics['tag_id_by_name'] ?? {}),
     );
   }
 
   /// 检查是否有变更
   bool checkChanges(List<String> originalTags) {
-    final currentTags = Set.from(state.tagItems);
-    final originalTagsSet = Set.from(originalTags);
-    bool hasChanges =
-        !currentTags.containsAll(originalTagsSet) ||
-        !originalTagsSet.containsAll(currentTags);
+    final hasChanges = buildTagSyncPlan(
+      originalTags: originalTags,
+      nextTags: state.tagItems,
+    ).hasChanges;
     state = state.copyWith(hasChanges: hasChanges);
     return hasChanges;
   }

@@ -5,6 +5,8 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Google Services plugin for Firebase
+    id("com.google.gms.google-services")
 }
 val localProperties = gradleLocalProperties(rootDir, providers)
 val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toIntOrNull() ?: 1
@@ -15,7 +17,7 @@ val localNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "28.2
 //val flutterEngineVersion = "18818009497c581ede5d8a3b8b833b81d00cebb7"
 
 android {
-    namespace = "pub.imboy.apk"
+    namespace = "imboy.chat"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = localNdkVersion
 
@@ -31,7 +33,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "pub.imboy.apk"
+        applicationId = "imboy.chat"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -46,7 +48,7 @@ android {
         // Manifest 占位符
         manifestPlaceholders.putAll(
             mutableMapOf(
-                "JPUSH_PKGNAME" to "pub.imboy.apk",
+                "JPUSH_PKGNAME" to "imboy.chat",
                 "JPUSH_CHANNEL" to "developer-default"
             ).apply {
                 localProperties.getProperty("jpush.appKey")?.let {

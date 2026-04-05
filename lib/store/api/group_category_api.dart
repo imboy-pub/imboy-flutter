@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群分组 API 客户端
 ///
@@ -20,7 +21,7 @@ class GroupCategoryApi extends HttpClient {
 
   /// 获取用户的群分组列表
   Future<List<Map<String, dynamic>>> getCategories() async {
-    final resp = await get('/v1/group/category/list');
+    final resp = await get(API.groupCategoryList);
     debugPrint("GroupCategoryApi_getCategories resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -38,7 +39,7 @@ class GroupCategoryApi extends HttpClient {
     final data = <String, dynamic>{'category_name': name};
     if (sortOrder != null) data['sort_order'] = sortOrder;
 
-    final resp = await post('/v1/group/category/create', data: data);
+    final resp = await post(API.groupCategoryCreate, data: data);
     debugPrint("GroupCategoryApi_createCategory resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -54,7 +55,7 @@ class GroupCategoryApi extends HttpClient {
     required String name,
   }) async {
     final resp = await post(
-      '/v1/group/category/rename',
+      API.groupCategoryRename,
       data: {'id': categoryId, 'category_name': name},
     );
     debugPrint("GroupCategoryApi_renameCategory resp: ok=${resp.ok}");
@@ -64,7 +65,7 @@ class GroupCategoryApi extends HttpClient {
   /// 删除群分组
   Future<bool> deleteCategory(int categoryId) async {
     final resp = await post(
-      '/v1/group/category/delete',
+      API.groupCategoryDelete,
       data: {'id': categoryId},
     );
     debugPrint("GroupCategoryApi_deleteCategory resp: ok=${resp.ok}");
@@ -77,7 +78,7 @@ class GroupCategoryApi extends HttpClient {
     required int categoryId,
   }) async {
     final resp = await post(
-      '/v1/group/category/move_group',
+      API.groupCategoryMoveGroup,
       data: {'gid': groupId, 'category_id': categoryId},
     );
     debugPrint("GroupCategoryApi_moveGroupToCategory resp: ok=${resp.ok}");
@@ -91,7 +92,7 @@ class GroupCategoryApi extends HttpClient {
     }).toList();
 
     final resp = await post(
-      '/v1/group/category/sort',
+      API.groupCategorySort,
       data: {'sort_orders': sortOrders},
     );
     debugPrint("GroupCategoryApi_sortCategories resp: ok=${resp.ok}");

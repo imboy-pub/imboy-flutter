@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flyer_chat_text_stream_message/flyer_chat_text_stream_message.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:xid/xid.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -15,6 +17,7 @@ import 'package:file_saver/file_saver.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -33,6 +36,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/api/msg_api.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
@@ -63,6 +67,12 @@ class ChatState {
   final double composerHeight;
   final String currentConversationId;
 
+  /// 上次拉取历史消息的 conv_seq 游标（用于 msg_store 分页，0 表示从头）
+  final int lastHistorySeq;
+
+  /// msg_store 历史消息是否还有更多
+  final bool historyHasMore;
+
   const ChatState({
     this.pageSize = 16,
     this.connected = true,
@@ -74,6 +84,8 @@ class ChatState {
     this.memberCount = 0,
     this.composerHeight = 52.0,
     this.currentConversationId = '',
+    this.lastHistorySeq = 0,
+    this.historyHasMore = true,
   });
 
   ChatState copyWith({
@@ -87,6 +99,8 @@ class ChatState {
     int? memberCount,
     double? composerHeight,
     String? currentConversationId,
+    int? lastHistorySeq,
+    bool? historyHasMore,
   }) {
     return ChatState(
       pageSize: pageSize ?? this.pageSize,
@@ -100,6 +114,8 @@ class ChatState {
       composerHeight: composerHeight ?? this.composerHeight,
       currentConversationId:
           currentConversationId ?? this.currentConversationId,
+      lastHistorySeq: lastHistorySeq ?? this.lastHistorySeq,
+      historyHasMore: historyHasMore ?? this.historyHasMore,
     );
   }
 }
@@ -733,49 +749,19 @@ class ChatNotifier extends _$ChatNotifier {
 
     if (needEncrypt) {
       try {
-        // v2.0: 使用新的 buildE2EEData 方法
-        // 1. 获取接收方设备公钥
-        final deviceKeys = await (obj.type == 'C2G'
-            ? E2EEService.getGroupDevicePublicKeys(obj.toId ?? '')
-            : E2EEService.getUserDevicePublicKeys(obj.toId ?? ''));
-        final didToPem = deviceKeys['didToPem'] ?? {};
-        if (didToPem.isEmpty) {
-          throw Exception('no_recipient_keys');
-        }
-
-        // 2. 构造接收方设备列表
-        final recipients = <RecipientDevice>[];
-        for (final entry in didToPem.entries) {
-          // deviceId 和 keyId 使用相同值（当前设计没有密钥版本轮换）
-          recipients.add(
-            RecipientDevice(
-              deviceId: entry.key,
-              keyId: entry.key, // 使用 deviceId 作为 keyId
-              publicKey: entry.value,
-            ),
-          );
-        }
-
-        // 3. 构造明文（移除 client_send_ts，稍后添加）
-        final plaintextPayload = Map<String, dynamic>.from(obj.payload);
-        plaintextPayload.remove('client_send_ts');
-        final plaintext = jsonEncode(plaintextPayload);
-
-        // 4. 调用 v2.0 加密方法
-        final result = await E2EEService.buildE2EEData(
-          plaintext: plaintext,
-          recipients: recipients,
+        final encrypted = await _encryptPayload(
+          chatType: obj.type ?? 'C2C',
+          toId: obj.toId ?? '',
+          plaintextMap: obj.payload,
+          action: action,
+          removeKeys: ['client_send_ts'],
         );
-
-        // v2.0: 提取 e2ee 元数据和密文
-        e2ee = result['e2ee'] as Map<String, dynamic>;
-        final ciphertext = result['ciphertext'] as String;
-
-        // v2.0: payload 直接是密文字符串
-        finalPayload = ciphertext;
-
-        // v2.0: msg_type 保持原始类型，e2ee 字段表示已加密
-        // msgType = obj.msgType ?? '';  // 保持原始值
+        if (encrypted != null) {
+          e2ee = encrypted['e2ee'] as Map<String, dynamic>;
+          finalPayload = encrypted['payload'];
+        } else {
+          finalPayload = payloadWithTs;
+        }
       } catch (e, stackTrace) {
         iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, error=$e');
         AppLogger.error(
@@ -851,17 +837,18 @@ class ChatNotifier extends _$ChatNotifier {
   /// 更新消息状态
   Future<void> _updateMessageStatus(String messageId, int status) async {
     try {
-      for (final tableType in ['C2C', 'C2G', 'C2S']) {
-        final tb = MessageRepo.getTableName(tableType);
-        final repo = MessageRepo(tableName: tb);
-
-        final msg = await repo.find(messageId);
-        if (msg != null) {
-          await repo.update({'id': messageId, MessageRepo.status: status});
-          msg.status = status;
-          final updatedMessage = await msg.toTypeMessage();
-          AppEventBus.fireData([updatedMessage], 'List<Message>');
-          break;
+      final found = await MessageRepo.updateStatusInAnyTable(messageId, status);
+      if (found) {
+        // 通知 UI 更新（需要重新查找以获取更新后的消息）
+        for (final tableType in ['C2C', 'C2G', 'C2S']) {
+          final tb = MessageRepo.getTableName(tableType);
+          final repo = MessageRepo(tableName: tb);
+          final msg = await repo.find(messageId);
+          if (msg != null) {
+            final updatedMessage = await msg.toTypeMessage();
+            AppEventBus.fireData([updatedMessage], 'List<Message>');
+            break;
+          }
         }
       }
     } catch (e) {
@@ -899,72 +886,26 @@ class ChatNotifier extends _$ChatNotifier {
       if (needEncrypt) {
         try {
           final toUid = msg['to']?.toString() ?? '';
-
-          // v2.0: 使用新的 buildE2EEData 方法
-          // 1. 获取接收方设备公钥
-          final deviceKeys = await (msgType == 'C2G'
-              ? E2EEService.getGroupDevicePublicKeys(toUid)
-              : E2EEService.getUserDevicePublicKeys(toUid));
-          final didToPem = deviceKeys['didToPem'] ?? {};
-          if (didToPem.isEmpty) {
-            throw Exception('no_recipient_keys');
-          }
-
-          // 2. 构造接收方设备列表
-          final recipients = <RecipientDevice>[];
-          for (final entry in didToPem.entries) {
-            // deviceId 和 keyId 使用相同值（当前设计没有密钥版本轮换）
-            recipients.add(
-              RecipientDevice(
-                deviceId: entry.key,
-                keyId: entry.key, // 使用 deviceId 作为 keyId
-                publicKey: entry.value,
-              ),
-            );
-          }
-
-          // 3. 构造明文（移除 msg_type，已提升到顶层）
-          final plaintextPayload = Map<String, dynamic>.from(payload);
-          plaintextPayload.remove('msg_type');
-          final plaintext = jsonEncode(plaintextPayload);
-
-          // 4. 调用 v2.0 加密方法
-          final result = await E2EEService.buildE2EEData(
-            plaintext: plaintext,
-            recipients: recipients,
+          final encrypted = await _encryptPayload(
+            chatType: msgType,
+            toId: toUid,
+            plaintextMap: payload,
+            action: msgAction,
+            removeKeys: ['msg_type'],
           );
-
-          // v2.0: 提取 e2ee 元数据和密文
-          final e2eeData = result['e2ee'] as Map<String, dynamic>;
-          final ciphertext = result['ciphertext'] as String;
-
-          // v2.0: e2ee 字段保持为 Map 类型（JSON 对象）
-          // json.encode() 会自动将其编码为 JSON 字符串发送给服务端
-          msg['e2ee'] = e2eeData;
-
-          // v2.0: payload 直接是密文字符串
-          msg['payload'] = ciphertext;
-
-          // v2.0: msg_type 保持原始类型，e2ee 字段表示已加密
-          // 不修改 msg['msg_type']
-
-          iPrint('Chat.sendMessage: E2EE v2.0 加密成功 (${msg['id']})');
+          if (encrypted != null) {
+            msg['e2ee'] = encrypted['e2ee'];
+            msg['payload'] = encrypted['payload'];
+            iPrint('Chat.sendMessage: E2EE v2.0 加密成功 (${msg['id']})');
+          }
         } catch (e, stackTrace) {
-          // E2EE加密失败，阻止发送并通知用户（安全修复）
           iPrint('Chat.sendMessage: E2EE v2.0 加密失败: $e');
-
-          // 记录详细错误日志（不包含敏感内容）
           AppLogger.error(
             'E2EE加密失败 - msgId:${msg['id']?.toString()} msgType:${msg['type']?.toString()} to:${msg['to']?.toString()}',
             e,
             stackTrace,
           );
-
-          // 显示用户友好的错误提示
-          final userMessage = _getE2EEErrorMessage(e);
-          EasyLoading.showToast(userMessage);
-
-          // 阻止发送（不再降级为明文）
+          EasyLoading.showToast(_getE2EEErrorMessage(e));
           return false;
         }
       } else {
@@ -1572,7 +1513,7 @@ class ChatNotifier extends _$ChatNotifier {
     String msgType = message.metadata?['msg_type'] ?? '';
     if (message is TextMessage) {
       canCopy = true;
-    } else if (msgType == 'quote') {
+    } else if (msgType == MessageType.quote) {
       canCopy = true;
     }
 
@@ -1592,7 +1533,7 @@ class ChatNotifier extends _$ChatNotifier {
       canSave = true;
     } else if (message is FileMessage) {
       canSave = true;
-    } else if (msgType == 'video' || msgType == 'voice') {
+    } else if (msgType == MessageType.video || msgType == MessageType.voice) {
       canSave = true;
     }
 
@@ -1629,7 +1570,7 @@ class ChatNotifier extends _$ChatNotifier {
     bool isRevoked =
         (message is CustomMessage) &&
         msgTypeForMenu.toUpperCase().contains('REVOKE');
-    if (msgTypeForMenu == 'webrtcAudio' || msgTypeForMenu == 'webrtcVideo') {
+    if (msgTypeForMenu == MessageType.webrtcAudio || msgTypeForMenu == MessageType.webrtcVideo) {
       isRevoked = true;
     }
 
@@ -1998,6 +1939,79 @@ class ChatNotifier extends _$ChatNotifier {
       state = state.copyWith(isLoadingNewer: false);
       return [];
     }
+  }
+
+  // ===== 消息历史（conv_seq 游标，msg_store 永久存储）=====
+
+  /// 从服务端 msg_store 拉取历史消息（conv_seq 游标分页）
+  ///
+  /// 适用场景：运营平台开启了 `msg_archive_enabled` 时，客户端可通过此接口
+  /// 查阅永久存储的消息历史，不受本地 SQLite 数据影响。
+  ///
+  /// - [chatType]  'c2c' 或 'c2g'
+  /// - [peerId]    对端 hashids 编码 ID
+  /// - [limit]     每页条数，默认 50
+  ///
+  /// 返回拉到的消息列表（原始 Map），同时更新 [state.lastHistorySeq] 和
+  /// [state.historyHasMore] 用于下一次翻页。
+  Future<List<Map<String, dynamic>>> loadHistory({
+    required String chatType,
+    required String peerId,
+    int limit = 50,
+  }) async {
+    if (!state.historyHasMore) {
+      iPrint('loadHistory: 没有更多历史消息');
+      return [];
+    }
+    if (state.isLoading) {
+      iPrint('loadHistory: 正在加载中，跳过');
+      return [];
+    }
+
+    state = state.copyWith(isLoading: true);
+    try {
+      final result = await MsgApi().history(
+        chatType: chatType.toLowerCase(),
+        peerId: peerId,
+        afterSeq: state.lastHistorySeq,
+        limit: limit,
+      );
+
+      if (result == null) {
+        iPrint('loadHistory: 请求失败或 msg_archive_enabled=false');
+        state = state.copyWith(isLoading: false, historyHasMore: false);
+        return [];
+      }
+
+      final messages = (result['messages'] as List?)
+              ?.whereType<Map>()
+              .map((m) => Map<String, dynamic>.from(m))
+              .toList(growable: false) ??
+          const [];
+
+      final nextSeq = (result['next_seq'] as num?)?.toInt() ?? state.lastHistorySeq;
+      final hasMore = (result['has_more'] as bool?) ?? false;
+
+      state = state.copyWith(
+        isLoading: false,
+        lastHistorySeq: nextSeq,
+        historyHasMore: hasMore,
+      );
+
+      iPrint(
+        'loadHistory: 拉到 ${messages.length} 条，nextSeq=$nextSeq, hasMore=$hasMore',
+      );
+      return messages;
+    } catch (e) {
+      iPrint('loadHistory error: $e');
+      state = state.copyWith(isLoading: false);
+      return [];
+    }
+  }
+
+  /// 重置历史游标（切换会话时调用）
+  void resetHistoryCursor() {
+    state = state.copyWith(lastHistorySeq: 0, historyHasMore: true);
   }
 
   /// 滚动到指定消息
@@ -2523,3 +2537,59 @@ class ChatNotifier extends _$ChatNotifier {
     iPrint('========================');
   }
 }
+
+/// 文本流消息的实时状态管理
+///
+/// Key: message.id (TextStreamMessage 的唯一标识)
+/// Value: 当前流状态 (loading / streaming / completed / error)
+///
+/// 使用方式：
+///   - AI 发送新流消息时：startStream(messageId)
+///   - 每次收到 chunk：updateStream(messageId, accumulatedText)
+///   - 流结束时：completeStream(messageId, finalText)
+///   - 出错时：errorStream(messageId, error)
+class ChatStreamStateNotifier extends Notifier<Map<String, StreamState>> {
+  @override
+  Map<String, StreamState> build() => {};
+
+  /// 开始新的流（初始 Loading 状态）
+  void startStream(String messageId) {
+    state = {...state, messageId: const StreamStateLoading()};
+  }
+
+  /// 更新流中的累计文本
+  void updateStream(String messageId, String accumulatedText) {
+    state = {...state, messageId: StreamStateStreaming(accumulatedText)};
+  }
+
+  /// 标记流已完成
+  void completeStream(String messageId, String finalText) {
+    state = {...state, messageId: StreamStateCompleted(finalText)};
+  }
+
+  /// 标记流出错
+  void errorStream(String messageId, Object error, {String? partial}) {
+    state = {
+      ...state,
+      messageId: StreamStateError(error, accumulatedText: partial),
+    };
+  }
+
+  /// 获取指定消息的流状态
+  StreamState getState(String messageId) {
+    return state[messageId] ?? const StreamStateLoading();
+  }
+
+  /// 清除已完成的流（节省内存）
+  void clearCompleted() {
+    state = Map.fromEntries(
+      state.entries.where((e) => e.value is! StreamStateCompleted),
+    );
+  }
+}
+
+/// 全局文本流消息状态 Provider
+final chatStreamStateNotifierProvider =
+    NotifierProvider<ChatStreamStateNotifier, Map<String, StreamState>>(
+      ChatStreamStateNotifier.new,
+    );

@@ -2,11 +2,15 @@
 
 [根目录](../../CLAUDE.md) > [lib](../) > **store**
 
-> 最后更新：2026-01-19 12:00:00 CST
+> 最后更新：2026-04-04 CST
 
 ---
 
 ## 变更记录 (Changelog)
+
+### 2026-04-04
+- 新增 `lib/store/api/msg_api.dart` — 消息历史 API（conv_seq 游标分页）
+- 对应后端 `GET /v1/msg/history`，需开启 `msg_archive_enabled=true`
 
 ### 2026-01-19
 - **重命名重构**：`provider/` 目录重命名为 `api/`
@@ -258,6 +262,31 @@ bool success = await api.groupEdit(
   data: {...},
 );
 ```
+
+#### MsgApi（消息历史 API）
+```dart
+// 创建实例
+MsgApi api = MsgApi();
+
+// 拉取历史消息（conv_seq 游标分页，需后端开启 msg_archive_enabled=true）
+Map<String, dynamic>? result = await api.history(
+  chatType: 'c2c',      // 'c2c' 或 'c2g'
+  peerId: encodedUid,   // hashids 编码的对端 ID
+  afterSeq: 0,          // 上次拉取的 next_seq，0 表示从头
+  limit: 50,            // 每页条数，最大 100
+);
+
+// result 结构：
+// {
+//   "messages":  [...],   // 消息列表
+//   "next_seq":  42,      // 下次传入的 afterSeq
+//   "has_more":  true,    // 是否还有更多
+//   "conv_key":  "c2c:1:2"
+// }
+```
+
+> 在 `ChatNotifier` 中封装好了 `loadHistory()` / `resetHistoryCursor()` 方法，
+> 状态通过 `ChatState.lastHistorySeq` 和 `ChatState.historyHasMore` 跟踪。
 
 ---
 
@@ -511,6 +540,7 @@ A: 在 `lib/service/migration_service.dart` 中添加迁移逻辑。
 - `lib/store/api/app_version_api.dart` - 应用版本 API
 - `lib/store/api/attachment_api.dart` - 附件 API
 - `lib/store/api/e2ee_api.dart` - 端到端加密 API
+- `lib/store/api/msg_api.dart` - 消息历史 API（conv_seq 游标分页）
 
 ---
 

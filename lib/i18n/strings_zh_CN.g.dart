@@ -740,8 +740,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '$param 长度必须在 $min 和 $max 之间'
 	String errorLengthBetween({required Object param, required Object min, required Object max}) => '${param} 长度必须在 ${min} 和 ${max} 之间';
 
-	/// zh-CN: '错误'
-	String get errorManyRequest => _root.error;
+	/// zh-CN: '请求过于频繁'
+	String get errorManyRequest => '请求过于频繁';
 
 	/// zh-CN: '错误'
 	String get errorNoPackageToRemove => _root.error;
@@ -1129,6 +1129,15 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '《注销须知》'
 	String get logoutNotice => '《注销须知》';
+
+	/// zh-CN: '导出我的数据'
+	String get exportMyData => '导出我的数据';
+
+	/// zh-CN: '数据已导出'
+	String get exportDataSuccess => '数据已导出';
+
+	/// zh-CN: '导出你的个人信息、联系人和聊天记录'
+	String get exportDataDesc => '导出你的个人信息、联系人和聊天记录';
 
 	/// zh-CN: '扩音器'
 	String get loudspeaker => '扩音器';
@@ -1789,6 +1798,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '永久'
 	String get muteDurationPermanent => '永久';
+
+	/// zh-CN: '操作频率过高，请稍后再试'
+	String get throttleWarning => '操作频率过高，请稍后再试';
+
+	/// zh-CN: '操作频率过高，请 $seconds 秒后再试'
+	String throttleRetryAfter({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试';
+
+	/// zh-CN: '你已被禁言'
+	String get youAreMuted => '你已被禁言';
+
+	/// zh-CN: '你已被禁言，剩余 $minutes 分钟'
+	String youAreMutedWithTime({required Object minutes}) => '你已被禁言，剩余 ${minutes} 分钟';
+
+	/// zh-CN: '禁言期间无法发送消息'
+	String get mutedCannotSend => '禁言期间无法发送消息';
 
 	/// zh-CN: '已回复'
 	String get replied => '已回复';
@@ -2581,6 +2605,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。'
 	String get privacyLogoutAccountConfirm => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。';
+
+	/// zh-CN: '隐私政策'
+	String get privacyPolicy => '隐私政策';
 
 	/// zh-CN: '隐私设置'
 	String get privacySettings => '隐私设置';
@@ -4295,6 +4322,21 @@ class TranslationsGroupCategoryZhCn {
 
 	/// zh-CN: '分组已删除'
 	String get categoryDeleted => '分组已删除';
+
+	/// zh-CN: '重命名分组'
+	String get renameCategory => '重命名分组';
+
+	/// zh-CN: '分组重命名成功'
+	String get categoryRenamed => '分组重命名成功';
+
+	/// zh-CN: '重命名失败，请重试'
+	String get renameFailed => '重命名失败，请重试';
+
+	/// zh-CN: '删除失败，请重试'
+	String get deleteFailed => '删除失败，请重试';
+
+	/// zh-CN: '该分组下的群聊可以在群组列表中通过「移入分组」进行管理'
+	String get categoryDetailTip => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理';
 }
 
 // Path: groupTag
@@ -4777,7 +4819,7 @@ extension on Translations {
 			'errorInvalidJson' => _root.error,
 			'errorInvalidRequest' => _root.error,
 			'errorLengthBetween' => ({required Object param, required Object min, required Object max}) => '${param} 长度必须在 ${min} 和 ${max} 之间',
-			'errorManyRequest' => _root.error,
+			'errorManyRequest' => '请求过于频繁',
 			'errorNoPackageToRemove' => _root.error,
 			'errorNoValidFileOrUrl' => _root.error,
 			'errorNonexistentDirectory' => _root.error,
@@ -4907,6 +4949,9 @@ extension on Translations {
 			'logoutAccount' => '注销账号',
 			'loggingOut' => '正在退出登录...',
 			'logoutNotice' => '《注销须知》',
+			'exportMyData' => '导出我的数据',
+			'exportDataSuccess' => '数据已导出',
+			'exportDataDesc' => '导出你的个人信息、联系人和聊天记录',
 			'loudspeaker' => '扩音器',
 			'makeYourselfInvisible' => '让自己不可见',
 			'makeYourselfVisible' => '让自己可见',
@@ -5048,11 +5093,11 @@ extension on Translations {
 			'pinned' => '已置顶',
 			'play' => '播放',
 			'pleaseCheckNetwork' => '请检查你的网络设置。',
+			_ => null,
+		} ?? switch (path) {
 			'pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'pleaseSelect' => '请选择',
 			'pleaseSelectMembersForAdd' => '请选择要添加的成员',
-			_ => null,
-		} ?? switch (path) {
 			'privateReply' => '私聊回复',
 			'profileSettings' => '资料设置',
 			'qrCodeBusinessCard' => '二维码名片',
@@ -5129,6 +5174,11 @@ extension on Translations {
 			'muteDuration3days' => '3天',
 			'muteDuration7days' => '7天',
 			'muteDurationPermanent' => '永久',
+			'throttleWarning' => '操作频率过高，请稍后再试',
+			'throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
+			'youAreMuted' => '你已被禁言',
+			'youAreMutedWithTime' => ({required Object minutes}) => '你已被禁言，剩余 ${minutes} 分钟',
+			'mutedCannotSend' => '禁言期间无法发送消息',
 			'replied' => '已回复',
 			'repliedAt' => '回复于',
 			'reply' => '回复',
@@ -5393,6 +5443,7 @@ extension on Translations {
 			'privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
 			'privacyLogoutAccount' => '注销账号',
 			'privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
+			'privacyPolicy' => '隐私政策',
 			'privacySettings' => '隐私设置',
 			'searchSettings' => '搜索设置',
 			'allowSearchByAccount' => '允许通过账号搜索',
@@ -5556,6 +5607,8 @@ extension on Translations {
 			'commentPlaceholder' => '评论...',
 			'burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',
 			'burnDisabledMessage' => '关闭后：消息不会自动销毁',
+			_ => null,
+		} ?? switch (path) {
 			'visibleEnabledMessage' => ({required Object percentage, required Object delayms}) => '开启后：可见比例≥${percentage}%，持续≥${delayms}',
 			'visibleDisabledMessage' => '关闭后：不会基于可视自动已读',
 			'visibleThresholdInfo' => ({required Object percentage, required Object delayms}) => '可见比例: ${percentage}% | 延时: ${delayms}',
@@ -5565,8 +5618,6 @@ extension on Translations {
 			'announcementContentCannotBeEmpty' => '公告内容不能为空',
 			'announcementPublishSuccess' => '公告发布成功',
 			'unsupportedMessageType' => '不支持的消息类型',
-			_ => null,
-		} ?? switch (path) {
 			'tips' => '提示',
 			'featureComingSoon' => '功能暂未实现',
 			'understood' => '明白了',
@@ -5939,6 +5990,11 @@ extension on Translations {
 			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',
 			'groupCategory.categoryCreated' => '分组创建成功',
 			'groupCategory.categoryDeleted' => '分组已删除',
+			'groupCategory.renameCategory' => '重命名分组',
+			'groupCategory.categoryRenamed' => '分组重命名成功',
+			'groupCategory.renameFailed' => '重命名失败，请重试',
+			'groupCategory.deleteFailed' => '删除失败，请重试',
+			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
 			'groupTag.tagName' => '标签名称',

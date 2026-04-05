@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -47,7 +46,6 @@ class UserDenylistRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on page ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -75,7 +73,6 @@ class UserDenylistRepo {
       orderBy: "${UserDenylistRepo.createdAt} desc",
       limit: limit,
     );
-    debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -103,8 +100,6 @@ class UserDenylistRepo {
       // 单位毫秒，13位时间戳  1561021145560
       UserDenylistRepo.createdAt: obj.createdAt,
     };
-    debugPrint("> on UserDenylistRepo/insert/1 $insert");
-
     if (txn != null) {
       await txn.insert(UserDenylistRepo.tableName, insert);
     } else {
@@ -198,7 +193,6 @@ class UserDenylistRepo {
       data[UserDenylistRepo.gender] = json["gender"];
     }
 
-    debugPrint("> on UserDenylistRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
       data[UserDenylistRepo.createdAt] = DateTimeHelper.millisecond();
       if (txn != null) {

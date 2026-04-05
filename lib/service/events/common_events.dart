@@ -108,6 +108,61 @@ final class UserCancelEvent extends AppEvent {
   List<Object?> get props => [userId, nickname];
 }
 
+/// 用户被禁言事件
+///
+/// 当后端通过 WebSocket 通知当前用户被禁言时发布
+final class UserMutedEvent extends AppEvent {
+  /// 禁言到期时间戳（毫秒），0 表示永久禁言
+  final int muteUntilMs;
+
+  /// 禁言原因（可选）
+  final String? reason;
+
+  /// 会话 ID（可选，表示在哪个会话中被禁言）
+  final String? conversationId;
+
+  const UserMutedEvent({
+    required this.muteUntilMs,
+    this.reason,
+    this.conversationId,
+  });
+
+  /// 剩余禁言分钟数
+  int get remainingMinutes {
+    if (muteUntilMs <= 0) return -1; // 永久
+    final remaining = muteUntilMs - DateTime.now().millisecondsSinceEpoch;
+    if (remaining <= 0) return 0;
+    return (remaining / 60000).ceil();
+  }
+
+  /// 是否仍在禁言中
+  bool get isMuted {
+    if (muteUntilMs <= 0) return true; // 永久禁言
+    return DateTime.now().millisecondsSinceEpoch < muteUntilMs;
+  }
+
+  @override
+  List<Object?> get props => [muteUntilMs, reason, conversationId];
+
+  @override
+  String toString() {
+    return 'UserMutedEvent(muteUntilMs: $muteUntilMs, reason: $reason, conversationId: $conversationId)';
+  }
+}
+
+/// 用户禁言解除事件
+///
+/// 当禁言到期或被手动解除时发布
+final class UserUnmutedEvent extends AppEvent {
+  /// 会话 ID（可选）
+  final String? conversationId;
+
+  const UserUnmutedEvent({this.conversationId});
+
+  @override
+  List<Object?> get props => [conversationId];
+}
+
 // ============================================================================
 // 消息相关事件
 // ============================================================================
@@ -517,6 +572,42 @@ final class ChannelNewMessageEvent extends AppEvent {
   String toString() {
     return 'ChannelNewMessageEvent(channelId: $channelId, messageId: ${message['id']})';
   }
+}
+
+/// 频道消息移除事件
+///
+/// 当频道消息被删除或撤回时发布。
+final class ChannelMessageDeletedEvent extends AppEvent {
+  final String channelId;
+  final String messageId;
+  final String reason;
+
+  const ChannelMessageDeletedEvent({
+    required this.channelId,
+    required this.messageId,
+    required this.reason,
+  });
+
+  @override
+  List<Object> get props => [channelId, messageId, reason];
+}
+
+/// 频道状态变更事件
+///
+/// 用于频道资料更新、邀请、支付、订阅状态变化后的 UI 同步。
+final class ChannelStateChangedEvent extends AppEvent {
+  final String channelId;
+  final String action;
+  final Map<String, dynamic> payload;
+
+  const ChannelStateChangedEvent({
+    required this.channelId,
+    required this.action,
+    required this.payload,
+  });
+
+  @override
+  List<Object> get props => [channelId, action, payload];
 }
 
 /// 朋友圈时间线变更事件

@@ -257,7 +257,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get errorInvalidJson => _root.error;
 	@override String get errorInvalidRequest => _root.error;
 	@override String errorLengthBetween({required Object param, required Object min, required Object max}) => '${param} length must be between ${min} and ${max}';
-	@override String get errorManyRequest => _root.error;
+	@override String get errorManyRequest => 'Too many requests';
 	@override String get errorNoPackageToRemove => _root.error;
 	@override String get errorNoValidFileOrUrl => _root.error;
 	@override String get errorNonexistentDirectory => _root.error;
@@ -387,6 +387,9 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get logoutAccount => 'Delete account';
 	@override String get loggingOut => 'Logging out...';
 	@override String get logoutNotice => 'Account Deletion Notice';
+	@override String get exportMyData => 'Export My Data';
+	@override String get exportDataSuccess => 'Data exported successfully';
+	@override String get exportDataDesc => 'Export your personal info, contacts, and chat history';
 	@override String get loudspeaker => 'Speaker';
 	@override String get makeYourselfInvisible => 'Make yourself invisible';
 	@override String get makeYourselfVisible => 'Make yourself visible';
@@ -607,6 +610,11 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get muteDuration3days => '3 Days';
 	@override String get muteDuration7days => '7 Days';
 	@override String get muteDurationPermanent => 'Permanent';
+	@override String get throttleWarning => 'Too many requests, please try again later';
+	@override String throttleRetryAfter({required Object seconds}) => 'Too many requests, please retry after ${seconds} seconds';
+	@override String get youAreMuted => 'You are muted';
+	@override String youAreMutedWithTime({required Object minutes}) => 'You are muted, ${minutes} minutes remaining';
+	@override String get mutedCannotSend => 'Cannot send messages while muted';
 	@override String get replied => 'Replied';
 	@override String get repliedAt => 'Replied at';
 	@override String get reply => 'Reply';
@@ -871,6 +879,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyClearChatHistoryConfirm => 'Are you sure you want to clear all chat history? This action cannot be undone.';
 	@override String get privacyLogoutAccount => 'Delete account';
 	@override String get privacyLogoutAccountConfirm => 'Are you sure you want to delete your account? This action will permanently delete your account and all data, and cannot be undone.';
+	@override String get privacyPolicy => 'Privacy Policy';
 	@override String get privacySettings => 'Privacy settings';
 	@override String get searchSettings => 'Search settings';
 	@override String get allowSearchByAccount => 'Allow search by account';
@@ -1822,7 +1831,7 @@ extension on TranslationsEnUs {
 			'errorInvalidJson' => _root.error,
 			'errorInvalidRequest' => _root.error,
 			'errorLengthBetween' => ({required Object param, required Object min, required Object max}) => '${param} length must be between ${min} and ${max}',
-			'errorManyRequest' => _root.error,
+			'errorManyRequest' => 'Too many requests',
 			'errorNoPackageToRemove' => _root.error,
 			'errorNoValidFileOrUrl' => _root.error,
 			'errorNonexistentDirectory' => _root.error,
@@ -1952,6 +1961,9 @@ extension on TranslationsEnUs {
 			'logoutAccount' => 'Delete account',
 			'loggingOut' => 'Logging out...',
 			'logoutNotice' => 'Account Deletion Notice',
+			'exportMyData' => 'Export My Data',
+			'exportDataSuccess' => 'Data exported successfully',
+			'exportDataDesc' => 'Export your personal info, contacts, and chat history',
 			'loudspeaker' => 'Speaker',
 			'makeYourselfInvisible' => 'Make yourself invisible',
 			'makeYourselfVisible' => 'Make yourself visible',
@@ -2112,11 +2124,11 @@ extension on TranslationsEnUs {
 			'recommendToFriend' => 'Recommend to friends',
 			'recoverCodePasswordDesc' => 'We will send password recovery code to your email.',
 			'recoverPassword' => 'Reset password',
+			_ => null,
+		} ?? switch (path) {
 			'recoverPasswordDesc' => 'Please enter your email to receive password reset instructions',
 			'recoverPasswordIntro' => 'No worries, this happens to everyone.',
 			'recoverPasswordSuccess' => 'Verification code sent successfully',
-			_ => null,
-		} ?? switch (path) {
 			'birthday' => 'Birthday',
 			'region' => 'Region',
 			'regionCancel' => 'Cancel',
@@ -2174,6 +2186,11 @@ extension on TranslationsEnUs {
 			'muteDuration3days' => '3 Days',
 			'muteDuration7days' => '7 Days',
 			'muteDurationPermanent' => 'Permanent',
+			'throttleWarning' => 'Too many requests, please try again later',
+			'throttleRetryAfter' => ({required Object seconds}) => 'Too many requests, please retry after ${seconds} seconds',
+			'youAreMuted' => 'You are muted',
+			'youAreMutedWithTime' => ({required Object minutes}) => 'You are muted, ${minutes} minutes remaining',
+			'mutedCannotSend' => 'Cannot send messages while muted',
 			'replied' => 'Replied',
 			'repliedAt' => 'Replied at',
 			'reply' => 'Reply',
@@ -2438,6 +2455,7 @@ extension on TranslationsEnUs {
 			'privacyClearChatHistoryConfirm' => 'Are you sure you want to clear all chat history? This action cannot be undone.',
 			'privacyLogoutAccount' => 'Delete account',
 			'privacyLogoutAccountConfirm' => 'Are you sure you want to delete your account? This action will permanently delete your account and all data, and cannot be undone.',
+			'privacyPolicy' => 'Privacy Policy',
 			'privacySettings' => 'Privacy settings',
 			'searchSettings' => 'Search settings',
 			'allowSearchByAccount' => 'Allow search by account',
@@ -2620,6 +2638,8 @@ extension on TranslationsEnUs {
 			'offlineCommandSent' => 'Offline command sent',
 			'operationOptions' => 'Operation Options',
 			'copyTextContent' => 'Copy text content',
+			_ => null,
+		} ?? switch (path) {
 			'shareWithOtherFriends' => 'Share with other friends',
 			'addTagsToFavorites' => 'Add tags to favorites',
 			'addRemarkToFavorites' => 'Add remark to favorites',
@@ -2629,8 +2649,6 @@ extension on TranslationsEnUs {
 			'changeSuccess' => 'Changed successfully',
 			'loginPasswordUpdated' => 'Login password updated',
 			'loginPassword' => 'Login Password',
-			_ => null,
-		} ?? switch (path) {
 			'loginPasswordDesc' => 'Used to login IMBoy account',
 			'oldPassword' => 'Old Password',
 			'enterOldPassword' => 'Please enter old password',

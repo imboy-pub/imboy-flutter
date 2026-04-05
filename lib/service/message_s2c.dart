@@ -174,13 +174,36 @@ class MessageS2CService {
           // 频道信息更新
           await _handleChannelUpdated(payloadMap);
           break;
+        case 'channel_message_deleted':
+          await _handleChannelMessageDeleted(payloadMap);
+          break;
+        case 'channel_message_revoked':
+          await _handleChannelMessageRevoked(payloadMap);
+          break;
         case 'channel_deleted':
           // 频道删除通知
           await _handleChannelDeleted(payloadMap);
           break;
+        case 'channel_invitation_created':
+          await _handleChannelInvitationCreated(payloadMap);
+          break;
+        case 'channel_invitation_accepted':
+          await _handleChannelInvitationAccepted(payloadMap);
+          break;
+        case 'channel_order_paid':
+          await _handleChannelOrderPaid(payloadMap);
+          break;
         case 'channel_unread_count':
           // 频道未读计数更新
           await _handleChannelUnreadCount(payloadMap);
+          break;
+        case 'user_muted':
+          // 当前用户被禁言（消息频率异常等）
+          await _handleUserMuted(payloadMap);
+          break;
+        case 'user_unmuted':
+          // 当前用户禁言解除
+          await _handleUserUnmuted(payloadMap);
           break;
         case 'moment_new':
         case 'moment_like':
@@ -642,82 +665,34 @@ class MessageS2CService {
     // await ContactRepo.to.markAsDeleted(userId);
   }
 
-  /// 处理用户上线
-  ///
-  /// Action: online
-  /// 触发时机：好友上线
-  /// 处理逻辑：发布用户状态变更事件，由UI层订阅显示在线提示
+  /// 处理用户状态变更（上线/下线/隐身）
+  static Future<void> _handleUserStatusChange(
+    Map data,
+    Map<String, dynamic> payload,
+    String status,
+  ) async {
+    final userId = data['from']?.toString() ?? '';
+    final nickname = payload['nickname']?.toString();
+
+    iPrint('[S2C] $status: userId=$userId, nickname=$nickname');
+
+    AppEventBus.fire(
+      UserStatusChangeEvent(userId: userId, status: status, nickname: nickname),
+    );
+  }
+
   static Future<void> _handleUserOnline(
     Map data,
     Map<String, dynamic> payload,
-  ) async {
-    final userId = data['from']?.toString() ?? '';
-    final nickname = payload['nickname']?.toString();
+  ) => _handleUserStatusChange(data, payload, 'online');
 
-    iPrint('[S2C] online: userId=$userId, nickname=$nickname');
-
-    // 发布用户上线事件
-    AppEventBus.fire(
-      UserStatusChangeEvent(
-        userId: userId,
-        status: 'online',
-        nickname: nickname,
-      ),
-    );
-
-    // 可选：更新联系人状态到数据库
-    // await ContactRepo.to.updateOnlineStatus(userId, true);
-  }
-
-  /// 处理用户下线
-  ///
-  /// Action: offline
-  /// 触发时机：好友下线
-  /// 处理逻辑：发布用户状态变更事件，由UI层订阅显示离线提示
   static Future<void> _handleUserOffline(
     Map data,
     Map<String, dynamic> payload,
-  ) async {
-    final userId = data['from']?.toString() ?? '';
-    final nickname = payload['nickname']?.toString();
+  ) => _handleUserStatusChange(data, payload, 'offline');
 
-    iPrint('[S2C] offline: userId=$userId, nickname=$nickname');
-
-    // 发布用户下线事件
-    AppEventBus.fire(
-      UserStatusChangeEvent(
-        userId: userId,
-        status: 'offline',
-        nickname: nickname,
-      ),
-    );
-
-    // 可选：更新联系人状态到数据库
-    // await ContactRepo.to.updateOnlineStatus(userId, false);
-  }
-
-  /// 处理用户隐身
-  ///
-  /// Action: hide
-  /// 触发时机：好友设置隐身状态
-  /// 处理逻辑：发布用户状态变更事件，由UI层订阅处理
-  static Future<void> _handleUserHide(
-    Map data,
-    Map<String, dynamic> payload,
-  ) async {
-    final userId = data['from']?.toString() ?? '';
-    final nickname = payload['nickname']?.toString();
-
-    iPrint('[S2C] hide: userId=$userId, nickname=$nickname');
-
-    // 发布用户隐身事件
-    AppEventBus.fire(
-      UserStatusChangeEvent(userId: userId, status: 'hide', nickname: nickname),
-    );
-
-    // 可选：更新联系人状态到数据库
-    // await ContactRepo.to.updateHideStatus(userId, true);
-  }
+  static Future<void> _handleUserHide(Map data, Map<String, dynamic> payload) =>
+      _handleUserStatusChange(data, payload, 'hide');
 
   /// 处理 E2EE 设备密钥变更通知
   ///
@@ -741,6 +716,57 @@ class MessageS2CService {
       E2EEService.clearUserKeyCache(uid);
       iPrint('🔑 E2EE: 已清除用户 $uid 的公钥缓存（密钥已变更）');
     }
+  }
+
+  /// 处理用户被禁言通知
+  ///
+  /// Action: user_muted
+  /// 触发时机：后端 msg_rate_logic 检测到消息频率异常，自动禁言
+  /// payload: { mute_until: 毫秒时间戳, reason: "消息频率异常" , conversation_id: "可选" }
+  static Future<void> _handleUserMuted(Map<String, dynamic> payload) async {
+    final muteUntil = payload['mute_until'] ?? 0;
+    final reason = payload['reason']?.toString();
+    final conversationId = payload['conversation_id']?.toString();
+
+    iPrint(
+      '[S2C] user_muted: muteUntil=$muteUntil, reason=$reason, conversationId=$conversationId',
+    );
+
+    // 显示禁言提示
+    final event = UserMutedEvent(
+      muteUntilMs: muteUntil is int ? muteUntil : int.tryParse('$muteUntil') ?? 0,
+      reason: reason,
+      conversationId: conversationId,
+    );
+
+    // 发布事件供 UI 层订阅
+    AppEventBus.fire(event);
+
+    // 同时用 EasyLoading 显示即时提示
+    final minutes = event.remainingMinutes;
+    if (minutes > 0) {
+      EasyLoading.showInfo(
+        t.youAreMutedWithTime(minutes: '$minutes'),
+        duration: const Duration(seconds: 3),
+      );
+    } else {
+      EasyLoading.showInfo(
+        t.youAreMuted,
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
+  /// 处理用户禁言解除通知
+  ///
+  /// Action: user_unmuted
+  /// 触发时机：禁言到期或管理员手动解除禁言
+  static Future<void> _handleUserUnmuted(Map<String, dynamic> payload) async {
+    final conversationId = payload['conversation_id']?.toString();
+
+    iPrint('[S2C] user_unmuted: conversationId=$conversationId');
+
+    AppEventBus.fire(UserUnmutedEvent(conversationId: conversationId));
   }
 
   // ============================================
@@ -834,6 +860,38 @@ class MessageS2CService {
     }
   }
 
+  static Future<void> _handleChannelMessageDeleted(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    final messageId = payload['message_id']?.toString() ?? '';
+    iPrint(
+      '[S2C] channel_message_deleted: channelId=$channelId, messageId=$messageId',
+    );
+
+    try {
+      await ChannelService.to.handleChannelMessageDeleted(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_message_deleted 处理失败: $e');
+    }
+  }
+
+  static Future<void> _handleChannelMessageRevoked(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    final messageId = payload['message_id']?.toString() ?? '';
+    iPrint(
+      '[S2C] channel_message_revoked: channelId=$channelId, messageId=$messageId',
+    );
+
+    try {
+      await ChannelService.to.handleChannelMessageRevoked(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_message_revoked 处理失败: $e');
+    }
+  }
+
   /// 处理频道删除通知
   ///
   /// Action: channel_deleted
@@ -849,6 +907,45 @@ class MessageS2CService {
       await ChannelService.to.handleChannelDeleted(payload);
     } catch (e) {
       debugPrint('[S2C] channel_deleted 处理失败: $e');
+    }
+  }
+
+  static Future<void> _handleChannelInvitationCreated(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    iPrint('[S2C] channel_invitation_created: channelId=$channelId');
+
+    try {
+      await ChannelService.to.handleChannelInvitationCreated(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_invitation_created 处理失败: $e');
+    }
+  }
+
+  static Future<void> _handleChannelInvitationAccepted(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    iPrint('[S2C] channel_invitation_accepted: channelId=$channelId');
+
+    try {
+      await ChannelService.to.handleChannelInvitationAccepted(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_invitation_accepted 处理失败: $e');
+    }
+  }
+
+  static Future<void> _handleChannelOrderPaid(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    iPrint('[S2C] channel_order_paid: channelId=$channelId');
+
+    try {
+      await ChannelService.to.handleChannelOrderPaid(payload);
+    } catch (e) {
+      debugPrint('[S2C] channel_order_paid 处理失败: $e');
     }
   }
 

@@ -838,6 +838,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override String get privacyClearChatHistoryConfirm => '確定要清除所有聊天記錄嗎？此操作不可恢復。';
 	@override String get privacyLogoutAccount => '註銷帳號';
 	@override String get privacyLogoutAccountConfirm => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。';
+	@override String get privacyPolicy => '隱私政策';
 	@override String get privacySettings => '隱私設定';
 	@override String get searchSettings => '搜尋設定';
 	@override String get allowSearchByAccount => '允許通過帳號搜尋';
@@ -2269,6 +2270,7 @@ extension on TranslationsZhHant {
 			'privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
 			'privacyLogoutAccount' => '註銷帳號',
 			'privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。',
+			'privacyPolicy' => '隱私政策',
 			'privacySettings' => '隱私設定',
 			'searchSettings' => '搜尋設定',
 			'allowSearchByAccount' => '允許通過帳號搜尋',
@@ -2492,9 +2494,9 @@ extension on TranslationsZhHant {
 			'saveFailed' => '儲存失敗',
 			'markRead' => '標記已讀',
 			'markUnread' => '標記未讀',
-			'discover' => '發現',
 			_ => null,
 		} ?? switch (path) {
+			'discover' => '發現',
 			'shake' => '搖一搖',
 			'tip' => '提示',
 			'confirm' => '確認',

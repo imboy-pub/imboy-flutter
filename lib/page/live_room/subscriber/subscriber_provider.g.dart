@@ -8,15 +8,15 @@ part of 'subscriber_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Subscriber Provider
+/// Subscriber Provider - 管理 WHEP 拉流状态和 PeerConnection
 
 @ProviderFor(SubscriberNotifier)
 final subscriberProvider = SubscriberNotifierProvider._();
 
-/// Subscriber Provider
+/// Subscriber Provider - 管理 WHEP 拉流状态和 PeerConnection
 final class SubscriberNotifierProvider
     extends $NotifierProvider<SubscriberNotifier, SubscriberState> {
-  /// Subscriber Provider
+  /// Subscriber Provider - 管理 WHEP 拉流状态和 PeerConnection
   SubscriberNotifierProvider._()
     : super(
         from: null,
@@ -45,9 +45,9 @@ final class SubscriberNotifierProvider
 }
 
 String _$subscriberNotifierHash() =>
-    r'dbd76ed2e9e0a276dc5d6fec04ff0b2b16cc47c5';
+    r'b72bddc9f0fa4a38e46f9f19dafed42561b56e0c';
 
-/// Subscriber Provider
+/// Subscriber Provider - 管理 WHEP 拉流状态和 PeerConnection
 
 abstract class _$SubscriberNotifier extends $Notifier<SubscriberState> {
   SubscriberState build();

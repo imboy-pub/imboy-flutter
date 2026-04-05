@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群相册 API 客户端
 class GroupAlbumApi extends HttpClient {
@@ -26,7 +27,7 @@ class GroupAlbumApi extends HttpClient {
     int size = 20,
   }) async {
     final resp = await get(
-      '/v1/group_album/list',
+      API.groupAlbumList,
       queryParameters: {'gid': groupId, 'page': page, 'size': size},
     );
     debugPrint("GroupAlbumApi_getAlbums resp: ok=${resp.ok}");
@@ -69,7 +70,7 @@ class GroupAlbumApi extends HttpClient {
       data['cover_photo_id'] = cover;
     }
 
-    final resp = await post('/v1/group_album/create', data: data);
+    final resp = await post(API.groupAlbumCreate, data: data);
     debugPrint("GroupAlbumApi_createAlbum resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -90,7 +91,7 @@ class GroupAlbumApi extends HttpClient {
       return false;
     }
     final resp = await post(
-      '/v1/group_album/rename',
+      API.groupAlbumRename,
       data: {'album_id': id, 'album_name': name},
     );
     debugPrint("GroupAlbumApi_renameAlbum resp: ok=${resp.ok}");
@@ -112,7 +113,7 @@ class GroupAlbumApi extends HttpClient {
     }
 
     final resp = await post(
-      '/v1/group_album/photo/upload',
+      API.groupAlbumPhotoUpload,
       data: FormData.fromMap({
         'gid': gid,
         'album_id': aid,
@@ -147,7 +148,7 @@ class GroupAlbumApi extends HttpClient {
     }
 
     final resp = await get(
-      '/v1/group_album/photo/list',
+      API.groupAlbumPhotoList,
       queryParameters: {'album_id': aid, 'page': page, 'size': size},
     );
     debugPrint("GroupAlbumApi_getPhotos resp: ok=${resp.ok}");
@@ -179,7 +180,7 @@ class GroupAlbumApi extends HttpClient {
     if (text.isEmpty) return null;
 
     final resp = await get(
-      '/v1/group_album/photo/detail',
+      API.groupAlbumPhotoDetail,
       queryParameters: {'photo_id': text},
     );
     debugPrint("GroupAlbumApi_getPhotoDetail resp: ok=${resp.ok}");
@@ -198,7 +199,7 @@ class GroupAlbumApi extends HttpClient {
     if (text.isEmpty) return false;
 
     final resp = await post(
-      '/v1/group_album/photo/delete',
+      API.groupAlbumPhotoDelete,
       data: {'photo_id': text},
     );
     debugPrint("GroupAlbumApi_deletePhoto resp: ok=${resp.ok}");
@@ -215,7 +216,7 @@ class GroupAlbumApi extends HttpClient {
     if (aid.isEmpty || pid.isEmpty) return false;
 
     final resp = await post(
-      '/v1/group_album/cover/update',
+      API.groupAlbumCoverUpdate,
       data: {'album_id': aid, 'photo_id': pid},
     );
     debugPrint("GroupAlbumApi_updateAlbumCover resp: ok=${resp.ok}");
@@ -227,7 +228,7 @@ class GroupAlbumApi extends HttpClient {
     if (albumId == null) return false;
     final text = albumId.toString().trim();
     if (text.isEmpty) return false;
-    final resp = await post('/v1/group_album/delete', data: {'album_id': text});
+    final resp = await post(API.groupAlbumDelete, data: {'album_id': text});
     debugPrint("GroupAlbumApi_deleteAlbum resp: ok=${resp.ok}");
     return resp.ok;
   }

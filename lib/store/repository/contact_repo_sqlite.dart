@@ -78,7 +78,6 @@ class ContactRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -113,8 +112,6 @@ class ContactRepo {
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
     };
-    debugPrint("> on ContactRepo/insert/1 $insert");
-
     if (txn != null) {
       await txn.insert(ContactRepo.tableName, insert);
     } else {
@@ -298,9 +295,7 @@ class ContactRepo {
     // json['id'] 兼容 api响应的数据
     String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
     if (uid.isEmpty) {
-      debugPrint(
-        "> ContactRepo.save error: peerId is empty, json: ${json.toString()}",
-      );
+      // peerId 为空，跳过保存
       return null;
     }
     if (uid == UserRepoLocal.to.currentUid) {

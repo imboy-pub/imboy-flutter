@@ -6,6 +6,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/api/moment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/page/moment/moment_utils.dart';
 
 Future<void> _pumpMomentFeedPage(WidgetTester tester) async {
   addTearDown(() async {
@@ -713,7 +714,7 @@ class _MomentCard extends StatelessWidget {
         : const <String, dynamic>{};
     final likeCount = parseModelInt(stats['like_count']);
     final commentCount = parseModelInt(stats['comment_count']);
-    final media = _normalizeMedia(item['media']);
+    final media = normalizeMedia(item['media']);
 
     return InkWell(
       onTap: onTap,
@@ -844,10 +845,3 @@ class _MomentMediaCell extends StatelessWidget {
   }
 }
 
-List<Map<String, dynamic>> _normalizeMedia(dynamic rawMedia) {
-  if (rawMedia is! List) return const [];
-  return rawMedia
-      .whereType<Map>()
-      .map((item) => Map<String, dynamic>.from(item))
-      .toList(growable: false);
-}

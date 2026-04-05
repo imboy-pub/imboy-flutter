@@ -838,6 +838,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyClearChatHistoryConfirm => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.';
 	@override String get privacyLogoutAccount => 'Supprimer le compte';
 	@override String get privacyLogoutAccountConfirm => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.';
+	@override String get privacyPolicy => 'Politique de confidentialité';
 	@override String get privacySettings => 'Paramètres de confidentialité';
 	@override String get searchSettings => 'Paramètres de recherche';
 	@override String get allowSearchByAccount => 'Autoriser la recherche par compte';
@@ -2269,6 +2270,7 @@ extension on TranslationsFrFr {
 			'privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
 			'privacyLogoutAccount' => 'Supprimer le compte',
 			'privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
+			'privacyPolicy' => 'Politique de confidentialité',
 			'privacySettings' => 'Paramètres de confidentialité',
 			'searchSettings' => 'Paramètres de recherche',
 			'allowSearchByAccount' => 'Autoriser la recherche par compte',
@@ -2492,9 +2494,9 @@ extension on TranslationsFrFr {
 			'saveFailed' => 'Échec de l\'enregistrement.',
 			'markRead' => 'Marquer comme lu',
 			'markUnread' => 'Marquer comme non lu',
-			'discover' => 'Découvrir',
 			_ => null,
 		} ?? switch (path) {
+			'discover' => 'Découvrir',
 			'shake' => 'Secouer',
 			'tip' => 'Conseil',
 			'confirm' => 'Confirmer',

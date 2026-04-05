@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群投票 API 客户端
 ///
@@ -73,7 +74,7 @@ class GroupVoteApi extends HttpClient {
     final endAt = _toRfc3339(endTime);
     if (endAt != null) data['end_at'] = endAt;
 
-    final resp = await post('/v1/group/vote/create', data: data);
+    final resp = await post(API.groupVoteCreate, data: data);
     debugPrint("GroupVoteApi_createVote resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -93,7 +94,7 @@ class GroupVoteApi extends HttpClient {
     final query = <String, dynamic>{'gid': groupId, 'page': page, 'size': size};
     if (status != null) query['status'] = status;
 
-    final resp = await get('/v1/group/vote/list', queryParameters: query);
+    final resp = await get(API.groupVoteList, queryParameters: query);
     debugPrint("GroupVoteApi_getVotes resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -111,7 +112,7 @@ class GroupVoteApi extends HttpClient {
     final voteIdText = _toVoteId(voteId);
     if (voteIdText.isEmpty) return null;
     final resp = await get(
-      '/v1/group/vote/detail',
+      API.groupVoteDetail,
       queryParameters: {'gid': groupId, 'vote_id': voteIdText},
     );
     debugPrint("GroupVoteApi_getVote resp: ok=${resp.ok}");
@@ -133,7 +134,7 @@ class GroupVoteApi extends HttpClient {
     final optionIdsText = _toOptionIds(optionIds);
     if (voteIdText.isEmpty || optionIdsText.isEmpty) return false;
     final resp = await post(
-      '/v1/group/vote/cast',
+      API.groupVoteCast,
       data: {
         'gid': groupId,
         'vote_id': voteIdText,
@@ -159,7 +160,7 @@ class GroupVoteApi extends HttpClient {
       'option_ids': optionIdsText,
     };
 
-    final resp = await post('/v1/group/vote/update', data: data);
+    final resp = await post(API.groupVoteUpdate, data: data);
     debugPrint("GroupVoteApi_updateVote resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -172,7 +173,7 @@ class GroupVoteApi extends HttpClient {
     final voteIdText = _toVoteId(voteId);
     if (voteIdText.isEmpty) return false;
     final resp = await post(
-      '/v1/group/vote/cancel',
+      API.groupVoteCancel,
       data: {'gid': groupId, 'vote_id': voteIdText},
     );
     debugPrint("GroupVoteApi_cancelVote resp: ok=${resp.ok}");
@@ -187,7 +188,7 @@ class GroupVoteApi extends HttpClient {
     final voteIdText = _toVoteId(voteId);
     if (voteIdText.isEmpty) return false;
     final resp = await post(
-      '/v1/group/vote/close',
+      API.groupVoteClose,
       data: {'gid': groupId, 'vote_id': voteIdText},
     );
     debugPrint("GroupVoteApi_closeVote resp: ok=${resp.ok}");
@@ -201,7 +202,7 @@ class GroupVoteApi extends HttpClient {
       return [];
     }
     final resp = await get(
-      '/v1/group/vote/my_vote',
+      API.groupVoteMyVote,
       queryParameters: {'vote_id': voteIdText},
     );
     debugPrint("GroupVoteApi_getMyVotes resp: ok=${resp.ok}");

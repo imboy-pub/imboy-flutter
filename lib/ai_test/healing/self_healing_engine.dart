@@ -305,7 +305,7 @@ class SelfHealingEngine {
       String? error;
 
       try {
-        await _applyStrategy(strategy, tester);
+        await _applyStrategy(strategy, tester, session.failure);
         stopwatch.stop();
 
         // 成功
@@ -344,6 +344,7 @@ class SelfHealingEngine {
   Future<void> _applyStrategy(
     HealingStrategy strategy,
     WidgetTester? tester,
+    FailureDetails failure,
   ) async {
     switch (strategy.type) {
       case HealingStrategyType.wait:
@@ -356,9 +357,7 @@ class SelfHealingEngine {
 
       case HealingStrategyType.selectorUpdate:
         if (strategy.requiresAiAnalysis) {
-          throw UnimplementedError(
-            '选择器更新需要 AI 辅助，请手动处理或实现自动选择器推断',
-          );
+          await _applySelectorUpdateWithAi(failure);
         }
         break;
 
@@ -371,11 +370,32 @@ class SelfHealingEngine {
         break;
 
       case HealingStrategyType.aiSuggestion:
-        // AI 建议策略，返回建议供用户参考
-        throw UnimplementedError(
-          'AI 建议需要人工审查，请查看分析结果',
-        );
+        await _applySelectorUpdateWithAi(failure);
     }
+  }
+
+  /// 使用 AI 视觉模型分析截图并建议替代选择器
+  Future<void> _applySelectorUpdateWithAi(FailureDetails failure) async {
+    final screenshotPath = failure.context['screenshotPath'] as String?;
+    if (screenshotPath == null || screenshotPath.isEmpty) {
+      print(
+        '[SelfHealingEngine] 无截图路径，跳过 AI 选择器分析'
+        ' (selector: ${failure.selector ?? "(未知)"})',
+      );
+      return;
+    }
+
+    final failedSelector = failure.selector ?? '(未知)';
+    final prompt =
+        '测试失败：找不到 UI 元素 "$failedSelector"。'
+        '请分析截图，找出功能等效的可见元素，并以 JSON 格式返回替代选择器建议。'
+        '返回格式：{"suggested_selector": "...", "reason": "..."}';
+
+    final suggestion = await _analyzer.aiClient.callVisionModel(
+      screenshotPath,
+      prompt,
+    );
+    print('[SelfHealingEngine] AI 选择器建议: $suggestion');
   }
 
   /// 检查是否需要人工干预

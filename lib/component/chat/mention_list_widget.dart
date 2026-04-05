@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/mention_model.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// @提及相关文本（简化版，避免依赖 slang 生成的字符串）
@@ -147,20 +148,14 @@ class MentionListWidget extends StatelessWidget {
                               vertical: 1,
                             ),
                             decoration: BoxDecoration(
-                              color: _getRoleBackgroundColor(
-                                candidate.role,
-                                colorScheme,
-                              ),
+                              color: candidate.roleBackgroundColor(colorScheme),
                               borderRadius: BorderRadius.circular(3),
                             ),
                             child: Text(
                               candidate.roleText,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: _getRoleTextColor(
-                                  candidate.role,
-                                  colorScheme,
-                                ),
+                                color: candidate.roleTextColor(colorScheme),
                               ),
                             ),
                           ),
@@ -220,8 +215,8 @@ class MentionListWidget extends StatelessWidget {
     // 用户头像
     if (candidate.avatar.isNotEmpty) {
       return ClipOval(
-        child: Image.network(
-          candidate.avatar,
+        child: Image(
+          image: cachedImageProvider(candidate.avatar),
           width: 40,
           height: 40,
           fit: BoxFit.cover,
@@ -258,29 +253,6 @@ class MentionListWidget extends StatelessWidget {
     );
   }
 
-  /// 获取角色标签背景颜色
-  Color _getRoleBackgroundColor(int role, ColorScheme colorScheme) {
-    switch (role) {
-      case 4: // 群主
-        return const Color(0xFFFF9800).withValues(alpha: 0.1);
-      case 3: // 管理员
-        return colorScheme.primary.withValues(alpha: 0.1);
-      default:
-        return colorScheme.surface;
-    }
-  }
-
-  /// 获取角色标签文字颜色
-  Color _getRoleTextColor(int role, ColorScheme colorScheme) {
-    switch (role) {
-      case 4: // 群主
-        return const Color(0xFFFF9800);
-      case 3: // 管理员
-        return colorScheme.primary;
-      default:
-        return colorScheme.onSurfaceVariant;
-    }
-  }
 }
 
 /// @提及列表弹出框

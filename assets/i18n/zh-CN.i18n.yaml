@@ -242,7 +242,7 @@ errorInvalidFileOrDirectory: "@:error"  # 优化: 合并到通用error
 errorInvalidJson: "@:error"  # 优化: 合并到通用error
 errorInvalidRequest: "@:error"  # 优化: 合并到通用error
 errorLengthBetween: "$param 长度必须在 $min 和 $max 之间"
-errorManyRequest: "@:error"  # 优化: 合并到通用error
+errorManyRequest: "请求过于频繁"
 errorNoPackageToRemove: "@:error"  # 优化: 合并到通用error
 errorNoValidFileOrUrl: "@:error"  # 优化: 合并到通用error
 errorNonexistentDirectory: "@:error"  # 优化: 合并到通用error
@@ -372,6 +372,9 @@ loginEmail: "登录邮箱"
 logoutAccount: "注销账号"
 loggingOut: "正在退出登录..."
 logoutNotice: "《注销须知》"
+exportMyData: "导出我的数据"
+exportDataSuccess: "数据已导出"
+exportDataDesc: "导出你的个人信息、联系人和聊天记录"
 loudspeaker: "扩音器"
 makeYourselfInvisible: "让自己不可见"
 makeYourselfVisible: "让自己可见"
@@ -600,6 +603,12 @@ muteDuration1day: "1天"
 muteDuration3days: "3天"
 muteDuration7days: "7天"
 muteDurationPermanent: "永久"
+# 限流/禁言提示
+throttleWarning: "操作频率过高，请稍后再试"
+throttleRetryAfter: "操作频率过高，请 $seconds 秒后再试"
+youAreMuted: "你已被禁言"
+youAreMutedWithTime: "你已被禁言，剩余 $minutes 分钟"
+mutedCannotSend: "禁言期间无法发送消息"
 replied: "已回复"
 repliedAt: "回复于"
 reply: "回复"
@@ -880,6 +889,7 @@ privacyClearChatHistory: "清除聊天记录"
 privacyClearChatHistoryConfirm: "确定要清除所有聊天记录吗？此操作不可恢复。"
 privacyLogoutAccount: "注销账号"
 privacyLogoutAccountConfirm: "确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。"
+privacyPolicy: "隐私政策"
 privacySettings: "隐私设置"
 searchSettings: "搜索设置"
 allowSearchByAccount: "允许通过账号搜索"
@@ -1509,6 +1519,11 @@ groupCategory:
   deleteCategoryConfirm: "确定要删除该分组吗？群聊不会被删除。"
   categoryCreated: "分组创建成功"
   categoryDeleted: "分组已删除"
+  renameCategory: "重命名分组"
+  categoryRenamed: "分组重命名成功"
+  renameFailed: "重命名失败，请重试"
+  deleteFailed: "删除失败，请重试"
+  categoryDetailTip: "该分组下的群聊可以在群组列表中通过「移入分组」进行管理"
 
 # 群标签
 groupTag:

@@ -36,6 +36,13 @@ class ChatState {
   /// 当前会话 ID
   final String currentConversationId;
 
+  /// 上次拉取历史消息的 conv_seq 游标（用于 msg_store 分页）
+  /// 0 表示从头拉取
+  final int lastHistorySeq;
+
+  /// msg_store 历史消息是否还有更多
+  final bool historyHasMore;
+
   const ChatState({
     this.pageSize = 16,
     this.connected = true,
@@ -47,6 +54,8 @@ class ChatState {
     this.memberCount = 0,
     this.composerHeight = 52.0,
     this.currentConversationId = '',
+    this.lastHistorySeq = 0,
+    this.historyHasMore = true,
   });
 
   /// 创建副本
@@ -61,6 +70,8 @@ class ChatState {
     int? memberCount,
     double? composerHeight,
     String? currentConversationId,
+    int? lastHistorySeq,
+    bool? historyHasMore,
   }) {
     return ChatState(
       pageSize: pageSize ?? this.pageSize,
@@ -74,6 +85,8 @@ class ChatState {
       composerHeight: composerHeight ?? this.composerHeight,
       currentConversationId:
           currentConversationId ?? this.currentConversationId,
+      lastHistorySeq: lastHistorySeq ?? this.lastHistorySeq,
+      historyHasMore: historyHasMore ?? this.historyHasMore,
     );
   }
 
@@ -90,7 +103,8 @@ class ChatState {
         'isLoadingNewer: $isLoadingNewer, nextAutoId: $nextAutoId, '
         'prevAutoId: $prevAutoId, memberCount: $memberCount, '
         'composerHeight: $composerHeight, '
-        'currentConversationId: $currentConversationId)';
+        'currentConversationId: $currentConversationId, '
+        'lastHistorySeq: $lastHistorySeq, historyHasMore: $historyHasMore)';
   }
 
   @override
@@ -107,7 +121,9 @@ class ChatState {
         other.prevAutoId == prevAutoId &&
         other.memberCount == memberCount &&
         other.composerHeight == composerHeight &&
-        other.currentConversationId == currentConversationId;
+        other.currentConversationId == currentConversationId &&
+        other.lastHistorySeq == lastHistorySeq &&
+        other.historyHasMore == historyHasMore;
   }
 
   @override
@@ -123,6 +139,8 @@ class ChatState {
       memberCount,
       composerHeight,
       currentConversationId,
+      lastHistorySeq,
+      historyHasMore,
     );
   }
 }

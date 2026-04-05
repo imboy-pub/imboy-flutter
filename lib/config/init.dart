@@ -34,6 +34,7 @@ import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
+import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/group_collab/public.dart';
@@ -125,7 +126,6 @@ String appName = '';
 String appVsn = '';
 String appVsnMajor = '';
 String deviceId = '';
-String solidifiedKeyEnv = '';
 
 // signKeyVsn 告知服务端用哪个签名key 不同设备类型签名不一样
 String globalSignKeyVsn = '1';
@@ -391,28 +391,18 @@ class AppInitializer {
       debugPrint('🔧 initConfig: 请求 URL: ${Env().apiBaseUrl}${API.initConfig}');
 
       // 添加超时保护
-      IMBoyHttpResponse resp1;
-      try {
-        resp1 = await HttpClient.client
-            .get(API.initConfig)
-            .timeout(
-              const Duration(seconds: 10),
-              onTimeout: () {
-                debugPrint('❌ initConfig: 请求超时 (10秒)');
-                // 返回一个失败响应
-                return IMBoyHttpResponse.failure(
-                  errMsg: "配置获取超时: 请检查网络连接或服务端状态",
-                  errCode: 408,
-                );
-              },
-            );
-      } on TimeoutException {
-        debugPrint('❌ initConfig: 请求超时异常 (10秒)');
-        resp1 = IMBoyHttpResponse.failure(
-          errMsg: "配置获取超时: 请检查网络连接或服务端状态",
-          errCode: 408,
-        );
-      }
+      final resp1 = await HttpClient.client
+          .get(API.initConfig)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              debugPrint('❌ initConfig: 请求超时 (10秒)');
+              return IMBoyHttpResponse.failure(
+                errMsg: "配置获取超时: 请检查网络连接或服务端状态",
+                errCode: 408,
+              );
+            },
+          );
 
       final elapsed = DateTime.now().difference(startTime).inMilliseconds;
       debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
@@ -531,6 +521,9 @@ class AppInitializer {
 
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
+
+    // 初始化推送通知服务（FCM token 注册 + 前台消息监听）
+    await PushNotificationService.instance.initialize();
 
     // 初始化地图服务
     AMapHelper.init(); // 设置隐私协议（必须先调用）

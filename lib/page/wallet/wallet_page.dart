@@ -1,18 +1,114 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/page/wallet/wallet_provider.dart'
+    show WalletState, WalletTransaction, walletProvider;
 
-class WalletPage extends ConsumerWidget {
+class WalletPage extends ConsumerStatefulWidget {
   const WalletPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WalletPage> createState() => _WalletPageState();
+}
+
+class _WalletPageState extends ConsumerState<WalletPage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    // 页面初始化时加载余额和流水
+    Future.microtask(() {
+      ref.read(walletProvider.notifier).loadBalance();
+      ref.read(walletProvider.notifier).loadTransactions();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 100) {
+      ref.read(walletProvider.notifier).loadMoreTransactions();
+    }
+  }
+
+  /// 显示充值对话框
+  void _showTopupDialog(BuildContext context) {
+    final controller = TextEditingController();
+    final t = context.t;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('充值'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('请输入充值金额（元），1元～10000元'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
+              decoration: const InputDecoration(
+                prefixText: '¥ ',
+                hintText: '例如：100',
+                border: OutlineInputBorder(),
+              ),
+              autofocus: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final input = controller.text.trim();
+              final yuan = double.tryParse(input);
+              if (yuan == null || yuan < 1 || yuan > 10000) {
+                EasyLoading.showError('请输入1元到10000元之间的金额');
+                return;
+              }
+              final amountFen = (yuan * 100).round();
+              Navigator.of(ctx).pop();
+              final ok = await ref.read(walletProvider.notifier).topup(amountFen);
+              if (ok) {
+                EasyLoading.showSuccess('充值成功');
+              }
+            },
+            child: const Text('确认充值'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = AppColors.primary;
+    final walletState = ref.watch(walletProvider);
+
+    // 格式化余额显示：¥ X.XX
+    final balanceYuan = walletState.balance / 100.0;
+    final balanceText =
+        '¥ ${balanceYuan.toStringAsFixed(2)}';
 
     return Scaffold(
       backgroundColor: isDark
@@ -25,19 +121,26 @@ class WalletPage extends ConsumerWidget {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            tooltip: '充值',
+            onPressed: () => _showTopupDialog(context),
+          ),
+          IconButton(
             icon: const Icon(Icons.more_horiz),
             onPressed: () {
-              // TODO(后端对接): 钱包设置页面
-              // 需要：
-              // - 后端钱包 API 支持
-              // - 支付系统集成
-              // - 账单明细接口
               EasyLoading.showToast(t.comingSoon);
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(walletProvider.notifier).loadBalance();
+          await ref.read(walletProvider.notifier).loadTransactions();
+        },
+        child: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
             // Balance Header
@@ -53,17 +156,24 @@ class WalletPage extends ConsumerWidget {
                     color: Colors.white,
                   ),
                   const SizedBox(height: 24),
-                  // TODO(后端对接): 钱包余额需要从后端 API 获取
-                  // 需要实现 GET /api/wallet/balance 接口
-                  // 目前显示功能开发中提示
-                  Text(
-                    t.comingSoon,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  // 余额显示区域
+                  walletState.isLoading
+                      ? const SizedBox(
+                          height: 36,
+                          width: 36,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : Text(
+                          balanceText,
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                   const SizedBox(height: 8),
                   Text(
                     t.totalAssets,
@@ -88,7 +198,6 @@ class WalletPage extends ConsumerWidget {
                     icon: Icons.qr_code_scanner,
                     label: t.receivePayment,
                     color: primaryColor,
-                    // TODO(后端对接): 收款功能需要后端支付系统集成
                     onTap: () {
                       EasyLoading.showToast(t.comingSoon);
                     },
@@ -98,7 +207,10 @@ class WalletPage extends ConsumerWidget {
                     icon: Icons.account_balance,
                     label: t.smallChange,
                     color: Colors.orange,
-                    // TODO(后端对接): 零钱余额需要从后端 API 获取
+                    // 零钱和余额共用同一数据
+                    subtitle: walletState.isLoading
+                        ? '...'
+                        : balanceText,
                     onTap: () {
                       EasyLoading.showToast(t.comingSoon);
                     },
@@ -108,7 +220,6 @@ class WalletPage extends ConsumerWidget {
                     icon: Icons.credit_card,
                     label: t.bankCard,
                     color: Colors.blue,
-                    // TODO(后端对接): 银行卡数量需要从后端 API 获取
                     onTap: () {
                       EasyLoading.showToast(t.comingSoon);
                     },
@@ -232,8 +343,134 @@ class WalletPage extends ConsumerWidget {
               ),
             ),
 
+            const SizedBox(height: 12),
+
+            // 流水记录
+            _buildTransactionSection(context, walletState, isDark),
+
+            if (walletState.isTxLoading)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+
             const SizedBox(height: 40),
           ],
+        ),
+      ),
+      ),
+    );
+  }
+
+  Widget _buildTransactionSection(
+    BuildContext context,
+    WalletState walletState,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '流水记录',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.white54 : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          child: walletState.transactions.isEmpty && !walletState.isTxLoading
+              ? Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Center(
+                    child: Text(
+                      '暂无流水记录',
+                      style: TextStyle(
+                        color: isDark ? Colors.white38 : Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: [
+                    ...walletState.transactions.map(
+                      (tx) => _buildTransactionTile(tx, isDark),
+                    ),
+                    if (!walletState.txHasMore &&
+                        walletState.transactions.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          '— 已全部加载 —',
+                          style: TextStyle(
+                            color: isDark ? Colors.white38 : Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransactionTile(WalletTransaction tx, bool isDark) {
+    final amountYuan = (tx.amount.abs() / 100.0).toStringAsFixed(2);
+    final amountText = tx.isIncome ? '+¥$amountYuan' : '-¥$amountYuan';
+    final amountColor = tx.isIncome ? Colors.green : Colors.red;
+    final typeLabel = tx.isIncome ? '充值' : '消费';
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.white10 : Colors.grey.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: tx.isIncome
+              ? Colors.green.withValues(alpha: 0.12)
+              : Colors.red.withValues(alpha: 0.12),
+          child: Icon(
+            tx.isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+            color: amountColor,
+            size: 18,
+          ),
+        ),
+        title: Text(
+          tx.remark.isNotEmpty ? tx.remark : typeLabel,
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+        ),
+        subtitle: Text(
+          tx.createdAt,
+          style: TextStyle(
+            fontSize: 12,
+            color: isDark ? Colors.white38 : Colors.grey,
+          ),
+        ),
+        trailing: Text(
+          amountText,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: amountColor,
+          ),
         ),
       ),
     );

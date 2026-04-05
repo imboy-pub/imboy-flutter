@@ -838,6 +838,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyClearChatHistoryConfirm => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。';
 	@override String get privacyLogoutAccount => 'アカウントを削除';
 	@override String get privacyLogoutAccountConfirm => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。';
+	@override String get privacyPolicy => 'プライバシーポリシー';
 	@override String get privacySettings => 'プライバシー設定';
 	@override String get searchSettings => '検索設定';
 	@override String get allowSearchByAccount => 'アカウントで検索を許可';
@@ -2269,6 +2270,7 @@ extension on TranslationsJaJp {
 			'privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
 			'privacyLogoutAccount' => 'アカウントを削除',
 			'privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
+			'privacyPolicy' => 'プライバシーポリシー',
 			'privacySettings' => 'プライバシー設定',
 			'searchSettings' => '検索設定',
 			'allowSearchByAccount' => 'アカウントで検索を許可',
@@ -2492,9 +2494,9 @@ extension on TranslationsJaJp {
 			'saveFailed' => '保存に失敗しました',
 			'markRead' => '既読にする',
 			'markUnread' => '未読にする',
-			'discover' => '発見',
 			_ => null,
 		} ?? switch (path) {
+			'discover' => '発見',
 			'shake' => 'シェイク',
 			'tip' => 'ヒント',
 			'confirm' => '確認',

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// @提及 API 客户端
 ///
@@ -20,7 +21,7 @@ class MentionApi extends HttpClient {
     if (isRead != null) data['is_read'] = isRead;
     if (groupId != null) data['group_id'] = groupId;
 
-    final resp = await post('/v1/mention/list', data: data);
+    final resp = await post(API.mentionList, data: data);
     debugPrint("MentionApi_getMentions resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -35,7 +36,7 @@ class MentionApi extends HttpClient {
     final data = <String, dynamic>{};
     if (groupId != null) data['group_id'] = groupId;
 
-    final resp = await post('/v1/mention/unread', data: data);
+    final resp = await post(API.mentionUnread, data: data);
     debugPrint("MentionApi_getUnreadCount resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
@@ -47,7 +48,7 @@ class MentionApi extends HttpClient {
 
   /// 标记@提及为已读
   Future<bool> markAsRead(int mentionId) async {
-    final resp = await post('/v1/mention/mark_read', data: {
+    final resp = await post(API.mentionMarkRead, data: {
       'mention_id': mentionId,
     });
     debugPrint("MentionApi_markAsRead resp: ok=${resp.ok}");
@@ -61,7 +62,7 @@ class MentionApi extends HttpClient {
     };
     if (groupId != null) data['group_id'] = groupId;
 
-    final resp = await post('/v1/mention/mark_read', data: data);
+    final resp = await post(API.mentionMarkRead, data: data);
     debugPrint("MentionApi_markAllAsRead resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -72,7 +73,7 @@ class MentionApi extends HttpClient {
     required String keyword,
     int limit = 10,
   }) async {
-    final resp = await post('/v1/mention/suggest', data: {
+    final resp = await post(API.mentionSuggest, data: {
       'group_id': groupId,
       'keyword': keyword,
       'limit': limit,

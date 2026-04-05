@@ -156,7 +156,6 @@ class MessageQuickActionMenu {
                     title: Text(t.chatSaveImage), // 这里可能需要通用的 save 文本
                     onTap: () async {
                       Navigator.pop(context);
-                      // TODO: 处理保存逻辑
                       await onSaveFile(
                         message.metadata?['name'] ?? message.id,
                         message.metadata?['uri'] ?? message.metadata?['source'] ?? '',

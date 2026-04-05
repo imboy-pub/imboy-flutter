@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 
 /// 群文件 API 客户端
 class GroupFileApi extends HttpClient {
@@ -42,8 +42,7 @@ class GroupFileApi extends HttpClient {
       query['category'] = category.trim();
     }
 
-    final resp = await get('/v1/group/file/list', queryParameters: query);
-    debugPrint("GroupFileApi_getFiles resp: ok=${resp.ok}");
+    final resp = await get(API.groupFileList, queryParameters: query);
 
     if (!resp.ok || resp.payload == null) {
       return const {
@@ -75,10 +74,9 @@ class GroupFileApi extends HttpClient {
     }
 
     final resp = await get(
-      '/v1/group/file/categories',
+      API.groupFileCategories,
       queryParameters: {'gid': gid},
     );
-    debugPrint("GroupFileApi_getCategoryStats resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -107,10 +105,9 @@ class GroupFileApi extends HttpClient {
     }
 
     final resp = await get(
-      '/v1/group/file/search',
+      API.groupFileSearch,
       queryParameters: {'gid': gid, 'keyword': kw, 'page': page, 'size': size},
     );
-    debugPrint("GroupFileApi_searchFiles resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return const {
@@ -156,11 +153,10 @@ class GroupFileApi extends HttpClient {
     }
 
     final resp = await post(
-      '/v1/group/file/upload',
+      API.groupFileUpload,
       data: FormData.fromMap(data),
       options: Options(contentType: 'multipart/form-data'),
     );
-    debugPrint("GroupFileApi_uploadFile resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -173,8 +169,7 @@ class GroupFileApi extends HttpClient {
     if (fileId == null) return false;
     final text = fileId.toString().trim();
     if (text.isEmpty) return false;
-    final resp = await post('/v1/group/file/delete', data: {'file_id': text});
-    debugPrint("GroupFileApi_deleteFile resp: ok=${resp.ok}");
+    final resp = await post(API.groupFileDelete, data: {'file_id': text});
     return resp.ok;
   }
 }

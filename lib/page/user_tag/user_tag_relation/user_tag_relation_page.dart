@@ -54,6 +54,8 @@ class UserTagRelationPage extends ConsumerStatefulWidget {
 
 class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
   final TextfieldTagsController _tagController = TextfieldTagsController();
+  List<String> _originalTags = [];
+  Map<String, int> _tagIdByName = {};
   bool _loaded = false;
   bool _valueChanged = false;
 
@@ -71,15 +73,15 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
 
   Future<void> _initData() async {
     // 设置当前标签
-    final tagItems = widget.peerTag
-        .split(',')
-        .where((o) => o.trim().isNotEmpty)
-        .toList();
+    final tagItems = normalizeTagNames(widget.peerTag.split(','));
+    _originalTags = List<String>.from(tagItems);
     ref.read(userTagRelationProvider.notifier).setTagItems(tagItems);
 
-    List<String> res = await ref
+    final statistics = await ref
         .read(userTagRelationProvider.notifier)
-        .getRecentTagItems(widget.scene);
+        .getTagStatistics(widget.scene, ensureTags: tagItems);
+    final res = List<String>.from(statistics['tags'] ?? const <String>[]);
+    _tagIdByName = Map<String, int>.from(statistics['tag_id_by_name'] ?? {});
     // 当前 tag合并到 recentTagItems
     for (var item in tagItems) {
       if (!res.contains(item)) {
@@ -325,7 +327,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                   ),
                 ),
                 onApplyButtonClick: (list) async {
-                  final tagItems = list ?? [];
+                  final tagItems = normalizeTagNames(list ?? []);
                   ref
                       .read(userTagRelationProvider.notifier)
                       .setTagItems(tagItems);
@@ -341,12 +343,21 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                     _tagController.addTag(tag);
                   }
                   setState(() {
-                    _valueChanged = true;
+                    _valueChanged = buildTagSyncPlan(
+                      originalTags: _originalTags,
+                      nextTags: tagItems,
+                    ).hasChanges;
                   });
                   if (_valueChanged) {
                     bool res = await ref
                         .read(userTagRelationProvider.notifier)
-                        .add(widget.scene, widget.peerId, tagItems);
+                        .syncFinalState(
+                          scene: widget.scene,
+                          objectId: widget.peerId,
+                          originalTags: _originalTags,
+                          nextTags: tagItems,
+                          tagIdByName: _tagIdByName,
+                        );
                     if (res) {
                       Navigator.of(context).pop(tagItems.join(','));
                     }

@@ -8,15 +8,15 @@ part of 'publisher_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Publisher Provider
+/// Publisher Provider - 管理 WHIP 推流状态和 PeerConnection
 
 @ProviderFor(PublisherNotifier)
 final publisherProvider = PublisherNotifierProvider._();
 
-/// Publisher Provider
+/// Publisher Provider - 管理 WHIP 推流状态和 PeerConnection
 final class PublisherNotifierProvider
     extends $NotifierProvider<PublisherNotifier, PublisherState> {
-  /// Publisher Provider
+  /// Publisher Provider - 管理 WHIP 推流状态和 PeerConnection
   PublisherNotifierProvider._()
     : super(
         from: null,
@@ -44,9 +44,9 @@ final class PublisherNotifierProvider
   }
 }
 
-String _$publisherNotifierHash() => r'cead20d8f6566328a4b7f44166b465ad88316d38';
+String _$publisherNotifierHash() => r'316690b195cbc1c861015ea95a933bb4bf62f79f';
 
-/// Publisher Provider
+/// Publisher Provider - 管理 WHIP 推流状态和 PeerConnection
 
 abstract class _$PublisherNotifier extends $Notifier<PublisherState> {
   PublisherState build();

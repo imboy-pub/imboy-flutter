@@ -5,6 +5,7 @@ library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' show RTCRtpEncoding;
 import '../connection/connection.dart';
 import 'quality_config.dart';
 
@@ -224,32 +225,43 @@ class WebRTCNetworkQualityMonitor {
   }
 
   /// 调整码率
-  void _adjustBitrate() {
+  Future<void> _adjustBitrate() async {
     final quality = config.getNetworkQuality(_qualityScore);
     final targetBitrate = config.calculateTargetBitrate(_qualityScore);
 
     debugPrint('Adjusting bitrate: $quality -> $targetBitrate bps');
 
-    // TODO(WebRTC内部): 通过 RTP 发送者动态设置码率
-    // 需要访问 RTCPeerConnection 的 senders 并设置 encoding 参数
-    // 注意：此功能需要 flutter_webrtc 包的完整 API 支持
+    // DONE(2026-04-04): 通过 RTP 发送者动态设置码率
     try {
       final pc = connection.peerConnection;
       if (pc == null) return;
 
-      // 获取所有 RTP 发送者并设置码率
-      // pc.getSenders().then((senders) {
-      //   for (final sender in senders) {
-      //     if (sender.track != null && sender.track!.kind == 'video') {
-      //       // 设置码率参数
-      //       final parameters = sender.getParameters();
-      //       parameters.encodings.forEach((encoding) {
-      //         encoding.maxBitrate = targetBitrate;
-      //       });
-      //       sender.setParameters(parameters);
-      //     }
-      //   }
-      // });
+      final senders = await pc.getSenders();
+      for (final sender in senders) {
+        // 只对视频轨道设置码率
+        if (sender.track == null || sender.track!.kind != 'video') continue;
+
+        final parameters = sender.parameters;
+        final encodings = parameters.encodings;
+        if (encodings == null || encodings.isEmpty) continue;
+
+        // 更新每个 encoding 的 maxBitrate
+        final updated = encodings.map((e) {
+          return RTCRtpEncoding(
+            rid: e.rid,
+            active: e.active,
+            maxBitrate: targetBitrate,
+            maxFramerate: e.maxFramerate,
+            minBitrate: e.minBitrate,
+            scaleResolutionDownBy: e.scaleResolutionDownBy,
+            ssrc: e.ssrc,
+            numTemporalLayers: e.numTemporalLayers,
+          );
+        }).toList();
+
+        parameters.encodings = updated;
+        await sender.setParameters(parameters);
+      }
     } catch (e, s) {
       debugPrint('Failed to adjust bitrate: $e\n$s');
     }

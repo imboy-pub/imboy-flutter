@@ -36,6 +36,31 @@ class GroupApi extends HttpClient {
     return resp.ok ? resp.payload : {};
   }
 
+  /// 获取群备注（仅自己可见）
+  Future<String?> getRemark({required String gid}) async {
+    IMBoyHttpResponse resp = await get(
+      API.groupRemark,
+      queryParameters: {'gid': gid},
+    );
+    if (!resp.ok) return null;
+    return resp.payload['remark'] as String?;
+  }
+
+  /// 更新群备注（仅自己可见）
+  Future<bool> updateRemark({
+    required String gid,
+    required String remark,
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.groupRemark,
+      data: {'gid': gid, 'remark': remark},
+    );
+    if (!resp.ok) {
+      EasyLoading.showError(resp.msg);
+    }
+    return resp.ok;
+  }
+
   Future<Map<String, dynamic>?> dissolve({required String gid}) async {
     IMBoyHttpResponse resp = await post(API.groupDissolve, data: {"gid": gid});
     debugPrint("GroupApi/dissolve resp.payload: ${resp.payload.toString()}");

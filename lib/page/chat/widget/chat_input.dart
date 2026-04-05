@@ -77,6 +77,9 @@ class ChatInput extends StatefulWidget {
     this.contentInsertionConfiguration,
     // @提及功能回调
     this.onMentionsChanged,
+    // 禁言状态
+    this.isMuted = false,
+    this.muteMessage,
   });
 
   final String type; // 聊天类型
@@ -106,6 +109,12 @@ class ChatInput extends StatefulWidget {
   final ContentInsertionConfiguration? contentInsertionConfiguration; // 内容插入配置
   /// @提及变更回调
   final void Function(List<String> mentionIds)? onMentionsChanged;
+
+  /// 是否被禁言
+  final bool isMuted;
+
+  /// 禁言提示文案（如"你已被禁言，剩余 X 分钟"）
+  final String? muteMessage;
 
   @override
   State<ChatInput> createState() => ChatInputState();
@@ -1021,6 +1030,51 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       }
     } else {
       panelHeight = 0;
+    }
+
+    // 禁言状态：显示禁言提示条替代输入区
+    if (widget.isMuted) {
+      return Container(
+        color: widget.backgroundColor ?? _themeColor('surface'),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: _themeColor('error').withValues(alpha: 0.08),
+                border: Border(
+                  top: BorderSide(
+                    color: _themeColor('error').withValues(alpha: 0.2),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.volume_off_rounded,
+                    size: 18,
+                    color: _themeColor('error').withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      widget.muteMessage ?? t.mutedCannotSend,
+                      style: TextStyle(
+                        color: _themeColor('error').withValues(alpha: 0.8),
+                        fontSize: _themeFontSize(FontSizeType.small),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return Container(

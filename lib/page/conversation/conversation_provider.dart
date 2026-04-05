@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/events/common_events.dart'
     show ConversationAuthoritySyncEvent;
 import 'package:imboy/service/sqlite.dart';
@@ -53,7 +54,12 @@ class ConversationState {
   // Get sorted conversations list
   List<ConversationModel> get conversations {
     final list = conversationMap.values.toList();
-    list.sort((a, b) => b.lastTime.compareTo(a.lastTime));
+    list.sort((a, b) {
+      if (a.isPinned != b.isPinned) {
+        return a.isPinned ? -1 : 1;
+      }
+      return b.lastTime.compareTo(a.lastTime);
+    });
     return list;
   }
 
@@ -347,7 +353,7 @@ class ConversationNotifier extends _$ConversationNotifier {
         parseModelJsonMap(lastMsg['payload']) ?? <String, dynamic>{};
     final text = parseModelString(lastMsg['text'] ?? payload['text']);
     if (text.isNotEmpty) return text;
-    if (msgType == 'text' || msgType == 'quote') {
+    if (msgType == MessageType.text || msgType == MessageType.quote) {
       return parseModelString(lastMsg['content'] ?? payload['content']);
     }
     return '';
@@ -370,14 +376,73 @@ class ConversationNotifier extends _$ConversationNotifier {
     required bool isPinned,
     required Map<String, dynamic> lastMsg,
   }) {
-    return <String, dynamic>{
-      ...?existingPayload,
-      'authoritative': <String, dynamic>{
-        'server_ts': serverTs,
-        'is_pinned': isPinned,
-        'last_msg': lastMsg,
-      },
-    };
+    final merged = <String, dynamic>{...?existingPayload};
+    final authoritative =
+        parseModelJsonMap(merged['authoritative']) ?? <String, dynamic>{};
+
+    authoritative['server_ts'] = serverTs;
+    authoritative['is_pinned'] = isPinned;
+    authoritative['last_msg'] = lastMsg;
+
+    merged['authoritative'] = authoritative;
+    return merged;
+  }
+
+  String _authoritativeKey(String type, String peerId) => '$type::$peerId';
+
+  Future<int> _hideMissingAuthoritativeConversations(
+    ConversationRepo repo,
+    Set<String> authoritativeKeys,
+  ) async {
+    final visible = await repo.list();
+    int hidden = 0;
+
+    for (final conversation in visible) {
+      if (conversation.type != 'C2C' && conversation.type != 'C2G') {
+        continue;
+      }
+      final key = _authoritativeKey(conversation.type, conversation.peerId);
+      if (authoritativeKeys.contains(key)) {
+        continue;
+      }
+      await repo.updateById(conversation.id, {ConversationRepo.isShow: 0});
+      hidden++;
+    }
+
+    return hidden;
+  }
+
+  Future<void> _persistPinnedState(
+    ConversationModel conversation,
+    bool pinned,
+  ) async {
+    final repo = ConversationRepo();
+    final payload = _mergeAuthoritativePayload(
+      existingPayload: conversation.payload,
+      serverTs: DateTimeHelper.millisecond(),
+      isPinned: pinned,
+      lastMsg:
+          parseModelJsonMap(
+            parseModelJsonMap(
+              conversation.payload?['authoritative'],
+            )?['last_msg'],
+          ) ??
+          <String, dynamic>{},
+    );
+
+    await repo.updateById(conversation.id, {
+      ConversationRepo.isShow: 1,
+      ConversationRepo.payload: payload,
+    });
+
+    final updated = await repo.findById(conversation.id);
+    if (updated != null) {
+      applyConversationSnapshot(updated);
+    } else {
+      applyConversationSnapshot(
+        conversation.copyWith(payload: payload, isShow: 1),
+      );
+    }
   }
 
   Future<void> syncAuthoritativeConversations({
@@ -389,20 +454,8 @@ class ConversationNotifier extends _$ConversationNotifier {
     try {
       final entries = await _conversationApi.listMine();
       fetchedCount = entries.length;
-      if (entries.isEmpty) {
-        AppEventBus.fireTracked(
-          ConversationAuthoritySyncEvent(
-            trigger: trigger,
-            source: source,
-            fetchedCount: fetchedCount,
-            syncedCount: synced,
-            success: true,
-          ),
-        );
-        return;
-      }
-
       final repo = ConversationRepo();
+      final authoritativeKeys = <String>{};
 
       for (final entry in entries) {
         final peerId = parseModelString(entry['conversation_id']);
@@ -412,6 +465,7 @@ class ConversationNotifier extends _$ConversationNotifier {
         if (peerId.isEmpty || type.isEmpty) {
           continue;
         }
+        authoritativeKeys.add(_authoritativeKey(type, peerId));
 
         final serverTs = _parseAuthoritativeServerTs(entry['server_ts']);
         final lastMsgId = parseModelString(entry['last_msg_id']);
@@ -477,6 +531,11 @@ class ConversationNotifier extends _$ConversationNotifier {
         synced++;
       }
 
+      synced += await _hideMissingAuthoritativeConversations(
+        repo,
+        authoritativeKeys,
+      );
+
       iPrint(
         'ConversationNotifier: authoritative sync finished, items=$synced',
       );
@@ -501,6 +560,76 @@ class ConversationNotifier extends _$ConversationNotifier {
         ),
       );
     }
+  }
+
+  Future<bool> setConversationPinned(
+    ConversationModel conversation,
+    bool pinned,
+  ) async {
+    if (conversation.peerId.isEmpty || conversation.type.isEmpty) {
+      return false;
+    }
+
+    final ok = pinned
+        ? await _conversationApi.pin(
+            conversationId: conversation.peerId,
+            type: conversation.type,
+          )
+        : await _conversationApi.unpin(
+            conversationId: conversation.peerId,
+            type: conversation.type,
+          );
+    if (!ok) {
+      return false;
+    }
+
+    await _persistPinnedState(conversation, pinned);
+    return true;
+  }
+
+  Future<bool> deleteConversationRemote(ConversationModel conversation) async {
+    if (conversation.peerId.isEmpty || conversation.type.isEmpty) {
+      return false;
+    }
+
+    final ok = await _conversationApi.deleteConversation(
+      conversationId: conversation.peerId,
+      type: conversation.type,
+    );
+    if (!ok) {
+      return false;
+    }
+
+    await ConversationRepo().updateById(conversation.id, {
+      ConversationRepo.isShow: 0,
+    });
+    removeConversationFromMap(conversation.uk3);
+    removeConversationRemind(conversation.uk3);
+    return true;
+  }
+
+  Future<bool> restoreConversationRemote({
+    required String peerId,
+    required String type,
+  }) async {
+    if (peerId.isEmpty || type.isEmpty) {
+      return false;
+    }
+
+    final ok = await _conversationApi.restoreConversation(
+      conversationId: peerId,
+      type: type,
+    );
+    if (!ok) {
+      return false;
+    }
+
+    await syncAuthoritativeConversationList(trigger: 'conversation_restore');
+    return true;
+  }
+
+  Future<List<Map<String, dynamic>>> authoritativePinnedList() {
+    return _conversationApi.pinnedList();
   }
 
   Future<List<ConversationModel>> conversationsList({
@@ -530,13 +659,18 @@ class ConversationNotifier extends _$ConversationNotifier {
       }
 
       final newMap = {for (var c in li) c.uk3: c};
+      if (!ref.mounted) {
+        return li;
+      }
       state = state.copyWith(conversationMap: newMap, isLoading: false);
       return li;
     } catch (e, s) {
       iPrint('conversationsList error: $e; $s');
       return [];
     } finally {
-      state = state.copyWith(isLoading: false);
+      if (ref.mounted) {
+        state = state.copyWith(isLoading: false);
+      }
     }
   }
 

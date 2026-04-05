@@ -370,12 +370,14 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
     return IconImageProvider(Icons.person);
   }
 
-  Uri u = AssetsService.viewUrl(url);
-  String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
-
-  final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
-
-  return IMBoyCachedImageProvider(finalUrl, headers);
+  try {
+    Uri u = AssetsService.viewUrl(url);
+    String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
+    final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
+    return IMBoyCachedImageProvider(finalUrl, headers);
+  } on FormatException {
+    return IconImageProvider(Icons.broken_image);
+  }
 }
 
 DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {

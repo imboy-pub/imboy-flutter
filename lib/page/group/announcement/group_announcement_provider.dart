@@ -261,24 +261,9 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
     }
   }
 
-  /// 格式化时间
+  /// 格式化时间（使用多语言相对时间格式化）
   String formatTime(int timestamp) {
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    final now = DateTime.fromMillisecondsSinceEpoch(
-      DateTimeHelper.millisecond(),
-    );
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 1) {
-      return '刚刚';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}分钟前';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}小时前';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}天前';
-    } else {
-      return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
-    }
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+    return DateTimeHelper.dateTimeFmt(dateTime);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -230,8 +231,8 @@ class _GroupAlbumPhotoDetailPageState
             child: Container(
               color: Colors.grey.shade100,
               child: url.isNotEmpty
-                  ? Image.network(
-                      url,
+                  ? Image(
+                      image: cachedImageProvider(url),
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => const Center(
                         child: Icon(Icons.broken_image_outlined),

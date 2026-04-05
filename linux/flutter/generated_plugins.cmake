@@ -11,6 +11,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_sound
   flutter_webrtc
   open_file_linux
+  sentry_flutter
   url_launcher_linux
 )
 

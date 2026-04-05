@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/config/error_code.dart';
@@ -519,48 +520,12 @@ class MessageService with EventSubscriptionManager {
     final nonNullPayload = payload;
     final repo = getMessageRepo(msgType);
 
-    // 【修复】先检查数据库中是否已存在，避免重复显示
-    // Check database first to avoid duplicate display
-    final existing = await repo.find(msgId);
-    if (existing != null) {
-      iPrint('⚠️ 消息已存在（数据库检查），跳过处理: $msgId');
-      return;
-    }
+    // === 去重检查（廉价内存检查优先，昂贵的数据库查询放最后） ===
 
-    // 【新增】检查消息是否正在加载（防止 page_view 加载时重复显示）
-    // Check if message is being loaded (to prevent duplicate display during page_view loading)
-    if (_loadingMessageIds.contains(msgId)) {
-      iPrint('⚠️ 消息正在加载中（page_view），跳过重复显示: $msgId');
-      return;
-    }
-
-    // 【新增】基于消息内容的去重检查
-    // 优先使用 msgId 作为唯一标识（最可靠的去重方式）
-    final contentHash = _generateContentHash(data);
-
-    // 【调试】输出哈希值和 msgId 的对应关系
-    iPrint('🔑 [去重检查] contentHash=$contentHash, msgId=$msgId');
-
-    if (_recentMessageContents.containsKey(contentHash)) {
-      final previousMsgId = _recentMessageContents[contentHash];
-      iPrint(
-        '⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$msgType',
-      );
-      // 【可选】自动跳过重复消息
-      // 如果服务器发送了相同消息但不同 msg_id，直接跳过
-      return;
-    }
-    // 使用 LRU 缓存策略
-    _addToContentHashCache(contentHash, msgId);
-
-    // 快速检查消息是否已存在（仅检查内存缓存，不阻塞UI）
-    // Quick duplicate check using in-memory set only (non-blocking)
-    // 优化：使用 TTL 自动过期，默认 5 秒
+    // 1. 检查消息是否正在接收中（TTL 5 秒，内存 Map）
     final receivingMsgKey = '${msgType}_$msgId';
     final now = DateTimeHelper.millisecond();
-    const ttlMs = 5000; // 5秒 TTL
-
-    // 清理过期的标记
+    const ttlMs = 5000;
     _cleanExpiredReceivingMarks(now, ttlMs);
 
     if (_receivingMessages.containsKey(receivingMsgKey)) {
@@ -569,10 +534,36 @@ class MessageService with EventSubscriptionManager {
         iPrint('消息正在处理中，跳过重复: $msgId');
         return;
       }
-      // 已过期，移除旧标记
       _receivingMessages.remove(receivingMsgKey);
     }
     _receivingMessages[receivingMsgKey] = now;
+
+    // 2. 检查消息是否正在加载（page_view 场景，内存 Set）
+    if (_loadingMessageIds.contains(msgId)) {
+      iPrint('⚠️ 消息正在加载中（page_view），跳过重复显示: $msgId');
+      return;
+    }
+
+    // 3. 基于内容的去重检查（LRU 缓存，内存 Map）
+    final contentHash = _generateContentHash(data);
+    iPrint('🔑 [去重检查] contentHash=$contentHash, msgId=$msgId');
+
+    if (_recentMessageContents.containsKey(contentHash)) {
+      final previousMsgId = _recentMessageContents[contentHash]!.msgId;
+      iPrint(
+        '⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$msgType',
+      );
+      return;
+    }
+    _addToContentHashCache(contentHash, msgId);
+
+    // 4. 数据库查询（最昂贵的检查，放最后）
+    final existing = await repo.find(msgId);
+    if (existing != null) {
+      iPrint('⚠️ 消息已存在（数据库检查），跳过处理: $msgId');
+      return;
+    }
+
     iPrint('⏱️ [3] 去重检查完成: +${DateTimeHelper.millisecond() - startTime}ms');
 
     try {
@@ -723,15 +714,12 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 最近接收的消息内容哈希（用于检测内容重复但 msg_id 不同的消息）
-  /// 使用 LRU 缓存策略，限制最大大小
-  /// Map: contentHash -> msgId
-  final Map<String, String> _recentMessageContents = <String, String>{};
+  /// Map: contentHash -> (msgId, timestamp)
+  final Map<String, _ContentHashEntry> _recentMessageContents =
+      <String, _ContentHashEntry>{};
 
-  /// LRU 缓存访问顺序记录
-  final List<String> _contentHashLRU = [];
-
-  /// 缓存最大大小
-  static const int _maxContentHashCacheSize = 1000;
+  /// 内容哈希缓存 TTL（10 分钟）
+  static const _contentHashTtlMs = 10 * 60 * 1000;
 
   /// 生成消息内容的哈希值（用于去重）
   /// Generate content hash for deduplication
@@ -768,34 +756,20 @@ class MessageService with EventSubscriptionManager {
     return hash;
   }
 
-  /// 添加到 LRU 缓存
+  /// 添加到缓存
   void _addToContentHashCache(String hash, String msgId) {
-    // 如果已存在，先移除旧的位置
-    if (_recentMessageContents.containsKey(hash)) {
-      _contentHashLRU.remove(hash);
-    }
-
-    // 添加到缓存
-    _recentMessageContents[hash] = msgId;
-    _contentHashLRU.add(hash);
-
-    // 如果缓存超过限制，移除最旧的条目
-    if (_contentHashLRU.length > _maxContentHashCacheSize) {
-      final oldestHash = _contentHashLRU.removeAt(0);
-      _recentMessageContents.remove(oldestHash);
-    }
+    _recentMessageContents[hash] = _ContentHashEntry(
+      msgId: msgId,
+      timestamp: DateTimeHelper.millisecond(),
+    );
   }
 
-  /// 清理过期的内容哈希缓存
-  /// Clean up expired content hash cache
+  /// 清理过期的内容哈希缓存（TTL 10 分钟）
   void _cleanupExpiredContentHashes() {
-    // 只清理一半的缓存，而不是全部清理
-    // 这样可以保留最近的缓存项
-    final removeCount = (_contentHashLRU.length / 2).ceil();
-    for (int i = 0; i < removeCount && _contentHashLRU.isNotEmpty; i++) {
-      final oldestHash = _contentHashLRU.removeAt(0);
-      _recentMessageContents.remove(oldestHash);
-    }
+    final now = DateTimeHelper.millisecond();
+    _recentMessageContents.removeWhere(
+      (_, entry) => now - entry.timestamp > _contentHashTtlMs,
+    );
   }
 
   /// 群组信息内存缓存（用于快速显示，减少网络请求）
@@ -866,9 +840,11 @@ class MessageService with EventSubscriptionManager {
 
       // 保存消息到 sqlite
       // Persist message to local DB
-      iPrint(
-        '🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType',
-      );
+      if (kDebugMode) {
+        iPrint(
+          '🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType',
+        );
+      }
       final msg = MessageModel(
         msgId,
         autoId: 0,
@@ -887,7 +863,9 @@ class MessageService with EventSubscriptionManager {
         msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
       );
       final existed = await repo.save(msg);
-      iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, existed=$existed');
+      if (kDebugMode) {
+        iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, existed=$existed');
+      }
 
       // 【修复】如果消息已存在（count > 0），跳过后续处理
       // save 方法返回的是数据库中已存在的记录数
@@ -1144,55 +1122,50 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
-  /// 获取通知内容
-  ///
-  /// 根据消息类型生成适合在通知中显示的内容文本
-  String _getNotificationContent(MessageModel msg) {
-    final msgType = msg.msgType;
-    final payload = msg.payload;
-
-    switch (msgType) {
+  /// 根据消息类型生成显示文本（通知/副标题通用）
+  String _messageTypeLabel(
+    String messageType,
+    Map<String, dynamic> payload, {
+    String fallback = '[消息]',
+  }) {
+    switch (messageType) {
       case 'text':
-        // 文本消息：直接显示文本
         return payload['text']?.toString() ?? '';
-
       case 'image':
         return '[图片]';
-
       case 'voice':
         final duration = payload['duration']?.toInt() ?? 0;
         return duration > 0 ? '[语音 $duration"]' : '[语音]';
-
       case 'video':
         return '[视频]';
-
       case 'file':
         final filename = payload['filename']?.toString() ?? '';
-        return filename.isNotEmpty ? '[文件] $filename' : '[文件]';
-
+        return filename.isNotEmpty ? '📄 $filename' : '[文件]';
       case 'quote':
-        return payload['quote_text']?.toString() ?? '[引用消息]';
-
+        return payload['quote_text']?.toString() ?? '[引用]';
       case 'location':
         return '[位置] ${payload['title']?.toString() ?? ''}';
-
       case 'webrtc_audio':
         return '[语音通话]';
-
       case 'webrtc_video':
         return '[视频通话]';
-
       case 'revoked':
         return '[消息已撤回]';
-
+      case 'custom':
+        return '';
       default:
-        // 尝试从 payload 获取文本
         final text = payload['text']?.toString();
-        if (text != null && text.isNotEmpty) {
-          return text;
-        }
-        return '[新消息]';
+        return (text != null && text.isNotEmpty) ? text : fallback;
     }
+  }
+
+  /// 获取通知内容
+  String _getNotificationContent(MessageModel msg) {
+    return _messageTypeLabel(
+      msg.msgType ?? '',
+      msg.payload,
+      fallback: '[新消息]',
+    );
   }
 
   /// Handle error codes from server
@@ -1209,60 +1182,8 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// v2.0: 根据消息类型构造会话副标题
-  ///
-  /// 使用 switch 处理不同的 msg_type（text、image、voice、video、file、quote、location、custom）
-  ///
-  /// ## 参数
-  /// - [messageType]: 消息类型（从顶层 msg_type 字段读取）
-  /// - [payload]: 消息负载内容
-  ///
-  /// ## 返回值
-  /// 会话列表中显示的副标题文本
   String _getMessageSubtitle(String messageType, Map<String, dynamic> payload) {
-    // 使用 switch 处理不同的消息类型
-    switch (messageType) {
-      case 'text':
-        // 文本消息：显示文本内容
-        return payload['text']?.toString() ?? '';
-
-      case 'image':
-        // 图片消息：显示 [图片]
-        return '[图片]';
-
-      case 'voice':
-        // 语音消息：显示 [语音] 或时长
-        final duration = payload['duration']?.toInt() ?? 0;
-        return duration > 0 ? '[语音 $duration"]' : '[语音]';
-
-      case 'video':
-        // 视频消息：显示 [视频]
-        return '[视频]';
-
-      case 'file':
-        // 文件消息：显示文件名或 [文件]
-        final filename = payload['filename']?.toString() ?? '';
-        return filename.isNotEmpty ? '📄 $filename' : '[文件]';
-
-      case 'quote':
-        // 引用消息：显示引用的文本
-        return payload['quote_text']?.toString() ?? '[引用]';
-
-      case 'location':
-        // 位置消息：显示位置标题
-        return payload['title']?.toString() ?? '[位置]';
-
-      case 'custom':
-        // 自定义消息：通常不显示副标题
-        return '';
-
-      default:
-        // 未知消息类型：尝试从 payload 获取文本
-        final text = payload['text']?.toString();
-        if (text != null && text.isNotEmpty) {
-          return text;
-        }
-        return '[消息]';
-    }
+    return _messageTypeLabel(messageType, payload, fallback: '[消息]');
   }
 
   // 便捷转发方法
@@ -1617,4 +1538,12 @@ class MessageService with EventSubscriptionManager {
         iPrint('⚠️ [未知消息类型] messageType=$messageType');
     }
   }
+}
+
+/// 内容哈希缓存条目（带时间戳支持 TTL 清理）
+class _ContentHashEntry {
+  final String msgId;
+  final int timestamp;
+
+  const _ContentHashEntry({required this.msgId, required this.timestamp});
 }

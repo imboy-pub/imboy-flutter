@@ -186,14 +186,14 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
                 metadata['effective_msg_type'] ?? metadata['msg_type'] ?? '';
 
             // 单图消息
-            if (effectiveMsgType == 'image') {
+            if (effectiveMsgType == MessageType.image) {
               final uri = metadata['source'] ?? metadata['uri'] ?? '';
               if (uri.isNotEmpty) {
                 imageUrls.add(uri);
               }
             }
             // 多图消息
-            else if (effectiveMsgType == 'imageMulti') {
+            else if (effectiveMsgType == MessageType.imageMulti) {
               final images = metadata['images'] as List<dynamic>?;
               if (images != null) {
                 for (final img in images) {

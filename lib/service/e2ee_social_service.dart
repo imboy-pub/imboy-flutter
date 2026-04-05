@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/service/shamir_secret_sharing.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
@@ -92,9 +92,9 @@ class E2EESocialService {
       // 保存新元数据
       await StorageSecureService.to.saveE2EEShardMetadataList(metadataList);
 
-      print('✅ [E2EE] 已保存 ${metadataList.length} 个分片元数据到本地存储');
+      debugPrint('✅ [E2EE] 已保存 ${metadataList.length} 个分片元数据到本地存储');
     } catch (e) {
-      print('⚠️ [E2EE] 保存分片元数据失败: $e');
+      debugPrint('⚠️ [E2EE] 保存分片元数据失败: $e');
     }
   }
 
@@ -113,7 +113,7 @@ class E2EESocialService {
         );
       }
     } catch (e) {
-      print('⚠️ [E2EE] 获取本地分片元数据失败: $e');
+      debugPrint('⚠️ [E2EE] 获取本地分片元数据失败: $e');
       return [];
     }
   }
@@ -125,9 +125,9 @@ class E2EESocialService {
         shardId,
         status,
       );
-      print('✅ [E2EE] 已更新分片状态: $shardId -> $status');
+      debugPrint('✅ [E2EE] 已更新分片状态: $shardId -> $status');
     } catch (e) {
-      print('⚠️ [EEE] 更新分片状态失败: $e');
+      debugPrint('⚠️ [EEE] 更新分片状态失败: $e');
     }
   }
 
@@ -136,9 +136,9 @@ class E2EESocialService {
     try {
       await StorageSecureService.to.deleteE2EEShardMetadataList();
       await StorageSecureService.to.deleteAllE2EEShards();
-      print('✅ [E2EE] 已清理本地分片数据');
+      debugPrint('✅ [E2EE] 已清理本地分片数据');
     } catch (e) {
-      print('⚠️ [E2EE] 清理本地分片数据失败: $e');
+      debugPrint('⚠️ [E2EE] 清理本地分片数据失败: $e');
     }
   }
 
@@ -298,14 +298,14 @@ class E2EESocialService {
     try {
       // 1. 非空检查
       if (proxyUid.isEmpty || publicKey.isEmpty) {
-        print('⚠️ [E2EE] 公钥验证失败: 参数为空');
+        debugPrint('⚠️ [E2EE] 公钥验证失败: 参数为空');
         return false;
       }
 
       // 2. PEM 格式验证
       if (!publicKey.contains('BEGIN PUBLIC KEY') &&
           !publicKey.contains('BEGIN RSA PUBLIC KEY')) {
-        print('⚠️ [E2EE] 公钥验证失败: PEM 格式不正确');
+        debugPrint('⚠️ [E2EE] 公钥验证失败: PEM 格式不正确');
         return false;
       }
 
@@ -315,33 +315,33 @@ class E2EESocialService {
       // 4. 密钥长度验证（至少 2048 位）
       final modulus = rsaPublicKey.modulus;
       if (modulus == null) {
-        print('⚠️ [E2EE] 公钥验证失败: modulus 为空');
+        debugPrint('⚠️ [E2EE] 公钥验证失败: modulus 为空');
         return false;
       }
 
       final bitLength = modulus.bitLength;
       if (bitLength < 2048) {
-        print('⚠️ [E2EE] 公钥验证失败: 密钥长度不足 ($bitLength < 2048)');
+        debugPrint('⚠️ [E2EE] 公钥验证失败: 密钥长度不足 ($bitLength < 2048)');
         return false;
       }
 
       // 5. 公钥指数验证
       final exponent = rsaPublicKey.exponent;
       if (exponent == null) {
-        print('⚠️ [E2EE] 公钥验证失败: exponent 为空');
+        debugPrint('⚠️ [E2EE] 公钥验证失败: exponent 为空');
         return false;
       }
 
       // 6. 验证公钥指数是否为常见的安全值（65537）
       if (exponent != BigInt.from(65537)) {
-        print('⚠️ [E2EE] 公钥警告: 非标准指数 $exponent');
+        debugPrint('⚠️ [E2EE] 公钥警告: 非标准指数 $exponent');
         // 不直接返回 false，仅记录警告
       }
 
-      print('✅ [E2EE] 公钥验证成功: proxyUid=$proxyUid, bitLength=$bitLength');
+      debugPrint('✅ [E2EE] 公钥验证成功: proxyUid=$proxyUid, bitLength=$bitLength');
       return true;
     } catch (e) {
-      print('❌ [E2EE] 公钥验证异常: $e');
+      debugPrint('❌ [E2EE] 公钥验证异常: $e');
       return false;
     }
   }
@@ -367,11 +367,11 @@ class E2EESocialService {
       // 1. 获取可信联系人列表
       final contacts = await getTrustedContacts();
       if (contacts.isEmpty) {
-        print('📦 [E2EE] 没有可信联系人可用于推荐');
+        debugPrint('📦 [E2EE] 没有可信联系人可用于推荐');
         return [];
       }
 
-      print('📦 [E2EE] 开始计算 ${contacts.length} 个联系人的推荐分数');
+      debugPrint('📦 [E2EE] 开始计算 ${contacts.length} 个联系人的推荐分数');
 
       // 2. 计算每个好友的推荐分数
       final scoredContacts = <Map<String, dynamic>>[];
@@ -408,7 +408,7 @@ class E2EESocialService {
           },
         });
 
-        print(
+        debugPrint(
           '📊 [E2EE] 联系人 $contactUid 得分: $totalScore (关系=$relationScore, 互动=$interactionScore, 备注=$remarkScore, 群组=$groupScore, 在线=$onlineScore)',
         );
       }
@@ -421,11 +421,11 @@ class E2EESocialService {
       );
 
       final result = scoredContacts.take(count).toList();
-      print('✅ [E2EE] 推荐代理完成，返回 ${result.length} 个候选');
+      debugPrint('✅ [E2EE] 推荐代理完成，返回 ${result.length} 个候选');
 
       return result;
     } catch (e) {
-      print('❌ [E2EE] 推荐代理失败: $e');
+      debugPrint('❌ [E2EE] 推荐代理失败: $e');
       return [];
     }
   }
@@ -463,7 +463,7 @@ class E2EESocialService {
         return 100.0;
       }
     } catch (e) {
-      print('⚠️ [E2EE] 计算关系时长得分失败: $e');
+      debugPrint('⚠️ [E2EE] 计算关系时长得分失败: $e');
       return 30.0;
     }
   }
@@ -499,7 +499,7 @@ class E2EESocialService {
         return 100.0;
       }
     } catch (e) {
-      print('⚠️ [E2EE] 计算互动频率得分失败: $e');
+      debugPrint('⚠️ [E2EE] 计算互动频率得分失败: $e');
       return 30.0;
     }
   }
@@ -546,7 +546,7 @@ class E2EESocialService {
         return 100.0;
       }
     } catch (e) {
-      print('⚠️ [E2EE] 计算共同群组得分失败: $e');
+      debugPrint('⚠️ [E2EE] 计算共同群组得分失败: $e');
       return 30.0;
     }
   }
@@ -569,7 +569,7 @@ class E2EESocialService {
 
       return isOnline ? 100.0 : 20.0;
     } catch (e) {
-      print('⚠️ [E2EE] 计算在线状态得分失败: $e');
+      debugPrint('⚠️ [E2EE] 计算在线状态得分失败: $e');
       return 50.0;
     }
   }
@@ -604,7 +604,7 @@ class E2EESocialService {
       // 目前返回 null 表示未知状态
       return null;
     } catch (e) {
-      print('⚠️ [E2EE] 获取在线状态失败: $e');
+      debugPrint('⚠️ [E2EE] 获取在线状态失败: $e');
       return null;
     }
   }
@@ -636,14 +636,14 @@ class E2EESocialService {
       }
     }
 
-    print('📡 [E2EE] 更新在线状态缓存: uid=$uid, isOnline=$isOnline');
+    debugPrint('📡 [E2EE] 更新在线状态缓存: uid=$uid, isOnline=$isOnline');
   }
 
   /// 清除在线状态缓存
   static void clearOnlineStatusCache() {
     _onlineStatusCache.clear();
     _onlineStatusTimestamp.clear();
-    print('🧹 [E2EE] 已清除在线状态缓存');
+    debugPrint('🧹 [E2EE] 已清除在线状态缓存');
   }
 
   // ================================================================
@@ -701,7 +701,7 @@ class E2EESocialService {
           sentCount++;
         }
       } catch (e) {
-        print('发送分片失败: $e');
+        debugPrint('发送分片失败: $e');
       }
     }
 
@@ -754,7 +754,7 @@ class E2EESocialService {
       // 1. 获取所有分片 ID
       final shardIds = await StorageSecureService.to.getShardIdList();
       if (shardIds.isEmpty) {
-        print('📦 [E2EE] 本地没有存储的分片');
+        debugPrint('📦 [E2EE] 本地没有存储的分片');
         return [];
       }
 
@@ -770,14 +770,14 @@ class E2EESocialService {
             shards.add(shard);
           }
         } catch (e) {
-          print('⚠️ [E2EE] 读取分片失败: shardId=$shardId, error=$e');
+          debugPrint('⚠️ [E2EE] 读取分片失败: shardId=$shardId, error=$e');
         }
       }
 
-      print('📦 [E2EE] 读取到 ${shards.length} 个本地分片');
+      debugPrint('📦 [E2EE] 读取到 ${shards.length} 个本地分片');
       return shards;
     } catch (e) {
-      print('❌ [E2EE] 获取本地分片列表失败: $e');
+      debugPrint('❌ [E2EE] 获取本地分片列表失败: $e');
       return [];
     }
   }
@@ -833,10 +833,10 @@ class E2EESocialService {
       // 7. 重新编码为 Base64 以便传输
       final decryptedShard = base64.encode(decryptedBytes);
 
-      print('✅ [E2EE] 分片解密成功: shardId=$shardId');
+      debugPrint('✅ [E2EE] 分片解密成功: shardId=$shardId');
       return decryptedShard;
     } catch (e) {
-      print('❌ [E2EE] 分片解密失败: $e');
+      debugPrint('❌ [E2EE] 分片解密失败: $e');
       return null;
     }
   }
@@ -884,14 +884,14 @@ class E2EESocialService {
         throw Exception('阈值至少为 2');
       }
 
-      print('🔐 [E2EE] 开始恢复密钥流程: 分片数=${shards.length}, 阈值=$threshold');
+      debugPrint('🔐 [E2EE] 开始恢复密钥流程: 分片数=${shards.length}, 阈值=$threshold');
 
       final decryptedShards = <String>[];
       final processedShards = <String>[];
 
       for (final shard in shards) {
         if (decryptedShards.length >= threshold) {
-          print('✅ [E2EE] 已收集足够的分片: ${decryptedShards.length}/$threshold');
+          debugPrint('✅ [E2EE] 已收集足够的分片: ${decryptedShards.length}/$threshold');
           break;
         }
 
@@ -899,19 +899,19 @@ class E2EESocialService {
         final proxyUid = shard['proxy_uid']?.toString() ?? '';
 
         if (shardId.isEmpty || proxyUid.isEmpty) {
-          print('⚠️ [E2EE] 跳过无效分片: shardId=$shardId, proxyUid=$proxyUid');
+          debugPrint('⚠️ [E2EE] 跳过无效分片: shardId=$shardId, proxyUid=$proxyUid');
           continue;
         }
 
         // 避免重复请求同一个分片
         if (processedShards.contains(shardId)) {
-          print('⚠️ [E2EE] 跳过已处理的分片: $shardId');
+          debugPrint('⚠️ [E2EE] 跳过已处理的分片: $shardId');
           continue;
         }
 
         processedShards.add(shardId);
 
-        print('🔓 [E2EE] 请求解密分片: shardId=$shardId, proxyUid=$proxyUid');
+        debugPrint('🔓 [E2EE] 请求解密分片: shardId=$shardId, proxyUid=$proxyUid');
 
         // 通知进度
         onProgress?.call(decryptedShards.length, shards.length);
@@ -925,10 +925,10 @@ class E2EESocialService {
 
         if (decryptedShard != null && decryptedShard.isNotEmpty) {
           decryptedShards.add(decryptedShard);
-          print('✅ [E2EE] 成功获取解密分片: shardId=$shardId');
+          debugPrint('✅ [E2EE] 成功获取解密分片: shardId=$shardId');
           onProgress?.call(decryptedShards.length, shards.length);
         } else {
-          print('❌ [E2EE] 获取解密分片失败: shardId=$shardId');
+          debugPrint('❌ [E2EE] 获取解密分片失败: shardId=$shardId');
         }
       }
 
@@ -937,15 +937,15 @@ class E2EESocialService {
         throw Exception('收集到的分片不足：${decryptedShards.length}/$threshold');
       }
 
-      print('🔐 [E2EE] 开始重组密钥: 分片数=${decryptedShards.length}');
+      debugPrint('🔐 [E2EE] 开始重组密钥: 分片数=${decryptedShards.length}');
 
       // 调用服务端 API 重组密钥
       await recoverKey(decryptedShards: decryptedShards);
 
-      print('✅ [E2EE] 密钥恢复成功');
+      debugPrint('✅ [E2EE] 密钥恢复成功');
       return true;
     } catch (e) {
-      print('❌ [E2EE] 恢复密钥失败: $e');
+      debugPrint('❌ [E2EE] 恢复密钥失败: $e');
       return false;
     }
   }

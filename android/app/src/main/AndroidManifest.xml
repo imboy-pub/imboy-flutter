@@ -11,7 +11,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <!-- READ_PHONE_STATE - 移除（Play Store 审核敏感权限，应用未使用） -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove"/>
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -38,10 +39,10 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:node="remove" />
 
-    <!-- 蓝牙权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <!-- 蓝牙权限 - 移除（应用无蓝牙功能） -->
+    <uses-permission android:name="android.permission.BLUETOOTH" tools:node="remove"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" tools:node="remove"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" tools:node="remove"/>
 
     <!-- 厂商扩展 -->
     <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>

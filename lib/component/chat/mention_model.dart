@@ -3,6 +3,8 @@
 /// 用于群聊中 @提及用户的数据结构
 library;
 
+import 'package:flutter/material.dart';
+
 /// @提及候选项
 class MentionCandidate {
   /// 用户ID
@@ -54,18 +56,18 @@ class MentionCandidate {
   bool get isAdmin => role >= 3;
 
   /// 获取角色显示文本
-  String get roleText {
-    switch (role) {
-      case 4:
-        return '群主';
-      case 3:
-        return '管理员';
-      case 2:
-        return '嘉宾';
-      default:
-        return '';
-    }
-  }
+  String get roleText => groupRoleLabel(role);
+
+  /// 获取角色标签背景颜色
+  Color roleBackgroundColor(ColorScheme colorScheme) =>
+      groupRoleBgColor(role, colorScheme);
+
+  /// 获取角色标签文字颜色
+  Color roleTextColor(ColorScheme colorScheme) =>
+      groupRoleFgColor(role, colorScheme);
+
+  /// 是否显示角色标签（角色 >= 3 才显示）
+  bool get showRoleBadge => role >= 3;
 
   Map<String, dynamic> toJson() => {
     'user_id': userId,
@@ -74,6 +76,48 @@ class MentionCandidate {
     'role': role,
     'is_all_mention': isAllMention,
   };
+}
+
+/// Group 角色工具函数（可跨组件复用）
+///
+/// Group 角色值: 1=成员, 2=嘉宾, 3=管理员, 4=群主
+
+/// 获取角色显示文本
+String groupRoleLabel(int role) {
+  switch (role) {
+    case 4:
+      return '群主';
+    case 3:
+      return '管理员';
+    case 2:
+      return '嘉宾';
+    default:
+      return '';
+  }
+}
+
+/// 获取角色标签背景颜色
+Color groupRoleBgColor(int role, ColorScheme colorScheme) {
+  switch (role) {
+    case 4:
+      return const Color(0xFFFF9800).withValues(alpha: 0.1);
+    case 3:
+      return colorScheme.primary.withValues(alpha: 0.1);
+    default:
+      return colorScheme.surface;
+  }
+}
+
+/// 获取角色标签文字颜色
+Color groupRoleFgColor(int role, ColorScheme colorScheme) {
+  switch (role) {
+    case 4:
+      return const Color(0xFFFF9800);
+    case 3:
+      return colorScheme.primary;
+    default:
+      return colorScheme.onSurfaceVariant;
+  }
 }
 
 /// @提及数据

@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:azlistview/azlistview.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -26,11 +24,6 @@ class DenylistModel extends ISuspensionBean {
     //
     this.nameIndex = "",
     this.namePinyin,
-    this.bgColor,
-    this.iconData,
-    this.firstLetter,
-    this.onPressed,
-    this.onLongPressed,
   });
 
   final String deniedUid; // 被列入名单的用户ID
@@ -47,13 +40,6 @@ class DenylistModel extends ISuspensionBean {
   //
   String nameIndex;
   String? namePinyin;
-  Color? bgColor;
-  Widget? iconData;
-  String? firstLetter;
-  bool selected = false;
-
-  final VoidCallback? onPressed;
-  final VoidCallback? onLongPressed;
 
   /// 联系人来源描述
   String get sourceTr {
@@ -108,7 +94,6 @@ class DenylistModel extends ISuspensionBean {
     'source': source,
     UserDenylistRepo.createdAt: createdAt,
     //
-    'firstLetter': firstLetter,
     'nameIndex': nameIndex,
     'namePinyin': namePinyin,
   };

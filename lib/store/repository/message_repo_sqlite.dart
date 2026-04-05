@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart' as func_helper;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
@@ -13,6 +13,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:sqflite/sqflite.dart';
@@ -208,6 +209,26 @@ class MessageRepo {
     return tb;
   }
 
+  /// 跨表更新消息状态（遍历 C2C/C2G/C2S 查找消息并更新）
+  ///
+  /// 返回 true 表示找到并更新成功，false 表示未找到
+  static Future<bool> updateStatusInAnyTable(
+    String messageId,
+    int status,
+  ) async {
+    for (final tableType in ['C2C', 'C2G', 'C2S']) {
+      final tb = getTableName(tableType);
+      final repo = MessageRepo(tableName: tb);
+      final msg = await repo.find(messageId);
+      if (msg != null) {
+        await repo.update({'id': messageId, MessageRepo.status: status});
+        msg.status = status;
+        return true;
+      }
+    }
+    return false;
+  }
+
   // 插入一条数据
   Future<MessageModel> insert(MessageModel msg, {Transaction? txn}) async {
     // 数据验证
@@ -260,6 +281,15 @@ class MessageRepo {
       } else {
         await _db.insert(targetTableName, insert);
       }
+
+      // 同步写入 FTS 索引（异步，不阻塞消息插入）
+      _indexMessageToFts(
+        type: msgType,
+        id: msg.id ?? '',
+        conversationUk3: msg.conversationUk3,
+        msgTypeField: msg.msgType ?? '',
+        payload: msg.payload,
+      );
     } else {
       debugPrint("> on MessageModel/insert count $count : $insert");
     }
@@ -807,9 +837,11 @@ class MessageRepo {
           // 获取顶层字段
           var msgType = (msgData['msg_type'] ?? '').toString();
 
-          func_helper.iPrint(
-            '🔍 [DEBUG 离线消息] 原始数据: msgId=$msgId, msgData[\'msg_type\']="${msgData['msg_type']}", payload keys=${payload.keys.toList()}',
-          );
+          if (kDebugMode) {
+            func_helper.iPrint(
+              '🔍 [DEBUG 离线消息] 原始数据: msgId=$msgId, msgData[\'msg_type\']="${msgData['msg_type']}", payload keys=${payload.keys.toList()}',
+            );
+          }
 
           // 【重构】使用 MessageTypeNormalizer 做类型合法性校验
           msgType = MessageTypeNormalizer.normalize(
@@ -817,7 +849,9 @@ class MessageRepo {
             payload: payload,
           );
 
-          func_helper.iPrint('🔍 [DEBUG 离线消息] 归一化后: msgType="$msgType"');
+          if (kDebugMode) {
+            func_helper.iPrint('🔍 [DEBUG 离线消息] 归一化后: msgType="$msgType"');
+          }
           final action = (msgData['action'] ?? '').toString();
           final e2ee = msgData['e2ee'];
 
@@ -902,6 +936,17 @@ class MessageRepo {
       });
 
       if (inserted.isNotEmpty) {
+        // 批量写入 FTS 索引
+        for (final msg in inserted) {
+          _indexMessageToFts(
+            type: msg.type,
+            id: msg.id,
+            conversationUk3: msg.conversationUk3,
+            msgTypeField: msg.msgType,
+            payload: msg.payload,
+          );
+        }
+
         await _syncOfflineConversationsAndNotify(inserted);
       }
       // 处理 S2C 消息（在事务外）
@@ -981,9 +1026,11 @@ class MessageRepo {
       } catch (_) {}
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
-      func_helper.iPrint(
-        '🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${latest.payload.keys.toList()}',
-      );
+      if (kDebugMode) {
+        func_helper.iPrint(
+          '🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${latest.payload.keys.toList()}',
+        );
+      }
       final preview = _derivePreview(
         latest.msgType,
         latest.status,
@@ -1081,9 +1128,11 @@ class MessageRepo {
       payload: payload,
     );
 
-    func_helper.iPrint(
-      '🔍 [DEBUG _derivePreview] 输入: msgType="$msgType", effective=$effectiveMsgType',
-    );
+    if (kDebugMode) {
+      func_helper.iPrint(
+        '🔍 [DEBUG _derivePreview] 输入: msgType="$msgType", effective=$effectiveMsgType',
+      );
+    }
 
     // 方案 D: 检查 status 字段（撤回状态 30-39）
     if (IMBoyMessageStatus.isRevokedStatus(status)) {
@@ -1143,10 +1192,35 @@ class MessageRepo {
         break;
     }
 
-    func_helper.iPrint(
-      '🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType, subtitle=$subtitle',
-    );
+    if (kDebugMode) {
+      func_helper.iPrint(
+        '🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType, subtitle=$subtitle',
+      );
+    }
     return (msgType: effectiveMsgType, subtitle: subtitle);
+  }
+
+  /// 将消息写入 FTS 索引（fire-and-forget，不阻塞主流程）
+  static void _indexMessageToFts({
+    required String type,
+    required String id,
+    required String conversationUk3,
+    required String msgTypeField,
+    required Map<String, dynamic> payload,
+  }) {
+    final textContent = MessageFtsRepo.extractTextContent(msgTypeField, payload);
+    if (textContent.isEmpty) return;
+
+    // 确定 FTS 表类型
+    final ftsType = type.toUpperCase();
+    if (ftsType != 'C2C' && ftsType != 'C2G') return;
+
+    MessageFtsRepo().indexMessage(
+      type: ftsType,
+      id: id,
+      conversationUk3: conversationUk3,
+      textContent: textContent,
+    );
   }
 
   // 记得及时关闭数据库，防止内存泄漏

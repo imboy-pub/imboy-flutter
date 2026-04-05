@@ -838,6 +838,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyClearChatHistoryConfirm => 'Wirklich gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.';
 	@override String get privacyLogoutAccount => 'Konto löschen';
 	@override String get privacyLogoutAccountConfirm => 'Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.';
+	@override String get privacyPolicy => 'Datenschutzrichtlinie';
 	@override String get privacySettings => 'Datenschutz-Einstellungen';
 	@override String get searchSettings => 'Sucheinstellungen';
 	@override String get allowSearchByAccount => 'Suche nach Konto erlauben';
@@ -2269,6 +2270,7 @@ extension on TranslationsDeDe {
 			'privacyClearChatHistoryConfirm' => 'Wirklich gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
 			'privacyLogoutAccount' => 'Konto löschen',
 			'privacyLogoutAccountConfirm' => 'Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.',
+			'privacyPolicy' => 'Datenschutzrichtlinie',
 			'privacySettings' => 'Datenschutz-Einstellungen',
 			'searchSettings' => 'Sucheinstellungen',
 			'allowSearchByAccount' => 'Suche nach Konto erlauben',
@@ -2492,9 +2494,9 @@ extension on TranslationsDeDe {
 			'saveFailed' => 'Speichern fehlgeschlagen',
 			'markRead' => 'Als gelesen markieren',
 			'markUnread' => 'Als ungelesen markieren',
-			'discover' => 'Entdecken',
 			_ => null,
 		} ?? switch (path) {
+			'discover' => 'Entdecken',
 			'shake' => 'Schütteln',
 			'tip' => 'Tipp',
 			'confirm' => 'Bestätigen',

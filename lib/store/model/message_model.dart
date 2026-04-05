@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -239,8 +238,8 @@ class MessageModel {
         if (e2eeStr.isNotEmpty) {
           try {
             e2eeData = jsonDecode(e2eeStr) as Map<String, dynamic>?;
-          } catch (e) {
-            debugPrint('MessageModel: e2ee 解析失败: $e');
+          } catch (_) {
+            // e2ee 字段格式无效，忽略
           }
         }
       } else if (data['e2ee'] is Map) {
@@ -786,7 +785,7 @@ class MessageModel {
         createdAt: createdDt,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'text') {
+    } else if (effectiveMsgType == MessageType.text) {
       message = TextMessage(
         authorId: author.id,
         createdAt: createdDt,
@@ -796,7 +795,7 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'image') {
+    } else if (effectiveMsgType == MessageType.image) {
       message = ImageMessage(
         authorId: author.id,
         createdAt: createdDt,
@@ -810,7 +809,7 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'file') {
+    } else if (effectiveMsgType == MessageType.file) {
       message = FileMessage(
         authorId: author.id,
         createdAt: createdDt,
@@ -822,10 +821,10 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'video' || effectiveMsgType == 'voice') {
+    } else if (effectiveMsgType == MessageType.video || effectiveMsgType == MessageType.voice) {
       // 视频/语音消息：使用 VideoMessage 或 AudioMessage
       // 语音消息统一使用 voice 命名
-      if (effectiveMsgType == 'video') {
+      if (effectiveMsgType == MessageType.video) {
         message = VideoMessage(
           authorId: author.id,
           createdAt: createdDt,
@@ -858,7 +857,7 @@ class MessageModel {
           metadata: {...metadata, ...payloadData},
         );
       }
-    } else if (effectiveMsgType == 'quote') {
+    } else if (effectiveMsgType == MessageType.quote) {
       message = CustomMessage(
         authorId: author.id,
         id: safeId,
@@ -866,7 +865,7 @@ class MessageModel {
         // peerId: toId,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == 'textStream') {
+    } else if (effectiveMsgType == MessageType.textStream) {
       // 文本流消息：使用 TextMessage，带额外的流式 metadata
       message = TextMessage(
         authorId: author.id,
@@ -882,7 +881,7 @@ class MessageModel {
           'stream_id': payloadData['stream_id'],
         },
       );
-    } else if (effectiveMsgType == 'imageMulti') {
+    } else if (effectiveMsgType == MessageType.imageMulti) {
       // 多图消息：使用 CustomMessage，带 images 数组
       message = CustomMessage(
         authorId: author.id,
@@ -903,7 +902,7 @@ class MessageModel {
         createdAt: createdDt,
         metadata: {...metadata, ...payloadData, 'is_system': true},
       );
-    } else if (effectiveMsgType == 'custom') {
+    } else if (effectiveMsgType == MessageType.custom) {
       message = CustomMessage(
         authorId: author.id,
         id: safeId,
