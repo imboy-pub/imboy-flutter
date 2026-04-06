@@ -35,6 +35,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/push_notification_service.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/group_collab/public.dart';
@@ -518,6 +519,9 @@ class AppInitializer {
     }
 
     await AppFeatureRegistry.refresh();
+
+    // 从后端 policy 刷新加密模式（决定消息是否强制加密）
+    await EncryptionModeService.refresh();
 
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();

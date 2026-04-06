@@ -1,10 +1,15 @@
 /// 三层加密模式定义
 ///
 /// 对应后端 imboy_policy 的 storage_mode 和 e2ee_mode:
-/// - plaintext: 明文传输，不加密
+/// - plaintext: 明文传输��不加密
 /// - compliance_e2ee: AES key 双加密（接收方公钥 + 合规公钥）
 /// - strict_e2ee: 仅接收方公钥加密（现有 E2EE 逻辑）
 library;
+
+import 'package:flutter/foundation.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart';
 
 /// 加密模式枚举
 enum EncryptionMode {
@@ -74,6 +79,56 @@ extension EncryptionModeExt on EncryptionMode {
         return '🔐'; // 带钥匙的锁
       case EncryptionMode.strictE2ee:
         return '🔒'; // 关锁
+    }
+  }
+}
+
+/// 全局加密模式服务
+///
+/// 从后端 /v1/app/policy API 获取当前部署的加密策略，
+/// 供 E2EEService 和消息发送流程参考。
+class EncryptionModeService {
+  EncryptionModeService._();
+
+  static EncryptionMode _current = EncryptionMode.plaintext;
+  static bool _initialized = false;
+
+  /// 当前生效的加密模式
+  static EncryptionMode get current => _current;
+
+  /// 是否已初始化
+  static bool get isInitialized => _initialized;
+
+  /// 从后端 policy API 刷新加密模式
+  /// 在 AppFeatureRegistry.refresh() 之后调用
+  static Future<void> refresh() async {
+    try {
+      final IMBoyHttpResponse response = await HttpClient.client.get(
+        API.appPolicy,
+      );
+      if (!response.ok || response.payload is! Map) {
+        debugPrint('EncryptionModeService: skip refresh, code=${response.code}');
+        return;
+      }
+
+      final data = response.payload as Map;
+      final capabilities = data['capabilities'] as Map? ?? {};
+      final storageMode = capabilities['storage_mode']?.toString() ?? '';
+      final e2eeMode = capabilities['e2ee_mode']?.toString() ?? '';
+
+      // 决定加密模式：e2ee_mode 优先级高于 storage_mode
+      if (e2eeMode == 'required' || storageMode == 'secure_e2ee') {
+        _current = EncryptionMode.strictE2ee;
+      } else if (e2eeMode == 'compliance' || storageMode == 'compliance_e2ee') {
+        _current = EncryptionMode.complianceE2ee;
+      } else {
+        _current = EncryptionMode.plaintext;
+      }
+
+      _initialized = true;
+      debugPrint('EncryptionModeService: mode=$_current (storage=$storageMode, e2ee=$e2eeMode)');
+    } catch (e) {
+      debugPrint('EncryptionModeService: refresh failed: $e');
     }
   }
 }

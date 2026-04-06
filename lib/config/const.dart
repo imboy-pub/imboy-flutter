@@ -63,6 +63,7 @@ class API {
   static const findPassword = '/v1/passport/findpassword';
   static const appVersionCheck = '/v1/app_version/check';
   static const appFeatures = '/v1/app/features';
+  static const appPolicy = '/v1/app/policy';
   static const sqliteUpgradeDdl = '/v1/app_ddl/get?type=upgrade';
   static const sqliteDowngradeDdl = '/v1/app_ddl/get?type=downgrade';
 

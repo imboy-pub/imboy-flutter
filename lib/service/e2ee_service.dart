@@ -7,6 +7,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
@@ -68,7 +69,15 @@ class E2EEService {
   /// 2. 消息类型为 C2C 或 C2G
   /// 3. 非action操作消息（action消息不加密）
   static bool shouldEncryptOutgoingPayload(String msgType) {
-    // 检查E2EE全局开关（用户设置）
+    // 1. 检查后端策略：如果策略要求加密，强制加密
+    final policyMode = EncryptionModeService.current;
+    if (policyMode.requiresEncryption) {
+      // 策略要求加密，只对 C2C/C2G 消息生效
+      if (msgType != 'C2C' && msgType != 'C2G') return false;
+      return true;
+    }
+
+    // 2. 策略为 plaintext 时，检查用户本地 E2EE 开关
     if (!E2EESettings.isEnabled()) {
       return false;
     }
