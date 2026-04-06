@@ -462,13 +462,17 @@ class ChatPageState extends ConsumerState<ChatPage>
           _editingMessageId = id;
         },
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ChatPage] chat operation failed: $e');
+    }
   }
 
   Future<void> _applySecureFlag() async {
     try {
       await _secureChannel.invokeMethod(_burnEnabled ? 'enable' : 'disable');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ChatPage] chat operation failed: $e');
+    }
   }
 
   // 检查消息是否为阅后即焚（使用工具类）
@@ -692,7 +696,9 @@ class ChatPageState extends ConsumerState<ChatPage>
     // Riverpod Provider 会自动处理资源释放
     try {
       _secureChannel.invokeMethod('disable');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ChatPage] chat operation failed: $e');
+    }
 
     super.dispose();
   }
@@ -2013,7 +2019,9 @@ class ChatPageState extends ConsumerState<ChatPage>
                                     );
                               }
                             }
-                          } catch (_) {}
+                          } catch (e) {
+                            debugPrint('[ChatPage] chat operation failed: $e');
+                          }
                         }
                       },
                     );

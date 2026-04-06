@@ -110,7 +110,9 @@ class MessageActionHandler {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[MessageActionHandler] action failed: $e');
+    }
   }
 
   /// 删除消息（仅自己）

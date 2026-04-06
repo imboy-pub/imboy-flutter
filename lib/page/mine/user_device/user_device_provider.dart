@@ -116,7 +116,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
             if (vsnStr.isNotEmpty) {
               deviceVsn = jsonDecode(vsnStr);
             }
-          } catch (_) {
+          } catch (e) {
+            debugPrint('[UserDeviceProvider] device operation failed: $e');
             deviceVsn = {};
           }
         }
@@ -347,7 +348,9 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
           return name;
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[UserDeviceProvider] device operation failed: $e');
+    }
 
     // 本地库回退
     try {
@@ -356,7 +359,9 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       if (m != null && m.deviceName.isNotEmpty) {
         return m.deviceName;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[UserDeviceProvider] device operation failed: $e');
+    }
 
     return '';
   }

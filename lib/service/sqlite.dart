@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -105,7 +105,9 @@ class SqliteService {
       if (!kIsWeb) {
         try {
           await Directory(dirname(path)).create(recursive: true);
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[SqliteService] directory creation failed: $e');
+        }
 
         ByteData data = await rootBundle.load(
           url.join("assets", "example10.db"),

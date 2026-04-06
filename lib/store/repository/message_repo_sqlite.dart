@@ -830,7 +830,9 @@ class MessageRepo {
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
               }
-            } catch (_) {}
+            } catch (e) {
+              debugPrint('[MessageRepo] JSON payload parsing failed: $e');
+            }
           }
 
           // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
@@ -977,7 +979,8 @@ class MessageRepo {
     if (asInt != null) return asInt;
     try {
       return DateTimeHelper.rfc3339ToMillisecond(s);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[MessageRepo] JSON payload parsing failed: $e');
       return 0;
     }
   }
@@ -1023,7 +1026,9 @@ class MessageRepo {
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[MessageRepo] offline sync failed: $e');
+      }
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
       if (kDebugMode) {
@@ -1109,7 +1114,9 @@ class MessageRepo {
             await msg.toMessageModel().toTypeMessage(),
             'Message',
           );
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[MessageRepo] dedup failed: $e');
+        }
       }
     }
   }

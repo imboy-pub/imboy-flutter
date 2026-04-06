@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -155,7 +156,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (v is int) return v;
       if (v is String) return int.tryParse(v) ?? 0;
       return 0;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ConversationProvider] conversation update failed: $e');
       return 0;
     }
   }
@@ -711,7 +713,9 @@ class ConversationNotifier extends _$ConversationNotifier {
           conversations[i] = updated;
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ConversationProvider] conversation update failed: $e');
+    }
   }
 
   /// 删除会话及其所有消息

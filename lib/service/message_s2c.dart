@@ -594,12 +594,16 @@ class MessageS2CService {
           ),
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[MessageS2C] account recovery failed: $e');
+    }
 
     // 统一执行退登与清理
     try {
       AppEventBus.fire(WebSocketForceCloseEvent(permanent: true));
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[MessageS2C] WS event fire failed: $e');
+    }
 
     EasyLoading.showSuccess(t.confirmRecoverSuccess);
     await UserRepoLocal.to.quitLogin();

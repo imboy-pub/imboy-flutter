@@ -169,7 +169,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         if (!identical(decrypted, item.info)) {
           item.info = Map<String, dynamic>.from(decrypted);
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[UserCollectProvider] collection operation failed: $e');
+      }
     }
   }
 
@@ -291,6 +293,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   MessageModel.fromJson(obj.info).toTypeMessage()
                       as Future<CustomMessage?>,
               builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('加载失败: ${snapshot.error}'));
+                }
                 if (!snapshot.hasData) {
                   return const SizedBox.shrink();
                 }

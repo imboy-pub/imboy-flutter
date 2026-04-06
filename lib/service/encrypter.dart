@@ -196,7 +196,7 @@ class EncrypterService {
     final encoded = Uint8List.fromList(utf8.encode(key));
 
     // 如果缓存已满，移除最旧的条目（简单的 LRU）
-    if (_keyCache.length >= _maxKeyCacheSize) {
+    if (_keyCache.length >= _maxKeyCacheSize && _keyCache.isNotEmpty) {
       final firstKey = _keyCache.keys.first;
       _keyCache.remove(firstKey);
     }
@@ -239,7 +239,9 @@ class EncrypterService {
   }
 
   static Uint8List _pkcs7UnPad(Uint8List data) {
-    if (data.isEmpty) throw Exception("Invalid padding");
+    if (data.isEmpty) {
+      throw FormatException('Empty input: cannot unpad empty data');
+    }
     final padLen = data.last;
     if (padLen <= 0 || padLen > data.length) throw Exception("Invalid padding");
     return data.sublist(0, data.length - padLen);

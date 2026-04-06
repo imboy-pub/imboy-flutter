@@ -137,7 +137,9 @@ class IMBoyCacheManager {
             if (retry < maxRetries - 1) {
               try {
                 await _crossCache.delete(cacheKey);
-              } catch (_) {}
+              } catch (e) {
+                debugPrint('[CacheManager] cache operation failed: $e');
+              }
               continue;
             }
             throw Exception(
@@ -151,7 +153,9 @@ class IMBoyCacheManager {
             if (retry < maxRetries - 1) {
               try {
                 await _crossCache.delete(cacheKey);
-              } catch (_) {}
+              } catch (e) {
+                debugPrint('[CacheManager] cache operation failed: $e');
+              }
               continue;
             }
             throw Exception(
@@ -209,7 +213,8 @@ class IMBoyCacheManager {
             // debugPrint('使用现有缓存文件: ${file.path}');
             return file;
           }
-        } catch (_) {
+        } catch (e) {
+          debugPrint('[CacheManager] cache operation failed: $e');
           // 文件损坏，删除后重新写入
           await file.delete();
         }
@@ -241,7 +246,9 @@ class IMBoyCacheManager {
           if (await tempFile.exists()) {
             await tempFile.delete();
           }
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[CacheManager] cache operation failed: $e');
+        }
         rethrow;
       }
     });
@@ -259,7 +266,9 @@ class IMBoyCacheManager {
       if (lastDotIndex != -1 && lastDotIndex < filePath.length - 1) {
         return filePath.substring(lastDotIndex + 1);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CacheManager] cache operation failed: $e');
+    }
     return null;
   }
 

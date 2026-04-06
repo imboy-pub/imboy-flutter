@@ -160,7 +160,9 @@ class SubscriberNotifier extends _$SubscriberNotifier {
     if (_resourceUrl != null) {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[SubscriberProvider] WebRTC operation failed: $e');
+      }
       _resourceUrl = null;
     }
     await _cleanup(remoteRenderer);

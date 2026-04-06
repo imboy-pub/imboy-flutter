@@ -190,7 +190,9 @@ class PublisherNotifier extends _$PublisherNotifier {
     if (_resourceUrl != null) {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[PublisherProvider] WebRTC operation failed: $e');
+      }
       _resourceUrl = null;
     }
     await _cleanup(localRenderer);

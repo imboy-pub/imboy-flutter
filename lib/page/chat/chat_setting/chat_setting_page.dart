@@ -66,7 +66,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           if (v != null && v > 0) _burnAfterMs = v;
         }
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ChatSetting] settings operation failed: $e');
+    }
   }
 
   Future<void> _persistBurnSetting() async {

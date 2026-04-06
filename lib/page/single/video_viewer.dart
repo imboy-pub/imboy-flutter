@@ -196,6 +196,9 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
             FutureBuilder<String>(
               future: UserRepoLocal.to.accessToken,
               builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('加载失败: ${snapshot.error}'));
+                }
                 Map<String, String> headers = <String, String>{
                   'User-Agent': 'imboy/1.0.0',
                 };

@@ -365,6 +365,10 @@ class StorageSecureService {
         return verB.compareTo(verA);
       });
 
+    if (sorted.isEmpty) {
+      return [];
+    }
+
     // 按密钥版本分组
     final latestVersion = sorted.first['key_version']?.toString() ?? '';
     return list
