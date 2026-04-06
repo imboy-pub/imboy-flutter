@@ -9,6 +9,7 @@ import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
+import 'package:imboy/service/compliance_key_service.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
 /// New upper-layer imports should prefer
@@ -180,6 +181,30 @@ class E2EEService {
         'wrap_alg': 'RSA-OAEP-256',
         'ek': base64.encode(wrappedKey),
       });
+    }
+
+    // 6b. compliance_e2ee 模式：额外用合规公钥包装 AES 密钥
+    final policyMode = EncryptionModeService.current;
+    if (policyMode == EncryptionMode.complianceE2ee) {
+      try {
+        final complianceKey =
+            await ComplianceKeyService.instance.getComplianceKey();
+        if (complianceKey != null) {
+          final wrappedCompliance = await _wrapAESKey(
+            aesKey: aesKey,
+            publicKeyPem: complianceKey.publicKey,
+          );
+          keys.add({
+            'did': 'compliance-audit',
+            'kid': complianceKey.keyId,
+            'wrap_alg': 'RSA-OAEP-256',
+            'ek': base64.encode(wrappedCompliance),
+          });
+          iPrint('E2EE: 已添加合规密钥包装 keyId=${complianceKey.keyId}');
+        }
+      } catch (e) {
+        iPrint('E2EE: 合规密钥包装失败（降级为仅设备加密）: $e');
+      }
     }
 
     // 7. 返回 e2ee 元数据和密文（分离）
