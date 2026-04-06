@@ -19,9 +19,10 @@ class ComplianceKeyInfo {
     required this.fetchedAt,
   });
 
-  /// 缓存是否过期（1 小时）
+  /// 缓存是否过期（55 分钟）
+  /// 使用 55 分钟而非 60 分钟作为安全裕量，避免系统时钟微调导致缓存恰好过期
   bool get isExpired =>
-      DateTime.now().difference(fetchedAt).inMinutes > 60;
+      DateTime.now().difference(fetchedAt).inMinutes > 55;
 }
 
 /// 合规密钥缓存服务（单例）

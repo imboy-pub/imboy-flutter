@@ -142,7 +142,13 @@ class MessageFtsRepo {
     );
 
     final merged = [...c2cResults, ...c2gResults];
-    merged.sort((a, b) => a.rank.compareTo(b.rank)); // rank 越小越相关
+    // FTS5 rank 为负数，越负越相关；升序排列使最相关结果在前。
+    // NaN 守卫：将 NaN 推到末尾。
+    merged.sort((a, b) {
+      final ra = a.rank.isNaN ? double.infinity : a.rank;
+      final rb = b.rank.isNaN ? double.infinity : b.rank;
+      return ra.compareTo(rb);
+    });
     if (merged.length > limit) {
       return merged.sublist(0, limit);
     }

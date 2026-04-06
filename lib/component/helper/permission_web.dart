@@ -2,6 +2,12 @@
 ///
 /// 仅在 Web 平台编译和使用
 /// Web 平台不需要原生权限，所有权限检查返回 true
+///
+/// 注意：此文件中的 `kIsWeb` 检查属于防御性双重保护模式。
+/// 主要的平台隔离由 `permission.dart` 中的条件导出
+/// (`export ... if (dart.library.js) ...`) 在编译期完成。
+/// 此处的运行时 `kIsWeb` 检查作为二次保障，防止条件导出被绕过
+/// （例如通过直接 import 此文件），确保不会在错误平台上执行。
 library;
 
 import 'package:flutter/foundation.dart' show kIsWeb;

@@ -208,7 +208,10 @@ class PushNotificationService {
       final title = message.notification?.title ?? '';
       iPrint('[Push] 导航到会话: $convId (type=$convType)');
       // 使用全局 navigatorKey 通过 go_router 导航
-      navigatorKey.currentContext?.go('/chat/$convId?type=$convType&title=$title');
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        context.go('/chat/$convId?type=$convType&title=$title');
+      }
     }
   }
 }

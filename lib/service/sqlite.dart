@@ -122,15 +122,21 @@ class SqliteService {
       iPrint("Opening existing database");
     }
 
-    return await openDatabase(
-      path,
-      version: _dbVersion,
-      onConfigure: _onConfigure,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-      onDowngrade: _onDowngrade,
-      onOpen: _onOpen,
-    );
+    try {
+      return await openDatabase(
+        path,
+        version: _dbVersion,
+        onConfigure: _onConfigure,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+        onDowngrade: _onDowngrade,
+        onOpen: _onOpen,
+      );
+    } catch (e) {
+      AppLogger.error('Failed to open database: $e');
+      // 返回 null 触发降级处理，避免应用崩溃
+      return null;
+    }
   }
 
   /// 打开数据库时的配置回调

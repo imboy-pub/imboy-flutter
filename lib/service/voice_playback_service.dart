@@ -54,6 +54,12 @@ class VoicePlaybackService extends _$VoicePlaybackService {
 
   @override
   VoicePlaybackState build() {
+    // 防止重复初始化：先清理旧的监听器和播放器
+    _playerStateSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _durationSubscription?.cancel();
+    _audioPlayer?.dispose();
+
     // 初始化音频播放器
     _audioPlayer = AudioPlayer();
     _initAudioSession();

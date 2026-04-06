@@ -51,6 +51,8 @@ class WebSocketService {
   // 订阅管理
   StreamSubscription? _wsSub;
   Timer? _reconnectTimer;
+  final List<StreamSubscription> _eventBusSubs = [];
+  bool _initialized = false;
 
   // 配置参数
   static const _pingInterval = Duration(seconds: 120);
@@ -58,17 +60,27 @@ class WebSocketService {
 
   /// 初始化服务
   void init() {
+    // 防止重复初始化导致多次订阅
+    if (_initialized) return;
+    _initialized = true;
+
     // 订阅消息发送请求事件（解耦：MessageService 通过事件请求发送消息）
-    AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(
-      _handleMessageSendRequest,
+    _eventBusSubs.add(
+      AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(
+        _handleMessageSendRequest,
+      ),
     );
 
     // 订阅强制关闭事件（解耦：MessageS2C 通过事件强制关闭连接）
-    AppEventBus.on<WebSocketForceCloseEvent>().listen(_handleForceClose);
+    _eventBusSubs.add(
+      AppEventBus.on<WebSocketForceCloseEvent>().listen(_handleForceClose),
+    );
 
     // 订阅重连请求事件（解耦：NetworkMonitor 通过事件请求重连）
-    AppEventBus.on<WebSocketReconnectRequestEvent>().listen(
-      _handleReconnectRequest,
+    _eventBusSubs.add(
+      AppEventBus.on<WebSocketReconnectRequestEvent>().listen(
+        _handleReconnectRequest,
+      ),
     );
 
     // 初始化连接（应用启动时调用）
@@ -97,12 +109,19 @@ class WebSocketService {
         if (_shouldReconnect()) {
           openSocket(from: event.source);
         }
+      }).catchError((e) {
+        iPrint('> ws: 重连请求处理失败: $e');
       });
     }
   }
 
   /// 释放资源
   void dispose() {
+    for (final sub in _eventBusSubs) {
+      sub.cancel();
+    }
+    _eventBusSubs.clear();
+    _initialized = false;
     _cleanupResources();
   }
 

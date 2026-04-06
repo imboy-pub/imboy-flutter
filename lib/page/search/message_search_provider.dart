@@ -162,7 +162,8 @@ class MessageSearchState {
   MessageSearchState cacheContact(String uid, ContactModel contact) {
     final newCache = Map<String, ContactModel>.from(contactCache);
     newCache[uid] = contact;
-    // 限制缓存大小
+    // 限制缓存大小，使用 FIFO 淘汰策略。
+    // 对于搜索场景，缓存条目生命周期短且命中率差异不大，FIFO 足够。
     if (newCache.length > 100) {
       newCache.remove(newCache.keys.first);
     }
@@ -176,6 +177,7 @@ class MessageSearchState {
   MessageSearchState cacheConversation(String uk3, ConversationModel conv) {
     final newCache = Map<String, ConversationModel>.from(conversationCache);
     newCache[uk3] = conv;
+    // FIFO 淘汰策略，理由同 cacheContact
     if (newCache.length > 50) {
       newCache.remove(newCache.keys.first);
     }

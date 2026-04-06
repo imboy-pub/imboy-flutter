@@ -2,6 +2,12 @@
 ///
 /// 用于非 Web 平台（iOS、Android、macOS 等）
 /// 避免导入 Web 特定的依赖导致编译错误
+///
+/// 注意：此文件中的 `kIsWeb` 检查属于防御性双重保护模式。
+/// 主要的平台隔离由 `permission.dart` 中的条件导出
+/// (`export ... if (dart.library.js) ...`) 在编译期完成。
+/// 此处的运行时 `kIsWeb` 检查作为二次保障，防止条件导出被绕过
+/// （例如通过直接 import 此文件），确保不会在错误平台上执行。
 library;
 
 import 'dart:io';

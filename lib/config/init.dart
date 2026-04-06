@@ -813,6 +813,13 @@ class AppInitializer {
       logger.w('Failed to dispose MessageOfflineService: $e');
     }
 
+    // 清理MessageRetry资源（定时器和事件订阅）
+    try {
+      MessageRetry.instance.dispose();
+    } catch (e) {
+      logger.w('Failed to dispose MessageRetry: $e');
+    }
+
     // 清理WebRTC会话
     webRTCSessions.clear();
 
