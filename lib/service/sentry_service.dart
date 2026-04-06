@@ -1,10 +1,12 @@
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SentryService {
-  /// Sentry DSN - 需要人工配置
+  /// Sentry DSN - 通过 --dart-define=SENTRY_DSN=https://... 在构建时注入
   /// 从 Sentry 项目设置获取: https://sentry.io/settings/
-  static const String _dsn = '';  // TODO: 配置 Sentry DSN
+  /// 构建示例: flutter build apk --dart-define=SENTRY_DSN=https://xxx@sentry.io/yyy
+  static const String _dsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
 
+  static String get dsn => _dsn;
   static bool get isEnabled => _dsn.isNotEmpty;
 
   static Future<void> init() async {

@@ -73,8 +73,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     });
     final page = await _api.getFeedPage(limit: 20);
     if (!mounted) return;
+    final enriched = await enrichItemsWithAuthor(page.list);
+    if (!mounted) return;
     setState(() {
-      _items = page.list;
+      _items = enriched;
       _cursor = page.nextCursor;
       _hasMore = page.hasMore;
       _isLoading = false;
@@ -84,8 +86,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   Future<void> _refresh() async {
     final page = await _api.getFeedPage(limit: 20);
     if (!mounted) return;
+    final enriched = await enrichItemsWithAuthor(page.list);
+    if (!mounted) return;
     setState(() {
-      _items = page.list;
+      _items = enriched;
       _cursor = page.nextCursor;
       _hasMore = page.hasMore;
       _isLoading = false;
@@ -101,8 +105,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     });
     final page = await _api.getFeedPage(cursor: _cursor, limit: 20);
     if (!mounted) return;
+    final enriched = await enrichItemsWithAuthor(page.list);
+    if (!mounted) return;
     setState(() {
-      _items = [..._items, ...page.list];
+      _items = [..._items, ...enriched];
       _cursor = page.nextCursor;
       _hasMore = page.hasMore;
       _isLoadingMore = false;
@@ -152,7 +158,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       builder: (ctx) {
         return AlertDialog(
           title: Text(t.delete),
-          content: const Text('确定删除这条动态吗？'),
+          content: Text(t.momentsDeleteConfirm),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
@@ -225,16 +231,16 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                         horizontal: 24,
                         vertical: 96,
                       ),
-                      children: const [
-                        Center(
+                      children: [
+                        const Center(
                           child: Icon(
                             Icons.photo_library_outlined,
                             size: 40,
                             color: Colors.grey,
                           ),
                         ),
-                        SizedBox(height: 12),
-                        Center(child: Text('暂无动态')),
+                        const SizedBox(height: 12),
+                        Center(child: Text(t.momentsNoData)),
                       ],
                     )
                   : ListView.separated(
@@ -300,7 +306,11 @@ class _MomentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = parseModelString(item['content']);
+    final authorNickname = parseModelString(item['author_nickname']);
+    final authorAvatar = parseModelString(item['author_avatar']);
     final authorUid = parseModelString(item['author_uid']);
+    final displayName =
+        authorNickname.isNotEmpty ? authorNickname : authorUid;
     final createdAt = parseModelString(item['created_at']);
     final liked = parseModelBool(item['liked']);
     final stats = item['stats'] is Map
@@ -321,14 +331,21 @@ class _MomentCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  child: Text(
-                    authorUid.isNotEmpty ? authorUid.substring(0, 1) : '?',
-                  ),
+                  backgroundImage: authorAvatar.isNotEmpty
+                      ? cachedImageProvider(authorAvatar, w: 36)
+                      : null,
+                  child: authorAvatar.isEmpty
+                      ? Text(
+                          displayName.isNotEmpty
+                              ? displayName.substring(0, 1)
+                              : '?',
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'UID: $authorUid',
+                    displayName,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),

@@ -96,3 +96,5 @@ export 'package:imboy/page/qrcode/qrcode_page.dart';
 export 'package:imboy/page/single/markdown.dart';
 export 'package:imboy/page/single/video_viewer.dart';
 export 'package:imboy/page/single/network_failure_guidance.dart';
+export 'package:imboy/page/single/privacy_policy_page.dart';
+export 'package:imboy/page/single/terms_of_service_page.dart';

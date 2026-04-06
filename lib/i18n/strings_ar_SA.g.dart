@@ -839,6 +839,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyLogoutAccount => 'إلغاء الحساب';
 	@override String get privacyLogoutAccountConfirm => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.';
 	@override String get privacyPolicy => 'سياسة الخصوصية';
+	@override String get termsOfService => 'شروط الخدمة';
 	@override String get privacySettings => 'إعدادات الخصوصية';
 	@override String get searchSettings => 'إعدادات البحث';
 	@override String get allowSearchByAccount => 'السماح بالبحث عبر الحساب';
@@ -2271,6 +2272,7 @@ extension on TranslationsArSa {
 			'privacyLogoutAccount' => 'إلغاء الحساب',
 			'privacyLogoutAccountConfirm' => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.',
 			'privacyPolicy' => 'سياسة الخصوصية',
+			'termsOfService' => 'شروط الخدمة',
 			'privacySettings' => 'إعدادات الخصوصية',
 			'searchSettings' => 'إعدادات البحث',
 			'allowSearchByAccount' => 'السماح بالبحث عبر الحساب',
@@ -2493,9 +2495,9 @@ extension on TranslationsArSa {
 			'sendNewMessage' => 'إرسال رسالة جديدة',
 			'saveFailed' => 'فشل الحفظ',
 			'markRead' => 'تعليم كمقروء',
-			'markUnread' => 'تعليم كغير مقروء',
 			_ => null,
 		} ?? switch (path) {
+			'markUnread' => 'تعليم كغير مقروء',
 			'discover' => 'اكتشاف',
 			'shake' => 'هز',
 			'tip' => 'تلميح',

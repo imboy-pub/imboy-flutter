@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/func.dart'; // cachedImageProvider
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
-import 'moment_utils.dart';
+import 'moment_utils.dart'; // enrichPostWithAuthor, enrichCommentsWithUser
 
 class MomentDetailPage extends StatefulWidget {
   final String momentId;
@@ -58,9 +58,20 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       _api.listComments(widget.momentId, limit: 50),
     ]);
     if (!mounted) return;
+
+    final rawPost = results[0] as Map<String, dynamic>?;
+    final rawComments =
+        (results[1] as dynamic).list as List<Map<String, dynamic>>;
+
+    // 填充作者/评论者昵称和头像
+    final enrichedPost =
+        rawPost != null ? await enrichPostWithAuthor(rawPost) : null;
+    final enrichedComments = await enrichCommentsWithUser(rawComments);
+    if (!mounted) return;
+
     setState(() {
-      _moment = results[0] as Map<String, dynamic>?;
-      _comments = (results[1] as dynamic).list as List<Map<String, dynamic>>;
+      _moment = enrichedPost;
+      _comments = enrichedComments;
       _loading = false;
     });
   }
@@ -117,10 +128,16 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final added = await _api.addComment(widget.momentId, content: content);
     if (!mounted) return;
     _commentController.clear();
+    Map<String, dynamic>? enrichedComment;
+    if (added != null) {
+      final list = await enrichCommentsWithUser([added]);
+      enrichedComment = list.first;
+    }
+    if (!mounted) return;
     setState(() {
       _sendingComment = false;
-      if (added != null) {
-        _comments = [added, ..._comments];
+      if (enrichedComment != null) {
+        _comments = [enrichedComment, ..._comments];
       }
     });
   }
@@ -142,17 +159,17 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text('举报动态'),
+          title: Text(context.t.momentsReport),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: reasonController,
-                decoration: const InputDecoration(labelText: '举报原因'),
+                decoration: InputDecoration(labelText: context.t.momentsReportReason),
               ),
               TextField(
                 controller: descController,
-                decoration: const InputDecoration(labelText: '补充说明'),
+                decoration: InputDecoration(labelText: context.t.momentsReportDesc),
               ),
             ],
           ),
@@ -193,11 +210,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     }
 
     if (post == null) {
-      return const Scaffold(body: Center(child: Text('动态不存在或无权限查看')));
+      return Scaffold(body: Center(child: Text(context.t.momentsNotFound)));
     }
 
     final currentUid = currentUidOrEmpty();
     final authorUid = parseModelString(post['author_uid']);
+    final authorNickname = parseModelString(post['author_nickname']);
+    final authorAvatar = parseModelString(post['author_avatar']);
+    final displayName =
+        authorNickname.isNotEmpty ? authorNickname : authorUid;
     final canDeletePost = currentUid == authorUid;
     final content = parseModelString(post['content']);
     final createdAt = parseModelString(post['created_at']);
@@ -223,7 +244,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             IconButton(
               onPressed: _reportMoment,
               icon: const Icon(Icons.flag_outlined),
-              tooltip: '举报',
+              tooltip: context.t.momentsReport,
             ),
         ],
       ),
@@ -243,15 +264,20 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        child: Text(
-                          authorUid.isNotEmpty
-                              ? authorUid.substring(0, 1)
-                              : '?',
-                        ),
+                        backgroundImage: authorAvatar.isNotEmpty
+                            ? cachedImageProvider(authorAvatar, w: 36)
+                            : null,
+                        child: authorAvatar.isEmpty
+                            ? Text(
+                                displayName.isNotEmpty
+                                    ? displayName.substring(0, 1)
+                                    : '?',
+                              )
+                            : null,
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'UID: $authorUid',
+                        displayName,
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -324,20 +350,25 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                     ],
                   ),
                   const Divider(height: 24),
-                  const Text(
-                    '评论',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    context.t.momentsComments,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   if (_comments.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 18),
-                      child: Center(child: Text('暂无评论')),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      child: Center(child: Text(context.t.momentsNoComments)),
                     )
                   else
                     ..._comments.map((comment) {
                       final commentId = parseModelString(comment['id']);
                       final userId = parseModelString(comment['user_id']);
+                      final userNickname =
+                          parseModelString(comment['user_nickname']);
+                      final commentDisplayName = userNickname.isNotEmpty
+                          ? userNickname
+                          : userId;
                       final commentContent = parseModelString(
                         comment['content'],
                       );
@@ -345,7 +376,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                           userId == currentUid || canDeletePost;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text('UID: $userId'),
+                        title: Text(commentDisplayName),
                         subtitle: Text(commentContent),
                         trailing: canDeleteComment
                             ? IconButton(
@@ -371,8 +402,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   Expanded(
                     child: TextField(
                       controller: _commentController,
-                      decoration: const InputDecoration(
-                        hintText: '写评论...',
+                      decoration: InputDecoration(
+                        hintText: context.t.momentsWriteComment,
                         border: OutlineInputBorder(),
                         isDense: true,
                       ),

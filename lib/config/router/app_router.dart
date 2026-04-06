@@ -37,6 +37,8 @@ bool _isPublicPath(String currentPath) {
     AppRoutes.signUp,
     '/welcome',
     AppRoutes.forgotPassword,
+    AppRoutes.privacyPolicy,
+    AppRoutes.termsOfService,
   ];
   return publicPaths.any((path) => _matchesPublicPath(currentPath, path));
 }
@@ -854,6 +856,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.privacyPolicy,
+        name: 'privacy_policy',
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const PrivacyPolicyPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.termsOfService,
+        name: 'terms_of_service',
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const TermsOfServicePage(),
+        ),
       ),
       GoRoute(
         path: '/network_failure_guidance',

@@ -823,6 +823,7 @@ privacyClearChatHistoryConfirm: "Вы уверены, что хотите очи
 privacyLogoutAccount: "Удалить аккаунт"
 privacyLogoutAccountConfirm: "Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить."
 privacyPolicy: "Политика конфиденциальности"
+termsOfService: "Условия использования"
 privacySettings: "Настройки конфиденциальности"
 searchSettings: "Настройки поиска"
 allowSearchByAccount: "Разрешить поиск по аккаунту"

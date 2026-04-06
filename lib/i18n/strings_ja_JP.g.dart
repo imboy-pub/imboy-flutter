@@ -839,6 +839,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyLogoutAccount => 'アカウントを削除';
 	@override String get privacyLogoutAccountConfirm => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。';
 	@override String get privacyPolicy => 'プライバシーポリシー';
+	@override String get termsOfService => '利用規約';
 	@override String get privacySettings => 'プライバシー設定';
 	@override String get searchSettings => '検索設定';
 	@override String get allowSearchByAccount => 'アカウントで検索を許可';
@@ -2271,6 +2272,7 @@ extension on TranslationsJaJp {
 			'privacyLogoutAccount' => 'アカウントを削除',
 			'privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
 			'privacyPolicy' => 'プライバシーポリシー',
+			'termsOfService' => '利用規約',
 			'privacySettings' => 'プライバシー設定',
 			'searchSettings' => '検索設定',
 			'allowSearchByAccount' => 'アカウントで検索を許可',
@@ -2493,9 +2495,9 @@ extension on TranslationsJaJp {
 			'sendNewMessage' => '新しいメッセージを送信',
 			'saveFailed' => '保存に失敗しました',
 			'markRead' => '既読にする',
-			'markUnread' => '未読にする',
 			_ => null,
 		} ?? switch (path) {
+			'markUnread' => '未読にする',
 			'discover' => '発見',
 			'shake' => 'シェイク',
 			'tip' => 'ヒント',

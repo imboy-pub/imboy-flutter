@@ -60,6 +60,12 @@ class AppRoutes {
   /// 应用升级页
   static const upgrade = '/upgrade';
 
+  /// 隐私政策页
+  static const privacyPolicy = '/privacy_policy';
+
+  /// 服务条款页
+  static const termsOfService = '/terms_of_service';
+
   /// 网络失败引导页
   static const networkFailureGuidance = '/network_failure_guidance';
 

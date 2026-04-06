@@ -813,10 +813,21 @@ class WebSocketService {
   }
 
   /// 消息入队处理
+  /// 使用消息内容的 SHA-1 摘要作为队列 ID，避免 hashCode 碰撞
   void _enqueueMessage(String message) {
     final exists = _messageQueue.messages.any((m) => m.data == message);
     if (!exists) {
-      _messageQueue.enqueue(message.hashCode.toString(), message, priority: 0);
+      // 从消息 JSON 中提取 id 字段作为唯一标识，回退使用内容长度+哈希组合
+      String msgId;
+      try {
+        final decoded = jsonDecode(message);
+        msgId = (decoded is Map && decoded.containsKey('id'))
+            ? decoded['id'].toString()
+            : '${message.length}_${message.hashCode}';
+      } catch (_) {
+        msgId = '${message.length}_${message.hashCode}';
+      }
+      _messageQueue.enqueue(msgId, message, priority: 0);
       iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
     }
   }

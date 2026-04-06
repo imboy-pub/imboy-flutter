@@ -146,9 +146,15 @@ class MessageService with EventSubscriptionManager {
 
   final MessageActions _messageActions = MessageActions.instance;
 
-  // 使用 ProviderContainer 访问 Riverpod Provider
-  // 注意：这是一个临时解决方案，理想情况下应该将 MessageService 也迁移到 Riverpod
-  static final _providerContainer = ProviderContainer();
+  // 共享 ProviderContainer — 必须在 run() 中通过 setProviderContainer 注入
+  // 与 Widget 树的 UncontrolledProviderScope 共享同一个容器，确保状态同步
+  static ProviderContainer _providerContainer = ProviderContainer();
+
+  /// 注入应用级 ProviderContainer（在 run.dart 中调用）
+  /// 确保 MessageService 与 UI 共享同一个 Riverpod 状态
+  static void setProviderContainer(ProviderContainer container) {
+    _providerContainer = container;
+  }
 
   // 获取会话逻辑的 Riverpod Provider
   ConversationNotifier get _conversationNotifier =>
@@ -990,8 +996,11 @@ class MessageService with EventSubscriptionManager {
 
           // 限制缓存大小，防止内存泄漏（最多缓存100个群组）
           // Limit cache size to prevent memory leak (max 100 groups)
+          // 驱逐最旧的缓存项（基于时间戳排序）
           if (_groupCache.length > 100) {
-            final oldestKey = _groupCacheTime.keys.first;
+            final oldestKey = _groupCacheTime.entries
+                .reduce((a, b) => a.value < b.value ? a : b)
+                .key;
             _groupCache.remove(oldestKey);
             _groupCacheTime.remove(oldestKey);
           }

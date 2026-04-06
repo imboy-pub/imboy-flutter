@@ -2609,6 +2609,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '隐私政策'
 	String get privacyPolicy => '隐私政策';
 
+	/// zh-CN: '服务条款'
+	String get termsOfService => '服务条款';
+
 	/// zh-CN: '隐私设置'
 	String get privacySettings => '隐私设置';
 
@@ -3229,6 +3232,66 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '朋友圈'
 	String get moments => '朋友圈';
+
+	/// zh-CN: '暂无动态'
+	String get momentsNoData => '暂无动态';
+
+	/// zh-CN: '确定删除这条动态吗？'
+	String get momentsDeleteConfirm => '确定删除这条动态吗？';
+
+	/// zh-CN: '动态不存在或无权限查看'
+	String get momentsNotFound => '动态不存在或无权限查看';
+
+	/// zh-CN: '内容或媒体至少填写一项'
+	String get momentsContentOrMediaRequired => '内容或媒体至少填写一项';
+
+	/// zh-CN: '发布失败'
+	String get momentsPublishFailed => '发布失败';
+
+	/// zh-CN: '选择视频'
+	String get momentsSelectVideo => '选择视频';
+
+	/// zh-CN: '拍摄视频'
+	String get momentsRecordVideo => '拍摄视频';
+
+	/// zh-CN: '允许评论'
+	String get momentsAllowComment => '允许评论';
+
+	/// zh-CN: '举报动态'
+	String get momentsReport => '举报动态';
+
+	/// zh-CN: '举报原因'
+	String get momentsReportReason => '举报原因';
+
+	/// zh-CN: '补充说明'
+	String get momentsReportDesc => '补充说明';
+
+	/// zh-CN: '评论'
+	String get momentsComments => '评论';
+
+	/// zh-CN: '暂无评论'
+	String get momentsNoComments => '暂无评论';
+
+	/// zh-CN: '写评论...'
+	String get momentsWriteComment => '写评论...';
+
+	/// zh-CN: '可见性'
+	String get momentsVisibility => '可见性';
+
+	/// zh-CN: '公开'
+	String get momentsVisibilityPublic => '公开';
+
+	/// zh-CN: '仅好友'
+	String get momentsVisibilityFriends => '仅好友';
+
+	/// zh-CN: '仅自己'
+	String get momentsVisibilityPrivate => '仅自己';
+
+	/// zh-CN: '部分可见'
+	String get momentsVisibilityPartial => '部分可见';
+
+	/// zh-CN: '不给谁看'
+	String get momentsVisibilityExclude => '不给谁看';
 
 	/// zh-CN: '余额'
 	String get balance => '余额';
@@ -5444,6 +5507,7 @@ extension on Translations {
 			'privacyLogoutAccount' => '注销账号',
 			'privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
 			'privacyPolicy' => '隐私政策',
+			'termsOfService' => '服务条款',
 			'privacySettings' => '隐私设置',
 			'searchSettings' => '搜索设置',
 			'allowSearchByAccount' => '允许通过账号搜索',
@@ -5606,9 +5670,9 @@ extension on Translations {
 			'enterRemark' => '请输入备注名',
 			'commentPlaceholder' => '评论...',
 			'burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',
-			'burnDisabledMessage' => '关闭后：消息不会自动销毁',
 			_ => null,
 		} ?? switch (path) {
+			'burnDisabledMessage' => '关闭后：消息不会自动销毁',
 			'visibleEnabledMessage' => ({required Object percentage, required Object delayms}) => '开启后：可见比例≥${percentage}%，持续≥${delayms}',
 			'visibleDisabledMessage' => '关闭后：不会基于可视自动已读',
 			'visibleThresholdInfo' => ({required Object percentage, required Object delayms}) => '可见比例: ${percentage}% | 延时: ${delayms}',
@@ -5653,6 +5717,26 @@ extension on Translations {
 			'otherUsersCanFindMe' => '其他用户可以通过搜索找到我',
 			'viewSecurityHelp' => '查看安全帮助',
 			'moments' => '朋友圈',
+			'momentsNoData' => '暂无动态',
+			'momentsDeleteConfirm' => '确定删除这条动态吗？',
+			'momentsNotFound' => '动态不存在或无权限查看',
+			'momentsContentOrMediaRequired' => '内容或媒体至少填写一项',
+			'momentsPublishFailed' => '发布失败',
+			'momentsSelectVideo' => '选择视频',
+			'momentsRecordVideo' => '拍摄视频',
+			'momentsAllowComment' => '允许评论',
+			'momentsReport' => '举报动态',
+			'momentsReportReason' => '举报原因',
+			'momentsReportDesc' => '补充说明',
+			'momentsComments' => '评论',
+			'momentsNoComments' => '暂无评论',
+			'momentsWriteComment' => '写评论...',
+			'momentsVisibility' => '可见性',
+			'momentsVisibilityPublic' => '公开',
+			'momentsVisibilityFriends' => '仅好友',
+			'momentsVisibilityPrivate' => '仅自己',
+			'momentsVisibilityPartial' => '部分可见',
+			'momentsVisibilityExclude' => '不给谁看',
 			'balance' => '余额',
 			'recharge' => '充值',
 			'withdraw' => '提现',

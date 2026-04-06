@@ -823,6 +823,7 @@ privacyClearChatHistoryConfirm: "Confirmer l'effacement de tout l'historique de 
 privacyLogoutAccount: "Supprimer le compte"
 privacyLogoutAccountConfirm: "Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée."
 privacyPolicy: "Politique de confidentialité"
+termsOfService: "Conditions d'utilisation"
 privacySettings: "Paramètres de confidentialité"
 searchSettings: "Paramètres de recherche"
 allowSearchByAccount: "Autoriser la recherche par compte"

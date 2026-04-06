@@ -839,6 +839,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyLogoutAccount => 'Konto löschen';
 	@override String get privacyLogoutAccountConfirm => 'Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.';
 	@override String get privacyPolicy => 'Datenschutzrichtlinie';
+	@override String get termsOfService => 'Nutzungsbedingungen';
 	@override String get privacySettings => 'Datenschutz-Einstellungen';
 	@override String get searchSettings => 'Sucheinstellungen';
 	@override String get allowSearchByAccount => 'Suche nach Konto erlauben';
@@ -2271,6 +2272,7 @@ extension on TranslationsDeDe {
 			'privacyLogoutAccount' => 'Konto löschen',
 			'privacyLogoutAccountConfirm' => 'Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.',
 			'privacyPolicy' => 'Datenschutzrichtlinie',
+			'termsOfService' => 'Nutzungsbedingungen',
 			'privacySettings' => 'Datenschutz-Einstellungen',
 			'searchSettings' => 'Sucheinstellungen',
 			'allowSearchByAccount' => 'Suche nach Konto erlauben',
@@ -2493,9 +2495,9 @@ extension on TranslationsDeDe {
 			'sendNewMessage' => 'Neue Nachricht senden',
 			'saveFailed' => 'Speichern fehlgeschlagen',
 			'markRead' => 'Als gelesen markieren',
-			'markUnread' => 'Als ungelesen markieren',
 			_ => null,
 		} ?? switch (path) {
+			'markUnread' => 'Als ungelesen markieren',
 			'discover' => 'Entdecken',
 			'shake' => 'Schütteln',
 			'tip' => 'Tipp',

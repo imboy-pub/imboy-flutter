@@ -823,6 +823,7 @@ privacyClearChatHistoryConfirm: "Wirklich gesamten Chat-Verlauf löschen? Diese 
 privacyLogoutAccount: "Konto löschen"
 privacyLogoutAccountConfirm: "Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden."
 privacyPolicy: "Datenschutzrichtlinie"
+termsOfService: "Nutzungsbedingungen"
 privacySettings: "Datenschutz-Einstellungen"
 searchSettings: "Sucheinstellungen"
 allowSearchByAccount: "Suche nach Konto erlauben"

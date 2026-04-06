@@ -199,6 +199,7 @@ class PushNotificationService {
   }
 
   /// 处理通知点击（从后台/关闭状态打开 app）
+  /// 冷启动时路由器可能尚未就绪，需要延迟重试
   void _handleNotificationTap(RemoteMessage message) {
     iPrint('[Push] 通知点击: ${message.messageId}');
     final data = message.data;
@@ -207,11 +208,22 @@ class PushNotificationService {
       final convType = data['type'] ?? 'C2C';
       final title = message.notification?.title ?? '';
       iPrint('[Push] 导航到会话: $convId (type=$convType)');
-      // 使用全局 navigatorKey 通过 go_router 导航
-      final context = navigatorKey.currentContext;
-      if (context != null && context.mounted) {
-        context.go('/chat/$convId?type=$convType&title=$title');
-      }
+      _navigateToChat(convId, convType, title);
+    }
+  }
+
+  /// 导航到聊天页面，冷启动时最多重试 5 次（每次 500ms）
+  void _navigateToChat(String convId, String convType, String title, [int retry = 0]) {
+    final context = navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      context.go('/chat/$convId?type=$convType&title=$title');
+    } else if (retry < 5) {
+      // 冷启动时路由器尚未挂载，延迟重试
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _navigateToChat(convId, convType, title, retry + 1);
+      });
+    } else {
+      iPrint('[Push] 导航失败: context 在 $retry 次重试后仍不可用');
     }
   }
 }

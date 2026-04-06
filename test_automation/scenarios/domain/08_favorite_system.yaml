@@ -1,11 +1,11 @@
 schema_version: 1
 domain_id: "favorite_system"
 feature_name_cn: "收藏系统"
-description: "覆盖收藏 API 和收藏标签关联，预留收藏 UI 主路径自动化。"
+description: "覆盖收藏 API、收藏标签关联与收藏 UI 主路径测试。"
 priority: "P1"
 case_count: 3
-auto_cases: 2
-manual_assist_cases: 1
+auto_cases: 3
+manual_assist_cases: 0
 case_files:
   - "test_automation/scenarios/cases/08_favorite_system/collect_01_user_collect_api.yaml"
   - "test_automation/scenarios/cases/08_favorite_system/collect_02_collect_tag_relation.yaml"

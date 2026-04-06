@@ -305,12 +305,17 @@ class ConversationNotifier extends _$ConversationNotifier {
     }
   }
 
-  // Expire burn message - temporary implementation
+  /// 阅后即焚消息过期处理
+  /// 将会话的最后一条消息更新为"消息已销毁"提示
   Future<void> expireBurnMessage(ConversationModel cm, String msgId) async {
-    // This is a simplified version - full implementation would be in ChatLogic
     try {
       final repo = ConversationRepo();
-      await repo.updateById(cm.id, {});
+      await repo.updateById(cm.id, {
+        'last_msg': '[消息已销毁]',
+        'last_msg_at': DateTimeHelper.millisecond(),
+      });
+      // 刷新会话列表以反映变更
+      await conversationsList();
     } catch (e) {
       iPrint('expireBurnMessage error: $e');
     }

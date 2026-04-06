@@ -9,7 +9,7 @@ status: "mapped"
 
 runner:
   action: "flutter_test"
-  test_file: "test/pending/tag/contact_tag_relation_ui_test.dart"
+  test_file: "test/integration/tag/contact_tag_relation_ui_test.dart"
   device: "macos"
   timeout_seconds: 600
   retry: 0
@@ -21,5 +21,5 @@ ui_ux_checks: "tag_add_remove_feedback_clear"
 
 steps:
   - "准备测试环境并校验前置条件：flutter_test_env"
-  - "执行 Flutter 测试：flutter test test/pending/tag/contact_tag_relation_ui_test.dart"
+  - "执行 Flutter 测试：flutter test test/integration/tag/contact_tag_relation_ui_test.dart"
   - "校验断言与 UI/UX 关键点：exit_code==0,contact_tag_relation_ui_passed | tag_add_remove_feedback_clear"

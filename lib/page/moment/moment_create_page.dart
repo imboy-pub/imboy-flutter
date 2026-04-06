@@ -152,7 +152,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     if (_isSubmitting || _isUploading) return;
     final content = _contentController.text.trim();
     if (content.isEmpty && _media.isEmpty) {
-      EasyLoading.showInfo('内容或媒体至少填写一项');
+      EasyLoading.showInfo(context.t.momentsContentOrMediaRequired);
       return;
     }
 
@@ -177,7 +177,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       _isSubmitting = false;
     });
     if (created == null) {
-      EasyLoading.showError('发布失败');
+      EasyLoading.showError(context.t.momentsPublishFailed);
       return;
     }
 
@@ -218,7 +218,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.video_library_outlined),
-                title: const Text('选择视频'),
+                title: Text(context.t.momentsSelectVideo),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _pickVideo(ImageSource.gallery);
@@ -226,7 +226,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.videocam_outlined),
-                title: const Text('拍摄视频'),
+                title: Text(context.t.momentsRecordVideo),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _pickVideo(ImageSource.camera);
@@ -342,16 +342,16 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
           DropdownButtonFormField<int>(
             key: ValueKey<int>(_visibility),
             initialValue: _visibility,
-            decoration: const InputDecoration(
-              labelText: '可见性',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.t.momentsVisibility,
+              border: const OutlineInputBorder(),
             ),
-            items: const [
-              DropdownMenuItem(value: 0, child: Text('公开')),
-              DropdownMenuItem(value: 1, child: Text('仅好友')),
-              DropdownMenuItem(value: 2, child: Text('仅自己')),
-              DropdownMenuItem(value: 3, child: Text('部分可见')),
-              DropdownMenuItem(value: 4, child: Text('不给谁看')),
+            items: [
+              DropdownMenuItem(value: 0, child: Text(context.t.momentsVisibilityPublic)),
+              DropdownMenuItem(value: 1, child: Text(context.t.momentsVisibilityFriends)),
+              DropdownMenuItem(value: 2, child: Text(context.t.momentsVisibilityPrivate)),
+              DropdownMenuItem(value: 3, child: Text(context.t.momentsVisibilityPartial)),
+              DropdownMenuItem(value: 4, child: Text(context.t.momentsVisibilityExclude)),
             ],
             onChanged: (value) {
               if (value == null) return;
@@ -388,7 +388,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 _allowComment = value;
               });
             },
-            title: const Text('允许评论'),
+            title: Text(context.t.momentsAllowComment),
             contentPadding: EdgeInsets.zero,
           ),
         ],

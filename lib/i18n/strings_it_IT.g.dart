@@ -839,6 +839,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyLogoutAccount => 'Disattiva account';
 	@override String get privacyLogoutAccountConfirm => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.';
 	@override String get privacyPolicy => 'Informativa sulla privacy';
+	@override String get termsOfService => 'Termini di servizio';
 	@override String get privacySettings => 'Impostazioni privacy';
 	@override String get searchSettings => 'Impostazioni ricerca';
 	@override String get allowSearchByAccount => 'Consenti ricerca per account';
@@ -2271,6 +2272,7 @@ extension on TranslationsItIt {
 			'privacyLogoutAccount' => 'Disattiva account',
 			'privacyLogoutAccountConfirm' => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.',
 			'privacyPolicy' => 'Informativa sulla privacy',
+			'termsOfService' => 'Termini di servizio',
 			'privacySettings' => 'Impostazioni privacy',
 			'searchSettings' => 'Impostazioni ricerca',
 			'allowSearchByAccount' => 'Consenti ricerca per account',
@@ -2493,9 +2495,9 @@ extension on TranslationsItIt {
 			'sendNewMessage' => 'Invia nuovo messaggio',
 			'saveFailed' => 'Salvataggio non riuscito',
 			'markRead' => 'Segna come letto',
-			'markUnread' => 'Segna come non letto',
 			_ => null,
 		} ?? switch (path) {
+			'markUnread' => 'Segna come non letto',
 			'discover' => 'Scopri',
 			'shake' => 'Scuoti',
 			'tip' => 'Suggerimento',

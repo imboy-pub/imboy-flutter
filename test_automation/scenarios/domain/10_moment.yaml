@@ -1,11 +1,11 @@
 schema_version: 1
 domain_id: "moment_system"
 feature_name_cn: "朋友圈"
-description: "覆盖朋友圈事件和路由能力，预留时间流/发布 UI 自动化入口。"
+description: "覆盖朋友圈事件、路由以及时间流/发布 UI 测试。"
 priority: "P1"
 case_count: 4
-auto_cases: 2
-manual_assist_cases: 2
+auto_cases: 4
+manual_assist_cases: 0
 case_files:
   - "test_automation/scenarios/cases/10_moment/moment_01_event_service.yaml"
   - "test_automation/scenarios/cases/10_moment/moment_02_routes_page.yaml"

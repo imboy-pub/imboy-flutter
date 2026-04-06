@@ -22,6 +22,11 @@ import 'package:imboy/theme/providers/theme_provider.dart';
 
 import 'config/init.dart';
 import 'config/router/app_router.dart';
+import 'service/message.dart';
+
+/// 应用级共享 ProviderContainer
+/// MessageService 和 Widget 树共用，保证状态同步
+final appProviderContainer = ProviderContainer();
 
 /// 应用初始化标志（防止重复初始化）
 bool _localeInitialized = false;
@@ -46,9 +51,15 @@ Future<void> run() async {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
+  // 注入共享 ProviderContainer 到 MessageService，确保与 UI 状态同步
+  MessageService.setProviderContainer(appProviderContainer);
+
   // Flutter 3.22+ 多视图模式兼容
-  // Web 平台使用 runWidget，非 Web 平台使用 runApp
-  const app = ProviderScope(child: IMBoyApp());
+  // 使用 UncontrolledProviderScope 共享同一个 ProviderContainer
+  final app = UncontrolledProviderScope(
+    container: appProviderContainer,
+    child: const IMBoyApp(),
+  );
 
   if (kIsWeb) {
     // Web 平台：使用 runWidget 支持多视图模式

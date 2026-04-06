@@ -839,6 +839,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyLogoutAccount => 'Supprimer le compte';
 	@override String get privacyLogoutAccountConfirm => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.';
 	@override String get privacyPolicy => 'Politique de confidentialité';
+	@override String get termsOfService => 'Conditions d\'utilisation';
 	@override String get privacySettings => 'Paramètres de confidentialité';
 	@override String get searchSettings => 'Paramètres de recherche';
 	@override String get allowSearchByAccount => 'Autoriser la recherche par compte';
@@ -2271,6 +2272,7 @@ extension on TranslationsFrFr {
 			'privacyLogoutAccount' => 'Supprimer le compte',
 			'privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
 			'privacyPolicy' => 'Politique de confidentialité',
+			'termsOfService' => 'Conditions d\'utilisation',
 			'privacySettings' => 'Paramètres de confidentialité',
 			'searchSettings' => 'Paramètres de recherche',
 			'allowSearchByAccount' => 'Autoriser la recherche par compte',
@@ -2493,9 +2495,9 @@ extension on TranslationsFrFr {
 			'sendNewMessage' => 'Envoyer un nouveau message',
 			'saveFailed' => 'Échec de l\'enregistrement.',
 			'markRead' => 'Marquer comme lu',
-			'markUnread' => 'Marquer comme non lu',
 			_ => null,
 		} ?? switch (path) {
+			'markUnread' => 'Marquer comme non lu',
 			'discover' => 'Découvrir',
 			'shake' => 'Secouer',
 			'tip' => 'Conseil',

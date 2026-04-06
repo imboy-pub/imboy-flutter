@@ -839,6 +839,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get privacyLogoutAccount => '계정 탈퇴';
 	@override String get privacyLogoutAccountConfirm => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.';
 	@override String get privacyPolicy => '개인정보 처리방침';
+	@override String get termsOfService => '서비스 이용약관';
 	@override String get privacySettings => '개인정보 설정';
 	@override String get searchSettings => '검색 설정';
 	@override String get allowSearchByAccount => '계정으로 검색 허용';
@@ -2271,6 +2272,7 @@ extension on TranslationsKoKr {
 			'privacyLogoutAccount' => '계정 탈퇴',
 			'privacyLogoutAccountConfirm' => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.',
 			'privacyPolicy' => '개인정보 처리방침',
+			'termsOfService' => '서비스 이용약관',
 			'privacySettings' => '개인정보 설정',
 			'searchSettings' => '검색 설정',
 			'allowSearchByAccount' => '계정으로 검색 허용',
@@ -2493,9 +2495,9 @@ extension on TranslationsKoKr {
 			'sendNewMessage' => '새 메시지 전송',
 			'saveFailed' => '저장 실패',
 			'markRead' => '읽음으로 표시',
-			'markUnread' => '읽지 않음으로 표시',
 			_ => null,
 		} ?? switch (path) {
+			'markUnread' => '읽지 않음으로 표시',
 			'discover' => '발견',
 			'shake' => '흔들기',
 			'tip' => '팁',
