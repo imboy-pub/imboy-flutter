@@ -41,16 +41,16 @@ class NotificationService {
     // Android 初始化设置
     const androidSettings = AndroidInitializationSettings('@mipmap/logo');
 
-    // iOS 初始化设置（目前注释掉，如需要可启用）
-    // final iosSettings = DarwinInitializationSettings(
-    //   requestAlertPermission: true,
-    //   requestBadgePermission: true,
-    //   requestSoundPermission: true,
-    // );
+    // iOS 初始化设置
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
 
-    final initializationSettings = InitializationSettings(
+    const initializationSettings = InitializationSettings(
       android: androidSettings,
-      // iOS: iosSettings,
+      iOS: iosSettings,
     );
 
     // 初始化插件
@@ -170,16 +170,15 @@ class NotificationService {
       showWhen: true,
     );
 
-    // iOS 通知详情（目前注释掉）
-    // const iosDetails = DarwinNotificationDetails(
-    //   presentAlert: true,
-    //   presentBadge: true,
-    //   presentSound: true,
-    // );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
 
-    final details = NotificationDetails(
+    const details = NotificationDetails(
       android: androidDetails,
-      // iOS: iosDetails,
+      iOS: iosDetails,
     );
 
     // 显示通知

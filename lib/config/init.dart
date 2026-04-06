@@ -388,30 +388,41 @@ class AppInitializer {
     debugPrint('🔧 initConfig: 开始获取配置');
 
     try {
-      final startTime = DateTime.now();
-      debugPrint('🔧 initConfig: 请求 URL: ${Env().apiBaseUrl}${API.initConfig}');
+      // 重试逻辑：最多 3 次，指数退避 (1s, 2s, 4s)
+      const maxRetries = 3;
+      IMBoyHttpResponse? resp1;
+      for (int attempt = 1; attempt <= maxRetries; attempt++) {
+        final startTime = DateTime.now();
+        debugPrint('🔧 initConfig: 请求 URL: ${Env().apiBaseUrl}${API.initConfig} (attempt $attempt/$maxRetries)');
 
-      // 添加超时保护
-      final resp1 = await HttpClient.client
-          .get(API.initConfig)
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              debugPrint('❌ initConfig: 请求超时 (10秒)');
-              return IMBoyHttpResponse.failure(
-                errMsg: "配置获取超时: 请检查网络连接或服务端状态",
-                errCode: 408,
-              );
-            },
-          );
+        resp1 = await HttpClient.client
+            .get(API.initConfig)
+            .timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                debugPrint('❌ initConfig: 请求超时 (10秒)');
+                return IMBoyHttpResponse.failure(
+                  errMsg: "配置获取超时: 请检查网络连接或服务端状态",
+                  errCode: 408,
+                );
+              },
+            );
 
-      final elapsed = DateTime.now().difference(startTime).inMilliseconds;
-      debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
+        final elapsed = DateTime.now().difference(startTime).inMilliseconds;
+        debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
 
-      // 安全日志：不输出完整配置数据，可能包含敏感信息
-      debugPrint("initConfig completed with code ${resp1.code}");
+        if (resp1.ok) break;
+
+        if (attempt < maxRetries) {
+          final delay = Duration(seconds: 1 << (attempt - 1)); // 1s, 2s, 4s
+          debugPrint('⚠️ initConfig: 请求失败 code=${resp1.code}，${delay.inSeconds}秒后重试...');
+          await Future.delayed(delay);
+        }
+      }
+
+      debugPrint("initConfig completed with code ${resp1!.code}");
       if (!resp1.ok) {
-        debugPrint('❌ initConfig: 请求失败 ${resp1.code}');
+        debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
         final error = {"error": "网络故障或服务故障 (HTTP ${resp1.code})"};
         _initConfigCompleter!.complete(error);
         return error;
@@ -429,8 +440,7 @@ class AppInitializer {
 
       debugPrint('🔧 initConfig: 开始解密配置');
       final key = await Env.signKey();
-      debugPrint('🔐 [INIT] signKey 原始值: $key');
-      debugPrint('🔐 [INIT] signKey MD5: ${EncrypterService.md5(key)}');
+      debugPrint('🔐 [INIT] signKey initialized (length=${key.length})');
       Map<String, dynamic> payload = jsonDecode(
         EncrypterService.aesDecrypt(
           encrypted,

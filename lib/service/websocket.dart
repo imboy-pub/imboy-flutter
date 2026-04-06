@@ -185,7 +185,11 @@ class WebSocketService {
       }
 
       // 根据 platform 选择连接方式
-      final wsUrl = Env.effectiveWsUrl ?? 'wss://pro.imboy.pub/ws/';
+      final wsUrl = Env.effectiveWsUrl;
+      if (wsUrl == null || wsUrl.isEmpty) {
+        iPrint('> ws: WebSocket URL 未配置，取消连接');
+        return;
+      }
 
       if (kIsWeb) {
         // Web 平台使用 WebSocketChannel.connect
@@ -246,11 +250,8 @@ class WebSocketService {
   /// 处理接收到的消息（优化版：非阻塞立即分发）
   /// Process received messages (optimized: non-blocking immediate dispatch)
   Future<void> _onMessage(dynamic message) async {
-    // 【新增】记录接收消息的基本信息
-    final msgPreview = message.toString().length > 100
-        ? '${message.toString().substring(0, 100)}...'
-        : message.toString();
-    iPrint('📡 [WS] 收到消息: $msgPreview');
+    // 仅记录消息长度，不输出内容（避免泄露敏感信息）
+    iPrint('📡 [WS] 收到消息 (length=${message.toString().length})');
 
     // iPrint("ws_onMessage ${DateTime.now()}");
 

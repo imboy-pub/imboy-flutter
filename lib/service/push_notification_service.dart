@@ -11,13 +11,17 @@
 /// 3. 用户登出时调用 unregisterToken()
 library;
 
+import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'package:go_router/go_router.dart';
+
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/notification.dart';
 import 'package:imboy/store/api/push_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -30,6 +34,7 @@ class PushNotificationService {
   static PushNotificationService get instance => _instance;
 
   final PushApi _api = PushApi();
+  final NotificationService _notificationService = NotificationService();
 
   /// 当前推送 token（FCM token 或 APNs device token）
   String? _pushToken;
@@ -185,25 +190,25 @@ class PushNotificationService {
     iPrint('[Push] 前台消息: ${message.messageId}');
     final notification = message.notification;
     if (notification != null) {
-      // 通过 NotificationService 显示本地通知
-      // NotificationService 已在 AppInitializer 中初始化
-      iPrint('[Push] 前台通知: ${notification.title}');
-      // TODO: 调用 NotificationService 显示通知
-      // NotificationService.instance.show(
-      //   title: notification.title ?? '',
-      //   body: notification.body ?? '',
-      // );
+      _notificationService.show(
+        title: notification.title ?? '',
+        body: notification.body ?? '',
+        payload: jsonEncode(message.data),
+      );
     }
   }
 
   /// 处理通知点击（从后台/关闭状态打开 app）
   void _handleNotificationTap(RemoteMessage message) {
     iPrint('[Push] 通知点击: ${message.messageId}');
-    // 根据 message.data 中的 type/id 导航到对应页面
     final data = message.data;
     if (data.containsKey('conversation_id')) {
-      iPrint('[Push] 导航到会话: ${data['conversation_id']}');
-      // TODO: 使用 go_router 导航到聊天页面
+      final convId = data['conversation_id'];
+      final convType = data['type'] ?? 'C2C';
+      final title = message.notification?.title ?? '';
+      iPrint('[Push] 导航到会话: $convId (type=$convType)');
+      // 使用全局 navigatorKey 通过 go_router 导航
+      navigatorKey.currentContext?.go('/chat/$convId?type=$convType&title=$title');
     }
   }
 }
