@@ -186,7 +186,7 @@ class E2EETransferHandler {
 
   /// 创建传输会话
   ///
-  /// [toUid] 接收方用户 ID（HashID 编码）
+  /// [toUid] 接收方用户 ID
   /// [extraMetadata] 额外元数据（可选）
   ///
   /// 返回传输会话信息，包含 session_id 用于生成二维码

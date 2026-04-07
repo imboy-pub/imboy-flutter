@@ -7,7 +7,7 @@ import 'package:imboy/component/http/http_client.dart';
 class ReportApi extends HttpClient {
   /// 提交投诉举报
   /// [targetType] 类型: 'group'|'user'|'channel'|'moment'
-  /// [targetId] 目标ID（hashids编码的群ID/用户ID等）
+  /// [targetId] 目标ID（群ID/用户ID等）
   /// [reason] 原因: 'spam'|'harassment'|'inappropriate'|'other'
   /// [description] 补充描述（可选）
   Future<bool> create({

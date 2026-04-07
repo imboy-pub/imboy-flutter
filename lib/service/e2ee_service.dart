@@ -18,6 +18,20 @@ class E2EEService {
   static final Map<String, Map<String, String>> _userKeyCacheByDevice = {};
   static final Map<String, Map<String, String>> _groupKeyCacheByDevice = {};
 
+  /// 缓存条目的存入时间戳（毫秒），用于 TTL 过期检查
+  static final Map<String, int> _userKeyCacheTimestamp = {};
+  static final Map<String, int> _groupKeyCacheTimestamp = {};
+
+  /// 缓存 TTL（30 分钟），超过此时间的缓存条目将被视为过期
+  static const int _cacheTtlMs = 30 * 60 * 1000;
+
+  /// 检查缓存是否已过期
+  static bool _isCacheExpired(Map<String, int> timestamps, String key) {
+    final cachedAt = timestamps[key];
+    if (cachedAt == null) return true;
+    return DateTime.now().millisecondsSinceEpoch - cachedAt > _cacheTtlMs;
+  }
+
   static void setUserDeviceKeyCacheForTest(
     String uid,
     Map<String, String> didToPem,
@@ -35,6 +49,8 @@ class E2EEService {
   static void clearKeyCacheForTest() {
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
+    _userKeyCacheTimestamp.clear();
+    _groupKeyCacheTimestamp.clear();
   }
 
   /// 清理E2EE缓存（用于退出登录等场景）
@@ -43,6 +59,8 @@ class E2EEService {
   static void clearCache() {
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
+    _userKeyCacheTimestamp.clear();
+    _groupKeyCacheTimestamp.clear();
     iPrint('E2EE: 缓存已清理');
   }
 
@@ -51,6 +69,7 @@ class E2EEService {
   /// 当接收方更新密钥后，发送方需要调用此方法清除缓存
   static void clearUserKeyCache(String uid) {
     _userKeyCacheByDevice.remove(uid);
+    _userKeyCacheTimestamp.remove(uid);
     iPrint('E2EE: 已清除用户 $uid 的公钥缓存');
   }
 
@@ -58,6 +77,8 @@ class E2EEService {
   static void clearAllKeyCache() {
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
+    _userKeyCacheTimestamp.clear();
+    _groupKeyCacheTimestamp.clear();
     iPrint('E2EE: 已清除所有公钥缓存');
   }
 
@@ -441,12 +462,18 @@ class E2EEService {
     Duration retryDelay = const Duration(seconds: 1),
     bool forceRefresh = false, // 强制刷新缓存
   }) async {
-    // 检查缓存（除非强制刷新）
-    if (!forceRefresh) {
+    // 检查缓存（除非强制刷新或已过期）
+    if (!forceRefresh && !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
       final cached = _userKeyCacheByDevice[uid];
       if (cached != null && cached.isNotEmpty) {
         return {'didToPem': cached};
       }
+    }
+
+    // 缓存过期时清除旧数据，确保不使用已撤销的公钥
+    if (_isCacheExpired(_userKeyCacheTimestamp, uid)) {
+      _userKeyCacheByDevice.remove(uid);
+      _userKeyCacheTimestamp.remove(uid);
     }
 
     // 带重试的获取逻辑
@@ -462,24 +489,27 @@ class E2EEService {
           didToPem[did] = pem;
         }
 
-        // 🔧 修复：如果 API 返回空列表但有缓存，使用缓存
+        // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
         if (didToPem.isEmpty && forceRefresh) {
           final cached = _userKeyCacheByDevice[uid];
-          if (cached != null && cached.isNotEmpty) {
+          if (cached != null && cached.isNotEmpty &&
+              !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
             iPrint('⚠️ [E2EE] API 返回空，使用缓存: uid=$uid, 设备数=${cached.length}');
             return {'didToPem': cached};
           }
         }
 
         _userKeyCacheByDevice[uid] = didToPem;
+        _userKeyCacheTimestamp[uid] = DateTime.now().millisecondsSinceEpoch;
         iPrint('✅ [E2EE] 获取用户公钥成功: uid=$uid, 设备数=${didToPem.length}');
         return {'didToPem': didToPem};
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
-          // 🔧 修复：API 调用失败时回退到缓存（用于测试环境）
+          // 🔧 修复：API 调用失败时回退到未过期的缓存（用于测试环境）
           final cached = _userKeyCacheByDevice[uid];
-          if (cached != null && cached.isNotEmpty) {
+          if (cached != null && cached.isNotEmpty &&
+              !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: uid=$uid, 设备数=${cached.length}');
             return {'didToPem': cached};
           }
@@ -506,12 +536,18 @@ class E2EEService {
     Duration retryDelay = const Duration(seconds: 1),
     bool forceRefresh = false, // 强制刷新缓存
   }) async {
-    // 检查缓存（除非强制刷新）
-    if (!forceRefresh) {
+    // 检查缓存（除非强制刷新或已过期）
+    if (!forceRefresh && !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
       final cached = _groupKeyCacheByDevice[gid];
       if (cached != null && cached.isNotEmpty) {
         return {'didToPem': cached};
       }
+    }
+
+    // 缓存过期时清除旧数据，确保不使用已撤销的公钥
+    if (_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
+      _groupKeyCacheByDevice.remove(gid);
+      _groupKeyCacheTimestamp.remove(gid);
     }
 
     // 带重试的获取逻辑
@@ -532,23 +568,26 @@ class E2EEService {
           }
         }
 
-        // 🔧 修复：如果 API 返回空列表但有缓存，使用缓存
+        // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
         if (didToPem.isEmpty && forceRefresh) {
           final cached = _groupKeyCacheByDevice[gid];
-          if (cached != null && cached.isNotEmpty) {
+          if (cached != null && cached.isNotEmpty &&
+              !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
             iPrint('⚠️ [E2EE] API 返回空，使用缓存: gid=$gid, 设备数=${cached.length}');
             return {'didToPem': cached};
           }
         }
 
         _groupKeyCacheByDevice[gid] = didToPem;
+        _groupKeyCacheTimestamp[gid] = DateTime.now().millisecondsSinceEpoch;
         return {'didToPem': didToPem};
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
-          // 🔧 修复：API 调用失败时回退到缓存（用于测试环境）
+          // 🔧 修复：API 调用失败时回退到未过期的缓存（用于测试环境）
           final cached = _groupKeyCacheByDevice[gid];
-          if (cached != null && cached.isNotEmpty) {
+          if (cached != null && cached.isNotEmpty &&
+              !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: gid=$gid, 设备数=${cached.length}');
             return {'didToPem': cached};
           }

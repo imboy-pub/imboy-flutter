@@ -53,7 +53,7 @@ class LiveRoomApi extends HttpClient {
     return LiveRoomModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
-  /// 开始直播（roomId 为后端 hashids 编码字符串）
+  /// 开始直播
   Future<bool> start(String roomId) async {
     IMBoyHttpResponse resp = await post(
       API.liveRoomStart,
@@ -66,7 +66,7 @@ class LiveRoomApi extends HttpClient {
     return resp.ok;
   }
 
-  /// 停止直播（roomId 为后端 hashids 编码字符串）
+  /// 停止直播
   Future<bool> stop(String roomId) async {
     IMBoyHttpResponse resp = await post(
       API.liveRoomStop,
@@ -79,7 +79,7 @@ class LiveRoomApi extends HttpClient {
     return resp.ok;
   }
 
-  /// 获取直播间详情（roomId 为后端 hashids 编码字符串）
+  /// 获取直播间详情
   Future<LiveRoomModel?> detail(String roomId) async {
     IMBoyHttpResponse resp = await get(
       API.liveRoomDetail,

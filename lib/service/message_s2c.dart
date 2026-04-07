@@ -10,7 +10,6 @@ import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
 import 'package:imboy/modules/channel_content/public.dart';
-import 'package:imboy/modules/ops_governance/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -27,6 +26,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/config/routes.dart';
 
+import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -538,31 +538,10 @@ class MessageS2CService {
   /// 处理应用升级
   ///
   /// Action: app_upgrade
-  /// 触发时机：服务端通知客户端有新版本
-  /// 处理逻辑：检查版本信息，显示升级提示页面
+  /// 触发时机：服务端通知客户端有新版本（S2C 推送 或 WebSocket 版本保护）
+  /// 处理逻辑：委托给 AppUpgradeService 统一处理三级升级策略
   static Future<void> _handleAppUpgrade(Map<String, dynamic> payload) async {
-    final p = AppVersionApi();
-    final info = await p.check(appVsn);
-    final downLoadUrl = info['download_url'] ?? '';
-    bool updatable = info['updatable'] ?? false;
-    updatable = downLoadUrl.isEmpty ? false : updatable;
-
-    if (updatable) {
-      final context = navigatorKey.currentState?.overlay?.context;
-      if (context != null) {
-        await Navigator.of(context).push(
-          CupertinoPageRoute(
-            // "右滑返回上一页"功能
-            builder: (_) => UpgradePage(
-              version: info['vsn'],
-              downLoadUrl: downLoadUrl,
-              message: info['description'] ?? '',
-              isForce: 1 == (info['force_update'] ?? 2) ? true : false,
-            ),
-          ),
-        );
-      }
-    }
+    await AppUpgradeService.to.onS2CUpgradeNotice(payload);
   }
 
   /// 处理设备强制下线

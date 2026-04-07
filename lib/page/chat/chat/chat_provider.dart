@@ -1949,7 +1949,7 @@ class ChatNotifier extends _$ChatNotifier {
   /// 查阅永久存储的消息历史，不受本地 SQLite 数据影响。
   ///
   /// - [chatType]  'c2c' 或 'c2g'
-  /// - [peerId]    对端 hashids 编码 ID
+  /// - [peerId]    对端 ID
   /// - [limit]     每页条数，默认 50
   ///
   /// 返回拉到的消息列表（原始 Map），同时更新 [state.lastHistorySeq] 和

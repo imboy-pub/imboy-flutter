@@ -119,20 +119,21 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     final momentId = parseModelString(moment['id']);
     if (momentId.isEmpty) return;
     final liked = parseModelBool(moment['liked']);
-    final ok = liked
-        ? await _api.unlikePost(momentId)
-        : await _api.likePost(momentId);
-    if (!ok) return;
 
-    final stats = Map<String, dynamic>.from(
+    final oldStats = Map<String, dynamic>.from(
       (moment['stats'] is Map) ? moment['stats'] as Map : <String, dynamic>{},
     );
-    final likeCount = parseModelInt(stats['like_count']);
+    final likeCount = parseModelInt(oldStats['like_count']);
     final nextLikeCount = liked
         ? (likeCount > 0 ? likeCount - 1 : 0)
         : likeCount + 1;
-    stats['like_count'] = nextLikeCount;
+    final newStats = Map<String, dynamic>.from(oldStats);
+    newStats['like_count'] = nextLikeCount;
 
+    // 保存旧状态用于回滚
+    final oldItems = _items;
+
+    // 乐观更新 UI
     if (!mounted) return;
     setState(() {
       _items = _items
@@ -142,11 +143,29 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
             }
             final next = Map<String, dynamic>.from(item);
             next['liked'] = !liked;
-            next['stats'] = stats;
+            next['stats'] = newStats;
             return next;
           })
           .toList(growable: false);
     });
+
+    // 发送请求，失败时回滚
+    try {
+      final ok = liked
+          ? await _api.unlikePost(momentId)
+          : await _api.likePost(momentId);
+      if (!ok && mounted) {
+        setState(() {
+          _items = oldItems;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _items = oldItems;
+        });
+      }
+    }
   }
 
   Future<void> _deleteMoment(Map<String, dynamic> moment) async {

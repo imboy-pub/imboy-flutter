@@ -19,7 +19,7 @@ class E2EETransferService {
 
   /// 创建传输会话
   ///
-  /// [toUid] 接收方用户 ID（HashID 编码）
+  /// [toUid] 接收方用户 ID
   /// [encryptedKeyBundle] 使用目标用户公钥加密的密钥包
   /// Returns: { "session_id": "uuid", "expires_at": "2026-01-31T10:00:00Z" }
   static Future<Map<String, dynamic>> createTransfer({

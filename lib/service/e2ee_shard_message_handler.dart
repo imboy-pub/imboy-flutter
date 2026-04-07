@@ -8,6 +8,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/utils/tsid_helper.dart';
 
 /// E2EE 分片消息处理器
 ///
@@ -146,7 +147,7 @@ class E2EEShardMessageHandler {
 
       final confirmMessage = {
         'type': 'S2C',
-        'to': hashidEncode(fromUid),
+        'to': TsidHelper.parseIdAsString(fromUid),
         'payload': {
           'msg_type': 'e2ee_social_shard',
           'action': 'shard_stored',
@@ -296,7 +297,7 @@ class E2EEShardMessageHandler {
 
       final responseMessage = {
         'type': 'C2C',
-        'to': hashidEncode(toUid),
+        'to': TsidHelper.parseIdAsString(toUid),
         'payload': {
           'msg_type': 'e2ee_social_shard',
           'action': 'decrypted_shard',
@@ -404,7 +405,7 @@ class E2EEShardMessageHandler {
   ///
   /// 零信任架构：恢复密钥时，向代理请求解密分片
   ///
-  /// [proxyUid] 代理用户 ID（HashID 编码）
+  /// [proxyUid] 代理用户 ID
   /// [shardId] 分片 ID
   /// [timeout] 超时时间（秒），默认 30 秒
   /// Returns: 解密后的分片，超时或失败返回 null
@@ -460,21 +461,9 @@ class E2EEShardMessageHandler {
   }
 }
 
-/// 辅助函数：HashID 编码
-String hashidEncode(dynamic id) {
-  if (id is int) {
-    // 简单的 Base62 编码实现
-    const alphabet =
-        '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
-    if (id == 0) return alphabet[0];
-
-    String result = '';
-    int num = id;
-    while (num > 0) {
-      result = alphabet[num % 52] + result;
-      num ~/= 52;
-    }
-    return result;
-  }
-  return id.toString();
-}
+/// 辅助函数：将 ID 转为 String
+///
+/// 兼容 TSID (int) 和旧 hashids (String) 两种格式。
+/// 已迁移到 [TsidHelper.parseIdAsString]，此处保留别名以便旧代码引用。
+@Deprecated('Use TsidHelper.parseIdAsString instead')
+String hashidEncode(dynamic id) => TsidHelper.parseIdAsString(id);

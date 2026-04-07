@@ -846,7 +846,7 @@ class E2EESocialService {
   /// 零信任架构：恢复密钥时，向代理请求解密分片
   /// 使用 E2EEShardMessageHandler 进行请求，支持超时和响应等待
   ///
-  /// [proxyUid] 代理用户 ID（HashID 编码）
+  /// [proxyUid] 代理用户 ID
   /// [shardId] 分片 ID
   /// [timeout] 超时时间（秒），默认 30 秒
   /// Returns: 解密后的分片，超时或失败返回 null

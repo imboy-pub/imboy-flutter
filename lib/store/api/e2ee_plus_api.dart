@@ -23,8 +23,7 @@ class E2EEPlusApi extends HttpClient {
   /// 从旧设备创建传输会话，将密钥传输到新设备
   ///
   /// 请求参数:
-  /// - to_uid: 目标用户 ID（HashID 编码）
-  /// - encrypted_key_bundle: 使用目标用户公钥加密的密钥包
+  /// - to_uid: 目标用户 ID  /// - encrypted_key_bundle: 使用目标用户公钥加密的密钥包
   ///
   /// 返回:
   /// - session_id: 会话 ID
@@ -172,8 +171,7 @@ class E2EEPlusApi extends HttpClient {
   /// POST /v1/e2ee/social/contacts/add
   ///
   /// 请求参数:
-  /// - contact_uid: 联系人用户 ID（HashID 编码）
-  /// - nickname: 昵称（可选）
+  /// - contact_uid: 联系人用户 ID  /// - nickname: 昵称（可选）
   Future<void> addTrustedContact({
     required String contactUid,
     String? nickname,
@@ -196,7 +194,7 @@ class E2EEPlusApi extends HttpClient {
   /// POST /v1/e2ee/social/contacts/remove
   ///
   /// 请求参数:
-  /// - contact_uid: 联系人用户 ID（HashID 编码）
+  /// - contact_uid: 联系人用户 ID
   Future<void> removeTrustedContact({required String contactUid}) async {
     IMBoyHttpResponse resp = await post(
       API.e2eeSocialContactsRemove,

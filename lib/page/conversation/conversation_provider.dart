@@ -121,6 +121,8 @@ class ConversationNotifier extends _$ConversationNotifier {
     final newMap = Map<String, ConversationModel>.from(state.conversationMap);
     newMap.remove(uk3);
     state = state.copyWith(conversationMap: newMap);
+    // 同步清理该会话的未读计数
+    removeConversationRemind(uk3);
   }
 
   // Set conversation remind

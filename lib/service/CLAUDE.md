@@ -11,7 +11,7 @@
 ### 2026-01-21
 - **新增 WebSocket API v2.0 文档**：详细说明与服务端对接的消息格式
 - **字段类型说明**：
-  - `to` 字段：String 类型（hashids编码），对应服务端 `<<"to">>` (binary)
+  - `to` 字段：String 类型（TSID 或旧 hashids），对应服务端 `<<"to">>` (binary)
   - `to_id` 字段：int 类型，这是数据库字段，WebSocket API 中不使用
 - **E2EE 修复说明**：`e2ee` 字段必须是 Map 类型，不能是 JSON 字符串
 
@@ -552,8 +552,8 @@ A: 使用 `MigrationService.to.backupDatabase()` 或 `BackupService`。
 {
   'id': 'msg123',                    // String: 消息ID
   'type': 'C2C',                   // String: 消息类型
-  'from': 'p25vd5',                // String: 发送者ID (hashids编码)
-  'to': 'gdwqa5',                  // String: 接收者ID (hashids编码) ⚠️ 必须是 "to" 不是 "to_id"
+  'from': '1838294017982464',       // String: 发送者ID (TSID)
+  'to': '1838294017982465',         // String: 接收者ID (TSID) ⚠️ 必须是 "to" 不是 "to_id"
   'msg_type': 'text',              // String: 消息类型 (text/image/file/e2ee等)
   'action': '',                    // String: 动作类型 (可选，通常为空)
   'e2ee': {},                      // Map: E2EE元数据 (可选, 加密消息时必须有，必须是 Map 不是 JSON 字符串)
@@ -566,9 +566,9 @@ A: 使用 `MigrationService.to.backupDatabase()` 或 `BackupService`。
 
 | 字段 | 类型 | 说明 | 服务端对应 |
 |------|------|------|-----------|
-| `to` | **String** | 接收者ID (hashids编码，如 `"gdwqa5"`) | `<<"to">>` (binary) |
+| `to` | **String** | 接收者ID (如 `"1838294017982465"`) | `<<"to">>` (binary) |
 | `to_id` | **int** | ❌ 不要使用！这是数据库字段 | 服务端解码后的 `ToId` (integer) |
-| `from` | String | 发送者ID (hashids编码) | `<<"from">>` |
+| `from` | String | 发送者ID (TSID) | `<<"from">>` |
 | `e2ee` | **Map** | E2EE 元数据，必须是 Map 不能是 JSON 字符串 | `<<"e2ee">>` (map) |
 | `payload` | String|Map | 消息内容 | `<<"payload">>` |
 
@@ -582,7 +582,7 @@ A: 使用 `MigrationService.to.backupDatabase()` 或 `BackupService`。
 
 **重要**：
 - 客户端发送 `to` (String) → 服务端接收为 `<<"to">>` (binary)
-- 服务端使用 `elib_hashids:decode(To)` 解码 → 得到 `ToId` (integer)
+- 服务端直接将 `To` 转换为整数 → 得到 `ToId` (integer)
 - 数据库存储的是 `to_id` (integer)
 
 ### E2EE 加密消息格式
@@ -634,7 +634,7 @@ A: 使用 `MigrationService.to.backupDatabase()` 或 `BackupService`。
 {'to_id': 'gdwqa5'}
 
 // ✅ 正确
-{'to': 'gdwqa5'}
+{'to': '1838294017982465'}
 ```
 
 #### 错误2: e2ee 字段是 JSON 字符串

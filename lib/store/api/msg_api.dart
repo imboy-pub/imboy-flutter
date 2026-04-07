@@ -12,7 +12,7 @@ class MsgApi extends HttpClient {
   ///
   /// 参数：
   /// - [chatType]  会话类型，'c2c' 或 'c2g'
-  /// - [peerId]    对端 ID（hashids 编码的 uid 或 group_id）
+  /// - [peerId]    对端 ID（uid 或 group_id）
   /// - [afterSeq]  从该 conv_seq 之后查询（0 表示从头）
   /// - [limit]     每页条数，最大 100，默认 50
   ///

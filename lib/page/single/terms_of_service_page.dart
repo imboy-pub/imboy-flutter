@@ -7,7 +7,6 @@ import 'package:imboy/i18n/strings.g.dart';
 /// 服务条款页面
 ///
 /// 展示应用服务条款的法律文本。
-/// 实际内容需由法务团队提供，当前为占位文本。
 class TermsOfServicePage extends ConsumerWidget {
   const TermsOfServicePage({super.key});
 
@@ -30,7 +29,6 @@ class TermsOfServicePage extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              // TODO(legal): 替换为正式服务条款生效日期
               '生效日期：2026-01-01',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -75,7 +73,6 @@ class TermsOfServicePage extends ConsumerWidget {
             _buildSection(
               theme,
               '6. 适用法律',
-              // TODO(legal): 替换为适用的法律管辖区域
               '本条款受中华人民共和国法律管辖。',
             ),
             const SizedBox(height: 32),

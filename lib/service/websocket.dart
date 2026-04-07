@@ -58,6 +58,10 @@ class WebSocketService {
   static const _pingInterval = Duration(seconds: 120);
   bool _connecting = false;
 
+  /// 用于防止快速重连竞态：同一时刻只有一个连接请求在进行
+  /// 后续的连接请求会等待当前连接完成，而不是创建重复连接
+  Completer<void>? _connectCompleter;
+
   /// 初始化服务
   void init() {
     // 防止重复初始化导致多次订阅
@@ -185,7 +189,18 @@ class WebSocketService {
   }
 
   /// 建立WebSocket连接核心逻辑
+  ///
+  /// 使用 Completer 确保同一时刻只有一个连接请求在进行。
+  /// 如果已有连接正在建立，后续请求会等待其完成，避免重复连接。
   Future<void> _establishConnection(String from) async {
+    // 如果已有连接正在进行中，等待其完成而不是创建新连接
+    if (_connectCompleter != null && !_connectCompleter!.isCompleted) {
+      iPrint('> ws: 连接已在进行中，等待完成 (from: $from)');
+      await _connectCompleter!.future;
+      return;
+    }
+
+    _connectCompleter = Completer<void>();
     _connecting = true;
     _updateStatus(SocketStatus.connecting);
     iPrint('> ws: 开始连接 (from: $from)');
@@ -257,6 +272,9 @@ class WebSocketService {
       _cancelStream();
     } finally {
       _connecting = false;
+      if (_connectCompleter != null && !_connectCompleter!.isCompleted) {
+        _connectCompleter!.complete();
+      }
     }
   }
 

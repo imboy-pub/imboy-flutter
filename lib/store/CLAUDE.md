@@ -271,7 +271,7 @@ MsgApi api = MsgApi();
 // 拉取历史消息（conv_seq 游标分页，需后端开启 msg_archive_enabled=true）
 Map<String, dynamic>? result = await api.history(
   chatType: 'c2c',      // 'c2c' 或 'c2g'
-  peerId: encodedUid,   // hashids 编码的对端 ID
+  peerId: encodedUid,   // 对端 ID
   afterSeq: 0,          // 上次拉取的 next_seq，0 表示从头
   limit: 50,            // 每页条数，最大 100
 );

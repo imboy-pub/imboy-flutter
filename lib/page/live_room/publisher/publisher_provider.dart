@@ -15,7 +15,7 @@ class PublisherState {
   final String stateStr;
   final String serverUrl;
   final bool isConnecting;
-  final String roomId; // 当前关联的直播间 ID（hashids 字符串）
+  final String roomId; // 当前关联的直播间 ID
   final SharedPreferences? preferences;
 
   const PublisherState({

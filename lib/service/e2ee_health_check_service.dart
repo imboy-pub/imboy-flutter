@@ -69,7 +69,7 @@ class E2EEHealthCheckService {
 
   /// 检查指定用户的密钥版本
   ///
-  /// [uid] 用户 ID（HashID 编码）
+  /// [uid] 用户 ID
   /// [expectedKeyId] 期望的密钥 ID（可选）
   /// Returns: 健康检查结果
   ///

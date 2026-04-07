@@ -23,11 +23,13 @@ class WebRTCSignalingModel {
 
   factory WebRTCSignalingModel.fromJson(Map<String, dynamic> json) {
     return WebRTCSignalingModel(
-      msgId: json['id'],
-      type: json['type'],
-      from: json['from'],
-      to: json['to'],
-      payload: json['payload'],
+      msgId: (json['id'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      from: (json['from'] ?? '').toString(),
+      to: (json['to'] ?? '').toString(),
+      payload: json['payload'] is Map<String, dynamic>
+          ? json['payload'] as Map<String, dynamic>
+          : <String, dynamic>{},
     );
   }
 

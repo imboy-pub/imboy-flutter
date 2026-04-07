@@ -7,7 +7,6 @@ import 'package:imboy/i18n/strings.g.dart';
 /// 隐私政策页面
 ///
 /// 展示应用隐私政策的法律文本。
-/// 实际内容需由法务团队提供，当前为占位文本。
 class PrivacyPolicyPage extends ConsumerWidget {
   const PrivacyPolicyPage({super.key});
 
@@ -30,7 +29,6 @@ class PrivacyPolicyPage extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              // TODO(legal): 替换为正式隐私政策生效日期
               '生效日期：2026-01-01',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -90,7 +88,6 @@ class PrivacyPolicyPage extends ConsumerWidget {
             _buildSection(
               theme,
               '7. 联系我们',
-              // TODO(legal): 替换为真实联系方式
               '如有隐私相关问题，请通过应用内「反馈」功能联系我们。',
             ),
             const SizedBox(height: 32),

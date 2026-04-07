@@ -15,7 +15,7 @@ import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/markdown.dart';
-import 'package:imboy/modules/ops_governance/public.dart';
+import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -466,6 +466,29 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     value: "${t.version} $appVsn",
                     leadingIcon: Icons.info_outline,
                     leadingIconColor: AppColors.primary,
+                    trailing: AppUpgradeService.to.hasUpdate
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.5,
+                                ),
+                                size: 16,
+                              ),
+                            ],
+                          )
+                        : null,
                     onTap: () {
                       _showAboutDialog();
                     },
@@ -669,25 +692,18 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           text: t.checkForUpdates,
           highlighted: true,
           onPressed: () async {
-            final AppVersionApi p = AppVersionApi();
-            final Map<String, dynamic> info = await p.check(appVsn);
-            final String downLoadUrl = info['download_url'] ?? '';
-            bool updatable = info['updatable'] ?? false;
-            updatable = downLoadUrl.isEmpty ? false : updatable;
-            if (updatable && mounted) {
-              await Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (_) => UpgradePage(
-                    version: info['vsn'],
-                    downLoadUrl: downLoadUrl,
-                    message: info['description'] ?? '',
-                    isForce: 1 == (info['force_update'] ?? 2) ? true : false,
-                  ),
-                ),
-              );
-            } else {
-              EasyLoading.showInfo(t.nowNewVersion);
+            EasyLoading.show();
+            try {
+              final info = await AppUpgradeService.to.manualCheck();
+              if (!mounted) return;
+              if (info == null || !info.hasUpdate) {
+                EasyLoading.showInfo(t.nowNewVersion);
+              }
+              // manualCheck 内部已处理弹窗逻辑（force/recommend/silent）
+            } catch (e) {
+              EasyLoading.showError(t.errorNetwork);
+            } finally {
+              EasyLoading.dismiss();
             }
           },
         ),

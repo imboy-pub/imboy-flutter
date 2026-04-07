@@ -618,7 +618,7 @@ final class MomentTimelineChangedEvent extends AppEvent {
   /// S2C action
   final String action;
 
-  /// 朋友圈动态 ID（HashID）
+  /// 朋友圈动态 ID
   final String momentId;
 
   /// 原始 payload

@@ -36,6 +36,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/group_collab/public.dart';
@@ -542,6 +543,9 @@ class AppInitializer {
     // 初始化地图服务
     AMapHelper.init(); // 设置隐私协议（必须先调用）
     AMapHelper.setApiKey(); // 设置 API key
+
+    // 初始化APP升级检查服务（延迟3秒检查，不阻塞启动）
+    await AppUpgradeService.to.init();
   }
 
   static Future<void> _initializeWebSocketServices() async {
@@ -822,6 +826,9 @@ class AppInitializer {
 
     // 清理WebRTC会话
     webRTCSessions.clear();
+
+    // 停止升级检查定时器
+    AppUpgradeService.to.dispose();
 
     // 清理 initConfig 缓存
     clearInitConfigCache();

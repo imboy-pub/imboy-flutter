@@ -1,5 +1,5 @@
 class LiveRoomModel {
-  /// 后端 hashids 编码后的 ID（字符串）
+  /// 直播间 ID
   final String id;
   final String userId;
   final String title;

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -23,12 +26,23 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   bool _isLoading = true;
   int _page = 1;
   bool _hasMore = true;
+  StreamSubscription? _mentionSub;
 
   @override
   void initState() {
     super.initState();
     _loadMentions();
     _loadUnreadCount();
+    _mentionSub = AppEventBus.on<NewMentionEvent>().listen((_) {
+      _loadMentions(refresh: true);
+      _loadUnreadCount();
+    });
+  }
+
+  @override
+  void dispose() {
+    _mentionSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadMentions({bool refresh = false}) async {
