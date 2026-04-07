@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/api/app_upgrade_log_api.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 class UpgradePage extends ConsumerStatefulWidget {
@@ -26,12 +28,16 @@ class UpgradePage extends ConsumerStatefulWidget {
   /// apk是否强制更新
   final bool isForce;
 
+  /// 安装包 SHA256 校验值（可选，非空时校验）
+  final String fileHash;
+
   const UpgradePage({
     super.key,
     required this.downLoadUrl,
     required this.message,
     required this.version,
     required this.isForce,
+    this.fileHash = '',
   });
 
   @override
@@ -46,6 +52,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   String? positiveBtn;
   GestureTapCallback? positiveCallback;
   double progress = 0; // [0, 1]
+
+  /// SHA256 校验重试次数
+  int _hashRetryCount = 0;
+  static const int _maxHashRetry = 2;
 
   String? speed;
   double? planTime;
@@ -88,11 +98,26 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
           planTime = info.planTime;
         } else if (info.status == DownloadStatus.STATUS_SUCCESSFUL) {
           // STATUS_SUCCESSFUL下载成功
-          positiveBtn = t.installNow;
           progress = 1;
-          positiveCallback = install;
+          AppUpgradeLogApi.report(
+            event: 'download_done',
+            targetVsn: widget.version,
+          );
+          // 有 fileHash 时先校验，无则直接安装
+          if (widget.fileHash.isNotEmpty && info.path != null) {
+            positiveBtn = t.installNow;
+            positiveCallback = () => _verifyAndInstall(info.path!);
+          } else {
+            positiveBtn = t.installNow;
+            positiveCallback = install;
+          }
         } else if (info.status == DownloadStatus.STATUS_FAILED) {
           //   STATUS_FAILED下载失败
+          AppUpgradeLogApi.report(
+            event: 'error',
+            targetVsn: widget.version,
+            extra: {'reason': 'download_failed'},
+          );
           positiveBtn = t.continueDownloading;
           positiveCallback = upgradeWithId;
         }
@@ -176,6 +201,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
 
   // 停止下载器运行（注销当前taskID）
   void closeCallback() {
+    AppUpgradeLogApi.report(
+      event: 'cancel',
+      targetVsn: widget.version,
+    );
     Navigator.of(context).pop();
     if (downloadId > 0) cancel(downloadId);
   }
@@ -190,6 +219,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   void _updateApplication() async {
     if (await _checkPermission()) {
       if (Platform.isAndroid) {
+        AppUpgradeLogApi.report(
+          event: 'download_start',
+          targetVsn: widget.version,
+        );
         initGeneral();
         upgradeApk(widget.downLoadUrl);
       } else if (Platform.isIOS) {
@@ -252,6 +285,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   void install() async {
+    AppUpgradeLogApi.report(
+      event: 'install',
+      targetVsn: widget.version,
+    );
     bool? isSuccess = await RUpgrade.install(downloadId);
     iPrint("upgrade_install $downloadId isSuccess $isSuccess");
   }
@@ -260,6 +297,66 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   void installByPath(String path) async {
     bool? isSuccess = await RUpgrade.installByPath(path);
     iPrint("upgrade_installByPath $downloadId isSuccess $isSuccess");
+  }
+
+  /// 校验下载文件 SHA256 后安装
+  ///
+  /// 校验失败时自动删除文件并重试下载（最多 [_maxHashRetry] 次）
+  Future<void> _verifyAndInstall(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (!await file.exists()) {
+        EasyLoading.showError('下载文件不存在，请重试');
+        _retryDownload();
+        return;
+      }
+
+      final bytes = await file.readAsBytes();
+      final digest = sha256.convert(bytes);
+      final computedHash = digest.toString();
+
+      // 服务端可能返回 "sha256:abcdef..." 或纯 hash
+      final expectedHash = widget.fileHash.startsWith('sha256:')
+          ? widget.fileHash.substring(7)
+          : widget.fileHash;
+
+      if (computedHash == expectedHash) {
+        iPrint('SHA256 校验通过: $computedHash');
+        AppUpgradeLogApi.report(
+          event: 'verify_ok',
+          targetVsn: widget.version,
+        );
+        install();
+      } else {
+        iPrint('SHA256 校验失败: expected=$expectedHash, got=$computedHash');
+        AppUpgradeLogApi.report(
+          event: 'verify_fail',
+          targetVsn: widget.version,
+          extra: {
+            'expected': expectedHash.substring(0, 8),
+            'got': computedHash.substring(0, 8),
+          },
+        );
+        await file.delete();
+        _retryDownload();
+      }
+    } catch (e) {
+      iPrint('SHA256 校验异常: $e');
+      // 校验异常时仍允许安装，不阻断用户
+      install();
+    }
+  }
+
+  /// 校验失败后重试下载
+  void _retryDownload() {
+    _hashRetryCount++;
+    if (_hashRetryCount <= _maxHashRetry) {
+      EasyLoading.showError('文件校验失败，正在重新下载 ($_hashRetryCount/$_maxHashRetry)');
+      upgradeApk(widget.downLoadUrl);
+    } else {
+      EasyLoading.showError('文件多次校验失败，请检查网络后重试');
+      _hashRetryCount = 0;
+    }
   }
 
   // 暂停下载
@@ -298,17 +395,21 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   Widget build(BuildContext context) {
     final t = context.t;
     if (_upgradeCard != null) {
-      return _upgradeCard!;
+      return widget.isForce
+          ? PopScope(canPop: false, child: _upgradeCard!)
+          : _upgradeCard!;
     }
-    return _upgradeCard = UpgradeCard(
+    _upgradeCard = UpgradeCard(
       title: t.newVersionDetected + widget.version,
       message: widget.message,
       positiveBtn: t.updateNow,
       negativeBtn: widget.isForce ? '' : t.remindMeLater,
       positiveCallback: () => _updateApplication(),
-      // positiveCallback: () => getAndroidStores(),
       negativeCallback: () => closeCallback(),
     );
+    return widget.isForce
+        ? PopScope(canPop: false, child: _upgradeCard!)
+        : _upgradeCard!;
   }
 }
 

@@ -433,12 +433,40 @@ class MigrationService {
     // 注意：这里需要由 SqliteService 重新打开
   }
 
-  /// 清理快照
+  /// 清理快照，保留最近 [keepCount] 个快照
+  ///
+  /// 迁移成功后调用，删除多余的旧快照而非立即删除所有快照，
+  /// 以便在后续启动时仍可回滚到近期版本。
+  static const int _defaultKeepCount = 3;
+
   Future<void> _cleanupSnapshot(String snapshotPath) async {
     try {
-      await File(snapshotPath).delete();
+      final snapshotFile = File(snapshotPath);
+      final snapshotDir = snapshotFile.parent;
+
+      if (!await snapshotDir.exists()) return;
+
+      // 收集所有快照文件并按修改时间倒序排列（最新在前）
+      final snapshots = <File>[];
+      await for (final entity in snapshotDir.list()) {
+        if (entity is File && entity.path.endsWith('.db')) {
+          snapshots.add(entity);
+        }
+      }
+
+      if (snapshots.length <= _defaultKeepCount) return;
+
+      snapshots.sort((a, b) {
+        return b.lastModifiedSync().compareTo(a.lastModifiedSync());
+      });
+
+      // 删除超出保留数量的旧快照
+      for (var i = _defaultKeepCount; i < snapshots.length; i++) {
+        await snapshots[i].delete();
+        _logger.d('Removed old snapshot: ${snapshots[i].path}');
+      }
     } catch (e) {
-      _logger.w('Failed to cleanup snapshot: $e');
+      _logger.w('Failed to cleanup snapshots: $e');
     }
   }
 
