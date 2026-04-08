@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/app_logger.dart';
 
 // slang 国际化
 import 'package:imboy/i18n/strings.g.dart';
@@ -45,6 +46,29 @@ Future<void> main() async {
 }
 
 Future<void> run() async {
+  // === 全局错误捕获 ===
+  // 捕获 Flutter 框架内部错误（Widget build、layout、paint 等）
+  FlutterError.onError = (FlutterErrorDetails details) {
+    AppLogger.fatal(
+      'FlutterError: ${details.exceptionAsString()}',
+      details.exception,
+      details.stack,
+    );
+    // 保留默认行为（debug 模式打印到控制台）
+    FlutterError.presentError(details);
+  };
+
+  // 捕获 Dart 异步未处理异常（Future 中未被 catch 的错误）
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    AppLogger.fatal(
+      'PlatformDispatcher uncaught error: $error',
+      error,
+      stack,
+    );
+    // 返回 true 表示已处理，不再传播
+    return true;
+  };
+
   // Web 平台不支持屏幕方向设置
   if (!kIsWeb) {
     // 强制竖屏 DeviceOrientation.portraitUp

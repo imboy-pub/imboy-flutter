@@ -1,6 +1,7 @@
 # TSID 迁移计划 — Flutter 客户端
 
 > 创建日期: 2026-04-06
+> 状态: **已完成** (2026-04-07 后端迁移完成，elib_hashids 已删除)
 > 背景: 后端从 BIGSERIAL + hashids 编码迁移到 elib_tsid (分布式时间排序 ID)
 
 ---

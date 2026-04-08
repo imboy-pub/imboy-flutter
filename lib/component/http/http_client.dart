@@ -109,7 +109,9 @@ class HttpClient {
     final retryConfig = currentEnv == 'dev'
         ? HttpRetryConfig.devConfig
         : HttpRetryConfig.prodConfig;
-    _dio.interceptors.add(createRetryInterceptor(retryConfig));
+    final retryInterceptor = createRetryInterceptor(retryConfig);
+    retryInterceptor.bindDio(_dio);
+    _dio.interceptors.add(retryInterceptor);
 
     if (recordLog) {
       _dio.interceptors.add(
@@ -213,8 +215,8 @@ class HttpClient {
       return;
     }
 
-    // iPrint("_setDefaultConfig tk: $tk");
-    if (tokenExpired(tk) == false) {
+    // Token 已过期时尝试用 refresh token 刷新
+    if (tokenExpired(tk)) {
       String rtk = await UserRepoLocal.to.refreshToken;
       // 防御性检查：refresh token 为空时不尝试刷新
       if (rtk.isNotEmpty) {

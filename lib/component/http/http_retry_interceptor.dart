@@ -38,6 +38,9 @@ class HttpRetryInterceptor extends Interceptor {
   /// 重试回调（可用于日志记录）
   final void Function(DioException error, int retryCount)? onRetry;
 
+  /// 持有原始 Dio 实例的引用，重试时复用其配置（headers、adapter、拦截器链）
+  Dio? _dio;
+
   HttpRetryInterceptor({
     this.maxRetries = 3,
     this.retryInterval = const Duration(seconds: 1),
@@ -45,6 +48,11 @@ class HttpRetryInterceptor extends Interceptor {
     this.retryEvaluator,
     this.onRetry,
   });
+
+  /// 绑定到指定的 Dio 实例（在 addInterceptor 后自动调用）
+  void bindDio(Dio dio) {
+    _dio = dio;
+  }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
@@ -73,8 +81,10 @@ class HttpRetryInterceptor extends Interceptor {
           // 延迟后重试
           await Future.delayed(delay);
 
-          // 重新发起请求
-          final response = await Dio().fetch(err.requestOptions);
+          // 使用绑定的 Dio 实例重试，保留完整的配置（headers、adapter、证书等）
+          // 如果未绑定则回退到 requestOptions 自带的配置
+          final retryDio = _dio ?? Dio();
+          final response = await retryDio.fetch(err.requestOptions);
           return handler.resolve(response);
         } catch (e) {
           // 重试失败，继续传递错误

@@ -11,7 +11,7 @@
 ### 2026-01-21
 - **新增 WebSocket API v2.0 文档**：详细说明与服务端对接的消息格式
 - **字段类型说明**：
-  - `to` 字段：String 类型（TSID 或旧 hashids），对应服务端 `<<"to">>` (binary)
+  - `to` 字段：String 类型（TSID），对应服务端 `<<"to">>` (binary)
   - `to_id` 字段：int 类型，这是数据库字段，WebSocket API 中不使用
 - **E2EE 修复说明**：`e2ee` 字段必须是 Map 类型，不能是 JSON 字符串
 

@@ -342,8 +342,19 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
       }
     } catch (e) {
       iPrint('SHA256 校验异常: $e');
-      // 校验异常时仍允许安装，不阻断用户
-      install();
+      AppUpgradeLogApi.report(
+        event: 'verify_exception',
+        targetVsn: widget.version,
+        extra: {'error': e.toString()},
+      );
+      // 校验异常时删除文件并重试，不允许安装未校验的文件
+      try {
+        final file = File(filePath);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (_) {}
+      _retryDownload();
     }
   }
 
