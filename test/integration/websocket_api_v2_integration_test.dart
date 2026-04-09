@@ -20,14 +20,14 @@ void main() {
       test('应该正确解析 C2C 消息（msgType 在顶层）', () {
         final json = {
           'auto_id': 1,
-          'id': 'msg_123',
+          'id': 123,
           'type': 'C2C',
           'msg_type': 'text', // 顶层字段
           'action': '', // C2C 消息 action 为空字符串
           'e2ee': '', // 非 E2EE 消息 e2ee 为空字符串
           'payload': '{"content": "Hello World"}',
-          'from_id': 'user1',
-          'to_id': 'user2',
+          'from_id': 8001,
+          'to_id': 8002,
           'conversation_uk3': 'C2C_user1_user2',
           'created_at': 1234567890,
           'topic_id': 0,
@@ -37,7 +37,7 @@ void main() {
 
         final msg = MessageModel.fromJson(json);
 
-        expect(msg.id, 'msg_123');
+        expect(msg.id, 123);
         expect(msg.type, 'C2C');
         expect(msg.msgType, 'text'); // 从顶层读取
         // 修复：空字符串会保持为空字符串，不是 null
@@ -49,14 +49,14 @@ void main() {
       test('应该正确解析 S2C 消息（action 在顶层）', () {
         final json = {
           'auto_id': 1,
-          'id': 's2c_123',
+          'id': 2,
           'type': 'S2C',
           'msg_type': '',
           'action': 'pull_offline_msg', // 顶层字段
           'e2ee': '',
           'payload': '{"count": 5}',
-          'from_id': 'server',
-          'to_id': 'user1',
+          'from_id': 0,
+          'to_id': 8001,
           'conversation_uk3': '',
           'created_at': 1234567890,
           'topic_id': 0,
@@ -66,7 +66,7 @@ void main() {
 
         final msg = MessageModel.fromJson(json);
 
-        expect(msg.id, 's2c_123');
+        expect(msg.id, 2);
         expect(msg.type, 'S2C');
         expect(msg.action ?? '', 'pull_offline_msg'); // 从顶层读取
         // 修复：空字符串解析后保持为空字符串，不是 null
@@ -76,14 +76,14 @@ void main() {
       test('应该正确解析 E2EE 消息（payload 为字符串）', () {
         final json = {
           'auto_id': 1,
-          'id': 'msg_456',
+          'id': 456,
           'type': 'C2C',
           'msg_type': 'text',
           'action': '',
           'e2ee': '{"e2ee":true,"e2ee_ver":1,"nonce":"abc123"}',
           'payload': 'base64_nonce.base64_ciphertext', // 字符串格式
-          'from_id': 'user1',
-          'to_id': 'user2',
+          'from_id': 8001,
+          'to_id': 8002,
           'conversation_uk3': 'C2C_user1_user2',
           'created_at': 1234567890,
           'topic_id': 0,
@@ -93,7 +93,7 @@ void main() {
 
         final msg = MessageModel.fromJson(json);
 
-        expect(msg.id, 'msg_456');
+        expect(msg.id, 456);
         expect(msg.e2ee, isA<Map>());
         expect(msg.e2ee!['e2ee'], true);
         expect(msg.payload, isA<String>()); // E2EE 消息 payload 是字符串
@@ -101,12 +101,12 @@ void main() {
 
       test('应该正确序列化 C2C 消息到 v2.0 格式', () {
         final msg = MessageModel(
-          'msg_789',
+          789,
           autoId: 1,
           type: 'C2C',
           status: 1,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
@@ -126,12 +126,12 @@ void main() {
 
       test('应该正确序列化 S2C 消息到 v2.0 格式', () {
         final msg = MessageModel(
-          's2c_456',
+          456,
           autoId: 1,
           type: 'S2C',
           status: 1,
-          fromId: 'server',
-          toId: 'user1',
+          fromId: 9999,
+          toId: 8001,
           payload: {'count': 10},
           isAuthor: 0,
           conversationUk3: '',
@@ -158,12 +158,12 @@ void main() {
         };
 
         final msg = MessageModel(
-          'msg_encrypted',
+          500,
           autoId: 1,
           type: 'C2C',
           status: 1,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: 'base64_nonce.base64_ciphertext', // 字符串格式
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',

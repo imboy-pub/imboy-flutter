@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -20,7 +19,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 part 'conversation_provider.g.dart';
 
@@ -159,7 +158,7 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (v is String) return int.tryParse(v) ?? 0;
       return 0;
     } catch (e) {
-      debugPrint('[ConversationProvider] conversation update failed: $e');
+      iPrint('[ConversationProvider] _getLastReadAutoId failed: $e');
       return 0;
     }
   }
@@ -268,15 +267,15 @@ class ConversationNotifier extends _$ConversationNotifier {
 
     if (obj.type == 'C2G') {
       // 群组会话：如果设置了群名称，就应该取群名称；否则取 _groupListLogic.computeTitle 的结果
-      final group = await (GroupRepo()).findById(obj.peerId);
+      final group = await (GroupRepo()).findById(obj.peerId.toString());
       if (group != null && group.title.trim().isNotEmpty) {
         computedTitle = group.title;
       } else {
-        computedTitle = await _getGroupTitle(obj.peerId);
+        computedTitle = await _getGroupTitle(obj.peerId.toString());
       }
     } else if (obj.type == 'C2C') {
       // 个人会话：获取联系人标题
-      computedTitle = await _getContactTitle(obj.peerId);
+      computedTitle = await _getContactTitle(obj.peerId.toString());
     }
     iPrint("${obj.peerId} computedTitle $computedTitle");
     // 将计算结果持久化到数据库
@@ -410,7 +409,7 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (conversation.type != 'C2C' && conversation.type != 'C2G') {
         continue;
       }
-      final key = _authoritativeKey(conversation.type, conversation.peerId);
+      final key = _authoritativeKey(conversation.type, conversation.peerId.toString());
       if (authoritativeKeys.contains(key)) {
         continue;
       }
@@ -489,14 +488,14 @@ class ConversationNotifier extends _$ConversationNotifier {
         if (existing == null) {
           final created = ConversationModel(
             id: 0,
-            peerId: peerId,
+            peerId: int.tryParse(peerId) ?? 0,
             avatar: avatar,
             title: '',
             subtitle: subtitle,
             type: type,
             msgType: msgType,
             lastTime: serverTs,
-            lastMsgId: lastMsgId,
+            lastMsgId: int.tryParse(lastMsgId) ?? 0,
             unreadNum: 0,
             isShow: 1,
             payload: _mergeAuthoritativePayload(
@@ -575,17 +574,17 @@ class ConversationNotifier extends _$ConversationNotifier {
     ConversationModel conversation,
     bool pinned,
   ) async {
-    if (conversation.peerId.isEmpty || conversation.type.isEmpty) {
+    if (conversation.peerId == 0 || conversation.type.isEmpty) {
       return false;
     }
 
     final ok = pinned
         ? await _conversationApi.pin(
-            conversationId: conversation.peerId,
+            conversationId: conversation.peerId.toString(),
             type: conversation.type,
           )
         : await _conversationApi.unpin(
-            conversationId: conversation.peerId,
+            conversationId: conversation.peerId.toString(),
             type: conversation.type,
           );
     if (!ok) {
@@ -597,12 +596,12 @@ class ConversationNotifier extends _$ConversationNotifier {
   }
 
   Future<bool> deleteConversationRemote(ConversationModel conversation) async {
-    if (conversation.peerId.isEmpty || conversation.type.isEmpty) {
+    if (conversation.peerId == 0 || conversation.type.isEmpty) {
       return false;
     }
 
     final ok = await _conversationApi.deleteConversation(
-      conversationId: conversation.peerId,
+      conversationId: conversation.peerId.toString(),
       type: conversation.type,
     );
     if (!ok) {
@@ -704,24 +703,24 @@ class ConversationNotifier extends _$ConversationNotifier {
 
       for (int i = 0; i < conversations.length; i++) {
         final cm = conversations[i];
-        if (cm.lastMsgId.isEmpty) continue;
+        if (cm.lastMsgId == 0) continue;
 
         final tb = MessageRepo.getTableName(cm.type);
         if (tb.isEmpty) continue;
         final mRepo = MessageRepo(tableName: tb);
-        final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId);
+        final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId.toString());
         if (lastMsg == null) continue;
 
         if (!isBurnExpiredPayload(lastMsg.payload)) continue;
 
-        await expireBurnMessage(cm, cm.lastMsgId);
+        await expireBurnMessage(cm, cm.lastMsgId.toString());
         final updated = await repo.findById(cm.id);
         if (updated != null) {
           conversations[i] = updated;
         }
       }
     } catch (e) {
-      debugPrint('[ConversationProvider] conversation update failed: $e');
+      iPrint('[ConversationProvider] _cleanupExpiredBurnLastMessages failed: $e');
     }
   }
 
@@ -834,7 +833,7 @@ class ConversationNotifier extends _$ConversationNotifier {
           ConversationRepo.title: title,
           ConversationRepo.subtitle: subtitle,
           ConversationRepo.lastTime: lastTime,
-          ConversationRepo.lastMsgId: '',
+          ConversationRepo.lastMsgId: 0,
           ConversationRepo.lastMsgStatus: 1,
           ConversationRepo.unreadNum: 0,
           ConversationRepo.type: type,
@@ -936,7 +935,7 @@ class ConversationNotifier extends _$ConversationNotifier {
 
   /// 获取联系人标题(用于C2C会话)
   Future<String> _getContactTitle(String peerId) async {
-    if (peerId.trim().isEmpty) {
+    if (peerId.trim().isEmpty || peerId == '0') {
       return '';
     }
 
@@ -956,7 +955,7 @@ class ConversationNotifier extends _$ConversationNotifier {
   // Compute avatar for group - temporary implementation
   Future<String> computeGroupAvatar(String groupId) async {
     try {
-      final group = await (GroupRepo()).findById(groupId);
+      final group = await (GroupRepo()).findById(groupId.toString());
       if (group != null && group.avatar.isNotEmpty) {
         return group.avatar;
       }

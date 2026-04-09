@@ -3,7 +3,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class GroupRepo {
   static String tableName = 'group';

@@ -396,7 +396,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                         tagId: widget.tag.tagId,
                                                         tagName:
                                                             widget.tag.name,
-                                                        objectId: model.peerId,
+                                                        objectId: model.peerId.toString(),
                                                         scene: scene,
                                                       );
                                                   if (res) {

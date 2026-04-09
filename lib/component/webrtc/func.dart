@@ -66,10 +66,10 @@ Future<void> incomingCallScreen(
   if (p2pCallScreenOn) return;
   p2pCallScreenOn = true;
 
-  final sid = sessionId(peer.peerId);
+  final sid = sessionId(peer.peerId.toString());
   WebRTCSession? s = webRTCSessions[sid] ??
       WebRTCSession(
-        peerId: peer.peerId,
+        peerId: peer.peerId.toString(),
         sid: sid,
         media: option['media']?.toString(),
       );
@@ -93,10 +93,10 @@ Future<void> incomingCallScreen(
     p2pCallScreenOn = false;
   });
 
-  await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
+  await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId.toString());
 
   // DONE(2026-04-04): 标记来电消息为已读
-  MessagingFacade.instance.markAsRead('C2C', peer.peerId, [msgId]);
+  MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [msgId]);
 
   if (!context.mounted) return;
 
@@ -169,11 +169,11 @@ Future<void> incomingCallScreen(
               backgroundColor: theme.colorScheme.error,
               onPressed: () async {
                 // DONE(2026-04-04): 标记消息已读
-                MessagingFacade.instance.markAsRead('C2C', peer.peerId, [msgId]);
+                MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [msgId]);
                 MessagingFacade.instance.changeLocalMsgState(msgId, 5);
                 gTimer?.cancel();
                 gTimer = null;
-                await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);
+                await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId.toString());
                 p2pCallScreenOn = false;
                 if (dialogContext.mounted) {
                   Navigator.of(dialogContext).pop();
@@ -188,7 +188,7 @@ Future<void> incomingCallScreen(
               backgroundColor: theme.colorScheme.primary,
               onPressed: () async {
                 // DONE(2026-04-04): 标记消息已读
-                MessagingFacade.instance.markAsRead('C2C', peer.peerId, [msgId]);
+                MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [msgId]);
                 gTimer?.cancel();
                 gTimer = null;
                 if (dialogContext.mounted) {
@@ -227,9 +227,9 @@ Future<void> openCallScreen(
   if (p2pEntry != null) return;
   p2pCallScreenOn = true;
 
-  final sid = sessionId(peer.peerId);
+  final sid = sessionId(peer.peerId.toString());
   session ??= WebRTCSession(
-    peerId: peer.peerId,
+    peerId: peer.peerId.toString(),
     sid: sid,
     media: option['media']?.toString(),
   );

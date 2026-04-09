@@ -190,7 +190,7 @@ class WebRTCNetworkQualityMonitor {
           } else if (kind == 'audio') {
             // 音频统计
             audioLevel =
-                ((report['audioLevel'] as num?)?.toDouble() ?? 0.0 * 32767)
+                (((report['audioLevel'] as num?)?.toDouble() ?? 0.0) * 32767)
                     .toInt();
 
             // 音频丢包

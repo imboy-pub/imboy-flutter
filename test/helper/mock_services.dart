@@ -33,7 +33,7 @@ class MockConversationRepository {
   Future<ConversationModel?> findByPeerId(String type, String peerId) async {
     try {
       return _storage.values.firstWhere(
-        (conv) => conv.type == type && conv.peerId == peerId,
+        (conv) => conv.type == type && conv.peerId.toString() == peerId,
       );
     } catch (_) {
       return null;

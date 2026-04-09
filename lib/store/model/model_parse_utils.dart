@@ -37,6 +37,17 @@ int parseModelInt(dynamic value, {int defaultValue = 0}) {
   return defaultValue;
 }
 
+int? parseModelNullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) {
+    if (value.isEmpty) return null;
+    return int.tryParse(value);
+  }
+  return null;
+}
+
 double parseModelDouble(dynamic value, {double defaultValue = 0.0}) {
   if (value == null) return defaultValue;
   if (value is double) return value;

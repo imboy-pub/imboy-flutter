@@ -8,10 +8,10 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - 最后阅读位置
 /// - 通知设置
 class ChannelSubscriptionModel {
-  final String channelId;
+  final int channelId;
   final DateTime subscribedAt;
   final DateTime? lastReadAt;
-  final String? lastMessageId;
+  final int? lastMessageId;
   final int unreadCount;
   final bool notificationsEnabled;
   final bool isPinned;
@@ -30,12 +30,12 @@ class ChannelSubscriptionModel {
 
   factory ChannelSubscriptionModel.fromJson(Map<String, dynamic> json) {
     return ChannelSubscriptionModel(
-      channelId: parseModelString(json['channel_id']),
+      channelId: parseModelInt(json['channel_id']),
       subscribedAt: parseModelDateTime(json['subscribed_at']),
       lastReadAt: json['last_read_at'] != null
           ? parseModelDateTime(json['last_read_at'])
           : null,
-      lastMessageId: parseModelNullableString(json['last_message_id']),
+      lastMessageId: parseModelNullableInt(json['last_message_id']),
       unreadCount: parseModelInt(json['unread_count']),
       notificationsEnabled: parseModelBool(
         json['notifications_enabled'],
@@ -62,12 +62,12 @@ class ChannelSubscriptionModel {
   /// 从 SQLite Map 创建
   factory ChannelSubscriptionModel.fromMap(Map<String, dynamic> map) {
     return ChannelSubscriptionModel(
-      channelId: parseModelString(map['channel_id']),
+      channelId: parseModelInt(map['channel_id']),
       subscribedAt: parseModelDateTime(map['subscribed_at']),
       lastReadAt: map['last_read_at'] != null
           ? parseModelDateTime(map['last_read_at'])
           : null,
-      lastMessageId: parseModelNullableString(map['last_message_id']),
+      lastMessageId: parseModelNullableInt(map['last_message_id']),
       unreadCount: parseModelInt(map['unread_count']),
       notificationsEnabled: parseModelBool(
         map['notifications_enabled'],
@@ -94,10 +94,10 @@ class ChannelSubscriptionModel {
 
   /// 复制并修改部分字段
   ChannelSubscriptionModel copyWith({
-    String? channelId,
+    int? channelId,
     DateTime? subscribedAt,
     DateTime? lastReadAt,
-    String? lastMessageId,
+    int? lastMessageId,
     int? unreadCount,
     bool? notificationsEnabled,
     bool? isPinned,

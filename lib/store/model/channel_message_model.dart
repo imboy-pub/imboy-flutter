@@ -9,9 +9,9 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - 消息包含发布者信息（冗余存储）
 /// - 支持阅读量和反应统计
 class ChannelMessageModel {
-  final String id;
-  final String channelId;
-  final String? authorId;
+  final int id;
+  final int channelId;
+  final int? authorId;
   final String? authorName;
   final String? authorAvatar;
   final String content;
@@ -42,9 +42,9 @@ class ChannelMessageModel {
     final reactions = _parseReactionSummary(json['reaction_summary']);
 
     return ChannelMessageModel(
-      id: parseModelString(json['id']),
-      channelId: parseModelString(json['channel_id']),
-      authorId: parseModelNullableString(json['author_id']),
+      id: parseModelInt(json['id']),
+      channelId: parseModelInt(json['channel_id']),
+      authorId: parseModelNullableInt(json['author_id']),
       authorName: parseModelNullableString(json['author_name']),
       authorAvatar: parseModelNullableString(json['author_avatar']),
       content: parseModelString(json['content']),
@@ -82,9 +82,9 @@ class ChannelMessageModel {
     final reactions = _parseReactionSummary(map['reaction_summary']);
 
     return ChannelMessageModel(
-      id: parseModelString(map['id']),
-      channelId: parseModelString(map['channel_id']),
-      authorId: parseModelNullableString(map['author_id']),
+      id: parseModelInt(map['id']),
+      channelId: parseModelInt(map['channel_id']),
+      authorId: parseModelNullableInt(map['author_id']),
       authorName: parseModelNullableString(map['author_name']),
       authorAvatar: parseModelNullableString(map['author_avatar']),
       content: parseModelString(map['content']),
@@ -176,9 +176,9 @@ class ChannelMessageModel {
 
   /// 复制并修改部分字段
   ChannelMessageModel copyWith({
-    String? id,
-    String? channelId,
-    String? authorId,
+    int? id,
+    int? channelId,
+    int? authorId,
     String? authorName,
     String? authorAvatar,
     String? content,

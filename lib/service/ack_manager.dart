@@ -94,13 +94,17 @@ class AckManager {
   /// 最新 ACK RTT（毫秒）
   int? _lastAckRttMs;
 
+  /// WebSocket 状态订阅
+  StreamSubscription? _wsStatusSubscription;
+
   void _init() {
     if (_isInitialized) return;
 
     // 订阅 WebSocket 状态变化事件（解耦：不再直接依赖 WebSocketService）
-    AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
+    _wsStatusSubscription?.cancel();
+    _wsStatusSubscription =
+        AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
       _isWebSocketConnected = event.status == 'connected';
-      iPrint('🔌 [ACK_MANAGER] WebSocket 状态更新: ${event.status}');
     });
 
     // 【优化】启动定期清理 Timer（每小时清理一次孤立的 Timer）
@@ -114,16 +118,17 @@ class AckManager {
   }
 
   void dispose() {
-    // 【修复 H2】取消所有活动的 Timer（包括清理 Timer）
+    // 取消 WebSocket 状态订阅
+    _wsStatusSubscription?.cancel();
+    _wsStatusSubscription = null;
+    // 取消所有活动的 Timer（包括清理 Timer）
     _cancelAllTimers();
-    // 【优化】取消定期清理 Timer
     _timerCleanupTimer?.cancel();
     _timerCleanupTimer = null;
     // 清理待确认 ACK
     _pendingAcks.clear();
     _resetRuntimeStats();
     _isInitialized = false;
-    iPrint('🗑️ [ACK_MANAGER] dispose 完成，所有资源已清理');
   }
 
   /// 【新增】取消所有活动的 Timer

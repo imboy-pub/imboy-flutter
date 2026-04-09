@@ -41,7 +41,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
             context,
             CupertinoPageRoute(
               builder: (context) =>
-                  PeopleInfoPage(id: model.deniedUid, scene: 'denylist'),
+                  PeopleInfoPage(id: model.deniedUid.toString(), scene: 'denylist'),
             ),
           ).then((_) {
             ref.read(denylistProvider.notifier).loadData(page: 1, size: 1000);
@@ -70,7 +70,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
             EasyLoading.show(status: t.loading);
             final res = await ref
                 .read(denylistProvider.notifier)
-                .removeDenylist(model.deniedUid);
+                .removeDenylist(model.deniedUid.toString());
             EasyLoading.dismiss();
             if (res) {
               EasyLoading.showSuccess(t.removedFromDenylist);
@@ -355,7 +355,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                           EasyLoading.show(status: t.loading);
                           bool res = await ref
                               .read(denylistProvider.notifier)
-                              .removeDenylist(model.deniedUid);
+                              .removeDenylist(model.deniedUid.toString());
                           EasyLoading.dismiss();
                           if (res) {
                             EasyLoading.showSuccess(t.removedFromDenylist);

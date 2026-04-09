@@ -50,9 +50,11 @@ class EncrypterService {
       final ivBytes = _getOrCreateCachedKey(ivStr);
       final encryptedBytes = base64.decode(encryptedBase64);
 
-      // 🔍 调试日志：显示密钥和 IV 的 MD5（避免泄露真实值）
-      debugPrint('🔐 [AES_DECRYPT] Key MD5: ${md5(key)}, IV MD5: ${md5(ivStr)}');
-      debugPrint('🔐 [AES_DECRYPT] Encrypted length: ${encryptedBytes.length} bytes');
+      // 调试日志：仅在开发环境下输出
+      if (kDebugMode) {
+        debugPrint('[AES_DECRYPT] Key MD5: ${md5(key)}, IV MD5: ${md5(ivStr)}');
+        debugPrint('[AES_DECRYPT] Encrypted length: ${encryptedBytes.length} bytes');
+      }
 
       final cipher = CBCBlockCipher(AESEngine());
       final params = ParametersWithIV<KeyParameter>(
@@ -66,30 +68,29 @@ class EncrypterService {
 
       final decrypted = _pkcs7UnPad(decryptedPadded);
 
-      debugPrint('🔐 [AES_DECRYPT] Decrypted length: ${decrypted.length} bytes');
-
       // 尝试解码为 UTF-8，失败则尝试其他编码
       try {
         return utf8.decode(decrypted);
       } on FormatException catch (e) {
-        // UTF-8 解码失败，输出十六进制用于调试
-        debugPrint('❌ [AES_DECRYPT] UTF-8 解码失败: $e');
-        debugPrint('🔍 [AES_DECRYPT] Decrypted bytes (hex): ${bytesToHex(decrypted)}');
+        if (kDebugMode) {
+          debugPrint('[AES_DECRYPT] UTF-8 decode failed: $e');
+        }
 
         // 尝试 Latin-1 编码（不会失败，但可能显示乱码）
         final latin1Result = String.fromCharCodes(decrypted);
-        debugPrint('⚠️ [AES_DECRYPT] Latin-1 解码结果（可能乱码）: $latin1Result');
 
-        // 重新抛出异常
+        // 重新抛出异常（不在异常消息中包含解密字节）
         throw FormatException(
           'AES 解密后的数据无法解码为 UTF-8。请检查密钥和 IV 是否与服务端匹配。\n'
           'Key MD5: ${md5(key)}\n'
           'IV MD5: ${md5(ivStr)}\n'
-          '解密结果 (hex): ${bytesToHex(decrypted).substring(0, 100)}...',
+          'Latin-1 length: ${latin1Result.length}',
         );
       }
     } catch (e) {
-      debugPrint('❌ [AES_DECRYPT] 解密异常: $e');
+      if (kDebugMode) {
+        debugPrint('[AES_DECRYPT] error: $e');
+      }
       rethrow;
     }
   }

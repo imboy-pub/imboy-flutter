@@ -98,11 +98,11 @@ void main() {
         return;
       }
 
-      expect(sentMessage.id.isNotEmpty, isTrue, reason: '发布成功后，返回消息 id 不应为空');
+      expect(sentMessage.id != 0, isTrue, reason: '发布成功后，返回消息 id 不应为空');
 
       final verifyIds = _collectCandidateIds(
         target.channel,
-        extraIds: [sentMessage.channelId],
+        extraIds: [sentMessage.channelId.toString()],
       );
       final persisted = await _runStepWithTimeout(
         '拉取消息回查',
@@ -157,11 +157,11 @@ List<String> _collectCandidateIds(
   List<String>? extraIds,
 }) {
   final ids = <String>{
-    channel.id.trim(),
+    channel.id.toString(),
     (channel.customId ?? '').trim(),
     ...?extraIds?.map((e) => e.trim()),
   };
-  ids.removeWhere((e) => e.isEmpty);
+  ids.removeWhere((e) => e.isEmpty || e == '0');
   return ids.toList(growable: false);
 }
 

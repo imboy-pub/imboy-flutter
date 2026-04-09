@@ -228,7 +228,7 @@ class _ChannelListItem extends StatelessWidget {
   String _detailRouteId(ChannelModel channel) {
     final customId = channel.customId?.trim() ?? '';
     if (customId.isNotEmpty) return customId;
-    return channel.id;
+    return channel.id.toString();
   }
 
   /// 获取角色颜色

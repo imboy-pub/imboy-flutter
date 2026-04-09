@@ -14,11 +14,11 @@ class WebRTCSignalingModel {
   });
 
   String get webRtcType {
-    type = type.toLowerCase();
-    if (type.startsWith('webrtc_')) {
-      return type.replaceFirst('webrtc_', '');
+    final normalized = type.toLowerCase();
+    if (normalized.startsWith('webrtc_')) {
+      return normalized.replaceFirst('webrtc_', '');
     }
-    return type;
+    return normalized;
   }
 
   factory WebRTCSignalingModel.fromJson(Map<String, dynamic> json) {

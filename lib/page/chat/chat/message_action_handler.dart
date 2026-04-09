@@ -143,7 +143,7 @@ class MessageActionHandler {
   Future<void> _sendDeleteForMeMessage(Message msg) async {
     final msg2 = {
       'id': Xid().toString(),
-      'from': msg.authorId,
+      'from': UserRepoLocal.to.currentUid,
       'to': msg.metadata?['peer_id'],
       'type': 'S2C',
       'payload': {

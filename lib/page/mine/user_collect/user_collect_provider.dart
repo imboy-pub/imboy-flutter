@@ -25,6 +25,7 @@ import 'package:imboy/component/chat/message_audio_builder.dart' as audio;
 
 import 'user_collect_state.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 part 'user_collect_provider.g.dart';
@@ -870,7 +871,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
   ///   obj - 要删除的收藏项
   /// 返回：删除是否成功（bool）
   Future<bool> remove(UserCollectModel obj) async {
-    final String id = obj.kindId;
+    final String id = obj.kindId.toString();
     // 防止并发删除同一项
     if (state.removingIds.contains(id)) {
       iPrint('remove already in progress for $id');
@@ -981,10 +982,10 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         final payload = _extractPayloadFromMessage(msg);
         msg2 = MessageModel(
           autoId: 0,
-          msg.id,
+          parseModelInt(msg.id),
           type: tb, // 使用表名作为类型
-          fromId: msg.authorId,
-          toId: msg.metadata?['peer_id'],
+          fromId: parseModelInt(msg.authorId),
+          toId: parseModelInt(msg.metadata?['peer_id']),
           payload: payload,
           createdAt:
               msg.createdAt?.millisecondsSinceEpoch ??

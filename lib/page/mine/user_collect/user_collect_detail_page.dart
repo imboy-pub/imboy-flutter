@@ -183,7 +183,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     ),
                   ).then((value) {
                     // 调用 Provider 的 change 方法
-                    notifier.change(obj.kindId);
+                    notifier.change(obj.kindId.toString());
                   });
                 } catch (e, s) {
                   debugPrint('转发收藏消息失败: $e\n堆栈: $s');
@@ -205,7 +205,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   context,
                   CupertinoPageRoute(
                     builder: (context) => TagRelationPage(
-                      peerId: obj.kindId,
+                      peerId: obj.kindId.toString(),
                       peerTag: obj.tag,
                       scene: 'collect',
                       title: t.editTag,
@@ -252,7 +252,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       maxLength: 100,
                       callback: (remarkNew) async {
                         // 调用 Provider 的 remark 方法
-                        bool ok = await notifier.remark(obj.kindId, remarkNew);
+                        bool ok = await notifier.remark(obj.kindId.toString(), remarkNew);
                         return ok;
                       },
                     ),

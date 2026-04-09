@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_member_model.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class GroupMemberRepo {
   static String tableName = 'group_member';

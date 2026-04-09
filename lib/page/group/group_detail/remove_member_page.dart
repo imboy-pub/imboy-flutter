@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -32,10 +34,10 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
   @override
   void initState() {
     super.initState();
-    initData();
+    unawaited(initData());
   }
 
-  void initData() async {
+  Future<void> initData() async {
     final notifier = ref.read(removeMemberProvider.notifier);
     final currentUid = UserRepoLocal.to.currentUid;
 
@@ -163,7 +165,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
               EasyLoading.show(status: t.loading);
               int memberCount = state.selects.length;
               iPrint(
-                "selects $memberCount ${state.selects.toList().toString()}",
+                "selects $memberCount",
               );
               bool res = await ref
                   .read(removeMemberProvider.notifier)

@@ -20,12 +20,12 @@ void main() {
       test('新消息到达时应该创建新会话', () {
         // 模拟新消息到达
         final msg = MessageModel(
-          'msg_001',
+          1,
           autoId: 1,
           type: 'C2C',
           status: 11, // 已发送
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Hello'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
@@ -34,7 +34,7 @@ void main() {
         );
 
         // 验证会话数据
-        expect(msg.id, 'msg_001');
+        expect(msg.id, 1);
         expect(msg.type, 'C2C');
         expect(msg.msgType, 'text');
         expect(msg.status, 11);
@@ -43,23 +43,23 @@ void main() {
       test('应该正确判断是否为最后一条消息', () {
         final conversation = ConversationModel(
           id: 1,
-          peerId: 'user2',
+          peerId: 8002,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '上一条消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
         );
 
         // 相同的消息ID - 应该更新会话
-        final sameMsgId = 'msg_001';
+        final sameMsgId = 1;
         expect(conversation.lastMsgId, sameMsgId);
 
         // 不同的消息ID - 不应该更新会话
-        final differentMsgId = 'msg_002';
+        final differentMsgId = 2;
         expect(conversation.lastMsgId == differentMsgId, false);
       });
 
@@ -68,12 +68,12 @@ void main() {
 
         for (final type in types) {
           final msg = MessageModel(
-            'msg_001',
+            1,
             autoId: 1,
             type: type,
             status: 11,
-            fromId: 'user1',
-            toId: type == 'C2G' ? 'group1' : 'user2',
+            fromId: 8001,
+            toId: type == 'C2G' ? 2001 : 8002,
             payload: {},
             isAuthor: 1,
             conversationUk3:
@@ -150,14 +150,14 @@ void main() {
       test('应该正确处理未读数', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'user2',
+          peerId: 8002,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 5,
         );
 
@@ -173,14 +173,14 @@ void main() {
 
         final conv = ConversationModel(
           id: 1,
-          peerId: 'user2',
+          peerId: 8002,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: now,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
         );
 
@@ -192,7 +192,7 @@ void main() {
     group('会话复制功能', () {
       test('copyWith应该正确复制会话', () {
         final original = ConversationTestHelper.createTestConversation(
-          peerId: 'user123',
+          peerId: 1001,
           title: '原始标题',
           unreadNum: 10,
         );
@@ -230,32 +230,32 @@ void main() {
       test('应该处理空peerId', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: '', // 空peerId
+          peerId: 0, // 空peerId
           type: 'C2C',
           avatar: '',
           title: '',
           subtitle: '',
           msgType: 'text',
           lastTime: 0,
-          lastMsgId: '',
+          lastMsgId: 0,
           unreadNum: 0,
         );
 
-        expect(conv.peerId, '');
+        expect(conv.peerId, 0);
         expect(conv.title, '');
       });
 
       test('应该处理超大未读数', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'user2',
+          peerId: 8002,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 999999, // 最大值
         );
 
@@ -328,14 +328,14 @@ void main() {
     group('会话模型序列化', () {
       test('应该正确序列化为JSON', () {
         final conv = ConversationTestHelper.createTestConversation(
-          peerId: 'test_user',
+          peerId: 1100,
           title: '测试用户',
           unreadNum: 5,
         );
 
         final json = conv.toJson();
 
-        expect(json['peer_id'], 'test_user');
+        expect(json['peer_id'], 1100);
         expect(json['title'], '测试用户');
         expect(json['unread_num'], 5);
         expect(json['type'], 'C2C');
@@ -344,7 +344,7 @@ void main() {
       test('应该正确从JSON反序列化', () {
         final json = {
           'id': 1,
-          'peer_id': 'test_user',
+          'peer_id': 1100,
           'type': 'C2C',
           'avatar': '',
           'title': '测试用户',
@@ -352,7 +352,7 @@ void main() {
           'region': '',
           'sign': '',
           'last_time': 1234567890,
-          'last_msg_id': 'msg_001',
+          'last_msg_id': 1,
           'unread_num': 3,
           'is_show': 1,
           'msg_type': 'text',
@@ -363,7 +363,7 @@ void main() {
         final conv = ConversationModel.fromJson(json);
 
         expect(conv.id, 1);
-        expect(conv.peerId, 'test_user');
+        expect(conv.peerId, 1100);
         expect(conv.title, '测试用户');
         expect(conv.unreadNum, 3);
         expect(conv.msgType, 'text');
@@ -372,7 +372,7 @@ void main() {
 
       test('序列化和反序列化应该保持数据一致性', () {
         final original = ConversationTestHelper.createTestConversation(
-          peerId: 'user123',
+          peerId: 1001,
           title: '原始标题',
           subtitle: '原始副标题',
           unreadNum: 10,

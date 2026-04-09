@@ -323,7 +323,7 @@ class _WebConversationItem extends StatelessWidget {
         // 时间
         const SizedBox(width: 8),
         Text(
-          DateTimeHelper.lastTimeFmt(conversation.lastTime * 1000),
+          DateTimeHelper.lastTimeFmt(conversation.lastTime),
           style: TextStyle(
             color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
             fontSize: 12,

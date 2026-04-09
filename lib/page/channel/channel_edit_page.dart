@@ -139,7 +139,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     try {
       final api = ChannelApi();
       final channelId =
-          (_channel?.id.isNotEmpty ?? false) ? _channel!.id : widget.channelId;
+          (_channel?.id != null && _channel!.id != 0) ? _channel!.id.toString() : widget.channelId;
       final targetName = _nameController.text.trim();
       final targetDescription = _descriptionController.text.trim();
       final targetAvatar = _avatarUrl?.trim();
@@ -179,7 +179,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${t.channel.updateFailed}: $e'),
+            content: Text(t.channel.updateFailed),
             backgroundColor: Colors.red,
           ),
         );

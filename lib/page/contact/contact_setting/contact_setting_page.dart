@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/store/model/denylist_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 import 'contact_setting_provider.dart';
@@ -474,7 +475,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                 if (val) {
                   // 加入黑名单
                   DenylistModel model = DenylistModel(
-                    deniedUid: widget.peerId,
+                    deniedUid: parseModelInt(widget.peerId),
                     nickname: widget.peerNickname,
                     account: widget.peerAccount,
                     remark: widget.peerRemark,

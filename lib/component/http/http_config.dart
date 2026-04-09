@@ -20,23 +20,30 @@ class HttpConfig {
     this.proxy,
     this.cookiesPath,
     this.interceptors,
-    this.connectTimeout = Duration.millisecondsPerMinute,
-    this.sendTimeout = Duration.millisecondsPerMinute,
-    this.receiveTimeout = Duration.millisecondsPerMinute,
+    this.connectTimeout = 15000, // 15 秒连接超时
+    this.sendTimeout = 30000, // 30 秒发送超时
+    this.receiveTimeout = 30000, // 30 秒接收超时
   });
 }
 
 // https://github.com/dart-lang/web_socket_channel/issues/134
 class GlobalHttpOverrides extends io.HttpOverrides {
+  /// 开发环境允许自签名证书的主机白名单
+  static const _devAllowedHosts = <String>{
+    'localhost',
+    '127.0.0.1',
+    '10.0.2.2', // Android 模拟器 host
+  };
+
   @override
   io.HttpClient createHttpClient(io.SecurityContext? context) {
-    // 安全的证书验证：仅开发环境允许自签名证书
     return super.createHttpClient(context)
       ..badCertificateCallback =
           (io.X509Certificate cert, String host, int port) {
-            // 仅在开发环境接受自签名证书
+            // 仅在开发环境且主机在白名单内时接受自签名证书
             if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
-              return true;
+              return _devAllowedHosts.contains(host) ||
+                  host.endsWith('.imboy.pub');
             }
             // 生产环境进行严格验证
             return false;

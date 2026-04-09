@@ -33,7 +33,7 @@ import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/app_logger.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/api/msg_api.dart';
@@ -686,11 +686,11 @@ class ChatNotifier extends _$ChatNotifier {
 
     // v2.0: 创建 MessageModel 时设置顶层 msgType 和 action 字段
     MessageModel obj = MessageModel(
+      int.tryParse(message.id) ?? 0,
       autoId: 0,
-      message.id,
       type: type,
-      fromId: message.authorId,
-      toId: message.metadata?['peer_id'],
+      fromId: int.tryParse(message.authorId) ?? 0,
+      toId: int.tryParse(message.metadata?['peer_id']?.toString() ?? '') ?? 0,
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
       isAuthor: message.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
@@ -751,7 +751,7 @@ class ChatNotifier extends _$ChatNotifier {
       try {
         final encrypted = await _encryptPayload(
           chatType: obj.type ?? 'C2C',
-          toId: obj.toId ?? '',
+          toId: obj.toId.toString(),
           plaintextMap: obj.payload,
           action: action,
           removeKeys: ['client_send_ts'],
@@ -770,8 +770,8 @@ class ChatNotifier extends _$ChatNotifier {
           stackTrace,
         );
         EasyLoading.showToast(_getE2EEErrorMessage(e));
-        if (obj.id != null && obj.id!.isNotEmpty) {
-          await _updateMessageStatus(obj.id!, IMBoyMessageStatus.error);
+        if (obj.id != 0) {
+          await _updateMessageStatus(obj.id.toString(), IMBoyMessageStatus.error);
         }
         // fail-close：加密失败时阻止发送，不降级明文
         return false;
@@ -799,11 +799,11 @@ class ChatNotifier extends _$ChatNotifier {
       'created_at': obj.createdAt,
     };
 
-    if (obj.id == null) {
+    if (obj.id == 0) {
       iPrint('消息ID为空，无法发送');
       return false;
     }
-    return await _sendWithRetry(obj.id!, msg);
+    return await _sendWithRetry(obj.id.toString(), msg);
   }
 
   /// 带重试机制的消息发送
@@ -1050,7 +1050,7 @@ class ChatNotifier extends _$ChatNotifier {
       final lastMsg = items.isEmpty ? null : items[0];
 
       MessageModel? finalLastMsg = lastMsg;
-      if (lastMsg != null && lastMsg.id == msg.id) {
+      if (lastMsg != null && lastMsg.id.toString() == msg.id) {
         final moreItems = await mRepo.page(
           conversationUk3: cm.uk3,
           page: 1,
@@ -2198,8 +2198,8 @@ class ChatNotifier extends _$ChatNotifier {
     if (readAt <= 0 && item.status == IMBoyMessageStatus.seen) {
       readAt = nowMs;
       payload['burn_read_at'] = readAt;
-      final messageId = item.id ?? '';
-      if (messageId.isNotEmpty) {
+      final messageId = item.id;
+      if (messageId != 0) {
         await repo.update({
           MessageRepo.id: messageId,
           MessageRepo.payload: payload,
@@ -2210,7 +2210,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (readAt > 0) {
       await _scheduleBurnDeletion(
         conversation: conversation,
-        messageId: item.id ?? '',
+        messageId: item.id.toString(),
         burnAfterMs: burnAfter,
         readAtMs: readAt,
       );
@@ -2246,7 +2246,7 @@ class ChatNotifier extends _$ChatNotifier {
     required String hiddenMessageId,
   }) async {
     try {
-      if (conversation.lastMsgId != hiddenMessageId) return;
+      if (conversation.lastMsgId.toString() != hiddenMessageId) return;
       final nowMs = DateTimeHelper.millisecond();
       final repo = ConversationRepo();
       final latest = await _findLatestVisibleMessageModel(
@@ -2260,7 +2260,7 @@ class ChatNotifier extends _$ChatNotifier {
             ? conversation.lastTime
             : DateTimeHelper.millisecond();
         await repo.updateById(conversation.id, {
-          ConversationRepo.lastMsgId: '',
+          ConversationRepo.lastMsgId: 0,
           ConversationRepo.lastMsgStatus: 0,
           ConversationRepo.msgType: 'empty',
           ConversationRepo.lastTime: conversationTime,

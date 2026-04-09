@@ -90,7 +90,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           doBuildResults: (results) =>
               _doBuildUserSearchResults(context, results),
           onTapForItem: (value) {
-            debugPrint("> on search value ${value.toString()}");
+            iPrint("> on search value tapped");
           },
         ),
       ),
@@ -125,7 +125,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
 
     return items.map((item) {
       PeopleModel model = item;
-      bool isSelf = model.id == UserRepoLocal.to.currentUid;
+      bool isSelf = model.id.toString() == UserRepoLocal.to.currentUid;
 
       return Container(
         margin: const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 0),
@@ -172,7 +172,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     NewFriendModel model,
     int index,
   ) {
-    bool fromSelf = model.from == UserRepoLocal.to.currentUid;
+    bool fromSelf = model.from.toString() == UserRepoLocal.to.currentUid;
     final notifier = ref.read(newFriendProvider.notifier);
 
     // 检查申请是否过期
@@ -224,7 +224,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                 bottomRight: Radius.circular(16),
               ),
               onPressed: (_) async {
-                await notifier.delete(model.from, model.to);
+                await notifier.delete(model.from.toString(), model.to.toString());
               },
               icon: Icons.delete_outline,
               label: t.buttonDelete,
@@ -237,7 +237,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             borderRadius: AppRadius.borderRadiusRegular,
             onTap: () {
               context.push(
-                '/people_info/${UserRepoLocal.to.currentUid == model.to ? model.from : model.to}',
+                '/people_info/${UserRepoLocal.to.currentUid == model.to.toString() ? model.from : model.to}',
                 extra: {'scene': model.source},
               );
             },
@@ -378,8 +378,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             Navigator.of(context).push(
               CupertinoPageRoute(
                 builder: (context) => ConfirmNewFriendPage(
-                  to: model.to,
-                  from: model.from,
+                  to: model.to.toString(),
+                  from: model.from.toString(),
                   msg: model.msg,
                   nickname: model.nickname,
                   payload: model.payload,

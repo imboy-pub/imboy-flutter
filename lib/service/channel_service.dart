@@ -58,7 +58,7 @@ class ChannelService {
         await _repo.saveChannel(channel);
 
         // 创建订阅关系（如果不存在）
-        final existing = await _repo.getSubscription(channel.id);
+        final existing = await _repo.getSubscription(channel.id.toString());
         if (existing == null) {
           await _repo.saveSubscription(
             ChannelSubscriptionModel(
@@ -134,7 +134,7 @@ class ChannelService {
       await _repo.saveChannel(channel);
       await _repo.saveSubscription(
         ChannelSubscriptionModel(
-          channelId: channelId,
+          channelId: parseModelInt(channelId),
           subscribedAt: DateTime.now(),
         ),
       );
@@ -292,13 +292,13 @@ class ChannelService {
 
       final subscriptions = await _repo.getAllSubscriptions();
       for (final sub in subscriptions) {
-        final nextUnread = authoritativeByChannel[sub.channelId] ?? 0;
+        final nextUnread = authoritativeByChannel[sub.channelId.toString()] ?? 0;
         if (sub.unreadCount == nextUnread) continue;
-        await _repo.updateUnreadCount(sub.channelId, nextUnread);
+        await _repo.updateUnreadCount(sub.channelId.toString(), nextUnread);
         changed++;
         AppEventBus.fire(
           ChannelUnreadCountUpdatedEvent(
-            channelId: sub.channelId,
+            channelId: sub.channelId.toString(),
             unreadCount: nextUnread,
           ),
         );
@@ -566,7 +566,7 @@ class ChannelService {
   Future<void> handleChannelMessage(Map<String, dynamic> data) async {
     try {
       final message = ChannelMessageModel.fromJson(data);
-      if (message.channelId.isEmpty || message.id.isEmpty) {
+      if (message.channelId == 0 || message.id == 0) {
         iPrint(
           'ChannelService: 忽略无效频道消息 - '
           'channelId=${message.channelId}, messageId=${message.id}',
@@ -578,14 +578,14 @@ class ChannelService {
       await _messageRepo.saveMessage(message);
 
       // 更新未读计数
-      await _repo.incrementUnreadCount(message.channelId);
+      await _repo.incrementUnreadCount(message.channelId.toString());
 
       iPrint('ChannelService: 收到频道消息 - ${message.id}');
 
       // 发送事件通知 UI 刷新
       AppEventBus.fire(
         ChannelNewMessageEvent(
-          channelId: message.channelId,
+          channelId: message.channelId.toString(),
           message: message.toMap(),
         ),
       );
@@ -611,7 +611,7 @@ class ChannelService {
       await _repo.saveChannel(channel);
       await _repo.saveSubscription(
         ChannelSubscriptionModel(
-          channelId: channelId,
+          channelId: parseModelInt(channelId),
           subscribedAt: DateTime.now(),
         ),
       );
@@ -644,14 +644,14 @@ class ChannelService {
         return;
       }
       final channel = ChannelModel.fromJson(channelData);
-      if (channel.id.isEmpty) {
+      if (channel.id == 0) {
         iPrint('ChannelService: 忽略缺少 channel.id 的更新通知');
         return;
       }
       await _repo.saveChannel(channel);
       AppEventBus.fire(
         ChannelStateChangedEvent(
-          channelId: channel.id,
+          channelId: channel.id.toString(),
           action: 'channel_updated',
           payload: data,
         ),
@@ -838,7 +838,7 @@ class ChannelService {
     try {
       final subscriptions = await _repo.getAllSubscriptions();
       for (final sub in subscriptions) {
-        await _messageRepo.deleteOldMessages(sub.channelId, keepCount);
+        await _messageRepo.deleteOldMessages(sub.channelId.toString(), keepCount);
       }
       iPrint('ChannelService: 清理过期数据完成');
     } catch (e) {

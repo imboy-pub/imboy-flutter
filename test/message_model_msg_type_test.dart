@@ -22,6 +22,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'helper/sqflite_test_helper.dart';
+
 void main() {
   // 初始化测试环境
   setUpAll(() async {
@@ -39,17 +41,20 @@ void main() {
     );
   });
 
+  // Mock sqflite_sqlcipher before each test (handlers reset between tests)
+  setUp(() => mockSqfliteSqlcipher());
+
   group('TDD: MessageModel.toTypeMessage() - S2C msg_type 验证', () {
     group('S2C 消息 - action 有效时 msg_type 可以为空', () {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 pull_offline_msg 时', () async {
         // GIVEN: 一个 S2C 消息，action 有效，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 21, // seen
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: '', // 空 msg_type
           action: S2CAction.pullOfflineMsg, // 有效的 action
           payload: {'count': 10},
@@ -70,12 +75,12 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 c2c_revoke 时', () async {
         // GIVEN: 一个 S2C 撤回消息，action 有效，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 30, // peer_revoked
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: '', // 空 msg_type
           action: S2CAction.c2cRevoke, // 有效的 action
           payload: {'msg_id': 'original_msg_id', 'operator_id': 'user2'},
@@ -96,12 +101,12 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 apply_friend 时', () async {
         // GIVEN: 一个 S2C 好友申请消息，action 有效，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 21,
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: '', // 空 msg_type
           action: S2CAction.applyFriend, // 有效的 action
           payload: {'remark': '我是张三', 'extra': '请加我好友'},
@@ -122,12 +127,12 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 group_member_join 时', () async {
         // GIVEN: 一个 S2C 群成员加入消息，action 有效，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 21,
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: '', // 空 msg_type
           action: S2CAction.groupMemberJoin, // 有效的 action
           payload: {
@@ -152,12 +157,12 @@ void main() {
       test('应该拒绝 S2C 消息当 action 为空且 msg_type 为空时', () async {
         // GIVEN: 一个 S2C 消息，action 和 msg_type 都为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 21,
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: '', // 空 msg_type
           action: '', // 空 action
           payload: <String, dynamic>{}, // 明确指定类型
@@ -179,12 +184,12 @@ void main() {
       test('应该拒绝 S2C 消息当 action 为 null 且 msg_type 为空时', () async {
         // GIVEN: 一个 S2C 消息，action 为 null，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 21,
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: '', // 空 msg_type
           action: null, // null action
           payload: {'data': 'test'}, // 添加一些数据以避免 payload 验证失败
@@ -206,12 +211,12 @@ void main() {
       test('应该接受 S2C 消息当 msg_type 和 action 都有效时', () async {
         // GIVEN: 一个 S2C 消息，msg_type 和 action 都有效
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'S2C',
           status: 21,
-          fromId: 'user1', // 设置为当前用户 ID 以避免 ContactRepo 查询
-          toId: 'user1',
+          fromId: 8001, // 设置为当前用户 ID 以避免 ContactRepo 查询
+          toId: 8001,
           msgType: 'text', // 有效的 msg_type
           action: S2CAction.pullOfflineMsg, // 有效的 action
           payload: {'text': '系统通知'},
@@ -233,12 +238,12 @@ void main() {
       test('应该拒绝 C2C 消息的空 msg_type', () async {
         // GIVEN: 一个 C2C 消息，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: '', // 空 msg_type
           payload: {'text': 'Hello'},
           isAuthor: 1,
@@ -259,12 +264,12 @@ void main() {
       test('应该拒绝 C2C 消息的 null msg_type', () async {
         // GIVEN: 一个 C2C 消息，msg_type 为 null
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: null, // null msg_type
           payload: {'text': 'Hello'},
           isAuthor: 1,
@@ -285,12 +290,12 @@ void main() {
       test('应该正确处理 C2C 消息的有效 msg_type (text)', () async {
         // GIVEN: 一个 C2C 消息，msg_type 有效
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.text, // 有效的 msg_type
           payload: {'text': 'Hello World'},
           isAuthor: 1,
@@ -311,12 +316,12 @@ void main() {
       test('应该正确处理 C2C 消息的有效 msg_type (image)', () async {
         // GIVEN: 一个 C2C 图片消息
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.image,
           payload: {'uri': 'https://example.com/image.jpg', 'size': 102400},
           isAuthor: 1,
@@ -337,12 +342,12 @@ void main() {
         // 注意：location 需要自定义 UI builder，在 flutter_chat_ui 中被视为 custom 类型
         // 代码会将其标记为 unknown_msg_type，这是预期行为
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.location,
           payload: {'latitude': 39.9042, 'longitude': 116.4074},
           isAuthor: 1,
@@ -362,12 +367,12 @@ void main() {
       test('应该正确处理 C2C 消息的 visitCard 类型 (小驼峰)', () async {
         // GIVEN: 一个 C2C 名片消息（visitCard 类型）
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: 'visitCard',
           payload: {
             'uid': 'user123',
@@ -390,12 +395,12 @@ void main() {
       test('应该拒绝 C2C 消息的下划线类型 (visit_card)', () async {
         // GIVEN: 一个 C2C 消息，msg_type=visit_card（非标准命名）
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: 'visit_card',
           payload: {
             'uid': 'user123',
@@ -425,12 +430,12 @@ void main() {
       test('应该拒绝 C2G 消息的空 msg_type', () async {
         // GIVEN: 一个 C2G 消息，msg_type 为空
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2G',
           status: 11,
-          fromId: 'user1',
-          toId: 'group123',
+          fromId: 8001,
+          toId: 123,
           msgType: '', // 空 msg_type
           payload: {'text': 'Hello group'},
           isAuthor: 1,
@@ -451,12 +456,12 @@ void main() {
       test('应该正确处理 C2G 消息的有效 msg_type', () async {
         // GIVEN: 一个 C2G 消息，msg_type 有效
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2G',
           status: 11,
-          fromId: 'user1',
-          toId: 'group123',
+          fromId: 8001,
+          toId: 123,
           msgType: MessageType.text,
           payload: {'text': 'Hello group'},
           isAuthor: 1,

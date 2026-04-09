@@ -103,7 +103,7 @@ class MentionNotifier extends Notifier<MentionState> {
 
       // 转换为 MentionCandidate 列表
       final candidates = members.map((m) => MentionCandidate(
-        userId: m.userId,
+        userId: m.userId.toString(),
         displayName: m.alias.isNotEmpty ? m.alias : m.nickname,
         avatar: m.avatar,
         role: m.role,
@@ -115,8 +115,8 @@ class MentionNotifier extends Notifier<MentionState> {
       final userIdToName = <String, String>{};
 
       for (final m in members) {
-        userIdToName[m.userId] = m.alias.isNotEmpty ? m.alias : m.nickname;
-        if (m.userId == currentUid) {
+        userIdToName[m.userId.toString()] = m.alias.isNotEmpty ? m.alias : m.nickname;
+        if (m.userId.toString() == currentUid) {
           currentUserRole = m.role;
         }
       }

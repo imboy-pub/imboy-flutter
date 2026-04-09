@@ -149,13 +149,27 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   Future<void> onMessageP2P(WebRTCSession s, WebRTCSignalingModel msg) async {
-    iPrint("> rtc onMessageP2P ${msg.webRtcType} ${DateTime.now()}");
+    iPrint("> rtc onMessageP2P ${msg.webRtcType}");
+
+    // 安全校验：验证信令消息发送方是否为当前会话的合法对等端
+    if (msg.from != s.peerId &&
+        msg.webRtcType != 'peers' &&
+        msg.webRtcType != 'heartbeat') {
+      iPrint('> rtc WARNING: message from unexpected peer ${msg.from}, expected ${s.peerId}');
+      return;
+    }
+
     switch (msg.webRtcType) {
       case 'peers':
         break;
       case 'offer':
         final sid = msg.payload['sid'] ?? s.sid;
         final sd = msg.payload['sd'];
+        // SDP 基本格式校验
+        if (sd is! Map || sd['sdp'] is! String || sd['type'] != 'offer') {
+          iPrint('> rtc WARNING: invalid SDP in offer message');
+          return;
+        }
         final s2 = await createSession(
           s,
           msgId: msg.msgId,
@@ -178,11 +192,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       case 'answer':
         final sid = msg.payload['sid'] ?? s.sid;
         final sd = msg.payload['sd'];
+        // SDP 基本格式校验
+        if (sd is! Map || sd['sdp'] is! String || sd['type'] != 'answer') {
+          iPrint('> rtc WARNING: invalid SDP in answer message');
+          return;
+        }
         final s2 = webRTCSessions[sid];
-        iPrint("> rtc onMessageP2P 2 ${msg.webRtcType} ${s2.toString()}");
 
         makingOffer = false;
-        s2!.pc?.setRemoteDescription(
+        await s2!.pc?.setRemoteDescription(
           RTCSessionDescription(sd['sdp'], sd['type']),
         );
         webRTCSessions[sid] = s2;
@@ -221,10 +239,23 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     String peerId,
     Map<String, dynamic> data,
   ) async {
+    // ICE 候选字段校验
+    final candidateStr = data['candidate'];
+    final sdpMid = data['sdpMid'];
+    final sdpMLineIndex = data['sdpMLineIndex'];
+    if (candidateStr is! String ||
+        candidateStr.isEmpty ||
+        sdpMid is! String ||
+        sdpMLineIndex is! int) {
+      iPrint(
+        '> rtc WARNING: invalid ICE candidate fields, skipping',
+      );
+      return;
+    }
     RTCIceCandidate candidate = RTCIceCandidate(
-      data['candidate'],
-      data['sdpMid'],
-      data['sdpMLineIndex'],
+      candidateStr,
+      sdpMid,
+      sdpMLineIndex,
     );
     String sid = sessionId(peerId);
     var s = webRTCSessions[sid];
@@ -363,9 +394,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
       // 解析并记录 ICE 候选类型（便于调试 NAT 穿透问题）
       final candidateType = _parseIceCandidateType(candidate.candidate ?? '');
-      iPrint(
-        '> rtc ICE candidate type: $candidateType, candidate: ${candidate.candidate}',
-      );
+      // 仅记录候选类型，不输出完整候选字符串（含 IP 地址）
+      iPrint('> rtc ICE candidate type: $candidateType');
 
       final currentSession = session;
       if (currentSession == null) {
@@ -561,13 +591,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   Future<void> cleanSessions() async {
     iPrint("> rtc cleanSessions start ${webRTCSessions.length}");
-    webRTCSessions.forEach((key, sess) async {
-      sess.pc?.onIceCandidate = null;
-      sess.pc?.onTrack = null;
-      await sess.pc?.close();
-      await sess.pc?.dispose();
-      await sess.dc?.close();
-    });
+    await Future.wait(
+      webRTCSessions.values.map((sess) async {
+        sess.pc?.onIceCandidate = null;
+        sess.pc?.onTrack = null;
+        await sess.pc?.close();
+        await sess.pc?.dispose();
+        await sess.dc?.close();
+      }),
+    );
     webRTCSessions.clear();
   }
 
@@ -787,7 +819,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     // 使用 userApiProvider 调用 API
     final userApi = ref.read(userApiProvider);
     Map<String, dynamic> turnCredential = await userApi.turnCredential();
-    debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
+    // 不在日志中输出 TURN 凭证（含 username/credential）
     if (turnCredential.isEmpty && from == 'openCallScreen') {
       EasyLoading.showError(t.failedRequestPleaseCheckNetwork);
       return null;

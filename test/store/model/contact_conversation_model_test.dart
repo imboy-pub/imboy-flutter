@@ -26,7 +26,7 @@ void main() {
         ContactRepo.isFrom: '1',
       });
 
-      expect(model.peerId, '123');
+      expect(model.peerId, 123);
       expect(model.account, '10086');
       expect(model.nickname, '9527');
       expect(model.avatar, '');
@@ -66,14 +66,14 @@ void main() {
       });
 
       expect(model.id, 8);
-      expect(model.peerId, '2001');
+      expect(model.peerId, 2001);
       expect(model.avatar, '3001');
       expect(model.title, '');
       expect(model.subtitle, '4001');
       expect(model.region, 'false');
       expect(model.sign, '5001');
       expect(model.lastTime, 1767225600000);
-      expect(model.lastMsgId, '6001');
+      expect(model.lastMsgId, 6001);
       expect(model.lastMsgStatus, 20);
       expect(model.unreadNum, 3);
       expect(model.type, '1');
@@ -85,7 +85,7 @@ void main() {
     test('sets payload to null for non-map non-json payload', () {
       final model = ConversationModel.fromJson({
         ConversationRepo.id: 1,
-        ConversationRepo.peerId: 'u1',
+        ConversationRepo.peerId: 1001,
         ConversationRepo.type: 'C2C',
         ConversationRepo.msgType: 'text',
         ConversationRepo.payload: ['invalid'],
@@ -93,7 +93,7 @@ void main() {
 
       expect(model.payload, isNull);
       expect(model.id, 1);
-      expect(model.peerId, 'u1');
+      expect(model.peerId, 1001);
     });
   });
 }

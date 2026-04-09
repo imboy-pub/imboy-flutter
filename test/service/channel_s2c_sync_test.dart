@@ -49,7 +49,7 @@ class _FakeChannelRepo extends ChannelRepo {
     dynamic txn,
   }) async {
     savedSubscriptions.add(subscription);
-    subscriptions[subscription.channelId] = subscription;
+    subscriptions[subscription.channelId.toString()] = subscription;
   }
 }
 
@@ -71,14 +71,14 @@ class _FakeChannelMessageRepo extends ChannelMessageRepo {
 }
 
 ChannelModel _channel({
-  required String id,
+  required int id,
   required String name,
   bool isSubscribed = true,
 }) {
   return ChannelModel(
     id: id,
     name: name,
-    creatorId: 'creator-1',
+    creatorId: 1002,
     createdAt: DateTime.fromMillisecondsSinceEpoch(1),
     updatedAt: DateTime.fromMillisecondsSinceEpoch(2),
     isSubscribed: isSubscribed,
@@ -86,7 +86,7 @@ ChannelModel _channel({
 }
 
 Map<String, dynamic> _channelPayload({
-  required String id,
+  required int id,
   required String name,
 }) {
   return _channel(id: id, name: name).toJson();
@@ -104,11 +104,11 @@ void main() {
 
       await service.handleChannelUpdated({
         'channel_id': 'ch-1',
-        'channel': _channelPayload(id: 'ch-1', name: 'Updated Channel'),
+        'channel': _channelPayload(id: 1001, name: 'Updated Channel'),
       });
 
       expect(repo.savedChannels, hasLength(1));
-      expect(repo.savedChannels.single.id, 'ch-1');
+      expect(repo.savedChannels.single.id, 1001);
       expect(repo.savedChannels.single.name, 'Updated Channel');
     });
 
@@ -179,7 +179,7 @@ void main() {
         final service = ChannelService.forTest(
           api: _FakeChannelApi(
             channelById: {
-              'ch-paid': _channel(id: 'ch-paid', name: 'Paid Channel'),
+              '1003': _channel(id: 1003, name: 'Paid Channel'),
             },
           ),
           repo: repo,
@@ -190,19 +190,19 @@ void main() {
           events.add,
         );
 
-        await service.handleChannelOrderPaid({'channel_id': 'ch-paid'});
+        await service.handleChannelOrderPaid({'channel_id': '1003'});
 
         await Future<void>.delayed(const Duration(milliseconds: 10));
         await sub.cancel();
 
         expect(repo.savedChannels, hasLength(1));
-        expect(repo.savedChannels.single.id, 'ch-paid');
+        expect(repo.savedChannels.single.id, 1003);
         expect(repo.savedSubscriptions, hasLength(1));
-        expect(repo.savedSubscriptions.single.channelId, 'ch-paid');
+        expect(repo.savedSubscriptions.single.channelId, 1003);
         expect(
           events.any(
             (event) =>
-                event.channelId == 'ch-paid' &&
+                event.channelId == '1003' &&
                 event.action == 'channel_order_paid',
           ),
           isTrue,

@@ -1,16 +1,15 @@
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
 class GroupModel {
-  final String groupId; //
+  final int groupId; //
   final int type; // 类型: 1 公开群组  2 私有群组
   int joinLimit; //  加入限制: 1 不需审核  2 需要审核  3 只允许邀请加入
   int contentLimit; // 内部发布限制: 1 圈内不需审核  2 圈内需要审核  3 圈外需要审核
   int userIdSum; // 主要用于添加群聊的时候排重；还可以用于校验客户端memberCount是否应该增加
-  String ownerUid; //  群组拥有者ID
-  String creatorUid; //群组创建者ID
+  int ownerUid; //  群组拥有者ID
+  int creatorUid; //群组创建者ID
   int memberMax; // 允许最大成员数量
   int memberCount; // 成员数量
   String introduction; // 简介
@@ -42,15 +41,15 @@ class GroupModel {
   });
 
   factory GroupModel.fromJson(Map<String, dynamic> json) {
-    iPrint("GroupModel.fromJson ${json.toString()}");
+    // 仅在 debug 模式下输出群组 ID，不泄露完整 JSON
     return GroupModel(
-      groupId: parseModelString(json['group_id'] ?? json['id'] ?? json['gid']),
+      groupId: parseModelInt(json['group_id'] ?? json['id'] ?? json['gid']),
       type: parseModelInt(json['type']),
       joinLimit: parseModelInt(json['join_limit']),
       contentLimit: parseModelInt(json['content_limit']),
       userIdSum: parseModelInt(json['user_id_sum']),
-      ownerUid: parseModelString(json['owner_uid']),
-      creatorUid: parseModelString(json['creator_uid']),
+      ownerUid: parseModelInt(json['owner_uid']),
+      creatorUid: parseModelInt(json['creator_uid']),
       memberMax: parseModelInt(json['member_max']),
       memberCount: parseModelInt(json['member_count']),
       introduction: parseModelString(json['introduction']),

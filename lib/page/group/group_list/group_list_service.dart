@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -35,7 +38,7 @@ class GroupListService {
     required int offset,
   }) async {
     final repo = GroupRepo();
-    final merged = <String, GroupModel>{};
+    final merged = <int, GroupModel>{};
     for (final attr in const ['manager', 'join', 'owner']) {
       final payload = await GroupApi().page(page: page, size: size, attr: attr);
       if (payload == null) {
@@ -78,18 +81,18 @@ class GroupListService {
     required GroupModel group,
   }) async {
     final currentUid = UserRepoLocal.to.currentUid;
-    if (currentUid.isEmpty || group.groupId.isEmpty) {
+    if (currentUid.isEmpty || group.groupId == 0) {
       return;
     }
 
     final gmRepo = GroupMemberRepo();
-    final existed = await gmRepo.findByUserId(group.groupId, currentUid);
+    final existed = await gmRepo.findByUserId(group.groupId.toString(), currentUid);
     if (existed != null) {
       final patch = <String, dynamic>{};
       if (existed.status != 1) {
         patch[GroupMemberRepo.status] = 1;
       }
-      if (group.ownerUid == currentUid) {
+      if (group.ownerUid.toString() == currentUid) {
         if (existed.role < 4) {
           patch[GroupMemberRepo.role] = 4;
         }
@@ -105,7 +108,7 @@ class GroupListService {
         }
       }
       if (patch.isNotEmpty) {
-        await gmRepo.update(group.groupId, currentUid, patch);
+        await gmRepo.update(group.groupId.toString(), currentUid, patch);
       }
       return;
     }
@@ -113,7 +116,7 @@ class GroupListService {
     final now = DateTimeHelper.millisecond();
     int role = 1;
     int isJoin = 1;
-    if (group.ownerUid == currentUid) {
+    if (group.ownerUid.toString() == currentUid) {
       role = 4;
       isJoin = 0;
     } else if (attr == 'manager') {
@@ -124,7 +127,7 @@ class GroupListService {
       GroupMemberModel(
         id: null,
         groupId: group.groupId,
-        userId: currentUid,
+        userId: int.tryParse(currentUid) ?? 0,
         nickname: UserRepoLocal.to.current.nickname,
         avatar: UserRepoLocal.to.current.avatar,
         sign: UserRepoLocal.to.current.sign,
@@ -234,12 +237,12 @@ class GroupListService {
   Future<List<String>> computeAvatar(String gid) async {
     const limit = 9;
     String sql =
-        "select c.avatar from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = '$gid' limit $limit;";
+        "select c.avatar from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = ? limit $limit;";
     Database? db = await SqliteService.to.db;
     if (db == null) {
       return [];
     }
-    List<Map> list = await db.rawQuery(sql);
+    List<Map> list = await db.rawQuery(sql, [gid]);
     List<String> li = [UserRepoLocal.to.current.avatar];
     if (list.isNotEmpty) {
       for (var e in list) {
@@ -260,7 +263,7 @@ class GroupListService {
     if (payload != null && payload['list'] != null) {
       GroupMemberRepo repo = GroupMemberRepo();
       for (var item in payload['list']) {
-        repo.save(item);
+        unawaited(repo.save(item));
         String t = item['avatar'] ?? '';
         if (t.trim().isNotEmpty) {
           li.add(t);
@@ -417,7 +420,7 @@ class GroupListService {
   }) async {
     GroupRepo gRepo = GroupRepo();
     GroupModel? g = await gRepo.findById(groupId);
-    iPrint("memberJoin g ${g?.toJson().toString()};");
+    iPrint("memberJoin gid=$groupId exists=${g != null}");
     if (g == null) {
       // 群记录不存在时，先从服务端补齐群详情，避免 join 事件被丢弃
       g = await GroupDetailService().detail(gid: groupId, sync: true);
@@ -432,8 +435,8 @@ class GroupListService {
       await gmRepo.insert(
         GroupMemberModel(
           id: null,
-          groupId: groupId,
-          userId: userId,
+          groupId: parseModelInt(groupId),
+          userId: parseModelInt(userId),
           alias: c?.nickname ?? '',
           nickname: c?.nickname ?? '',
           avatar: c?.avatar ?? '',
@@ -458,7 +461,7 @@ class GroupListService {
   }) async {
     GroupRepo gRepo = GroupRepo();
     GroupModel? g = await gRepo.findById(groupId);
-    iPrint("memberLeave g ${g?.toJson().toString()};");
+    iPrint("memberLeave gid=$groupId exists=${g != null}");
 
     if (userId == UserRepoLocal.to.currentUid) {
       await GroupMemberRepo().deleteByGid(groupId);

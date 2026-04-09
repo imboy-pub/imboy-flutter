@@ -23,7 +23,7 @@ class _TestChannelDetailNotifier extends ChannelDetailNotifier {
       hasMore: false,
       isLoading: false,
     );
-    debugSetChannelId(channel.id);
+    debugSetChannelId(channel.id.toString());
   }
 
   @override
@@ -34,10 +34,10 @@ class _TestChannelDetailNotifier extends ChannelDetailNotifier {
   }) async {}
 }
 
-ChannelMessageModel _buildMessage(String id) {
+ChannelMessageModel _buildMessage(int id) {
   return ChannelMessageModel(
     id: id,
-    channelId: 'chan-1',
+    channelId: 1001,
     content: 'Test message',
     msgType: 'channel_text',
     createdAt: DateTime.now(),
@@ -46,9 +46,9 @@ ChannelMessageModel _buildMessage(String id) {
 
 ChannelModel _buildChannel() {
   return ChannelModel(
-    id: 'chan-1',
+    id: 1001,
     name: 'My Channel',
-    creatorId: 'creator',
+    creatorId: 1002,
     createdAt: DateTime.now(),
     updatedAt: DateTime.now(),
     userRole: ChannelUserRole.admin,
@@ -62,7 +62,7 @@ void main() {
   ) async {
     final channel = _buildChannel();
     final providerOverride = channelDetailProvider.overrideWith(
-      () => _TestChannelDetailNotifier(channel, [_buildMessage('msg-1')]),
+      () => _TestChannelDetailNotifier(channel, [_buildMessage(1)]),
     );
 
     await tester.pumpWidget(
@@ -71,7 +71,7 @@ void main() {
           overrides: [providerOverride],
           child: MaterialApp(
             home: ChannelDetailPage(
-              channelId: channel.id,
+              channelId: channel.id.toString(),
               autoLoadStats: false,
             ),
           ),
@@ -84,8 +84,8 @@ void main() {
 
     AppEventBus.fire(
       const ChannelMessageDeletedEvent(
-        channelId: 'chan-1',
-        messageId: 'msg-1',
+        channelId: '1001',
+        messageId: '1',
         reason: 'deleted',
       ),
     );

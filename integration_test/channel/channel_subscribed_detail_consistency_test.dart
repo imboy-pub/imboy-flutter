@@ -135,22 +135,22 @@ Future<_VerifyResult> _verifySingleSubscribedChannel({
   for (final id in candidates) {
     // 先按频道 ID 尝试，再按 custom_id 尝试；每步都做重试以降低 429 干扰。
     final byId = await _resolveChannelWithRetry(api, id, useCustomId: false);
-    if (byId != null && byId.id.trim().isNotEmpty) {
+    if (byId != null && byId.id != 0) {
       resolved = byId;
       resolvedBy = '$id(id)';
       break;
     }
-    if (byId != null && byId.id.trim().isEmpty) {
+    if (byId != null && byId.id == 0) {
       debugNotes.add('candidate=$id byId returned empty-id payload');
     }
 
     final byCustom = await _resolveChannelWithRetry(api, id, useCustomId: true);
-    if (byCustom != null && byCustom.id.trim().isNotEmpty) {
+    if (byCustom != null && byCustom.id != 0) {
       resolved = byCustom;
       resolvedBy = '$id(custom_id)';
       break;
     }
-    if (byCustom != null && byCustom.id.trim().isEmpty) {
+    if (byCustom != null && byCustom.id == 0) {
       debugNotes.add('candidate=$id byCustom returned empty-id payload');
     }
 
@@ -163,8 +163,8 @@ Future<_VerifyResult> _verifySingleSubscribedChannel({
     );
   }
 
-  final effectiveId = resolved.id.trim();
-  if (effectiveId.isEmpty) {
+  final effectiveId = resolved.id.toString();
+  if (resolved.id == 0) {
     return _VerifyResult.failure(
       'channel[name=${channel.name}, resolvedBy=$resolvedBy] 解析详情成功但 id 为空',
     );
@@ -202,8 +202,8 @@ Future<ChannelModel?> _resolveChannelWithRetry(
 }
 
 List<String> _collectCandidateIds(ChannelModel channel) {
-  final ids = <String>{channel.id.trim(), (channel.customId ?? '').trim()};
-  ids.removeWhere((e) => e.isEmpty);
+  final ids = <String>{channel.id.toString(), (channel.customId ?? '').trim()};
+  ids.removeWhere((e) => e.isEmpty || e == '0');
   return ids.toList(growable: false);
 }
 

@@ -182,14 +182,14 @@ Future<_ManageTarget?> _findManageableChannel(ChannelApi api) async {
 }
 
 String _chooseUpdatePathId(ChannelModel channel) {
-  final id = channel.id.trim();
-  if (id.isNotEmpty) return id;
+  final id = channel.id.toString();
+  if (id.isNotEmpty && id != '0') return id;
   return (channel.customId ?? '').trim();
 }
 
 List<String> _collectCandidateIds(ChannelModel channel) {
-  final ids = <String>{channel.id.trim(), (channel.customId ?? '').trim()};
-  ids.removeWhere((e) => e.isEmpty);
+  final ids = <String>{channel.id.toString(), (channel.customId ?? '').trim()};
+  ids.removeWhere((e) => e.isEmpty || e == '0');
   return ids.toList(growable: false);
 }
 

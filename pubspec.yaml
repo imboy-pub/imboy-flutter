@@ -61,7 +61,8 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   shared_preferences: ^2.5.4       # Local key-value storage
   flutter_secure_storage: ^10.0.0  # Secure storage for sensitive data (tokens, keys)
-  sqflite: ^2.4.2                   # SQLite database for local data persistence
+  sqflite_sqlcipher: ^3.4.0          # SQLCipher encrypted SQLite (drop-in sqflite replacement)
+  # sqflite: ^2.4.2                 # 已被 sqflite_sqlcipher 替代
   path: ^1.9.0                     # Path manipulation utilities
   archive: ^4.0.9                  # ZIP compression for data backup functionality
 

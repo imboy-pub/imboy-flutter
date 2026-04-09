@@ -189,7 +189,6 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 debugPrint("Completed");
                               },
                               onChanged: (value) {
-                                debugPrint(value);
                                 setState(() {
                                   currentText = value;
                                 });

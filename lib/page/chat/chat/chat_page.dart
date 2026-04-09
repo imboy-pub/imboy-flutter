@@ -370,8 +370,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
     // 初始化群组信息
     await _initGroupInfo();
-    // 设置消息监听
-    _setupEventListeners();
+    // 注意：_setupEventListeners 已在 _initChat 中调用，此处不再重复调用
     // 预加载E2EE设备密钥（优化加密性能）
     await _preloadE2EEDeviceKeys();
   }
@@ -1019,7 +1018,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       debugPrint('发送名片消息: uid=${result.peerId}, title=${result.title}');
       await _attachmentHandler.sendVisitCardMessage(
         context,
-        result.peerId,
+        result.peerId.toString(),
         result.title,
         result.avatar,
       );

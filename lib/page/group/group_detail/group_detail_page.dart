@@ -64,7 +64,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   @override
   void initState() {
     super.initState();
-    initData();
+    unawaited(initData());
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
         setState(() {});
@@ -79,7 +79,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     super.dispose();
   }
 
-  void initData() async {
+  Future<void> initData() async {
     final notifier = ref.read(groupDetailProvider.notifier);
     final service = ref.read(groupDetailServiceProvider);
 
@@ -99,7 +99,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       limit: 18,
     );
 
-    memberList.add(PeopleModel(id: 'add', account: ''));
+    memberList.add(PeopleModel(id: -1, account: 'add'));
     int role = await service.role(
       gid: widget.groupId,
       userId: UserRepoLocal.to.currentUid,
@@ -108,7 +108,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     notifier.setRoleInfo(role, isAdmin);
 
     if (isAdmin) {
-      memberList.add(PeopleModel(id: 'remove', account: ''));
+      memberList.add(PeopleModel(id: -2, account: 'remove'));
     }
     notifier.setMemberList(memberList);
 
@@ -123,7 +123,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       GroupModel? g,
     ) async {
       iPrint(
-        "logic.detail then connected $connected, ${g?.toJson().toString()}",
+        "logic.detail then connected $connected, gid=${widget.groupId}",
       );
       if (g != null) {
         notifier.setMemberCount(g.memberCount);
@@ -150,7 +150,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     ssMsgExt ??= AppEventBus.on<ChatExtendEvent>().listen((
       ChatExtendEvent obj,
     ) async {
-      iPrint("face_to_face_confirm widget.gid ${obj.toString()}");
+      iPrint("group_detail ChatExtendEvent type=${obj.type}");
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.groupId &&
           (obj.payload['isFirst'] ?? false)) {
@@ -164,7 +164,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       } else if (obj.type == 'leave_group' &&
           obj.payload['groupId'] == widget.groupId) {
         await _lock.synchronized(() async {
-          notifier.removeMember(obj.payload['userId']);
+          final payloadUserId = obj.payload['userId'];
+          notifier.removeMember(payloadUserId is int ? payloadUserId : int.tryParse(payloadUserId?.toString() ?? '0') ?? 0);
           backDoRefresh = true;
           if (mounted) {
             setState(() {});
@@ -265,7 +266,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       );
                       if (result != null) {
                         iPrint(
-                          "RemoveMemberPage then ${result.toList().toString()}",
+                          "RemoveMemberPage removed ${result.length} members",
                         );
                         for (var gm in result) {
                           ref

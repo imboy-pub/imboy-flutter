@@ -26,9 +26,9 @@ void main() {
         'updated_at': '1767225600000',
       });
 
-      expect(model.id, '123');
-      expect(model.channelId, '456');
-      expect(model.userId, '789');
+      expect(model.id, 123);
+      expect(model.channelId, 456);
+      expect(model.userId, 789);
       expect(model.orderNo, 'CH1767225600000123');
       expect(model.amount, 9.9);
       expect(model.currency, 'CNY');

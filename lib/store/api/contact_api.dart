@@ -24,18 +24,24 @@ class ContactApi extends HttpClient {
       queryParameters: {"id": uid},
     );
     ContactModel? ct;
-    debugPrint("> on Api/syncByUid resp: ${resp.payload.toString()}");
+    if (kDebugMode) {
+      debugPrint("> on Api/syncByUid resp: ok=${resp.ok}");
+    }
     if (resp.ok && resp.payload.isNotEmpty) {
       try {
-        (ContactRepo()).save(resp.payload);
+        await (ContactRepo()).save(resp.payload);
         ct = ContactModel.fromMap(resp.payload);
-      } catch (e) {
-        debugPrint("> on Api/syncByUid error: $e");
+      } on Exception catch (e) {
+        if (kDebugMode) {
+          debugPrint("> on Api/syncByUid error: $e");
+        }
       }
     } else {
-      debugPrint(
-        "> on Api/syncByUid failed: ${resp.error?.message ?? 'Unknown error'}",
-      );
+      if (kDebugMode) {
+        debugPrint(
+          "> on Api/syncByUid failed: ${resp.error?.message ?? 'Unknown error'}",
+        );
+      }
     }
     return ct;
   }
@@ -46,18 +52,18 @@ class ContactApi extends HttpClient {
       API.friendChangeRemark,
       data: {'uid': uid, 'remark': remark},
     );
-    debugPrint(
-      "> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}",
-    );
+    if (kDebugMode) {
+      debugPrint("> on changeRemark resp: ok=${resp.ok}");
+    }
     return resp.ok;
   }
 
   /// 删除联系人
   Future<bool> deleteContact(String uid) async {
     IMBoyHttpResponse resp = await post(API.deleteFriend, data: {'uid': uid});
-    debugPrint(
-      "> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}",
-    );
+    if (kDebugMode) {
+      debugPrint("> on deleteContact resp: ok=${resp.ok}");
+    }
     return resp.ok;
   }
 }

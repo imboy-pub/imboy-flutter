@@ -9,6 +9,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -234,7 +235,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       if (e.toString().contains('Invalid padding') ||
           e.toString().contains('decrypt')) {
         final fallbackContact = ContactModel(
-          peerId: uid,
+          peerId: parseModelInt(uid),
           nickname: 'User_${uid.substring(0, 8)}',
           avatar: '',
         );
@@ -1004,7 +1005,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     if (author == null) {
       _loadAndCacheContact(message.authorId);
       author = ContactModel(
-        peerId: message.authorId,
+        peerId: parseModelInt(message.authorId),
         nickname: 'Loading...',
         avatar: '',
       );

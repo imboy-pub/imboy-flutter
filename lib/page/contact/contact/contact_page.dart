@@ -57,7 +57,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   // 刷新联系人列表
   Future<void> _onRefresh() async {
-    debugPrint(">>> contact onRefresh");
+    iPrint(">>> contact onRefresh");
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
@@ -283,16 +283,16 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       onTap: () {
         // 处理功能入口点击
         switch (model.peerId) {
-          case 'people_nearby':
+          case kPeerIdPeopleNearby:
             context.push('/contact/people_nearby');
             break;
-          case 'new_friend':
+          case kPeerIdNewFriend:
             context.push('/contact/new_friend');
             break;
-          case 'group':
+          case kPeerIdGroup:
             context.push('/group/list');
             break;
-          case 'tag':
+          case kPeerIdTag:
             context.push('/contact/tags');
             break;
         }

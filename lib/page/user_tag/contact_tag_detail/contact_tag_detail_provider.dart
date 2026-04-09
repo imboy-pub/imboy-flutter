@@ -176,7 +176,7 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
   }) async {
     List<String> objectIds = [];
     for (var e in selectedContact) {
-      objectIds.add(e.peerId);
+      objectIds.add(e.peerId.toString());
     }
     bool res = await (UserTagApi()).setRelation(
       tagId: tagId,
@@ -192,17 +192,17 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
       List<String> oldObjectIds = [];
       // 处理移除情况
       for (var e in tagContactList) {
-        oldObjectIds.add(e.peerId);
-        if (!objectIds.contains(e.peerId)) {
-          ContactRepo().removeTag(peerId: e.peerId, tagName: tagName);
+        oldObjectIds.add(e.peerId.toString());
+        if (!objectIds.contains(e.peerId.toString())) {
+          ContactRepo().removeTag(peerId: e.peerId.toString(), tagName: tagName);
           e.tag = e.tag.replaceAll("$tagName,", '');
         }
       }
 
       // 新增的情况
       for (var e in selectedContact) {
-        if (!oldObjectIds.contains(e.peerId)) {
-          ContactRepo().addTag(peerId: e.peerId, tagName: tagName);
+        if (!oldObjectIds.contains(e.peerId.toString())) {
+          ContactRepo().addTag(peerId: e.peerId.toString(), tagName: tagName);
           e.tag = "$tagName,${e.tag}";
         }
       }

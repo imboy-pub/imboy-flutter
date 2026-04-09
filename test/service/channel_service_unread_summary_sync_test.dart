@@ -39,7 +39,7 @@ class _FakeChannelRepo extends ChannelRepo {
   Future<int> updateUnreadCount(String channelId, int count) async {
     updatedUnreadByChannel[channelId] = count;
     for (int i = 0; i < _subscriptions.length; i++) {
-      if (_subscriptions[i].channelId == channelId) {
+      if (_subscriptions[i].channelId.toString() == channelId) {
         _subscriptions[i] = _subscriptions[i].copyWith(unreadCount: count);
       }
     }
@@ -52,12 +52,12 @@ void main() {
     test('emits unread delta and summary sync event with trigger', () async {
       final repo = _FakeChannelRepo([
         ChannelSubscriptionModel(
-          channelId: 'ch-1',
+          channelId: 1001,
           subscribedAt: DateTime.fromMillisecondsSinceEpoch(1),
           unreadCount: 1,
         ),
         ChannelSubscriptionModel(
-          channelId: 'ch-2',
+          channelId: 1002,
           subscribedAt: DateTime.fromMillisecondsSinceEpoch(2),
           unreadCount: 2,
         ),
@@ -66,9 +66,9 @@ void main() {
         summary: const <String, dynamic>{
           'total_unread': 6,
           'channels': <Map<String, dynamic>>[
-            {'channel_id': 'ch-1', 'unread_count': 1},
-            {'channel_id': 'ch-2', 'unread_count': 5},
-            {'channel_id': 'ch-3', 'unread_count': 99},
+            {'channel_id': '1001', 'unread_count': 1},
+            {'channel_id': '1002', 'unread_count': 5},
+            {'channel_id': '1003', 'unread_count': 99},
           ],
         },
       );
@@ -90,9 +90,9 @@ void main() {
       await syncSub.cancel();
 
       expect(result['total_unread'], 6);
-      expect(repo.updatedUnreadByChannel, {'ch-2': 5});
+      expect(repo.updatedUnreadByChannel, {'1002': 5});
       expect(
-        unreadEvents.any((e) => e.channelId == 'ch-2' && e.unreadCount == 5),
+        unreadEvents.any((e) => e.channelId == '1002' && e.unreadCount == 5),
         isTrue,
       );
       expect(
@@ -116,7 +116,7 @@ void main() {
       () async {
         final repo = _FakeChannelRepo([
           ChannelSubscriptionModel(
-            channelId: 'ch-1',
+            channelId: 1001,
             subscribedAt: DateTime.fromMillisecondsSinceEpoch(1),
             unreadCount: 7,
           ),

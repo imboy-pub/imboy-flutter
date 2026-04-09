@@ -49,7 +49,7 @@ class AvatarList extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (int j = i; j < i + column && j < memberList.length; j++)
-                if (memberList[j].id == 'last')
+                if (memberList[j].account == 'last')
                   DottedBorder(
                     options: RoundedRectDottedBorderOptions(
                       radius: const Radius.circular(12),
@@ -59,7 +59,7 @@ class AvatarList extends StatelessWidget {
                       child: SizedBox(height: height ?? 56, width: width ?? 56),
                     ),
                   )
-                else if (memberList[j].id == 'add')
+                else if (memberList[j].account == 'add')
                   InkWell(
                     onTap: onTapAdd,
                     child: Padding(
@@ -81,7 +81,7 @@ class AvatarList extends StatelessWidget {
                       ),
                     ),
                   )
-                else if (memberList[j].id == 'remove')
+                else if (memberList[j].account == 'remove')
                   InkWell(
                     onTap: onTapRemove,
                     child: Padding(

@@ -15,6 +15,7 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 class FaceToFaceConfirmPage extends ConsumerStatefulWidget {
@@ -105,8 +106,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
 
       for (final item in list) {
         if (item is! Map) continue;
-        final uid = item['user_id']?.toString() ?? '';
-        if (uid.isEmpty || existingIds.contains(uid)) continue;
+        final uid = parseModelInt(item['user_id']);
+        if (uid == 0 || existingIds.contains(uid)) continue;
         memberList.insert(
           0,
           PeopleModel(
@@ -133,18 +134,15 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   /// 初始化一些数据
   Future<void> initData() async {
     memberList = List.from(widget.memberList);
-    memberList.add(PeopleModel(id: 'last', account: ''));
+    memberList.add(PeopleModel(id: -1, account: ''));
 
-    iPrint('🔔 [面对面确认] 开始监听 ChatExtendEvent，当前群组 gid: ${widget.gid}');
-    iPrint('👥 [面对面确认] 初始成员列表: ${memberList.map((e) => e.id).toList()}');
+    iPrint('[面对面确认] 开始监听 ChatExtendEvent, memberCount=${memberList.length}');
 
     // 接收到新的消息订阅
     ssMsg ??= AppEventBus.on<ChatExtendEvent>().listen((
       ChatExtendEvent obj,
     ) async {
-      iPrint(
-        '📨 [面对面确认] 收到 ChatExtendEvent - type: ${obj.type}, payload: ${obj.payload}',
-      );
+      iPrint('[面对面确认] 收到 ChatExtendEvent type=${obj.type}');
 
       // 监听新成员加入
       if (obj.type == 'join_group') {
@@ -154,18 +152,16 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
               widget.gid == obj.payload['groupId'],
         );
 
-        iPrint(
-          "✨ [面对面确认] join_group 事件 - widget.gid: ${widget.gid}, event.gid: ${obj.payload['groupId']}, userId: ${obj.payload['userId']}, 找到索引: $i",
-        );
+        iPrint("[面对面确认] join_group 事件, 找到索引: $i");
 
         if (i == -1) {
           memberList.insert(0, obj.payload['people']);
-          iPrint('➕ [面对面确认] 添加新成员到列表: ${obj.payload['people'].id}');
+          iPrint('[面对面确认] 添加新成员到列表');
           if (mounted) {
             setState(() {});
           }
         } else {
-          iPrint('⚠️ [面对面确认] 成员已存在，跳过添加: ${obj.payload['userId']}');
+          iPrint('[面对面确认] 成员已存在，跳过添加');
         }
       }
     });
@@ -254,8 +250,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                             );
                           }
                         } catch (e) {
-                          debugPrint("faceToFaceSave error: $e");
-                          EasyLoading.showError('${t.error}: $e');
+                          iPrint("faceToFaceSave error: ${e.runtimeType}");
+                          EasyLoading.showError(t.tipFailed);
                         } finally {
                           EasyLoading.dismiss();
                           // 恢复加入状态

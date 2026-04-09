@@ -67,7 +67,7 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                     ListTile(
                       leading: SmartGroupAvatar(
                         avatar: model.avatar,
-                        groupId: model.peerId,
+                        groupId: model.peerId.toString(),
                         avatarLoader: computeAvatar,
                       ),
                       contentPadding: const EdgeInsets.only(

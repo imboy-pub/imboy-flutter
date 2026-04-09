@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 const contactAssets = 'assets/images/contact/';
@@ -9,7 +10,8 @@ const constHelpUrl =
 
 String qrcodeDataSuffix = "s=app_qrcode";
 
-const recordLog = true;
+/// 仅在 debug 构建中开启 Dio 日志记录，避免 release 构建泄露 token/密码到系统日志
+const recordLog = kDebugMode;
 
 Icon navigateNextIcon = const Icon(Icons.navigate_next);
 

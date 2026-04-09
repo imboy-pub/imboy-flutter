@@ -128,7 +128,7 @@ void main() {
       expect(api.lastUri, API.userCollectChange);
     });
 
-    test('add should post kind payload and set 50 minute timeouts', () async {
+    test('add should post kind payload and set 5 minute timeouts', () async {
       final api = _FakeUserCollectApi();
       api.nextResponse = IMBoyHttpResponse.success({'id': 'c1'});
 
@@ -144,8 +144,8 @@ void main() {
         'info': {'text': 'hello'},
       });
       expect(api.lastOptions, isNotNull);
-      expect(api.lastOptions?.sendTimeout, const Duration(minutes: 50));
-      expect(api.lastOptions?.receiveTimeout, const Duration(minutes: 50));
+      expect(api.lastOptions?.sendTimeout, const Duration(minutes: 5));
+      expect(api.lastOptions?.receiveTimeout, const Duration(minutes: 5));
     });
   });
 }

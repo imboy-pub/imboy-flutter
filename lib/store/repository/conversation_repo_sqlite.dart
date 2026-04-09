@@ -7,7 +7,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import '../../component/helper/func.dart';
 
@@ -120,7 +120,7 @@ class ConversationRepo {
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
     iPrint("ConversationRepo_save ${obj.toJson().toString()}");
-    ConversationModel? oldObj = await findByPeerId(obj.type, obj.peerId);
+    ConversationModel? oldObj = await findByPeerId(obj.type, obj.peerId.toString());
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
     // obj.isShow = oldObj?.isShow ?? 1;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
@@ -130,7 +130,7 @@ class ConversationRepo {
       Map<String, dynamic> data = obj.toJson();
       data.remove(ConversationRepo.id);
       await updateById(oldObj.id, data);
-      obj = (await findByPeerId(obj.type, obj.peerId))!;
+      obj = (await findByPeerId(obj.type, obj.peerId.toString()))!;
     }
     return obj;
   }

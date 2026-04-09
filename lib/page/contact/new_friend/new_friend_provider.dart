@@ -1,10 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/enum.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -62,7 +61,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
 
   /// 收到添加朋友
   Future<void> receivedAddFriend(Map data) async {
-    debugPrint("CLIENT_ACK,S2C,${data['id']},$deviceId");
+    iPrint("CLIENT_ACK,S2C,${data['id']}");
 
     String uid = UserRepoLocal.to.currentUid;
     String from = data["from"] ?? "";
@@ -85,14 +84,14 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
         isUtc: true,
       ),
     };
-    debugPrint("> on receivedAddFriend ${saveData.toString()}");
+    iPrint("> on receivedAddFriend from=$from to=$to");
     (NewFriendRepo()).save(saveData);
     replaceItems(NewFriendModel.fromJson(saveData));
 
     // 使用事件总线发送 ACK
     final msgId = data['id'];
     if (msgId == null || msgId.isEmpty) {
-      debugPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK: data=${data.toString()}");
+      iPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK");
       return;
     }
     // 直接发送 ACK 确认
@@ -101,9 +100,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
 
   /// 确认添加朋友
   Future<void> receivedConfirmFriend(bool ack, Map data) async {
-    debugPrint(
-      "CLIENT_ACK,S2C,${data['id']},$deviceId  data:${data.toString()}",
-    );
+    iPrint("CLIENT_ACK,S2C,${data['id']}");
     String from = data["from"];
     String to = data["to"];
     NewFriendRepo repo = NewFriendRepo();
@@ -116,7 +113,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     if (ack) {
       final msgId = data['id'];
       if (msgId == null || msgId.isEmpty) {
-        debugPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK: data=${data.toString()}");
+        iPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK");
         return;
       }
       // 直接发送 ACK 确认
@@ -149,7 +146,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       }
       return false;
     });
-    debugPrint("CLIENT_ACK replaceItems $index ${obj.toString()}");
+    iPrint("CLIENT_ACK replaceItems $index");
     if (index > -1) {
       newItems[index] = obj;
     } else {

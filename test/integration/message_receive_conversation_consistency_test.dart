@@ -15,8 +15,8 @@ import 'package:imboy/store/model/conversation_model.dart';
 import '../helper/mock_services.dart';
 
 void main() {
-  const currentUid = 'ut_me';
-  const peerUid = 'ut_peer';
+  const currentUid = '9001';
+  const peerUid = '9002';
 
   late MockConversationRepository conversationRepo;
 
@@ -25,7 +25,7 @@ void main() {
   ) async {
     final oldObj = await conversationRepo.findByPeerId(
       incoming.type,
-      incoming.peerId,
+      incoming.peerId.toString(),
     );
     final oldUnread = oldObj?.unreadNum ?? 0;
 
@@ -39,23 +39,24 @@ void main() {
     final data = merged.toJson();
     data.remove('id');
     await conversationRepo.updateById(oldObj.id, data);
-    return (await conversationRepo.findByPeerId(merged.type, merged.peerId))!;
+    return (await conversationRepo.findByPeerId(merged.type, merged.peerId.toString()))!;
   }
 
   Future<ConversationModel> simulateReceiveAndSaveConversation({
     required String msgType,
     required String from,
     required String to,
-    required String msgId,
+    required int msgId,
     required int lastTime,
     required bool isUserInChat,
   }) async {
     final data = <String, dynamic>{'from': from, 'to': to};
-    final peerId = resolveConversationPeerId(
+    final peerIdStr = resolveConversationPeerId(
       msgType: msgType,
       data: data,
       currentUid: currentUid,
     );
+    final peerIdInt = int.tryParse(peerIdStr) ?? 0;
     final unreadIncrement = computeConversationUnreadIncrement(
       isFromCurrentUser: from == currentUid,
       isUserInChat: isUserInChat,
@@ -63,9 +64,9 @@ void main() {
 
     final conv = ConversationModel(
       id: 0,
-      peerId: peerId,
+      peerId: peerIdInt,
       avatar: '',
-      title: 'test-$peerId',
+      title: 'test-$peerIdStr',
       subtitle: 'msg-$msgId',
       type: msgType,
       msgType: 'text',
@@ -91,25 +92,25 @@ void main() {
         msgType: 'C2C',
         from: peerUid,
         to: currentUid,
-        msgId: 'msg_in_1',
+        msgId: 101,
         lastTime: 1001,
         isUserInChat: false,
       );
-      expect(savedIncoming.peerId, peerUid);
+      expect(savedIncoming.peerId, 9002);
       expect(savedIncoming.unreadNum, 1);
 
       final savedEcho = await simulateReceiveAndSaveConversation(
         msgType: 'C2C',
         from: currentUid,
         to: peerUid,
-        msgId: 'msg_echo_1',
+        msgId: 102,
         lastTime: 1002,
         isUserInChat: false,
       );
 
-      expect(savedEcho.peerId, peerUid);
+      expect(savedEcho.peerId, 9002);
       expect(savedEcho.unreadNum, 1); // 自回显 unreadIncrement=0，不应新增未读
-      expect(savedEcho.lastMsgId, 'msg_echo_1');
+      expect(savedEcho.lastMsgId, 102);
 
       final peerConv = await conversationRepo.findByPeerId('C2C', peerUid);
       final selfConv = await conversationRepo.findByPeerId('C2C', currentUid);
@@ -121,9 +122,9 @@ void main() {
     test('活跃会话内接收对端消息不增加未读', () async {
       final first = await simulateReceiveAndSaveConversation(
         msgType: 'C2C',
-        from: 'ut_peer_active',
+        from: '9003',
         to: currentUid,
-        msgId: 'msg_bg_1',
+        msgId: 201,
         lastTime: 2001,
         isUserInChat: false,
       );
@@ -131,19 +132,19 @@ void main() {
 
       final second = await simulateReceiveAndSaveConversation(
         msgType: 'C2C',
-        from: 'ut_peer_active',
+        from: '9003',
         to: currentUid,
-        msgId: 'msg_fg_2',
+        msgId: 202,
         lastTime: 2002,
         isUserInChat: true,
       );
 
       expect(second.unreadNum, 1); // 前台消息 unreadIncrement=0
 
-      final conv = await conversationRepo.findByPeerId('C2C', 'ut_peer_active');
+      final conv = await conversationRepo.findByPeerId('C2C', '9003');
       expect(conv, isNotNull);
       expect(conv!.unreadNum, 1);
-      expect(conv.lastMsgId, 'msg_fg_2');
+      expect(conv.lastMsgId, 202);
     });
 
     test('后台每条消息只增 1，提醒使用内存同步不写回 DB', () async {
@@ -153,14 +154,14 @@ void main() {
 
       final first = await simulateReceiveAndSaveConversation(
         msgType: 'C2C',
-        from: 'ut_peer_bg',
+        from: '9004',
         to: currentUid,
-        msgId: 'msg_bg_1',
+        msgId: 301,
         lastTime: 3001,
         isUserInChat: false,
       );
 
-      const remindKey = 'C2C_ut_peer_bg';
+      const remindKey = 'C2C_9004';
       notifier.setConversationRemindLocal(remindKey, first.unreadNum);
       expect(first.unreadNum, 1);
       expect(
@@ -170,9 +171,9 @@ void main() {
 
       final second = await simulateReceiveAndSaveConversation(
         msgType: 'C2C',
-        from: 'ut_peer_bg',
+        from: '9004',
         to: currentUid,
-        msgId: 'msg_bg_2',
+        msgId: 302,
         lastTime: 3002,
         isUserInChat: false,
       );
@@ -184,7 +185,7 @@ void main() {
         2,
       );
 
-      final conv = await conversationRepo.findByPeerId('C2C', 'ut_peer_bg');
+      final conv = await conversationRepo.findByPeerId('C2C', '9004');
       expect(conv, isNotNull);
       expect(conv!.unreadNum, 2); // 内存提醒同步不会额外修改 DB 未读
     });

@@ -1,3 +1,5 @@
+import 'package:imboy/store/model/model_parse_utils.dart';
+
 class EntityVideo {
   final String md5, name, uri;
   final int width, height;
@@ -24,14 +26,14 @@ class EntityVideo {
 
   factory EntityVideo.fromJson(Map<String, dynamic> json) {
     return EntityVideo(
-      md5: json["md5"],
-      name: json["name"],
-      uri: json["uri"],
-      size: json["size"]?.toInt(),
-      width: json["width"]?.toInt(),
-      height: json["height"]?.toInt(),
-      duration: double.tryParse('${json['duration']}'),
-      author: json['author'] ?? '',
+      md5: parseModelString(json["md5"]),
+      name: parseModelString(json["name"]),
+      uri: parseModelString(json["uri"]),
+      size: parseModelInt(json["size"]),
+      width: parseModelInt(json["width"]),
+      height: parseModelInt(json["height"]),
+      duration: parseModelDouble(json['duration']),
+      author: parseModelString(json['author']),
     );
   }
 

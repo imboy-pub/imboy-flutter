@@ -101,26 +101,26 @@ class ConversationTestHelper {
   ///
   /// 提供预配置的测试数据
   static ConversationModel createTestConversation({
-    String? peerId,
+    int? peerId,
     String? type,
     String? title,
     String? avatar,
     String? msgType,
     String? subtitle,
     int? lastMsgStatus,
-    String? lastMsgId,
+    int? lastMsgId,
     int? unreadNum,
     Map<String, dynamic>? payload,
   }) {
     return ConversationModel(
       id: 1,
-      peerId: peerId ?? 'test_user_123',
+      peerId: peerId ?? 1100,
       type: type ?? 'C2C',
       title: title ?? '测试用户',
       avatar: avatar ?? 'https://example.com/avatar.png',
       msgType: msgType ?? 'text',
       subtitle: subtitle ?? '这是一条测试消息',
-      lastMsgId: lastMsgId ?? 'msg_123',
+      lastMsgId: lastMsgId ?? 123,
       lastTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       unreadNum: unreadNum ?? 0,
       lastMsgStatus: lastMsgStatus,

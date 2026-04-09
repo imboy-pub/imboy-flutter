@@ -128,7 +128,7 @@ class LaunchChatNotifier extends _$LaunchChatNotifier {
       return null;
     }
 
-    final memberUserIds = items.map((item) => item.peerId).toList();
+    final memberUserIds = items.map((item) => item.peerId.toString()).toList();
     final service = LaunchChatService();
     return await service.groupAdd(memberUserIds);
   }
@@ -139,7 +139,7 @@ class LaunchChatNotifier extends _$LaunchChatNotifier {
       return false;
     }
 
-    final memberUserIds = items.map((item) => item.peerId).toList();
+    final memberUserIds = items.map((item) => item.peerId.toString()).toList();
     final service = LaunchChatService();
     return await service.joinGroup(gid, memberUserIds);
   }
@@ -152,7 +152,7 @@ class LaunchChatNotifier extends _$LaunchChatNotifier {
 
     final memberUserIds = items.map((item) {
       if (item is ContactModel) {
-        return item.peerId;
+        return item.peerId.toString();
       }
       return item.toString();
     }).toList();
@@ -187,7 +187,7 @@ class LaunchChatService {
 
       if (group.title.isEmpty) {
         final groupListService = GroupListService();
-        group.computeTitle = await groupListService.computeTitle(group.groupId);
+        group.computeTitle = await groupListService.computeTitle(group.groupId.toString());
       }
 
       return group;

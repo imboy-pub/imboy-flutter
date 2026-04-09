@@ -66,7 +66,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = e.toString();
+        _error = '${e.runtimeType}';
       });
     }
   }
@@ -157,9 +157,6 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
         separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final invitation = invitations[index];
-          final invitationId = parseModelString(
-            invitation['id'] ?? invitation['invitation_id'],
-          );
           final channelId = parseModelString(invitation['channel_id']);
           final channelName = parseModelString(
             invitation['channel_name'],
@@ -202,8 +199,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                   Text(
                     '过期时间: ${DateFormat("yyyy-MM-dd HH:mm").format(expiresAt)}',
                   ),
-                if (channelId.isNotEmpty) Text('频道ID: $channelId'),
-                if (invitationId.isNotEmpty) Text('邀请ID: $invitationId'),
+                // Internal IDs removed from UI display
               ],
             ),
             trailing: Column(
@@ -383,7 +379,6 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                   Text(
                     '创建时间: ${DateFormat("yyyy-MM-dd HH:mm").format(createdAt)}',
                   ),
-                  if (channelId.isNotEmpty) Text('频道ID: $channelId'),
                   if (isPending) ...[
                     const SizedBox(height: 12),
                     Row(

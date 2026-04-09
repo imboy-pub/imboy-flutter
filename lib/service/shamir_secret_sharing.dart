@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/pointycastle.dart';
@@ -55,11 +56,11 @@ class ShamirSecretSharing {
 
     // 使用 Fortuna 安全随机数生成器
     final random = SecureRandom('Fortuna');
-    // 使用时间戳和随机数据初始化种子
+    // 使用加密安全随机数初始化种子（32 字节完整熵）
     final seed = Uint8List(32);
-    final timestamp = DateTime.now().microsecondsSinceEpoch;
-    for (int i = 0; i < 8; i++) {
-      seed[i] = (timestamp >> (i * 8)) & 0xFF;
+    final secureRand = Random.secure();
+    for (int i = 0; i < 32; i++) {
+      seed[i] = secureRand.nextInt(256);
     }
     random.seed(KeyParameter(seed));
 

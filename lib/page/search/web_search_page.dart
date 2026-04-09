@@ -285,7 +285,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       for (final contact in contacts) {
         results.add(SearchItem(
           type: SearchItemType.contact,
-          id: contact.peerId,
+          id: contact.peerId.toString(),
           title: (contact.remark.isNotEmpty)
               ? contact.remark
               : contact.nickname,
@@ -310,7 +310,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       for (final group in groups) {
         results.add(SearchItem(
           type: SearchItemType.group,
-          id: group.groupId,
+          id: group.groupId.toString(),
           title: group.title,
           subtitle: group.introduction.isNotEmpty
               ? group.introduction
@@ -338,7 +338,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       for (final conv in conversations) {
         results.add(SearchItem(
           type: SearchItemType.conversation,
-          id: conv.peerId,
+          id: conv.peerId.toString(),
           title: conv.title,
           subtitle: conv.subtitle,
           avatar: conv.avatar,

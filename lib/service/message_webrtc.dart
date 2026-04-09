@@ -138,7 +138,7 @@ class MessageWebrtc {
     required String msgId,
     required ContactModel peer,
   }) async {
-    if (msgId.isEmpty || peer.peerId == UserRepoLocal.to.currentUid) return;
+    if (msgId.isEmpty || peer.peerId.toString() == UserRepoLocal.to.currentUid) return;
     if (_addMessageLock) return;
     _addMessageLock = true;
     try {
@@ -151,7 +151,7 @@ class MessageWebrtc {
         );
       } else {
         author = User(
-          id: peer.peerId,
+          id: peer.peerId.toString(),
           name: peer.nickname,
           imageSource: peer.avatar,
         );
@@ -178,7 +178,7 @@ class MessageWebrtc {
       // UI 层（ChatProvider）需要订阅此事件
       AppEventBus.fire(
         ChatMessageAddRequestedEvent(
-          peerId: peer.peerId,
+          peerId: peer.peerId.toString(),
           peerAvatar: peer.avatar,
           peerNickname: peer.nickname,
           conversationType: 'C2C',

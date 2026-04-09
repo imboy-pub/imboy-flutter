@@ -254,7 +254,7 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 处理消息状态更新请求事件
-  void _handleStatusUpdateRequest(
+  Future<void> _handleStatusUpdateRequest(
     MessageStatusUpdateRequestedEvent event,
   ) async {
     try {
@@ -598,13 +598,13 @@ class MessageService with EventSubscriptionManager {
       // 创建临时会话对象用于立即显示
       // Create temporary conversation for immediate UI display
       final tempConv = ConversationModel(
-        peerId: peerId,
+        peerId: parseModelInt(peerId),
         avatar: '', // 稍后异步更新
         title: msgType == 'C2G' ? t.groupChat : t.user, // 稍后异步更新
         subtitle: subtitle,
         type: msgType,
         msgType: messageType,
-        lastMsgId: msgId,
+        lastMsgId: parseModelInt(msgId),
         lastTime: data['created_at'] ?? DateTimeHelper.millisecond(),
         unreadNum: 0,
         id: 0,
@@ -613,11 +613,11 @@ class MessageService with EventSubscriptionManager {
       // 创建临时消息对象用于立即显示
       // Create temporary message for immediate UI display
       final tempMsg = MessageModel(
-        msgId,
+        parseModelInt(data['id']),
         autoId: 0,
         type: msgType,
-        fromId: parseModelString(data['from']),
-        toId: parseModelString(data['to']),
+        fromId: parseModelInt(data['from']),
+        toId: parseModelInt(data['to']),
         payload: nonNullPayload,
         createdAt: parseModelInt(
           data['created_at'],
@@ -831,13 +831,13 @@ class MessageService with EventSubscriptionManager {
       );
 
       final conv = ConversationModel(
-        peerId: peerInfo['peerId']!,
+        peerId: parseModelInt(peerInfo['peerId']),
         avatar: peerInfo['avatar']!,
         title: peerInfo['title']!,
         subtitle: tempConv.subtitle,
         type: msgType,
         msgType: msgContentType, // 【修复】使用修正后的消息类型
-        lastMsgId: msgId,
+        lastMsgId: parseModelInt(msgId),
         lastTime: tempConv.lastTime,
         unreadNum: unreadIncrement,
         id: 0,
@@ -852,11 +852,11 @@ class MessageService with EventSubscriptionManager {
         );
       }
       final msg = MessageModel(
-        msgId,
+        parseModelInt(msgId),
         autoId: 0,
         type: msgType, // 消息会话类型 (C2C/C2G/C2S)
-        fromId: parseModelString(data['from']),
-        toId: parseModelString(data['to']),
+        fromId: parseModelInt(data['from']),
+        toId: parseModelInt(data['to']),
         payload: payload,
         createdAt: parseModelInt(
           data['created_at'],

@@ -109,8 +109,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       return {'error': error};
     }
 
-    iPrint('📍 [面对面建群] 位置信息 - 经度: ${state.longitude}, 纬度: ${state.latitude}');
-    iPrint('🔢 [面对面建群] 输入验证码: $code');
+    iPrint('[面对面建群] 开始请求, hasLocation=true');
 
     // 调用 API
     Map<String, dynamic> payload = await GroupApi().groupFace2face(
@@ -119,11 +118,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       latitude: state.latitude,
     );
 
-    iPrint('📡 [面对面建群] API 响应: ${payload.toString()}');
-    iPrint('📦 [面对面建群] 返回的 gid: ${payload['gid'] ?? '空'}');
-    iPrint(
-      '👥 [面对面建群] 返回的 member_list: ${(payload['member_list'] ?? []).toString()}',
-    );
+    iPrint('[面对面建群] API 响应, gid=${payload['gid'] ?? ''}, memberCount=${(payload['member_list'] ?? []).length}');
 
     // 解析成员列表
     List<dynamic> memberList = payload['member_list'] ?? [];
@@ -142,7 +137,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       }
     }
 
-    iPrint('✅ [面对面建群] 解析后成员数量: ${memberList2.length}');
+    iPrint('[面对面建群] 解析后成员数量: ${memberList2.length}');
 
     return {
       'gid': payload['gid'] ?? '',
@@ -157,7 +152,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       code: code,
       gid: gid,
     );
-    iPrint("faceToFaceSave payload ${payload.toString()}");
+    iPrint("faceToFaceSave memberCount=${(payload['member_list'] ?? []).length}");
 
     List<dynamic> memberList = payload['member_list'] ?? [];
     List<PeopleModel> memberList2 = [];

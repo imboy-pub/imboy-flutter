@@ -5,13 +5,14 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/cached_sqlite_service.dart';
+import 'package:imboy/service/db_encryption_key_service.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/sqflite_init.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -30,7 +31,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
-  static const _dbVersion = 13; // v13: Channel 频道功能 - 新增频道相关表
+  static const _dbVersion = 16; // v16: ID字段 TEXT→INTEGER (对齐后端 PG18 BIGINT)
 
   // 单例构造
   SqliteService._privateConstructor();
@@ -122,9 +123,22 @@ class SqliteService {
       iPrint("Opening existing database");
     }
 
+    // 获取加密密钥（支持加密的平台才启用）
+    String? password;
+    final uid = UserRepoLocal.to.currentUid;
+    if (isEncryptionSupported) {
+      password = await DbEncryptionKeyService.getOrCreateKey(uid);
+
+      // 对已有未加密数据库执行加密迁移
+      if (exists) {
+        await _migrateToEncryptedIfNeeded(path, password);
+      }
+    }
+
     try {
-      return await openDatabase(
+      return await openEncryptedDatabase(
         path,
+        password: password,
         version: _dbVersion,
         onConfigure: _onConfigure,
         onCreate: _onCreate,
@@ -136,6 +150,95 @@ class SqliteService {
       AppLogger.error('Failed to open database: $e');
       // 返回 null 触发降级处理，避免应用崩溃
       return null;
+    }
+  }
+
+  /// 检测并迁移未加密数据库到加密数据库
+  ///
+  /// 迁移策略：
+  /// 1. 尝试不带密码打开数据库（检测是否为明文）
+  /// 2. 如果能打开 → 数据库未加密，需要迁移
+  /// 3. 使用 SQLCipher 的 ATTACH + sqlcipher_export 导出加密版本
+  /// 4. 原子替换：备份原文件 → 替换为加密版 → 验证 → 清理
+  Future<void> _migrateToEncryptedIfNeeded(
+    String path,
+    String password,
+  ) async {
+    // 先尝试用密码打开，如果成功说明已经加密
+    try {
+      final testDb = await openEncryptedDatabase(path, password: password);
+      await testDb.rawQuery('SELECT count(*) FROM sqlite_master');
+      await testDb.close();
+      iPrint('✅ Database already encrypted');
+      return;
+    } catch (_) {
+      // 用密码打开失败，可能是未加密或密码错误
+      iPrint('🔄 Database not yet encrypted, starting migration...');
+    }
+
+    // 尝试不带密码打开（验证为明文数据库）
+    Database plainDb;
+    try {
+      plainDb = await openEncryptedDatabase(path);
+      await plainDb.rawQuery('SELECT count(*) FROM sqlite_master');
+    } catch (e) {
+      AppLogger.error('Cannot open database as plaintext either: $e');
+      // 既不能用密码打开，也不能明文打开 → 数据库可能损坏
+      return;
+    }
+
+    // 执行加密迁移
+    final tempPath = '$path.encrypted.tmp';
+    final backupPath = '$path.pre_encrypt.bak';
+
+    try {
+      // 1. ATTACH 加密数据库并导出
+      await plainDb.execute(
+        "ATTACH DATABASE '$tempPath' AS encrypted KEY '$password'",
+      );
+      await plainDb.execute("SELECT sqlcipher_export('encrypted')");
+      await plainDb.execute("DETACH DATABASE encrypted");
+      await plainDb.close();
+
+      // 2. 备份原始明文数据库
+      await File(path).copy(backupPath);
+
+      // 3. 替换为加密版本
+      await File(tempPath).copy(path);
+      await File(tempPath).delete();
+
+      // 4. 验证加密数据库可正常打开
+      final verifyDb = await openEncryptedDatabase(path, password: password);
+      final result = await verifyDb.rawQuery(
+        'SELECT count(*) FROM sqlite_master',
+      );
+      await verifyDb.close();
+
+      if (result.isNotEmpty) {
+        // 迁移成功，删除备份（保留 7 天后由系统清理亦可）
+        iPrint('✅ Database encryption migration successful');
+        // 保留备份文件，用户可手动删除
+        AppLogger.info(
+          'Plaintext backup saved at: $backupPath (can be deleted manually)',
+        );
+      }
+    } catch (e) {
+      AppLogger.error('Encryption migration failed: $e');
+      // 回滚：恢复明文数据库
+      try {
+        if (await File(backupPath).exists()) {
+          await File(backupPath).copy(path);
+          iPrint('⚠️ Rolled back to plaintext database');
+        }
+      } catch (rollbackError) {
+        AppLogger.error('Rollback also failed: $rollbackError');
+      }
+      // 清理临时文件
+      try {
+        if (await File(tempPath).exists()) {
+          await File(tempPath).delete();
+        }
+      } catch (_) {}
     }
   }
 

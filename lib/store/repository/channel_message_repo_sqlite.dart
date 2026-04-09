@@ -4,7 +4,7 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 频道消息 Repository
 ///
@@ -110,7 +110,7 @@ class ChannelMessageRepo {
     int? cursor,
     int limit = 20,
   }) async {
-    String where = '$ChannelMessageRepo.channelId = ?';
+    String where = '${ChannelMessageRepo.channelId} = ?';
     List<dynamic> whereArgs = [channelId];
 
     if (cursor != null) {
@@ -147,7 +147,7 @@ class ChannelMessageRepo {
   }) async {
     final maps = await _db.query(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ? AND $createdAt < ?',
+      where: '${ChannelMessageRepo.channelId} = ? AND $createdAt < ?',
       whereArgs: [channelId, beforeTime],
       orderBy: '$createdAt DESC',
       limit: limit,
@@ -166,7 +166,7 @@ class ChannelMessageRepo {
   }) async {
     final maps = await _db.query(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ? AND $createdAt > ?',
+      where: '${ChannelMessageRepo.channelId} = ? AND $createdAt > ?',
       whereArgs: [channelId, afterTime],
       orderBy: '$createdAt ASC',
       limit: limit,
@@ -181,7 +181,7 @@ class ChannelMessageRepo {
   Future<List<ChannelMessageModel>> getPinnedMessages(String channelId) async {
     final maps = await _db.query(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ? AND $isPinned = ?',
+      where: '${ChannelMessageRepo.channelId} = ? AND $isPinned = ?',
       whereArgs: [channelId, 1],
       orderBy: '$createdAt DESC',
     );
@@ -205,7 +205,7 @@ class ChannelMessageRepo {
   Future<ChannelMessageModel?> getLastMessage(String channelId) async {
     final maps = await _db.query(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ?',
+      where: '${ChannelMessageRepo.channelId} = ?',
       whereArgs: [channelId],
       orderBy: '$createdAt DESC',
       limit: 1,
@@ -274,7 +274,7 @@ class ChannelMessageRepo {
   Future<int> deleteMessagesByChannel(String channelId) async {
     final count = await _db.delete(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ?',
+      where: '${ChannelMessageRepo.channelId} = ?',
       whereArgs: [channelId],
     );
     iPrint('ChannelMessageRepo: 删除频道 $channelId 的 $count 条消息');
@@ -287,7 +287,7 @@ class ChannelMessageRepo {
   Future<int> deleteOldMessages(String channelId, int keepCount) async {
     // 先获取要保留的消息 ID
     final keepIds = await _db.rawQuery(
-      'SELECT $id FROM $tableName WHERE $ChannelMessageRepo.channelId = ? ORDER BY $createdAt DESC LIMIT ?',
+      'SELECT $id FROM $tableName WHERE ${ChannelMessageRepo.channelId} = ? ORDER BY $createdAt DESC LIMIT ?',
       [channelId, keepCount],
     );
 
@@ -303,7 +303,7 @@ class ChannelMessageRepo {
     // 删除不在保留列表中的消息
     final count = await _db.delete(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ? AND $id NOT IN ($placeholders)',
+      where: '${ChannelMessageRepo.channelId} = ? AND $id NOT IN ($placeholders)',
       whereArgs: [channelId, ...excludeIds],
     );
 
@@ -335,7 +335,7 @@ class ChannelMessageRepo {
   }) async {
     final maps = await _db.query(
       tableName,
-      where: '$ChannelMessageRepo.channelId = ? AND $content LIKE ?',
+      where: '${ChannelMessageRepo.channelId} = ? AND $content LIKE ?',
       whereArgs: [channelId, '%$keyword%'],
       orderBy: '$createdAt DESC',
       limit: limit,

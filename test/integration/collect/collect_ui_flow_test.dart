@@ -105,9 +105,9 @@ void main() {
   group('收藏模型解析验证', () {
     test('应该正确解析完整的收藏数据', () {
       final json = {
-        'user_id': 'u_1001',
+        'user_id': 1001,
         'kind': 1,
-        'kind_id': 'kind_001',
+        'kind_id': 1,
         'source': 'chat',
         'remark': '重要内容',
         'tag': 'work,important,',
@@ -118,9 +118,9 @@ void main() {
 
       final model = UserCollectModel.fromJson(json);
 
-      expect(model.userId, 'u_1001');
+      expect(model.userId, 1001);
       expect(model.kind, 1);
-      expect(model.kindId, 'kind_001');
+      expect(model.kindId, 1);
       expect(model.source, 'chat');
       expect(model.remark, '重要内容');
       expect(model.tag, 'work,important,');
@@ -129,9 +129,9 @@ void main() {
 
     test('应该正确处理 info 字段为字符串的情况', () {
       final json = {
-        'user_id': 'u_1001',
+        'user_id': 1001,
         'kind': 2,
-        'kind_id': 'kind_002',
+        'kind_id': 2,
         'source': 'chat',
         'remark': '',
         'tag': '',
@@ -148,9 +148,9 @@ void main() {
 
     test('应该正确处理缺失的可选字段', () {
       final json = {
-        'user_id': 'u_1001',
+        'user_id': 1001,
         'kind': 1,
-        'kind_id': 'kind_003',
+        'kind_id': 3,
         'source': null,
         'remark': null,
         'tag': null,
@@ -169,9 +169,9 @@ void main() {
 
     test('toMap 应该正确序列化模型', () {
       final model = UserCollectModel(
-        userId: 'u_1001',
+        userId: 1001,
         kind: 1,
-        kindId: 'kind_001',
+        kindId: 1,
         source: 'chat',
         remark: '备注',
         tag: 'tag1,',
@@ -182,9 +182,9 @@ void main() {
 
       final map = model.toMap();
 
-      expect(map['user_id'], 'u_1001');
+      expect(map['user_id'], 1001);
       expect(map['kind'], 1);
-      expect(map['kind_id'], 'kind_001');
+      expect(map['kind_id'], 1);
       expect(map['source'], 'chat');
       expect(map['remark'], '备注');
       expect(map['tag'], 'tag1,');
@@ -204,9 +204,9 @@ void main() {
 
       for (final item in kinds) {
         final json = {
-          'user_id': 'u_1001',
+          'user_id': 1001,
           'kind': item['kind'],
-          'kind_id': 'kind_${item['kind']}',
+          'kind_id': 0,
           'source': '',
           'remark': '',
           'tag': '',
@@ -252,9 +252,9 @@ void main() {
     test('翻页时应该正确去重', () {
       final existingItems = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_001',
+          kindId: 1,
           source: '',
           remark: '',
           tag: '',
@@ -263,9 +263,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_002',
+          kindId: 2,
           source: '',
           remark: '',
           tag: '',
@@ -277,9 +277,9 @@ void main() {
 
       final newItems = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_002', // 重复
+          kindId: 2, // 重复
           source: '',
           remark: '',
           tag: '',
@@ -288,9 +288,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_003', // 新的
+          kindId: 3, // 新的
           source: '',
           remark: '',
           tag: '',
@@ -305,7 +305,7 @@ void main() {
           newItems.where((r) => !existingIds.contains(r.kindId)).toList();
 
       expect(filtered.length, 1);
-      expect(filtered.first.kindId, 'kind_003');
+      expect(filtered.first.kindId, 3);
     });
   });
 
@@ -472,9 +472,9 @@ void main() {
     test('删除成功后应该从列表中移除该项', () {
       final items = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_001',
+          kindId: 1,
           source: '',
           remark: '',
           tag: '',
@@ -483,9 +483,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_002',
+          kindId: 2,
           source: '',
           remark: '',
           tag: '',
@@ -497,10 +497,10 @@ void main() {
 
       // 删除 kind_001
       final updatedItems =
-          items.where((item) => item.kindId != 'kind_001').toList();
+          items.where((item) => item.kindId != 1).toList();
 
       expect(updatedItems.length, 1);
-      expect(updatedItems.first.kindId, 'kind_002');
+      expect(updatedItems.first.kindId, 2);
     });
   });
 
@@ -522,9 +522,9 @@ void main() {
     test('全选应该选中所有项', () {
       final items = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_001',
+          kindId: 1,
           source: '',
           remark: '',
           tag: '',
@@ -533,9 +533,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_002',
+          kindId: 2,
           source: '',
           remark: '',
           tag: '',
@@ -544,9 +544,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_003',
+          kindId: 3,
           source: '',
           remark: '',
           tag: '',
@@ -558,15 +558,15 @@ void main() {
 
       final allIds = items.map((e) => e.kindId).toSet();
       expect(allIds.length, 3);
-      expect(allIds.containsAll(['kind_001', 'kind_002', 'kind_003']), isTrue);
+      expect(allIds.containsAll([1, 2, 3]), isTrue);
     });
 
     test('批量删除应该删除所有选中项', () {
       final items = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_001',
+          kindId: 1,
           source: '',
           remark: '',
           tag: '',
@@ -575,9 +575,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_002',
+          kindId: 2,
           source: '',
           remark: '',
           tag: '',
@@ -586,9 +586,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_003',
+          kindId: 3,
           source: '',
           remark: '',
           tag: '',
@@ -598,13 +598,13 @@ void main() {
         ),
       ];
 
-      final selectedIds = {'kind_001', 'kind_003'};
+      final selectedIds = {1, 3};
 
       final remainingItems =
           items.where((item) => !selectedIds.contains(item.kindId)).toList();
 
       expect(remainingItems.length, 1);
-      expect(remainingItems.first.kindId, 'kind_002');
+      expect(remainingItems.first.kindId, 2);
     });
   });
 
@@ -697,8 +697,8 @@ void main() {
       final loadedState = loadingState.copyWith(
         isLoading: false,
         items: [
-          {'kind_id': '001'},
-          {'kind_id': '002'},
+          {'kind_id': 1},
+          {'kind_id': 2},
         ],
         hasMore: true,
       );
@@ -721,9 +721,9 @@ void main() {
       // 2. 模拟筛选后的结果（应该都是 kind=1 的项）
       final filteredItems = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: '001',
+          kindId: 1,
           source: '',
           remark: '',
           tag: '',
@@ -732,9 +732,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: '002',
+          kindId: 2,
           source: '',
           remark: '',
           tag: '',
@@ -752,12 +752,12 @@ void main() {
 
     test('完整流程：选择 -> 删除 -> 反馈', () {
       // 1. 初始化选择
-      final selectedIds = <String>{};
+      final selectedIds = <int>{};
       expect(selectedIds, isEmpty);
 
       // 2. 选中项目
-      selectedIds.add('kind_001');
-      selectedIds.add('kind_002');
+      selectedIds.add(1);
+      selectedIds.add(2);
       expect(selectedIds.length, 2);
 
       // 3. 执行删除（模拟 API 返回成功）
@@ -767,9 +767,9 @@ void main() {
       // 4. 从列表中移除已删除项
       final items = [
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_001',
+          kindId: 1,
           source: '',
           remark: '',
           tag: '',
@@ -778,9 +778,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_002',
+          kindId: 2,
           source: '',
           remark: '',
           tag: '',
@@ -789,9 +789,9 @@ void main() {
           info: {},
         ),
         UserCollectModel(
-          userId: 'u_1',
+          userId: 1,
           kind: 1,
-          kindId: 'kind_003',
+          kindId: 3,
           source: '',
           remark: '',
           tag: '',
@@ -806,7 +806,7 @@ void main() {
 
       // 5. 验证删除结果
       expect(remainingItems.length, 1);
-      expect(remainingItems.first.kindId, 'kind_003');
+      expect(remainingItems.first.kindId, 3);
 
       // 6. 清空选择
       selectedIds.clear();

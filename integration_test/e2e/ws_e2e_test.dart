@@ -136,7 +136,7 @@ void main() {
         (data) {
           debugPrint('[E2E-WS] 收到: $data');
           messages.add(data.toString());
-          if (messages.length >= 1) {
+          if (messages.isNotEmpty) {
             if (!completer.isCompleted) completer.complete();
           }
         },

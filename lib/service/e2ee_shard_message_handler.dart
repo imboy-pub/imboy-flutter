@@ -463,7 +463,7 @@ class E2EEShardMessageHandler {
 
 /// 辅助函数：将 ID 转为 String
 ///
-/// 兼容 TSID (int) 和旧 hashids (String) 两种格式。
+/// 兼容 TSID (int) 和 String 两种格式。
 /// 已迁移到 [TsidHelper.parseIdAsString]，此处保留别名以便旧代码引用。
 @Deprecated('Use TsidHelper.parseIdAsString instead')
-String hashidEncode(dynamic id) => TsidHelper.parseIdAsString(id);
+String encodeId(dynamic id) => TsidHelper.parseIdAsString(id);

@@ -1,7 +1,7 @@
 import 'dart:io' show Platform;
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
@@ -13,7 +13,9 @@ import 'package:imboy/theme/theme_manager.dart';
 export 'locale_helper.dart';
 
 void iPrint(String str) {
-  return debugPrint("iPrint $str");
+  if (kDebugMode) {
+    debugPrint("iPrint $str");
+  }
 }
 
 /// 获取系统版本（Web 兼容）

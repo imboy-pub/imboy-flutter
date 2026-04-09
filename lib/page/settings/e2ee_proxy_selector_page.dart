@@ -57,7 +57,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
       // 过滤出真实的好友（排除特殊联系人）
       final friendContacts = contacts
-          .where((c) => c.iconData == null && c.peerId.isNotEmpty)
+          .where((c) => c.iconData == null && c.peerId != 0)
           .toList();
 
       // 获取每个好友的公钥
@@ -65,13 +65,13 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
       for (final contact in friendContacts) {
         try {
           final keyData = await E2EEService.getUserDevicePublicKeys(
-            contact.peerId,
+            contact.peerId.toString(),
           );
           final didToPem = keyData['didToPem'] ?? {};
 
           // 缓存公钥信息供后续使用
           if (didToPem.isNotEmpty) {
-            _cachedPublicKeys[contact.peerId] = Map<String, String>.from(didToPem);
+            _cachedPublicKeys[contact.peerId.toString()] = Map<String, String>.from(didToPem);
           }
 
           contactsWithKeys.add(contact);
@@ -130,16 +130,16 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
       final selectedContacts = <Map<String, dynamic>>[];
 
       for (final contact in _contacts) {
-        if (!_selectedUids.contains(contact.peerId)) continue;
+        if (!_selectedUids.contains(contact.peerId.toString())) continue;
 
         try {
           // 优先使用缓存的公钥，避免重复请求
-          Map<String, String> didToPem = _cachedPublicKeys[contact.peerId] ?? {};
+          Map<String, String> didToPem = _cachedPublicKeys[contact.peerId.toString()] ?? {};
 
           // 如果缓存中没有，从服务获取
           if (didToPem.isEmpty) {
             final keyData = await E2EEService.getUserDevicePublicKeys(
-              contact.peerId,
+              contact.peerId.toString(),
             );
             didToPem = Map<String, String>.from(keyData['didToPem'] ?? {});
           }
@@ -237,7 +237,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                     itemCount: _contacts.length,
                     itemBuilder: (context, index) {
                       final contact = _contacts[index];
-                      final isSelected = _selectedUids.contains(contact.peerId);
+                      final isSelected = _selectedUids.contains(contact.peerId.toString());
                       return _buildContactItem(contact, isSelected, isDark);
                     },
                   ),
@@ -340,7 +340,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         ),
       ),
       child: InkWell(
-        onTap: () => _toggleSelection(contact.peerId),
+        onTap: () => _toggleSelection(contact.peerId.toString()),
         borderRadius: AppRadius.borderRadiusMedium,
         child: Padding(
           padding: const EdgeInsets.all(12),

@@ -91,7 +91,7 @@ class _PeopleInfoSameGroupPageState
                                 ListTile(
                                   leading: SmartGroupAvatar(
                                     avatar: model.avatar,
-                                    groupId: model.groupId,
+                                    groupId: model.groupId.toString(),
                                     avatarLoader: (groupId) async {
                                       final avatarUrl = await _groupListService
                                           .computeAvatar(groupId);

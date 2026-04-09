@@ -173,10 +173,10 @@ class ReEditMessage {
 
 class MessageModel {
   int autoId;
-  String? id;
+  int id;
   String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-  String? fromId; // 等价于数据库的 from
-  String? toId; // 等价于数据库的 to
+  int fromId; // 等价于数据库的 from
+  int toId; // 等价于数据库的 to
 
   // WebSocket API v2.0 新增字段
   // 根据 type 决定是否存在：
@@ -266,12 +266,12 @@ class MessageModel {
     }
 
     return MessageModel(
-      parseModelNullableString(data[MessageRepo.id]),
+      parseModelInt(data[MessageRepo.id]),
       autoId: parseModelInt(data[MessageRepo.autoId]),
       type: type,
       status: parseModelInt(data[MessageRepo.status]),
-      fromId: parseModelString(fromRaw),
-      toId: parseModelString(toRaw),
+      fromId: parseModelInt(fromRaw),
+      toId: parseModelInt(toRaw),
       payload: p,
       createdAt: DateTimeHelper.parseTimestamp(
         data[MessageRepo.createdAt],
@@ -595,11 +595,11 @@ class MessageModel {
   }
 
   Future<ContactModel?> get to async {
-    return await ContactRepo().findByUid(toId!);
+    return await ContactRepo().findByUid(toId.toString());
   }
 
   Future<ContactModel?> get from async {
-    return await ContactRepo().findByUid(fromId!);
+    return await ContactRepo().findByUid(fromId.toString());
   }
 
   Future<Message> toTypeMessage() async {
@@ -616,14 +616,18 @@ class MessageModel {
             ciphertext: ciphertext,
             e2ee: e2ee!,
           );
-          payloadData = jsonDecode(decryptedJson) as Map<String, dynamic>;
+          final decoded = jsonDecode(decryptedJson);
+          if (decoded is! Map<String, dynamic>) {
+            throw FormatException('Expected JSON object, got ${decoded.runtimeType}');
+          }
+          payloadData = decoded;
           iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
         } catch (e) {
           iPrint('⚠️ toTypeMessage: E2EE 解密失败，id=$id, error=$e');
           return TextMessage(
-            authorId: fromId!,
+            authorId: fromId.toString(),
             createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
-            id: id!,
+            id: id.toString(),
             text: '[加密消息]',
             status: MessageStatus.error,
             metadata: {
@@ -639,13 +643,17 @@ class MessageModel {
       } else {
         // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析
         try {
-          payloadData = jsonDecode(payload) as Map<String, dynamic>;
+          final decoded = jsonDecode(payload);
+          if (decoded is! Map<String, dynamic>) {
+            throw FormatException('Expected JSON object, got ${decoded.runtimeType}');
+          }
+          payloadData = decoded;
         } catch (e) {
           iPrint('⚠️ toTypeMessage: payload 解析失败，id=$id, error=$e');
           return TextMessage(
-            authorId: fromId!,
+            authorId: fromId.toString(),
             createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
-            id: id!,
+            id: id.toString(),
             text: '[加密消息]',
             status: MessageStatus.error,
             metadata: {
@@ -661,9 +669,9 @@ class MessageModel {
     } else {
       iPrint('⚠️ toTypeMessage: payload 无效或为空，id=$id, payload=$payload');
       return TextMessage(
-        authorId: fromId!,
+        authorId: fromId.toString(),
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
-        id: id!,
+        id: id.toString(),
         text: '[无效消息]',
         status: MessageStatus.error,
         metadata: {
@@ -679,9 +687,9 @@ class MessageModel {
     final currentType = type;
     final currentAction = action;
 
-    // C1 修复: 确保 fromId 和 id 非空
-    final safeFromId = fromId ?? 'unknown';
-    final safeId = id ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}';
+    // C1 修复: 将 int 类型 ID 转为 flutter_chat_core 期望的 String 类型
+    final String safeFromId = fromId.toString();
+    final String safeId = id.toString();
 
     // 验证 msg_type 有效性
     // WebSocket API v2.0 规范：
@@ -1014,11 +1022,11 @@ class MessageModel {
 
     final uid = currentUid ?? UserRepoLocal.to.currentUid;
     return MessageModel(
-      message.id,
+      parseModelInt(message.id),
       autoId: 0,
       type: type,
-      fromId: message.authorId,
-      toId: peerId,
+      fromId: parseModelInt(message.authorId),
+      toId: parseModelInt(peerId),
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
       isAuthor: message.authorId == uid ? 1 : 0,

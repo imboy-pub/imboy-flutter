@@ -1,7 +1,7 @@
 /// TSID (Time-Sorted ID) 兼容性工具类
 ///
 /// 在 TSID 迁移过渡期，后端新 API 返回 TSID 数字 (int)，
-/// 旧 API 仍返回 hashids 字符串 (String)。
+/// 旧 API 可能返回字符串格式 ID (String)。
 /// 本工具类统一 ID 解析，兼容两种格式。
 ///
 /// TSID 规格:
@@ -12,14 +12,14 @@ library;
 
 /// TSID ID 帮助类
 ///
-/// 用于在过渡期兼容 hashids (String) 和 TSID (int) 两种 ID 格式。
+/// 用于在过渡期兼容 String 和 int 两种 ID 格式。
 /// 新代码应优先使用 int 类型存储 TSID。
 class TsidHelper {
   TsidHelper._();
 
   /// 从 JSON 值解析 ID 为 String
   ///
-  /// 兼容 int (TSID) 和 String (hashids) 两种格式
+  /// 兼容 int (TSID) 和 String 两种格式
   /// - int → 转为 String
   /// - String → 直接返回
   /// - null → 返回空字符串
@@ -33,7 +33,7 @@ class TsidHelper {
   /// 从 JSON 值解析 ID 为 int（可空）
   ///
   /// - int → 直接返回
-  /// - String → 尝试 int.tryParse，失败返回 null（说明是 hashids 格式）
+  /// - String → 尝试 int.tryParse，失败返回 null（非数字 ID 格式）
   /// - null → 返回 null
   static int? parseIdAsInt(dynamic value) {
     if (value == null) return null;
@@ -45,7 +45,7 @@ class TsidHelper {
   /// 判断 ID 值是否为 TSID 数字格式
   ///
   /// TSID 是纯数字的大整数（通常 15-19 位）
-  /// hashids 包含字母和数字的混合字符串
+  /// 非 TSID 格式包含字母和数字的混合字符串
   static bool isTsid(dynamic value) {
     if (value is int) return true;
     if (value is String) {

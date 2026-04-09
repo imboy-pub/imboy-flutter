@@ -52,7 +52,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   @override
   void initState() {
     super.initState();
-    initData();
+    unawaited(initData());
 
     // 监听语言变化，切换语言时刷新页面
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) async {
@@ -78,7 +78,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     super.dispose();
   }
 
-  void initData() async {
+  Future<void> initData() async {
     final notifier = ref.read(conversationProvider.notifier);
 
     // 检查网络状态
@@ -132,7 +132,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         final messages = event.data as List;
         if (messages.first is Message) {
           // 消息列表由其他地方处理，这里跳过或做特殊处理
-          debugPrint('收到消息列表事件，跳过会话更新');
+          iPrint('收到消息列表事件，跳过会话更新');
         }
       }
     });

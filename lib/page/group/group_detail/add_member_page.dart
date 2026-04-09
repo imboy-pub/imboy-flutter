@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +34,10 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
   @override
   void initState() {
     super.initState();
-    loadData();
+    unawaited(loadData());
   }
 
-  void loadData() async {
+  Future<void> loadData() async {
     final notifier = ref.read(addMemberProvider.notifier);
 
     // 加载群成员列表
@@ -238,7 +240,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         EasyLoading.show(status: t.loading);
                         int memberCount = state.selects.length;
                         iPrint(
-                          "selects $memberCount ${state.selects.map((e) => e.toJson()).toList()}",
+                          "selects $memberCount",
                         );
                         bool res = await ref
                             .read(addMemberProvider.notifier)

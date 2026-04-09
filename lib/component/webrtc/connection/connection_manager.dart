@@ -31,6 +31,10 @@ class WebRTCConnectionManager {
   /// 用户到会话的映射 (userId -> sessionId)
   final Map<String, String> _userSessions = {};
 
+  /// 连接状态订阅映射 (sessionId -> subscription)
+  final Map<String, StreamSubscription<WebRTCConnectionStateEvent>>
+      _connectionSubscriptions = {};
+
   /// 连接状态变更流控制器
   final StreamController<WebRTCConnectionStateEvent> _stateController =
       StreamController<WebRTCConnectionStateEvent>.broadcast();
@@ -81,8 +85,10 @@ class WebRTCConnectionManager {
       config: config,
     );
 
-    // 监听状态变更
-    connection.stateStream.listen((event) {
+    // 监听状态变更（保存订阅句柄，防止泄漏）
+    _connectionSubscriptions[sessionId]?.cancel();
+    _connectionSubscriptions[sessionId] =
+        connection.stateStream.listen((event) {
       // 转发状态变更
       if (!_stateController.isClosed) {
         _stateController.add(event);
@@ -171,19 +177,25 @@ class WebRTCConnectionManager {
 
   /// 移除连接（内部使用）
   void _removeConnection(String sessionId) {
+    // 取消状态订阅
+    _connectionSubscriptions.remove(sessionId)?.cancel();
+
     final connection = _connections[sessionId];
     if (connection != null) {
       // 从用户映射中移除
       _userSessions.remove(connection.peerId);
       // 从连接映射中移除
       _connections.remove(sessionId);
-      debugPrint('Connection $sessionId removed from manager');
     }
   }
 
   /// 关闭所有连接
   Future<void> closeAll({String? reason}) async {
-    debugPrint('Closing all connections (${_connections.length})');
+    // 取消所有状态订阅
+    for (final sub in _connectionSubscriptions.values) {
+      sub.cancel();
+    }
+    _connectionSubscriptions.clear();
 
     final connections = List<WebRTCConnection>.from(_connections.values);
     _connections.clear();

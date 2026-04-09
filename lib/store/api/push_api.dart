@@ -18,7 +18,9 @@ class PushApi extends HttpClient {
     required String platform,
     required String deviceId,
   }) async {
-    debugPrint('> on PushApi/register: platform=$platform');
+    if (kDebugMode) {
+      debugPrint('> on PushApi/register: platform=$platform');
+    }
     IMBoyHttpResponse resp = await post(
       API.pushRegister,
       data: {
@@ -27,7 +29,9 @@ class PushApi extends HttpClient {
         'device_id': deviceId,
       },
     );
-    debugPrint('> on PushApi/register resp: ok=${resp.ok}');
+    if (kDebugMode) {
+      debugPrint('> on PushApi/register resp: ok=${resp.ok}');
+    }
     return resp.ok;
   }
 
@@ -35,12 +39,16 @@ class PushApi extends HttpClient {
   ///
   /// [deviceId] 设备 ID
   Future<bool> unregister({required String deviceId}) async {
-    debugPrint('> on PushApi/unregister: deviceId=$deviceId');
+    if (kDebugMode) {
+      debugPrint('> on PushApi/unregister');
+    }
     IMBoyHttpResponse resp = await post(
       API.pushUnregister,
       data: {'device_id': deviceId},
     );
-    debugPrint('> on PushApi/unregister resp: ok=${resp.ok}');
+    if (kDebugMode) {
+      debugPrint('> on PushApi/unregister resp: ok=${resp.ok}');
+    }
     return resp.ok;
   }
 }

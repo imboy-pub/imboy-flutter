@@ -10,7 +10,9 @@ class AppVersionApi extends HttpClient {
       API.appVersionCheck,
       queryParameters: {'vsn': vsn},
     );
-    debugPrint("AppVersionApi_check resp: ${resp.payload.toString()}");
+    if (kDebugMode) {
+      debugPrint("AppVersionApi_check resp: ok=${resp.ok}");
+    }
     return resp.payload ?? {};
   }
 
@@ -19,9 +21,10 @@ class AppVersionApi extends HttpClient {
       API.sqliteUpgradeDdl,
       queryParameters: {'old_vsn': oldVsn, 'new_vsn': newVsn},
     );
-    debugPrint(
-      "AppVersionApi_sqliteUpgradeDdl resp: ${resp.payload.toString()}",
-    );
+    if (kDebugMode) {
+      debugPrint("AppVersionApi_sqliteUpgradeDdl resp: ok=${resp.ok}");
+    }
+    if (!resp.ok || resp.payload is! Map) return [];
     return List<String>.from((resp.payload['ddl'] ?? []) as List<dynamic>);
   }
 
@@ -30,9 +33,10 @@ class AppVersionApi extends HttpClient {
       API.sqliteDowngradeDdl,
       queryParameters: {'old_vsn': newVsn, 'new_vsn': oldVsn},
     );
-    debugPrint(
-      "AppVersionApi_sqliteUpgradeDdl resp: ${resp.payload.toString()}",
-    );
+    if (kDebugMode) {
+      debugPrint("AppVersionApi_sqliteDowngradeDdl resp: ok=${resp.ok}");
+    }
+    if (!resp.ok || resp.payload is! Map) return [];
     return List<String>.from((resp.payload['ddl'] ?? []) as List<dynamic>);
   }
 }

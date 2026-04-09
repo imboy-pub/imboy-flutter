@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/api/contact_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -43,7 +44,7 @@ class ContactSettingTagNotifier extends _$ContactSettingTagNotifier {
 
   /// 修改备注
   Future<bool> changeRemark(String uid, String remark) async {
-    debugPrint("contact_setting_changeRemark $remark");
+    iPrint("contact_setting_changeRemark");
     bool res = await ContactApi().changeRemark(uid, remark);
     if (res) {
       await ContactRepo().update({

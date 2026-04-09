@@ -1,7 +1,8 @@
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 class UserTagModel {
-  String userId;
+  int userId;
   int tagId;
   int scene;
   String name;
@@ -23,11 +24,11 @@ class UserTagModel {
 
   factory UserTagModel.fromJson(Map<String, dynamic> data) {
     return UserTagModel(
-      userId: data['user_id'],
-      tagId: data['tag_id'] ?? (data['id'] ?? 0),
-      scene: data['scene'] ?? 0,
-      name: "${data['name'] ?? ''}",
-      subtitle: data['subtitle'] ?? '',
+      userId: parseModelInt(data['user_id']),
+      tagId: parseModelInt(data['tag_id'] ?? data['id']),
+      scene: parseModelInt(data['scene']),
+      name: parseModelString(data['name']),
+      subtitle: parseModelString(data['subtitle']),
       refererTime: DateTimeHelper.parseTimestamp(data['referer_time']),
       updatedAt: DateTimeHelper.parseTimestamp(data['updated_at']),
       createdAt: DateTimeHelper.parseTimestamp(data['created_at']),

@@ -2,7 +2,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 频道统计数据模型
 class ChannelStatsModel {
-  final String channelId;
+  final int channelId;
   final int subscriberCount;
   final int totalMessages;
   final int totalViews;
@@ -18,7 +18,7 @@ class ChannelStatsModel {
 
   factory ChannelStatsModel.fromJson(Map<String, dynamic> json) {
     return ChannelStatsModel(
-      channelId: parseModelString(json['channel_id']),
+      channelId: parseModelInt(json['channel_id']),
       subscriberCount: parseModelInt(json['subscriber_count']),
       totalMessages: parseModelInt(json['total_messages']),
       totalViews: parseModelInt(json['total_views']),
@@ -39,7 +39,7 @@ class ChannelStatsModel {
 
 /// 频道每日统计模型
 class ChannelDailyStatsModel {
-  final String channelId;
+  final int channelId;
   final DateTime statsDate;
   final int newSubscribers;
   final int unsubscribers;
@@ -63,7 +63,7 @@ class ChannelDailyStatsModel {
 
   factory ChannelDailyStatsModel.fromJson(Map<String, dynamic> json) {
     return ChannelDailyStatsModel(
-      channelId: parseModelString(json['channel_id']),
+      channelId: parseModelInt(json['channel_id']),
       statsDate: parseModelDateTime(json['stats_date']),
       newSubscribers: parseModelInt(json['new_subscribers']),
       unsubscribers: parseModelInt(json['unsubscribers']),
@@ -92,10 +92,10 @@ class ChannelDailyStatsModel {
 
 /// 消息反应模型
 class ChannelReactionModel {
-  final String id;
-  final String messageId;
-  final String channelId;
-  final String userId;
+  final int id;
+  final int messageId;
+  final int channelId;
+  final int userId;
   final String reactionType;
   final DateTime createdAt;
 
@@ -110,10 +110,10 @@ class ChannelReactionModel {
 
   factory ChannelReactionModel.fromJson(Map<String, dynamic> json) {
     return ChannelReactionModel(
-      id: parseModelString(json['id']),
-      messageId: parseModelString(json['message_id']),
-      channelId: parseModelString(json['channel_id']),
-      userId: parseModelString(json['user_id']),
+      id: parseModelInt(json['id']),
+      messageId: parseModelInt(json['message_id']),
+      channelId: parseModelInt(json['channel_id']),
+      userId: parseModelInt(json['user_id']),
       reactionType: parseModelString(json['reaction_type']),
       createdAt: parseModelDateTime(json['created_at']),
     );

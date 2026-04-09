@@ -69,7 +69,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   String _resolveChannelId([ChannelModel? channel]) {
     final id = channel?.id;
-    if (id != null && id.isNotEmpty) return id;
+    if (id != null && id != 0) return id.toString();
     return widget.channelId;
   }
 
@@ -115,10 +115,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (widget.autoLoadStats &&
         channel != null &&
         (_stats == null || _stats!.channelId != channel.id) &&
-        _statsRequestedChannelId != channel.id) {
-      _statsRequestedChannelId = channel.id;
+        _statsRequestedChannelId != channel.id.toString()) {
+      _statsRequestedChannelId = channel.id.toString();
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadStats(channel.id);
+        _loadStats(channel.id.toString());
       });
     }
 
@@ -367,15 +367,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     }
 
     if (mounted) {
-      final err = ref.read(channelDetailProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            (err == null || err.isEmpty)
-                ? context.t.channel.publishFailed
-                : '${context.t.channel.publishFailed}: $err',
-          ),
-        ),
+        SnackBar(content: Text(context.t.channel.publishFailed)),
       );
     }
   }
@@ -471,15 +464,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             );
 
         if (!success && mounted) {
-          final err = ref.read(channelDetailProvider).error;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                (err == null || err.isEmpty)
-                    ? context.t.channel.publishFailed
-                    : '${context.t.channel.publishFailed}: $err',
-              ),
-            ),
+            SnackBar(content: Text(context.t.channel.publishFailed)),
           );
         }
       }
@@ -657,7 +643,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final success = await _channelService.deleteChannel(channel.id);
+              final success = await _channelService.deleteChannel(channel.id.toString());
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(t.channel.channelDeleted)),
@@ -748,12 +734,12 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         onPinned: (pinned) {
                           ref
                               .read(channelDetailProvider.notifier)
-                              .updateMessagePinned(message.id, pinned);
+                              .updateMessagePinned(message.id.toString(), pinned);
                         },
                         onDeleted: () {
                           ref
                               .read(channelDetailProvider.notifier)
-                              .removeMessageLocally(message.id);
+                              .removeMessageLocally(message.id.toString());
                         },
                       ),
                     ],
@@ -832,7 +818,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   ),
                   const SizedBox(width: 10),
                   OutlinedButton.icon(
-                    onPressed: () => _showMyOrdersSheet(channel.id),
+                    onPressed: () => _showMyOrdersSheet(channel.id.toString()),
                     icon: const Icon(Icons.receipt_long_outlined),
                     label: const Text('我的订单'),
                   ),
@@ -866,7 +852,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('购买成功，订单号: ${order.orderNo}')));
+      ).showSnackBar(const SnackBar(content: Text('购买成功')));
 
       await ref.read(channelListProvider.notifier).loadSubscribedChannels();
       await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
@@ -885,7 +871,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final allOrders = await ChannelService.to.getMyOrders();
     if (!mounted) return;
 
-    final orders = allOrders.where((o) => o.channelId == channelId).toList();
+    final orders = allOrders.where((o) => o.channelId.toString() == channelId).toList();
 
     await showModalBottomSheet(
       context: context,
@@ -1204,8 +1190,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (!mounted) return;
     if (result == null || result == false) return;
 
-    final reloadId = result is ChannelModel && result.id.isNotEmpty
-        ? result.id
+    final reloadId = result is ChannelModel && result.id != 0
+        ? result.id.toString()
         : _resolveChannelId(result is ChannelModel ? result : channel);
 
     await ref.read(channelDetailProvider.notifier).loadChannel(reloadId);
@@ -1314,7 +1300,7 @@ class _ChannelMessageItem extends StatelessWidget {
   Future<void> _addReaction(BuildContext context, String reactionType) async {
     final success = await ChannelService.to.addReaction(
       channelId: channelId,
-      messageId: message.id,
+      messageId: message.id.toString(),
       reactionType: reactionType,
     );
     if (success && context.mounted) {
@@ -1329,7 +1315,7 @@ class _ChannelMessageItem extends StatelessWidget {
   ) async {
     final success = await ChannelService.to.removeReaction(
       channelId: channelId,
-      messageId: message.id,
+      messageId: message.id.toString(),
       reactionType: reactionType,
     );
     if (success && context.mounted) {
@@ -1605,7 +1591,7 @@ class _ChannelMessageItem extends StatelessWidget {
   Future<void> _setPinned(BuildContext context, bool pinned) async {
     final success = await ChannelService.to.setMessagePinned(
       channelId,
-      message.id,
+      message.id.toString(),
       pinned,
     );
     if (success && context.mounted) {
@@ -1641,7 +1627,7 @@ class _ChannelMessageItem extends StatelessWidget {
               Navigator.pop(ctx);
               final success = await ChannelService.to.deleteMessage(
                 channelId,
-                message.id,
+                message.id.toString(),
               );
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

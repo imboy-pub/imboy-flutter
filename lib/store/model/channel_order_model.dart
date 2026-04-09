@@ -2,9 +2,9 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 频道订单模型（付费频道）
 class ChannelOrderModel {
-  final String id;
-  final String channelId;
-  final String userId;
+  final int id;
+  final int channelId;
+  final int userId;
   final String orderNo;
   final double amount;
   final String currency;
@@ -46,9 +46,9 @@ class ChannelOrderModel {
 
   factory ChannelOrderModel.fromJson(Map<String, dynamic> json) {
     return ChannelOrderModel(
-      id: parseModelString(json['id']),
-      channelId: parseModelString(json['channel_id']),
-      userId: parseModelString(json['user_id']),
+      id: parseModelInt(json['id']),
+      channelId: parseModelInt(json['channel_id']),
+      userId: parseModelInt(json['user_id']),
       orderNo: parseModelString(json['order_no']),
       amount: parseModelDouble(json['amount']),
       currency: parseModelString(json['currency'], defaultValue: 'CNY'),

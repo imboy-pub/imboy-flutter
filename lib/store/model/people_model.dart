@@ -2,7 +2,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 class PeopleModel {
-  String id;
+  int id;
   String account;
   String nickname;
   String avatar;
@@ -32,7 +32,7 @@ class PeopleModel {
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
     return PeopleModel(
-      id: parseModelString(json["id"]),
+      id: parseModelInt(json["id"]),
       account: parseModelString(json["account"]),
       nickname: parseModelString(json["nickname"]),
       avatar: parseModelString(json["avatar"]),

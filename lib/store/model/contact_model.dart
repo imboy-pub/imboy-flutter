@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +68,7 @@ class ContactModel extends ISuspensionBean {
     this.onLongPressed,
   });
 
-  final String peerId; // 联系人用户ID
+  final int peerId; // 联系人用户ID
   final String account; // 联系人用户账号
   final String nickname; // 联系人用户 备注 or 昵称
   final String avatar; // 用户头像
@@ -128,8 +126,8 @@ class ContactModel extends ISuspensionBean {
     tag = tag.replaceAll(',,', ',');
     tag = tag.endsWith(',') ? tag.substring(0, tag.length - 1) : tag;
 
-    final peerId = parseModelString(json['id'] ?? json[ContactRepo.peerId]);
-    if (peerId.isEmpty) {
+    final peerId = parseModelInt(json['id'] ?? json[ContactRepo.peerId]);
+    if (peerId == 0) {
       throw Exception('ContactModel peerId is empty');
     }
 
@@ -194,5 +192,5 @@ class ContactModel extends ISuspensionBean {
   String getSuspensionTag() => nameIndex;
 
   @override
-  String toString() => json.encode(this);
+  String toString() => 'ContactModel(peerId: $peerId)';
 }

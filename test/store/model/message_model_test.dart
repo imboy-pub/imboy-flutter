@@ -73,12 +73,12 @@ void main() {
     test('toJson 应该使用 uri 字段（新规范）', () {
       // GIVEN: 一个包含 uri 字段的 MessageModel
       final model = MessageModel(
-        'msg123',
+        123,
         autoId: 1,
         type: 'C2C',
         status: 11,
-        fromId: 'user1',
-        toId: 'user2',
+        fromId: 8001,
+        toId: 8002,
         msgType: MessageType.image,
         payload: {
           'uri': 'https://example.com/image.jpg',
@@ -192,12 +192,12 @@ void main() {
     test('应该正确显示文本消息的副标题', () {
       // GIVEN: 一个文本消息
       final model = MessageModel(
-        'msg123',
+        123,
         autoId: 1,
         type: 'C2C',
         status: 11,
-        fromId: 'user1',
-        toId: 'user2',
+        fromId: 8001,
+        toId: 8002,
         msgType: MessageType.text,
         payload: {'text': '这是一条测试消息'},
         isAuthor: 1,
@@ -214,12 +214,12 @@ void main() {
     test('应该正确显示语音消息的副标题（voice 类型）', () {
       // GIVEN: 一个语音消息（voice 类型）
       final model = MessageModel(
-        'msg123',
+        123,
         autoId: 1,
         type: 'C2C',
         status: 11,
-        fromId: 'user1',
-        toId: 'user2',
+        fromId: 8001,
+        toId: 8002,
         msgType: MessageType.voice,
         payload: {'duration_ms': 15000},
         isAuthor: 1,
@@ -236,12 +236,12 @@ void main() {
     test('应该正确显示视频消息的副标题', () {
       // GIVEN: 一个视频消息
       final model = MessageModel(
-        'msg123',
+        123,
         autoId: 1,
         type: 'C2C',
         status: 11,
-        fromId: 'user1',
-        toId: 'user2',
+        fromId: 8001,
+        toId: 8002,
         msgType: MessageType.video,
         payload: {'duration_ms': 60000},
         isAuthor: 1,
@@ -258,12 +258,12 @@ void main() {
     test('应该正确显示文件消息的副标题（带文件名）', () {
       // GIVEN: 一个文件消息
       final model = MessageModel(
-        'msg123',
+        123,
         autoId: 1,
         type: 'C2C',
         status: 11,
-        fromId: 'user1',
-        toId: 'user2',
+        fromId: 8001,
+        toId: 8002,
         msgType: MessageType.file,
         payload: {
           'uri': 'https://example.com/file.pdf',
@@ -284,12 +284,12 @@ void main() {
     test('应该正确显示位置消息的副标题', () {
       // GIVEN: 一个位置消息
       final model = MessageModel(
-        'msg123',
+        123,
         autoId: 1,
         type: 'C2C',
         status: 11,
-        fromId: 'user1',
-        toId: 'user2',
+        fromId: 8001,
+        toId: 8002,
         msgType: MessageType.location,
         payload: {
           'latitude': 39.9042,
@@ -329,12 +329,12 @@ void main() {
 
       final model = MessageModel.fromJson(json);
 
-      expect(model.id, '999');
+      expect(model.id, 999);
       expect(model.autoId, 12);
       expect(model.type, '123');
       expect(model.status, 20);
-      expect(model.fromId, '1001');
-      expect(model.toId, '1002');
+      expect(model.fromId, 1001);
+      expect(model.toId, 1002);
       expect(model.msgType, '88');
       expect(model.action, 'true');
       expect(model.isAuthor, 1);

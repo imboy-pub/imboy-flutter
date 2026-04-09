@@ -6,6 +6,7 @@ import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -676,7 +677,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       // 异步加载联系人
       _loadContact(result.fromId);
       sender = ContactModel(
-        peerId: result.fromId,
+        peerId: parseModelInt(result.fromId),
         nickname: 'Loading...',
         avatar: '',
       );

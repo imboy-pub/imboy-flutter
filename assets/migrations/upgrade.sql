@@ -511,3 +511,640 @@ CREATE VIRTUAL TABLE IF NOT EXISTS msg_c2g_fts USING fts5(
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 15;
+
+-- ============================================================
+-- VERSION: 16
+-- DESC: ID字段类型迁移 - TEXT/varchar(40) → INTEGER (对齐后端 PG18 BIGINT)
+-- ============================================================
+-- 功能说明：将所有 ID 字段从 TEXT 迁移为 INTEGER，与后端 TSID (BIGINT) 对齐
+-- 背景：后端 PostgreSQL 18 已完成 TSID 迁移，所有 ID 使用 BIGINT
+-- 迁移策略：表重建（CREATE→COPY→DROP→RENAME），SQLite 不支持 ALTER COLUMN TYPE
+--
+-- 影响表（18 张）：
+--   contact, new_friend, user_denylist, user_device, user_collect, user_tag
+--   group_notice, conversation, "group", group_member, user_group
+--   msg_c2c, msg_c2g, msg_c2s, msg_s2c
+--   channel, channel_subscription, channel_message, channel_admin
+--
+-- CAST 说明：
+--   CAST('1838294017982464' AS INTEGER) → 1838294017982464
+--   CAST('' AS INTEGER) → 0
+--   CAST(NULL AS INTEGER) → NULL
+--
+-- 索引说明：
+--   表重建会销毁原有索引，需重建所有索引（含 VERSION 14 的性能索引）
+
+-- ============================================================
+-- Step 1: 重建 contact 表
+-- ============================================================
+CREATE TABLE contact_new (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    peer_id INTEGER NOT NULL,
+    nickname TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    gender INTEGER NOT NULL DEFAULT 0,
+    account TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT '',
+    remark TEXT DEFAULT '',
+    tag TEXT DEFAULT '',
+    region TEXT DEFAULT '',
+    sign TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    is_friend INTEGER NOT NULL DEFAULT 0,
+    is_from INTEGER NOT NULL DEFAULT 0,
+    category_id INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT uk_FromTo UNIQUE (user_id, peer_id)
+);
+
+INSERT INTO contact_new SELECT
+    auto_id, CAST(user_id AS INTEGER), CAST(peer_id AS INTEGER),
+    nickname, avatar, gender, account, status, remark, tag, region,
+    sign, source, updated_at, is_friend, is_from, category_id
+FROM contact;
+
+DROP TABLE contact;
+
+ALTER TABLE contact_new RENAME TO contact;
+
+CREATE INDEX IF NOT EXISTS i_UserId_IsFriend_UpdateTime ON contact (user_id, is_friend, updated_at);
+CREATE INDEX IF NOT EXISTS i_UserId_CategoryId ON contact (user_id, category_id);
+CREATE INDEX IF NOT EXISTS i_Nickname ON contact (nickname);
+CREATE INDEX IF NOT EXISTS i_Remark ON contact (remark);
+CREATE INDEX IF NOT EXISTS i_Tag ON contact (tag);
+CREATE INDEX IF NOT EXISTS idx_contact_user_id_peer_id ON contact (user_id, peer_id);
+
+-- ============================================================
+-- Step 2: 重建 new_friend 表
+-- ============================================================
+CREATE TABLE new_friend_new (
+    auto_id INTEGER PRIMARY KEY,
+    uid INTEGER NOT NULL,
+    from_id INTEGER NOT NULL,
+    to_id INTEGER NOT NULL,
+    nickname TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    msg TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT '',
+    payload TEXT DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT uk_FromTo UNIQUE (from_id, to_id)
+);
+
+INSERT INTO new_friend_new SELECT
+    auto_id, CAST(uid AS INTEGER), CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    nickname, avatar, msg, status, payload, updated_at, created_at
+FROM new_friend;
+
+DROP TABLE new_friend;
+
+ALTER TABLE new_friend_new RENAME TO new_friend;
+
+-- ============================================================
+-- Step 3: 重建 user_denylist 表
+-- ============================================================
+CREATE TABLE user_denylist_new (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    denied_user_id INTEGER NOT NULL,
+    nickname TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    gender INTEGER NOT NULL DEFAULT 0,
+    account TEXT NOT NULL DEFAULT '',
+    region TEXT DEFAULT '',
+    sign TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    remark TEXT DEFAULT '',
+    created_at INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT i_Uid_DeniedUid UNIQUE (user_id, denied_user_id)
+);
+
+INSERT INTO user_denylist_new SELECT
+    auto_id, CAST(user_id AS INTEGER), CAST(denied_user_id AS INTEGER),
+    nickname, avatar, gender, account, region, sign, source, remark, created_at
+FROM user_denylist;
+
+DROP TABLE user_denylist;
+
+ALTER TABLE user_denylist_new RENAME TO user_denylist;
+
+-- ============================================================
+-- Step 4: 重建 user_device 表
+-- ============================================================
+CREATE TABLE user_device_new (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    device_id TEXT NOT NULL DEFAULT '',
+    device_name TEXT NOT NULL DEFAULT '',
+    device_type TEXT NOT NULL DEFAULT '',
+    last_active_at INTEGER NOT NULL DEFAULT 0,
+    device_vsn TEXT DEFAULT '',
+    CONSTRAINT i_Uid_DeviceId UNIQUE (user_id, device_id)
+);
+
+INSERT INTO user_device_new SELECT
+    auto_id, CAST(user_id AS INTEGER),
+    device_id, device_name, device_type, last_active_at, device_vsn
+FROM user_device;
+
+DROP TABLE user_device;
+
+ALTER TABLE user_device_new RENAME TO user_device;
+
+-- ============================================================
+-- Step 5: 重建 user_collect 表
+-- ============================================================
+CREATE TABLE user_collect_new (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    kind INTEGER NOT NULL DEFAULT 0,
+    kind_id INTEGER NOT NULL DEFAULT 0,
+    source TEXT NOT NULL DEFAULT '',
+    remark TEXT NOT NULL DEFAULT '',
+    tag TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL DEFAULT 0,
+    info TEXT DEFAULT '',
+    CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
+);
+
+INSERT INTO user_collect_new SELECT
+    auto_id, CAST(user_id AS INTEGER), kind, CAST(kind_id AS INTEGER),
+    source, remark, tag, updated_at, created_at, info
+FROM user_collect;
+
+DROP TABLE user_collect;
+
+ALTER TABLE user_collect_new RENAME TO user_collect;
+
+CREATE INDEX IF NOT EXISTS i_Source ON user_collect (source);
+CREATE INDEX IF NOT EXISTS idx_user_collect_user_id_kind ON user_collect (user_id, kind);
+
+-- ============================================================
+-- Step 6: 重建 user_tag 表
+-- ============================================================
+CREATE TABLE user_tag_new (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL DEFAULT 0,
+    scene INTEGER NOT NULL DEFAULT 0,
+    name TEXT NOT NULL DEFAULT '',
+    subtitle TEXT NOT NULL DEFAULT '',
+    referer_time INTEGER NOT NULL DEFAULT 0,
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT i_Uid_Scene_Name UNIQUE (user_id, scene, name)
+);
+
+INSERT INTO user_tag_new SELECT
+    auto_id, CAST(user_id AS INTEGER),
+    tag_id, scene, name, subtitle, referer_time, updated_at, created_at
+FROM user_tag;
+
+DROP TABLE user_tag;
+
+ALTER TABLE user_tag_new RENAME TO user_tag;
+
+CREATE INDEX IF NOT EXISTS idx_user_tag_user_id_scene ON user_tag (user_id, scene);
+
+-- ============================================================
+-- Step 7: 重建 group_notice 表
+-- ============================================================
+CREATE TABLE group_notice_new (
+    id INTEGER PRIMARY KEY,
+    group_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    edit_user_id INTEGER NOT NULL DEFAULT 0,
+    body TEXT DEFAULT '',
+    status INTEGER NOT NULL DEFAULT 0,
+    expired_at INTEGER DEFAULT 0,
+    updated_at INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL
+);
+
+INSERT INTO group_notice_new SELECT
+    CAST(id AS INTEGER), CAST(group_id AS INTEGER), CAST(user_id AS INTEGER),
+    CAST(edit_user_id AS INTEGER), body, status, expired_at, updated_at, created_at
+FROM group_notice;
+
+DROP TABLE group_notice;
+
+ALTER TABLE group_notice_new RENAME TO group_notice;
+
+CREATE INDEX IF NOT EXISTS i_Gid_Status_ExpiredAt ON group_notice (group_id, status, expired_at ASC);
+
+-- ============================================================
+-- Step 8: 重建 "group" 表
+-- ============================================================
+CREATE TABLE group_new (
+    id INTEGER PRIMARY KEY,
+    type INTEGER DEFAULT 1,
+    join_limit INTEGER DEFAULT 2,
+    content_limit INTEGER DEFAULT 2,
+    user_id_sum INTEGER NOT NULL DEFAULT 0,
+    owner_uid INTEGER NOT NULL,
+    creator_uid INTEGER NOT NULL,
+    member_max INTEGER NOT NULL DEFAULT 1000,
+    member_count INTEGER NOT NULL DEFAULT 1,
+    introduction TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    title TEXT NOT NULL DEFAULT '',
+    status INTEGER NOT NULL DEFAULT 1,
+    updated_at INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    pinned_msg TEXT
+);
+
+INSERT INTO group_new SELECT
+    CAST(id AS INTEGER), type, join_limit, content_limit, user_id_sum,
+    CAST(owner_uid AS INTEGER), CAST(creator_uid AS INTEGER),
+    member_max, member_count, introduction, avatar, title, status,
+    updated_at, created_at, pinned_msg
+FROM "group";
+
+DROP TABLE "group";
+
+ALTER TABLE group_new RENAME TO "group";
+
+-- ============================================================
+-- Step 9: 重建 group_member 表
+-- ============================================================
+CREATE TABLE group_member_new (
+    id INTEGER PRIMARY KEY,
+    group_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    nickname TEXT DEFAULT '',
+    avatar TEXT DEFAULT '',
+    sign TEXT DEFAULT '',
+    account TEXT DEFAULT '',
+    invite_code TEXT DEFAULT '',
+    alias TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    role INTEGER DEFAULT 0,
+    is_join INTEGER DEFAULT 0,
+    join_mode TEXT,
+    status INTEGER NOT NULL DEFAULT 1,
+    updated_at INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL
+);
+
+INSERT INTO group_member_new SELECT
+    CAST(id AS INTEGER), CAST(group_id AS INTEGER), CAST(user_id AS INTEGER),
+    nickname, avatar, sign, account, invite_code, alias, description,
+    role, is_join, join_mode, status, updated_at, created_at
+FROM group_member;
+
+DROP TABLE group_member;
+
+ALTER TABLE group_member_new RENAME TO group_member;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_Gid_Uid ON group_member (group_id, user_id);
+CREATE INDEX IF NOT EXISTS i_Uid_Gid_IsJoin ON group_member (user_id, group_id, is_join);
+CREATE INDEX IF NOT EXISTS idx_group_member_user_id_status ON group_member (user_id, status);
+
+-- ============================================================
+-- Step 10: 重建 user_group 表
+-- ============================================================
+CREATE TABLE user_group_new (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    group_id INTEGER NOT NULL,
+    remark TEXT DEFAULT '',
+    setting TEXT NOT NULL,
+    status INTEGER DEFAULT 1 NOT NULL,
+    updated_at INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL
+);
+
+INSERT INTO user_group_new SELECT
+    CAST(id AS INTEGER), CAST(user_id AS INTEGER), CAST(group_id AS INTEGER),
+    remark, setting, status, updated_at, created_at
+FROM user_group;
+
+DROP TABLE user_group;
+
+ALTER TABLE user_group_new RENAME TO user_group;
+
+-- ============================================================
+-- Step 11: 重建 conversation 表
+-- ============================================================
+CREATE TABLE conversation_new (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    peer_id INTEGER,
+    avatar TEXT,
+    title TEXT,
+    subtitle TEXT,
+    region TEXT,
+    sign TEXT,
+    unread_num INTEGER,
+    "type" TEXT,
+    msg_type TEXT,
+    is_show INTEGER,
+    last_time INTEGER,
+    last_msg_id INTEGER,
+    last_msg_status INTEGER,
+    payload TEXT
+);
+
+INSERT INTO conversation_new SELECT
+    id, CAST(user_id AS INTEGER), CAST(peer_id AS INTEGER),
+    avatar, title, subtitle, region, sign, unread_num,
+    "type", msg_type, is_show, last_time,
+    CAST(last_msg_id AS INTEGER), last_msg_status, payload
+FROM conversation;
+
+DROP TABLE conversation;
+
+ALTER TABLE conversation_new RENAME TO conversation;
+
+CREATE INDEX IF NOT EXISTS i_cv_UserId_IsShow_LastTime ON conversation (user_id, is_show, last_time);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cv_Type_From_To ON conversation ("type", user_id, peer_id);
+CREATE INDEX IF NOT EXISTS idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
+
+-- ============================================================
+-- Step 12: 重建 msg_c2c 表
+-- ============================================================
+CREATE TABLE msg_c2c_new (
+    auto_id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
+    msg_type TEXT,
+    from_id INTEGER,
+    to_id INTEGER,
+    conversation_uk3 TEXT,
+    e2ee TEXT,
+    payload TEXT,
+    created_at INTEGER,
+    topic_id INTEGER,
+    status INTEGER,
+    is_author INTEGER,
+    type TEXT DEFAULT 'C2C',
+    action TEXT DEFAULT '',
+    CONSTRAINT uk_MsgId UNIQUE (id)
+);
+
+INSERT INTO msg_c2c_new SELECT
+    auto_id, CAST(id AS INTEGER), msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type, action
+FROM msg_c2c;
+
+DROP TABLE msg_c2c;
+
+ALTER TABLE msg_c2c_new RENAME TO msg_c2c;
+
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_status_author ON msg_c2c (conversation_uk3, status, is_author);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_created_at ON msg_c2c (conversation_uk3, created_at);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_topic_id ON msg_c2c (conversation_uk3, topic_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_uk3 ON msg_c2c (conversation_uk3);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_from_to_created ON msg_c2c (from_id, to_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_msg_type ON msg_c2c (msg_type);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_unread_count ON msg_c2c (conversation_uk3, is_author, auto_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_status ON msg_c2c (status);
+
+-- ============================================================
+-- Step 13: 重建 msg_c2g 表
+-- ============================================================
+CREATE TABLE msg_c2g_new (
+    auto_id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
+    msg_type TEXT,
+    from_id INTEGER,
+    to_id INTEGER,
+    conversation_uk3 TEXT,
+    e2ee TEXT,
+    payload TEXT,
+    created_at INTEGER,
+    topic_id INTEGER,
+    status INTEGER,
+    is_author INTEGER,
+    type TEXT DEFAULT 'C2G',
+    action TEXT DEFAULT '',
+    CONSTRAINT uk_MsgId UNIQUE (id)
+);
+
+INSERT INTO msg_c2g_new SELECT
+    auto_id, CAST(id AS INTEGER), msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type, action
+FROM msg_c2g;
+
+DROP TABLE msg_c2g;
+
+ALTER TABLE msg_c2g_new RENAME TO msg_c2g;
+
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_conversation_status_author ON msg_c2g (conversation_uk3, status, is_author);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_conversation_created_at ON msg_c2g (conversation_uk3, created_at);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_conversation_topic_id ON msg_c2g (conversation_uk3, topic_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_conversation_uk3 ON msg_c2g (conversation_uk3);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_from_to_created ON msg_c2g (from_id, to_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_msg_type ON msg_c2g (msg_type);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_unread_count ON msg_c2g (conversation_uk3, is_author, auto_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_status ON msg_c2g (status);
+
+-- ============================================================
+-- Step 14: 重建 msg_c2s 表
+-- ============================================================
+CREATE TABLE msg_c2s_new (
+    auto_id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
+    msg_type TEXT,
+    from_id INTEGER,
+    to_id INTEGER,
+    conversation_uk3 TEXT,
+    e2ee TEXT,
+    payload TEXT,
+    created_at INTEGER,
+    topic_id INTEGER,
+    status INTEGER,
+    is_author INTEGER,
+    type TEXT DEFAULT 'C2S',
+    action TEXT DEFAULT '',
+    CONSTRAINT uk_MsgId UNIQUE (id)
+);
+
+INSERT INTO msg_c2s_new SELECT
+    auto_id, CAST(id AS INTEGER), msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type, action
+FROM msg_c2s;
+
+DROP TABLE msg_c2s;
+
+ALTER TABLE msg_c2s_new RENAME TO msg_c2s;
+
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_conversation_status_author ON msg_c2s (conversation_uk3, status, is_author);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_conversation_created_at ON msg_c2s (conversation_uk3, created_at);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_conversation_topic_id ON msg_c2s (conversation_uk3, topic_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_conversation_uk3 ON msg_c2s (conversation_uk3);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_from_to_created ON msg_c2s (from_id, to_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_unread_count ON msg_c2s (conversation_uk3, is_author, auto_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_status ON msg_c2s (status);
+
+-- ============================================================
+-- Step 15: 重建 msg_s2c 表
+-- ============================================================
+CREATE TABLE msg_s2c_new (
+    auto_id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
+    action TEXT,
+    msg_type TEXT,
+    from_id INTEGER,
+    to_id INTEGER,
+    conversation_uk3 TEXT,
+    e2ee TEXT,
+    payload TEXT,
+    created_at INTEGER,
+    topic_id INTEGER,
+    status INTEGER,
+    is_author INTEGER,
+    type TEXT DEFAULT 'S2C',
+    CONSTRAINT uk_MsgId UNIQUE (id)
+);
+
+INSERT INTO msg_s2c_new SELECT
+    auto_id, CAST(id AS INTEGER), action, msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type
+FROM msg_s2c;
+
+DROP TABLE msg_s2c;
+
+ALTER TABLE msg_s2c_new RENAME TO msg_s2c;
+
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_conversation_status_author ON msg_s2c (conversation_uk3, status, is_author);
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_conversation_created_at ON msg_s2c (conversation_uk3, created_at);
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_conversation_topic_id ON msg_s2c (conversation_uk3, topic_id);
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_conversation_uk3 ON msg_s2c (conversation_uk3);
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_from_to_created ON msg_s2c (from_id, to_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_action ON msg_s2c (action);
+
+-- ============================================================
+-- Step 16: 重建 channel 表
+-- ============================================================
+CREATE TABLE channel_new (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    avatar TEXT,
+    type INTEGER DEFAULT 0,
+    custom_id TEXT UNIQUE,
+    creator_id INTEGER NOT NULL,
+    subscriber_count INTEGER DEFAULT 0,
+    is_verified INTEGER DEFAULT 0,
+    tags TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+INSERT INTO channel_new SELECT
+    CAST(id AS INTEGER), name, description, avatar, type, custom_id,
+    CAST(creator_id AS INTEGER), subscriber_count, is_verified, tags,
+    created_at, updated_at
+FROM channel;
+
+DROP TABLE channel;
+
+ALTER TABLE channel_new RENAME TO channel;
+
+CREATE INDEX IF NOT EXISTS idx_channel_custom_id ON channel(custom_id);
+CREATE INDEX IF NOT EXISTS idx_channel_creator_id ON channel(creator_id);
+CREATE INDEX IF NOT EXISTS idx_channel_type ON channel(type);
+
+-- ============================================================
+-- Step 17: 重建 channel_subscription 表
+-- ============================================================
+CREATE TABLE channel_subscription_new (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id INTEGER NOT NULL,
+    subscribed_at INTEGER NOT NULL,
+    last_read_at INTEGER,
+    last_message_id INTEGER,
+    unread_count INTEGER DEFAULT 0,
+    notifications_enabled INTEGER DEFAULT 1,
+    is_pinned INTEGER DEFAULT 0,
+    is_muted INTEGER DEFAULT 0,
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE,
+    UNIQUE(channel_id)
+);
+
+INSERT INTO channel_subscription_new SELECT
+    id, CAST(channel_id AS INTEGER), subscribed_at, last_read_at,
+    CAST(last_message_id AS INTEGER), unread_count,
+    notifications_enabled, is_pinned, is_muted
+FROM channel_subscription;
+
+DROP TABLE channel_subscription;
+
+ALTER TABLE channel_subscription_new RENAME TO channel_subscription;
+
+CREATE INDEX IF NOT EXISTS idx_subscription_pinned ON channel_subscription(is_pinned);
+CREATE INDEX IF NOT EXISTS idx_subscription_muted ON channel_subscription(is_muted);
+
+-- ============================================================
+-- Step 18: 重建 channel_message 表
+-- ============================================================
+CREATE TABLE channel_message_new (
+    id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+    author_id INTEGER,
+    author_name TEXT,
+    author_avatar TEXT,
+    content TEXT,
+    msg_type TEXT NOT NULL,
+    payload TEXT,
+    created_at INTEGER NOT NULL,
+    is_pinned INTEGER DEFAULT 0,
+    view_count INTEGER DEFAULT 0,
+    reaction_summary TEXT,
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE
+);
+
+INSERT INTO channel_message_new SELECT
+    CAST(id AS INTEGER), CAST(channel_id AS INTEGER), CAST(author_id AS INTEGER),
+    author_name, author_avatar, content, msg_type, payload,
+    created_at, is_pinned, view_count, reaction_summary
+FROM channel_message;
+
+DROP TABLE channel_message;
+
+ALTER TABLE channel_message_new RENAME TO channel_message;
+
+CREATE INDEX IF NOT EXISTS idx_channel_msg_channel_id ON channel_message(channel_id);
+CREATE INDEX IF NOT EXISTS idx_channel_msg_created_at ON channel_message(channel_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_channel_msg_pinned ON channel_message(channel_id, is_pinned);
+
+-- ============================================================
+-- Step 19: 重建 channel_admin 表
+-- ============================================================
+CREATE TABLE channel_admin_new (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    role INTEGER DEFAULT 0,
+    added_at INTEGER NOT NULL,
+    UNIQUE(channel_id, user_id),
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE
+);
+
+INSERT INTO channel_admin_new SELECT
+    id, CAST(channel_id AS INTEGER), CAST(user_id AS INTEGER),
+    role, added_at
+FROM channel_admin;
+
+DROP TABLE channel_admin;
+
+ALTER TABLE channel_admin_new RENAME TO channel_admin;
+
+CREATE INDEX IF NOT EXISTS idx_channel_admin_user ON channel_admin(user_id);
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 16;

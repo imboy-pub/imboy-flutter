@@ -1,3 +1,5 @@
+import 'package:imboy/store/model/model_parse_utils.dart';
+
 /// APP 版本信息模型
 ///
 /// 服务端版本检查 API 返回的结构化数据
@@ -63,17 +65,17 @@ class AppVersionInfo {
     }
 
     return AppVersionInfo(
-      vsn: json['vsn'] as String? ?? '0.0.0',
-      downloadUrl: json['download_url'] as String? ?? '',
-      description: json['description'] as String? ?? '',
-      upgradeType: json['upgrade_type'] as String? ?? 'none',
-      minSupportedVsn: json['min_supported_vsn'] as String? ?? '0.0.0',
+      vsn: parseModelString(json['vsn'], defaultValue: '0.0.0'),
+      downloadUrl: parseModelString(json['download_url']),
+      description: parseModelString(json['description']),
+      upgradeType: parseModelString(json['upgrade_type'], defaultValue: 'none'),
+      minSupportedVsn: parseModelString(json['min_supported_vsn'], defaultValue: '0.0.0'),
       changelog: changelogList,
-      fileSize: json['file_size'] as int? ?? 0,
-      fileHash: json['file_hash'] as String? ?? '',
-      updatable: json['updatable'] as bool? ?? false,
-      checkIntervalHours: json['check_interval_hours'] as int? ?? 24,
-      forceUpdate: json['force_update'] as int? ?? 2,
+      fileSize: parseModelInt(json['file_size']),
+      fileHash: parseModelString(json['file_hash']),
+      updatable: parseModelBool(json['updatable']),
+      checkIntervalHours: parseModelInt(json['check_interval_hours'], defaultValue: 24),
+      forceUpdate: parseModelInt(json['force_update'], defaultValue: 2),
     );
   }
 

@@ -299,9 +299,9 @@ class WebRTCConnection {
 
       // 清理本地流
       if (_localStream != null) {
-        _localStream!.getTracks().forEach((track) async {
-          await track.stop();
-        });
+        await Future.wait(
+          _localStream!.getTracks().map((track) => track.stop()),
+        );
         await _localStream!.dispose();
         _localStream = null;
       }
@@ -581,12 +581,10 @@ class WebRTCConnection {
       String message;
       if (data.isBinary) {
         // 二进制数据（用于文件传输）
-        debugPrint('Data channel received binary data: ${data.binary.length} bytes');
         message = 'BINARY:${data.binary.length}';
       } else {
         // 文本消息（用于控制信令、心跳等）
         message = data.text;
-        debugPrint('Data channel received text message: $message');
       }
 
       // 将消息发送到流中，让外部处理

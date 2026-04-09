@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 class UserCollectModel {
-  String userId;
+  int userId;
 
   // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   int kind;
-  String kindId;
+  int kindId;
   String source;
   String remark;
 
@@ -42,9 +43,9 @@ class UserCollectModel {
     }
 
     return UserCollectModel(
-      userId: data['user_id'],
-      kind: data['kind'],
-      kindId: data['kind_id'],
+      userId: parseModelInt(data['user_id']),
+      kind: parseModelInt(data['kind']),
+      kindId: parseModelInt(data['kind_id']),
       source: (data['source'] ?? '').toString(),
       remark: data['remark'] ?? '',
       tag: data['tag'] ?? '',

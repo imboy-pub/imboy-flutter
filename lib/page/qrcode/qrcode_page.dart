@@ -618,7 +618,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                     // 群头像
                     SmartGroupAvatar(
                       avatar: widget.group.avatar,
-                      groupId: widget.group.groupId,
+                      groupId: widget.group.groupId.toString(),
                       avatarLoader: _loadGroupMemberAvatars,
                     ),
 

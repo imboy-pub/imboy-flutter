@@ -7,6 +7,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -167,7 +168,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
             // 插入新联系人
             await ContactRepo().insert(
               ContactModel(
-                peerId: peerId,
+                peerId: parseModelInt(peerId),
                 nickname: payload['nickname'] ?? '',
                 avatar: payload['avatar'] ?? '',
               ),

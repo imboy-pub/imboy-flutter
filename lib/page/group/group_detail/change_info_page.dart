@@ -116,7 +116,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                 children: [
                   SmartGroupAvatar(
                     avatar: widget.group.avatar,
-                    groupId: widget.group.groupId,
+                    groupId: widget.group.groupId.toString(),
                     size: 44,
                     avatarLoader: (groupId) async {
                       // 从本地数据库获取群成员头像
@@ -184,7 +184,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                 final navigator = Navigator.of(context);
                 GroupModel? g = await ref
                     .read(changeInfoProvider.notifier)
-                    .saveGroupInfo(widget.group.groupId);
+                    .saveGroupInfo(widget.group.groupId.toString());
                 if (g != null && mounted) {
                   EasyLoading.showSuccess(t.tipSuccess);
                   navigator.pop(g);

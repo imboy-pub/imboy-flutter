@@ -6,7 +6,7 @@ import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 
 class NewFriendModel {
   NewFriendModel({
-    this.uid = "",
+    this.uid = 0,
     required this.to,
     required this.from,
     required this.nickname,
@@ -19,9 +19,9 @@ class NewFriendModel {
     required this.payload,
   });
 
-  final String uid; // 当前用户ID
-  final String from; // 发送中ID
-  final String to; // 接收者ID
+  final int uid; // 当前用户ID
+  final int from; // 发送中ID
+  final int to; // 接收者ID
   final String nickname; // 昵称
   final String source;
   final String? avatar; // 用户头像
@@ -33,15 +33,15 @@ class NewFriendModel {
   final String payload;
 
   String get uk {
-    return from + to;
+    return '${from}_$to';
   }
 
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
     return NewFriendModel(
       source: parseModelString(json[NewFriendRepo.source]),
-      uid: parseModelString(json[NewFriendRepo.uid]),
-      from: parseModelString(json[NewFriendRepo.from] ?? json['from']),
-      to: parseModelString(json[NewFriendRepo.to] ?? json['to']),
+      uid: parseModelInt(json[NewFriendRepo.uid]),
+      from: parseModelInt(json[NewFriendRepo.from] ?? json['from']),
+      to: parseModelInt(json[NewFriendRepo.to] ?? json['to']),
       nickname: parseModelString(json[NewFriendRepo.nickname]),
       avatar: parseModelNullableString(json[NewFriendRepo.avatar]),
       status: parseModelInt(json[NewFriendRepo.status]),
@@ -77,5 +77,5 @@ class NewFriendModel {
   };
 
   @override
-  String toString() => json.encode(this);
+  String toString() => 'NewFriendModel(from: $from, to: $to, status: $status)';
 }

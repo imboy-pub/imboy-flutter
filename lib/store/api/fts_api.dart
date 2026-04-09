@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -67,12 +68,12 @@ class MessageSearchResult {
   /// 转换为 MessageModel
   MessageModel toMessageModel() {
     return MessageModel(
-      id,
+      parseModelInt(id),
       autoId: 0,
       type: type,
       status: status ?? IMBoyMessageStatus.delivered,
-      fromId: fromId,
-      toId: toId,
+      fromId: parseModelInt(fromId),
+      toId: parseModelInt(toId),
       payload: payload ?? {'text': content},
       isAuthor: 0,
       conversationUk3: '',
@@ -169,7 +170,8 @@ class FtsApi extends HttpClient {
       }
 
       return null;
-    } catch (e) {
+    } on Exception catch (e) {
+      debugPrint('[FtsApi] searchMessages error: $e');
       return null;
     }
   }
@@ -211,7 +213,8 @@ class FtsApi extends HttpClient {
       }
 
       return null;
-    } catch (e) {
+    } on Exception catch (e) {
+      debugPrint('[FtsApi] searchConversationMessages error: $e');
       return null;
     }
   }

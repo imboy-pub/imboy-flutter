@@ -55,7 +55,7 @@ class HttpRetryInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     // 检查是否应该重试
     if (_shouldRetry(err)) {
       final retryCount = err.requestOptions.extra[_retryCountKey] as int? ?? 0;
@@ -84,6 +84,12 @@ class HttpRetryInterceptor extends Interceptor {
           // 使用绑定的 Dio 实例重试，保留完整的配置（headers、adapter、证书等）
           // 如果未绑定则回退到 requestOptions 自带的配置
           final retryDio = _dio ?? Dio();
+          // 同步最新的认证 headers，防止携带陈旧 token
+          final currentHeaders = retryDio.options.headers;
+          if (currentHeaders.containsKey('authorization')) {
+            err.requestOptions.headers['authorization'] =
+                currentHeaders['authorization'];
+          }
           final response = await retryDio.fetch(err.requestOptions);
           return handler.resolve(response);
         } catch (e) {

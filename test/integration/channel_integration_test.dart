@@ -116,12 +116,12 @@ void main() {
           method: 'POST',
           path: '/v1/channel/create',
           response: IMBoyHttpResponse.success({
-            'id': 'channel_1001',
+            'id': 1001,
             'name': '稳定测试频道',
             'description': 'for ci',
             'type': 1,
             'custom_id': 'stable_channel_1001',
-            'creator_uid': 'user_admin',
+            'creator_uid': 9001,
             'subscriber_count': 9,
             'is_verified': false,
             'created_at': '1767225600000',
@@ -132,12 +132,12 @@ void main() {
           method: 'GET',
           path: '/v1/channel/channel_1001',
           response: IMBoyHttpResponse.success({
-            'id': 'channel_1001',
+            'id': 1001,
             'name': '稳定测试频道',
             'description': 'for ci',
             'type': 1,
             'custom_id': 'stable_channel_1001',
-            'creator_uid': 'user_admin',
+            'creator_uid': 9001,
             'subscriber_count': 10,
             'is_verified': true,
             'created_at': '1767225600000',
@@ -155,12 +155,12 @@ void main() {
           response: IMBoyHttpResponse.success({
             'list': [
               {
-                'id': 'channel_1001',
+                'id': 1001,
                 'name': '稳定测试频道',
                 'description': 'for ci',
                 'type': 1,
                 'custom_id': 'stable_channel_1001',
-                'creator_uid': 'user_admin',
+                'creator_uid': 9001,
                 'subscriber_count': 10,
                 'is_verified': true,
                 'created_at': '1767225600000',
@@ -174,10 +174,10 @@ void main() {
         );
         api.stub(
           method: 'POST',
-          path: '/v1/channel/channel_1001/message',
+          path: '/v1/channel/1001/message',
           response: IMBoyHttpResponse.success({
-            'id': 'msg_1001',
-            'channel_id': 'channel_1001',
+            'id': 5001,
+            'channel_id': 1001,
             'content': 'hello ci',
             'msg_type': 'channel_text',
             'is_pinned': 0,
@@ -195,7 +195,7 @@ void main() {
           tags: const ['ci', 'channel'],
         );
         expect(created, isNotNull);
-        expect(created!.id, 'channel_1001');
+        expect(created!.id, 1001);
         expect(created.type, ChannelType.private);
         final createReq = api.lastRequest();
         expect(createReq.method, 'POST');
@@ -231,14 +231,14 @@ void main() {
         expect(subscribedReq.queryParameters?['limit'], 20);
 
         final message = await api.publishMessage(
-          channelId: 'channel_1001',
+          channelId: '1001',
           content: 'hello ci',
           msgType: 'channel_text',
         );
         expect(message, isNotNull);
-        expect(message!.id, 'msg_1001');
+        expect(message!.id, 5001);
         final publishReq = api.lastRequest();
-        expect(publishReq.path, '/v1/channel/channel_1001/message');
+        expect(publishReq.path, '/v1/channel/1001/message');
         expect(
           (publishReq.data as Map<String, dynamic>)['content'],
           'hello ci',
@@ -257,7 +257,7 @@ void main() {
 
         api.stub(
           method: 'POST',
-          path: '/v1/channel/channel_2001/invitation',
+          path: '/v1/channel/2001/invitation',
           response: IMBoyHttpResponse.success({
             'id': 'inv_2001',
             'channel_id': 'channel_2001',
@@ -305,13 +305,13 @@ void main() {
         );
 
         final invitation = await api.createInvitation(
-          channelId: 'channel_2001',
+          channelId: '2001',
           inviteeUid: 'user_2002',
         );
         expect(invitation, isNotNull);
         expect(invitation!['id'], 'inv_2001');
         final createReq = api.lastRequest();
-        expect(createReq.path, '/v1/channel/channel_2001/invitation');
+        expect(createReq.path, '/v1/channel/2001/invitation');
         expect(
           (createReq.data as Map<String, dynamic>)['invitee_uid'],
           'user_2002',
@@ -353,9 +353,9 @@ void main() {
         final api = _FakeChannelApi();
 
         final orderPayload = {
-          'id': 'order_id_3001',
-          'channel_id': 'channel_3001',
-          'user_id': 'user_3001',
+          'id': 3001,
+          'channel_id': 3001,
+          'user_id': 3001,
           'order_no': 'CH1767225600000123',
           'amount': 9.9,
           'currency': 'CNY',
@@ -371,7 +371,7 @@ void main() {
 
         api.stub(
           method: 'POST',
-          path: '/v1/channel/channel_3001/order',
+          path: '/v1/channel/3001/order',
           response: IMBoyHttpResponse.success(orderPayload),
         );
         api.stub(
@@ -392,11 +392,11 @@ void main() {
           response: IMBoyHttpResponse.success(orderPayload),
         );
 
-        final created = await api.createOrder(channelId: 'channel_3001');
+        final created = await api.createOrder(channelId: '3001');
         expect(created, isNotNull);
         expect(created!.orderNo, 'CH1767225600000123');
         expect(created.paymentMethod, 'mock');
-        expect(api.lastRequest().path, '/v1/channel/channel_3001/order');
+        expect(api.lastRequest().path, '/v1/channel/3001/order');
 
         final paid = await api.payOrder(orderNo: 'CH1767225600000123');
         expect(paid, isTrue);
@@ -409,7 +409,7 @@ void main() {
 
         final orders = await api.getMyOrders();
         expect(orders, hasLength(1));
-        expect(orders.first.channelId, 'channel_3001');
+        expect(orders.first.channelId, 3001);
         expect(api.lastRequest().path, '/v1/channel/orders/my');
 
         final detail = await api.getOrder(orderNo: 'CH1767225600000123');
@@ -424,13 +424,13 @@ void main() {
   group('ChannelModel Serialization Tests', () {
     test('ChannelModel should serialize to/from JSON correctly', () {
       final json = {
-        'id': 'channel_123',
+        'id': 1001,
         'name': 'Test Channel',
         'description': 'A test channel',
         'avatar': 'https://example.com/avatar.jpg',
         'type': 0,
         'custom_id': 'test_channel',
-        'creator_id': 'user_123',
+        'creator_id': 123,
         'subscriber_count': 100,
         'is_verified': true,
         'tags': ['news', 'tech'],
@@ -439,7 +439,7 @@ void main() {
       };
 
       final model = ChannelModel.fromJson(json);
-      expect(model.id, 'channel_123');
+      expect(model.id, 1001);
       expect(model.name, 'Test Channel');
       expect(model.type, ChannelType.public);
       expect(model.subscriberCount, 100);
@@ -447,7 +447,7 @@ void main() {
       expect(model.tags, ['news', 'tech']);
 
       final serialized = model.toJson();
-      expect(serialized['id'], 'channel_123');
+      expect(serialized['id'], 1001);
       expect(serialized['name'], 'Test Channel');
     });
 
@@ -459,7 +459,7 @@ void main() {
         'avatar': '',
         'type': '2',
         'custom_id': 667,
-        'creator_uid': 'user_creator',
+        'creator_uid': 9001,
         'subscriber_count': '88',
         'is_verified': 'true',
         'tags': '["news", 9, true]',
@@ -470,13 +470,13 @@ void main() {
       };
 
       final model = ChannelModel.fromJson(json);
-      expect(model.id, '987');
+      expect(model.id, 987);
       expect(model.name, 'Mixed Channel');
       expect(model.description, '12345');
       expect(model.avatar, isNull);
       expect(model.type, ChannelType.paid);
       expect(model.customId, '667');
-      expect(model.creatorId, 'user_creator');
+      expect(model.creatorId, 9001);
       expect(model.subscriberCount, 88);
       expect(model.isVerified, isTrue);
       expect(model.tags, ['news', '9', 'true']);
@@ -488,9 +488,9 @@ void main() {
 
     test('ChannelMessageModel should serialize correctly', () {
       final json = {
-        'id': 'msg_123',
-        'channel_id': 'channel_123',
-        'author_id': 'user_123',
+        'id': 123,
+        'channel_id': 1001,
+        'author_id': 2001,
         'author_name': 'Test User',
         'author_avatar': 'https://example.com/avatar.jpg',
         'content': 'Hello, Channel!',
@@ -503,8 +503,8 @@ void main() {
       };
 
       final model = ChannelMessageModel.fromJson(json);
-      expect(model.id, 'msg_123');
-      expect(model.channelId, 'channel_123');
+      expect(model.id, 123);
+      expect(model.channelId, 1001);
       expect(model.authorName, 'Test User');
       expect(model.content, 'Hello, Channel!');
       expect(model.msgType, 'text');
@@ -525,8 +525,8 @@ void main() {
       };
 
       final model = ChannelMessageModel.fromJson(json);
-      expect(model.id, '456');
-      expect(model.channelId, '789');
+      expect(model.id, 456);
+      expect(model.channelId, 789);
       expect(model.content, '2468');
       expect(model.msgType, '1011');
       expect(model.isPinned, isTrue);
@@ -539,8 +539,8 @@ void main() {
       'ChannelMessageModel should parse bool view_count without cast errors',
       () {
         final json = {
-          'id': 'msg_bool_view',
-          'channel_id': 'channel_bool',
+          'id': 9901,
+          'channel_id': 9902,
           'content': 'bool view count',
           'msg_type': 'channel_text',
           'is_pinned': 0,
@@ -549,8 +549,8 @@ void main() {
         };
 
         final model = ChannelMessageModel.fromJson(json);
-        expect(model.id, 'msg_bool_view');
-        expect(model.channelId, 'channel_bool');
+        expect(model.id, 9901);
+        expect(model.channelId, 9902);
         expect(model.isPinned, isFalse);
         expect(model.viewCount, 1);
       },
@@ -560,10 +560,10 @@ void main() {
       'ChannelSubscriptionModel should parse bool/int/string mixed fields',
       () {
         final json = {
-          'channel_id': 'channel_123',
+          'channel_id': 123,
           'subscribed_at': '1767225600000',
           'last_read_at': 1767225601,
-          'last_message_id': 'msg_999',
+          'last_message_id': 999,
           'unread_count': '8',
           'notifications_enabled': true,
           'is_pinned': '1',
@@ -571,12 +571,12 @@ void main() {
         };
 
         final model = ChannelSubscriptionModel.fromJson(json);
-        expect(model.channelId, 'channel_123');
+        expect(model.channelId, 123);
         expect(model.unreadCount, 8);
         expect(model.notificationsEnabled, isTrue);
         expect(model.isPinned, isTrue);
         expect(model.isMuted, isFalse);
-        expect(model.lastMessageId, 'msg_999');
+        expect(model.lastMessageId, 999);
         // 秒级时间戳应自动转换为毫秒级
         expect(model.lastReadAt?.millisecondsSinceEpoch, 1767225601000);
       },
@@ -584,7 +584,7 @@ void main() {
 
     test('ChannelStatsModel should parse numeric strings', () {
       final json = {
-        'channel_id': 'channel_789',
+        'channel_id': 789,
         'subscriber_count': '100',
         'total_messages': '200',
         'total_views': 300,
@@ -592,7 +592,7 @@ void main() {
       };
 
       final model = ChannelStatsModel.fromJson(json);
-      expect(model.channelId, 'channel_789');
+      expect(model.channelId, 789);
       expect(model.subscriberCount, 100);
       expect(model.totalMessages, 200);
       expect(model.totalViews, 300);

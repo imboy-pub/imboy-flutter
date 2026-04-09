@@ -31,7 +31,7 @@ void main() {
         for (int i = 0; i < 10; i++) {
           final testMsg = await messageRepo.find('offline_test_msg_$i');
           if (testMsg != null) {
-            await messageRepo.delete(testMsg.id!);
+            await messageRepo.delete(testMsg.id.toString());
           }
         }
       } catch (e) {
@@ -259,7 +259,7 @@ void main() {
 
     group('消息去重机制', () {
       test('应该能够识别重复消息ID', () {
-        const msgId = 'duplicate_msg_001';
+        const msgId = 90001;
 
         // 第一次添加
         final msg1 = MessageModel(
@@ -267,8 +267,8 @@ void main() {
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.sent,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'text': 'Duplicate'},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user2',
@@ -280,8 +280,8 @@ void main() {
           autoId: 2, // 不同的 autoId
           type: 'C2C',
           status: IMBoyMessageStatus.sent,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'text': 'Duplicate'},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user2',
@@ -293,15 +293,15 @@ void main() {
 
       test('应该保留最新版本的消息', () {
         // 去重策略：保留最新版本（autoId 更大）
-        const msgId = 'version_test_001';
+        const msgId = 90002;
 
         final oldMsg = MessageModel(
           msgId,
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.sent,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'text': 'Old version'},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user2',
@@ -312,8 +312,8 @@ void main() {
           autoId: 2, // 更大的 autoId
           type: 'C2C',
           status: IMBoyMessageStatus.delivered,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'text': 'New version'},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user2',

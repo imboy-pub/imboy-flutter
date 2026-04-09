@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -75,7 +77,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = '${e.runtimeType}';
           _isLoading = false;
         });
       }
@@ -120,12 +122,12 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.addAdminSuccess)));
-          _loadAdmins();
+          unawaited(_loadAdmins());
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${t.channel.addAdminFailed}: $e')),
+            SnackBar(content: Text(t.channel.addAdminFailed)),
           );
         }
       }
@@ -164,12 +166,12 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleSuccess)));
-          _loadAdmins();
+          unawaited(_loadAdmins());
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${t.channel.updateRoleFailed}: $e')),
+            SnackBar(content: Text(t.channel.updateRoleFailed)),
           );
         }
       }
@@ -218,12 +220,12 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminSuccess)));
-          _loadAdmins();
+          unawaited(_loadAdmins());
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${t.channel.removeAdminFailed}: $e')),
+            SnackBar(content: Text(t.channel.removeAdminFailed)),
           );
         }
       }

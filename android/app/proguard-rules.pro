@@ -92,3 +92,9 @@
     private void readObject(java.io.ObjectInputStream);
 }
 
+# ==========================
+# SQLCipher 混淆配置（sqflite_sqlcipher 要求）
+# ==========================
+-keep class net.sqlcipher.** { *; }
+-dontwarn net.sqlcipher.**
+

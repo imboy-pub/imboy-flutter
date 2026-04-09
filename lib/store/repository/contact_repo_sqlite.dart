@@ -6,7 +6,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/contact_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class ContactRepo {
   static String tableName = 'contact';

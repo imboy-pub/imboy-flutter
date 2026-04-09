@@ -145,7 +145,7 @@ class ChannelListNotifier extends _$ChannelListNotifier {
       );
     } catch (e) {
       if (!ref.mounted) return;
-      state = ChannelListState(isLoading: false, error: e.toString());
+      state = ChannelListState(isLoading: false, error: '${e.runtimeType}');
     }
   }
 
@@ -170,7 +170,7 @@ class ChannelListNotifier extends _$ChannelListNotifier {
       );
     } catch (e) {
       if (!ref.mounted) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: '${e.runtimeType}');
     }
   }
 
@@ -189,7 +189,7 @@ class ChannelListNotifier extends _$ChannelListNotifier {
       );
     } catch (e) {
       if (!ref.mounted) return;
-      state = ChannelListState(isLoading: false, error: e.toString());
+      state = ChannelListState(isLoading: false, error: '${e.runtimeType}');
     }
   }
 
@@ -317,8 +317,8 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       channel ??= await _api.getChannelByCustomId(channelId);
       if (!ref.mounted) return;
       if (channel != null) {
-        final effectiveChannelId = channel.id.isNotEmpty
-            ? channel.id
+        final effectiveChannelId = channel.id != 0
+            ? channel.id.toString()
             : channelId;
         _channelId = effectiveChannelId;
         state = state.copyWith(channel: channel, isLoading: false);
@@ -331,7 +331,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     } catch (e) {
       _channelId = null;
       if (!ref.mounted) return;
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: '${e.runtimeType}');
     }
   }
 
@@ -364,7 +364,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       }
     } catch (e) {
       if (!ref.mounted) return;
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: '${e.runtimeType}');
     }
   }
 
@@ -413,7 +413,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       if (ref.mounted) {
         state = state.copyWith(
           isPublishing: false,
-          error: e.toString().replaceFirst('Exception: ', ''),
+          error: '${e.runtimeType}',
         );
       }
       return false;
@@ -451,7 +451,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     if (!ref.mounted) return;
 
     final nextMessages = state.messages
-        .where((message) => message.id != event.messageId)
+        .where((message) => message.id.toString() != event.messageId)
         .toList(growable: false);
     if (nextMessages.length == state.messages.length) {
       return;
@@ -485,7 +485,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   /// 立刻更新消息的置顶状态，不等待后端推送
   void updateMessagePinned(String messageId, bool pinned) {
     final updated = state.messages
-        .map((message) => message.id == messageId
+        .map((message) => message.id.toString() == messageId
             ? message.copyWith(isPinned: pinned)
             : message)
         .toList(growable: false);
@@ -495,7 +495,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   /// 立刻从列表移除指定消息
   void removeMessageLocally(String messageId) {
     final nextMessages = state.messages
-        .where((message) => message.id != messageId)
+        .where((message) => message.id.toString() != messageId)
         .toList(growable: false);
     if (nextMessages.length == state.messages.length) return;
     state = state.copyWith(messages: nextMessages);
@@ -575,7 +575,7 @@ class CreateChannelNotifier extends _$CreateChannelNotifier {
       }
     } catch (e) {
       if (!ref.mounted) return null;
-      state = CreateChannelState(isCreating: false, error: e.toString());
+      state = CreateChannelState(isCreating: false, error: '${e.runtimeType}');
       return null;
     }
   }

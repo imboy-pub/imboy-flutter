@@ -3,7 +3,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 频道 Repository
 ///

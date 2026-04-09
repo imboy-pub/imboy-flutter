@@ -186,7 +186,7 @@ class _FakeGroupAlbumApi extends GroupAlbumApi {
 void main() {
   group('GroupScheduleApi schedule_id compatibility', () {
     test(
-      'getSchedule should forward hashid/uid schedule_id as string',
+      'getSchedule should forward legacy/uid schedule_id as string',
       () async {
         final api = _FakeGroupScheduleApi();
         api.nextResponse = IMBoyHttpResponse.success({
@@ -194,14 +194,14 @@ void main() {
         });
 
         final result = await api.getSchedule(
-          groupId: 'group_hashid',
+          groupId: 'group_test_id',
           scheduleId: 'sched_abc123',
         );
 
         expect(result, isNotNull);
         expect(api.lastMethod, 'GET');
         expect(api.lastUri, '/v1/group_schedule/detail');
-        expect(api.lastQuery?['group_id'], 'group_hashid');
+        expect(api.lastQuery?['group_id'], 'group_test_id');
         expect(api.lastQuery?['schedule_id'], 'sched_abc123');
       },
     );
@@ -238,7 +238,7 @@ void main() {
   });
 
   group('GroupTaskApi task_id compatibility', () {
-    test('getTask should pass hashid task_id without int parsing', () async {
+    test('getTask should pass legacy task_id without int parsing', () async {
       final api = _FakeGroupTaskApi();
       api.nextResponse = IMBoyHttpResponse.success({'id': 'x'});
 
@@ -271,14 +271,14 @@ void main() {
 
       final ok = await api.reviewTask(
         groupId: 'gid_x',
-        taskId: 'assign_hashid',
+        taskId: 'assign_test_id',
         status: 1,
       );
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
       expect(api.lastUri, '/v1/group/task/review');
-      expect(api.lastData['assignment_id'], 'assign_hashid');
+      expect(api.lastData['assignment_id'], 'assign_test_id');
       expect(api.lastData['score'], 1);
     });
 
@@ -309,7 +309,7 @@ void main() {
       });
 
       final result = await api.getFiles(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         page: 2,
         size: 10,
         category: 'doc',
@@ -317,7 +317,7 @@ void main() {
 
       expect(api.lastMethod, 'GET');
       expect(api.lastUri, '/v1/group/file/list');
-      expect(api.lastQuery?['gid'], 'gid_hashid');
+      expect(api.lastQuery?['gid'], 'gid_test_id');
       expect(api.lastQuery?['page'], 2);
       expect(api.lastQuery?['size'], 10);
       expect(api.lastQuery?['category'], 'doc');
@@ -368,11 +368,11 @@ void main() {
           ],
         });
 
-        final stats = await api.getCategoryStats(groupId: 'gid_hashid');
+        final stats = await api.getCategoryStats(groupId: 'gid_test_id');
 
         expect(api.lastMethod, 'GET');
         expect(api.lastUri, '/v1/group/file/categories');
-        expect(api.lastQuery?['gid'], 'gid_hashid');
+        expect(api.lastQuery?['gid'], 'gid_test_id');
         expect(stats.length, 1);
         expect(stats.first['category'], 'document');
         expect(stats.first['count'], 2);
@@ -389,7 +389,7 @@ void main() {
       });
 
       final result = await api.searchFiles(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         keyword: '设计文档',
         page: 2,
         size: 5,
@@ -397,7 +397,7 @@ void main() {
 
       expect(api.lastMethod, 'GET');
       expect(api.lastUri, '/v1/group/file/search');
-      expect(api.lastQuery?['gid'], 'gid_hashid');
+      expect(api.lastQuery?['gid'], 'gid_test_id');
       expect(api.lastQuery?['keyword'], '设计文档');
       expect(api.lastQuery?['page'], 2);
       expect(api.lastQuery?['size'], 5);
@@ -408,7 +408,7 @@ void main() {
     test('searchFiles should short-circuit when keyword is empty', () async {
       final api = _FakeGroupFileApi();
       final result = await api.searchFiles(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         keyword: '  ',
       );
 
@@ -420,7 +420,7 @@ void main() {
     test('uploadFile should short-circuit for empty bytes', () async {
       final api = _FakeGroupFileApi();
       final result = await api.uploadFile(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         fileName: 'a.txt',
         fileBytes: const [],
       );
@@ -438,7 +438,7 @@ void main() {
         });
 
         final result = await api.uploadFile(
-          groupId: 'gid_hashid',
+          groupId: 'gid_test_id',
           fileName: 'a.txt',
           fileBytes: const [1, 2, 3],
           fileType: 'text/plain',
@@ -449,7 +449,7 @@ void main() {
         expect(api.lastUri, '/v1/group/file/upload');
         final formData = api.lastData as FormData;
         final fields = Map<String, String>.fromEntries(formData.fields);
-        expect(fields['gid'], 'gid_hashid');
+        expect(fields['gid'], 'gid_test_id');
         expect(fields['file_name'], 'a.txt');
         expect(fields['file_type'], 'text/plain');
         expect(formData.files.any((entry) => entry.key == 'file'), isTrue);
@@ -468,14 +468,14 @@ void main() {
       });
 
       final result = await api.getAlbums(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         page: 3,
         size: 15,
       );
 
       expect(api.lastMethod, 'GET');
       expect(api.lastUri, '/v1/group_album/list');
-      expect(api.lastQuery?['gid'], 'gid_hashid');
+      expect(api.lastQuery?['gid'], 'gid_test_id');
       expect(api.lastQuery?['page'], 3);
       expect(api.lastQuery?['size'], 15);
       expect((result['list'] as List).length, 1);
@@ -505,36 +505,36 @@ void main() {
 
     test('deleteAlbum should post album_id as string', () async {
       final api = _FakeGroupAlbumApi();
-      final ok = await api.deleteAlbum('alb_hashid');
+      final ok = await api.deleteAlbum('alb_test_id');
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
       expect(api.lastUri, '/v1/group_album/delete');
-      expect(api.lastData['album_id'], 'alb_hashid');
+      expect(api.lastData['album_id'], 'alb_test_id');
     });
 
     test('createAlbum should post gid and album_name', () async {
       final api = _FakeGroupAlbumApi();
       api.nextResponse = IMBoyHttpResponse.success({
-        'album_id': 'alb_hashid',
+        'album_id': 'alb_test_id',
         'album_name': '项目资料',
       });
 
       final result = await api.createAlbum(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         albumName: '项目资料',
       );
 
       expect(result, isNotNull);
       expect(api.lastMethod, 'POST');
       expect(api.lastUri, '/v1/group_album/create');
-      expect(api.lastData['gid'], 'gid_hashid');
+      expect(api.lastData['gid'], 'gid_test_id');
       expect(api.lastData['album_name'], '项目资料');
     });
 
     test('createAlbum should short-circuit for blank album name', () async {
       final api = _FakeGroupAlbumApi();
       final result = await api.createAlbum(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         albumName: '   ',
       );
 
@@ -544,18 +544,18 @@ void main() {
 
     test('renameAlbum should post album_id and album_name', () async {
       final api = _FakeGroupAlbumApi();
-      final ok = await api.renameAlbum(albumId: 'alb_hashid', albumName: '新名字');
+      final ok = await api.renameAlbum(albumId: 'alb_test_id', albumName: '新名字');
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
       expect(api.lastUri, '/v1/group_album/rename');
-      expect(api.lastData['album_id'], 'alb_hashid');
+      expect(api.lastData['album_id'], 'alb_test_id');
       expect(api.lastData['album_name'], '新名字');
     });
 
     test('renameAlbum should short-circuit for blank album name', () async {
       final api = _FakeGroupAlbumApi();
-      final ok = await api.renameAlbum(albumId: 'alb_hashid', albumName: ' ');
+      final ok = await api.renameAlbum(albumId: 'alb_test_id', albumName: ' ');
 
       expect(ok, isFalse);
       expect(api.requestCount, 0);
@@ -564,7 +564,7 @@ void main() {
     test('uploadPhoto should short-circuit for blank album_id', () async {
       final api = _FakeGroupAlbumApi();
       final result = await api.uploadPhoto(
-        groupId: 'gid_hashid',
+        groupId: 'gid_test_id',
         albumId: '  ',
         photoName: 'a.jpg',
         photoBytes: const [1, 2, 3],
@@ -582,8 +582,8 @@ void main() {
       });
 
       final result = await api.uploadPhoto(
-        groupId: 'gid_hashid',
-        albumId: 'alb_hashid',
+        groupId: 'gid_test_id',
+        albumId: 'alb_test_id',
         photoName: 'a.jpg',
         photoBytes: const [1, 2, 3, 4],
       );
@@ -593,8 +593,8 @@ void main() {
       expect(api.lastUri, '/v1/group_album/photo/upload');
       final formData = api.lastData as FormData;
       final fields = Map<String, String>.fromEntries(formData.fields);
-      expect(fields['gid'], 'gid_hashid');
-      expect(fields['album_id'], 'alb_hashid');
+      expect(fields['gid'], 'gid_test_id');
+      expect(fields['album_id'], 'alb_test_id');
       expect(fields['photo_name'], 'a.jpg');
       expect(formData.files.any((entry) => entry.key == 'photo'), isTrue);
     });
@@ -609,14 +609,14 @@ void main() {
       });
 
       final result = await api.getPhotos(
-        albumId: 'alb_hashid',
+        albumId: 'alb_test_id',
         page: 2,
         size: 6,
       );
 
       expect(api.lastMethod, 'GET');
       expect(api.lastUri, '/v1/group_album/photo/list');
-      expect(api.lastQuery?['album_id'], 'alb_hashid');
+      expect(api.lastQuery?['album_id'], 'alb_test_id');
       expect(api.lastQuery?['page'], 2);
       expect(api.lastQuery?['size'], 6);
       expect((result['list'] as List).length, 1);

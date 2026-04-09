@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:azlistview/azlistview.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -26,7 +24,7 @@ class DenylistModel extends ISuspensionBean {
     this.namePinyin,
   });
 
-  final String deniedUid; // 被列入名单的用户ID
+  final int deniedUid; // 被列入名单的用户ID
   final String account; // 被列入名单的 用户账号
   final String nickname; // 备注 or 昵称
   final String avatar; // 用户头像
@@ -60,7 +58,7 @@ class DenylistModel extends ISuspensionBean {
   factory DenylistModel.fromJson(Map<String, dynamic> json) {
     final avatar = parseModelString(json[UserDenylistRepo.avatar]);
     return DenylistModel(
-      deniedUid: parseModelString(
+      deniedUid: parseModelInt(
         json["id"] ?? json[UserDenylistRepo.deniedUid],
       ),
       account: parseModelString(json[UserDenylistRepo.account]),
@@ -102,5 +100,5 @@ class DenylistModel extends ISuspensionBean {
   String getSuspensionTag() => nameIndex;
 
   @override
-  String toString() => json.encode(this);
+  String toString() => 'DenylistModel(deniedUid: $deniedUid)';
 }

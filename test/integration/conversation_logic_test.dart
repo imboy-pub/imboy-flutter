@@ -19,14 +19,14 @@ void main() {
       test('应该优先显示系统提示（in_denylist）', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30, // 撤回状态
           unreadNum: 0,
           payload: {'sys_prompt': 'in_denylist'}, // 系统提示优先级最高
@@ -42,14 +42,14 @@ void main() {
       test('应该优先显示撤回状态而非普通消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息', // 这个应该被忽略
           type: 'C2C',
           msgType: 'text', // 这个也应该被忽略
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30, // peerRevoked 优先
           unreadNum: 0,
           payload: {},
@@ -65,14 +65,14 @@ void main() {
       test('应该正确显示文本消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '这是一条文本消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {'text': '这是一条文本消息'},
         );
@@ -86,14 +86,14 @@ void main() {
       test('对方撤回时应该显示名称和撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '张三李四王五六七八九十十一十二', // 超过12个字符
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30, // peerRevoked
           unreadNum: 0,
           payload: {'peer_name': '张三李四王五六七八九十十一十二'},
@@ -111,14 +111,14 @@ void main() {
       test('自己撤回时应该显示"你撤回了一条消息"', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 31, // myRevoked
           unreadNum: 0,
           payload: {},
@@ -133,14 +133,14 @@ void main() {
       test('应该正确显示图片消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[图片]',
           type: 'C2C',
           msgType: 'image',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {},
         );
@@ -154,14 +154,14 @@ void main() {
       test('应该正确显示语音消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[语音]',
           type: 'C2C',
           msgType: 'voice',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {},
         );
@@ -175,14 +175,14 @@ void main() {
       test('应该正确显示视频消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[视频]',
           type: 'C2C',
           msgType: 'video',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {},
         );
@@ -196,14 +196,14 @@ void main() {
       test('应该正确显示文件消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[文件]',
           type: 'C2C',
           msgType: 'file',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {},
         );
@@ -217,14 +217,14 @@ void main() {
       test('应该正确显示位置消息（包含位置标签和地址）', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[位置]北京市朝阳区建国路88号',
           type: 'C2C',
           msgType: 'location',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {
             'location_label': '北京市朝阳区建国路88号',
@@ -242,14 +242,14 @@ void main() {
       test('应该正确显示引用消息', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '回复内容',
           type: 'C2C',
           msgType: 'quote',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {},
         );
@@ -263,14 +263,14 @@ void main() {
       test('应该正确显示非好友系统提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'custom',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {'sys_prompt': 'not_a_friend'},
         );
@@ -286,14 +286,14 @@ void main() {
       test('新会话未读数应该正确设置', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 5,
           payload: {},
         );
@@ -360,14 +360,14 @@ void main() {
       test('应该正确读取已读水位（int类型）', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '测试',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {'last_read_auto_id': 100},
         );
@@ -380,14 +380,14 @@ void main() {
       test('应该正确读取已读水位（string类型）', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '测试',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {'last_read_auto_id': '150'},
         );
@@ -400,14 +400,14 @@ void main() {
       test('payload为null时已读水位应该为null', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '测试',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: null,
         );
@@ -590,14 +590,14 @@ void main() {
         // 模拟会话
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001', // 最后一条消息
+          lastMsgId: 1, // 最后一条消息
           lastMsgStatus: 20, // 已投递
           unreadNum: 0,
           payload: {},
@@ -605,12 +605,12 @@ void main() {
 
         // 撤回消息
         final revokedMsg = MessageModel(
-          'msg_001', // 与会话的最后一条消息相同
+          1, // 与会话的最后一条消息相同
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.peerRevoked, // 30
-          fromId: 'test_user',
-          toId: 'current_user',
+          fromId: 1100,
+          toId: 1200,
           payload: {'text': '原始消息'},
           isAuthor: 0,
           conversationUk3: 'C2C_current_user_test_user',
@@ -627,14 +627,14 @@ void main() {
         // 模拟会话
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '最后消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 'msg_100', // 最后一条消息
+          lastMsgId: 100, // 最后一条消息
           lastMsgStatus: 20,
           unreadNum: 0,
           payload: {},
@@ -642,12 +642,12 @@ void main() {
 
         // 撤回更早的消息
         final revokedMsg = MessageModel(
-          'msg_050', // 不是最后一条
+          50, // 不是最后一条
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.peerRevoked,
-          fromId: 'test_user',
-          toId: 'current_user',
+          fromId: 1100,
+          toId: 1200,
           payload: {},
           isAuthor: 0,
           conversationUk3: 'C2C_current_user_test_user',
@@ -662,14 +662,14 @@ void main() {
       test('撤回后的会话内容应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '张三',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30, // peerRevoked
           unreadNum: 0,
           payload: {'peer_name': '张三'},
@@ -684,14 +684,14 @@ void main() {
       test('自己撤回的会话内容应该正确显示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 31, // myRevoked
           unreadNum: 0,
           payload: {},
@@ -708,21 +708,21 @@ void main() {
       test('编辑最后一条消息时应该更新会话副标题', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {'text': '原始消息'},
         );
 
         // 编辑消息
         const newContent = '编辑后的消息';
-        const editedMsgId = 'msg_001';
+        const editedMsgId = 1;
 
         // 验证：需要更新会话
         final shouldUpdate = conv.lastMsgId == editedMsgId;
@@ -734,20 +734,20 @@ void main() {
       test('编辑非最后一条消息时不应该更新会话', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '最后消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 'msg_100',
+          lastMsgId: 100,
           unreadNum: 0,
           payload: {},
         );
 
         // 编辑更早的消息
-        const editedMsgId = 'msg_050';
+        const editedMsgId = 50;
 
         final shouldUpdate = conv.lastMsgId == editedMsgId;
 
@@ -759,46 +759,46 @@ void main() {
       test('删除最后一条消息时应该用前一条更新', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '最后消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 'msg_100',
+          lastMsgId: 100,
           unreadNum: 0,
           payload: {},
         );
 
         // 删除最后一条消息，有前一条
-        const deletedMsgId = 'msg_100';
-        const prevMsgId = 'msg_099';
+        const deletedMsgId = 100;
+        const prevMsgId = 99;
 
         // 验证：需要更新会话
         final shouldUpdate = conv.lastMsgId == deletedMsgId;
 
         expect(shouldUpdate, true);
-        expect(prevMsgId, 'msg_099');
+        expect(prevMsgId, 99);
       });
 
       test('删除唯一消息时应该清空会话', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '唯一消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_only_001',
+          lastMsgId: 001,
           unreadNum: 0,
           payload: {},
         );
 
         // 删除唯一消息
-        const deletedMsgId = 'msg_only_001';
+        const deletedMsgId = 1;
         const hasPrevMsg = false;
 
         // 验证
@@ -811,20 +811,20 @@ void main() {
       test('删除非最后一条消息时不应该更新会话', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '最后消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 'msg_200',
+          lastMsgId: 200,
           unreadNum: 0,
           payload: {},
         );
 
         // 删除更早的消息
-        const deletedMsgId = 'msg_150';
+        const deletedMsgId = 150;
 
         final shouldUpdate = conv.lastMsgId == deletedMsgId;
 
@@ -836,14 +836,14 @@ void main() {
       test('文本消息撤回应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '原始文本',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {},
@@ -858,14 +858,14 @@ void main() {
       test('图片消息撤回应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[图片]',
           type: 'C2C',
           msgType: 'image',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {},
@@ -881,14 +881,14 @@ void main() {
       test('语音消息撤回应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[语音]',
           type: 'C2C',
           msgType: 'voice',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 31,
           unreadNum: 0,
           payload: {},
@@ -903,14 +903,14 @@ void main() {
       test('视频消息撤回应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[视频]',
           type: 'C2C',
           msgType: 'video',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {},
@@ -925,14 +925,14 @@ void main() {
       test('文件消息撤回应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[文件]',
           type: 'C2C',
           msgType: 'file',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {},
@@ -947,14 +947,14 @@ void main() {
       test('位置消息撤回应该显示撤回提示', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '[位置]北京市',
           type: 'C2C',
           msgType: 'location',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {},
@@ -972,14 +972,14 @@ void main() {
       test('应该正确序列化和反序列化会话对象', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: 'https://example.com/avatar.jpg',
           title: '测试用户',
           subtitle: '测试消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 20,
           unreadNum: 3,
           isShow: 1,
@@ -990,7 +990,7 @@ void main() {
         final json = conv.toJson();
 
         expect(json['id'], 1);
-        expect(json['peer_id'], 'test_user');
+        expect(json['peer_id'], 1100);
         expect(json['title'], '测试用户');
         expect(json['unread_num'], 3);
 
@@ -998,7 +998,7 @@ void main() {
         final restored = ConversationModel.fromJson(json);
 
         expect(restored.id, 1);
-        expect(restored.peerId, 'test_user');
+        expect(restored.peerId, 1100);
         expect(restored.title, '测试用户');
         expect(restored.unreadNum, 3);
         expect(restored.payload!['text'], '测试消息');
@@ -1008,14 +1008,14 @@ void main() {
       test('空payload应该正确处理', () {
         final json = {
           'id': 1,
-          'peer_id': 'test_user',
+          'peer_id': 1100,
           'avatar': '',
           'title': '测试',
           'subtitle': '测试消息',
           'type': 'C2C',
           'msg_type': 'text',
           'last_time': 1642579200000,
-          'last_msg_id': 'msg_001',
+          'last_msg_id': 1,
           'last_msg_status': 11,
           'unread_num': 0,
           'is_show': 1,
@@ -1033,14 +1033,14 @@ void main() {
       test('应该正确复制会话对象', () {
         final conv1 = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: 'https://example.com/avatar.jpg',
           title: '原始标题',
           subtitle: '原始副标题',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 20,
           unreadNum: 3,
           payload: {'text': '原始消息'},
@@ -1067,14 +1067,14 @@ void main() {
       test('lastMsgStatus为null时应该按普通消息处理', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '普通文本消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: null,
           unreadNum: 0,
           payload: {},
@@ -1091,14 +1091,14 @@ void main() {
 
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: longTitle,
           subtitle: '原始消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {'peer_name': longTitle},
@@ -1115,14 +1115,14 @@ void main() {
       test('未读数0应该正确处理', () {
         final conv = ConversationModel(
           id: 1,
-          peerId: 'test_user',
+          peerId: 1100,
           avatar: '',
           title: '测试用户',
           subtitle: '测试消息',
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
           payload: {},
         );
@@ -1136,14 +1136,14 @@ void main() {
         for (final title in specialTitles) {
           final conv = ConversationModel(
             id: 1,
-            peerId: 'test_user',
+            peerId: 1100,
             avatar: '',
             title: title,
             subtitle: '测试',
             type: 'C2C',
             msgType: 'text',
             lastTime: 1642579200000,
-            lastMsgId: 'msg_001',
+            lastMsgId: 1,
             unreadNum: 0,
             payload: {},
           );

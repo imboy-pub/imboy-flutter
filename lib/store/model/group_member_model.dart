@@ -6,8 +6,8 @@ import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 /// 纯数据模型，不包含响应式状态
 class GroupMemberModel {
   int? id; // 自增长ID 服务端
-  String groupId; // 群组ID
-  String userId; // 群组成员用户ID
+  int groupId; // 群组ID
+  int userId; // 群组成员用户ID
   String nickname; // 群组成员用户信息
   String avatar; // 群组成员用户信息
   String sign; // 群组成员用户信息a
@@ -49,8 +49,8 @@ class GroupMemberModel {
     // iPrint("GroupMemberModel.fromJson ${json.toString()}");
     return GroupMemberModel(
       id: parseModelInt(json[GroupMemberRepo.id]),
-      groupId: parseModelString(json[GroupMemberRepo.groupId]),
-      userId: parseModelString(json[GroupMemberRepo.userId]),
+      groupId: parseModelInt(json[GroupMemberRepo.groupId]),
+      userId: parseModelInt(json[GroupMemberRepo.userId]),
       nickname: parseModelString(json[GroupMemberRepo.nickname]),
       avatar: parseModelString(json[GroupMemberRepo.avatar]),
       sign: parseModelString(json[GroupMemberRepo.sign]),

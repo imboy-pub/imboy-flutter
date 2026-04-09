@@ -32,14 +32,14 @@ void main() {
         // 创建会话
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_revoke',
+          peerId: 3101,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '这是要撤回的消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_to_revoke',
+          lastMsgId: 401,
           unreadNum: 0,
           lastMsgStatus: 11, // 已发送
         );
@@ -48,12 +48,12 @@ void main() {
 
         // 创建被撤回的消息
         final revokedMsg = MessageModel(
-          'msg_to_revoke',
+          401,
           autoId: 1,
           type: 'C2C',
           status: 30, // peerRevoked
-          fromId: 'user1',
-          toId: 'user_revoke',
+          fromId: 8001,
+          toId: 3101,
           payload: {},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user_revoke',
@@ -81,14 +81,14 @@ void main() {
       test('自己撤回消息时应该显示相应提示', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_self',
+          peerId: 3102,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_self_revoke',
+          lastMsgId: 402,
           unreadNum: 0,
         );
 
@@ -96,12 +96,12 @@ void main() {
 
         // 自己撤回消息（status=31）
         final myRevokedMsg = MessageModel(
-          'msg_self_revoke',
+          402,
           autoId: 1,
           type: 'C2C',
           status: 31, // myRevoked
-          fromId: 'me',
-          toId: 'user_self',
+          fromId: 9001,
+          toId: 3102,
           payload: {},
           isAuthor: 1,
           conversationUk3: 'C2C_me_user_self',
@@ -126,14 +126,14 @@ void main() {
       test('撤回非最后一条消息时不应该更新会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_old_msg',
+          peerId: 3103,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '最新消息',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 'msg_latest',
+          lastMsgId: 101,
           unreadNum: 0,
         );
 
@@ -141,12 +141,12 @@ void main() {
 
         // 撤回一条旧消息（不是最后一条）
         final oldRevokedMsg = MessageModel(
-          'msg_old',
+          100,
           autoId: 1,
           type: 'C2C',
           status: 30,
-          fromId: 'user1',
-          toId: 'user_old_msg',
+          fromId: 8001,
+          toId: 3103,
           payload: {},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user_old_msg',
@@ -161,7 +161,7 @@ void main() {
 
         // 不应该更新会话
         final unchanged = await conversationRepo.findById(convId);
-        expect(unchanged!.lastMsgId, 'msg_latest');
+        expect(unchanged!.lastMsgId, 101);
         expect(unchanged.subtitle, '最新消息');
       });
 
@@ -171,14 +171,14 @@ void main() {
         for (final msgType in msgTypes) {
           final conv = ConversationModel(
             id: 0,
-            peerId: 'user_$msgType',
+            peerId: 9000 + msgType.hashCode.abs() % 1000,
             type: 'C2C',
             avatar: '',
             title: '用户',
             subtitle: '消息内容',
             msgType: msgType,
             lastTime: 1234567890,
-            lastMsgId: 'msg_${msgType}_revoke',
+            lastMsgId: 9000 + msgType.hashCode % 1000,
             unreadNum: 0,
           );
 
@@ -201,14 +201,14 @@ void main() {
       test('编辑最后一条消息时应该更新会话副标题', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_edit',
+          peerId: 3104,
           type: 'C2C',
           avatar: '',
           title: '测试用户',
           subtitle: '原始消息内容',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_to_edit',
+          lastMsgId: 403,
           unreadNum: 0,
         );
 
@@ -217,12 +217,12 @@ void main() {
         // 编辑消息
         final editedContent = '这是编辑后的消息内容';
         final editedMsg = MessageModel(
-          'msg_to_edit',
+          403,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user_edit',
+          fromId: 8001,
+          toId: 3104,
           payload: {'content': editedContent},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user_edit',
@@ -245,21 +245,21 @@ void main() {
       test('编辑非最后一条消息时不应该更新会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_edit_old',
+          peerId: 3201,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '最新消息',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 'msg_latest',
+          lastMsgId: 101,
           unreadNum: 0,
         );
 
         final convId = await conversationRepo.insert(conv);
 
         // 编辑旧消息
-        final oldMsgId = 'msg_old_edit';
+        const oldMsgId = 9999;
         final shouldUpdate =
             (await conversationRepo.findById(convId))!.lastMsgId == oldMsgId;
         expect(shouldUpdate, false);
@@ -272,14 +272,14 @@ void main() {
       test('编辑引用消息时应该更新会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_quote_edit',
+          peerId: 3202,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '原始引用消息',
           msgType: 'quote',
           lastTime: 1234567890,
-          lastMsgId: 'msg_quote_edit',
+          lastMsgId: 501,
           unreadNum: 0,
         );
 
@@ -298,14 +298,14 @@ void main() {
         // 创建会话
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_delete',
+          peerId: 3105,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '最后一条消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_last',
+          lastMsgId: 502,
           unreadNum: 0,
         );
 
@@ -313,12 +313,12 @@ void main() {
 
         // 删除最后一条消息，用前一条更新
         final previousMsg = MessageModel(
-          'msg_previous',
+          404,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user_delete',
+          fromId: 8001,
+          toId: 3105,
           payload: {'content': '前一条消息'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user_delete',
@@ -333,21 +333,21 @@ void main() {
         });
 
         final updated = await conversationRepo.findById(convId);
-        expect(updated!.lastMsgId, 'msg_previous');
+        expect(updated!.lastMsgId, 404);
         expect(updated.subtitle, '前一条消息');
       });
 
       test('删除唯一消息时应该清空会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_only',
+          peerId: 3203,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '唯一消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_only',
+          lastMsgId: 503,
           unreadNum: 0,
         );
 
@@ -355,27 +355,27 @@ void main() {
 
         // 删除唯一消息，清空会话
         await conversationRepo.updateById(convId, {
-          'last_msg_id': '',
+          'last_msg_id': 0,
           'subtitle': '',
           'last_time': 0,
         });
 
         final updated = await conversationRepo.findById(convId);
-        expect(updated!.lastMsgId, '');
+        expect(updated!.lastMsgId, 0);
         expect(updated.subtitle, '');
       });
 
       test('删除非最后一条消息时不应该更新会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_delete_old',
+          peerId: 3204,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '最新消息',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 'msg_latest',
+          lastMsgId: 101,
           unreadNum: 0,
         );
 
@@ -383,21 +383,21 @@ void main() {
 
         // 删除旧消息不影响会话
         final unchanged = await conversationRepo.findById(convId);
-        expect(unchanged!.lastMsgId, 'msg_latest');
+        expect(unchanged!.lastMsgId, 101);
         expect(unchanged.subtitle, '最新消息');
       });
 
       test('删除最后一条图片消息应该显示[图片]', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_delete_img',
+          peerId: 3205,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '[图片]',
           msgType: 'image',
           lastTime: 1234567890,
-          lastMsgId: 'msg_img',
+          lastMsgId: 504,
           unreadNum: 0,
         );
 
@@ -420,14 +420,14 @@ void main() {
       test('连续多条消息撤回只更新会话一次', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_multi',
+          peerId: 3106,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息3',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 'msg3',
+          lastMsgId: 3,
           unreadNum: 0,
         );
 
@@ -435,17 +435,17 @@ void main() {
 
         // 撤回消息1（不是最后一条）
         final shouldUpdate1 =
-            (await conversationRepo.findById(convId))!.lastMsgId == 'msg1';
+            (await conversationRepo.findById(convId))!.lastMsgId == 1;
         expect(shouldUpdate1, false);
 
         // 撤回消息2（不是最后一条）
         final shouldUpdate2 =
-            (await conversationRepo.findById(convId))!.lastMsgId == 'msg2';
+            (await conversationRepo.findById(convId))!.lastMsgId == 2;
         expect(shouldUpdate2, false);
 
         // 撤回消息3（是最后一条）
         final shouldUpdate3 =
-            (await conversationRepo.findById(convId))!.lastMsgId == 'msg3';
+            (await conversationRepo.findById(convId))!.lastMsgId == 3;
         expect(shouldUpdate3, true);
 
         // 只更新一次
@@ -461,14 +461,14 @@ void main() {
       test('编辑后撤回应该显示撤回状态', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_edit_revoke',
+          peerId: 3206,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '编辑后的消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_edit_revoke',
+          lastMsgId: 505,
           unreadNum: 0,
         );
 
@@ -493,14 +493,14 @@ void main() {
       test('处理空消息ID的撤回', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_empty',
+          peerId: 3207,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: '',
+          lastMsgId: 0,
           unreadNum: 0,
         );
 
@@ -508,7 +508,7 @@ void main() {
 
         // 空消息ID不应该匹配
         final shouldUpdate =
-            (await conversationRepo.findById(convId))!.lastMsgId == 'msg_any';
+            (await conversationRepo.findById(convId))!.lastMsgId == 8888;
         expect(shouldUpdate, false);
       });
 
@@ -517,14 +517,14 @@ void main() {
 
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_special',
+          peerId: 7003,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: specialContent,
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_special',
+          lastMsgId: 506,
           unreadNum: 0,
         );
 
@@ -552,14 +552,14 @@ void main() {
 
           final conv = ConversationModel(
             id: 0,
-            peerId: 'user_$msgType',
+            peerId: 9000 + msgType.hashCode.abs() % 1000,
             type: 'C2C',
             avatar: '',
             title: '用户',
             subtitle: content,
             msgType: msgType,
             lastTime: 1234567890,
-            lastMsgId: 'msg_$msgType',
+            lastMsgId: 9000 + msgType.hashCode.abs() % 1000,
             unreadNum: 0,
           );
 
@@ -586,14 +586,14 @@ void main() {
           await conversationRepo.insert(
             ConversationModel(
               id: 0,
-              peerId: 'user_$i',
+              peerId: 9000 + i,
               type: 'C2C',
               avatar: '',
               title: '用户$i',
               subtitle: '消息$i',
               msgType: 'text',
               lastTime: 1234567890 + i,
-              lastMsgId: 'msg_$i',
+              lastMsgId: 9000 + i,
               unreadNum: 0,
             ),
           );
@@ -613,14 +613,14 @@ void main() {
         final convId = await conversationRepo.insert(
           ConversationModel(
             id: 0,
-            peerId: 'user_concurrent',
+            peerId: 3208,
             type: 'C2C',
             avatar: '',
             title: '用户',
             subtitle: '初始消息',
             msgType: 'text',
             lastTime: 1234567890,
-            lastMsgId: 'msg_initial',
+            lastMsgId: 507,
             unreadNum: 0,
           ),
         );

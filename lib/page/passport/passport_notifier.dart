@@ -3,7 +3,7 @@ import 'dart:io';
 
 /// Temporary compatibility implementation for the identity module shell.
 /// New module-facing callers should prefer `package:imboy/modules/identity/public.dart`.
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -444,31 +444,24 @@ class PassportNotifier extends _$PassportNotifier {
 
   /// 加密密码
   Future<Map<String, dynamic>> _encryptPassword(String password) async {
-    debugPrint('🔐 _encryptPassword 开始, 原始密码长度=${password.length}');
     try {
       password = EncrypterService.md5(password);
-      debugPrint('🔐 MD5 加密完成: $password');
 
       Map<String, dynamic> payload = await AppInitializer.initConfig();
       if (payload.containsKey('error')) {
-        debugPrint('❌ initConfig 返回错误: ${payload['error']}');
         return payload;
       }
       String rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
-      debugPrint('🔐 rsa_encrypt 配置: $rsaEncrypt');
 
       String? encryptedPassword;
       if (rsaEncrypt == "1") {
         String pubKeyPem = payload['login_rsa_pub_key'].toString();
-        debugPrint('🔐 开始 RSA 加密, pubKeyPem长度=${pubKeyPem.length}');
         if (kIsWeb) {
           // Web 平台：使用真正的 RSA 加密（Web Crypto API）
-          debugPrint('🌐 Web 平台：使用 Web Crypto API 进行 RSA 加密');
           encryptedPassword = await RSAService.rsaEncryptWithPointyCastleAsync(
             password,
             pubKeyPem,
           );
-          debugPrint('✅ Web RSA 加密完成, 加密后密码长度=${encryptedPassword.length}');
         } else {
           // 移动端/桌面端：使用 pointycastle
           encryptedPassword = RSAService.rsaEncryptWithPointyCastle(
@@ -480,20 +473,14 @@ class PassportNotifier extends _$PassportNotifier {
         encryptedPassword = password;
       }
 
-      final result = <String, dynamic>{
+      return <String, dynamic>{
         "password": encryptedPassword,
         "rsa_encrypt": rsaEncrypt,
       };
-      debugPrint(
-        '🔐 _encryptPassword 返回: password类型=${result['password'].runtimeType}, password长度=${(result['password'] as String).length}, rsa_encrypt=${result['rsa_encrypt']}',
-      );
-      debugPrint(
-        '🔐 _encryptPassword 密码前50字符: ${(result['password'] as String).substring(0, (result['password'] as String).length > 50 ? 50 : (result['password'] as String).length)}',
-      );
-      return result;
     } catch (e, stackTrace) {
-      debugPrint('❌ _encryptPassword 异常: $e');
-      debugPrint('堆栈: $stackTrace');
+      if (kDebugMode) {
+        debugPrint('_encryptPassword error: $e\n$stackTrace');
+      }
       return <String, dynamic>{
         "error": "密码加密失败: $e",
         "password": null,
@@ -507,96 +494,73 @@ class PassportNotifier extends _$PassportNotifier {
     String account,
     String password,
   ) async {
-    debugPrint('🔐 _login 开始: accountType=$accountType, account=$account');
     try {
-      debugPrint('🔐 步骤1: 加密密码');
       Map<String, dynamic> data = await _encryptPassword(password);
       if (strNoEmpty(data['error'])) {
-        debugPrint('❌ 加密失败: ${data['error']}');
         safeUpdateState((state) => state.copyWith(error: data['error']));
         return 0;
       }
-      debugPrint('✅ 密码加密完成');
 
-      debugPrint('🔐 步骤2: 获取设备信息');
       Map<String, dynamic>? dinfo = await DeviceExt.to.detail;
-      debugPrint('✅ 设备信息获取完成: did=${dinfo!["did"]}');
 
-      debugPrint('🔐 步骤3: 获取RSA公钥');
       final publicKey = await _getLoginPublicKey();
-      debugPrint('✅ RSA公钥获取完成');
 
-      // 添加日志查看 data['password'] 的值
       final pwdValue = data['password'];
-      debugPrint(
-        '🔐 准备构建 postData: data["password"]类型=${pwdValue.runtimeType}, 值=$pwdValue',
-      );
 
       Map<String, dynamic> postData = {
         "type": accountType,
         "account": account,
         "pwd": pwdValue,
         "rsa_encrypt": data['rsa_encrypt'],
-        "did": dinfo["did"],
+        "did": dinfo!["did"],
         "cos": dinfo["cos"],
         "public_key": publicKey,
       };
-      debugPrint(
-        '🔐 postData["pwd"]类型=${postData["pwd"].runtimeType}, 值=${postData["pwd"]}',
-      );
       if (UserRepoLocal.to.lastLoginAccount != account) {
         postData["dname"] = dinfo["deviceName"];
         postData["dvsn"] = dinfo["deviceVersion"];
       }
 
-      debugPrint('🔐 步骤4: 发送登录请求到 ${API.login}');
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.login,
         data: postData,
       );
-      debugPrint('✅ 登录请求完成: ok=${resp2.ok}');
 
       if (!resp2.ok) {
-        debugPrint('❌ 登录失败: ${resp2.error!.message}');
         safeUpdateState((state) => state.copyWith(error: resp2.error!.message));
         return 0;
       } else {
         int status = (resp2.payload['status'] ?? 1).toInt();
-        debugPrint('✅ 登录响应状态: status=$status');
         if (status == 1 || status == 2) {
-          debugPrint('🔐 步骤5: 保存登录信息');
           await UserRepoLocal.to.loginAfter(account, resp2.payload);
-          debugPrint('✅ 登录信息保存完成');
 
-          // 步骤 5.5: 上报 E2EE 公钥到服务器
-          debugPrint('🔐 步骤5.5: 上报 E2EE 公钥');
+          // 上报 E2EE 公钥到服务器
           await _reportE2EEPublicKey();
-          debugPrint('✅ E2EE 公钥上报完成');
 
           // 登录成功后主动连接 WebSocket
-          debugPrint('🔌 步骤6: 连接 WebSocket');
           // 延迟一小段时间确保存储操作完成
           await Future.delayed(const Duration(milliseconds: 100));
-          // 直接调用 openSocket 而不是依赖被动触发
           WebSocketService.to.openSocket(from: 'login');
           unawaited(
             AppInitializer.triggerGroupMembershipSelfHeal(source: 'login'),
           );
-          debugPrint('✅ WebSocket 连接已触发');
         }
         return 1;
       }
     } on PlatformException catch (e) {
-      debugPrint('❌ PlatformException: $e');
+      if (kDebugMode) {
+        debugPrint('PlatformException in _login: $e');
+      }
       if (e.code.contains('34018') || e.message?.contains('entitlement') == true) {
-        // iOS Keychain 权限缺失（-34018 / errSecEntitlementMissing），非网络问题
         safeUpdateState((state) => state.copyWith(error: '安全存储初始化失败，请重启应用'));
       } else {
         safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       }
       return 0;
     } catch (e) {
-      debugPrint('❌ 异常: $e');
+      if (kDebugMode) {
+        debugPrint('_login error: $e');
+      }
       safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       return 0;
     }
@@ -658,12 +622,14 @@ class PassportNotifier extends _$PassportNotifier {
     try {
       return await RSAService.publicKey();
     } on PlatformException catch (e, stackTrace) {
-      debugPrint('⚠️ 登录设备公钥获取失败，降级为空继续登录: $e');
-      debugPrint('堆栈: $stackTrace');
+      if (kDebugMode) {
+        debugPrint('登录设备公钥获取失败: $e\n$stackTrace');
+      }
       return '';
     } catch (e, stackTrace) {
-      debugPrint('⚠️ 登录设备公钥获取失败，降级为空继续登录: $e');
-      debugPrint('堆栈: $stackTrace');
+      if (kDebugMode) {
+        debugPrint('登录设备公钥获取失败: $e\n$stackTrace');
+      }
       return '';
     }
   }
@@ -705,9 +671,7 @@ class PassportNotifier extends _$PassportNotifier {
       "sys_version": getSystemVersion(),
       "ref_uid": "",
     };
-    debugPrint(
-      "post_data account=${data['account']}, rsa_encrypt=${data['rsa_encrypt']}",
-    );
+    // 不在日志中输出 account 等敏感信息
     IMBoyHttpResponse resp2 = await HttpClient.client.post(
       API.signup,
       data: data,
@@ -836,15 +800,19 @@ class PassportNotifier extends _$PassportNotifier {
         iPrint("receive sdk setup call back event :${event.toMap()}");
       });
 
-      jverify!.setDebugMode(true);
+      jverify!.setDebugMode(kDebugMode);
       jverify!.setCollectionAuth(true);
       jverify!.setup(appKey: Env().jiguangAppKey, channel: "devloper-default");
 
       jverify!.addAuthPageEventListener((JVAuthPageEvent event) {
-        debugPrint("receive auth page event :${event.toMap()}");
+        if (kDebugMode) {
+          debugPrint("receive auth page event :${event.toMap()}");
+        }
       });
     } catch (e) {
-      debugPrint("JVerify初始化异常: $e");
+      if (kDebugMode) {
+        debugPrint("JVerify初始化异常: $e");
+      }
     }
   }
 
@@ -1064,11 +1032,11 @@ class PassportNotifier extends _$PassportNotifier {
       enableSms: true,
       loginAuthcallback: (event) {
         if (event.code == 6000) {
-          quickLogin(
+          unawaited(quickLogin(
             operator: event.operator!,
             token: event.message!,
             service: 'jverify',
-          );
+          ));
         } else {
           snackBar(event.message);
         }
@@ -1090,9 +1058,7 @@ class PassportNotifier extends _$PassportNotifier {
 
       // 如果没有密钥，生成新的密钥对
       if (!hasKey) {
-        debugPrint('🔐 E2EE 密钥不存在，生成新密钥对...');
         await E2EEKeyService.generateKeyPair();
-        debugPrint('✅ E2EE 密钥对已生成');
       }
 
       // 获取密钥信息
@@ -1122,7 +1088,6 @@ class PassportNotifier extends _$PassportNotifier {
       final deviceName = dinfo?['deviceName'];
 
       // 上报公钥到服务器
-      debugPrint('📤 上报 E2EE 公钥: deviceId=$deviceId, keyId=$keyId');
       final success = await E2EEApi().reportDeviceKey(
         deviceId: deviceId,
         deviceType: deviceType,
@@ -1131,14 +1096,14 @@ class PassportNotifier extends _$PassportNotifier {
         keyId: keyId,
       );
 
-      if (success) {
-        debugPrint('✅ E2EE 公钥上报成功');
-      } else {
-        debugPrint('⚠️ E2EE 公钥上报失败，但不影响登录');
+      if (!success && kDebugMode) {
+        debugPrint('E2EE 公钥上报失败，但不影响登录');
       }
     } catch (e) {
       // E2EE 公钥上报失败不应该阻止登录
-      debugPrint('⚠️ E2EE 公钥上报异常: $e');
+      if (kDebugMode) {
+        debugPrint('E2EE 公钥上报异常: $e');
+      }
     }
   }
 

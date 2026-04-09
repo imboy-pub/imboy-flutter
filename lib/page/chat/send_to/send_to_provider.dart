@@ -8,7 +8,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:xid/xid.dart';
+
 
 import 'package:imboy/service/events/events.dart';
 
@@ -47,11 +47,11 @@ class SendToLogic {
 
       // 创建 MessageModel
       final msgModel = MessageModel(
-        Xid().toString(),
+        0,
         autoId: 0,
         type: msgType,
         status: 10, // 发送中
-        fromId: UserRepoLocal.to.currentUid,
+        fromId: int.tryParse(UserRepoLocal.to.currentUid) ?? 0,
         toId: conversation.peerId,
         payload: payload,
         createdAt: DateTimeHelper.millisecond(),

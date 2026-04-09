@@ -57,7 +57,6 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           color: isDark ? colorScheme.surface : Colors.white,
           child: InkWell(
             onTap: () {
-              debugPrint(" item_onTap $isSelected");
               ref.read(launchChatProvider.notifier).toggleSelection(model);
             },
             child: Row(
@@ -154,7 +153,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                         EasyLoading.show(status: t.loading);
                         int memberCount = state.selects.length;
                         iPrint(
-                          "state.selects $memberCount ${state.selects.map((e) => e.toJson()).toList()}",
+                          "state.selects $memberCount",
                         );
                         GroupModel? m = await ref
                             .read(launchChatProvider.notifier)
@@ -181,8 +180,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                         }
                       } catch (e) {
                         EasyLoading.dismiss();
-                        EasyLoading.showError('${t.tipFailed}: $e');
-                        debugPrint("groupAdd error: $e");
+                        EasyLoading.showError(t.tipFailed);
+                        iPrint("groupAdd error: ${e.runtimeType}");
                       } finally {
                         // 恢复创建状态
                         if (mounted) {

@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart' as func_helper;
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -16,7 +18,7 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class MessageRepo {
   // v2.0 表名常量（与服务端保持一致）
@@ -98,24 +100,18 @@ class MessageRepo {
   // 数据验证：验证必填字段
   bool _validateMessageData(MessageModel msg) {
     // 验证 ID 不为空
-    if (msg.id == null || msg.id!.isEmpty) {
+    if (msg.id == 0) {
       debugPrint('MessageRepo: 消息 ID 不能为空');
       return false;
     }
 
-    // 验证 ID 长度不超过数据库限制 (假设 varchar(255))
-    if (msg.id!.length > 255) {
-      debugPrint('MessageRepo: 消息 ID 长度超过限制');
-      return false;
-    }
-
     // 验证 fromId 和 toId
-    if (msg.fromId == null || msg.fromId!.isEmpty) {
+    if (msg.fromId == 0) {
       debugPrint('MessageRepo: 发送者 ID 不能为空');
       return false;
     }
 
-    if (msg.toId == null || msg.toId!.isEmpty) {
+    if (msg.toId == 0) {
       debugPrint('MessageRepo: 接收者 ID 不能为空');
       return false;
     }
@@ -275,7 +271,9 @@ class MessageRepo {
         MessageRepo.action: msg.action,
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
-      debugPrint("> on MessageModel/insert tb $targetTableName : $insert");
+      if (kDebugMode) {
+        debugPrint("> on MessageModel/insert tb $targetTableName");
+      }
       if (txn != null) {
         await txn.insert(targetTableName, insert);
       } else {
@@ -283,15 +281,17 @@ class MessageRepo {
       }
 
       // 同步写入 FTS 索引（异步，不阻塞消息插入）
-      _indexMessageToFts(
+      unawaited(_indexMessageToFts(
         type: msgType,
-        id: msg.id ?? '',
+        id: msg.id.toString(),
         conversationUk3: msg.conversationUk3,
         msgTypeField: msg.msgType ?? '',
         payload: msg.payload,
-      );
+      ));
     } else {
-      debugPrint("> on MessageModel/insert count $count : $insert");
+      if (kDebugMode) {
+        debugPrint("> on MessageModel/insert count $count");
+      }
     }
     return msg;
   }
@@ -938,15 +938,15 @@ class MessageRepo {
       });
 
       if (inserted.isNotEmpty) {
-        // 批量写入 FTS 索引
+        // 批量写入 FTS 索引（异步，不阻塞离线消息处理）
         for (final msg in inserted) {
-          _indexMessageToFts(
+          unawaited(_indexMessageToFts(
             type: msg.type,
             id: msg.id,
             conversationUk3: msg.conversationUk3,
             msgTypeField: msg.msgType,
             payload: msg.payload,
-          );
+          ));
         }
 
         await _syncOfflineConversationsAndNotify(inserted);
@@ -966,9 +966,9 @@ class MessageRepo {
       }
     } catch (e) {
       func_helper.iPrint("批量插入离线消息失败: $e");
-      return ackMsgIds;
+      return null;
     }
-    return null;
+    return ackMsgIds;
   }
 
   static int _parseCreatedAt(dynamic raw) {
@@ -1051,13 +1051,13 @@ class MessageRepo {
         // 创建新会话时确保设置所有必要字段
         conv = ConversationModel(
           id: 0,
-          peerId: agg.peerId,
+          peerId: parseModelInt(agg.peerId),
           avatar: avatar,
           title: title,
           subtitle: preview.subtitle,
           type: agg.type,
           msgType: preview.msgType,
-          lastMsgId: latest.id,
+          lastMsgId: parseModelInt(latest.id),
           lastTime: latest.createdAt,
           lastMsgStatus: latest.status, // 传递消息状态
           unreadNum: agg.unreadDelta, // 使用计算出的未读数
@@ -1074,7 +1074,7 @@ class MessageRepo {
           ConversationRepo.title: title.isNotEmpty ? title : existing.title,
           ConversationRepo.subtitle: preview.subtitle,
           ConversationRepo.msgType: preview.msgType,
-          ConversationRepo.lastMsgId: latest.id,
+          ConversationRepo.lastMsgId: parseModelInt(latest.id),
           ConversationRepo.lastTime: latest.createdAt,
           ConversationRepo.lastMsgStatus: latest.status, // 传递消息状态
           ConversationRepo.unreadNum: newUnreadNum,
@@ -1208,13 +1208,13 @@ class MessageRepo {
   }
 
   /// 将消息写入 FTS 索引（fire-and-forget，不阻塞主流程）
-  static void _indexMessageToFts({
+  static Future<void> _indexMessageToFts({
     required String type,
     required String id,
     required String conversationUk3,
     required String msgTypeField,
     required Map<String, dynamic> payload,
-  }) {
+  }) async {
     final textContent = MessageFtsRepo.extractTextContent(msgTypeField, payload);
     if (textContent.isEmpty) return;
 
@@ -1222,7 +1222,7 @@ class MessageRepo {
     final ftsType = type.toUpperCase();
     if (ftsType != 'C2C' && ftsType != 'C2G') return;
 
-    MessageFtsRepo().indexMessage(
+    await MessageFtsRepo().indexMessage(
       type: ftsType,
       id: id,
       conversationUk3: conversationUk3,
@@ -1416,11 +1416,11 @@ class _InsertedOfflineMessage {
 
   MessageModel toMessageModel() {
     return MessageModel(
-      id,
+      parseModelInt(id),
       autoId: 0,
       type: type,
-      fromId: fromId,
-      toId: toId,
+      fromId: parseModelInt(fromId),
+      toId: parseModelInt(toId),
       payload: payload,
       createdAt: createdAt,
       isAuthor: isAuthor,

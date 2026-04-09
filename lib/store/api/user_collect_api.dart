@@ -49,8 +49,8 @@ class UserCollectApi extends HttpClient {
       API.userCollectAdd,
       data: {'kind': kind, 'kind_id': kindId, 'source': source, 'info': info},
       options: Options(
-        sendTimeout: const Duration(minutes: 50),
-        receiveTimeout: const Duration(minutes: 50),
+        sendTimeout: const Duration(minutes: 5),
+        receiveTimeout: const Duration(minutes: 5),
       ),
     );
     debugPrint(

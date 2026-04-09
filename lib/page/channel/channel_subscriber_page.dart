@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -87,7 +89,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = '${e.runtimeType}';
           _isLoading = false;
         });
       }
@@ -126,12 +128,12 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(t.channel.removeSubscriberSuccess)),
           );
-          _loadSubscribers(refresh: true);
+          unawaited(_loadSubscribers(refresh: true));
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${t.channel.removeSubscriberFailed}: $e')),
+            SnackBar(content: Text(t.channel.removeSubscriberFailed)),
           );
         }
       }
@@ -167,11 +169,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
         ],
       ),
     ).then((value) {
-      if (value != null) {
+      if (value != null && mounted) {
         setState(() {
           _searchKeyword = value.isEmpty ? null : value;
         });
-        _loadSubscribers(refresh: true);
+        unawaited(_loadSubscribers(refresh: true));
       }
     });
   }

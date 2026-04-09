@@ -10,6 +10,7 @@
 //   --dart-define=TEST_PHONE=13800138000 \
 //   --dart-define=TEST_PASSWORD=test123456
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 

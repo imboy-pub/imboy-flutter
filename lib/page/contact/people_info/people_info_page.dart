@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -160,9 +161,7 @@ class PeopleInfoPage extends ConsumerWidget {
                 ),
               ),
             ).then((value) {
-              debugPrint(
-                "PeopleInfoPage_ContactSettingTagPage_back then $value",
-              );
+              iPrint("PeopleInfoPage_ContactSettingTagPage_back");
               if (value != null && value is String && value.isNotEmpty) {
                 ref.read(peopleInfoProvider.notifier).updateRemark(value);
               }

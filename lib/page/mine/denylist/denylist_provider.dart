@@ -140,7 +140,7 @@ class DenylistNotifier extends _$DenylistNotifier {
 
         // 从列表中移除
         final newItems = List<DenylistModel>.from(state.items);
-        newItems.removeWhere((e) => e.deniedUid == peerId);
+        newItems.removeWhere((e) => e.deniedUid.toString() == peerId);
         state = state.copyWith(items: newItems);
       }
       return res;
@@ -154,7 +154,7 @@ class DenylistNotifier extends _$DenylistNotifier {
     DenylistApi api = DenylistApi();
     UserDenylistRepo repo = UserDenylistRepo();
 
-    Map? payload = await api.add(deniedUserUid: model.deniedUid);
+    Map? payload = await api.add(deniedUserUid: model.deniedUid.toString());
     bool res = payload == null ? false : true;
     if (res) {
       model.createdAt = payload['created_at'] ?? DateTimeHelper.millisecond();
@@ -166,7 +166,7 @@ class DenylistNotifier extends _$DenylistNotifier {
         ContactRepo.isFriend: 0,
       });
       // 隐藏会话
-      await ConversationRepo().updateByPeerId('C2C', model.deniedUid, {
+      await ConversationRepo().updateByPeerId('C2C', model.deniedUid.toString(), {
         ConversationRepo.isShow: 0,
       });
     }

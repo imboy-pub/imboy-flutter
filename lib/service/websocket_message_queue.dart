@@ -183,10 +183,10 @@ class PersistentMessageQueue {
       if (index != -1) {
         // 由于 ListQueue 不支持按索引删除，需要重建
         final tempList = queue.toList();
+        final msg = tempList[index]; // 先读后删，避免索引偏移
         tempList.removeAt(index);
         _priorityQueues[p] = ListQueue.from(tempList);
 
-        final msg = tempList[index];
         final updatedMsg = QueuedMessage(
           id: msg.id,
           data: msg.data,

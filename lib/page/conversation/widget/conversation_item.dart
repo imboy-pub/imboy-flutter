@@ -115,7 +115,7 @@ class ConversationItem extends ConsumerWidget {
                       child: model.type == 'C2G'
                           ? SmartGroupAvatar(
                               avatar: model.avatar,
-                              groupId: model.peerId,
+                              groupId: model.peerId.toString(),
                               onTap: onTapAvatar,
                               size: 52,
                               avatarLoader: GroupListService().computeAvatar,
@@ -175,7 +175,7 @@ class ConversationItem extends ConsumerWidget {
     } else if (currentModel.computeTitle.trim().isNotEmpty) {
       displayTitle = currentModel.computeTitle;
     } else {
-      displayTitle = currentModel.peerId;
+      displayTitle = currentModel.peerId.toString();
     }
 
     return Row(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -184,12 +184,12 @@ class NewFriendRepo {
     }
   }
 
-  void save(Map<String, dynamic> json) async {
+  Future<void> save(Map<String, dynamic> json) async {
     String from = json[NewFriendRepo.from] ?? json['from'];
     String to = json[NewFriendRepo.to] ?? json['to'];
     await _db.transaction<void>((txn) async {
       NewFriendModel? old = await findByFromTo(from, to, txn: txn);
-      if (old != null || old is NewFriendModel) {
+      if (old != null) {
         await update(json, txn: txn);
       } else {
         await insert(NewFriendModel.fromJson(json), txn: txn);

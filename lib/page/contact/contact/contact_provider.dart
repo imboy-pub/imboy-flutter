@@ -10,6 +10,12 @@ import 'package:azlistview/azlistview.dart';
 
 part 'contact_provider.g.dart';
 
+// 特殊联系人功能入口的虚拟 peerId 常量（使用负数以区别真实用户ID）
+const int kPeerIdPeopleNearby = -1;
+const int kPeerIdNewFriend = -2;
+const int kPeerIdGroup = -3;
+const int kPeerIdTag = -4;
+
 // 联系人状态类
 class ContactState {
   final List<ContactModel> contactList;
@@ -95,7 +101,7 @@ class ContactNotifier extends _$ContactNotifier {
     if (AppFeatureRegistry.isEnabled('location')) {
       topItems.add(
         ContactModel(
-          peerId: 'people_nearby',
+          peerId: kPeerIdPeopleNearby,
           nickname: t.findNearbyPeople,
           nameIndex: '↑',
           bgColor: Colors.orange,
@@ -108,21 +114,21 @@ class ContactNotifier extends _$ContactNotifier {
 
     topItems.addAll([
       ContactModel(
-        peerId: 'new_friend',
+        peerId: kPeerIdNewFriend,
         nickname: t.newFriend,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: const Center(child: Icon(Icons.person_add, size: 24)),
       ),
       ContactModel(
-        peerId: 'group',
+        peerId: kPeerIdGroup,
         nickname: t.groupChat,
         nameIndex: '↑',
         bgColor: Colors.green,
         iconData: const Icon(Icons.people, size: 24, color: Colors.white),
       ),
       ContactModel(
-        peerId: 'tag',
+        peerId: kPeerIdTag,
         nickname: t.tags,
         nameIndex: '↑',
         bgColor: Colors.blue,
@@ -153,8 +159,9 @@ class ContactNotifier extends _$ContactNotifier {
 
   // 判断是否为好友
   Future<bool> isFriend(String peerId) async {
+    final peerIdInt = int.tryParse(peerId) ?? 0;
     for (var ct in state.contactList) {
-      if (ct.peerId == peerId) {
+      if (ct.peerId == peerIdInt) {
         return ct.isFriend == 1;
       }
     }

@@ -6,6 +6,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helper/sqflite_test_helper.dart';
+
 void main() {
   // 初始化测试环境
   setUpAll(() async {
@@ -21,17 +23,20 @@ void main() {
     );
   });
 
+  // Mock sqflite_sqlcipher before each test (handlers reset between tests)
+  setUp(() => mockSqfliteSqlcipher());
+
   group('Message Routing TDD Tests', () {
     group('MessageModel.toTypeMessage 路由测试', () {
       test('text 消息应该路由到 TextMessage', () async {
         // GIVEN: 一个 text 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.text,
           payload: {'text': 'Hello World'},
           isAuthor: 1,
@@ -49,12 +54,12 @@ void main() {
       test('image 消息应该路由到 ImageMessage', () async {
         // GIVEN: 一个 image 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.image,
           payload: {
             'uri': 'https://example.com/image.jpg',
@@ -79,12 +84,12 @@ void main() {
       test('file 消息应该路由到 FileMessage', () async {
         // GIVEN: 一个 file 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.file,
           payload: {
             'uri': 'https://example.com/file.pdf',
@@ -108,12 +113,12 @@ void main() {
       test('video 消息应该路由到 VideoMessage', () async {
         // GIVEN: 一个 video 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.video,
           payload: {
             'uri': 'https://example.com/video.mp4',
@@ -134,12 +139,12 @@ void main() {
       test('voice 消息应该路由到 AudioMessage（新规范）', () async {
         // GIVEN: 一个 voice 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.voice, // 使用 voice
           payload: {
             'uri': 'https://example.com/voice.mp3',
@@ -162,12 +167,12 @@ void main() {
       test('location 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 location 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.location,
           payload: {
             'latitude': 39.9042,
@@ -190,12 +195,12 @@ void main() {
       test('quote 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 quote 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.quote,
           payload: {
             'quote_msg_id': 'msg100',
@@ -218,12 +223,12 @@ void main() {
       test('imageMulti 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 imageMulti 类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.imageMulti,
           payload: {
             'images': [
@@ -248,12 +253,12 @@ void main() {
       test('撤回的消息应该保留原始 msg_type 并使用 CustomMessage', () async {
         // GIVEN: 一个撤回的消息
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.peerRevoked, // 30
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: MessageType.text, // 原始类型是 text
           payload: {'text': '已撤回的消息'},
           isAuthor: 0,
@@ -276,12 +281,12 @@ void main() {
       test('未知的消息类型应该路由到 CustomMessage 并标记为 unsupported', () async {
         // GIVEN: 一个未知类型的 MessageModel
         final model = MessageModel(
-          'msg123',
+          123,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           msgType: 'unknown_type',
           payload: <String, dynamic>{},
           isAuthor: 1,
@@ -303,8 +308,8 @@ void main() {
       test('TextMessage 应该正确序列化为 MessageModel', () {
         // GIVEN: 一个 TextMessage
         final textMessage = TextMessage(
-          authorId: 'user1',
-          id: 'msg123',
+          authorId: '8001',
+          id: '123',
           createdAt: DateTime.fromMillisecondsSinceEpoch(1642579200000),
           text: 'Hello World',
           metadata: {'conversation_uk3': 'C2C_user1_user2', 'peer_id': 'user2'},
@@ -324,8 +329,8 @@ void main() {
       test('ImageMessage 应该正确序列化为 MessageModel', () {
         // GIVEN: 一个 ImageMessage
         final imageMessage = ImageMessage(
-          authorId: 'user1',
-          id: 'msg123',
+          authorId: '8001',
+          id: '123',
           createdAt: DateTime.fromMillisecondsSinceEpoch(1642579200000),
           source: 'https://example.com/image.jpg',
           width: 1920,
@@ -348,8 +353,8 @@ void main() {
       test('AudioMessage 应该正确序列化为 MessageModel 并使用 voice 类型', () {
         // GIVEN: 一个 AudioMessage
         final audioMessage = AudioMessage(
-          authorId: 'user1',
-          id: 'msg123',
+          authorId: '8001',
+          id: '123',
           createdAt: DateTime.fromMillisecondsSinceEpoch(1642579200000),
           source: 'https://example.com/voice.mp3',
           duration: const Duration(milliseconds: 15000),
@@ -370,8 +375,8 @@ void main() {
       test('VideoMessage 应该正确序列化为 MessageModel', () {
         // GIVEN: 一个 VideoMessage
         final videoMessage = VideoMessage(
-          authorId: 'user1',
-          id: 'msg123',
+          authorId: '8001',
+          id: '123',
           createdAt: DateTime.fromMillisecondsSinceEpoch(1642579200000),
           source: 'https://example.com/video.mp4',
           metadata: {
@@ -395,8 +400,8 @@ void main() {
       test('FileMessage 应该正确序列化为 MessageModel', () {
         // GIVEN: 一个 FileMessage
         final fileMessage = FileMessage(
-          authorId: 'user1',
-          id: 'msg123',
+          authorId: '8001',
+          id: '123',
           createdAt: DateTime.fromMillisecondsSinceEpoch(1642579200000),
           name: 'document.pdf',
           size: 1024000,

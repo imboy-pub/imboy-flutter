@@ -53,7 +53,7 @@ class RemoveMemberNotifier extends _$RemoveMemberNotifier {
   void setGroupMemberList(List<GroupMemberModel> list, String currentUid) {
     // 过滤掉当前用户和群主
     final filteredList = list.where((obj) {
-      if (obj.userId == currentUid) {
+      if (obj.userId.toString() == currentUid) {
         return false;
       }
       // 是否加入的群： 1 是 0 否 （0 是群创建者或者拥有者; 1 是 成员 嘉宾 管理员等）
@@ -105,7 +105,8 @@ class RemoveMemberNotifier extends _$RemoveMemberNotifier {
       return false;
     }
 
-    final memberUserIds = state.selects.map((item) => item.userId).toList();
+    final memberUserIds =
+        state.selects.map((item) => item.userId.toString()).toList();
 
     final service = RemoveMemberService();
     final result = await service.leaveGroup(groupId, memberUserIds);

@@ -336,7 +336,7 @@ class MessageActions {
     }
 
     // 检查是否是我们自己撤回的
-    final isMyRevoke = originalMsg.fromId == currentUid;
+    final isMyRevoke = originalMsg.fromId.toString() == currentUid;
 
     if (isMyRevoke) {
       // 自己撤回的确认 - 使用公共撤回方法
@@ -470,7 +470,7 @@ class MessageActions {
     }
 
     // 检查是否是我们自己编辑的
-    final isMyEdit = originalMsg.fromId == currentUid;
+    final isMyEdit = originalMsg.fromId.toString() == currentUid;
 
     if (isMyEdit) {
       // 自己编辑的确认
@@ -578,7 +578,7 @@ class MessageActions {
 
       // 更新数据库
       final updateResult = await repo.update({
-        'id': msg.id!,
+        'id': msg.id,
         'status': IMBoyMessageStatus.sent,
         'payload': json.encode(newPayload),
       });
@@ -586,7 +586,7 @@ class MessageActions {
       iPrint('🔄 对方编辑更新数据库结果: $updateResult, msgId=${msg.id}');
 
       // 重新获取更新后的消息
-      final updatedMsg = await repo.find(msg.id!);
+      final updatedMsg = await repo.find(msg.id.toString());
       if (updatedMsg != null) {
         iPrint('🔄 重新获取更新后的消息成功: ${updatedMsg.toJson()}');
 
@@ -620,13 +620,13 @@ class MessageActions {
       // 确定对话的peerId
       String peerId;
       if (msg.type == 'C2C') {
-        peerId = msg.fromId == UserRepoLocal.to.currentUid
-            ? msg.toId!
-            : msg.fromId!;
+        peerId = msg.fromId.toString() == UserRepoLocal.to.currentUid
+            ? msg.toId.toString()
+            : msg.fromId.toString();
       } else if (msg.type == 'C2G') {
-        peerId = msg.toId!;
+        peerId = msg.toId.toString();
       } else {
-        peerId = msg.toId ?? '';
+        peerId = msg.toId.toString();
       }
 
       if (peerId.isEmpty) {
@@ -712,13 +712,13 @@ class MessageActions {
       // 确定对话的peerId
       String peerId;
       if (msg.type == 'C2C') {
-        peerId = msg.fromId == UserRepoLocal.to.currentUid
-            ? msg.toId!
-            : msg.fromId!;
+        peerId = msg.fromId.toString() == UserRepoLocal.to.currentUid
+            ? msg.toId.toString()
+            : msg.fromId.toString();
       } else if (msg.type == 'C2G') {
-        peerId = msg.toId!;
+        peerId = msg.toId.toString();
       } else {
-        peerId = msg.toId ?? '';
+        peerId = msg.toId.toString();
       }
 
       if (peerId.isEmpty) {
@@ -786,7 +786,7 @@ class MessageActions {
         'id': Xid().toString(),
         'type': messageType,
         'from': currentUid,
-        'to': msg.fromId == currentUid ? msg.toId! : msg.fromId,
+        'to': msg.fromId.toString() == currentUid ? msg.toId.toString() : msg.fromId.toString(),
         // v2.0: 字段提升到顶层
         'msg_type': 'custom',
         'action': 'message_revoke',
@@ -845,7 +845,7 @@ class MessageActions {
         'id': Xid().toString(),
         'type': messageType,
         'from': currentUid,
-        'to': msg.fromId == currentUid ? msg.toId! : msg.fromId,
+        'to': msg.fromId.toString() == currentUid ? msg.toId.toString() : msg.fromId.toString(),
         // v2.0: 字段提升到顶层
         'msg_type': 'text',
         'action': 'message_edit',
@@ -879,7 +879,7 @@ class MessageActions {
     try {
       // 只能撤回自己的消息
       final currentUid = UserRepoLocal.to.currentUid;
-      if (msg.fromId != currentUid) {
+      if (msg.fromId.toString() != currentUid) {
         iPrint('❌ 不能撤回他人的消息: messageId=${msg.id}');
         return false;
       }
@@ -933,7 +933,7 @@ class MessageActions {
     try {
       // 只能编辑自己的消息
       final currentUid = UserRepoLocal.to.currentUid;
-      if (msg.fromId != currentUid) {
+      if (msg.fromId.toString() != currentUid) {
         iPrint('❌ 不能编辑他人的消息: messageId=${msg.id}');
         return false;
       }
@@ -1128,7 +1128,7 @@ class MessageActions {
       iPrint('🔄 撤回更新数据库结果: $updateResult, originalMsgId=${originalMsg.id}');
 
       // 重新获取更新后的消息
-      final updatedMsg = await repo.find(originalMsg.id!);
+      final updatedMsg = await repo.find(originalMsg.id.toString());
       if (updatedMsg != null) {
         iPrint('🔄 重新获取更新后的消息成功: ${updatedMsg.toJson()}');
 

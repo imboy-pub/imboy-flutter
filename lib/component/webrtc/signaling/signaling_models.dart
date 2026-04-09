@@ -73,11 +73,11 @@ class WebRTCSignalingModel {
     }
 
     return WebRTCSignalingModel(
-      msgId: json['id'] as String,
+      msgId: json['id'] as String? ?? '',
       sessionId: json['session_id'] as String? ?? '',
       type: type,
-      from: json['from'] as String,
-      to: json['to'] as String,
+      from: json['from'] as String? ?? '',
+      to: json['to'] as String? ?? '',
       payload: json['payload'] as Map<String, dynamic>? ?? {},
       timestamp: json['ts'] as int? ?? DateTime.now().millisecondsSinceEpoch,
       sequence: json['seq'] as int?,

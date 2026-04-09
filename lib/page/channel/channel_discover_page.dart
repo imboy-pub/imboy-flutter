@@ -58,7 +58,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
       setState(() {
         _subscribedChannelIds
           ..clear()
-          ..addAll(channels.map((e) => e.id));
+          ..addAll(channels.map((e) => e.id.toString()));
       });
     } catch (_) {
       // 忽略异常，保持当前页面可用
@@ -66,7 +66,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   }
 
   bool _isSubscribed(ChannelModel channel) {
-    return _subscribedChannelIds.contains(channel.id) || channel.isSubscribed;
+    return _subscribedChannelIds.contains(channel.id.toString()) || channel.isSubscribed;
   }
 
   /// 加载推荐频道
@@ -84,7 +84,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         });
       }
     } catch (e) {
-      debugPrint('加载推荐频道失败: $e');
+      iPrint('加载推荐频道失败: ${e.runtimeType}');
       if (mounted) {
         setState(() {
           _isLoadingRecommended = false;
@@ -249,11 +249,11 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
     final success = await ref
         .read(channelListProvider.notifier)
-        .subscribeChannel(channel.id);
+        .subscribeChannel(channel.id.toString());
 
     if (success && mounted) {
       setState(() {
-        _subscribedChannelIds.add(channel.id);
+        _subscribedChannelIds.add(channel.id.toString());
       });
       await _loadSubscribedChannelIds();
     }
@@ -295,11 +295,11 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
     final success = await ref
         .read(channelListProvider.notifier)
-        .unsubscribeChannel(channel.id);
+        .unsubscribeChannel(channel.id.toString());
 
     if (success && mounted) {
       setState(() {
-        _subscribedChannelIds.remove(channel.id);
+        _subscribedChannelIds.remove(channel.id.toString());
       });
       await _loadSubscribedChannelIds();
     }
@@ -338,7 +338,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
   String _detailRouteId(ChannelModel channel) {
     final customId = channel.customId?.trim() ?? '';
     if (customId.isNotEmpty) return customId;
-    return channel.id;
+    return channel.id.toString();
   }
 
   @override

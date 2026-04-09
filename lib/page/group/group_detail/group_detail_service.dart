@@ -35,7 +35,7 @@ class GroupDetailService {
       g.memberCount = payload['member_count'];
     }
     DateTime e = DateTime.now();
-    iPrint("detail time diff: ${e.difference(s)} ${g.toJson().toString()}");
+    iPrint("detail time diff: ${e.difference(s)} gid=$gid");
     return g;
   }
 
@@ -85,7 +85,7 @@ class GroupDetailService {
       );
       if (list.isNotEmpty) {
         for (GroupMemberModel obj in list) {
-          iPrint("listGroupMember sync=false ${obj.toJson().toString()}");
+          // iPrint removed: was logging full GroupMemberModel JSON with PII
           list2.add(
             PeopleModel(
               id: obj.userId,
@@ -104,7 +104,7 @@ class GroupDetailService {
       gid: gid,
       size: limit,
     );
-    iPrint("GroupMemberApi/page payload ${payload.toString()}");
+    iPrint("GroupMemberApi/page count=${payload?['list']?.length}");
     if (payload != null && payload['list'] != null) {
       for (var item in payload['list']) {
         GroupMemberModel obj2 = await repo.save(item);

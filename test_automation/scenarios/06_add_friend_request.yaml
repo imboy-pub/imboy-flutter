@@ -30,7 +30,7 @@ test_data:
 
   # 目标用户信息（要添加的好友）
   target_phone: "13900139000"
-  target_uid: "target_user_id_hashid"
+  target_uid: "target_user_id"
 
   # 好友请求验证消息
   request_message: "你好，我是测试用户，请求添加好友"

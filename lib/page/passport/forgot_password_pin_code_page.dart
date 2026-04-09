@@ -149,7 +149,6 @@ class _PinCodeVerificationPageState
                                 debugPrint("Completed");
                               },
                               onChanged: (value) {
-                                debugPrint(value);
                                 setState(() {
                                   currentText = value;
                                 });

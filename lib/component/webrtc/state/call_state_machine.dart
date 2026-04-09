@@ -44,6 +44,9 @@ class WebRTCCallStateMachine {
   /// 关联的连接
   WebRTCConnection? _connection;
 
+  /// 连接状态订阅（用于在 dispose 时取消）
+  StreamSubscription<WebRTCConnectionStateEvent>? _connectionSubscription;
+
   /// 状态转换历史
   final List<WebRTCCallStateEvent> _history = [];
 
@@ -109,10 +112,12 @@ class WebRTCCallStateMachine {
 
   /// 设置关联的连接
   void setConnection(WebRTCConnection connection) {
+    // 取消旧订阅，防止泄漏
+    _connectionSubscription?.cancel();
     _connection = connection;
 
     // 监听连接状态变化
-    connection.stateStream.listen((event) {
+    _connectionSubscription = connection.stateStream.listen((event) {
       _handleConnectionStateChange(event);
     });
   }
@@ -375,7 +380,8 @@ class WebRTCCallStateMachine {
 
   /// 释放资源
   Future<void> dispose() async {
-    debugPrint('Disposing CallStateMachine for session $sessionId');
+    await _connectionSubscription?.cancel();
+    _connectionSubscription = null;
 
     await _connection?.dispose();
     _connection = null;

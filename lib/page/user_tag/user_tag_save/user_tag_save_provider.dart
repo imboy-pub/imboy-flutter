@@ -4,6 +4,7 @@ import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/api/user_tag_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'user_tag_save_provider.g.dart';
@@ -80,7 +81,7 @@ class UserTagSaveNotifier extends _$UserTagSaveNotifier {
     int tagId = await UserTagApi().addTag(scene: scene, tagName: tagName);
     if (tagId > 0) {
       UserTagModel tag = UserTagModel(
-        userId: UserRepoLocal.to.currentUid,
+        userId: parseModelInt(UserRepoLocal.to.currentUid),
         tagId: tagId,
         scene: 2,
         name: tagName,

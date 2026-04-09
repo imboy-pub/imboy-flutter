@@ -31,14 +31,14 @@ void main() {
       test('应该能够创建新会话', () async {
         final conv = ConversationModel(
           id: 0, // 新会话id为0，插入后会自动分配
-          peerId: 'user123',
+          peerId: 1001,
           type: 'C2C',
           avatar: 'https://example.com/avatar.png',
           title: '测试用户',
           subtitle: '第一条消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 1,
         );
 
@@ -48,7 +48,7 @@ void main() {
 
         final saved = await conversationRepo.findById(id);
         expect(saved, isNotNull);
-        expect(saved!.peerId, 'user123');
+        expect(saved!.peerId, 1001);
         expect(saved.title, '测试用户');
         expect(saved.unreadNum, 1);
       });
@@ -56,14 +56,14 @@ void main() {
       test('应该能够创建群组会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'group001',
+          peerId: 2001,
           type: 'C2G',
           avatar: '',
           title: '测试群组',
           subtitle: '群组消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 5,
         );
 
@@ -71,30 +71,30 @@ void main() {
 
         final saved = await conversationRepo.findById(id);
         expect(saved!.type, 'C2G');
-        expect(saved.peerId, 'group001');
+        expect(saved.peerId, 2001);
       });
 
       test('应该能够根据peerId查找会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user456',
+          peerId: 3001,
           type: 'C2C',
           avatar: '',
           title: '用户456',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
         );
 
         await conversationRepo.insert(conv);
 
-        final found = await conversationRepo.findByPeerId('C2C', 'user456');
+        final found = await conversationRepo.findByPeerId('C2C', '3001');
         expect(found, isNotNull);
         expect(found!.title, '用户456');
 
-        final notFound = await conversationRepo.findByPeerId('C2C', 'user999');
+        final notFound = await conversationRepo.findByPeerId('C2C', '9999');
         expect(notFound, isNull);
       });
     });
@@ -104,14 +104,14 @@ void main() {
         // 先创建会话
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user789',
+          peerId: 4001,
           type: 'C2C',
           avatar: '',
           title: '原始标题',
           subtitle: '原始消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 1,
         );
 
@@ -134,14 +134,14 @@ void main() {
       test('应该能够更新会话的未读数', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user999',
+          peerId: 5001,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 3,
         );
 
@@ -160,14 +160,14 @@ void main() {
       test('应该能够清空未读数', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user888',
+          peerId: 6001,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 10,
         );
 
@@ -184,14 +184,14 @@ void main() {
       test('应该能够删除会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user111',
+          peerId: 7001,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
         );
 
@@ -209,23 +209,23 @@ void main() {
       test('应该能够根据peerId删除会话', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user222',
+          peerId: 7002,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
         );
 
         await conversationRepo.insert(conv);
 
-        final result = await conversationRepo.deleteByPeerId('C2C', 'user222');
+        final result = await conversationRepo.deleteByPeerId('C2C', '7002');
         expect(result, 1);
 
-        final found = await conversationRepo.findByPeerId('C2C', 'user222');
+        final found = await conversationRepo.findByPeerId('C2C', '7002');
         expect(found, isNull);
       });
     });
@@ -233,12 +233,12 @@ void main() {
     group('新消息到达时的会话更新', () {
       test('新消息到达时应该创建新会话', () async {
         final msg = MessageModel(
-          'msg_new_001',
+          201,
           autoId: 1,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': '新消息'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
@@ -249,21 +249,21 @@ void main() {
         // 模拟新消息到达，创建会话
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user2',
+          peerId: 8002,
           type: 'C2C',
           avatar: '',
           title: '用户2',
           subtitle: '新消息',
           msgType: msg.msgType!,
           lastTime: msg.createdAt,
-          lastMsgId: msg.id ?? 'msg_new',
+          lastMsgId: msg.id,
           unreadNum: 1,
         );
 
         final id = await conversationRepo.insert(conv);
 
         final saved = await conversationRepo.findById(id);
-        expect(saved!.lastMsgId, 'msg_new_001');
+        expect(saved!.lastMsgId, 201);
         expect(saved.unreadNum, 1);
       });
 
@@ -271,14 +271,14 @@ void main() {
         // 创建现有会话
         final existingConv = ConversationModel(
           id: 0,
-          peerId: 'user333',
+          peerId: 8003,
           type: 'C2C',
           avatar: '',
           title: '用户333',
           subtitle: '旧消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_old',
+          lastMsgId: 100,
           unreadNum: 2,
         );
 
@@ -286,12 +286,12 @@ void main() {
 
         // 模拟新消息到达
         final newMsg = MessageModel(
-          'msg_new_002',
+          202,
           autoId: 2,
           type: 'C2C',
           status: 11,
-          fromId: 'user1',
-          toId: 'user333',
+          fromId: 8001,
+          toId: 8003,
           payload: {'content': '新消息内容'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user333',
@@ -304,13 +304,13 @@ void main() {
         await conversationRepo.updateById(convId, {
           'subtitle': '新消息内容',
           'last_time': newMsg.createdAt,
-          'last_msg_id': newMsg.id ?? 'msg_new',
+          'last_msg_id': newMsg.id,
           'unread_num': current!.unreadNum + 1,
         });
 
         final updated = await conversationRepo.findById(convId);
         expect(updated!.subtitle, '新消息内容');
-        expect(updated.lastMsgId, 'msg_new_002');
+        expect(updated.lastMsgId, 202);
         expect(updated.unreadNum, 3); // 2 + 1
       });
     });
@@ -321,14 +321,14 @@ void main() {
         await conversationRepo.insert(
           ConversationModel(
             id: 0,
-            peerId: 'user1',
+            peerId: 8001,
             type: 'C2C',
             avatar: '',
             title: '用户1',
             subtitle: '消息1',
             msgType: 'text',
             lastTime: 1234567890,
-            lastMsgId: 'msg1',
+            lastMsgId: 1,
             unreadNum: 1,
           ),
         );
@@ -336,14 +336,14 @@ void main() {
         await conversationRepo.insert(
           ConversationModel(
             id: 0,
-            peerId: 'user2',
+            peerId: 8002,
             type: 'C2C',
             avatar: '',
             title: '用户2',
             subtitle: '消息2',
             msgType: 'text',
             lastTime: 1234567891,
-            lastMsgId: 'msg2',
+            lastMsgId: 2,
             unreadNum: 0,
           ),
         );
@@ -356,14 +356,14 @@ void main() {
         await conversationRepo.insert(
           ConversationModel(
             id: 0,
-            peerId: 'user1',
+            peerId: 8001,
             type: 'C2C',
             avatar: '',
             title: '用户1',
             subtitle: '消息1',
             msgType: 'text',
             lastTime: 1000,
-            lastMsgId: 'msg1',
+            lastMsgId: 1,
             unreadNum: 0,
           ),
         );
@@ -371,14 +371,14 @@ void main() {
         await conversationRepo.insert(
           ConversationModel(
             id: 0,
-            peerId: 'user2',
+            peerId: 8002,
             type: 'C2C',
             avatar: '',
             title: '用户2',
             subtitle: '消息2',
             msgType: 'text',
             lastTime: 2000,
-            lastMsgId: 'msg2',
+            lastMsgId: 2,
             unreadNum: 0,
           ),
         );
@@ -386,8 +386,8 @@ void main() {
         final all = conversationRepo.getAll();
         all.sort((a, b) => b.lastTime.compareTo(a.lastTime));
 
-        expect(all.first.peerId, 'user2'); // 最新的在前面
-        expect(all.last.peerId, 'user1');
+        expect(all.first.peerId, 8002); // 最新的在前面
+        expect(all.last.peerId, 8001);
       });
     });
 
@@ -395,14 +395,14 @@ void main() {
       test('应该处理空peerId', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: '',
+          peerId: 0,
           type: 'C2C',
           avatar: '',
           title: '',
           subtitle: '',
           msgType: 'text',
           lastTime: 0,
-          lastMsgId: '',
+          lastMsgId: 0,
           unreadNum: 0,
         );
 
@@ -415,14 +415,14 @@ void main() {
 
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_special',
+          peerId: 7003,
           type: 'C2C',
           avatar: '',
           title: specialTitle,
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 0,
         );
 
@@ -434,14 +434,14 @@ void main() {
       test('应该处理超大未读数', () async {
         final conv = ConversationModel(
           id: 0,
-          peerId: 'user_big',
+          peerId: 7004,
           type: 'C2C',
           avatar: '',
           title: '用户',
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 'msg_001',
+          lastMsgId: 1,
           unreadNum: 999999,
         );
 
@@ -457,14 +457,14 @@ void main() {
         for (int i = 0; i < 10; i++) {
           final conv = ConversationModel(
             id: 0,
-            peerId: 'user_$i',
+            peerId: 8453,
             type: 'C2C',
             avatar: '',
             title: '用户$i',
             subtitle: '消息$i',
             msgType: 'text',
             lastTime: 1234567890 + i,
-            lastMsgId: 'msg_$i',
+            lastMsgId: 3686,
             unreadNum: i,
           );
           final id = await conversationRepo.insert(conv);

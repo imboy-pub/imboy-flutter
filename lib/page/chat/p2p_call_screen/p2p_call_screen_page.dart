@@ -124,6 +124,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 Future.delayed(
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                   () {
+                    if (!mounted) return;
                     _hangUp(
                       sendBye: false,
                       callState: CallStateCode.rejected,
@@ -145,6 +146,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 Future.delayed(
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                   () {
+                    if (!mounted) return;
                     _hangUp(
                       sendBye: false,
                       callState: state.connected
@@ -164,6 +166,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               Future.delayed(
                 const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                 () {
+                  if (!mounted) return;
                   _hangUp(sendBye: false, callState: CallStateCode.busy);
                 },
               );
@@ -229,7 +232,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
       );
       await notifier.invitePeer(
         msgId: msgId,
-        peer: widget.peer.peerId,
+        peer: widget.peer.peerId.toString(),
         media: media,
       );
     } else {
@@ -238,7 +241,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
         WebRTCSignalingModel(
           msgId: msgId,
           type: 'WEBRTC_OFFER',
-          from: widget.peer.peerId,
+          from: widget.peer.peerId.toString(),
           to: UserRepoLocal.to.currentUid,
           payload: widget.option,
         ),

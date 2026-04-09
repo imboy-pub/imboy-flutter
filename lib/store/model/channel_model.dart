@@ -84,13 +84,13 @@ enum ChannelUserRole {
 /// - 加入方式：关注/订阅
 /// - 发言权限：仅管理员/指定编辑
 class ChannelModel {
-  final String id;
+  final int id;
   final String name;
   final String? description;
   final String? avatar;
   final ChannelType type;
   final String? customId;
-  final String creatorId;
+  final int creatorId;
   final int subscriberCount;
   final bool isVerified;
   final List<String>? tags;
@@ -126,10 +126,7 @@ class ChannelModel {
 
   factory ChannelModel.fromJson(Map<String, dynamic> json) {
     final parsedCustomId = parseModelNullableString(json['custom_id']);
-    final parsedId = parseModelString(
-      json['id'],
-      defaultValue: parsedCustomId ?? '',
-    );
+    final parsedId = parseModelInt(json['id']);
     return ChannelModel(
       id: parsedId,
       name: parseModelString(json['name']),
@@ -138,7 +135,7 @@ class ChannelModel {
       type: _parseChannelType(json['type']),
       customId: parsedCustomId,
       // 后端返回 creator_uid 或 creator_id
-      creatorId: parseModelString(json['creator_uid'] ?? json['creator_id']),
+      creatorId: parseModelInt(json['creator_uid'] ?? json['creator_id']),
       subscriberCount: parseModelInt(json['subscriber_count']),
       isVerified: parseModelBool(json['is_verified']),
       tags: parseModelStringList(json['tags']),
@@ -175,10 +172,7 @@ class ChannelModel {
   /// 从 SQLite Map 创建
   factory ChannelModel.fromMap(Map<String, dynamic> map) {
     final parsedCustomId = parseModelNullableString(map['custom_id']);
-    final parsedId = parseModelString(
-      map['id'],
-      defaultValue: parsedCustomId ?? '',
-    );
+    final parsedId = parseModelInt(map['id']);
     return ChannelModel(
       id: parsedId,
       name: parseModelString(map['name']),
@@ -186,7 +180,7 @@ class ChannelModel {
       avatar: parseModelNullableString(map['avatar']),
       type: _parseChannelType(map['type']),
       customId: parsedCustomId,
-      creatorId: parseModelString(map['creator_id']),
+      creatorId: parseModelInt(map['creator_id']),
       subscriberCount: parseModelInt(map['subscriber_count']),
       isVerified: parseModelBool(map['is_verified']),
       tags: parseModelStringList(map['tags']),
@@ -227,13 +221,13 @@ class ChannelModel {
 
   /// 复制并修改部分字段
   ChannelModel copyWith({
-    String? id,
+    int? id,
     String? name,
     String? description,
     String? avatar,
     ChannelType? type,
     String? customId,
-    String? creatorId,
+    int? creatorId,
     int? subscriberCount,
     bool? isVerified,
     List<String>? tags,

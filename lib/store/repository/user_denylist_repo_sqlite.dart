@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -217,7 +217,7 @@ class UserDenylistRepo {
     }
   }
 
-  void save(Map<String, dynamic> json) async {
+  Future<void> save(Map<String, dynamic> json) async {
     String uid = json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "");
     await _db.transaction<void>((txn) async {
       DenylistModel? old = await findByDeniedUid(uid, txn: txn);

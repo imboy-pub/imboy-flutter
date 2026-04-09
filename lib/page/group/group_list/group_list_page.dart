@@ -85,7 +85,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
       List<GroupModel> list2 = [];
       for (GroupModel m in list) {
         if (strEmpty(m.title)) {
-          m.computeTitle = await service.computeTitle(m.groupId);
+          m.computeTitle = await service.computeTitle(m.groupId.toString());
         }
         list2.add(m);
       }
@@ -263,7 +263,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                           child: ListTile(
                             leading: SmartGroupAvatar(
                               avatar: model.avatar,
-                              groupId: model.groupId,
+                              groupId: model.groupId.toString(),
                               avatarLoader: computeAvatar,
                             ),
                             contentPadding: const EdgeInsets.symmetric(

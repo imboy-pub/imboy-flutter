@@ -15,14 +15,14 @@ class ConversationModel {
   // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   final String type;
   // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
-  final String peerId;
+  final int peerId;
   String avatar;
   String title; // peerTitle
   String subtitle;
   String region;
   String sign;
   int lastTime;
-  String lastMsgId;
+  int lastMsgId;
 
   // 消息原数据
   Map<String, dynamic>? payload;
@@ -61,7 +61,7 @@ class ConversationModel {
     this.region = '',
     this.sign = '',
     this.lastTime = 0,
-    this.lastMsgId = '',
+    this.lastMsgId = 0,
     this.lastMsgStatus,
     required this.unreadNum,
     this.isShow = 1,
@@ -73,7 +73,7 @@ class ConversationModel {
     return ConversationUk3Generator.generateSmart(
       type: type,
       currentUserId: UserRepoLocal.to.currentUid,
-      peerId: peerId,
+      peerId: peerId.toString(),
     );
   }
 
@@ -115,9 +115,7 @@ class ConversationModel {
         return t.youWithdrewAMessage;
       }
     }
-    iPrint(
-      "conversation_model_msgType $msgType, title $title, subtitle $subtitle,",
-    );
+    // 不在日志中输出 title/subtitle（含用户隐私数据）
     if (msgType == MessageType.custom) {}
     // 普通消息类型
     if (msgType == MessageType.text || msgType == '') {
@@ -172,14 +170,14 @@ class ConversationModel {
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
       id: parseModelInt(json[ConversationRepo.id]),
-      peerId: parseModelString(json[ConversationRepo.peerId]),
+      peerId: parseModelInt(json[ConversationRepo.peerId]),
       avatar: avatarValue,
       title: parseModelString(json[ConversationRepo.title]),
       region: parseModelString(json[ConversationRepo.region]),
       sign: parseModelString(json[ConversationRepo.sign]),
       subtitle: parseModelString(json[ConversationRepo.subtitle]),
       lastTime: lastTime,
-      lastMsgId: parseModelString(json[ConversationRepo.lastMsgId]),
+      lastMsgId: parseModelInt(json[ConversationRepo.lastMsgId]),
       lastMsgStatus: parseModelInt(
         json[ConversationRepo.lastMsgStatus],
         defaultValue: 11,
@@ -228,14 +226,14 @@ class ConversationModel {
 
   ConversationModel copyWith({
     int? id,
-    String? peerId,
+    int? peerId,
     String? avatar,
     String? title,
     String? subtitle,
     String? region,
     String? sign,
     int? lastTime,
-    String? lastMsgId,
+    int? lastMsgId,
     int? lastMsgStatus,
     int? unreadNum,
     String? type,

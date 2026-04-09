@@ -271,10 +271,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   /// 置顶/取消置顶
   void _togglePin(UserCollectModel obj) {
     setState(() {
-      if (_pinnedIds.contains(obj.kindId)) {
-        _pinnedIds.remove(obj.kindId);
+      if (_pinnedIds.contains(obj.kindId.toString())) {
+        _pinnedIds.remove(obj.kindId.toString());
       } else {
-        _pinnedIds.add(obj.kindId);
+        _pinnedIds.add(obj.kindId.toString());
       }
     });
     _savePinnedIds();
@@ -286,7 +286,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       _multiSelect = true;
       _selectedIds
         ..clear()
-        ..add(obj.kindId);
+        ..add(obj.kindId.toString());
     });
   }
 
@@ -301,13 +301,13 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   /// 切换选择某一项
   void _toggleSelect(UserCollectModel obj) {
     setState(() {
-      if (_selectedIds.contains(obj.kindId)) {
-        _selectedIds.remove(obj.kindId);
+      if (_selectedIds.contains(obj.kindId.toString())) {
+        _selectedIds.remove(obj.kindId.toString());
         if (_selectedIds.isEmpty) {
           _multiSelect = false;
         }
       } else {
-        _selectedIds.add(obj.kindId);
+        _selectedIds.add(obj.kindId.toString());
       }
     });
   }
@@ -317,7 +317,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     final currentState = ref.read(userCollectProvider);
     setState(() {
       for (final o in currentState.items) {
-        _selectedIds.add(o.kindId);
+        _selectedIds.add(o.kindId.toString());
       }
       _multiSelect = true;
     });
@@ -524,8 +524,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     final notifier = ref.read(userCollectProvider.notifier);
     final currentState = ref.read(userCollectProvider);
 
-    final bool isPinned = _pinnedIds.contains(obj.kindId);
-    final bool isSelected = _selectedIds.contains(obj.kindId);
+    final bool isPinned = _pinnedIds.contains(obj.kindId.toString());
+    final bool isSelected = _selectedIds.contains(obj.kindId.toString());
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final card = Container(
@@ -755,7 +755,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     context,
                     CupertinoPageRoute(
                       builder: (context) => TagRelationPage(
-                        peerId: obj.kindId,
+                        peerId: obj.kindId.toString(),
                         peerTag: obj.tag,
                         scene: 'collect',
                         title: t.editTag,
@@ -887,7 +887,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       builder: (context) {
         final currentState = ref.read(userCollectProvider);
         final notifier = ref.read(userCollectProvider.notifier);
-        final isRemoving = currentState.removingIds.contains(obj.kindId);
+        final isRemoving = currentState.removingIds.contains(obj.kindId.toString());
 
         return Container(
           width: MediaQuery.of(context).size.width,
@@ -1080,7 +1080,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           PopupMenuItem(value: 'uncollect', child: Text(t.buttonDelete)),
           PopupMenuItem(
             value: 'pin_toggle',
-            child: Text(_pinnedIds.contains(obj.kindId) ? t.unpin : t.pin),
+            child: Text(_pinnedIds.contains(obj.kindId.toString()) ? t.unpin : t.pin),
           ),
         ],
       );

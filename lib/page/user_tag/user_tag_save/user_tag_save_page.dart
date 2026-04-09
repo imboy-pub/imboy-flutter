@@ -178,7 +178,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
 
                                 // 更新标签
                                 UserTagModel updatedTag = UserTagModel(
-                                  userId: widget.tag?.userId ?? '',
+                                  userId: widget.tag?.userId ?? 0,
                                   tagId: widget.tag?.tagId ?? 0,
                                   scene: widget.tag?.scene ?? 2,
                                   name: trimmedText,

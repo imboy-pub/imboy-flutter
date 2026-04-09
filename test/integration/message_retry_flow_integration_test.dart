@@ -30,7 +30,7 @@ void main() {
       try {
         final testMsg = await messageRepo.find('test_retry_msg_');
         if (testMsg != null) {
-          await messageRepo.delete(testMsg.id!);
+          await messageRepo.delete(testMsg.id.toString());
         }
       } catch (e) {
         // 忽略清理错误
@@ -81,36 +81,36 @@ void main() {
       test('应该正确判断消息状态', () {
         // 测试状态判断辅助方法
         MessageModel(
-          'msg_sending',
+          301,
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.sending,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
         );
 
         final errorMsg = MessageModel(
-          'msg_error',
+          302,
           autoId: 2,
           type: 'C2C',
           status: IMBoyMessageStatus.error,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
         );
 
         final sentMsg = MessageModel(
-          'msg_sent',
+          303,
           autoId: 3,
           type: 'C2C',
           status: IMBoyMessageStatus.sent,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
@@ -156,36 +156,36 @@ void main() {
       test('应该判断消息是否为发送状态', () {
         // 测试状态判断辅助方法
         MessageModel(
-          'msg_sending',
+          301,
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.sending,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
         );
 
         final errorMsg = MessageModel(
-          'msg_error',
+          302,
           autoId: 2,
           type: 'C2C',
           status: IMBoyMessageStatus.error,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',
         );
 
         final sentMsg = MessageModel(
-          'msg_sent',
+          303,
           autoId: 3,
           type: 'C2C',
           status: IMBoyMessageStatus.sent,
-          fromId: 'user1',
-          toId: 'user2',
+          fromId: 8001,
+          toId: 8002,
           payload: {'content': 'Test'},
           isAuthor: 1,
           conversationUk3: 'C2C_user1_user2',

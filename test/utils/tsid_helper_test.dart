@@ -31,7 +31,7 @@ void main() {
       expect(TsidHelper.parseIdAsInt('12345'), 12345);
     });
 
-    test('hashids 格式返回 null', () {
+    test('非数字格式返回 null', () {
       expect(TsidHelper.parseIdAsInt('abc123xyz'), null);
     });
 
@@ -53,7 +53,7 @@ void main() {
       expect(TsidHelper.isTsid('123456'), true);
     });
 
-    test('hashids 格式不是 TSID', () {
+    test('非数字格式不是 TSID', () {
       expect(TsidHelper.isTsid('aB3xYz'), false);
     });
 

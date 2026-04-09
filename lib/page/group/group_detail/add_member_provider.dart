@@ -95,7 +95,7 @@ class AddMemberNotifier extends _$AddMemberNotifier {
   }
 
   /// 更新成员状态
-  void _updateMemberStatus(Set<String> memberUserIds) {
+  void _updateMemberStatus(Set<int> memberUserIds) {
     final updatedContacts = state.contactItems.map((contact) {
       contact.selected = memberUserIds.contains(contact.peerId);
       return contact;
@@ -136,7 +136,7 @@ class AddMemberNotifier extends _$AddMemberNotifier {
   }
 
   /// 检查是否是群成员
-  bool isMember(String peerId) {
+  bool isMember(int peerId) {
     return state.groupMemberList.any((m) => m.userId == peerId);
   }
 
@@ -156,7 +156,8 @@ class AddMemberNotifier extends _$AddMemberNotifier {
       return false;
     }
 
-    final memberUserIds = items.map((item) => item.peerId).toList();
+    final memberUserIds =
+        items.map((item) => item.peerId.toString()).toList();
 
     // 调用服务层
     final service = AddMemberService();

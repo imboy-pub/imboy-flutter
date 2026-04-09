@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -28,31 +29,36 @@ import 'package:imboy/config/error_code.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 安全的证书验证回调
-/// 生产环境严格验证证书，开发环境允许自签名证书
+/// 生产环境严格验证证书，开发环境允许白名单内的自签名证书
 bool _certificateValidationCallback(X509Certificate cert) {
   // dio_http2_adapter 当前版本回调不再提供 host/port。
   // 仅在开发环境接受自签名证书，生产环境保持严格校验。
   if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
-    final subject = cert.subject.toLowerCase();
-    final issuer = cert.issuer.toLowerCase();
-    final whitelistTokens = <String>[
+    // 使用精确 CN 匹配，防止子串匹配被构造绕过
+    final cn = _extractCN(cert.subject);
+    const trustedCNs = <String>{
       'dev.imboy.pub',
       'localhost',
       '127.0.0.1',
-      'imboy',
-    ];
-    final allowed = whitelistTokens.any(
-      (token) => subject.contains(token) || issuer.contains(token),
-    );
+      'imboy.pub',
+    };
+    final allowed = trustedCNs.contains(cn) ||
+        cn.endsWith('.imboy.pub');
     if (!allowed) {
       debugPrint(
-        "HttpClient: reject dev certificate, subject=${cert.subject}, issuer=${cert.issuer}",
+        "HttpClient: reject dev certificate, CN=$cn",
       );
     }
     return allowed;
   }
   // 生产环境进行严格验证
   return false;
+}
+
+/// 从证书 subject 中提取 CN（Common Name）字段
+String _extractCN(String subject) {
+  final match = RegExp(r'CN=([^,]+)').firstMatch(subject);
+  return match?.group(1)?.trim().toLowerCase() ?? '';
 }
 
 Future<Map<String, dynamic>> defaultHeaders() async {
@@ -116,12 +122,12 @@ class HttpClient {
     if (recordLog) {
       _dio.interceptors.add(
         LogInterceptor(
-          responseBody: true,
+          responseBody: false,
           error: true,
-          requestHeader: true,
+          requestHeader: false, // 禁止输出 Header（含 Authorization token）
           responseHeader: false,
-          request: false,
-          requestBody: true,
+          request: true,
+          requestBody: false, // 禁止输出请求体（可能含密码）
         ),
       );
     }
@@ -163,8 +169,11 @@ class HttpClient {
     );
   }
 
-  /// 是否正在处理登录过期（防止重复弹窗）
-  static bool _isHandlingLoginExpired = false;
+  /// 防止并发 Token 刷新：多个请求共享同一次刷新结果
+  static Completer<String>? _tokenRefreshCompleter;
+
+  /// 防止重复处理登录过期流程
+  static Completer<void>? _loginExpiredCompleter;
 
   void _notifyAuthExpired({String reason = ''}) {
     debugPrint("HttpClient: auth expired event emitted, reason=$reason");
@@ -215,15 +224,9 @@ class HttpClient {
       return;
     }
 
-    // Token 已过期时尝试用 refresh token 刷新
+    // Token 已过期时尝试用 refresh token 刷新（互斥锁防止并发刷新）
     if (tokenExpired(tk)) {
-      String rtk = await UserRepoLocal.to.refreshToken;
-      // 防御性检查：refresh token 为空时不尝试刷新
-      if (rtk.isNotEmpty) {
-        tk = await UserApi.to.refreshAccessTokenApi(rtk, checkNewToken: false);
-      } else {
-        debugPrint("_setDefaultConfig: refresh token 为空，跳过刷新");
-      }
+      tk = await _refreshTokenWithMutex();
     }
     bool notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
     if (strNoEmpty(tk) && notRTK) {
@@ -235,15 +238,43 @@ class HttpClient {
     _dio.options.headers.addAll(headers);
   }
 
+  /// 带互斥锁的 Token 刷新：并发请求共享同一次刷新结果
+  Future<String> _refreshTokenWithMutex() async {
+    // 已有刷新任务在进行中，等待其完成
+    if (_tokenRefreshCompleter != null) {
+      return _tokenRefreshCompleter!.future;
+    }
+    _tokenRefreshCompleter = Completer<String>();
+    try {
+      final rtk = await UserRepoLocal.to.refreshToken;
+      if (rtk.isEmpty) {
+        debugPrint("_refreshTokenWithMutex: refresh token 为空，跳过刷新");
+        _tokenRefreshCompleter!.complete('');
+        return '';
+      }
+      final newTk = await UserApi.to
+          .refreshAccessTokenApi(rtk, checkNewToken: false);
+      _tokenRefreshCompleter!.complete(newTk);
+      return newTk;
+    } catch (e) {
+      debugPrint("_refreshTokenWithMutex: 刷新失败 $e");
+      _tokenRefreshCompleter!.completeError(e);
+      rethrow;
+    } finally {
+      _tokenRefreshCompleter = null;
+    }
+  }
+
   /// 处理 Token 过期的后续流程（弹窗提示 + 跳转登录页）
+  /// 使用 Completer 替代布尔标志，确保并发请求有序等待且标志不会锁死
   Future<void> _handleTokenExpired() async {
-    // 防止重复弹窗
-    if (_isHandlingLoginExpired) {
-      debugPrint("_handleTokenExpired: 正在处理登录过期流程，跳过重复处理");
-      return;
+    // 已有过期处理流程在进行中，等待其完成
+    if (_loginExpiredCompleter != null) {
+      debugPrint("_handleTokenExpired: 正在处理登录过期流程，等待完成");
+      return _loginExpiredCompleter!.future;
     }
 
-    _isHandlingLoginExpired = true;
+    _loginExpiredCompleter = Completer<void>();
     debugPrint("_handleTokenExpired: 开始处理登录过期流程");
 
     try {
@@ -253,7 +284,6 @@ class HttpClient {
       // 获取当前 context（用于显示 SnackBar）
       final context = navigatorKey.currentState?.overlay?.context;
       if (context != null && context.mounted) {
-        // 延迟显示，确保 UI 已经准备好
         await Future.delayed(const Duration(milliseconds: 100));
 
         if (context.mounted) {
@@ -271,12 +301,14 @@ class HttpClient {
       await Future.delayed(const Duration(seconds: 1));
 
       _notifyAuthExpired(reason: 'token_expired');
+      _loginExpiredCompleter!.complete();
     } catch (e) {
       debugPrint("_handleTokenExpired: 处理失败 $e");
+      _loginExpiredCompleter!.completeError(e);
     } finally {
-      // 重置标志（延迟重置，防止跳转过程中的重复请求）
+      // 延迟重置，防止跳转过程中的重复请求立即重入
       Future.delayed(const Duration(seconds: 2), () {
-        _isHandlingLoginExpired = false;
+        _loginExpiredCompleter = null;
       });
     }
   }
@@ -322,7 +354,7 @@ class HttpClient {
   /// 统一的认证过期响应处理
   void _checkAuthExpired(IMBoyHttpResponse resp) {
     if (ErrorCode.shouldReLogin(resp.code)) {
-      UserRepoLocal.to.quitLogin();
+      unawaited(UserRepoLocal.to.quitLogin());
       _notifyAuthExpired(reason: 'api_relogin_required');
     }
   }
@@ -460,6 +492,9 @@ class HttpClient {
     Options? options,
     HttpTransformer? httpTransformer,
   }) async {
+    if (!_isNetworkAvailable) {
+      throw NetworkException(message: t.tipConnectDesc);
+    }
     await _setDefaultConfig(urlPath);
     return _dio.download(
       urlPath,
