@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, kDebugMode, visibleForTesting;
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -25,6 +28,14 @@ import 'websocket_message_queue.dart';
 import 'package:imboy/config/init.dart' show navigateToSignIn;
 
 enum SocketStatus { connecting, connected, disconnected }
+
+/// WebSocket framing 模式
+/// - none: v1 路径（JSON 文本 / 原始二进制）
+/// - v2: IMBoy 分层二进制协议 v2（通过 imboy.v2 子协议协商）
+enum FramingMode { none, v2 }
+
+/// v2 子协议名称（最高优先级）
+const String kSubProtocolV2 = 'imboy.v2';
 
 class WebSocketService {
   // 单例模式
@@ -51,12 +62,43 @@ class WebSocketService {
   // 订阅管理
   StreamSubscription? _wsSub;
   Timer? _reconnectTimer;
+  Timer? _v2HeartbeatTimer;
   final List<StreamSubscription> _eventBusSubs = [];
   bool _initialized = false;
 
   // 配置参数
   static const _pingInterval = Duration(seconds: 120);
   bool _connecting = false;
+
+  /// 当前 WebSocket framing 模式（由子协议协商决定）
+  FramingMode _framing = FramingMode.none;
+  FramingMode get framing => _framing;
+
+  /// v2 心跳序列号（uint16 回绕）
+  int _v2PingSeq = 0;
+
+  /// 【测试】注入可预测的 framing 状态（仅测试使用）
+  @visibleForTesting
+  set framingForTest(FramingMode mode) => _framing = mode;
+
+  /// 【测试】注入 channel（仅测试使用）
+  @visibleForTesting
+  set channelForTest(WebSocketChannel? channel) => _channel = channel;
+
+  /// 【测试】暴露 v2 业务帧编码
+  @visibleForTesting
+  Uint8List encodeV2BusinessFrameForTest(String message) =>
+      _encodeV2BusinessFrame(message);
+
+  /// 【测试】暴露 v2 二进制帧处理
+  @visibleForTesting
+  void handleV2BinaryForTest(Uint8List bytes) => _handleV2Binary(bytes);
+
+  /// 【测试】重置单例（仅测试使用）
+  @visibleForTesting
+  static void resetForTest() {
+    _instance = null;
+  }
 
   /// 用于防止快速重连竞态：同一时刻只有一个连接请求在进行
   /// 后续的连接请求会等待当前连接完成，而不是创建重复连接
@@ -225,20 +267,42 @@ class WebSocketService {
         return;
       }
 
+      // 子协议协商：imboy.v2 优先，回退到现有 text/sip
+      const protocols = <String>[kSubProtocolV2, 'imboy-protobuf', 'imboy-json', 'text', 'sip'];
+
       if (kIsWeb) {
-        // Web 平台使用 WebSocketChannel.connect
-        _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+        // Web 平台使用 WebSocketChannel.connect (protocols 作为位置参数)
+        _channel = WebSocketChannel.connect(
+          Uri.parse(wsUrl),
+          protocols: protocols,
+        );
       } else {
         // 移动端/桌面端使用 IOWebSocketChannel
         _channel = IOWebSocketChannel.connect(
           wsUrl,
           headers: {...await defaultHeaders(), Keys.tokenKey: token},
-          protocols: ['text', 'sip'],
+          protocols: protocols,
           pingInterval: _pingInterval,
         );
       }
 
       await _channel!.ready;
+
+      // 检测服务端选中的子协议，设置 framing 模式
+      _framing = _detectFraming(_channel);
+      AppLogger.info(
+        'WebSocket framing 模式: ${_framing.name} '
+        '(selected protocol: ${_selectedProtocol(_channel)})',
+      );
+
+      // v2 模式下启动 IMBoy 层 heartbeat 定时器
+      _v2HeartbeatTimer?.cancel();
+      _v2HeartbeatTimer = null;
+      if (_framing == FramingMode.v2) {
+        _v2PingSeq = 0;
+        _v2HeartbeatTimer =
+            Timer.periodic(_pingInterval, (_) => _sendV2Heartbeat());
+      }
 
       _updateStatus(SocketStatus.connected);
       _backoff.reset();
@@ -284,9 +348,147 @@ class WebSocketService {
     _scheduleReconnection();
   }
 
+  /// 从 channel 提取选中的子协议名称（跨平台安全访问）
+  String? _selectedProtocol(WebSocketChannel? channel) {
+    if (channel == null) return null;
+    try {
+      return channel.protocol;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// 根据选中的子协议判断 framing 模式
+  FramingMode _detectFraming(WebSocketChannel? channel) {
+    final proto = _selectedProtocol(channel);
+    if (proto == kSubProtocolV2) return FramingMode.v2;
+    return FramingMode.none;
+  }
+
+  /// 将待发送的字符串消息编码为 v2 frame bytes（仅在 framing=v2 时使用）
+  ///
+  /// 对于业务消息（JSON 字符串），从 payload 中提取 type 字段决定 FrameType：
+  ///   C2C → msgC2C, C2G → msgC2G, C2S → msgC2S, 其它 → msgC2S
+  /// 对于 CLIENT_ACK 纯文本 ACK，使用 msgC2S。
+  Uint8List _encodeV2BusinessFrame(String message) {
+    final payload = Uint8List.fromList(utf8.encode(message));
+    int type = FrameType.msgC2S;
+    try {
+      if (message.startsWith('CLIENT_ACK')) {
+        type = FrameType.msgC2S;
+      } else if (message.startsWith('{')) {
+        final decoded = jsonDecode(message);
+        if (decoded is Map) {
+          final t = (decoded['type']?.toString() ?? '').toUpperCase();
+          switch (t) {
+            case 'C2C':
+              type = FrameType.msgC2C;
+              break;
+            case 'C2G':
+              type = FrameType.msgC2G;
+              break;
+            case 'C2S':
+              type = FrameType.msgC2S;
+              break;
+            case 'S2C':
+              type = FrameType.msgS2C;
+              break;
+            default:
+              type = FrameType.msgC2S;
+          }
+        }
+      }
+    } catch (_) {
+      // 解析失败时回退 msgC2S
+    }
+    return ImboyFrame.encode(type: type, flags: 0, payload: payload);
+  }
+
+  /// v2 心跳：发送 heartbeatPing frame
+  void _sendV2Heartbeat() {
+    if (_framing != FramingMode.v2 || _channel == null) return;
+    final seq = _v2PingSeq;
+    _v2PingSeq = (_v2PingSeq + 1) & 0xFFFF;
+    try {
+      final bytes = ImboyFrame.heartbeatPing(seq);
+      _channel!.sink.add(bytes);
+    } catch (e) {
+      iPrint('> ws: v2 heartbeat 发送失败: $e');
+    }
+  }
+
+  /// 处理收到的 v2 二进制帧（不抛出）
+  void _handleV2Binary(Uint8List bytes) {
+    try {
+      final result = ImboyFrame.tryDecode(bytes);
+      if (result == null) {
+        iPrint('> ws: v2 帧不完整，忽略 (${bytes.length} bytes)');
+        return;
+      }
+      final frame = result.frame;
+      switch (frame.type) {
+        case FrameType.heartbeatPong:
+          iPrint('💓 [WS] v2 heartbeat pong 收到');
+          break;
+        case FrameType.heartbeatPing:
+          // 服务端主动 ping，回 pong
+          if (frame.payload.length >= 2) {
+            final seq =
+                ByteData.sublistView(frame.payload).getUint16(0, Endian.big);
+            try {
+              _channel?.sink.add(ImboyFrame.heartbeatPong(seq));
+            } catch (e) {
+              iPrint('> ws: v2 pong 回包失败: $e');
+            }
+          }
+          break;
+        case FrameType.ack:
+          if (frame.payload.length >= 8) {
+            final msgId =
+                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            iPrint('✅ [WS] v2 frame ACK: msgId=$msgId');
+            try {
+              AckManager.to.ackConfirmed(msgId.toString());
+            } catch (e) {
+              iPrint('> ws: v2 ack 处理失败: $e');
+            }
+          }
+          break;
+        case FrameType.nack:
+          if (frame.payload.length >= 8) {
+            final msgId =
+                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            iPrint('⚠️ [WS] v2 frame NACK: msgId=$msgId');
+          }
+          break;
+        case FrameType.msgS2C:
+        case FrameType.msgC2C:
+        case FrameType.msgC2G:
+        case FrameType.msgC2S:
+          // 业务消息：载荷是 UTF-8 JSON 字符串（与现有 v1 路径一致）
+          final text = utf8.decode(frame.payload, allowMalformed: true);
+          _onMessage(text);
+          break;
+        default:
+          iPrint('> ws: v2 未知 frame type=0x${frame.type.toRadixString(16)}');
+      }
+    } on FormatException catch (e) {
+      iPrint('> ws: v2 帧解析失败（格式错误），忽略: $e');
+    } catch (e, s) {
+      iPrint('> ws: v2 帧处理异常: $e\n$s');
+    }
+  }
+
   /// 处理接收到的消息（优化版：非阻塞立即分发）
   /// Process received messages (optimized: non-blocking immediate dispatch)
   Future<void> _onMessage(dynamic message) async {
+    // v2 路径：binary 数据走 frame 解码
+    if (_framing == FramingMode.v2 && message is List<int>) {
+      final bytes = message is Uint8List ? message : Uint8List.fromList(message);
+      _handleV2Binary(bytes);
+      return;
+    }
+
     // 仅记录消息长度，不输出内容（避免泄露敏感信息）
     iPrint('📡 [WS] 收到消息 (length=${message.toString().length})');
 
@@ -455,7 +657,10 @@ class WebSocketService {
         if (queued == null) continue;
 
         try {
-          _channel!.sink.add(queued.data);
+          final payload = _framing == FramingMode.v2
+              ? _encodeV2BusinessFrame(queued.data)
+              : queued.data;
+          _channel!.sink.add(payload);
           sentCount++;
           if (sentCount >= maxBatch) {
             await Future.delayed(Duration(milliseconds: 300));
@@ -661,7 +866,10 @@ class WebSocketService {
 
     if (_status == SocketStatus.connected) {
       try {
-        _channel?.sink.add(message);
+        final payload = _framing == FramingMode.v2
+            ? _encodeV2BusinessFrame(message)
+            : message;
+        _channel?.sink.add(payload);
         _logMessageSent(message, messageId);
 
         // 如果有消息ID，启动确认机制
@@ -703,7 +911,10 @@ class WebSocketService {
   bool sendDirect(String message) {
     if (_status == SocketStatus.connected && _channel != null) {
       try {
-        _channel!.sink.add(message);
+        final payload = _framing == FramingMode.v2
+            ? _encodeV2BusinessFrame(message)
+            : message;
+        _channel!.sink.add(payload);
         return true;
       } catch (e) {
         iPrint('> ws: 直接发送消息失败: $e');
@@ -854,6 +1065,9 @@ class WebSocketService {
     _wsSub?.cancel();
     _channel?.sink.close();
     _channel = null;
+    _v2HeartbeatTimer?.cancel();
+    _v2HeartbeatTimer = null;
+    _framing = FramingMode.none;
   }
 
   void _cancelReconnectTimer() {
