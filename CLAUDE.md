@@ -1,11 +1,37 @@
 # ImBoy App - 架构文档
 
 > 本文档由 init-architect 自动生成和维护
-> 最后更新：2026-01-19 12:00:00 CST
+> 最后更新：2026-04-10 CST
+
+---
+
+## ⭐ 必读设计规范（Design Reference）
+
+**所有 UI 相关代码（新增 / 修改）必须先阅读并遵守：**
+
+- 📘 **[`./DESIGN.md`](./DESIGN.md)** — ImBoy App 视觉与交互设计规范（iOS 原生感 / Material 3 + iOS HIG 美学）
+
+**核心约束速查：**
+
+1. **品牌色策略**：品牌蓝 `#2474E5`（`AppColors.primary`）用于 Logo、Tab 选中、主按钮、发送气泡；iOS 系统蓝 `#007AFF`（`AppColors.iosBlue`，待新增）用于链接、Nav 文字按钮、取消按钮等系统语义位置。
+2. **最小触达区域**：所有可点击元素 ≥ 44×44pt。
+3. **页面水平 padding**：统一 16pt。
+4. **聊天气泡**：圆角 20pt，发送用 `brand`，接收用 `surface`。
+5. **破坏性操作**：必须用 `iosRed` (`#FF3B30`)。
+6. **禁止硬编码**：颜色、间距、字号必须通过 `AppColors` / `AppSpacing` / `FontSizeType` Token 使用。
+7. **暗色模式**：查 DESIGN.md 第 10.2 节的浅→暗映射表。
+
+**AI Coding Agent 请直接阅读 `DESIGN.md` 第 13 章（For Coding Agents）获取决策树与模板代码。**
 
 ---
 
 ## 变更记录 (Changelog)
+
+### 2026-04-10
+- **新增设计规范文档**：`imboyapp/DESIGN.md` 确立 iOS 原生感设计方向
+- 双蓝策略：`#2474E5` 品牌蓝 + `#007AFF` iOS 系统蓝分工明确
+- 基于 Apple Human Interface Guidelines + 现有 `lib/theme/default/` Token 体系撰写
+- 所有新 UI 代码必须先阅读 DESIGN.md
 
 ### 2026-02-20
 - **Android 开发设备规则**：后续开发、调试、联调与自动化测试统一使用 Android 真机

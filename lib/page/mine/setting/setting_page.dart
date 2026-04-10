@@ -128,29 +128,24 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
 
+    // iOS 原生感：分组列表页背景（详见 DESIGN.md 第 8.3 节 Inset Grouped List）
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.setting),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 16),
-            // 设置分组容器 - 圆角卡片风格
+            // 通用设置 Section（TODO: 迁移到 slang i18n）
+            _buildSectionHeader(context, '通用'),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(10),
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -210,21 +205,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
 
-            // 隐私设置分组
+            // 隐私与安全 Section
+            _buildSectionHeader(context, '隐私与安全'),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(10),
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -377,21 +365,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
 
-            // 帮助和关于分组
+            // 帮助与关于 Section
+            _buildSectionHeader(context, '帮助与关于'),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(10),
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -473,21 +454,20 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // iOS 原生未读红点（iosRed）
                               Container(
                                 width: 8,
                                 height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
+                                decoration: BoxDecoration(
+                                  color: AppColors.iosRed,
                                   shape: BoxShape.circle,
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: AppColors.textSecondary.withValues(
-                                  alpha: 0.5,
-                                ),
-                                size: 16,
+                                CupertinoIcons.chevron_right,
+                                color: AppColors.iosGray,
+                                size: 14,
                               ),
                             ],
                           )
@@ -504,19 +484,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             if (currentEnv != 'pro') ...[
               const SizedBox(height: 8),
               Container(
+                // iOS 原生感：开发环境 Cell 容器（无阴影）
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).shadowColor.withValues(alpha: 0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: _buildSettingItem(
                   context,
@@ -580,43 +552,37 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
             const SizedBox(height: 16),
 
-            // 退出登录按钮
+            // iOS 原生感：退出登录作为独立 Cell，文字居中 iosRed（详见 DESIGN.md 硬规则 13.2）
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.lightErrorContainer,
-                    foregroundColor: AppColors.lightError,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Theme.of(context).cardColor,
+                    foregroundColor: AppColors.iosRed,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusRegular,
-                      side: BorderSide(
-                        color: AppColors.lightError.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 0,
                   ),
                   onPressed: () async {
-                    // 显示确认对话框
-                    final confirmed = await showDialog<bool>(
+                    // iOS 原生感：Cupertino 风格确认对话框（详见 DESIGN.md 第 8.7 节）
+                    final confirmed = await showCupertinoDialog<bool>(
                       context: context,
-                      builder: (context) => AlertDialog(
+                      builder: (context) => CupertinoAlertDialog(
                         title: Text(t.logOut),
                         content: Text(t.areYouSureLogOut),
                         actions: [
-                          TextButton(
+                          CupertinoDialogAction(
                             onPressed: () => Navigator.pop(context, false),
                             child: Text(t.buttonCancel),
                           ),
-                          TextButton(
+                          CupertinoDialogAction(
+                            isDestructiveAction: true, // iOS 原生红色破坏性按钮
                             onPressed: () => Navigator.pop(context, true),
-                            child: Text(
-                              t.buttonConfirm,
-                              style: TextStyle(color: AppColors.lightError),
-                            ),
+                            child: Text(t.buttonConfirm),
                           ),
                         ],
                       ),
@@ -634,32 +600,29 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     style: ref
                         .read(themeProvider.notifier)
                         .getTextStyle(
-                          FontSizeType.normal,
-                          color: AppColors.lightError,
-                          fontWeight: FontWeight.w600,
+                          FontSizeType.medium,
+                          color: AppColors.iosRed,
+                          fontWeight: FontWeight.w400,
                         ),
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
-            // 注销账号按钮
+            // iOS 原生感：注销账号独立 Cell，破坏性操作（详见 DESIGN.md 13.2）
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).cardColor,
+                    foregroundColor: AppColors.iosRed,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusRegular,
-                      side: BorderSide(
-                        color: AppColors.textSecondary.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 0,
                   ),
@@ -671,9 +634,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     style: ref
                         .read(themeProvider.notifier)
                         .getTextStyle(
-                          FontSizeType.normal,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w500,
+                          FontSizeType.medium,
+                          color: AppColors.iosRed,
+                          fontWeight: FontWeight.w400,
                         ),
                   ),
                 ),
@@ -725,12 +688,31 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 
+  /// iOS 原生 Section Header：Footnote 13pt 灰色，分组容器上方
+  /// 详见 DESIGN.md 第 8.3 节 Inset Grouped List
+  Widget _buildSectionHeader(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 20, 32, 6),
+      child: Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.08,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
+  }
+
+  /// iOS 原生分隔线：仅在图标文字之后（左 inset 56pt），使用 iosSeparator
   Widget _buildDivider(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     return Padding(
       padding: const EdgeInsets.only(left: 56),
       child: HorizontalLine(
-        height: 0.5,
-        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+        height: 0.33,
+        color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.6),
       ),
     );
   }
@@ -823,10 +805,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 trailing,
               ] else if (onTap != null) ...[
                 const SizedBox(width: 8),
+                // iOS 原生 Cell 右侧 chevron
                 Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: AppColors.textSecondary.withValues(alpha: 0.5),
-                  size: 16,
+                  CupertinoIcons.chevron_right,
+                  color: AppColors.iosGray,
+                  size: 14,
                 ),
               ],
             ],
@@ -852,16 +835,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       subtitle: subtitle,
       leadingIcon: leadingIcon,
       leadingIconColor: leadingIconColor,
-      trailing: SizedBox(
-        height: 28,
-        width: 48,
-        child: Transform.scale(
-          scale: 0.8,
-          child: CupertinoSwitch(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: AppColors.primary,
-          ),
+      // iOS 原生感：不缩放 Switch，使用系统蓝（详见 DESIGN.md 第 2.1 双蓝策略）
+      trailing: CupertinoSwitch(
+        value: value,
+        onChanged: onChanged,
+        activeTrackColor: AppColors.getIosBlue(
+          Theme.of(context).brightness,
         ),
       ),
     );

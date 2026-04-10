@@ -8,6 +8,16 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-04-10
+- **新增 iOS 系统语义色（双蓝策略）**：
+  - 在 `app_colors.dart` 新增 `iosBlue / iosRed / iosGreen / iosOrange / iosYellow` 及其暗色版
+  - 新增 iOS 中性灰阶 `iosGray / iosGray2-6 / iosSeparator / iosSeparatorDark`
+  - 新增 `lightSurfaceGrouped (#F2F2F7)` / `darkSurfaceGrouped (#1C1C1E)` / `darkSurfaceGroupedOled (#000000)`
+  - 新增工具方法 `getIosBlue / getIosRed / getIosGreen / getIosSeparator / getSurfaceGrouped`
+- **策略说明**：品牌蓝 `#2474E5` 保留为品牌识别位置，iOS 系统蓝 `#007AFF` 用于系统语义位置（链接、Nav 按钮、取消按钮）
+- **零破坏**：所有现有 Token 原样保留；新代码可选用 iOS 语义色
+- **完整规范**：参见 [`../../DESIGN.md`](../../DESIGN.md)
+
 ### 2026-02-18
 - **死代码清理**：删除已废弃的 `app_text_size.dart`（已完全迁移到 `FontSizeType`）
 - 移除文档中对废弃文件的引用

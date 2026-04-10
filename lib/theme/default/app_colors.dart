@@ -263,6 +263,116 @@ class AppColors {
     return brightness == Brightness.dark ? darkDivider : lightDivider;
   }
 
+  // ============ iOS 系统语义色系统 ============
+  // 参考 Apple Human Interface Guidelines / UIColor Standard Colors
+  // 详见 imboyapp/DESIGN.md 第 2 章「色彩系统」
+  //
+  // 使用规则（双蓝策略）：
+  //   - 品牌识别位置（Logo、Tab 选中、主按钮、发送气泡）→ 使用 primary (#2474E5)
+  //   - iOS 系统语义位置（链接、Nav 文字按钮、取消按钮、Switch）→ 使用 iosBlue (#007AFF)
+  //   - 破坏性操作（删除、退出登录）→ 必须使用 iosRed
+
+  /// iOS 系统蓝 - 亮色
+  /// 用途：链接文本、Cell 时间标签、Nav 取消/完成按钮、Switch 开启态、Picker
+  static const Color iosBlue = Color(0xFF007AFF);
+
+  /// iOS 系统蓝 - 暗色（+ 明度增强）
+  static const Color iosBlueDark = Color(0xFF0A84FF);
+
+  /// iOS 系统红 - 亮色
+  /// 用途：破坏性操作（删除、退出、解散群）、错误状态、未读 Badge
+  static const Color iosRed = Color(0xFFFF3B30);
+
+  /// iOS 系统红 - 暗色
+  static const Color iosRedDark = Color(0xFFFF453A);
+
+  /// iOS 系统绿 - 亮色
+  /// 用途：在线指示器、成功状态、Switch 开启态（可选）
+  static const Color iosGreen = Color(0xFF34C759);
+
+  /// iOS 系统绿 - 暗色
+  static const Color iosGreenDark = Color(0xFF30D158);
+
+  /// iOS 系统橙 - 亮色
+  /// 用途：警告状态、重要提示
+  static const Color iosOrange = Color(0xFFFF9500);
+
+  /// iOS 系统橙 - 暗色
+  static const Color iosOrangeDark = Color(0xFFFF9F0A);
+
+  /// iOS 系统黄 - 亮色
+  /// 用途：高亮提示、强调信息
+  static const Color iosYellow = Color(0xFFFFCC00);
+
+  /// iOS 系统黄 - 暗色
+  static const Color iosYellowDark = Color(0xFFFFD60A);
+
+  // iOS 中性灰阶（6 级，从浅到深命名与 Apple 保持一致）
+  /// iOS Gray - 最常用次级文字色
+  static const Color iosGray = Color(0xFF8E8E93);
+
+  /// iOS Gray 2
+  static const Color iosGray2 = Color(0xFFAEAEB2);
+
+  /// iOS Gray 3 - 分隔线默认色（亮色模式）
+  static const Color iosGray3 = Color(0xFFC7C7CC);
+
+  /// iOS Gray 4
+  static const Color iosGray4 = Color(0xFFD1D1D6);
+
+  /// iOS Gray 5 - InsetGrouped 列表内分隔线
+  static const Color iosGray5 = Color(0xFFE5E5EA);
+
+  /// iOS Gray 6 - 分组列表页背景（关键！）
+  /// 等同于 lightSurfaceGrouped
+  static const Color iosGray6 = Color(0xFFF2F2F7);
+
+  /// iOS Separator - 亮色模式 Cell 分隔线（Apple 官方）
+  static const Color iosSeparator = Color(0xFFC6C6C8);
+
+  /// iOS Separator - 暗色模式 Cell 分隔线
+  static const Color iosSeparatorDark = Color(0xFF38383A);
+
+  // ============ iOS 风格分组列表背景 ============
+  /// 亮色主题 - 分组列表页背景（iOS Settings 风格）
+  /// 与 lightSurfaceContainer (#EDEDED 微信风) 并存，新页面可选择此值获得 iOS 观感
+  static const Color lightSurfaceGrouped = Color(0xFFF2F2F7);
+
+  /// 暗色主题 - 分组列表页背景（非 OLED）
+  static const Color darkSurfaceGrouped = Color(0xFF1C1C1E);
+
+  /// 暗色主题 - 分组列表页背景（OLED 纯黑）
+  static const Color darkSurfaceGroupedOled = Color(0xFF000000);
+
+  // ============ iOS 语义色工具方法 ============
+  /// 根据主题亮度获取 iOS 系统蓝
+  static Color getIosBlue(Brightness brightness) {
+    return brightness == Brightness.dark ? iosBlueDark : iosBlue;
+  }
+
+  /// 根据主题亮度获取 iOS 系统红（破坏性操作用）
+  static Color getIosRed(Brightness brightness) {
+    return brightness == Brightness.dark ? iosRedDark : iosRed;
+  }
+
+  /// 根据主题亮度获取 iOS 系统绿
+  static Color getIosGreen(Brightness brightness) {
+    return brightness == Brightness.dark ? iosGreenDark : iosGreen;
+  }
+
+  /// 根据主题亮度获取 iOS 风格分隔线
+  static Color getIosSeparator(Brightness brightness) {
+    return brightness == Brightness.dark ? iosSeparatorDark : iosSeparator;
+  }
+
+  /// 根据主题亮度与 OLED 模式获取分组列表背景
+  static Color getSurfaceGrouped(Brightness brightness, {bool isOLEDMode = false}) {
+    if (brightness == Brightness.light) {
+      return lightSurfaceGrouped;
+    }
+    return isOLEDMode ? darkSurfaceGroupedOled : darkSurfaceGrouped;
+  }
+
   // ============ OLED 优化的纯黑模式颜色系统 ============
   /// OLED 优化的纯黑背景 - 节省电量，提升对比度
   static const Color oledBackground = Color(0xFF000000);
