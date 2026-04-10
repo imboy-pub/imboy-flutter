@@ -102,7 +102,7 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   flutter_sound: ^9.30.0            # Audio recording/playback with macOS improvements
   audio_session: ^0.2.2              # Audio session management for focus control
-  flutter_webrtc: ^1.3.1             # WebRTC for audio/video calls
+  flutter_webrtc: ">=1.3.1 <1.4.0"   # WebRTC for audio/video calls (pinned <1.4.0: 1.4+ requires WebRTC-SDK 144.x which we cannot reliably fetch)
   audio_waveforms: ^2.0.1             # Audio waveform visualization
   just_audio: ^0.10.5                # Audio playback with gapless support
 
