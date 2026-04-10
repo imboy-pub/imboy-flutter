@@ -64,7 +64,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       if (indexParam != null) {
         initialIndex = int.tryParse(indexParam) ?? 0;
       }
-    } catch (_) {
+    } on Exception {
       // 如果无法获取 go_router 状态，使用默认值
     }
 

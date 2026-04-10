@@ -190,7 +190,7 @@ class SearchNotifier extends _$SearchNotifier {
       final history =
           StorageService.to.getStringList(_chatSearchHistoryKey) ?? [];
       state = state.copyWith(searchHistory: history);
-    } catch (e) {
+    } on Exception {
       state = state.copyWith(searchHistory: []);
     }
   }

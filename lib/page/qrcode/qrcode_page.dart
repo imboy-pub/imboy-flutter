@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
@@ -470,7 +471,7 @@ class UserQrCodePage extends ConsumerWidget {
   }
 
   /// 分享二维码
-  void _shareQrCode(BuildContext context, GlobalKey globalKey) async {
+  Future<void> _shareQrCode(BuildContext context, GlobalKey globalKey) async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().image(context, globalKey);
       if (res != null) {
@@ -488,7 +489,7 @@ class UserQrCodePage extends ConsumerWidget {
   }
 
   /// 保存二维码
-  void _saveQrCode(
+  Future<void> _saveQrCode(
     BuildContext context,
     GlobalKey globalKey,
     String filename,
@@ -499,7 +500,7 @@ class UserQrCodePage extends ConsumerWidget {
         globalKey,
         filename,
       );
-      iPrint("savePhoto res ${res.toString()}");
+      if (kDebugMode) iPrint("savePhoto isSuccess: ${res?['isSuccess']}");
       bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
           ? true
           : false;
@@ -540,8 +541,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
           .map((m) => m.avatar)
           .where((a) => a.isNotEmpty)
           .toList();
-    } catch (e) {
-      iPrint('加载群成员头像失败: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) iPrint('加载群成员头像失败: ${e.runtimeType}');
       return [];
     }
   }
@@ -951,7 +952,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   }
 
   /// 分享群二维码
-  void _shareGroupQrCode(BuildContext context) async {
+  Future<void> _shareGroupQrCode(BuildContext context) async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().image(context, globalKey);
       if (res != null) {
@@ -977,7 +978,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   }
 
   /// 保存群二维码
-  void _saveGroupQrCode(BuildContext context) async {
+  Future<void> _saveGroupQrCode(BuildContext context) async {
     String filename = "${widget.group.groupId}_qrcode.png";
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().savePhoto(
@@ -985,7 +986,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
         globalKey,
         filename,
       );
-      iPrint("savePhoto group res ${res.toString()}");
+      if (kDebugMode) iPrint("savePhoto group isSuccess: ${res?['isSuccess']}");
       bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
           ? true
           : false;
@@ -1432,7 +1433,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   }
 
   /// 分享频道二维码
-  void _shareChannelQrCode(BuildContext context) async {
+  Future<void> _shareChannelQrCode(BuildContext context) async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().image(context, globalKey);
       if (res != null) {
@@ -1460,7 +1461,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   }
 
   /// 保存频道二维码
-  void _saveChannelQrCode(BuildContext context, String channelId) async {
+  Future<void> _saveChannelQrCode(BuildContext context, String channelId) async {
     String filename = "${channelId}_qrcode.png";
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().savePhoto(
@@ -1468,7 +1469,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
         globalKey,
         filename,
       );
-      iPrint("savePhoto channel res ${res.toString()}");
+      if (kDebugMode) iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
       bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
           ? true
           : false;

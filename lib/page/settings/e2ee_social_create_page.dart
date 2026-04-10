@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
@@ -213,7 +214,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
     );
   }
 
-  void _showProxyPicker() async {
+  Future<void> _showProxyPicker() async {
     // 获取已选中的代理 UID 列表
     final selectedUids = _selectedProxies
         .map((p) => p['uid'] as String)
@@ -261,12 +262,16 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         final shards = result['shards'] as List;
 
         // 零信任架构：通过 WebSocket 将分片发送给代理
-        debugPrint('📤 [E2EE] 开始发送分片到 ${shards.length} 个代理...');
+        if (kDebugMode) {
+          debugPrint('[E2EE] 开始发送分片到 ${shards.length} 个代理...');
+        }
         final sentCount = await E2EESocialService.sendShardsToProxies(
           shards.cast<Map<String, dynamic>>(),
         );
 
-        debugPrint('✅ [EEE] 已成功发送 $sentCount/$sentCount 个分片');
+        if (kDebugMode) {
+          debugPrint('[E2EE] 已成功发送 $sentCount/${shards.length} 个分片');
+        }
 
         showCupertinoDialog(
           context: context,
@@ -319,7 +324,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           },
         );
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) {
         setState(() => _isLoading = false);
         showCupertinoDialog(
@@ -327,7 +332,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           builder: (context) {
             return CupertinoAlertDialog(
               title: const Text('创建失败'),
-              content: Text('错误: $e'),
+              content: const Text('创建分片失败，请重试'),
               actions: [
                 CupertinoDialogAction(
                   child: const Text('确定'),

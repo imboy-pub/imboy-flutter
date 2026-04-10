@@ -197,7 +197,7 @@ void main() {
         for (final msgId in msgIds) {
           await messageRepo.delete(msgId);
         }
-      });
+      }, skip: '需要 sqflite_ffi 初始化真实数据库');
     });
 
     group('分页处理', () {

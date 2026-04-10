@@ -161,8 +161,8 @@ class MemoryManager {
     for (final callback in _disposeCallbacks) {
       try {
         callback();
-      } catch (e) {
-        logger.w('清理回调时发生错误: $e');
+      } on Exception catch (e) {
+        logger.w('清理回调时发生错误: ${e.runtimeType}');
       }
     }
     _disposeCallbacks.clear();
@@ -171,8 +171,8 @@ class MemoryManager {
     for (final subscription in _subscriptions) {
       try {
         subscription.cancel();
-      } catch (e) {
-        logger.w('取消流订阅时发生错误: $e');
+      } on Exception catch (e) {
+        logger.w('取消流订阅时发生错误: ${e.runtimeType}');
       }
     }
     _subscriptions.clear();

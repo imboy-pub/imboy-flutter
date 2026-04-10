@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -128,7 +129,8 @@ class MentionNotifier extends Notifier<MentionState> {
         isLoading: false,
         userIdToName: userIdToName,
       );
-    } catch (e) {
+    } on Exception catch (e) {
+      iPrint('loadGroupMembers failed: ${e.runtimeType}');
       state = state.copyWith(isLoading: false);
     }
   }

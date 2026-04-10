@@ -56,7 +56,7 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) {
         setState(() {
           _isLoading = false;

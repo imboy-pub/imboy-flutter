@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -287,7 +288,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                   setState(() {
                     _kwd = query;
                   });
-                  debugPrint("contact_tag_view_onChanged $query");
+                  if (kDebugMode) debugPrint("contact_tag_view_onChanged");
                   await ref
                       .read(contactTagListProvider.notifier)
                       .doSearch(query);

@@ -206,7 +206,7 @@ class MorePage extends ConsumerWidget {
   }
 
   /// 处理性别更新
-  void _handleGenderUpdate(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleGenderUpdate(BuildContext context, WidgetRef ref) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(builder: (_) => const SetGenderPage()),
@@ -214,7 +214,7 @@ class MorePage extends ConsumerWidget {
   }
 
   /// 处理地区更新
-  void _handleRegionUpdate(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleRegionUpdate(BuildContext context, WidgetRef ref) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(
@@ -240,7 +240,7 @@ class MorePage extends ConsumerWidget {
   }
 
   /// 处理个性签名更新
-  void _handleSignatureUpdate(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleSignatureUpdate(BuildContext context, WidgetRef ref) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(

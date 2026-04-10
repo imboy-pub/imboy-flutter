@@ -77,7 +77,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
         }
       }
 
-      final result = await E2EETransferService.acceptTransfer(
+      await E2EETransferService.acceptTransfer(
         sessionId: sessionId,
         deviceId: deviceId ?? await StorageSecureService.to.getDeviceId() ?? '',
       );
@@ -95,7 +95,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           builder: (context) {
             return CupertinoAlertDialog(
               title: const Text('传输成功'),
-              content: Text('密钥已成功从设备 ${result['from_device_id']} 传输'),
+              content: const Text('密钥已成功传输到当前设备'),
               actions: [
                 CupertinoDialogAction(
                   child: const Text('确定'),
@@ -109,10 +109,10 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           },
         );
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) {
         setState(() {
-          _statusMessage = '传输失败: $e';
+          _statusMessage = '传输失败，请重试';
           _isProcessing = false;
         });
       }

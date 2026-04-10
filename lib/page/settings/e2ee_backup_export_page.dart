@@ -231,7 +231,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              '文件路径: ${_generatedFilePath ?? ""}',
+              '文件名: ${_generatedFilePath?.split('/').last ?? ""}',
               style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
             ),
             const SizedBox(height: 12),
@@ -290,9 +290,9 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
       // 显示成功对话框
       _showSuccessDialog();
-    } catch (e) {
+    } on Exception {
       setState(() => _isExporting = false);
-      _showError('导出失败: ${e.toString()}');
+      _showError('导出失败，请重试');
     }
   }
 
@@ -304,8 +304,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         _generatedFilePath!,
         shareText: '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。',
       );
-    } catch (e) {
-      _showError('分享失败: ${e.toString()}');
+    } on Exception {
+      _showError('分享失败，请重试');
     }
   }
 

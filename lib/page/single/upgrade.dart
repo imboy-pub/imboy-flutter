@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,7 +76,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
     // RUpgrade.setDebug(true);
     if (Platform.isAndroid) {
       _downloadSubscription = RUpgrade.stream.listen((DownloadInfo info) {
-        iPrint("RUpgrade.stream.listen info ${info.toString()}");
+        if (kDebugMode) iPrint("RUpgrade.stream status: ${info.status}");
         // 更新进度条
         if (info.status == DownloadStatus.STATUS_PAUSED) {
           // STATUS_PAUSED 下载已暂停
@@ -210,13 +210,13 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   // 3. 取消下载
-  void cancel(int id) async {
+  Future<void> cancel(int id) async {
     bool? isSuccess = await RUpgrade.cancel(id);
     iPrint("upgrade_cancel $id isSuccess $isSuccess");
   }
 
   //第一步：点击更新按钮
-  void _updateApplication() async {
+  Future<void> _updateApplication() async {
     if (await _checkPermission()) {
       if (Platform.isAndroid) {
         AppUpgradeLogApi.report(
@@ -269,7 +269,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   // ios 点击立即更新调整到 applly APP Store
-  void upgradeFromAppStore() async {
+  Future<void> upgradeFromAppStore() async {
     bool? isSuccess = await RUpgrade.upgradeFromAppStore(Env().iosAppId);
     if (isSuccess == false) {
       EasyLoading.showError(t.iosAppIdUnknown(param: Env().iosAppId));
@@ -280,11 +280,11 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   //第三步：下载失败或开始安装
-  void againDownloader() async {
+  Future<void> againDownloader() async {
     downloadId = (await RUpgrade.getLastUpgradedId())!;
   }
 
-  void install() async {
+  Future<void> install() async {
     AppUpgradeLogApi.report(
       event: 'install',
       targetVsn: widget.version,
@@ -294,7 +294,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   // 使用文件路径进行安装应用
-  void installByPath(String path) async {
+  Future<void> installByPath(String path) async {
     bool? isSuccess = await RUpgrade.installByPath(path);
     iPrint("upgrade_installByPath $downloadId isSuccess $isSuccess");
   }
@@ -340,12 +340,12 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
         await file.delete();
         _retryDownload();
       }
-    } catch (e) {
-      iPrint('SHA256 校验异常: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) iPrint('SHA256 校验异常: ${e.runtimeType}');
       AppUpgradeLogApi.report(
         event: 'verify_exception',
         targetVsn: widget.version,
-        extra: {'error': e.toString()},
+        extra: {'error': e.runtimeType.toString()},
       );
       // 校验异常时删除文件并重试，不允许安装未校验的文件
       try {
@@ -353,7 +353,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
         if (await file.exists()) {
           await file.delete();
         }
-      } catch (_) {}
+      } on Exception catch (_) {}
       _retryDownload();
     }
   }
@@ -371,13 +371,13 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   // 暂停下载
-  void pause() async {
+  Future<void> pause() async {
     bool? isSuccess = await RUpgrade.pause(downloadId);
     iPrint("upgrade_pause $downloadId isSuccess $isSuccess");
   }
 
   // 继续下载
-  void upgradeWithId() async {
+  Future<void> upgradeWithId() async {
     bool? isSuccess = await RUpgrade.upgradeWithId(downloadId);
     iPrint("upgrade_upgradeWithId $downloadId isSuccess $isSuccess");
     // 返回 false 即表示从来不存在此ID
@@ -389,7 +389,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   // 1.获取应用商店列表
-  void getAndroidStores() async {
+  Future<void> getAndroidStores() async {
     final stores = await RUpgrade.androidStores;
     iPrint("upgrade_getAndroidStores ${stores.toString()}");
   }

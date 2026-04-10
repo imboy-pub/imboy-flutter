@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,7 +117,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                 }
                               },
                               (Error error) {
-                                debugPrint("> on upload ${error.toString()}");
+                                if (kDebugMode) debugPrint("> on upload error: ${error.runtimeType}");
                               },
                               process: false,
                             );
@@ -275,9 +276,11 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                         }
                                       },
                                       (Error error) {
-                                        debugPrint(
-                                          "> on upload ${error.toString()}",
-                                        );
+                                        if (kDebugMode) {
+                                          debugPrint(
+                                            "> on upload error: ${error.runtimeType}",
+                                          );
+                                        }
                                       },
                                       process: false,
                                     );

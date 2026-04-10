@@ -7,7 +7,7 @@ import 'package:flutter/services.dart'; // 添加触觉反馈
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:imboy/theme/theme_manager.dart';
@@ -92,7 +92,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    debugPrint("> on _VoiceWidgetState initState");
+    if (kDebugMode) debugPrint("> on _VoiceWidgetState initState");
     init();
     initRecorderController();
     // 添加生命周期监听
@@ -118,9 +118,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             throw RecordingPermissionException(t.storagePermissionNotObtained);
           }
         }
-      } catch (e, s) {
-        // 也可以使用 print 语句打印异常信息
-        iPrint('init_login_error: $e trace:\n${s.toString()}');
+      } on Exception catch (e) {
+        iPrint('init_login_error: ${e.runtimeType}');
       }
     }
     await recorder.openRecorder();
@@ -207,8 +206,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         iPrint("recorderStop returned null");
         isUp = true;
       }
-    } catch (e) {
-      iPrint("recorderStop error: $e");
+    } on Exception catch (e) {
+      iPrint("recorderStop error: ${e.runtimeType}");
       isUp = true;
     }
 
@@ -235,7 +234,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     if (isUp) {
       iPrint("取消发送录音");
     } else if (strNoEmpty(filePath)) {
-      debugPrint("进行发送 $filePath waveform ${waveform.toString()}");
+      if (kDebugMode) debugPrint("进行发送录音 waveform length: ${waveform.length}");
       await widget.stopRecord!.call(
         AudioFile(
           file: File(filePath),
@@ -287,10 +286,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         if (const bool.fromEnvironment('DEBUG_AUDIO')) {
           iPrint("recordStream cancelled successfully from $from");
         }
-      } catch (e) {
+      } on Exception catch (e) {
         // 只在调试模式下打印错误日志
         if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-          iPrint("Error cancelling recordStream from $from: $e");
+          iPrint("Error cancelling recordStream from $from: ${e.runtimeType}");
         }
       } finally {
         recordStream = null;
@@ -307,10 +306,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
           }
           await recorder.stopRecorder();
         }
-      } catch (e) {
+      } on Exception catch (e) {
         // 只在调试模式下打印错误日志
         if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-          iPrint("Error stopping recorder from $from: $e");
+          iPrint("Error stopping recorder from $from: ${e.runtimeType}");
         }
       }
     }
@@ -350,7 +349,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    debugPrint("VoiceWidget didChangeAppLifecycleState: $state");
+    if (kDebugMode) debugPrint("VoiceWidget didChangeAppLifecycleState: $state");
 
     // 当应用进入后台、暂停或不活动状态时，停止录音
     if (state == AppLifecycleState.paused ||
@@ -358,7 +357,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         state == AppLifecycleState.inactive) {
       // 如果正在录音，强制停止
       if (recorder.isRecording && overlayEntry != null) {
-        debugPrint("App going to background, force stopping recording");
+        if (kDebugMode) debugPrint("App going to background, force stopping recording");
         forceStopRecording();
       }
     }
@@ -394,16 +393,16 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
   /// 当切换到其他输入模式时调用
   void onInputModeChanged() {
-    debugPrint("VoiceWidget onInputModeChanged");
+    if (kDebugMode) debugPrint("VoiceWidget onInputModeChanged");
     if (overlayEntry != null) {
-      debugPrint("Voice widget detected input mode change, stopping recording");
+      if (kDebugMode) debugPrint("Voice widget detected input mode change, stopping recording");
       forceStopRecording();
     }
   }
 
   /// 开始录音
-  void recorderStart(BuildContext ctx) async {
-    debugPrint("> on record start");
+  Future<void> recorderStart(BuildContext ctx) async {
+    if (kDebugMode) debugPrint("> on record start");
     try {
       // String name = "${Xid().toString()}";
       String name = "voice_tmp_${DateTime.now().millisecondsSinceEpoch}";
@@ -423,7 +422,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         recordingMimeType = 'audio/aac';
       }
 
-      iPrint("recorderStart filePath: $filePath");
+      if (kDebugMode) iPrint("recorderStart codec: $recordCodec");
 
       // 必须要设置，才能够监听 振幅大小
       await setSubscriptionDuration(1);
@@ -434,8 +433,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
           await recordStream!.cancel();
           recordStream = null;
           iPrint("Previous recordStream cancelled");
-        } catch (e) {
-          iPrint("Error cancelling previous recordStream: $e");
+        } on Exception catch (e) {
+          iPrint("Error cancelling previous recordStream: ${e.runtimeType}");
         }
       }
 
@@ -509,7 +508,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
           }
         },
         onError: (error) {
-          iPrint("Error in record stream: $error");
+          iPrint("Error in record stream: ${error.runtimeType}");
           // 发生错误时取消订阅
           cancelRecorderSubscriptions(from: 'stream_error');
         },
@@ -524,8 +523,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       setState(() {
         filePath = filePath;
       });
-    } catch (err) {
-      iPrint("on record start err ${err.toString()}");
+    } on Exception catch (err) {
+      iPrint("on record start err: ${err.runtimeType}");
       // 发生错误时停止录音
       await recorderStop(recorder);
     }
@@ -551,8 +550,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
           },
         );
         iPrint("recorderController stopped");
-      } catch (e) {
-        iPrint("recorderController.stop() error: $e");
+      } on Exception catch (e) {
+        iPrint("recorderController.stop() error: ${e.runtimeType}");
       }
 
       // 停止 FlutterSound recorder - 添加超时保护防止永久阻塞
@@ -565,12 +564,12 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             return null;
           },
         );
-        iPrint("FlutterSound recorder stopped, filepath: $filepath");
+        iPrint("FlutterSound recorder stopped, hasFilepath: ${filepath != null}");
       } on TimeoutException {
         iPrint("recorder.stopRecorder() timed out - treating as cancellation");
         return null;
-      } catch (e) {
-        iPrint("recorder.stopRecorder() error: $e");
+      } on Exception catch (e) {
+        iPrint("recorder.stopRecorder() error: ${e.runtimeType}");
         return null;
       }
 
@@ -584,13 +583,12 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         try {
           final file = File(filepath);
           if (file.existsSync()) {
-            iPrint("recorderStop file exists: ${file.existsSync()}");
-            iPrint("recorderStop file size: ${file.lengthSync()}");
+            iPrint("recorderStop file exists, size: ${file.lengthSync()}");
           } else {
-            iPrint("recorderStop file does not exist at path: $filepath");
+            iPrint("recorderStop file does not exist");
           }
-        } catch (e) {
-          iPrint("recorderStop file check error: $e");
+        } on Exception catch (e) {
+          iPrint("recorderStop file check error: ${e.runtimeType}");
         }
       } else {
         iPrint("recorderStop filepath is null or empty");
@@ -603,8 +601,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         });
       }
       return filepath;
-    } catch (err) {
-      iPrint('recorderStop error: $err');
+    } on Exception catch (err) {
+      iPrint('recorderStop error: ${err.runtimeType}');
       return null;
     }
   }

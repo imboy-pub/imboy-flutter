@@ -51,7 +51,7 @@ abstract interface class Env implements EnvField {
       return env;
     }
     // 如果 currentEnv 不在 envMap 中，默认使用生产环境
-    debugPrint('⚠️ [Env] 当前环境 "$currentEnv" 无效，使用默认生产环境配置');
+    if (kDebugMode) debugPrint('⚠️ [Env] 当前环境无效，使用默认生产环境配置');
     return EnvPro();
   }
 
@@ -79,8 +79,7 @@ abstract interface class Env implements EnvField {
     // 防止误用开发/测试环境的 WebSocket 地址
     if (currentEnv == 'pro') {
       if (cachedWsUrl.isNotEmpty) {
-        debugPrint('⚠️ [Env] 生产环境检测到缓存的 WebSocket URL: $cachedWsUrl');
-        debugPrint('⚠️ [Env] 该缓存可能来自开发/测试环境，将被清除');
+        if (kDebugMode) debugPrint('⚠️ [Env] 生产环境检测到缓存的 WebSocket URL，将被清除');
         // 清除缓存，防止下次使用
         StorageService.to.remove(Keys.wsUrl);
       }
@@ -91,7 +90,7 @@ abstract interface class Env implements EnvField {
 
     // 非生产环境可以使用缓存（开发/测试环境）
     if (cachedWsUrl.isNotEmpty) {
-      debugPrint('ℹ️ [Env] 使用缓存的 WebSocket URL: $cachedWsUrl');
+      if (kDebugMode) debugPrint('ℹ️ [Env] 使用缓存的 WebSocket URL');
     }
     return cachedWsUrl;
   }

@@ -116,8 +116,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
             if (vsnStr.isNotEmpty) {
               deviceVsn = jsonDecode(vsnStr);
             }
-          } catch (e) {
-            debugPrint('[UserDeviceProvider] device operation failed: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) debugPrint('[UserDeviceProvider] error: ${e.runtimeType}');
             deviceVsn = {};
           }
         }
@@ -146,9 +146,9 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       state = state.copyWith(deviceList: list, isLoading: false);
       return list;
-    } catch (e) {
+    } on Exception catch (e) {
       state = state.copyWith(isLoading: false);
-      debugPrint('UserDeviceNotifier.page error: $e');
+      if (kDebugMode) debugPrint('UserDeviceNotifier.page error: ${e.runtimeType}');
       return [];
     }
   }
@@ -246,8 +246,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       state = state.copyWith(isLoadingSessions: false);
       return false;
-    } catch (e) {
-      debugPrint('UserDeviceNotifier.loadActiveSessions error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('UserDeviceNotifier.loadActiveSessions error: ${e.runtimeType}');
       state = state.copyWith(isLoadingSessions: false);
       return false;
     }
@@ -266,8 +266,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       return await api.UserDeviceApi().checkLoginConflict(
         deviceType: deviceType,
       );
-    } catch (e) {
-      debugPrint('UserDeviceNotifier.checkLoginConflict error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('UserDeviceNotifier.checkLoginConflict error: ${e.runtimeType}');
       return null;
     }
   }
@@ -298,8 +298,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       }
 
       return result;
-    } catch (e) {
-      debugPrint('UserDeviceNotifier.kickDevice error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('UserDeviceNotifier.kickDevice error: ${e.runtimeType}');
       return null;
     }
   }
@@ -331,8 +331,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       }
 
       return result;
-    } catch (e) {
-      debugPrint('UserDeviceNotifier.kickAllOtherDevices error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('UserDeviceNotifier.kickAllOtherDevices error: ${e.runtimeType}');
       return null;
     }
   }

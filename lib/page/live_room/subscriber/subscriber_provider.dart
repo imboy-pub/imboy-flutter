@@ -17,7 +17,7 @@ class SubscriberState {
 
   const SubscriberState({
     this.stateStr = 'idle',
-    this.serverUrl = 'https://192.168.0.144:9800/whep/subscribe/a1234/1',
+    this.serverUrl = '',
     this.isConnecting = false,
     this.preferences,
   });
@@ -51,9 +51,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final url =
-        prefs.getString('pullServer') ??
-        'https://192.168.0.144:9800/whep/subscribe/a1234/1';
+    final url = prefs.getString('pullServer') ?? '';
     state = state.copyWith(serverUrl: url, preferences: prefs);
   }
 
@@ -101,7 +99,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
         if (event.streams.isNotEmpty) {
           remoteRenderer.srcObject = event.streams[0];
           state = state.copyWith(stateStr: 'playing', isConnecting: false);
-          debugPrint('[WHEP Subscriber] 收到远端流');
+          if (kDebugMode) debugPrint('[WHEP Subscriber] 收到远端流');
         }
       };
 
@@ -143,13 +141,13 @@ class SubscriberNotifier extends _$SubscriberNotifier {
         RTCSessionDescription(answerSdp, 'answer'),
       );
 
-      debugPrint('[WHEP Subscriber] 拉流成功，resource=$_resourceUrl');
+      if (kDebugMode) debugPrint('[WHEP Subscriber] 拉流成功');
       // stateStr 会在 onTrack 回调中更新为 'playing'
-    } catch (e) {
-      debugPrint('[WHEP Subscriber] 拉流失败: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('[WHEP Subscriber] 拉流失败: ${e.runtimeType}');
       state = state.copyWith(
         isConnecting: false,
-        stateStr: 'error: ${e.toString()}',
+        stateStr: 'error',
       );
       await _cleanup(remoteRenderer);
     }
@@ -160,8 +158,8 @@ class SubscriberNotifier extends _$SubscriberNotifier {
     if (_resourceUrl != null) {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
-      } catch (e) {
-        debugPrint('[SubscriberProvider] WebRTC operation failed: $e');
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint('[SubscriberProvider] WebRTC operation failed: ${e.runtimeType}');
       }
       _resourceUrl = null;
     }

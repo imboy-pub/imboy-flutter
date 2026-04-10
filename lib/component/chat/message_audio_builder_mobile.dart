@@ -113,7 +113,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     } catch (e) {
       // 只在第一次尝试时记录错误，避免重复日志
       if (!_waveformInitializationAttempted) {
-        iPrint('⚠️ 音频波形插件不可用，将显示简化的音频界面: $e');
+        iPrint('⚠️ 音频波形插件不可用，将显示简化的音频界面: ${e.runtimeType}');
       }
       // 标记插件不支持，后续不再尝试
       _waveformPluginSupported = false;
@@ -128,7 +128,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     try {
       _waveformController?.dispose();
     } catch (e) {
-      iPrint('释放 PlayerController 失败: $e');
+      iPrint('释放 PlayerController 失败: ${e.runtimeType}');
     }
     _waveformController = null;
     super.dispose();
@@ -150,12 +150,12 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         throw Exception('消息为空且无 info 数据');
       }
       await _loadAudioFile(msg);
-    } catch (e, s) {
-      iPrint('❌ _initAudioPath 失败: $e\n$s');
+    } catch (e) {
+      iPrint('❌ _initAudioPath 失败: ${e.runtimeType}');
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = '加载失败: $e';
+          _errorMessage = '加载失败';
         });
       }
     }
@@ -168,7 +168,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         throw Exception('音频URI为空');
       }
 
-      iPrint('🎵 开始加载音频文件: $uri');
+      iPrint('🎵 开始加载音频文件');
 
       // 添加30秒超时保护
       final tmpF = await IMBoyCacheManager()
@@ -179,15 +179,13 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           .timeout(
             const Duration(seconds: 30),
             onTimeout: () {
-              iPrint('⏰ 音频文件加载超时: $uri');
+              iPrint('⏰ 音频文件加载超时');
               throw Exception('音频文件加载超时（30秒）');
             },
           );
 
-      iPrint('✅ Audio file loaded: ${tmpF.path}');
       if (await tmpF.exists()) {
         final fileSize = await tmpF.length();
-        iPrint('📏 Audio file size: $fileSize bytes');
         if (fileSize == 0) {
           throw Exception('音频文件大小为0');
         }
@@ -202,12 +200,12 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         });
       }
       _audioPathCompleter.complete(tmpF.path);
-    } catch (e, s) {
-      iPrint('❌ _loadAudioFile 失败: $e\n$s');
+    } catch (e) {
+      iPrint('❌ _loadAudioFile 失败: ${e.runtimeType}');
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = '加载失败: $e';
+          _errorMessage = '加载失败';
         });
       }
       _audioPathCompleter.completeError(e);
@@ -237,19 +235,15 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       future: _audioPathCompleter.future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          iPrint('❌ audioPathSnapshot.hasError: ${snapshot.error}');
+          iPrint('❌ audioPathSnapshot.hasError: ${snapshot.error?.runtimeType}');
           return _buildErrorWidget('音频加载失败');
         }
         if (!snapshot.hasData) {
-          iPrint('⏳ 音频正在等待...');
           return _buildLoadingWidget();
         }
         final audioPath = snapshot.data!;
-        iPrint('✅ 音频路径已准备好: $audioPath');
 
-        // 调试：输出metadata信息
         final durationMs = msg.metadata?["duration_ms"];
-        iPrint('从metadata获取的duration_ms: $durationMs');
 
         // 获取时长
         Duration duration;
@@ -592,7 +586,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     try {
       final file = File(audioPath);
       if (!file.existsSync()) {
-        iPrint('音频文件不存在，使用默认时长: $audioPath');
+        iPrint('音频文件不存在，使用默认时长');
         return const Duration(seconds: 1);
       }
 
@@ -600,7 +594,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       final estimatedDurationMs = (fileSize * 64 / 1000).round();
       final duration = Duration(milliseconds: estimatedDurationMs);
 
-      iPrint('根据文件大小估算音频时长: ${fileSize}bytes -> ${duration.inMilliseconds}ms');
+      iPrint('根据文件大小估算音频时长: ${duration.inMilliseconds}ms');
 
       if (duration.inSeconds == 0) {
         return const Duration(seconds: 1);
@@ -608,7 +602,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
 
       return duration;
     } catch (e) {
-      iPrint('获取音频时长失败: $e');
+      iPrint('获取音频时长失败: ${e.runtimeType}');
       return const Duration(seconds: 1);
     }
   }
@@ -619,7 +613,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     Duration totalDuration,
   ) async {
     try {
-      iPrint('Audio play button tapped: ${msg.id}: $audioPath');
+      iPrint('Audio play button tapped: ${msg.id}');
 
       if (msg.metadata?['played'] != true) {
         final Map<String, dynamic> newMeta = {...?msg.metadata, 'played': true};
@@ -634,19 +628,20 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
 
       widget.onPlayPause?.call(audioPath, msg, totalDuration);
 
+      if (!mounted) return;
       setState(() {
         _totalDuration = totalDuration;
       });
 
       widget.onPlay?.call();
-    } catch (e, s) {
-      iPrint('播放音频失败: $e; $s');
+    } catch (e) {
+      iPrint('播放音频失败: ${e.runtimeType}');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final t = context.t;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${t.audioPlayFailed}: ${e.toString()}'),
+              content: Text(t.audioPlayFailed),
               backgroundColor: Colors.red,
             ),
           );

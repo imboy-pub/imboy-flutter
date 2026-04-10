@@ -113,7 +113,8 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
     String? orderBy;
     if (strNoEmpty(kwd)) {
-      where = "$where and ${UserTagRepo.name} like '%$kwd%'";
+      where = "$where and ${UserTagRepo.name} like ?";
+      whereArgs.add('%$kwd%');
     }
     return await repo.page(
       limit: size,
@@ -178,9 +179,10 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     }
     // 安全验证：确保标签名称只包含安全字符
     // 防止SQL注入攻击
-    final tagRegex = RegExp(r'^[\u4e00-\u9fa5a-zA-Z0-9_\s,，]+\$');
-    if (!tagRegex.hasMatch(oldName) || !tagRegex.hasMatch(newName)) {
-      debugPrint('❌ replaceObjectTag: 标签名称包含非法字符');
+    final tagRegex = RegExp(r'^[\u4e00-\u9fa5a-zA-Z0-9_\s,，]+$');
+    if (!tagRegex.hasMatch(oldName) ||
+        (newName.isNotEmpty && !tagRegex.hasMatch(newName))) {
+      if (kDebugMode) debugPrint('replaceObjectTag: invalid tag name chars');
       return null;
     }
 
@@ -188,12 +190,12 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
       // 使用参数化查询防止SQL注入
       String sql =
           "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, ?, ?) WHERE 1 = 1;";
-      return await SqliteService.to.execute(sql, ['\$oldName,', '\$newName']);
+      return await SqliteService.to.execute(sql, ['$oldName,', newName]);
     } else if (scene == 'collect') {
       // 使用参数化查询防止SQL注入
       String sql =
           "UPDATE ${UserCollectRepo.tableName} SET ${UserCollectRepo.tag} = REPLACE(${UserCollectRepo.tag}, ?, ?) WHERE 1 = 1;";
-      return await SqliteService.to.execute(sql, ['\$oldName,', '\$newName,']);
+      return await SqliteService.to.execute(sql, ['$oldName,', '$newName,']);
     }
     return null;
   }
@@ -208,9 +210,10 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
       newName = "$newName,";
     }
     // 安全验证：确保标签名称只包含安全字符
-    final tagRegex = RegExp(r'^[\u4e00-\u9fa5a-zA-Z0-9_\s,，]+\$');
-    if (!tagRegex.hasMatch(oldName) || !tagRegex.hasMatch(newName)) {
-      debugPrint('❌ replaceTagSubtitle: 标签名称包含非法字符');
+    final tagRegex = RegExp(r'^[\u4e00-\u9fa5a-zA-Z0-9_\s,，]+$');
+    if (!tagRegex.hasMatch(oldName) ||
+        (newName.isNotEmpty && !tagRegex.hasMatch(newName))) {
+      if (kDebugMode) debugPrint('replaceTagSubtitle: invalid tag name chars');
       return null;
     }
 
@@ -219,8 +222,8 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     String sql =
         "UPDATE ${UserTagRepo.tableName} SET ${UserTagRepo.subtitle} = REPLACE(${UserTagRepo.subtitle} || ',', ?, ?) WHERE ${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?;";
     return await SqliteService.to.execute(sql, [
-      '\$oldName,',
-      '\$newName',
+      '$oldName,',
+      newName,
       UserRepoLocal.to.currentUid,
       tag.tagId,
     ]);

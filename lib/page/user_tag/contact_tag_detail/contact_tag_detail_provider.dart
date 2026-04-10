@@ -106,7 +106,7 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
     List<dynamic> items = resp?['list'] ?? [];
     for (var json in items) {
       ContactModel model = ContactModel.fromMap(json);
-      iPrint("pageRelation item ${model.toJson().toString()} ");
+      iPrint("pageRelation item isFriend: ${model.isFriend}");
       if (model.isFriend == 1) {
         contact.insert(0, model);
       }

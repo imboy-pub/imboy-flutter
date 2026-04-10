@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -63,8 +64,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           _isControllerInitialized = true;
         });
       }
-    } catch (e) {
-      debugPrint('Failed to start scanner: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Failed to start scanner: ${e.runtimeType}');
     }
   }
 
@@ -76,7 +77,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   }
 
   Future<void> onDetect(BarcodeCapture barcodes) async {
-    debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
+    if (kDebugMode) debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
     final scannerNotifier = ref.read(scannerProvider.notifier);
     final scannerState = ref.read(scannerProvider);
 
@@ -100,7 +101,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         return;
       }
       Map payload = resp.payload;
-      debugPrint("> on qrcode: ${payload.toString()}");
+      if (kDebugMode) debugPrint("> on qrcode: type=${payload['type']}");
       String result = payload['result'] ?? '';
       String type = payload['type'] ?? 'user';
       if (result == '' && type == 'user') {
@@ -309,7 +310,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           BarcodeCapture? res = await controller.analyzeImage(
                             image.path,
                           );
-                          debugPrint("> on barcode $res ${image.path}");
+                          if (kDebugMode) debugPrint("> on barcode detected: ${res != null}");
                           if (res == null) {
                             state.showSnackBar(
                               SnackBar(

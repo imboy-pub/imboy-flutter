@@ -78,8 +78,8 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     try {
       var list = await this.page(page: page, size: size);
       state = state.copyWith(itemList: list, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } on Exception {
+      state = state.copyWith(isLoading: false, error: t.operationFailedAgainLater);
     }
   }
 
@@ -136,8 +136,8 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     try {
       var list = await pageReply(feedbackId, page: page, size: size);
       state = state.copyWith(pageReplyList: list, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } on Exception {
+      state = state.copyWith(isLoading: false, error: t.operationFailedAgainLater);
     }
   }
 

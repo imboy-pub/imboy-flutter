@@ -187,18 +187,17 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       },
     );
 
-    if (confirmed == true) {
-      final reason = reasonController.text.trim();
-      if (reason.isNotEmpty) {
-        await _api.reportPost(
-          widget.momentId,
-          reason: reason,
-          description: descController.text.trim(),
-        );
-      }
-    }
+    final reason = reasonController.text.trim();
+    final description = descController.text.trim();
     reasonController.dispose();
     descController.dispose();
+    if (confirmed == true && reason.isNotEmpty && mounted) {
+      await _api.reportPost(
+        widget.momentId,
+        reason: reason,
+        description: description,
+      );
+    }
   }
 
 

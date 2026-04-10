@@ -122,7 +122,7 @@ class MessageScrollManager extends _$MessageScrollManager {
   }) async {
     // 检查是否已释放或 ScrollController 无效
     if (_isDisposed || !scrollController.hasClients) {
-      iPrint('ScrollController无效或已释放，无法滚动');
+      iPrint('ScrollController无效，无法滚动');
       return;
     }
 
@@ -134,20 +134,20 @@ class MessageScrollManager extends _$MessageScrollManager {
 
     // 如果缓存中没有位置，尝试通过事件系统获取
     if (position == null) {
-      iPrint('缓存中未找到消息位置: $messageId，尝试通过事件系统获取');
+      iPrint('缓存中未找到消息位置，尝试通过事件系统获取');
       position = await _getMessagePositionFromUI(messageId);
     }
 
     if (position == null) {
       state = state.copyWith(isScrolling: false);
-      iPrint('无法获取消息位置: $messageId');
+      iPrint('无法获取消息位置');
       return;
     }
 
     // 再次检查是否已释放或无效（防止异步操作期间被释放）
     if (_isDisposed || !scrollController.hasClients) {
       state = state.copyWith(isScrolling: false);
-      iPrint('ScrollController已失效，取消滚动');
+      iPrint('ScrollController已失效');
       return;
     }
 
@@ -183,7 +183,7 @@ class MessageScrollManager extends _$MessageScrollManager {
       });
     }
 
-    iPrint('滚动到消息完成: $messageId, 位置: $targetPosition');
+    iPrint('滚动到消息完成');
   }
 
   /// 从UI层获取消息位置
@@ -193,7 +193,7 @@ class MessageScrollManager extends _$MessageScrollManager {
       // 暂时返回null，让调用方使用降级方案
       return null;
     } catch (e) {
-      iPrint('从UI获取消息位置失败: $messageId, 错误: $e');
+      iPrint('从UI获取消息位置失败: ${e.runtimeType}');
       return null;
     }
   }
@@ -276,7 +276,7 @@ class MessageScrollManager extends _$MessageScrollManager {
   void highlightMessage(String messageId) {
     if (_isDisposed) return;
     _triggerHighlightAnimation(messageId);
-    iPrint('触发消息高亮: $messageId');
+    iPrint('触发消息高亮');
   }
 
   /// 触发高亮动画
@@ -299,7 +299,7 @@ class MessageScrollManager extends _$MessageScrollManager {
   void _cancelHighlight(String messageId) {
     if (state.highlightedMessageId == messageId) {
       state = state.copyWith(highlightedMessageId: null);
-      iPrint('取消消息高亮: $messageId');
+      iPrint('取消消息高亮');
     }
   }
 

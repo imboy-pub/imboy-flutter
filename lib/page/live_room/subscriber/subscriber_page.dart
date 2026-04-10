@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -25,7 +27,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
   @override
   void initState() {
     super.initState();
-    _initRenderers();
+    unawaited(_initRenderers());
   }
 
   Future<void> _initRenderers() async {

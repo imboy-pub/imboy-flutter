@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -146,14 +147,14 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
         ),
         selected: isSelected,
         onTap: () {
-          iPrint("region_item_onTap 1s ${provider.selectedVal}, p $parent");
+          if (kDebugMode) iPrint("region_item_onTap selectedVal updated");
           List<String> items = parent.split(' ');
           items.add(title);
           items = items.toSet().toList();
           notifier.updateSelectedVal(items.join(' '));
-          iPrint(
-            "region_item_onTap 2s ${provider.selectedVal}, p $parent, $haveChildren: ${children.toString()}",
-          );
+          if (kDebugMode) {
+            iPrint("region_item_onTap haveChildren: $haveChildren");
+          }
 
           if (haveChildren) {
             parent = provider.selectedVal;

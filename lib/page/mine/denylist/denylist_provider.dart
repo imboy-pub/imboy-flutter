@@ -144,7 +144,7 @@ class DenylistNotifier extends _$DenylistNotifier {
         state = state.copyWith(items: newItems);
       }
       return res;
-    } catch (e) {
+    } on Exception {
       return false;
     }
   }

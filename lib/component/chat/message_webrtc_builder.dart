@@ -137,7 +137,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return InkWell(
-      onTap: () async {
+      onTap: peerId.isEmpty ? null : () async {
         ContactModel? peer = await ContactRepo().findByUid(peerId);
         // UserModel peer = UserModel(
         //   uid: peerId,

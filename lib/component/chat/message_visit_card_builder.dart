@@ -93,11 +93,13 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                     flex: 3,
                     child: InkWell(
                       onTap: () {
+                        final uid = msg.metadata?['uid'];
+                        if (uid == null || uid.toString().isEmpty) return;
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
                             builder: (context) => PeopleInfoPage(
-                              id: msg.metadata?['uid'],
+                              id: uid,
                               scene: 'visitCard',
                             ),
                           ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,9 +58,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
       widget.url,
       validateImageData: false, // 视频文件不验证图片格式
     );
-    debugPrint(
-      "chat_video_initializePlayer ${AssetsService.viewUrl(widget.url)}",
-    );
+    if (kDebugMode) debugPrint("chat_video_initializePlayer");
     try {
       _controller = VideoPlayerController.file(tmpF);
       await _controller?.initialize();
@@ -70,8 +69,8 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
       }
       _controller?.addListener(videoControllerListener);
       _controller?.setLooping(true);
-    } catch (e) {
-      // Handle error for iOS and Android
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint("video init error: ${e.runtimeType}");
     }
   }
 
@@ -94,8 +93,8 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
           await _controller?.play();
         }
       }
-    } catch (e) {
-      // Handle error
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint("video play error: ${e.runtimeType}");
     }
   }
 
@@ -197,7 +196,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
               future: UserRepoLocal.to.accessToken,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('加载失败: ${snapshot.error}'));
+                  return Center(child: Text(t.loadError));
                 }
                 Map<String, String> headers = <String, String>{
                   'User-Agent': 'imboy/1.0.0',

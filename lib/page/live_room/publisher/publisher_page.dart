@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -25,7 +27,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
   @override
   void initState() {
     super.initState();
-    _initRenderers();
+    unawaited(_initRenderers());
     // 若传入了 room，将 roomId 注入到 provider
     if (widget.room != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -110,7 +112,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'Key: ${widget.room!.streamKey}',
+                        'Key: ${'*' * 8}',
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 10),
                       ),

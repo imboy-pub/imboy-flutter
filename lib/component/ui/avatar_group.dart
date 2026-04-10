@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:octo_image/octo_image.dart';
@@ -64,9 +65,7 @@ class GroupAvatar extends StatelessWidget {
       return _buildSingleAvatar(avatar!, isDark);
     }
 
-    iPrint(
-      "memberAvatars ${memberAvatars.length} : ${memberAvatars.toString()}",
-    );
+    if (kDebugMode) iPrint("memberAvatars count: ${memberAvatars.length}");
     if (memberAvatars.isEmpty) {
       return _buildDefaultGroupAvatar(isDark);
     }

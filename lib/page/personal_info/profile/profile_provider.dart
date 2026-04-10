@@ -323,7 +323,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       }
       return false;
     } catch (e) {
-      iPrint('更新用户信息失败: $e');
+      iPrint('更新用户信息失败: ${e.runtimeType}');
       return false;
     } finally {
       state = state.copyWith(isLoading: false);
@@ -361,7 +361,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       }
       return null;
     } catch (e) {
-      iPrint('选择图片失败: $e');
+      iPrint('选择图片失败: ${e.runtimeType}');
       return null;
     }
   }
@@ -385,7 +385,7 @@ class ProfileNotifier extends _$ProfileNotifier {
           completer.complete(status == 'ok');
         },
         (e) {
-          iPrint('上传头像失败: $e');
+          iPrint('上传头像失败: ${e.runtimeType}');
           completer.complete(false);
         },
         process: true,
@@ -396,7 +396,7 @@ class ProfileNotifier extends _$ProfileNotifier {
 
       return await updateUserInfo('avatar', avatarUrl!);
     } catch (e) {
-      iPrint('上传头像失败: $e');
+      iPrint('上传头像失败: ${e.runtimeType}');
       return false;
     } finally {
       state = state.copyWith(isUploading: false);
@@ -413,7 +413,7 @@ class ProfileNotifier extends _$ProfileNotifier {
 
       final imageFile = File(imagePath);
       if (!await imageFile.exists()) {
-        iPrint('背景图片文件不存在: $imagePath');
+        iPrint('背景图片文件不存在');
         return false;
       }
 
@@ -428,15 +428,15 @@ class ProfileNotifier extends _$ProfileNotifier {
           String status = resp['status'] ?? '';
           if (status == 'ok') {
             backgroundUrl = url;
-            iPrint('背景图片上传成功: $backgroundUrl');
+            iPrint('背景图片上传成功');
             completer.complete(true);
           } else {
-            iPrint('背景图片上传失败: ${resp['message'] ?? '未知错误'}');
+            iPrint('背景图片上传失败');
             completer.complete(false);
           }
         },
         (error) {
-          iPrint('背景图片上传异常: $error');
+          iPrint('背景图片上传异常: ${error.runtimeType}');
           completer.complete(false);
         },
         process: true,
@@ -464,7 +464,7 @@ class ProfileNotifier extends _$ProfileNotifier {
 
       return success;
     } catch (e) {
-      iPrint('上传背景图片失败: $e');
+      iPrint('上传背景图片失败: ${e.runtimeType}');
       return false;
     } finally {
       state = state.copyWith(isUploading: false);

@@ -84,6 +84,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   }
 
   Future<void> _refresh() async {
+    if (!mounted) return;
     final page = await _api.getFeedPage(limit: 20);
     if (!mounted) return;
     final enriched = await enrichItemsWithAuthor(page.list);
@@ -159,7 +160,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
           _items = oldItems;
         });
       }
-    } catch (_) {
+    } on Exception {
       if (mounted) {
         setState(() {
           _items = oldItems;
@@ -191,7 +192,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         );
       },
     );
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
 
     final ok = await _api.deletePost(momentId);
     if (!ok || !mounted) return;
@@ -211,6 +212,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
 
   Future<void> _openCreate() async {
     final result = await context.push(AppRoutes.momentCreate);
+    if (!mounted) return;
     if (result == true) {
       await _refresh();
     }
@@ -219,6 +221,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   Future<void> _openDetail(String momentId) async {
     if (momentId.isEmpty) return;
     final result = await context.push('${AppRoutes.momentRoot}/$momentId');
+    if (!mounted) return;
     if (result == true) {
       await _refresh();
     }

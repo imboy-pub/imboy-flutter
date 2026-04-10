@@ -99,3 +99,5 @@ test_automation/.state_yaml/
 test_output/
 *.skip
 plugin/jverify
+.claude/
+.reports

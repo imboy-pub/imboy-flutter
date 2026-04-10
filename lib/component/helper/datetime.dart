@@ -125,7 +125,7 @@ class DateTimeHelper {
     } else if (value is String) {
       try {
         return DateTime.parse(value).millisecondsSinceEpoch;
-      } catch (e) {
+      } on FormatException {
         return defaultValue > 0 ? defaultValue : millisecond();
       }
     } else {

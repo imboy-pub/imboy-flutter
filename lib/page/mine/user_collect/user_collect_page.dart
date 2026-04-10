@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -188,8 +189,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             // 没有获取到更多数据
             notifier.updateState(currentState.copyWith(hasMore: false));
           }
-        } catch (e) {
-          debugPrint('Load more error: $e');
+        } on Exception catch (e) {
+          if (kDebugMode) debugPrint('Load more error: ${e.runtimeType}');
         }
       }
     });
@@ -207,8 +208,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           ..clear()
           ..addAll(list);
       });
-    } catch (e) {
-      debugPrint('Load pinned ids error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Load pinned ids error: ${e.runtimeType}');
     }
   }
 
@@ -217,8 +218,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_kPinnedPrefsKey, _pinnedIds.toList());
-    } catch (e) {
-      debugPrint('Save pinned ids error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Save pinned ids error: ${e.runtimeType}');
     }
   }
 
@@ -387,7 +388,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       // 更新状态
       notifier.updateState(currentState.copyWith(items: updatedItems));
       _exitMultiSelect();
-    } catch (e) {
+    } on Exception {
       EasyLoading.dismiss();
       EasyLoading.showError(t.tipFailed);
     }
@@ -474,7 +475,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 EasyLoading.dismiss();
                 EasyLoading.showSuccess(t.tipSuccess);
                 _exitMultiSelect();
-              } catch (e) {
+              } on Exception {
                 EasyLoading.dismiss();
                 EasyLoading.showError(t.tipFailed);
               }
@@ -573,7 +574,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 _sendToDialog(obj);
               } else {
                 // 进入收藏详情页面
-                debugPrint('Navigating to detail page for ${obj.kindId}');
+                if (kDebugMode) debugPrint('Navigating to detail page');
                 Navigator.push(
                   context,
                   CupertinoPageRoute(
@@ -582,8 +583,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   ),
                 );
               }
-            } catch (e) {
-              debugPrint('Tap error: $e');
+            } on Exception catch (e) {
+              if (kDebugMode) debugPrint('Tap error: ${e.runtimeType}');
             }
           },
           onSecondaryTapDown: (details) {
@@ -594,8 +595,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               if (_lastSecondaryTapPosition != null) {
                 _showContextMenu(_lastSecondaryTapPosition!, obj, index);
               }
-            } catch (e) {
-              debugPrint('showContextMenu error: $e');
+            } on Exception catch (e) {
+              if (kDebugMode) debugPrint('showContextMenu error: ${e.runtimeType}');
             }
           },
           child: Padding(
@@ -784,8 +785,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       currentState.copyWith(items: updatedItems),
                     );
                   }
-                } catch (e) {
-                  debugPrint('Edit tag error: $e');
+                } on Exception catch (e) {
+                  if (kDebugMode) debugPrint('Edit tag error: ${e.runtimeType}');
                 }
               },
               icon: Icons.local_offer_outlined,
@@ -1011,8 +1012,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                   } else {
                                     EasyLoading.showError(t.tipFailed);
                                   }
-                                } catch (e) {
-                                  debugPrint('Delete error: $e');
+                                } on Exception catch (e) {
+                                  if (kDebugMode) debugPrint('Delete error: ${e.runtimeType}');
                                   EasyLoading.showError(t.tipFailed);
                                 }
                               },
@@ -1093,8 +1094,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           _togglePin(obj);
         }
       });
-    } catch (e) {
-      debugPrint('context menu error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('context menu error: ${e.runtimeType}');
     }
   }
 
@@ -1129,8 +1130,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 } else {
                   EasyLoading.showError(t.tipFailed);
                 }
-              } catch (e) {
-                debugPrint('confirmRemove error: $e');
+              } on Exception catch (e) {
+                if (kDebugMode) debugPrint('confirmRemove error: ${e.runtimeType}');
                 EasyLoading.showError(t.tipFailed);
               }
             },
@@ -1164,8 +1165,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       if (mounted) {
         notifier.updateState(currentState.copyWith(items: list, page: 2));
       }
-    } catch (e) {
-      debugPrint('Refresh error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Refresh error: ${e.runtimeType}');
     }
   }
 

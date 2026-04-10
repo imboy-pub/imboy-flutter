@@ -216,7 +216,7 @@ class ImageGalleryNotifier extends _$ImageGalleryNotifier {
 }
 
 /// 单击图片的时候放大显示图片的效果
-void zoomInPhotoView(BuildContext context, String thumb) async {
+Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
   final size = MediaQuery.of(context).size;
   ImageProvider thumbProvider = cachedImageProvider(
     thumb,
@@ -226,7 +226,7 @@ void zoomInPhotoView(BuildContext context, String thumb) async {
   var connectivityResult = await Connectivity().checkConnectivity();
   String width = Uri.parse(thumb).queryParameters['width'] ?? "";
   // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
-  if (connectivityResult.contains(ConnectivityResult.none) &&
+  if (!connectivityResult.contains(ConnectivityResult.none) &&
       width.isNotEmpty) {
     int w = int.parse(width) * 2;
     thumb = thumb.replaceAll('&width=$width', '&width=$w');
@@ -247,7 +247,7 @@ void zoomInPhotoView(BuildContext context, String thumb) async {
 }
 
 /// 显示多个图像并让用户在它们之间进行更改的效果
-void zoomInPhotoViewGallery(BuildContext context, List items) async {
+Future<void> zoomInPhotoViewGallery(BuildContext context, List items) async {
   iPrint("zoomInPhotoViewGallery");
   final size = MediaQuery.of(context).size;
   List galleryItems = [];
@@ -292,7 +292,7 @@ void zoomInPhotoViewGallery(BuildContext context, List items) async {
 ///
 /// [items] - 图片 URL 列表
 /// [initialPage] - 初始显示的图片索引（从 0 开始）
-void zoomInPhotoViewGalleryWithInitialPage(
+Future<void> zoomInPhotoViewGalleryWithInitialPage(
   BuildContext context,
   List<String> items,
   int initialPage,

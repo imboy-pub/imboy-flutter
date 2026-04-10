@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/service/storage.dart';
 
 import 'package:imboy/config/const.dart';
@@ -28,7 +28,7 @@ class LocaleHelper {
     ///  - a language, country code and character set (e.g. "en_US.UTF-8").
     /// See https://en.wikipedia.org/wiki/Locale_(computer_software)
     String local = Platform.localeName;
-    debugPrint("> LocaleHelper.sysLang $local");
+    if (kDebugMode) debugPrint("> LocaleHelper.sysLang loaded");
 
     if (pkg == 'jiffy') {
       local = jiffyLocal(local);

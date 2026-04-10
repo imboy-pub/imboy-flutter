@@ -70,8 +70,8 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       await file.writeAsString(jsonStr);
       state = state.copyWith(isLoading: false);
       return file.path;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } on Exception {
+      state = state.copyWith(isLoading: false, error: t.operationFailedAgainLater);
       return null;
     }
   }
@@ -85,8 +85,8 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       bool result = await userApi.applyLogout();
       state = state.copyWith(isLoading: false);
       return result;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } on Exception {
+      state = state.copyWith(isLoading: false, error: t.operationFailedAgainLater);
       return false;
     }
   }

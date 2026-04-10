@@ -1031,7 +1031,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     } catch (e) {
       EasyLoading.dismiss();
       if (mounted) {
-        EasyLoading.showError('${t.uploadFailed}: $e');
+        EasyLoading.showError(t.uploadFailed);
       }
     }
   }
@@ -1181,7 +1181,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       ),
                     );
                   } catch (e) {
-                    EasyLoading.showError('${t.shareFailed}: $e');
+                    EasyLoading.showError(t.shareFailed);
                   }
                 },
               ),
@@ -1276,7 +1276,7 @@ ${t.interests}: ${user.interests}
       }
     } catch (e) {
       if (mounted) {
-        EasyLoading.showError('${t.exportFailed}: $e');
+        EasyLoading.showError(t.exportFailed);
       }
     }
   }

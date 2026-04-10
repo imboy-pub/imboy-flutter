@@ -82,9 +82,6 @@ class CustomMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-      "> on CustomMessageBuilder msg: $type ${message.toJson().toString()}",
-    );
     final user = User(
       id: UserRepoLocal.to.currentUid,
       name: UserRepoLocal.to.current.nickname,
@@ -132,8 +129,8 @@ class CustomMessageBuilder extends StatelessWidget {
             ? _wrapWithDefaultBubble(context, builtContent, isSentByMe)
             : builtContent;
       }
-    } catch (e, s) {
-      debugPrint("> on CustomMessageBuilder e ${e.toString()}; $s");
+    } catch (e) {
+      iPrint("> on CustomMessageBuilder error: ${e.runtimeType}");
       final fallbackPlugin = (registry ?? defaultMessageTypeRegistry).resolve(
         MessageType.unsupported,
       );

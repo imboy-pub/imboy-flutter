@@ -208,7 +208,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
       final history =
           StorageService.to.getStringList(_messageSearchHistoryKey) ?? [];
       state = state.copyWith(searchHistory: history);
-    } catch (e) {
+    } on Exception {
       state = state.copyWith(searchHistory: []);
     }
   }
@@ -327,11 +327,11 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
           errorMessage: '搜索失败，请重试',
         );
       }
-    } catch (e) {
+    } on Exception {
       state = state.copyWith(
         isLoading: false,
         isSearching: false,
-        errorMessage: '搜索出错: $e',
+        errorMessage: '搜索失败，请重试',
       );
     }
   }
@@ -382,7 +382,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         items: items,
         total: items.length,
       );
-    } catch (e) {
+    } on Exception {
       // FTS 查询失败，降级到服务端
       return null;
     }
@@ -433,7 +433,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
           if (contact != null) {
             state = state.cacheContact(uid, contact);
           }
-        } catch (e) {
+        } on Exception {
           // 忽略错误
         }
       }
@@ -516,7 +516,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
           state = state.cacheConversation(uk3, conv);
         }
       }
-    } catch (e) {
+    } on Exception {
       // 忽略错误
     }
   }

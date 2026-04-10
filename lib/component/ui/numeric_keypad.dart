@@ -1,7 +1,7 @@
 // NumericKeypad
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/sound_manager.dart';
-import 'package:imboy/service/app_logger.dart';
 
 class NumericKeypad extends StatelessWidget {
   final NumericKeypadController controller;
@@ -57,9 +57,9 @@ class NumericKeypad extends StatelessWidget {
         // 播放金属感按键音效
         try {
           await SoundManager.playMetallicSound();
-        } catch (e) {
+        } on Exception catch (e) {
           // 如果音效播放失败，不影响功能继续使用
-          AppLogger.warning("金属音效播放失败: $e");
+          if (kDebugMode) debugPrint("金属音效播放失败: ${e.runtimeType}");
         }
 
         if (keyboardDataBean.type == PayKeyboardType.delete) {

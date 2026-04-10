@@ -50,16 +50,16 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
         source: source,
       );
 
-      iPrint("getImageFromSource ${avatarFile.toString()}");
+      iPrint("getImageFromSource done: ${avatarFile != null}");
       if (avatarFile != null) {
         return cropImage(avatarFile);
       }
     } catch (e) {
-      iPrint("getImageFromSource e ${e.toString()}");
+      iPrint("getImageFromSource error: ${e.runtimeType}");
     }
   }
 
-  void cropImage(XFile x) async {
+  Future<void> cropImage(XFile x) async {
     File originalImage = File(x.path);
 
     String? url = await Navigator.push(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,6 +113,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       notifier.addToHistory(effectiveQuery);
 
       // 高亮关键词
+      if (!mounted) return;
       setState(() {
         words = {
           effectiveQuery: HighlightedWord(
@@ -122,9 +124,9 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           ),
         };
       });
-    } catch (e) {
+    } on Exception catch (e) {
       notifier.setError(t.searchError);
-      debugPrint('Search error: $e');
+      if (kDebugMode) debugPrint('Search error: ${e.runtimeType}');
     } finally {
       notifier.setLoading(false);
       notifier.stopSearching();
@@ -212,8 +214,8 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 ),
               ),
             );
-          } catch (e) {
-            debugPrint('跳转到聊天页面失败: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) debugPrint('跳转到聊天页面失败: ${e.runtimeType}');
           }
         }
       },
@@ -228,8 +230,8 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
         ref.read(searchProvider.notifier).cacheContact(uid, contact);
         setState(() {});
       }
-    } catch (e) {
-      debugPrint('加载联系人信息失败: $uid, $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('加载联系人信息失败: ${e.runtimeType}');
 
       // 如果是加密相关错误，创建基础联系人对象
       if (e.toString().contains('Invalid padding') ||
@@ -244,7 +246,6 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
         if (mounted) {
           setState(() {});
         }
-        debugPrint('使用降级联系人信息: $uid');
       }
     }
   }

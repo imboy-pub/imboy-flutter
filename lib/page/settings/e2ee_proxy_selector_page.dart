@@ -75,7 +75,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           }
 
           contactsWithKeys.add(contact);
-        } catch (e) {
+        } on Exception {
           // 如果获取公钥失败，仍然显示好友（但可能无法作为代理）
           contactsWithKeys.add(contact);
         }
@@ -87,12 +87,12 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('加载好友列表失败: $e')));
+        ).showSnackBar(const SnackBar(content: Text('加载好友列表失败，请重试')));
       }
     }
   }
@@ -164,11 +164,11 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
             'device_id': deviceId,
             'public_key': publicKey,
           });
-        } catch (e) {
+        } on Exception {
           // 关闭加载对话框
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('获取 ${contact.title} 的公钥失败: $e')),
+            SnackBar(content: Text('获取 ${contact.title} 的公钥失败')),
           );
           return;
         }
@@ -180,13 +180,13 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         // 返回选中的代理列表
         Navigator.pop(context, selectedContacts);
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) {
         // 关闭加载对话框
         Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('选择代理失败: $e')));
+        ).showSnackBar(const SnackBar(content: Text('选择代理失败，请重试')));
       }
     }
   }

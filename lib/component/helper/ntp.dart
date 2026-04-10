@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:imboy/service/storage.dart';
 import 'package:ntp/ntp.dart';
 import 'dart:convert';
@@ -56,7 +56,7 @@ class NtpHelper {
   /// [serverTs] 服务器返回的 UTC 毫秒时间戳（sv_ts 字段）
   static void updateOffsetFromServer(int serverTs) {
     if (serverTs <= 0) {
-      debugPrint('⚠️ NtpHelper: 无效的服务器时间戳: $serverTs');
+      if (kDebugMode) debugPrint('⚠️ NtpHelper: 无效的服务器时间戳');
       return;
     }
 
@@ -66,23 +66,23 @@ class NtpHelper {
     // 验证偏移量的合理性（24小时内）
     const maxOffset = 24 * 3600 * 1000;
     if (newOffset.abs() > maxOffset) {
-      debugPrint('⚠️ NtpHelper: 服务器时间偏移量异常: $newOffset ms');
+      if (kDebugMode) debugPrint('⚠️ NtpHelper: 服务器时间偏移量异常');
       return;
     }
 
     _offset = newOffset;
-    debugPrint('✅ NtpHelper: 从服务器更新时间偏移: $_offset ms');
+    if (kDebugMode) debugPrint('✅ NtpHelper: 从服务器更新时间偏移: $_offset ms');
   }
 
   static Future<int> getOffset() async {
     // Web 平台跳过 NTP 同步（使用服务器时间戳代替）
     if (_isWeb) {
-      debugPrint('🌐 NtpHelper: Web 平台跳过 NTP 同步，将使用服务器时间戳');
+      if (kDebugMode) debugPrint('🌐 NtpHelper: Web 平台跳过 NTP 同步');
       // 尝试读取缓存
       final cachedData = _parseCache(StorageService.to.getString(_cacheKey));
       if (cachedData != null) {
         _offset = cachedData.offset;
-        debugPrint('🕐 NtpHelper: 从缓存加载时间偏移: $_offset ms');
+        if (kDebugMode) debugPrint('🕐 NtpHelper: 从缓存加载时间偏移: $_offset ms');
         return _offset;
       }
       return 0; // Web 平台返回零偏移，等待服务器时间戳更新
@@ -95,7 +95,7 @@ class NtpHelper {
       // 使用设备启动时间计算有效期，避免依赖系统时间
       if (now - cachedData.deviceTimestamp < _cacheExpiryHours * 3600 * 1000) {
         _offset = cachedData.offset;
-        debugPrint('🕐 NtpHelper: 从缓存加载时间偏移: $_offset ms');
+        if (kDebugMode) debugPrint('🕐 NtpHelper: 从缓存加载时间偏移: $_offset ms');
         return _offset;
       }
     }
@@ -106,10 +106,10 @@ class NtpHelper {
         final offset = await _fetchNtpWithRetry();
         _offset = offset;
         await _saveCache(offset);
-        debugPrint('✅ NtpHelper: NTP 同步成功，偏移量: $_offset ms');
+        if (kDebugMode) debugPrint('✅ NtpHelper: NTP 同步成功，偏移量: $_offset ms');
         return _offset;
-      } catch (e) {
-        debugPrint('❌ NtpHelper: NTP 同步失败 (第 ${i + 1}/$_maxRetry 次): $e');
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint('❌ NtpHelper: NTP 同步失败 (第 ${i + 1}/$_maxRetry 次): ${e.runtimeType}');
         if (i == _maxRetry - 1) return 0; // 返回安全值
       }
     }
@@ -136,7 +136,7 @@ class NtpHelper {
       'device_ts': DateTime.now().millisecondsSinceEpoch,
       'offset': offset,
     };
-    await StorageService.to.setString(_cacheKey, data.toString());
+    await StorageService.to.setString(_cacheKey, json.encode(data));
     return offset;
   }
 
@@ -148,7 +148,7 @@ class NtpHelper {
         offset: map['offset'] as int,
         deviceTimestamp: map['device_ts'] as int,
       );
-    } catch (e) {
+    } on Exception {
       StorageService.to.remove(_cacheKey); // 清除无效缓存
       return null;
     }

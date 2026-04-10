@@ -472,7 +472,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
       } else {
         EasyLoading.showError(t.tipFailed);
       }
-    } catch (e) {
+    } on Exception {
       EasyLoading.dismiss();
       EasyLoading.showError(t.tipFailed);
     }
@@ -546,7 +546,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
       } else {
         EasyLoading.showError(t.tipFailed);
       }
-    } catch (e) {
+    } on Exception {
       EasyLoading.dismiss();
       EasyLoading.showError(t.tipFailed);
     }

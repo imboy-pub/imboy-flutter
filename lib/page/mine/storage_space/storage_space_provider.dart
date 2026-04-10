@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:ic_storage_space/ic_storage_space.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
@@ -80,8 +81,10 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
 
       await storageStats();
 
-      String path = await SqliteService.to.dbPath();
-      iPrint("StorageSpaceProvider dbPath $path");
+      if (kDebugMode) {
+        final path = await SqliteService.to.dbPath();
+        iPrint("StorageSpaceProvider dbPath $path");
+      }
     } finally {
       state = state.copyWith(isLoading: false);
     }
@@ -94,7 +97,7 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
       await storageStats();
       try {
         await cacheManager.emptyCache();
-      } catch (e) {
+      } on Exception {
         // Ignore error
       }
     }
@@ -104,7 +107,7 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
   /// 获取存储统计信息
   Future<void> storageStats() async {
     Map<dynamic, dynamic> stats = await IcStorageSpace.storageStats;
-    iPrint("StorageSpaceProvider storageStats ${stats.toString()}");
+    if (kDebugMode) iPrint("StorageSpaceProvider storageStats loaded");
 
     final appBytes = stats['appBytes'] ?? 0;
     final cacheBytes = stats['cacheBytes'] ?? 0;
@@ -128,10 +131,12 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
   Future<void> pathList() async {
     String home = await IcStorageSpace.homeDirectory();
     List<Object?> items2 = await IcStorageSpace.pathList(home);
-    iPrint("StorageSpaceProvider pathList home $home ");
+    if (kDebugMode) iPrint("StorageSpaceProvider pathList loaded");
     int? size = await IcStorageSpace.pathBytes(home);
-    iPrint(
-      "StorageSpaceProvider pathList size: ${formatBytes(size ?? 0, num: 1000)} ; len ${items2.length} ",
-    );
+    if (kDebugMode) {
+      iPrint(
+        "StorageSpaceProvider pathList size: ${formatBytes(size ?? 0, num: 1000)} ; len ${items2.length} ",
+      );
+    }
   }
 }

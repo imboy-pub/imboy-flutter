@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -96,8 +97,8 @@ class LanguageNotifier extends _$LanguageNotifier {
           (locale) => locale.name == savedLocaleName,
           orElse: () => AppLocale.zhCn,
         );
-      } catch (e) {
-        debugPrint('LanguageNotifier: 解析保存的语言失败 - $e');
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint('LanguageNotifier: 解析保存的语言失败 - ${e.runtimeType}');
       }
     }
 
@@ -107,8 +108,8 @@ class LanguageNotifier extends _$LanguageNotifier {
       selectedLocaleId = localeIdMap.entries
           .firstWhere((entry) => entry.value == currentLocale)
           .key;
-    } catch (e) {
-      debugPrint('LanguageNotifier: 查找语言 ID 失败 - $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('LanguageNotifier: 查找语言 ID 失败 - ${e.runtimeType}');
     }
 
     return LanguageState(

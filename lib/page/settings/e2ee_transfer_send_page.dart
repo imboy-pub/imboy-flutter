@@ -49,9 +49,9 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       setState(() {
         _isLoading = false;
       });
-    } catch (e) {
+    } on Exception {
       setState(() {
-        _errorMessage = '初始化失败: $e';
+        _errorMessage = '初始化失败，请重试';
         _isLoading = false;
       });
     }
@@ -117,9 +117,9 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
         _expiresAt = result['expires_at'] as String;
         _isLoading = false;
       });
-    } catch (e) {
+    } on Exception {
       setState(() {
-        _errorMessage = '创建传输会话失败: $e';
+        _errorMessage = '创建传输会话失败，请重试';
         _isLoading = false;
       });
     }
@@ -224,9 +224,9 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             ),
           ),
           const SizedBox(height: 24),
-          Text(
-            '会话 ID: $_sessionId',
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          const Text(
+            '传输会话已创建',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 32),
           CupertinoButton.filled(

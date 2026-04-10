@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 
@@ -141,7 +142,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
         Navigator.pop(context, uri); //这里的url在上一页调用的result可以拿到
       },
       (Error error) {
-        debugPrint("> on upload ${error.toString()}");
+        if (kDebugMode) debugPrint("> on upload ${error.runtimeType}");
       },
       name: widget.filename,
     );

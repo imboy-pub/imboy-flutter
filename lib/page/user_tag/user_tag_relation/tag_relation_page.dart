@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -73,8 +74,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       setState(() {
         _isLoading = false;
       });
-    } catch (e) {
-      debugPrint('_initData error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('_initData error: ${e.runtimeType}');
       setState(() {
         _isLoading = false;
       });
@@ -130,8 +131,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       } else {
         EasyLoading.showError(t.saveFailed);
       }
-    } catch (e) {
-      debugPrint('_saveTags error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('_saveTags error: ${e.runtimeType}');
       EasyLoading.dismiss();
       EasyLoading.showError(t.saveFailed);
     } finally {

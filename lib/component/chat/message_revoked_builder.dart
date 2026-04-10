@@ -30,11 +30,7 @@ class RevokedMessageBuilder extends StatelessWidget {
     final String text = metadata['text'] ?? '';
     final int nowMs = DateTimeHelper.millisecond();
 
-    // 调试输出
-    iPrint(
-      '撤回消息渲染: msgId=${message.id}, status=$status, userIsAuthor=$userIsAuthor',
-    );
-    iPrint('消息元数据: ${metadata.toString()}');
+    // 调试输出（仅记录非敏感信息）
 
     // WebSocket API v2.0: 根据 status 字段确定撤回类型
     bool isPeerRevoked = IMBoyMessageStatus.isPeerRevoked(status);
@@ -51,7 +47,7 @@ class RevokedMessageBuilder extends StatelessWidget {
     Widget editButton = canEdit
         ? GestureDetector(
             onTap: () {
-              iPrint("触发重新编辑: msgId=${message.id}, text=$text");
+              iPrint("触发重新编辑: msgId=${message.id}");
               AppEventBus.fire(
                 ReEditMessageEvent(text: text, messageId: message.id),
               );
@@ -149,9 +145,7 @@ class RevokedMessageBuilder extends StatelessWidget {
             ? parts[2]
             : parts[1];
 
-        iPrint(
-          '解析会话UK3: type=$type, peerId=$peerId, ${UserRepoLocal.to.currentUid} ',
-        );
+        iPrint('解析会话UK3: type=$type');
 
         // 获取会话模型
         final conversation = await ConversationRepo().findByPeerId(
@@ -159,13 +153,13 @@ class RevokedMessageBuilder extends StatelessWidget {
           peerId,
         );
 
-        iPrint('获取到的会话模型: ${conversation?.title}');
+        iPrint('获取到的会话模型: ${conversation != null}');
         return {'conversation': conversation};
       }
 
       return null;
     } catch (e) {
-      iPrint('获取会话模型失败: $e');
+      iPrint('获取会话模型失败: ${e.runtimeType}');
       return null;
     }
   }

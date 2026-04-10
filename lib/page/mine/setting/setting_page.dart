@@ -35,7 +35,7 @@ final allowSearchProvider = Provider<bool>((ref) {
     try {
       final settingMap = jsonDecode(settingData) as Map<String, dynamic>;
       return settingMap['allow_search'] ?? true;
-    } catch (e) {
+    } on Exception {
       return true;
     }
   }
@@ -86,7 +86,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   /// 重启应用
   void _restartApp() {
-    iPrint("packageName $packageName");
+    if (kDebugMode) iPrint("packageName $packageName");
     if (Platform.isAndroid) {
       SystemNavigator.pop();
     } else if (Platform.isIOS) {
@@ -240,7 +240,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     onChanged: _isUpdatingAllowSearch
                         ? null
                         : (v) async {
-                            iPrint("allowSearch v $v;");
+                            if (kDebugMode) iPrint("allowSearch v $v;");
 
                             // 防抖：设置更新状态
                             setState(() => _isUpdatingAllowSearch = true);
@@ -249,7 +249,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               // 使用 userApiProvider 调用 API
                               final userApi = ref.read(userApiProvider);
                               bool res = await userApi.allowSearch(v ? 1 : 2);
-                              iPrint("allowSearch res $res;");
+                              if (kDebugMode) iPrint("allowSearch res $res;");
 
                               if (res) {
                                 // 修复：先保存当前 setting，创建新对象后再保存
@@ -321,10 +321,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               }
 
                               EasyLoading.showSuccess('设备密钥已刷新');
-                              iPrint('E2EE: 设备密钥已手动刷新');
-                            } catch (e) {
-                              EasyLoading.showError('刷新失败: $e');
-                              iPrint('E2EE: 刷新设备密钥失败: $e');
+                              if (kDebugMode) iPrint('E2EE: 设备密钥已手动刷新');
+                            } on Exception catch (e) {
+                              EasyLoading.showError(t.tipFailed);
+                              if (kDebugMode) {
+                                iPrint(
+                                    'E2EE: 刷新设备密钥失败: ${e.runtimeType}');
+                              }
                             } finally {
                               // 恢复刷新状态
                               if (mounted) {
@@ -700,7 +703,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 EasyLoading.showInfo(t.nowNewVersion);
               }
               // manualCheck 内部已处理弹窗逻辑（force/recommend/silent）
-            } catch (e) {
+            } on Exception {
               EasyLoading.showError(t.errorNetwork);
             } finally {
               EasyLoading.dismiss();

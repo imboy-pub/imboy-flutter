@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -44,7 +45,7 @@ class QuoteMessageBuilder extends StatelessWidget {
     try {
       quoteMsg = Message.fromJson(quoteMsgMap);
     } catch (e) {
-      debugPrint("解析引用消息失败: $e");
+      iPrint("解析引用消息失败: ${e.runtimeType}");
       return _buildQuoteErrorWidget(context, userIsAuthor);
     }
 
@@ -111,8 +112,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         InkWell(
-                          onTap: () async {
-                            debugPrint("> on quoteMsg_onTap: ${quoteMsg.id}");
+                          onTap: () {
                             // 使用回调处理点击事件
                             onQuoteTap?.call(quoteMsg.id);
                           },

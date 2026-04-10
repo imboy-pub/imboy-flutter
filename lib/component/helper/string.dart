@@ -15,7 +15,7 @@ class StringHelper {
 
   static String ext(String url) {
     String ext = '';
-    debugPrint("StringHelper_ext url $url");
+    if (kDebugMode) debugPrint("StringHelper_ext processing");
     if (url.isNotEmpty && url.lastIndexOf(".") != -1) {
       Uri u1 = Uri.dataFromString(url);
       ext = u1.path.substring(
@@ -28,7 +28,7 @@ class StringHelper {
     if (ext.toUpperCase() == 'JPG') {
       ext = 'JPEG';
     }
-    debugPrint("StringHelper_ext ext $ext");
+    if (kDebugMode) debugPrint("StringHelper_ext ext $ext");
     return ext;
   }
 }

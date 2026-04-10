@@ -98,9 +98,9 @@ class E2EETransferPage extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return ListTile(
-              title: const Text('加载失败'),
-              subtitle: Text(snapshot.error.toString()),
+            return const ListTile(
+              title: Text('加载失败'),
+              subtitle: Text('无法加载待处理的传输，请重试'),
             );
           }
 
@@ -116,8 +116,8 @@ class E2EETransferPage extends StatelessWidget {
           return Column(
             children: transfers.map((transfer) {
               return ListTile(
-                title: Text('来自设备 ${transfer['from_device_id']}'),
-                subtitle: Text('会话 ID: ${transfer['session_id']}'),
+                title: const Text('待处理的密钥传输'),
+                subtitle: const Text('点击查看详情'),
                 trailing: CupertinoButton(
                   child: const Text('查看'),
                   onPressed: () {

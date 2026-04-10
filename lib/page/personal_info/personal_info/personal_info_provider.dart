@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -38,7 +39,8 @@ class PersonalInfoNotifier extends _$PersonalInfoNotifier {
         data: data,
       );
       return resp.ok;
-    } catch (e) {
+    } on Exception catch (e) {
+      iPrint('changeInfo failed: ${e.runtimeType}');
       return false;
     }
   }
@@ -47,8 +49,8 @@ class PersonalInfoNotifier extends _$PersonalInfoNotifier {
   Future<void> updateLocalUserInfo(Map<String, dynamic> payload) async {
     try {
       UserRepoLocal.to.changeInfo(payload);
-    } catch (e) {
-      // ignore
+    } on Exception catch (e) {
+      iPrint('updateLocalUserInfo failed: ${e.runtimeType}');
     }
   }
 

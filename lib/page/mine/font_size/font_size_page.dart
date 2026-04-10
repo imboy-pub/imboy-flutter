@@ -80,7 +80,7 @@ class FontSizeNotifier extends _$FontSizeNotifier {
       );
 
       return;
-    } catch (e) {
+    } on Exception {
       rethrow;
     }
   }
@@ -278,7 +278,7 @@ class FontSizePage extends ConsumerWidget {
                         if (context.mounted) {
                           EasyLoading.showSuccess(t.fontSizeSettingUpdated);
                         }
-                      } catch (e) {
+                      } on Exception {
                         if (context.mounted) {
                           EasyLoading.showError(t.settingFailedPleaseTryAgain);
                         }

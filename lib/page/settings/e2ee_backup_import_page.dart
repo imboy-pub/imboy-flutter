@@ -144,7 +144,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _selectedFile?.path ?? '点击选择备份文件 (.enc)',
+                      _selectedFile != null
+                          ? (_selectedFile!.path.split('/').last)
+                          : '点击选择备份文件 (.enc)',
                       style: TextStyle(
                         color: _selectedFile != null
                             ? Colors.green
@@ -282,8 +284,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         });
         await _verifyFile();
       }
-    } catch (e) {
-      _showError('选择文件失败: ${e.toString()}');
+    } on Exception {
+      _showError('选择文件失败，请重试');
     }
   }
 
@@ -295,11 +297,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         _selectedFile!.path,
       );
       setState(() => _backupInfo = info);
-    } catch (e) {
+    } on Exception {
       setState(() {
         _backupInfo = null;
       });
-      _showError('文件验证失败: ${e.toString()}');
+      _showError('文件验证失败，请检查文件格式');
     }
   }
 
@@ -325,9 +327,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
       // 显示成功对话框
       _showSuccessDialog(result);
-    } catch (e) {
+    } on Exception {
       setState(() => _isImporting = false);
-      _showError('导入失败: ${e.toString()}');
+      _showError('导入失败，请检查密码是否正确');
     }
   }
 
@@ -343,8 +345,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           children: [
             const Text('E2EE 密钥已成功恢复！'),
             const SizedBox(height: 12),
-            Text('设备 ID: ${result['device_id']}'),
-            Text('密钥 ID: ${result['key_id']}'),
+            Text('设备 ID: ${_maskId(result['device_id']?.toString() ?? '')}'),
+            Text('密钥 ID: ${_maskId(result['key_id']?.toString() ?? '')}'),
             Text('创建时间: ${result['created_at']}'),
             const SizedBox(height: 12),
             Text(
@@ -364,6 +366,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         ],
       ),
     );
+  }
+
+  /// 脱敏 ID 显示（只显示前4位和后4位）
+  String _maskId(String id) {
+    if (id.length <= 8) return id;
+    return '${id.substring(0, 4)}...${id.substring(id.length - 4)}';
   }
 
   void _showError(String message) {

@@ -10,6 +10,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -157,8 +158,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           );
         });
       }
-    } catch (e) {
-      debugPrint('加载搜索历史失败: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('加载搜索历史失败: ${e.runtimeType}');
     }
   }
 
@@ -215,6 +216,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         results.addAll(items);
       }
 
+      if (!mounted) return;
       setState(() {
         _state = _state.copyWith(
           results: results,
@@ -224,8 +226,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
       // 保存搜索记录
       _saveSearchHistory(query);
-    } catch (e) {
-      debugPrint('Search error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Search error: ${e.runtimeType}');
+      if (!mounted) return;
       setState(() {
         _state = _state.copyWith(
           isLoading: false,
@@ -269,8 +272,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           ));
         }
       }
-    } catch (e) {
-      debugPrint('Search messages error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Search messages error: ${e.runtimeType}');
     }
     return results;
   }
@@ -294,8 +297,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           highlightText: query,
         ));
       }
-    } catch (e) {
-      debugPrint('Search contacts error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Search contacts error: ${e.runtimeType}');
     }
     return results;
   }
@@ -319,8 +322,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           highlightText: query,
         ));
       }
-    } catch (e) {
-      debugPrint('Search groups error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Search groups error: ${e.runtimeType}');
     }
     return results;
   }
@@ -349,8 +352,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           },
         ));
       }
-    } catch (e) {
-      debugPrint('Search conversations error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('Search conversations error: ${e.runtimeType}');
     }
     return results;
   }
@@ -372,11 +375,12 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         'web_search_history',
         jsonEncode(history),
       );
+      if (!mounted) return;
       setState(() {
         _state = _state.copyWith(recentSearches: history);
       });
-    } catch (e) {
-      debugPrint('保存搜索历史失败: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('保存搜索历史失败: ${e.runtimeType}');
     }
   }
 
@@ -384,11 +388,12 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   Future<void> _clearSearchHistory() async {
     try {
       await StorageService.to.remove('web_search_history');
+      if (!mounted) return;
       setState(() {
         _state = _state.copyWith(recentSearches: []);
       });
-    } catch (e) {
-      debugPrint('清除搜索历史失败: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('清除搜索历史失败: ${e.runtimeType}');
     }
   }
 

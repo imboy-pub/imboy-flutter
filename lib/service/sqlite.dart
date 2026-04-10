@@ -133,6 +133,9 @@ class SqliteService {
       if (exists) {
         await _migrateToEncryptedIfNeeded(path, password);
       }
+
+      // 清理过期的加密迁移备份文件（7 天后自动删除）
+      unawaited(_cleanupEncryptionBackups(path));
     }
 
     try {
@@ -239,6 +242,33 @@ class SqliteService {
           await File(tempPath).delete();
         }
       } catch (_) {}
+    }
+  }
+
+  /// 清理过期的加密迁移备份文件
+  ///
+  /// 在加密迁移成功后，备份文件 (.pre_encrypt.bak) 保留 7 天。
+  /// 超过 7 天的备份自动删除，避免占用存储空间。
+  ///
+  /// [dbPath] 当前数据库文件路径，备份路径为 `$dbPath.pre_encrypt.bak`
+  /// [maxAge] 备份文件最大保留时间，默认 7 天
+  static Future<void> _cleanupEncryptionBackups(
+    String dbPath, {
+    Duration maxAge = const Duration(days: 7),
+  }) async {
+    final backupPath = '$dbPath.pre_encrypt.bak';
+    try {
+      final backupFile = File(backupPath);
+      if (!await backupFile.exists()) return;
+
+      final stat = await backupFile.stat();
+      if (DateTime.now().difference(stat.modified) > maxAge) {
+        await backupFile.delete();
+        iPrint('🗑️ Deleted expired encryption backup: $backupPath');
+      }
+    } catch (e) {
+      // 清理失败不影响正常功能，仅记录日志
+      AppLogger.debug('Encryption backup cleanup failed: $e');
     }
   }
 

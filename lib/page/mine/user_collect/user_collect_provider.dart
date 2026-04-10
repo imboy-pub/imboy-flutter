@@ -1,5 +1,6 @@
 import 'dart:convert' show jsonDecode;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -80,7 +81,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           where =
               "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
         }
-        iPrint("searchLeading_tag where $where");
+        if (kDebugMode) iPrint("searchLeading_tag query executing");
 
         final List<UserCollectModel> localList = await repo.page(
           limit: size,
@@ -89,7 +90,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           whereArgs: whereArgs,
           orderBy: orderBy,
         );
-        iPrint("searchLeading_tag list ${localList.length}");
+        if (kDebugMode) iPrint("searchLeading_tag list ${localList.length}");
 
         if (page == 1 && localList.isEmpty) {
           // 如果第一页本地没有，继续走服务端请求
@@ -146,8 +147,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       // 非翻页或第一页：直接按照数量判断 hasMore
       state.hasMore = result.length >= size;
       return result;
-    } catch (e, s) {
-      debugPrint('UserCollectNotifier.page error: $e\n$s');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('UserCollectNotifier.page error: ${e.runtimeType}');
       // 出错返回空列表，外层会显示错误态或重试
       state.hasMore = false;
       return [];
@@ -169,8 +170,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         if (!identical(decrypted, item.info)) {
           item.info = Map<String, dynamic>.from(decrypted);
         }
-      } catch (e) {
-        debugPrint('[UserCollectProvider] collection operation failed: $e');
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint('[UserCollectProvider] decrypt failed: ${e.runtimeType}');
       }
     }
   }
@@ -669,7 +670,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     Function callback,
   ) async {
     state.page = 1;
-    iPrint("searchLeading_tag searchByTag tag $tag, kindTips $kindTips");
+    if (kDebugMode) iPrint("searchLeading_tag searchByTag executing");
     var list = await page(page: state.page, size: state.size, tag: tag);
     if (list.isNotEmpty) {
       state.page += 1;
@@ -850,7 +851,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
   }
 
   Future<List<dynamic>> doSearch(dynamic query) async {
-    debugPrint("user_collect_s_doSearch ${query.toString()}");
+    if (kDebugMode) debugPrint("user_collect_s_doSearch executing");
 
     state.page = 1;
     var list = await page(
@@ -874,7 +875,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     final String id = obj.kindId.toString();
     // 防止并发删除同一项
     if (state.removingIds.contains(id)) {
-      iPrint('remove already in progress for $id');
+      if (kDebugMode) iPrint('remove already in progress');
       return false;
     }
     state = state.copyWith()..removingIds.add(id);
@@ -883,7 +884,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       // 1) 先请求后端删除（若后端删除失败，则不更新本地）
       bool remoteOk = await UserCollectApi().remove(kindId: id);
       if (!remoteOk) {
-        iPrint('remote remove failed for $id');
+        if (kDebugMode) iPrint('remote remove failed');
         return false;
       }
 
@@ -893,11 +894,11 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         return true;
       } else {
         // 本地删除失败：记录日志并尝试通知（此处为占位，可实现回滚策略）
-        iPrint('local delete failed for $id after remote remove');
+        if (kDebugMode) iPrint('local delete failed after remote remove');
         return false;
       }
-    } catch (e, s) {
-      debugPrint('UserCollectNotifier.remove error: $e\n$s');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('UserCollectNotifier.remove error: ${e.runtimeType}');
       return false;
     } finally {
       // 无论成功或失败都释放锁
@@ -911,9 +912,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       authorId,
       autoFetch: true,
     );
-    debugPrint(
-      "userCollectLogic/getCollectSource ${obj?.title}; ${obj?.toJson().toString()} ;",
-    );
+    if (kDebugMode) debugPrint("userCollectLogic/getCollectSource found: ${obj != null}");
     if (obj == null) {
       return '';
     }
@@ -944,7 +943,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       'kind_id': kindId,
       'remark': remark,
     });
-    debugPrint("send_to_view callback after $res");
+    if (kDebugMode) debugPrint("send_to_view callback after $res");
     if (res) {
       await UserCollectRepo().save({
         UserCollectRepo.updatedAt: DateTimeHelper.millisecond() ~/ 1000,
@@ -958,14 +957,12 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
   /// 添加收藏
   Future<bool> add({required String tb, required Message msg}) async {
-    debugPrint(
-      "userCollectLogic/add 开始收藏消息: ${msg.id}, 类型: ${msg.runtimeType}",
-    );
+    if (kDebugMode) debugPrint("userCollectLogic/add 类型: ${msg.runtimeType}");
 
     int kind = getCollectKind(msg);
     // 如果消息类型不支持收藏，直接返回失败
     if (kind <= 0) {
-      debugPrint("userCollectLogic/add 消息类型不支持收藏: ${msg.runtimeType}");
+      if (kDebugMode) debugPrint("userCollectLogic/add 消息类型不支持收藏: ${msg.runtimeType}");
       return false;
     }
 
@@ -976,7 +973,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
     // 如果数据库中没有找到消息，尝试从Message对象创建
     if (msg2 == null) {
-      debugPrint("userCollectLogic/add 未在数据库中找到消息，尝试从Message对象创建: ${msg.id}");
+      if (kDebugMode) debugPrint("userCollectLogic/add 未在数据库中找到消息，尝试从Message对象创建");
       try {
         // 创建一个基本的MessageModel
         final payload = _extractPayloadFromMessage(msg);
@@ -995,8 +992,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           status: 10, // 假设为已发送状态
           msgType: payload['msg_type'] as String?, // ✅ 修复：从 payload 提取 msg_type
         );
-      } catch (e) {
-        debugPrint("userCollectLogic/add 从Message对象创建失败: $e");
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint("userCollectLogic/add 从Message对象创建失败: ${e.runtimeType}");
         return false;
       }
     }
@@ -1006,8 +1003,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (payload is String) {
       try {
         info['payload'] = jsonDecode(payload);
-      } catch (e) {
-        debugPrint("userCollectLogic/add 解析payload失败: $e");
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint("userCollectLogic/add 解析payload失败: ${e.runtimeType}");
         info['payload'] = {};
       }
     }
@@ -1029,7 +1026,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       if (info['payload'] is Map) {
         final payloadData = info['payload'] as Map<String, dynamic>;
         finalMsgType = payloadData['msg_type']?.toString();
-        debugPrint("userCollectLogic/add 从 payload 获取 msg_type: $finalMsgType");
+        if (kDebugMode) debugPrint("userCollectLogic/add msg_type from payload: $finalMsgType");
       }
     }
 
@@ -1060,17 +1057,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         default:
           finalMsgType = 'text';
       }
-      debugPrint(
-        "userCollectLogic/add 根据 kind $kind 推断 msg_type: $finalMsgType",
-      );
+      if (kDebugMode) debugPrint("userCollectLogic/add inferred msg_type: $finalMsgType from kind $kind");
     }
 
     // 强制设置 msg_type 到顶层
     info['msg_type'] = finalMsgType;
 
-    debugPrint(
-      "userCollectLogic/add 准备收藏: kind=$kind, source=$source, msgId=${msg.id}, msgType=${info['msg_type']}",
-    );
+    if (kDebugMode) debugPrint("userCollectLogic/add kind=$kind, msgType=${info['msg_type']}");
 
     // 显示加载状态
     EasyLoading.show(status: t.collecting);
@@ -1080,9 +1073,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     // 隐藏加载状态
     EasyLoading.dismiss();
 
-    debugPrint(
-      "userCollectLogic/add 结果: $res, kind: $kind, source: $source, info: ${info.toString()}",
-    );
+    if (kDebugMode) debugPrint("userCollectLogic/add result: $res, kind: $kind");
 
     if (res) {
       await UserCollectRepo().save({
@@ -1093,9 +1084,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         UserCollectRepo.source: source,
         UserCollectRepo.info: info,
       });
-      debugPrint("userCollectLogic/add 本地保存成功");
+      if (kDebugMode) debugPrint("userCollectLogic/add 本地保存成功");
     } else {
-      debugPrint("userCollectLogic/add 服务端保存失败");
+      if (kDebugMode) debugPrint("userCollectLogic/add 服务端保存失败");
     }
 
     return res;
@@ -1158,9 +1149,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           color: Colors.transparent,
           child: GestureDetector(
             onTap: () {
-              debugPrint(
-                "searchLeading_tag $tag ${state.searchLeading.toString()}",
-              );
+              if (kDebugMode) debugPrint("searchLeading_tag onTap");
               // 收起展开面板
               state.kindActive = false;
               // 执行标签搜索
@@ -1208,7 +1197,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
   /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   /// 这个方法被其他文件调用，需要保留
   static int getCollectKind(dynamic message) {
-    debugPrint("getCollectKind message ${message.toString()}");
+    if (kDebugMode) debugPrint("getCollectKind type: ${message.runtimeType}");
     // 由于移除了 flutter_chat_types 依赖，这里简化处理
     // 根据 message 的 metadata 或其他属性判断类型
     if (message == null) return 0;
@@ -1266,8 +1255,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       if (messageType.contains('FileMessage')) {
         return 5;
       }
-    } catch (e, s) {
-      debugPrint('getCollectKind error: $e, trace: $s');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('getCollectKind error: ${e.runtimeType}');
     }
 
     return 0;

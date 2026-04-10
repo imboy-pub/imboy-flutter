@@ -99,13 +99,17 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                             children: availableMaps.map<Widget>((map) {
                               return ListTile(
                                 onTap: () {
+                                  final lat = double.tryParse(
+                                    msg.metadata?['latitude']?.toString() ?? '',
+                                  );
+                                  final lng = double.tryParse(
+                                    msg.metadata?['longitude']?.toString() ?? '',
+                                  );
+                                  if (lat == null || lng == null) return;
                                   map.showMarker(
-                                    coords: Coords(
-                                      double.parse(msg.metadata?['latitude']),
-                                      double.parse(msg.metadata?['longitude']),
-                                    ),
-                                    title: msg.metadata?['title'],
-                                    description: msg.metadata?['description'],
+                                    coords: Coords(lat, lng),
+                                    title: msg.metadata?['title']?.toString() ?? '',
+                                    description: msg.metadata?['description']?.toString() ?? '',
                                   );
                                 },
                                 title: Text(map.mapName),
@@ -128,7 +132,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                 Padding(
                   padding: MessageSpacing.locationTitlePadding,
                   child: Text(
-                    msg.metadata?['title'],
+                    msg.metadata?['title']?.toString() ?? '',
                     textAlign: TextAlign.left,
                     // style: const TextStyle(
                     //   color: Color.fromRGBO(44, 44, 44, 1.0),
@@ -142,7 +146,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                 Padding(
                   padding: MessageSpacing.locationAddressPadding,
                   child: Text(
-                    msg.metadata?['address'],
+                    msg.metadata?['address']?.toString() ?? '',
                     textAlign: TextAlign.left,
                     maxLines: 8,
                     overflow: TextOverflow.ellipsis,

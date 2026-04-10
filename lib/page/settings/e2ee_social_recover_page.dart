@@ -57,11 +57,11 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           _statusMessage = '准备就绪';
         });
       }
-    } catch (e) {
+    } on Exception {
       setState(() {
         _isLoading = false;
         _shards = [];
-        _statusMessage = '加载失败: $e';
+        _statusMessage = '加载失败，请重试';
       });
     }
   }
@@ -81,11 +81,11 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       });
 
       return shards;
-    } catch (e) {
+    } on Exception {
       setState(() {
         _isLoading = false;
         _shards = [];
-        _statusMessage = '加载失败: $e';
+        _statusMessage = '加载失败，请重试';
       });
       return [];
     }
@@ -453,11 +453,11 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           );
         }
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) {
         setState(() {
           _isRecovering = false;
-          _statusMessage = '恢复失败: $e';
+          _statusMessage = '恢复失败，请重试';
         });
 
         showCupertinoDialog(
@@ -465,7 +465,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           builder: (context) {
             return CupertinoAlertDialog(
               title: const Text('恢复失败'),
-              content: Text('错误: $e'),
+              content: const Text('恢复密钥失败，请重试'),
               actions: [
                 CupertinoDialogAction(
                   child: const Text('重试'),

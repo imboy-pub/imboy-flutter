@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -50,8 +50,9 @@ class RepaintBoundaryHelper {
       final asset = await PhotoManager.editor.saveImage(img, filename: name);
 
       return {"isSuccess": true, "filePath": asset.id};
-    } catch (e) {
-      return {"isSuccess": false, "errorMessage": e.toString()};
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint("savePhoto error: ${e.runtimeType}");
+      return {"isSuccess": false, "errorMessage": "保存失败，请重试"};
     }
   }
 }

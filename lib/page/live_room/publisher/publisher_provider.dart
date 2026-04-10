@@ -20,7 +20,7 @@ class PublisherState {
 
   const PublisherState({
     this.stateStr = 'idle',
-    this.serverUrl = 'http://192.168.0.144:9010/whip/publish/live/stream1',
+    this.serverUrl = '',
     this.isConnecting = false,
     this.roomId = '',
     this.preferences,
@@ -59,9 +59,7 @@ class PublisherNotifier extends _$PublisherNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final url =
-        prefs.getString('pushServer') ??
-        'http://192.168.0.144:9010/whip/publish/live/stream1';
+    final url = prefs.getString('pushServer') ?? '';
     state = state.copyWith(serverUrl: url, preferences: prefs);
   }
 
@@ -171,14 +169,14 @@ class PublisherNotifier extends _$PublisherNotifier {
       );
 
       state = state.copyWith(isConnecting: false, stateStr: 'publishing');
-      debugPrint('[WHIP Publisher] 推流成功，resource=$_resourceUrl');
+      if (kDebugMode) debugPrint('[WHIP Publisher] 推流成功');
       // 通知后端更新直播状态
       await _notifyServerStart();
-    } catch (e) {
-      debugPrint('[WHIP Publisher] 推流失败: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('[WHIP Publisher] 推流失败: ${e.runtimeType}');
       state = state.copyWith(
         isConnecting: false,
-        stateStr: 'error: ${e.toString()}',
+        stateStr: 'error',
       );
       await _cleanup(localRenderer);
     }
@@ -190,8 +188,8 @@ class PublisherNotifier extends _$PublisherNotifier {
     if (_resourceUrl != null) {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
-      } catch (e) {
-        debugPrint('[PublisherProvider] WebRTC operation failed: $e');
+      } on Exception catch (e) {
+        if (kDebugMode) debugPrint('[PublisherProvider] WebRTC operation failed: ${e.runtimeType}');
       }
       _resourceUrl = null;
     }

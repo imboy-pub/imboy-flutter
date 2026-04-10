@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/cupertino.dart';
 
 import 'package:imboy/component/helper/ntp.dart';
@@ -267,8 +267,8 @@ class AppInitializer {
       if (cleaned > 0) {
         logger.i('Cleaned up $cleaned old migration backups');
       }
-    } catch (e) {
-      logger.w('Failed to cleanup old migration backups: $e');
+    } on Exception catch (e) {
+      logger.w('Failed to cleanup old migration backups: ${e.runtimeType}');
     }
   }
 
@@ -336,18 +336,17 @@ class AppInitializer {
         deviceId = Xid().toString();
       }
 
-      iPrint('✅ [INIT] deviceId 初始化成功: $deviceId (长度: ${deviceId.length})');
+      iPrint('✅ [INIT] deviceId 初始化成功 (长度: ${deviceId.length})');
 
       // 验证deviceId长度
       if (deviceId.length < 5) {
         throw Exception('deviceId 长度过短: ${deviceId.length}');
       }
-    } catch (e, stack) {
-      iPrint('❌ [INIT] deviceId 初始化异常: $e');
-      iPrint('堆栈: $stack');
+    } on Exception catch (e) {
+      iPrint('❌ [INIT] deviceId 初始化异常: ${e.runtimeType}');
       // 使用错误备用方案
       deviceId = Xid().toString();
-      iPrint('⚠️  [INIT] 使用备用deviceId: $deviceId');
+      iPrint('⚠️  [INIT] 使用备用deviceId');
     }
 
     final packageInfo = await PackageInfo.fromPlatform();
@@ -374,19 +373,19 @@ class AppInitializer {
   static Future<Map<String, dynamic>> initConfig() async {
     // 1. 如果已有缓存，直接返回
     if (_initConfigCache != null) {
-      debugPrint('🔧 initConfig: 返回缓存结果');
+      if (kDebugMode) debugPrint('🔧 initConfig: 返回缓存结果');
       return _initConfigCache!;
     }
 
     // 2. 如果有正在进行的请求，等待其完成
     if (_initConfigCompleter != null) {
-      debugPrint('🔧 initConfig: 等待进行中的请求');
+      if (kDebugMode) debugPrint('🔧 initConfig: 等待进行中的请求');
       return await _initConfigCompleter!.future;
     }
 
     // 3. 创建新的 Completer 并开始请求
     _initConfigCompleter = Completer<Map<String, dynamic>>();
-    debugPrint('🔧 initConfig: 开始获取配置');
+    if (kDebugMode) debugPrint('🔧 initConfig: 开始获取配置');
 
     try {
       // 重试逻辑：最多 3 次，指数退避 (1s, 2s, 4s)
@@ -394,14 +393,14 @@ class AppInitializer {
       IMBoyHttpResponse? resp1;
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
         final startTime = DateTime.now();
-        debugPrint('🔧 initConfig: 请求 URL: ${Env().apiBaseUrl}${API.initConfig} (attempt $attempt/$maxRetries)');
+        if (kDebugMode) debugPrint('🔧 initConfig: attempt $attempt/$maxRetries');
 
         resp1 = await HttpClient.client
             .get(API.initConfig)
             .timeout(
               const Duration(seconds: 10),
               onTimeout: () {
-                debugPrint('❌ initConfig: 请求超时 (10秒)');
+                if (kDebugMode) debugPrint('❌ initConfig: 请求超时 (10秒)');
                 return IMBoyHttpResponse.failure(
                   errMsg: "配置获取超时: 请检查网络连接或服务端状态",
                   errCode: 408,
@@ -410,38 +409,38 @@ class AppInitializer {
             );
 
         final elapsed = DateTime.now().difference(startTime).inMilliseconds;
-        debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
+        if (kDebugMode) debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
 
         if (resp1.ok) break;
 
         if (attempt < maxRetries) {
           final delay = Duration(seconds: 1 << (attempt - 1)); // 1s, 2s, 4s
-          debugPrint('⚠️ initConfig: 请求失败 code=${resp1.code}，${delay.inSeconds}秒后重试...');
+          if (kDebugMode) debugPrint('⚠️ initConfig: 请求失败 code=${resp1.code}，${delay.inSeconds}秒后重试...');
           await Future.delayed(delay);
         }
       }
 
-      debugPrint("initConfig completed with code ${resp1!.code}");
-      if (!resp1.ok) {
-        debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
+      if (kDebugMode) debugPrint("initConfig completed with code ${resp1!.code}");
+      if (!resp1!.ok) {
+        if (kDebugMode) debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
         final error = {"error": "网络故障或服务故障 (HTTP ${resp1.code})"};
         _initConfigCompleter!.complete(error);
         return error;
       }
 
       final encrypted = resp1.payload['res'] ?? '';
-      debugPrint('🔧 initConfig: 加密内容长度=${encrypted.length}');
+      if (kDebugMode) debugPrint('🔧 initConfig: 加密内容长度=${encrypted.length}');
 
       if (encrypted.isEmpty) {
-        debugPrint('❌ initConfig: 加密内容为空');
+        if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
         final error = {"error": "服务故障协议有误"};
         _initConfigCompleter!.complete(error);
         return error;
       }
 
-      debugPrint('🔧 initConfig: 开始解密配置');
+      if (kDebugMode) debugPrint('🔧 initConfig: 开���解密配置');
       final key = await Env.signKey();
-      debugPrint('🔐 [INIT] signKey initialized (length=${key.length})');
+      if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
       Map<String, dynamic> payload = jsonDecode(
         EncrypterService.aesDecrypt(
           encrypted,
@@ -449,28 +448,29 @@ class AppInitializer {
           Env().solidifiedKeyIv,
         ),
       );
-      debugPrint('🔧 initConfig: 解密完成');
+      if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');
 
       if (payload.containsKey('error')) {
-        debugPrint('❌ initConfig: payload包含错误 ${payload['error']}');
+        if (kDebugMode) debugPrint('❌ initConfig: payload包含错误');
         _initConfigCompleter!.complete(payload);
         return payload;
       }
 
       // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
-      debugPrint(
-        "initConfig_payload received ${payload.keys.length} config items",
-      );
+      if (kDebugMode) {
+        debugPrint(
+          "initConfig_payload received ${payload.keys.length} config items",
+        );
+      }
 
-      // 【调试】输出 ws_url 用于验证
       final wsUrl = payload['ws_url'];
-      debugPrint('🔧 initConfig: ws_url = $wsUrl');
+      if (kDebugMode) debugPrint('🔧 initConfig: ws_url present: ${wsUrl != null && wsUrl.isNotEmpty}');
 
       if (wsUrl != null && wsUrl.isNotEmpty) {
         await StorageService.to.setString(Keys.wsUrl, wsUrl);
-        debugPrint('✅ initConfig: Saved ws_url to storage');
+        if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
       } else {
-        debugPrint('⚠️ initConfig: ws_url is null or empty, not saved');
+        if (kDebugMode) debugPrint('⚠️ initConfig: ws_url is null or empty, not saved');
       }
 
       await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
@@ -489,10 +489,12 @@ class AppInitializer {
       _initConfigCache = payload;
       _initConfigCompleter!.complete(payload);
       return payload;
-    } catch (e, stack) {
-      debugPrint('❌ initConfig: 请求异常 $e');
-      debugPrint('❌ initConfig: 堆栈追踪: $stack');
-      final error = {"error": "配置获取异常: $e"};
+    } on Exception catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint('❌ initConfig: 请求异常 ${e.runtimeType}');
+        debugPrint('❌ initConfig: 堆栈追踪: $stack');
+      }
+      final error = {"error": "配置获取失败，请检查网络连接"};
       // 确保在异常情况下也清理 Completer
       if (!_initConfigCompleter!.isCompleted) {
         _initConfigCompleter!.complete(error);
@@ -603,9 +605,9 @@ class AppInitializer {
         _groupSelfHealCompleter!.complete(result);
       }
       return result;
-    } catch (e, s) {
+    } on Exception catch (e) {
       final fallback = {'skipped': 1, 'errors': 1, 'reason': 500};
-      logger.w('Group membership self-heal trigger failed: $e\n$s');
+      logger.w('Group membership self-heal trigger failed: ${e.runtimeType}');
       if (!_groupSelfHealCompleter!.isCompleted) {
         _groupSelfHealCompleter!.complete(fallback);
       }
@@ -673,8 +675,8 @@ class AppInitializer {
         'errors=$errors, source=$source',
       );
       return result;
-    } catch (e, s) {
-      logger.w('Group membership self-heal failed: $e\n$s');
+    } on Exception catch (e) {
+      logger.w('Group membership self-heal failed: ${e.runtimeType}');
       return {'skipped': 0, 'errors': 1, 'reason': 500};
     }
   }
@@ -754,7 +756,7 @@ class AppInitializer {
       if (refreshToken != "") {
         await UserApi.to.refreshAccessTokenApi(refreshToken);
       }
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e("Failed to refresh token", error: e);
       // 可以考虑在这里处理token刷新失败的情况，比如退出登录
     }
@@ -777,8 +779,8 @@ class AppInitializer {
       } else if (UserRepoLocal.to.isLoggedIn) {
         await WebSocketService.to.openSocket(from: 'connectivityChanged');
       }
-    } catch (e) {
-      logger.e('WebSocket连接状态处理失败: $e');
+    } on Exception catch (e) {
+      logger.e('WebSocket连接状态处理失败: ${e.runtimeType}');
     }
   }
 
@@ -786,7 +788,7 @@ class AppInitializer {
   static void clearInitConfigCache() {
     _initConfigCache = null;
     _initConfigCompleter = null;
-    debugPrint('🔧 initConfig: 缓存已清理');
+    if (kDebugMode) debugPrint('🔧 initConfig: 缓存已清理');
   }
 
   /// 释放资源（在应用退出或重新初始化前调用）
@@ -806,22 +808,22 @@ class AppInitializer {
       if (serviceContainer.isRegistered<WebSocketService>()) {
         await WebSocketService.to.closeSocket();
       }
-    } catch (e) {
-      logger.w('Failed to close WebSocket: $e');
+    } on Exception catch (e) {
+      logger.w('Failed to close WebSocket: ${e.runtimeType}');
     }
 
     // 清理MessageOfflineService资源
     try {
       MessageOfflineService.instance.onDispose();
-    } catch (e) {
-      logger.w('Failed to dispose MessageOfflineService: $e');
+    } on Exception catch (e) {
+      logger.w('Failed to dispose MessageOfflineService: ${e.runtimeType}');
     }
 
     // 清理MessageRetry资源（定时器和事件订阅）
     try {
       MessageRetry.instance.dispose();
-    } catch (e) {
-      logger.w('Failed to dispose MessageRetry: $e');
+    } on Exception catch (e) {
+      logger.w('Failed to dispose MessageRetry: ${e.runtimeType}');
     }
 
     // 清理WebRTC会话

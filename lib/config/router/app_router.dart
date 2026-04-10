@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:feedback/feedback.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,7 +55,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: AppRoutes.initial,
-    debugLogDiagnostics: true, // 开发环境开启路由日志
+    debugLogDiagnostics: kDebugMode, // 仅开发环境开启路由日志
     // 路由重定向（认证守卫）
     redirect: (context, state) {
       final isLogin = UserRepoLocal.to.isLoggedIn;

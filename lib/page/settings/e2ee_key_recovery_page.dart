@@ -735,7 +735,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception {
       setState(() {
         _keyInfo = {};
         _isLoading = false;
@@ -769,7 +769,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       final keyInfo = await E2EEKeyService.generateKeyPair();
 
       // 关闭加载对话框
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
 
       // 2. 刷新页面显示
       await _loadKeyInfo();
@@ -786,8 +786,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               children: [
                 const Text('新的 E2EE 密钥对已生成！'),
                 const SizedBox(height: 12),
-                Text('设备 ID: ${keyInfo['device_id']}'),
-                Text('密钥 ID: ${keyInfo['key_id']}'),
+                Text('设备 ID: ${_maskId(keyInfo['device_id']?.toString() ?? '')}'),
+                Text('密钥 ID: ${_maskId(keyInfo['key_id']?.toString() ?? '')}'),
                 Text('创建时间: ${keyInfo['created_at']}'),
                 const SizedBox(height: 12),
                 Container(
@@ -847,20 +847,26 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           ),
         );
       }
-    } catch (e) {
+    } on Exception {
       // 关闭加载对话框
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('密钥生成失败: ${e.toString()}'),
+          const SnackBar(
+            content: Text('密钥生成失败，请重试'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
+            duration: Duration(seconds: 3),
           ),
         );
       }
     }
+  }
+
+  /// 脱敏 ID 显示（只显示前4位和后4位）
+  String _maskId(String id) {
+    if (id.length <= 8) return id;
+    return '${id.substring(0, 4)}...${id.substring(id.length - 4)}';
   }
 
   /// 删除密钥
@@ -869,15 +875,17 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       final storage = StorageSecureService.to;
       await storage.deleteAllE2EEKeys();
 
+      if (!mounted) return;
       setState(() => _keyInfo = {});
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('密钥已删除'), backgroundColor: Colors.green),
       );
-    } catch (e) {
+    } on Exception {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('删除失败: ${e.toString()}'),
+        const SnackBar(
+          content: Text('删除失败，请重试'),
           backgroundColor: Colors.red,
         ),
       );

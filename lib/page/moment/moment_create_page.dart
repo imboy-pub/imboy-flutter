@@ -122,7 +122,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       coverUrl = uploadedCover ?? '';
       final mediaInfo = await VideoCompress.getMediaInfo(video.path);
       durationMs = (mediaInfo.duration ?? 0).toInt();
-    } catch (_) {
+    } on Exception {
       coverUrl = '';
       durationMs = 0;
     }

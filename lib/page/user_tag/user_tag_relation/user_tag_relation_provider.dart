@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/store/api/user_tag_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
@@ -276,8 +276,8 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
       };
       updateTagStatistics(statistics);
       return statistics;
-    } catch (e) {
-      debugPrint('getTagStatistics error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('getTagStatistics error: ${e.runtimeType}');
       const emptyStatistics = <String, dynamic>{
         'tags': <String>[],
         'usage_count': <String, int>{},
@@ -352,7 +352,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
           .where((tagName) => !resolvedTagIdByName.containsKey(tagName))
           .toList();
       if (unresolved.isNotEmpty) {
-        debugPrint('syncFinalState missing tag ids: $unresolved');
+        if (kDebugMode) debugPrint('syncFinalState missing tag ids: $unresolved');
         return false;
       }
     }
@@ -360,7 +360,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
     for (final tagName in plan.toRemove) {
       final tagId = resolvedTagIdByName[tagName];
       if (tagId == null || tagId <= 0) {
-        debugPrint('syncFinalState invalid tag id for $tagName');
+        if (kDebugMode) debugPrint('syncFinalState invalid tag id for $tagName');
         return false;
       }
       final removed = await _userTagApi.removeRelation(
@@ -457,8 +457,8 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
       }
 
       return allSuccess;
-    } catch (e) {
-      debugPrint('batchUpdateTags error: $e');
+    } on Exception catch (e) {
+      if (kDebugMode) debugPrint('batchUpdateTags error: ${e.runtimeType}');
       return false;
     }
   }
