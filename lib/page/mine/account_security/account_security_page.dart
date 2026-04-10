@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/api/user_api.dart';
 
@@ -51,36 +52,97 @@ class AccountSecurityPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final cardColor = Theme.of(context).cardColor;
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.accountSecurity,
       ),
       body: ListView(
         children: [
-          ListTile(
-            title: Text(t.bindEmail),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.of(
-                context,
-              ).push(CupertinoPageRoute(builder: (_) => const BindEmailPage()));
-            },
-          ),
-          ListTile(
-            title: Text(t.bindMobile),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.of(context).push(
-                CupertinoPageRoute(builder: (_) => const BindMobilePage()),
-              );
-            },
+          // TODO: 迁移到 slang i18n
+          _buildSectionHeader(context, '登录凭证'),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                _buildTile(
+                  context,
+                  title: t.bindEmail,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (_) => const BindEmailPage(),
+                      ),
+                    );
+                  },
+                ),
+                _buildDivider(),
+                _buildTile(
+                  context,
+                  title: t.bindMobile,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (_) => const BindMobilePage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 20, 32, 6),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.08,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTile(
+    BuildContext context, {
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      title: Text(title),
+      trailing: const Icon(
+        CupertinoIcons.chevron_right,
+        size: 14,
+        color: AppColors.iosGray,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: Divider(
+        height: 0.33,
+        thickness: 0.33,
+        color: AppColors.iosSeparator.withValues(alpha: 0.6),
       ),
     );
   }

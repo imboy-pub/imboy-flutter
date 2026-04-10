@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 
@@ -121,48 +123,118 @@ class DarkModelPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     final t = context.t;
     final state = ref.watch(darkModelProvider);
+    final brightness = Theme.of(context).brightness;
+    final cardColor = Theme.of(context).cardColor;
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.darkModel),
       body: ListView(
         children: [
-          SwitchListTile(
-            value: state.switchValue,
-            title: Text(t.followSystem),
-            subtitle: Text(t.followSystemTips),
-            onChanged: (val) {
-              ref.read(darkModelProvider.notifier).configSwitchOnChanged(val);
-            },
+          // TODO: 迁移到 slang i18n
+          _buildSectionHeader(context, '显示'),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: SwitchListTile(
+              value: state.switchValue,
+              title: Text(t.followSystem),
+              subtitle: Text(t.followSystemTips),
+              activeThumbColor: Colors.white,
+              activeTrackColor: AppColors.getIosBlue(brightness),
+              onChanged: (val) {
+                ref
+                    .read(darkModelProvider.notifier)
+                    .configSwitchOnChanged(val);
+              },
+            ),
           ),
           if (!state.switchValue) ...[
-            RadioListTile<int>(
-              value: 2,
-              // ignore: deprecated_member_use
-              groupValue: state.selectIndex,
-              // ignore: deprecated_member_use
-              onChanged: (val) {
-                if (val == null) return;
-                ref.read(darkModelProvider.notifier).tapDarkItem(val);
-              },
-              title: Text(t.systemDefault),
-            ),
-            RadioListTile<int>(
-              value: 3,
-              // ignore: deprecated_member_use
-              groupValue: state.selectIndex,
-              // ignore: deprecated_member_use
-              onChanged: (val) {
-                if (val == null) return;
-                ref.read(darkModelProvider.notifier).tapDarkItem(val);
-              },
-              title: Text(t.darkModel),
+            // TODO: 迁移到 slang i18n
+            _buildSectionHeader(context, '主题'),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                children: [
+                  _buildThemeOption(
+                    context,
+                    title: t.systemDefault,
+                    selected: state.selectIndex == 2,
+                    onTap: () => ref
+                        .read(darkModelProvider.notifier)
+                        .tapDarkItem(2),
+                    brightness: brightness,
+                  ),
+                  _buildDivider(),
+                  _buildThemeOption(
+                    context,
+                    title: t.darkModel,
+                    selected: state.selectIndex == 3,
+                    onTap: () => ref
+                        .read(darkModelProvider.notifier)
+                        .tapDarkItem(3),
+                    brightness: brightness,
+                  ),
+                ],
+              ),
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 20, 32, 6),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.08,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required String title,
+    required bool selected,
+    required VoidCallback onTap,
+    required Brightness brightness,
+  }) {
+    return ListTile(
+      title: Text(title),
+      trailing: selected
+          ? Icon(
+              CupertinoIcons.check_mark,
+              size: 18,
+              color: AppColors.getIosBlue(brightness),
+            )
+          : null,
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: Divider(
+        height: 0.33,
+        thickness: 0.33,
+        color: AppColors.iosSeparator.withValues(alpha: 0.6),
       ),
     );
   }

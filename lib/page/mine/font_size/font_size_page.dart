@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -114,11 +114,13 @@ class FontSizePage extends ConsumerWidget {
     final t = context.t;
     final state = ref.watch(fontSizeProvider);
     final notifier = ref.read(fontSizeProvider.notifier);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brightness = Theme.of(context).brightness;
+    final cardColor = Theme.of(context).cardColor;
+    final iosBlue = AppColors.getIosBlue(brightness);
     final options = FontSizeOption.values;
 
     return Scaffold(
-      backgroundColor: isDark ? cs.surface : const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         title: t.fontSizeSetting,
         automaticallyImplyLeading: true,
@@ -145,17 +147,8 @@ class FontSizePage extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: isDark ? cs.surfaceContainerHighest : Colors.white,
-                      borderRadius: AppRadius.borderRadiusRegular,
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? Colors.black.withValues(alpha: 0.2)
-                              : Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,17 +208,16 @@ class FontSizePage extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
             decoration: BoxDecoration(
-              color: isDark ? cs.surface : Colors.white,
+              color: cardColor,
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
+                top: Radius.circular(20),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -4),
+              border: Border(
+                top: BorderSide(
+                  color: AppColors.iosSeparator.withValues(alpha: 0.6),
+                  width: 0.33,
                 ),
-              ],
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,10 +233,11 @@ class FontSizePage extends ConsumerWidget {
                 const SizedBox(height: 20),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: cs.primary,
-                    inactiveTrackColor: cs.outline.withValues(alpha: 0.2),
-                    thumbColor: cs.primary,
-                    overlayColor: cs.primary.withValues(alpha: 0.2),
+                    activeTrackColor: iosBlue,
+                    inactiveTrackColor:
+                        AppColors.iosGray4.withValues(alpha: 0.6),
+                    thumbColor: Colors.white,
+                    overlayColor: iosBlue.withValues(alpha: 0.2),
                     trackHeight: 4.0,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 12.0,
@@ -342,7 +335,7 @@ class FontSizePage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
             color: cs.primaryContainer.withValues(alpha: 0.2),
-            borderRadius: AppRadius.borderRadiusMedium,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             t.recommended,

@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';
@@ -232,12 +234,13 @@ class LanguagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     final t = context.t;
     final state = ref.watch(languageProvider);
+    final brightness = Theme.of(context).brightness;
+    final cardColor = Theme.of(context).cardColor;
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.languageSetting,
@@ -246,46 +249,64 @@ class LanguagePage extends ConsumerWidget {
         child: Column(
           children: [
             Expanded(
-              child: RadioGroup<AppLocale>(
-                groupValue: state.selectedLocale,
-                onChanged: (val) {
-                  if (val == null) return;
-                  // 根据选中的 AppLocale 查找对应的语言 ID
-                  final langId = localeIdMap.entries
-                      .firstWhere(
-                        (entry) => entry.value == val,
-                        orElse: () => localeIdMap.entries.first,
-                      )
-                      .key;
-                  ref
-                      .read(languageProvider.notifier)
-                      .updateSelectedLanguage(langId);
-                },
-                child: ListView.builder(
-                  itemCount: state.languageList.length,
-                  itemBuilder: (context, index) {
-                    final item = state.languageList[index];
-                    final locale = localeIdMap[item.id]!;
-                    return InkWell(
-                      onTap: () {
-                        ref
-                            .read(languageProvider.notifier)
-                            .updateSelectedLanguage(item.id);
-                      },
-                      child: ListTile(
-                        title: Text(item.title),
-                        trailing: Radio<AppLocale>(value: locale),
-                      ),
-                    );
-                  },
-                ),
+              child: ListView(
+                children: [
+                  // TODO: 迁移到 slang i18n
+                  _buildSectionHeader(context, '选择语言'),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        for (int i = 0;
+                            i < state.languageList.length;
+                            i++) ...[
+                          _buildLanguageTile(
+                            context,
+                            item: state.languageList[i],
+                            selected: state.selectedLocale ==
+                                localeIdMap[state.languageList[i].id],
+                            brightness: brightness,
+                            onTap: () => ref
+                                .read(languageProvider.notifier)
+                                .updateSelectedLanguage(
+                                    state.languageList[i].id),
+                          ),
+                          if (i < state.languageList.length - 1)
+                            _buildDivider(),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor:
+                        AppColors.primary.withValues(alpha: 0.4),
+                    disabledForegroundColor:
+                        Colors.white.withValues(alpha: 0.7),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   onPressed:
                       state.valueChanged && state.selectedLocaleId != null
                       ? () async {
@@ -303,6 +324,52 @@ class LanguagePage extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 20, 32, 6),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.08,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageTile(
+    BuildContext context, {
+    required LanguageModel item,
+    required bool selected,
+    required Brightness brightness,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      title: Text(item.title),
+      trailing: selected
+          ? Icon(
+              CupertinoIcons.check_mark,
+              size: 18,
+              color: AppColors.getIosBlue(brightness),
+            )
+          : null,
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: Divider(
+        height: 0.33,
+        thickness: 0.33,
+        color: AppColors.iosSeparator.withValues(alpha: 0.6),
       ),
     );
   }
