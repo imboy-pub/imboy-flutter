@@ -37,20 +37,3 @@
     <true/>
 </dict>
 </plist>
-```
-
-文件已成功创建。现在你需要执行以下命令来验证和清理构建：
-
-验证文件格式：
-```bash
-plutil -lint macos/Runner/Runner.entitlements
-```
-
-清理并重新构建项目：
-```bash
-flutter clean
-flutter pub get
-flutter run -d macos
-```
-
-创建此文件后，geolocator 在 macOS 上应该就能正常获取经纬度了。记住在首次运行时要授予应用位置权限！

@@ -392,7 +392,8 @@ class ConversationRepo {
         [model.uk3],
       );
 
-      final msgIds = result.map((row) => row['id'] as String).toList();
+      // v16: id 列从 TEXT 迁移到 INTEGER，此处用 toString() 兼容 int/String 两种返回
+      final msgIds = result.map((row) => row['id'].toString()).toList();
 
       // 2. 清理重试队列中的消息
       if (msgIds.isNotEmpty) {
@@ -485,7 +486,8 @@ class ConversationRepo {
         [model.uk3],
       );
 
-      final msgIds = result.map((row) => row['id'] as String).toList();
+      // v16: id 列从 TEXT 迁移到 INTEGER，此处用 toString() 兼容 int/String 两种返回
+      final msgIds = result.map((row) => row['id'].toString()).toList();
 
       // 2. 清理重试队列中的消息
       if (msgIds.isNotEmpty) {

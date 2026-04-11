@@ -201,7 +201,7 @@ class UserRepoLocal {
       StorageService.to.setList(Keys.loginHistory, li);
     }
 
-    await StorageService.to.setString(Keys.currentUid, payload['uid']);
+    await StorageService.to.setString(Keys.currentUid, payload['uid'].toString());
 
     await SecureTokenStorageService.saveToken(payload['token']);
     await SecureTokenStorageService.saveRefreshToken(payload['refreshtoken']);

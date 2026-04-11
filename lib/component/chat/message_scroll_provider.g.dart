@@ -48,7 +48,7 @@ final class MessageScrollManagerProvider
 }
 
 String _$messageScrollManagerHash() =>
-    r'ce03435e811cdb88ab3533629a41baba23113dff';
+    r'db2319e2e05aca6c9f03527f4d8b8c0bd1e8c128';
 
 /// 消息滚动管理器
 /// 处理消息列表的滚动、定位和动画效果

@@ -44,7 +44,7 @@ final class SearchNotifierProvider
   }
 }
 
-String _$searchNotifierHash() => r'5cd0337eb71dc9c364637c22e3b0d6f0ca4c6ce3';
+String _$searchNotifierHash() => r'6e4871772aacb74811488ee4d272b8a5fcd5be2c';
 
 /// Search Provider - 使用 @riverpod 注解
 

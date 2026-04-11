@@ -48,7 +48,7 @@ final class MessageLoadingManagerProvider
 }
 
 String _$messageLoadingManagerHash() =>
-    r'6651e20b54ca68e67f063bf2d7992265f500a259';
+    r'1b25218992bfcc880c12924ed914fb7fb551b1df';
 
 /// 消息加载管理器
 /// 处理消息的预加载、缓存和分页加载逻辑

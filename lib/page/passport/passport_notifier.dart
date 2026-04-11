@@ -547,9 +547,9 @@ class PassportNotifier extends _$PassportNotifier {
         }
         return 1;
       }
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, s) {
       if (kDebugMode) {
-        debugPrint('PlatformException in _login: $e');
+        debugPrint('PlatformException in _login: $e, trace $s');
       }
       if (e.code.contains('34018') || e.message?.contains('entitlement') == true) {
         safeUpdateState((state) => state.copyWith(error: '安全存储初始化失败，请重启应用'));
@@ -557,9 +557,9 @@ class PassportNotifier extends _$PassportNotifier {
         safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       }
       return 0;
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
-        debugPrint('_login error: $e');
+        debugPrint('_login error: $e, trace $s');
       }
       safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       return 0;

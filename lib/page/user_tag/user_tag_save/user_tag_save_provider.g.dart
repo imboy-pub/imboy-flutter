@@ -42,7 +42,7 @@ final class UserTagSaveNotifierProvider
 }
 
 String _$userTagSaveNotifierHash() =>
-    r'2eaba1f17f1f3bbce5c92e3a3ff28d72cd9e39f3';
+    r'27b6947cc86f86960dc31eacc3b602580b53cc79';
 
 abstract class _$UserTagSaveNotifier extends $Notifier<UserTagSaveState> {
   UserTagSaveState build();

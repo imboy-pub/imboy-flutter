@@ -1,7 +1,69 @@
-# ImBoy App - 架构文档
+# ImBoy App - 架构文档 / Architecture Document
 
 > 本文档由 init-architect 自动生成和维护
-> 最后更新：2026-04-10 CST
+> This document is auto-generated and maintained by init-architect
+> 最后更新 / Last updated：2026-04-11 CST
+
+---
+
+## 📘 文档双语强制规则 / Bilingual Documentation Rule (MANDATORY)
+
+> **适用范围 / Scope**：本项目（imboyapp Flutter 客户端）所有新增 / 修改的 Markdown 文档（README、CHANGELOG、DESIGN.md、doc/**、lib/**/CLAUDE.md、release notes 等）必须遵守本规则。
+> All new or modified Markdown docs in this project (imboyapp Flutter client) — README, CHANGELOG, DESIGN.md, doc/**, lib/**/CLAUDE.md, release notes, etc. — MUST follow this rule.
+
+### 1. 强制双语 / Bilingual mandatory
+
+- 面向用户 / 贡献者 / 测试 / 上架审核的文档必须同时提供 **简体中文 + English** 两种语言。
+- User / contributor / QA / store-review-facing docs MUST provide both **Simplified Chinese** and **English**.
+
+### 2. 组织方式（二选一）/ Organization (pick one)
+
+- **方式 A — 单文件并排 / Pattern A — Side-by-side**
+  每个小节按 `中文 / English` 同节并排或上下段落对照。适合短文档（README hero、CHANGELOG 条目、Play Store / App Store 文案、release notes、issue 模板）。
+  Each section uses `中文 / English` side-by-side or stacked paragraphs. Use for short docs (README hero, CHANGELOG entries, Play Store / App Store listings, release notes, issue templates).
+
+- **方式 B — 文件后缀分离 / Pattern B — Separate files by suffix**
+  `README.md`（中文权威）+ `README.en.md`（英文镜像）；两个文件顶部互加语言切换链接 `[English](README.en.md) | 简体中文`。适合长文档（DESIGN.md、architecture、测试指南、Mixin 规则手册）。
+  `README.md` (Chinese authoritative) + `README.en.md` (English mirror); both have a language switcher at the top. Use for long docs (DESIGN.md, architecture, test guides, Mixin rules handbook).
+
+### 3. 权威语言 / Source of truth
+
+- **简体中文为权威版本**；英文版基于中文翻译。**中文先改，英文在同一次 PR 内同步跟进**，禁止出现只改中文不改英文或反之。
+- **Simplified Chinese is the source of truth**; English mirrors Chinese. **Update Chinese first, sync English in the same PR**. Never ship one language without the other.
+
+### 4. 代码块与命令行原样保留 / Code and CLI verbatim
+
+- Dart 代码、Flutter 命令、`pubspec.yaml` 片段、iOS / Android 配置、错误堆栈不翻译。
+- Dart code, Flutter commands, `pubspec.yaml` snippets, iOS / Android configs, error stacks are NOT translated.
+
+### 5. 术语一致性 / Terminology consistency
+
+- 关键术语首次出现时给出对照：`会话 (Conversation)`、`消息气泡 (Message Bubble)`、`首启向导 (First-run Setup Wizard)`、`本地数据库 (Local DB)`、`端到端加密 (E2EE)`、`推送通知 (Push Notification)`、`暗色模式 (Dark Mode)`、`资源授权 URL (Authorized Asset URL)`。
+- Key terms come with a translation pair on first occurrence.
+
+### 6. i18n 与 slang 的协作 / Coordination with slang i18n
+
+- 本规则约束的是**开发 / 运维 Markdown 文档**的双语；应用内文案仍由 `lib/i18n/*.i18n.yaml` + slang 负责，二者互不替代。
+- This rule covers **developer / ops Markdown docs**; in-app strings remain driven by `lib/i18n/*.i18n.yaml` + slang. The two do not replace each other.
+
+### 7. 例外（可仅保留中文）/ Exceptions (Chinese-only allowed)
+
+- `.claude/plan/*`、`.claude/memory/*`、内部会议纪要、个人研发笔记、`lib/**/*_REPORT.md` 类内部迁移报告
+- `.claude/plan/*`, `.claude/memory/*`, internal meeting notes, personal dev notes, `lib/**/*_REPORT.md` internal migration reports
+
+### 8. AI 编码代理契约 / AI Coding Agent Contract
+
+当 AI 代理（Claude Code / Cursor / Copilot）收到「写文档 / 改文档 / 新建 .md」类任务时：
+1. **默认双语输出**，无需用户额外提示。
+2. 修改已有单语文档时，**主动补齐**缺失的语言。
+3. 新建文档时，短文档走方式 A，长文档走方式 B。
+4. Commit message 前缀 `docs(bilingual):` 或 PR 描述勾选 "docs bilingual check"。
+
+When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or create Markdown docs:
+1. **Default to bilingual output**, no extra user prompt needed.
+2. When editing an existing single-language doc, **proactively add** the missing language.
+3. For new docs, use Pattern A (short) or Pattern B (long) as appropriate.
+4. Use `docs(bilingual):` commit prefix or tick "docs bilingual check" in the PR description.
 
 ---
 

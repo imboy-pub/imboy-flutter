@@ -63,13 +63,28 @@ abstract interface class Env implements EnvField {
     return _to.solidifiedKey;
   }
 
+  /// 规范化 WebSocket URL
+  /// - 剥掉路径尾部斜杠，后端 Cowboy 路由默认严格匹配 `/ws`，
+  ///   若客户端拼成 `/ws/` 会导致 500
+  static String? _normalizeWsUrl(String? url) {
+    if (url == null || url.isEmpty) return url;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    final path = uri.path;
+    if (path.length > 1 && path.endsWith('/')) {
+      final trimmed = path.substring(0, path.length - 1);
+      return uri.replace(path: trimmed).toString();
+    }
+    return url;
+  }
+
   /// WebSocket URL - 优先从环境配置读取，如果没有则从本地存储读取
   /// Environment-specific WebSocket URL, falls back to cached value
   static String? get effectiveWsUrl {
     // 优先使用环境配置中的 wsUrl
     final envWsUrl = _to.wsUrl;
     if (envWsUrl != null && envWsUrl.isNotEmpty) {
-      return envWsUrl;
+      return _normalizeWsUrl(envWsUrl);
     }
 
     // 当 wsUrl 为空时的处理逻辑
@@ -92,7 +107,7 @@ abstract interface class Env implements EnvField {
     if (cachedWsUrl.isNotEmpty) {
       if (kDebugMode) debugPrint('ℹ️ [Env] 使用缓存的 WebSocket URL');
     }
-    return cachedWsUrl;
+    return _normalizeWsUrl(cachedWsUrl);
   }
 
   @EnviedField(defaultValue: '')

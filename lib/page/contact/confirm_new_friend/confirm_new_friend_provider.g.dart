@@ -45,7 +45,7 @@ final class ConfirmNewFriendNotifierProvider
 }
 
 String _$confirmNewFriendNotifierHash() =>
-    r'bff73650d1d2e975d564114a902fe1a37cad973b';
+    r'2972fd7e14bdd7d8380659d9bb4cf781907c053d';
 
 /// 确认新好友 Notifier
 

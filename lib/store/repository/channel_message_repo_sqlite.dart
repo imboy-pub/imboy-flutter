@@ -297,7 +297,9 @@ class ChannelMessageRepo {
     }
 
     // 构建排除列表
-    final excludeIds = keepIds.map((row) => row[id] as String).toList();
+    // v16: id 列从 TEXT 迁移到 INTEGER，用 toString() 兼容 int/String 两种返回，
+    // whereArgs 绑定到 NOT IN 占位符时 SQLite 会做类型亲和转换。
+    final excludeIds = keepIds.map((row) => row[id].toString()).toList();
     final placeholders = List.filled(excludeIds.length, '?').join(',');
 
     // 删除不在保留列表中的消息

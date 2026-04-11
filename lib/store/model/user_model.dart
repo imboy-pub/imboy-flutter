@@ -83,6 +83,8 @@ class UserSettingModel {
 }
 
 class UserModel {
+  /// 用户 ID（后端为 bigint，此处以 String 承载以兼容 flutter_chat_ui 的 UserID 契约；
+  /// parseModelString 会在 fromJson 阶段将数字安全转为字符串）
   String uid;
   String account;
   String nickname;

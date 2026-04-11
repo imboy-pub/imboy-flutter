@@ -45,7 +45,7 @@ final class RemoveMemberNotifierProvider
 }
 
 String _$removeMemberNotifierHash() =>
-    r'8dd451d5ca5c92b337b7e9039d87e6f7c2f2040a';
+    r'33e4884332917b686684ca6604bdd54ee7e7a5d7';
 
 /// 移除群成员 Notifier
 

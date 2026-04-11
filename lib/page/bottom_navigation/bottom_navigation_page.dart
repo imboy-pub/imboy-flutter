@@ -32,6 +32,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   StreamSubscription? _localeSubscription;
 
+  /// 是否已根据 GoRouter 的 query 参数初始化过 index
+  /// GoRouterState.of(context) 必须在 initState 之后调用（依赖 InheritedWidget）
+  bool _initialIndexApplied = false;
+
   int _normalizeIndex(int value, {required bool channelEnabled}) {
     final maxIndex = channelEnabled ? 3 : 2;
     if (value < 0) {
@@ -55,6 +59,28 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   @override
   void initState() {
     super.initState();
+    // PageController 初始为 0，真正的 initialIndex 在 didChangeDependencies 中
+    // 根据 GoRouterState 的 query 参数计算并跳转（GoRouterState.of 依赖
+    // InheritedWidget，不能在 initState 中调用）
+    pageController = PageController(initialPage: 0);
+
+    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    Future.microtask(() {
+      ref.read(newFriendRemindProvider.notifier).countReminders();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialIndexApplied) return;
+    _initialIndexApplied = true;
+
     final channelEnabled = AppFeatureRegistry.isEnabled('channel');
     int initialIndex = 0;
 
@@ -65,7 +91,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         initialIndex = int.tryParse(indexParam) ?? 0;
       }
     } on Exception {
-      // 如果无法获取 go_router 状态，使用默认值
+      // 非 GoRouter 上下文时使用默认值
     }
 
     initialIndex = _normalizeIndex(
@@ -73,25 +99,12 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       channelEnabled: channelEnabled,
     );
 
-    pageController = PageController(initialPage: initialIndex);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       if (pageController.hasClients) {
         pageController.jumpToPage(initialIndex);
       }
-    });
-
-    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-
-    Future.microtask(() {
       ref.read(bottomNavigationProvider.notifier).changeIndex(initialIndex);
-    });
-
-    Future.microtask(() {
-      ref.read(newFriendRemindProvider.notifier).countReminders();
     });
   }
 
