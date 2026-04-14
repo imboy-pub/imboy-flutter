@@ -358,6 +358,10 @@ class ChannelService {
   }
 
   /// 标记频道消息已读
+  ///
+  /// 三步同步：API 通知服务端 → 本地 DB 清零 → 广播
+  /// [ChannelUnreadCountUpdatedEvent]，驱动 UI 徽标与总未读缓存刷新。
+  /// 缺任一步都会导致服务端/本地/UI 状态不一致。
   Future<bool> markAsRead(String channelId, String messageId) async {
     try {
       // 更新服务器
@@ -365,6 +369,14 @@ class ChannelService {
 
       // 更新本地
       await _repo.markAsRead(channelId, messageId);
+
+      // 广播 0 未读，驱动 UI 徽标与 _ChannelUnreadCountCache 刷新。
+      AppEventBus.fire(
+        ChannelUnreadCountUpdatedEvent(
+          channelId: channelId,
+          unreadCount: 0,
+        ),
+      );
 
       iPrint('ChannelService: 标记已读 - $channelId/$messageId');
       return true;

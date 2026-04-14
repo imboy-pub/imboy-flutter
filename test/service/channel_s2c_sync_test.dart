@@ -12,10 +12,17 @@ class _FakeChannelApi extends ChannelApi {
   _FakeChannelApi({this.channelById = const {}});
 
   final Map<String, ChannelModel> channelById;
+  final List<(String, String)> markAsReadCalls = <(String, String)>[];
 
   @override
   Future<ChannelModel?> getChannel(String channelId) async {
     return channelById[channelId];
+  }
+
+  @override
+  Future<bool> markAsRead(String channelId, String messageId) async {
+    markAsReadCalls.add((channelId, messageId));
+    return true;
   }
 }
 
@@ -26,6 +33,13 @@ class _FakeChannelRepo extends ChannelRepo {
       <ChannelSubscriptionModel>[];
   final Map<String, ChannelSubscriptionModel> subscriptions =
       <String, ChannelSubscriptionModel>{};
+  final List<(String, String)> markAsReadCalls = <(String, String)>[];
+
+  @override
+  Future<int> markAsRead(String channelId, String messageId) async {
+    markAsReadCalls.add((channelId, messageId));
+    return 1;
+  }
 
   @override
   Future<void> saveChannel(ChannelModel channel, {dynamic txn}) async {
@@ -231,6 +245,41 @@ void main() {
 
         expect(messageRepo.deletedMessageIds, isEmpty);
         expect(events, isEmpty);
+      },
+    );
+
+    test(
+      'markAsRead updates local DB and emits unread count cleared event',
+      () async {
+        final api = _FakeChannelApi();
+        final repo = _FakeChannelRepo();
+        final service = ChannelService.forTest(
+          api: api,
+          repo: repo,
+          messageRepo: _FakeChannelMessageRepo(),
+        );
+        final unreadEvents = <ChannelUnreadCountUpdatedEvent>[];
+        final sub = AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
+          unreadEvents.add,
+        );
+
+        final ok = await service.markAsRead('ch-9', 'msg-99');
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(ok, isTrue);
+        expect(api.markAsReadCalls, equals(const [('ch-9', 'msg-99')]),
+            reason: 'API 端必须同步');
+        expect(repo.markAsReadCalls, equals(const [('ch-9', 'msg-99')]),
+            reason: '本地 DB 必须清 0 保持一致');
+        expect(
+          unreadEvents.any(
+            (e) => e.channelId == 'ch-9' && e.unreadCount == 0,
+          ),
+          isTrue,
+          reason: '必须广播 ChannelUnreadCountUpdatedEvent 触发 UI 徽标刷新',
+        );
       },
     );
 

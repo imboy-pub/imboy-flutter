@@ -431,9 +431,13 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   }
 
   /// 标记已读
+  ///
+  /// 走 ChannelService，保证服务端、本地 DB、事件三者一致。
+  /// 之前直连 _api.markAsRead 的写法会让本地 unread_count 与 UI 徽标
+  /// 始终停留在旧值，必须走服务层。
   Future<void> markAsRead(String messageId) async {
     if (_channelId == null) return;
-    await _api.markAsRead(_channelId!, messageId);
+    await ChannelService.to.markAsRead(_channelId!, messageId);
   }
 
   void _handleRealtimeMessage(ChannelNewMessageEvent event) {
