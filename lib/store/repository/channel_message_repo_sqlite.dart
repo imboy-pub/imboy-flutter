@@ -178,12 +178,21 @@ class ChannelMessageRepo {
   // ==================== 置顶消息 ====================
 
   /// 获取置顶消息
-  Future<List<ChannelMessageModel>> getPinnedMessages(String channelId) async {
+  ///
+  /// 默认上限 [limit] = 100，避免频道长期运行后置顶列表膨胀导致的
+  /// 一次性全量读入。调用方需要更多时可显式传入，但应同步考虑 UI 分页。
+  /// 传入非正数会回退为默认值 100。
+  Future<List<ChannelMessageModel>> getPinnedMessages(
+    String channelId, {
+    int limit = 100,
+  }) async {
+    final effectiveLimit = limit > 0 ? limit : 100;
     final maps = await _db.query(
       tableName,
       where: '${ChannelMessageRepo.channelId} = ? AND $isPinned = ?',
       whereArgs: [channelId, 1],
       orderBy: '$createdAt DESC',
+      limit: effectiveLimit,
     );
 
     return maps.map((map) => ChannelMessageModel.fromMap(map)).toList();
