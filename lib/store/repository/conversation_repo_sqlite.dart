@@ -28,6 +28,9 @@ class ConversationRepo {
   static String unreadNum = 'unread_num';
   // C7-β: 独立 @ 未读计数（db v17 新增列）
   static String mentionUnread = 'mention_unread';
+  // C7-α-1: 本地群免打扰 DND（db v18 新增列；1=静音通知，0=默认）
+  // 注：与 chat_input.isMuted（admin 群禁言）语义不同，此处是用户个人静音通知。
+  static String isMuted = 'is_muted';
   static String payload = 'payload';
 
   // 等价与 msg type: C2C C2G 等等，根据type显示item

@@ -35,6 +35,11 @@ class ConversationModel {
   /// （mention_ids 含 currentUid 或 'all'）则 +1；进入聊天页时同步清零。
   int mentionUnread;
 
+  /// C7-α-1 本地群免打扰（DND）。1 = 用户已静音本会话的通知；0 = 默认。
+  /// 与 chat_input.isMuted（admin 群禁言）语义不同；此处是用户个人静音。
+  /// 当 DND 开启：unread 仍计数（方案 X），NotificationService 层过滤弹窗。
+  int isMuted;
+
   //
   String msgType;
   int isShow;
@@ -69,6 +74,7 @@ class ConversationModel {
     this.lastMsgStatus,
     required this.unreadNum,
     this.mentionUnread = 0,
+    this.isMuted = 0,
     this.isShow = 1,
     this.payload, // 消息原数据
   });
@@ -189,6 +195,7 @@ class ConversationModel {
       ),
       unreadNum: parseModelInt(json[ConversationRepo.unreadNum]),
       mentionUnread: parseModelInt(json[ConversationRepo.mentionUnread]),
+      isMuted: parseModelInt(json[ConversationRepo.isMuted]),
       type: parseModelString(json[ConversationRepo.type]),
       msgType: parseModelString(msgTypeRaw),
       isShow: parseModelInt(json[ConversationRepo.isShow], defaultValue: 1),
@@ -209,6 +216,7 @@ class ConversationModel {
     ConversationRepo.lastMsgStatus: lastMsgStatus,
     ConversationRepo.unreadNum: unreadNum,
     ConversationRepo.mentionUnread: mentionUnread,
+    ConversationRepo.isMuted: isMuted,
     ConversationRepo.type: type,
     ConversationRepo.msgType: msgType,
     ConversationRepo.isShow: isShow,
@@ -244,6 +252,7 @@ class ConversationModel {
     int? lastMsgStatus,
     int? unreadNum,
     int? mentionUnread,
+    int? isMuted,
     String? type,
     String? msgType,
     int? isShow,
@@ -262,6 +271,7 @@ class ConversationModel {
       ConversationRepo.lastMsgStatus: lastMsgStatus ?? this.lastMsgStatus,
       ConversationRepo.unreadNum: unreadNum ?? this.unreadNum,
       ConversationRepo.mentionUnread: mentionUnread ?? this.mentionUnread,
+      ConversationRepo.isMuted: isMuted ?? this.isMuted,
       ConversationRepo.type: type ?? this.type,
       ConversationRepo.msgType: msgType ?? this.msgType,
       ConversationRepo.isShow: isShow ?? this.isShow,

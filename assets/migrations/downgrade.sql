@@ -274,3 +274,49 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_cv_Type_From_To ON conversation ("type", us
 CREATE INDEX IF NOT EXISTS idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
 
 PRAGMA user_version = 16;
+
+-- ============================================================
+-- VERSION: 18
+-- DESC: 从 v18 降级到 v17（移除 conversation.is_muted，保留 mention_unread）
+-- ============================================================
+
+CREATE TABLE conversation_v17 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    peer_id INTEGER,
+    avatar TEXT,
+    title TEXT,
+    subtitle TEXT,
+    region TEXT,
+    sign TEXT,
+    unread_num INTEGER,
+    "type" TEXT,
+    msg_type TEXT,
+    is_show INTEGER,
+    last_time INTEGER,
+    last_msg_id INTEGER,
+    last_msg_status INTEGER,
+    payload TEXT,
+    mention_unread INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT INTO conversation_v17
+    (id, user_id, peer_id, avatar, title, subtitle, region, sign,
+     unread_num, "type", msg_type, is_show, last_time,
+     last_msg_id, last_msg_status, payload, mention_unread)
+SELECT
+    id, user_id, peer_id, avatar, title, subtitle, region, sign,
+    unread_num, "type", msg_type, is_show, last_time,
+    last_msg_id, last_msg_status, payload, mention_unread
+FROM conversation;
+
+DROP TABLE conversation;
+
+ALTER TABLE conversation_v17 RENAME TO conversation;
+
+-- 重建 v17 conversation 索引（与 v18 前完全一致）
+CREATE INDEX IF NOT EXISTS i_cv_UserId_IsShow_LastTime ON conversation (user_id, is_show, last_time);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cv_Type_From_To ON conversation ("type", user_id, peer_id);
+CREATE INDEX IF NOT EXISTS idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
+
+PRAGMA user_version = 17;

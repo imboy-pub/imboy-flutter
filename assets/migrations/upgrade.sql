@@ -1162,3 +1162,17 @@ ALTER TABLE conversation ADD COLUMN mention_unread INTEGER NOT NULL DEFAULT 0;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 17;
+
+-- VERSION: 18
+-- DESC: C7-α-1 本地群免打扰 (DND) - 为 conversation 表添加 is_muted 字段
+-- ============================================================
+
+-- ============================================================
+-- Step 1: 为 conversation 表新增 is_muted 列（默认 0 = 不免打扰）
+-- ============================================================
+ALTER TABLE conversation ADD COLUMN is_muted INTEGER NOT NULL DEFAULT 0;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 18;
