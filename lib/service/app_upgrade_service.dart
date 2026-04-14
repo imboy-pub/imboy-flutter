@@ -4,9 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/service/app_downgrade_cleaner.dart';
 import 'package:imboy/service/app_upgrade_log_api_reporter.dart';
 import 'package:imboy/service/app_upgrade_orchestrator.dart';
 import 'package:imboy/service/app_upgrade_reporter.dart';
+import 'package:imboy/service/default_app_downgrade_cleaner.dart';
 import 'package:imboy/service/app_version_tracker.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/upgrade_strategy.dart';
@@ -49,11 +51,16 @@ class AppUpgradeService {
   /// Upgrade event reporter (overridable in tests)
   AppUpgradeReporter _reporter = const AppUpgradeLogApiReporter();
 
-  /// 启动编排器（委托版本检测 + 降级上报）
-  /// Startup orchestrator (delegates version detection + downgrade report)
+  /// 降级副作用清理器（可在测试中覆盖）
+  /// Downgrade side-effect cleaner (overridable in tests)
+  late AppDowngradeCleaner _cleaner = DefaultAppDowngradeCleaner();
+
+  /// 启动编排器（委托版本检测 + 降级清理 + 降级上报）
+  /// Startup orchestrator (version detection + downgrade cleanup + report)
   late final AppUpgradeOrchestrator _orchestrator = AppUpgradeOrchestrator(
     tracker: _versionTracker,
     reporter: _reporter,
+    cleaner: _cleaner,
     logger: iPrint,
   );
 
@@ -63,6 +70,14 @@ class AppUpgradeService {
   // ignore: use_setters_to_change_properties
   void debugSetReporter(AppUpgradeReporter reporter) {
     _reporter = reporter;
+  }
+
+  /// 测试 seam：注入假的 cleaner（仅限测试环境使用）
+  /// Test seam: inject a fake cleaner (tests only)
+  @visibleForTesting
+  // ignore: use_setters_to_change_properties
+  void debugSetCleaner(AppDowngradeCleaner cleaner) {
+    _cleaner = cleaner;
   }
 
   /// 最新版本信息缓存

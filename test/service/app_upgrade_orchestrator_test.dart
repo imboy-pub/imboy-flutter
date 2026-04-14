@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/app_upgrade_orchestrator.dart';
 import 'package:imboy/service/app_version_tracker.dart';
 
+import '../helpers/fake_downgrade_cleaner.dart';
 import '../helpers/fake_storage.dart';
 import '../helpers/fake_upgrade_reporter.dart';
 
@@ -19,14 +20,17 @@ void main() {
   group('AppUpgradeOrchestrator.onAppStart', () {
     late FakeStorage storage;
     late FakeUpgradeReporter reporter;
+    late FakeDowngradeCleaner cleaner;
     late AppUpgradeOrchestrator orchestrator;
 
     setUp(() {
       storage = FakeStorage();
       reporter = FakeUpgradeReporter();
+      cleaner = FakeDowngradeCleaner();
       orchestrator = AppUpgradeOrchestrator(
         tracker: AppVersionTracker(storage: storage),
         reporter: reporter,
+        cleaner: cleaner,
       );
     });
 
@@ -140,5 +144,125 @@ void main() {
         );
       },
     );
+
+    // -------------------------------------------------------------
+    // 降级副作用清理（本批次新增 / new in this batch）
+    // Downgrade side-effect cleanup
+    // -------------------------------------------------------------
+
+    test(
+      '降级时调用 cleaner 一次 / cleaner invoked once on downgrade',
+      () async {
+        storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
+
+        await orchestrator.onAppStart('1.0.0');
+
+        expect(cleaner.calls, hasLength(1));
+        expect(cleaner.calls.single.fromVsn, '2.0.0');
+        expect(cleaner.calls.single.toVsn, '1.0.0');
+      },
+    );
+
+    test(
+      'firstLaunch 不调用 cleaner / firstLaunch does not invoke cleaner',
+      () async {
+        await orchestrator.onAppStart('1.0.0');
+        expect(cleaner.calls, isEmpty);
+      },
+    );
+
+    test(
+      '升级不调用 cleaner / upgrade does not invoke cleaner',
+      () async {
+        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
+        await orchestrator.onAppStart('2.0.0');
+        expect(cleaner.calls, isEmpty);
+      },
+    );
+
+    test(
+      '未变不调用 cleaner / unchanged does not invoke cleaner',
+      () async {
+        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
+        await orchestrator.onAppStart('1.0.0');
+        expect(cleaner.calls, isEmpty);
+      },
+    );
+
+    test(
+      'cleaner 抛异常不影响启动主流程与 reporter 调用 / '
+      'cleaner error does not block startup nor reporter',
+      () async {
+        storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
+        cleaner.nextError = Exception('storage failure');
+
+        // 不应抛出
+        final transition = await orchestrator.onAppStart('1.0.0');
+
+        expect(transition.isDowngrade, isTrue);
+        expect(
+          storage.getString(AppVersionTracker.lastRunVsnKey),
+          '1.0.0',
+          reason: '清理失败不能阻止版本提交',
+        );
+        expect(
+          reporter.events,
+          hasLength(1),
+          reason: '清理失败不能阻止降级上报（两条独立错误隔离线）',
+        );
+      },
+    );
+
+    test(
+      '清理在上报之前执行 / cleaner runs before reporter',
+      () async {
+        storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
+        // 记录全局调用顺序
+        // Record global call order
+        final order = <String>[];
+        cleaner = _OrderingCleaner(order);
+        reporter = _OrderingReporter(order);
+        orchestrator = AppUpgradeOrchestrator(
+          tracker: AppVersionTracker(storage: storage),
+          reporter: reporter,
+          cleaner: cleaner,
+        );
+
+        await orchestrator.onAppStart('1.0.0');
+
+        expect(order, ['clean', 'report']);
+      },
+    );
   });
+}
+
+// 辅助：验证调用顺序的桩
+// Helpers: stubs for verifying call order
+class _OrderingCleaner extends FakeDowngradeCleaner {
+  _OrderingCleaner(this._order);
+  final List<String> _order;
+
+  @override
+  Future<void> onDowngrade({
+    required String fromVsn,
+    required String toVsn,
+  }) async {
+    _order.add('clean');
+    await super.onDowngrade(fromVsn: fromVsn, toVsn: toVsn);
+  }
+}
+
+class _OrderingReporter extends FakeUpgradeReporter {
+  _OrderingReporter(this._order);
+  final List<String> _order;
+
+  @override
+  Future<void> report({
+    required String event,
+    required String targetVsn,
+    Map<String, dynamic>? extra,
+  }) async {
+    _order.add('report');
+    await super.report(event: event, targetVsn: targetVsn, extra: extra);
+  }
 }

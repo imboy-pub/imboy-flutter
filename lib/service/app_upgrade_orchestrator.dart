@@ -17,6 +17,7 @@
 // layer or the production HTTP chain.
 library;
 
+import 'package:imboy/service/app_downgrade_cleaner.dart';
 import 'package:imboy/service/app_upgrade_reporter.dart';
 import 'package:imboy/service/app_version_tracker.dart';
 
@@ -26,17 +27,32 @@ typedef UpgradeLogger = void Function(String message);
 
 void _noopLogger(String _) {}
 
+/// 无操作清理器（当宿主不关心降级副作用时用作默认值）。
+/// No-op cleaner (used when the host has no side-effects to purge).
+class _NoopDowngradeCleaner implements AppDowngradeCleaner {
+  const _NoopDowngradeCleaner();
+
+  @override
+  Future<void> onDowngrade({
+    required String fromVsn,
+    required String toVsn,
+  }) async {}
+}
+
 class AppUpgradeOrchestrator {
   AppUpgradeOrchestrator({
     required AppVersionTracker tracker,
     required AppUpgradeReporter reporter,
+    AppDowngradeCleaner? cleaner,
     UpgradeLogger? logger,
   })  : _tracker = tracker,
         _reporter = reporter,
+        _cleaner = cleaner ?? const _NoopDowngradeCleaner(),
         _log = logger ?? _noopLogger;
 
   final AppVersionTracker _tracker;
   final AppUpgradeReporter _reporter;
+  final AppDowngradeCleaner _cleaner;
   final UpgradeLogger _log;
 
   /// 启动时协调版本检测与事件上报。
@@ -61,6 +77,21 @@ class AppUpgradeOrchestrator {
         'AppUpgradeOrchestrator: downgrade detected '
         '${transition.previousVsn} → ${transition.currentVsn}',
       );
+      // 1) 先清理本地副作用（本地 I/O，优先完成避免协议不兼容残留）
+      // 2) 再上报事件（远程 I/O，失败概率更高）
+      // 两条路径独立错误隔离，互不阻塞。
+      // 1) Cleanup local side-effects first (local I/O; avoid residual
+      //    protocol-incompatible state)
+      // 2) Then report the event (remote I/O; more failure-prone)
+      // Both paths are independently error-isolated.
+      try {
+        await _cleaner.onDowngrade(
+          fromVsn: transition.previousVsn,
+          toVsn: transition.currentVsn,
+        );
+      } catch (e, st) {
+        _log('AppUpgradeOrchestrator: cleaner error $e\n$st');
+      }
       try {
         await _reporter.report(
           event: 'downgrade',
