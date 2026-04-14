@@ -564,6 +564,9 @@ groupMember: "普通成员"
 # @ 提及相关 UI 文案（仅显示层；wire 协议 "所有人" 保留硬编码）
 atMentionYouTag: "[@你] "
 atMentionLeftMember: "@已退群成员"
+# C7-α-1 群免打扰
+muteNotifications: "消息免打扰"
+muteNotificationsHint: "开启后不会收到新消息提醒，但仍可在会话列表看到未读"
 # 群成员操作
 setAdmin: "设为管理员"
 removeAdmin: "取消管理员"

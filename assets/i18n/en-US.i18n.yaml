@@ -541,6 +541,9 @@ groupMember: "Member"
 # @ mention UI strings (display only; wire-protocol "所有人" stays hard-coded)
 atMentionYouTag: "[@you] "
 atMentionLeftMember: "@Left member"
+# C7-α-1 local DND
+muteNotifications: "Mute notifications"
+muteNotificationsHint: "You won't get new-message alerts; unread counts still show in the list"
 # Group member actions
 setAdmin: "Set as Admin"
 removeAdmin: "Remove Admin"

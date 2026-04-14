@@ -1248,6 +1248,8 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get groupGuest => '嘉宾';
 	@override String get atMentionYouTag => '[@你] ';
 	@override String get atMentionLeftMember => '@已退群成员';
+	@override String get muteNotifications => '消息免打扰';
+	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
@@ -2815,6 +2817,8 @@ extension on TranslationsArSa {
 			'groupGuest' => '嘉宾',
 			'atMentionYouTag' => '[@你] ',
 			'atMentionLeftMember' => '@已退群成员',
+			'muteNotifications' => '消息免打扰',
+			'muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
 			'groupMember' => 'Member',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',

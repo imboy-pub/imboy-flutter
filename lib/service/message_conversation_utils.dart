@@ -83,3 +83,15 @@ int computeMentionUnreadIncrement({
   if (mentionIds.contains(currentUid)) return 1;
   return 0;
 }
+
+/// C7-α-2: Whether to suppress the local notification pop-up for a given
+/// conversation, based on its persisted DND flag ([ConversationModel.isMuted]).
+///
+/// Convention:
+///   - 0       → notify (default)
+///   - any > 0 → suppress (user enabled DND)
+///   - negative (corrupted/legacy data) → notify (defensive)
+///
+/// Unread counts and mention_unread are NOT affected; only the
+/// user-visible notification pop-up is suppressed.
+bool shouldSuppressNotification({required int isMuted}) => isMuted > 0;

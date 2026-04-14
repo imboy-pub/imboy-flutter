@@ -1442,6 +1442,9 @@ groupGuest: "嘉宾"  # TODO: translate (zh-CN fallback)
 # @ mention UI strings (display only; wire-protocol "所有人" stays hard-coded)
 atMentionYouTag: "[@你] "  # TODO: translate (zh-CN fallback)
 atMentionLeftMember: "@已退群成员"  # TODO: translate (zh-CN fallback)
+# C7-α-1 群免打扰
+muteNotifications: "消息免打扰"  # TODO: translate (zh-CN fallback)
+muteNotificationsHint: "开启后不会收到新消息提醒，但仍可在会话列表看到未读"  # TODO: translate
 groupMember: "Member"
 setAdmin: "Set as Admin"
 removeAdmin: "Remove Admin"

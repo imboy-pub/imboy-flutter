@@ -168,4 +168,25 @@ void main() {
           reason: 'empty currentUid must not opportunistically match empty id');
     });
   });
+
+  group('shouldSuppressNotification (C7-α-2)', () {
+    test('returns false when isMuted = 0 (default: notify)', () {
+      expect(shouldSuppressNotification(isMuted: 0), isFalse);
+    });
+
+    test('returns true when isMuted = 1 (user enabled DND)', () {
+      expect(shouldSuppressNotification(isMuted: 1), isTrue);
+    });
+
+    test('treats any positive int as muted (future-proof)', () {
+      expect(shouldSuppressNotification(isMuted: 2), isTrue);
+      expect(shouldSuppressNotification(isMuted: 999), isTrue);
+    });
+
+    test('treats negative defensively as not muted', () {
+      // corrupted data defaults to "not muted" — show notifications rather
+      // than silently dropping messages.
+      expect(shouldSuppressNotification(isMuted: -1), isFalse);
+    });
+  });
 }

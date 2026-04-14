@@ -1694,6 +1694,12 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '@已退群成员'
 	String get atMentionLeftMember => '@已退群成员';
 
+	/// zh-CN: '消息免打扰'
+	String get muteNotifications => '消息免打扰';
+
+	/// zh-CN: '开启后不会收到新消息提醒，但仍可在会话列表看到未读'
+	String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
+
 	/// zh-CN: '设为管理员'
 	String get setAdmin => '设为管理员';
 
@@ -5211,6 +5217,8 @@ extension on Translations {
 			'groupMember' => '普通成员',
 			'atMentionYouTag' => '[@你] ',
 			'atMentionLeftMember' => '@已退群成员',
+			'muteNotifications' => '消息免打扰',
+			'muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
 			'setAdmin' => '设为管理员',
 			'removeAdmin' => '取消管理员',
 			'muteMember' => '禁言成员',
@@ -5677,10 +5685,10 @@ extension on Translations {
 			'unknownRegion' => '未知地区',
 			'noCommonGroups' => '暂无共同群组',
 			'noMoreInfo' => '暂无更多信息',
-			'userNotSetSignature' => '该用户还没有设置个人签名等详细信息',
-			'verificationMessage' => '验证消息',
 			_ => null,
 		} ?? switch (path) {
+			'userNotSetSignature' => '该用户还没有设置个人签名等详细信息',
+			'verificationMessage' => '验证消息',
 			'enterRemark' => '请输入备注名',
 			'commentPlaceholder' => '评论...',
 			'burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',

@@ -33,6 +33,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   bool backDoRefresh = false;
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
+  // C7-α-2: 本地 DND 开关
+  bool _muteEnabled = false;
+  int? _conversationId;
 
   StreamSubscription? _localeSubscription;
 
@@ -65,9 +68,25 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           final v = int.tryParse(raw);
           if (v != null && v > 0) _burnAfterMs = v;
         }
+        // C7-α-2: 加载 DND 状态
+        _muteEnabled = (conversation?.isMuted ?? 0) > 0;
+        _conversationId = conversation?.id;
       });
     } catch (e) {
       debugPrint('[ChatSetting] settings operation failed: $e');
+    }
+  }
+
+  /// C7-α-2: 持久化 DND 开关到 conversation.is_muted 列
+  Future<void> _persistMuteSetting(bool muted) async {
+    if (_conversationId == null || _conversationId == 0) return;
+    try {
+      await ConversationRepo().updateById(_conversationId!, {
+        ConversationRepo.isMuted: muted ? 1 : 0,
+      });
+      backDoRefresh = true;
+    } catch (e) {
+      debugPrint('[ChatSetting] mute persist failed: $e');
     }
   }
 
@@ -329,6 +348,19 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                 ? '消息仅收发双方可读'
                 : '消息未加密传输',
         isFirst: true,
+      ),
+      // C7-α-2: 本地消息免打扰开关
+      _buildSwitchTile(
+        t.muteNotifications,
+        _muteEnabled,
+        (v) async {
+          setState(() => _muteEnabled = v);
+          await _persistMuteSetting(v);
+          EasyLoading.showToast(v ? t.enabled : t.disabled);
+        },
+        icon: Icons.notifications_off_outlined,
+        iconColor: Theme.of(context).colorScheme.primary,
+        subtitle: t.muteNotificationsHint,
       ),
       _buildSwitchTile(
         t.burnAfterReading,

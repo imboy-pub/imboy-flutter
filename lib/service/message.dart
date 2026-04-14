@@ -900,7 +900,10 @@ class MessageService with EventSubscriptionManager {
 
       // 触发消息通知（如果需要）
       // 只有当用户不在当前会话且消息不是自己发送的时候才显示通知
-      if (!isFromCurrentUser && !isUserInChat) {
+      // C7-α-2：用户为该会话开启了免打扰（isMuted > 0）时也抑制通知
+      if (!isFromCurrentUser &&
+          !isUserInChat &&
+          !shouldSuppressNotification(isMuted: savedConv.isMuted)) {
         _showMessageNotification(
           msg: msg,
           senderName: peerInfo['title'] ?? '',

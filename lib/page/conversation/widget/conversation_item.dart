@@ -190,6 +190,18 @@ class ConversationItem extends ConsumerWidget {
               color: theme.colorScheme.primary,
             ),
           ),
+        // C7-α-2: 群免打扰铃铛（淡灰色，标示已静音）
+        if (currentModel.isMuted > 0)
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Icon(
+              Icons.notifications_off_outlined,
+              size: 14,
+              color: theme.textTheme.bodySmall?.color
+                      ?.withValues(alpha: 0.5) ??
+                  Colors.grey,
+            ),
+          ),
         Expanded(
           child: Text(
             displayTitle,
