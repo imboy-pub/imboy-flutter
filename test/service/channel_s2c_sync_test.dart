@@ -173,6 +173,88 @@ void main() {
     );
 
     test(
+      'handleChannelMessageRevoked ignores empty channel_id',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+        final events = <ChannelMessageDeletedEvent>[];
+        final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelMessageRevoked({
+          'channel_id': '',
+          'message_id': 'msg-x',
+        });
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        // 非法载荷不得触发本地删除或事件广播，避免误删他频道消息。
+        expect(messageRepo.deletedMessageIds, isEmpty);
+        expect(events, isEmpty);
+      },
+    );
+
+    test(
+      'handleChannelMessageRevoked ignores empty message_id',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+        final events = <ChannelMessageDeletedEvent>[];
+        final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelMessageRevoked({
+          'channel_id': 'ch-3',
+          'message_id': '',
+        });
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(messageRepo.deletedMessageIds, isEmpty);
+        expect(events, isEmpty);
+      },
+    );
+
+    test(
+      'handleChannelMessageDeleted ignores empty ids (parity with revoked)',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+        final events = <ChannelMessageDeletedEvent>[];
+        final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelMessageDeleted({
+          'channel_id': '',
+          'message_id': '',
+        });
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(messageRepo.deletedMessageIds, isEmpty);
+        expect(events, isEmpty);
+      },
+    );
+
+    test(
       'handleChannelOrderPaid refreshes subscription state and emits channel change',
       () async {
         final repo = _FakeChannelRepo();
