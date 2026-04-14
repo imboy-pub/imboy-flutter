@@ -55,11 +55,18 @@ class _FakeChannelRepo extends ChannelRepo {
 
 class _FakeChannelMessageRepo extends ChannelMessageRepo {
   final List<String> deletedMessageIds = <String>[];
+  final List<String> deletedChannelMessages = <String>[];
   final Map<String, bool> pinnedByMessageId = <String, bool>{};
 
   @override
   Future<int> deleteMessage(String messageId) async {
     deletedMessageIds.add(messageId);
+    return 1;
+  }
+
+  @override
+  Future<int> deleteMessagesByChannel(String channelId) async {
+    deletedChannelMessages.add(channelId);
     return 1;
   }
 
@@ -224,6 +231,56 @@ void main() {
 
         expect(messageRepo.deletedMessageIds, isEmpty);
         expect(events, isEmpty);
+      },
+    );
+
+    test(
+      'handleChannelDeleted cascades message cleanup',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+
+        await service.handleChannelDeleted({'channel_id': 'ch-del'});
+
+        expect(messageRepo.deletedChannelMessages, contains('ch-del'),
+            reason: '频道被删后必须清理其本地消息，避免孤儿行累积');
+      },
+    );
+
+    test(
+      'handleChannelUnsubscribed cascades message cleanup',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+
+        await service.handleChannelUnsubscribed({'channel_id': 'ch-unsub'});
+
+        expect(messageRepo.deletedChannelMessages, contains('ch-unsub'),
+            reason: '取消订阅后不再可访问该频道，消息应一并清理');
+      },
+    );
+
+    test(
+      'handleChannelDeleted skips message cleanup on empty channel_id',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+
+        await service.handleChannelDeleted({'channel_id': ''});
+
+        expect(messageRepo.deletedChannelMessages, isEmpty);
       },
     );
 

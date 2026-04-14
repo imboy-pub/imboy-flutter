@@ -647,6 +647,8 @@ class ChannelService {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
       await _repo.deleteSubscription(channelId);
+      // 级联清理本地消息：取消订阅后该频道不再可访问，保留消息仅徒增占用。
+      await _messageRepo.deleteMessagesByChannel(channelId);
 
       iPrint('ChannelService: 收到取消订阅通知 - $channelId');
     } catch (e) {
@@ -688,6 +690,9 @@ class ChannelService {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
       await _repo.deleteChannel(channelId);
+      // 级联清理本地消息：频道被删除后消息已无归属，避免孤儿行长期占用空间
+      // 并污染全局消息计数。
+      await _messageRepo.deleteMessagesByChannel(channelId);
       AppEventBus.fire(
         ChannelStateChangedEvent(
           channelId: channelId,
