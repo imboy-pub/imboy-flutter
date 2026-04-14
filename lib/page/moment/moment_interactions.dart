@@ -1,5 +1,35 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 将下一页评论合并到已有列表。
+///
+/// - 按 `id` 去重；首次出现的条目保留，后续重复被丢弃（保持现有顺序稳定）
+/// - `next` 内部的重复也会去重
+/// - `id` 缺失或空字符串的条目被过滤掉（防御后端脏数据）
+/// - 入参两个 list 都不会被修改
+///
+/// 用于 detail 页面评论游标分页 + eventbus 触发的刷新场景，避免网络
+/// 双拉或快速滚动触发的重复 append。
+List<Map<String, dynamic>> appendCommentsPage(
+  List<Map<String, dynamic>> existing,
+  List<Map<String, dynamic>> next,
+) {
+  final seen = <String>{};
+  final merged = <Map<String, dynamic>>[];
+  for (final item in existing) {
+    final id = parseModelString(item['id']);
+    if (id.isEmpty || seen.contains(id)) continue;
+    seen.add(id);
+    merged.add(item);
+  }
+  for (final item in next) {
+    final id = parseModelString(item['id']);
+    if (id.isEmpty || seen.contains(id)) continue;
+    seen.add(id);
+    merged.add(item);
+  }
+  return merged;
+}
+
 /// 返回一个新 moment map，切换 `liked` 并相应增减 `stats.like_count`。
 ///
 /// - 输入 map 和其子 `stats` map 都不会被修改（调用方可保留原对象用于回滚）。

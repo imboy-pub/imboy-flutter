@@ -1122,6 +1122,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get momentsDeleteFailed => 'Delete failed, please try again';
 	@override String get momentsReportSubmitted => 'Report submitted';
 	@override String get momentsReportFailed => 'Report failed, please try again';
+	@override String get momentsLoadMoreComments => 'Load more comments';
 	@override String get balance => 'Balance';
 	@override String get recharge => 'Recharge';
 	@override String get withdraw => 'Withdraw';
@@ -2735,6 +2736,7 @@ extension on TranslationsEnUs {
 			'momentsDeleteFailed' => 'Delete failed, please try again',
 			'momentsReportSubmitted' => 'Report submitted',
 			'momentsReportFailed' => 'Report failed, please try again',
+			'momentsLoadMoreComments' => 'Load more comments',
 			'balance' => 'Balance',
 			'recharge' => 'Recharge',
 			'withdraw' => 'Withdraw',

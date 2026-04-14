@@ -1163,6 +1163,7 @@ momentsCommentFailed: "评论失败，请稍后重试"
 momentsDeleteFailed: "删除失败，请稍后重试"
 momentsReportSubmitted: "举报已提交"
 momentsReportFailed: "举报失败，请稍后重试"
+momentsLoadMoreComments: "加载更多评论"
 # 新增翻译键 - 钱包
 balance: "余额"
 recharge: "充值"

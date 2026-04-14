@@ -26,10 +26,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  static const int _commentsPageSize = 20;
+
   Map<String, dynamic>? _moment;
   List<Map<String, dynamic>> _comments = [];
+  String? _commentsCursor;
+  bool _commentsHasMore = false;
   bool _loading = true;
   bool _sendingComment = false;
+  bool _loadingMoreComments = false;
 
   StreamSubscription<MomentTimelineChangedEvent>? _momentSub;
 
@@ -57,13 +62,13 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     setState(() => _loading = true);
     final results = await Future.wait([
       _api.getPost(widget.momentId),
-      _api.listComments(widget.momentId, limit: 50),
+      _api.listComments(widget.momentId, limit: _commentsPageSize),
     ]);
     if (!mounted) return;
 
     final rawPost = results[0] as Map<String, dynamic>?;
-    final rawComments =
-        (results[1] as dynamic).list as List<Map<String, dynamic>>;
+    final page = results[1] as dynamic;
+    final rawComments = page.list as List<Map<String, dynamic>>;
 
     // 填充作者/评论者昵称和头像
     final enrichedPost =
@@ -74,7 +79,33 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     setState(() {
       _moment = enrichedPost;
       _comments = enrichedComments;
+      _commentsCursor = page.nextCursor as String?;
+      _commentsHasMore = page.hasMore as bool;
       _loading = false;
+    });
+  }
+
+  Future<void> _loadMoreComments() async {
+    if (_loadingMoreComments || !_commentsHasMore) return;
+    final cursor = _commentsCursor;
+    if (cursor == null || cursor.isEmpty) return;
+
+    setState(() {
+      _loadingMoreComments = true;
+    });
+    final page = await _api.listComments(
+      widget.momentId,
+      cursor: cursor,
+      limit: _commentsPageSize,
+    );
+    if (!mounted) return;
+    final enriched = await enrichCommentsWithUser(page.list);
+    if (!mounted) return;
+    setState(() {
+      _comments = appendCommentsPage(_comments, enriched);
+      _commentsCursor = page.nextCursor;
+      _commentsHasMore = page.hasMore;
+      _loadingMoreComments = false;
     });
   }
 
@@ -417,6 +448,24 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                             : null,
                       );
                     }),
+                  if (_commentsHasMore)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Center(
+                        child: _loadingMoreComments
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : TextButton(
+                                onPressed: _loadMoreComments,
+                                child: Text(context.t.momentsLoadMoreComments),
+                              ),
+                      ),
+                    ),
                 ],
               ),
             ),
