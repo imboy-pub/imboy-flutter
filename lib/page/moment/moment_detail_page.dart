@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/helper/func.dart'; // cachedImageProvider
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
@@ -117,7 +118,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final momentId = parseModelString(post['id']);
     if (momentId.isEmpty) return;
     final ok = await _api.deletePost(momentId);
-    if (!ok || !mounted) return;
+    if (!mounted) return;
+    if (!ok) {
+      EasyLoading.showError(context.t.momentsDeleteFailed);
+      return;
+    }
 
     AppEventBus.fire(
       MomentTimelineChangedEvent(
@@ -139,24 +144,30 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     });
     final added = await _api.addComment(widget.momentId, content: content);
     if (!mounted) return;
-    _commentController.clear();
-    Map<String, dynamic>? enrichedComment;
-    if (added != null) {
-      final list = await enrichCommentsWithUser([added]);
-      enrichedComment = list.first;
+    if (added == null) {
+      setState(() {
+        _sendingComment = false;
+      });
+      EasyLoading.showError(context.t.momentsCommentFailed);
+      return;
     }
+    _commentController.clear();
+    final list = await enrichCommentsWithUser([added]);
+    final enrichedComment = list.first;
     if (!mounted) return;
     setState(() {
       _sendingComment = false;
-      if (enrichedComment != null) {
-        _comments = [enrichedComment, ..._comments];
-      }
+      _comments = [enrichedComment, ..._comments];
     });
   }
 
   Future<void> _deleteComment(String commentId) async {
     final ok = await _api.deleteComment(widget.momentId, commentId);
-    if (!ok || !mounted) return;
+    if (!mounted) return;
+    if (!ok) {
+      EasyLoading.showError(context.t.momentsDeleteFailed);
+      return;
+    }
     setState(() {
       _comments = _comments
           .where((item) => parseModelString(item['id']) != commentId)
@@ -204,11 +215,17 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     reasonController.dispose();
     descController.dispose();
     if (confirmed == true && reason.isNotEmpty && mounted) {
-      await _api.reportPost(
+      final ok = await _api.reportPost(
         widget.momentId,
         reason: reason,
         description: description,
       );
+      if (!mounted) return;
+      if (ok) {
+        EasyLoading.showSuccess(context.t.momentsReportSubmitted);
+      } else {
+        EasyLoading.showError(context.t.momentsReportFailed);
+      }
     }
   }
 

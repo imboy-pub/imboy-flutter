@@ -1117,6 +1117,10 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get momentsAddMedia => 'Add media';
 	@override String get momentsAllowUidsLabel => 'Visible to these UIDs (comma-separated)';
 	@override String get momentsDenyUidsLabel => 'Hidden from these UIDs (comma-separated)';
+	@override String get momentsCommentFailed => 'Comment failed, please try again';
+	@override String get momentsDeleteFailed => 'Delete failed, please try again';
+	@override String get momentsReportSubmitted => 'Report submitted';
+	@override String get momentsReportFailed => 'Report failed, please try again';
 	@override String get balance => 'Balance';
 	@override String get recharge => 'Recharge';
 	@override String get withdraw => 'Withdraw';
@@ -2725,6 +2729,10 @@ extension on TranslationsEnUs {
 			'momentsAddMedia' => 'Add media',
 			'momentsAllowUidsLabel' => 'Visible to these UIDs (comma-separated)',
 			'momentsDenyUidsLabel' => 'Hidden from these UIDs (comma-separated)',
+			'momentsCommentFailed' => 'Comment failed, please try again',
+			'momentsDeleteFailed' => 'Delete failed, please try again',
+			'momentsReportSubmitted' => 'Report submitted',
+			'momentsReportFailed' => 'Report failed, please try again',
 			'balance' => 'Balance',
 			'recharge' => 'Recharge',
 			'withdraw' => 'Withdraw',

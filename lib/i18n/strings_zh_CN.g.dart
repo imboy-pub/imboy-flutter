@@ -3320,6 +3320,18 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '不给谁看 UID 列表（逗号分隔）'
 	String get momentsDenyUidsLabel => '不给谁看 UID 列表（逗号分隔）';
 
+	/// zh-CN: '评论失败，请稍后重试'
+	String get momentsCommentFailed => '评论失败，请稍后重试';
+
+	/// zh-CN: '删除失败，请稍后重试'
+	String get momentsDeleteFailed => '删除失败，请稍后重试';
+
+	/// zh-CN: '举报已提交'
+	String get momentsReportSubmitted => '举报已提交';
+
+	/// zh-CN: '举报失败，请稍后重试'
+	String get momentsReportFailed => '举报失败，请稍后重试';
+
 	/// zh-CN: '余额'
 	String get balance => '余额';
 
@@ -5773,6 +5785,10 @@ extension on Translations {
 			'momentsAddMedia' => '添加媒体',
 			'momentsAllowUidsLabel' => '允许可见 UID 列表（逗号分隔）',
 			'momentsDenyUidsLabel' => '不给谁看 UID 列表（逗号分隔）',
+			'momentsCommentFailed' => '评论失败，请稍后重试',
+			'momentsDeleteFailed' => '删除失败，请稍后重试',
+			'momentsReportSubmitted' => '举报已提交',
+			'momentsReportFailed' => '举报失败，请稍后重试',
 			'balance' => '余额',
 			'recharge' => '充值',
 			'withdraw' => '提现',
