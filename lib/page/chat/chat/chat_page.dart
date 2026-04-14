@@ -38,6 +38,10 @@ import 'package:imboy/service/message_type_constants.dart';
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+import 'package:imboy/component/chat/mention_provider.dart'
+    show mentionNotifierProvider;
+import 'package:imboy/component/chat/mention_text_reducer.dart'
+    show MentionTextReducer;
 
 // 显式导入 StorageService（解决编译错误）
 import 'package:imboy/service/storage.dart';
@@ -373,6 +377,14 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 注意：_setupEventListeners 已在 _initChat 中调用，此处不再重复调用
     // 预加载E2EE设备密钥（优化加密性能）
     await _preloadE2EEDeviceKeys();
+    // 预加载群成员名单，供 C1 @提及降级显示使用（fire-and-forget，不阻塞 UI）
+    if (_chatType == MessageFlowType.c2g && mounted) {
+      unawaited(
+        ref
+            .read(mentionNotifierProvider.notifier)
+            .loadGroupMembers(widget.peerId),
+      );
+    }
   }
 
   /// 预加载E2EE设备密钥
@@ -1690,8 +1702,18 @@ class ChatPageState extends ConsumerState<ChatPage>
               required bool isSentByMe,
               MessageGroupStatus? groupStatus,
             }) {
+              // C1 Z 路径：用群当前活跃成员名集合对消息文本做降级投影。
+              // 被 @ 用户已退群 → `~~@已退群成员~~`（GptMarkdown 渲染删除线）。
+              // 空集合 / 无 @ 时 applyTo 短路，零分配。
+              final activeNames = ref
+                  .watch(mentionNotifierProvider)
+                  .userIdToName
+                  .values
+                  .toSet();
+              final projected =
+                  MentionTextReducer.applyTo(message, activeNames);
               return FlyerChatTextMessage(
-                message: message,
+                message: projected,
                 index: index,
                 showStatus: false,
                 showTime: true,
