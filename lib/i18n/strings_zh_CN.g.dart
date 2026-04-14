@@ -3308,6 +3308,18 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '不给谁看'
 	String get momentsVisibilityExclude => '不给谁看';
 
+	/// zh-CN: '写点什么...'
+	String get momentsContentHint => '写点什么...';
+
+	/// zh-CN: '添加媒体'
+	String get momentsAddMedia => '添加媒体';
+
+	/// zh-CN: '允许可见 UID 列表（逗号分隔）'
+	String get momentsAllowUidsLabel => '允许可见 UID 列表（逗号分隔）';
+
+	/// zh-CN: '不给谁看 UID 列表（逗号分隔）'
+	String get momentsDenyUidsLabel => '不给谁看 UID 列表（逗号分隔）';
+
 	/// zh-CN: '余额'
 	String get balance => '余额';
 
@@ -5757,6 +5769,10 @@ extension on Translations {
 			'momentsVisibilityPrivate' => '仅自己',
 			'momentsVisibilityPartial' => '部分可见',
 			'momentsVisibilityExclude' => '不给谁看',
+			'momentsContentHint' => '写点什么...',
+			'momentsAddMedia' => '添加媒体',
+			'momentsAllowUidsLabel' => '允许可见 UID 列表（逗号分隔）',
+			'momentsDenyUidsLabel' => '不给谁看 UID 列表（逗号分隔）',
 			'balance' => '余额',
 			'recharge' => '充值',
 			'withdraw' => '提现',

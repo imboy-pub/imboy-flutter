@@ -1113,6 +1113,10 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get momentsVisibilityPrivate => 'Private';
 	@override String get momentsVisibilityPartial => 'Partial';
 	@override String get momentsVisibilityExclude => 'Exclude';
+	@override String get momentsContentHint => 'Share something...';
+	@override String get momentsAddMedia => 'Add media';
+	@override String get momentsAllowUidsLabel => 'Visible to these UIDs (comma-separated)';
+	@override String get momentsDenyUidsLabel => 'Hidden from these UIDs (comma-separated)';
 	@override String get balance => 'Balance';
 	@override String get recharge => 'Recharge';
 	@override String get withdraw => 'Withdraw';
@@ -2717,6 +2721,10 @@ extension on TranslationsEnUs {
 			'momentsVisibilityPrivate' => 'Private',
 			'momentsVisibilityPartial' => 'Partial',
 			'momentsVisibilityExclude' => 'Exclude',
+			'momentsContentHint' => 'Share something...',
+			'momentsAddMedia' => 'Add media',
+			'momentsAllowUidsLabel' => 'Visible to these UIDs (comma-separated)',
+			'momentsDenyUidsLabel' => 'Hidden from these UIDs (comma-separated)',
 			'balance' => 'Balance',
 			'recharge' => 'Recharge',
 			'withdraw' => 'Withdraw',

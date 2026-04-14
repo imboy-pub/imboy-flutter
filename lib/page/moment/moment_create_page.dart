@@ -265,9 +265,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             controller: _contentController,
             maxLines: 6,
             maxLength: 5000,
-            decoration: const InputDecoration(
-              hintText: '写点什么...',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: t.momentsContentHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
@@ -278,7 +278,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                     ? null
                     : _showPicker,
                 icon: const Icon(Icons.add_photo_alternate_outlined),
-                label: Text('添加媒体 (${_media.length}/9)'),
+                label: Text('${t.momentsAddMedia} (${_media.length}/9)'),
               ),
               if (_isUploading) ...[
                 const SizedBox(width: 12),
@@ -364,9 +364,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             const SizedBox(height: 12),
             TextField(
               controller: _allowUidsController,
-              decoration: const InputDecoration(
-                labelText: '允许可见 UID 列表（逗号分隔）',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: t.momentsAllowUidsLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -374,9 +374,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             const SizedBox(height: 12),
             TextField(
               controller: _denyUidsController,
-              decoration: const InputDecoration(
-                labelText: '不给谁看 UID 列表（逗号分隔）',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: t.momentsDenyUidsLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
