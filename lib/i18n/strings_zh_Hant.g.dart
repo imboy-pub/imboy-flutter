@@ -1245,6 +1245,9 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final _TranslationsChannelZhHant channel = _TranslationsChannelZhHant._(_root);
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
+	@override String get groupGuest => '嘉宾';
+	@override String get atMentionYouTag => '[@你] ';
+	@override String get atMentionLeftMember => '@已退群成员';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
@@ -2809,6 +2812,9 @@ extension on TranslationsZhHant {
 			'channel.defaultName' => '未命名頻道',
 			'groupOwner' => 'Owner',
 			'groupAdmin' => 'Admin',
+			'groupGuest' => '嘉宾',
+			'atMentionYouTag' => '[@你] ',
+			'atMentionLeftMember' => '@已退群成员',
 			'groupMember' => 'Member',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',

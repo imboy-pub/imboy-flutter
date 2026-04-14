@@ -571,7 +571,10 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get removeMember => 'Remove member';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
+	@override String get groupGuest => 'Guest';
 	@override String get groupMember => 'Member';
+	@override String get atMentionYouTag => '[@you] ';
+	@override String get atMentionLeftMember => '@Left member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
 	@override String get muteMember => 'Mute Member';
@@ -2168,7 +2171,10 @@ extension on TranslationsEnUs {
 			'removeMember' => 'Remove member',
 			'groupOwner' => 'Owner',
 			'groupAdmin' => 'Admin',
+			'groupGuest' => 'Guest',
 			'groupMember' => 'Member',
+			'atMentionYouTag' => '[@you] ',
+			'atMentionLeftMember' => '@Left member',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',
 			'muteMember' => 'Mute Member',
@@ -2656,11 +2662,11 @@ extension on TranslationsEnUs {
 			'noProblem' => 'No problem',
 			'onMyWay' => 'On my way',
 			'otherDevice' => 'Other Device',
+			_ => null,
+		} ?? switch (path) {
 			'sendOfflineCommand' => 'Force Offline',
 			'offlineCommandSent' => 'Offline command sent',
 			'operationOptions' => 'Operation Options',
-			_ => null,
-		} ?? switch (path) {
 			'copyTextContent' => 'Copy text content',
 			'shareWithOtherFriends' => 'Share with other friends',
 			'addTagsToFavorites' => 'Add tags to favorites',

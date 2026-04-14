@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// @提及候选项
 class MentionCandidate {
@@ -82,15 +83,15 @@ class MentionCandidate {
 ///
 /// Group 角色值: 1=成员, 2=嘉宾, 3=管理员, 4=群主
 
-/// 获取角色显示文本
+/// 获取角色显示文本（i18n：复用 t.groupOwner / t.groupAdmin / t.groupGuest）
 String groupRoleLabel(int role) {
   switch (role) {
     case 4:
-      return '群主';
+      return t.groupOwner;
     case 3:
-      return '管理员';
+      return t.groupAdmin;
     case 2:
-      return '嘉宾';
+      return t.groupGuest;
     default:
       return '';
   }

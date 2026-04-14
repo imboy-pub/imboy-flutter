@@ -1682,8 +1682,17 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '管理员'
 	String get groupAdmin => '管理员';
 
+	/// zh-CN: '嘉宾'
+	String get groupGuest => '嘉宾';
+
 	/// zh-CN: '普通成员'
 	String get groupMember => '普通成员';
+
+	/// zh-CN: '[@你] '
+	String get atMentionYouTag => '[@你] ';
+
+	/// zh-CN: '@已退群成员'
+	String get atMentionLeftMember => '@已退群成员';
 
 	/// zh-CN: '设为管理员'
 	String get setAdmin => '设为管理员';
@@ -5198,7 +5207,10 @@ extension on Translations {
 			'removeMember' => '移出成员',
 			'groupOwner' => '群主',
 			'groupAdmin' => '管理员',
+			'groupGuest' => '嘉宾',
 			'groupMember' => '普通成员',
+			'atMentionYouTag' => '[@你] ',
+			'atMentionLeftMember' => '@已退群成员',
 			'setAdmin' => '设为管理员',
 			'removeAdmin' => '取消管理员',
 			'muteMember' => '禁言成员',
@@ -5667,11 +5679,11 @@ extension on Translations {
 			'noMoreInfo' => '暂无更多信息',
 			'userNotSetSignature' => '该用户还没有设置个人签名等详细信息',
 			'verificationMessage' => '验证消息',
+			_ => null,
+		} ?? switch (path) {
 			'enterRemark' => '请输入备注名',
 			'commentPlaceholder' => '评论...',
 			'burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',
-			_ => null,
-		} ?? switch (path) {
 			'burnDisabledMessage' => '关闭后：消息不会自动销毁',
 			'visibleEnabledMessage' => ({required Object percentage, required Object delayms}) => '开启后：可见比例≥${percentage}%，持续≥${delayms}',
 			'visibleDisabledMessage' => '关闭后：不会基于可视自动已读',

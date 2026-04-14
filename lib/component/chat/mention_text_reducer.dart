@@ -13,15 +13,19 @@
 library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
+import 'package:imboy/i18n/strings.g.dart';
 
 class MentionTextReducer {
   MentionTextReducer._();
 
   /// @所有人 的固定显示名（永不降级）。
+  ///
+  /// 注意：此为 **wire 协议常量**，非显示文案。发送端 text 中出现 `@所有人`
+  /// 由该字符串识别，跨 locale 恒定。UI 展示若需本地化由上层另行处理。
   static const String _allMentionName = '所有人';
 
-  /// 降级替换标签。
-  static const String _removedLabel = '@已退群成员';
+  /// 降级替换标签（i18n runtime，随 locale 变化）。
+  static String get _removedLabel => t.atMentionLeftMember;
 
   /// 匹配 `@<displayName>`：
   /// - group(1)：`@` 前的合法前缀字符（行首捕获为空）

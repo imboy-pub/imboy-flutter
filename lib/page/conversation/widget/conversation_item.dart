@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -261,7 +262,7 @@ class ConversationItem extends ConsumerWidget {
         text: TextSpan(
           children: [
             TextSpan(
-              text: '[@你] ',
+              text: t.atMentionYouTag,
               style: contentStyle.copyWith(
                 color: AppColors.unreadBadgeBackground,
                 fontWeight: FontWeight.w600,

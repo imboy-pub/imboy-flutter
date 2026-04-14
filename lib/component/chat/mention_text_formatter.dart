@@ -6,11 +6,13 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/mention_model.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
-/// 降级显示标签：被 @ 成员已退群 / 被踢
+/// 降级显示标签：被 @ 成员已退群 / 被踢。
 ///
 /// C1：在原 @ 文本位置渲染该标签，并取消点击跳转。
-const String kRemovedMemberMentionLabel = '@已退群成员';
+/// i18n runtime getter（随 locale 变化）。
+String get kRemovedMemberMentionLabel => t.atMentionLeftMember;
 
 /// C1 降级判定：给定 userId 是否应显示为"已退群"。
 ///

@@ -536,7 +536,11 @@ removeMember: "Remove member"
 # Group member roles
 groupOwner: "Owner"
 groupAdmin: "Admin"
+groupGuest: "Guest"
 groupMember: "Member"
+# @ mention UI strings (display only; wire-protocol "所有人" stays hard-coded)
+atMentionYouTag: "[@you] "
+atMentionLeftMember: "@Left member"
 # Group member actions
 setAdmin: "Set as Admin"
 removeAdmin: "Remove Admin"

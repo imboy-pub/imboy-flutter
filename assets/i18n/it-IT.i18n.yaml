@@ -1439,6 +1439,10 @@ Controlla più tardi"
 
 groupOwner: "Owner"
 groupAdmin: "Admin"
+groupGuest: "嘉宾"  # TODO: translate (zh-CN fallback)
+# @ mention UI strings (display only; wire-protocol "所有人" stays hard-coded)
+atMentionYouTag: "[@你] "  # TODO: translate (zh-CN fallback)
+atMentionLeftMember: "@已退群成员"  # TODO: translate (zh-CN fallback)
 groupMember: "Member"
 setAdmin: "Set as Admin"
 removeAdmin: "Remove Admin"
