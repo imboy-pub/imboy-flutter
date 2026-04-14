@@ -81,4 +81,91 @@ void main() {
       expect(increment, 0);
     });
   });
+
+  group('computeMentionUnreadIncrement (C7-β-2a)', () {
+    test('returns 0 when message is from current user', () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: true,
+        isUserInChat: false,
+        mentionIds: const ['u_me', 'all'],
+        currentUid: 'u_me',
+      );
+      expect(delta, 0,
+          reason: 'self-sent message must never bump mention_unread');
+    });
+
+    test('returns 0 when user is already in that chat', () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: true,
+        mentionIds: const ['u_me'],
+        currentUid: 'u_me',
+      );
+      expect(delta, 0,
+          reason: 'user is viewing the chat → no badge');
+    });
+
+    test('returns 0 when mentionIds is null', () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: false,
+        mentionIds: null,
+        currentUid: 'u_me',
+      );
+      expect(delta, 0);
+    });
+
+    test('returns 0 when mentionIds is empty', () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: false,
+        mentionIds: const [],
+        currentUid: 'u_me',
+      );
+      expect(delta, 0);
+    });
+
+    test('returns 1 when mentionIds contains current user', () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: false,
+        mentionIds: const ['u_other', 'u_me'],
+        currentUid: 'u_me',
+      );
+      expect(delta, 1);
+    });
+
+    test("returns 1 when mentionIds contains 'all'", () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: false,
+        mentionIds: const ['all'],
+        currentUid: 'u_me',
+      );
+      expect(delta, 1);
+    });
+
+    test('returns 0 when mentionIds excludes current user and has no all', () {
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: false,
+        mentionIds: const ['u_alice', 'u_bob'],
+        currentUid: 'u_me',
+      );
+      expect(delta, 0,
+          reason: 'message mentions others, not current user');
+    });
+
+    test('returns 0 when empty currentUid (logged out edge case)', () {
+      // If somehow currentUid is empty, only 'all' should still match.
+      final delta = computeMentionUnreadIncrement(
+        isFromCurrentUser: false,
+        isUserInChat: false,
+        mentionIds: const [''],
+        currentUid: '',
+      );
+      expect(delta, 0,
+          reason: 'empty currentUid must not opportunistically match empty id');
+    });
+  });
 }

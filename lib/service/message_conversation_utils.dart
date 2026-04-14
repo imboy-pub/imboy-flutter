@@ -44,3 +44,27 @@ int computeConversationUnreadIncrement({
 }) {
   return (!isFromCurrentUser && !isUserInChat) ? 1 : 0;
 }
+
+/// C7-β：Compute the @-mention unread increment for one received message.
+///
+/// Mirrors [computeConversationUnreadIncrement]: a message that does NOT
+/// bump the regular unread (self-sent, or user already in chat) must also
+/// NOT bump mention_unread. Otherwise, the delta is 1 when the payload
+/// mentions the current user either explicitly (by uid) or via the group
+/// "all" sentinel; 0 otherwise.
+///
+/// Empty [currentUid] is treated defensively: no match, even if the
+/// incoming [mentionIds] happens to contain an empty string.
+int computeMentionUnreadIncrement({
+  required bool isFromCurrentUser,
+  required bool isUserInChat,
+  required List<String>? mentionIds,
+  required String currentUid,
+}) {
+  if (isFromCurrentUser || isUserInChat) return 0;
+  if (mentionIds == null || mentionIds.isEmpty) return 0;
+  if (mentionIds.contains('all')) return 1;
+  if (currentUid.isEmpty) return 0;
+  if (mentionIds.contains(currentUid)) return 1;
+  return 0;
+}
