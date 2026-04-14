@@ -277,17 +277,36 @@ class ChannelService {
     try {
       final summary = await _api.getUnreadSummary();
       final rawChannels = summary['channels'];
-      final authoritativeByChannel = <String, int>{};
 
-      if (rawChannels is List) {
-        for (final item in rawChannels.whereType<Map>()) {
-          final row = Map<String, dynamic>.from(item);
-          final channelId = parseModelString(row['channel_id']);
-          if (channelId.isEmpty) continue;
-          authoritativeByChannel[channelId] = parseModelInt(
-            row['unread_count'],
-          );
-        }
+      // 载荷守卫：必须显式为 List（含空 List），才可视为「权威未读集合」。
+      // - `channels` 缺失或为 null/非 List 表示上游异常或版本错配：
+      //   不得用空白权威集清零本地未读；仅上报 success=false 供观测。
+      // - `channels: []` 是合法的权威空集，表示无未读，允许清零。
+      if (rawChannels is! List) {
+        iPrint(
+          'ChannelService: 未读汇总载荷异常 - '
+          'channels 字段缺失或类型错误 (type=${rawChannels.runtimeType})',
+        );
+        AppEventBus.fireTracked(
+          ChannelUnreadSummarySyncEvent(
+            trigger: trigger,
+            source: source,
+            totalUnread: totalUnread,
+            changedSubscriptions: changed,
+            success: false,
+          ),
+        );
+        return const {};
+      }
+
+      final authoritativeByChannel = <String, int>{};
+      for (final item in rawChannels.whereType<Map>()) {
+        final row = Map<String, dynamic>.from(item);
+        final channelId = parseModelString(row['channel_id']);
+        if (channelId.isEmpty) continue;
+        authoritativeByChannel[channelId] = parseModelInt(
+          row['unread_count'],
+        );
       }
 
       final subscriptions = await _repo.getAllSubscriptions();

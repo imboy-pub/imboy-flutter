@@ -112,6 +112,124 @@ void main() {
     });
 
     test(
+      'does NOT zero local unreads when API channels field is missing/null',
+      () async {
+        // 回归用例：API 载荷若丢失 `channels` 字段（上游异常或版本错配），
+        // 旧逻辑会视所有本地订阅「权威未读=0」并清零，导致用户看到未读无故消失。
+        // 正确行为：将此视为不可信载荷，不写盘、不发 channel 级事件，
+        // 但上报 summary 同步失败供观测。
+        final repo = _FakeChannelRepo([
+          ChannelSubscriptionModel(
+            channelId: 1001,
+            subscribedAt: DateTime.fromMillisecondsSinceEpoch(1),
+            unreadCount: 7,
+          ),
+        ]);
+        final api = _FakeChannelApi(
+          summary: const <String, dynamic>{'total_unread': 0},
+        );
+        final service = ChannelService.forTest(api: api, repo: repo);
+
+        final unreadEvents = <ChannelUnreadCountUpdatedEvent>[];
+        final syncEvents = <ChannelUnreadSummarySyncEvent>[];
+        final unreadSub =
+            AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
+          unreadEvents.add,
+        );
+        final syncSub = AppEventBus.on<ChannelUnreadSummarySyncEvent>().listen(
+          syncEvents.add,
+        );
+
+        await service.syncUnreadSummary(trigger: 'manual');
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await unreadSub.cancel();
+        await syncSub.cancel();
+
+        expect(repo.updatedUnreadByChannel, isEmpty,
+            reason: 'channels 缺失时不得清零本地未读');
+        expect(
+          unreadEvents.any((e) => e.channelId == '1001'),
+          isFalse,
+          reason: 'channels 缺失时不得发 channel 级未读事件',
+        );
+        expect(syncEvents.length, 1);
+        expect(syncEvents.single.success, isFalse,
+            reason: 'channels 缺失应上报同步失败供观测');
+      },
+    );
+
+    test(
+      'does NOT zero local unreads when API channels field is wrong type',
+      () async {
+        // 载荷异常：channels 非 List（例如服务端误回 Map 或字符串）。
+        final repo = _FakeChannelRepo([
+          ChannelSubscriptionModel(
+            channelId: 1001,
+            subscribedAt: DateTime.fromMillisecondsSinceEpoch(1),
+            unreadCount: 3,
+          ),
+        ]);
+        final api = _FakeChannelApi(
+          summary: const <String, dynamic>{
+            'total_unread': 0,
+            'channels': 'not_a_list',
+          },
+        );
+        final service = ChannelService.forTest(api: api, repo: repo);
+
+        final syncEvents = <ChannelUnreadSummarySyncEvent>[];
+        final syncSub = AppEventBus.on<ChannelUnreadSummarySyncEvent>().listen(
+          syncEvents.add,
+        );
+
+        await service.syncUnreadSummary(trigger: 'manual');
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await syncSub.cancel();
+
+        expect(repo.updatedUnreadByChannel, isEmpty);
+        expect(syncEvents.single.success, isFalse);
+      },
+    );
+
+    test(
+      'empty channels list DOES zero local unreads (authoritative empty)',
+      () async {
+        // 对照：`channels: []` 是权威语义上的「无未读」，必须清零。
+        // 这条用例保护前两个修复不过度宽松。
+        final repo = _FakeChannelRepo([
+          ChannelSubscriptionModel(
+            channelId: 1001,
+            subscribedAt: DateTime.fromMillisecondsSinceEpoch(1),
+            unreadCount: 7,
+          ),
+        ]);
+        final api = _FakeChannelApi(
+          summary: const <String, dynamic>{
+            'total_unread': 0,
+            'channels': <Map<String, dynamic>>[],
+          },
+        );
+        final service = ChannelService.forTest(api: api, repo: repo);
+
+        final syncEvents = <ChannelUnreadSummarySyncEvent>[];
+        final syncSub = AppEventBus.on<ChannelUnreadSummarySyncEvent>().listen(
+          syncEvents.add,
+        );
+
+        await service.syncUnreadSummary(trigger: 'manual');
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await syncSub.cancel();
+
+        expect(repo.updatedUnreadByChannel, {'1001': 0},
+            reason: 'channels:[] 是权威空集，应清零');
+        expect(syncEvents.single.success, isTrue);
+      },
+    );
+
+    test(
       'emits failed summary sync event on unread summary exception',
       () async {
         final repo = _FakeChannelRepo([
