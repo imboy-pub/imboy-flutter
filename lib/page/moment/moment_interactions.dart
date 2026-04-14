@@ -1,5 +1,31 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 返回一个新 moment map，`stats.comment_count` 按 [delta] 增减。
+///
+/// - 输入 map 和其子 `stats` map 都不会被修改
+/// - 结果下限为 0，永不下溢
+/// - 缺失 `stats` 视为空 map，从 0 起算
+///
+/// 用于本地 add/delete comment 后立即同步详情页头部的评论数字，避免
+/// 等下一次网络刷新才看到正确的计数。
+Map<String, dynamic> applyCommentCountDelta(
+  Map<String, dynamic> moment,
+  int delta,
+) {
+  final rawStats = moment['stats'];
+  final oldStats = rawStats is Map
+      ? Map<String, dynamic>.from(rawStats)
+      : <String, dynamic>{};
+  final current = parseModelInt(oldStats['comment_count']);
+  final next = current + delta;
+  final clamped = next < 0 ? 0 : next;
+  final nextStats = Map<String, dynamic>.from(oldStats);
+  nextStats['comment_count'] = clamped;
+  final nextMoment = Map<String, dynamic>.from(moment);
+  nextMoment['stats'] = nextStats;
+  return nextMoment;
+}
+
 /// 将下一页评论合并到已有列表。
 ///
 /// - 按 `id` 去重；首次出现的条目保留，后续重复被丢弃（保持现有顺序稳定）

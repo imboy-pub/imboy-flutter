@@ -189,6 +189,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     setState(() {
       _sendingComment = false;
       _comments = [enrichedComment, ..._comments];
+      final post = _moment;
+      if (post != null) {
+        _moment = applyCommentCountDelta(post, 1);
+      }
     });
   }
 
@@ -203,6 +207,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       _comments = _comments
           .where((item) => parseModelString(item['id']) != commentId)
           .toList(growable: false);
+      final post = _moment;
+      if (post != null) {
+        _moment = applyCommentCountDelta(post, -1);
+      }
     });
   }
 
