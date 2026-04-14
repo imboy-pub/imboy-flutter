@@ -130,6 +130,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   TextEditingController get textController => _textController;
   late AnimationController _bottomHeightController; // 兼容旧动画逻辑
   late String draftKey; // 草稿key
+  late String draftCursorKey; // C3: 草稿光标位置 key
   Timer? _debounceTimer;
 
   final _emojiShowing = ValueNotifier<bool>(false); // 是否显示表情面板
@@ -176,6 +177,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     draftKey = "draft${widget.type}_${widget.peerId}";
+    draftCursorKey = "draftCursor${widget.type}_${widget.peerId}";
 
     _initTextController();
     _initAnimationController();
@@ -238,6 +240,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     final draft = StorageService.to.getString(draftKey);
     if (draft.isNotEmpty) {
       _setText(draft);
+      // C3: 恢复上次离开时的光标位置（clamp 到合法区间，防止数据损坏）
+      final cursorStr = StorageService.to.getString(draftCursorKey);
+      final cursor = int.tryParse(cursorStr);
+      if (cursor != null) {
+        final clamped = cursor.clamp(0, _textController.text.length);
+        _textController.selection = TextSelection.collapsed(offset: clamped);
+      }
     }
 
     // 监听输入框焦点变化，自动切换到文本输入模式
@@ -488,6 +497,11 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // 超长自动裁剪并存储草稿
       if (text.length <= (widget.maxLength ?? 1000)) {
         StorageService.to.setString(draftKey, _textController.text);
+        // C3: 同步保存光标位置（baseOffset 可能为 -1 表示无 selection，忽略）
+        final baseOffset = _textController.selection.baseOffset;
+        if (baseOffset >= 0) {
+          StorageService.to.setString(draftCursorKey, baseOffset.toString());
+        }
       }
 
       widget.onTextChanged?.call(_textController.text);
@@ -584,6 +598,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (res) {
         _textController.clear();
         StorageService.to.remove(draftKey);
+        StorageService.to.remove(draftCursorKey); // C3: 同步清除光标位置
         // 清空 @提及数据
         _mentionData = const MentionData();
         _notifyMentionsChanged();
