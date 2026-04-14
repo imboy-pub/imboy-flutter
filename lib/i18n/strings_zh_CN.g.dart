@@ -1700,6 +1700,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '开启后不会收到新消息提醒，但仍可在会话列表看到未读'
 	String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
 
+	/// zh-CN: '超过 2 分钟，无法撤回'
+	String get revokeExpired => '超过 2 分钟，无法撤回';
+
 	/// zh-CN: '设为管理员'
 	String get setAdmin => '设为管理员';
 
@@ -5243,6 +5246,7 @@ extension on Translations {
 			'atMentionLeftMember' => '@已退群成员',
 			'muteNotifications' => '消息免打扰',
 			'muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
+			'revokeExpired' => '超过 2 分钟，无法撤回',
 			'setAdmin' => '设为管理员',
 			'removeAdmin' => '取消管理员',
 			'muteMember' => '禁言成员',
@@ -5708,9 +5712,9 @@ extension on Translations {
 			'pleaseEnterRemark' => '请输入备注名',
 			'unknownRegion' => '未知地区',
 			'noCommonGroups' => '暂无共同群组',
-			'noMoreInfo' => '暂无更多信息',
 			_ => null,
 		} ?? switch (path) {
+			'noMoreInfo' => '暂无更多信息',
 			'userNotSetSignature' => '该用户还没有设置个人签名等详细信息',
 			'verificationMessage' => '验证消息',
 			'enterRemark' => '请输入备注名',

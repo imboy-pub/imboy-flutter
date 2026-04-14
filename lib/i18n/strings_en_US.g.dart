@@ -577,6 +577,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get atMentionLeftMember => '@Left member';
 	@override String get muteNotifications => 'Mute notifications';
 	@override String get muteNotificationsHint => 'You won\'t get new-message alerts; unread counts still show in the list';
+	@override String get revokeExpired => 'Can\'t revoke messages older than 2 minutes';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
 	@override String get muteMember => 'Mute Member';
@@ -2187,6 +2188,7 @@ extension on TranslationsEnUs {
 			'atMentionLeftMember' => '@Left member',
 			'muteNotifications' => 'Mute notifications',
 			'muteNotificationsHint' => 'You won\'t get new-message alerts; unread counts still show in the list',
+			'revokeExpired' => 'Can\'t revoke messages older than 2 minutes',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',
 			'muteMember' => 'Mute Member',
@@ -2671,9 +2673,9 @@ extension on TranslationsEnUs {
 			'tips' => 'Tips',
 			'featureComingSoon' => 'Feature coming soon',
 			'understood' => 'Understood',
-			'noProblem' => 'No problem',
 			_ => null,
 		} ?? switch (path) {
+			'noProblem' => 'No problem',
 			'onMyWay' => 'On my way',
 			'otherDevice' => 'Other Device',
 			'sendOfflineCommand' => 'Force Offline',

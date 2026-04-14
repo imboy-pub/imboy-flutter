@@ -544,6 +544,8 @@ atMentionLeftMember: "@Left member"
 # C7-α-1 local DND
 muteNotifications: "Mute notifications"
 muteNotificationsHint: "You won't get new-message alerts; unread counts still show in the list"
+# S1 revoke time limit
+revokeExpired: "Can't revoke messages older than 2 minutes"
 # Group member actions
 setAdmin: "Set as Admin"
 removeAdmin: "Remove Admin"

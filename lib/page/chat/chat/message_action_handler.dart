@@ -18,6 +18,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/page/chat/chat/message_revoke_policy.dart';
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 
@@ -229,6 +230,16 @@ class MessageActionHandler {
 
   /// 撤回消息
   Future<void> revokeMessage(Message msg) async {
+    // S1: 前端 2 分钟窗口短路。超期消息不必走一轮网络，给即时 UX 反馈。
+    final createdAtMs = msg.createdAt?.millisecondsSinceEpoch ?? 0;
+    if (!canRevokeMessage(
+      createdAtMs: createdAtMs,
+      nowMs: DateTime.now().millisecondsSinceEpoch,
+    )) {
+      EasyLoading.showError(t.revokeExpired);
+      return;
+    }
+
     try {
       // 显示加载状态
       EasyLoading.show(status: t.revoking);

@@ -1250,6 +1250,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get atMentionLeftMember => '@已退群成员';
 	@override String get muteNotifications => '消息免打扰';
 	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
+	@override String get revokeExpired => '超过 2 分钟，无法撤回';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
@@ -2819,6 +2820,7 @@ extension on TranslationsJaJp {
 			'atMentionLeftMember' => '@已退群成员',
 			'muteNotifications' => '消息免打扰',
 			'muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
+			'revokeExpired' => '超过 2 分钟，无法撤回',
 			'groupMember' => 'Member',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',
