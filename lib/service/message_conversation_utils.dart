@@ -45,6 +45,21 @@ int computeConversationUnreadIncrement({
   return (!isFromCurrentUser && !isUserInChat) ? 1 : 0;
 }
 
+/// C7-β：Extract the mention uid list from an incoming message payload.
+///
+/// Wire format (see chat_page._sendTextMessage):
+///   payload['mentions'] = a list of uid strings; may include the sentinel
+///                         'all' for @everyone.
+/// Returns null when the payload is absent or has no mentions field.
+List<String>? extractMentionIdsFromPayload(Map<String, dynamic>? payload) {
+  if (payload == null) return null;
+  final raw = payload['mentions'];
+  if (raw is List) {
+    return raw.map((e) => e.toString()).toList(growable: false);
+  }
+  return null;
+}
+
 /// C7-β：Compute the @-mention unread increment for one received message.
 ///
 /// Mirrors [computeConversationUnreadIncrement]: a message that does NOT

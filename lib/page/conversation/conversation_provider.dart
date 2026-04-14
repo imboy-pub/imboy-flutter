@@ -206,6 +206,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       try {
         await (ConversationRepo()).updateById(conversation.id, {
           ConversationRepo.unreadNum: val,
+          // C7-β：val=0 语义 = 进入聊天页清未读，同步清 mention_unread
+          if (val == 0) ConversationRepo.mentionUnread: 0,
           ConversationRepo.isShow: 1,
         });
 
@@ -215,7 +217,9 @@ class ConversationNotifier extends _$ConversationNotifier {
           final newMap = Map<String, ConversationModel>.from(
             state.conversationMap,
           );
-          newMap[uk3] = newMap[uk3]!.copyWith(unreadNum: val);
+          newMap[uk3] = val == 0
+              ? newMap[uk3]!.copyWith(unreadNum: 0, mentionUnread: 0) // C7-β
+              : newMap[uk3]!.copyWith(unreadNum: val);
           state = state.copyWith(conversationMap: newMap);
         }
       } catch (e, s) {

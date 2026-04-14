@@ -124,8 +124,10 @@ class ConversationRepo {
     iPrint("ConversationRepo_save ${obj.toJson().toString()}");
     ConversationModel? oldObj = await findByPeerId(obj.type, obj.peerId.toString());
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
+    int mentionUnreadOld = oldObj == null ? 0 : oldObj.mentionUnread; // C7-β
     // obj.isShow = oldObj?.isShow ?? 1;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
+    obj.mentionUnread = obj.mentionUnread + mentionUnreadOld; // C7-β 对称累加
     if (oldObj == null) {
       obj.id = await insert(obj);
     } else {

@@ -8,6 +8,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -1001,11 +1002,16 @@ class MessageRepo {
     final String currentConversationUk3 = _currentActiveConversationUk3 ?? '';
 
     final Map<String, _OfflineConversationAgg> convAgg = {};
+    final currentUid = UserRepoLocal.to.currentUid; // C7-β
     for (final msg in inserted) {
       final key = '${msg.type}::${msg.peerId}';
       final agg = convAgg.putIfAbsent(
         key,
-        () => _OfflineConversationAgg(type: msg.type, peerId: msg.peerId),
+        () => _OfflineConversationAgg(
+          type: msg.type,
+          peerId: msg.peerId,
+          currentUid: currentUid,
+        ),
       );
       agg.observe(msg, currentConversationUk3);
     }
@@ -1061,6 +1067,7 @@ class MessageRepo {
           lastTime: latest.createdAt,
           lastMsgStatus: latest.status, // 传递消息状态
           unreadNum: agg.unreadDelta, // 使用计算出的未读数
+          mentionUnread: agg.mentionDelta, // C7-β
           payload: {},
           isShow: 1,
         );
@@ -1069,6 +1076,7 @@ class MessageRepo {
       } else {
         // 更新现有会话，总是更新最后消息信息
         int newUnreadNum = existing.unreadNum + agg.unreadDelta;
+        int newMentionUnread = existing.mentionUnread + agg.mentionDelta; // C7-β
         await conversationRepo.updateById(existing.id, {
           ConversationRepo.avatar: avatar.isNotEmpty ? avatar : existing.avatar,
           ConversationRepo.title: title.isNotEmpty ? title : existing.title,
@@ -1078,6 +1086,7 @@ class MessageRepo {
           ConversationRepo.lastTime: latest.createdAt,
           ConversationRepo.lastMsgStatus: latest.status, // 传递消息状态
           ConversationRepo.unreadNum: newUnreadNum,
+          ConversationRepo.mentionUnread: newMentionUnread, // C7-β
           ConversationRepo.isShow: 1,
         });
 
@@ -1435,10 +1444,16 @@ class _InsertedOfflineMessage {
 class _OfflineConversationAgg {
   final String type;
   final String peerId;
+  final String currentUid; // C7-β: 判定消息是否 @ 当前用户
   _InsertedOfflineMessage? latest;
   int unreadDelta = 0;
+  int mentionDelta = 0; // C7-β
 
-  _OfflineConversationAgg({required this.type, required this.peerId});
+  _OfflineConversationAgg({
+    required this.type,
+    required this.peerId,
+    this.currentUid = '',
+  });
 
   void observe(_InsertedOfflineMessage msg, String currentConversationUk3) {
     if (latest == null || msg.createdAt >= (latest?.createdAt ?? 0)) {
@@ -1446,6 +1461,14 @@ class _OfflineConversationAgg {
     }
     if (msg.isAuthor == 0 && msg.conversationUk3 != currentConversationUk3) {
       unreadDelta += 1;
+      // C7-β：离线批量路径对称累加 mention_unread
+      final mentionIds = extractMentionIdsFromPayload(msg.payload);
+      mentionDelta += computeMentionUnreadIncrement(
+        isFromCurrentUser: false, // isAuthor == 0 保证非自己
+        isUserInChat: false, // 路径前提保证不在当前会话
+        mentionIds: mentionIds,
+        currentUid: currentUid,
+      );
     }
   }
 }

@@ -829,6 +829,13 @@ class MessageService with EventSubscriptionManager {
         isFromCurrentUser: isFromCurrentUser,
         isUserInChat: isUserInChat,
       );
+      // C7-β: 计算 @ 未读增量（与 unread 同短路条件 + mentionIds 判定）
+      final mentionIncrement = computeMentionUnreadIncrement(
+        isFromCurrentUser: isFromCurrentUser,
+        isUserInChat: isUserInChat,
+        mentionIds: extractMentionIdsFromPayload(payload),
+        currentUid: UserRepoLocal.to.currentUid,
+      );
 
       final conv = ConversationModel(
         peerId: parseModelInt(peerInfo['peerId']),
@@ -840,6 +847,7 @@ class MessageService with EventSubscriptionManager {
         lastMsgId: parseModelInt(msgId),
         lastTime: tempConv.lastTime,
         unreadNum: unreadIncrement,
+        mentionUnread: mentionIncrement, // C7-β
         id: 0,
       );
       final savedConv = await _conversationRepo.save(conv);
