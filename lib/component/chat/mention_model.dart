@@ -213,6 +213,92 @@ class MentionRange {
   }
 }
 
+/// @提及状态
+///
+/// 保存群成员候选列表、关键词过滤、当前用户角色等。
+/// 放在 model 层是为了让其可被纯单元测试覆盖（不传递依赖到
+/// SQLite / 文件选择器 等 data-layer 代码）。
+class MentionState {
+  /// 候选成员列表
+  final List<MentionCandidate> candidates;
+
+  /// 当前群组ID
+  final String groupId;
+
+  /// 是否显示 @所有人 选项
+  final bool showAllMention;
+
+  /// 当前用户在群中的角色
+  final int currentUserRole;
+
+  /// 搜索关键词
+  final String keyword;
+
+  /// 是否正在加载
+  final bool isLoading;
+
+  /// 用户ID到显示名称的映射
+  final Map<String, String> userIdToName;
+
+  /// 当前登录用户的 ID
+  ///
+  /// 用于在 [filteredCandidates] 中排除自己（C6：`@自己禁用`）。
+  /// 为空字符串时不做排除，保持向后兼容。
+  final String currentUserId;
+
+  const MentionState({
+    this.candidates = const [],
+    this.groupId = '',
+    this.showAllMention = false,
+    this.currentUserRole = 1,
+    this.keyword = '',
+    this.isLoading = false,
+    this.userIdToName = const {},
+    this.currentUserId = '',
+  });
+
+  MentionState copyWith({
+    List<MentionCandidate>? candidates,
+    String? groupId,
+    bool? showAllMention,
+    int? currentUserRole,
+    String? keyword,
+    bool? isLoading,
+    Map<String, String>? userIdToName,
+    String? currentUserId,
+  }) {
+    return MentionState(
+      candidates: candidates ?? this.candidates,
+      groupId: groupId ?? this.groupId,
+      showAllMention: showAllMention ?? this.showAllMention,
+      currentUserRole: currentUserRole ?? this.currentUserRole,
+      keyword: keyword ?? this.keyword,
+      isLoading: isLoading ?? this.isLoading,
+      userIdToName: userIdToName ?? this.userIdToName,
+      currentUserId: currentUserId ?? this.currentUserId,
+    );
+  }
+
+  /// 当前用户是否是管理员
+  bool get isAdmin => currentUserRole >= 3;
+
+  /// 获取过滤后的候选列表
+  ///
+  /// 先排除当前用户（C6），再按关键词模糊匹配。
+  List<MentionCandidate> get filteredCandidates {
+    final base = currentUserId.isEmpty
+        ? candidates
+        : candidates.where((c) => c.userId != currentUserId).toList();
+    if (keyword.isEmpty) {
+      return base;
+    }
+    final lowered = keyword.toLowerCase();
+    return base
+        .where((c) => c.displayName.toLowerCase().contains(lowered))
+        .toList();
+  }
+}
+
 /// @提及解析结果
 class MentionParseResult {
   /// 解析后的纯文本

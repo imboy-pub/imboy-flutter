@@ -9,74 +9,9 @@ import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-/// @提及状态
-class MentionState {
-  /// 候选成员列表
-  final List<MentionCandidate> candidates;
-
-  /// 当前群组ID
-  final String groupId;
-
-  /// 是否显示 @所有人 选项
-  final bool showAllMention;
-
-  /// 当前用户在群中的角色
-  final int currentUserRole;
-
-  /// 搜索关键词
-  final String keyword;
-
-  /// 是否正在加载
-  final bool isLoading;
-
-  /// 用户ID到显示名称的映射
-  final Map<String, String> userIdToName;
-
-  const MentionState({
-    this.candidates = const [],
-    this.groupId = '',
-    this.showAllMention = false,
-    this.currentUserRole = 1,
-    this.keyword = '',
-    this.isLoading = false,
-    this.userIdToName = const {},
-  });
-
-  MentionState copyWith({
-    List<MentionCandidate>? candidates,
-    String? groupId,
-    bool? showAllMention,
-    int? currentUserRole,
-    String? keyword,
-    bool? isLoading,
-    Map<String, String>? userIdToName,
-  }) {
-    return MentionState(
-      candidates: candidates ?? this.candidates,
-      groupId: groupId ?? this.groupId,
-      showAllMention: showAllMention ?? this.showAllMention,
-      currentUserRole: currentUserRole ?? this.currentUserRole,
-      keyword: keyword ?? this.keyword,
-      isLoading: isLoading ?? this.isLoading,
-      userIdToName: userIdToName ?? this.userIdToName,
-    );
-  }
-
-  /// 当前用户是否是管理员
-  bool get isAdmin => currentUserRole >= 3;
-
-  /// 获取过滤后的候选列表
-  List<MentionCandidate> get filteredCandidates {
-    if (keyword.isEmpty) {
-      return candidates;
-    }
-    return candidates.where((c) =>
-      c.displayName.toLowerCase().contains(keyword.toLowerCase())
-    ).toList();
-  }
-}
-
 /// @提及状态 Notifier（使用 Riverpod 3.x Notifier）
+///
+/// 注：`MentionState` 已上移至 [mention_model.dart] 以便纯单元测试。
 class MentionNotifier extends Notifier<MentionState> {
   @override
   MentionState build() {
@@ -128,6 +63,7 @@ class MentionNotifier extends Notifier<MentionState> {
         showAllMention: currentUserRole >= 3, // 管理员和群主可以使用 @所有人
         isLoading: false,
         userIdToName: userIdToName,
+        currentUserId: currentUid, // C6: 用于 filteredCandidates 排除自己
       );
     } on Exception catch (e) {
       iPrint('loadGroupMembers failed: ${e.runtimeType}');

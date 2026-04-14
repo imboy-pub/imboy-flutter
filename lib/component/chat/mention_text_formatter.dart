@@ -7,6 +7,31 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 
+/// 降级显示标签：被 @ 成员已退群 / 被踢
+///
+/// C1：在原 @ 文本位置渲染该标签，并取消点击跳转。
+const String kRemovedMemberMentionLabel = '@已退群成员';
+
+/// C1 降级判定：给定 userId 是否应显示为"已退群"。
+///
+/// - [activeMemberIds] 为 null 时表示上层未提供活跃成员集合，不做降级（向后兼容）。
+/// - `'all'` 是 @所有人 的特殊 id，不参与降级。
+bool _isStaleMention(String userId, Set<String>? activeMemberIds) {
+  if (activeMemberIds == null) return false;
+  if (userId == 'all') return false;
+  return !activeMemberIds.contains(userId);
+}
+
+/// C5 前缀白名单：`@` 前的字符是否允许触发候选弹窗。
+///
+/// 拒绝字母、数字、下划线（这些通常是 username 或 email 的一部分，
+/// 如 `a@b.com`、`test_@` 不应弹出群成员候选）。
+/// 其余字符（空格、标点、中文字符、换行、行首）均允许触发。
+bool _isLegalAtPrefix(String? ch) {
+  if (ch == null) return true; // 行首
+  return !RegExp(r'[A-Za-z0-9_]').hasMatch(ch);
+}
+
 /// @提及文本格式化器
 class MentionTextFormatter {
   /// @提及正则表达式
@@ -54,6 +79,17 @@ class MentionTextFormatter {
     );
   }
 
+  /// C1：判定被 @ 用户是否已退群 / 被踢，需降级显示。
+  ///
+  /// [activeMemberIds] 为 null 时不降级（保持旧行为）。
+  /// `'all'` 为特殊的 @所有人 id，永不降级。
+  @visibleForTesting
+  static bool isRemovedMember(
+    String userId,
+    Set<String>? activeMemberIds,
+  ) =>
+      _isStaleMention(userId, activeMemberIds);
+
   /// 构建带高亮的文本组件
   ///
   /// [text] 原始文本
@@ -62,6 +98,9 @@ class MentionTextFormatter {
   /// [onMentionTap] 点击 @提及的回调
   /// [currentUserId] 当前用户ID，用于判断是否被 @
   /// [isCurrentUser] 是否是当前用户发送的消息
+  /// [activeMemberIds] C1：群当前活跃成员 ID 集合；
+  ///   若提供且某个被 @ 用户不在其中，则替换为"@已退群成员"且不可点击；
+  ///   为 null 时保持向后兼容。
   static Widget buildHighlightedText({
     required String text,
     required List<String>? mentionIds,
@@ -69,6 +108,7 @@ class MentionTextFormatter {
     required String currentUserId,
     void Function(String userId)? onMentionTap,
     bool isCurrentUser = false,
+    Set<String>? activeMemberIds,
   }) {
     if (mentionIds == null || mentionIds.isEmpty) {
       return Text(text, style: style);
@@ -97,28 +137,42 @@ class MentionTextFormatter {
         );
       }
 
-      // 添加 @提及文本
-      final mentionText = text.substring(range.start, range.end);
+      final stale = _isStaleMention(range.userId, activeMemberIds);
 
-      // 高亮样式
-      final mentionStyle = style.copyWith(
-        color: _getMentionColor(
-          isCurrentUser: isCurrentUser,
-          isMentioned: isMentioned,
-        ),
-        fontWeight: FontWeight.w600,
-      );
-
-      spans.add(
-        TextSpan(
-          text: mentionText,
-          style: mentionStyle,
-          recognizer: onMentionTap != null
-              ? (TapGestureRecognizer()
+      if (stale) {
+        // C1 降级：替换显示文本为"@已退群成员"，灰色、不可点击。
+        spans.add(
+          TextSpan(
+            text: kRemovedMemberMentionLabel,
+            style: style.copyWith(
+              color: style.color?.withValues(alpha: 0.5) ??
+                  Colors.grey,
+              fontStyle: FontStyle.italic,
+              decoration: TextDecoration.lineThrough,
+            ),
+            // 不附加 recognizer：禁止跳转到已不存在的用户资料。
+          ),
+        );
+      } else {
+        final mentionText = text.substring(range.start, range.end);
+        final mentionStyle = style.copyWith(
+          color: _getMentionColor(
+            isCurrentUser: isCurrentUser,
+            isMentioned: isMentioned,
+          ),
+          fontWeight: FontWeight.w600,
+        );
+        spans.add(
+          TextSpan(
+            text: mentionText,
+            style: mentionStyle,
+            recognizer: onMentionTap != null
+                ? (TapGestureRecognizer()
                   ..onTap = () => onMentionTap(range.userId))
-              : null,
-        ),
-      );
+                : null,
+          ),
+        );
+      }
 
       lastEnd = range.end;
     }
@@ -258,6 +312,15 @@ class MentionTextEditorHelper {
     final lastAtIndex = textBeforeCursor.lastIndexOf('@');
 
     if (lastAtIndex == -1) {
+      return (false, '');
+    }
+
+    // C5：@ 前必须是行首 / 空格 / 标点 / 中文字符等；
+    // 若紧邻的前一个字符属于 [A-Za-z0-9_]（如 email `a@b`、`name_@`），
+    // 视为用户原文输入，不弹出候选。
+    final prevChar =
+        lastAtIndex == 0 ? null : textBeforeCursor.substring(lastAtIndex - 1, lastAtIndex);
+    if (!_isLegalAtPrefix(prevChar)) {
       return (false, '');
     }
 
