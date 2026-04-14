@@ -251,6 +251,28 @@ class ConversationItem extends ConsumerWidget {
       );
     }
 
+    // C7-β-2c：独立 @ 未读提示 — 会话里有未读且当前用户被 @
+    // 时在内容预览前显示红色 [@你]，让用户即使开了消息预览也能一眼
+    // 看到自己被提及。与草稿 prefix 互斥（草稿已 return 上面）。
+    if (currentModel.mentionUnread > 0) {
+      return RichText(
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '[@你] ',
+              style: contentStyle.copyWith(
+                color: AppColors.unreadBadgeBackground,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            TextSpan(text: content, style: contentStyle),
+          ],
+        ),
+      );
+    }
+
     return Text(
       content,
       style: contentStyle,
