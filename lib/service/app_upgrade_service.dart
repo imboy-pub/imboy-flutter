@@ -12,6 +12,7 @@ import 'package:imboy/service/default_app_downgrade_cleaner.dart';
 import 'package:imboy/service/app_version_tracker.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/upgrade_strategy.dart';
+import 'package:imboy/service/upgrade_timer_policy.dart';
 import 'package:imboy/store/api/app_upgrade_log_api.dart';
 import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/model/app_version_model.dart';
@@ -249,13 +250,28 @@ class AppUpgradeService {
   }
 
   /// 设置定时检查
+  ///
+  /// 若 [intervalHours] <= 0，不启动定时器（防止 Timer.periodic(Duration.zero)
+  /// 的紧循环死锁）。保存到本地的值仍是原始值，便于诊断。
+  ///
+  /// When [intervalHours] <= 0, skip timer (prevents Timer.periodic tight loop).
   void _setupPeriodicCheck(int intervalHours) {
     _periodicTimer?.cancel();
-    final interval = Duration(hours: intervalHours);
-    _periodicTimer = Timer.periodic(interval, (_) {
-      checkAndPrompt();
-    });
-    // 保存间隔到本地
+    _periodicTimer = null;
+
+    final interval = UpgradeTimerPolicy.computeInterval(intervalHours);
+    if (interval == null) {
+      iPrint(
+        'AppUpgradeService: skip periodic check '
+        '(invalid intervalHours=$intervalHours)',
+      );
+    } else {
+      _periodicTimer = Timer.periodic(interval, (_) {
+        checkAndPrompt();
+      });
+    }
+    // 保存间隔到本地（诊断用，不受非法值影响）
+    // Persist for diagnostics, even when invalid
     StorageService.to.setString(_checkIntervalKey, intervalHours.toString());
   }
 
