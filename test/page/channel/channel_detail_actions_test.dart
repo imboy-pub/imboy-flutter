@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/store/model/channel_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/events/common_events.dart';
 
@@ -91,6 +92,80 @@ void main() {
 
       final state = container.read(channelDetailProvider);
       expect(state.messages.length, 1);
+    });
+  });
+
+  group('ChannelDetailNotifier publish permission guard', () {
+    late ProviderContainer container;
+    late ChannelDetailNotifier notifier;
+
+    ChannelModel buildChannel(ChannelUserRole role) {
+      return ChannelModel(
+        id: 1001,
+        name: 'Test',
+        creatorId: 1,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        userRole: role,
+      );
+    }
+
+    setUp(() {
+      container = ProviderContainer();
+      notifier = container.read(channelDetailProvider.notifier);
+    });
+
+    tearDown(() => container.dispose());
+
+    test('publishMessage returns false when user role is subscriber',
+        () async {
+      notifier.debugSetChannelId('1001');
+      notifier.state = notifier.state
+          .copyWith(channel: buildChannel(ChannelUserRole.subscriber));
+
+      final result = await notifier
+          .publishMessage(content: 'hi', msgType: 'channel_text');
+
+      expect(result, isFalse);
+      // State must not flip to isPublishing; no network call should be attempted.
+      expect(container.read(channelDetailProvider).isPublishing, isFalse);
+      expect(container.read(channelDetailProvider).messages, isEmpty);
+    });
+
+    test('publishMessage returns false when user role is none', () async {
+      notifier.debugSetChannelId('1001');
+      notifier.state = notifier.state
+          .copyWith(channel: buildChannel(ChannelUserRole.none));
+
+      final result = await notifier
+          .publishMessage(content: 'hi', msgType: 'channel_text');
+
+      expect(result, isFalse);
+      expect(container.read(channelDetailProvider).isPublishing, isFalse);
+    });
+
+    test('publishMessage short-circuits before toggling isPublishing '
+        'for non-publishing roles', () async {
+      notifier.debugSetChannelId('1001');
+      notifier.state = notifier.state
+          .copyWith(channel: buildChannel(ChannelUserRole.subscriber));
+
+      // If the guard is missing, the notifier would set isPublishing=true,
+      // attempt a network call, and then reset it. We assert the state
+      // never transitions through isPublishing=true.
+      bool sawPublishing = false;
+      final sub = container.listen<ChannelDetailState>(
+        channelDetailProvider,
+        (_, next) {
+          if (next.isPublishing) sawPublishing = true;
+        },
+      );
+      addTearDown(sub.close);
+
+      await notifier.publishMessage(content: 'hi', msgType: 'channel_text');
+
+      expect(sawPublishing, isFalse,
+          reason: 'Guard must reject before mutating isPublishing');
     });
   });
 }

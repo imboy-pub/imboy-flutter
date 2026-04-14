@@ -379,12 +379,22 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   }
 
   /// 发布消息
+  ///
+  /// 权限守卫：仅 creator/admin/editor 角色允许发布。
+  /// 守卫在任何状态变更（isPublishing）和网络请求之前执行，
+  /// 避免无权用户触发无谓的 API 调用与 UI 抖动。
   Future<bool> publishMessage({
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
   }) async {
     if (_channelId == null || state.isPublishing) return false;
+
+    // 权限守卫：当频道已加载时，拒绝无发布权限的角色（订阅者/未订阅）。
+    final currentChannel = state.channel;
+    if (currentChannel != null && !currentChannel.userRole.canPublish) {
+      return false;
+    }
 
     state = state.copyWith(isPublishing: true);
 
