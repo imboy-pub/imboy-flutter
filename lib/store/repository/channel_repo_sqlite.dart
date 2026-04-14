@@ -252,13 +252,21 @@ class ChannelRepo {
     );
   }
 
-  /// 增加未读计数
+  /// 增加未读计数（原子操作）
+  ///
+  /// 使用 `UPDATE ... SET unread_count = unread_count + 1` 原子 SQL，
+  /// 避免「先 SELECT 再 UPDATE」两步走造成的并发丢更新：当两条 S2C 推送
+  /// 几乎同时到达时，旧实现读到相同的 unread_count=N，两次 UPDATE 都写 N+1，
+  /// 实际只增加 1，而预期应该是 2。
+  ///
+  /// 返回值为 rawUpdate 受影响行数（0 表示订阅记录不存在）。
   Future<int> incrementUnreadCount(String channelId) async {
-    // 先获取当前值
-    final subscription = await getSubscription(channelId);
-    if (subscription == null) return 0;
-
-    return await updateUnreadCount(channelId, subscription.unreadCount + 1);
+    return await _db.execute(
+      'UPDATE $subscriptionTableName '
+      'SET $unreadCount = $unreadCount + 1 '
+      'WHERE $subChannelId = ?',
+      [channelId],
+    );
   }
 
   /// 清除未读计数
