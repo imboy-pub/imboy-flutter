@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/service/app_version_tracker.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/upgrade_strategy.dart';
 import 'package:imboy/store/api/app_upgrade_log_api.dart';
 import 'package:imboy/store/api/app_version_api.dart';
 import 'package:imboy/store/model/app_version_model.dart';
@@ -26,10 +28,19 @@ class AppUpgradeService {
   static final AppUpgradeService _instance = AppUpgradeService._();
   static AppUpgradeService get to => _instance;
 
-  /// 存储 key
-  static const String _lastCheckTimeKey = 'app_upgrade_last_check_time';
-  static const String _dismissedVsnKey = 'app_upgrade_dismissed_vsn';
   static const String _checkIntervalKey = 'app_upgrade_check_interval_hours';
+
+  /// dismiss 状态管理（委托给 UpgradeStrategy 的 AppUpgradeDismissState）
+  /// Dismiss-state manager delegated to AppUpgradeDismissState
+  late final AppUpgradeDismissState _dismissState = AppUpgradeDismissState(
+    storage: StorageService.to,
+  );
+
+  /// 版本转换跟踪器（升级/降级/回退检测）
+  /// Version transition tracker (upgrade/downgrade/rollback detection)
+  late final AppVersionTracker _versionTracker = AppVersionTracker(
+    storage: StorageService.to,
+  );
 
   /// 最新版本信息缓存
   AppVersionInfo? _cachedInfo;
@@ -51,12 +62,57 @@ class AppUpgradeService {
   bool get hasUpdate => _cachedInfo != null && _cachedInfo!.hasUpdate;
 
   /// APP 启动时调用
+  ///
+  /// 执行顺序：
+  /// 1. 检测本次版本转换（升级/降级/首启）并持久化
+  /// 2. 若检测到降级（回退），上报事件
+  ///    （DB schema 降级由 SqliteService._onDowngrade →
+  ///     MigrationService.migrate(isUpgrade: false) 负责，与此处相互独立）
+  /// 3. 延迟 3 秒后异步检查是否有新版本可用
+  ///
+  /// Execution order:
+  /// 1. Detect this launch's version transition and persist it
+  /// 2. If a downgrade is detected, report the event
+  ///    (DB schema downgrade is handled independently by
+  ///     SqliteService._onDowngrade → MigrationService.migrate(isUpgrade: false))
+  /// 3. Async version-check after 3-second delay (non-blocking)
   Future<void> init() async {
-    // 延迟 3 秒，不阻塞启动
-    Future.delayed(const Duration(seconds: 3), () {
-      checkAndPrompt();
-    });
+    final transition = _versionTracker.detectAndCommit(currentVsn: appVsn);
+
+    if (transition.isDowngrade) {
+      iPrint(
+        'AppUpgradeService: downgrade detected '
+        '${transition.previousVsn} → ${transition.currentVsn}',
+      );
+      AppUpgradeLogApi.report(
+        event: 'downgrade',
+        targetVsn: transition.currentVsn,
+        extra: {'from_vsn': transition.previousVsn},
+      );
+    } else if (transition.isUpgrade) {
+      iPrint(
+        'AppUpgradeService: upgrade detected '
+        '${transition.previousVsn} → ${transition.currentVsn}',
+      );
+    } else if (transition.isFirstLaunch) {
+      iPrint('AppUpgradeService: first launch ${transition.currentVsn}');
+    }
+
+    // 延迟 3 秒，不阻塞启动 / Delay 3 s to avoid blocking startup
+    unawaited(
+      Future.delayed(const Duration(seconds: 3), checkAndPrompt).catchError(
+        (Object e, StackTrace st) {
+          iPrint('AppUpgradeService: checkAndPrompt error $e\n$st');
+          return null; // AppVersionInfo?
+        },
+      ),
+    );
   }
+
+  /// 上次运行版本（供设置页或诊断使用）
+  /// Previous run version (for settings page or diagnostics)
+  String get lastRunVsn =>
+      StorageService.to.getString(AppVersionTracker.lastRunVsnKey);
 
   /// 停止定时检查
   void dispose() {
@@ -83,29 +139,16 @@ class AppUpgradeService {
 
     if (!info.hasUpdate) return info;
 
-    switch (info.upgradeType) {
-      case 'force':
-        // 强制升级：立即弹窗，不可关闭
-        await _showUpgradePage(info);
-        break;
-
-      case 'recommend':
-        // 推荐升级：检查是否已经点过"稍后提醒"
-        if (fromManual || !_isDismissed(info.vsn)) {
-          await _showUpgradePage(info);
-        }
-        break;
-
-      case 'silent':
-        // 静默提示：只缓存信息，不弹窗
-        // 设置页通过 hasSilentUpdate 展示红点
-        iPrint(
-          'AppUpgradeService: silent update available ${info.vsn}',
-        );
-        break;
-
-      default:
-        break;
+    if (info.isSilentUpgrade) {
+      // 静默提示：只缓存信息，不弹窗；设置页通过 hasSilentUpdate 展示红点
+      // Silent update: cache info only; settings page shows a badge via hasSilentUpdate
+      iPrint('AppUpgradeService: silent update available ${info.vsn}');
+    } else if (UpgradeStrategy.shouldPrompt(
+      info,
+      isDismissed: _dismissState.isDismissed(info.vsn),
+      fromManual: fromManual,
+    )) {
+      await _showUpgradePage(info);
     }
 
     return info;
@@ -122,13 +165,13 @@ class AppUpgradeService {
     final info = AppVersionInfo.fromJson(payload);
     _cachedInfo = info;
 
-    if (info.hasUpdate) {
-      if (info.isForceUpgrade) {
-        await _showUpgradePage(info);
-      } else if (info.isRecommendUpgrade && !_isDismissed(info.vsn)) {
-        await _showUpgradePage(info);
-      }
-      // silent 不弹窗
+    if (info.hasUpdate &&
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: _dismissState.isDismissed(info.vsn),
+          fromManual: false,
+        )) {
+      await _showUpgradePage(info);
     }
   }
 
@@ -168,7 +211,7 @@ class AppUpgradeService {
           builder: (_) => UpgradePage(
             version: info.vsn,
             downLoadUrl: info.downloadUrl,
-            message: _buildChangelogText(info),
+            message: UpgradeStrategy.buildChangelogText(info),
             isForce: info.isForceUpgrade,
             fileHash: info.fileHash,
           ),
@@ -184,29 +227,6 @@ class AppUpgradeService {
     }
   }
 
-  /// 构建更新日志文本
-  ///
-  /// 优先使用结构化 changelog，降级使用纯文本 description
-  String _buildChangelogText(AppVersionInfo info) {
-    if (info.changelog.isNotEmpty) {
-      final buffer = StringBuffer();
-      for (final item in info.changelog) {
-        final tag = item['tag'] ?? '';
-        final text = item['text'] ?? '';
-        if (tag.isNotEmpty) {
-          buffer.writeln('[$tag] $text');
-        } else {
-          buffer.writeln(text);
-        }
-      }
-      if (info.fileSizeText.isNotEmpty) {
-        buffer.writeln('\n安装包大小: ${info.fileSizeText}');
-      }
-      return buffer.toString().trimRight();
-    }
-    return info.description;
-  }
-
   /// 设置定时检查
   void _setupPeriodicCheck(int intervalHours) {
     _periodicTimer?.cancel();
@@ -218,25 +238,5 @@ class AppUpgradeService {
     StorageService.to.setString(_checkIntervalKey, intervalHours.toString());
   }
 
-  /// 检查某版本是否已被用户点过"稍后提醒"
-  bool _isDismissed(String vsn) {
-    final dismissed = StorageService.to.getString(_dismissedVsnKey);
-    if (dismissed != vsn) return false;
-
-    // 检查是否超过 24 小时（超过后重新提醒）
-    final lastCheck =
-        int.tryParse(StorageService.to.getString(_lastCheckTimeKey)) ?? 0;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final elapsed = now - lastCheck;
-    return elapsed < const Duration(hours: 24).inMilliseconds;
-  }
-
-  /// 记录用户点了"稍后提醒"
-  void _setDismissed(String vsn) {
-    StorageService.to.setString(_dismissedVsnKey, vsn);
-    StorageService.to.setString(
-      _lastCheckTimeKey,
-      DateTime.now().millisecondsSinceEpoch.toString(),
-    );
-  }
+  void _setDismissed(String vsn) => _dismissState.setDismissed(vsn);
 }
