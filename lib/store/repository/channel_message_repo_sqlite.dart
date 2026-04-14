@@ -242,16 +242,17 @@ class ChannelMessageRepo {
 
   // ==================== 统计更新 ====================
 
-  /// 增加阅读量
+  /// 增加阅读量（原子操作）
+  ///
+  /// 与 ChannelRepo.incrementUnreadCount 一致，使用单语句
+  /// `UPDATE ... SET view_count = view_count + 1` 避免「SELECT → UPDATE」
+  /// 两步写法在并发曝光事件下的丢更新。
+  ///
+  /// 返回值：rawUpdate 受影响行数（0 表示消息不存在）。
   Future<int> incrementViewCount(String messageId) async {
-    final message = await getMessage(messageId);
-    if (message == null) return 0;
-
-    return await _db.update(
-      tableName,
-      {viewCount: message.viewCount + 1},
-      where: '$id = ?',
-      whereArgs: [messageId],
+    return await _db.execute(
+      'UPDATE $tableName SET $viewCount = $viewCount + 1 WHERE $id = ?',
+      [messageId],
     );
   }
 
