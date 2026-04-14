@@ -184,16 +184,23 @@ class AppUpgradeService {
   /// S2C 推送触发的检查
   Future<void> onS2CUpgradeNotice(Map<String, dynamic> payload) async {
     // S2C 推送直接携带了版本信息，可以直接使用
+    // S2C push carries version info; parse directly
     final info = AppVersionInfo.fromJson(payload);
     _cachedInfo = info;
 
-    if (info.hasUpdate &&
-        UpgradeStrategy.shouldPrompt(
-          info,
-          isDismissed: _dismissState.isDismissed(info.vsn),
-          fromManual: false,
-        )) {
-      await _showUpgradePage(info);
+    // 策略决策委托给可测的 orchestrator（纯函数，无副作用）
+    // Decision logic delegated to orchestrator (pure, testable)
+    final action = _orchestrator.decideS2CAction(
+      info,
+      isDismissed: _dismissState.isDismissed(info.vsn),
+    );
+    switch (action) {
+      case S2CShowUpgradePage(info: final i):
+        await _showUpgradePage(i);
+      case S2CSilentUpdateAvailable():
+        iPrint('AppUpgradeService: silent update available ${info.vsn}');
+      case S2CNoAction():
+        break;
     }
   }
 

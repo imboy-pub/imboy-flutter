@@ -11,10 +11,24 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/app_upgrade_orchestrator.dart';
 import 'package:imboy/service/app_version_tracker.dart';
+import 'package:imboy/store/model/app_version_model.dart';
 
 import '../helpers/fake_downgrade_cleaner.dart';
 import '../helpers/fake_storage.dart';
 import '../helpers/fake_upgrade_reporter.dart';
+
+// 构造 AppVersionInfo 测试夹具
+// Build AppVersionInfo test fixture
+AppVersionInfo _makeInfo({
+  String vsn = '2.0.0',
+  bool updatable = true,
+  String upgradeType = 'recommend',
+}) => AppVersionInfo.fromJson({
+      'vsn': vsn,
+      'download_url': 'https://example.com/$vsn.apk',
+      'upgrade_type': upgradeType,
+      'updatable': updatable,
+    });
 
 void main() {
   group('AppUpgradeOrchestrator.onAppStart', () {
@@ -231,6 +245,83 @@ void main() {
         await orchestrator.onAppStart('1.0.0');
 
         expect(order, ['clean', 'report']);
+      },
+    );
+  });
+
+  // -------------------------------------------------------------
+  // S2C 推送决策 (β1) / S2C push action decision
+  // -------------------------------------------------------------
+  group('AppUpgradeOrchestrator.decideS2CAction', () {
+    late FakeStorage storage;
+    late AppUpgradeOrchestrator orchestrator;
+
+    setUp(() {
+      storage = FakeStorage();
+      orchestrator = AppUpgradeOrchestrator(
+        tracker: AppVersionTracker(storage: storage),
+        reporter: FakeUpgradeReporter(),
+        cleaner: FakeDowngradeCleaner(),
+      );
+    });
+
+    test('updatable=false 返回 NoAction / non-updatable → NoAction', () {
+      final action = orchestrator.decideS2CAction(
+        _makeInfo(updatable: false, upgradeType: 'recommend'),
+        isDismissed: false,
+      );
+      expect(action, isA<S2CNoAction>());
+    });
+
+    test('upgradeType=none 返回 NoAction / type none → NoAction', () {
+      final action = orchestrator.decideS2CAction(
+        _makeInfo(upgradeType: 'none'),
+        isDismissed: false,
+      );
+      expect(action, isA<S2CNoAction>());
+    });
+
+    test(
+      'silent 返回 SilentUpdateAvailable / silent → SilentUpdateAvailable',
+      () {
+        final info = _makeInfo(upgradeType: 'silent');
+        final action = orchestrator.decideS2CAction(
+          info,
+          isDismissed: false,
+        );
+        expect(action, isA<S2CSilentUpdateAvailable>());
+        expect((action as S2CSilentUpdateAvailable).info.vsn, info.vsn);
+      },
+    );
+
+    test('force 始终返回 ShowUpgradePage / force → ShowUpgradePage', () {
+      final info = _makeInfo(upgradeType: 'force');
+      // 即使 isDismissed=true，force 仍应弹窗
+      final action = orchestrator.decideS2CAction(info, isDismissed: true);
+      expect(action, isA<S2CShowUpgradePage>());
+      expect((action as S2CShowUpgradePage).info.isForceUpgrade, isTrue);
+    });
+
+    test(
+      'recommend 未 dismiss 返回 ShowUpgradePage / recommend not dismissed',
+      () {
+        final action = orchestrator.decideS2CAction(
+          _makeInfo(upgradeType: 'recommend'),
+          isDismissed: false,
+        );
+        expect(action, isA<S2CShowUpgradePage>());
+      },
+    );
+
+    test(
+      'recommend 已 dismiss 返回 NoAction（不同于手动检查）/ '
+      'recommend dismissed → NoAction (S2C push is never manual)',
+      () {
+        final action = orchestrator.decideS2CAction(
+          _makeInfo(upgradeType: 'recommend'),
+          isDismissed: true,
+        );
+        expect(action, isA<S2CNoAction>());
       },
     );
   });
