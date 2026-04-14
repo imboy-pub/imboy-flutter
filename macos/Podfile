@@ -30,9 +30,6 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_macos_podfile_setup
 
-# 使用本地 WebRTC-SDK 绕过网络下载问题
-pod 'WebRTC-SDK', :path => './Pods/WebRTC-SDK'
-
 target 'Runner' do
   use_frameworks!
   use_modular_headers!

@@ -188,7 +188,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final albumId = _resolveAlbumId(album);
     if (albumId.isEmpty) return;
 
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: false,
       withData: true,

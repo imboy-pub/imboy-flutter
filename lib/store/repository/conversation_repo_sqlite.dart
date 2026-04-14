@@ -176,8 +176,10 @@ class ConversationRepo {
   }
 
   //
+  // limit 默认 200：会话列表 SQLCipher 解密 2000 行 × payload blob 易触发 SQLITE_NOMEM
+  // Limit 200: loading 2000 rows with payload blobs causes SQLITE_NOMEM under SQLCipher
   Future<List<ConversationModel>> list({
-    int limit = 2000,
+    int limit = 200,
     int offset = 0,
     String type = '',
   }) async {
@@ -185,7 +187,7 @@ class ConversationRepo {
     // 这些会话会按 lastTime DESC 排在列表底部
     String where =
         '${ConversationRepo.userId} = ? and ${ConversationRepo.isShow} = ? and ${ConversationRepo.lastTime} >= 0';
-    List whereArgs = [UserRepoLocal.to.currentUid, 1];
+    List<Object?> whereArgs = [UserRepoLocal.to.currentUid, 1];
     if (type.isNotEmpty) {
       where += " and ${ConversationRepo.type} = ?";
       whereArgs.add(type);
@@ -216,9 +218,7 @@ class ConversationRepo {
       offset: offset,
       orderBy: "${ConversationRepo.lastTime} DESC",
     );
-    iPrint(
-      "> on ConversationRepo/all ${items.length} items ${items.toString()}",
-    );
+    iPrint("> on ConversationRepo/all ${items.length} items");
     if (items.isEmpty) {
       return [];
     }

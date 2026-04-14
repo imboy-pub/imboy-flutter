@@ -75,7 +75,7 @@ class ChatAttachmentHandler {
 
   /// 处理文件选择
   Future<void> handleFileSelection(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any);
+    final result = await FilePicker.pickFiles(type: FileType.any);
     if (result == null || result.files.single.path == null) return;
     await uploadFile(context, result.files.single);
   }

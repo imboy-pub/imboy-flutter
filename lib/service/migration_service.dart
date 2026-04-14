@@ -2,27 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:imboy/service/migration_script.dart';
+import 'package:imboy/service/migration_script_planner.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
-/// 迁移脚本模型
-class MigrationScript {
-  final int version; // 起始版本
-  final int targetVersion; // 目标版本
-  final String description;
-  final List<String> sqlStatements;
-
-  MigrationScript({
-    required this.version,
-    required this.targetVersion,
-    required this.description,
-    required this.sqlStatements,
-  });
-
-  String get fullSql => sqlStatements.join('\n');
-}
+export 'package:imboy/service/migration_script.dart';
 
 /// 迁移结果
 class MigrationResult {
@@ -187,10 +174,13 @@ class MigrationService {
         throw Exception('Database integrity check failed before migration');
       }
 
-      // 获取并执行 SQL
-      final scripts = isUpgrade
-          ? _getMigrationScripts(_upgradeScripts!, fromVersion, toVersion)
-          : _getMigrationScripts(_downgradeScripts!, toVersion, fromVersion);
+      // 获取并执行 SQL（按正确顺序：升级升序、降级降序）
+      // Select and order scripts (ascending for upgrade, descending for downgrade)
+      final scripts = MigrationScriptPlanner.plan(
+        scripts: isUpgrade ? _upgradeScripts! : _downgradeScripts!,
+        fromVersion: fromVersion,
+        toVersion: toVersion,
+      );
 
       if (scripts.isEmpty) {
         _logger.w('No migration scripts found for v$fromVersion → v$toVersion');
@@ -378,31 +368,6 @@ class MigrationService {
     }
 
     return scripts;
-  }
-
-  /// 获取需要执行的迁移脚本
-  List<MigrationScript> _getMigrationScripts(
-    Map<int, MigrationScript> scripts,
-    int fromVersion,
-    int toVersion,
-  ) {
-    final result = <MigrationScript>[];
-
-    // 获取所有需要执行的脚本（按起始版本排序）
-    final sortedKeys = scripts.keys.toList()..sort();
-
-    for (final startVersion in sortedKeys) {
-      final script = scripts[startVersion];
-      if (script == null) continue;
-
-      // 只执行起始版本 > fromVersion 且目标版本 <= toVersion 的脚本
-      // 注意：起始版本等于 fromVersion 的脚本是当前版本，不需要执行
-      if (script.version > fromVersion && script.targetVersion <= toVersion) {
-        result.add(script);
-      }
-    }
-
-    return result;
   }
 
   /// 创建快照

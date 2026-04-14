@@ -1,7 +1,49 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/base_event.dart';
 import 'package:imboy/store/api/group_task_api.dart';
+
+/// 群作业服务对外接口 / GroupTask service public interface
+///
+/// 页面层依赖此接口而非具体实现，方便测试注入 fake。
+/// Page layer depends on this interface instead of the concrete class,
+/// enabling fake injection in tests.
+abstract interface class IGroupTaskService {
+  Future<List<Map<String, dynamic>>> getTasks({
+    required String groupId,
+    int? status,
+    String? assigneeId,
+    int page = 1,
+    int size = 20,
+  });
+
+  Future<Map<String, dynamic>?> getTask({
+    required String groupId,
+    required dynamic taskId,
+  });
+
+  Future<List<Map<String, dynamic>>> getPendingReview({
+    required String taskId,
+    int page = 1,
+    int size = 20,
+  });
+
+  Future<Map<String, dynamic>?> createTask({
+    required String groupId,
+    required String title,
+    String? description,
+    int? deadline,
+    List<String>? assigneeIds,
+  });
+
+  Future<bool> submitTask({
+    required String groupId,
+    required dynamic taskId,
+    String? content,
+    List<String>? attachments,
+  });
+}
 
 /// 群作业/任务服务
 ///
@@ -9,8 +51,28 @@ import 'package:imboy/store/api/group_task_api.dart';
 ///
 /// Temporary compatibility wrapper for the group_collab module shell.
 /// New callers should prefer `package:imboy/modules/group_collab/public.dart`.
-class GroupTaskService {
-  static final GroupTaskService to = GroupTaskService._privateConstructor();
+class GroupTaskService implements IGroupTaskService {
+  static final GroupTaskService _singleton =
+      GroupTaskService._privateConstructor();
+
+  /// 测试注入 hook — 仅在 @visibleForTesting 上下文中使用
+  /// Test injection hook — use only in @visibleForTesting contexts.
+  static IGroupTaskService? _testOverride;
+
+  /// 返回当前服务实例（测试环境下返回注入的 fake）。
+  /// Returns the active service instance (fake in test scope, real singleton otherwise).
+  static IGroupTaskService get to => _testOverride ?? _singleton;
+
+  /// 注入 fake 服务，用于 Widget / Unit 测试。
+  /// Inject a fake service for Widget / Unit tests.
+  @visibleForTesting
+  static set testInstance(IGroupTaskService v) => _testOverride = v;
+
+  /// 恢复真实单例（tearDown 时调用）。
+  /// Restore the real singleton (call in tearDown).
+  @visibleForTesting
+  static void resetInstance() => _testOverride = null;
+
   GroupTaskService._privateConstructor();
 
   final GroupTaskApi _api = GroupTaskApi();
@@ -23,6 +85,7 @@ class GroupTaskService {
   // ==================== 任务创建与管理 ====================
 
   /// 创建任务
+  @override
   Future<Map<String, dynamic>?> createTask({
     required String groupId,
     required String title,
@@ -50,6 +113,7 @@ class GroupTaskService {
   }
 
   /// 获取任务详情
+  @override
   Future<Map<String, dynamic>?> getTask({
     required String groupId,
     required dynamic taskId,
@@ -63,6 +127,7 @@ class GroupTaskService {
   }
 
   /// 获取群任务列表
+  @override
   Future<List<Map<String, dynamic>>> getTasks({
     required String groupId,
     int? status,
@@ -99,6 +164,7 @@ class GroupTaskService {
   }
 
   /// 获取待审核任务
+  @override
   Future<List<Map<String, dynamic>>> getPendingReview({
     required String taskId,
     int page = 1,
@@ -181,6 +247,7 @@ class GroupTaskService {
   }
 
   /// 提交任务（执行者）
+  @override
   Future<bool> submitTask({
     required String groupId,
     required dynamic taskId,

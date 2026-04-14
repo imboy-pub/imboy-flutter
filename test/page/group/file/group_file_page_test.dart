@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -96,7 +97,7 @@ class _FakeGroupFileService extends GroupFileService {
   }
 }
 
-class _FakeFilePicker extends FilePicker {
+class _FakeFilePicker extends FilePickerPlatform {
   _FakeFilePicker({required this.pickResult});
 
   FilePickerResult? pickResult;
@@ -109,13 +110,13 @@ class _FakeFilePicker extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = false,
     int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
   }) async {
     pickFilesCallCount++;
     return pickResult;
@@ -128,7 +129,7 @@ Widget _buildTestApp() {
   );
 }
 
-FilePicker? _originalFilePicker;
+FilePickerPlatform? _originalFilePicker;
 bool _hasOriginalFilePicker = false;
 
 FilePickerResult _singlePickResult({
@@ -151,7 +152,7 @@ FilePickerResult _singlePickResultWithoutBytes({required String fileName}) {
 void main() {
   setUpAll(() {
     try {
-      _originalFilePicker = FilePicker.platform;
+      _originalFilePicker = FilePickerPlatform.instance;
       _hasOriginalFilePicker = true;
     } catch (_) {
       _hasOriginalFilePicker = false;
@@ -160,7 +161,7 @@ void main() {
 
   tearDownAll(() {
     if (_hasOriginalFilePicker && _originalFilePicker != null) {
-      FilePicker.platform = _originalFilePicker!;
+      FilePickerPlatform.instance = _originalFilePicker!;
     }
   });
 
@@ -546,7 +547,7 @@ void main() {
       pickResult: _singlePickResult(fileName: 'upload.txt', bytes: [1, 2, 3]),
     );
     GroupFileService.instanceForTest = fakeService;
-    FilePicker.platform = fakePicker;
+    FilePickerPlatform.instance = fakePicker;
 
     await tester.pumpWidget(_buildTestApp());
     await tester.pumpAndSettle();
@@ -586,7 +587,7 @@ void main() {
       pickResult: _singlePickResult(fileName: 'upload.txt', bytes: [9, 8, 7]),
     );
     GroupFileService.instanceForTest = fakeService;
-    FilePicker.platform = fakePicker;
+    FilePickerPlatform.instance = fakePicker;
 
     await tester.pumpWidget(_buildTestApp());
     await tester.pumpAndSettle();
@@ -622,7 +623,7 @@ void main() {
       pickResult: _singlePickResultWithoutBytes(fileName: 'empty.txt'),
     );
     GroupFileService.instanceForTest = fakeService;
-    FilePicker.platform = fakePicker;
+    FilePickerPlatform.instance = fakePicker;
 
     await tester.pumpWidget(_buildTestApp());
     await tester.pumpAndSettle();

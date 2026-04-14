@@ -147,7 +147,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Future<void> _pickAndUploadFile() async {
     if (_isUploading) return;
 
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.any,
       allowMultiple: false,
       withData: true,

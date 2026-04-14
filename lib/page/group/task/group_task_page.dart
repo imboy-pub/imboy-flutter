@@ -32,9 +32,9 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
 
     int? status;
     if (_currentFilter == 1) {
-      status = 0; // 待完成
+      status = 1; // 待完成（in-progress）
     } else if (_currentFilter == 2) {
-      status = 1; // 已完成
+      status = 2; // 已完成（completed）
     }
 
     final tasks = await GroupTaskService.to.getTasks(
@@ -57,11 +57,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        key: const Key('create_task_dialog'),
         title: Text(t.groupTask.createTask),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              key: const Key('task_title_field'),
               controller: titleController,
               decoration: InputDecoration(labelText: t.groupTask.taskTitle),
             ),
@@ -81,7 +83,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
             child: Text(t.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            key: const Key('create_task_confirm'),
+            onPressed: () {
+              // 标题为空时阻止关闭 / Prevent close when title is empty
+              if (titleController.text.isNotEmpty) {
+                Navigator.pop(context, true);
+              }
+            },
             child: Text(t.confirm),
           ),
         ],
@@ -110,6 +118,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
+            key: const Key('create_task_fab'),
             icon: const Icon(Icons.add),
             onPressed: _createTask,
             tooltip: t.groupTask.createTask,
@@ -143,7 +152,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
 
   Widget _buildFilterChip(int index, String label) {
     final isSelected = _currentFilter == index;
+    final chipKey = index == 0
+        ? const Key('filter_tab_all')
+        : index == 1
+            ? const Key('filter_tab_todo')
+            : const Key('filter_tab_done');
     return FilterChip(
+      key: chipKey,
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
@@ -161,7 +176,11 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     }
 
     if (_tasks.isEmpty) {
-      return NoDataView(text: t.groupTask.noTask, onTop: _loadTasks);
+      return NoDataView(
+        key: const Key('group_task_empty'),
+        text: t.groupTask.noTask,
+        onTop: _loadTasks,
+      );
     }
 
     return RefreshIndicator(
@@ -178,7 +197,9 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
 
   Widget _buildTaskItem(Map<String, dynamic> task) {
     final status = task['status'] ?? 0;
-    final deadline = task['deadline'] as int?;
+    // deadline 可能来自 API（int 时间戳秒）或本地测试数据（String / null），统一安全转换
+    // deadline may be int (unix seconds from API) or String/null in local data — cast safely
+    final deadline = task['deadline'] is int ? task['deadline'] as int : null;
     final taskId = _resolveTaskRouteId(task);
 
     return Card(

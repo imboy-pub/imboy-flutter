@@ -269,7 +269,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Future<void> _selectFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['enc'],
         allowMultiple: false,
