@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart'; // 引入 cachedImageProvider
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -182,13 +183,29 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     );
     if (confirmed != true || !mounted) return;
 
-    final ok = await _api.deletePost(momentId);
-    if (!ok || !mounted) return;
+    // 保存旧状态用于回滚
+    final oldItems = _items;
+
+    // 乐观移除 UI
     setState(() {
-      _items = _items
-          .where((item) => parseModelString(item['id']) != momentId)
-          .toList(growable: false);
+      _items = removeMomentById(_items, momentId);
     });
+
+    // 发送请求，失败时回滚并提示
+    bool ok = false;
+    try {
+      ok = await _api.deletePost(momentId);
+    } on Exception {
+      ok = false;
+    }
+    if (!mounted) return;
+    if (!ok) {
+      setState(() {
+        _items = oldItems;
+      });
+      EasyLoading.showError(context.t.momentsDeleteFailed);
+      return;
+    }
     AppEventBus.fire(
       MomentTimelineChangedEvent(
         action: 'moment_deleted',

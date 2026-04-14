@@ -1,5 +1,24 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 从列表中移除所有 `id == momentId` 的条目，返回一个新的 list。
+///
+/// - 原 list 不会被修改
+/// - [momentId] 为空字符串时按 no-op 处理，返回一份浅拷贝
+/// - 若没有匹配项，返回一份与原 list 顺序/内容等价的新 list
+///
+/// 用于 feed 页面乐观删除：先本地剔除卡片、再打网络，失败时整表回滚。
+List<Map<String, dynamic>> removeMomentById(
+  List<Map<String, dynamic>> items,
+  String momentId,
+) {
+  if (momentId.isEmpty) {
+    return List<Map<String, dynamic>>.from(items);
+  }
+  return items
+      .where((item) => parseModelString(item['id']) != momentId)
+      .toList(growable: false);
+}
+
 /// 返回一个新 moment map，`stats.comment_count` 按 [delta] 增减。
 ///
 /// - 输入 map 和其子 `stats` map 都不会被修改
