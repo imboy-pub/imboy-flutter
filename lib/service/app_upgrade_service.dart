@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/service/app_upgrade_log_api_reporter.dart';
+import 'package:imboy/service/app_upgrade_orchestrator.dart';
+import 'package:imboy/service/app_upgrade_reporter.dart';
 import 'package:imboy/service/app_version_tracker.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/upgrade_strategy.dart';
@@ -42,6 +45,26 @@ class AppUpgradeService {
     storage: StorageService.to,
   );
 
+  /// 升级事件上报器（可在测试中覆盖）
+  /// Upgrade event reporter (overridable in tests)
+  AppUpgradeReporter _reporter = const AppUpgradeLogApiReporter();
+
+  /// 启动编排器（委托版本检测 + 降级上报）
+  /// Startup orchestrator (delegates version detection + downgrade report)
+  late final AppUpgradeOrchestrator _orchestrator = AppUpgradeOrchestrator(
+    tracker: _versionTracker,
+    reporter: _reporter,
+    logger: iPrint,
+  );
+
+  /// 测试 seam：注入假的 reporter（仅限测试环境使用）
+  /// Test seam: inject a fake reporter (tests only)
+  @visibleForTesting
+  // ignore: use_setters_to_change_properties
+  void debugSetReporter(AppUpgradeReporter reporter) {
+    _reporter = reporter;
+  }
+
   /// 最新版本信息缓存
   AppVersionInfo? _cachedInfo;
 
@@ -77,26 +100,9 @@ class AppUpgradeService {
   ///     SqliteService._onDowngrade → MigrationService.migrate(isUpgrade: false))
   /// 3. Async version-check after 3-second delay (non-blocking)
   Future<void> init() async {
-    final transition = _versionTracker.detectAndCommit(currentVsn: appVsn);
-
-    if (transition.isDowngrade) {
-      iPrint(
-        'AppUpgradeService: downgrade detected '
-        '${transition.previousVsn} → ${transition.currentVsn}',
-      );
-      AppUpgradeLogApi.report(
-        event: 'downgrade',
-        targetVsn: transition.currentVsn,
-        extra: {'from_vsn': transition.previousVsn},
-      );
-    } else if (transition.isUpgrade) {
-      iPrint(
-        'AppUpgradeService: upgrade detected '
-        '${transition.previousVsn} → ${transition.currentVsn}',
-      );
-    } else if (transition.isFirstLaunch) {
-      iPrint('AppUpgradeService: first launch ${transition.currentVsn}');
-    }
+    // 版本轨迹 + 降级上报委托给 AppUpgradeOrchestrator（可测核心）
+    // Version tracking + downgrade reporting delegated to the testable core
+    await _orchestrator.onAppStart(appVsn);
 
     // 延迟 3 秒，不阻塞启动 / Delay 3 s to avoid blocking startup
     unawaited(
