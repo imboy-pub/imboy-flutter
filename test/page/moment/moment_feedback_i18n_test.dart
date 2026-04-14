@@ -38,5 +38,10 @@ void main() {
       expect(zh.momentsLoadMoreComments, isNotEmpty);
       expect(en.momentsLoadMoreComments, isNotEmpty);
     });
+
+    test('momentsUploadFailed is populated in zh/en', () {
+      expect(zh.momentsUploadFailed, isNotEmpty);
+      expect(en.momentsUploadFailed, isNotEmpty);
+    });
   });
 }

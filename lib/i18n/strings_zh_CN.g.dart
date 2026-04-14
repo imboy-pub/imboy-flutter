@@ -3338,6 +3338,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '加载更多评论'
 	String get momentsLoadMoreComments => '加载更多评论';
 
+	/// zh-CN: '媒体上传失败，请稍后重试'
+	String get momentsUploadFailed => '媒体上传失败，请稍后重试';
+
 	/// zh-CN: '余额'
 	String get balance => '余额';
 
@@ -5797,6 +5800,7 @@ extension on Translations {
 			'momentsReportSubmitted' => '举报已提交',
 			'momentsReportFailed' => '举报失败，请稍后重试',
 			'momentsLoadMoreComments' => '加载更多评论',
+			'momentsUploadFailed' => '媒体上传失败，请稍后重试',
 			'balance' => '余额',
 			'recharge' => '充值',
 			'withdraw' => '提现',

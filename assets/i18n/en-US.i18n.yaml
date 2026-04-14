@@ -1141,6 +1141,7 @@ momentsDeleteFailed: "Delete failed, please try again"
 momentsReportSubmitted: "Report submitted"
 momentsReportFailed: "Report failed, please try again"
 momentsLoadMoreComments: "Load more comments"
+momentsUploadFailed: "Media upload failed, please try again"
 # New translation keys - Wallet
 balance: "Balance"
 recharge: "Recharge"

@@ -1123,6 +1123,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get momentsReportSubmitted => 'Report submitted';
 	@override String get momentsReportFailed => 'Report failed, please try again';
 	@override String get momentsLoadMoreComments => 'Load more comments';
+	@override String get momentsUploadFailed => 'Media upload failed, please try again';
 	@override String get balance => 'Balance';
 	@override String get recharge => 'Recharge';
 	@override String get withdraw => 'Withdraw';
@@ -2737,6 +2738,7 @@ extension on TranslationsEnUs {
 			'momentsReportSubmitted' => 'Report submitted',
 			'momentsReportFailed' => 'Report failed, please try again',
 			'momentsLoadMoreComments' => 'Load more comments',
+			'momentsUploadFailed' => 'Media upload failed, please try again',
 			'balance' => 'Balance',
 			'recharge' => 'Recharge',
 			'withdraw' => 'Withdraw',

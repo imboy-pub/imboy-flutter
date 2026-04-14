@@ -97,6 +97,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         _media.add(<String, dynamic>{'type': 'image', 'url': url});
       }
     });
+    if (url == null || url.isEmpty) {
+      EasyLoading.showError(context.t.momentsUploadFailed);
+    }
   }
 
   Future<void> _pickVideo(ImageSource source) async {
@@ -139,6 +142,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         });
       }
     });
+    if (url == null || url.isEmpty) {
+      EasyLoading.showError(context.t.momentsUploadFailed);
+    }
   }
 
   void _removeMedia(int index) {
