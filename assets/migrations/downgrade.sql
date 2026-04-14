@@ -229,3 +229,48 @@ CREATE INDEX IF NOT EXISTS idx_s2c_message_from_to_created
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 9;
+-- ============================================================
+-- VERSION: 17
+-- DESC: 从 v17 降级到 v16（移除 conversation.mention_unread 字段）
+-- ============================================================
+-- SQLite 3.35 前不支持 DROP COLUMN，采用重建表模式
+
+CREATE TABLE conversation_v16 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    peer_id INTEGER,
+    avatar TEXT,
+    title TEXT,
+    subtitle TEXT,
+    region TEXT,
+    sign TEXT,
+    unread_num INTEGER,
+    "type" TEXT,
+    msg_type TEXT,
+    is_show INTEGER,
+    last_time INTEGER,
+    last_msg_id INTEGER,
+    last_msg_status INTEGER,
+    payload TEXT
+);
+
+INSERT INTO conversation_v16
+    (id, user_id, peer_id, avatar, title, subtitle, region, sign,
+     unread_num, "type", msg_type, is_show, last_time,
+     last_msg_id, last_msg_status, payload)
+SELECT
+    id, user_id, peer_id, avatar, title, subtitle, region, sign,
+    unread_num, "type", msg_type, is_show, last_time,
+    last_msg_id, last_msg_status, payload
+FROM conversation;
+
+DROP TABLE conversation;
+
+ALTER TABLE conversation_v16 RENAME TO conversation;
+
+-- 重建 conversation 表的 v16 索引
+CREATE INDEX IF NOT EXISTS i_cv_UserId_IsShow_LastTime ON conversation (user_id, is_show, last_time);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cv_Type_From_To ON conversation ("type", user_id, peer_id);
+CREATE INDEX IF NOT EXISTS idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
+
+PRAGMA user_version = 16;

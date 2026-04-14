@@ -26,6 +26,8 @@ class ConversationRepo {
   static String lastMsgId = 'last_msg_id';
   static String lastMsgStatus = 'last_msg_status';
   static String unreadNum = 'unread_num';
+  // C7-β: 独立 @ 未读计数（db v17 新增列）
+  static String mentionUnread = 'mention_unread';
   static String payload = 'payload';
 
   // 等价与 msg type: C2C C2G 等等，根据type显示item

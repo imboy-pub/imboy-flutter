@@ -31,6 +31,10 @@ class ConversationModel {
   final int? lastMsgStatus;
   int unreadNum;
 
+  /// C7-β 独立 @ 未读计数。消息入库时若当前用户被 @
+  /// （mention_ids 含 currentUid 或 'all'）则 +1；进入聊天页时同步清零。
+  int mentionUnread;
+
   //
   String msgType;
   int isShow;
@@ -64,6 +68,7 @@ class ConversationModel {
     this.lastMsgId = 0,
     this.lastMsgStatus,
     required this.unreadNum,
+    this.mentionUnread = 0,
     this.isShow = 1,
     this.payload, // 消息原数据
   });
@@ -183,6 +188,7 @@ class ConversationModel {
         defaultValue: 11,
       ),
       unreadNum: parseModelInt(json[ConversationRepo.unreadNum]),
+      mentionUnread: parseModelInt(json[ConversationRepo.mentionUnread]),
       type: parseModelString(json[ConversationRepo.type]),
       msgType: parseModelString(msgTypeRaw),
       isShow: parseModelInt(json[ConversationRepo.isShow], defaultValue: 1),
@@ -202,6 +208,7 @@ class ConversationModel {
     ConversationRepo.lastMsgId: lastMsgId,
     ConversationRepo.lastMsgStatus: lastMsgStatus,
     ConversationRepo.unreadNum: unreadNum,
+    ConversationRepo.mentionUnread: mentionUnread,
     ConversationRepo.type: type,
     ConversationRepo.msgType: msgType,
     ConversationRepo.isShow: isShow,
@@ -236,6 +243,7 @@ class ConversationModel {
     int? lastMsgId,
     int? lastMsgStatus,
     int? unreadNum,
+    int? mentionUnread,
     String? type,
     String? msgType,
     int? isShow,
@@ -253,6 +261,7 @@ class ConversationModel {
       ConversationRepo.lastMsgId: lastMsgId ?? this.lastMsgId,
       ConversationRepo.lastMsgStatus: lastMsgStatus ?? this.lastMsgStatus,
       ConversationRepo.unreadNum: unreadNum ?? this.unreadNum,
+      ConversationRepo.mentionUnread: mentionUnread ?? this.mentionUnread,
       ConversationRepo.type: type ?? this.type,
       ConversationRepo.msgType: msgType ?? this.msgType,
       ConversationRepo.isShow: isShow ?? this.isShow,

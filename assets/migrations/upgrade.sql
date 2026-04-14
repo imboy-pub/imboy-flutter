@@ -1148,3 +1148,17 @@ CREATE INDEX IF NOT EXISTS idx_channel_admin_user ON channel_admin(user_id);
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 16;
+
+-- VERSION: 17
+-- DESC: C7-β 独立 @ 未读计数 - 为 conversation 表添加 mention_unread 字段
+-- ============================================================
+
+-- ============================================================
+-- Step 1: 为 conversation 表新增 mention_unread 列（默认 0）
+-- ============================================================
+ALTER TABLE conversation ADD COLUMN mention_unread INTEGER NOT NULL DEFAULT 0;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 17;
