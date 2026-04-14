@@ -8,6 +8,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+import 'moment_interactions.dart';
 import 'moment_utils.dart'; // enrichPostWithAuthor, enrichCommentsWithUser
 
 class MomentDetailPage extends StatefulWidget {
@@ -82,21 +83,32 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final momentId = parseModelString(post['id']);
     if (momentId.isEmpty) return;
     final liked = parseModelBool(post['liked']);
-    final ok = liked
-        ? await _api.unlikePost(momentId)
-        : await _api.likePost(momentId);
-    if (!ok || !mounted) return;
 
-    final stats = Map<String, dynamic>.from(
-      (post['stats'] is Map) ? post['stats'] as Map : <String, dynamic>{},
-    );
-    final likeCount = parseModelInt(stats['like_count']);
-    stats['like_count'] = liked
-        ? (likeCount > 0 ? likeCount - 1 : 0)
-        : likeCount + 1;
+    // 保存旧状态用于回滚
+    final oldMoment = post;
+
+    // 乐观更新 UI
     setState(() {
-      _moment = <String, dynamic>{...post, 'liked': !liked, 'stats': stats};
+      _moment = applyOptimisticLikeToggle(post);
     });
+
+    // 发送请求，失败时回滚
+    try {
+      final ok = liked
+          ? await _api.unlikePost(momentId)
+          : await _api.likePost(momentId);
+      if (!ok && mounted) {
+        setState(() {
+          _moment = oldMoment;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _moment = oldMoment;
+        });
+      }
+    }
   }
 
   Future<void> _deleteMoment() async {

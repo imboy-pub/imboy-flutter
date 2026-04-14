@@ -12,6 +12,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:octo_image/octo_image.dart';
 
+import 'moment_interactions.dart';
 import 'moment_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
@@ -121,16 +122,6 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     if (momentId.isEmpty) return;
     final liked = parseModelBool(moment['liked']);
 
-    final oldStats = Map<String, dynamic>.from(
-      (moment['stats'] is Map) ? moment['stats'] as Map : <String, dynamic>{},
-    );
-    final likeCount = parseModelInt(oldStats['like_count']);
-    final nextLikeCount = liked
-        ? (likeCount > 0 ? likeCount - 1 : 0)
-        : likeCount + 1;
-    final newStats = Map<String, dynamic>.from(oldStats);
-    newStats['like_count'] = nextLikeCount;
-
     // 保存旧状态用于回滚
     final oldItems = _items;
 
@@ -142,10 +133,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
             if (parseModelString(item['id']) != momentId) {
               return item;
             }
-            final next = Map<String, dynamic>.from(item);
-            next['liked'] = !liked;
-            next['stats'] = newStats;
-            return next;
+            return applyOptimisticLikeToggle(item);
           })
           .toList(growable: false);
     });
