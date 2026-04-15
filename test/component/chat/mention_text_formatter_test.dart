@@ -1,8 +1,15 @@
-/// Tests for MentionTextFormatter / MentionTextEditorHelper
+/// Tests for `MentionTextEditorHelper` (输入框 @ 触发与候选插入).
 ///
-/// Covers:
-/// - C5: `@ 触发字符白名单` — email-like `a@b` must NOT pop candidate list
-/// - C1: 已退群成员降级显示 — unknown mention id renders as removed-member label
+/// ## 变更记录
+///
+/// - **slice-B-2 (refactor-cleaner)**：移除对 `MentionTextFormatter.isRemovedMember`
+///   和 `buildHighlightedText` 的测试组 —— 那条链路（parseMentions +
+///   buildHighlightedText + isRemovedMember）在生产代码中零调用，随
+///   `mention_text_formatter.dart` 的大幅瘦身一并被删除。消息气泡 @ 渲染
+///   现走 `mention_text_reducer.dart` → markdown 方案，其覆盖见
+///   `mention_text_reducer_test.dart`。
+///
+/// - 保留：C5 `@ 触发字符白名单`（email-like `a@b` 不弹候选）
 library;
 
 import 'package:flutter/material.dart';
@@ -67,127 +74,6 @@ void main() {
     test('does NOT trigger when @ was completed with a space already', () {
       // existing behavior must be preserved
       expect(detect('hi @foo '), (false, ''));
-    });
-  });
-
-  group('MentionTextFormatter.isRemovedMember — active member check (C1)', () {
-    test('returns false when activeMemberIds is null (backward compat)', () {
-      expect(
-        MentionTextFormatter.isRemovedMember('uid_1', null),
-        isFalse,
-      );
-    });
-
-    test('returns false for special "all" id regardless of active set', () {
-      expect(
-        MentionTextFormatter.isRemovedMember('all', <String>{}),
-        isFalse,
-      );
-    });
-
-    test('returns false when user is in the active set', () {
-      expect(
-        MentionTextFormatter.isRemovedMember('uid_1', {'uid_1', 'uid_2'}),
-        isFalse,
-      );
-    });
-
-    test('returns true when user is NOT in the active set (removed)', () {
-      expect(
-        MentionTextFormatter.isRemovedMember('uid_gone', {'uid_1', 'uid_2'}),
-        isTrue,
-      );
-    });
-  });
-
-  group('MentionTextFormatter.buildHighlightedText — removed member UI (C1)',
-      () {
-    const baseStyle = TextStyle(fontSize: 14);
-
-    testWidgets('renders normal highlighted @xxx when member is active',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MentionTextFormatter.buildHighlightedText(
-              text: 'hi @uid_1 ok',
-              mentionIds: const ['uid_1'],
-              style: baseStyle,
-              currentUserId: 'uid_me',
-              activeMemberIds: const {'uid_1'},
-            ),
-          ),
-        ),
-      );
-
-      // The original @uid_1 token should still be rendered as-is.
-      final richText = tester.widget<RichText>(find.byType(RichText).first);
-      final rendered = richText.text.toPlainText();
-      expect(rendered.contains('@uid_1'), isTrue);
-      expect(rendered.contains('已退群'), isFalse);
-    });
-
-    testWidgets(
-        'renders fallback label "@已退群成员" when mention target has left group',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MentionTextFormatter.buildHighlightedText(
-              text: 'hi @uid_gone ok',
-              mentionIds: const ['uid_gone'],
-              style: baseStyle,
-              currentUserId: 'uid_me',
-              activeMemberIds: const {'uid_1'}, // gone is not here
-            ),
-          ),
-        ),
-      );
-
-      final richText = tester.widget<RichText>(find.byType(RichText).first);
-      final rendered = richText.text.toPlainText();
-      expect(rendered.contains('@已退群成员'), isTrue,
-          reason: 'fallback label should replace the stale mention token');
-      expect(rendered.contains('@uid_gone'), isFalse);
-    });
-
-    testWidgets(
-        'fallback mention has NO tap recognizer (cannot navigate to ghost)',
-        (tester) async {
-      var tappedUserId = '';
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MentionTextFormatter.buildHighlightedText(
-              text: 'hi @uid_gone',
-              mentionIds: const ['uid_gone'],
-              style: baseStyle,
-              currentUserId: 'uid_me',
-              onMentionTap: (uid) => tappedUserId = uid,
-              activeMemberIds: const {}, // everyone gone
-            ),
-          ),
-        ),
-      );
-
-      // Walk spans, ensure no span has a recognizer for "@已退群成员"
-      final richText = tester.widget<RichText>(find.byType(RichText).first);
-      bool fallbackHasRecognizer = false;
-      void visit(InlineSpan span) {
-        if (span is TextSpan) {
-          final t = span.text ?? '';
-          if (t.contains('@已退群成员') && span.recognizer != null) {
-            fallbackHasRecognizer = true;
-          }
-          for (final c in span.children ?? const <InlineSpan>[]) {
-            visit(c);
-          }
-        }
-      }
-
-      visit(richText.text);
-      expect(fallbackHasRecognizer, isFalse);
-      expect(tappedUserId, '');
     });
   });
 }

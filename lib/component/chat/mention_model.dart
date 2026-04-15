@@ -300,16 +300,6 @@ class MentionState {
   }
 }
 
-/// @提及解析结果
-class MentionParseResult {
-  /// 解析后的纯文本
-  final String text;
-
-  /// 提取的 @提及数据
-  final MentionData mentionData;
-
-  const MentionParseResult({
-    required this.text,
-    required this.mentionData,
-  });
-}
+// `MentionParseResult` 已随 `MentionTextFormatter.parseMentions` 在 slice-B-2
+// (refactor-cleaner) 一并移除 —— 曾是唯一消费者且该消费者本身为死代码。
+// 消息气泡 @ 渲染现走 `mention_text_reducer.dart` → markdown 方案。
