@@ -124,11 +124,19 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           widget.channelId,
           subscriber.userId,
         );
-        if (success && mounted) {
+        if (!mounted) return;
+        if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(t.channel.removeSubscriberSuccess)),
           );
           unawaited(_loadSubscribers(refresh: true));
+        } else {
+          // success=false 代表 API 返回非 ok（例如权限不足、订阅者不存在），
+          // 旧实现在此分支静默无反馈，用户点了按钮以为成功；补齐失败提示
+          // 与 catch 分支行为一致。
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.channel.removeSubscriberFailed)),
+          );
         }
       } catch (e) {
         if (mounted) {

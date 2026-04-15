@@ -122,11 +122,17 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           result,
           ChannelUserRole.editor.toInt(),
         );
-        if (success && mounted) {
+        if (!mounted) return;
+        if (success) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.addAdminSuccess)));
           unawaited(_loadAdmins());
+        } else {
+          // 对齐 catch 分支：success=false 不得静默。
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.channel.addAdminFailed)),
+          );
         }
       } catch (e) {
         if (mounted) {
@@ -178,11 +184,16 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           admin.userId,
           result,
         );
-        if (success && mounted) {
+        if (!mounted) return;
+        if (success) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleSuccess)));
           unawaited(_loadAdmins());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.channel.updateRoleFailed)),
+          );
         }
       } catch (e) {
         if (mounted) {
@@ -232,11 +243,16 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     if (confirmed == true && mounted) {
       try {
         final success = await _api.removeAdmin(widget.channelId, admin.userId);
-        if (success && mounted) {
+        if (!mounted) return;
+        if (success) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminSuccess)));
           unawaited(_loadAdmins());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.channel.removeAdminFailed)),
+          );
         }
       } catch (e) {
         if (mounted) {
