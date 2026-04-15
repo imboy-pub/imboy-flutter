@@ -79,8 +79,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final rawComments = page.list as List<Map<String, dynamic>>;
 
     // 填充作者/评论者昵称和头像
-    final enrichedPost =
-        rawPost != null ? await enrichPostWithAuthor(rawPost) : null;
+    final enrichedPost = rawPost != null
+        ? await enrichPostWithAuthor(rawPost)
+        : null;
     final enrichedComments = await enrichCommentsWithUser(rawComments);
     if (!mounted) return;
 
@@ -94,9 +95,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   }
 
   Future<void> _loadMoreComments() async {
-    if (_loadingMoreComments || !_commentsHasMore) return;
-    final cursor = _commentsCursor;
-    if (cursor == null || cursor.isEmpty) return;
+    if (!canLoadMoreComments(
+      isLoading: _loadingMoreComments,
+      hasMore: _commentsHasMore,
+      cursor: _commentsCursor,
+    )) {
+      return;
+    }
+    final cursor = _commentsCursor!;
 
     setState(() {
       _loadingMoreComments = true;
@@ -174,18 +180,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   }
 
   void _startReplyTo(Map<String, dynamic> comment) {
-    final uid = parseModelString(comment['user_id']);
-    if (uid.isEmpty) return;
-    final remark = parseModelString(comment['user_remark']);
-    final nickname = parseModelString(comment['user_nickname']);
-    final name = resolveMomentDisplayName(
-      remark: remark,
-      nickname: nickname,
-      uid: uid,
-    );
+    final target = buildReplyTarget(comment);
+    if (target.isNone) return;
     setState(() {
-      _replyToUid = uid;
-      _replyToName = name;
+      _replyToUid = target.uid;
+      _replyToName = target.name;
     });
   }
 
@@ -242,9 +241,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       return;
     }
     setState(() {
-      _comments = _comments
-          .where((item) => parseModelString(item['id']) != commentId)
-          .toList(growable: false);
+      _comments = removeCommentById(_comments, commentId);
       final post = _moment;
       if (post != null) {
         _moment = applyCommentCountDelta(post, -1);
@@ -265,11 +262,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             children: [
               TextField(
                 controller: reasonController,
-                decoration: InputDecoration(labelText: context.t.momentsReportReason),
+                decoration: InputDecoration(
+                  labelText: context.t.momentsReportReason,
+                ),
               ),
               TextField(
                 controller: descController,
-                decoration: InputDecoration(labelText: context.t.momentsReportDesc),
+                decoration: InputDecoration(
+                  labelText: context.t.momentsReportDesc,
+                ),
               ),
             ],
           ),
@@ -305,7 +306,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -411,7 +411,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                                   child: previewUrl.isEmpty
                                       ? const Icon(Icons.broken_image_outlined)
                                       : Image(
-                                          image: cachedImageProvider(previewUrl),
+                                          image: cachedImageProvider(
+                                            previewUrl,
+                                          ),
                                           fit: BoxFit.cover,
                                         ),
                                 ),
@@ -487,10 +489,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                     ..._comments.map((comment) {
                       final commentId = parseModelString(comment['id']);
                       final userId = parseModelString(comment['user_id']);
-                      final userNickname =
-                          parseModelString(comment['user_nickname']);
-                      final userRemark =
-                          parseModelString(comment['user_remark']);
+                      final userNickname = parseModelString(
+                        comment['user_nickname'],
+                      );
+                      final userRemark = parseModelString(
+                        comment['user_remark'],
+                      );
                       final commentDisplayName = resolveMomentDisplayName(
                         remark: userRemark,
                         nickname: userNickname,
@@ -524,8 +528,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       );
                       final canReply =
                           currentUid.isNotEmpty && userId != currentUid;
-                      final userAvatar =
-                          parseModelString(comment['user_avatar']);
+                      final userAvatar = parseModelString(
+                        comment['user_avatar'],
+                      );
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         onTap: canReply ? () => _startReplyTo(comment) : null,
@@ -585,13 +590,17 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       horizontal: 12,
                       vertical: 6,
                     ),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
-                            context.t.momentsReplyingTo
-                                .replaceAll('{name}', _replyToName),
+                            context.t.momentsReplyingTo.replaceAll(
+                              '{name}',
+                              _replyToName,
+                            ),
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),

@@ -40,6 +40,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   bool _isLoadingMore = false;
   bool _hasMore = true;
 
+  /// 当前渲染的 items 是否来自失败回退（离线缓存 / 旧数据）。
+  /// 上层 UI 可据此显示离线 banner；当前暂未渲染 banner，仅做 state 持久化。
+  bool _isStale = false;
+
   StreamSubscription<MomentTimelineChangedEvent>? _momentSub;
 
   @override
@@ -64,9 +68,18 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   }
 
   void _onScroll() {
-    if (!_scrollController.hasClients || _isLoadingMore || !_hasMore) return;
+    // hasClients 是 Flutter 特定 guard（无 attached View 时访问 position 会抛），
+    // 不进入纯函数；其余三段判断（loading / hasMore / 距底阈值）走 shouldTriggerFeedLoadMore。
+    if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
-    if (position.pixels < position.maxScrollExtent - 320) return;
+    if (!shouldTriggerFeedLoadMore(
+      pixels: position.pixels,
+      maxExtent: position.maxScrollExtent,
+      isLoadingMore: _isLoadingMore,
+      hasMore: _hasMore,
+    )) {
+      return;
+    }
     _loadMore();
   }
 
@@ -75,28 +88,39 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     setState(() {
       _isLoading = true;
     });
-    final page = await _api.getFeedPage(limit: 20);
-    if (!mounted) return;
-    final enriched = await enrichItemsWithAuthor(page.list);
-    if (!mounted) return;
-    setState(() {
-      _items = enriched;
-      _cursor = page.nextCursor;
-      _hasMore = page.hasMore;
-      _isLoading = false;
-    });
+    await _fetchFirstPage();
   }
 
   Future<void> _refresh() async {
     if (!mounted) return;
-    final page = await _api.getFeedPage(limit: 20);
+    await _fetchFirstPage();
+  }
+
+  /// 拉取首页并在网络失败时走 `pickFeedSnapshot` 离线兜底：
+  /// - 成功：用 remote 覆盖 items、清 stale、更新 cursor/hasMore
+  /// - 失败：保留当前 items、打 stale 标、cursor/hasMore 保持旧值（避免下拉
+  ///   刷新失败后把「还有更多」强行翻成 false，影响后续滚动加载）
+  Future<void> _fetchFirstPage() async {
+    List<Map<String, dynamic>>? remoteEnriched;
+    String? nextCursor;
+    bool? hasMore;
+    try {
+      final page = await _api.getFeedPage(limit: 20);
+      remoteEnriched = await enrichItemsWithAuthor(page.list);
+      nextCursor = page.nextCursor;
+      hasMore = page.hasMore;
+    } on Exception {
+      remoteEnriched = null; // 走 pickFeedSnapshot 的 stale 分支
+    }
     if (!mounted) return;
-    final enriched = await enrichItemsWithAuthor(page.list);
-    if (!mounted) return;
+    final snapshot = pickFeedSnapshot(remote: remoteEnriched, cached: _items);
     setState(() {
-      _items = enriched;
-      _cursor = page.nextCursor;
-      _hasMore = page.hasMore;
+      _items = snapshot.items;
+      _isStale = snapshot.isStale;
+      if (!snapshot.isStale) {
+        _cursor = nextCursor;
+        _hasMore = hasMore ?? _hasMore;
+      }
       _isLoading = false;
     });
   }
@@ -232,7 +256,6 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     await context.push('${AppRoutes.momentRoot}/$momentId');
   }
 
-
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -249,64 +272,117 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       ),
       body: _isLoading
           ? const ShimmerList(itemHeight: 140)
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              child: _items.isEmpty
-                  ? ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 96,
-                      ),
-                      children: [
-                        const Center(
-                          child: Icon(
-                            Icons.photo_library_outlined,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Center(child: Text(t.momentsNoData)),
-                      ],
-                    )
-                  : ListView.separated(
-                      controller: _scrollController,
-                      itemCount: _items.length + (_isLoadingMore ? 1 : 0),
-                      separatorBuilder: (context, index) =>
-                          const Divider(height: 1, thickness: 0.5),
-                      itemBuilder: (context, index) {
-                        if (index >= _items.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Center(
-                              child: SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+          : Column(
+              children: [
+                MomentStaleBanner(isStale: _isStale, onRetry: _refresh),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: _items.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 96,
+                            ),
+                            children: [
+                              const Center(
+                                child: Icon(
+                                  Icons.photo_library_outlined,
+                                  size: 40,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            ),
-                          );
-                        }
-                        final item = _items[index];
-                        final currentUid = currentUidOrEmpty();
-                        final canDelete = canDeleteMoment(item, currentUid);
-                        return _MomentCard(
-                          item: item,
-                          canDelete: canDelete,
-                          onTap: () =>
-                              _openDetail(parseModelString(item['id'])),
-                          onLikeTap: () => _toggleLike(item),
-                          onDeleteTap: canDelete
-                              ? () => _deleteMoment(item)
-                              : null,
-                          onVideoVisible: null,
-                        );
-                      },
-                    ),
+                              const SizedBox(height: 12),
+                              Center(child: Text(t.momentsNoData)),
+                            ],
+                          )
+                        : ListView.separated(
+                            controller: _scrollController,
+                            itemCount: _items.length + (_isLoadingMore ? 1 : 0),
+                            separatorBuilder: (context, index) =>
+                                const Divider(height: 1, thickness: 0.5),
+                            itemBuilder: (context, index) {
+                              if (index >= _items.length) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              final item = _items[index];
+                              final currentUid = currentUidOrEmpty();
+                              final canDelete = canDeleteMoment(
+                                item,
+                                currentUid,
+                              );
+                              return _MomentCard(
+                                item: item,
+                                canDelete: canDelete,
+                                onTap: () =>
+                                    _openDetail(parseModelString(item['id'])),
+                                onLikeTap: () => _toggleLike(item),
+                                onDeleteTap: canDelete
+                                    ? () => _deleteMoment(item)
+                                    : null,
+                                onVideoVisible: null,
+                              );
+                            },
+                          ),
+                  ),
+                ),
+              ],
             ),
+    );
+  }
+}
+
+/// 顶部离线 banner：当 feed 首页拉取失败、回退到缓存时显示。
+///
+/// 行为契约：
+/// - `isStale = false` → 返回 `SizedBox.shrink()`，不占位、不影响 ListView 首项。
+/// - `isStale = true`  → 橙色轻量提示 + 右侧「重试」按钮，点击触发 `onRetry`。
+///
+/// 刻意做成 public StatelessWidget 便于 widget 测试单独 pump，
+/// 避免测试时必须伪造 `MomentFacade` 整条数据链。
+class MomentStaleBanner extends StatelessWidget {
+  final bool isStale;
+  final VoidCallback onRetry;
+
+  const MomentStaleBanner({
+    super.key,
+    required this.isStale,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isStale) return const SizedBox.shrink();
+    final t = context.t;
+    return Container(
+      width: double.infinity,
+      color: Colors.orange.shade100,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_outlined, size: 18, color: Colors.orange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              t.momentsFeedStale,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+          TextButton(onPressed: onRetry, child: Text(t.buttonRetry)),
+        ],
+      ),
     );
   }
 }

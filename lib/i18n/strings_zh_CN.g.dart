@@ -3359,6 +3359,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '加载更多评论'
 	String get momentsLoadMoreComments => '加载更多评论';
 
+	/// zh-CN: '最多只能选择 9 张图片'
+	String get momentsMediaTooManyImages => '最多只能选择 9 张图片';
+
+	/// zh-CN: '最多只能选择 1 个视频'
+	String get momentsMediaTooManyVideos => '最多只能选择 1 个视频';
+
+	/// zh-CN: '图片和视频不能同时发布'
+	String get momentsMediaMixedImageAndVideo => '图片和视频不能同时发布';
+
+	/// zh-CN: '已恢复上次未发送的草稿'
+	String get momentsDraftRestored => '已恢复上次未发送的草稿';
+
+	/// zh-CN: '网络异常，显示的是缓存内容'
+	String get momentsFeedStale => '网络异常，显示的是缓存内容';
+
 	/// zh-CN: '媒体上传失败，请稍后重试'
 	String get momentsUploadFailed => '媒体上传失败，请稍后重试';
 
@@ -5837,6 +5852,11 @@ extension on Translations {
 			'momentsReportSubmitted' => '举报已提交',
 			'momentsReportFailed' => '举报失败，请稍后重试',
 			'momentsLoadMoreComments' => '加载更多评论',
+			'momentsMediaTooManyImages' => '最多只能选择 9 张图片',
+			'momentsMediaTooManyVideos' => '最多只能选择 1 个视频',
+			'momentsMediaMixedImageAndVideo' => '图片和视频不能同时发布',
+			'momentsDraftRestored' => '已恢复上次未发送的草稿',
+			'momentsFeedStale' => '网络异常，显示的是缓存内容',
 			'momentsUploadFailed' => '媒体上传失败，请稍后重试',
 			'momentsReplyPrefix' => '回复 @',
 			'momentsReplySeparator' => '：',

@@ -1130,6 +1130,11 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get momentsReportSubmitted => 'Report submitted';
 	@override String get momentsReportFailed => 'Report failed, please try again';
 	@override String get momentsLoadMoreComments => 'Load more comments';
+	@override String get momentsMediaTooManyImages => 'You can select at most 9 images';
+	@override String get momentsMediaTooManyVideos => 'You can select at most 1 video';
+	@override String get momentsMediaMixedImageAndVideo => 'Images and videos cannot be posted together';
+	@override String get momentsDraftRestored => 'Restored your last unsent draft';
+	@override String get momentsFeedStale => 'Network error — showing cached content';
 	@override String get momentsUploadFailed => 'Media upload failed, please try again';
 	@override String get momentsReplyPrefix => 'Reply @';
 	@override String get momentsReplySeparator => ': ';
@@ -2755,6 +2760,11 @@ extension on TranslationsEnUs {
 			'momentsReportSubmitted' => 'Report submitted',
 			'momentsReportFailed' => 'Report failed, please try again',
 			'momentsLoadMoreComments' => 'Load more comments',
+			'momentsMediaTooManyImages' => 'You can select at most 9 images',
+			'momentsMediaTooManyVideos' => 'You can select at most 1 video',
+			'momentsMediaMixedImageAndVideo' => 'Images and videos cannot be posted together',
+			'momentsDraftRestored' => 'Restored your last unsent draft',
+			'momentsFeedStale' => 'Network error — showing cached content',
 			'momentsUploadFailed' => 'Media upload failed, please try again',
 			'momentsReplyPrefix' => 'Reply @',
 			'momentsReplySeparator' => ': ',

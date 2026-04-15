@@ -8,9 +8,11 @@ import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/page/moment/moment_interactions.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_compress/video_compress.dart';
 
@@ -36,6 +38,16 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   bool _isUploading = false;
   bool _isSubmitting = false;
 
+  /// 失败草稿 storage key。逻辑抽在 [momentFailedDraftKey]（可单测）。
+  String get _draftKey => momentFailedDraftKey(UserRepoLocal.to.currentUid);
+
+  @override
+  void initState() {
+    super.initState();
+    // 首帧后尝试恢复上次发布失败残留的草稿
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tryRestoreDraft());
+  }
+
   @override
   void dispose() {
     _contentController.dispose();
@@ -44,13 +56,50 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     super.dispose();
   }
 
-  List<String> _parseUidList(String raw) {
-    if (raw.trim().isEmpty) return const [];
-    return raw
-        .split(',')
-        .map((item) => item.trim())
-        .where((item) => item.isNotEmpty)
+  void _tryRestoreDraft() {
+    final key = _draftKey;
+    if (key.isEmpty) return;
+    final raw = StorageService.getMap(key);
+    final draft = restoreMomentDraft(raw);
+    if (draft == null) return;
+    if (!mounted) return;
+    setState(() {
+      _contentController.text = draft.content;
+      _visibility = draft.visibility;
+      _allowUidsController.text = draft.allowUids.join(',');
+      _denyUidsController.text = draft.denyUids.join(',');
+      // 注：media 不做自动恢复 —— 仅保留 URL 无法还原 type/cover，
+      // 强行填充会让发布时校验误判。让用户重选即可。
+    });
+    EasyLoading.showInfo(context.t.momentsDraftRestored);
+  }
+
+  Future<void> _saveFailedDraft(String content) async {
+    final key = _draftKey;
+    if (key.isEmpty) return;
+    final mediaUrls = _media
+        .map((m) => parseModelString(m['url']))
+        .where((u) => u.isNotEmpty)
         .toList(growable: false);
+    final map = buildMomentDraft(
+      content: content,
+      mediaUrls: mediaUrls,
+      visibility: _visibility,
+      allowUids: momentVisibilityRequiresAllowUids(_visibility)
+          ? parseMomentUidList(_allowUidsController.text)
+          : const [],
+      denyUids: momentVisibilityRequiresDenyUids(_visibility)
+          ? parseMomentUidList(_denyUidsController.text)
+          : const [],
+      savedAt: DateTime.now(),
+    );
+    await StorageService.setMap(key, map);
+  }
+
+  Future<void> _clearDraft() async {
+    final key = _draftKey;
+    if (key.isEmpty) return;
+    await StorageService.to.remove(key);
   }
 
   Future<String?> _uploadFile(String prefix, File file) async {
@@ -78,7 +127,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    if (_isUploading || _media.length >= 9) return;
+    if (_isUploading || _media.length >= momentMaxImageCount) return;
     final file = await _picker.pickImage(
       source: source,
       maxWidth: 1920,
@@ -104,7 +153,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Future<void> _pickVideo(ImageSource source) async {
-    if (_isUploading || _media.length >= 9) return;
+    if (_isUploading || _media.length >= momentMaxImageCount) return;
     final video = await _picker.pickVideo(source: source);
     if (video == null || !mounted) return;
 
@@ -163,6 +212,22 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       return;
     }
 
+    // 发布前媒体校验：9 图上限 / 1 视频上限 / 图视频互斥。
+    // 即使 _pickImage/_pickVideo 已做前置限制，这里仍再校一次防御
+    // 旧载荷 / 手改 state 绕过。
+    final validation = validateMediaSelection(_media);
+    if (!validation.ok) {
+      final t = context.t;
+      final msg = switch (validation.error) {
+        momentMediaErrorTooManyImages => t.momentsMediaTooManyImages,
+        momentMediaErrorTooManyVideos => t.momentsMediaTooManyVideos,
+        momentMediaErrorMixed => t.momentsMediaMixedImageAndVideo,
+        _ => t.momentsPublishFailed,
+      };
+      EasyLoading.showInfo(msg);
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -172,10 +237,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       visibility: _visibility,
       allowComment: _allowComment,
       allowUids: momentVisibilityRequiresAllowUids(_visibility)
-          ? _parseUidList(_allowUidsController.text)
+          ? parseMomentUidList(_allowUidsController.text)
           : const [],
       denyUids: momentVisibilityRequiresDenyUids(_visibility)
-          ? _parseUidList(_denyUidsController.text)
+          ? parseMomentUidList(_denyUidsController.text)
           : const [],
     );
 
@@ -184,10 +249,16 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       _isSubmitting = false;
     });
     if (created == null) {
+      // 发布失败 —— 持久化草稿避免用户白打字
+      await _saveFailedDraft(content);
+      if (!mounted) return;
       EasyLoading.showError(context.t.momentsPublishFailed);
       return;
     }
 
+    // 发布成功，清除残留草稿
+    await _clearDraft();
+    if (!mounted) return;
     final momentId = parseModelString(created['id']);
     AppEventBus.fire(
       MomentTimelineChangedEvent(
@@ -281,11 +352,14 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
           Row(
             children: [
               FilledButton.tonalIcon(
-                onPressed: (_isUploading || _media.length >= 9)
+                onPressed:
+                    (_isUploading || _media.length >= momentMaxImageCount)
                     ? null
                     : _showPicker,
                 icon: const Icon(Icons.add_photo_alternate_outlined),
-                label: Text('${t.momentsAddMedia} (${_media.length}/9)'),
+                label: Text(
+                  '${t.momentsAddMedia} (${_media.length}/$momentMaxImageCount)',
+                ),
               ),
               if (_isUploading) ...[
                 const SizedBox(width: 12),
