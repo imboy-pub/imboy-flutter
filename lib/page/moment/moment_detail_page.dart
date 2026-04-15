@@ -398,7 +398,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       runSpacing: 6,
                       children: media
                           .map((item) {
-                            final url = parseModelString(item['url']);
+                            final previewUrl = pickMediaPreviewUrl(item);
                             final type = parseModelString(item['type']);
                             return Stack(
                               children: [
@@ -406,12 +406,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                                   width: 110,
                                   height: 110,
                                   color: Colors.black12,
-                                  child: url.isEmpty
+                                  child: previewUrl.isEmpty
                                       ? const Icon(Icons.broken_image_outlined)
                                       : Image(
-                          image: cachedImageProvider(url),
-                          fit: BoxFit.cover,
-                        ),
+                                          image: cachedImageProvider(previewUrl),
+                                          fit: BoxFit.cover,
+                                        ),
                                 ),
                                 if (type == 'video')
                                   const Positioned.fill(

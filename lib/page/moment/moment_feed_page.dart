@@ -516,6 +516,8 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
   Widget build(BuildContext context) {
     final type = parseModelString(widget.item['type']);
     final url = parseModelString(widget.item['url']);
+    // 图片：直接用 url；视频：优先 cover_url，缺失时回退 url
+    final previewUrl = pickMediaPreviewUrl(widget.item);
     final isVideo = type == 'video';
 
     if (!isVideo) {
@@ -523,10 +525,10 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
         width: widget.size,
         height: widget.size,
         color: Colors.black12,
-        child: url.isEmpty
+        child: previewUrl.isEmpty
             ? const Icon(Icons.broken_image_outlined)
             : OctoImage(
-                image: cachedImageProvider(url),
+                image: cachedImageProvider(previewUrl),
                 fit: BoxFit.cover,
                 placeholderBuilder: (context) => Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
@@ -568,11 +570,11 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
                 child: VideoPlayer(_videoController!),
               )
             else
-              // 视频加载前显示缩略图（如果有）或黑屏
-              url.isEmpty
+              // 视频加载前显示封面（cover_url，不是视频 URL）或黑屏
+              previewUrl.isEmpty
                   ? const Icon(Icons.broken_image_outlined)
                   : OctoImage(
-                      image: cachedImageProvider(url), // 很多时候视频URL也是封面图URL
+                      image: cachedImageProvider(previewUrl),
                       fit: BoxFit.cover,
                       width: widget.size,
                       height: widget.size,

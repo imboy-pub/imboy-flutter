@@ -20,6 +20,23 @@ bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
 
 
+/// 为 media item 选择用于预览/缩略图展示的 URL。
+///
+/// - `type == 'video'`：优先返回 `cover_url`（trim 后非空）；为空时回退到
+///   `url`。这避免把 MP4 URL 直接塞给 `OctoImage` / image cache（图片解码
+///   器吞下 MP4 → 静默黑框）。
+/// - 其它类型（image / 未知 / 缺失）：直接返回 `url`。
+/// - 全缺失时返回空字符串，调用方据此渲染占位图标。
+String pickMediaPreviewUrl(Map<String, dynamic> media) {
+  final type = parseModelString(media['type']);
+  final url = parseModelString(media['url']);
+  if (type == 'video') {
+    final cover = parseModelString(media['cover_url']).trim();
+    if (cover.isNotEmpty) return cover;
+  }
+  return url;
+}
+
 /// 取显示名首字符作为头像占位。
 ///
 /// 比 `name.substring(0, 1)` 更安全：

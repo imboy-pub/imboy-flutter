@@ -305,17 +305,17 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               children: List.generate(_media.length, (index) {
                 final media = _media[index];
                 final type = parseModelString(media['type']);
-                final url = parseModelString(media['url']);
+                final previewUrl = pickMediaPreviewUrl(media);
                 return Stack(
                   children: [
                     Container(
                       width: 96,
                       height: 96,
                       color: Colors.black12,
-                      child: url.isEmpty
+                      child: previewUrl.isEmpty
                           ? const Icon(Icons.broken_image_outlined)
                           : Image(
-                              image: cachedImageProvider(url),
+                              image: cachedImageProvider(previewUrl),
                               fit: BoxFit.cover,
                             ),
                     ),
