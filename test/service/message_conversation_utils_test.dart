@@ -229,4 +229,94 @@ void main() {
       expect(shouldSuppressNotification(isMuted: 0), isFalse);
     });
   });
+
+  /// `extractMentionIdsFromPayload` 的契约固化测试。
+  ///
+  /// 这个函数在 `message.dart:836` / `message_repo_sqlite.dart:1465` 两处消费，
+  /// 但原本零单测覆盖 —— 这里补齐 characterization，防止 wire-format 改动时
+  /// 悄悄破坏 @mention 未读 / DND 穿透两条已稳定的链路。
+  group('extractMentionIdsFromPayload', () {
+    test('null payload → null', () {
+      expect(extractMentionIdsFromPayload(null), isNull);
+    });
+
+    test('缺少 mentions 键 → null', () {
+      expect(
+        extractMentionIdsFromPayload(<String, dynamic>{'text': 'hi'}),
+        isNull,
+      );
+    });
+
+    test('mentions 是 String（非 List）→ null（防御性）', () {
+      expect(
+        extractMentionIdsFromPayload(<String, dynamic>{'mentions': 'u_me'}),
+        isNull,
+      );
+    });
+
+    test('mentions 是 int → null', () {
+      expect(
+        extractMentionIdsFromPayload(<String, dynamic>{'mentions': 42}),
+        isNull,
+      );
+    });
+
+    test('mentions 是 Map → null', () {
+      expect(
+        extractMentionIdsFromPayload(<String, dynamic>{
+          'mentions': {'u_me': true},
+        }),
+        isNull,
+      );
+    });
+
+    test('mentions 是空 List → 空 List（非 null）', () {
+      final result = extractMentionIdsFromPayload(
+        <String, dynamic>{'mentions': <dynamic>[]},
+      );
+      expect(result, isNotNull);
+      expect(result, isEmpty);
+    });
+
+    test('mentions 是 List<String> → 按序返回', () {
+      expect(
+        extractMentionIdsFromPayload(
+          <String, dynamic>{'mentions': ['u_a', 'u_b', 'u_c']},
+        ),
+        ['u_a', 'u_b', 'u_c'],
+      );
+    });
+
+    test('mentions 包含 "all" 哨兵 → 原样保留（供 @所有人 判定）', () {
+      final result = extractMentionIdsFromPayload(
+        <String, dynamic>{'mentions': ['all', 'u_me']},
+      );
+      expect(result, contains('all'));
+      expect(result, contains('u_me'));
+    });
+
+    test('mentions 含非字符串元素（int / bool）→ toString 兜底', () {
+      final result = extractMentionIdsFromPayload(
+        <String, dynamic>{'mentions': <dynamic>[1838294017982464, true, 'u_me']},
+      );
+      expect(result, ['1838294017982464', 'true', 'u_me']);
+    });
+
+    test('mentions 含 null 元素 → 字面量字符串 "null"（暴露后端脏数据）', () {
+      final result = extractMentionIdsFromPayload(
+        <String, dynamic>{'mentions': <dynamic>[null, 'u_me']},
+      );
+      // 当前实现 toString 会把 null 转成 "null"；
+      // 若未来要过滤应在本函数而非调用侧修复 → 此断言会 RED 提醒。
+      expect(result, ['null', 'u_me']);
+    });
+
+    test('返回的 List 是 unmodifiable（growable: false）', () {
+      final result = extractMentionIdsFromPayload(
+        <String, dynamic>{'mentions': ['u_me']},
+      );
+      expect(result, isNotNull);
+      expect(() => result!.add('u_other'), throwsUnsupportedError);
+    });
+  });
 }
