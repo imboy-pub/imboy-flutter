@@ -11,6 +11,8 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/group_notice_config.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/api/report_api.dart';
@@ -29,6 +31,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
+import 'group_notice_disabled_tile.dart';
 
 /// 群组详情服务 Provider
 final groupDetailServiceProvider = Provider<GroupDetailService>((ref) {
@@ -61,9 +64,19 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   StreamSubscription? ssMsgExt;
   StreamSubscription? _localeSubscription;
 
+  /// slice-7 (C6 UI) — 群消息免打扰本地偏好（KV 存储，见 `group_notice_config.dart`）。
+  /// widget.groupId 是 String（TSID），KV key 内部按字符串插值，数值大小无关。
+  bool _noticeDisabled = false;
+
+  int get _gidInt => int.tryParse(widget.groupId) ?? 0;
+
   @override
   void initState() {
     super.initState();
+    _noticeDisabled = readNoticeDisabled(
+      _gidInt,
+      readBool: StorageService.to.getBool,
+    );
     unawaited(initData());
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
@@ -565,6 +578,36 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         }
                       }
                     },
+                  ),
+                  Divider(
+                    height: 1,
+                    indent: 56,
+                    color: Theme.of(context).colorScheme.outline.withAlpha(30),
+                  ),
+                  // slice-7 (C6 UI) — 群消息免打扰开关
+                  GroupNoticeDisabledTile(
+                    label: t.muteNotifications,
+                    value: _noticeDisabled,
+                    onChanged: _gidInt <= 0
+                        ? null
+                        : (v) async {
+                            // 乐观更新 + 持久化；失败回滚
+                            final prev = _noticeDisabled;
+                            setState(() => _noticeDisabled = v);
+                            try {
+                              await setNoticeDisabled(
+                                _gidInt,
+                                v,
+                                writeBool: (k, val) async =>
+                                    StorageService.to.setBool(k, val),
+                              );
+                            } catch (_) {
+                              if (mounted) {
+                                setState(() => _noticeDisabled = prev);
+                                EasyLoading.showError(t.tipFailed);
+                              }
+                            }
+                          },
                   ),
                 ],
               ),
