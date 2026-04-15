@@ -626,12 +626,16 @@ class ChannelService {
   }
 
   /// 处理频道订阅通知
+  ///
+  /// 多端同步：用户在设备 A 订阅后，设备 B 通过 S2C 收到此通知，
+  /// 需写本地 + 广播 [ChannelStateChangedEvent]，让订阅列表等 UI
+  /// 立即刷新；否则本端频道列表停留旧快照。
   Future<void> handleChannelSubscribed(Map<String, dynamic> data) async {
     try {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
 
-      // 检查本地是否已有订阅
+      // 检查本地是否已有订阅；幂等：重复 S2C 不触发二次事件。
       final existing = await _repo.getSubscription(channelId);
       if (existing != null) return;
 
@@ -644,6 +648,14 @@ class ChannelService {
         ChannelSubscriptionModel(
           channelId: parseModelInt(channelId),
           subscribedAt: DateTime.now(),
+        ),
+      );
+
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_subscribed',
+          payload: data,
         ),
       );
 
@@ -661,6 +673,14 @@ class ChannelService {
       await _repo.deleteSubscription(channelId);
       // 级联清理本地消息：取消订阅后该频道不再可访问，保留消息仅徒增占用。
       await _messageRepo.deleteMessagesByChannel(channelId);
+
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_unsubscribed',
+          payload: data,
+        ),
+      );
 
       iPrint('ChannelService: 收到取消订阅通知 - $channelId');
     } catch (e) {

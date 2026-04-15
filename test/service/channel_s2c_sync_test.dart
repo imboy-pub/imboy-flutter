@@ -284,6 +284,111 @@ void main() {
     );
 
     test(
+      'handleChannelSubscribed emits channel_subscribed event for cross-device sync',
+      () async {
+        final api = _FakeChannelApi(
+          channelById: {
+            '2001': _channel(id: 2001, name: 'Remote-Subscribed'),
+          },
+        );
+        final repo = _FakeChannelRepo();
+        final service = ChannelService.forTest(
+          api: api,
+          repo: repo,
+          messageRepo: _FakeChannelMessageRepo(),
+        );
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelSubscribed({'channel_id': '2001'});
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(repo.savedChannels, hasLength(1));
+        expect(repo.savedSubscriptions, hasLength(1));
+        expect(
+          events.any(
+            (e) =>
+                e.channelId == '2001' && e.action == 'channel_subscribed',
+          ),
+          isTrue,
+          reason: '多端同步：必须广播 channel_subscribed 让订阅列表刷新',
+        );
+      },
+    );
+
+    test(
+      'handleChannelSubscribed is idempotent - no duplicate event on repeat',
+      () async {
+        final api = _FakeChannelApi(
+          channelById: {
+            '2001': _channel(id: 2001, name: 'Remote-Subscribed'),
+          },
+        );
+        final repo = _FakeChannelRepo();
+        // 预置已存在的订阅，模拟重复 S2C 推送
+        repo.subscriptions['2001'] = ChannelSubscriptionModel(
+          channelId: 2001,
+          subscribedAt: DateTime.fromMillisecondsSinceEpoch(1),
+        );
+        final service = ChannelService.forTest(
+          api: api,
+          repo: repo,
+          messageRepo: _FakeChannelMessageRepo(),
+        );
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelSubscribed({'channel_id': '2001'});
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(
+          events.any((e) => e.action == 'channel_subscribed'),
+          isFalse,
+          reason: '已订阅时必须幂等短路，不再 save 也不再广播',
+        );
+        expect(repo.savedChannels, isEmpty);
+      },
+    );
+
+    test(
+      'handleChannelUnsubscribed emits channel_unsubscribed event',
+      () async {
+        final messageRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: messageRepo,
+        );
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelUnsubscribed({'channel_id': '2002'});
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(
+          events.any(
+            (e) =>
+                e.channelId == '2002' && e.action == 'channel_unsubscribed',
+          ),
+          isTrue,
+          reason: '退订后必须广播 channel_unsubscribed 驱动列表移除',
+        );
+      },
+    );
+
+    test(
       'handleChannelDeleted cascades message cleanup',
       () async {
         final messageRepo = _FakeChannelMessageRepo();
