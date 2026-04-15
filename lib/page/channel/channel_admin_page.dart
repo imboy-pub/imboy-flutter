@@ -146,8 +146,19 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildRoleOption(context, 0, t.channel.roleEditor, admin.role),
-            _buildRoleOption(context, 1, t.channel.roleAdmin, admin.role),
+            // 规范角色码：editor=1, admin=2，与 ChannelUserRole.toInt() 一致。
+            _buildRoleOption(
+              context,
+              ChannelUserRole.editor.toInt(),
+              t.channel.roleEditor,
+              admin.role,
+            ),
+            _buildRoleOption(
+              context,
+              ChannelUserRole.admin.toInt(),
+              t.channel.roleAdmin,
+              admin.role,
+            ),
           ],
         ),
         actions: [
@@ -161,6 +172,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
 
     if (result != null && mounted) {
       try {
+        // result 已是规范角色码（1=editor, 2=admin），直接透传。
         final success = await _api.updateAdminRole(
           widget.channelId,
           admin.userId,
@@ -236,13 +248,19 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     }
   }
 
+  /// 将后端返回的 role 整数映射为本地化角色名。
+  ///
+  /// 规范编码（与 [ChannelUserRole.toInt] 一致）：
+  ///   1 = editor, 2 = admin, 3 = creator
+  /// 历史实现错位一位（0/1/2），导致 editor 被显示为 admin、admin 被显示为
+  /// creator，列表与后端数据完全错位。此版本按规范重建映射。
   String _getRoleName(int role) {
     switch (role) {
-      case 2:
+      case 3:
         return t.channel.roleCreator;
-      case 1:
+      case 2:
         return t.channel.roleAdmin;
-      case 0:
+      case 1:
       default:
         return t.channel.roleEditor;
     }
