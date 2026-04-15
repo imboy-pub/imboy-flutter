@@ -3278,6 +3278,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '确定删除这条动态吗？'
 	String get momentsDeleteConfirm => '确定删除这条动态吗？';
 
+	/// zh-CN: '确定删除这条评论吗？'
+	String get momentsDeleteCommentConfirm => '确定删除这条评论吗？';
+
 	/// zh-CN: '动态不存在或无权限查看'
 	String get momentsNotFound => '动态不存在或无权限查看';
 
@@ -5825,6 +5828,7 @@ extension on Translations {
 			'moments' => '朋友圈',
 			'momentsNoData' => '暂无动态',
 			'momentsDeleteConfirm' => '确定删除这条动态吗？',
+			'momentsDeleteCommentConfirm' => '确定删除这条评论吗？',
 			'momentsNotFound' => '动态不存在或无权限查看',
 			'momentsContentOrMediaRequired' => '内容或媒体至少填写一项',
 			'momentsPublishFailed' => '发布失败',

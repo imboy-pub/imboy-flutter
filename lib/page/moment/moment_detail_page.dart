@@ -9,6 +9,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
 import 'moment_utils.dart'; // enrichPostWithAuthor, enrichCommentsWithUser
 
@@ -162,6 +163,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     if (post == null) return;
     final momentId = parseModelString(post['id']);
     if (momentId.isEmpty) return;
+    final t = context.t;
+    final confirmed = await showMomentConfirmDialog(
+      context,
+      title: t.delete,
+      message: t.momentsDeleteConfirm,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
     final ok = await _api.deletePost(momentId);
     if (!mounted) return;
     if (!ok) {
@@ -234,6 +243,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   }
 
   Future<void> _deleteComment(String commentId) async {
+    final t = context.t;
+    final confirmed = await showMomentConfirmDialog(
+      context,
+      title: t.delete,
+      message: t.momentsDeleteCommentConfirm,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
     final ok = await _api.deleteComment(widget.momentId, commentId);
     if (!mounted) return;
     if (!ok) {

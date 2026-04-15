@@ -1103,6 +1103,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get moments => 'Moments';
 	@override String get momentsNoData => 'No moments yet';
 	@override String get momentsDeleteConfirm => 'Are you sure you want to delete this moment?';
+	@override String get momentsDeleteCommentConfirm => 'Are you sure you want to delete this comment?';
 	@override String get momentsNotFound => 'Moment not found or no permission to view';
 	@override String get momentsContentOrMediaRequired => 'Content or media is required';
 	@override String get momentsPublishFailed => 'Failed to publish';
@@ -2733,6 +2734,7 @@ extension on TranslationsEnUs {
 			'moments' => 'Moments',
 			'momentsNoData' => 'No moments yet',
 			'momentsDeleteConfirm' => 'Are you sure you want to delete this moment?',
+			'momentsDeleteCommentConfirm' => 'Are you sure you want to delete this comment?',
 			'momentsNotFound' => 'Moment not found or no permission to view',
 			'momentsContentOrMediaRequired' => 'Content or media is required',
 			'momentsPublishFailed' => 'Failed to publish',

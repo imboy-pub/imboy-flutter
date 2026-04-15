@@ -13,6 +13,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:octo_image/octo_image.dart';
 
+import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
 import 'moment_utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -188,26 +189,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     final momentId = parseModelString(moment['id']);
     if (momentId.isEmpty) return;
     final t = context.t;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: Text(t.delete),
-          content: Text(t.momentsDeleteConfirm),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(t.buttonCancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(t.confirm),
-            ),
-          ],
-        );
-      },
+    final confirmed = await showMomentConfirmDialog(
+      context,
+      title: t.delete,
+      message: t.momentsDeleteConfirm,
+      isDestructive: true,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     // 保存旧状态用于回滚
     final oldItems = _items;
