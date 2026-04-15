@@ -115,6 +115,36 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
     - **applyUpdate 吞异常**，本地写失败不阻塞 `fireEvent` 广播
   - 对应后端契约：`imboy/src/api/group_handler.erl:262-267` `Payload = Data#{<<"gid">> => Gid}`
   - 16 个单测全绿（parse 11 + handler 5）；slice-1/2/3 回归 49 全绿
+- **群成员角色变更 slice-4 落地（group_member_role S2C 广播同步）**：复用 slice-3 的分派架构
+  - 新增 `lib/service/group_member_role_s2c.dart`：sealed `GroupMemberRoleParseResult`（`GroupMemberRolePayload(gid, userId, role, roleText, nickname, adminNickname, updatedAt)` / `GroupMemberRoleParseError('invalid_gid'|'invalid_user_id'|'invalid_role')`）+ `handleGroupMemberRoleS2C` dispatcher
+  - 接线：`MessageS2CService` 新增 `group_member_role` case → `GroupMemberRepo.update` 写 role（+ updatedAt 若后端带）+ 广播 `GroupMemberRoleEvent`
+  - 角色合法范围 `1..5`：对齐后端 `imboy/src/logic/group_role.hrl` 的 `ROLE_MEMBER=1`..`ROLE_VICE_OWNER=5`
+  - 对应后端契约：`imboy/src/logic/group_member_logic.erl:351-376` `role_change_notice/4` payload 含 user_id（这次**契约完整**，不像 mute_notice 有 user_id 缺口）
+  - **slice-2 后续 TODO**：`canMuteGroupMember` 权限矩阵尚未覆盖 `role=5 副群主`，待升级 UI 规则时同步加入
+  - 17 个单测全绿（parse 12 + handler 5）；slice-1/2/3/4 回归 66 全绿
+- **群消息免打扰 slice-5 落地（C6 纯客户端决策内核）**：新增 `lib/service/group_notice_rules.dart`
+  - **后端侦察登记（重要契约缺口）**：
+    - C3 群公告：`group_notice_handler.erl` / `group_notice_logic.erl` 只暴露 REST（`/v1/group/notice/*`），**无 S2C 广播**；publish 后不触发 `message_ds:broadcast`
+    - C4 全员禁言 / C2 @所有人：`grep` 在 `imboy/src` 全库零命中，后端尚未立项
+    - → 四选 C6（纯客户端零阻塞闭环），其余三项挂起或降级为 REST 对接（方案 A 共识）
+  - `shouldNotifyGroupMessage({noticeDisabled, fromSelf, isMentioned}) → bool` 决策纯函数
+  - **优先级约束**（从高到低）：
+    1. `fromSelf=true` → 永不通知（压过 @ 定向）
+    2. `noticeDisabled=true` 且非 @ → 不通知
+    3. `noticeDisabled=true` 但被 @ → **仍通知**（对齐微信 / TG / Slack：定向 @ 穿透免打扰）
+    4. 其余 → 通知
+  - 本切片**不碰持久化**：`group.notice_disabled` 字段 / StorageService key 留给后续子切片（避免 v20 migration 牵连）
+  - 14 个单测全绿（决策契约 6 + 真值表穷尽 8）；全量回归 792 绿
+- **群消息免打扰 slice-6 落地（C6 持久化子切片）**：新增 `lib/service/group_notice_config.dart`
+  - **技术路线**：KV 键值（`group_notice_disabled:${gid}`）而非 Group 表列
+    - 原因 1：免打扰是用户-设备本地偏好，无需跨端同步
+    - 原因 2：规避 v20 migration 牵连未解决的 win32 overrides 债务
+    - 原因 3：函数注入 read/write → 纯函数单测，不依赖 `StorageService.to` 单例
+  - `groupNoticeDisabledKey(gid)` / `readNoticeDisabled(gid, readBool:)` / `setNoticeDisabled(gid, bool, writeBool:)` 三个纯函数入口
+  - **防污染**：`gid <= 0` 时读返回 false 且不调 readBool；写直接 return 不调 writeBool
+  - **写 false 语义**：覆盖写（非 remove），保留"显式关闭 vs 从未设置"的语义区分
+  - 调用侧接线：`StorageService.to.getBool` / `setBool` 注入即可落 shared_preferences
+  - 10 个单测全绿（键格式 1 + 读 4 + 写 4 + 集成闭环 1）
 
 ### 2026-04-10
 - **新增设计规范文档**：`imboyapp/DESIGN.md` 确立 iOS 原生感设计方向
