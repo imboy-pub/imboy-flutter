@@ -27,6 +27,7 @@ class _ChannelUnreadCountCache {
   StreamSubscription<ChannelUnreadCountUpdatedEvent>? _unreadCountSub;
   StreamSubscription<ChannelNewMessageEvent>? _newMessageSub;
   StreamSubscription<WebSocketStatusChangedEvent>? _websocketStatusSub;
+  StreamSubscription<ChannelStateChangedEvent>? _channelStateSub;
 
   bool _started = false;
   int _value = 0;
@@ -54,6 +55,22 @@ class _ChannelUnreadCountCache {
           if (event.status.toLowerCase() != 'connected') return;
           unawaited(_syncFromServerAndDb(trigger: 'ws_connected'));
         });
+    // 订阅/退订/删除会改变总未读集合（例如退订一个有 5 条未读的频道，
+    // 订阅行消失后 SUM 少 5）。不监听的话总未读缓存会滞留到下次推送或
+    // 重连才会对齐。
+    _channelStateSub ??= AppEventBus.on<ChannelStateChangedEvent>().listen((
+      event,
+    ) {
+      switch (event.action) {
+        case 'channel_unsubscribed':
+        case 'channel_deleted':
+        case 'channel_subscribed':
+          unawaited(_syncFromDb());
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   Future<int> refresh() => _syncFromDb();
