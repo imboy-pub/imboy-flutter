@@ -1265,50 +1265,49 @@ class ChatPageState extends ConsumerState<ChatPage>
       'handleSendPressed 开始: text=$text, _editingMessageId=$_editingMessageId',
     );
 
-    // 禁言检查
-    if (_isMuted) {
-      EasyLoading.showInfo(t.mutedCannotSend);
-      return false;
-    }
+    // slice-C-3a: 决策内核已抽到 send_mode_rules.dart 并有 14 个单测钉死优先级
+    // (muted > debounce > edit > quote > new)。这里只保留 i18n toast / IO 副作用。
+    final decision = decideSendMode(
+      isMuted: _isMuted,
+      now: DateTime.now(),
+      lastSendTime: _lastSendTime,
+      debounce: _sendDebounceDuration,
+      editingMessageId: _editingMessageId,
+      hasQuoteMessage: quoteMessage != null,
+    );
 
-    // 防抖：检查是否在短时间内��复发送
-    final now = DateTime.now();
-    if (_lastSendTime != null &&
-        now.difference(_lastSendTime!) < _sendDebounceDuration) {
-      iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
-      return false;
-    }
-
-    // 检查是否是编辑消息
-    if (_editingMessageId != null && _editingMessageId!.isNotEmpty) {
-      iPrint('执行编辑消息: messageId=$_editingMessageId, newContent=$text');
-
-      // 发送编辑消息
-      bool result = await MessagingFacade.instance.sendEditMessage(
-        _editingMessageId!,
-        _chatType,
-        text,
-      );
-
-      iPrint('编辑消息结果: $result');
-
-      // 清除编辑状态
-      _editingMessageId = null;
-
-      return result;
-    } else if (quoteMessage == null) {
-      iPrint(t.sendNewMessage);
-      final result = await _sendTextMessage(text);
-      if (result) {
-        _lastSendTime = DateTime.now();
-      }
-      return result;
-    } else {
-      final result = await _sendQuoteMessage(text);
-      if (result) {
-        _lastSendTime = DateTime.now();
-      }
-      return result;
+    switch (decision) {
+      case SendDenyMuted():
+        EasyLoading.showInfo(t.mutedCannotSend);
+        return false;
+      case SendDenyDebounced():
+        iPrint(
+          '消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms',
+        );
+        return false;
+      case SendAsEdit(:final messageId):
+        iPrint('执行编辑消息: messageId=$messageId, newContent=$text');
+        final result = await MessagingFacade.instance.sendEditMessage(
+          messageId,
+          _chatType,
+          text,
+        );
+        iPrint('编辑消息结果: $result');
+        _editingMessageId = null;
+        return result;
+      case SendAsNewText():
+        iPrint(t.sendNewMessage);
+        final result = await _sendTextMessage(text);
+        if (result) {
+          _lastSendTime = DateTime.now();
+        }
+        return result;
+      case SendAsQuote():
+        final result = await _sendQuoteMessage(text);
+        if (result) {
+          _lastSendTime = DateTime.now();
+        }
+        return result;
     }
   }
 
