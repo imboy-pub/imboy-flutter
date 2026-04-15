@@ -1,27 +1,49 @@
-/// 群成员禁言 UI 的纯函数规则 —— slice-2。
+/// 群成员禁言 UI 的纯函数规则 —— slice-2（+ slice-2 补丁：role=5 副群主）。
 ///
 /// 不依赖 Widget / Provider / Repo，便于在单元测试中穷尽分支。
 ///
-/// 角色常量（与 `GroupMemberRepo` 一致）：
-///   - 1 = 普通成员
-///   - 2 = 嘉宾
-///   - 3 = 管理员
-///   - 4 = 群主
+/// 角色常量（与后端 `include/group_role.hrl` 对齐）：
+///   - 1 = 普通成员 (ROLE_MEMBER)
+///   - 2 = 嘉宾 (ROLE_GUEST)
+///   - 3 = 管理员 (ROLE_ADMIN)
+///   - 4 = 群主 (ROLE_OWNER)
+///   - 5 = 副群主 (ROLE_VICE_OWNER)
+///
+/// **关键**：数值顺序 ≠ 权威顺序。
+/// 权威排序：member(1) < guest(2) < admin(3) < vice_owner(5) < owner(4)
+/// 通过 [_authorityRank] 显式归一化，避免用原始 role 做数值比较出错。
 library;
 
 const int _roleMember = 1;
-// const int _roleGuest = 2;
 const int _roleAdmin = 3;
-const int _roleOwner = 4;
+
+/// 将原始 role 映射为严格单调的**权威等级**（越大权威越高）。
+///
+/// 未知/非法角色返回 0，配合上层校验等同于"拒绝"。
+int _authorityRank(int role) {
+  switch (role) {
+    case 1: // member
+      return 1;
+    case 2: // guest
+      return 2;
+    case 3: // admin
+      return 3;
+    case 5: // vice_owner
+      return 4;
+    case 4: // owner
+      return 5;
+    default:
+      return 0;
+  }
+}
 
 /// 判断当前用户是否可对 `targetUser` 发起禁言操作。
 ///
 /// 规则：
-///   1. 当前用户必须是管理员（3）或群主（4）
+///   1. 当前用户权威必须 >= 管理员（rank >= 3）
 ///   2. 不可禁言自己
-///   3. 管理员只能禁言**严格低于自己**的角色（普通成员 / 嘉宾）
-///   4. 群主可禁言任何**非自身**角色
-///   5. 任一非法参数（空 id / role < 1）一律拒绝 —— 安全默认
+///   3. 仅当当前用户**权威严格高于**目标时允许（同级或更高都拒绝）
+///   4. 任一非法参数（空 id / role < 1 / 未知 role）一律拒绝 —— 安全默认
 bool canMuteGroupMember({
   required String currentUserId,
   required int currentRole,
@@ -35,14 +57,17 @@ bool canMuteGroupMember({
   // 不能禁言自己
   if (currentUserId == targetUserId) return false;
 
-  // 仅管理员或群主可操作
-  if (currentRole < _roleAdmin) return false;
+  final currentRank = _authorityRank(currentRole);
+  final targetRank = _authorityRank(targetRole);
 
-  // 群主无限制（除自身，已在上面拦截）
-  if (currentRole == _roleOwner) return true;
+  // 未知角色（rank=0）一律拒绝
+  if (currentRank == 0 || targetRank == 0) return false;
 
-  // 管理员仅能禁言**严格低于自己**的角色
-  return targetRole < currentRole;
+  // 仅管理员及以上（admin / vice_owner / owner）可操作
+  if (currentRank < _authorityRank(_roleAdmin)) return false;
+
+  // 权威严格高于目标
+  return currentRank > targetRank;
 }
 
 /// 将禁言剩余时间格式化为人类可读的短标签。
