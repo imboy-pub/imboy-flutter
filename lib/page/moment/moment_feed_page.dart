@@ -292,8 +292,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                         }
                         final item = _items[index];
                         final currentUid = currentUidOrEmpty();
-                        final canDelete =
-                            parseModelString(item['author_uid']) == currentUid;
+                        final canDelete = canDeleteMoment(item, currentUid);
                         return _MomentCard(
                           item: item,
                           canDelete: canDelete,

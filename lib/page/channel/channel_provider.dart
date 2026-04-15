@@ -119,10 +119,41 @@ class ChannelListState {
 @riverpod
 class ChannelListNotifier extends _$ChannelListNotifier {
   final ChannelApi _api = ChannelApi();
+  StreamSubscription<ChannelStateChangedEvent>? _stateChangedSub;
 
   @override
   ChannelListState build() {
+    // 订阅/退订/删除：S2C 广播后自动对齐本地列表，避免用户看到过时快照。
+    _stateChangedSub ??= AppEventBus.on<ChannelStateChangedEvent>().listen(
+      _handleChannelStateChanged,
+    );
+    ref.onDispose(() {
+      _stateChangedSub?.cancel();
+      _stateChangedSub = null;
+    });
     return const ChannelListState();
+  }
+
+  void _handleChannelStateChanged(ChannelStateChangedEvent event) {
+    if (!ref.mounted) return;
+    switch (event.action) {
+      case 'channel_unsubscribed':
+      case 'channel_deleted':
+        // 本地过滤即可，无需网络往返，保留分页游标。
+        final next = state.channels
+            .where((c) => c.id.toString() != event.channelId)
+            .toList(growable: false);
+        if (next.length != state.channels.length) {
+          state = state.copyWith(channels: next);
+        }
+        break;
+      case 'channel_subscribed':
+        // 新订阅需要完整 channel 数据，走一次权威拉取。
+        unawaited(loadSubscribedChannels());
+        break;
+      default:
+        break;
+    }
   }
 
   /// 加载订阅的频道列表

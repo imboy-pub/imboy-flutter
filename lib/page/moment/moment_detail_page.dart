@@ -290,7 +290,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       nickname: authorNickname,
       uid: authorUid,
     );
-    final canDeletePost = currentUid == authorUid;
+    final canDeletePost = canDeleteMoment(post, currentUid);
     final content = parseModelString(post['content']);
     final createdAt = parseModelString(post['created_at']);
     final liked = parseModelBool(post['liked']);
@@ -447,13 +447,16 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       final commentContent = parseModelString(
                         comment['content'],
                       );
-                      final canDeleteComment =
-                          userId == currentUid || canDeletePost;
+                      final canRemoveComment = canDeleteComment(
+                        comment,
+                        post,
+                        currentUid: currentUid,
+                      );
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(commentDisplayName),
                         subtitle: Text(commentContent),
-                        trailing: canDeleteComment
+                        trailing: canRemoveComment
                             ? IconButton(
                                 onPressed: () => _deleteComment(commentId),
                                 icon: const Icon(

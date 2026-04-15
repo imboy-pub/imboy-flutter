@@ -20,6 +20,36 @@ bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
 
 
+/// 当前用户是否有权删除这条 moment。
+///
+/// 规则：`author_uid == currentUid`，且两者都非空白。
+/// - 防御未登录（空 currentUid）/ 脏数据（空 author_uid）
+/// - trim 后为空视为空，避免 "  " == "  " 的误判
+bool canDeleteMoment(Map<String, dynamic> moment, String currentUid) {
+  final currentTrim = currentUid.trim();
+  if (currentTrim.isEmpty) return false;
+  final author = parseModelString(moment['author_uid']).trim();
+  if (author.isEmpty) return false;
+  return author == currentTrim;
+}
+
+/// 当前用户是否有权删除这条评论。
+///
+/// 规则：评论作者本人 **或** 动态作者本人。
+/// - 防御未登录（空 currentUid）返回 false，即使 uid 字段也恰好为空
+/// - 评论 user_id 缺失时回退到「仅动态作者可删」
+bool canDeleteComment(
+  Map<String, dynamic> comment,
+  Map<String, dynamic> moment, {
+  required String currentUid,
+}) {
+  final currentTrim = currentUid.trim();
+  if (currentTrim.isEmpty) return false;
+  final commenterUid = parseModelString(comment['user_id']).trim();
+  if (commenterUid.isNotEmpty && commenterUid == currentTrim) return true;
+  return canDeleteMoment(moment, currentTrim);
+}
+
 /// 按优先级 `remark > nickname > uid > '?'` 解析显示名。
 ///
 /// 与 ContactModel.title() 规则对齐：本地联系人备注胜过对方自取昵称，
