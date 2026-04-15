@@ -1222,21 +1222,27 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 仅单聊支持输入状态
     if (_chatType != 'C2C') return;
 
-    if (text.isEmpty) {
-      // Send stop typing
-      _sendTypingStatus(TypingStatus.stop);
-      return;
+    // slice-C-2: 决策内核已抽到 typing_indicator_rules.dart 并有 12 个单测钉死,
+    // 这里只保留 Timer/WebSocket 的 IO 组装。
+    final decision = decideTypingIndicator(
+      text: text,
+      lastSentAt: _lastTypingSendTime,
+      now: DateTime.now(),
+    );
+
+    switch (decision) {
+      case TypingStopImmediately():
+        _sendTypingStatus(TypingStatus.stop);
+        return;
+      case TypingStartAndResetIdle(:final newLastSentAt):
+        _sendTypingStatus(TypingStatus.start);
+        _lastTypingSendTime = newLastSentAt;
+      case TypingResetIdleOnly():
+        // 节流窗口内,不重发 start,但仍需刷新 idle 定时器
+        break;
     }
 
-    final now = DateTime.now();
-    // 每3秒发送一次正在输入状态
-    if (_lastTypingSendTime == null ||
-        now.difference(_lastTypingSendTime!) > const Duration(seconds: 3)) {
-      _sendTypingStatus(TypingStatus.start);
-      _lastTypingSendTime = now;
-    }
-
-    // Reset timer to send stop if no input for 5 seconds
+    // 5 秒无输入则自动 stop
     _typingTimer?.cancel();
     _typingTimer = Timer(const Duration(seconds: 5), () {
       _sendTypingStatus(TypingStatus.stop);
