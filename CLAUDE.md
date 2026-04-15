@@ -89,6 +89,33 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 
 ## 变更记录 (Changelog)
 
+### 2026-04-15
+- **群成员禁言 slice-1 落地（TDD 完整闭环）**：Model + API + Repo + Service + S2C 广播处理
+  - 新增 `GroupMemberModel.muteUntilMs` (nullable int ms) + `isMuted({nowMs})`
+  - 新增 `lib/store/model/group_member_columns.dart`（纯 Dart 列名常量），**解耦 Model ↔ Repo**：消除 Model-only 测试对 `sqflite_sqlcipher → win32` 链的传递依赖（方案 B）
+  - `GroupMemberApi.mute` 前置校验 `duration <= 0` → `ArgumentError`
+  - `GroupMemberRepo` 抽出静态 `toInsertMap()` → 可脱离 `SqliteService.to` 单例单测
+  - 新增 `GroupMemberMuteService` + sealed `MuteResult`（`MuteSuccess` / `MuteValidationError` / `MuteApiFailure`）
+  - 新增 `lib/service/group_member_mute_s2c.dart` 解析 S2C `group_member_mute` payload
+  - `MessageS2CService` 新增 `group_member_mute` case 分支；新增 `GroupMemberMuteEvent`
+  - **数据库迁移 v19**：`ALTER TABLE group_member ADD COLUMN mute_until INTEGER NULL` + 稀疏局部索引
+- **已知后端契约缺口（slice-1 未修）**：`imboy/src/logic/group_member_logic.erl:249,260-266` 的 `mute_notice/4` 广播 payload 未携带被禁言成员的 `user_id`，客户端无法定位具体成员行 → 目前 S2C 只做群内通知（事件总线 + toast），不写 Repo。slice-2 待后端补 `<<"user_id">> => UserId` 后接入。
+- **环境债务登记**：`pubspec.yaml` 现有 3 个 win32 相关 `dependency_overrides`（`package_info_plus ^8.3.0` / `win32_registry ^2.0.0` / `device_info_plus ^11.5.0`），同命运：待 `file_picker` 迁移 win32 6.x 后统一解锁。
+- 覆盖率：slice-1 新增 38 个单元测试全绿（Model 13 + API 4 + 持久化 4 + insert_map 3 + Service 6 + S2C 解析 8）
+- **群成员禁言 slice-2 落地（UI 权限纯函数）**：新增 `lib/page/group/group_member/group_member_mute_rules.dart`
+  - `canMuteGroupMember` 角色权限矩阵：普通成员/嘉宾 → 全拒绝；管理员 → 仅禁言严格低于自己的角色；群主 → 除自身外均可；空 id / role<1 → 安全默认拒绝
+  - `muteRemainingLabel` 剩余时间文案（秒/分钟/小时/天），与后端 `format_duration/1` 整数向下截断策略一致
+  - 19 个纯函数单测全绿（不依赖 Widget / Provider / Repo，避开 sqflite→win32 传递链）
+- **群资料编辑 slice-3 落地（group_edit S2C 广播同步）**：Model-less 纯函数分派闭环
+  - 新增 `lib/service/group_edit_s2c.dart`：sealed `GroupEditParseResult`（`GroupEditPayload(gid, updates)` / `GroupEditParseError('invalid_gid')`）+ `handleGroupEditS2C` dispatcher（函数注入 `applyUpdate` / `fireEvent` / `log`）
+  - 接线：`MessageS2CService` 新增 `group_edit` case 分支 → 调用 `GroupRepo.update` + 广播 `GroupEditEvent`
+  - 设计亮点：
+    - **字段 passthrough 不做白名单**，后端新增列时客户端无需同步升级（前向兼容），合法性由 `GroupRepo.update` 自身过滤
+    - **updates 独立副本**，防止 handler 链路误改原始 payload
+    - **applyUpdate 吞异常**，本地写失败不阻塞 `fireEvent` 广播
+  - 对应后端契约：`imboy/src/api/group_handler.erl:262-267` `Payload = Data#{<<"gid">> => Gid}`
+  - 16 个单测全绿（parse 11 + handler 5）；slice-1/2/3 回归 49 全绿
+
 ### 2026-04-10
 - **新增设计规范文档**：`imboyapp/DESIGN.md` 确立 iOS 原生感设计方向
 - 双蓝策略：`#2474E5` 品牌蓝 + `#007AFF` iOS 系统蓝分工明确
