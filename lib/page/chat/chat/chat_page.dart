@@ -587,12 +587,10 @@ class ChatPageState extends ConsumerState<ChatPage>
       _ssAppErrorLocal = AppEventBus.on<AppErrorEvent>().listen(
         (error) {
           if (!mounted) return;
-          // 处理非好友和黑名单错误
-          if (error.errorType == 'not_a_friend' ||
-              error.errorType == 'in_denylist' ||
-              error.message.contains('非好友') ||
-              error.message.contains('黑名单')) {
-            // 使用 EasyLoading 显示提示（更简单直接）
+          if (isRelevantChatError(
+            errorType: error.errorType,
+            message: error.message,
+          )) {
             EasyLoading.showToast(error.message);
           }
         },
@@ -616,10 +614,10 @@ class ChatPageState extends ConsumerState<ChatPage>
       _ssUserMuted = AppEventBus.on<UserMutedEvent>().listen(
         (event) {
           if (!mounted) return;
-          // 如果有 conversationId，只在对应会话中显示禁言
-          if (event.conversationId != null &&
-              event.conversationId!.isNotEmpty &&
-              event.conversationId != _conversationUk3) {
+          if (!muteEventMatchesConversation(
+            eventConversationId: event.conversationId,
+            currentConversationId: _conversationUk3,
+          )) {
             return;
           }
           _applyMuteState(event);
@@ -632,9 +630,10 @@ class ChatPageState extends ConsumerState<ChatPage>
       _ssUserUnmuted = AppEventBus.on<UserUnmutedEvent>().listen(
         (event) {
           if (!mounted) return;
-          if (event.conversationId != null &&
-              event.conversationId!.isNotEmpty &&
-              event.conversationId != _conversationUk3) {
+          if (!muteEventMatchesConversation(
+            eventConversationId: event.conversationId,
+            currentConversationId: _conversationUk3,
+          )) {
             return;
           }
           _clearMuteState();
