@@ -33,19 +33,50 @@ void main() {
       container.dispose();
     });
 
-    test('updateMessagePinned flips just one message', () {
+    test('updateMessagePinned pins only the targeted message (off→on)', () {
+      // 旧用例两条消息都 pinned=true 收尾，无法区分「只动目标」与
+      // 「全部标记置顶」两种实现 —— 断言在 bug 版本上也会通过。
+      // 此处让 messageB 保持 pinned=false 作为控制组，强制验证隔离性。
       final messageA = _buildMessage(id: 1, pinned: false);
-      final messageB = _buildMessage(id: 2, pinned: true);
+      final messageB = _buildMessage(id: 2, pinned: false);
       notifier.state = notifier.state.copyWith(messages: [messageA, messageB]);
 
       notifier.updateMessagePinned('1', true);
 
       final state = container.read(channelDetailProvider);
       expect(state.messages.firstWhere((msg) => msg.id == 1).isPinned,
-          isTrue);
-      expect(state.messages
-          .firstWhere((msg) => msg.id == 2)
-          .isPinned, isTrue);
+          isTrue,
+          reason: '目标消息必须被置顶');
+      expect(state.messages.firstWhere((msg) => msg.id == 2).isPinned,
+          isFalse,
+          reason: '非目标消息不得被改动（隔离性）');
+    });
+
+    test('updateMessagePinned unpins only the targeted message (on→off)', () {
+      // 对称方向：确认取消置顶不会误伤其他已置顶消息。
+      final messageA = _buildMessage(id: 1, pinned: true);
+      final messageB = _buildMessage(id: 2, pinned: true);
+      notifier.state = notifier.state.copyWith(messages: [messageA, messageB]);
+
+      notifier.updateMessagePinned('1', false);
+
+      final state = container.read(channelDetailProvider);
+      expect(state.messages.firstWhere((msg) => msg.id == 1).isPinned,
+          isFalse);
+      expect(state.messages.firstWhere((msg) => msg.id == 2).isPinned,
+          isTrue,
+          reason: '取消置顶只能影响目标消息');
+    });
+
+    test('updateMessagePinned is a no-op when messageId is not found', () {
+      final messageA = _buildMessage(id: 1, pinned: false);
+      notifier.state = notifier.state.copyWith(messages: [messageA]);
+
+      notifier.updateMessagePinned('9999', true);
+
+      final state = container.read(channelDetailProvider);
+      expect(state.messages.single.isPinned, isFalse,
+          reason: '不存在的 id 不得误改现有消息');
     });
 
     test('removeMessageLocally drops the targeted message only', () {
