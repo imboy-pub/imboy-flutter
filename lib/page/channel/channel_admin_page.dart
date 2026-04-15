@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/model/channel_model.dart';
 
 /// 管理员信息
 class _AdminInfo {
@@ -113,10 +114,13 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
 
     if (result != null && result.isNotEmpty && mounted) {
       try {
+        // 默认角色：编辑（editor=1）。历史实现误传 0（=subscriber/none），
+        // 导致「添加管理员」实际把用户角色置为非订阅者，功能等同于没做。
+        // 角色映射见 ChannelUserRole.toInt()：editor=1, admin=2, creator=3。
         final success = await _api.addAdmin(
           widget.channelId,
           result,
-          0, // 默认角色：编辑
+          ChannelUserRole.editor.toInt(),
         );
         if (success && mounted) {
           ScaffoldMessenger.of(
