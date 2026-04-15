@@ -20,6 +20,19 @@ bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
 
 
+/// 取显示名首字符作为头像占位。
+///
+/// 比 `name.substring(0, 1)` 更安全：
+/// - 先 trim，空 / 纯空白 → 返回 '?' 占位符（避免 RangeError）
+/// - 按 Unicode 码点（rune）而非 UTF-16 code unit 截取，emoji 等
+///   代理对字符不会被切半造成 `RangeError: Invalid UTF-16 code unit`
+String avatarInitialFrom(String name) {
+  final trimmed = name.trim();
+  if (trimmed.isEmpty) return '?';
+  final firstRune = trimmed.runes.first;
+  return String.fromCharCode(firstRune);
+}
+
 /// 已知的 MomentTimelineChangedEvent action 常量（仅用于 refresh 策略决策）。
 /// 新增 action 请同步扩展 shouldRefreshDetailOnEvent / shouldRefreshFeedOnEvent。
 const String momentActionNew = 'moment_new';

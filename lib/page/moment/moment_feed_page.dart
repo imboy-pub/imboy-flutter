@@ -365,11 +365,7 @@ class _MomentCard extends StatelessWidget {
                       ? cachedImageProvider(authorAvatar, w: 36)
                       : null,
                   child: authorAvatar.isEmpty
-                      ? Text(
-                          displayName.isNotEmpty
-                              ? displayName.substring(0, 1)
-                              : '?',
-                        )
+                      ? Text(avatarInitialFrom(displayName))
                       : null,
                 ),
                 const SizedBox(width: 10),

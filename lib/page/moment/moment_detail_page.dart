@@ -377,11 +377,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                             ? cachedImageProvider(authorAvatar, w: 36)
                             : null,
                         child: authorAvatar.isEmpty
-                            ? Text(
-                                displayName.isNotEmpty
-                                    ? displayName.substring(0, 1)
-                                    : '?',
-                              )
+                            ? Text(avatarInitialFrom(displayName))
                             : null,
                       ),
                       const SizedBox(width: 10),
@@ -510,9 +506,20 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       );
                       final canReply =
                           currentUid.isNotEmpty && userId != currentUid;
+                      final userAvatar =
+                          parseModelString(comment['user_avatar']);
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         onTap: canReply ? () => _startReplyTo(comment) : null,
+                        leading: CircleAvatar(
+                          radius: 16,
+                          backgroundImage: userAvatar.isNotEmpty
+                              ? cachedImageProvider(userAvatar, w: 32)
+                              : null,
+                          child: userAvatar.isEmpty
+                              ? Text(avatarInitialFrom(commentDisplayName))
+                              : null,
+                        ),
                         title: Text(commentDisplayName),
                         subtitle: Text(subtitleText),
                         trailing: canRemoveComment
