@@ -150,6 +150,12 @@ class ChatPageState extends ConsumerState<ChatPage>
   // @提及相关状态
   List<String> _currentMentionIds = [];
 
+  /// F5-A slice-4b: 当前用户在本群的角色
+  /// - 0：未加载 / 非群聊 / 查无记录（decision 内核按"非 admin"安全默认处理）
+  /// - 1..5：对齐后端 include/group_role.hrl
+  /// 异步加载见 `_preloadCurrentUserGroupRole`；失败静默回退 0，不阻塞聊天
+  int _currentUserGroupRole = 0;
+
   // 消息发送防抖
   DateTime? _lastSendTime;
   // 输入状态发送防抖
@@ -384,6 +390,25 @@ class ChatPageState extends ConsumerState<ChatPage>
             .read(mentionNotifierProvider.notifier)
             .loadGroupMembers(widget.peerId),
       );
+      // F5-A slice-4b: 预加载当前用户群角色，供 @所有人权限判定使用
+      unawaited(_preloadCurrentUserGroupRole());
+    }
+  }
+
+  /// F5-A slice-4b: 异步加载当前用户在本群的角色
+  ///
+  /// 失败静默回退 0 —— decision 内核 `canMentionAll(0) == false` 安全默认
+  /// 拒绝 @所有人，保证不会因加载失败而错误放行。
+  Future<void> _preloadCurrentUserGroupRole() async {
+    try {
+      final me = await GroupMemberRepo().findByUserId(
+        widget.peerId,
+        UserRepoLocal.to.currentUid,
+      );
+      if (!mounted || me == null) return;
+      _currentUserGroupRole = me.role;
+    } catch (e) {
+      debugPrint('[chat] preload group role failed: $e');
     }
   }
 
@@ -525,6 +550,8 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 禁言事件监听
   StreamSubscription<UserMutedEvent>? _ssUserMuted;
   StreamSubscription<UserUnmutedEvent>? _ssUserUnmuted;
+  // F5-A slice-4b-2: 群角色变更事件订阅（管理员变更当前用户角色时刷新 @所有人 权限）
+  StreamSubscription<GroupMemberRoleEvent>? _ssGroupMemberRole;
   Timer? _muteExpiryTimer;
   bool _isMuted = false;
   String? _muteMessage;
@@ -616,6 +643,22 @@ class ChatPageState extends ConsumerState<ChatPage>
           debugPrint('UserUnmutedEvent listener error: $error');
         },
       );
+
+      // F5-A slice-4b-2: 订阅群成员角色变更，实时刷新 @所有人 权限
+      // 只响应"本群 + 当前用户"的变更，其他群成员改角色与本页无关
+      if (_chatType == MessageFlowType.c2g) {
+        _ssGroupMemberRole = AppEventBus.on<GroupMemberRoleEvent>().listen(
+          (event) {
+            if (!mounted) return;
+            if (event.gid.toString() != widget.peerId) return;
+            if (event.userId.toString() != UserRepoLocal.to.currentUid) return;
+            _currentUserGroupRole = event.role;
+          },
+          onError: (error) {
+            debugPrint('GroupMemberRoleEvent listener error: $error');
+          },
+        );
+      }
     } catch (e) {
       debugPrint('_setupEventListeners error: $e');
     }
@@ -677,6 +720,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 取消禁言事件监听
     _ssUserMuted?.cancel();
     _ssUserUnmuted?.cancel();
+    _ssGroupMemberRole?.cancel();
     _muteExpiryTimer?.cancel();
 
     // 取消网络状态监听
@@ -1267,10 +1311,28 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 构建 metadata，包含 mentions 字段（仅群聊）
     final metadata = _withBurnMetadata({'peer_id': widget.peerId});
 
-    // 如果是群聊且有 @提及，添加 mentions 字段
-    if (_chatType == MessageFlowType.c2g && _currentMentionIds.isNotEmpty) {
-      metadata['mentions'] = _currentMentionIds;
-      // 发送后清空 @提及 列表
+    // F5-A slice-4a/4b/4c: mentions 决策闸门
+    // - slice-4c: 从 _currentMentionIds 中提取 'all' 字面量信号
+    //   （chat_input.dart:425 对 @所有人注入 'all'，对齐后端 mention_ds.erl）
+    // - DeniedAll：非 admin 尝试 @所有人 → toast 提示 + 阻塞发送
+    if (_chatType == MessageFlowType.c2g) {
+      final split = splitMentionIds(_currentMentionIds);
+      final resolve = resolveMentionsForSend(
+        isGroupChat: true,
+        role: _currentUserGroupRole,
+        uids: split.uids,
+        isAllSelected: split.isAllSelected,
+      );
+      switch (resolve) {
+        case MentionResolveOk(:final mentions):
+          metadata['mentions'] = mentions;
+        case MentionResolveEmpty():
+          break;
+        case MentionResolveDeniedAll():
+          EasyLoading.showToast(t.mention.mentionAllDenied);
+          _currentMentionIds = [];
+          return false;
+      }
       _currentMentionIds = [];
     }
 

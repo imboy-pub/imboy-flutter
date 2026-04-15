@@ -1646,3 +1646,4 @@ mention:
   fromChat: "From chat"
   viewContext: "View context"
   mentionCount: "$count new mentions"
+  mentionAllDenied: "Only admins can @everyone"

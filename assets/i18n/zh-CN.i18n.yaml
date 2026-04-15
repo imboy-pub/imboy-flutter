@@ -1659,3 +1659,4 @@ mention:
   fromChat: "来自聊天"
   viewContext: "查看上下文"
   mentionCount: "$count 条新提及"
+  mentionAllDenied: "仅管理员可以 @所有人"

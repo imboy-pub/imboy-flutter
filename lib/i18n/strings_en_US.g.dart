@@ -1655,6 +1655,7 @@ class _TranslationsMentionEnUs extends TranslationsMentionZhCn {
 	@override String get fromChat => 'From chat';
 	@override String get viewContext => 'View context';
 	@override String mentionCount({required Object count}) => '${count} new mentions';
+	@override String get mentionAllDenied => 'Only admins can @everyone';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -3185,6 +3186,7 @@ extension on TranslationsEnUs {
 			'mention.fromChat' => 'From chat',
 			'mention.viewContext' => 'View context',
 			'mention.mentionCount' => ({required Object count}) => '${count} new mentions',
+			'mention.mentionAllDenied' => 'Only admins can @everyone',
 			_ => null,
 		};
 	}

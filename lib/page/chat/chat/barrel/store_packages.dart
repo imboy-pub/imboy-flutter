@@ -14,6 +14,7 @@ export 'package:imboy/store/api/attachment_api.dart';
 export 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 export 'package:imboy/store/repository/message_repo_sqlite.dart';
 export 'package:imboy/store/repository/user_repo_local.dart';
+export 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 
 // UI 组件
 export 'package:imboy/component/ui/network_failure_tips.dart';

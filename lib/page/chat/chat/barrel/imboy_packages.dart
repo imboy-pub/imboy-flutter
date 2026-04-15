@@ -17,6 +17,7 @@ export 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
 export 'package:imboy/page/chat/widget/message_action_menu.dart';
 export 'package:imboy/page/chat/widget/chat_background_manager.dart';
 export 'package:imboy/page/chat/widget/chat_message_list.dart';
+export 'package:imboy/page/chat/mention_all_rules.dart';
 
 // 服务
 export 'package:imboy/config/init.dart';

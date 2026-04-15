@@ -4730,6 +4730,9 @@ class TranslationsMentionZhCn {
 
 	/// zh-CN: '$count 条新提及'
 	String mentionCount({required Object count}) => '${count} 条新提及';
+
+	/// zh-CN: '仅管理员可以 @所有人'
+	String get mentionAllDenied => '仅管理员可以 @所有人';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -6270,6 +6273,7 @@ extension on Translations {
 			'mention.fromChat' => '来自聊天',
 			'mention.viewContext' => '查看上下文',
 			'mention.mentionCount' => ({required Object count}) => '${count} 条新提及',
+			'mention.mentionAllDenied' => '仅管理员可以 @所有人',
 			_ => null,
 		};
 	}
