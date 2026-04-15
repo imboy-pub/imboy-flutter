@@ -213,6 +213,30 @@ final class GroupMemberMuteEvent extends AppEvent {
   }
 }
 
+/// 群资料编辑的广播事件（S2C `group_edit`）
+///
+/// 触发时机：群主/管理员通过 `POST /group/edit` 更新群资料
+/// （title / avatar / introduction / type / join_limit /
+/// content_limit / member_max / status 等）后，后端向所有群成员广播。
+///
+/// `updates` 是本次变更的字段集合（已剔除 gid），可能为空（表示仅
+/// 触发「群被编辑」信号，无实际字段变化，一般不会出现，仅为兼容）。
+final class GroupEditEvent extends AppEvent {
+  /// 群 ID
+  final int gid;
+
+  /// 本次变更的字段集合（不含 gid）
+  final Map<String, dynamic> updates;
+
+  const GroupEditEvent({required this.gid, required this.updates});
+
+  @override
+  List<Object?> get props => [gid, updates];
+
+  @override
+  String toString() => 'GroupEditEvent(gid: $gid, updates: $updates)';
+}
+
 // ============================================================================
 // 消息相关事件
 // ============================================================================

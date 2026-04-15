@@ -30,6 +30,8 @@ import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_member_mute_s2c.dart';
+import 'package:imboy/service/group_edit_s2c.dart';
+import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
@@ -205,6 +207,10 @@ class MessageS2CService {
         case 'group_member_mute':
           // 群管理员禁言群成员的广播（slice-1：仅通知，不更新 Repo）
           await _handleGroupMemberMute(payloadMap);
+          break;
+        case 'group_edit':
+          // 群资料被编辑的广播（slice-3：写本地 GroupRepo + 广播事件）
+          await _handleGroupEdit(payloadMap);
           break;
         case 'user_unmuted':
           // 当前用户禁言解除
@@ -789,6 +795,28 @@ class MessageS2CService {
           );
         }
     }
+  }
+
+  /// 处理群资料编辑的广播（S2C `group_edit`）
+  ///
+  /// Action: group_edit
+  /// 触发时机：群主/管理员通过 `POST /group/edit` 更新群资料后，后端向
+  /// 所有群成员广播。本地需要：
+  ///   1. 更新 `GroupRepo` 对应行（只写白名单字段，由 Repo.update 自身过滤）
+  ///   2. 广播 `GroupEditEvent`，让 UI（群详情、会话列表、聊天页头部等）
+  ///      响应式刷新
+  ///
+  /// 使用 `handleGroupEditS2C` 做分派，便于单测覆盖分支（见
+  /// `test/service/group_edit_s2c_handler_test.dart`）。
+  static Future<void> _handleGroupEdit(Map<String, dynamic> payload) async {
+    await handleGroupEditS2C(
+      payload: payload,
+      applyUpdate: (gid, updates) =>
+          GroupRepo().update(gid.toString(), updates),
+      fireEvent: (gid, updates) =>
+          AppEventBus.fire(GroupEditEvent(gid: gid, updates: updates)),
+      log: iPrint,
+    );
   }
 
   /// 处理用户禁言解除通知
