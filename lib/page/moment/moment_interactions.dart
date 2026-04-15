@@ -1,3 +1,4 @@
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 可见性 wire-protocol 常量（与后端契约）：
@@ -18,6 +19,48 @@ bool momentVisibilityRequiresAllowUids(int visibility) =>
 /// 当前可见性是否需要用户填写「不给谁看」黑名单 UID 列表。
 bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
+
+/// 从 moment payload 读取 `visibility` 并做类型/范围守卫。
+///
+/// - 数值或字符串数字都能解析（后端/缓存/旧版本载荷可能混用）
+/// - 缺失 / null / 未知 code / 负数 → 回退到 [momentVisibilityFriends]
+///
+/// 选「仅好友」作为安全默认：脏数据绝不意外把私密帖升级为公开。
+int parseMomentVisibility(Map<String, dynamic> moment) {
+  // Sentinel -99 avoids collision with legit public=0; parseModelInt's
+  // default 0 would otherwise make missing/null fields render as public.
+  final code = parseModelInt(moment['visibility'], defaultValue: -99);
+  switch (code) {
+    case momentVisibilityPublic:
+    case momentVisibilityFriends:
+    case momentVisibilityPrivate:
+    case momentVisibilityAllowList:
+    case momentVisibilityDenyList:
+      return code;
+    default:
+      return momentVisibilityFriends;
+  }
+}
+
+/// 将 visibility wire 码映射到已有的 i18n 显示标签。
+///
+/// 未知 code 回退到「仅好友」标签，与 parseMomentVisibility 安全默认对齐。
+String momentVisibilityLabel(int code, Translations t) {
+  switch (code) {
+    case momentVisibilityPublic:
+      return t.momentsVisibilityPublic;
+    case momentVisibilityFriends:
+      return t.momentsVisibilityFriends;
+    case momentVisibilityPrivate:
+      return t.momentsVisibilityPrivate;
+    case momentVisibilityAllowList:
+      return t.momentsVisibilityPartial;
+    case momentVisibilityDenyList:
+      return t.momentsVisibilityExclude;
+    default:
+      return t.momentsVisibilityFriends;
+  }
+}
 
 
 /// 为 media item 选择用于预览/缩略图展示的 URL。

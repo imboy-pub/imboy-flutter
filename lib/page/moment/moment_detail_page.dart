@@ -338,6 +338,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final likeCount = parseModelInt(stats['like_count']);
     final commentCount = parseModelInt(stats['comment_count']);
     final media = normalizeMedia(post['media']);
+    final visibility = parseMomentVisibility(post);
+    final isPublicVisibility = visibility == momentVisibilityPublic;
 
     return Scaffold(
       appBar: AppBar(
@@ -445,6 +447,22 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       const SizedBox(width: 4),
                       Text(formatMomentCountLabel(commentCount)),
                       const Spacer(),
+                      if (!isPublicVisibility) ...[
+                        const Icon(
+                          Icons.lock_outline,
+                          size: 14,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          momentVisibilityLabel(visibility, context.t),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
                       Text(
                         createdAt,
                         style: const TextStyle(
