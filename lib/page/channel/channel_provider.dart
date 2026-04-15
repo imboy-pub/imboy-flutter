@@ -251,9 +251,15 @@ class ChannelListNotifier extends _$ChannelListNotifier {
   }
 
   /// 订阅频道
+  ///
+  /// 走 ChannelService.subscribeChannel 以保证：
+  ///   1. 调用 /v1/channel/:id/subscribe
+  ///   2. 拉取频道信息并 saveChannel 到本地
+  ///   3. saveSubscription 写入本地订阅表
+  /// 旧实现直连 _api.subscribe 会跳过 2/3 步，导致冷启动后订阅关系丢失。
   Future<bool> subscribeChannel(String channelId) async {
     try {
-      final success = await _api.subscribe(channelId);
+      final success = await ChannelService.to.subscribeChannel(channelId);
       if (success) {
         await loadSubscribedChannels();
       }
@@ -264,9 +270,12 @@ class ChannelListNotifier extends _$ChannelListNotifier {
   }
 
   /// 取消订阅频道
+  ///
+  /// 走 ChannelService.unsubscribeChannel 以保证本地 deleteSubscription
+  /// 同步执行，避免订阅表里残留孤儿行（getTotalUnreadCount 仍把它计入 SUM）。
   Future<bool> unsubscribeChannel(String channelId) async {
     try {
-      final success = await _api.unsubscribe(channelId);
+      final success = await ChannelService.to.unsubscribeChannel(channelId);
       if (success) {
         await loadSubscribedChannels();
       }
