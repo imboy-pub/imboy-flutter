@@ -332,10 +332,14 @@ class ChannelRepo {
   // ==================== 更新最后消息信息 ====================
 
   /// 更新最后已读消息 ID
+  ///
+  /// [messageId] 为字符串形式（由上层 API/事件透传），写入前归一化为 int
+  /// 以匹配列类型 `INTEGER`。非数字字符串会被视为 null 不写入此字段，避免
+  /// 向整数列写入文本污染读回解析。
   Future<int> updateLastMessageId(String channelId, String messageId) async {
     return await _db.update(
       subscriptionTableName,
-      {lastMessageId: messageId},
+      {lastMessageId: parseModelNullableInt(messageId)},
       where: '$subChannelId = ?',
       whereArgs: [channelId],
     );
@@ -348,7 +352,7 @@ class ChannelRepo {
       {
         unreadCount: 0,
         lastReadAt: DateTime.now().millisecondsSinceEpoch,
-        lastMessageId: messageId,
+        lastMessageId: parseModelNullableInt(messageId),
       },
       where: '$subChannelId = ?',
       whereArgs: [channelId],
