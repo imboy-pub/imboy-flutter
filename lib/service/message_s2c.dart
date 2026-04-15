@@ -31,7 +31,9 @@ import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
+import 'package:imboy/service/group_member_role_s2c.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
@@ -211,6 +213,10 @@ class MessageS2CService {
         case 'group_edit':
           // 群资料被编辑的广播（slice-3：写本地 GroupRepo + 广播事件）
           await _handleGroupEdit(payloadMap);
+          break;
+        case 'group_member_role':
+          // 群成员角色变更广播（slice-4：写本地 group_member.role + 广播事件）
+          await _handleGroupMemberRole(payloadMap);
           break;
         case 'user_unmuted':
           // 当前用户禁言解除
@@ -815,6 +821,42 @@ class MessageS2CService {
           GroupRepo().update(gid.toString(), updates),
       fireEvent: (gid, updates) =>
           AppEventBus.fire(GroupEditEvent(gid: gid, updates: updates)),
+      log: iPrint,
+    );
+  }
+
+  /// 处理群成员角色变更的广播（S2C `group_member_role`）
+  ///
+  /// Action: group_member_role
+  /// 触发时机：后端 `group_member_logic:role_change_notice/4` 将角色变更广播
+  /// 给群内所有成员。本地需要：
+  ///   1. 更新 `group_member.role`（含 updated_at 若后端带）
+  ///   2. 广播 `GroupMemberRoleEvent`，让 UI（群成员列表 / 聊天页头部权限按钮）
+  ///      响应式刷新
+  ///
+  /// 使用 `handleGroupMemberRoleS2C` 做分派（见
+  /// `test/service/group_member_role_s2c_handler_test.dart`）。
+  static Future<void> _handleGroupMemberRole(
+    Map<String, dynamic> payload,
+  ) async {
+    await handleGroupMemberRoleS2C(
+      payload: payload,
+      applyRoleUpdate: (gid, userId, role, updatedAt) async {
+        final json = <String, dynamic>{'role': role};
+        if (updatedAt > 0) {
+          json['updated_at'] = updatedAt;
+        }
+        await GroupMemberRepo().update(gid.toString(), userId.toString(), json);
+      },
+      fireEvent: (p) => AppEventBus.fire(GroupMemberRoleEvent(
+        gid: p.gid,
+        userId: p.userId,
+        role: p.role,
+        roleText: p.roleText,
+        nickname: p.nickname,
+        adminNickname: p.adminNickname,
+        updatedAt: p.updatedAt,
+      )),
       log: iPrint,
     );
   }

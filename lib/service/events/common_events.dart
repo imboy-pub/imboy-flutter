@@ -213,6 +213,55 @@ final class GroupMemberMuteEvent extends AppEvent {
   }
 }
 
+/// 群成员角色变更的广播事件（S2C `group_member_role`）
+///
+/// 触发时机：群主/副群主/管理员通过 `update_role` 接口修改某成员的角色后，
+/// 后端向群内所有成员广播。
+///
+/// 角色常量（对齐后端 `group_role.hrl`）：
+///   1=普通成员 / 2=嘉宾 / 3=管理员 / 4=群主 / 5=副群主
+final class GroupMemberRoleEvent extends AppEvent {
+  /// 群 ID
+  final int gid;
+
+  /// 被修改角色的成员 ID
+  final int userId;
+
+  /// 新角色（1..5）
+  final int role;
+
+  /// 角色文案（"普通成员" / "管理员" / ...）
+  final String roleText;
+
+  /// 被修改成员昵称
+  final String nickname;
+
+  /// 执行操作的管理员昵称
+  final String adminNickname;
+
+  /// 后端变更时间戳（秒级 epoch，0 表示后端未带）
+  final int updatedAt;
+
+  const GroupMemberRoleEvent({
+    required this.gid,
+    required this.userId,
+    required this.role,
+    required this.roleText,
+    required this.nickname,
+    required this.adminNickname,
+    required this.updatedAt,
+  });
+
+  @override
+  List<Object?> get props =>
+      [gid, userId, role, roleText, nickname, adminNickname, updatedAt];
+
+  @override
+  String toString() =>
+      'GroupMemberRoleEvent(gid: $gid, userId: $userId, role: $role, '
+      'roleText: $roleText, adminNickname: $adminNickname)';
+}
+
 /// 群资料编辑的广播事件（S2C `group_edit`）
 ///
 /// 触发时机：群主/管理员通过 `POST /group/edit` 更新群资料
