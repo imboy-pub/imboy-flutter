@@ -116,12 +116,12 @@ void main() {
     });
 
     test('add truncates text exceeding maxTextLength', () async {
-      await service.save(uid, []);
+      await service.save(uid, ['seed']);
       final tooLong = 'x' * (QuickReplyService.maxTextLength + 50);
       await service.add(uid, tooLong);
       final list = await service.load(uid);
-      expect(list, hasLength(1));
-      expect(list.first.length, QuickReplyService.maxTextLength);
+      expect(list, hasLength(2));
+      expect(list.last.length, QuickReplyService.maxTextLength);
     });
 
     test('add rejects when list already at maxEntries', () async {

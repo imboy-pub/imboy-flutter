@@ -15,8 +15,34 @@ import 'package:imboy/component/chat/mention_text_formatter.dart';
 import 'package:imboy/component/chat/mention_provider.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
+import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+
+/// 生产环境的 [QuickReplyStore] 适配器：桥接项目已有的 [StorageService]。
+///
+/// 不放在 `quick_reply_service.dart` 里是为了保持 domain 层纯测试（不
+/// 传递依赖 StorageService → config/init.dart 等单例链）。
+class _StorageServiceQuickReplyStore implements QuickReplyStore {
+  const _StorageServiceQuickReplyStore();
+
+  @override
+  Future<String?> getString(String key) async {
+    final v = StorageService.to.getString(key);
+    return v.isEmpty ? null : v;
+  }
+
+  @override
+  Future<void> setString(String key, String value) async {
+    await StorageService.to.setString(key, value);
+  }
+
+  @override
+  Future<void> remove(String key) async {
+    await StorageService.to.remove(key);
+  }
+}
 
 /// 键盘高度观察者
 class _KeyboardObserver with WidgetsBindingObserver {
@@ -141,16 +167,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _showMentionList = ValueNotifier<bool>(false); // 是否显示@提及列表
   final _mentionKeyword = ValueNotifier<String>(''); // @提及搜索关键词
   final _showQuickReplies = ValueNotifier<bool>(false); // 是否显示快捷回复
-  final _quickReplies = ValueNotifier<List<String>>([
-    t.quickReplyOk,
-    t.quickReplyReceived,
-    t.quickReplyThanks,
-    t.understood,
-    t.quickReplyWait,
-    t.noProblem,
-    t.onMyWay,
-    t.quickReplyOkThanks,
-  ]); // 快捷回复列表
+  // S2: 快捷回复短语支持用户持久化自定义。初始为空，initState 从
+  // QuickReplyService 加载（未持久化时自动填入 _defaultQuickReplies）。
+  final _quickReplies = ValueNotifier<List<String>>(const []);
 
   /// @提及数据（用于跟踪文本中的 @提及）
   MentionData _mentionData = const MentionData();
@@ -185,6 +204,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _initFocusListener();
     _initMentionListener();
 
+    // S2: 加载用户自定义快捷回复；未持久化时返回内置默认
+    unawaited(_loadQuickReplies());
+
     _setupKeyboardListener();
 
     // 如果是群聊，加载群成员列表
@@ -203,6 +225,38 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         .read(mentionNotifierProvider.notifier)
         .loadGroupMembers(widget.peerId);
     _membersLoaded = true;
+  }
+
+  /// S2: 默认快捷回复（i18n；首次使用时填充到存储）
+  List<String> get _defaultQuickReplies => [
+        t.quickReplyOk,
+        t.quickReplyReceived,
+        t.quickReplyThanks,
+        t.understood,
+        t.quickReplyWait,
+        t.noProblem,
+        t.onMyWay,
+        t.quickReplyOkThanks,
+      ];
+
+  /// S2: 从 StorageService 加载当前用户的快捷回复列表到 _quickReplies。
+  /// 未持久化时返回内置默认。适配器 [_StorageServiceQuickReplyStore] 桥接
+  /// 项目已有的 [StorageService]。
+  Future<void> _loadQuickReplies() async {
+    final uid = UserRepoLocal.to.currentUid;
+    if (uid.isEmpty) {
+      // 未登录态安全兜底，避免 key=quick_replies: 污染
+      _quickReplies.value = _defaultQuickReplies;
+      return;
+    }
+    final service = QuickReplyService(
+      const _StorageServiceQuickReplyStore(),
+      defaults: _defaultQuickReplies,
+    );
+    final list = await service.load(uid);
+    if (mounted) {
+      _quickReplies.value = list;
+    }
   }
 
   /// 初始化文本控制器（监听输入变化、控制发送按钮显隐）
