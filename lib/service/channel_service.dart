@@ -642,6 +642,13 @@ class ChannelService {
       // 获取并保存频道信息
       final channel = await _api.getChannel(channelId);
       if (channel == null) return;
+      // handleChannelUpdated 已有等价守卫：id=0 表示后端载荷异常/sentinel，
+      // 写库会污染 channel/channel_subscription 两张表并可能触发 UI 跳转到
+      // 无效详情页。
+      if (channel.id == 0) {
+        iPrint('ChannelService: 忽略 channel.id=0 的订阅通知 - $channelId');
+        return;
+      }
 
       await _repo.saveChannel(channel);
       await _repo.saveSubscription(
@@ -805,7 +812,9 @@ class ChannelService {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
       final channel = await _api.getChannel(channelId);
-      if (channel != null) {
+      // 与 handleChannelSubscribed 对齐：id=0 视为无效载荷，不写库但仍广播
+      // 事件让 UI 感知（邀请已接受，但频道详情拉取失败由用户手动重试）。
+      if (channel != null && channel.id != 0) {
         await _repo.saveChannel(channel);
       }
       AppEventBus.fire(

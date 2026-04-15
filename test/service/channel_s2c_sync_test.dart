@@ -321,6 +321,40 @@ void main() {
     );
 
     test(
+      'handleChannelSubscribed ignores channel with id=0 (sentinel)',
+      () async {
+        // 服务端/API 异常时可能返回 id=0 的空壳 channel，防止污染本地表。
+        final api = _FakeChannelApi(
+          channelById: {
+            '3001': _channel(id: 0, name: 'Invalid'),
+          },
+        );
+        final repo = _FakeChannelRepo();
+        final service = ChannelService.forTest(
+          api: api,
+          repo: repo,
+          messageRepo: _FakeChannelMessageRepo(),
+        );
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+
+        await service.handleChannelSubscribed({'channel_id': '3001'});
+
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
+
+        expect(repo.savedChannels, isEmpty,
+            reason: 'id=0 不得写入 channel 表');
+        expect(repo.savedSubscriptions, isEmpty,
+            reason: 'id=0 不得写入 channel_subscription 表');
+        expect(events, isEmpty,
+            reason: '无效载荷不得广播 channel_subscribed 误导 UI');
+      },
+    );
+
+    test(
       'handleChannelSubscribed is idempotent - no duplicate event on repeat',
       () async {
         final api = _FakeChannelApi(
