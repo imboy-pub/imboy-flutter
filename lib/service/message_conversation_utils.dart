@@ -94,4 +94,21 @@ int computeMentionUnreadIncrement({
 ///
 /// Unread counts and mention_unread are NOT affected; only the
 /// user-visible notification pop-up is suppressed.
-bool shouldSuppressNotification({required int isMuted}) => isMuted > 0;
+///
+/// ## slice-8 (C6 接线) — `@` 穿透
+///
+/// [isMentioned] 可选参数（默认 false，保持向后兼容）。
+/// 当用户被定向 `@`（含 `@所有人`）时，DND 应被**穿透** → 正常通知。
+/// 对齐 `shouldNotifyGroupMessage`（slice-5）以及微信 / TG / Slack 行业共识。
+///
+/// 判定顺序：
+///   1. `isMentioned == true` → 不抑制（穿透）
+///   2. `isMuted > 0` → 抑制
+///   3. 否则 → 不抑制
+bool shouldSuppressNotification({
+  required int isMuted,
+  bool isMentioned = false,
+}) {
+  if (isMentioned) return false;
+  return isMuted > 0;
+}

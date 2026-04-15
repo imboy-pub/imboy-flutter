@@ -189,4 +189,44 @@ void main() {
       expect(shouldSuppressNotification(isMuted: -1), isFalse);
     });
   });
+
+  /// slice-8 (C6 接线) RED-24：DND 下 @ 穿透。
+  ///
+  /// 对齐 `shouldNotifyGroupMessage`（slice-5）契约：
+  ///   - 即便 `isMuted > 0`，若消息 @ 了当前用户，仍应通知
+  ///   - 这是行业共识（微信 / TG / Slack）：免打扰不屏蔽定向呼叫
+  ///   - 参数 `isMentioned` 默认 false 以保持向后兼容
+  group('shouldSuppressNotification — @ 穿透（slice-8）', () {
+    test('isMuted>0 + isMentioned=true → false（不抑制，让通知穿透）', () {
+      expect(
+        shouldSuppressNotification(isMuted: 1, isMentioned: true),
+        isFalse,
+        reason: '定向 @ 呼叫应穿透 DND',
+      );
+      expect(
+        shouldSuppressNotification(isMuted: 999, isMentioned: true),
+        isFalse,
+      );
+    });
+
+    test('isMuted>0 + isMentioned=false → true（保留抑制）', () {
+      expect(
+        shouldSuppressNotification(isMuted: 1, isMentioned: false),
+        isTrue,
+      );
+    });
+
+    test('isMuted=0 + isMentioned=true → false（无 DND，正常通知）', () {
+      expect(
+        shouldSuppressNotification(isMuted: 0, isMentioned: true),
+        isFalse,
+      );
+    });
+
+    test('isMentioned 参数省略 → 向后兼容（等价 false）', () {
+      // 既有调用方不传 isMentioned 时行为不变
+      expect(shouldSuppressNotification(isMuted: 1), isTrue);
+      expect(shouldSuppressNotification(isMuted: 0), isFalse);
+    });
+  });
 }
