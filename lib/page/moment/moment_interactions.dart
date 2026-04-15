@@ -20,6 +20,38 @@ bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
 
 
+/// 提取评论的 `reply_to_uid` 字段，并 trim + 类型守卫。
+///
+/// - 非 String 值（null / int / Map）统一返回空字符串（防御脏数据）
+/// - trim 后仍为空返回空字符串
+/// - 调用方用空串表示「这不是一条回复评论」
+String extractCommentReplyTarget(Map<String, dynamic> comment) {
+  final raw = comment['reply_to_uid'];
+  if (raw is! String) return '';
+  final trimmed = raw.trim();
+  return trimmed;
+}
+
+/// 将回复评论组装成显示文本：`{prefix}{replyToName}{separator}{content}`。
+///
+/// i18n 决策留在 UI 层，helper 只做字符串拼接与 trim 守卫：
+/// - [replyToName] 为空或纯空白 → 返回原 [content]
+/// - 否则 → 返回 `{prefix}{trimmed-name}{separator}{content}`
+///
+/// 用例：
+/// - zh-CN：prefix = '回复 @', separator = '：'
+/// - en-US：prefix = 'Reply @', separator = ': '
+String composeReplyDisplay({
+  required String content,
+  required String replyToName,
+  required String prefix,
+  required String separator,
+}) {
+  final trimmedName = replyToName.trim();
+  if (trimmedName.isEmpty) return content;
+  return '$prefix$trimmedName$separator$content';
+}
+
 /// 当前用户是否有权删除这条 moment。
 ///
 /// 规则：`author_uid == currentUid`，且两者都非空白。

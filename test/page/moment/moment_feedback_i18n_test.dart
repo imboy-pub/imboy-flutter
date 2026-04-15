@@ -43,5 +43,20 @@ void main() {
       expect(zh.momentsUploadFailed, isNotEmpty);
       expect(en.momentsUploadFailed, isNotEmpty);
     });
+
+    test('momentsReplyPrefix is populated in zh/en', () {
+      expect(zh.momentsReplyPrefix, isNotEmpty);
+      expect(en.momentsReplyPrefix, isNotEmpty);
+    });
+
+    test('momentsReplySeparator is populated in zh/en', () {
+      expect(zh.momentsReplySeparator, isNotEmpty);
+      expect(en.momentsReplySeparator, isNotEmpty);
+    });
+
+    test('momentsReplyingTo is populated in zh/en', () {
+      expect(zh.momentsReplyingTo, isNotEmpty);
+      expect(en.momentsReplyingTo, isNotEmpty);
+    });
   });
 }

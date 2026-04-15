@@ -36,6 +36,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   bool _sendingComment = false;
   bool _loadingMoreComments = false;
 
+  // Reply target — empty string means "top-level comment"
+  String _replyToUid = '';
+  String _replyToName = '';
+
   StreamSubscription<MomentTimelineChangedEvent>? _momentSub;
 
   @override
@@ -165,6 +169,29 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     Navigator.of(context).pop(true);
   }
 
+  void _startReplyTo(Map<String, dynamic> comment) {
+    final uid = parseModelString(comment['user_id']);
+    if (uid.isEmpty) return;
+    final remark = parseModelString(comment['user_remark']);
+    final nickname = parseModelString(comment['user_nickname']);
+    final name = resolveMomentDisplayName(
+      remark: remark,
+      nickname: nickname,
+      uid: uid,
+    );
+    setState(() {
+      _replyToUid = uid;
+      _replyToName = name;
+    });
+  }
+
+  void _cancelReply() {
+    setState(() {
+      _replyToUid = '';
+      _replyToName = '';
+    });
+  }
+
   Future<void> _addComment() async {
     if (_sendingComment) return;
     final content = _commentController.text.trim();
@@ -173,7 +200,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     setState(() {
       _sendingComment = true;
     });
-    final added = await _api.addComment(widget.momentId, content: content);
+    final replyToUid = _replyToUid;
+    final added = await _api.addComment(
+      widget.momentId,
+      content: content,
+      replyToUid: replyToUid.isEmpty ? null : replyToUid,
+    );
     if (!mounted) return;
     if (added == null) {
       setState(() {
@@ -189,6 +221,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     setState(() {
       _sendingComment = false;
       _comments = [enrichedComment, ..._comments];
+      _replyToUid = '';
+      _replyToName = '';
       final post = _moment;
       if (post != null) {
         _moment = applyCommentCountDelta(post, 1);
@@ -447,15 +481,36 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       final commentContent = parseModelString(
                         comment['content'],
                       );
+                      final replyToUid = extractCommentReplyTarget(comment);
+                      final replyToName = replyToUid.isEmpty
+                          ? ''
+                          : resolveMomentDisplayName(
+                              remark: parseModelString(
+                                comment['reply_to_remark'],
+                              ),
+                              nickname: parseModelString(
+                                comment['reply_to_nickname'],
+                              ),
+                              uid: replyToUid,
+                            );
+                      final subtitleText = composeReplyDisplay(
+                        content: commentContent,
+                        replyToName: replyToName == '?' ? '' : replyToName,
+                        prefix: context.t.momentsReplyPrefix,
+                        separator: context.t.momentsReplySeparator,
+                      );
                       final canRemoveComment = canDeleteComment(
                         comment,
                         post,
                         currentUid: currentUid,
                       );
+                      final canReply =
+                          currentUid.isNotEmpty && userId != currentUid;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
+                        onTap: canReply ? () => _startReplyTo(comment) : null,
                         title: Text(commentDisplayName),
-                        subtitle: Text(commentContent),
+                        subtitle: Text(subtitleText),
                         trailing: canRemoveComment
                             ? IconButton(
                                 onPressed: () => _deleteComment(commentId),
@@ -491,33 +546,67 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           ),
           SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _commentController,
-                      decoration: InputDecoration(
-                        hintText: context.t.momentsWriteComment,
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_replyToUid.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            context.t.momentsReplyingTo
+                                .replaceAll('{name}', _replyToName),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: _cancelReply,
+                          child: const Padding(
+                            padding: EdgeInsets.all(4),
+                            child: Icon(Icons.close, size: 16),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: _sendingComment ? null : _addComment,
-                    child: _sendingComment
-                        ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(context.t.momentsSend),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _commentController,
+                          decoration: InputDecoration(
+                            hintText: context.t.momentsWriteComment,
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton(
+                        onPressed: _sendingComment ? null : _addComment,
+                        child: _sendingComment
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(context.t.momentsSend),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
