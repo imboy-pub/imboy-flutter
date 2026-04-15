@@ -1176,3 +1176,27 @@ ALTER TABLE conversation ADD COLUMN is_muted INTEGER NOT NULL DEFAULT 0;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 18;
+
+-- VERSION: 19
+-- DESC: 群成员禁言 - 为 group_member 表添加 mute_until 字段
+--       对齐后端 priv/migrations/00000051_group_member_mute.sql。
+--       语义：解除禁言的 epoch 毫秒；NULL 表示未被禁言（**不得**退化为 now，
+--       否则旧数据会被误判为禁言中）。
+-- ============================================================
+
+-- ============================================================
+-- Step 1: 为 group_member 表新增 mute_until 列（默认 NULL = 未禁言）
+-- ============================================================
+ALTER TABLE group_member ADD COLUMN mute_until INTEGER DEFAULT NULL;
+
+-- ============================================================
+-- Step 2: 部分索引（仅为禁言中的成员建索引，降低存储与维护成本）
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_group_member_mute_until
+  ON group_member(group_id, user_id)
+  WHERE mute_until IS NOT NULL;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 19;

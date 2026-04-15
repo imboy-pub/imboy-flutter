@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
@@ -25,6 +26,7 @@ class GroupMemberRepo {
   static String status = 'status'; //
   static String updatedAt = 'updated_at'; //
   static String createdAt = 'created_at'; //
+  static String muteUntil = GroupMemberColumns.muteUntil; // 禁言解除 ms，null 表示未禁言
 
   // 公共列名列表
   static final List<String> defaultColumns = [
@@ -44,7 +46,34 @@ class GroupMemberRepo {
     GroupMemberRepo.status,
     GroupMemberRepo.updatedAt,
     GroupMemberRepo.createdAt,
+    GroupMemberRepo.muteUntil,
   ];
+
+  /// 构建 insert map —— 抽成纯静态方法便于单元测试，不依赖 db 单例。
+  /// 注意 `mute_until` 必须被显式声明（即使为 null），否则 SQLite insert
+  /// 会走 DDL 的 DEFAULT NULL，虽然结果相同但写入意图会被丢失；更重要的是
+  /// 契约测试需要断言字段存在。
+  static Map<String, dynamic> toInsertMap(GroupMemberModel obj) {
+    return {
+      GroupMemberRepo.id: obj.id,
+      GroupMemberRepo.groupId: obj.groupId,
+      GroupMemberRepo.userId: obj.userId,
+      GroupMemberRepo.nickname: obj.nickname,
+      GroupMemberRepo.avatar: obj.avatar,
+      GroupMemberRepo.sign: obj.sign,
+      GroupMemberRepo.account: obj.account,
+      GroupMemberRepo.inviteCode: obj.inviteCode,
+      GroupMemberRepo.alias: obj.alias,
+      GroupMemberRepo.description: obj.description,
+      GroupMemberRepo.role: obj.role,
+      GroupMemberRepo.isJoin: obj.isJoin,
+      GroupMemberRepo.joinMode: obj.joinMode,
+      GroupMemberRepo.status: obj.status,
+      GroupMemberRepo.updatedAt: obj.updatedAt,
+      GroupMemberRepo.createdAt: obj.createdAt,
+      GroupMemberRepo.muteUntil: obj.muteUntilMs,
+    };
+  }
 
   final SqliteService _db = SqliteService.to;
 
@@ -80,24 +109,7 @@ class GroupMemberRepo {
     GroupMemberModel obj, {
     Transaction? txn,
   }) async {
-    Map<String, dynamic> insert = {
-      GroupMemberRepo.id: obj.id,
-      GroupMemberRepo.groupId: obj.groupId,
-      GroupMemberRepo.userId: obj.userId,
-      GroupMemberRepo.nickname: obj.nickname,
-      GroupMemberRepo.avatar: obj.avatar,
-      GroupMemberRepo.sign: obj.sign,
-      GroupMemberRepo.account: obj.account,
-      GroupMemberRepo.inviteCode: obj.inviteCode,
-      GroupMemberRepo.alias: obj.alias,
-      GroupMemberRepo.description: obj.description,
-      GroupMemberRepo.role: obj.role,
-      GroupMemberRepo.isJoin: obj.isJoin,
-      GroupMemberRepo.joinMode: obj.joinMode,
-      GroupMemberRepo.status: obj.status,
-      GroupMemberRepo.updatedAt: obj.updatedAt,
-      GroupMemberRepo.createdAt: obj.createdAt,
-    };
+    final Map<String, dynamic> insert = toInsertMap(obj);
     if (txn != null) {
       await txn.insert(GroupMemberRepo.tableName, insert);
     } else {

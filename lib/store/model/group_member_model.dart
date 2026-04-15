@@ -1,6 +1,6 @@
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
-import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 
 /// 群组成员数据模型
 /// 纯数据模型，不包含响应式状态
@@ -23,6 +23,12 @@ class GroupMemberModel {
   int updatedAt;
   int createdAt;
 
+  /// 禁言解除时间戳（毫秒，epoch）。
+  /// `null` 表示未禁言 —— **不能**退化为 now，否则所有旧数据都会被误判为禁言中。
+  /// 来源：后端 `group_member.mute_until TIMESTAMPTZ NULL`，下发形态有 3 种：
+  /// null / int ms / RFC3339 字符串。
+  int? muteUntilMs;
+
   // 如果需要选中状态，应在 UI 层使用 Set 或 State 管理
   // bool selected = false;
 
@@ -43,42 +49,70 @@ class GroupMemberModel {
     this.status = 1, // '状态: -1 删除  0 禁用  1 启用
     this.updatedAt = 0,
     required this.createdAt,
+    this.muteUntilMs,
   });
+
+  /// 当前是否处于禁言状态。
+  /// 语义：`muteUntilMs > nowMs` 才算禁言中；等于或小于都视为已解禁。
+  /// [nowMs] 传入以支持测试；不传则使用当前墙钟。
+  bool isMuted({int? nowMs}) {
+    final until = muteUntilMs;
+    if (until == null) return false;
+    final now = nowMs ?? DateTime.now().millisecondsSinceEpoch;
+    return until > now;
+  }
+
+  /// 解析 `mute_until` 字段为毫秒时间戳。
+  /// - null / 缺失 → null
+  /// - int → 原样返回
+  /// - String → `DateTime.tryParse`，失败返回 null（不抛异常）
+  static int? _parseMuteUntil(Object? raw) {
+    if (raw == null) return null;
+    if (raw is int) return raw;
+    if (raw is String) {
+      final dt = DateTime.tryParse(raw);
+      return dt?.millisecondsSinceEpoch;
+    }
+    return null;
+  }
 
   factory GroupMemberModel.fromJson(Map<String, dynamic> json) {
     // iPrint("GroupMemberModel.fromJson ${json.toString()}");
     return GroupMemberModel(
-      id: parseModelInt(json[GroupMemberRepo.id]),
-      groupId: parseModelInt(json[GroupMemberRepo.groupId]),
-      userId: parseModelInt(json[GroupMemberRepo.userId]),
-      nickname: parseModelString(json[GroupMemberRepo.nickname]),
-      avatar: parseModelString(json[GroupMemberRepo.avatar]),
-      sign: parseModelString(json[GroupMemberRepo.sign]),
-      account: parseModelString(json[GroupMemberRepo.account]),
-      inviteCode: parseModelString(json[GroupMemberRepo.inviteCode]),
-      alias: parseModelString(json[GroupMemberRepo.alias]),
-      description: parseModelString(json[GroupMemberRepo.description]),
-      role: parseModelInt(json[GroupMemberRepo.role], defaultValue: 1),
-      isJoin: parseModelInt(json[GroupMemberRepo.isJoin], defaultValue: 1),
-      joinMode: parseModelString(json[GroupMemberRepo.joinMode]),
-      status: parseModelInt(json[GroupMemberRepo.status], defaultValue: 1),
-      updatedAt: DateTimeHelper.parseTimestamp(json[GroupMemberRepo.updatedAt]),
-      createdAt: DateTimeHelper.parseTimestamp(json[GroupMemberRepo.createdAt]),
+      id: parseModelInt(json[GroupMemberColumns.id]),
+      groupId: parseModelInt(json[GroupMemberColumns.groupId]),
+      userId: parseModelInt(json[GroupMemberColumns.userId]),
+      nickname: parseModelString(json[GroupMemberColumns.nickname]),
+      avatar: parseModelString(json[GroupMemberColumns.avatar]),
+      sign: parseModelString(json[GroupMemberColumns.sign]),
+      account: parseModelString(json[GroupMemberColumns.account]),
+      inviteCode: parseModelString(json[GroupMemberColumns.inviteCode]),
+      alias: parseModelString(json[GroupMemberColumns.alias]),
+      description: parseModelString(json[GroupMemberColumns.description]),
+      role: parseModelInt(json[GroupMemberColumns.role], defaultValue: 1),
+      isJoin: parseModelInt(json[GroupMemberColumns.isJoin], defaultValue: 1),
+      joinMode: parseModelString(json[GroupMemberColumns.joinMode]),
+      status: parseModelInt(json[GroupMemberColumns.status], defaultValue: 1),
+      updatedAt: DateTimeHelper.parseTimestamp(json[GroupMemberColumns.updatedAt]),
+      createdAt: DateTimeHelper.parseTimestamp(json[GroupMemberColumns.createdAt]),
+      muteUntilMs: _parseMuteUntil(json[GroupMemberColumns.muteUntil]),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    GroupMemberRepo.id: id,
-    GroupMemberRepo.groupId: groupId,
-    GroupMemberRepo.userId: userId,
-    GroupMemberRepo.inviteCode: inviteCode,
-    GroupMemberRepo.alias: alias,
-    GroupMemberRepo.description: description,
-    GroupMemberRepo.role: role,
-    GroupMemberRepo.isJoin: isJoin,
-    GroupMemberRepo.joinMode: joinMode,
-    GroupMemberRepo.status: status,
-    GroupMemberRepo.updatedAt: updatedAt,
-    GroupMemberRepo.createdAt: createdAt,
+    GroupMemberColumns.id: id,
+    GroupMemberColumns.groupId: groupId,
+    GroupMemberColumns.userId: userId,
+    GroupMemberColumns.inviteCode: inviteCode,
+    GroupMemberColumns.alias: alias,
+    GroupMemberColumns.description: description,
+    GroupMemberColumns.role: role,
+    GroupMemberColumns.isJoin: isJoin,
+    GroupMemberColumns.joinMode: joinMode,
+    GroupMemberColumns.status: status,
+    GroupMemberColumns.updatedAt: updatedAt,
+    GroupMemberColumns.createdAt: createdAt,
+    // 始终输出 mute_until（可为 null），便于上层以 containsKey 判断字段存在性。
+    GroupMemberColumns.muteUntil: muteUntilMs,
   };
 }

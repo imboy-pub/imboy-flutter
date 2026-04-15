@@ -94,15 +94,28 @@ class GroupMemberApi extends HttpClient {
     return resp.ok;
   }
 
-  /// 禁言群成员
-  /// [gid] 群组ID
-  /// [userId] 成员用户ID
-  /// [duration] 禁言时长（秒），0 表示取消禁言
+  /// 禁言群成员。
+  /// [gid] 群组 ID。
+  /// [userId] 成员用户 ID。
+  /// [duration] 禁言时长（秒），**必须 > 0**。
+  ///
+  /// 注意：后端 `group_member_handler.erl` 在 `Duration =< 0` 时直接返回错误
+  /// `"禁言时长必须大于0"`，不会做解禁处理。取消禁言需要单独的后端 action
+  /// （TODO：后端提供 `unmute` 后开放独立方法），此方法不再承担该语义。
+  ///
+  /// 抛出 [ArgumentError]：当 `duration <= 0` 时；不发送任何网络请求。
   Future<bool> mute({
     required String gid,
     required String userId,
     required int duration,
   }) async {
+    if (duration <= 0) {
+      throw ArgumentError.value(
+        duration,
+        'duration',
+        '禁言时长必须大于 0 秒；取消禁言请使用独立的 unmute action',
+      );
+    }
     IMBoyHttpResponse resp = await post(
       API.groupMemberMute,
       data: {'gid': gid, 'user_id': userId, 'duration': duration},

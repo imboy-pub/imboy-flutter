@@ -29,6 +29,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
@@ -200,6 +201,10 @@ class MessageS2CService {
         case 'user_muted':
           // 当前用户被禁言（消息频率异常等）
           await _handleUserMuted(payloadMap);
+          break;
+        case 'group_member_mute':
+          // 群管理员禁言群成员的广播（slice-1：仅通知，不更新 Repo）
+          await _handleGroupMemberMute(payloadMap);
           break;
         case 'user_unmuted':
           // 当前用户禁言解除
@@ -737,6 +742,52 @@ class MessageS2CService {
         t.youAreMuted,
         duration: const Duration(seconds: 3),
       );
+    }
+  }
+
+  /// 处理群成员被禁言通知（S2C `group_member_mute`）
+  ///
+  /// Action: group_member_mute
+  /// 触发时机：群管理员 / 群主禁言某成员后，后端向群内所有成员广播。
+  ///
+  /// ⚠️ **已知后端契约缺口**（slice-1 scope）：
+  /// `imboy/src/logic/group_member_logic.erl:260-266` 的 Payload 未包含
+  /// 被禁言成员的 `user_id`，因此这里无法精确更新本地
+  /// `group_member.mute_until` 行。当前仅通过事件总线 + toast 做群内通知。
+  /// 待后端补 `<<"user_id">> => UserId` 后再在此处接入 Repo 写入。
+  static Future<void> _handleGroupMemberMute(
+    Map<String, dynamic> payload,
+  ) async {
+    final parsed = parseGroupMemberMutePayload(payload);
+    switch (parsed) {
+      case GroupMemberMuteParseError(:final reason):
+        iPrint('[S2C] group_member_mute 解析失败: $reason, payload=$payload');
+        return;
+      case GroupMemberMutePayload(
+          :final gid,
+          :final muteUntilMs,
+          :final remainingSeconds,
+          :final durationText,
+          :final adminNickname,
+        ):
+        iPrint(
+          '[S2C] group_member_mute: gid=$gid, muteUntilMs=$muteUntilMs, '
+          'remainingSec=$remainingSeconds, admin=$adminNickname',
+        );
+        AppEventBus.fire(GroupMemberMuteEvent(
+          gid: gid,
+          muteUntilMs: muteUntilMs,
+          remainingSeconds: remainingSeconds,
+          durationText: durationText,
+          adminNickname: adminNickname,
+        ));
+        // 仅在有可读文案时展示轻量提示，避免骚扰
+        if (durationText.isNotEmpty && adminNickname.isNotEmpty) {
+          EasyLoading.showInfo(
+            '$adminNickname 禁言群成员 $durationText',
+            duration: const Duration(seconds: 2),
+          );
+        }
     }
   }
 

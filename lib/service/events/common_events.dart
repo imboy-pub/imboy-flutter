@@ -163,6 +163,56 @@ final class UserUnmutedEvent extends AppEvent {
   List<Object?> get props => [conversationId];
 }
 
+/// 群成员被管理员禁言的广播事件（S2C `group_member_mute`）
+///
+/// 触发时机：群管理员 / 群主禁言某成员后，后端向群内所有成员广播。
+///
+/// ⚠️ **已知契约缺口**：后端 `group_member_logic:mute_notice/4` 未在
+/// payload 中携带被禁言成员的 `user_id`（见
+/// `lib/service/group_member_mute_s2c.dart` 顶部注释），因此本事件目前
+/// 无法精确定位到具体成员行。UI 层仅做「群内通知」展示；Repo 级 mute_until
+/// 写入在 slice-2 或后端补 `user_id` 后再接入。
+final class GroupMemberMuteEvent extends AppEvent {
+  /// 群 ID
+  final int gid;
+
+  /// 禁言到期时间戳（毫秒）
+  final int muteUntilMs;
+
+  /// 剩余秒数
+  final int remainingSeconds;
+
+  /// 可读禁言时长文案，如 "10分钟"
+  final String durationText;
+
+  /// 执行禁言的管理员昵称
+  final String adminNickname;
+
+  const GroupMemberMuteEvent({
+    required this.gid,
+    required this.muteUntilMs,
+    required this.remainingSeconds,
+    required this.durationText,
+    required this.adminNickname,
+  });
+
+  @override
+  List<Object?> get props => [
+        gid,
+        muteUntilMs,
+        remainingSeconds,
+        durationText,
+        adminNickname,
+      ];
+
+  @override
+  String toString() {
+    return 'GroupMemberMuteEvent(gid: $gid, muteUntilMs: $muteUntilMs, '
+        'remainingSeconds: $remainingSeconds, durationText: $durationText, '
+        'adminNickname: $adminNickname)';
+  }
+}
+
 // ============================================================================
 // 消息相关事件
 // ============================================================================
