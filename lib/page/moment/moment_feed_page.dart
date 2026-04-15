@@ -46,8 +46,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _momentSub = AppEventBus.on<MomentTimelineChangedEvent>().listen((_) {
-      _refresh();
+    _momentSub = AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
+      if (shouldRefreshFeedOnEvent(event.action)) {
+        _refresh();
+      }
     });
     _loadInitial();
   }
@@ -216,20 +218,18 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   }
 
   Future<void> _openCreate() async {
-    final result = await context.push(AppRoutes.momentCreate);
-    if (!mounted) return;
-    if (result == true) {
-      await _refresh();
-    }
+    // Create page fires a MomentTimelineChangedEvent('moment_new') on success;
+    // the eventbus subscription handles the refresh. Avoid calling _refresh
+    // here to prevent a redundant double-fetch.
+    await context.push(AppRoutes.momentCreate);
   }
 
   Future<void> _openDetail(String momentId) async {
     if (momentId.isEmpty) return;
-    final result = await context.push('${AppRoutes.momentRoot}/$momentId');
-    if (!mounted) return;
-    if (result == true) {
-      await _refresh();
-    }
+    // Detail page's _deleteMoment fires a moment_deleted event on success;
+    // eventbus subscription handles the refresh. The push result is no longer
+    // consulted to avoid double-fetch.
+    await context.push('${AppRoutes.momentRoot}/$momentId');
   }
 
 

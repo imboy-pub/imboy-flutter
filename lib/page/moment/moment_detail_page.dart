@@ -46,7 +46,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   void initState() {
     super.initState();
     _momentSub = AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-      if (event.momentId == widget.momentId || event.momentId.isEmpty) {
+      if (shouldRefreshDetailOnEvent(
+        action: event.action,
+        eventMomentId: event.momentId,
+        viewingMomentId: widget.momentId,
+      )) {
         _loadAll();
       }
     });

@@ -20,6 +20,46 @@ bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
 
 
+/// 已知的 MomentTimelineChangedEvent action 常量（仅用于 refresh 策略决策）。
+/// 新增 action 请同步扩展 shouldRefreshDetailOnEvent / shouldRefreshFeedOnEvent。
+const String momentActionNew = 'moment_new';
+const String momentActionDeleted = 'moment_deleted';
+const String momentActionUpdated = 'moment_updated';
+
+/// 详情页是否应在收到该 timeline 事件时重新拉取。
+///
+/// 规则：
+/// - `moment_deleted`：永远 false。若删的是当前页，`_deleteMoment()` 已
+///   主动 pop；若删的是别的页面，详情页不关心。
+/// - `moment_new`：永远 false（别处发新帖与当前详情无关，避免白刷）。
+/// - 其它 action（包括未来扩展）：
+///     · eventMomentId 匹配 viewing → true
+///     · eventMomentId 为空（广播信号）且 viewing 非空 → true
+///     · 其它（不同的 moment id）→ false
+/// - viewing 空串：永远 false（防御，页面未完成加载时不触发）。
+bool shouldRefreshDetailOnEvent({
+  required String action,
+  required String eventMomentId,
+  required String viewingMomentId,
+}) {
+  if (viewingMomentId.isEmpty) return false;
+  if (action == momentActionDeleted) return false;
+  if (action == momentActionNew) return false;
+  if (eventMomentId.isEmpty) return true;
+  return eventMomentId == viewingMomentId;
+}
+
+/// Feed 页是否应在收到该 timeline 事件时重新拉取第一页。
+///
+/// 对已知的 moment_new / moment_deleted / moment_updated 返回 true；
+/// 空 action 防御返回 false，避免未来误定义空 action 无差别刷新。
+bool shouldRefreshFeedOnEvent(String action) {
+  if (action.isEmpty) return false;
+  return action == momentActionNew ||
+      action == momentActionDeleted ||
+      action == momentActionUpdated;
+}
+
 /// 提取评论的 `reply_to_uid` 字段，并 trim + 类型守卫。
 ///
 /// - 非 String 值（null / int / Map）统一返回空字符串（防御脏数据）
