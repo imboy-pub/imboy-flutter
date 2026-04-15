@@ -85,14 +85,23 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
       _processingIds.add(invitationId);
     });
 
-    final success = accept
-        ? await ChannelService.to.acceptInvitation(invitationId)
-        : await ChannelService.to.rejectInvitation(invitationId);
-    if (!mounted) return;
+    bool success = false;
+    try {
+      success = accept
+          ? await ChannelService.to.acceptInvitation(invitationId)
+          : await ChannelService.to.rejectInvitation(invitationId);
+    } finally {
+      // 无论成功、失败还是抛异常，都必须解锁按钮。旧实现无 try-finally，
+      // ChannelService 方法若外层抛异常，invitationId 会永久滞留在
+      // _processingIds 中，用户整个会话都无法再点该邀请。
+      if (mounted) {
+        setState(() {
+          _processingIds.remove(invitationId);
+        });
+      }
+    }
 
-    setState(() {
-      _processingIds.remove(invitationId);
-    });
+    if (!mounted) return;
 
     if (!success) {
       ScaffoldMessenger.of(
