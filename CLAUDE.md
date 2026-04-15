@@ -145,6 +145,25 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
   - **写 false 语义**：覆盖写（非 remove），保留"显式关闭 vs 从未设置"的语义区分
   - 调用侧接线：`StorageService.to.getBool` / `setBool` 注入即可落 shared_preferences
   - 10 个单测全绿（键格式 1 + 读 4 + 写 4 + 集成闭环 1）
+- **群消息免打扰 slice-7 落地（C6 UI 开关 Widget）**：新增 `lib/page/group/group_detail/group_notice_disabled_tile.dart`
+  - **受控模式**：`value` + `onChanged` 由父层持有（通常读写 `group_notice_config.dart`）→ UI 与持久化解耦，纯 widget test 不触发 `StorageService.to` 单例
+  - **iOS 原生感**（对齐 `DESIGN.md` 第 10 章）：`Switch.adaptive` 自动在 iOS 渲染 Cupertino 样式；`ListTile` 默认 ≥ 48pt 满足 44pt 触达
+  - **整行可点**：`ListTile.onTap` 与 `Switch.onChanged` 双入口，点 label 文字也能切换
+  - `onChanged=null` → `ListTile.enabled=false` + `Switch.onChanged=null` 整行禁用
+  - 6 个 widget 测试全绿（渲染 3 + 交互 3）
+- **群消息免打扰 slice-8 落地（C6 @ 穿透接线）**：扩展 `shouldSuppressNotification` + 接线 `message.dart`
+  - **架构发现**：原计划新建通知闸门，但 `shouldSuppressNotification`（C7-α-2）已管控会话级 DND，仅缺 @ 穿透 → 选**扩展现有函数**而非并行实现，避免冗余架构
+  - `shouldSuppressNotification({isMuted, isMentioned = false})`：`isMentioned=true` 压过 `isMuted > 0`，对齐微信 / TG / Slack 行业共识
+  - `isMentioned` 默认 `false` → 既有调用方零影响（向后兼容）
+  - 接线：`message.dart:904-910` 用 `mentionIncrement > 0` 作为 isMentioned 信号（`computeMentionUnreadIncrement` 在第 833 行已算好）
+  - 4 个新单测全绿（`isMuted>0 + 被@` / `isMuted>0 + 非@` / `isMuted=0 + 被@` / 参数省略向后兼容）
+- **群成员禁言 slice-2 补丁（role=5 副群主权限）**：修复 `canMuteGroupMember` 数值比较陷阱
+  - **发现的 bug**：原实现 `targetRole < currentRole` 假设 role 数值单调，但后端 `include/group_role.hrl` 的权威序是 `member(1) < guest(2) < admin(3) < vice_owner(5) < owner(4)` —— **数值 5 > 4 但权威 5 < 4**
+  - **修复**：引入 `_authorityRank(role)` 显式归一化映射（owner→5, vice→4, admin→3, guest→2, member→1, 其他→0）
+  - 规则改为 "权威严格高于目标" (`currentRank > targetRank`)，自然退化原 admin/owner 行为
+  - 新增 7 个副群主场景测试全绿（副群主可禁言 admin/guest/member；不可禁言 owner / 同级副群主 / 自己；owner 可禁副群主；admin/member/guest 不可禁副群主）
+  - slice-4 登记的 TODO 归账完结
+  - 全量 26/26 绿（原 19 + 新 7）；slice-5~8 + E4 合计 80 测全绿
 
 ### 2026-04-10
 - **新增设计规范文档**：`imboyapp/DESIGN.md` 确立 iOS 原生感设计方向
