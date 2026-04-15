@@ -1,5 +1,18 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 将点赞/评论计数格式化为显示标签。
+///
+/// - 0 或负数返回空字符串（调用方决定是否完全不渲染图标右侧文本）
+/// - 1..999 返回原始数字字符串
+/// - 1000+ 返回 "999+"，防止 feed / detail 行布局被大数撑破
+///
+/// 与微信朋友圈的显示规则一致。
+String formatMomentCountLabel(int count) {
+  if (count <= 0) return '';
+  if (count > 999) return '999+';
+  return '$count';
+}
+
 /// 从列表中移除所有 `id == momentId` 的条目，返回一个新的 list。
 ///
 /// - 原 list 不会被修改

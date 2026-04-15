@@ -408,11 +408,11 @@ class _MomentCard extends StatelessWidget {
                       color: liked ? Colors.red : null,
                     ),
                   ),
-                  Text('$likeCount'),
+                  Text(formatMomentCountLabel(likeCount)),
                   const SizedBox(width: 12),
                   const Icon(Icons.chat_bubble_outline, size: 20),
                   const SizedBox(width: 4),
-                  Text('$commentCount'),
+                  Text(formatMomentCountLabel(commentCount)),
                   const Spacer(),
                   Text(
                     createdAt,
