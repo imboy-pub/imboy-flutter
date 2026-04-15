@@ -334,10 +334,14 @@ class _MomentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = parseModelString(item['content']);
     final authorNickname = parseModelString(item['author_nickname']);
+    final authorRemark = parseModelString(item['author_remark']);
     final authorAvatar = parseModelString(item['author_avatar']);
     final authorUid = parseModelString(item['author_uid']);
-    final displayName =
-        authorNickname.isNotEmpty ? authorNickname : authorUid;
+    final displayName = resolveMomentDisplayName(
+      remark: authorRemark,
+      nickname: authorNickname,
+      uid: authorUid,
+    );
     final createdAt = parseModelString(item['created_at']);
     final liked = parseModelBool(item['liked']);
     final stats = item['stats'] is Map

@@ -1,5 +1,21 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 按优先级 `remark > nickname > uid > '?'` 解析显示名。
+///
+/// 与 ContactModel.title() 规则对齐：本地联系人备注胜过对方自取昵称，
+/// 昵称胜过裸 uid，全部为空时回退到占位符 '?' 避免 substring(0,1) 炸。
+/// 空白字符串视为空。
+String resolveMomentDisplayName({
+  required String remark,
+  required String nickname,
+  required String uid,
+}) {
+  if (remark.trim().isNotEmpty) return remark;
+  if (nickname.trim().isNotEmpty) return nickname;
+  if (uid.trim().isNotEmpty) return uid;
+  return '?';
+}
+
 /// 将点赞/评论计数格式化为显示标签。
 ///
 /// - 0 或负数返回空字符串（调用方决定是否完全不渲染图标右侧文本）

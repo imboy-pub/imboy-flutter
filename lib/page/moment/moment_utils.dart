@@ -32,6 +32,7 @@ Future<List<Map<String, dynamic>>> enrichItemsWithAuthor(
     final contact = await contactRepo.findByUid(uid);
     final info = <String, String>{
       'nickname': contact?.nickname ?? '',
+      'remark': contact?.remark ?? '',
       'avatar': contact?.avatar ?? '',
     };
     cache[uid] = info;
@@ -48,6 +49,7 @@ Future<List<Map<String, dynamic>>> enrichItemsWithAuthor(
     final info = await lookup(uid);
     final copy = Map<String, dynamic>.from(item);
     copy['author_nickname'] = info['nickname'] ?? '';
+    copy['author_remark'] = info['remark'] ?? '';
     copy['author_avatar'] = info['avatar'] ?? '';
     enriched.add(copy);
   }
@@ -77,6 +79,7 @@ Future<List<Map<String, dynamic>>> enrichCommentsWithUser(
     final contact = await contactRepo.findByUid(uid);
     final info = <String, String>{
       'nickname': contact?.nickname ?? '',
+      'remark': contact?.remark ?? '',
       'avatar': contact?.avatar ?? '',
     };
     cache[uid] = info;
@@ -93,6 +96,7 @@ Future<List<Map<String, dynamic>>> enrichCommentsWithUser(
     final info = await lookup(uid);
     final copy = Map<String, dynamic>.from(c);
     copy['user_nickname'] = info['nickname'] ?? '';
+    copy['user_remark'] = info['remark'] ?? '';
     copy['user_avatar'] = info['avatar'] ?? '';
     enriched.add(copy);
   }

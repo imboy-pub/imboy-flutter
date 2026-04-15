@@ -283,9 +283,13 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final currentUid = currentUidOrEmpty();
     final authorUid = parseModelString(post['author_uid']);
     final authorNickname = parseModelString(post['author_nickname']);
+    final authorRemark = parseModelString(post['author_remark']);
     final authorAvatar = parseModelString(post['author_avatar']);
-    final displayName =
-        authorNickname.isNotEmpty ? authorNickname : authorUid;
+    final displayName = resolveMomentDisplayName(
+      remark: authorRemark,
+      nickname: authorNickname,
+      uid: authorUid,
+    );
     final canDeletePost = currentUid == authorUid;
     final content = parseModelString(post['content']);
     final createdAt = parseModelString(post['created_at']);
@@ -433,9 +437,13 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       final userId = parseModelString(comment['user_id']);
                       final userNickname =
                           parseModelString(comment['user_nickname']);
-                      final commentDisplayName = userNickname.isNotEmpty
-                          ? userNickname
-                          : userId;
+                      final userRemark =
+                          parseModelString(comment['user_remark']);
+                      final commentDisplayName = resolveMomentDisplayName(
+                        remark: userRemark,
+                        nickname: userNickname,
+                        uid: userId,
+                      );
                       final commentContent = parseModelString(
                         comment['content'],
                       );
