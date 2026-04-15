@@ -119,6 +119,12 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
     await _refresh();
   }
 
+  /// S2-c: 拖拽排序回调，透传 Flutter ReorderableListView 的原始参数。
+  Future<void> _handleReorder(int oldIndex, int newIndex) async {
+    await _service.reorder(_uid, oldIndex, newIndex);
+    await _refresh();
+  }
+
   /// 弹 Material 对话框，接收用户输入文本，取消时返回 null。
   Future<String?> _promptText({
     required String title,
@@ -175,14 +181,18 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                     ),
                   ),
                 )
-              : ListView.separated(
+              : ReorderableListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _replies.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  onReorder: _handleReorder,
+                  // 关键：关闭默认长按拖拽，避免和 Dismissible 的滑动手势冲突；
+                  // 拖拽通过显式的 ReorderableDragStartListener handle 触发。
+                  buildDefaultDragHandles: false,
                   itemBuilder: (context, index) {
                     final text = _replies[index];
+                    final itemKey = ValueKey('quickReply-$index-$text');
                     return Dismissible(
-                      key: ValueKey('quickReply-$index-$text'),
+                      key: itemKey,
                       direction: DismissDirection.endToStart,
                       background: Container(
                         color: Theme.of(context).colorScheme.error,
@@ -200,10 +210,32 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 20),
-                          tooltip: t.edit,
-                          onPressed: () => _handleEdit(index),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, size: 20),
+                              tooltip: t.edit,
+                              onPressed: () => _handleEdit(index),
+                            ),
+                            // S2-c: 拖拽手柄，仅在此图标上长按/拖动才触发 reorder
+                            ReorderableDragStartListener(
+                              index: index,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8),
+                                child: Icon(
+                                  Icons.drag_handle,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         onTap: () => _handleEdit(index),
                       ),

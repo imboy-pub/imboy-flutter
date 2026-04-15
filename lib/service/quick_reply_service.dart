@@ -90,6 +90,34 @@ class QuickReplyService {
     await save(uid, next);
   }
 
+  /// 按 Flutter [ReorderableListView.onReorder] 约定重排序。
+  ///
+  /// 约定：
+  /// - `newIndex` 是移除前的目标位置（Flutter 规范，后面在此索引之前
+  ///   插入移动后的项）。内部处理 `newIndex > oldIndex` 时需减 1 的
+  ///   情况，调用方直接透传 UI 回调的原始参数即可。
+  /// - `oldIndex == newIndex`：不持久化
+  /// - `oldIndex` 越界（负数或 >= length）：不操作
+  /// - `newIndex` 越界：截断到 `[0, length]` 区间
+  /// - 空列表：不操作
+  Future<void> reorder(String uid, int oldIndex, int newIndex) async {
+    final current = await load(uid);
+    if (current.isEmpty) return;
+    if (oldIndex < 0 || oldIndex >= current.length) return;
+    // Flutter convention: if newIndex > oldIndex, the consumer must subtract 1
+    // because the item is first removed then inserted.
+    int adjusted = newIndex;
+    if (adjusted > oldIndex) adjusted -= 1;
+    // Clamp to valid bounds after adjustment.
+    if (adjusted < 0) adjusted = 0;
+    if (adjusted > current.length - 1) adjusted = current.length - 1;
+    if (adjusted == oldIndex) return; // no-op
+    final next = [...current];
+    final item = next.removeAt(oldIndex);
+    next.insert(adjusted, item);
+    await save(uid, next);
+  }
+
   /// 按索引更新；越界/空串无操作；超长截断。
   Future<void> updateAt(String uid, int index, String text) async {
     final trimmed = text.trim();

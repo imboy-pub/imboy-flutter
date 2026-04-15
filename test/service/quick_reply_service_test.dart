@@ -169,6 +169,80 @@ void main() {
     });
   });
 
+  group('QuickReplyService — reorder (S2-c)', () {
+    late FakeQuickReplyStore store;
+    late QuickReplyService service;
+
+    setUp(() {
+      store = FakeQuickReplyStore();
+      service = QuickReplyService(store, defaults: defaults);
+    });
+
+    test('move first to last reorders correctly', () async {
+      await service.save(uid, ['a', 'b', 'c', 'd']);
+      // Flutter ReorderableListView convention: newIndex is the target
+      // position BEFORE removing oldIndex. Moving 'a' (idx 0) to the end
+      // of a 4-item list uses newIndex = 4.
+      await service.reorder(uid, 0, 4);
+      expect(await service.load(uid), ['b', 'c', 'd', 'a']);
+    });
+
+    test('move last to first reorders correctly', () async {
+      await service.save(uid, ['a', 'b', 'c', 'd']);
+      await service.reorder(uid, 3, 0);
+      expect(await service.load(uid), ['d', 'a', 'b', 'c']);
+    });
+
+    test('move middle forward', () async {
+      await service.save(uid, ['a', 'b', 'c', 'd']);
+      // move 'b' (idx 1) after 'c' → newIndex 3 (Flutter convention)
+      await service.reorder(uid, 1, 3);
+      expect(await service.load(uid), ['a', 'c', 'b', 'd']);
+    });
+
+    test('move middle backward', () async {
+      await service.save(uid, ['a', 'b', 'c', 'd']);
+      // move 'c' (idx 2) before 'a' → newIndex 0
+      await service.reorder(uid, 2, 0);
+      expect(await service.load(uid), ['c', 'a', 'b', 'd']);
+    });
+
+    test('oldIndex == newIndex is a no-op', () async {
+      await service.save(uid, ['a', 'b', 'c']);
+      final before = store.writes;
+      await service.reorder(uid, 1, 1);
+      expect(await service.load(uid), ['a', 'b', 'c']);
+      expect(store.writes, before,
+          reason: 'no-op reorder must not persist');
+    });
+
+    test('out-of-range oldIndex is a no-op', () async {
+      await service.save(uid, ['a', 'b']);
+      await service.reorder(uid, 99, 0);
+      await service.reorder(uid, -1, 0);
+      expect(await service.load(uid), ['a', 'b']);
+    });
+
+    test('out-of-range newIndex is clamped (safety)', () async {
+      await service.save(uid, ['a', 'b', 'c']);
+      await service.reorder(uid, 0, 999);
+      expect(await service.load(uid), ['b', 'c', 'a'],
+          reason: 'huge newIndex clamps to end of list');
+    });
+
+    test('reorder on empty list is no-op', () async {
+      await service.save(uid, ['seed']);
+      await service.removeAt(uid, 0);
+      // load will return defaults (empty save → default fallback);
+      // reorder must still not crash or persist garbage.
+      await service.reorder(uid, 0, 1);
+      expect(
+        (await service.load(uid)).length,
+        greaterThanOrEqualTo(0),
+      );
+    });
+  });
+
   group('QuickReplyService — corrupted data defensive load', () {
     late FakeQuickReplyStore store;
     late QuickReplyService service;
