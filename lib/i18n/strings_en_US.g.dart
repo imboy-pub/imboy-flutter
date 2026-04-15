@@ -578,6 +578,13 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get muteNotifications => 'Mute notifications';
 	@override String get muteNotificationsHint => 'You won\'t get new-message alerts; unread counts still show in the list';
 	@override String get revokeExpired => 'Can\'t revoke messages older than 2 minutes';
+	@override String get quickReplyManage => 'Manage quick replies';
+	@override String get quickReplyAddTitle => 'Add quick reply';
+	@override String get quickReplyEditTitle => 'Edit quick reply';
+	@override String get quickReplyEmpty => 'No quick replies yet — tap the button below to add one';
+	@override String get quickReplyDuplicate => 'This phrase already exists';
+	@override String quickReplyMaxReached({required Object max}) => 'At most ${max} entries';
+	@override String get quickReplyHint => 'Type your phrase...';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
 	@override String get muteMember => 'Mute Member';
@@ -1124,6 +1131,9 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get momentsReportFailed => 'Report failed, please try again';
 	@override String get momentsLoadMoreComments => 'Load more comments';
 	@override String get momentsUploadFailed => 'Media upload failed, please try again';
+	@override String get momentsReplyPrefix => 'Reply @';
+	@override String get momentsReplySeparator => ': ';
+	@override String get momentsReplyingTo => 'Replying to @{name}';
 	@override String get balance => 'Balance';
 	@override String get recharge => 'Recharge';
 	@override String get withdraw => 'Withdraw';
@@ -2191,6 +2201,13 @@ extension on TranslationsEnUs {
 			'muteNotifications' => 'Mute notifications',
 			'muteNotificationsHint' => 'You won\'t get new-message alerts; unread counts still show in the list',
 			'revokeExpired' => 'Can\'t revoke messages older than 2 minutes',
+			'quickReplyManage' => 'Manage quick replies',
+			'quickReplyAddTitle' => 'Add quick reply',
+			'quickReplyEditTitle' => 'Edit quick reply',
+			'quickReplyEmpty' => 'No quick replies yet — tap the button below to add one',
+			'quickReplyDuplicate' => 'This phrase already exists',
+			'quickReplyMaxReached' => ({required Object max}) => 'At most ${max} entries',
+			'quickReplyHint' => 'Type your phrase...',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',
 			'muteMember' => 'Mute Member',
@@ -2668,6 +2685,8 @@ extension on TranslationsEnUs {
 			'visibleThresholdInfo' => ({required Object percentage, required Object delayms}) => 'Visible ratio: ${percentage}% | Delay: ${delayms}',
 			'visibleRatioLabel' => 'Visible ratio (0.1~1.0)',
 			'delayMsLabel' => 'Delay in ms (>=100)',
+			_ => null,
+		} ?? switch (path) {
 			'noGroupAnnouncement' => 'No group announcement',
 			'announcementContentCannotBeEmpty' => 'Announcement content cannot be empty',
 			'announcementPublishSuccess' => 'Announcement published successfully',
@@ -2675,8 +2694,6 @@ extension on TranslationsEnUs {
 			'tips' => 'Tips',
 			'featureComingSoon' => 'Feature coming soon',
 			'understood' => 'Understood',
-			_ => null,
-		} ?? switch (path) {
 			'noProblem' => 'No problem',
 			'onMyWay' => 'On my way',
 			'otherDevice' => 'Other Device',
@@ -2739,6 +2756,9 @@ extension on TranslationsEnUs {
 			'momentsReportFailed' => 'Report failed, please try again',
 			'momentsLoadMoreComments' => 'Load more comments',
 			'momentsUploadFailed' => 'Media upload failed, please try again',
+			'momentsReplyPrefix' => 'Reply @',
+			'momentsReplySeparator' => ': ',
+			'momentsReplyingTo' => 'Replying to @{name}',
 			'balance' => 'Balance',
 			'recharge' => 'Recharge',
 			'withdraw' => 'Withdraw',

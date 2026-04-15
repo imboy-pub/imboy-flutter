@@ -1448,6 +1448,14 @@ muteNotifications: "消息免打扰"  # TODO: translate (zh-CN fallback)
 muteNotificationsHint: "开启后不会收到新消息提醒，但仍可在会话列表看到未读"  # TODO: translate
 # S1 撤回时限
 revokeExpired: "超过 2 分钟，无法撤回"  # TODO: translate
+# S2-b 快捷回复管理页
+quickReplyManage: "管理快捷回复"  # TODO: translate
+quickReplyAddTitle: "新增快捷回复"  # TODO: translate
+quickReplyEditTitle: "编辑快捷回复"  # TODO: translate
+quickReplyEmpty: "暂无快捷回复，点击右下角添加"  # TODO: translate
+quickReplyDuplicate: "内容已存在"  # TODO: translate
+quickReplyMaxReached: "最多 $max 条"  # TODO: translate
+quickReplyHint: "输入内容..."  # TODO: translate
 groupMember: "Member"
 setAdmin: "Set as Admin"
 removeAdmin: "Remove Admin"

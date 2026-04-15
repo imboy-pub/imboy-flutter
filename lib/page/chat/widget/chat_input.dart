@@ -15,6 +15,7 @@ import 'package:imboy/component/chat/mention_text_formatter.dart';
 import 'package:imboy/component/chat/mention_provider.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
+import 'package:imboy/page/chat/widget/quick_reply_manage_page.dart';
 import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -461,8 +462,23 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                itemCount: replies.length,
+                // S2-b: 末尾追加"管理"入口（settings icon 按钮）
+                itemCount: replies.length + 1,
                 itemBuilder: (context, index) {
+                  if (index == replies.length) {
+                    // 管理按钮
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        tooltip: t.quickReplyManage,
+                        icon: Icon(
+                          Icons.tune,
+                          color: _themeColor('primary'),
+                        ),
+                        onPressed: _openQuickReplyManage,
+                      ),
+                    );
+                  }
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     child: ElevatedButton(
@@ -491,6 +507,19 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         );
       },
     );
+  }
+
+  /// S2-b: 打开快捷回复管理页；返回后刷新 _quickReplies（反映用户增删改）
+  Future<void> _openQuickReplyManage() async {
+    final currentDefaults = _defaultQuickReplies;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            QuickReplyManagePage(defaults: currentDefaults),
+      ),
+    );
+    if (!mounted) return;
+    await _loadQuickReplies();
   }
 
   /// 插入快捷回复

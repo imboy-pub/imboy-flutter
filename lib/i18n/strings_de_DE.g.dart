@@ -1251,6 +1251,13 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get muteNotifications => '消息免打扰';
 	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
 	@override String get revokeExpired => '超过 2 分钟，无法撤回';
+	@override String get quickReplyManage => '管理快捷回复';
+	@override String get quickReplyAddTitle => '新增快捷回复';
+	@override String get quickReplyEditTitle => '编辑快捷回复';
+	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
+	@override String get quickReplyDuplicate => '内容已存在';
+	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
+	@override String get quickReplyHint => '输入内容...';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get removeAdmin => 'Remove Admin';
@@ -2821,6 +2828,13 @@ extension on TranslationsDeDe {
 			'muteNotifications' => '消息免打扰',
 			'muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
 			'revokeExpired' => '超过 2 分钟，无法撤回',
+			'quickReplyManage' => '管理快捷回复',
+			'quickReplyAddTitle' => '新增快捷回复',
+			'quickReplyEditTitle' => '编辑快捷回复',
+			'quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
+			'quickReplyDuplicate' => '内容已存在',
+			'quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
+			'quickReplyHint' => '输入内容...',
 			'groupMember' => 'Member',
 			'setAdmin' => 'Set as Admin',
 			'removeAdmin' => 'Remove Admin',

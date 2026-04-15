@@ -1703,6 +1703,27 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '超过 2 分钟，无法撤回'
 	String get revokeExpired => '超过 2 分钟，无法撤回';
 
+	/// zh-CN: '管理快捷回复'
+	String get quickReplyManage => '管理快捷回复';
+
+	/// zh-CN: '新增快捷回复'
+	String get quickReplyAddTitle => '新增快捷回复';
+
+	/// zh-CN: '编辑快捷回复'
+	String get quickReplyEditTitle => '编辑快捷回复';
+
+	/// zh-CN: '暂无快捷回复，点击右下角添加'
+	String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
+
+	/// zh-CN: '内容已存在'
+	String get quickReplyDuplicate => '内容已存在';
+
+	/// zh-CN: '最多 $max 条'
+	String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
+
+	/// zh-CN: '输入内容...'
+	String get quickReplyHint => '输入内容...';
+
 	/// zh-CN: '设为管理员'
 	String get setAdmin => '设为管理员';
 
@@ -3340,6 +3361,15 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '媒体上传失败，请稍后重试'
 	String get momentsUploadFailed => '媒体上传失败，请稍后重试';
+
+	/// zh-CN: '回复 @'
+	String get momentsReplyPrefix => '回复 @';
+
+	/// zh-CN: '：'
+	String get momentsReplySeparator => '：';
+
+	/// zh-CN: '正在回复 @{name}'
+	String get momentsReplyingTo => '正在回复 @{name}';
 
 	/// zh-CN: '余额'
 	String get balance => '余额';
@@ -5253,6 +5283,13 @@ extension on Translations {
 			'muteNotifications' => '消息免打扰',
 			'muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
 			'revokeExpired' => '超过 2 分钟，无法撤回',
+			'quickReplyManage' => '管理快捷回复',
+			'quickReplyAddTitle' => '新增快捷回复',
+			'quickReplyEditTitle' => '编辑快捷回复',
+			'quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
+			'quickReplyDuplicate' => '内容已存在',
+			'quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
+			'quickReplyHint' => '输入内容...',
 			'setAdmin' => '设为管理员',
 			'removeAdmin' => '取消管理员',
 			'muteMember' => '禁言成员',
@@ -5711,6 +5748,8 @@ extension on Translations {
 			'tagStatistics' => '标签统计',
 			'availableCount' => '可选择',
 			'mostUsed' => '最常用',
+			_ => null,
+		} ?? switch (path) {
 			'quickActions' => '快捷操作',
 			'alreadySent' => '已发送',
 			'noNewFriendRequests' => '暂时没有新的好友申请',
@@ -5718,8 +5757,6 @@ extension on Translations {
 			'pleaseEnterRemark' => '请输入备注名',
 			'unknownRegion' => '未知地区',
 			'noCommonGroups' => '暂无共同群组',
-			_ => null,
-		} ?? switch (path) {
 			'noMoreInfo' => '暂无更多信息',
 			'userNotSetSignature' => '该用户还没有设置个人签名等详细信息',
 			'verificationMessage' => '验证消息',
@@ -5801,6 +5838,9 @@ extension on Translations {
 			'momentsReportFailed' => '举报失败，请稍后重试',
 			'momentsLoadMoreComments' => '加载更多评论',
 			'momentsUploadFailed' => '媒体上传失败，请稍后重试',
+			'momentsReplyPrefix' => '回复 @',
+			'momentsReplySeparator' => '：',
+			'momentsReplyingTo' => '正在回复 @{name}',
 			'balance' => '余额',
 			'recharge' => '充值',
 			'withdraw' => '提现',
