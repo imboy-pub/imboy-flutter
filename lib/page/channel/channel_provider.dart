@@ -431,7 +431,10 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
     try {
       final normalizedType = ChannelMessageType.fromMessageType(msgType);
-      final message = await _api.publishMessage(
+      // 走 ChannelService：它会在 API 成功后执行 _messageRepo.saveMessage 落库。
+      // 之前直连 _api.publishMessage 的写法会让新消息仅存在于内存 state 中，
+      // 下次进入详情页要等 S2C 回显才能看到自己的发言。
+      final message = await ChannelService.to.publishMessage(
         channelId: _channelId!,
         content: content,
         msgType: normalizedType,
