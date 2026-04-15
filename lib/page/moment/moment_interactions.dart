@@ -1,5 +1,25 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 可见性 wire-protocol 常量（与后端契约）：
+///   0 公开 / 1 仅好友 / 2 仅自己 / 3 部分可见 / 4 不给谁看
+///
+/// 这些 int 直接序列化进 POST /moments.create 的 `visibility` 字段；
+/// 禁止随意重编号，新增可见性策略必须与后端协同。
+const int momentVisibilityPublic = 0;
+const int momentVisibilityFriends = 1;
+const int momentVisibilityPrivate = 2;
+const int momentVisibilityAllowList = 3;
+const int momentVisibilityDenyList = 4;
+
+/// 当前可见性是否需要用户填写「允许可见」白名单 UID 列表。
+bool momentVisibilityRequiresAllowUids(int visibility) =>
+    visibility == momentVisibilityAllowList;
+
+/// 当前可见性是否需要用户填写「不给谁看」黑名单 UID 列表。
+bool momentVisibilityRequiresDenyUids(int visibility) =>
+    visibility == momentVisibilityDenyList;
+
+
 /// 按优先级 `remark > nickname > uid > '?'` 解析显示名。
 ///
 /// 与 ContactModel.title() 规则对齐：本地联系人备注胜过对方自取昵称，

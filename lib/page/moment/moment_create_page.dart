@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
+import 'package:imboy/page/moment/moment_interactions.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -30,7 +31,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   final List<Map<String, dynamic>> _media = [];
 
-  int _visibility = 1;
+  int _visibility = momentVisibilityFriends;
   bool _allowComment = true;
   bool _isUploading = false;
   bool _isSubmitting = false;
@@ -170,10 +171,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       media: _media,
       visibility: _visibility,
       allowComment: _allowComment,
-      allowUids: _visibility == 3
+      allowUids: momentVisibilityRequiresAllowUids(_visibility)
           ? _parseUidList(_allowUidsController.text)
           : const [],
-      denyUids: _visibility == 4
+      denyUids: momentVisibilityRequiresDenyUids(_visibility)
           ? _parseUidList(_denyUidsController.text)
           : const [],
     );
@@ -353,11 +354,26 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               border: const OutlineInputBorder(),
             ),
             items: [
-              DropdownMenuItem(value: 0, child: Text(context.t.momentsVisibilityPublic)),
-              DropdownMenuItem(value: 1, child: Text(context.t.momentsVisibilityFriends)),
-              DropdownMenuItem(value: 2, child: Text(context.t.momentsVisibilityPrivate)),
-              DropdownMenuItem(value: 3, child: Text(context.t.momentsVisibilityPartial)),
-              DropdownMenuItem(value: 4, child: Text(context.t.momentsVisibilityExclude)),
+              DropdownMenuItem(
+                value: momentVisibilityPublic,
+                child: Text(context.t.momentsVisibilityPublic),
+              ),
+              DropdownMenuItem(
+                value: momentVisibilityFriends,
+                child: Text(context.t.momentsVisibilityFriends),
+              ),
+              DropdownMenuItem(
+                value: momentVisibilityPrivate,
+                child: Text(context.t.momentsVisibilityPrivate),
+              ),
+              DropdownMenuItem(
+                value: momentVisibilityAllowList,
+                child: Text(context.t.momentsVisibilityPartial),
+              ),
+              DropdownMenuItem(
+                value: momentVisibilityDenyList,
+                child: Text(context.t.momentsVisibilityExclude),
+              ),
             ],
             onChanged: (value) {
               if (value == null) return;
@@ -366,7 +382,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               });
             },
           ),
-          if (_visibility == 3) ...[
+          if (momentVisibilityRequiresAllowUids(_visibility)) ...[
             const SizedBox(height: 12),
             TextField(
               controller: _allowUidsController,
@@ -376,7 +392,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               ),
             ),
           ],
-          if (_visibility == 4) ...[
+          if (momentVisibilityRequiresDenyUids(_visibility)) ...[
             const SizedBox(height: 12),
             TextField(
               controller: _denyUidsController,
