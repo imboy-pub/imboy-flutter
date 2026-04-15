@@ -71,7 +71,7 @@ class PublisherNotifier extends _$PublisherNotifier {
 
   /// 设置关联的直播间（携带 roomId，后续 start/stop 通知后端）
   void setRoom(LiveRoomModel room) {
-    state = state.copyWith(roomId: room.id.toString());
+    state = state.copyWith(roomId: room.id);
   }
 
   /// 通知后端更新直播状态为"直播中"

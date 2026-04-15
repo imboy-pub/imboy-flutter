@@ -1,11 +1,11 @@
 class LiveRoomModel {
-  /// 直播间 ID (TSID BIGINT)
+  /// 直播间 ID (TSID BIGINT 字符串化)
   ///
-  /// 注意：Dart Web 平台 int 为 53 位精度（JS Number），TSID 最大可达 2^63-1。
-  /// 本项目仅支持 iOS/Android/macOS（原生 64 位 int），不作为 Web 生产目标。
-  final int id;
-  /// 用户 ID (TSID BIGINT)
-  final int userId;
+  /// 统一用 String 承载，避免 Dart Web 平台 int 53 位精度截断 TSID 高位，
+  /// 同时与后端 JSON 序列化（bigint → string）保持一致。
+  final String id;
+  /// 用户 ID (TSID BIGINT 字符串化)
+  final String userId;
   final String title;
   final String cover;
   final String streamKey;
@@ -32,8 +32,8 @@ class LiveRoomModel {
 
   factory LiveRoomModel.fromJson(Map<String, dynamic> data) {
     return LiveRoomModel(
-      id: (data['id'] as num).toInt(),
-      userId: (data['user_id'] as num).toInt(),
+      id: data['id']?.toString() ?? '',
+      userId: data['user_id']?.toString() ?? '',
       title: data['title']?.toString() ?? '',
       cover: data['cover']?.toString() ?? '',
       streamKey: data['stream_key']?.toString() ?? '',

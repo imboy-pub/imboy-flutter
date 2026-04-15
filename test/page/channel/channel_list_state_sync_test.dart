@@ -28,6 +28,10 @@ void main() {
 
     setUp(() {
       container = ProviderContainer();
+      // Riverpod 3 auto-dispose：不 listen 则 `container.read(provider)` 会
+      // 在无订阅者时重建 state，导致外部通过 `notifier.state = ...` 写入的
+      // 瞬态状态被清空。测试阶段主动订阅保活。
+      container.listen(channelListProvider, (_, __) {});
       notifier = container.read(channelListProvider.notifier);
     });
 
