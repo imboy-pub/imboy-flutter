@@ -62,7 +62,6 @@ String momentVisibilityLabel(int code, Translations t) {
   }
 }
 
-
 /// 为 media item 选择用于预览/缩略图展示的 URL。
 ///
 /// - `type == 'video'`：优先返回 `cover_url`（trim 后非空）；为空时回退到
@@ -269,6 +268,301 @@ Map<String, dynamic> applyCommentCountDelta(
   return nextMoment;
 }
 
+/// 当前 viewer 是否能看到这条 moment。
+///
+/// **重要：这是客户端侧二次过滤**，不能替代后端授权。用于本地缓存 / 推送
+/// 消息渲染前的防御性裁剪、以及作者预览"对方视角"。
+///
+/// 规则与 [parseMomentVisibility] 的 5 种 wire code 严格对齐：
+/// - 作者本人 → 永远可见
+/// - 0 公开 → 任何人（含未登录陌生 viewer）可见
+/// - 1 仅好友 → 仅 friendUids 中可见
+/// - 2 仅自己 → 仅作者
+/// - 3 部分可见（白名单）→ 仅 allow_uids 中可见
+/// - 4 不给谁看（黑名单）→ 好友 且 不在 deny_uids 中
+/// - 未知 visibility → 走 friends 安全默认（与 parseMomentVisibility 对齐）
+/// - author_uid 缺失 → 永远不可见（脏数据保守拒绝）
+bool canUserSeeMoment({
+  required String viewerUid,
+  required Map<String, dynamic> moment,
+  required Set<String> friendUids,
+}) {
+  final author = parseModelString(moment['author_uid']).trim();
+  if (author.isEmpty) return false;
+
+  final viewer = viewerUid.trim();
+  if (viewer.isNotEmpty && viewer == author) return true;
+
+  final visibility = parseMomentVisibility(moment);
+  switch (visibility) {
+    case momentVisibilityPublic:
+      return true;
+    case momentVisibilityFriends:
+      return viewer.isNotEmpty && friendUids.contains(viewer);
+    case momentVisibilityPrivate:
+      return false; // 已在上方 viewer == author 处理；走到这里就是别人
+    case momentVisibilityAllowList:
+      final allow = moment['allow_uids'];
+      if (allow is! List) return false;
+      return viewer.isNotEmpty && allow.whereType<String>().contains(viewer);
+    case momentVisibilityDenyList:
+      if (viewer.isEmpty || !friendUids.contains(viewer)) return false;
+      final deny = moment['deny_uids'];
+      if (deny is! List) return true;
+      return !deny.whereType<String>().contains(viewer);
+    default:
+      // parseMomentVisibility 已把未知 code 归一到 friends，这里 unreachable
+      return false;
+  }
+}
+
+/// 朋友圈发布草稿（失败重发用）。
+///
+/// 不可变值对象。`buildMomentDraft` 序列化为 map 写入 storage，
+/// `restoreMomentDraft` 反序列化回来。
+class MomentDraft {
+  const MomentDraft({
+    required this.content,
+    required this.mediaUrls,
+    required this.visibility,
+    required this.allowUids,
+    required this.denyUids,
+    required this.savedAt,
+  });
+
+  final String content;
+  final List<String> mediaUrls;
+  final int visibility;
+  final List<String> allowUids;
+  final List<String> denyUids;
+  final DateTime? savedAt;
+}
+
+/// 把发布表单状态打包成草稿 map（用于 storage 持久化）。
+///
+/// 字段命名贴近后端 / 数据库列名（snake_case），方便日后切换 sqlite 持久化。
+Map<String, dynamic> buildMomentDraft({
+  required String content,
+  required List<String> mediaUrls,
+  required int visibility,
+  required List<String> allowUids,
+  required List<String> denyUids,
+  required DateTime savedAt,
+}) {
+  return <String, dynamic>{
+    'content': content,
+    'media_urls': List<String>.from(mediaUrls),
+    'visibility': visibility,
+    'allow_uids': List<String>.from(allowUids),
+    'deny_uids': List<String>.from(denyUids),
+    'saved_at': savedAt.toUtc().toIso8601String(),
+  };
+}
+
+/// 从 storage 反序列化草稿。
+///
+/// 返回 null 表示「无可恢复草稿」，UI 不应弹恢复提示。判定规则：
+/// - 入参 null / 空 map → null
+/// - content 与 mediaUrls 同时为空 → null（无意义草稿）
+///
+/// 对脏数据保持降级而非 throw：
+/// - 非 string content / 非 list media_urls → 视为缺失字段
+/// - 未知 visibility → 回退到 [momentVisibilityFriends]（与 parseMomentVisibility 对齐）
+/// - savedAt 解析失败 → null
+MomentDraft? restoreMomentDraft(Map<String, dynamic>? raw) {
+  if (raw == null || raw.isEmpty) return null;
+
+  final rawContent = raw['content'];
+  final content = rawContent is String ? rawContent : '';
+
+  final rawMedia = raw['media_urls'];
+  final mediaUrls = rawMedia is List
+      ? rawMedia.whereType<String>().toList(growable: false)
+      : const <String>[];
+
+  if (content.isEmpty && mediaUrls.isEmpty) return null;
+
+  final rawVisibility = raw['visibility'];
+  final visibility = rawVisibility is int
+      ? parseMomentVisibility({'visibility': rawVisibility})
+      : momentVisibilityFriends;
+
+  final allowUids = raw['allow_uids'] is List
+      ? (raw['allow_uids'] as List).whereType<String>().toList(growable: false)
+      : const <String>[];
+  final denyUids = raw['deny_uids'] is List
+      ? (raw['deny_uids'] as List).whereType<String>().toList(growable: false)
+      : const <String>[];
+
+  DateTime? savedAt;
+  final rawSavedAt = raw['saved_at'];
+  if (rawSavedAt is String) {
+    savedAt = DateTime.tryParse(rawSavedAt);
+  }
+
+  return MomentDraft(
+    content: content,
+    mediaUrls: mediaUrls,
+    visibility: visibility,
+    allowUids: allowUids,
+    denyUids: denyUids,
+    savedAt: savedAt,
+  );
+}
+
+/// feed 渲染快照：哪份数据 + 是否为离线副本。
+class MomentFeedSnapshot {
+  const MomentFeedSnapshot({required this.items, required this.isStale});
+
+  final List<Map<String, dynamic>> items;
+
+  /// 数据来自本地缓存（远程拉取失败）。UI 据此打 "离线" / "网络异常" 标签。
+  final bool isStale;
+}
+
+/// feed 离线兜底：决定使用 remote 还是 cached 作为渲染源。
+///
+/// - `remote` 为 null 表示远程拉取失败 / 抛异常
+/// - `remote` 为空 list 仍算成功（用户可能真的清空了所有动态）
+/// - 失败回退到 `cached`，并打 `isStale=true`，UI 据此提示离线
+/// - 始终返回 cached 的浅拷贝，避免外部 mutate 影响调用方持有的引用
+MomentFeedSnapshot pickFeedSnapshot({
+  required List<Map<String, dynamic>>? remote,
+  required List<Map<String, dynamic>> cached,
+}) {
+  if (remote != null) {
+    return MomentFeedSnapshot(items: remote, isStale: false);
+  }
+  return MomentFeedSnapshot(
+    items: List<Map<String, dynamic>>.from(cached),
+    isStale: true,
+  );
+}
+
+/// 朋友圈媒体校验最大图片数量（与微信对齐）。
+const int momentMaxImageCount = 9;
+
+/// 朋友圈媒体校验错误码。
+///
+/// 这些字符串字面值会被上层 switch 用来路由 i18n 文案，禁止重命名。
+const String momentMediaErrorNone = 'none';
+const String momentMediaErrorTooManyImages = 'too_many_images';
+const String momentMediaErrorTooManyVideos = 'too_many_videos';
+const String momentMediaErrorMixed = 'mixed_image_and_video';
+
+/// `validateMediaSelection` 的结构化结果。
+///
+/// 不抛异常，UI 层用 `ok` 决定是否拦截发布、用 `error` 路由 toast 文案。
+class MomentMediaValidationResult {
+  const MomentMediaValidationResult.ok()
+    : ok = true,
+      error = momentMediaErrorNone;
+  const MomentMediaValidationResult.fail(this.error) : ok = false;
+
+  final bool ok;
+  final String error;
+}
+
+/// 校验朋友圈发布时选中的媒体集合。
+///
+/// 规则（与微信朋友圈对齐）：
+/// - 空集合 → ok（纯文字动态）
+/// - 最多 [momentMaxImageCount] 张图片（默认 9）
+/// - 最多 1 个视频
+/// - 图片与视频不能混排
+///
+/// 优先级：mixed > tooManyVideos > tooManyImages（先报最严重的违规）。
+/// `type` 缺失视为 `image`（兼容旧载荷，避免整盘拒绝）。
+MomentMediaValidationResult validateMediaSelection(
+  List<Map<String, dynamic>> items,
+) {
+  if (items.isEmpty) return const MomentMediaValidationResult.ok();
+  var imageCount = 0;
+  var videoCount = 0;
+  for (final item in items) {
+    final type = parseModelString(item['type']);
+    if (type == 'video') {
+      videoCount++;
+    } else {
+      // image / 未知 / 空 → 一律按图片计
+      imageCount++;
+    }
+  }
+  if (imageCount > 0 && videoCount > 0) {
+    return const MomentMediaValidationResult.fail(momentMediaErrorMixed);
+  }
+  if (videoCount > 1) {
+    return const MomentMediaValidationResult.fail(
+      momentMediaErrorTooManyVideos,
+    );
+  }
+  if (imageCount > momentMaxImageCount) {
+    return const MomentMediaValidationResult.fail(
+      momentMediaErrorTooManyImages,
+    );
+  }
+  return const MomentMediaValidationResult.ok();
+}
+
+/// 文本中一处 `@用户名` 提及。
+///
+/// - [name]：`@` 之后的用户名（不含 `@`）
+/// - [start] / [end]：在原文本中的下标，`text.substring(start, end)` 等于 `@name`
+class MomentMention {
+  const MomentMention({
+    required this.name,
+    required this.start,
+    required this.end,
+  });
+
+  final String name;
+  final int start;
+  final int end;
+}
+
+/// 从评论 / 发布文本中提取 `@用户名` 提及。
+///
+/// 用户名由 Unicode 字母、数字、下划线组成（覆盖中英文），遇到空白 / 标点 /
+/// 第二个 `@` 即终止。`@` 必须出现在文本起点或空白之后，避免把邮箱
+/// `alice@example.com` 中的 `@example` 误识别为 mention。
+///
+/// 仅做 **形如 mention 的子串识别**，不做 uid 解析；调用方需要再用名字去
+/// 联系人 / 群成员表里查 uid。返回顺序与文本顺序一致，重复出现都保留以便
+/// UI 层逐处高亮。
+List<MomentMention> extractMentions(String text) {
+  if (text.isEmpty) return const [];
+  // (?:^|\s) — 行首或空白后；不消费空白用 (?<=) 后行断言
+  // [\w\u4e00-\u9fa5]+ — 字母/数字/下划线/中日韩统一表意
+  final regex = RegExp(r'(?<=^|\s)@([\w\u4e00-\u9fa5]+)');
+  final mentions = <MomentMention>[];
+  for (final match in regex.allMatches(text)) {
+    final name = match.group(1);
+    if (name == null || name.isEmpty) continue;
+    mentions.add(MomentMention(name: name, start: match.start, end: match.end));
+  }
+  return mentions;
+}
+
+/// 是否还能继续加载下一页评论 / feed。
+///
+/// 把分散在 detail / feed 页 `_loadMore*` 顶部的三段 guard 合一：
+/// - 已在加载（`isLoading`）→ false（防抖，避免双拉）
+/// - 后端已告知没有更多（`!hasMore`）→ false
+/// - cursor 为 null / 空字符串 / 纯空白 → false（无可用游标无法翻页）
+///
+/// 调用方只需 `if (!canLoadMoreComments(...)) return;` 一行。
+bool canLoadMoreComments({
+  required bool isLoading,
+  required bool hasMore,
+  required String? cursor,
+}) {
+  if (isLoading) return false;
+  if (!hasMore) return false;
+  if (cursor == null) return false;
+  if (cursor.trim().isEmpty) return false;
+  return true;
+}
+
 /// 将下一页评论合并到已有列表。
 ///
 /// - 按 `id` 去重；首次出现的条目保留，后续重复被丢弃（保持现有顺序稳定）
@@ -322,4 +616,109 @@ Map<String, dynamic> applyOptimisticLikeToggle(Map<String, dynamic> moment) {
   next['liked'] = !liked;
   next['stats'] = nextStats;
   return next;
+}
+
+/// 解析用户输入的 UID 列表字符串（半角逗号分隔）。
+///
+/// - trim 每项，丢弃空项 / 连续逗号 / 尾随逗号 / 纯空白输入
+/// - 保序，不去重（重复由后端幂等处理，前端不私自裁剪语义）
+/// - 返回不可增长 list，调用方不应再 mutate
+///
+/// 前端 UI 约定用户只能输半角 `,`；全角 `，` 不做兼容解析，
+/// 以避免「看起来输入了 3 个 UID 实际只拆出 1 个」的静默误解析。
+List<String> parseMomentUidList(String raw) {
+  if (raw.trim().isEmpty) return const [];
+  return raw
+      .split(',')
+      .map((item) => item.trim())
+      .where((item) => item.isNotEmpty)
+      .toList(growable: false);
+}
+
+/// 构造当前用户的「发布失败草稿」存储 key。
+///
+/// - 非空 uid → `moment_failed_draft_{uid}`（账号隔离，防跨账号泄漏）
+/// - 空 / 纯空白 uid → `''`；调用方据此跳过读写，避免产生无主 kv 噪音
+/// - 对 uid 做 trim，避免 `' 42'` 与 `'42'` 生成两个 key
+String momentFailedDraftKey(String uid) {
+  final trimmed = uid.trim();
+  if (trimmed.isEmpty) return '';
+  return 'moment_failed_draft_$trimmed';
+}
+
+/// 从 comments 列表中剔除 `id` 等于 [commentId] 的条目。
+///
+/// 与 [removeMomentById] 同构：
+/// - 返回新的不可增长 list，不 mutate 输入
+/// - 空 [commentId] → 原样返回拷贝（防御，避免「空 id 匹配全部 id 为空的项目」
+///   造成误批量删除）
+List<Map<String, dynamic>> removeCommentById(
+  List<Map<String, dynamic>> comments,
+  String commentId,
+) {
+  if (commentId.isEmpty) {
+    return List<Map<String, dynamic>>.from(comments);
+  }
+  return comments
+      .where((item) => parseModelString(item['id']) != commentId)
+      .toList(growable: false);
+}
+
+/// 评论回复目标：`(uid, name)` 对，用于 detail 页回复态预填。
+///
+/// 使用 `MomentReplyTarget.none` 表示「未进入回复态」（等价于顶层评论），
+/// 而不是用 `null` —— 调用方 `setState` 时直接赋值更简洁，也避免 nullable
+/// 传染到 UI 文案拼接处。
+class MomentReplyTarget {
+  const MomentReplyTarget({required this.uid, required this.name});
+
+  /// 空目标 —— 用于「取消回复」/「无匹配」等场景。
+  static const MomentReplyTarget none = MomentReplyTarget(uid: '', name: '');
+
+  final String uid;
+  final String name;
+
+  bool get isNone => uid.isEmpty;
+}
+
+/// 从评论 map 解析回复目标。
+///
+/// - uid 缺失 / 空 → 返回 [MomentReplyTarget.none]
+/// - 名称优先级走 [resolveMomentDisplayName]：remark > nickname > uid
+///   （与作者名解析保持同一真相源，避免两处命名漂移）
+/// 是否应该触发 feed 列表的下一页加载。
+///
+/// 把 feed 页 `_onScroll` 中的三段判断合一：
+/// - `isLoadingMore = true` → false（防抖，避免重复请求）
+/// - `hasMore = false` → false（已到末页）
+/// - 距底距离 `maxExtent - pixels >= threshold` → false（还没到预拉区）
+///
+/// 触发边界采用闭区间（`pixels >= maxExtent - threshold`），与原始
+/// `_onScroll` 的 `<` 早返回严格一致。改成开区间会让用户「贴着边界
+/// 慢速滚动」时错过触发。
+///
+/// 默认 [threshold] = 320 像素 —— 距底 320px 时即开始预拉，UI 顺滑无感。
+/// `hasClients` / `ScrollController` 这类 Flutter 特定 guard 留在 widget。
+bool shouldTriggerFeedLoadMore({
+  required double pixels,
+  required double maxExtent,
+  required bool isLoadingMore,
+  required bool hasMore,
+  double threshold = 320,
+}) {
+  if (isLoadingMore || !hasMore) return false;
+  return pixels >= maxExtent - threshold;
+}
+
+MomentReplyTarget buildReplyTarget(Map<String, dynamic> comment) {
+  final uid = parseModelString(comment['user_id']);
+  if (uid.isEmpty) return MomentReplyTarget.none;
+  final remark = parseModelString(comment['user_remark']);
+  final nickname = parseModelString(comment['user_nickname']);
+  final name = resolveMomentDisplayName(
+    remark: remark,
+    nickname: nickname,
+    uid: uid,
+  );
+  return MomentReplyTarget(uid: uid, name: name);
 }
