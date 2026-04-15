@@ -552,6 +552,9 @@ class ChatPageState extends ConsumerState<ChatPage>
   StreamSubscription<UserUnmutedEvent>? _ssUserUnmuted;
   // F5-A slice-4b-2: 群角色变更事件订阅（管理员变更当前用户角色时刷新 @所有人 权限）
   StreamSubscription<GroupMemberRoleEvent>? _ssGroupMemberRole;
+  // slice-9c: 群成员禁言/解禁事件订阅（当前用户在群内被禁言/解禁时锁定/恢复输入框）
+  StreamSubscription<GroupMemberMuteEvent>? _ssGroupMemberMute;
+  StreamSubscription<GroupMemberUnmuteEvent>? _ssGroupMemberUnmute;
   Timer? _muteExpiryTimer;
   bool _isMuted = false;
   String? _muteMessage;
@@ -657,10 +660,60 @@ class ChatPageState extends ConsumerState<ChatPage>
             debugPrint('GroupMemberRoleEvent listener error: $error');
           },
         );
+
+        // slice-9c: 当前用户在群内被禁言/解禁时实时锁定/恢复输入框
+        final currentUid = UserRepoLocal.to.currentUid;
+        _ssGroupMemberMute = AppEventBus.on<GroupMemberMuteEvent>().listen(
+          (event) {
+            if (!mounted) return;
+            if (event.gid.toString() != widget.peerId) return;
+            if (event.userId != currentUid) return;
+            _applyGroupMemberMuteState(event);
+          },
+          onError: (error) {
+            debugPrint('GroupMemberMuteEvent listener error: $error');
+          },
+        );
+
+        _ssGroupMemberUnmute = AppEventBus.on<GroupMemberUnmuteEvent>().listen(
+          (event) {
+            if (!mounted) return;
+            if (event.gid.toString() != widget.peerId) return;
+            if (event.userId != currentUid) return;
+            _clearMuteState();
+          },
+          onError: (error) {
+            debugPrint('GroupMemberUnmuteEvent listener error: $error');
+          },
+        );
       }
     } catch (e) {
       debugPrint('_setupEventListeners error: $e');
     }
+  }
+
+  /// 群成员被禁言时（通过 GroupMemberMuteEvent）更新输入框禁用状态。
+  ///
+  /// 仅在当前用户是被禁言方时调用（call-site 已过滤）。
+  void _applyGroupMemberMuteState(GroupMemberMuteEvent event) {
+    _muteExpiryTimer?.cancel();
+    setState(() {
+      _isMuted = true;
+      // remainingSeconds 由后端计算；转分钟（向上取整）
+      final minutes = (event.remainingSeconds / 60).ceil();
+      if (minutes > 0) {
+        _muteMessage = t.youAreMutedWithTime(minutes: '$minutes');
+        final remaining =
+            event.muteUntilMs - DateTime.now().millisecondsSinceEpoch;
+        if (remaining > 0) {
+          _muteExpiryTimer = Timer(Duration(milliseconds: remaining), () {
+            if (mounted) _clearMuteState();
+          });
+        }
+      } else {
+        _muteMessage = t.youAreMuted;
+      }
+    });
   }
 
   /// 应用禁言状态
@@ -720,6 +773,8 @@ class ChatPageState extends ConsumerState<ChatPage>
     _ssUserMuted?.cancel();
     _ssUserUnmuted?.cancel();
     _ssGroupMemberRole?.cancel();
+    _ssGroupMemberMute?.cancel();
+    _ssGroupMemberUnmute?.cancel();
     _muteExpiryTimer?.cancel();
 
     // 取消网络状态监听
@@ -1403,17 +1458,17 @@ class ChatPageState extends ConsumerState<ChatPage>
     required LongPressStartDetails details,
   }) {
     iPrint('_onMessageLongPress');
-    final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
+    final caps = resolveLongPressCapabilities(
+      messageAuthorId: message.authorId,
+      currentUid: UserRepoLocal.to.currentUid,
+      messageStatus: message.status ?? MessageStatus.sent,
+    );
     final canEdit = canEditMessage(message);
 
-    // 检查消息是否可以重试（发送失败的消息）
-    final canRetry = isSentByMe && message.status == MessageStatus.error;
-
-    // 使用现代化的消息操作菜单，保留所有现有功能
     showMessageActionMenu(
       context: c1,
       message: message,
-      isSentByMe: isSentByMe,
+      isSentByMe: caps.isSentByMe,
       canEdit: canEdit,
       onReply: () => updateQuoteMessage(message),
       onCopy: () {
@@ -1431,20 +1486,19 @@ class ChatPageState extends ConsumerState<ChatPage>
       },
       onEdit: () => editMessage(message),
       onDelete: () => deleteMessageForMe(context, message, pop: false),
-      onDeleteForEveryone: isSentByMe
+      onDeleteForEveryone: caps.canDeleteForEveryone
           ? () => deleteMessageForEveryone(context, message)
           : null,
       onForward: () => forwardMessage(message),
       onReaction: (emoji) => addReaction(message, emoji),
-      // 新增的操作回调
-      onRevoke: isSentByMe ? () => revokeMessage(message) : null,
+      onRevoke: caps.canRevoke ? () => revokeMessage(message) : null,
       onSave: canSaveMessage(message)
           ? () => saveMessageContent(message)
           : null,
       onCollect: canCollectMessage(message)
           ? () => collectMessage(message)
           : null,
-      onRetry: canRetry ? () => _onMessageRetry(message.id) : null,
+      onRetry: caps.canRetry ? () => _onMessageRetry(message.id) : null,
     );
   }
 
