@@ -57,12 +57,12 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('创建直播间'),
+        title: Text(t.liveRoomCreateTitle),
         content: TextField(
           controller: titleController,
-          decoration: const InputDecoration(
-            labelText: '直播间标题',
-            hintText: '请输入直播间标题',
+          decoration: InputDecoration(
+            labelText: t.liveRoomTitleLabel,
+            hintText: t.liveRoomTitleHint,
           ),
           autofocus: true,
           maxLength: 100,
@@ -70,11 +70,11 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('取消'),
+            child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('创建'),
+            child: Text(t.buttonCreate),
           ),
         ],
       ),
@@ -83,11 +83,11 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     if (confirmed != true || !mounted) return;
     final title = titleController.text.trim();
     if (title.isEmpty) {
-      EasyLoading.showToast('标题不能为空');
+      EasyLoading.showToast(t.liveRoomTitleRequired);
       return;
     }
 
-    EasyLoading.show(status: '创建中...');
+    EasyLoading.show(status: t.liveRoomCreating);
     final room = await _api.create(title: title);
     EasyLoading.dismiss();
 
@@ -184,7 +184,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
           if (room.isLive)
             IconButton(
               icon: const Icon(Icons.play_circle_outline),
-              tooltip: '观看直播',
+              tooltip: t.liveRoomWatch,
               onPressed: () => context.push('/live_room/subscriber', extra: room),
             ),
           const Icon(Icons.navigate_next),

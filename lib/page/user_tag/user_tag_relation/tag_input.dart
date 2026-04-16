@@ -16,7 +16,7 @@ class TagInput extends StatefulWidget {
   final List<String> suggestedTags;
   final Map<String, int> tagUsageCount;
   final Function(List<String>) onTagsChanged;
-  final String hintText;
+  final String? hintText;
   final int maxTagLength;
   final int maxTags;
 
@@ -26,7 +26,7 @@ class TagInput extends StatefulWidget {
     required this.suggestedTags,
     required this.onTagsChanged,
     this.tagUsageCount = const {},
-    this.hintText = '输入标签...',
+    this.hintText,
     this.maxTagLength = 14,
     this.maxTags = 20,
   });
@@ -294,7 +294,7 @@ class _TagInputState extends State<TagInput> {
         controller: _controller,
         focusNode: _focusNode,
         decoration: InputDecoration(
-          hintText: widget.hintText,
+          hintText: widget.hintText ?? t.tagInputHint,
           hintStyle: TextStyle(
             color: Theme.of(
               context,

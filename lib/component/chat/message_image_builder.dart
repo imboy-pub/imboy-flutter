@@ -127,11 +127,11 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
       ),
       errorBuilder: (context, error, stacktrace) => Container(
         color: Colors.grey[300],
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.broken_image, size: 32),
-            SizedBox(height: 8),
+            const Icon(Icons.broken_image, size: 32),
+            const SizedBox(height: 8),
             Text(t.imageLoadFailed, style: const TextStyle(fontSize: 12)),
           ],
         ),

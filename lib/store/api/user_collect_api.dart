@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 
@@ -62,7 +63,7 @@ class UserCollectApi extends HttpClient {
     // 如果请求失败，显示详细错误信息
     if (!resp.ok) {
       debugPrint("> on UserCollectApi add error: ${resp.error?.message}");
-      EasyLoading.showError(resp.msg.isNotEmpty ? resp.msg : '操作失败');
+      EasyLoading.showError(resp.msg.isNotEmpty ? resp.msg : t.tipFailed);
     }
     EasyLoading.dismiss();
     return resp.ok ? true : false;

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // 条件导入：移动端使用完整的电话号码输入组件
 import 'phone_input_stub.dart'
@@ -96,7 +97,7 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
   @override
   Widget build(BuildContext context) {
     final defaultDecoration = InputDecoration(
-      hintText: widget.hintText ?? '请输入手机号',
+      hintText: widget.hintText ?? t.phoneInputHint,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade300),

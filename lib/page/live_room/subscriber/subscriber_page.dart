@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/subscriber/subscriber_provider.dart'
     show subscriberProvider;
 import 'package:imboy/store/model/live_room_model.dart';
@@ -116,11 +117,11 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                 // 服务器地址输入
                 TextField(
                   controller: _serverController,
-                  decoration: const InputDecoration(
-                    labelText: 'WHEP 拉流地址',
+                  decoration: InputDecoration(
+                    labelText: t.liveRoomWhepLabel,
                     hintText:
                         'https://your-server/whep/subscribe/room_id/stream_id',
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   onSubmitted: (v) {

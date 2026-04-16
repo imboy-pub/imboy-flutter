@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show IsTypingIndicator;
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
@@ -106,7 +107,7 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
           ),
           const SizedBox(width: 8),
           Text(
-            '${widget.peerTitle} 正在输入...',
+            t.peerIsTyping(name: widget.peerTitle),
             style: TextStyle(
               color: themeNotifier.getThemeColor('textSecondary'),
               fontSize: 12,

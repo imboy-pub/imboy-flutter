@@ -60,9 +60,9 @@ class RouteFeatureGuard {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(t.featureNotEnabled),
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }

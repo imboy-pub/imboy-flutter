@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/publisher/publisher_provider.dart'
     show publisherProvider;
 import 'package:imboy/store/model/live_room_model.dart';
@@ -130,10 +131,10 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                 // 服务器地址输入
                 TextField(
                   controller: _serverController,
-                  decoration: const InputDecoration(
-                    labelText: 'WHIP 推流地址',
+                  decoration: InputDecoration(
+                    labelText: t.liveRoomWhipLabel,
                     hintText: 'http://your-server/whip/publish/live/stream1',
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   onSubmitted: (v) {
