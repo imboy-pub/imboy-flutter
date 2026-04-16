@@ -11,6 +11,7 @@ import 'package:azlistview/azlistview.dart';
 part 'contact_provider.g.dart';
 
 // 特殊联系人功能入口的虚拟 peerId 常量（使用负数以区别真实用户ID）
+const int kPeerIdMomentFeed = -5;
 const int kPeerIdPeopleNearby = -1;
 const int kPeerIdNewFriend = -2;
 const int kPeerIdGroup = -3;
@@ -94,9 +95,21 @@ class ContactNotifier extends _$ContactNotifier {
   }
 
   // 构建顶部功能项
-
   List<ContactModel> _buildTopItems() {
     final topItems = <ContactModel>[];
+
+    // 朋友圈（首位，社交动态入口）
+    topItems.add(
+      ContactModel(
+        peerId: kPeerIdMomentFeed,
+        nickname: t.moments,
+        nameIndex: '↑',
+        bgColor: Colors.deepOrange,
+        iconData: const Center(
+          child: Icon(Icons.wb_sunny, size: 24, color: Colors.white),
+        ),
+      ),
+    );
 
     if (AppFeatureRegistry.isEnabled('location')) {
       topItems.add(

@@ -283,6 +283,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       onTap: () {
         // 处理功能入口点击
         switch (model.peerId) {
+          case kPeerIdMomentFeed:
+            context.push('/moment/feed');
+            break;
           case kPeerIdPeopleNearby:
             context.push('/contact/people_nearby');
             break;
