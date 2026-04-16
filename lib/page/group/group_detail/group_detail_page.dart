@@ -28,6 +28,7 @@ import 'package:imboy/config/enum.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/page/group/group_role_rules.dart';
 import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
@@ -117,7 +118,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       gid: widget.groupId,
       userId: UserRepoLocal.to.currentUid,
     );
-    bool isAdmin = role == 3 || role == 4;
+    // isGroupAdmin 覆盖 admin(3)/owner(4)/vice_owner(5)，修复原 role==3||4 漏掉副群主的 bug
+    bool isAdmin = isGroupAdmin(role);
     notifier.setRoleInfo(role, isAdmin);
 
     if (isAdmin) {
@@ -430,7 +432,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   _buildModernListTile(
                     context: context,
-                    title: '群文件',
+                    title: t.groupFile,
                     icon: Icons.insert_drive_file_outlined,
                     onTap: () {
                       context.push('/group/${widget.groupId}/file');
@@ -446,7 +448,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   _buildModernListTile(
                     context: context,
-                    title: '群相册',
+                    title: t.groupAlbum,
                     icon: Icons.photo_album_outlined,
                     onTap: () {
                       context.push('/group/${widget.groupId}/album');
@@ -729,7 +731,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     String tips =
-                        "${state.role == 4 ? t.sureToDissolveGroup : t.sureToLeaveGroup}\n${t.sureDeleteGroupChatRecord}";
+                        "${isGroupOwner(state.role) ? t.sureToDissolveGroup : t.sureToLeaveGroup}\n${t.sureDeleteGroupChatRecord}";
 
                     EasyDialog.showWarning(
                       context: context,
@@ -740,7 +742,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       onConfirm: () async {
                         var nav = Navigator.of(context);
                         bool res = false;
-                        if (state.role == 4) {
+                        if (isGroupOwner(state.role)) {
                           res = await service.dissolve(widget.groupId);
                         } else {
                           res = await service.leave(widget.groupId);
@@ -762,7 +764,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     ),
                   ),
                   child: Text(
-                    state.role == 4 ? t.groupDissolve : t.groupLeave,
+                    isGroupOwner(state.role) ? t.groupDissolve : t.groupLeave,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.w600,
@@ -920,7 +922,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       if (success) {
                         EasyLoading.showSuccess(t.complaintSuccess);
                       } else {
-                        EasyLoading.showError('投诉失败，请稍后再试');
+                        EasyLoading.showError(t.complaintFailed);
                       }
                     },
               child: Text(t.buttonConfirm),

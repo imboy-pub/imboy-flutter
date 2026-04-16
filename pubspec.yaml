@@ -256,12 +256,23 @@ dependency_overrides:
   path_provider_foundation: ">=2.4.0 <2.6.0"
 
   # ┌─ win32 / package_info_plus Override ──────────────────────────────────┐
-  # wakelock_plus 1.5.2 pins win32 <6.0.0 and package_info_plus ^9.0.0,
-  # blocking device_info_plus ^13, share_plus ^13, and package_info_plus ^10.
-  # Force override to unlock the full plus_plugins ecosystem.
-  # Revisit once wakelock_plus releases a version compatible with win32 6.x.
-  win32: ^6.0.0
-  package_info_plus: ^10.0.0
+  # win32 6.x causes compile errors in file_picker and flutter_secure_storage_windows
+  # (both packages haven't migrated to win32 6.x API yet).
+  # Pin to 5.x until file_picker publishes win32 6.x support.
+  # Revisit once file_picker & flutter_secure_storage_windows release win32 6.x compat.
+  win32: ^5.15.0
+  # package_info_plus 10.x 已迁移到 win32 6.x API（toPcwstr / toHRESULT / Pointer.value）。
+  # 8.x 是 win32 5.x 代的最后一条线，与本块 win32 pin 匹配。
+  package_info_plus: ^8.3.0
+  # win32_registry 3.x 迁移到 win32 6.x API（REG_SAM_FLAGS / PWSTR / IntPtr）。
+  # 与本块 win32 5.x pin 硬冲突，且 sqflite_sqlcipher → win32_registry 是所有
+  # API / Repo 测试的传递依赖，不锁 2.x 则整个测试套件无法在 macOS 上编译。
+  # 与 win32 5.x pin 同命运：待 file_picker 迁移 6.x 后统一解锁。
+  win32_registry: ^2.0.0
+  # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
+  # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
+  # 11.5.0 是 win32 5.x 代的最后版本，与本块 win32/win32_registry pin 同命运。
+  device_info_plus: ^11.5.0
 
   # ┌─ Local Plugin Overrides ──────────────────────────────────────────┐
   flutter_chat_core:
@@ -356,3 +367,4 @@ flutter:
     # 数据库迁移脚本
     - assets/migrations/upgrade.sql        # 升级迁移脚本
     - assets/migrations/downgrade.sql      # 降级迁移脚本
+    - assets/migrations/baseline_schema.sql # 基线建表 DDL（从 example10.db 导出）

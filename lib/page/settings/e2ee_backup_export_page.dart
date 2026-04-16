@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
@@ -36,11 +37,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('导出 E2EE 备份'),
+        title: Text(t.e2eeBackupExportTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       body: ListView(
@@ -79,7 +80,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 const Icon(Icons.warning_amber_rounded, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  '重要提示',
+                  t.e2eeImportantNote,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange.shade900,
@@ -89,12 +90,12 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              '• 备份密码无法找回，请务必牢记！',
+              t.e2eeBackupPwdCantRecover,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
             const SizedBox(height: 4),
             Text(
-              '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）',
+              t.e2eeBackupStoreMultipleNote,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
           ],
@@ -107,11 +108,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     return TextField(
       controller: _passwordController,
       obscureText: true,
-      decoration: const InputDecoration(
-        labelText: '备份密码 *',
-        hintText: '至少 12 位，包含大小写字母、数字和特殊符号',
-        prefixIcon: Icon(Icons.lock_outline),
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: t.e2eeBackupPwdLabel,
+        hintText: t.e2eeBackupPwdHint,
+        prefixIcon: const Icon(Icons.lock_outline),
+        border: const OutlineInputBorder(),
       ),
       onChanged: (_) => setState(() {}),
     );
@@ -121,11 +122,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     return TextField(
       controller: _confirmPasswordController,
       obscureText: true,
-      decoration: const InputDecoration(
-        labelText: '确认密码 *',
-        hintText: '再次输入密码',
-        prefixIcon: Icon(Icons.lock),
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: t.e2eeBackupConfirmPwdLabel,
+        hintText: t.e2eeBackupConfirmPwdHint,
+        prefixIcon: const Icon(Icons.lock),
+        border: const OutlineInputBorder(),
       ),
     );
   }
@@ -133,11 +134,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   Widget _buildNotesSection() {
     return TextField(
       controller: _notesController,
-      decoration: const InputDecoration(
-        labelText: '备注（可选）',
-        hintText: '例如：主手机备份 - 2026年1月',
-        prefixIcon: Icon(Icons.note),
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: t.e2eeBackupNoteLabel,
+        hintText: t.e2eeBackupNoteHint,
+        prefixIcon: const Icon(Icons.note),
+        border: const OutlineInputBorder(),
       ),
       maxLines: 2,
     );
@@ -150,9 +151,9 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '密码强度',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        Text(
+          t.e2eeBackupPwdStrengthLabel,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         LinearProgressIndicator(
@@ -178,10 +179,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   }
 
   String _getStrengthLabel(double strength) {
-    if (strength < 0.3) return '弱 - 建议增加复杂度';
-    if (strength < 0.6) return '中等 - 建议增加长度或复杂度';
-    if (strength < 0.8) return '强 - 可以使用';
-    return '非常强 - 安全';
+    if (strength < 0.3) return t.e2eeBackupPwdWeak;
+    if (strength < 0.6) return t.e2eeBackupPwdMedium;
+    if (strength < 0.8) return t.e2eeBackupPwdStrong;
+    return t.e2eeBackupPwdVeryStrong;
   }
 
   Widget _buildExportButton() {
@@ -202,7 +203,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text('生成备份文件'),
+          : Text(t.e2eeBackupGenerateBtn),
     );
   }
 
@@ -220,7 +221,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '备份文件已生成！',
+                    t.e2eeBackupFileGenerated,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green.shade900,
@@ -231,14 +232,14 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              '文件名: ${_generatedFilePath?.split('/').last ?? ""}',
+              'File: ${_generatedFilePath?.split('/').last ?? ""}',
               style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: _handleShare,
               icon: const Icon(Icons.share),
-              label: const Text('通过邮件/云盘分享'),
+              label: Text(t.e2eeBackupShareBtn),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
               ),
@@ -253,27 +254,24 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
-    // 验证密码
     if (password != confirmPassword) {
-      _showError('两次输入的密码不一致');
+      _showError(t.e2eeBackupErrPwdMismatch);
       return;
     }
 
     try {
       setState(() => _isExporting = true);
 
-      // 获取密钥数据
       final privateKey = await StorageSecureService.to.getPrivateKey();
       final publicKey = await StorageSecureService.to.getPublicKey();
       final deviceId = await StorageSecureService.to.getDeviceId();
       final keyId = await StorageSecureService.to.getKeyId();
 
       if (privateKey == null || publicKey == null) {
-        _showError('无法获取密钥数据');
+        _showError(t.e2eeBackupErrNoKeyData);
         return;
       }
 
-      // 生成备份文件
       final filePath = await E2EELocalBackupService.exportBackup(
         password: password,
         privateKey: privateKey,
@@ -288,11 +286,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         _isExporting = false;
       });
 
-      // 显示成功对话框
       _showSuccessDialog();
     } on Exception {
       setState(() => _isExporting = false);
-      _showError('导出失败，请重试');
+      _showError(t.e2eeBackupErrExportFailed);
     }
   }
 
@@ -302,10 +299,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     try {
       await E2EELocalBackupService.shareBackup(
         _generatedFilePath!,
-        shareText: '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。',
+        shareText: t.e2eeBackupShareContent,
       );
     } on Exception {
-      _showError('分享失败，请重试');
+      _showError(t.e2eeBackupErrShareFailed);
     }
   }
 
@@ -314,23 +311,26 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('备份导出成功'),
+        title: Text(t.e2eeBackupExportSuccessTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('您的 E2EE 密钥备份已成功生成。'),
+            Text(t.e2eeBackupExportSuccessBody),
             const SizedBox(height: 12),
-            const Text('重要提示：', style: TextStyle(fontWeight: FontWeight.bold)),
-            const Text('• 请妥善保管备份文件和密码'),
-            const Text('• 建议将文件存储到多个安全位置'),
-            const Text('• 密码无法找回，请务必牢记'),
+            Text(
+              t.e2eeBackupImportantNoteColon,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(t.e2eeBackupKeepSafe),
+            Text(t.e2eeBackupStoreMultipleLoc),
+            Text(t.e2eeBackupPwdCantRecoverNote),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('我知道了'),
+            child: Text(t.gotIt),
           ),
         ],
       ),

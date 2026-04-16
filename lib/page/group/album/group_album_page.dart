@@ -52,12 +52,12 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('新建群相册'),
+        title: Text(t.groupAlbumCreateTitle),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '请输入相册名称',
+          decoration: InputDecoration(
+            hintText: t.groupAlbumNameHint,
             border: OutlineInputBorder(),
             isDense: true,
           ),
@@ -89,7 +89,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final success = created != null;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '相册已创建' : '创建失败，请稍后重试')));
+    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumCreated : t.groupAlbumCreateFailed)));
     if (success) {
       await _loadAlbums();
     }
@@ -104,8 +104,8 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除群相册'),
-        content: Text('确定删除相册「$albumName」吗？'),
+        title: Text(t.groupAlbumDeleteTitle),
+        content: Text(t.groupAlbumDeleteConfirm(name: albumName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -124,7 +124,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '相册已删除' : '删除失败，请稍后重试')));
+    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumDeleted : t.groupAlbumDeleteFailed)));
     if (success) {
       await _loadAlbums();
     }
@@ -139,12 +139,12 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('重命名相册'),
+        title: Text(t.groupAlbumRenameTitle),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '请输入相册名称',
+          decoration: InputDecoration(
+            hintText: t.groupAlbumNameHint,
             border: OutlineInputBorder(),
             isDense: true,
           ),
@@ -173,7 +173,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '相册名称已更新' : '更新失败，请稍后重试')));
+    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumRenamed : t.groupAlbumRenameFailed)));
     if (success) {
       await _loadAlbums();
     }
@@ -204,7 +204,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('图片读取失败，请重试')));
+      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoReadFailed)));
       return;
     }
 
@@ -219,7 +219,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       if (!mounted) return;
       final success = uploaded != null;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(success ? '图片上传成功' : '图片上传失败，请稍后重试')),
+        SnackBar(content: Text(success ? t.groupAlbumPhotoUploaded : t.groupAlbumPhotoUploadFailed)),
       );
       if (success) {
         await _loadAlbums();
@@ -235,13 +235,13 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: '群相册',
+        title: t.groupAlbum,
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _createAlbum,
-            tooltip: '新建相册',
+            tooltip: t.groupAlbumCreateTooltip,
           ),
         ],
       ),
@@ -259,7 +259,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         if (_isUploadingPhoto) const LinearProgressIndicator(minHeight: 2),
         Expanded(
           child: _albums.isEmpty
-              ? NoDataView(text: '暂无群相册', onTop: _loadAlbums)
+              ? NoDataView(text: t.groupAlbumNoAlbum, onTop: _loadAlbums)
               : RefreshIndicator(
                   onRefresh: _loadAlbums,
                   child: ListView.builder(
@@ -276,7 +276,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   }
 
   Widget _buildAlbumItem(Map<String, dynamic> album) {
-    final name = (album['album_name'] ?? album['name'])?.toString() ?? '未命名相册';
+    final name = (album['album_name'] ?? album['name'])?.toString() ?? t.groupAlbumUnnamed;
     final photoCount = _toInt(album['photo_count']);
     final createdAt = album['created_at']?.toString() ?? '';
     final albumId = _resolveAlbumId(album);
@@ -298,7 +298,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
           }
         },
         subtitle: Text(
-          ['$photoCount 张图片', if (createdAt.isNotEmpty) createdAt].join(' · '),
+          [t.groupAlbumPhotoCount(count: photoCount), if (createdAt.isNotEmpty) createdAt].join(' · '),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -309,19 +309,19 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
-                tooltip: '重命名相册',
+                tooltip: t.groupAlbumRenameTitle,
                 onPressed: _isUploadingPhoto ? null : () => _renameAlbum(album),
               ),
               IconButton(
                 icon: const Icon(Icons.add_photo_alternate_outlined),
-                tooltip: '上传图片',
+                tooltip: t.groupAlbumUploadTooltip,
                 onPressed: _isUploadingPhoto
                     ? null
                     : () => _pickAndUploadPhoto(album),
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline),
-                tooltip: '删除相册',
+                tooltip: t.groupAlbumDeleteTooltip,
                 onPressed: _isUploadingPhoto ? null : () => _deleteAlbum(album),
               ),
             ],

@@ -7,6 +7,7 @@ export '../../page/group/group_detail/group_detail_service.dart';
 export '../../page/group/group_detail/add_member_page.dart';
 export '../../page/group/group_detail/remove_member_page.dart';
 export '../../page/group/group_member/group_member_page.dart';
+export '../../page/group/group_member/group_member_detail_page.dart';
 export '../../page/group/announcement/group_announcement_page.dart';
 export '../../page/group/launch_chat/launch_chat_page.dart';
 export '../../page/group/group_select/group_select_page.dart';

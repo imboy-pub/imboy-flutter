@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 
 /// E2EE 社交恢复 - 管理分片页面
@@ -22,7 +23,6 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // 延迟加载数据，避免布局期间触发 setState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadData();
@@ -63,11 +63,11 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('管理分片'),
+        title: Text(t.e2eeSocialManageTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       body: _isLoading
@@ -78,20 +78,20 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                   padding: const EdgeInsets.all(16),
                   child: CupertinoSlidingSegmentedControl<int>(
                     groupValue: _tabController.index,
-                    children: const {
+                    children: {
                       0: Padding(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 8,
                         ),
-                        child: Text('我的分片'),
+                        child: Text(t.e2eeSocialMyShards),
                       ),
                       1: Padding(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 8,
                         ),
-                        child: Text('代理分片'),
+                        child: Text(t.e2eeSocialProxyShards),
                       ),
                     },
                     onValueChanged: (value) {
@@ -116,7 +116,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
 
   Widget _buildUserShardsView() {
     if (_userShards.isEmpty) {
-      return _buildEmptyView('您还没有创建任何恢复分片');
+      return _buildEmptyView(t.e2eeSocialNoShards);
     }
 
     return ListView.builder(
@@ -131,7 +131,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
 
   Widget _buildProxyShardsView() {
     if (_proxyShards.isEmpty) {
-      return _buildEmptyView('没有代理分片');
+      return _buildEmptyView(t.e2eeSocialNoProxyShards);
     }
 
     return ListView.builder(
@@ -149,13 +149,16 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open, size: 64, color: Colors.grey),
+          const Icon(Icons.folder_open, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
-          Text(message, style: TextStyle(fontSize: 16, color: Colors.grey)),
+          Text(
+            message,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          ),
           const SizedBox(height: 8),
           Text(
-            '创建分片后才能看到内容',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
+            t.e2eeSocialCreateFirst,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],
       ),
@@ -199,7 +202,10 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '分片 $shardIndex / $totalShards',
+                    t.e2eeSocialShardOf(
+                      idx: shardIndex as int,
+                      total: totalShards as int,
+                    ),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -218,7 +224,9 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    status == 'active' ? '活跃' : '已使用',
+                    status == 'active'
+                        ? t.e2eeSocialShardActive
+                        : t.e2eeSocialShardUsed,
                     style: TextStyle(
                       fontSize: 11,
                       color: status == 'active'
@@ -231,11 +239,20 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow('代理用户', proxyUid.toString()),
-            _buildInfoRow('恢复阈值', '$threshold / $totalShards'),
-            _buildInfoRow('创建时间', _formatDateTime(createdAt)),
+            _buildInfoRow(t.e2eeSocialProxyUserLabel, proxyUid.toString()),
+            _buildInfoRow(
+              t.e2eeSocialRecoveryThresholdLabel,
+              '$threshold / $totalShards',
+            ),
+            _buildInfoRow(
+              t.e2eeBackupCreatedAtRow,
+              _formatDateTime(createdAt),
+            ),
             if (shard.containsKey('used_at'))
-              _buildInfoRow('使用时间', _formatDateTime(shard['used_at'])),
+              _buildInfoRow(
+                t.e2eeSocialUsedAtLabel,
+                _formatDateTime(shard['used_at']),
+              ),
           ],
         ),
       ),
@@ -258,11 +275,11 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
           children: [
             Row(
               children: [
-                Icon(Icons.person, size: 20, color: Colors.purple),
+                const Icon(Icons.person, size: 20, color: Colors.purple),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '用户 $uid 的密钥分片',
+                    t.e2eeSocialUserShard(uid: uid.toString()),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -272,9 +289,12 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow('分片编号', '$shardIndex'),
-            _buildInfoRow('密钥版本', keyVersion),
-            _buildInfoRow('创建时间', _formatDateTime(createdAt)),
+            _buildInfoRow(t.e2eeSocialShardIndexLabel, '$shardIndex'),
+            _buildInfoRow(t.e2eeSocialKeyVersionLabel, keyVersion.toString()),
+            _buildInfoRow(
+              t.e2eeBackupCreatedAtRow,
+              _formatDateTime(createdAt),
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -285,7 +305,9 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  status == 'active' ? '分片有效' : '已使用',
+                  status == 'active'
+                      ? t.e2eeSocialShardValid
+                      : t.e2eeSocialShardUsed,
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'active' ? Colors.green : Colors.grey,

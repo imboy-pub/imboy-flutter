@@ -163,7 +163,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('文件读取失败，请重试')));
+      ).showSnackBar(SnackBar(content: Text(t.groupFileReadFailed)));
       return;
     }
 
@@ -178,7 +178,11 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       final success = created != null;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(success ? '文件上传成功' : '文件上传失败，请稍后重试')),
+        SnackBar(
+          content: Text(
+            success ? t.groupFileUploadSuccess : t.groupFileUploadFailed,
+          ),
+        ),
       );
       if (success) {
         await _refreshAll();
@@ -198,8 +202,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除群文件'),
-        content: Text('确定删除文件「$fileName」吗？'),
+        title: Text(t.groupFileDeleteTitle),
+        content: Text(t.groupFileDeleteConfirm(name: fileName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -218,7 +222,11 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '文件已删除' : '删除失败，请稍后重试')));
+    ).showSnackBar(SnackBar(
+      content: Text(
+        success ? t.groupFileDeleteSuccess : t.groupFileDeleteFailed,
+      ),
+    ));
     if (success) {
       await _refreshAll();
     }
@@ -301,9 +309,11 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
           child: Column(
             children: [
               ListTile(
-                title: Text(fileName.isEmpty ? '图片预览' : fileName),
+                title: Text(
+                  fileName.isEmpty ? t.groupFileImagePreview : fileName,
+                ),
                 trailing: IconButton(
-                  tooltip: '关闭预览',
+                  tooltip: t.groupFileClosePreview,
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
                 ),
@@ -317,12 +327,12 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                     child: Image(
                       image: cachedImageProvider(url),
                       fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const Column(
+                      errorBuilder: (ctx, _, _) => Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.broken_image_outlined, size: 36),
-                          SizedBox(height: 8),
-                          Text('图片加载失败'),
+                          const Icon(Icons.broken_image_outlined, size: 36),
+                          const SizedBox(height: 8),
+                          Text(ctx.t.groupFileImageLoadFailed),
                         ],
                       ),
                     ),
@@ -354,7 +364,9 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
       if (!mounted) return false;
       final title = fileName.isEmpty
-          ? (type == _MediaPreviewType.video ? '视频预览' : '音频预览')
+          ? (type == _MediaPreviewType.video
+              ? t.groupFileVideoPreview
+              : t.groupFileAudioPreview)
           : fileName;
 
       if (type == _MediaPreviewType.video) {
@@ -394,7 +406,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('文件地址缺失，无法打开')));
+      ).showSnackBar(SnackBar(content: Text(t.groupFileUrlMissing)));
       return;
     }
 
@@ -403,7 +415,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('文件地址无效')));
+      ).showSnackBar(SnackBar(content: Text(t.groupFileUrlInvalid)));
       return;
     }
 
@@ -424,7 +436,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         if (!openedExternal && mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('无法打开文件链接')));
+          ).showSnackBar(SnackBar(content: Text(t.groupFileOpenFailed)));
         }
       }
       return;
@@ -432,13 +444,16 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
     if (_shouldPreviewInWebView(file, url)) {
       final title = _resolveFileName(file);
-      final opened = await _openWebPreview(url, title.isEmpty ? '文件预览' : title);
+      final opened = await _openWebPreview(
+        url,
+        title.isEmpty ? t.groupFilePreview : title,
+      );
       if (!opened) {
         final openedExternal = await _openExternal(uri);
         if (!openedExternal && mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('无法打开文件链接')));
+          ).showSnackBar(SnackBar(content: Text(t.groupFileOpenFailed)));
         }
       }
       return;
@@ -448,7 +463,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('无法打开文件链接')));
+      ).showSnackBar(SnackBar(content: Text(t.groupFileOpenFailed)));
     }
   }
 
@@ -456,12 +471,12 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: '群文件',
+        title: t.groupFile,
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
             icon: const Icon(Icons.upload_file_outlined),
-            tooltip: '上传文件',
+            tooltip: t.groupFileUploadTooltip,
             onPressed: _isUploading ? null : _pickAndUploadFile,
           ),
         ],
@@ -493,19 +508,19 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => _applySearch(),
         decoration: InputDecoration(
-          hintText: '搜索群文件',
+          hintText: t.groupFileSearch,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_searchController.text.isNotEmpty || _keyword.isNotEmpty)
                 IconButton(
-                  tooltip: '清空',
+                  tooltip: t.groupFileSearchClear,
                   icon: const Icon(Icons.clear),
                   onPressed: _clearSearch,
                 ),
               IconButton(
-                tooltip: '搜索',
+                tooltip: t.groupFileSearchAction,
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: _applySearch,
               ),
@@ -525,7 +540,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Widget _buildCategoryFilters() {
     final chips = <Widget>[
-      _buildCategoryChip('', '全部'),
+      _buildCategoryChip('', t.groupFileCategoryAll),
       ..._categoryStats.map((item) {
         final category = (item['category'] ?? '').toString();
         if (category.isEmpty) return const SizedBox.shrink();
@@ -584,7 +599,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   Widget _buildFileItem(Map<String, dynamic> file) {
-    final name = (file['file_name'] ?? file['name'])?.toString() ?? '未命名文件';
+    final name =
+        (file['file_name'] ?? file['name'])?.toString() ?? t.groupFileUnnamed;
     final category = file['file_category']?.toString() ?? '';
     final size = _formatBytes(_toInt(file['file_size']));
     final createdAt = file['created_at']?.toString() ?? '';
@@ -614,26 +630,28 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   String _emptyText() {
     if (_keyword.isNotEmpty) {
-      return '未找到匹配文件';
+      return t.groupFileSearchEmpty;
     }
     if (_selectedCategory.isNotEmpty) {
-      return '${_categoryLabel(_selectedCategory)}暂无文件';
+      return t.groupFileCategoryEmpty(
+        category: _categoryLabel(_selectedCategory),
+      );
     }
-    return '暂无群文件';
+    return t.groupFileEmpty;
   }
 
   String _categoryLabel(String category) {
     switch (category.toLowerCase()) {
       case 'document':
-        return '文档';
+        return t.groupFileCategoryDoc;
       case 'image':
-        return '图片';
+        return t.groupFileCategoryImage;
       case 'video':
-        return '视频';
+        return t.groupFileCategoryVideo;
       case 'audio':
-        return '音频';
+        return t.groupFileCategoryAudio;
       case 'other':
-        return '其他';
+        return t.groupFileCategoryOther;
       default:
         return category;
     }
@@ -720,7 +738,7 @@ class _GroupFileAudioPreviewPageState
       if (!mounted) return;
       setState(() {
         _isPreparing = false;
-        _errorText = '音频加载失败';
+        _errorText = t.groupFileAudioLoadFailed;
       });
     }
   }
@@ -758,7 +776,7 @@ class _GroupFileAudioPreviewPageState
               if (_isPreparing) ...[
                 const CircularProgressIndicator(),
                 const SizedBox(height: 12),
-                const Text('音频加载中...'),
+                Text(t.groupFileAudioLoading),
               ] else if (_errorText != null) ...[
                 Text(_errorText!),
               ] else ...[
@@ -775,7 +793,9 @@ class _GroupFileAudioPreviewPageState
                 FilledButton.icon(
                   onPressed: _togglePlay,
                   icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                  label: Text(_isPlaying ? '暂停' : '播放'),
+                  label: Text(
+                    _isPlaying ? t.groupFileMediaPause : t.groupFileMediaPlay,
+                  ),
                 ),
               ],
             ],

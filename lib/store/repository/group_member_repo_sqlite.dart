@@ -194,6 +194,17 @@ class GroupMemberRepo {
     if (updatedAt > 0) {
       data[GroupMemberRepo.updatedAt] = updatedAt;
     }
+
+    // mute_until：允许显式写 null（解除禁言），不能用 ?? 兜底
+    if (json.containsKey(GroupMemberRepo.muteUntil)) {
+      final raw = json[GroupMemberRepo.muteUntil];
+      if (raw == null) {
+        data[GroupMemberRepo.muteUntil] = null;
+      } else if (raw is int && raw > 0) {
+        data[GroupMemberRepo.muteUntil] = raw;
+      }
+      // 非法值（负数 / 非 int / 0）忽略，避免污染
+    }
     // String gid = json[GroupMemberRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? ''));
     iPrint("GroupMemberRepo_update ${data.toString()};");
     if (gid.isNotEmpty && userId.isNotEmpty) {

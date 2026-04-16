@@ -106,30 +106,30 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     if (!success) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(accept ? '接受邀请失败' : '拒绝邀请失败')));
+      ).showSnackBar(SnackBar(content: Text(accept ? t.acceptInvitationFailed : t.rejectInvitationFailed)));
       return;
     }
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(accept ? '已接受邀请' : '已拒绝邀请')));
+    ).showSnackBar(SnackBar(content: Text(accept ? t.invitationAccepted : t.invitationRejected)));
     await _loadInvitations(showLoading: false);
   }
 
   String _statusText(int status) {
     switch (status) {
       case 0:
-        return '待处理';
+        return t.invitationStatusPending;
       case 1:
-        return '已接受';
+        return t.invitationStatusAccepted;
       case 2:
-        return '已拒绝';
+        return t.invitationStatusRejected;
       case 3:
-        return '已过期';
+        return t.invitationStatusExpired;
       case 4:
-        return '已取消';
+        return t.invitationStatusCancelled;
       default:
-        return '未知';
+        return t.invitationStatusUnknown;
     }
   }
 
@@ -155,7 +155,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     if (invitations.isEmpty) {
       return NoDataView(
         icon: Icons.mark_email_unread_outlined,
-        text: isMyInvitations ? '暂无收到的邀请' : '暂无发出的邀请',
+        text: isMyInvitations ? t.noReceivedInvitations : t.noSentInvitations,
       );
     }
 
@@ -198,15 +198,15 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
               children: [
                 Text(
                   isMyInvitations
-                      ? '邀请人: ${peerUid.isEmpty ? "-" : peerUid}'
-                      : '被邀请人: ${peerUid.isEmpty ? "-" : peerUid}',
+                      ? t.inviterLabel(uid: peerUid.isEmpty ? "-" : peerUid)
+                      : t.inviteeLabel(uid: peerUid.isEmpty ? "-" : peerUid),
                 ),
                 Text(
-                  '创建时间: ${DateFormat("yyyy-MM-dd HH:mm").format(createdAt)}',
+                  t.createdAtLabel(time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt)),
                 ),
                 if (expiresAt != null)
                   Text(
-                    '过期时间: ${DateFormat("yyyy-MM-dd HH:mm").format(expiresAt)}',
+                    t.expiredAtLabel(time: DateFormat("yyyy-MM-dd HH:mm").format(expiresAt)),
                   ),
                 // Internal IDs removed from UI display
               ],
@@ -226,7 +226,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                   IconButton(
                     onPressed: () => context.push('/channel/$channelId'),
                     icon: const Icon(Icons.open_in_new, size: 18),
-                    tooltip: '打开频道',
+                    tooltip: t.openChannel,
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 22),
@@ -257,14 +257,14 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     final t = context.t;
     if (_isLoading) {
       return Scaffold(
-        appBar: GlassAppBar(title: '频道邀请 / Channel Invitations'),
+        appBar: GlassAppBar(title: t.channelInvitations),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        appBar: GlassAppBar(title: '频道邀请 / Channel Invitations'),
+        appBar: GlassAppBar(title: t.channelInvitations),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -284,12 +284,12 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: '频道邀请 / Channel Invitations',
+        title: t.channelInvitations,
         rightDMActions: [
           IconButton(
             onPressed: () => _loadInvitations(showLoading: false),
             icon: const Icon(Icons.refresh),
-            tooltip: '刷新',
+            tooltip: t.groupList.refresh,
           ),
         ],
       ),
@@ -299,9 +299,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
             color: Theme.of(context).scaffoldBackgroundColor,
             child: TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(text: '我收到的'),
-                Tab(text: '我发出的'),
+              tabs: [
+                Tab(text: t.myReceivedTab),
+                Tab(text: t.mySentTab),
               ],
             ),
           ),
@@ -384,9 +384,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('邀请人: ${inviterUid.isEmpty ? "-" : inviterUid}'),
+                  Text(t.inviterLabel(uid: inviterUid.isEmpty ? "-" : inviterUid)),
                   Text(
-                    '创建时间: ${DateFormat("yyyy-MM-dd HH:mm").format(createdAt)}',
+                    t.createdAtLabel(time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt)),
                   ),
                   if (isPending) ...[
                     const SizedBox(height: 12),
@@ -400,7 +400,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                                     invitation: invitation,
                                     accept: false,
                                   ),
-                            child: Text(isProcessing ? '处理中...' : '拒绝'),
+                            child: Text(isProcessing ? t.processingDots : t.reject),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -412,7 +412,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                                     invitation: invitation,
                                     accept: true,
                                   ),
-                            child: Text(isProcessing ? '处理中...' : '接受'),
+                            child: Text(isProcessing ? t.processingDots : t.accept),
                           ),
                         ),
                       ],
@@ -423,7 +423,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                     TextButton.icon(
                       onPressed: () => context.push('/channel/$channelId'),
                       icon: const Icon(Icons.open_in_new),
-                      label: const Text('打开频道'),
+                      label: Text(t.openChannel),
                     ),
                   ],
                 ],

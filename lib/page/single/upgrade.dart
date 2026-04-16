@@ -306,7 +306,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
     try {
       final file = File(filePath);
       if (!await file.exists()) {
-        EasyLoading.showError('下载文件不存在，请重试');
+        EasyLoading.showError(t.downloadFileNotFound);
         _retryDownload();
         return;
       }
@@ -362,10 +362,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   void _retryDownload() {
     _hashRetryCount++;
     if (_hashRetryCount <= _maxHashRetry) {
-      EasyLoading.showError('文件校验失败，正在重新下载 ($_hashRetryCount/$_maxHashRetry)');
+      EasyLoading.showError(t.downloadHashRetrying(retry: _hashRetryCount, max: _maxHashRetry));
       upgradeApk(widget.downLoadUrl);
     } else {
-      EasyLoading.showError('文件多次校验失败，请检查网络后重试');
+      EasyLoading.showError(t.downloadHashFailed);
       _hashRetryCount = 0;
     }
   }
@@ -618,7 +618,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                             ),
                             const Spacer(),
                             Text(
-                              "${t.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}秒",
+                              "${t.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}${t.seconds}",
                             ),
                           ],
                         ),

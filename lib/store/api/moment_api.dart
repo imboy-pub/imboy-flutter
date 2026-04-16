@@ -134,10 +134,14 @@ class MomentApi extends HttpClient {
     String momentId, {
     required String content,
     String? replyToUid,
+    List<String> mentions = const [],
   }) async {
     final body = <String, dynamic>{'content': content};
     if (replyToUid != null && replyToUid.isNotEmpty) {
       body['reply_to_uid'] = replyToUid;
+    }
+    if (mentions.isNotEmpty) {
+      body['mentions'] = mentions;
     }
 
     final resp = await post(API.momentComment(momentId), data: body);

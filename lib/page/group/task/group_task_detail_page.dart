@@ -93,7 +93,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? context.t.groupTask.taskSubmitted : '提交失败，请稍后重试',
+          success ? context.t.groupTask.taskSubmitted : context.t.groupTask.submitFailed,
         ),
       ),
     );
@@ -154,12 +154,12 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
             value: _formatDeadline(_task!['deadline']),
           ),
           _InfoLine(
-            label: '任务ID',
+            label: context.t.groupTask.taskId,
             value: _toText(_task!['task_id']).isEmpty
                 ? widget.taskId
                 : _toText(_task!['task_id']),
           ),
-          _InfoLine(label: '待审核', value: _pendingReviewCount.toString()),
+          _InfoLine(label: context.t.groupTask.pendingReview, value: _pendingReviewCount.toString()),
           const SizedBox(height: 16),
           if (!isCompleted)
             ElevatedButton(

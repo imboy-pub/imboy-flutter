@@ -107,9 +107,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
 
   String _formatBurnAfterMs(int ms) {
     if (ms < 1000) return '${ms}ms';
-    if (ms % 60000 == 0) return '${ms ~/ 60000}分钟';
-    if (ms % 1000 == 0) return '${ms ~/ 1000}秒';
-    return '${(ms / 1000).toStringAsFixed(1)}秒';
+    if (ms % 60000 == 0) return t.durationMinutes(count: ms ~/ 60000);
+    if (ms % 1000 == 0) return t.durationSeconds(count: ms ~/ 1000);
+    return t.durationSeconds(count: (ms / 1000).toStringAsFixed(1));
   }
 
   Future<void> _selectBurnDuration() async {
@@ -343,10 +343,10 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         subtitle: mode == EncryptionMode.complianceE2ee
-            ? '消息受合规密钥保护'
+            ? t.msgProtectedByComplianceKey
             : mode == EncryptionMode.strictE2ee
-                ? '消息仅收发双方可读'
-                : '消息未加密传输',
+                ? t.msgOnlyVisibleToParties
+                : t.msgNotEncrypted,
         isFirst: true,
       ),
       // C7-α-2: 本地消息免打扰开关

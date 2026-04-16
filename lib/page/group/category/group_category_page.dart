@@ -119,7 +119,7 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
     return ListTile(
       leading: const Icon(Icons.folder),
       title: Text(category['name'] ?? ''),
-      subtitle: Text('${category['group_count'] ?? 0} 个群聊'),
+      subtitle: Text(t.groupCategoryGroupCount(count: category['group_count'] ?? 0)),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
         Navigator.push(

@@ -172,7 +172,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     }
     if (_tags.length >= _maxTags) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('最多可添加 8 个标签')),
+        SnackBar(content: Text(t.channelMaxTagsCount)),
       );
       return;
     }

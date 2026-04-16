@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
 
@@ -22,7 +23,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('创建恢复分片')),
+      appBar: AppBar(title: Text(t.e2eeSocialCreateTitle)),
       body: ListView(
         children: [
           _buildSettingsCard(),
@@ -43,13 +44,13 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '分片设置',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              t.e2eeSocialShardSettings,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              '总分片数',
+              t.e2eeSocialTotalShards,
               _totalShards,
               3,
               5,
@@ -57,7 +58,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              '恢复阈值',
+              t.e2eeSocialThreshold,
               _threshold,
               2,
               _totalShards - 1,
@@ -65,13 +66,16 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             ),
             const SizedBox(height: 16),
             Text(
-              '说明：分片将存储在代理设备上，服务端不保存任何分片',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              t.e2eeSocialShardStoredNote,
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 8),
             Text(
-              '恢复密钥时需要 $_threshold 个代理协助',
-              style: TextStyle(fontSize: 13, color: CupertinoColors.activeBlue),
+              t.e2eeSocialThresholdHint(count: _threshold),
+              style: const TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.activeBlue,
+              ),
             ),
           ],
         ),
@@ -127,27 +131,30 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '选择恢复代理',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                Text(
+                  t.e2eeSocialSelectProxy,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 TextButton(
                   onPressed: _showProxyPicker,
-                  child: const Text('添加代理'),
+                  child: Text(t.e2eeSocialAddProxy),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              '需要 $_totalShards 个信任的联系人作为代理',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              t.e2eeSocialProxyNeeded(count: _totalShards),
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 16),
             if (_selectedProxies.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: Text('请添加代理联系人'),
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Text(t.e2eeSocialAddProxyHint),
                 ),
               )
             else
@@ -163,7 +170,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
   }
 
   Widget _buildProxyItem(int index, Map<String, dynamic> proxy) {
-    final nickname = proxy['nickname'] ?? '用户 ${proxy['uid']}';
+    final nickname =
+        proxy['nickname'] ?? t.e2eeSocialProxyDefaultName(uid: proxy['uid']);
     final uid = proxy['uid'];
 
     return Card(
@@ -206,8 +214,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               ? const CupertinoActivityIndicator()
               : Text(
                   _selectedProxies.length < _totalShards
-                      ? '请先添加 $_totalShards 个代理'
-                      : '创建分片',
+                      ? t.e2eeSocialCreateNeedMore(count: _totalShards)
+                      : t.e2eeSocialCreateBtn,
                 ),
         ),
       ),
@@ -215,12 +223,10 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
   }
 
   Future<void> _showProxyPicker() async {
-    // 获取已选中的代理 UID 列表
     final selectedUids = _selectedProxies
         .map((p) => p['uid'] as String)
         .toList();
 
-    // 打开好友选择器页面
     final result = await Navigator.push(
       context,
       CupertinoPageRoute(
@@ -231,7 +237,6 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
       ),
     );
 
-    // 如果用户选择了代理，更新列表
     if (result != null && result is List) {
       setState(() {
         _selectedProxies = List<Map<String, dynamic>>.from(result);
@@ -243,7 +248,6 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
     setState(() => _isLoading = true);
 
     try {
-      // 准备代理列表（包含加密的公钥）
       final proxies = _selectedProxies.map((proxy) {
         return {
           'proxy_uid': proxy['uid'],
@@ -261,59 +265,65 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         setState(() => _isLoading = false);
         final shards = result['shards'] as List;
 
-        // 零信任架构：通过 WebSocket 将分片发送给代理
         if (kDebugMode) {
-          debugPrint('[E2EE] 开始发送分片到 ${shards.length} 个代理...');
+          debugPrint('[E2EE] sending shards to ${shards.length} proxies...');
         }
         final sentCount = await E2EESocialService.sendShardsToProxies(
           shards.cast<Map<String, dynamic>>(),
         );
 
         if (kDebugMode) {
-          debugPrint('[E2EE] 已成功发送 $sentCount/${shards.length} 个分片');
+          debugPrint('[E2EE] sent $sentCount/${shards.length} shards');
         }
 
         showCupertinoDialog(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: const Text('分片创建成功'),
+              title: Text(t.e2eeSocialCreateSuccessTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '密钥已分割成 ${result['total_shards']} 个分片',
+                    t.e2eeSocialTotalShardsInfo(
+                      count: result['total_shards'] as int,
+                    ),
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '分片已通过 WebSocket 直接发送到代理设备存储',
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                    t.e2eeSocialShardSentViaWs,
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '需要 ${result['threshold']} 个代理协助即可恢复密钥',
-                    style: TextStyle(
+                    t.e2eeSocialThresholdInfo(
+                      count: result['threshold'] as int,
+                    ),
+                    style: const TextStyle(
                       fontSize: 13,
                       color: CupertinoColors.activeBlue,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '已发送到 $sentCount 个代理设备（共 ${shards.length} 个）',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    t.e2eeSocialSentCount(
+                      sent: sentCount,
+                      total: shards.length,
+                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '零信任架构：服务端不保存任何分片',
-                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                    t.e2eeSocialZeroTrustNote,
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                 ],
               ),
               actions: [
                 CupertinoDialogAction(
-                  child: const Text('确定'),
+                  child: Text(t.buttonOk),
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pop(context);
@@ -331,11 +341,11 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: const Text('创建失败'),
-              content: const Text('创建分片失败，请重试'),
+              title: Text(t.e2eeSocialCreateFailTitle),
+              content: Text(t.e2eeSocialCreateFailBody),
               actions: [
                 CupertinoDialogAction(
-                  child: const Text('确定'),
+                  child: Text(t.buttonOk),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

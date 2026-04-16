@@ -133,8 +133,7 @@ class DarkModelPage extends ConsumerWidget {
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.darkModel),
       body: ListView(
         children: [
-          // TODO: 迁移到 slang i18n
-          _buildSectionHeader(context, '显示'),
+          _buildSectionHeader(context, t.sectionDisplay),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
@@ -155,8 +154,7 @@ class DarkModelPage extends ConsumerWidget {
             ),
           ),
           if (!state.switchValue) ...[
-            // TODO: 迁移到 slang i18n
-            _buildSectionHeader(context, '主题'),
+            _buildSectionHeader(context, t.sectionTheme),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(

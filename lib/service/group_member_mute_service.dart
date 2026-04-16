@@ -29,6 +29,29 @@ final class MuteApiFailure extends MuteResult {
   const MuteApiFailure([this.message]);
 }
 
+/// 解禁操作结果（sealed）。与 `MuteResult` 对称但独立，避免类型混用。
+sealed class UnmuteResult {
+  const UnmuteResult();
+}
+
+/// 解禁成功。权威 `mute_until=null` 以 S2C `group_member_mute` 通知为准
+///（后端解禁走同一 action，payload 携带 mute_until=0 / 省略）。
+final class UnmuteSuccess extends UnmuteResult {
+  const UnmuteSuccess();
+}
+
+/// 入参校验失败（gid / userId 为空）。不发起网络请求。
+final class UnmuteValidationError extends UnmuteResult {
+  final String message;
+  const UnmuteValidationError(this.message);
+}
+
+/// API 完成但服务端返回失败。
+final class UnmuteApiFailure extends UnmuteResult {
+  final String? message;
+  const UnmuteApiFailure([this.message]);
+}
+
 /// 群成员禁言服务 —— 前端业务门面层。
 ///
 /// 职责：
@@ -77,5 +100,24 @@ class GroupMemberMuteService {
       // API 层二次校验命中（理论上前置校验已经挡掉，但保留作为防御）
       return MuteValidationError(e.message?.toString() ?? 'invalid duration');
     }
+  }
+
+  /// 解除指定群成员的禁言。
+  ///
+  /// 前置校验：gid / userId 均非空。成功后权威 `mute_until` 归零由 S2C
+  /// `group_member_mute` 通知统一下发，本方法不做乐观本地写入。
+  Future<UnmuteResult> unmute({
+    required String gid,
+    required String userId,
+  }) async {
+    if (gid.isEmpty) {
+      return const UnmuteValidationError('gid 不能为空');
+    }
+    if (userId.isEmpty) {
+      return const UnmuteValidationError('userId 不能为空');
+    }
+    final ok = await _api.unmute(gid: gid, userId: userId);
+    if (!ok) return const UnmuteApiFailure();
+    return const UnmuteSuccess();
   }
 }

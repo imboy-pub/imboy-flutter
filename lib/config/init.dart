@@ -48,6 +48,7 @@ import 'package:xid/xid.dart';
 
 import 'env.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'routes.dart';
 
 // ignore: prefer_generic_function_type_aliases
@@ -402,7 +403,7 @@ class AppInitializer {
               onTimeout: () {
                 if (kDebugMode) debugPrint('❌ initConfig: 请求超时 (10秒)');
                 return IMBoyHttpResponse.failure(
-                  errMsg: "配置获取超时: 请检查网络连接或服务端状态",
+                  errMsg: t.initConfigTimeout,
                   errCode: 408,
                 );
               },
@@ -423,7 +424,7 @@ class AppInitializer {
       if (kDebugMode) debugPrint("initConfig completed with code ${resp1!.code}");
       if (!resp1!.ok) {
         if (kDebugMode) debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
-        final error = {"error": "网络故障或服务故障 (HTTP ${resp1.code})"};
+        final error = {"error": t.initConfigNetworkError(code: resp1.code.toString())};
         _initConfigCompleter!.complete(error);
         return error;
       }
@@ -433,7 +434,7 @@ class AppInitializer {
 
       if (encrypted.isEmpty) {
         if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
-        final error = {"error": "服务故障协议有误"};
+        final error = {"error": t.initConfigProtocolError};
         _initConfigCompleter!.complete(error);
         return error;
       }
@@ -441,6 +442,7 @@ class AppInitializer {
       if (kDebugMode) debugPrint('🔧 initConfig: 开���解密配置');
       final key = await Env.signKey();
       if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
+      if (kDebugMode) debugPrint('🔐 [INIT] signKey value: $key, iv: ${Env().solidifiedKeyIv}');
       Map<String, dynamic> payload = jsonDecode(
         EncrypterService.aesDecrypt(
           encrypted,
@@ -494,7 +496,7 @@ class AppInitializer {
         debugPrint('❌ initConfig: 请求异常 ${e.runtimeType}');
         debugPrint('❌ initConfig: 堆栈追踪: $stack');
       }
-      final error = {"error": "配置获取失败，请检查网络连接"};
+      final error = {"error": t.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
       if (!_initConfigCompleter!.isCompleted) {
         _initConfigCompleter!.complete(error);

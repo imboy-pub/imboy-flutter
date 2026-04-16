@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/page/group/announcement/group_announcement_provider.dart';
+// canManageAnnouncement re-exported from group_announcement_provider.dart
 
 class GroupAnnouncementPage extends ConsumerStatefulWidget {
   final String groupId;
@@ -43,10 +44,12 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
         automaticallyImplyLeading: true,
         title: t.groupAnnouncement,
         rightDMActions: [
-          IconButton(
-            icon: Icon(Icons.add, color: Theme.of(context).iconTheme.color),
-            onPressed: () => _showPublishDialog(context, notifier),
-          ),
+          // 仅 admin / owner / vice_owner 可发布公告
+          if (canManageAnnouncement(state.currentUserRole))
+            IconButton(
+              icon: Icon(Icons.add, color: Theme.of(context).iconTheme.color),
+              onPressed: () => _showPublishDialog(context, notifier),
+            ),
         ],
       ),
       body: state.announcements.isEmpty && !state.isLoading
@@ -73,6 +76,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     context,
                     announcement,
                     notifier,
+                    canManage: canManageAnnouncement(state.currentUserRole),
                   );
                 },
               ),
@@ -84,8 +88,9 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
   Widget _buildAnnouncementItem(
     BuildContext context,
     AnnouncementModel announcement,
-    GroupAnnouncementNotifier notifier,
-  ) {
+    GroupAnnouncementNotifier notifier, {
+    required bool canManage,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -154,18 +159,20 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   ],
                 ),
                 const Spacer(),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.error.withValues(alpha: 0.7),
+                // 仅管理员可见删除按钮
+                if (canManage)
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.error.withValues(alpha: 0.7),
+                    ),
+                    onPressed: () {
+                      _showDeleteDialog(context, announcement, notifier);
+                    },
                   ),
-                  onPressed: () {
-                    _showDeleteDialog(context, announcement, notifier);
-                  },
-                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -205,7 +212,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '有效期至: ${notifier.formatTime(announcement.expiredAt!)}',
+                      t.groupAnnouncementExpiry(time: notifier.formatTime(announcement.expiredAt!)),
                       style: TextStyle(
                         color: Theme.of(
                           context,

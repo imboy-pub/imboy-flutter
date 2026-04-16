@@ -10,6 +10,7 @@ import 'package:octo_image/octo_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoView, zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
@@ -131,7 +132,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
           children: [
             Icon(Icons.broken_image, size: 32),
             SizedBox(height: 8),
-            Text('加载失败', style: TextStyle(fontSize: 12)),
+            Text(t.imageLoadFailed, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),

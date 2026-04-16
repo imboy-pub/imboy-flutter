@@ -36,7 +36,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),

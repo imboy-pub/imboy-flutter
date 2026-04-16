@@ -99,14 +99,14 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
   String _attrLabel(String attr) {
     switch (attr) {
       case 'all':
-        return '全部';
+        return t.groupList.attrAll;
       case 'owner':
-        return '我创建';
+        return t.groupList.attrOwner;
       case 'manager':
-        return '我管理';
+        return t.groupList.attrManager;
       case 'join':
       default:
-        return '我加入';
+        return t.groupList.attrJoin;
     }
   }
 
@@ -155,7 +155,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
           IconButton(
             onPressed: _refreshWithSelfHeal,
             icon: const Icon(Icons.refresh),
-            tooltip: '刷新',
+            tooltip: t.groupList.refresh,
             splashRadius: 20,
           ),
         ],

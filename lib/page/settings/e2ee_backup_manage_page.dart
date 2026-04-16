@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
 
 /// E2EE 备份管理页面
@@ -22,7 +23,6 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   @override
   void initState() {
     super.initState();
-    // 延迟加载备份历史，避免布局期间触发 setState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadBackupHistory();
@@ -34,7 +34,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('备份管理'),
+        title: Text(t.e2eeBackupManage),
         actions: [
           IconButton(
             onPressed: _loadBackupHistory,
@@ -57,12 +57,12 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             Icon(Icons.backup_outlined, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: 16),
             Text(
-              '暂无备份记录',
+              t.e2eeBackupNoRecords,
               style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
-              '导出备份后将在此显示历史记录',
+              t.e2eeBackupNoRecordsHint,
               style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
             ),
           ],
@@ -81,8 +81,8 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   }
 
   Widget _buildBackupCard(Map<String, dynamic> backup) {
-    final deviceId = backup['device_id'] ?? '未知设备';
-    final createdAt = backup['created_at'] ?? '未知时间';
+    final deviceId = backup['device_id'] ?? t.unknown;
+    final createdAt = backup['created_at'] ?? t.unknown;
     final backupVersion = backup['backup_version'] ?? 0;
 
     return Card(
@@ -98,8 +98,8 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             ),
           ),
         ),
-        title: Text('设备 $deviceId'),
-        subtitle: Text('创建于 $createdAt'),
+        title: Text(t.e2eeBackupDeviceLabel(id: deviceId.toString())),
+        subtitle: Text(t.e2eeBackupCreatedAtLabel(time: createdAt.toString())),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
           onPressed: () => _showDeleteDialog(backup),
@@ -133,24 +133,24 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('备份详情'),
+        title: Text(t.e2eeBackupDetailTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDetailRow('设备 ID', backup['device_id']),
-              _buildDetailRow('备份版本', '#${backup['backup_version']}'),
-              _buildDetailRow('创建时间', backup['created_at']),
-              _buildDetailRow('文件大小', '${backup['file_size']} bytes'),
-              _buildDetailRow('备注', backup['user_notes'] ?? '无'),
+              _buildDetailRow(t.e2eeBackupDeviceIdLabel, backup['device_id']),
+              _buildDetailRow(t.e2eeBackupVersionNum, '#${backup['backup_version']}'),
+              _buildDetailRow(t.e2eeBackupCreatedAtRow, backup['created_at']),
+              _buildDetailRow(t.e2eeBackupFileSizeRow, '${backup['file_size']} bytes'),
+              _buildDetailRow(t.e2eeBackupNoteRow, backup['user_notes'] ?? t.unknown),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('关闭'),
+            child: Text(t.buttonClose),
           ),
         ],
       ),
@@ -161,19 +161,22 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除备份记录'),
-        content: Text('确定要删除此备份记录吗？'),
+        title: Text(t.e2eeBackupDeleteTitle),
+        content: Text(t.e2eeBackupDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
+            child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _deleteBackup(backup['id']);
             },
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            child: Text(
+              t.buttonDelete,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -209,11 +212,17 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
         _backupHistory.removeWhere((b) => b['id'] == backupId);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('备份记录已删除'), backgroundColor: Colors.green),
+        SnackBar(
+          content: Text(t.e2eeBackupDeleteSuccess),
+          backgroundColor: Colors.green,
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('删除失败，请重试'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(t.e2eeDeleteFailed),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }

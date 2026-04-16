@@ -307,7 +307,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
               ),
-              child: Text("获取验证码", style: const TextStyle(color: Colors.white)),
+              child: Text(t.getVerificationCode, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),

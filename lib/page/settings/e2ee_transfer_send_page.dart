@@ -25,7 +25,6 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
   @override
   void initState() {
     super.initState();
-    // 延迟初始化，避免布局期间触发 setState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _initTransfer();
@@ -35,23 +34,21 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
   Future<void> _initTransfer() async {
     try {
-      // 检查密钥是否存在
       final hasKey = await E2EEKeyService.hasKey();
       if (!hasKey) {
         setState(() {
-          _errorMessage = '请先生成密钥对';
+          _errorMessage = t.e2eeTransferErrNoKey;
           _isLoading = false;
         });
         return;
       }
 
-      // 密钥存在，显示输入对话框让用户输入接收方用户 ID
       setState(() {
         _isLoading = false;
       });
     } on Exception {
       setState(() {
-        _errorMessage = '初始化失败，请重试';
+        _errorMessage = t.e2eeTransferErrInitFailed;
         _isLoading = false;
       });
     }
@@ -64,22 +61,19 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
     });
 
     try {
-      // 1. 获取接收方的公钥
       final keyData = await E2EEService.getUserDevicePublicKeys(toUid);
       final didToPem = keyData['didToPem'] ?? {};
 
       if (didToPem.isEmpty) {
         setState(() {
-          _errorMessage = '接收方没有可用的公钥';
+          _errorMessage = t.e2eeTransferErrNoRecipientKey;
           _isLoading = false;
         });
         return;
       }
 
-      // 获取第一个可用设备的公钥
       final recipientPublicKey = didToPem.values.first;
 
-      // 2. 构建密钥包
       final storage = StorageSecureService.to;
       final privateKey = await storage.getPrivateKey();
       final publicKey = await storage.getPublicKey();
@@ -88,7 +82,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
       if (privateKey == null || publicKey == null) {
         setState(() {
-          _errorMessage = '密钥未找到';
+          _errorMessage = t.e2eeTransferErrKeyNotFound;
           _isLoading = false;
         });
         return;
@@ -101,13 +95,11 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
         'key_id': keyId,
       };
 
-      // 3. 使用接收方公钥加密密钥包
       final encryptedKeyBundle = await E2EETransferService.encryptKeyBundle(
         keyBundle,
         recipientPublicKey,
       );
 
-      // 4. 创建传输会话
       final result = await E2EETransferService.createTransfer(
         toUid: toUid,
         encryptedKeyBundle: encryptedKeyBundle,
@@ -119,7 +111,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       });
     } on Exception {
       setState(() {
-        _errorMessage = '创建传输会话失败，请重试';
+        _errorMessage = t.e2eeTransferErrCreateFailed;
         _isLoading = false;
       });
     }
@@ -129,11 +121,11 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('发送密钥到新设备'),
+        title: Text(t.e2eeTransferSendTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       body: _buildBody(),
@@ -159,7 +151,6 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               CupertinoButton.filled(
                 child: Text(t.buttonRetry),
                 onPressed: () {
-                  // 显示输入对话框
                   _showToUidDialog();
                 },
               ),
@@ -173,7 +164,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       return Center(
         child: CupertinoButton.filled(
           onPressed: _showToUidDialog,
-          child: const Text('创建传输会话'),
+          child: Text(t.e2eeTransferCreateSessionBtn),
         ),
       );
     }
@@ -194,13 +185,13 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             color: CupertinoColors.activeBlue,
           ),
           const SizedBox(height: 16),
-          const Text(
-            '请在新设备上扫描此二维码',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          Text(
+            t.e2eeTransferQRHint,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
-            '二维码将在 $_expiresAt 过期',
+            t.e2eeTransferQRExpiry(time: _expiresAt ?? ''),
             style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 32),
@@ -224,13 +215,13 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            '传输会话已创建',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Text(
+            t.e2eeTransferSessionCreated,
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 32),
           CupertinoButton.filled(
-            child: const Text('刷新二维码'),
+            child: Text(t.e2eeTransferRefreshQR),
             onPressed: () {
               setState(() {
                 _sessionId = null;
@@ -249,12 +240,12 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       context: context,
       builder: (ctx) {
         return CupertinoAlertDialog(
-          title: const Text('输入接收方用户 ID'),
+          title: Text(t.e2eeTransferEnterUidTitle),
           content: Padding(
             padding: const EdgeInsets.only(top: 12),
             child: CupertinoTextField(
               controller: controller,
-              placeholder: '接收方用户 ID',
+              placeholder: t.e2eeTransferUidPlaceholder,
             ),
           ),
           actions: [
@@ -266,7 +257,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             ),
             CupertinoDialogAction(
               isDefaultAction: true,
-              child: const Text('创建'),
+              child: Text(t.e2eeTransferCreateBtn),
               onPressed: () {
                 final toUid = controller.text.trim();
                 if (toUid.isEmpty) {
@@ -274,7 +265,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
                     context: context,
                     builder: (c) {
                       return CupertinoAlertDialog(
-                        content: const Text('请输入有效的用户 ID'),
+                        content: Text(t.e2eeTransferUidEmptyError),
                         actions: [
                           CupertinoDialogAction(
                             child: Text(t.confirm),

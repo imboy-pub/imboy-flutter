@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +12,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/page/channel/channel_edit_rules.dart';
 
 /// 编辑频道页面
 class ChannelEditPage extends ConsumerStatefulWidget {
@@ -42,35 +42,6 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   File? _avatarFile;
   final List<String> _tags = [];
   static const int _maxTags = 8;
-
-  bool _isUpdateApplied({
-    required ChannelModel channel,
-    required String name,
-    required String description,
-    String? avatar,
-    List<String>? tags,
-  }) {
-    final avatarMatched = avatar == null || (channel.avatar ?? '') == avatar;
-    final tagsMatched = tags == null || _sameTags(channel.tags, tags);
-    return channel.name == name &&
-        (channel.description ?? '') == description &&
-        avatarMatched &&
-        tagsMatched;
-  }
-
-  List<String> _normalizeTags(List<String>? tags) {
-    final normalized = (tags ?? const <String>[])
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
-    return normalized;
-  }
-
-  bool _sameTags(List<String>? left, List<String>? right) {
-    return listEquals(_normalizeTags(left), _normalizeTags(right));
-  }
 
   @override
   void initState() {
@@ -143,7 +114,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       final targetName = _nameController.text.trim();
       final targetDescription = _descriptionController.text.trim();
       final targetAvatar = _avatarUrl?.trim();
-      final targetTags = _normalizeTags(_tags);
+      final targetTags = normalizeTags(_tags);
       final result = await api.updateChannel(
         channelId,
         name: targetName,
@@ -154,7 +125,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
       if (mounted) {
         if (result != null &&
-            _isUpdateApplied(
+            isChannelUpdateApplied(
               channel: result,
               name: targetName,
               description: targetDescription,
@@ -294,7 +265,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     if (_tags.length >= _maxTags) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('最多可添加 8 个标签')));
+      ).showSnackBar(SnackBar(content: Text(t.channelMaxTagsCount)));
       return;
     }
     setState(() => _tags.add(tag));

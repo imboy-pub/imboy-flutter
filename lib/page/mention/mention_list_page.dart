@@ -124,7 +124,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     if (groupId.isEmpty || msgId.isEmpty || !mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('消息定位信息缺失，无法跳转')));
+      ).showSnackBar(SnackBar(content: Text(t.mention.navInfoMissing)));
       return;
     }
 

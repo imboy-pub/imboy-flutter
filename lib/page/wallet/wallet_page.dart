@@ -49,12 +49,12 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('充值'),
+        title: Text(t.rechargeTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('请输入充值金额（元），1元～10000元'),
+            Text(t.rechargeAmountHint),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
@@ -62,10 +62,10 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
               ],
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 prefixText: '¥ ',
-                hintText: '例如：100',
-                border: OutlineInputBorder(),
+                hintText: t.rechargeAmountExample,
+                border: const OutlineInputBorder(),
               ),
               autofocus: true,
             ),
@@ -81,17 +81,17 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               final input = controller.text.trim();
               final yuan = double.tryParse(input);
               if (yuan == null || yuan < 1 || yuan > 10000) {
-                EasyLoading.showError('请输入1元到10000元之间的金额');
+                EasyLoading.showError(t.rechargeAmountError);
                 return;
               }
               final amountFen = (yuan * 100).round();
               Navigator.of(ctx).pop();
               final ok = await ref.read(walletProvider.notifier).topup(amountFen);
               if (ok) {
-                EasyLoading.showSuccess('充值成功');
+                EasyLoading.showSuccess(t.rechargeSuccess);
               }
             },
-            child: const Text('确认充值'),
+            child: Text(t.rechargeConfirm),
           ),
         ],
       ),
@@ -122,7 +122,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            tooltip: '充值',
+            tooltip: t.rechargeTitle,
             onPressed: () => _showTopupDialog(context),
           ),
           IconButton(
@@ -376,7 +376,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '流水记录',
+                t.transactionHistory2,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.white54 : Colors.grey[600],
@@ -392,7 +392,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Text(
-                      '暂无流水记录',
+                      t.noTransactionHistory,
                       style: TextStyle(
                         color: isDark ? Colors.white38 : Colors.grey,
                         fontSize: 14,
@@ -410,7 +410,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          '— 已全部加载 —',
+                          t.allLoaded,
                           style: TextStyle(
                             color: isDark ? Colors.white38 : Colors.grey,
                             fontSize: 12,
@@ -428,7 +428,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     final amountYuan = (tx.amount.abs() / 100.0).toStringAsFixed(2);
     final amountText = tx.isIncome ? '+¥$amountYuan' : '-¥$amountYuan';
     final amountColor = tx.isIncome ? Colors.green : Colors.red;
-    final typeLabel = tx.isIncome ? '充值' : '消费';
+    final typeLabel = tx.isIncome ? t.transactionTypeIncome : t.transactionTypeExpense;
 
     return Container(
       decoration: BoxDecoration(

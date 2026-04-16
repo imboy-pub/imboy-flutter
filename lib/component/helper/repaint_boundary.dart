@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:imboy/i18n/strings.g.dart';
+
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -52,7 +54,7 @@ class RepaintBoundaryHelper {
       return {"isSuccess": true, "filePath": asset.id};
     } on Exception catch (e) {
       if (kDebugMode) debugPrint("savePhoto error: ${e.runtimeType}");
-      return {"isSuccess": false, "errorMessage": "保存失败，请重试"};
+      return {"isSuccess": false, "errorMessage": t.saveFailedRetry};
     }
   }
 }

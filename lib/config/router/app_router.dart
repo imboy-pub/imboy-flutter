@@ -395,6 +395,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: '/member_detail',
+            name: 'group_member_detail',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return CupertinoPage(
+                key: state.pageKey,
+                child: GroupMemberDetailPage(
+                  groupId: extra['groupId']?.toString() ?? '',
+                  userId: extra['userId']?.toString() ?? '',
+                ),
+              );
+            },
+          ),
+          GoRoute(
             path: '/add_member',
             name: 'group_add_member',
             pageBuilder: (context, state) {
@@ -1372,7 +1386,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => context.go(AppRoutes.initial),
-              child: const Text('返回首页'),
+              child: Text(t.buttonBackHome),
             ),
           ],
         ),

@@ -165,12 +165,12 @@ class AttachmentApi {
         }
       } catch (e) {
         debugPrint("❌ 替代方法失败: $e");
-        errorCallback(Exception("无法获取文件，请重试或使用相册选择"));
+        errorCallback(Exception(t.attachmentGetFileFailed));
         return;
       }
 
       if (file == null) {
-        errorCallback(Exception("文件获取失败，Android 9 可能存在兼容性问题"));
+        errorCallback(Exception(t.attachmentGetFileFailedAndroid9));
         return;
       }
     }
@@ -317,7 +317,7 @@ class AttachmentApi {
                 errorCallback(e);
               });
         } else {
-          errorCallback(Exception("无法获取图片数据，请重试"));
+          errorCallback(Exception(t.attachmentGetImageDataFailed));
         }
         return;
       }
@@ -351,7 +351,7 @@ class AttachmentApi {
       // Android 9 兼容性：处理 originBytes 为 null 的情况
       if (thumbData == null || thumbData.isEmpty) {
         debugPrint("❌ uploadVideo: originBytes 返回空数据");
-        errorCallback(Exception("无法获取原始图片数据"));
+        errorCallback(Exception(t.attachmentGetOriginalImageFailed));
         return;
       }
 

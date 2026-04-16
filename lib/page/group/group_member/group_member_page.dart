@@ -13,7 +13,12 @@ import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+
+import 'package:imboy/page/group/group_role_rules.dart';
+import 'mute_remaining_badge.dart';
 
 /// 群成员列表页面
 class GroupMemberPage extends ConsumerStatefulWidget {
@@ -37,16 +42,54 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   int _myRole = 1;
 
   StreamSubscription? _localeSubscription;
+  // slice-9c：群成员禁言/解禁 S2C 事件订阅
+  StreamSubscription<GroupMemberMuteEvent>? _ssMemberMute;
+  StreamSubscription<GroupMemberUnmuteEvent>? _ssMemberUnmute;
 
   @override
   void initState() {
     super.initState();
     _loadData();
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     });
+    _setupMuteEventListeners();
+  }
+
+  /// 订阅群成员禁言/解禁事件，实时刷新列表中对应成员的禁言徽章。
+  void _setupMuteEventListeners() {
+    _ssMemberMute = AppEventBus.on<GroupMemberMuteEvent>().listen(
+      (event) {
+        if (!mounted) return;
+        if (event.gid.toString() != widget.groupId) return;
+        if (event.userId.isEmpty) return;
+        // 找到对应成员，原地更新 muteUntilMs 后触发重建
+        final idx =
+            _memberList.indexWhere((m) => m.userId.toString() == event.userId);
+        if (idx == -1) return;
+        setState(() {
+          _memberList[idx].muteUntilMs = event.muteUntilMs;
+        });
+      },
+      onError: (error) =>
+          debugPrint('GroupMemberMuteEvent listener error: $error'),
+    );
+
+    _ssMemberUnmute = AppEventBus.on<GroupMemberUnmuteEvent>().listen(
+      (event) {
+        if (!mounted) return;
+        if (event.gid.toString() != widget.groupId) return;
+        if (event.userId.isEmpty) return;
+        final idx =
+            _memberList.indexWhere((m) => m.userId.toString() == event.userId);
+        if (idx == -1) return;
+        setState(() {
+          _memberList[idx].muteUntilMs = null;
+        });
+      },
+      onError: (error) =>
+          debugPrint('GroupMemberUnmuteEvent listener error: $error'),
+    );
   }
 
   @override
@@ -54,6 +97,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     _refreshController.dispose();
     _scrollController.dispose();
     _localeSubscription?.cancel();
+    _ssMemberMute?.cancel();
+    _ssMemberUnmute?.cancel();
     super.dispose();
   }
 
@@ -221,8 +266,13 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (member.role == 3 || member.role == 4)
+                      if (isGroupAdmin(member.role))
                         _buildRoleBadge(member.role),
+                      // F2：禁言剩余时间徽章（slice-1 muteUntilMs + slice-2 label）
+                      MuteRemainingBadge(
+                        muteUntilMs: member.muteUntilMs,
+                        nowMs: DateTime.now().millisecondsSinceEpoch,
+                      ),
                     ],
                   ),
                   if (member.sign.isNotEmpty) ...[

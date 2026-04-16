@@ -82,7 +82,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               onPressed: () {
                 context.push('/channel/invitations');
               },
-              tooltip: '频道邀请',
+              tooltip: t.channelInvitations,
             ),
           if (AppFeatureRegistry.isEnabled('channel_discover'))
             IconButton(

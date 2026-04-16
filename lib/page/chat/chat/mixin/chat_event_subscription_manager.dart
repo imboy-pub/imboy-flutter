@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
@@ -351,7 +352,7 @@ class ChatEventSubscriptionManager {
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 3),
-        action: SnackBarAction(label: '确定', onPressed: () {}),
+        action: SnackBarAction(label: t.buttonOk, onPressed: () {}),
       ),
     );
   }

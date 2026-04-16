@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/group_role_rules.dart';
 
 /// @提及候选项
 class MentionCandidate {
@@ -53,8 +54,8 @@ class MentionCandidate {
     );
   }
 
-  /// 检查是否是管理员或群主
-  bool get isAdmin => role >= 3;
+  /// 检查是否是管理员或群主（admin/owner/vice_owner）
+  bool get isAdmin => isGroupAdmin(role);
 
   /// 获取角色显示文本
   String get roleText => groupRoleLabel(role);
@@ -67,8 +68,8 @@ class MentionCandidate {
   Color roleTextColor(ColorScheme colorScheme) =>
       groupRoleFgColor(role, colorScheme);
 
-  /// 是否显示角色标签（角色 >= 3 才显示）
-  bool get showRoleBadge => role >= 3;
+  /// 是否显示角色标签（admin/owner/vice_owner 才显示）
+  bool get showRoleBadge => isGroupAdmin(role);
 
   Map<String, dynamic> toJson() => {
     'user_id': userId,
@@ -280,8 +281,8 @@ class MentionState {
     );
   }
 
-  /// 当前用户是否是管理员
-  bool get isAdmin => currentUserRole >= 3;
+  /// 当前用户是否是管理员（admin/owner/vice_owner）
+  bool get isAdmin => isGroupAdmin(currentUserRole);
 
   /// 获取过滤后的候选列表
   ///

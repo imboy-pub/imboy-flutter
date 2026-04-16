@@ -469,13 +469,8 @@ class ChatPageState extends ConsumerState<ChatPage>
       }
       final payload = conversation.payload;
       _burnEnabled = payload?['burn_enabled'] == true;
-      final raw = payload?['burn_after_ms'];
-      if (raw is int && raw > 0) {
-        _burnAfterMs = raw;
-      } else if (raw is String) {
-        final v = int.tryParse(raw);
-        if (v != null && v > 0) _burnAfterMs = v;
-      }
+      final burnMs = parseBurnAfterMs(payload?['burn_after_ms']);
+      if (burnMs != null) _burnAfterMs = burnMs;
       await _applySecureFlag();
 
       // 初始化附件处理器（在 _burnEnabled 和 _burnAfterMs 设置后）
@@ -1410,9 +1405,12 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 发送引用消息
   Future<bool> _sendQuoteMessage(String text) async {
-    String quoteMsgAuthorName = quoteMessage!.authorId == widget.peerId
-        ? widget.peerTitle
-        : UserRepoLocal.to.current.nickname;
+    final quoteMsgAuthorName = resolveQuoteAuthorName(
+      quoteAuthorId: quoteMessage!.authorId,
+      currentUid: UserRepoLocal.to.currentUid,
+      myNickname: UserRepoLocal.to.current.nickname,
+      peerTitle: widget.peerTitle,
+    );
     final message = CustomMessage(
       authorId: currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
@@ -1654,11 +1652,12 @@ class ChatPageState extends ConsumerState<ChatPage>
         },
       ),
       quoteTipsWidget: QuoteTipsWidget(
-        title:
-            (quoteMessage != null &&
-                quoteMessage?.authorId == UserRepoLocal.to.currentUid)
-            ? UserRepoLocal.to.current.nickname
-            : widget.peerTitle,
+        title: resolveQuoteAuthorName(
+          quoteAuthorId: quoteMessage?.authorId,
+          currentUid: UserRepoLocal.to.currentUid,
+          myNickname: UserRepoLocal.to.current.nickname,
+          peerTitle: widget.peerTitle,
+        ),
         message: quoteMessage,
         close: () => updateQuoteMessage(null),
       ),
@@ -1952,45 +1951,25 @@ class ChatPageState extends ConsumerState<ChatPage>
               final isSystemMessage = message.authorId == 'system';
               final isFirstInGroup = groupStatus?.isFirst ?? true;
               final isLastInGroup = groupStatus?.isLast ?? true;
-              final shouldShowAvatar =
-                  !isSystemMessage && isLastInGroup && isRemoved != true;
+              final shouldShowAvatar = shouldShowMessageAvatar(
+                isSystemMessage: isSystemMessage,
+                isLastInGroup: isLastInGroup,
+                isRemoved: isRemoved,
+              );
               final isCurrentUser = message.authorId == currentUser.id;
-              final shouldShowUsername =
-                  !isSystemMessage && isFirstInGroup && isRemoved != true;
+              final shouldShowUsername = shouldShowMessageUsername(
+                isSystemMessage: isSystemMessage,
+                isFirstInGroup: isFirstInGroup,
+                isRemoved: isRemoved,
+              );
 
+              final statusSpec = resolveMessageStatusIcon(message.status);
               Widget? statusIcon;
-              switch (message.status) {
-                case MessageStatus.sending:
-                  statusIcon = Icon(
-                    Icons.access_time,
-                    size: 16,
-                    color: themeNotifier.getThemeColor('textSecondary'),
-                  );
-                  break;
-                case MessageStatus.sent:
-                case MessageStatus.delivered:
-                  statusIcon = Icon(
-                    Icons.done_all,
-                    size: 16,
-                    color: themeNotifier.getThemeColor('primary'),
-                  );
-                  break;
-                case MessageStatus.seen:
-                  statusIcon = Icon(
-                    Icons.done_all,
-                    size: 16,
-                    color: themeNotifier.getChatColor('sendMessageBg'),
-                  );
-                  break;
-                case MessageStatus.error:
-                  statusIcon = Icon(
-                    Icons.error_outline,
-                    size: 16,
-                    color: themeNotifier.getThemeColor('error'),
-                  );
-                  break;
-                default:
-                  statusIcon = null;
+              if (statusSpec.hasIcon) {
+                final color = statusSpec.colorKey == 'sendMessageBg'
+                    ? themeNotifier.getChatColor(statusSpec.colorKey!)
+                    : themeNotifier.getThemeColor(statusSpec.colorKey!);
+                statusIcon = Icon(statusSpec.iconData, size: 16, color: color);
               }
               Widget? avatar;
               if (shouldShowAvatar) {
@@ -2015,12 +1994,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                   ? BurnBadge(
                       isSentByMe: isCurrentUser,
                       burnAfterMs: _burnAfterMsFromMessage(message),
-                      burnReadAtMs: (message.metadata?['burn_read_at'] is int)
-                          ? message.metadata!['burn_read_at'] as int
-                          : int.tryParse(
-                                  '${message.metadata?['burn_read_at'] ?? 0}',
-                                ) ??
-                                0,
+                      burnReadAtMs: parseBurnReadAtMs(message.metadata),
                       burnTicker: _burnTicker,
                     )
                   : null;
@@ -2088,14 +2062,13 @@ class ChatPageState extends ConsumerState<ChatPage>
                     : isSystemMessage
                     ? null
                     : const SizedBox(width: 40),
-                receivedMessageScaleAnimationAlignment:
-                    (message is SystemMessage)
+                receivedMessageScaleAnimationAlignment: isSystemMessage
                     ? Alignment.center
                     : Alignment.centerLeft,
-                receivedMessageAlignment: (message is SystemMessage)
+                receivedMessageAlignment: isSystemMessage
                     ? AlignmentDirectional.center
                     : AlignmentDirectional.centerStart,
-                horizontalPadding: (message is SystemMessage) ? 0 : 8,
+                horizontalPadding: isSystemMessage ? 0 : 8,
                 child: child,
               );
               // 可视阈值已读（受隐私设置控制）
@@ -2103,16 +2076,10 @@ class ChatPageState extends ConsumerState<ChatPage>
               if (!s.enableVisibilityRead) {
                 return chatMsg;
               }
-              final double fractionThreshold = (() {
-                final v = s.visibilityReadFraction;
-                if (v.isNaN) return 0.6;
-                if (v < 0.1) return 0.1;
-                if (v > 1.0) return 1.0;
-                return v;
-              })();
-              final int delayMs = s.visibilityReadDelayMs <= 0
-                  ? 400
-                  : s.visibilityReadDelayMs;
+              final double fractionThreshold =
+                  normalizeVisibilityFraction(s.visibilityReadFraction);
+              final int delayMs =
+                  normalizeVisibilityDelayMs(s.visibilityReadDelayMs);
               // 当来自对方的消息可视比例达到阈值并持续 delayMs 后推进水位
               return VisibilityDetector(
                 key: Key('msg_vis_${message.id}'),
@@ -2313,22 +2280,22 @@ class ChatPageState extends ConsumerState<ChatPage>
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.lock_outline, color: Colors.orange),
+            const Icon(Icons.lock_outline, color: Colors.orange),
             const SizedBox(width: 12),
-            const Text('消息无法解密'),
+            Text(t.e2eeDecryptFailed),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('此消息无法解密，可能原因是：'),
-            SizedBox(height: 8),
-            Text('• 您在其他设备上登录'),
-            Text('• 设备密钥已过期'),
-            Text('• 应用数据损坏'),
-            SizedBox(height: 16),
-            Text('请选择解决方案：'),
+            Text(t.e2eeDecryptFailedReasons),
+            const SizedBox(height: 8),
+            Text(t.e2eeDecryptReasonOtherDevice),
+            Text(t.e2eeDecryptReasonKeyExpired),
+            Text(t.e2eeDecryptReasonDataCorrupt),
+            const SizedBox(height: 16),
+            Text(t.e2eeDecryptChooseSolution),
           ],
         ),
         actions: [
@@ -2337,18 +2304,18 @@ class ChatPageState extends ConsumerState<ChatPage>
               Navigator.of(context).pop();
               _refreshE2EEKeys();
             },
-            child: const Text('重新创建密钥（推荐）'),
+            child: Text(t.e2eeDecryptActionRecreateKey),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _relogin();
             },
-            child: const Text('重新登录'),
+            child: Text(t.e2eeDecryptActionRelogin),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('稍后提醒我'),
+            child: Text(t.e2eeDecryptActionRemindLater),
           ),
         ],
       ),
@@ -2358,7 +2325,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   /// 重新创建E2EE密钥
   Future<void> _refreshE2EEKeys() async {
     try {
-      EasyLoading.showToast('正在重新创建密钥...');
+      EasyLoading.showToast(t.e2eeRecreatingKey);
 
       // 1. 清除E2EE缓存
       E2EEService.clearCache();
@@ -2375,17 +2342,17 @@ class ChatPageState extends ConsumerState<ChatPage>
         await E2EEService.getUserDevicePublicKeys(currentUid);
       }
 
-      EasyLoading.showSuccess('密钥已重新创建');
+      EasyLoading.showSuccess(t.e2eeKeyRecreated);
       iPrint('E2EE: 密钥已重新创建');
     } catch (e) {
-      EasyLoading.showError('密钥创建失败: $e');
+      EasyLoading.showError(t.e2eeKeyRecreationFailed(error: e.toString()));
       iPrint('E2EE: 密钥创建失败: $e');
     }
   }
 
   /// 重新登录
   void _relogin() {
-    EasyLoading.showToast('请重新登录');
+    EasyLoading.showToast(t.pleaseRelogin);
     // 跳转到首页（由路由守卫处理未登录重定向）
     context.go('/');
   }
@@ -2404,11 +2371,8 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 如果只有一张图片，使用单图预览
       zoomInPhotoView(context, message.source);
     } else {
-      // 计算当前图片在所有图片中的索引
-      final indexOfCurrentImage = allImageUrls.indexOf(message.source);
-
       // 使用多图预览功能，并跳转到当前图片
-      final initialPage = indexOfCurrentImage >= 0 ? indexOfCurrentImage : 0;
+      final initialPage = resolveInitialImagePage(allImageUrls, message.source);
       zoomInPhotoViewGalleryWithInitialPage(context, allImageUrls, initialPage);
     }
   }
@@ -2416,47 +2380,9 @@ class ChatPageState extends ConsumerState<ChatPage>
   /// 获取当前会话中的所有图片 URL
   List<String> _getAllImageUrlsInConversation() {
     try {
-      final List<String> imageUrls = [];
       final messages =
           ref.read(chatProvider.notifier).chatService?.messages ?? [];
-
-      for (final msg in messages) {
-        // ImageMessage 类型
-        if (msg is ImageMessage) {
-          final uri = msg.source;
-          if (uri.isNotEmpty) {
-            imageUrls.add(uri);
-          }
-        }
-        // CustomMessage 类型 - 单图或多图
-        else if (msg is CustomMessage) {
-          final metadata = msg.metadata ?? {};
-          final effectiveMsgType =
-              metadata['effective_msg_type'] ?? metadata['msg_type'] ?? '';
-
-          // 单图消息
-          if (effectiveMsgType == MessageType.image) {
-            final uri = metadata['source'] ?? metadata['uri'] ?? '';
-            if (uri.isNotEmpty) {
-              imageUrls.add(uri);
-            }
-          }
-          // 多图消息
-          else if (effectiveMsgType == MessageType.imageMulti) {
-            final images = metadata['images'] as List<dynamic>?;
-            if (images != null) {
-              for (final img in images) {
-                final uri = img['uri'] ?? '';
-                if (uri.isNotEmpty) {
-                  imageUrls.add(uri);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      return imageUrls;
+      return extractImageUrlsFromMessages(messages);
     } catch (e) {
       iPrint('获取会话图片列表失败: $e');
       return [];

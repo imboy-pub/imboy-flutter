@@ -209,7 +209,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           if (taskId.isEmpty) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('任务ID缺失，无法查看详情')));
+            ).showSnackBar(SnackBar(content: Text(t.groupTask.taskIdMissing)));
             return;
           }
           final encodedId = Uri.encodeComponent(taskId);
@@ -229,7 +229,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                     final submitTaskId = _resolveTaskSubmitId(task);
                     if (submitTaskId.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('任务ID缺失，无法提交')),
+                        SnackBar(content: Text(t.groupTask.taskIdMissingSubmit)),
                       );
                       return;
                     }
@@ -310,13 +310,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final diff = dt.difference(now);
 
     if (diff.isNegative) {
-      return '已过期';
+      return t.groupTask.overdue;
     } else if (diff.inDays > 0) {
-      return '${diff.inDays} 天后截止';
+      return t.groupTask.daysLeft(days: diff.inDays);
     } else if (diff.inHours > 0) {
-      return '${diff.inHours} 小时后截止';
+      return t.groupTask.hoursLeft(hours: diff.inHours);
     } else {
-      return '即将截止';
+      return t.groupTask.dueSoon;
     }
   }
 

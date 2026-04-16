@@ -112,7 +112,12 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get bindNow => 'Bind now';
 	@override String get later => 'Later';
 	@override String get buttonCancel => 'Cancel';
+	@override String get buttonCreate => 'Create';
 	@override String get buttonChangePassword => 'Change password';
+	@override String peerIsTyping({required Object name}) => '${name} is typing...';
+	@override String get phoneInputHint => 'Enter phone number';
+	@override String get liveRoomWhipLabel => 'WHIP Stream URL';
+	@override String get liveRoomWhepLabel => 'WHEP Stream URL';
 	@override String get buttonClose => 'Close';
 	@override String get buttonConfirm => 'Confirm';
 	@override String get buttonContinue => 'Continue';
@@ -188,6 +193,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get codeSentToMobile => 'Verification code sent to mobile';
 	@override String get collected => 'Favorited';
 	@override String get complaint => 'Complaint';
+	@override String get complaintFailed => 'Complaint failed, please try again';
 	@override String get completed => 'Completed';
 	@override String get confirmCode => 'Confirmation code';
 	@override String get confirmCodeError => 'Confirmation code is empty';
@@ -322,7 +328,43 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get great => 'Excellent';
 	@override String get groupAddLocal => 'Save to contacts';
 	@override String get groupAlias => 'My nickname in this group';
+	@override String get groupAlbum => 'Group Album';
 	@override String get groupAnnouncement => 'Group announcement';
+	@override String get groupFile => 'Group Files';
+	@override String get groupFileUploadSuccess => 'File uploaded successfully';
+	@override String get groupFileUploadFailed => 'Upload failed, please try again';
+	@override String get groupFileDeleteSuccess => 'File deleted';
+	@override String get groupFileDeleteFailed => 'Delete failed, please try again';
+	@override String get groupFileClosePreview => 'Close preview';
+	@override String get groupFileImagePreview => 'Image preview';
+	@override String get groupFileVideoPreview => 'Video preview';
+	@override String get groupFileAudioPreview => 'Audio preview';
+	@override String get groupFileUploadTooltip => 'Upload file';
+	@override String get groupFileSearch => 'Search group files';
+	@override String get groupFileMediaPause => 'Pause';
+	@override String get groupFileMediaPlay => 'Play';
+	@override String get groupFileReadFailed => 'File read failed, please try again';
+	@override String get groupFileDeleteTitle => 'Delete Group File';
+	@override String groupFileDeleteConfirm({required Object name}) => 'Delete file "${name}"?';
+	@override String get groupFileImageLoadFailed => 'Image failed to load';
+	@override String get groupFileUrlMissing => 'File URL missing, cannot open';
+	@override String get groupFileUrlInvalid => 'Invalid file URL';
+	@override String get groupFileOpenFailed => 'Cannot open file link';
+	@override String get groupFilePreview => 'File Preview';
+	@override String get groupFileSearchClear => 'Clear';
+	@override String get groupFileSearchAction => 'Search';
+	@override String get groupFileCategoryAll => 'All';
+	@override String get groupFileUnnamed => 'Unnamed file';
+	@override String get groupFileSearchEmpty => 'No matching files';
+	@override String groupFileCategoryEmpty({required Object category}) => 'No ${category} files';
+	@override String get groupFileEmpty => 'No group files';
+	@override String get groupFileCategoryDoc => 'Documents';
+	@override String get groupFileCategoryImage => 'Images';
+	@override String get groupFileCategoryVideo => 'Videos';
+	@override String get groupFileCategoryAudio => 'Audio';
+	@override String get groupFileCategoryOther => 'Other';
+	@override String get groupFileAudioLoadFailed => 'Audio failed to load';
+	@override String get groupFileAudioLoading => 'Loading audio...';
 	@override String get groupChat => 'Group chat';
 	@override String get groupDissolve => 'Dissolve group';
 	@override String get groupJoin => 'Join group';
@@ -623,6 +665,15 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get muteDuration3days => '3 Days';
 	@override String get muteDuration7days => '7 Days';
 	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5 Minutes';
+	@override String get muteDuration10min => '10 Minutes';
+	@override String get muteDuration30min => '30 Minutes';
+	@override String get muteDuration30days => '30 Days';
+	@override String mutedFor({required Object label}) => 'Muted ${label}';
+	@override String muteUnitSeconds({required Object count}) => '${count} sec';
+	@override String muteUnitMinutes({required Object count}) => '${count} min';
+	@override String muteUnitHours({required Object count}) => '${count} hr';
+	@override String muteUnitDays({required Object count}) => '${count} day(s)';
 	@override String get throttleWarning => 'Too many requests, please try again later';
 	@override String throttleRetryAfter({required Object seconds}) => 'Too many requests, please retry after ${seconds} seconds';
 	@override String get youAreMuted => 'You are muted';
@@ -763,6 +814,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get titleMessage => 'Messages';
 	@override String get titleDiscover => 'Discover';
 	@override String get titleMine => 'Me';
+	@override String get titleSquare => 'Square';
 	@override String get today => 'Today';
 	@override String get tooBad => 'Too bad';
 	@override String get topChat => 'Pin chat';
@@ -1356,6 +1408,463 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsGroupScheduleEnUs groupSchedule = _TranslationsGroupScheduleEnUs._(_root);
 	@override late final _TranslationsGroupTaskEnUs groupTask = _TranslationsGroupTaskEnUs._(_root);
 	@override late final _TranslationsMentionEnUs mention = _TranslationsMentionEnUs._(_root);
+	@override late final _TranslationsGroupListEnUs groupList = _TranslationsGroupListEnUs._(_root);
+	@override String groupCategoryGroupCount({required Object count}) => '${count} groups';
+	@override String groupAnnouncementExpiry({required Object time}) => 'Expires: ${time}';
+	@override String get groupAlbumCreateTitle => 'New Album';
+	@override String get groupAlbumNameHint => 'Enter album name';
+	@override String get groupAlbumCreated => 'Album created';
+	@override String get groupAlbumCreateFailed => 'Create failed, please try again';
+	@override String get groupAlbumDeleteTitle => 'Delete Album';
+	@override String groupAlbumDeleteConfirm({required Object name}) => 'Delete album「${name}」?';
+	@override String get groupAlbumDeleted => 'Album deleted';
+	@override String get groupAlbumDeleteFailed => 'Delete failed, please try again';
+	@override String get groupAlbumRenameTitle => 'Rename Album';
+	@override String get groupAlbumRenamed => 'Album name updated';
+	@override String get groupAlbumRenameFailed => 'Update failed, please try again';
+	@override String get groupAlbumUploadTooltip => 'Upload photo';
+	@override String get groupAlbumDeleteTooltip => 'Delete album';
+	@override String get groupAlbumNoAlbum => 'No albums yet';
+	@override String get groupAlbumUnnamed => 'Unnamed album';
+	@override String groupAlbumPhotoCount({required Object count}) => '${count} photos';
+	@override String get groupAlbumPhotoReadFailed => 'Failed to read photo, please retry';
+	@override String get groupAlbumPhotoUploaded => 'Photo uploaded';
+	@override String get groupAlbumPhotoUploadFailed => 'Upload failed, please try again';
+	@override String get groupAlbumCreateTooltip => 'New album';
+	@override String get groupAlbumPhotoBatchDeleteTitle => 'Bulk delete photos';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'Delete ${count} selected photos?';
+	@override String get groupAlbumPhotoDeleteFailed => 'Delete failed, please try again';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => 'Deleted ${count} photos';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => 'Deleted ${success}, ${fail} failed';
+	@override String get groupAlbumPhotoDeleteTitle => 'Delete Photo';
+	@override String get groupAlbumPhotoDeleteConfirm => 'Delete this photo?';
+	@override String get groupAlbumPhotoDeleted => 'Photo deleted';
+	@override String get groupAlbumPhotoIdMissing => 'Photo ID missing, cannot view details';
+	@override String get groupAlbumPhotoListTitle => 'Album Photos';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => '${count} selected';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => 'Bulk delete';
+	@override String get groupAlbumPhotoExitSelection => 'Exit selection';
+	@override String get groupAlbumPhotoEmpty => 'No photos yet';
+	@override String get groupAlbumPhotoUrlMissing => 'Photo URL missing, cannot open';
+	@override String get groupAlbumPhotoUrlInvalid => 'Invalid photo URL';
+	@override String get groupAlbumPhotoOpenFailed => 'Cannot open photo link';
+	@override String get groupAlbumPhotoDetailTitle => 'Photo Details';
+	@override String get groupAlbumPhotoNotFound => 'Photo not found or deleted';
+	@override String get groupAlbumPhotoOpenExternal => 'Open externally';
+	@override String get groupAlbumPhotoSetCover => 'Set as cover';
+	@override String get groupAlbumPhotoCoverUpdated => 'Set as album cover';
+	@override String get groupAlbumPhotoCoverFailed => 'Set cover failed, please try again';
+	@override String get groupAlbumPhotoPrev => 'Previous';
+	@override String get groupAlbumPhotoNext => 'Next';
+	@override String get groupAlbumPhotoResolution => 'Resolution';
+	@override String get groupAlbumPhotoUploader => 'Uploaded by';
+	@override String get groupAlbumPhotoLikeCount => 'Likes';
+	@override String get groupAlbumPhotoCommentCount => 'Comments';
+	@override String get groupAlbumPhotoMyLike => 'My like';
+	@override String get groupAlbumPhotoIdLabel => 'Photo ID';
+	@override String get sectionDisplay => 'Display';
+	@override String get sectionTheme => 'Theme';
+	@override String get selectLanguage => 'Select Language';
+	@override String get profileCompleted => 'Profile complete!';
+	@override String get completionSuggestions => 'Suggestions:';
+	@override String profileProgress({required Object percent}) => '${percent}% complete';
+	@override String get sectionGeneral => 'General';
+	@override String get sectionPrivacySecurity => 'Privacy & Security';
+	@override String get sectionHelpAbout => 'Help & About';
+	@override String get refreshDeviceKey => 'Refresh Device Key';
+	@override String get refreshDeviceKeyHint => 'If messages cannot be decrypted, click to refresh keys';
+	@override String get refreshingDeviceKey => 'Refreshing device key...';
+	@override String get deviceKeyRefreshed => 'Device key refreshed';
+	@override String get e2eeKeyManagement => 'E2EE Key Management';
+	@override String get e2eeKeyManagementSubtitle => 'Backup, restore and manage end-to-end encryption keys';
+	@override String get msgProtectedByComplianceKey => 'Message protected by compliance key';
+	@override String get msgOnlyVisibleToParties => 'Message readable only by sender and recipient';
+	@override String get msgNotEncrypted => 'Message transmitted unencrypted';
+	@override String durationMinutes({required Object count}) => '${count}min';
+	@override String durationSeconds({required Object count}) => '${count}s';
+	@override String get rechargeTitle => 'Top Up';
+	@override String get rechargeAmountHint => 'Enter amount (CNY), ¥1 to ¥10,000';
+	@override String get rechargeAmountExample => 'e.g. 100';
+	@override String get rechargeAmountError => 'Please enter an amount between ¥1 and ¥10,000';
+	@override String get rechargeSuccess => 'Top up successful';
+	@override String get rechargeConfirm => 'Confirm Top Up';
+	@override String get transactionHistory2 => 'Transaction History';
+	@override String get noTransactionHistory => 'No transactions yet';
+	@override String get allLoaded => '— All loaded —';
+	@override String get transactionTypeIncome => 'Top Up';
+	@override String get transactionTypeExpense => 'Purchase';
+	@override String get sectionLoginCredentials => 'Login Credentials';
+	@override String get channelInvitations => 'Channel Invitations';
+	@override String get acceptInvitationFailed => 'Failed to accept invitation';
+	@override String get rejectInvitationFailed => 'Failed to reject invitation';
+	@override String get invitationAccepted => 'Invitation accepted';
+	@override String get invitationRejected => 'Invitation rejected';
+	@override String get invitationStatusPending => 'Pending';
+	@override String get invitationStatusAccepted => 'Accepted';
+	@override String get invitationStatusRejected => 'Rejected';
+	@override String get invitationStatusExpired => 'Expired';
+	@override String get invitationStatusCancelled => 'Cancelled';
+	@override String get invitationStatusUnknown => 'Unknown';
+	@override String get noReceivedInvitations => 'No invitations received';
+	@override String get noSentInvitations => 'No invitations sent';
+	@override String inviterLabel({required Object uid}) => 'Inviter: ${uid}';
+	@override String inviteeLabel({required Object uid}) => 'Invitee: ${uid}';
+	@override String createdAtLabel({required Object time}) => 'Created: ${time}';
+	@override String expiredAtLabel({required Object time}) => 'Expires: ${time}';
+	@override String get openChannel => 'Open Channel';
+	@override String get myReceivedTab => 'Received';
+	@override String get mySentTab => 'Sent';
+	@override String get processingDots => 'Processing...';
+	@override String get reject => 'Reject';
+	@override String get myOrders => 'My Orders';
+	@override String get paidChannelLocked => 'Paid Channel Content Locked';
+	@override String get purchaseUnlockHint => 'Purchase to unlock channel history and future updates.';
+	@override String get payingDots => 'Paying...';
+	@override String get purchaseAndUnlock => 'Purchase & Unlock Now';
+	@override String get purchaseFailed => 'Purchase failed, please try again';
+	@override String get purchaseSuccess => 'Purchase successful';
+	@override String get noOrders => 'No orders yet';
+	@override String get orderDetailLoadFailed => 'Failed to load order details';
+	@override String get orderDetail => 'Order Details';
+	@override String orderNoLabel({required Object no}) => 'Order No: ${no}';
+	@override String orderStatusLabel({required Object status}) => 'Status: ${status}';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => 'Amount: ${currency} ${amount}';
+	@override String orderCreatedAtLabel({required Object time}) => 'Created: ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => 'Paid: ${time}';
+	@override String get orderStatusPending => 'Pending Payment';
+	@override String get orderStatusPaid => 'Paid';
+	@override String get orderStatusRefunded => 'Refunded';
+	@override String get orderStatusCancelled => 'Cancelled';
+	@override String get orderStatusExpired => 'Expired';
+	@override String get orderStatusUnknown => 'Unknown';
+	@override String get removeReaction => 'Remove Reaction';
+	@override String removeReactionConfirm({required Object emoji}) => 'Remove ${emoji} reaction?';
+	@override String get defaultFileName => 'File';
+	@override String get fileUrlInvalid => 'Invalid file link';
+	@override String get fileOpenFailed => 'Unable to open this file';
+	@override String get e2eeKeyRecoveryTitle => 'End-to-End Encryption Key Management';
+	@override String get e2eeRecoveryMethods => 'Key Recovery Methods';
+	@override String get e2eeDangerousOps => 'Dangerous Operations';
+	@override String get e2eeDeviceTransfer => 'Device Transfer';
+	@override String get e2eeDeviceTransferDesc => 'Transfer key directly to a new device via QR code';
+	@override String get e2eeStatusAvailable => 'Available';
+	@override String get e2eeSocialRecovery => 'Social Recovery';
+	@override String get e2eeSocialRecoveryDesc => 'Recover key with help from trusted contacts';
+	@override String get e2eeLocalBackup => 'Local Backup';
+	@override String get e2eeLocalBackupDesc => 'Export encrypted backup file locally or to cloud';
+	@override String get e2eeGenerateNewKey => 'Generate New Key';
+	@override String get e2eeGenerateNewKeyDesc => 'Generate a new E2EE key pair (old messages will be unreadable)';
+	@override String get e2eeDeleteKey => 'Delete Key';
+	@override String get e2eeDeleteKeyDesc => 'Delete locally stored key (cannot be recovered)';
+	@override String get e2eeCurrentKeyInfo => 'Current Key Info';
+	@override String get e2eeE2EEEnabled => 'End-to-end encryption enabled';
+	@override String get e2eeActivated => 'Active';
+	@override String get e2eeDeviceIdLabel => 'Device ID';
+	@override String get e2eeKeyIdLabel => 'Key ID';
+	@override String get e2eeCreatedAtLabel => 'Created At';
+	@override String get e2eeNoKeyDetected => 'No E2EE Key Detected';
+	@override String get e2eeNoKeyDesc => 'Please generate a key pair or restore from backup';
+	@override String get e2eeAboutTitle => 'About End-to-End Encryption';
+	@override String get e2eeInfoPoint1 => '• Your messages are encrypted before sending, the server cannot read them';
+	@override String get e2eeInfoPoint2 => '• Old messages may become unreadable after changing device or deleting key';
+	@override String get e2eeInfoPoint3 => '• Please back up your key regularly to prevent data loss';
+	@override String get e2eeExportBackup => 'Export Backup';
+	@override String get e2eeExportBackupDesc => 'Generate encrypted backup file';
+	@override String get e2eeImportBackup => 'Import Backup';
+	@override String get e2eeImportBackupDesc => 'Restore key from backup file';
+	@override String get e2eeBackupManage => 'Backup Manager';
+	@override String get e2eeBackupManageDesc => 'View backup history';
+	@override String get e2eeGenerateKeyConfirm => 'Generate a new E2EE key pair?';
+	@override String get e2eeWarnOldMessagesLost => '• Old messages will be unreadable';
+	@override String get e2eeWarnNeedNewBackup => '• A new backup file will need to be generated';
+	@override String get e2eeWarnIrreversible => '• This action cannot be undone';
+	@override String get e2eeConfirmGenerate => 'Confirm Generate';
+	@override String get e2eeDeleteKeyConfirm => 'Delete the current key?';
+	@override String get e2eeWarnCannotRestore => '• Cannot be recovered after deletion';
+	@override String get e2eeWarnAllMsgsLost => '• All E2EE messages will be unreadable';
+	@override String get e2eeWarnNeedRestoreOrNew => '• Must restore from backup or generate a new key';
+	@override String get e2eeConfirmDelete => 'Confirm Delete';
+	@override String get e2eeGeneratingKey => 'Generating key, please wait...';
+	@override String get e2eeKeyGeneratedSuccess => 'Key Generated Successfully';
+	@override String get e2eeNewKeyGenerated => 'New E2EE key pair generated!';
+	@override String e2eeDeviceIdInfo({required Object id}) => 'Device ID: ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => 'Key ID: ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => 'Created: ${time}';
+	@override String get e2eeImportantNote => 'Important Note';
+	@override String get e2eeWarnOldMayNotDecrypt => '• Old messages may be unreadable';
+	@override String get e2eeSuggestBackupNow => '• It is recommended to export a backup immediately';
+	@override String get e2eeGoBackup => 'Go Backup';
+	@override String get gotIt => 'Got it';
+	@override String get e2eeKeyGenerateFailed => 'Key generation failed, please try again';
+	@override String get e2eeKeyDeleted => 'Key deleted';
+	@override String get e2eeDeleteFailed => 'Deletion failed, please try again';
+	@override String get e2eeRecoverKeyTitle => 'Recover Key';
+	@override String get e2eeCanRecoverKey => 'Key can be recovered';
+	@override String get e2eeInsufficientShards => 'Insufficient shards';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'Available shards: ${available}, need ${required} proxy helpers';
+	@override String e2eeProxyUser({required Object uid}) => 'Proxy user: ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => 'Shard ${index} / ${total}';
+	@override String get e2eeNoRecoveryShards => 'No recovery shards available';
+	@override String get e2eeReloadShards => 'Reload';
+	@override String get e2eeRecovering => 'Recovering...';
+	@override String e2eeStartRecoveryBtn({required Object required}) => 'Start Key Recovery (need ${required} proxy helpers)';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'Insufficient shards (need ${required}, have ${current})';
+	@override String get e2eeRecoverSuccess => 'Recovery Successful';
+	@override String get e2eeKeyRestored => 'Key has been successfully restored';
+	@override String e2eeUsedShards({required Object count}) => 'Used ${count} proxy shards';
+	@override String get e2eeRecoverFailed => 'Recovery Failed';
+	@override String get e2eeRecoverKeyFailed => 'Failed to recover key, please try again';
+	@override String get e2eeLoadingShards => 'Loading shard information...';
+	@override String get e2eeNoShards => 'No shards available';
+	@override String get e2eeReady => 'Ready';
+	@override String get e2eeLoadFailed => 'Load failed, please try again';
+	@override String get e2eePreparing => 'Preparing to recover...';
+	@override String e2eeReadyWithShards({required Object count}) => 'Ready (${count} shards)';
+	@override String e2eeContactingProxy({required Object name}) => 'Contacting: ${name}';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'Progress: ${collected} / ${total} shards';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'Collecting shards (${collected}/${total})...';
+	@override String get e2eeShardsCollected => 'Shards collected, reassembling key...';
+	@override String get e2eeRecoveryFailed => 'Recovery failed, please try again';
+	@override String get webFeatureMultiDevice => 'Multi-Device Sync';
+	@override String get webFeatureMultiDeviceDesc => 'Switch seamlessly between phone and computer, messages sync in real time';
+	@override String get webFeatureE2EE => 'End-to-End Encryption';
+	@override String get webFeatureE2EEDesc => 'All messages are end-to-end encrypted, ensuring privacy and security';
+	@override String get webFeatureNotification => 'Desktop Notifications';
+	@override String get webFeatureNotificationDesc => 'Receive new message alerts even when you\'re away from the page';
+	@override String get webFeatureFileTransfer => 'File Transfer';
+	@override String get webFeatureFileTransferDesc => 'Drag and drop to send files, supports various formats';
+	@override String get webQRLoginTitle => 'Scan to Login';
+	@override String get webQRLoginHint => 'Scan the QR code with ImBoy on your phone';
+	@override String get webQRScanned => 'Scanned';
+	@override String get webQRConfirmOnPhone => 'Please confirm login on your phone';
+	@override String get webQRLoggingIn => 'Logging in...';
+	@override String get webQRExpired => 'QR code expired';
+	@override String get webQRLoginFailed => 'Login failed';
+	@override String get webQRLoginSuccess => 'Login successful';
+	@override String get webQRRefresh => 'Refresh QR Code';
+	@override String webQRExpiresIn({required Object seconds}) => 'Expires in ${seconds} seconds';
+	@override String get webSwitchToPassword => 'Login with account and password';
+	@override String get webSwitchToQR => 'Login with QR code';
+	@override String get webQRStatusWaiting => 'Open ImBoy on your phone > Settings > Scan';
+	@override String get webQRStatusScanned => 'Please tap "Confirm Login" on your phone';
+	@override String get webQRStatusVerifying => 'Verifying...';
+	@override String get webQRStatusExpired => 'Please click refresh to scan again';
+	@override String get webQRStatusFailed => 'Login failed, please try again';
+	@override String get webQRStatusSuccess => 'Redirecting...';
+	@override String get webPasswordLoginTitle => 'Account Login';
+	@override String get webAccountHint => 'Enter account / phone / email';
+	@override String get webPasswordHint => 'Enter password';
+	@override String get webLoginEmptyError => 'Please enter account and password';
+	@override String get webQRGenerateFailed => 'Failed to generate QR code';
+	@override String get webQRTokenInvalid => 'Invalid login token';
+	@override String get e2eeErrNoRecipientKey => 'Cannot get recipient\'s device key, message not sent';
+	@override String get e2eeErrTimeout => 'Encryption timed out, please check your connection and retry';
+	@override String get e2eeErrNetwork => 'Network error, encryption failed, message not sent';
+	@override String get e2eeErrInvalidFormat => 'Message format error, encryption failed';
+	@override String get e2eeErrDefault => 'End-to-end encryption failed, message not sent';
+	@override String get e2eeDecryptFailed => 'Message cannot be decrypted';
+	@override String get e2eeDecryptFailedReasons => 'This message cannot be decrypted. Possible reasons:';
+	@override String get e2eeDecryptReasonOtherDevice => '• You logged in on another device';
+	@override String get e2eeDecryptReasonKeyExpired => '• Device key has expired';
+	@override String get e2eeDecryptReasonDataCorrupt => '• App data is corrupted';
+	@override String get e2eeDecryptChooseSolution => 'Please choose a solution:';
+	@override String get e2eeDecryptActionRecreateKey => 'Recreate key (recommended)';
+	@override String get e2eeDecryptActionRelogin => 'Log in again';
+	@override String get e2eeDecryptActionRemindLater => 'Remind me later';
+	@override String get e2eeBackupExportTitle => 'Export E2EE Backup';
+	@override String get e2eeBackupPwdCantRecover => '• Backup password cannot be recovered, please remember it!';
+	@override String get e2eeBackupStoreMultipleNote => '• Store backup file in multiple secure locations (email, cloud, USB)';
+	@override String get e2eeBackupPwdLabel => 'Backup Password *';
+	@override String get e2eeBackupPwdHint => 'At least 12 chars, with upper/lowercase letters, numbers and special symbols';
+	@override String get e2eeBackupConfirmPwdLabel => 'Confirm Password *';
+	@override String get e2eeBackupConfirmPwdHint => 'Enter password again';
+	@override String get e2eeBackupNoteLabel => 'Note (optional)';
+	@override String get e2eeBackupNoteHint => 'e.g. Main phone backup - Jan 2026';
+	@override String get e2eeBackupPwdStrengthLabel => 'Password strength';
+	@override String get e2eeBackupPwdWeak => 'Weak - add more complexity';
+	@override String get e2eeBackupPwdMedium => 'Medium - add more length or complexity';
+	@override String get e2eeBackupPwdStrong => 'Strong - acceptable';
+	@override String get e2eeBackupPwdVeryStrong => 'Very strong - secure';
+	@override String get e2eeBackupGenerateBtn => 'Generate backup file';
+	@override String get e2eeBackupFileGenerated => 'Backup file generated!';
+	@override String get e2eeBackupShareBtn => 'Share via email / cloud';
+	@override String get e2eeBackupShareContent => 'This is my Imboy E2EE key backup file. Keep it safe and do not share with others.';
+	@override String get e2eeBackupErrPwdMismatch => 'Passwords do not match';
+	@override String get e2eeBackupErrNoKeyData => 'Unable to retrieve key data';
+	@override String get e2eeBackupErrExportFailed => 'Export failed, please try again';
+	@override String get e2eeBackupErrShareFailed => 'Share failed, please try again';
+	@override String get e2eeBackupExportSuccessTitle => 'Backup exported successfully';
+	@override String get e2eeBackupExportSuccessBody => 'Your E2EE key backup has been successfully generated.';
+	@override String get e2eeBackupImportantNoteColon => 'Important:';
+	@override String get e2eeBackupKeepSafe => '• Keep the backup file and password safe';
+	@override String get e2eeBackupStoreMultipleLoc => '• Store the file in multiple secure locations';
+	@override String get e2eeBackupPwdCantRecoverNote => '• Password cannot be recovered, please remember it';
+	@override String get e2eeBackupImportTitle => 'Import E2EE Backup';
+	@override String get e2eeBackupImportGuide => 'Import Instructions';
+	@override String get e2eeBackupImportReplaceKey => '• Importing will replace the current E2EE key';
+	@override String get e2eeBackupImportTrustedSource => '• Ensure the backup file comes from a trusted source';
+	@override String get e2eeBackupSelectFile => 'Select backup file';
+	@override String get e2eeBackupSelectFileHint => 'Tap to select backup file (.enc)';
+	@override String get e2eeBackupInfoTitle => 'Backup info';
+	@override String get e2eeBackupVersionLabel => 'Version';
+	@override String get e2eeBackupAlgorithmLabel => 'Algorithm';
+	@override String get e2eeBackupFileSizeLabel => 'File size';
+	@override String get e2eeBackupFileValid => '✓ File format is valid';
+	@override String get e2eeBackupImportPwdHint => 'Enter the password set during backup';
+	@override String get e2eeBackupImportBtn => 'Import key';
+	@override String get e2eeBackupErrSelectFile => 'Failed to select file, please try again';
+	@override String get e2eeBackupErrValidateFailed => 'File validation failed, please check file format';
+	@override String get e2eeBackupErrImportFailed => 'Import failed, please check your password';
+	@override String get e2eeBackupImportSuccessTitle => 'Import successful';
+	@override String get e2eeBackupImportSuccessBody => 'E2EE key has been restored successfully!';
+	@override String get e2eeBackupImportSuccessNote => 'Note: Old messages may be inaccessible — this is normal E2EE behavior';
+	@override String get e2eeBackupNoRecords => 'No backup records';
+	@override String get e2eeBackupNoRecordsHint => 'Backup history will appear here after exporting';
+	@override String e2eeBackupDeviceLabel({required Object id}) => 'Device ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'Created at ${time}';
+	@override String get e2eeBackupDetailTitle => 'Backup details';
+	@override String get e2eeBackupDeviceIdLabel => 'Device ID';
+	@override String get e2eeBackupVersionNum => 'Backup version';
+	@override String get e2eeBackupCreatedAtRow => 'Created at';
+	@override String get e2eeBackupFileSizeRow => 'File size';
+	@override String get e2eeBackupNoteRow => 'Note';
+	@override String get e2eeBackupDeleteTitle => 'Delete backup record';
+	@override String get e2eeBackupDeleteConfirm => 'Are you sure you want to delete this backup record?';
+	@override String get e2eeBackupDeleteSuccess => 'Backup record deleted';
+	@override String get e2eeSocialCreateTitle => 'Create recovery shards';
+	@override String get e2eeSocialShardSettings => 'Shard settings';
+	@override String get e2eeSocialTotalShards => 'Total shards';
+	@override String get e2eeSocialThreshold => 'Recovery threshold';
+	@override String get e2eeSocialShardStoredNote => 'Shards will be stored on proxy devices; the server stores nothing';
+	@override String e2eeSocialThresholdHint({required Object count}) => 'Need ${count} proxies to recover key';
+	@override String get e2eeSocialSelectProxy => 'Select recovery proxies';
+	@override String get e2eeSocialAddProxy => 'Add proxy';
+	@override String e2eeSocialProxyNeeded({required Object count}) => 'Need ${count} trusted contacts as proxies';
+	@override String get e2eeSocialAddProxyHint => 'Please add proxy contacts';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'User ${uid}';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => 'Please add ${count} proxies first';
+	@override String get e2eeSocialCreateBtn => 'Create shards';
+	@override String get e2eeSocialCreateSuccessTitle => 'Shards created successfully';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'Key has been split into ${count} shards';
+	@override String get e2eeSocialShardSentViaWs => 'Shards sent directly to proxy devices via WebSocket';
+	@override String e2eeSocialThresholdInfo({required Object count}) => 'Need ${count} proxies to recover key';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'Sent to ${sent} proxy devices (out of ${total})';
+	@override String get e2eeSocialZeroTrustNote => 'Zero-trust architecture: the server stores no shards';
+	@override String get e2eeSocialCreateFailTitle => 'Creation failed';
+	@override String get e2eeSocialCreateFailBody => 'Failed to create shards, please try again';
+	@override String get e2eeSocialManageTitle => 'Manage shards';
+	@override String get e2eeSocialMyShards => 'My shards';
+	@override String get e2eeSocialProxyShards => 'Proxy shards';
+	@override String get e2eeSocialNoShards => 'You have not created any recovery shards yet';
+	@override String get e2eeSocialNoProxyShards => 'No proxy shards';
+	@override String get e2eeSocialCreateFirst => 'Create shards to see content here';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'Shard ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => 'Active';
+	@override String get e2eeSocialShardUsed => 'Used';
+	@override String get e2eeSocialShardValid => 'Shard valid';
+	@override String e2eeSocialUserShard({required Object uid}) => 'Key shard for user ${uid}';
+	@override String get e2eeSocialProxyUserLabel => 'Proxy user';
+	@override String get e2eeSocialRecoveryThresholdLabel => 'Recovery threshold';
+	@override String get e2eeSocialShardIndexLabel => 'Shard index';
+	@override String get e2eeSocialKeyVersionLabel => 'Key version';
+	@override String get e2eeSocialUsedAtLabel => 'Used at';
+	@override String get e2eeTransferSendTitle => 'Send key to new device';
+	@override String get e2eeTransferErrNoKey => 'Please generate a key pair first';
+	@override String get e2eeTransferErrInitFailed => 'Initialization failed, please try again';
+	@override String get e2eeTransferErrNoRecipientKey => 'Recipient has no available public key';
+	@override String get e2eeTransferErrKeyNotFound => 'Key not found';
+	@override String get e2eeTransferErrCreateFailed => 'Failed to create transfer session, please try again';
+	@override String get e2eeTransferCreateSessionBtn => 'Create transfer session';
+	@override String get e2eeTransferQRHint => 'Scan this QR code on your new device';
+	@override String e2eeTransferQRExpiry({required Object time}) => 'QR code expires at ${time}';
+	@override String get e2eeTransferSessionCreated => 'Transfer session created';
+	@override String get e2eeTransferRefreshQR => 'Refresh QR code';
+	@override String get e2eeTransferEnterUidTitle => 'Enter recipient user ID';
+	@override String get e2eeTransferUidPlaceholder => 'Recipient user ID';
+	@override String get e2eeTransferCreateBtn => 'Create';
+	@override String get e2eeTransferUidEmptyError => 'Please enter a valid user ID';
+	@override String get e2eeTransferReceiveTitle => 'Receive key from old device';
+	@override String get e2eeTransferReceiving => 'Receiving transfer...';
+	@override String get e2eeTransferSuccess => 'Transfer successful!';
+	@override String get e2eeTransferFailed => 'Transfer failed, please try again';
+	@override String get e2eeTransferProcessingMsg => 'Processing...';
+	@override String get e2eeTransferSuccessTitle => 'Transfer successful';
+	@override String get e2eeTransferSuccessBody => 'Key has been successfully transferred to this device';
+	@override String e2eeTransferScanError({required Object error}) => 'Scan error: ${error}';
+	@override String get e2eeTransferErrNoDeviceId => 'Unable to get device ID';
+	@override String get passwordEncryptFailed => 'Password encryption failed';
+	@override String get initConfigTimeout => 'Config fetch timed out: please check network or server status';
+	@override String initConfigNetworkError({required Object code}) => 'Network or server error (HTTP ${code})';
+	@override String get initConfigProtocolError => 'Server returned an invalid protocol response';
+	@override String get initConfigFetchFailed => 'Failed to fetch config, please check your network connection';
+	@override String get attachmentGetFileFailed => 'Unable to get file, please retry or choose from gallery';
+	@override String get attachmentGetFileFailedAndroid9 => 'File retrieval failed — Android 9 compatibility issue may apply';
+	@override String get attachmentGetImageDataFailed => 'Unable to get image data, please retry';
+	@override String get attachmentGetOriginalImageFailed => 'Unable to get original image data';
+	@override String get saveFailedRetry => 'Save failed, please try again';
+	@override String get downloadFileNotFound => 'Download file not found, please retry';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})';
+	@override String get downloadHashFailed => 'File verification failed repeatedly, please check your network and retry';
+	@override String get e2eeTransferPageTitle => 'Transfer Between Devices';
+	@override String get e2eeTransferToNewDevice => 'Transfer to New Device';
+	@override String get e2eeTransferSendDesc => 'Transfer key to a new device via QR code';
+	@override String get e2eeTransferFromOldDevice => 'Receive Key from Old Device';
+	@override String get e2eeTransferReceiveDesc => 'Scan old device QR code to receive key';
+	@override String get e2eeTransferPendingSection => 'Pending Transfers';
+	@override String get e2eeTransferLoadFailed => 'Load Failed';
+	@override String get e2eeTransferLoadFailedDesc => 'Unable to load pending transfers, please retry';
+	@override String get e2eeTransferNoPending => 'No pending transfers';
+	@override String get e2eeTransferNoPendingDesc => 'When a device sends you a key, it will appear here';
+	@override String get e2eeTransferPendingItem => 'Pending Key Transfer';
+	@override String get e2eeTransferPendingItemDesc => 'Tap to view details';
+	@override String get e2eeTransferView => 'View';
+	@override String get e2eeSocialTitle => 'Social Recovery';
+	@override String get e2eeSocialCanRecover => 'Key Recovery Available';
+	@override String get e2eeSocialSetupProxy => 'Set Up Recovery Proxies';
+	@override String get e2eeSocialEnoughShards => 'You have enough shards to recover your key';
+	@override String get e2eeSocialChooseProxy => 'Choose trusted contacts as recovery proxies';
+	@override String get e2eeSocialExistingShards => 'Existing Recovery Shards';
+	@override String e2eeSocialMoreShards({required Object count}) => '${count} more shards...';
+	@override String e2eeSocialStatus({required Object status}) => 'Status: ${status}';
+	@override String get e2eeSocialCreateShardsTitle => 'Create Recovery Shards';
+	@override String get e2eeSocialCreateShardsDesc => 'Split key into shards stored on proxy devices (server holds nothing)';
+	@override String get e2eeSocialRecoverKeyTitle => 'Recover Key';
+	@override String get e2eeSocialRecoverKeyDesc => 'Use proxy shards to recover your key';
+	@override String get e2eeSocialManageShardsTitle => 'Manage Shards';
+	@override String get e2eeSocialManageShardsDesc => 'View and manage all recovery shards';
+	@override String get e2eeSocialZeroTrustHint1 => 'Zero-trust: Server never stores shards — contact proxies directly';
+	@override String get e2eeSocialZeroTrustHint2 => 'Zero-trust: Shards are stored on proxy devices';
+	@override String get e2eeSocialZeroTrustHint3 => 'Zero-trust: Shards stored by proxies — server never sees plaintext';
+	@override String get e2eeProxyLoadFriendsFailed => 'Failed to load friend list, please retry';
+	@override String e2eeProxyMinCount({required Object count}) => 'Please select at least ${count} proxies';
+	@override String get e2eeProxyNoPublicKey => 'This contact has no available public key';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => 'Failed to get public key for ${name}';
+	@override String get e2eeProxySelectFailed => 'Failed to select proxies, please retry';
+	@override String get e2eeProxySelectTitle => 'Select Recovery Proxies';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => 'Selected ${selected} / ${total}';
+	@override String get e2eeProxyNoFriends => 'No friends yet';
+	@override String get e2eeProxyNoFriendsHint => 'Add friends first before setting up recovery proxies';
+	@override String get e2eeProxyReachedMin => 'Minimum proxy count reached';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => 'Need at least ${count} trusted contacts — ${selected} selected';
+	@override String e2eeProxyConfirmCount({required Object count}) => 'Confirm Selection (${count} proxies)';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Please select at least ${count} proxies';
+	@override String get buttonBackHome => 'Back to Home';
+	@override String get featureNotEnabled => 'This feature is not enabled';
+	@override String get imageLoadFailed => 'Load failed';
+	@override String loadFailedWithError({required Object error}) => 'Load failed: ${error}';
+	@override String get webAudioNotSupported => 'Voice messages are not supported on the web platform';
+	@override String get channelMaxTagsCount => 'Maximum 8 tags allowed';
+	@override String get tagInputHint => 'Enter tag...';
+	@override String get e2eeRecreatingKey => 'Recreating key...';
+	@override String get e2eeKeyRecreated => 'Key recreated successfully';
+	@override String e2eeKeyRecreationFailed({required Object error}) => 'Key creation failed: ${error}';
+	@override String get pleaseRelogin => 'Please log in again';
+	@override String get liveRoomCreateTitle => 'Create Live Room';
+	@override String get liveRoomTitleLabel => 'Live Room Title';
+	@override String get liveRoomTitleHint => 'Enter live room title';
+	@override String get liveRoomCreating => 'Creating...';
+	@override String get liveRoomTitleRequired => 'Title cannot be empty';
+	@override String get liveRoomWatch => 'Watch Live';
 }
 
 // Path: splash
@@ -1563,6 +2072,8 @@ class _TranslationsGroupTagEnUs extends TranslationsGroupTagZhCn {
 	@override String get noTag => 'No tags yet';
 	@override String get tagAdded => 'Tag added';
 	@override String get tagRemoved => 'Tag removed';
+	@override String get removeTitle => 'Remove Tag';
+	@override String get removeConfirm => 'Remove this tag?';
 }
 
 // Path: groupVote
@@ -1587,6 +2098,15 @@ class _TranslationsGroupVoteEnUs extends TranslationsGroupVoteZhCn {
 	@override String get voteSuccess => 'Voted successfully';
 	@override String get hasVoted => 'Already voted';
 	@override String get viewResults => 'View Results';
+	@override String get cancelVoteSuccess => 'Vote cancelled';
+	@override String get cancelVoteFailed => 'Cancel failed, please try again';
+	@override String get endVoteFailed => 'End failed, please try again';
+	@override String get eachOptionPerLine => 'One option per line';
+	@override String get statusInProgress => 'In Progress';
+	@override String get updateVote => 'Update Vote';
+	@override String get cancelMyVote => 'Cancel my vote';
+	@override String get voteIdMissing => 'Vote ID missing, cannot view details';
+	@override String participantCount({required Object count}) => '${count} participants';
 }
 
 // Path: groupSchedule
@@ -1610,6 +2130,17 @@ class _TranslationsGroupScheduleEnUs extends TranslationsGroupScheduleZhCn {
 	@override String get reminder15min => '15 minutes before';
 	@override String get reminder1hour => '1 hour before';
 	@override String get reminder1day => '1 day before';
+	@override String get startTime => 'Start Time';
+	@override String get endTime => 'End Time';
+	@override String get participants => 'Participants';
+	@override String get statusCancelled => 'Cancelled';
+	@override String get statusInProgress => 'In Progress';
+	@override String get cancelSuccess => 'Schedule cancelled';
+	@override String get cancelFailed => 'Cancel failed, please try again';
+	@override String get confirmAttend => 'Confirm Attendance';
+	@override String get declineAttend => 'Decline';
+	@override String get cancelSchedule => 'Cancel Schedule';
+	@override String get scheduleIdMissing => 'Schedule ID missing, cannot view details';
 }
 
 // Path: groupTask
@@ -1637,6 +2168,11 @@ class _TranslationsGroupTaskEnUs extends TranslationsGroupTaskZhCn {
 	@override String daysLeft({required Object days}) => '${days} days left';
 	@override String hoursLeft({required Object hours}) => '${hours} hours left';
 	@override String get dueSoon => 'Due soon';
+	@override String get submitFailed => 'Submit failed, please try again';
+	@override String get taskId => 'Task ID';
+	@override String get pendingReview => 'Pending Review';
+	@override String get taskIdMissing => 'Task ID missing, cannot view details';
+	@override String get taskIdMissingSubmit => 'Task ID missing, cannot submit';
 }
 
 // Path: mention
@@ -1656,6 +2192,21 @@ class _TranslationsMentionEnUs extends TranslationsMentionZhCn {
 	@override String get viewContext => 'View context';
 	@override String mentionCount({required Object count}) => '${count} new mentions';
 	@override String get mentionAllDenied => 'Only admins can @everyone';
+	@override String get navInfoMissing => 'Message location info missing, unable to navigate';
+}
+
+// Path: groupList
+class _TranslationsGroupListEnUs extends TranslationsGroupListZhCn {
+	_TranslationsGroupListEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => 'All';
+	@override String get attrOwner => 'Created by me';
+	@override String get attrManager => 'I manage';
+	@override String get attrJoin => 'I joined';
+	@override String get refresh => 'Refresh';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1740,7 +2291,12 @@ extension on TranslationsEnUs {
 			'bindNow' => 'Bind now',
 			'later' => 'Later',
 			'buttonCancel' => 'Cancel',
+			'buttonCreate' => 'Create',
 			'buttonChangePassword' => 'Change password',
+			'peerIsTyping' => ({required Object name}) => '${name} is typing...',
+			'phoneInputHint' => 'Enter phone number',
+			'liveRoomWhipLabel' => 'WHIP Stream URL',
+			'liveRoomWhepLabel' => 'WHEP Stream URL',
 			'buttonClose' => 'Close',
 			'buttonConfirm' => 'Confirm',
 			'buttonContinue' => 'Continue',
@@ -1816,6 +2372,7 @@ extension on TranslationsEnUs {
 			'codeSentToMobile' => 'Verification code sent to mobile',
 			'collected' => 'Favorited',
 			'complaint' => 'Complaint',
+			'complaintFailed' => 'Complaint failed, please try again',
 			'completed' => 'Completed',
 			'confirmCode' => 'Confirmation code',
 			'confirmCodeError' => 'Confirmation code is empty',
@@ -1950,7 +2507,43 @@ extension on TranslationsEnUs {
 			'great' => 'Excellent',
 			'groupAddLocal' => 'Save to contacts',
 			'groupAlias' => 'My nickname in this group',
+			'groupAlbum' => 'Group Album',
 			'groupAnnouncement' => 'Group announcement',
+			'groupFile' => 'Group Files',
+			'groupFileUploadSuccess' => 'File uploaded successfully',
+			'groupFileUploadFailed' => 'Upload failed, please try again',
+			'groupFileDeleteSuccess' => 'File deleted',
+			'groupFileDeleteFailed' => 'Delete failed, please try again',
+			'groupFileClosePreview' => 'Close preview',
+			'groupFileImagePreview' => 'Image preview',
+			'groupFileVideoPreview' => 'Video preview',
+			'groupFileAudioPreview' => 'Audio preview',
+			'groupFileUploadTooltip' => 'Upload file',
+			'groupFileSearch' => 'Search group files',
+			'groupFileMediaPause' => 'Pause',
+			'groupFileMediaPlay' => 'Play',
+			'groupFileReadFailed' => 'File read failed, please try again',
+			'groupFileDeleteTitle' => 'Delete Group File',
+			'groupFileDeleteConfirm' => ({required Object name}) => 'Delete file "${name}"?',
+			'groupFileImageLoadFailed' => 'Image failed to load',
+			'groupFileUrlMissing' => 'File URL missing, cannot open',
+			'groupFileUrlInvalid' => 'Invalid file URL',
+			'groupFileOpenFailed' => 'Cannot open file link',
+			'groupFilePreview' => 'File Preview',
+			'groupFileSearchClear' => 'Clear',
+			'groupFileSearchAction' => 'Search',
+			'groupFileCategoryAll' => 'All',
+			'groupFileUnnamed' => 'Unnamed file',
+			'groupFileSearchEmpty' => 'No matching files',
+			'groupFileCategoryEmpty' => ({required Object category}) => 'No ${category} files',
+			'groupFileEmpty' => 'No group files',
+			'groupFileCategoryDoc' => 'Documents',
+			'groupFileCategoryImage' => 'Images',
+			'groupFileCategoryVideo' => 'Videos',
+			'groupFileCategoryAudio' => 'Audio',
+			'groupFileCategoryOther' => 'Other',
+			'groupFileAudioLoadFailed' => 'Audio failed to load',
+			'groupFileAudioLoading' => 'Loading audio...',
 			'groupChat' => 'Group chat',
 			'groupDissolve' => 'Dissolve group',
 			'groupJoin' => 'Join group',
@@ -2136,6 +2729,8 @@ extension on TranslationsEnUs {
 			'p2pCallScreenView' => 'Call interface',
 			'packageSize' => 'Package size',
 			'paramAlreadyExist' => ({required Object param}) => '${param} already exists',
+			_ => null,
+		} ?? switch (path) {
 			'paramFormatError' => ({required Object param}) => '${param} format error',
 			'paramLogin' => ({required Object param}) => 'Log in with ${param}',
 			'password' => 'Password',
@@ -2178,8 +2773,6 @@ extension on TranslationsEnUs {
 			'recommendToFriend' => 'Recommend to friends',
 			'recoverCodePasswordDesc' => 'We will send password recovery code to your email.',
 			'recoverPassword' => 'Reset password',
-			_ => null,
-		} ?? switch (path) {
 			'recoverPasswordDesc' => 'Please enter your email to receive password reset instructions',
 			'recoverPasswordIntro' => 'No worries, this happens to everyone.',
 			'recoverPasswordSuccess' => 'Verification code sent successfully',
@@ -2253,6 +2846,15 @@ extension on TranslationsEnUs {
 			'muteDuration3days' => '3 Days',
 			'muteDuration7days' => '7 Days',
 			'muteDurationPermanent' => 'Permanent',
+			'muteDuration5min' => '5 Minutes',
+			'muteDuration10min' => '10 Minutes',
+			'muteDuration30min' => '30 Minutes',
+			'muteDuration30days' => '30 Days',
+			'mutedFor' => ({required Object label}) => 'Muted ${label}',
+			'muteUnitSeconds' => ({required Object count}) => '${count} sec',
+			'muteUnitMinutes' => ({required Object count}) => '${count} min',
+			'muteUnitHours' => ({required Object count}) => '${count} hr',
+			'muteUnitDays' => ({required Object count}) => '${count} day(s)',
 			'throttleWarning' => 'Too many requests, please try again later',
 			'throttleRetryAfter' => ({required Object seconds}) => 'Too many requests, please retry after ${seconds} seconds',
 			'youAreMuted' => 'You are muted',
@@ -2393,6 +2995,7 @@ extension on TranslationsEnUs {
 			'titleMessage' => 'Messages',
 			'titleDiscover' => 'Discover',
 			'titleMine' => 'Me',
+			'titleSquare' => 'Square',
 			'today' => 'Today',
 			'tooBad' => 'Too bad',
 			'topChat' => 'Pin chat',
@@ -2640,6 +3243,8 @@ extension on TranslationsEnUs {
 			'voiceFileInvalid' => 'Voice file is invalid',
 			'copiedLink' => 'Copied link',
 			'retrySuccess' => 'Resent successfully',
+			_ => null,
+		} ?? switch (path) {
 			'deleteSuccess' => 'Deleted successfully',
 			'localDeleteSuccess' => 'Local deletion successful',
 			'localDeleteFailed' => 'Local deletion failed',
@@ -2692,8 +3297,6 @@ extension on TranslationsEnUs {
 			'visibleThresholdInfo' => ({required Object percentage, required Object delayms}) => 'Visible ratio: ${percentage}% | Delay: ${delayms}',
 			'visibleRatioLabel' => 'Visible ratio (0.1~1.0)',
 			'delayMsLabel' => 'Delay in ms (>=100)',
-			_ => null,
-		} ?? switch (path) {
 			'noGroupAnnouncement' => 'No group announcement',
 			'announcementContentCannotBeEmpty' => 'Announcement content cannot be empty',
 			'announcementPublishSuccess' => 'Announcement published successfully',
@@ -3130,6 +3733,8 @@ extension on TranslationsEnUs {
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.tagAdded' => 'Tag added',
 			'groupTag.tagRemoved' => 'Tag removed',
+			'groupTag.removeTitle' => 'Remove Tag',
+			'groupTag.removeConfirm' => 'Remove this tag?',
 			'groupVote.title' => 'Group Votes',
 			'groupVote.createVote' => 'Create Vote',
 			'groupVote.voteTitle' => 'Vote Title',
@@ -3145,6 +3750,17 @@ extension on TranslationsEnUs {
 			'groupVote.voteSuccess' => 'Voted successfully',
 			'groupVote.hasVoted' => 'Already voted',
 			'groupVote.viewResults' => 'View Results',
+			'groupVote.cancelVoteSuccess' => 'Vote cancelled',
+			'groupVote.cancelVoteFailed' => 'Cancel failed, please try again',
+			'groupVote.endVoteFailed' => 'End failed, please try again',
+			'groupVote.eachOptionPerLine' => 'One option per line',
+			'groupVote.statusInProgress' => 'In Progress',
+			'groupVote.updateVote' => 'Update Vote',
+			'groupVote.cancelMyVote' => 'Cancel my vote',
+			_ => null,
+		} ?? switch (path) {
+			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
+			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
 			'groupSchedule.title' => 'Group Schedule',
 			'groupSchedule.createSchedule' => 'Create Schedule',
 			'groupSchedule.scheduleTitle' => 'Title',
@@ -3159,6 +3775,17 @@ extension on TranslationsEnUs {
 			'groupSchedule.reminder15min' => '15 minutes before',
 			'groupSchedule.reminder1hour' => '1 hour before',
 			'groupSchedule.reminder1day' => '1 day before',
+			'groupSchedule.startTime' => 'Start Time',
+			'groupSchedule.endTime' => 'End Time',
+			'groupSchedule.participants' => 'Participants',
+			'groupSchedule.statusCancelled' => 'Cancelled',
+			'groupSchedule.statusInProgress' => 'In Progress',
+			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
+			'groupSchedule.cancelFailed' => 'Cancel failed, please try again',
+			'groupSchedule.confirmAttend' => 'Confirm Attendance',
+			'groupSchedule.declineAttend' => 'Decline',
+			'groupSchedule.cancelSchedule' => 'Cancel Schedule',
+			'groupSchedule.scheduleIdMissing' => 'Schedule ID missing, cannot view details',
 			'groupTask.title' => 'Group Tasks',
 			'groupTask.createTask' => 'Create Task',
 			'groupTask.taskTitle' => 'Task Title',
@@ -3177,6 +3804,11 @@ extension on TranslationsEnUs {
 			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} hours left',
 			'groupTask.dueSoon' => 'Due soon',
+			'groupTask.submitFailed' => 'Submit failed, please try again',
+			'groupTask.taskId' => 'Task ID',
+			'groupTask.pendingReview' => 'Pending Review',
+			'groupTask.taskIdMissing' => 'Task ID missing, cannot view details',
+			'groupTask.taskIdMissingSubmit' => 'Task ID missing, cannot submit',
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'No mentions yet',
 			'mention.allRead' => 'All read',
@@ -3187,6 +3819,470 @@ extension on TranslationsEnUs {
 			'mention.viewContext' => 'View context',
 			'mention.mentionCount' => ({required Object count}) => '${count} new mentions',
 			'mention.mentionAllDenied' => 'Only admins can @everyone',
+			'mention.navInfoMissing' => 'Message location info missing, unable to navigate',
+			'groupList.attrAll' => 'All',
+			'groupList.attrOwner' => 'Created by me',
+			'groupList.attrManager' => 'I manage',
+			'groupList.attrJoin' => 'I joined',
+			'groupList.refresh' => 'Refresh',
+			'groupCategoryGroupCount' => ({required Object count}) => '${count} groups',
+			'groupAnnouncementExpiry' => ({required Object time}) => 'Expires: ${time}',
+			'groupAlbumCreateTitle' => 'New Album',
+			'groupAlbumNameHint' => 'Enter album name',
+			'groupAlbumCreated' => 'Album created',
+			'groupAlbumCreateFailed' => 'Create failed, please try again',
+			'groupAlbumDeleteTitle' => 'Delete Album',
+			'groupAlbumDeleteConfirm' => ({required Object name}) => 'Delete album「${name}」?',
+			'groupAlbumDeleted' => 'Album deleted',
+			'groupAlbumDeleteFailed' => 'Delete failed, please try again',
+			'groupAlbumRenameTitle' => 'Rename Album',
+			'groupAlbumRenamed' => 'Album name updated',
+			'groupAlbumRenameFailed' => 'Update failed, please try again',
+			'groupAlbumUploadTooltip' => 'Upload photo',
+			'groupAlbumDeleteTooltip' => 'Delete album',
+			'groupAlbumNoAlbum' => 'No albums yet',
+			'groupAlbumUnnamed' => 'Unnamed album',
+			'groupAlbumPhotoCount' => ({required Object count}) => '${count} photos',
+			'groupAlbumPhotoReadFailed' => 'Failed to read photo, please retry',
+			'groupAlbumPhotoUploaded' => 'Photo uploaded',
+			'groupAlbumPhotoUploadFailed' => 'Upload failed, please try again',
+			'groupAlbumCreateTooltip' => 'New album',
+			'groupAlbumPhotoBatchDeleteTitle' => 'Bulk delete photos',
+			'groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'Delete ${count} selected photos?',
+			'groupAlbumPhotoDeleteFailed' => 'Delete failed, please try again',
+			'groupAlbumPhotoDeletedAll' => ({required Object count}) => 'Deleted ${count} photos',
+			'groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => 'Deleted ${success}, ${fail} failed',
+			'groupAlbumPhotoDeleteTitle' => 'Delete Photo',
+			'groupAlbumPhotoDeleteConfirm' => 'Delete this photo?',
+			'groupAlbumPhotoDeleted' => 'Photo deleted',
+			'groupAlbumPhotoIdMissing' => 'Photo ID missing, cannot view details',
+			'groupAlbumPhotoListTitle' => 'Album Photos',
+			'groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} selected',
+			'groupAlbumPhotoBatchDeleteTooltip' => 'Bulk delete',
+			'groupAlbumPhotoExitSelection' => 'Exit selection',
+			'groupAlbumPhotoEmpty' => 'No photos yet',
+			'groupAlbumPhotoUrlMissing' => 'Photo URL missing, cannot open',
+			'groupAlbumPhotoUrlInvalid' => 'Invalid photo URL',
+			'groupAlbumPhotoOpenFailed' => 'Cannot open photo link',
+			'groupAlbumPhotoDetailTitle' => 'Photo Details',
+			'groupAlbumPhotoNotFound' => 'Photo not found or deleted',
+			'groupAlbumPhotoOpenExternal' => 'Open externally',
+			'groupAlbumPhotoSetCover' => 'Set as cover',
+			'groupAlbumPhotoCoverUpdated' => 'Set as album cover',
+			'groupAlbumPhotoCoverFailed' => 'Set cover failed, please try again',
+			'groupAlbumPhotoPrev' => 'Previous',
+			'groupAlbumPhotoNext' => 'Next',
+			'groupAlbumPhotoResolution' => 'Resolution',
+			'groupAlbumPhotoUploader' => 'Uploaded by',
+			'groupAlbumPhotoLikeCount' => 'Likes',
+			'groupAlbumPhotoCommentCount' => 'Comments',
+			'groupAlbumPhotoMyLike' => 'My like',
+			'groupAlbumPhotoIdLabel' => 'Photo ID',
+			'sectionDisplay' => 'Display',
+			'sectionTheme' => 'Theme',
+			'selectLanguage' => 'Select Language',
+			'profileCompleted' => 'Profile complete!',
+			'completionSuggestions' => 'Suggestions:',
+			'profileProgress' => ({required Object percent}) => '${percent}% complete',
+			'sectionGeneral' => 'General',
+			'sectionPrivacySecurity' => 'Privacy & Security',
+			'sectionHelpAbout' => 'Help & About',
+			'refreshDeviceKey' => 'Refresh Device Key',
+			'refreshDeviceKeyHint' => 'If messages cannot be decrypted, click to refresh keys',
+			'refreshingDeviceKey' => 'Refreshing device key...',
+			'deviceKeyRefreshed' => 'Device key refreshed',
+			'e2eeKeyManagement' => 'E2EE Key Management',
+			'e2eeKeyManagementSubtitle' => 'Backup, restore and manage end-to-end encryption keys',
+			'msgProtectedByComplianceKey' => 'Message protected by compliance key',
+			'msgOnlyVisibleToParties' => 'Message readable only by sender and recipient',
+			'msgNotEncrypted' => 'Message transmitted unencrypted',
+			'durationMinutes' => ({required Object count}) => '${count}min',
+			'durationSeconds' => ({required Object count}) => '${count}s',
+			'rechargeTitle' => 'Top Up',
+			'rechargeAmountHint' => 'Enter amount (CNY), ¥1 to ¥10,000',
+			'rechargeAmountExample' => 'e.g. 100',
+			'rechargeAmountError' => 'Please enter an amount between ¥1 and ¥10,000',
+			'rechargeSuccess' => 'Top up successful',
+			'rechargeConfirm' => 'Confirm Top Up',
+			'transactionHistory2' => 'Transaction History',
+			'noTransactionHistory' => 'No transactions yet',
+			'allLoaded' => '— All loaded —',
+			'transactionTypeIncome' => 'Top Up',
+			'transactionTypeExpense' => 'Purchase',
+			'sectionLoginCredentials' => 'Login Credentials',
+			'channelInvitations' => 'Channel Invitations',
+			'acceptInvitationFailed' => 'Failed to accept invitation',
+			'rejectInvitationFailed' => 'Failed to reject invitation',
+			'invitationAccepted' => 'Invitation accepted',
+			'invitationRejected' => 'Invitation rejected',
+			'invitationStatusPending' => 'Pending',
+			'invitationStatusAccepted' => 'Accepted',
+			'invitationStatusRejected' => 'Rejected',
+			'invitationStatusExpired' => 'Expired',
+			'invitationStatusCancelled' => 'Cancelled',
+			'invitationStatusUnknown' => 'Unknown',
+			'noReceivedInvitations' => 'No invitations received',
+			'noSentInvitations' => 'No invitations sent',
+			'inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
+			'inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
+			'createdAtLabel' => ({required Object time}) => 'Created: ${time}',
+			'expiredAtLabel' => ({required Object time}) => 'Expires: ${time}',
+			'openChannel' => 'Open Channel',
+			'myReceivedTab' => 'Received',
+			'mySentTab' => 'Sent',
+			'processingDots' => 'Processing...',
+			'reject' => 'Reject',
+			'myOrders' => 'My Orders',
+			'paidChannelLocked' => 'Paid Channel Content Locked',
+			'purchaseUnlockHint' => 'Purchase to unlock channel history and future updates.',
+			'payingDots' => 'Paying...',
+			'purchaseAndUnlock' => 'Purchase & Unlock Now',
+			'purchaseFailed' => 'Purchase failed, please try again',
+			'purchaseSuccess' => 'Purchase successful',
+			'noOrders' => 'No orders yet',
+			'orderDetailLoadFailed' => 'Failed to load order details',
+			'orderDetail' => 'Order Details',
+			'orderNoLabel' => ({required Object no}) => 'Order No: ${no}',
+			'orderStatusLabel' => ({required Object status}) => 'Status: ${status}',
+			'orderAmountLabel' => ({required Object currency, required Object amount}) => 'Amount: ${currency} ${amount}',
+			'orderCreatedAtLabel' => ({required Object time}) => 'Created: ${time}',
+			'orderPaymentAtLabel' => ({required Object time}) => 'Paid: ${time}',
+			'orderStatusPending' => 'Pending Payment',
+			'orderStatusPaid' => 'Paid',
+			'orderStatusRefunded' => 'Refunded',
+			'orderStatusCancelled' => 'Cancelled',
+			'orderStatusExpired' => 'Expired',
+			'orderStatusUnknown' => 'Unknown',
+			'removeReaction' => 'Remove Reaction',
+			'removeReactionConfirm' => ({required Object emoji}) => 'Remove ${emoji} reaction?',
+			'defaultFileName' => 'File',
+			'fileUrlInvalid' => 'Invalid file link',
+			'fileOpenFailed' => 'Unable to open this file',
+			'e2eeKeyRecoveryTitle' => 'End-to-End Encryption Key Management',
+			'e2eeRecoveryMethods' => 'Key Recovery Methods',
+			'e2eeDangerousOps' => 'Dangerous Operations',
+			'e2eeDeviceTransfer' => 'Device Transfer',
+			'e2eeDeviceTransferDesc' => 'Transfer key directly to a new device via QR code',
+			'e2eeStatusAvailable' => 'Available',
+			'e2eeSocialRecovery' => 'Social Recovery',
+			'e2eeSocialRecoveryDesc' => 'Recover key with help from trusted contacts',
+			'e2eeLocalBackup' => 'Local Backup',
+			'e2eeLocalBackupDesc' => 'Export encrypted backup file locally or to cloud',
+			'e2eeGenerateNewKey' => 'Generate New Key',
+			'e2eeGenerateNewKeyDesc' => 'Generate a new E2EE key pair (old messages will be unreadable)',
+			'e2eeDeleteKey' => 'Delete Key',
+			'e2eeDeleteKeyDesc' => 'Delete locally stored key (cannot be recovered)',
+			'e2eeCurrentKeyInfo' => 'Current Key Info',
+			'e2eeE2EEEnabled' => 'End-to-end encryption enabled',
+			'e2eeActivated' => 'Active',
+			'e2eeDeviceIdLabel' => 'Device ID',
+			'e2eeKeyIdLabel' => 'Key ID',
+			'e2eeCreatedAtLabel' => 'Created At',
+			'e2eeNoKeyDetected' => 'No E2EE Key Detected',
+			'e2eeNoKeyDesc' => 'Please generate a key pair or restore from backup',
+			'e2eeAboutTitle' => 'About End-to-End Encryption',
+			'e2eeInfoPoint1' => '• Your messages are encrypted before sending, the server cannot read them',
+			'e2eeInfoPoint2' => '• Old messages may become unreadable after changing device or deleting key',
+			'e2eeInfoPoint3' => '• Please back up your key regularly to prevent data loss',
+			'e2eeExportBackup' => 'Export Backup',
+			'e2eeExportBackupDesc' => 'Generate encrypted backup file',
+			'e2eeImportBackup' => 'Import Backup',
+			'e2eeImportBackupDesc' => 'Restore key from backup file',
+			'e2eeBackupManage' => 'Backup Manager',
+			'e2eeBackupManageDesc' => 'View backup history',
+			'e2eeGenerateKeyConfirm' => 'Generate a new E2EE key pair?',
+			'e2eeWarnOldMessagesLost' => '• Old messages will be unreadable',
+			'e2eeWarnNeedNewBackup' => '• A new backup file will need to be generated',
+			'e2eeWarnIrreversible' => '• This action cannot be undone',
+			'e2eeConfirmGenerate' => 'Confirm Generate',
+			'e2eeDeleteKeyConfirm' => 'Delete the current key?',
+			'e2eeWarnCannotRestore' => '• Cannot be recovered after deletion',
+			'e2eeWarnAllMsgsLost' => '• All E2EE messages will be unreadable',
+			'e2eeWarnNeedRestoreOrNew' => '• Must restore from backup or generate a new key',
+			'e2eeConfirmDelete' => 'Confirm Delete',
+			'e2eeGeneratingKey' => 'Generating key, please wait...',
+			'e2eeKeyGeneratedSuccess' => 'Key Generated Successfully',
+			'e2eeNewKeyGenerated' => 'New E2EE key pair generated!',
+			'e2eeDeviceIdInfo' => ({required Object id}) => 'Device ID: ${id}',
+			'e2eeKeyIdInfo' => ({required Object id}) => 'Key ID: ${id}',
+			'e2eeCreatedAtInfo' => ({required Object time}) => 'Created: ${time}',
+			'e2eeImportantNote' => 'Important Note',
+			'e2eeWarnOldMayNotDecrypt' => '• Old messages may be unreadable',
+			'e2eeSuggestBackupNow' => '• It is recommended to export a backup immediately',
+			'e2eeGoBackup' => 'Go Backup',
+			'gotIt' => 'Got it',
+			'e2eeKeyGenerateFailed' => 'Key generation failed, please try again',
+			'e2eeKeyDeleted' => 'Key deleted',
+			'e2eeDeleteFailed' => 'Deletion failed, please try again',
+			'e2eeRecoverKeyTitle' => 'Recover Key',
+			'e2eeCanRecoverKey' => 'Key can be recovered',
+			'e2eeInsufficientShards' => 'Insufficient shards',
+			'e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'Available shards: ${available}, need ${required} proxy helpers',
+			'e2eeProxyUser' => ({required Object uid}) => 'Proxy user: ${uid}',
+			'e2eeShardLabel' => ({required Object index, required Object total}) => 'Shard ${index} / ${total}',
+			'e2eeNoRecoveryShards' => 'No recovery shards available',
+			'e2eeReloadShards' => 'Reload',
+			'e2eeRecovering' => 'Recovering...',
+			'e2eeStartRecoveryBtn' => ({required Object required}) => 'Start Key Recovery (need ${required} proxy helpers)',
+			'e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Insufficient shards (need ${required}, have ${current})',
+			'e2eeRecoverSuccess' => 'Recovery Successful',
+			'e2eeKeyRestored' => 'Key has been successfully restored',
+			'e2eeUsedShards' => ({required Object count}) => 'Used ${count} proxy shards',
+			'e2eeRecoverFailed' => 'Recovery Failed',
+			'e2eeRecoverKeyFailed' => 'Failed to recover key, please try again',
+			'e2eeLoadingShards' => 'Loading shard information...',
+			'e2eeNoShards' => 'No shards available',
+			'e2eeReady' => 'Ready',
+			'e2eeLoadFailed' => 'Load failed, please try again',
+			'e2eePreparing' => 'Preparing to recover...',
+			'e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
+			'e2eeContactingProxy' => ({required Object name}) => 'Contacting: ${name}',
+			'e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'Progress: ${collected} / ${total} shards',
+			'e2eeCollectingShards' => ({required Object collected, required Object total}) => 'Collecting shards (${collected}/${total})...',
+			'e2eeShardsCollected' => 'Shards collected, reassembling key...',
+			'e2eeRecoveryFailed' => 'Recovery failed, please try again',
+			'webFeatureMultiDevice' => 'Multi-Device Sync',
+			'webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
+			'webFeatureE2EE' => 'End-to-End Encryption',
+			'webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
+			'webFeatureNotification' => 'Desktop Notifications',
+			'webFeatureNotificationDesc' => 'Receive new message alerts even when you\'re away from the page',
+			'webFeatureFileTransfer' => 'File Transfer',
+			'webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
+			'webQRLoginTitle' => 'Scan to Login',
+			'webQRLoginHint' => 'Scan the QR code with ImBoy on your phone',
+			'webQRScanned' => 'Scanned',
+			'webQRConfirmOnPhone' => 'Please confirm login on your phone',
+			'webQRLoggingIn' => 'Logging in...',
+			'webQRExpired' => 'QR code expired',
+			'webQRLoginFailed' => 'Login failed',
+			'webQRLoginSuccess' => 'Login successful',
+			'webQRRefresh' => 'Refresh QR Code',
+			'webQRExpiresIn' => ({required Object seconds}) => 'Expires in ${seconds} seconds',
+			'webSwitchToPassword' => 'Login with account and password',
+			'webSwitchToQR' => 'Login with QR code',
+			'webQRStatusWaiting' => 'Open ImBoy on your phone > Settings > Scan',
+			'webQRStatusScanned' => 'Please tap "Confirm Login" on your phone',
+			'webQRStatusVerifying' => 'Verifying...',
+			'webQRStatusExpired' => 'Please click refresh to scan again',
+			'webQRStatusFailed' => 'Login failed, please try again',
+			'webQRStatusSuccess' => 'Redirecting...',
+			'webPasswordLoginTitle' => 'Account Login',
+			'webAccountHint' => 'Enter account / phone / email',
+			'webPasswordHint' => 'Enter password',
+			'webLoginEmptyError' => 'Please enter account and password',
+			'webQRGenerateFailed' => 'Failed to generate QR code',
+			'webQRTokenInvalid' => 'Invalid login token',
+			'e2eeErrNoRecipientKey' => 'Cannot get recipient\'s device key, message not sent',
+			'e2eeErrTimeout' => 'Encryption timed out, please check your connection and retry',
+			'e2eeErrNetwork' => 'Network error, encryption failed, message not sent',
+			'e2eeErrInvalidFormat' => 'Message format error, encryption failed',
+			'e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
+			'e2eeDecryptFailed' => 'Message cannot be decrypted',
+			'e2eeDecryptFailedReasons' => 'This message cannot be decrypted. Possible reasons:',
+			'e2eeDecryptReasonOtherDevice' => '• You logged in on another device',
+			'e2eeDecryptReasonKeyExpired' => '• Device key has expired',
+			'e2eeDecryptReasonDataCorrupt' => '• App data is corrupted',
+			'e2eeDecryptChooseSolution' => 'Please choose a solution:',
+			'e2eeDecryptActionRecreateKey' => 'Recreate key (recommended)',
+			'e2eeDecryptActionRelogin' => 'Log in again',
+			'e2eeDecryptActionRemindLater' => 'Remind me later',
+			'e2eeBackupExportTitle' => 'Export E2EE Backup',
+			'e2eeBackupPwdCantRecover' => '• Backup password cannot be recovered, please remember it!',
+			'e2eeBackupStoreMultipleNote' => '• Store backup file in multiple secure locations (email, cloud, USB)',
+			'e2eeBackupPwdLabel' => 'Backup Password *',
+			'e2eeBackupPwdHint' => 'At least 12 chars, with upper/lowercase letters, numbers and special symbols',
+			'e2eeBackupConfirmPwdLabel' => 'Confirm Password *',
+			'e2eeBackupConfirmPwdHint' => 'Enter password again',
+			'e2eeBackupNoteLabel' => 'Note (optional)',
+			'e2eeBackupNoteHint' => 'e.g. Main phone backup - Jan 2026',
+			'e2eeBackupPwdStrengthLabel' => 'Password strength',
+			'e2eeBackupPwdWeak' => 'Weak - add more complexity',
+			'e2eeBackupPwdMedium' => 'Medium - add more length or complexity',
+			'e2eeBackupPwdStrong' => 'Strong - acceptable',
+			'e2eeBackupPwdVeryStrong' => 'Very strong - secure',
+			'e2eeBackupGenerateBtn' => 'Generate backup file',
+			'e2eeBackupFileGenerated' => 'Backup file generated!',
+			'e2eeBackupShareBtn' => 'Share via email / cloud',
+			'e2eeBackupShareContent' => 'This is my Imboy E2EE key backup file. Keep it safe and do not share with others.',
+			'e2eeBackupErrPwdMismatch' => 'Passwords do not match',
+			'e2eeBackupErrNoKeyData' => 'Unable to retrieve key data',
+			'e2eeBackupErrExportFailed' => 'Export failed, please try again',
+			'e2eeBackupErrShareFailed' => 'Share failed, please try again',
+			'e2eeBackupExportSuccessTitle' => 'Backup exported successfully',
+			'e2eeBackupExportSuccessBody' => 'Your E2EE key backup has been successfully generated.',
+			'e2eeBackupImportantNoteColon' => 'Important:',
+			'e2eeBackupKeepSafe' => '• Keep the backup file and password safe',
+			'e2eeBackupStoreMultipleLoc' => '• Store the file in multiple secure locations',
+			'e2eeBackupPwdCantRecoverNote' => '• Password cannot be recovered, please remember it',
+			'e2eeBackupImportTitle' => 'Import E2EE Backup',
+			'e2eeBackupImportGuide' => 'Import Instructions',
+			'e2eeBackupImportReplaceKey' => '• Importing will replace the current E2EE key',
+			'e2eeBackupImportTrustedSource' => '• Ensure the backup file comes from a trusted source',
+			'e2eeBackupSelectFile' => 'Select backup file',
+			'e2eeBackupSelectFileHint' => 'Tap to select backup file (.enc)',
+			'e2eeBackupInfoTitle' => 'Backup info',
+			'e2eeBackupVersionLabel' => 'Version',
+			'e2eeBackupAlgorithmLabel' => 'Algorithm',
+			'e2eeBackupFileSizeLabel' => 'File size',
+			'e2eeBackupFileValid' => '✓ File format is valid',
+			'e2eeBackupImportPwdHint' => 'Enter the password set during backup',
+			'e2eeBackupImportBtn' => 'Import key',
+			'e2eeBackupErrSelectFile' => 'Failed to select file, please try again',
+			'e2eeBackupErrValidateFailed' => 'File validation failed, please check file format',
+			'e2eeBackupErrImportFailed' => 'Import failed, please check your password',
+			'e2eeBackupImportSuccessTitle' => 'Import successful',
+			'e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
+			'e2eeBackupImportSuccessNote' => 'Note: Old messages may be inaccessible — this is normal E2EE behavior',
+			'e2eeBackupNoRecords' => 'No backup records',
+			'e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
+			'e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',
+			'e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Created at ${time}',
+			'e2eeBackupDetailTitle' => 'Backup details',
+			'e2eeBackupDeviceIdLabel' => 'Device ID',
+			'e2eeBackupVersionNum' => 'Backup version',
+			'e2eeBackupCreatedAtRow' => 'Created at',
+			'e2eeBackupFileSizeRow' => 'File size',
+			'e2eeBackupNoteRow' => 'Note',
+			'e2eeBackupDeleteTitle' => 'Delete backup record',
+			'e2eeBackupDeleteConfirm' => 'Are you sure you want to delete this backup record?',
+			'e2eeBackupDeleteSuccess' => 'Backup record deleted',
+			'e2eeSocialCreateTitle' => 'Create recovery shards',
+			'e2eeSocialShardSettings' => 'Shard settings',
+			'e2eeSocialTotalShards' => 'Total shards',
+			'e2eeSocialThreshold' => 'Recovery threshold',
+			'e2eeSocialShardStoredNote' => 'Shards will be stored on proxy devices; the server stores nothing',
+			'e2eeSocialThresholdHint' => ({required Object count}) => 'Need ${count} proxies to recover key',
+			'e2eeSocialSelectProxy' => 'Select recovery proxies',
+			'e2eeSocialAddProxy' => 'Add proxy',
+			'e2eeSocialProxyNeeded' => ({required Object count}) => 'Need ${count} trusted contacts as proxies',
+			'e2eeSocialAddProxyHint' => 'Please add proxy contacts',
+			'e2eeSocialProxyDefaultName' => ({required Object uid}) => 'User ${uid}',
+			'e2eeSocialCreateNeedMore' => ({required Object count}) => 'Please add ${count} proxies first',
+			'e2eeSocialCreateBtn' => 'Create shards',
+			'e2eeSocialCreateSuccessTitle' => 'Shards created successfully',
+			'e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Key has been split into ${count} shards',
+			'e2eeSocialShardSentViaWs' => 'Shards sent directly to proxy devices via WebSocket',
+			'e2eeSocialThresholdInfo' => ({required Object count}) => 'Need ${count} proxies to recover key',
+			'e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Sent to ${sent} proxy devices (out of ${total})',
+			'e2eeSocialZeroTrustNote' => 'Zero-trust architecture: the server stores no shards',
+			'e2eeSocialCreateFailTitle' => 'Creation failed',
+			'e2eeSocialCreateFailBody' => 'Failed to create shards, please try again',
+			'e2eeSocialManageTitle' => 'Manage shards',
+			'e2eeSocialMyShards' => 'My shards',
+			'e2eeSocialProxyShards' => 'Proxy shards',
+			'e2eeSocialNoShards' => 'You have not created any recovery shards yet',
+			'e2eeSocialNoProxyShards' => 'No proxy shards',
+			'e2eeSocialCreateFirst' => 'Create shards to see content here',
+			'e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'Shard ${idx} / ${total}',
+			'e2eeSocialShardActive' => 'Active',
+			'e2eeSocialShardUsed' => 'Used',
+			'e2eeSocialShardValid' => 'Shard valid',
+			'e2eeSocialUserShard' => ({required Object uid}) => 'Key shard for user ${uid}',
+			'e2eeSocialProxyUserLabel' => 'Proxy user',
+			'e2eeSocialRecoveryThresholdLabel' => 'Recovery threshold',
+			'e2eeSocialShardIndexLabel' => 'Shard index',
+			'e2eeSocialKeyVersionLabel' => 'Key version',
+			'e2eeSocialUsedAtLabel' => 'Used at',
+			'e2eeTransferSendTitle' => 'Send key to new device',
+			'e2eeTransferErrNoKey' => 'Please generate a key pair first',
+			'e2eeTransferErrInitFailed' => 'Initialization failed, please try again',
+			'e2eeTransferErrNoRecipientKey' => 'Recipient has no available public key',
+			'e2eeTransferErrKeyNotFound' => 'Key not found',
+			'e2eeTransferErrCreateFailed' => 'Failed to create transfer session, please try again',
+			'e2eeTransferCreateSessionBtn' => 'Create transfer session',
+			'e2eeTransferQRHint' => 'Scan this QR code on your new device',
+			'e2eeTransferQRExpiry' => ({required Object time}) => 'QR code expires at ${time}',
+			'e2eeTransferSessionCreated' => 'Transfer session created',
+			'e2eeTransferRefreshQR' => 'Refresh QR code',
+			'e2eeTransferEnterUidTitle' => 'Enter recipient user ID',
+			'e2eeTransferUidPlaceholder' => 'Recipient user ID',
+			'e2eeTransferCreateBtn' => 'Create',
+			'e2eeTransferUidEmptyError' => 'Please enter a valid user ID',
+			'e2eeTransferReceiveTitle' => 'Receive key from old device',
+			'e2eeTransferReceiving' => 'Receiving transfer...',
+			'e2eeTransferSuccess' => 'Transfer successful!',
+			'e2eeTransferFailed' => 'Transfer failed, please try again',
+			'e2eeTransferProcessingMsg' => 'Processing...',
+			'e2eeTransferSuccessTitle' => 'Transfer successful',
+			'e2eeTransferSuccessBody' => 'Key has been successfully transferred to this device',
+			'e2eeTransferScanError' => ({required Object error}) => 'Scan error: ${error}',
+			'e2eeTransferErrNoDeviceId' => 'Unable to get device ID',
+			'passwordEncryptFailed' => 'Password encryption failed',
+			'initConfigTimeout' => 'Config fetch timed out: please check network or server status',
+			'initConfigNetworkError' => ({required Object code}) => 'Network or server error (HTTP ${code})',
+			'initConfigProtocolError' => 'Server returned an invalid protocol response',
+			'initConfigFetchFailed' => 'Failed to fetch config, please check your network connection',
+			'attachmentGetFileFailed' => 'Unable to get file, please retry or choose from gallery',
+			'attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
+			'attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
+			'attachmentGetOriginalImageFailed' => 'Unable to get original image data',
+			'saveFailedRetry' => 'Save failed, please try again',
+			'downloadFileNotFound' => 'Download file not found, please retry',
+			'downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
+			'downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
+			'e2eeTransferPageTitle' => 'Transfer Between Devices',
+			'e2eeTransferToNewDevice' => 'Transfer to New Device',
+			'e2eeTransferSendDesc' => 'Transfer key to a new device via QR code',
+			'e2eeTransferFromOldDevice' => 'Receive Key from Old Device',
+			'e2eeTransferReceiveDesc' => 'Scan old device QR code to receive key',
+			'e2eeTransferPendingSection' => 'Pending Transfers',
+			'e2eeTransferLoadFailed' => 'Load Failed',
+			'e2eeTransferLoadFailedDesc' => 'Unable to load pending transfers, please retry',
+			'e2eeTransferNoPending' => 'No pending transfers',
+			'e2eeTransferNoPendingDesc' => 'When a device sends you a key, it will appear here',
+			'e2eeTransferPendingItem' => 'Pending Key Transfer',
+			'e2eeTransferPendingItemDesc' => 'Tap to view details',
+			'e2eeTransferView' => 'View',
+			'e2eeSocialTitle' => 'Social Recovery',
+			'e2eeSocialCanRecover' => 'Key Recovery Available',
+			'e2eeSocialSetupProxy' => 'Set Up Recovery Proxies',
+			'e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
+			'e2eeSocialChooseProxy' => 'Choose trusted contacts as recovery proxies',
+			'e2eeSocialExistingShards' => 'Existing Recovery Shards',
+			'e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
+			'e2eeSocialStatus' => ({required Object status}) => 'Status: ${status}',
+			'e2eeSocialCreateShardsTitle' => 'Create Recovery Shards',
+			'e2eeSocialCreateShardsDesc' => 'Split key into shards stored on proxy devices (server holds nothing)',
+			'e2eeSocialRecoverKeyTitle' => 'Recover Key',
+			'e2eeSocialRecoverKeyDesc' => 'Use proxy shards to recover your key',
+			'e2eeSocialManageShardsTitle' => 'Manage Shards',
+			'e2eeSocialManageShardsDesc' => 'View and manage all recovery shards',
+			'e2eeSocialZeroTrustHint1' => 'Zero-trust: Server never stores shards — contact proxies directly',
+			'e2eeSocialZeroTrustHint2' => 'Zero-trust: Shards are stored on proxy devices',
+			'e2eeSocialZeroTrustHint3' => 'Zero-trust: Shards stored by proxies — server never sees plaintext',
+			'e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
+			'e2eeProxyMinCount' => ({required Object count}) => 'Please select at least ${count} proxies',
+			'e2eeProxyNoPublicKey' => 'This contact has no available public key',
+			'e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
+			'e2eeProxySelectFailed' => 'Failed to select proxies, please retry',
+			'e2eeProxySelectTitle' => 'Select Recovery Proxies',
+			'e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'Selected ${selected} / ${total}',
+			'e2eeProxyNoFriends' => 'No friends yet',
+			'e2eeProxyNoFriendsHint' => 'Add friends first before setting up recovery proxies',
+			'e2eeProxyReachedMin' => 'Minimum proxy count reached',
+			'e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'Need at least ${count} trusted contacts — ${selected} selected',
+			'e2eeProxyConfirmCount' => ({required Object count}) => 'Confirm Selection (${count} proxies)',
+			'e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
+			'buttonBackHome' => 'Back to Home',
+			'featureNotEnabled' => 'This feature is not enabled',
+			'imageLoadFailed' => 'Load failed',
+			'loadFailedWithError' => ({required Object error}) => 'Load failed: ${error}',
+			'webAudioNotSupported' => 'Voice messages are not supported on the web platform',
+			'channelMaxTagsCount' => 'Maximum 8 tags allowed',
+			'tagInputHint' => 'Enter tag...',
+			_ => null,
+		} ?? switch (path) {
+			'e2eeRecreatingKey' => 'Recreating key...',
+			'e2eeKeyRecreated' => 'Key recreated successfully',
+			'e2eeKeyRecreationFailed' => ({required Object error}) => 'Key creation failed: ${error}',
+			'pleaseRelogin' => 'Please log in again',
+			'liveRoomCreateTitle' => 'Create Live Room',
+			'liveRoomTitleLabel' => 'Live Room Title',
+			'liveRoomTitleHint' => 'Enter live room title',
+			'liveRoomCreating' => 'Creating...',
+			'liveRoomTitleRequired' => 'Title cannot be empty',
+			'liveRoomWatch' => 'Watch Live',
 			_ => null,
 		};
 	}

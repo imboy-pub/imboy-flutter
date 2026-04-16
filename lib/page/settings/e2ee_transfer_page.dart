@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_transfer_send_page.dart';
 import 'package:imboy/page/settings/e2ee_transfer_receive_page.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
@@ -11,15 +12,15 @@ class E2EETransferPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('设备间传输')),
+      appBar: AppBar(title: Text(t.e2eeTransferPageTitle)),
       body: ListView(
         children: [
-          _buildSectionHeader('传输到新设备'),
+          _buildSectionHeader(t.e2eeTransferToNewDevice),
           _buildTransferCard(
             context,
             icon: Icons.qr_code_scanner,
-            title: '发送密钥到新设备',
-            description: '通过二维码将密钥传输到新设备',
+            title: t.e2eeTransferSendTitle,
+            description: t.e2eeTransferSendDesc,
             onTap: () {
               Navigator.push(
                 context,
@@ -32,8 +33,8 @@ class E2EETransferPage extends StatelessWidget {
           _buildTransferCard(
             context,
             icon: Icons.qr_code_2,
-            title: '从旧设备接收密钥',
-            description: '扫描旧设备二维码接收密钥',
+            title: t.e2eeTransferFromOldDevice,
+            description: t.e2eeTransferReceiveDesc,
             onTap: () {
               Navigator.push(
                 context,
@@ -44,7 +45,7 @@ class E2EETransferPage extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader('待处理的传输'),
+          _buildSectionHeader(t.e2eeTransferPendingSection),
           _buildPendingTransfersCard(context),
         ],
       ),
@@ -98,28 +99,28 @@ class E2EETransferPage extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return const ListTile(
-              title: Text('加载失败'),
-              subtitle: Text('无法加载待处理的传输，请重试'),
+            return ListTile(
+              title: Text(t.e2eeTransferLoadFailed),
+              subtitle: Text(t.e2eeTransferLoadFailedDesc),
             );
           }
 
           final transfers = snapshot.data ?? [];
 
           if (transfers.isEmpty) {
-            return const ListTile(
-              title: Text('暂无待处理的传输'),
-              subtitle: Text('当有设备向您发送密钥时，会显示在这里'),
+            return ListTile(
+              title: Text(t.e2eeTransferNoPending),
+              subtitle: Text(t.e2eeTransferNoPendingDesc),
             );
           }
 
           return Column(
             children: transfers.map((transfer) {
               return ListTile(
-                title: const Text('待处理的密钥传输'),
-                subtitle: const Text('点击查看详情'),
+                title: Text(t.e2eeTransferPendingItem),
+                subtitle: Text(t.e2eeTransferPendingItemDesc),
                 trailing: CupertinoButton(
-                  child: const Text('查看'),
+                  child: Text(t.e2eeTransferView),
                   onPressed: () {
                     // 跳转到接收页面
                     Navigator.push(

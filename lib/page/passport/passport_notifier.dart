@@ -482,7 +482,7 @@ class PassportNotifier extends _$PassportNotifier {
         debugPrint('_encryptPassword error: $e\n$stackTrace');
       }
       return <String, dynamic>{
-        "error": "密码加密失败: $e",
+        "error": "${t.passwordEncryptFailed}: $e",
         "password": null,
         "rsa_encrypt": "0",
       };

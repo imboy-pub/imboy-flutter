@@ -33,6 +33,7 @@ import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
 import 'package:imboy/service/group_member_role_s2c.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -226,6 +227,7 @@ class MessageS2CService {
         case 'moment_like':
         case 'moment_comment':
         case 'moment_deleted':
+        case 'moment_updated':
           await _handleMomentAction(action, payloadMap);
           break;
         default:
@@ -762,11 +764,14 @@ class MessageS2CService {
   /// Action: group_member_mute
   /// 触发时机：群管理员 / 群主禁言某成员后，后端向群内所有成员广播。
   ///
-  /// ⚠️ **已知后端契约缺口**（slice-1 scope）：
-  /// `imboy/src/logic/group_member_logic.erl:260-266` 的 Payload 未包含
-  /// 被禁言成员的 `user_id`，因此这里无法精确更新本地
-  /// `group_member.mute_until` 行。当前仅通过事件总线 + toast 做群内通知。
-  /// 待后端补 `<<"user_id">> => UserId` 后再在此处接入 Repo 写入。
+  /// **slice-1-finalize（2026-04-15）**：后端 `mute_notice/4` 已补
+  /// `<<"user_id">> => UserId`。客户端流程：
+  ///   1. 解析 payload（含 userId）
+  ///   2. 广播 `GroupMemberMuteEvent`（携带 userId，UI 可定位成员行）
+  ///   3. **userId 非空** → 调 `GroupMemberRepo.update` 写本地
+  ///      `group_member.mute_until`，UI 重进群成员页时即可看到状态
+  ///   4. **userId 为空**（老后端 / 解析缺失）→ 跳过 Repo 写入，仅做群级 toast
+  ///   5. 任何 Repo 异常 / 当前用户未加入群 → 吞异常不阻塞 toast
   static Future<void> _handleGroupMemberMute(
     Map<String, dynamic> payload,
   ) async {
@@ -777,17 +782,35 @@ class MessageS2CService {
         return;
       case GroupMemberMutePayload(
           :final gid,
+          :final userId,
           :final muteUntilMs,
           :final remainingSeconds,
           :final durationText,
           :final adminNickname,
         ):
         iPrint(
-          '[S2C] group_member_mute: gid=$gid, muteUntilMs=$muteUntilMs, '
-          'remainingSec=$remainingSeconds, admin=$adminNickname',
+          '[S2C] group_member_mute: gid=$gid, userId=$userId, '
+          'muteUntilMs=$muteUntilMs, remainingSec=$remainingSeconds, '
+          'admin=$adminNickname',
         );
+
+        // Repo 写入：仅在 userId 非空时执行（老后端兼容）
+        if (userId.isNotEmpty) {
+          try {
+            await GroupMemberRepo().update(
+              gid.toString(),
+              userId,
+              {GroupMemberColumns.muteUntil: muteUntilMs},
+            );
+          } catch (e) {
+            // 当前用户未加入该群 / Repo 异常 → 吞异常，不阻塞 toast
+            iPrint('[S2C] group_member_mute Repo update failed: $e');
+          }
+        }
+
         AppEventBus.fire(GroupMemberMuteEvent(
           gid: gid,
+          userId: userId,
           muteUntilMs: muteUntilMs,
           remainingSeconds: remainingSeconds,
           durationText: durationText,
@@ -797,6 +820,40 @@ class MessageS2CService {
         if (durationText.isNotEmpty && adminNickname.isNotEmpty) {
           EasyLoading.showInfo(
             '$adminNickname 禁言群成员 $durationText',
+            duration: const Duration(seconds: 2),
+          );
+        }
+      case GroupMemberUnmutePayload(
+          :final gid,
+          :final userId,
+          :final adminNickname,
+        ):
+        // slice-9b：解禁语义，Repo mute_until 置 NULL + 广播 Unmute 事件
+        iPrint(
+          '[S2C] group_member_unmute: gid=$gid, userId=$userId, '
+          'admin=$adminNickname',
+        );
+
+        if (userId.isNotEmpty) {
+          try {
+            await GroupMemberRepo().update(
+              gid.toString(),
+              userId,
+              {GroupMemberColumns.muteUntil: null},
+            );
+          } catch (e) {
+            iPrint('[S2C] group_member_unmute Repo update failed: $e');
+          }
+        }
+
+        AppEventBus.fire(GroupMemberUnmuteEvent(
+          gid: gid,
+          userId: userId,
+          adminNickname: adminNickname,
+        ));
+        if (adminNickname.isNotEmpty) {
+          EasyLoading.showInfo(
+            '$adminNickname 解除了群成员禁言',
             duration: const Duration(seconds: 2),
           );
         }

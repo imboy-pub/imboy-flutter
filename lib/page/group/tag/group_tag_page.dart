@@ -134,8 +134,8 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
           final confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('移除标签'),
-              content: const Text('确定要移除这个标签吗？'),
+              title: Text(t.groupTag.removeTitle),
+              content: Text(t.groupTag.removeConfirm),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),

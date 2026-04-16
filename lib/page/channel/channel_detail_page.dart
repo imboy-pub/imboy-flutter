@@ -23,6 +23,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
+import 'channel_detail_rules.dart';
 import 'channel_provider.dart';
 
 /// 频道详情页面
@@ -238,11 +239,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     if (invitationEnabled) {
       items.add(
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'invitation_center',
           child: ListTile(
-            leading: Icon(Icons.mark_email_unread_outlined),
-            title: Text('邀请中心 / Invitations'),
+            leading: const Icon(Icons.mark_email_unread_outlined),
+            title: Text(t.channelInvitations),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -260,11 +261,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
     if (channel.type == ChannelType.paid && orderEnabled) {
       items.add(
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'my_orders',
           child: ListTile(
-            leading: Icon(Icons.receipt_long_outlined),
-            title: Text('我的订单 / My Orders'),
+            leading: const Icon(Icons.receipt_long_outlined),
+            title: Text(t.myOrders),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -755,12 +756,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
   }
 
-  bool _isPaidChannelLocked(ChannelModel? channel) {
-    if (channel == null) return false;
-    return channel.type == ChannelType.paid &&
-        !channel.isSubscribed &&
-        !channel.isManaged;
-  }
+  bool _isPaidChannelLocked(ChannelModel? channel) =>
+      isPaidChannelLocked(channel);
 
   Widget _buildPaidLockedView(ChannelModel channel) {
     return Center(
@@ -779,13 +776,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.lock_outline, color: Colors.amber),
-                  SizedBox(width: 8),
+                children: [
+                  const Icon(Icons.lock_outline, color: Colors.amber),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '付费频道内容已锁定 / Paid Channel Locked',
-                      style: TextStyle(
+                      t.paidChannelLocked,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -794,9 +791,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
-                '购买后可解锁频道历史消息与后续更新内容。',
-                style: TextStyle(fontSize: 14),
+              Text(
+                t.purchaseUnlockHint,
+                style: const TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 14),
               Row(
@@ -813,14 +810,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.shopping_cart_checkout_outlined),
-                      label: Text(_isPaying ? '支付中...' : '立即购买并解锁'),
+                      label: Text(_isPaying ? t.payingDots : t.purchaseAndUnlock),
                     ),
                   ),
                   const SizedBox(width: 10),
                   OutlinedButton.icon(
                     onPressed: () => _showMyOrdersSheet(channel.id.toString()),
                     icon: const Icon(Icons.receipt_long_outlined),
-                    label: const Text('我的订单'),
+                    label: Text(t.myOrders),
                   ),
                 ],
               ),
@@ -846,13 +843,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       if (order == null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('购买失败，请稍后重试')));
+        ).showSnackBar(SnackBar(content: Text(t.purchaseFailed)));
         return;
       }
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('购买成功')));
+      ).showSnackBar(SnackBar(content: Text(t.purchaseSuccess)));
 
       await ref.read(channelListProvider.notifier).loadSubscribedChannels();
       await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
@@ -882,14 +879,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           child: Column(
             children: [
               const SizedBox(height: 12),
-              const Text(
-                '我的订单 / My Orders',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              Text(
+                t.myOrders,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               Expanded(
                 child: orders.isEmpty
-                    ? const Center(child: Text('暂无订单'))
+                    ? Center(child: Text(t.noOrders))
                     : ListView.separated(
                         itemCount: orders.length,
                         separatorBuilder: (_, _) => const Divider(height: 1),
@@ -927,31 +924,31 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (order == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('订单详情加载失败')));
+      ).showSnackBar(SnackBar(content: Text(t.orderDetailLoadFailed)));
       return;
     }
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('订单详情'),
+        title: Text(t.orderDetail),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('订单号: ${order.orderNo}'),
+            Text(t.orderNoLabel(no: order.orderNo)),
             const SizedBox(height: 6),
-            Text('状态: ${_orderStatusLabel(order.status)}'),
+            Text(t.orderStatusLabel(status: _orderStatusLabel(order.status))),
             const SizedBox(height: 6),
-            Text('金额: ${order.currency} ${order.amount.toStringAsFixed(2)}'),
+            Text(t.orderAmountLabel(currency: order.currency, amount: order.amount.toStringAsFixed(2))),
             const SizedBox(height: 6),
             Text(
-              '创建时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(order.createdAt)}',
+              t.orderCreatedAtLabel(time: DateFormat('yyyy-MM-dd HH:mm:ss').format(order.createdAt)),
             ),
             if (order.paymentAt != null) ...[
               const SizedBox(height: 6),
               Text(
-                '支付时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(order.paymentAt!)}',
+                t.orderPaymentAtLabel(time: DateFormat('yyyy-MM-dd HH:mm:ss').format(order.paymentAt!)),
               ),
             ],
           ],
@@ -969,17 +966,17 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   String _orderStatusLabel(int status) {
     switch (status) {
       case ChannelOrderStatus.pending:
-        return '待支付';
+        return t.orderStatusPending;
       case ChannelOrderStatus.paid:
-        return '已支付';
+        return t.orderStatusPaid;
       case ChannelOrderStatus.refunded:
-        return '已退款';
+        return t.orderStatusRefunded;
       case ChannelOrderStatus.cancelled:
-        return '已取消';
+        return t.orderStatusCancelled;
       case ChannelOrderStatus.expired:
-        return '已过期';
+        return t.orderStatusExpired;
       default:
-        return '未知';
+        return t.orderStatusUnknown;
     }
   }
 
@@ -1057,31 +1054,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
   }
 
-  String _formatNumber(int number) {
-    if (number < 1000) return number.toString();
-    if (number < 1000000) return '${(number / 1000).toStringAsFixed(1)}K';
-    return '${(number / 1000000).toStringAsFixed(1)}M';
-  }
+  String _formatNumber(int number) => formatChannelNumber(number);
 
-  bool _shouldShowDate(List<ChannelMessageModel> messages, int index) {
-    if (index == 0) return true;
-
-    final current = messages[index];
-    final previous = messages[index - 1];
-
-    final currentDate = DateTime(
-      current.createdAt.year,
-      current.createdAt.month,
-      current.createdAt.day,
-    );
-    final previousDate = DateTime(
-      previous.createdAt.year,
-      previous.createdAt.month,
-      previous.createdAt.day,
-    );
-
-    return currentDate != previousDate;
-  }
+  bool _shouldShowDate(List<ChannelMessageModel> messages, int index) =>
+      shouldShowDateDivider(messages, index);
 
   Widget _buildDateDivider(ChannelMessageModel message) {
     final now = DateTime.now();
@@ -1677,8 +1653,8 @@ class _ChannelMessageItem extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('移除反应'),
-        content: Text('确定要移除 $emoji 反应吗？'),
+        title: Text(t.removeReaction),
+        content: Text(t.removeReactionConfirm(emoji: emoji)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -1698,18 +1674,7 @@ class _ChannelMessageItem extends StatelessWidget {
   }
 
   String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes}m ago';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours}h ago';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}d ago';
-    } else {
-      return DateFormat('MM-dd HH:mm').format(time);
-    }
+    return formatMessageTime(time);
   }
 
   Widget _buildMessageContent(BuildContext context) {
@@ -1813,7 +1778,7 @@ class _ChannelMessageItem extends StatelessWidget {
 
   Widget _buildFileContent(BuildContext context) {
     final payload = message.payload;
-    final name = payload?['name'] as String? ?? '文件';
+    final name = payload?['name'] as String? ?? t.defaultFileName;
     final size = payload?['size'] as int? ?? 0;
     final uri = payload?['uri']?.toString();
 
@@ -1863,25 +1828,18 @@ class _ChannelMessageItem extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('文件链接无效')));
+      ).showSnackBar(SnackBar(content: Text(t.fileUrlInvalid)));
       return;
     }
     if (!await canLaunchUrl(parsed)) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('无法打开该文件')));
+      ).showSnackBar(SnackBar(content: Text(t.fileOpenFailed)));
       return;
     }
     await launchUrl(parsed, mode: LaunchMode.externalApplication);
   }
 
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
-  }
+  String _formatFileSize(int bytes) => formatFileSize(bytes);
 }

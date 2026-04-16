@@ -64,8 +64,7 @@ class AccountSecurityPage extends ConsumerWidget {
       ),
       body: ListView(
         children: [
-          // TODO: 迁移到 slang i18n
-          _buildSectionHeader(context, '登录凭证'),
+          _buildSectionHeader(context, t.sectionLoginCredentials),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(

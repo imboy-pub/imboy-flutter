@@ -49,7 +49,13 @@ class MomentFacade {
     String momentId, {
     required String content,
     String? replyToUid,
-  }) => _api.addComment(momentId, content: content, replyToUid: replyToUid);
+    List<String> mentions = const [],
+  }) => _api.addComment(
+        momentId,
+        content: content,
+        replyToUid: replyToUid,
+        mentions: mentions,
+      );
 
   Future<MomentPageResult<Map<String, dynamic>>> listComments(
     String momentId, {

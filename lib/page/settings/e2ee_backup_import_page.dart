@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
@@ -31,7 +32,6 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   @override
   void initState() {
     super.initState();
-    // 延迟验证文件，避免布局期间触发 setState
     if (widget.initialFilePath != null) {
       _selectedFile = File(widget.initialFilePath!);
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -52,11 +52,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('导入 E2EE 备份'),
+        title: Text(t.e2eeBackupImportTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       body: ListView(
@@ -91,7 +91,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 const Icon(Icons.info_outline, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  '导入说明',
+                  t.e2eeBackupImportGuide,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange.shade900,
@@ -101,12 +101,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              '• 导入后，当前的 E2EE 密钥将被替换',
+              t.e2eeBackupImportReplaceKey,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
             const SizedBox(height: 4),
             Text(
-              '• 请确保备份文件来自可信任的来源',
+              t.e2eeBackupImportTrustedSource,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
           ],
@@ -122,7 +122,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('选择备份文件', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              t.e2eeBackupSelectFile,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             InkWell(
               onTap: _selectFile,
@@ -146,7 +149,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                     Text(
                       _selectedFile != null
                           ? (_selectedFile!.path.split('/').last)
-                          : '点击选择备份文件 (.enc)',
+                          : t.e2eeBackupSelectFileHint,
                       style: TextStyle(
                         color: _selectedFile != null
                             ? Colors.green
@@ -180,7 +183,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '备份信息',
+                    t.e2eeBackupInfoTitle,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.blue.shade900,
@@ -191,13 +194,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow('版本号', _backupInfo!['version'].toString()),
-            _buildInfoRow('算法', _backupInfo!['algorithm'].toString()),
-            _buildInfoRow('文件大小', '${_backupInfo!['file_size']} bytes'),
+            _buildInfoRow(t.e2eeBackupVersionLabel, _backupInfo!['version'].toString()),
+            _buildInfoRow(t.e2eeBackupAlgorithmLabel, _backupInfo!['algorithm'].toString()),
+            _buildInfoRow(t.e2eeBackupFileSizeLabel, '${_backupInfo!['file_size']} bytes'),
             const SizedBox(height: 8),
-            const Text(
-              '✓ 文件格式有效',
-              style: TextStyle(fontSize: 12, color: Colors.green),
+            Text(
+              t.e2eeBackupFileValid,
+              style: const TextStyle(fontSize: 12, color: Colors.green),
             ),
           ],
         ),
@@ -229,8 +232,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: '备份密码 *',
-        hintText: '请输入备份时设置的密码',
+        labelText: t.e2eeBackupPwdLabel,
+        hintText: t.e2eeBackupImportPwdHint,
         prefixIcon: const Icon(Icons.lock),
         border: const OutlineInputBorder(),
         suffixIcon: _isImporting
@@ -263,7 +266,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text('导入密钥'),
+          : Text(t.e2eeBackupImportBtn),
     );
   }
 
@@ -285,7 +288,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         await _verifyFile();
       }
     } on Exception {
-      _showError('选择文件失败，请重试');
+      _showError(t.e2eeBackupErrSelectFile);
     }
   }
 
@@ -301,7 +304,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       setState(() {
         _backupInfo = null;
       });
-      _showError('文件验证失败，请检查文件格式');
+      _showError(t.e2eeBackupErrValidateFailed);
     }
   }
 
@@ -311,13 +314,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     try {
       setState(() => _isImporting = true);
 
-      // 导入备份
       final result = await E2EELocalBackupService.importBackup(
         filePath: _selectedFile!.path,
         password: password,
       );
 
-      // 存储密钥到安全存储
       await StorageSecureService.to.savePrivateKey(result['private_key']);
       await StorageSecureService.to.savePublicKey(result['public_key']);
       await StorageSecureService.to.setDeviceId(result['device_id']);
@@ -325,11 +326,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
       setState(() => _isImporting = false);
 
-      // 显示成功对话框
       _showSuccessDialog(result);
     } on Exception {
       setState(() => _isImporting = false);
-      _showError('导入失败，请检查密码是否正确');
+      _showError(t.e2eeBackupErrImportFailed);
     }
   }
 
@@ -338,19 +338,19 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('导入成功'),
+        title: Text(t.e2eeBackupImportSuccessTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('E2EE 密钥已成功恢复！'),
+            Text(t.e2eeBackupImportSuccessBody),
             const SizedBox(height: 12),
-            Text('设备 ID: ${_maskId(result['device_id']?.toString() ?? '')}'),
-            Text('密钥 ID: ${_maskId(result['key_id']?.toString() ?? '')}'),
-            Text('创建时间: ${result['created_at']}'),
+            Text('Device ID: ${_maskId(result['device_id']?.toString() ?? '')}'),
+            Text('Key ID: ${_maskId(result['key_id']?.toString() ?? '')}'),
+            Text('${t.e2eeBackupCreatedAtRow}: ${result['created_at']}'),
             const SizedBox(height: 12),
             Text(
-              '注意：旧消息可能无法访问，这是 E2EE 的正常行为',
+              t.e2eeBackupImportSuccessNote,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
@@ -358,10 +358,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // 关闭对话框
-              Navigator.of(context).pop(); // 返回上一页
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
-            child: const Text('完成'),
+            child: Text(t.buttonAccomplish),
           ),
         ],
       ),

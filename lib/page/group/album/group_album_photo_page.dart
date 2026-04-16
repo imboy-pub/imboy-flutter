@@ -168,8 +168,8 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('批量删除图片'),
-        content: Text('确定删除选中的 $selectedCount 张图片吗？'),
+        title: Text(t.groupAlbumPhotoBatchDeleteTitle),
+        content: Text(t.groupAlbumPhotoBatchDeleteConfirm(count: selectedCount)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -199,14 +199,14 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     if (successCount == 0) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('删除失败，请稍后重试')));
+      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoDeleteFailed)));
       return;
     }
 
     final failCount = selectedCount - successCount;
     final message = failCount == 0
-        ? '已删除$successCount张图片'
-        : '已删除$successCount张，$failCount张删除失败';
+        ? t.groupAlbumPhotoDeletedAll(count: successCount)
+        : t.groupAlbumPhotoDeletedPartial(success: successCount, fail: failCount);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
@@ -221,8 +221,8 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除图片'),
-        content: const Text('确定删除这张图片吗？'),
+        title: Text(t.groupAlbumPhotoDeleteTitle),
+        content: Text(t.groupAlbumPhotoDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -241,7 +241,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '图片已删除' : '删除失败，请稍后重试')));
+    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed)));
     if (success) {
       await _loadPhotos(refresh: true);
     }
@@ -256,7 +256,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     if (photoId.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('图片ID缺失，无法查看详情')));
+      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoIdMissing)));
       return;
     }
 
@@ -279,12 +279,12 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.albumName.isEmpty ? '相册图片' : widget.albumName;
+    final title = widget.albumName.isEmpty ? t.groupAlbumPhotoListTitle : widget.albumName;
     final actionWidgets = _isSelectionMode
         ? <Widget>[
             IconButton(
               key: const Key('group_album_photo_select_all'),
-              tooltip: '全选',
+              tooltip: t.selectAll,
               onPressed: _isBatchDeleting ? null : _toggleSelectAll,
               icon: Icon(
                 _selectedPhotoIds.length == _photos.length && _photos.isNotEmpty
@@ -294,7 +294,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
             ),
             IconButton(
               key: const Key('group_album_photo_batch_delete'),
-              tooltip: '批量删除',
+              tooltip: t.groupAlbumPhotoBatchDeleteTooltip,
               onPressed: _selectedPhotoIds.isEmpty || _isBatchDeleting
                   ? null
                   : _deleteSelectedPhotos,
@@ -312,12 +312,12 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     return Scaffold(
       appBar: GlassAppBar(
         title: _isSelectionMode
-            ? '已选择 ${_selectedPhotoIds.length} 项'
+            ? t.groupAlbumPhotoSelectedCount(count: _selectedPhotoIds.length)
             : '$title${_total > 0 ? ' ($_total)' : ''}',
         automaticallyImplyLeading: !_isSelectionMode,
         leading: _isSelectionMode
             ? IconButton(
-                tooltip: '退出选择',
+                tooltip: t.groupAlbumPhotoExitSelection,
                 onPressed: _isBatchDeleting ? null : _exitSelectionMode,
                 icon: const Icon(Icons.close),
               )
@@ -334,7 +334,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     }
 
     if (_photos.isEmpty) {
-      return NoDataView(text: '暂无图片', onTop: () => _loadPhotos(refresh: true));
+      return NoDataView(text: t.groupAlbumPhotoEmpty, onTop: () => _loadPhotos(refresh: true));
     }
 
     return RefreshIndicator(

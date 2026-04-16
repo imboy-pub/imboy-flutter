@@ -200,6 +200,7 @@ void main() {
         'moment_like': '_handleMomentAction',
         'moment_comment': '_handleMomentAction',
         'moment_deleted': '_handleMomentAction',
+        'moment_updated': '_handleMomentAction',
       };
 
       // 验证映射关系

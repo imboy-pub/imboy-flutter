@@ -62,9 +62,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
             TextField(
               controller: optionsController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: '投票选项',
-                hintText: '每行一个选项',
+              decoration: InputDecoration(
+                labelText: t.groupVote.voteOptions,
+                hintText: t.groupVote.eachOptionPerLine,
               ),
             ),
           ],
@@ -147,7 +147,8 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
 
   Widget _buildVoteItem(Map<String, dynamic> vote) {
     final status = vote['status'] ?? 0;
-    final statusText = status == 1 ? '进行中' : t.groupVote.voteEnded;
+    final statusText =
+        status == 1 ? t.groupVote.statusInProgress : t.groupVote.voteEnded;
     final statusColor = status == 1 ? Colors.green : Colors.grey;
     final voteId = _resolveVoteId(vote);
 
@@ -158,7 +159,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
           if (voteId.isEmpty) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('投票ID缺失，无法查看详情')));
+            ).showSnackBar(SnackBar(
+              content: Text(t.groupVote.voteIdMissing),
+            ));
             return;
           }
           await context.push(
@@ -202,7 +205,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
               ),
               const SizedBox(height: 8),
               Text(
-                '参与人数: ${vote['participant_count'] ?? 0}',
+                t.groupVote.participantCount(
+                  count: vote['participant_count'] ?? 0,
+                ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

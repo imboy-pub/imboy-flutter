@@ -999,23 +999,23 @@ class ChatNotifier extends _$ChatNotifier {
     if (errorStr.contains('no_recipient_keys') ||
         errorStr.contains('设备密钥') ||
         errorStr.contains('device.*key')) {
-      return '无法获取对方设备密钥，消息未发送';
+      return t.e2eeErrNoRecipientKey;
     }
 
     if (errorStr.contains('timeout') || errorStr.contains('超时')) {
-      return '加密超时，请检查网络连接后重试';
+      return t.e2eeErrTimeout;
     }
 
     if (errorStr.contains('network') || errorStr.contains('网络')) {
-      return '网络错误，加密失败，消息未发送';
+      return t.e2eeErrNetwork;
     }
 
     if (errorStr.contains('invalid') || errorStr.contains('格式')) {
-      return '消息格式错误，加密失败';
+      return t.e2eeErrInvalidFormat;
     }
 
     // 默认错误消息（不暴露技术细节）
-    return '端到端加密失败，消息未发送';
+    return t.e2eeErrDefault;
   }
 
   // ===== 消息操作 =====

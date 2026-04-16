@@ -90,6 +90,132 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 ## 变更记录 (Changelog)
 
 ### 2026-04-15
+- **群成员禁言/解禁 slice-9c 落地（UI 接线：群成员列表页实时刷新 + 聊天页输入框禁用/恢复）**：
+  - **群成员列表页** `lib/page/group/group_member/group_member_page.dart`：
+    - 新增 `_ssMemberMute` / `_ssMemberUnmute` 订阅
+    - 守卫：`event.gid.toString() == widget.groupId && event.userId.isNotEmpty`
+    - Mute → 原地更新 `_memberList[idx].muteUntilMs = event.muteUntilMs`，`setState` 触发 `MuteRemainingBadge` 重建
+    - Unmute → `muteUntilMs = null`，badge 自动消失
+    - dispose 清理两个订阅
+    - **实现要点**：`GroupMemberModel.userId` 是 `int`，比较时用 `m.userId.toString() == event.userId` 对齐 TSID 字符串
+  - **聊天页** `lib/page/chat/chat/chat_page.dart`：
+    - 新增 `_ssGroupMemberMute` / `_ssGroupMemberUnmute` 订阅（仅 c2g）
+    - 守卫：`event.gid.toString() == widget.peerId && event.userId == currentUid`（只响应当前用户在本群被禁言/解禁）
+    - Mute → 新增 `_applyGroupMemberMuteState(event)`：设 `_isMuted=true` + 时长文案 + 到期自动清除定时器，复用 `_clearMuteState` 基础设施
+    - Unmute → 直接调 `_clearMuteState()` 恢复输入框
+    - dispose 清理两个订阅
+  - **为何不做单测**：两处均为纯 widget 事件订阅管道（守卫条件平凡）；禁言状态切换逻辑已被 `UserMutedEvent` 路径覆盖（同一 `_isMuted` / `_muteExpiryTimer` 基础设施）；UI badge 刷新正确性依赖 slice-2 `MuteRemainingBadge` 的 7 个单测
+  - 回归：28/28 全绿；`flutter analyze` 两文件零警告
+  - **禁言/解禁功能全闭环（slice-1 ~ slice-9c）**：数据库 → API → Service → S2C → 事件总线 → 列表页 badge + 聊天页输入锁定/恢复
+
+- **群角色 role >= 3 全局清零（role=5 副群主 badge 漏显修复）**：
+  - **bug 修复**：`group_member_page.dart` 成员列表的角色徽章判断 `role == 3 || role == 4` 漏掉 role=5 → 副群主无角色 badge；改为 `isGroupAdmin(member.role)`
+  - **mention_model.dart** 两处 `>= 3` 改为 `isGroupAdmin()`：`MentionCandidate.isAdmin`、`MentionState.isAdmin`、`MentionCandidate.showRoleBadge` — 统一由 `group_role_rules` 白名单管控
+  - 全量回归 2172/2172 绿；`flutter analyze` 零警告
+
+- **群角色规则 group_role_rules 落地（跨页面共用纯函数 + bug fix）**：
+  - 新增 `lib/page/group/group_role_rules.dart`（13 测全绿，零外部依赖）：
+    - `isGroupAdmin(int role) → bool`：白名单 {3,4,5}；`isGroupOwner(int role) → bool`：仅 role==4
+  - **bug 修复**：`group_detail_page.dart:120` 原 `isAdmin = role == 3 || role == 4` 漏掉副群主(5)，导致副群主无法看到"移除成员"入口 → 改为 `isGroupAdmin(role)`
+  - **可读性提升**：3 处 `state.role == 4` 判断改为 `isGroupOwner(state.role)`
+  - **i18n 补全**：`zh-CN` + `en-US` 新增 `groupFile`("群文件") / `groupAlbum`("群相册") 两键，替换 `group_detail_page.dart` 中的硬编码中文字符串
+  - **DRY 重构**：`announcement_permission_rules.dart` 改为委托 `isGroupAdmin`，消除重复的 `{3,4,5}` 集合定义
+  - 全量回归 2150/2150 绿；`flutter analyze` 零警告
+
+- **群公告权限控制 slice-F3-perm 落地（发布/删除按钮对非管理员隐藏）**：
+  - **纯函数** `lib/page/group/announcement/announcement_permission_rules.dart`（8 测全绿，零外部依赖）：
+    - `canManageAnnouncement(int role) → bool`：白名单 {admin=3, owner=4, vice_owner=5}，与 `canMentionAll` 相同策略（显式枚举防未来角色误放行）
+  - **Provider 扩展**：`GroupAnnouncementState` 新增 `currentUserRole`（默认 0）；`_loadCurrentRole()` 在 `onRefresh` 时 `unawaited` 并行加载（复用 `GroupMemberRepo().findByUserId` 模式）
+  - **UI 接线**（`group_announcement_page.dart`）：
+    - AppBar `+` 号按钮：`if (canManageAnnouncement(state.currentUserRole))` 条件渲染
+    - 列表项删除按钮：`_buildAnnouncementItem(..., canManage: ...)` 新增具名参数，`if (canManage)` 条件渲染
+  - **安全默认**：`currentUserRole=0` 时 `canManageAnnouncement(0) → false`，加载失败/未在群时自然隐藏管理按钮
+  - `flutter analyze lib/page/group/announcement/` 零警告；全量回归 2109/2109 绿
+
+- **群成员解禁 slice-9b 落地（跨栈闭环：客户端 S2C 识别 + 后端 unmute 路由/handler/logic）**：
+  - **客户端扩展**：
+    - `lib/service/group_member_mute_s2c.dart` 新增 sealed 变体 `GroupMemberUnmutePayload(gid, userId, adminNickname)`；解析守卫由 `muteUntilMs <= 0` 收紧为 `< 0`（0 变为有效解禁信号）；新增分支 `mute_until == 0 → GroupMemberUnmutePayload`
+    - `lib/service/events/common_events.dart` 新增对称事件 `GroupMemberUnmuteEvent`
+    - `lib/service/message_s2c.dart:_handleGroupMemberMute` switch 新增 Unmute 分支：`GroupMemberRepo.update(gid, userId, {mute_until: null})` 写 NULL（依赖 slice-1 Repo 白名单对 `containsKey` + 显式 null 的兼容）→ 广播 `GroupMemberUnmuteEvent` → toast "xx 解除了群成员禁言"
+  - **后端补丁**（`imboy/src/logic/group_member_logic.erl`）：
+    - 补齐 slice-1-finalize 遗留：`mute_notice/4` 参数 `_UserId → UserId`，Payload 新增 `<<"user_id">> => UserId`
+    - `mute_notice/4` 支持 `MuteUntil == 0` 特判：`RemainingSec=0`、`DurationText=<<>>`（广播解禁信号，复用既有 S2C action `group_member_mute`）
+    - 新增 `unmute/3`：权限校验 → `elib_pg:with_tx(fun(Conn) -> group_member_ds:update_mute(Conn, Gid, UserId, null) end)` 写 NULL → `mute_notice(CurrentUid, Gid, UserId, 0)` 广播解禁
+    - `-export` 列表追加 `unmute/3`
+  - **后端新路由**（`imboy/src/api/group_member_handler.erl` + `imboy/src/imboy_router.erl`）：
+    - `{"/v1/group_member/unmute", group_member_handler, #{action => unmute}}`
+    - `group_member_handler:unmute/2` 处理器：throttle + gid/user_id 校验 → 调 `group_member_logic:unmute/3`
+  - **设计要点**：
+    - 单 S2C action 承载 mute/unmute 双语义（`mute_until` 值即信号），客户端 dispatcher 面积最小
+    - sealed 变体扩展优于重载 `GroupMemberMutePayload`，保持类型安全（switch 穷尽强制所有消费侧更新）
+    - 客户端 Repo 写 NULL 依赖 slice-1 的 `containsKey` 白名单（区分"未传"与"显式 null"）
+  - 覆盖率：6 个新解析测试 + 5 个服务测试 + 17 个 s2c 测试，回归 28/28 全绿；`flutter analyze` 零警告；后端局部 `erlc` 验证干净（只剩 cowboy_rest behaviour 警告，与 cowboy 依赖未编入 ebin 有关）
+  - slice-9c 待做（UI 接线）：`GroupMemberUnmuteEvent` 消费方（群成员列表页刷新禁言状态 icon / 聊天页取消输入框禁用）
+
+- **群成员禁言/解禁 slice-9c 落地（UI 事件接线）**：`GroupMemberMuteEvent` / `GroupMemberUnmuteEvent` → 两处 UI 实时刷新
+  - **群成员列表页** (`group_member_page.dart`)：
+    - 新增 `_ssMemberMute` / `_ssMemberUnmute` 两个 `StreamSubscription` 字段
+    - `_setupMuteEventListeners()` 在 `initState` 调用：双守卫 `event.gid == groupId && m.userId.toString() == event.userId`（关键：`GroupMemberModel.userId` 是 `int`，需 `.toString()` 转换）
+    - Mute 处理：`_memberList[idx].muteUntilMs = event.muteUntilMs`；Unmute：`_memberList[idx].muteUntilMs = null`
+  - **聊天页** (`chat_page.dart`)：
+    - 仅 c2g 聊天订阅；守卫：`event.gid.toString() == widget.peerId && event.userId == currentUid`（仅当被禁言/解禁的是当前用户自己）
+    - Mute → `_applyGroupMemberMuteState(event)`：设 `_isMuted=true`、计算剩余分钟数更新 `_muteMessage`、启动 `_muteExpiryTimer`（禁言到期自动调 `_clearMuteState()`）
+    - Unmute → `_clearMuteState()`
+    - dispose 补全两订阅取消
+  - 类型安全修复：`unrelated_type_equality_checks` — `m.userId`(int) vs `event.userId`(String) 须 `.toString()` 对齐
+  - slice-9c 无需新纯函数，故无新单测；既有 28/28 回归全绿
+
+- **群成员禁言 slice-10 落地（GroupMemberDetailPage + 禁言时长选项纯函数 + 路由注册）**：
+  - **纯函数模块** `lib/page/group/group_member/mute_duration_rules.dart`（11 测全绿，零外部依赖）：
+    - `final class MuteDurationOption { seconds, labelKey }` — `==` / `hashCode` 实现，`const` 构造器
+    - `const List<MuteDurationOption> muteDurationOptions`：7 档（5min/10min/30min/1h/1day/7days/30days），按秒升序
+    - 测试钉死：非空、seconds>0、升序、包含关键档位、labelKey 非空/唯一、seconds 唯一、相等语义
+  - **i18n 补全**：`zh-CN` + `en-US` 新增 `muteDuration5min`/`muteDuration10min`/`muteDuration30min`/`muteDuration30days` 四键（对齐既有 `muteDuration1hour`/`1day`/`7days` 命名风格）；`dart run slang` 重新生成
+  - **GroupMemberDetailPage** `lib/page/group/group_member/group_member_detail_page.dart`（新建，`ConsumerStatefulWidget`）：
+    - `_loadData()`：并行 `Future.wait` 同时查目标成员 + 当前用户，获取 `_myRole`
+    - `_onMuteTap()`：`_showDurationPicker()` → `GroupMemberMuteService().mute(gid, userId, durationSec)` → switch sealed `MuteResult` → 更新 `_member.muteUntilMs` + `_anyChange=true`
+    - `_onUnmuteTap()`：confirm dialog → `GroupMemberMuteService().unmute(gid, userId)` → switch `UnmuteResult` → `_member.muteUntilMs=null`
+    - `_buildBody()`：用 `canMuteGroupMember(currentUserId, currentRole, targetUserId, targetRole)` 4 参控制按钮可见性；`MuteRemainingBadge` 展示剩余时间
+    - `PopScope` + `context.pop(_anyChange)` 返回变更标志（调用方刷新列表）
+    - Null-aware element：`?trailing,` (Dart 3)
+  - **Barrel / 路由注册**：
+    - `lib/modules/group_collab/public.dart` 追加 `group_member_detail_page.dart` export
+    - `lib/config/router/app_router.dart` 在 `/group/member` 之后新增 `GoRoute(path: '/member_detail', name: 'group_member_detail')` → `CupertinoPage(child: GroupMemberDetailPage(...))`；extra `{groupId, userId}` 均 `.toString()` 安全解包
+  - 修复细节：`unnecessary_import`（`theme_manager.dart` 已由 `font_types.dart` re-export）；`isSelf` 局部变量删除（计算后未用）；`canMuteGroupMember` 传 4 个具名参数而非 2 个
+  - `flutter analyze lib/config/router/app_router.dart` 零警告；slice 全量 129/129 绿
+
+- **群成员解禁 slice-9a 落地（客户端服务层 + API，等待后端 slice-9b）**：
+  - 新增 `API.groupMemberUnmute = '/v1/group_member/unmute'`（`lib/config/const.dart`）
+  - 新增 `GroupMemberApi.unmute({gid, userId})`：独立方法而非给 `mute` 传 `duration=0`（后端 mute/4 校验 >0 会拒）
+  - 新增 sealed `UnmuteResult`（`UnmuteSuccess` / `UnmuteValidationError` / `UnmuteApiFailure`）与 `MuteResult` 对称独立，避免类型混用
+  - 新增 `GroupMemberMuteService.unmute({gid, userId})`：前置校验 gid/userId 非空 → 调 API → 结构化返回；本方法**不写 Repo**，权威 `mute_until=0` 由后端 S2C 广播统一落库
+  - 5 个单测全绿（ok→Success / fail→ApiFailure / 空 gid→ValidationError / 空 userId→ValidationError / sealed 穷尽）；`flutter analyze` 零警告；与既有 MuteResult 路径无回归（23/23 绿）
+  - **slice-9b 待做（后端）**：
+    1. `imboy_router.erl` 增加 `/v1/group_member/unmute` 路由
+    2. `group_member_handler:unmute/2` 处理器
+    3. `group_member_logic:unmute/3` 逻辑：`update_mute(Gid, Uid, 0)` + 复用 `mute_notice/4` 广播（mute_until=0 作为解禁信号）
+    4. 客户端 `parseGroupMemberMutePayload` 扩展接受 `mute_until=0` 为解禁信号（当前被判为 invalid_mute_until）
+
+- **群成员禁言 slice-1-finalize 落地（后端 user_id 缺口闭合，跨栈 TDD 完整闭环）**：
+  - **后端补丁**：`imboy/src/logic/group_member_logic.erl:249-271` `mute_notice/4`
+    - `_UserId` → `UserId`（参数解构）
+    - Payload 新增 `<<"user_id">> => UserId`
+  - **客户端解析扩展**：`lib/service/group_member_mute_s2c.dart`
+    - `GroupMemberMutePayload` 新增 `userId` 字段（默认 `''` 向后兼容老后端）
+    - 新增 `_asUserId` 归一化辅助：null/空白/`0`/`'0'` → `''`，数字/字符串 → 字符串
+  - **事件总线**：`GroupMemberMuteEvent` 新增 `userId` 字段（默认 `''`）；UI 可定位被禁言成员行
+  - **S2C 接线**：`message_s2c.dart:_handleGroupMemberMute`
+    - userId 非空时调 `GroupMemberRepo.update(gid, userId, {mute_until: ms})` 写本地表
+    - userId 为空（老后端）时仅广播事件 + toast，不动 Repo
+    - Repo 异常吞掉不阻塞 toast（如当前用户未加入该群）
+  - **Repo 白名单扩展**：`group_member_repo_sqlite.dart:update` 新增 `mute_until` 字段处理
+    - 显式 `null` → 写 NULL（解禁语义）
+    - 正整数 → 写值（设禁言）
+    - 非法值（负数/非 int/0）→ 忽略防污染
+    - 用 `containsKey` 而非 `??` 兜底，区分"未传"和"显式 null"
+  - 新增 4 个解析单测（user_id 数字/字符串/缺失/归一化）；slice-1 全量回归 22 测全绿
+  - **跨栈说明**：本切片同时改 Erlang 后端 + Dart 客户端，是项目首次跨栈 TDD slice；后端编译验证留待 `rebar3 compile` 时执行（非本切片范围）
+
 - **群成员禁言 slice-1 落地（TDD 完整闭环）**：Model + API + Repo + Service + S2C 广播处理
   - 新增 `GroupMemberModel.muteUntilMs` (nullable int ms) + `isMuted({nowMs})`
   - 新增 `lib/store/model/group_member_columns.dart`（纯 Dart 列名常量），**解耦 Model ↔ Repo**：消除 Model-only 测试对 `sqflite_sqlcipher → win32` 链的传递依赖（方案 B）
@@ -164,6 +290,82 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
   - 新增 7 个副群主场景测试全绿（副群主可禁言 admin/guest/member；不可禁言 owner / 同级副群主 / 自己；owner 可禁副群主；admin/member/guest 不可禁副群主）
   - slice-4 登记的 TODO 归账完结
   - 全量 26/26 绿（原 19 + 新 7）；slice-5~8 + E4 合计 80 测全绿
+
+- **F5-A slice-4b-2 落地（订阅 GroupMemberRoleEvent 实时刷新 @所有人 权限）**：
+  - 新增 `chat_page._ssGroupMemberRole` 订阅，接入既有 `_setupEventListeners`
+  - 双重过滤守卫：`event.gid.toString() == widget.peerId && event.userId.toString() == UserRepoLocal.to.currentUid` —— 只响应"本群 + 当前用户"变更，其他成员改角色与本页无关，避免跨页污染
+  - 仅 c2g 聊天订阅（c2c 无需）
+  - 角色升级 / 降级实时生效：管理员将用户提升为 admin 后，用户无需重进页面即可 @所有人；反向降级后立即失去权限 → 下次发送 @所有人 会被 DeniedAll 拦截
+  - 对应后端事件源：`imboy/src/logic/group_member_logic.erl:351-376` `role_change_notice/4` + slice-4 的 S2C 分派
+  - dispose 清理补全
+  - **为何不做单测**：纯 widget 事件订阅管道，守卫条件 `a && b && c` 过于平凡不值得抽出纯函数；角色值的决策正确性已被 `resolveMentionsForSend` 14 测完全覆盖
+
+- **F5-A slice-4c 落地（@所有人权限闸门真实生效 + i18n toast）**：
+  - **关键缺口发现**：`chat_input.dart:425` 早已对 @所有人注入字面量 `'all'` 到 mentionIds（`candidate.isAllMention ? 'all' : candidate.userId`），但 slice-4a/4b 时 `isAllSelected: false` 硬编码导致 `'all'` 被当普通 uid 混入 `mentions: [...]` 发给后端 → 非 admin 用户会收 `{error, permission_denied}` 但**客户端从未前置拦截**
+  - 扩展 `lib/page/chat/mention_all_rules.dart`：新增 `splitMentionIds(List<String>) → (uids, isAllSelected)` 纯函数，从混合列表中提取 `'all'` 字面量信号
+  - **精确匹配 `'all'`**（小写）：防误伤大小写变体（`'All'/'ALL'`）或包含 `all` 子串的 uid；TSID 数字字符串不会碰撞
+  - 接线：`chat_page._sendTextMessage` 用 `splitMentionIds` 拆分后喂给 `resolveMentionsForSend`；DeniedAll 分支 `EasyLoading.showToast(t.mention.mentionAllDenied)` + 清空 mentions + `return false` **阻塞发送**
+  - i18n：`zh-CN` "仅管理员可以 @所有人" / `en-US` "Only admins can @everyone"；`dart run slang` 重新生成
+  - 6 个新单测全绿（空 / 仅普通 / 仅 all / 混合 / all 多次 / 大小写敏感）；slice-1+3+4c 合计 31 测全绿
+  - 至此 @所有人闭环完成：UI 选择 → 字面量 all → split → resolve（权限白名单）→ Ok 附 `['all']` 或 DeniedAll toast 阻塞
+
+- **F5-A slice-4b 落地（chat_page 接入真实群角色加载）**：
+  - 新增状态字段 `chat_page.dart:_currentUserGroupRole`（默认 0）+ `_preloadCurrentUserGroupRole()` 异步加载（仿 `group_member_page.dart:74-85` 既有模式）
+  - 加载时机：`_initChat` fire-and-forget，非 c2g 跳过；失败静默 debugPrint 回退 0
+  - **安全默认 0 的正确性**：`canMentionAll(0) → false`（F5-A slice-1 白名单策略）→ 加载失败/查无记录时 @所有人会走 DeniedAll 分支，**不会误放行**
+  - `_sendTextMessage` 硬编码 `role: 0` 替换为 `role: _currentUserGroupRole`
+  - barrel 追加 `store_packages.dart` export `group_member_repo_sqlite.dart`
+  - **为何不做单测**：本 slice 无新纯函数，仅 widget 状态 + 异步加载管道；已被 slice-1 `canMentionAll` 白名单测 + slice-3 `resolveMentionsForSend` 决策测覆盖（role=0 / 1..5 所有分支）
+  - **遗留**：role 变更事件订阅（slice-4 的 `GroupMemberRoleEvent`）未接线 → 用户被改角色后需重进页面刷新；可按需做 slice-4b-2
+  - 验证：`flutter analyze lib/page/chat/chat/chat_page.dart` 干净
+
+- **F5-A slice-4a 落地（chat_page._sendTextMessage 接入 resolveMentionsForSend，零 widget 契约变动）**：
+  - 接线点：`lib/page/chat/chat/chat_page.dart:1270-1289` 替换原 `if (_chatType == c2g && _currentMentionIds.isNotEmpty) metadata['mentions'] = _currentMentionIds` 朴素附加为 switch-case on `resolveMentionsForSend`
+  - barrel 导出：`lib/page/chat/chat/barrel/imboy_packages.dart` 追加 `mention_all_rules.dart`，避免 chat_page.dart 新增 import
+  - **slice-4a 安全约束**：硬编码 `role=0` / `isAllSelected=false` → 决策内核走"普通 uids"分支，行为等价于原代码但**免费获得**：
+    1. uids 去重（防 ChatInput 上抛重复 uid 时 mentions 字段冗余）
+    2. 空白 uid 过滤（防脏数据进 metadata）
+    3. switch 骨架就位 —— slice-4b 接 GroupMemberRepo 加载真实 role / slice-4c 扩 ChatInput API 时只需替换硬编码 + 加 DeniedAll 分支
+  - **零行为回归**：DeniedAll case 在 slice-4a 不可达（isAllSelected=false），仅占位
+  - **TODO 显式登记**：源码注释标 slice-4b/4c
+  - 验证：`flutter analyze` 干净；mention 双测 25/25 绿
+
+- **F4 pre-existing 测试失败修复（12 绿）**：
+  - **channel_list_state_sync_test（4 测）**：Riverpod 3 auto-dispose 语义陷阱 —— `container.read(provider.notifier)` + `notifier.state = ...` 后若无订阅者，`container.read(provider)` 读回会触发 rebuild 清空瞬态写入；修复：setUp 内 `container.listen(channelListProvider, (_, __) {})` 保活订阅（test-only，不影响生产行为）
+  - **live_room_list_provider_test（8 测）**：`LiveRoomModel.id` / `userId` 由 `int` 改为 `String`，对齐 TSID BIGINT 字符串化（Dart Web 53 位精度 + 后端 JSON 约定）；`fromJson` 改 `data['id']?.toString() ?? ''` 防御空/非字符串；`publisher_provider.dart:74` 移除冗余 `.toString()` 调用
+  - 两处修复均为最小面，未触碰 S2C / 持久化 / Widget 链路
+
+- **F3 群公告解析契约钉死（TDD RED → GREEN → REFACTOR 闭环，25 绿）**：
+  - **后端侦察登记**：`imboy/src/api/group_notice_handler.erl` / `logic/group_notice_logic.erl` 只暴露 REST（`/v1/group/notice/*`），publish 后**无 S2C 广播**（不触发 `message_ds:broadcast`）→ F3 降级为"客户端解析契约 + REST 集成"，不做 S2C dispatcher（对照 slice-3/4 的 group_edit / group_member_role 契约完整）
+  - **架构决策：零外部依赖模型抽取**（复用 slice-1 `group_member_columns.dart` 先例）
+    - 新增 `lib/page/group/announcement/announcement_model.dart`：仅 `dart:core`，含 `AnnouncementModel` + 4 个纯解析辅助（`parseAnnouncementTimestamp` / `parseOptionalAnnouncementTimestamp` / `buildNoticeTitle` / `toRfc3339`）
+    - 原因：`group_announcement_provider.dart` 传递依赖 `http_client.dart → Dio → config`，而 Model/解析逻辑不需要，抽出后 Model-only 单测彻底绕开 sqflite→win32 链
+    - `group_announcement_provider.dart` 改用 `import` + `export ... show AnnouncementModel` 保向后兼容（已有 `import ...group_announcement_provider.dart` 的调用点无需改动）
+  - **解析契约（25 个单测钉死）**：
+    - 字段别名融合：`id` / `notice_id`、`publisher_id` / `user_id`、`content` / `body`、`publisher_name` / `creator_name`（前者优先）
+    - `publisher_name` 空 / 缺失 → 回退到 `publisher_id`（避免 UI 空昵称）
+    - 数值 id / group_id 自动 `toString()`（对齐 TSID BIGINT 字符串化约定）
+    - 时间戳单位自动放大：`>1e12` 毫秒原样 / `>1e9` 秒 → ×1000 / `≤1e9` 原样 / ISO-8601 → `millisecondsSinceEpoch` / 非法 → 0
+    - `expired_at=0` → 解析为 `null`（避免"永不过期"被误读为立即过期）
+  - **REFACTOR 收尾**：Notifier 内原 `_buildNoticeTitle` / `_toRfc3339` 实例方法删除，`publishAnnouncement` 改调公开函数 → DRY
+  - 25 个单测全绿（parseTimestamp 7 + parseOptional 3 + buildTitle 4 + toRfc3339 1 + fromJson aliases 4 + defaults 5 + toJson 1）；`flutter analyze lib/page/group/announcement` 零警告
+
+- **F5-A @所有人纯函数契约落地（后端契约完整，客户端解耦闭环）**：
+  - **后端侦察更正**（推翻旧阻塞判断）：`imboy/src/logic/mention_logic.erl:36-48` create_mentions/4 + `imboy/src/ds/mention_ds.erl:38-43` save_mentions/4 **已有** @所有人支持 —— 客户端发 `mentions: ["all"]`，后端通过 `group_member_ds:check_admin/2` 校验 admin 权限（`Role >= 3`），通过后展开到群组全员。先前笔记"零命中"有误（关键词过窄），本次 `grep -rn "mention_all\|@所有人"` 命中多处实现。
+  - **F5-B 全员禁言仍阻塞**：`grep mute_all` 零命中，后端只有针对单成员的 `group_member_logic:mute/4`，无群级禁言 API —— 确为跨栈阻塞项，等后端立项。
+  - 新增 `lib/page/chat/mention_all_rules.dart`（零外部依赖）：
+    - `canMentionAll(int role) → bool`：白名单枚举 {admin=3, owner=4, vice_owner=5}，**显式枚举而非 `>=3`** 防后端未来引入未知 role 时客户端默认放行
+    - `buildMentionsPayload({uids, isAllSelected}) → List<String>`：isAllSelected 优先（返回 `["all"]` 字面量对齐后端识别），否则 uids 去重 + 保序 + 过滤空/全空白；返回独立副本
+  - 11 个单测全绿（canMentionAll 4 + buildMentionsPayload 7）；`flutter analyze` 零警告
+  - **为什么不做 UI 层**：UI 侧 @ 选择器 / 消息发送链路涉及 Widget + Provider + WebSocket 调用，与既有 `lib/service/mention_service.dart` / `lib/store/api/mention_api.dart` 耦合度高，超出"零外部依赖 slice"范围；后续可按需做 slice-3 UI 接线，本 slice 先钉死决策契约。
+
+- **F5-A slice-3 @所有人发送侧决策内核（sealed Result 闸门）**：
+  - **接入点识别**：`lib/page/chat/chat/chat_page.dart:1271-1275` 当前仅用 `_currentMentionIds.isNotEmpty` 作为 mentions 字段附加闸门，既**无 @所有人支持**，也**无权限校验**；若用户构造 `mentions: ["all"]` 但非 admin，后端会返回 `{error, permission_denied}` 但客户端无预校验。
+  - 扩展 `lib/page/chat/mention_all_rules.dart`：新增 sealed `MentionResolveResult`（`MentionResolveOk(mentions)` / `MentionResolveEmpty` / `MentionResolveDeniedAll`）+ `resolveMentionsForSend({isGroupChat, role, uids, isAllSelected})` 决策函数。
+  - **关键语义**：member/guest + `isAllSelected=true` → `DeniedAll`，**不偷偷降级**为 @ 子集 —— 用户意图是 @所有人，降级会造成语义失真，必须整体阻塞并提示。
+  - 优先级：非群聊 > isAllSelected > 普通 uids（去重过滤）。
+  - 14 个单测全绿（empty 分支 3 + @普通 3 + @所有人 7 + 非群聊 1）；slice-1/2/3 合计 25 测全绿，`flutter analyze` 零警告
+  - **slice-4 待做**：`chat_page.dart:1271-1275` 改 switch 语句接入 `resolveMentionsForSend` —— 涉及 Widget + toast 链路，单独排期。
 
 ### 2026-04-10
 - **新增设计规范文档**：`imboyapp/DESIGN.md` 确立 iOS 原生感设计方向

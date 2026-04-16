@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../profile_provider.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 资料完善度组件
@@ -39,7 +40,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '资料完善度',
+                t.profileCompleteness,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -111,7 +112,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
 
                     // 百分比文本
                     Text(
-                      '${profileState.completeness}% 完成',
+                      t.profileProgress(percent: profileState.completeness),
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.white70 : Colors.black54,
@@ -156,7 +157,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
                       Icon(Icons.check_circle, color: Colors.green, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        '资料已完善！',
+                        t.profileCompleted,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.green[700],
@@ -172,7 +173,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '完善建议：',
+                    t.completionSuggestions,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

@@ -14,6 +14,8 @@
 /// 通过 [_authorityRank] 显式归一化，避免用原始 role 做数值比较出错。
 library;
 
+import 'package:imboy/i18n/strings.g.dart';
+
 const int _roleMember = 1;
 const int _roleAdmin = 3;
 
@@ -90,14 +92,14 @@ String muteRemainingLabel({
   if (remainingMs <= 0) return '';
 
   final seconds = remainingMs ~/ 1000;
-  if (seconds < 60) return '$seconds 秒';
+  if (seconds < 60) return t.muteUnitSeconds(count: seconds);
 
   final minutes = seconds ~/ 60;
-  if (minutes < 60) return '$minutes 分钟';
+  if (minutes < 60) return t.muteUnitMinutes(count: minutes);
 
   final hours = minutes ~/ 60;
-  if (hours < 24) return '$hours 小时';
+  if (hours < 24) return t.muteUnitHours(count: hours);
 
   final days = hours ~/ 24;
-  return '$days 天';
+  return t.muteUnitDays(count: days);
 }

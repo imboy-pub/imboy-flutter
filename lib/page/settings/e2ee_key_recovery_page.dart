@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
 import 'package:imboy/page/settings/e2ee_backup_manage_page.dart';
@@ -46,12 +47,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Scaffold(
       appBar: GlassAppBar(
-        title: '端到端加密密钥管理',
-        titleWidget: const Text('端到端加密密钥管理'),
+        title: t.e2eeKeyRecoveryTitle,
+        titleWidget: Text(t.e2eeKeyRecoveryTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
         rightDMActions: [
           IconButton(onPressed: _loadKeyInfo, icon: const Icon(Icons.refresh)),
@@ -78,7 +79,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
-                      '密钥恢复方法',
+                      t.e2eeRecoveryMethods,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -90,12 +91,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 方法 A: 设备间传输（已实现）
                   _buildRecoveryMethodCard(
                     context,
-                    title: '设备间传输',
-                    description: '通过二维码直接传输密钥到新设备',
+                    title: t.e2eeDeviceTransfer,
+                    description: t.e2eeDeviceTransferDesc,
                     securityLevel: 3,
                     icon: Icons.devices,
                     iconColor: Colors.blue,
-                    status: '可用',
+                    status: t.e2eeStatusAvailable,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -111,12 +112,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 方法 B: 社交恢复（已实现）
                   _buildRecoveryMethodCard(
                     context,
-                    title: '社交恢复',
-                    description: '通过信任的联系人协助恢复密钥',
+                    title: t.e2eeSocialRecovery,
+                    description: t.e2eeSocialRecoveryDesc,
                     securityLevel: 2,
                     icon: Icons.people,
                     iconColor: Colors.purple,
-                    status: '可用',
+                    status: t.e2eeStatusAvailable,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -132,12 +133,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 方法 C: 本地备份（已实现）
                   _buildRecoveryMethodCard(
                     context,
-                    title: '本地备份',
-                    description: '导出加密备份文件到本地或云端',
+                    title: t.e2eeLocalBackup,
+                    description: t.e2eeLocalBackupDesc,
                     securityLevel: 4,
                     icon: Icons.backup,
                     iconColor: Colors.green,
-                    status: '可用',
+                    status: t.e2eeStatusAvailable,
                     onTap: () => _showLocalBackupOptions(context),
                   ),
 
@@ -147,7 +148,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
-                      '危险操作',
+                      t.e2eeDangerousOps,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -159,8 +160,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 生成新密钥
                   _buildDangerActionCard(
                     context,
-                    title: '生成新密钥',
-                    description: '生成新的 E2EE 密钥对（旧消息将无法解密）',
+                    title: t.e2eeGenerateNewKey,
+                    description: t.e2eeGenerateNewKeyDesc,
                     icon: Icons.refresh,
                     iconColor: Colors.orange,
                     onTap: () => _showGenerateNewKeyDialog(context),
@@ -171,8 +172,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 删除密钥
                   _buildDangerActionCard(
                     context,
-                    title: '删除密钥',
-                    description: '删除本地存储的密钥（无法恢复）',
+                    title: t.e2eeDeleteKey,
+                    description: t.e2eeDeleteKeyDesc,
                     icon: Icons.delete_forever,
                     iconColor: Colors.red,
                     onTap: () => _showDeleteKeyDialog(context),
@@ -211,9 +212,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '当前密钥信息',
-                        style: TextStyle(
+                      Text(
+                        t.e2eeCurrentKeyInfo,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.blue,
@@ -221,7 +222,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '端到端加密已启用',
+                        t.e2eeE2EEEnabled,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.blue.shade700,
@@ -239,9 +240,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    '已激活',
-                    style: TextStyle(
+                  child: Text(
+                    t.e2eeActivated,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -251,9 +252,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildInfoRow('设备 ID', _keyInfo['device_id'] ?? '未知'),
-            _buildInfoRow('密钥 ID', _keyInfo['key_id'] ?? '未知'),
-            _buildInfoRow('创建时间', _keyInfo['created_at'] ?? '未知'),
+            _buildInfoRow(t.e2eeDeviceIdLabel, _keyInfo['device_id'] ?? t.unknown),
+            _buildInfoRow(t.e2eeKeyIdLabel, _keyInfo['key_id'] ?? t.unknown),
+            _buildInfoRow(t.e2eeCreatedAtLabel, _keyInfo['created_at'] ?? t.unknown),
           ],
         ),
       ),
@@ -283,25 +284,25 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               size: 48,
             ),
             const SizedBox(height: 16),
-            const Text(
-              '未检测到 E2EE 密钥',
-              style: TextStyle(
+            Text(
+              t.e2eeNoKeyDetected,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.orange,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '您需要先生成密钥对或从备份中恢复',
-              style: TextStyle(fontSize: 14),
+            Text(
+              t.e2eeNoKeyDesc,
+              style: const TextStyle(fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () => _showGenerateNewKeyDialog(context),
               icon: const Icon(Icons.add),
-              label: const Text('生成新密钥'),
+              label: Text(t.e2eeGenerateNewKey),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
@@ -359,24 +360,24 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               children: [
                 Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
                 const SizedBox(width: 8),
-                const Text(
-                  '关于端到端加密',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                Text(
+                  t.e2eeAboutTitle,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
-              '• 您的消息在发送前已加密，服务器无法查看内容',
-              style: TextStyle(fontSize: 13),
+            Text(
+              t.e2eeInfoPoint1,
+              style: const TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 4),
-            const Text(
-              '• 更换设备或删除密钥后，旧消息可能无法解密',
-              style: TextStyle(fontSize: 13),
+            Text(
+              t.e2eeInfoPoint2,
+              style: const TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 4),
-            const Text('• 请定期备份密钥以防数据丢失', style: TextStyle(fontSize: 13)),
+            Text(t.e2eeInfoPoint3, style: const TextStyle(fontSize: 13)),
           ],
         ),
       ),
@@ -449,7 +450,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: status == '可用'
+                              color: status == t.e2eeStatusAvailable
                                   ? Colors.green.shade100
                                   : Colors.grey.shade200,
                               borderRadius: BorderRadius.circular(8),
@@ -458,7 +459,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                               status,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: status == '可用'
+                                color: status == t.e2eeStatusAvailable
                                     ? Colors.green.shade700
                                     : Colors.grey.shade600,
                               ),
@@ -585,8 +586,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.upload_file),
-              title: const Text('导出备份'),
-              subtitle: const Text('生成加密备份文件'),
+              title: Text(t.e2eeExportBackup),
+              subtitle: Text(t.e2eeExportBackupDesc),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -599,8 +600,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             ListTile(
               leading: const Icon(Icons.download),
-              title: const Text('导入备份'),
-              subtitle: const Text('从备份文件恢复密钥'),
+              title: Text(t.e2eeImportBackup),
+              subtitle: Text(t.e2eeImportBackupDesc),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -613,8 +614,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             ListTile(
               leading: const Icon(Icons.folder),
-              title: const Text('备份管理'),
-              subtitle: const Text('查看备份历史记录'),
+              title: Text(t.e2eeBackupManage),
+              subtitle: Text(t.e2eeBackupManageDesc),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -637,33 +638,33 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('生成新密钥'),
-        content: const Column(
+        title: Text(t.e2eeGenerateNewKey),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('确定要生成新的 E2EE 密钥对吗？'),
-            SizedBox(height: 12),
+            Text(t.e2eeGenerateKeyConfirm),
+            const SizedBox(height: 12),
             Text(
-              '警告：',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              t.warning,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
             ),
-            Text('• 旧消息将无法解密'),
-            Text('• 需要重新生成备份文件'),
-            Text('• 此操作不可撤销'),
+            Text(t.e2eeWarnOldMessagesLost),
+            Text(t.e2eeWarnNeedNewBackup),
+            Text(t.e2eeWarnIrreversible),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _generateNewKey();
             },
-            child: const Text('确认生成', style: TextStyle(color: Colors.orange)),
+            child: Text(t.e2eeConfirmGenerate, style: const TextStyle(color: Colors.orange)),
           ),
         ],
       ),
@@ -675,33 +676,33 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除密钥'),
-        content: const Column(
+        title: Text(t.e2eeDeleteKey),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('确定要删除当前密钥吗？'),
-            SizedBox(height: 12),
+            Text(t.e2eeDeleteKeyConfirm),
+            const SizedBox(height: 12),
             Text(
-              '警告：',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              t.warning,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
             ),
-            Text('• 删除后无法恢复'),
-            Text('• 所有 E2EE 消息将无法解密'),
-            Text('• 需要从备份恢复或生成新密钥'),
+            Text(t.e2eeWarnCannotRestore),
+            Text(t.e2eeWarnAllMsgsLost),
+            Text(t.e2eeWarnNeedRestoreOrNew),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.buttonCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteKeys();
             },
-            child: const Text('确认删除', style: TextStyle(color: Colors.red)),
+            child: Text(t.e2eeConfirmDelete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -723,9 +724,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
         setState(() {
           _keyInfo = {
-            'device_id': deviceId ?? '未知',
-            'key_id': keyId ?? '未知',
-            'created_at': createdAt ?? '未知',
+            'device_id': deviceId ?? t.unknown,
+            'key_id': keyId ?? t.unknown,
+            'created_at': createdAt ?? t.unknown,
           };
           _isLoading = false;
         });
@@ -749,16 +750,16 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            SizedBox(width: 16),
-            Text('正在生成密钥，请稍候...'),
+            const SizedBox(width: 16),
+            Text(t.e2eeGeneratingKey),
           ],
         ),
       ),
@@ -779,16 +780,16 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('密钥生成成功'),
+            title: Text(t.e2eeKeyGeneratedSuccess),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('新的 E2EE 密钥对已生成！'),
+                Text(t.e2eeNewKeyGenerated),
                 const SizedBox(height: 12),
-                Text('设备 ID: ${_maskId(keyInfo['device_id']?.toString() ?? '')}'),
-                Text('密钥 ID: ${_maskId(keyInfo['key_id']?.toString() ?? '')}'),
-                Text('创建时间: ${keyInfo['created_at']}'),
+                Text(t.e2eeDeviceIdInfo(id: _maskId(keyInfo['device_id']?.toString() ?? ''))),
+                Text(t.e2eeKeyIdInfo(id: _maskId(keyInfo['key_id']?.toString() ?? ''))),
+                Text(t.e2eeCreatedAtInfo(time: keyInfo['created_at'].toString())),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -801,15 +802,15 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.warning_amber_rounded,
                             color: Colors.orange,
                             size: 18,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
-                            '重要提示',
-                            style: TextStyle(
+                          Text(
+                            t.e2eeImportantNote,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.orange,
                             ),
@@ -817,9 +818,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('• 旧消息可能无法解密'),
-                      Text('• 建议立即导出备份'),
-                      Text('• 此操作不可撤销'),
+                      Text(t.e2eeWarnOldMayNotDecrypt),
+                      Text(t.e2eeSuggestBackupNow),
+                      Text(t.e2eeWarnIrreversible),
                     ],
                   ),
                 ),
@@ -837,11 +838,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     ),
                   );
                 },
-                child: const Text('去备份'),
+                child: Text(t.e2eeGoBackup),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('我知道了'),
+                child: Text(t.gotIt),
               ),
             ],
           ),
@@ -853,10 +854,10 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('密钥生成失败，请重试'),
+          SnackBar(
+            content: Text(t.e2eeKeyGenerateFailed),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -879,13 +880,16 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       setState(() => _keyInfo = {});
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('密钥已删除'), backgroundColor: Colors.green),
+        SnackBar(
+          content: Text(t.e2eeKeyDeleted),
+          backgroundColor: Colors.green,
+        ),
       );
     } on Exception {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('删除失败，请重试'),
+        SnackBar(
+          content: Text(t.e2eeDeleteFailed),
           backgroundColor: Colors.red,
         ),
       );

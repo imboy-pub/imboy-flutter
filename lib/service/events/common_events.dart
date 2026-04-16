@@ -167,14 +167,15 @@ final class UserUnmutedEvent extends AppEvent {
 ///
 /// 触发时机：群管理员 / 群主禁言某成员后，后端向群内所有成员广播。
 ///
-/// ⚠️ **已知契约缺口**：后端 `group_member_logic:mute_notice/4` 未在
-/// payload 中携带被禁言成员的 `user_id`（见
-/// `lib/service/group_member_mute_s2c.dart` 顶部注释），因此本事件目前
-/// 无法精确定位到具体成员行。UI 层仅做「群内通知」展示；Repo 级 mute_until
-/// 写入在 slice-2 或后端补 `user_id` 后再接入。
+/// **slice-1-finalize（2026-04-15）**：后端 `mute_notice/4` 已补 `user_id`
+/// 字段。事件携带被禁言成员的 `userId`（TSID 字符串）；老后端不带时
+/// 为空串，UI 层应据此跳过单成员定位，仅展示群级 toast。
 final class GroupMemberMuteEvent extends AppEvent {
   /// 群 ID
   final int gid;
+
+  /// 被禁言成员的 user_id（TSID 字符串）；老后端 / 解析缺失时为 ''
+  final String userId;
 
   /// 禁言到期时间戳（毫秒）
   final int muteUntilMs;
@@ -194,11 +195,13 @@ final class GroupMemberMuteEvent extends AppEvent {
     required this.remainingSeconds,
     required this.durationText,
     required this.adminNickname,
+    this.userId = '',
   });
 
   @override
   List<Object?> get props => [
         gid,
+        userId,
         muteUntilMs,
         remainingSeconds,
         durationText,
@@ -207,8 +210,40 @@ final class GroupMemberMuteEvent extends AppEvent {
 
   @override
   String toString() {
-    return 'GroupMemberMuteEvent(gid: $gid, muteUntilMs: $muteUntilMs, '
-        'remainingSeconds: $remainingSeconds, durationText: $durationText, '
+    return 'GroupMemberMuteEvent(gid: $gid, userId: $userId, '
+        'muteUntilMs: $muteUntilMs, remainingSeconds: $remainingSeconds, '
+        'durationText: $durationText, adminNickname: $adminNickname)';
+  }
+}
+
+/// 群成员解禁的广播事件（slice-9b）。
+///
+/// 对应后端 `group_member_logic:unmute/3` 通过 `mute_notice/4` 下发
+/// `mute_until == 0` 的解禁信号。UI 层应据此：
+///   1. `userId` 非空 → 定位成员行，`GroupMemberRepo` 的 `mute_until` 已被 S2C 置 null
+///   2. `userId` 空 → 仅展示群级 toast
+final class GroupMemberUnmuteEvent extends AppEvent {
+  /// 群 ID
+  final int gid;
+
+  /// 被解禁成员的 user_id（TSID 字符串）；老后端 / 解析缺失时为 ''
+  final String userId;
+
+  /// 执行解禁的管理员昵称
+  final String adminNickname;
+
+  const GroupMemberUnmuteEvent({
+    required this.gid,
+    this.userId = '',
+    this.adminNickname = '',
+  });
+
+  @override
+  List<Object?> get props => [gid, userId, adminNickname];
+
+  @override
+  String toString() {
+    return 'GroupMemberUnmuteEvent(gid: $gid, userId: $userId, '
         'adminNickname: $adminNickname)';
   }
 }

@@ -111,7 +111,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? context.t.groupVote.voteSuccess : '操作失败，请稍后重试'),
+        content: Text(success ? context.t.groupVote.voteSuccess : context.t.operationFailedAgainLater),
       ),
     );
 
@@ -131,7 +131,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     setState(() => _isSubmitting = false);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(success ? '已取消投票' : '取消失败，请稍后重试')));
+    ).showSnackBar(SnackBar(content: Text(success ? context.t.groupVote.cancelVoteSuccess : context.t.groupVote.cancelVoteFailed)));
     if (success) {
       await _loadVoteDetail();
     }
@@ -148,7 +148,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     setState(() => _isSubmitting = false);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? context.t.groupVote.voteEnded : '结束失败，请稍后重试'),
+        content: Text(success ? context.t.groupVote.voteEnded : context.t.groupVote.endVoteFailed),
       ),
     );
     if (success) {
@@ -245,7 +245,9 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
             children: [
               Chip(
                 label: Text(
-                  _voteStatus == 1 ? '进行中' : context.t.groupVote.voteEnded,
+                  _voteStatus == 1
+                      ? context.t.groupVote.statusInProgress
+                      : context.t.groupVote.voteEnded,
                 ),
               ),
               Chip(
@@ -274,7 +276,9 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(_hasVoted ? '更新投票' : context.t.confirm),
+                    : Text(_hasVoted
+                          ? context.t.groupVote.updateVote
+                          : context.t.confirm),
               ),
             ),
           if (_voteStatus == 1) const SizedBox(height: 12),
@@ -284,7 +288,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _isSubmitting ? null : _cancelVote,
-                    child: const Text('取消我的投票'),
+                    child: Text(context.t.groupVote.cancelMyVote),
                   ),
                 ),
                 const SizedBox(width: 12),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 
 /// E2EE 社交恢复 - 恢复密钥页面
@@ -19,11 +20,12 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   // 零信任架构：自动联系代理收集解密分片
   int _collectedCount = 0;
   String? _currentProxyName;
-  String _statusMessage = '准备恢复...';
+  String _statusMessage = '';
 
   @override
   void initState() {
     super.initState();
+    _statusMessage = t.e2eePreparing;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadShards();
@@ -34,7 +36,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   Future<void> _loadShards() async {
     setState(() {
       _isLoading = true;
-      _statusMessage = '加载分片信息...';
+      _statusMessage = t.e2eeLoadingShards;
     });
 
     try {
@@ -48,20 +50,21 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         setState(() {
           _shards = localShards;
           _isLoading = false;
-          _statusMessage = localShards.isEmpty ? '没有可用的分片' : '准备就绪';
+          _statusMessage =
+              localShards.isEmpty ? t.e2eeNoShards : t.e2eeReady;
         });
       } else {
         setState(() {
           _shards = shards;
           _isLoading = false;
-          _statusMessage = '准备就绪';
+          _statusMessage = t.e2eeReady;
         });
       }
     } on Exception {
       setState(() {
         _isLoading = false;
         _shards = [];
-        _statusMessage = '加载失败，请重试';
+        _statusMessage = t.e2eeLoadFailed;
       });
     }
   }
@@ -76,8 +79,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         _shards = shards;
         _isLoading = false;
         _statusMessage = shards.isEmpty
-            ? '没有可用的分片'
-            : '准备就绪（${shards.length} 个分片）';
+            ? t.e2eeNoShards
+            : t.e2eeReadyWithShards(count: shards.length);
       });
 
       return shards;
@@ -85,7 +88,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       setState(() {
         _isLoading = false;
         _shards = [];
-        _statusMessage = '加载失败，请重试';
+        _statusMessage = t.e2eeLoadFailed;
       });
       return [];
     }
@@ -100,7 +103,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
     final canRecover = totalShards >= threshold;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('恢复密钥')),
+      appBar: AppBar(title: Text(t.e2eeRecoverKeyTitle)),
       body: _isLoading
           ? const Center(child: CupertinoActivityIndicator())
           : Column(
@@ -147,7 +150,9 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        canRecover ? '可以恢复密钥' : '分片数量不足',
+                        canRecover
+                            ? t.e2eeCanRecoverKey
+                            : t.e2eeInsufficientShards,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -156,7 +161,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '可用分片: $totalShards 个，需要 $threshold 个代理协助',
+                        t.e2eeShardAvailableInfo(
+                          available: totalShards,
+                          required: threshold,
+                        ),
                         style: TextStyle(
                           fontSize: 13,
                           color: canRecover
@@ -166,7 +174,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '零信任架构：服务端不存储分片，直接联系代理',
+                        t.e2eeSocialZeroTrustHint1,
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey.shade600,
@@ -213,7 +221,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                         if (_currentProxyName != null) ...[
                           const SizedBox(height: 4),
                           Text(
-                            '正在联系: $_currentProxyName',
+                            t.e2eeContactingProxy(name: _currentProxyName!),
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade600,
@@ -233,7 +241,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                '进度: $_collectedCount / $threshold 个分片',
+                t.e2eeRecoveryProgressLabel(
+                  collected: _collectedCount,
+                  total: threshold,
+                ),
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
             ],
@@ -257,7 +268,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   }
 
   Widget _buildShardCard(Map<String, dynamic> shard) {
-    final proxyUid = shard['proxy_uid']?.toString() ?? '未知';
+    final proxyUid = shard['proxy_uid']?.toString() ?? t.unknown;
     final shardIndex = shard['shard_index'] ?? 0;
     final totalShards = shard['total_shards'] ?? 3;
     final status = shard['status']?.toString() ?? 'unknown';
@@ -295,8 +306,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             ),
           ),
         ),
-        title: Text('代理用户: $proxyUid'),
-        subtitle: Text('分片 $shardIndex / $totalShards'),
+        title: Text(t.e2eeProxyUser(uid: proxyUid)),
+        subtitle: Text(
+          t.e2eeShardLabel(index: shardIndex, total: totalShards),
+        ),
         trailing: Icon(statusIcon, color: statusColor, size: 20),
       ),
     );
@@ -310,19 +323,19 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           children: [
             const Icon(Icons.info_outline, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text(
-              '没有可用的恢复分片',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              t.e2eeNoRecoveryShards,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '零信任架构：分片存储在代理设备',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            Text(
+              t.e2eeSocialZeroTrustHint2,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 16),
             CupertinoButton.filled(
               onPressed: () => _loadShards(),
-              child: const Text('重新加载'),
+              child: Text(t.e2eeReloadShards),
             ),
           ],
         ),
@@ -347,18 +360,21 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         child: CupertinoButton.filled(
           onPressed: (canRecover && !_isRecovering) ? _startRecovery : null,
           child: _isRecovering
-              ? const Row(
+              ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CupertinoActivityIndicator(radius: 10),
-                    SizedBox(width: 8),
-                    Text('恢复中...'),
+                    const CupertinoActivityIndicator(radius: 10),
+                    const SizedBox(width: 8),
+                    Text(t.e2eeRecovering),
                   ],
                 )
               : Text(
                   canRecover
-                      ? '开始恢复密钥（需要 $threshold 个代理协助）'
-                      : '分片不足（需要 $threshold 个，当前 ${_shards.length} 个）',
+                      ? t.e2eeStartRecoveryBtn(required: threshold)
+                      : t.e2eeInsufficientShardBtn(
+                          required: threshold,
+                          current: _shards.length,
+                        ),
                 ),
         ),
       ),
@@ -383,10 +399,11 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               _collectedCount = collected;
               if (collected < total) {
                 final shard = _shards[collected];
-                _currentProxyName = '代理 ${shard['proxy_uid']}';
-                _statusMessage = '正在收集分片 ($collected/$threshold)...';
+                _currentProxyName = shard['proxy_uid']?.toString() ?? '';
+                _statusMessage =
+                    t.e2eeCollectingShards(collected: collected, total: threshold);
               } else {
-                _statusMessage = '分片收集完成，正在重组密钥...';
+                _statusMessage = t.e2eeShardsCollected;
               }
             });
           }
@@ -401,27 +418,30 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             context: context,
             builder: (context) {
               return CupertinoAlertDialog(
-                title: const Text('恢复成功'),
+                title: Text(t.e2eeRecoverSuccess),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('密钥已成功恢复'),
+                    Text(t.e2eeKeyRestored),
                     const SizedBox(height: 8),
                     Text(
-                      '已使用 $_collectedCount 个代理分片',
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                      t.e2eeUsedShards(count: _collectedCount),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '零信任架构：分片由代理设备存储，服务端不接触明文',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    Text(
+                      t.e2eeSocialZeroTrustHint3,
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
                   ],
                 ),
                 actions: [
                   CupertinoDialogAction(
-                    child: const Text('确定'),
+                    child: Text(t.buttonOk),
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.pop(context);
@@ -436,15 +456,15 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             context: context,
             builder: (context) {
               return CupertinoAlertDialog(
-                title: const Text('恢复失败'),
+                title: Text(t.e2eeRecoverFailed),
                 content: Text(_statusMessage),
                 actions: [
                   CupertinoDialogAction(
-                    child: const Text('重试'),
+                    child: Text(t.buttonRetry),
                     onPressed: () => Navigator.pop(context),
                   ),
                   CupertinoDialogAction(
-                    child: const Text('取消'),
+                    child: Text(t.buttonCancel),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -457,22 +477,22 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       if (mounted) {
         setState(() {
           _isRecovering = false;
-          _statusMessage = '恢复失败，请重试';
+          _statusMessage = t.e2eeRecoveryFailed;
         });
 
         showCupertinoDialog(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: const Text('恢复失败'),
-              content: const Text('恢复密钥失败，请重试'),
+              title: Text(t.e2eeRecoverFailed),
+              content: Text(t.e2eeRecoverKeyFailed),
               actions: [
                 CupertinoDialogAction(
-                  child: const Text('重试'),
+                  child: Text(t.buttonRetry),
                   onPressed: () => Navigator.pop(context),
                 ),
                 CupertinoDialogAction(
-                  child: const Text('取消'),
+                  child: Text(t.buttonCancel),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

@@ -251,8 +251,7 @@ class LanguagePage extends ConsumerWidget {
             Expanded(
               child: ListView(
                 children: [
-                  // TODO: 迁移到 slang i18n
-                  _buildSectionHeader(context, '选择语言'),
+                  _buildSectionHeader(context, t.selectLanguage),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(

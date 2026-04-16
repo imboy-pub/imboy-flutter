@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_social_create_page.dart';
 import 'package:imboy/page/settings/e2ee_social_recover_page.dart';
 import 'package:imboy/page/settings/e2ee_social_manage_page.dart';
@@ -53,11 +54,11 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('社交恢复'),
+        title: Text(t.e2eeSocialTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       body: _isLoading
@@ -102,7 +103,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _canRecover ? '可以恢复密钥' : '设置恢复代理',
+                        _canRecover ? t.e2eeSocialCanRecover : t.e2eeSocialSetupProxy,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -111,7 +112,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _canRecover ? '您已有足够的分片可以恢复密钥' : '选择信任的联系人作为恢复代理',
+                        _canRecover ? t.e2eeSocialEnoughShards : t.e2eeSocialChooseProxy,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.purple.shade700,
@@ -140,9 +141,9 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               children: [
                 const Icon(Icons.folder_open, color: Colors.purple, size: 20),
                 const SizedBox(width: 8),
-                const Text(
-                  '现有恢复分片',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                Text(
+                  t.e2eeSocialExistingShards,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -152,8 +153,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  '还有 ${_shards.length - 3} 个分片...',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  t.e2eeSocialMoreShards(count: _shards.length - 3),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ),
           ],
@@ -193,9 +194,9 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('代理用户: $proxyUid', style: const TextStyle(fontSize: 13)),
+                Text(t.e2eeProxyUser(uid: proxyUid), style: const TextStyle(fontSize: 13)),
                 Text(
-                  '状态: $status',
+                  t.e2eeSocialStatus(status: status),
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'active' ? Colors.green : Colors.grey,
@@ -214,8 +215,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
       children: [
         _buildActionCard(
           icon: Icons.create,
-          title: '创建恢复分片',
-          description: '将密钥分割成多个分片，存储到代理设备（服务端不保存）',
+          title: t.e2eeSocialCreateShardsTitle,
+          description: t.e2eeSocialCreateShardsDesc,
           color: Colors.blue,
           onTap: () {
             Navigator.push(
@@ -228,8 +229,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
         if (_canRecover)
           _buildActionCard(
             icon: Icons.restore,
-            title: '恢复密钥',
-            description: '使用代理的分片恢复密钥',
+            title: t.e2eeSocialRecoverKeyTitle,
+            description: t.e2eeSocialRecoverKeyDesc,
             color: Colors.green,
             onTap: () {
               Navigator.push(
@@ -243,8 +244,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
         const SizedBox(height: 12),
         _buildActionCard(
           icon: Icons.manage_accounts,
-          title: '管理分片',
-          description: '查看和管理所有恢复分片',
+          title: t.e2eeSocialManageShardsTitle,
+          description: t.e2eeSocialManageShardsDesc,
           color: Colors.orange,
           onTap: () {
             Navigator.push(

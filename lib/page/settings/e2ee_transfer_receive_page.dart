@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -21,11 +22,13 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
   final _controller = MobileScannerController();
   bool _isProcessing = false;
   String? _statusMessage;
+  // Dedicated flag instead of string comparisons to avoid locale-dependent bugs
+  bool _isSuccess = false;
+  bool _isFailed = false;
 
   @override
   void initState() {
     super.initState();
-    // 延迟接受传输，避免布局期间触发 setState
     if (widget.sessionId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -63,17 +66,17 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
   Future<void> _acceptTransfer(String sessionId) async {
     try {
       setState(() {
-        _statusMessage = '正在接受传输...';
+        _statusMessage = t.e2eeTransferReceiving;
+        _isSuccess = false;
+        _isFailed = false;
       });
 
-      // 获取当前设备的设备 ID
       final deviceId = await StorageSecureService.to.getDeviceId();
       if (deviceId == null || deviceId.isEmpty) {
-        // 生成新设备 ID
         await E2EEKeyService.generateKeyPair();
         final newDeviceId = await StorageSecureService.to.getDeviceId();
         if (newDeviceId == null || newDeviceId.isEmpty) {
-          throw Exception('无法获取设备 ID');
+          throw Exception(t.e2eeTransferErrNoDeviceId);
         }
       }
 
@@ -82,23 +85,24 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
         deviceId: deviceId ?? await StorageSecureService.to.getDeviceId() ?? '',
       );
 
-      // 确认传输
       await E2EETransferService.confirmTransfer(sessionId: sessionId);
 
       if (mounted) {
         setState(() {
-          _statusMessage = '传输成功！';
+          _statusMessage = t.e2eeTransferSuccess;
+          _isSuccess = true;
+          _isFailed = false;
         });
 
         showCupertinoDialog(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: const Text('传输成功'),
-              content: const Text('密钥已成功传输到当前设备'),
+              title: Text(t.e2eeTransferSuccessTitle),
+              content: Text(t.e2eeTransferSuccessBody),
               actions: [
                 CupertinoDialogAction(
-                  child: const Text('确定'),
+                  child: Text(t.buttonOk),
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pop(context);
@@ -112,7 +116,9 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
     } on Exception {
       if (mounted) {
         setState(() {
-          _statusMessage = '传输失败，请重试';
+          _statusMessage = t.e2eeTransferFailed;
+          _isSuccess = false;
+          _isFailed = true;
           _isProcessing = false;
         });
       }
@@ -123,11 +129,11 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('从旧设备接收密钥'),
+        title: Text(t.e2eeTransferReceiveTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
       ),
       body: _buildBody(),
@@ -143,7 +149,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
       controller: _controller,
       onDetect: _onDetect,
       errorBuilder: (context, error) {
-        return Center(child: Text('扫描错误: $error'));
+        return Center(child: Text(t.e2eeTransferScanError(error: error.toString())));
       },
     );
   }
@@ -155,9 +161,9 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (_statusMessage == '传输成功！')
+            if (_isSuccess)
               const Icon(Icons.check_circle, size: 64, color: Colors.green)
-            else if (_statusMessage?.contains('失败') == true)
+            else if (_isFailed)
               const Icon(Icons.error, size: 64, color: Colors.red)
             else
               const SizedBox(
@@ -167,17 +173,19 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
               ),
             const SizedBox(height: 24),
             Text(
-              _statusMessage ?? '处理中...',
+              _statusMessage ?? t.e2eeTransferProcessingMsg,
               style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            if (_statusMessage?.contains('失败') == true) ...[
+            if (_isFailed) ...[
               const SizedBox(height: 24),
               CupertinoButton.filled(
-                child: const Text('重试'),
+                child: Text(t.buttonRetry),
                 onPressed: () {
                   setState(() {
                     _statusMessage = null;
+                    _isSuccess = false;
+                    _isFailed = false;
                     _isProcessing = false;
                   });
                 },

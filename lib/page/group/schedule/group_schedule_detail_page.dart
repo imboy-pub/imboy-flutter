@@ -75,9 +75,11 @@ class _GroupScheduleDetailPageState
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? '操作成功' : '操作失败，请稍后重试')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(success
+          ? context.t.operationSuccessful
+          : context.t.operationFailedAgainLater),
+    ));
     if (success) {
       await _loadDetail();
     }
@@ -92,9 +94,11 @@ class _GroupScheduleDetailPageState
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? '日程已取消' : '取消失败，请稍后重试')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(success
+          ? context.t.groupSchedule.cancelSuccess
+          : context.t.groupSchedule.cancelFailed),
+    ));
     if (success) {
       await _loadDetail();
     }
@@ -158,10 +162,14 @@ class _GroupScheduleDetailPageState
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
-          Chip(label: Text(status == 4 ? '已取消' : '进行中')),
+          Chip(
+            label: Text(status == 4
+                ? context.t.groupSchedule.statusCancelled
+                : context.t.groupSchedule.statusInProgress),
+          ),
           const SizedBox(height: 12),
-          _InfoLine(label: '开始时间', value: startTime),
-          _InfoLine(label: '结束时间', value: endTime),
+          _InfoLine(label: context.t.groupSchedule.startTime, value: startTime),
+          _InfoLine(label: context.t.groupSchedule.endTime, value: endTime),
           if (location.isNotEmpty)
             _InfoLine(label: context.t.groupSchedule.location, value: location),
           if (description.isNotEmpty)
@@ -171,12 +179,15 @@ class _GroupScheduleDetailPageState
             ),
           const SizedBox(height: 12),
           _InfoLine(
-            label: '参与人数',
+            label: context.t.groupSchedule.participants,
             value: _toInt(_detail!['participant_count']).toString(),
           ),
           if (participants.isNotEmpty) ...[
             const SizedBox(height: 8),
-            const Text('参与人', style: TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              context.t.groupMembers,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             ...participants
                 .take(20)
@@ -200,14 +211,14 @@ class _GroupScheduleDetailPageState
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : () => _confirm(true),
-                    child: const Text('确认参加'),
+                    child: Text(context.t.groupSchedule.confirmAttend),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _isSubmitting ? null : () => _confirm(false),
-                    child: const Text('不参加'),
+                    child: Text(context.t.groupSchedule.declineAttend),
                   ),
                 ),
               ],
@@ -216,7 +227,7 @@ class _GroupScheduleDetailPageState
           if (status != 4)
             OutlinedButton(
               onPressed: _isSubmitting ? null : _cancelSchedule,
-              child: const Text('取消日程'),
+              child: Text(context.t.groupSchedule.cancelSchedule),
             ),
         ],
       ),

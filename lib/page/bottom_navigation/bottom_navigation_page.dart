@@ -4,8 +4,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/modules/social_graph/public.dart';
-import 'package:imboy/modules/channel_content/public.dart';
+import 'package:imboy/modules/moment_social/public.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -36,22 +35,15 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   /// GoRouterState.of(context) 必须在 initState 之后调用（依赖 InheritedWidget）
   bool _initialIndexApplied = false;
 
-  int _normalizeIndex(int value, {required bool channelEnabled}) {
-    final maxIndex = channelEnabled ? 3 : 2;
-    if (value < 0) {
-      return 0;
-    }
-    if (value > maxIndex) {
-      return maxIndex;
-    }
-    return value;
+  // 固定 3 Tab：消息 / 广场 / 我的
+  int _normalizeIndex(int value) {
+    return value.clamp(0, 2);
   }
 
-  List<Widget> _buildPageList({required bool channelEnabled}) {
+  List<Widget> _buildPageList() {
     return [
       const ConversationPage(),
-      ContactPage(),
-      if (channelEnabled) const ChannelListPage(),
+      const MomentFeedPage(),
       MinePage(),
     ];
   }
@@ -81,7 +73,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     if (_initialIndexApplied) return;
     _initialIndexApplied = true;
 
-    final channelEnabled = AppFeatureRegistry.isEnabled('channel');
     int initialIndex = 0;
 
     try {
@@ -94,10 +85,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       // 非 GoRouter 上下文时使用默认值
     }
 
-    initialIndex = _normalizeIndex(
-      initialIndex,
-      channelEnabled: channelEnabled,
-    );
+    initialIndex = _normalizeIndex(initialIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -118,19 +106,17 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
+    // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
+    // ignore: unused_local_variable
     final channelEnabled = AppFeatureRegistry.isEnabled('channel');
-    final pageList = _buildPageList(channelEnabled: channelEnabled);
+    final pageList = _buildPageList();
     final labelFontSize = ThemeManager.instance.getFontSize(
       FontSizeType.small,
       context: context,
     );
 
     final rawBottomBarIndex = ref.watch(bottomNavigationProvider);
-    final bottomBarIndex = _normalizeIndex(
-      rawBottomBarIndex,
-      channelEnabled: channelEnabled,
-    );
-    final newFriendCount = ref.watch(newFriendRemindProvider);
+    final bottomBarIndex = _normalizeIndex(rawBottomBarIndex);
     final socketStatusAsync = ref.watch(webSocketStatusProvider);
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
@@ -199,47 +185,17 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
               );
             },
           ),
+          // 广场 Tab（朋友圈 Feed）
           GlassBottomBarItem(
-            icon: Icons.perm_contact_cal_outlined,
-            activeIcon: Icons.perm_contact_cal,
-            label: t.titleContact,
-            iconBuilder: (isSelected) {
-              final count = newFriendCount.length;
-              return badges.Badge(
-                showBadge: count > 0,
-                position: badges.BadgePosition.topStart(top: -8, start: 20),
-                badgeContent: Text(
-                  count.toString(),
-                  style: TextStyle(
-                    fontSize: labelFontSize * 0.85,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: AppColors.messageFailed,
-                  borderRadius: AppRadius.borderRadiusMedium,
-                  elevation: 2,
-                ),
-                child: Icon(
-                  isSelected ? Icons.people_alt : Icons.people_alt_outlined,
-                  size: 26,
-                  color: isSelected ? AppColors.primary : null,
-                ),
-              );
-            },
-          ),
-          if (channelEnabled)
-            GlassBottomBarItem(
-              icon: Icons.campaign_outlined,
-              activeIcon: Icons.campaign,
-              label: t.channel.title,
-              iconBuilder: (isSelected) => Icon(
-                isSelected ? Icons.campaign : Icons.campaign_outlined,
-                size: 26,
-                color: isSelected ? AppColors.primary : null,
-              ),
+            icon: Icons.explore_outlined,
+            activeIcon: Icons.explore,
+            label: t.titleSquare,
+            iconBuilder: (isSelected) => Icon(
+              isSelected ? Icons.explore : Icons.explore_outlined,
+              size: 26,
+              color: isSelected ? AppColors.primary : null,
             ),
+          ),
           GlassBottomBarItem(
             icon: Icons.person_outline,
             activeIcon: Icons.person,

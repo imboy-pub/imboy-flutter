@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -92,7 +93,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('加载好友列表失败，请重试')));
+        ).showSnackBar(SnackBar(content: Text(t.e2eeProxyLoadFriendsFailed)));
       }
     }
   }
@@ -111,7 +112,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     if (_selectedUids.length < widget.requiredCount) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('请至少选择 ${widget.requiredCount} 个代理'),
+          content: Text(t.e2eeProxyMinCount(count: widget.requiredCount)),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -154,7 +155,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           }
 
           if (publicKey.isEmpty) {
-            throw Exception('该好友没有可用的公钥');
+            throw Exception(t.e2eeProxyNoPublicKey);
           }
 
           selectedContacts.add({
@@ -168,7 +169,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           // 关闭加载对话框
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('获取 ${contact.title} 的公钥失败')),
+            SnackBar(content: Text(t.e2eeProxyGetKeyFailed(name: contact.title))),
           );
           return;
         }
@@ -186,7 +187,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('选择代理失败，请重试')));
+        ).showSnackBar(SnackBar(content: Text(t.e2eeProxySelectFailed)));
       }
     }
   }
@@ -198,18 +199,21 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('选择恢复代理'),
+        title: Text(t.e2eeProxySelectTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: '返回',
+          tooltip: t.buttonBack,
         ),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                '已选 $selectedCount / ${widget.requiredCount}',
+                t.e2eeProxySelectedCount(
+                  selected: selectedCount,
+                  total: widget.requiredCount,
+                ),
                 style: TextStyle(
                   fontSize: 14,
                   color: selectedCount >= widget.requiredCount
@@ -256,12 +260,12 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
-            '暂无好友',
+            t.e2eeProxyNoFriends,
             style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 8),
           Text(
-            '请先添加好友后再设置恢复代理',
+            t.e2eeProxyNoFriendsHint,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),
         ],
@@ -299,7 +303,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  canConfirm ? '已达到最少代理数量' : '选择恢复代理',
+                  canConfirm ? t.e2eeProxyReachedMin : t.e2eeProxySelectTitle,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -308,7 +312,10 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '至少需要 ${widget.requiredCount} 个信任的联系人，已选择 $selectedCount 个',
+                  t.e2eeProxyNeedMore(
+                    count: widget.requiredCount,
+                    selected: selectedCount,
+                  ),
                   style: TextStyle(
                     fontSize: 13,
                     color: canConfirm
@@ -439,8 +446,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
             ),
             child: Text(
               canConfirm
-                  ? '确认选择 ($selectedCount 个代理)'
-                  : '请选择至少 ${widget.requiredCount} 个代理',
+                  ? t.e2eeProxyConfirmCount(count: selectedCount)
+                  : t.e2eeProxyNeedAtLeast(count: widget.requiredCount),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),

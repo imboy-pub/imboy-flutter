@@ -189,7 +189,9 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
           if (scheduleId.isEmpty) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('日程ID缺失，无法查看详情')));
+            ).showSnackBar(SnackBar(
+              content: Text(t.groupSchedule.scheduleIdMissing),
+            ));
             return;
           }
           final encodedId = Uri.encodeComponent(scheduleId);

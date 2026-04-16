@@ -258,8 +258,23 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '取消'
 	String get buttonCancel => '取消';
 
+	/// zh-CN: '创建'
+	String get buttonCreate => '创建';
+
 	/// zh-CN: '修改密码'
 	String get buttonChangePassword => '修改密码';
+
+	/// zh-CN: '$name 正在输入...'
+	String peerIsTyping({required Object name}) => '${name} 正在输入...';
+
+	/// zh-CN: '请输入手机号'
+	String get phoneInputHint => '请输入手机号';
+
+	/// zh-CN: 'WHIP 推流地址'
+	String get liveRoomWhipLabel => 'WHIP 推流地址';
+
+	/// zh-CN: 'WHEP 拉流地址'
+	String get liveRoomWhepLabel => 'WHEP 拉流地址';
 
 	/// zh-CN: '关闭'
 	String get buttonClose => '关闭';
@@ -532,6 +547,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '投诉已提交'
 	String get complaintSuccess => '投诉已提交';
+
+	/// zh-CN: '投诉失败，请稍后再试'
+	String get complaintFailed => '投诉失败，请稍后再试';
 
 	/// zh-CN: '已完结'
 	String get completed => '已完结';
@@ -935,8 +953,116 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '我在本群的昵称'
 	String get groupAlias => '我在本群的昵称';
 
+	/// zh-CN: '群相册'
+	String get groupAlbum => '群相册';
+
 	/// zh-CN: '群公告'
 	String get groupAnnouncement => '群公告';
+
+	/// zh-CN: '群文件'
+	String get groupFile => '群文件';
+
+	/// zh-CN: '文件上传成功'
+	String get groupFileUploadSuccess => '文件上传成功';
+
+	/// zh-CN: '文件上传失败，请稍后重试'
+	String get groupFileUploadFailed => '文件上传失败，请稍后重试';
+
+	/// zh-CN: '文件已删除'
+	String get groupFileDeleteSuccess => '文件已删除';
+
+	/// zh-CN: '删除失败，请稍后重试'
+	String get groupFileDeleteFailed => '删除失败，请稍后重试';
+
+	/// zh-CN: '关闭预览'
+	String get groupFileClosePreview => '关闭预览';
+
+	/// zh-CN: '图片预览'
+	String get groupFileImagePreview => '图片预览';
+
+	/// zh-CN: '视频预览'
+	String get groupFileVideoPreview => '视频预览';
+
+	/// zh-CN: '音频预览'
+	String get groupFileAudioPreview => '音频预览';
+
+	/// zh-CN: '上传文件'
+	String get groupFileUploadTooltip => '上传文件';
+
+	/// zh-CN: '搜索群文件'
+	String get groupFileSearch => '搜索群文件';
+
+	/// zh-CN: '暂停'
+	String get groupFileMediaPause => '暂停';
+
+	/// zh-CN: '播放'
+	String get groupFileMediaPlay => '播放';
+
+	/// zh-CN: '文件读取失败，请重试'
+	String get groupFileReadFailed => '文件读取失败，请重试';
+
+	/// zh-CN: '删除群文件'
+	String get groupFileDeleteTitle => '删除群文件';
+
+	/// zh-CN: '确定删除文件「$name」吗？'
+	String groupFileDeleteConfirm({required Object name}) => '确定删除文件「${name}」吗？';
+
+	/// zh-CN: '图片加载失败'
+	String get groupFileImageLoadFailed => '图片加载失败';
+
+	/// zh-CN: '文件地址缺失，无法打开'
+	String get groupFileUrlMissing => '文件地址缺失，无法打开';
+
+	/// zh-CN: '文件地址无效'
+	String get groupFileUrlInvalid => '文件地址无效';
+
+	/// zh-CN: '无法打开文件链接'
+	String get groupFileOpenFailed => '无法打开文件链接';
+
+	/// zh-CN: '文件预览'
+	String get groupFilePreview => '文件预览';
+
+	/// zh-CN: '清空'
+	String get groupFileSearchClear => '清空';
+
+	/// zh-CN: '搜索'
+	String get groupFileSearchAction => '搜索';
+
+	/// zh-CN: '全部'
+	String get groupFileCategoryAll => '全部';
+
+	/// zh-CN: '未命名文件'
+	String get groupFileUnnamed => '未命名文件';
+
+	/// zh-CN: '未找到匹配文件'
+	String get groupFileSearchEmpty => '未找到匹配文件';
+
+	/// zh-CN: '${category}暂无文件'
+	String groupFileCategoryEmpty({required Object category}) => '${category}暂无文件';
+
+	/// zh-CN: '暂无群文件'
+	String get groupFileEmpty => '暂无群文件';
+
+	/// zh-CN: '文档'
+	String get groupFileCategoryDoc => '文档';
+
+	/// zh-CN: '图片'
+	String get groupFileCategoryImage => '图片';
+
+	/// zh-CN: '视频'
+	String get groupFileCategoryVideo => '视频';
+
+	/// zh-CN: '音频'
+	String get groupFileCategoryAudio => '音频';
+
+	/// zh-CN: '其他'
+	String get groupFileCategoryOther => '其他';
+
+	/// zh-CN: '音频加载失败'
+	String get groupFileAudioLoadFailed => '音频加载失败';
+
+	/// zh-CN: '音频加载中...'
+	String get groupFileAudioLoading => '音频加载中...';
 
 	/// zh-CN: '群聊'
 	String get groupChat => '群聊';
@@ -1838,6 +1964,33 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '永久'
 	String get muteDurationPermanent => '永久';
 
+	/// zh-CN: '5分钟'
+	String get muteDuration5min => '5分钟';
+
+	/// zh-CN: '10分钟'
+	String get muteDuration10min => '10分钟';
+
+	/// zh-CN: '30分钟'
+	String get muteDuration30min => '30分钟';
+
+	/// zh-CN: '30天'
+	String get muteDuration30days => '30天';
+
+	/// zh-CN: '禁言 $label'
+	String mutedFor({required Object label}) => '禁言 ${label}';
+
+	/// zh-CN: '$count 秒'
+	String muteUnitSeconds({required Object count}) => '${count} 秒';
+
+	/// zh-CN: '$count 分钟'
+	String muteUnitMinutes({required Object count}) => '${count} 分钟';
+
+	/// zh-CN: '$count 小时'
+	String muteUnitHours({required Object count}) => '${count} 小时';
+
+	/// zh-CN: '$count 天'
+	String muteUnitDays({required Object count}) => '${count} 天';
+
 	/// zh-CN: '操作频率过高，请稍后再试'
 	String get throttleWarning => '操作频率过高，请稍后再试';
 
@@ -2257,6 +2410,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '我的'
 	String get titleMine => '我的';
+
+	/// zh-CN: '广场'
+	String get titleSquare => '广场';
 
 	/// zh-CN: '今天'
 	String get today => '今天';
@@ -3977,6 +4133,1375 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsGroupScheduleZhCn groupSchedule = TranslationsGroupScheduleZhCn.internal(_root);
 	late final TranslationsGroupTaskZhCn groupTask = TranslationsGroupTaskZhCn.internal(_root);
 	late final TranslationsMentionZhCn mention = TranslationsMentionZhCn.internal(_root);
+	late final TranslationsGroupListZhCn groupList = TranslationsGroupListZhCn.internal(_root);
+
+	/// zh-CN: '$count 个群聊'
+	String groupCategoryGroupCount({required Object count}) => '${count} 个群聊';
+
+	/// zh-CN: '有效期至: $time'
+	String groupAnnouncementExpiry({required Object time}) => '有效期至: ${time}';
+
+	/// zh-CN: '新建群相册'
+	String get groupAlbumCreateTitle => '新建群相册';
+
+	/// zh-CN: '请输入相册名称'
+	String get groupAlbumNameHint => '请输入相册名称';
+
+	/// zh-CN: '相册已创建'
+	String get groupAlbumCreated => '相册已创建';
+
+	/// zh-CN: '创建失败，请稍后重试'
+	String get groupAlbumCreateFailed => '创建失败，请稍后重试';
+
+	/// zh-CN: '删除群相册'
+	String get groupAlbumDeleteTitle => '删除群相册';
+
+	/// zh-CN: '确定删除相册「$name」吗？'
+	String groupAlbumDeleteConfirm({required Object name}) => '确定删除相册「${name}」吗？';
+
+	/// zh-CN: '相册已删除'
+	String get groupAlbumDeleted => '相册已删除';
+
+	/// zh-CN: '删除失败，请稍后重试'
+	String get groupAlbumDeleteFailed => '删除失败，请稍后重试';
+
+	/// zh-CN: '重命名相册'
+	String get groupAlbumRenameTitle => '重命名相册';
+
+	/// zh-CN: '相册名称已更新'
+	String get groupAlbumRenamed => '相册名称已更新';
+
+	/// zh-CN: '更新失败，请稍后重试'
+	String get groupAlbumRenameFailed => '更新失败，请稍后重试';
+
+	/// zh-CN: '上传图片'
+	String get groupAlbumUploadTooltip => '上传图片';
+
+	/// zh-CN: '删除相册'
+	String get groupAlbumDeleteTooltip => '删除相册';
+
+	/// zh-CN: '暂无群相册'
+	String get groupAlbumNoAlbum => '暂无群相册';
+
+	/// zh-CN: '未命名相册'
+	String get groupAlbumUnnamed => '未命名相册';
+
+	/// zh-CN: '$count 张图片'
+	String groupAlbumPhotoCount({required Object count}) => '${count} 张图片';
+
+	/// zh-CN: '图片读取失败，请重试'
+	String get groupAlbumPhotoReadFailed => '图片读取失败，请重试';
+
+	/// zh-CN: '图片上传成功'
+	String get groupAlbumPhotoUploaded => '图片上传成功';
+
+	/// zh-CN: '图片上传失败，请稍后重试'
+	String get groupAlbumPhotoUploadFailed => '图片上传失败，请稍后重试';
+
+	/// zh-CN: '新建相册'
+	String get groupAlbumCreateTooltip => '新建相册';
+
+	/// zh-CN: '批量删除图片'
+	String get groupAlbumPhotoBatchDeleteTitle => '批量删除图片';
+
+	/// zh-CN: '确定删除选中的 $count 张图片吗？'
+	String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '确定删除选中的 ${count} 张图片吗？';
+
+	/// zh-CN: '删除失败，请稍后重试'
+	String get groupAlbumPhotoDeleteFailed => '删除失败，请稍后重试';
+
+	/// zh-CN: '已删除$count张图片'
+	String groupAlbumPhotoDeletedAll({required Object count}) => '已删除${count}张图片';
+
+	/// zh-CN: '已删除$success张，$fail张删除失败'
+	String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => '已删除${success}张，${fail}张删除失败';
+
+	/// zh-CN: '删除图片'
+	String get groupAlbumPhotoDeleteTitle => '删除图片';
+
+	/// zh-CN: '确定删除这张图片吗？'
+	String get groupAlbumPhotoDeleteConfirm => '确定删除这张图片吗？';
+
+	/// zh-CN: '图片已删除'
+	String get groupAlbumPhotoDeleted => '图片已删除';
+
+	/// zh-CN: '图片ID缺失，无法查看详情'
+	String get groupAlbumPhotoIdMissing => '图片ID缺失，无法查看详情';
+
+	/// zh-CN: '相册图片'
+	String get groupAlbumPhotoListTitle => '相册图片';
+
+	/// zh-CN: '已选择 $count 项'
+	String groupAlbumPhotoSelectedCount({required Object count}) => '已选择 ${count} 项';
+
+	/// zh-CN: '批量删除'
+	String get groupAlbumPhotoBatchDeleteTooltip => '批量删除';
+
+	/// zh-CN: '退出选择'
+	String get groupAlbumPhotoExitSelection => '退出选择';
+
+	/// zh-CN: '暂无图片'
+	String get groupAlbumPhotoEmpty => '暂无图片';
+
+	/// zh-CN: '图片地址缺失，无法打开'
+	String get groupAlbumPhotoUrlMissing => '图片地址缺失，无法打开';
+
+	/// zh-CN: '图片地址无效'
+	String get groupAlbumPhotoUrlInvalid => '图片地址无效';
+
+	/// zh-CN: '无法打开图片链接'
+	String get groupAlbumPhotoOpenFailed => '无法打开图片链接';
+
+	/// zh-CN: '图片详情'
+	String get groupAlbumPhotoDetailTitle => '图片详情';
+
+	/// zh-CN: '图片不存在或已删除'
+	String get groupAlbumPhotoNotFound => '图片不存在或已删除';
+
+	/// zh-CN: '外部打开'
+	String get groupAlbumPhotoOpenExternal => '外部打开';
+
+	/// zh-CN: '设为封面'
+	String get groupAlbumPhotoSetCover => '设为封面';
+
+	/// zh-CN: '已设为相册封面'
+	String get groupAlbumPhotoCoverUpdated => '已设为相册封面';
+
+	/// zh-CN: '设置封面失败，请稍后重试'
+	String get groupAlbumPhotoCoverFailed => '设置封面失败，请稍后重试';
+
+	/// zh-CN: '上一张'
+	String get groupAlbumPhotoPrev => '上一张';
+
+	/// zh-CN: '下一张'
+	String get groupAlbumPhotoNext => '下一张';
+
+	/// zh-CN: '分辨率'
+	String get groupAlbumPhotoResolution => '分辨率';
+
+	/// zh-CN: '上传者'
+	String get groupAlbumPhotoUploader => '上传者';
+
+	/// zh-CN: '点赞数'
+	String get groupAlbumPhotoLikeCount => '点赞数';
+
+	/// zh-CN: '评论数'
+	String get groupAlbumPhotoCommentCount => '评论数';
+
+	/// zh-CN: '我的点赞'
+	String get groupAlbumPhotoMyLike => '我的点赞';
+
+	/// zh-CN: '图片ID'
+	String get groupAlbumPhotoIdLabel => '图片ID';
+
+	/// zh-CN: '显示'
+	String get sectionDisplay => '显示';
+
+	/// zh-CN: '主题'
+	String get sectionTheme => '主题';
+
+	/// zh-CN: '选择语言'
+	String get selectLanguage => '选择语言';
+
+	/// zh-CN: '资料已完善！'
+	String get profileCompleted => '资料已完善！';
+
+	/// zh-CN: '完善建议：'
+	String get completionSuggestions => '完善建议：';
+
+	/// zh-CN: '${percent}% 完成'
+	String profileProgress({required Object percent}) => '${percent}% 完成';
+
+	/// zh-CN: '通用'
+	String get sectionGeneral => '通用';
+
+	/// zh-CN: '隐私与安全'
+	String get sectionPrivacySecurity => '隐私与安全';
+
+	/// zh-CN: '帮助与关于'
+	String get sectionHelpAbout => '帮助与关于';
+
+	/// zh-CN: '刷新设备密钥'
+	String get refreshDeviceKey => '刷新设备密钥';
+
+	/// zh-CN: '如果消息无法解密，点击此按钮刷新密钥'
+	String get refreshDeviceKeyHint => '如果消息无法解密，点击此按钮刷新密钥';
+
+	/// zh-CN: '正在刷新设备密钥...'
+	String get refreshingDeviceKey => '正在刷新设备密钥...';
+
+	/// zh-CN: '设备密钥已刷新'
+	String get deviceKeyRefreshed => '设备密钥已刷新';
+
+	/// zh-CN: 'E2EE 密钥管理'
+	String get e2eeKeyManagement => 'E2EE 密钥管理';
+
+	/// zh-CN: '备份、恢复和管理端到端加密密钥'
+	String get e2eeKeyManagementSubtitle => '备份、恢复和管理端到端加密密钥';
+
+	/// zh-CN: '消息受合规密钥保护'
+	String get msgProtectedByComplianceKey => '消息受合规密钥保护';
+
+	/// zh-CN: '消息仅收发双方可读'
+	String get msgOnlyVisibleToParties => '消息仅收发双方可读';
+
+	/// zh-CN: '消息未加密传输'
+	String get msgNotEncrypted => '消息未加密传输';
+
+	/// zh-CN: '${count}分钟'
+	String durationMinutes({required Object count}) => '${count}分钟';
+
+	/// zh-CN: '${count}秒'
+	String durationSeconds({required Object count}) => '${count}秒';
+
+	/// zh-CN: '充值'
+	String get rechargeTitle => '充值';
+
+	/// zh-CN: '请输入充值金额（元），1元～10000元'
+	String get rechargeAmountHint => '请输入充值金额（元），1元～10000元';
+
+	/// zh-CN: '例如：100'
+	String get rechargeAmountExample => '例如：100';
+
+	/// zh-CN: '请输入1元到10000元之间的金额'
+	String get rechargeAmountError => '请输入1元到10000元之间的金额';
+
+	/// zh-CN: '充值成功'
+	String get rechargeSuccess => '充值成功';
+
+	/// zh-CN: '确认充值'
+	String get rechargeConfirm => '确认充值';
+
+	/// zh-CN: '流水记录'
+	String get transactionHistory2 => '流水记录';
+
+	/// zh-CN: '暂无流水记录'
+	String get noTransactionHistory => '暂无流水记录';
+
+	/// zh-CN: '— 已全部加载 —'
+	String get allLoaded => '— 已全部加载 —';
+
+	/// zh-CN: '充值'
+	String get transactionTypeIncome => '充值';
+
+	/// zh-CN: '消费'
+	String get transactionTypeExpense => '消费';
+
+	/// zh-CN: '登录凭证'
+	String get sectionLoginCredentials => '登录凭证';
+
+	/// zh-CN: '频道邀请'
+	String get channelInvitations => '频道邀请';
+
+	/// zh-CN: '接受邀请失败'
+	String get acceptInvitationFailed => '接受邀请失败';
+
+	/// zh-CN: '拒绝邀请失败'
+	String get rejectInvitationFailed => '拒绝邀请失败';
+
+	/// zh-CN: '已接受邀请'
+	String get invitationAccepted => '已接受邀请';
+
+	/// zh-CN: '已拒绝邀请'
+	String get invitationRejected => '已拒绝邀请';
+
+	/// zh-CN: '待处理'
+	String get invitationStatusPending => '待处理';
+
+	/// zh-CN: '已接受'
+	String get invitationStatusAccepted => '已接受';
+
+	/// zh-CN: '已拒绝'
+	String get invitationStatusRejected => '已拒绝';
+
+	/// zh-CN: '已过期'
+	String get invitationStatusExpired => '已过期';
+
+	/// zh-CN: '已取消'
+	String get invitationStatusCancelled => '已取消';
+
+	/// zh-CN: '未知'
+	String get invitationStatusUnknown => '未知';
+
+	/// zh-CN: '暂无收到的邀请'
+	String get noReceivedInvitations => '暂无收到的邀请';
+
+	/// zh-CN: '暂无发出的邀请'
+	String get noSentInvitations => '暂无发出的邀请';
+
+	/// zh-CN: '邀请人: $uid'
+	String inviterLabel({required Object uid}) => '邀请人: ${uid}';
+
+	/// zh-CN: '被邀请人: $uid'
+	String inviteeLabel({required Object uid}) => '被邀请人: ${uid}';
+
+	/// zh-CN: '创建时间: $time'
+	String createdAtLabel({required Object time}) => '创建时间: ${time}';
+
+	/// zh-CN: '过期时间: $time'
+	String expiredAtLabel({required Object time}) => '过期时间: ${time}';
+
+	/// zh-CN: '打开频道'
+	String get openChannel => '打开频道';
+
+	/// zh-CN: '我收到的'
+	String get myReceivedTab => '我收到的';
+
+	/// zh-CN: '我发出的'
+	String get mySentTab => '我发出的';
+
+	/// zh-CN: '处理中...'
+	String get processingDots => '处理中...';
+
+	/// zh-CN: '拒绝'
+	String get reject => '拒绝';
+
+	/// zh-CN: '我的订单'
+	String get myOrders => '我的订单';
+
+	/// zh-CN: '付费频道内容已锁定'
+	String get paidChannelLocked => '付费频道内容已锁定';
+
+	/// zh-CN: '购买后可解锁频道历史消息与后续更新内容。'
+	String get purchaseUnlockHint => '购买后可解锁频道历史消息与后续更新内容。';
+
+	/// zh-CN: '支付中...'
+	String get payingDots => '支付中...';
+
+	/// zh-CN: '立即购买并解锁'
+	String get purchaseAndUnlock => '立即购买并解锁';
+
+	/// zh-CN: '购买失败，请稍后重试'
+	String get purchaseFailed => '购买失败，请稍后重试';
+
+	/// zh-CN: '购买成功'
+	String get purchaseSuccess => '购买成功';
+
+	/// zh-CN: '暂无订单'
+	String get noOrders => '暂无订单';
+
+	/// zh-CN: '订单详情加载失败'
+	String get orderDetailLoadFailed => '订单详情加载失败';
+
+	/// zh-CN: '订单详情'
+	String get orderDetail => '订单详情';
+
+	/// zh-CN: '订单号: $no'
+	String orderNoLabel({required Object no}) => '订单号: ${no}';
+
+	/// zh-CN: '状态: $status'
+	String orderStatusLabel({required Object status}) => '状态: ${status}';
+
+	/// zh-CN: '金额: $currency $amount'
+	String orderAmountLabel({required Object currency, required Object amount}) => '金额: ${currency} ${amount}';
+
+	/// zh-CN: '创建时间: $time'
+	String orderCreatedAtLabel({required Object time}) => '创建时间: ${time}';
+
+	/// zh-CN: '支付时间: $time'
+	String orderPaymentAtLabel({required Object time}) => '支付时间: ${time}';
+
+	/// zh-CN: '待支付'
+	String get orderStatusPending => '待支付';
+
+	/// zh-CN: '已支付'
+	String get orderStatusPaid => '已支付';
+
+	/// zh-CN: '已退款'
+	String get orderStatusRefunded => '已退款';
+
+	/// zh-CN: '已取消'
+	String get orderStatusCancelled => '已取消';
+
+	/// zh-CN: '已过期'
+	String get orderStatusExpired => '已过期';
+
+	/// zh-CN: '未知'
+	String get orderStatusUnknown => '未知';
+
+	/// zh-CN: '移除反应'
+	String get removeReaction => '移除反应';
+
+	/// zh-CN: '确定要移除 $emoji 反应吗？'
+	String removeReactionConfirm({required Object emoji}) => '确定要移除 ${emoji} 反应吗？';
+
+	/// zh-CN: '文件'
+	String get defaultFileName => '文件';
+
+	/// zh-CN: '文件链接无效'
+	String get fileUrlInvalid => '文件链接无效';
+
+	/// zh-CN: '无法打开该文件'
+	String get fileOpenFailed => '无法打开该文件';
+
+	/// zh-CN: '端到端加密密钥管理'
+	String get e2eeKeyRecoveryTitle => '端到端加密密钥管理';
+
+	/// zh-CN: '密钥恢复方法'
+	String get e2eeRecoveryMethods => '密钥恢复方法';
+
+	/// zh-CN: '危险操作'
+	String get e2eeDangerousOps => '危险操作';
+
+	/// zh-CN: '设备间传输'
+	String get e2eeDeviceTransfer => '设备间传输';
+
+	/// zh-CN: '通过二维码直接传输密钥到新设备'
+	String get e2eeDeviceTransferDesc => '通过二维码直接传输密钥到新设备';
+
+	/// zh-CN: '可用'
+	String get e2eeStatusAvailable => '可用';
+
+	/// zh-CN: '社交恢复'
+	String get e2eeSocialRecovery => '社交恢复';
+
+	/// zh-CN: '通过信任的联系人协助恢复密钥'
+	String get e2eeSocialRecoveryDesc => '通过信任的联系人协助恢复密钥';
+
+	/// zh-CN: '本地备份'
+	String get e2eeLocalBackup => '本地备份';
+
+	/// zh-CN: '导出加密备份文件到本地或云端'
+	String get e2eeLocalBackupDesc => '导出加密备份文件到本地或云端';
+
+	/// zh-CN: '生成新密钥'
+	String get e2eeGenerateNewKey => '生成新密钥';
+
+	/// zh-CN: '生成新的 E2EE 密钥对（旧消息将无法解密）'
+	String get e2eeGenerateNewKeyDesc => '生成新的 E2EE 密钥对（旧消息将无法解密）';
+
+	/// zh-CN: '删除密钥'
+	String get e2eeDeleteKey => '删除密钥';
+
+	/// zh-CN: '删除本地存储的密钥（无法恢复）'
+	String get e2eeDeleteKeyDesc => '删除本地存储的密钥（无法恢复）';
+
+	/// zh-CN: '当前密钥信息'
+	String get e2eeCurrentKeyInfo => '当前密钥信息';
+
+	/// zh-CN: '端到端加密已启用'
+	String get e2eeE2EEEnabled => '端到端加密已启用';
+
+	/// zh-CN: '已激活'
+	String get e2eeActivated => '已激活';
+
+	/// zh-CN: '设备 ID'
+	String get e2eeDeviceIdLabel => '设备 ID';
+
+	/// zh-CN: '密钥 ID'
+	String get e2eeKeyIdLabel => '密钥 ID';
+
+	/// zh-CN: '创建时间'
+	String get e2eeCreatedAtLabel => '创建时间';
+
+	/// zh-CN: '未检测到 E2EE 密钥'
+	String get e2eeNoKeyDetected => '未检测到 E2EE 密钥';
+
+	/// zh-CN: '您需要先生成密钥对或从备份中恢复'
+	String get e2eeNoKeyDesc => '您需要先生成密钥对或从备份中恢复';
+
+	/// zh-CN: '关于端到端加密'
+	String get e2eeAboutTitle => '关于端到端加密';
+
+	/// zh-CN: '• 您的消息在发送前已加密，服务器无法查看内容'
+	String get e2eeInfoPoint1 => '• 您的消息在发送前已加密，服务器无法查看内容';
+
+	/// zh-CN: '• 更换设备或删除密钥后，旧消息可能无法解密'
+	String get e2eeInfoPoint2 => '• 更换设备或删除密钥后，旧消息可能无法解密';
+
+	/// zh-CN: '• 请定期备份密钥以防数据丢失'
+	String get e2eeInfoPoint3 => '• 请定期备份密钥以防数据丢失';
+
+	/// zh-CN: '导出备份'
+	String get e2eeExportBackup => '导出备份';
+
+	/// zh-CN: '生成加密备份文件'
+	String get e2eeExportBackupDesc => '生成加密备份文件';
+
+	/// zh-CN: '导入备份'
+	String get e2eeImportBackup => '导入备份';
+
+	/// zh-CN: '从备份文件恢复密钥'
+	String get e2eeImportBackupDesc => '从备份文件恢复密钥';
+
+	/// zh-CN: '备份管理'
+	String get e2eeBackupManage => '备份管理';
+
+	/// zh-CN: '查看备份历史记录'
+	String get e2eeBackupManageDesc => '查看备份历史记录';
+
+	/// zh-CN: '确定要生成新的 E2EE 密钥对吗？'
+	String get e2eeGenerateKeyConfirm => '确定要生成新的 E2EE 密钥对吗？';
+
+	/// zh-CN: '• 旧消息将无法解密'
+	String get e2eeWarnOldMessagesLost => '• 旧消息将无法解密';
+
+	/// zh-CN: '• 需要重新生成备份文件'
+	String get e2eeWarnNeedNewBackup => '• 需要重新生成备份文件';
+
+	/// zh-CN: '• 此操作不可撤销'
+	String get e2eeWarnIrreversible => '• 此操作不可撤销';
+
+	/// zh-CN: '确认生成'
+	String get e2eeConfirmGenerate => '确认生成';
+
+	/// zh-CN: '确定要删除当前密钥吗？'
+	String get e2eeDeleteKeyConfirm => '确定要删除当前密钥吗？';
+
+	/// zh-CN: '• 删除后无法恢复'
+	String get e2eeWarnCannotRestore => '• 删除后无法恢复';
+
+	/// zh-CN: '• 所有 E2EE 消息将无法解密'
+	String get e2eeWarnAllMsgsLost => '• 所有 E2EE 消息将无法解密';
+
+	/// zh-CN: '• 需要从备份恢复或生成新密钥'
+	String get e2eeWarnNeedRestoreOrNew => '• 需要从备份恢复或生成新密钥';
+
+	/// zh-CN: '确认删除'
+	String get e2eeConfirmDelete => '确认删除';
+
+	/// zh-CN: '正在生成密钥，请稍候...'
+	String get e2eeGeneratingKey => '正在生成密钥，请稍候...';
+
+	/// zh-CN: '密钥生成成功'
+	String get e2eeKeyGeneratedSuccess => '密钥生成成功';
+
+	/// zh-CN: '新的 E2EE 密钥对已生成！'
+	String get e2eeNewKeyGenerated => '新的 E2EE 密钥对已生成！';
+
+	/// zh-CN: '设备 ID: $id'
+	String e2eeDeviceIdInfo({required Object id}) => '设备 ID: ${id}';
+
+	/// zh-CN: '密钥 ID: $id'
+	String e2eeKeyIdInfo({required Object id}) => '密钥 ID: ${id}';
+
+	/// zh-CN: '创建时间: $time'
+	String e2eeCreatedAtInfo({required Object time}) => '创建时间: ${time}';
+
+	/// zh-CN: '重要提示'
+	String get e2eeImportantNote => '重要提示';
+
+	/// zh-CN: '• 旧消息可能无法解密'
+	String get e2eeWarnOldMayNotDecrypt => '• 旧消息可能无法解密';
+
+	/// zh-CN: '• 建议立即导出备份'
+	String get e2eeSuggestBackupNow => '• 建议立即导出备份';
+
+	/// zh-CN: '去备份'
+	String get e2eeGoBackup => '去备份';
+
+	/// zh-CN: '我知道了'
+	String get gotIt => '我知道了';
+
+	/// zh-CN: '密钥生成失败，请重试'
+	String get e2eeKeyGenerateFailed => '密钥生成失败，请重试';
+
+	/// zh-CN: '密钥已删除'
+	String get e2eeKeyDeleted => '密钥已删除';
+
+	/// zh-CN: '删除失败，请重试'
+	String get e2eeDeleteFailed => '删除失败，请重试';
+
+	/// zh-CN: '恢复密钥'
+	String get e2eeRecoverKeyTitle => '恢复密钥';
+
+	/// zh-CN: '可以恢复密钥'
+	String get e2eeCanRecoverKey => '可以恢复密钥';
+
+	/// zh-CN: '分片数量不足'
+	String get e2eeInsufficientShards => '分片数量不足';
+
+	/// zh-CN: '可用分片: $available 个，需要 $required 个代理协助'
+	String e2eeShardAvailableInfo({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助';
+
+	/// zh-CN: '代理用户: $uid'
+	String e2eeProxyUser({required Object uid}) => '代理用户: ${uid}';
+
+	/// zh-CN: '分片 $index / $total'
+	String e2eeShardLabel({required Object index, required Object total}) => '分片 ${index} / ${total}';
+
+	/// zh-CN: '没有可用的恢复分片'
+	String get e2eeNoRecoveryShards => '没有可用的恢复分片';
+
+	/// zh-CN: '重新加载'
+	String get e2eeReloadShards => '重新加载';
+
+	/// zh-CN: '恢复中...'
+	String get e2eeRecovering => '恢复中...';
+
+	/// zh-CN: '开始恢复密钥（需要 $required 个代理协助）'
+	String e2eeStartRecoveryBtn({required Object required}) => '开始恢复密钥（需要 ${required} 个代理协助）';
+
+	/// zh-CN: '分片不足（需要 $required 个，当前 $current 个）'
+	String e2eeInsufficientShardBtn({required Object required, required Object current}) => '分片不足（需要 ${required} 个，当前 ${current} 个）';
+
+	/// zh-CN: '恢复成功'
+	String get e2eeRecoverSuccess => '恢复成功';
+
+	/// zh-CN: '密钥已成功恢复'
+	String get e2eeKeyRestored => '密钥已成功恢复';
+
+	/// zh-CN: '已使用 $count 个代理分片'
+	String e2eeUsedShards({required Object count}) => '已使用 ${count} 个代理分片';
+
+	/// zh-CN: '恢复失败'
+	String get e2eeRecoverFailed => '恢复失败';
+
+	/// zh-CN: '恢复密钥失败，请重试'
+	String get e2eeRecoverKeyFailed => '恢复密钥失败，请重试';
+
+	/// zh-CN: '加载分片信息...'
+	String get e2eeLoadingShards => '加载分片信息...';
+
+	/// zh-CN: '没有可用的分片'
+	String get e2eeNoShards => '没有可用的分片';
+
+	/// zh-CN: '准备就绪'
+	String get e2eeReady => '准备就绪';
+
+	/// zh-CN: '加载失败，请重试'
+	String get e2eeLoadFailed => '加载失败，请重试';
+
+	/// zh-CN: '准备恢复...'
+	String get e2eePreparing => '准备恢复...';
+
+	/// zh-CN: '准备就绪（$count 个分片）'
+	String e2eeReadyWithShards({required Object count}) => '准备就绪（${count} 个分片）';
+
+	/// zh-CN: '正在联系: $name'
+	String e2eeContactingProxy({required Object name}) => '正在联系: ${name}';
+
+	/// zh-CN: '进度: $collected / $total 个分片'
+	String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片';
+
+	/// zh-CN: '正在收集分片 ($collected/$total)...'
+	String e2eeCollectingShards({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...';
+
+	/// zh-CN: '分片收集完成，正在重组密钥...'
+	String get e2eeShardsCollected => '分片收集完成，正在重组密钥...';
+
+	/// zh-CN: '恢复失败，请重试'
+	String get e2eeRecoveryFailed => '恢复失败，请重试';
+
+	/// zh-CN: '多设备同步'
+	String get webFeatureMultiDevice => '多设备同步';
+
+	/// zh-CN: '在手机和电脑之间无缝切换，消息实时同步'
+	String get webFeatureMultiDeviceDesc => '在手机和电脑之间无缝切换，消息实时同步';
+
+	/// zh-CN: '端到端加密'
+	String get webFeatureE2EE => '端到端加密';
+
+	/// zh-CN: '所有消息都经过端到端加密，确保隐私安全'
+	String get webFeatureE2EEDesc => '所有消息都经过端到端加密，确保隐私安全';
+
+	/// zh-CN: '桌面通知'
+	String get webFeatureNotification => '桌面通知';
+
+	/// zh-CN: '即使不在页面也能收到新消息提醒'
+	String get webFeatureNotificationDesc => '即使不在页面也能收到新消息提醒';
+
+	/// zh-CN: '文件传输'
+	String get webFeatureFileTransfer => '文件传输';
+
+	/// zh-CN: '拖拽即可发送文件，支持各种格式'
+	String get webFeatureFileTransferDesc => '拖拽即可发送文件，支持各种格式';
+
+	/// zh-CN: '扫码登录'
+	String get webQRLoginTitle => '扫码登录';
+
+	/// zh-CN: '使用 ImBoy 手机版扫描二维码'
+	String get webQRLoginHint => '使用 ImBoy 手机版扫描二维码';
+
+	/// zh-CN: '已扫描'
+	String get webQRScanned => '已扫描';
+
+	/// zh-CN: '请在手机上确认登录'
+	String get webQRConfirmOnPhone => '请在手机上确认登录';
+
+	/// zh-CN: '登录中...'
+	String get webQRLoggingIn => '登录中...';
+
+	/// zh-CN: '二维码已过期'
+	String get webQRExpired => '二维码已过期';
+
+	/// zh-CN: '登录失败'
+	String get webQRLoginFailed => '登录失败';
+
+	/// zh-CN: '登录成功'
+	String get webQRLoginSuccess => '登录成功';
+
+	/// zh-CN: '刷新二维码'
+	String get webQRRefresh => '刷新二维码';
+
+	/// zh-CN: '$seconds 秒后过期'
+	String webQRExpiresIn({required Object seconds}) => '${seconds} 秒后过期';
+
+	/// zh-CN: '使用账号密码登录'
+	String get webSwitchToPassword => '使用账号密码登录';
+
+	/// zh-CN: '使用 QR 码登录'
+	String get webSwitchToQR => '使用 QR 码登录';
+
+	/// zh-CN: '打开 ImBoy 手机版 > 设置 > 扫一扫'
+	String get webQRStatusWaiting => '打开 ImBoy 手机版 > 设置 > 扫一扫';
+
+	/// zh-CN: '请在手机上点击"确认登录"'
+	String get webQRStatusScanned => '请在手机上点击"确认登录"';
+
+	/// zh-CN: '正在验证...'
+	String get webQRStatusVerifying => '正在验证...';
+
+	/// zh-CN: '请点击刷新重新扫码'
+	String get webQRStatusExpired => '请点击刷新重新扫码';
+
+	/// zh-CN: '登录失败，请重试'
+	String get webQRStatusFailed => '登录失败，请重试';
+
+	/// zh-CN: '正在跳转...'
+	String get webQRStatusSuccess => '正在跳转...';
+
+	/// zh-CN: '账号登录'
+	String get webPasswordLoginTitle => '账号登录';
+
+	/// zh-CN: '请输入账号/手机号/邮箱'
+	String get webAccountHint => '请输入账号/手机号/邮箱';
+
+	/// zh-CN: '请输入密码'
+	String get webPasswordHint => '请输入密码';
+
+	/// zh-CN: '请输入账号和密码'
+	String get webLoginEmptyError => '请输入账号和密码';
+
+	/// zh-CN: '生成二维码失败'
+	String get webQRGenerateFailed => '生成二维码失败';
+
+	/// zh-CN: '登录令牌无效'
+	String get webQRTokenInvalid => '登录令牌无效';
+
+	/// zh-CN: '无法获取对方设备密钥，消息未发送'
+	String get e2eeErrNoRecipientKey => '无法获取对方设备密钥，消息未发送';
+
+	/// zh-CN: '加密超时，请检查网络连接后重试'
+	String get e2eeErrTimeout => '加密超时，请检查网络连接后重试';
+
+	/// zh-CN: '网络错误，加密失败，消息未发送'
+	String get e2eeErrNetwork => '网络错误，加密失败，消息未发送';
+
+	/// zh-CN: '消息格式错误，加密失败'
+	String get e2eeErrInvalidFormat => '消息格式错误，加密失败';
+
+	/// zh-CN: '端到端加密失败，消息未发送'
+	String get e2eeErrDefault => '端到端加密失败，消息未发送';
+
+	/// zh-CN: '消息无法解密'
+	String get e2eeDecryptFailed => '消息无法解密';
+
+	/// zh-CN: '此消息无法解密，可能原因是：'
+	String get e2eeDecryptFailedReasons => '此消息无法解密，可能原因是：';
+
+	/// zh-CN: '• 您在其他设备上登录'
+	String get e2eeDecryptReasonOtherDevice => '• 您在其他设备上登录';
+
+	/// zh-CN: '• 设备密钥已过期'
+	String get e2eeDecryptReasonKeyExpired => '• 设备密钥已过期';
+
+	/// zh-CN: '• 应用数据损坏'
+	String get e2eeDecryptReasonDataCorrupt => '• 应用数据损坏';
+
+	/// zh-CN: '请选择解决方案：'
+	String get e2eeDecryptChooseSolution => '请选择解决方案：';
+
+	/// zh-CN: '重新创建密钥（推荐）'
+	String get e2eeDecryptActionRecreateKey => '重新创建密钥（推荐）';
+
+	/// zh-CN: '重新登录'
+	String get e2eeDecryptActionRelogin => '重新登录';
+
+	/// zh-CN: '稍后提醒我'
+	String get e2eeDecryptActionRemindLater => '稍后提醒我';
+
+	/// zh-CN: '导出 E2EE 备份'
+	String get e2eeBackupExportTitle => '导出 E2EE 备份';
+
+	/// zh-CN: '• 备份密码无法找回，请务必牢记！'
+	String get e2eeBackupPwdCantRecover => '• 备份密码无法找回，请务必牢记！';
+
+	/// zh-CN: '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）'
+	String get e2eeBackupStoreMultipleNote => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）';
+
+	/// zh-CN: '备份密码 *'
+	String get e2eeBackupPwdLabel => '备份密码 *';
+
+	/// zh-CN: '至少 12 位，包含大小写字母、数字和特殊符号'
+	String get e2eeBackupPwdHint => '至少 12 位，包含大小写字母、数字和特殊符号';
+
+	/// zh-CN: '确认密码 *'
+	String get e2eeBackupConfirmPwdLabel => '确认密码 *';
+
+	/// zh-CN: '再次输入密码'
+	String get e2eeBackupConfirmPwdHint => '再次输入密码';
+
+	/// zh-CN: '备注（可选）'
+	String get e2eeBackupNoteLabel => '备注（可选）';
+
+	/// zh-CN: '例如：主手机备份 - 2026年1月'
+	String get e2eeBackupNoteHint => '例如：主手机备份 - 2026年1月';
+
+	/// zh-CN: '密码强度'
+	String get e2eeBackupPwdStrengthLabel => '密码强度';
+
+	/// zh-CN: '弱 - 建议增加复杂度'
+	String get e2eeBackupPwdWeak => '弱 - 建议增加复杂度';
+
+	/// zh-CN: '中等 - 建议增加长度或复杂度'
+	String get e2eeBackupPwdMedium => '中等 - 建议增加长度或复杂度';
+
+	/// zh-CN: '强 - 可以使用'
+	String get e2eeBackupPwdStrong => '强 - 可以使用';
+
+	/// zh-CN: '非常强 - 安全'
+	String get e2eeBackupPwdVeryStrong => '非常强 - 安全';
+
+	/// zh-CN: '生成备份文件'
+	String get e2eeBackupGenerateBtn => '生成备份文件';
+
+	/// zh-CN: '备份文件已生成！'
+	String get e2eeBackupFileGenerated => '备份文件已生成！';
+
+	/// zh-CN: '通过邮件/云盘分享'
+	String get e2eeBackupShareBtn => '通过邮件/云盘分享';
+
+	/// zh-CN: '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。'
+	String get e2eeBackupShareContent => '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。';
+
+	/// zh-CN: '两次输入的密码不一致'
+	String get e2eeBackupErrPwdMismatch => '两次输入的密码不一致';
+
+	/// zh-CN: '无法获取密钥数据'
+	String get e2eeBackupErrNoKeyData => '无法获取密钥数据';
+
+	/// zh-CN: '导出失败，请重试'
+	String get e2eeBackupErrExportFailed => '导出失败，请重试';
+
+	/// zh-CN: '分享失败，请重试'
+	String get e2eeBackupErrShareFailed => '分享失败，请重试';
+
+	/// zh-CN: '备份导出成功'
+	String get e2eeBackupExportSuccessTitle => '备份导出成功';
+
+	/// zh-CN: '您的 E2EE 密钥备份已成功生成。'
+	String get e2eeBackupExportSuccessBody => '您的 E2EE 密钥备份已成功生成。';
+
+	/// zh-CN: '重要提示：'
+	String get e2eeBackupImportantNoteColon => '重要提示：';
+
+	/// zh-CN: '• 请妥善保管备份文件和密码'
+	String get e2eeBackupKeepSafe => '• 请妥善保管备份文件和密码';
+
+	/// zh-CN: '• 建议将文件存储到多个安全位置'
+	String get e2eeBackupStoreMultipleLoc => '• 建议将文件存储到多个安全位置';
+
+	/// zh-CN: '• 密码无法找回，请务必牢记'
+	String get e2eeBackupPwdCantRecoverNote => '• 密码无法找回，请务必牢记';
+
+	/// zh-CN: '导入 E2EE 备份'
+	String get e2eeBackupImportTitle => '导入 E2EE 备份';
+
+	/// zh-CN: '导入说明'
+	String get e2eeBackupImportGuide => '导入说明';
+
+	/// zh-CN: '• 导入后，当前的 E2EE 密钥将被替换'
+	String get e2eeBackupImportReplaceKey => '• 导入后，当前的 E2EE 密钥将被替换';
+
+	/// zh-CN: '• 请确保备份文件来自可信任的来源'
+	String get e2eeBackupImportTrustedSource => '• 请确保备份文件来自可信任的来源';
+
+	/// zh-CN: '选择备份文件'
+	String get e2eeBackupSelectFile => '选择备份文件';
+
+	/// zh-CN: '点击选择备份文件 (.enc)'
+	String get e2eeBackupSelectFileHint => '点击选择备份文件 (.enc)';
+
+	/// zh-CN: '备份信息'
+	String get e2eeBackupInfoTitle => '备份信息';
+
+	/// zh-CN: '版本号'
+	String get e2eeBackupVersionLabel => '版本号';
+
+	/// zh-CN: '算法'
+	String get e2eeBackupAlgorithmLabel => '算法';
+
+	/// zh-CN: '文件大小'
+	String get e2eeBackupFileSizeLabel => '文件大小';
+
+	/// zh-CN: '✓ 文件格式有效'
+	String get e2eeBackupFileValid => '✓ 文件格式有效';
+
+	/// zh-CN: '请输入备份时设置的密码'
+	String get e2eeBackupImportPwdHint => '请输入备份时设置的密码';
+
+	/// zh-CN: '导入密钥'
+	String get e2eeBackupImportBtn => '导入密钥';
+
+	/// zh-CN: '选择文件失败，请重试'
+	String get e2eeBackupErrSelectFile => '选择文件失败，请重试';
+
+	/// zh-CN: '文件验证失败，请检查文件格式'
+	String get e2eeBackupErrValidateFailed => '文件验证失败，请检查文件格式';
+
+	/// zh-CN: '导入失败，请检查密码是否正确'
+	String get e2eeBackupErrImportFailed => '导入失败，请检查密码是否正确';
+
+	/// zh-CN: '导入成功'
+	String get e2eeBackupImportSuccessTitle => '导入成功';
+
+	/// zh-CN: 'E2EE 密钥已成功恢复！'
+	String get e2eeBackupImportSuccessBody => 'E2EE 密钥已成功恢复！';
+
+	/// zh-CN: '注意：旧消息可能无法访问，这是 E2EE 的正常行为'
+	String get e2eeBackupImportSuccessNote => '注意：旧消息可能无法访问，这是 E2EE 的正常行为';
+
+	/// zh-CN: '暂无备份记录'
+	String get e2eeBackupNoRecords => '暂无备份记录';
+
+	/// zh-CN: '导出备份后将在此显示历史记录'
+	String get e2eeBackupNoRecordsHint => '导出备份后将在此显示历史记录';
+
+	/// zh-CN: '设备 $id'
+	String e2eeBackupDeviceLabel({required Object id}) => '设备 ${id}';
+
+	/// zh-CN: '创建于 $time'
+	String e2eeBackupCreatedAtLabel({required Object time}) => '创建于 ${time}';
+
+	/// zh-CN: '备份详情'
+	String get e2eeBackupDetailTitle => '备份详情';
+
+	/// zh-CN: '设备 ID'
+	String get e2eeBackupDeviceIdLabel => '设备 ID';
+
+	/// zh-CN: '备份版本'
+	String get e2eeBackupVersionNum => '备份版本';
+
+	/// zh-CN: '创建时间'
+	String get e2eeBackupCreatedAtRow => '创建时间';
+
+	/// zh-CN: '文件大小'
+	String get e2eeBackupFileSizeRow => '文件大小';
+
+	/// zh-CN: '备注'
+	String get e2eeBackupNoteRow => '备注';
+
+	/// zh-CN: '删除备份记录'
+	String get e2eeBackupDeleteTitle => '删除备份记录';
+
+	/// zh-CN: '确定要删除此备份记录吗？'
+	String get e2eeBackupDeleteConfirm => '确定要删除此备份记录吗？';
+
+	/// zh-CN: '备份记录已删除'
+	String get e2eeBackupDeleteSuccess => '备份记录已删除';
+
+	/// zh-CN: '创建恢复分片'
+	String get e2eeSocialCreateTitle => '创建恢复分片';
+
+	/// zh-CN: '分片设置'
+	String get e2eeSocialShardSettings => '分片设置';
+
+	/// zh-CN: '总分片数'
+	String get e2eeSocialTotalShards => '总分片数';
+
+	/// zh-CN: '恢复阈值'
+	String get e2eeSocialThreshold => '恢复阈值';
+
+	/// zh-CN: '说明：分片将存储在代理设备上，服务端不保存任何分片'
+	String get e2eeSocialShardStoredNote => '说明：分片将存储在代理设备上，服务端不保存任何分片';
+
+	/// zh-CN: '恢复密钥时需要 $count 个代理协助'
+	String e2eeSocialThresholdHint({required Object count}) => '恢复密钥时需要 ${count} 个代理协助';
+
+	/// zh-CN: '选择恢复代理'
+	String get e2eeSocialSelectProxy => '选择恢复代理';
+
+	/// zh-CN: '添加代理'
+	String get e2eeSocialAddProxy => '添加代理';
+
+	/// zh-CN: '需要 $count 个信任的联系人作为代理'
+	String e2eeSocialProxyNeeded({required Object count}) => '需要 ${count} 个信任的联系人作为代理';
+
+	/// zh-CN: '请添加代理联系人'
+	String get e2eeSocialAddProxyHint => '请添加代理联系人';
+
+	/// zh-CN: '用户 $uid'
+	String e2eeSocialProxyDefaultName({required Object uid}) => '用户 ${uid}';
+
+	/// zh-CN: '请先添加 $count 个代理'
+	String e2eeSocialCreateNeedMore({required Object count}) => '请先添加 ${count} 个代理';
+
+	/// zh-CN: '创建分片'
+	String get e2eeSocialCreateBtn => '创建分片';
+
+	/// zh-CN: '分片创建成功'
+	String get e2eeSocialCreateSuccessTitle => '分片创建成功';
+
+	/// zh-CN: '密钥已分割成 $count 个分片'
+	String e2eeSocialTotalShardsInfo({required Object count}) => '密钥已分割成 ${count} 个分片';
+
+	/// zh-CN: '分片已通过 WebSocket 直接发送到代理设备存储'
+	String get e2eeSocialShardSentViaWs => '分片已通过 WebSocket 直接发送到代理设备存储';
+
+	/// zh-CN: '需要 $count 个代理协助即可恢复密钥'
+	String e2eeSocialThresholdInfo({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥';
+
+	/// zh-CN: '已发送到 $sent 个代理设备（共 $total 个）'
+	String e2eeSocialSentCount({required Object sent, required Object total}) => '已发送到 ${sent} 个代理设备（共 ${total} 个）';
+
+	/// zh-CN: '零信任架构：服务端不保存任何分片'
+	String get e2eeSocialZeroTrustNote => '零信任架构：服务端不保存任何分片';
+
+	/// zh-CN: '创建失败'
+	String get e2eeSocialCreateFailTitle => '创建失败';
+
+	/// zh-CN: '创建分片失败，请重试'
+	String get e2eeSocialCreateFailBody => '创建分片失败，请重试';
+
+	/// zh-CN: '管理分片'
+	String get e2eeSocialManageTitle => '管理分片';
+
+	/// zh-CN: '我的分片'
+	String get e2eeSocialMyShards => '我的分片';
+
+	/// zh-CN: '代理分片'
+	String get e2eeSocialProxyShards => '代理分片';
+
+	/// zh-CN: '您还没有创建任何恢复分片'
+	String get e2eeSocialNoShards => '您还没有创建任何恢复分片';
+
+	/// zh-CN: '没有代理分片'
+	String get e2eeSocialNoProxyShards => '没有代理分片';
+
+	/// zh-CN: '创建分片后才能看到内容'
+	String get e2eeSocialCreateFirst => '创建分片后才能看到内容';
+
+	/// zh-CN: '分片 $idx / $total'
+	String e2eeSocialShardOf({required Object idx, required Object total}) => '分片 ${idx} / ${total}';
+
+	/// zh-CN: '活跃'
+	String get e2eeSocialShardActive => '活跃';
+
+	/// zh-CN: '已使用'
+	String get e2eeSocialShardUsed => '已使用';
+
+	/// zh-CN: '分片有效'
+	String get e2eeSocialShardValid => '分片有效';
+
+	/// zh-CN: '用户 $uid 的密钥分片'
+	String e2eeSocialUserShard({required Object uid}) => '用户 ${uid} 的密钥分片';
+
+	/// zh-CN: '代理用户'
+	String get e2eeSocialProxyUserLabel => '代理用户';
+
+	/// zh-CN: '恢复阈值'
+	String get e2eeSocialRecoveryThresholdLabel => '恢复阈值';
+
+	/// zh-CN: '分片编号'
+	String get e2eeSocialShardIndexLabel => '分片编号';
+
+	/// zh-CN: '密钥版本'
+	String get e2eeSocialKeyVersionLabel => '密钥版本';
+
+	/// zh-CN: '使用时间'
+	String get e2eeSocialUsedAtLabel => '使用时间';
+
+	/// zh-CN: '发送密钥到新设备'
+	String get e2eeTransferSendTitle => '发送密钥到新设备';
+
+	/// zh-CN: '请先生成密钥对'
+	String get e2eeTransferErrNoKey => '请先生成密钥对';
+
+	/// zh-CN: '初始化失败，请重试'
+	String get e2eeTransferErrInitFailed => '初始化失败，请重试';
+
+	/// zh-CN: '接收方没有可用的公钥'
+	String get e2eeTransferErrNoRecipientKey => '接收方没有可用的公钥';
+
+	/// zh-CN: '密钥未找到'
+	String get e2eeTransferErrKeyNotFound => '密钥未找到';
+
+	/// zh-CN: '创建传输会话失败，请重试'
+	String get e2eeTransferErrCreateFailed => '创建传输会话失败，请重试';
+
+	/// zh-CN: '创建传输会话'
+	String get e2eeTransferCreateSessionBtn => '创建传输会话';
+
+	/// zh-CN: '请在新设备上扫描此二维码'
+	String get e2eeTransferQRHint => '请在新设备上扫描此二维码';
+
+	/// zh-CN: '二维码将在 $time 过期'
+	String e2eeTransferQRExpiry({required Object time}) => '二维码将在 ${time} 过期';
+
+	/// zh-CN: '传输会话已创建'
+	String get e2eeTransferSessionCreated => '传输会话已创建';
+
+	/// zh-CN: '刷新二维码'
+	String get e2eeTransferRefreshQR => '刷新二维码';
+
+	/// zh-CN: '输入接收方用户 ID'
+	String get e2eeTransferEnterUidTitle => '输入接收方用户 ID';
+
+	/// zh-CN: '接收方用户 ID'
+	String get e2eeTransferUidPlaceholder => '接收方用户 ID';
+
+	/// zh-CN: '创建'
+	String get e2eeTransferCreateBtn => '创建';
+
+	/// zh-CN: '请输入有效的用户 ID'
+	String get e2eeTransferUidEmptyError => '请输入有效的用户 ID';
+
+	/// zh-CN: '从旧设备接收密钥'
+	String get e2eeTransferReceiveTitle => '从旧设备接收密钥';
+
+	/// zh-CN: '正在接受传输...'
+	String get e2eeTransferReceiving => '正在接受传输...';
+
+	/// zh-CN: '传输成功！'
+	String get e2eeTransferSuccess => '传输成功！';
+
+	/// zh-CN: '传输失败，请重试'
+	String get e2eeTransferFailed => '传输失败，请重试';
+
+	/// zh-CN: '处理中...'
+	String get e2eeTransferProcessingMsg => '处理中...';
+
+	/// zh-CN: '传输成功'
+	String get e2eeTransferSuccessTitle => '传输成功';
+
+	/// zh-CN: '密钥已成功传输到当前设备'
+	String get e2eeTransferSuccessBody => '密钥已成功传输到当前设备';
+
+	/// zh-CN: '扫描错误: $error'
+	String e2eeTransferScanError({required Object error}) => '扫描错误: ${error}';
+
+	/// zh-CN: '无法获取设备 ID'
+	String get e2eeTransferErrNoDeviceId => '无法获取设备 ID';
+
+	/// zh-CN: '密码加密失败'
+	String get passwordEncryptFailed => '密码加密失败';
+
+	/// zh-CN: '配置获取超时: 请检查网络连接或服务端状态'
+	String get initConfigTimeout => '配置获取超时: 请检查网络连接或服务端状态';
+
+	/// zh-CN: '网络故障或服务故障 (HTTP $code)'
+	String initConfigNetworkError({required Object code}) => '网络故障或服务故障 (HTTP ${code})';
+
+	/// zh-CN: '服务故障协议有误'
+	String get initConfigProtocolError => '服务故障协议有误';
+
+	/// zh-CN: '配置获取失败，请检查网络连接'
+	String get initConfigFetchFailed => '配置获取失败，请检查网络连接';
+
+	/// zh-CN: '无法获取文件，请重试或使用相册选择'
+	String get attachmentGetFileFailed => '无法获取文件，请重试或使用相册选择';
+
+	/// zh-CN: '文件获取失败，Android 9 可能存在兼容性问题'
+	String get attachmentGetFileFailedAndroid9 => '文件获取失败，Android 9 可能存在兼容性问题';
+
+	/// zh-CN: '无法获取图片数据，请重试'
+	String get attachmentGetImageDataFailed => '无法获取图片数据，请重试';
+
+	/// zh-CN: '无法获取原始图片数据'
+	String get attachmentGetOriginalImageFailed => '无法获取原始图片数据';
+
+	/// zh-CN: '保存失败，请重试'
+	String get saveFailedRetry => '保存失败，请重试';
+
+	/// zh-CN: '下载文件不存在，请重试'
+	String get downloadFileNotFound => '下载文件不存在，请重试';
+
+	/// zh-CN: '文件校验失败，正在重新下载 ($retry/$max)'
+	String downloadHashRetrying({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})';
+
+	/// zh-CN: '文件多次校验失败，请检查网络后重试'
+	String get downloadHashFailed => '文件多次校验失败，请检查网络后重试';
+
+	/// zh-CN: '设备间传输'
+	String get e2eeTransferPageTitle => '设备间传输';
+
+	/// zh-CN: '传输到新设备'
+	String get e2eeTransferToNewDevice => '传输到新设备';
+
+	/// zh-CN: '通过二维码将密钥传输到新设备'
+	String get e2eeTransferSendDesc => '通过二维码将密钥传输到新设备';
+
+	/// zh-CN: '从旧设备接收密钥'
+	String get e2eeTransferFromOldDevice => '从旧设备接收密钥';
+
+	/// zh-CN: '扫描旧设备二维码接收密钥'
+	String get e2eeTransferReceiveDesc => '扫描旧设备二维码接收密钥';
+
+	/// zh-CN: '待处理的传输'
+	String get e2eeTransferPendingSection => '待处理的传输';
+
+	/// zh-CN: '加载失败'
+	String get e2eeTransferLoadFailed => '加载失败';
+
+	/// zh-CN: '无法加载待处理的传输，请重试'
+	String get e2eeTransferLoadFailedDesc => '无法加载待处理的传输，请重试';
+
+	/// zh-CN: '暂无待处理的传输'
+	String get e2eeTransferNoPending => '暂无待处理的传输';
+
+	/// zh-CN: '当有设备向您发送密钥时，会显示在这里'
+	String get e2eeTransferNoPendingDesc => '当有设备向您发送密钥时，会显示在这里';
+
+	/// zh-CN: '待处理的密钥传输'
+	String get e2eeTransferPendingItem => '待处理的密钥传输';
+
+	/// zh-CN: '点击查看详情'
+	String get e2eeTransferPendingItemDesc => '点击查看详情';
+
+	/// zh-CN: '查看'
+	String get e2eeTransferView => '查看';
+
+	/// zh-CN: '社交恢复'
+	String get e2eeSocialTitle => '社交恢复';
+
+	/// zh-CN: '可以恢复密钥'
+	String get e2eeSocialCanRecover => '可以恢复密钥';
+
+	/// zh-CN: '设置恢复代理'
+	String get e2eeSocialSetupProxy => '设置恢复代理';
+
+	/// zh-CN: '您已有足够的分片可以恢复密钥'
+	String get e2eeSocialEnoughShards => '您已有足够的分片可以恢复密钥';
+
+	/// zh-CN: '选择信任的联系人作为恢复代理'
+	String get e2eeSocialChooseProxy => '选择信任的联系人作为恢复代理';
+
+	/// zh-CN: '现有恢复分片'
+	String get e2eeSocialExistingShards => '现有恢复分片';
+
+	/// zh-CN: '还有 $count 个分片...'
+	String e2eeSocialMoreShards({required Object count}) => '还有 ${count} 个分片...';
+
+	/// zh-CN: '状态: $status'
+	String e2eeSocialStatus({required Object status}) => '状态: ${status}';
+
+	/// zh-CN: '创建恢复分片'
+	String get e2eeSocialCreateShardsTitle => '创建恢复分片';
+
+	/// zh-CN: '将密钥分割成多个分片，存储到代理设备（服务端不保存）'
+	String get e2eeSocialCreateShardsDesc => '将密钥分割成多个分片，存储到代理设备（服务端不保存）';
+
+	/// zh-CN: '恢复密钥'
+	String get e2eeSocialRecoverKeyTitle => '恢复密钥';
+
+	/// zh-CN: '使用代理的分片恢复密钥'
+	String get e2eeSocialRecoverKeyDesc => '使用代理的分片恢复密钥';
+
+	/// zh-CN: '管理分片'
+	String get e2eeSocialManageShardsTitle => '管理分片';
+
+	/// zh-CN: '查看和管理所有恢复分片'
+	String get e2eeSocialManageShardsDesc => '查看和管理所有恢复分片';
+
+	/// zh-CN: '零信任架构：服务端不存储分片，直接联系代理'
+	String get e2eeSocialZeroTrustHint1 => '零信任架构：服务端不存储分片，直接联系代理';
+
+	/// zh-CN: '零信任架构：分片存储在代理设备'
+	String get e2eeSocialZeroTrustHint2 => '零信任架构：分片存储在代理设备';
+
+	/// zh-CN: '零信任架构：分片由代理设备存储，服务端不接触明文'
+	String get e2eeSocialZeroTrustHint3 => '零信任架构：分片由代理设备存储，服务端不接触明文';
+
+	/// zh-CN: '加载好友列表失败，请重试'
+	String get e2eeProxyLoadFriendsFailed => '加载好友列表失败，请重试';
+
+	/// zh-CN: '请至少选择 $count 个代理'
+	String e2eeProxyMinCount({required Object count}) => '请至少选择 ${count} 个代理';
+
+	/// zh-CN: '该好友没有可用的公钥'
+	String get e2eeProxyNoPublicKey => '该好友没有可用的公钥';
+
+	/// zh-CN: '获取 $name 的公钥失败'
+	String e2eeProxyGetKeyFailed({required Object name}) => '获取 ${name} 的公钥失败';
+
+	/// zh-CN: '选择代理失败，请重试'
+	String get e2eeProxySelectFailed => '选择代理失败，请重试';
+
+	/// zh-CN: '选择恢复代理'
+	String get e2eeProxySelectTitle => '选择恢复代理';
+
+	/// zh-CN: '已选 $selected / $total'
+	String e2eeProxySelectedCount({required Object selected, required Object total}) => '已选 ${selected} / ${total}';
+
+	/// zh-CN: '暂无好友'
+	String get e2eeProxyNoFriends => '暂无好友';
+
+	/// zh-CN: '请先添加好友后再设置恢复代理'
+	String get e2eeProxyNoFriendsHint => '请先添加好友后再设置恢复代理';
+
+	/// zh-CN: '已达到最少代理数量'
+	String get e2eeProxyReachedMin => '已达到最少代理数量';
+
+	/// zh-CN: '至少需要 $count 个信任的联系人，已选择 $selected 个'
+	String e2eeProxyNeedMore({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个';
+
+	/// zh-CN: '确认选择 ($count 个代理)'
+	String e2eeProxyConfirmCount({required Object count}) => '确认选择 (${count} 个代理)';
+
+	/// zh-CN: '请选择至少 $count 个代理'
+	String e2eeProxyNeedAtLeast({required Object count}) => '请选择至少 ${count} 个代理';
+
+	/// zh-CN: '返回首页'
+	String get buttonBackHome => '返回首页';
+
+	/// zh-CN: '当前功能未启用'
+	String get featureNotEnabled => '当前功能未启用';
+
+	/// zh-CN: '加载失败'
+	String get imageLoadFailed => '加载失败';
+
+	/// zh-CN: '加载失败: $error'
+	String loadFailedWithError({required Object error}) => '加载失败: ${error}';
+
+	/// zh-CN: 'Web 平台暂不支持语音消息播放'
+	String get webAudioNotSupported => 'Web 平台暂不支持语音消息播放';
+
+	/// zh-CN: '最多可添加 8 个标签'
+	String get channelMaxTagsCount => '最多可添加 8 个标签';
+
+	/// zh-CN: '输入标签...'
+	String get tagInputHint => '输入标签...';
+
+	/// zh-CN: '正在重新创建密钥...'
+	String get e2eeRecreatingKey => '正在重新创建密钥...';
+
+	/// zh-CN: '密钥已重新创建'
+	String get e2eeKeyRecreated => '密钥已重新创建';
+
+	/// zh-CN: '密钥创建失败: $error'
+	String e2eeKeyRecreationFailed({required Object error}) => '密钥创建失败: ${error}';
+
+	/// zh-CN: '请重新登录'
+	String get pleaseRelogin => '请重新登录';
+
+	/// zh-CN: '创建直播间'
+	String get liveRoomCreateTitle => '创建直播间';
+
+	/// zh-CN: '直播间标题'
+	String get liveRoomTitleLabel => '直播间标题';
+
+	/// zh-CN: '请输入直播间标题'
+	String get liveRoomTitleHint => '请输入直播间标题';
+
+	/// zh-CN: '创建中...'
+	String get liveRoomCreating => '创建中...';
+
+	/// zh-CN: '标题不能为空'
+	String get liveRoomTitleRequired => '标题不能为空';
+
+	/// zh-CN: '观看直播'
+	String get liveRoomWatch => '观看直播';
 }
 
 // Path: splash
@@ -4526,6 +6051,12 @@ class TranslationsGroupTagZhCn {
 
 	/// zh-CN: '标签已移除'
 	String get tagRemoved => '标签已移除';
+
+	/// zh-CN: '移除标签'
+	String get removeTitle => '移除标签';
+
+	/// zh-CN: '确定要移除这个标签吗？'
+	String get removeConfirm => '确定要移除这个标签吗？';
 }
 
 // Path: groupVote
@@ -4580,6 +6111,33 @@ class TranslationsGroupVoteZhCn {
 
 	/// zh-CN: '查看结果'
 	String get viewResults => '查看结果';
+
+	/// zh-CN: '已取消投票'
+	String get cancelVoteSuccess => '已取消投票';
+
+	/// zh-CN: '取消失败，请稍后重试'
+	String get cancelVoteFailed => '取消失败，请稍后重试';
+
+	/// zh-CN: '结束失败，请稍后重试'
+	String get endVoteFailed => '结束失败，请稍后重试';
+
+	/// zh-CN: '每行一个选项'
+	String get eachOptionPerLine => '每行一个选项';
+
+	/// zh-CN: '进行中'
+	String get statusInProgress => '进行中';
+
+	/// zh-CN: '更新投票'
+	String get updateVote => '更新投票';
+
+	/// zh-CN: '取消我的投票'
+	String get cancelMyVote => '取消我的投票';
+
+	/// zh-CN: '投票ID缺失，无法查看详情'
+	String get voteIdMissing => '投票ID缺失，无法查看详情';
+
+	/// zh-CN: '参与人数: $count'
+	String participantCount({required Object count}) => '参与人数: ${count}';
 }
 
 // Path: groupSchedule
@@ -4631,6 +6189,39 @@ class TranslationsGroupScheduleZhCn {
 
 	/// zh-CN: '提前1天'
 	String get reminder1day => '提前1天';
+
+	/// zh-CN: '开始时间'
+	String get startTime => '开始时间';
+
+	/// zh-CN: '结束时间'
+	String get endTime => '结束时间';
+
+	/// zh-CN: '参与人数'
+	String get participants => '参与人数';
+
+	/// zh-CN: '已取消'
+	String get statusCancelled => '已取消';
+
+	/// zh-CN: '进行中'
+	String get statusInProgress => '进行中';
+
+	/// zh-CN: '日程已取消'
+	String get cancelSuccess => '日程已取消';
+
+	/// zh-CN: '取消失败，请稍后重试'
+	String get cancelFailed => '取消失败，请稍后重试';
+
+	/// zh-CN: '确认参加'
+	String get confirmAttend => '确认参加';
+
+	/// zh-CN: '不参加'
+	String get declineAttend => '不参加';
+
+	/// zh-CN: '取消日程'
+	String get cancelSchedule => '取消日程';
+
+	/// zh-CN: '日程ID缺失，无法查看详情'
+	String get scheduleIdMissing => '日程ID缺失，无法查看详情';
 }
 
 // Path: groupTask
@@ -4694,6 +6285,21 @@ class TranslationsGroupTaskZhCn {
 
 	/// zh-CN: '即将截止'
 	String get dueSoon => '即将截止';
+
+	/// zh-CN: '提交失败，请稍后重试'
+	String get submitFailed => '提交失败，请稍后重试';
+
+	/// zh-CN: '任务ID'
+	String get taskId => '任务ID';
+
+	/// zh-CN: '待审核'
+	String get pendingReview => '待审核';
+
+	/// zh-CN: '任务ID缺失，无法查看详情'
+	String get taskIdMissing => '任务ID缺失，无法查看详情';
+
+	/// zh-CN: '任务ID缺失，无法提交'
+	String get taskIdMissingSubmit => '任务ID缺失，无法提交';
 }
 
 // Path: mention
@@ -4733,6 +6339,33 @@ class TranslationsMentionZhCn {
 
 	/// zh-CN: '仅管理员可以 @所有人'
 	String get mentionAllDenied => '仅管理员可以 @所有人';
+
+	/// zh-CN: '消息定位信息缺失，无法跳转'
+	String get navInfoMissing => '消息定位信息缺失，无法跳转';
+}
+
+// Path: groupList
+class TranslationsGroupListZhCn {
+	TranslationsGroupListZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '全部'
+	String get attrAll => '全部';
+
+	/// zh-CN: '我创建'
+	String get attrOwner => '我创建';
+
+	/// zh-CN: '我管理'
+	String get attrManager => '我管理';
+
+	/// zh-CN: '我加入'
+	String get attrJoin => '我加入';
+
+	/// zh-CN: '刷新'
+	String get refresh => '刷新';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -4817,7 +6450,12 @@ extension on Translations {
 			'bindNow' => '立即绑定',
 			'later' => '以后再说',
 			'buttonCancel' => '取消',
+			'buttonCreate' => '创建',
 			'buttonChangePassword' => '修改密码',
+			'peerIsTyping' => ({required Object name}) => '${name} 正在输入...',
+			'phoneInputHint' => '请输入手机号',
+			'liveRoomWhipLabel' => 'WHIP 推流地址',
+			'liveRoomWhepLabel' => 'WHEP 拉流地址',
 			'buttonClose' => '关闭',
 			'buttonConfirm' => '确认',
 			'buttonContinue' => '继续',
@@ -4912,6 +6550,7 @@ extension on Translations {
 			'complaintReason.inappropriate' => '不当内容',
 			'complaintReason.other' => '其他',
 			'complaintSuccess' => '投诉已提交',
+			'complaintFailed' => '投诉失败，请稍后再试',
 			'completed' => '已完结',
 			'confirmCode' => '确认码',
 			'confirmCodeError' => '确认码为空',
@@ -5046,7 +6685,43 @@ extension on Translations {
 			'great' => '非常棒',
 			'groupAddLocal' => '保存到通讯录',
 			'groupAlias' => '我在本群的昵称',
+			'groupAlbum' => '群相册',
 			'groupAnnouncement' => '群公告',
+			'groupFile' => '群文件',
+			'groupFileUploadSuccess' => '文件上传成功',
+			'groupFileUploadFailed' => '文件上传失败，请稍后重试',
+			'groupFileDeleteSuccess' => '文件已删除',
+			'groupFileDeleteFailed' => '删除失败，请稍后重试',
+			'groupFileClosePreview' => '关闭预览',
+			'groupFileImagePreview' => '图片预览',
+			'groupFileVideoPreview' => '视频预览',
+			'groupFileAudioPreview' => '音频预览',
+			'groupFileUploadTooltip' => '上传文件',
+			'groupFileSearch' => '搜索群文件',
+			'groupFileMediaPause' => '暂停',
+			'groupFileMediaPlay' => '播放',
+			'groupFileReadFailed' => '文件读取失败，请重试',
+			'groupFileDeleteTitle' => '删除群文件',
+			'groupFileDeleteConfirm' => ({required Object name}) => '确定删除文件「${name}」吗？',
+			'groupFileImageLoadFailed' => '图片加载失败',
+			'groupFileUrlMissing' => '文件地址缺失，无法打开',
+			'groupFileUrlInvalid' => '文件地址无效',
+			'groupFileOpenFailed' => '无法打开文件链接',
+			'groupFilePreview' => '文件预览',
+			'groupFileSearchClear' => '清空',
+			'groupFileSearchAction' => '搜索',
+			'groupFileCategoryAll' => '全部',
+			'groupFileUnnamed' => '未命名文件',
+			'groupFileSearchEmpty' => '未找到匹配文件',
+			'groupFileCategoryEmpty' => ({required Object category}) => '${category}暂无文件',
+			'groupFileEmpty' => '暂无群文件',
+			'groupFileCategoryDoc' => '文档',
+			'groupFileCategoryImage' => '图片',
+			'groupFileCategoryVideo' => '视频',
+			'groupFileCategoryAudio' => '音频',
+			'groupFileCategoryOther' => '其他',
+			'groupFileAudioLoadFailed' => '音频加载失败',
+			'groupFileAudioLoading' => '音频加载中...',
 			'groupChat' => '群聊',
 			'groupDissolve' => '解散群聊',
 			'groupJoin' => '加入群聊',
@@ -5213,6 +6888,8 @@ extension on Translations {
 			'notSeeHim' => '不看TA',
 			'notSet' => '未设置',
 			'notShow' => '不显示',
+			_ => null,
+		} ?? switch (path) {
 			'notTurnedLocationService' => '您还没有打开位置信息服务',
 			'nowNewVersion' => '未检测到新版本',
 			'numUnit' => ({required Object param}) => '${param}个',
@@ -5255,8 +6932,6 @@ extension on Translations {
 			'pinned' => '已置顶',
 			'play' => '播放',
 			'pleaseCheckNetwork' => '请检查你的网络设置。',
-			_ => null,
-		} ?? switch (path) {
 			'pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'pleaseSelect' => '请选择',
 			'pleaseSelectMembersForAdd' => '请选择要添加的成员',
@@ -5349,6 +7024,15 @@ extension on Translations {
 			'muteDuration3days' => '3天',
 			'muteDuration7days' => '7天',
 			'muteDurationPermanent' => '永久',
+			'muteDuration5min' => '5分钟',
+			'muteDuration10min' => '10分钟',
+			'muteDuration30min' => '30分钟',
+			'muteDuration30days' => '30天',
+			'mutedFor' => ({required Object label}) => '禁言 ${label}',
+			'muteUnitSeconds' => ({required Object count}) => '${count} 秒',
+			'muteUnitMinutes' => ({required Object count}) => '${count} 分钟',
+			'muteUnitHours' => ({required Object count}) => '${count} 小时',
+			'muteUnitDays' => ({required Object count}) => '${count} 天',
 			'throttleWarning' => '操作频率过高，请稍后再试',
 			'throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
 			'youAreMuted' => '你已被禁言',
@@ -5489,6 +7173,7 @@ extension on Translations {
 			'titleMessage' => '消息',
 			'titleDiscover' => '发现',
 			'titleMine' => '我的',
+			'titleSquare' => '广场',
 			'today' => '今天',
 			'tooBad' => '太差了',
 			'topChat' => '置顶聊天',
@@ -5717,6 +7402,8 @@ extension on Translations {
 			'customImage' => '自定义图片',
 			'selectImageFailed' => '选择图片失败',
 			'takePhotoFailed' => '拍照失败',
+			_ => null,
+		} ?? switch (path) {
 			'selectVideoFailed' => '选择视频失败',
 			'recordVideoFailed' => '录制视频失败',
 			'selectFileFailed' => '选择文件失败',
@@ -5769,8 +7456,6 @@ extension on Translations {
 			'tagStatistics' => '标签统计',
 			'availableCount' => '可选择',
 			'mostUsed' => '最常用',
-			_ => null,
-		} ?? switch (path) {
 			'quickActions' => '快捷操作',
 			'alreadySent' => '已发送',
 			'noNewFriendRequests' => '暂时没有新的好友申请',
@@ -6217,6 +7902,8 @@ extension on Translations {
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.tagAdded' => '标签添加成功',
 			'groupTag.tagRemoved' => '标签已移除',
+			'groupTag.removeTitle' => '移除标签',
+			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupVote.title' => '群投票',
 			'groupVote.createVote' => '创建投票',
 			'groupVote.voteTitle' => '投票标题',
@@ -6229,9 +7916,20 @@ extension on Translations {
 			'groupVote.noVote' => '暂无投票',
 			'groupVote.voteEnded' => '投票已结束',
 			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.voteSuccess' => '投票成功',
 			'groupVote.hasVoted' => '已投票',
 			'groupVote.viewResults' => '查看结果',
+			'groupVote.cancelVoteSuccess' => '已取消投票',
+			'groupVote.cancelVoteFailed' => '取消失败，请稍后重试',
+			'groupVote.endVoteFailed' => '结束失败，请稍后重试',
+			'groupVote.eachOptionPerLine' => '每行一个选项',
+			'groupVote.statusInProgress' => '进行中',
+			'groupVote.updateVote' => '更新投票',
+			'groupVote.cancelMyVote' => '取消我的投票',
+			'groupVote.voteIdMissing' => '投票ID缺失，无法查看详情',
+			'groupVote.participantCount' => ({required Object count}) => '参与人数: ${count}',
 			'groupSchedule.title' => '群日程',
 			'groupSchedule.createSchedule' => '创建日程',
 			'groupSchedule.scheduleTitle' => '日程标题',
@@ -6246,6 +7944,17 @@ extension on Translations {
 			'groupSchedule.reminder15min' => '提前15分钟',
 			'groupSchedule.reminder1hour' => '提前1小时',
 			'groupSchedule.reminder1day' => '提前1天',
+			'groupSchedule.startTime' => '开始时间',
+			'groupSchedule.endTime' => '结束时间',
+			'groupSchedule.participants' => '参与人数',
+			'groupSchedule.statusCancelled' => '已取消',
+			'groupSchedule.statusInProgress' => '进行中',
+			'groupSchedule.cancelSuccess' => '日程已取消',
+			'groupSchedule.cancelFailed' => '取消失败，请稍后重试',
+			'groupSchedule.confirmAttend' => '确认参加',
+			'groupSchedule.declineAttend' => '不参加',
+			'groupSchedule.cancelSchedule' => '取消日程',
+			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupTask.title' => '群作业',
 			'groupTask.createTask' => '创建任务',
 			'groupTask.taskTitle' => '任务标题',
@@ -6264,6 +7973,11 @@ extension on Translations {
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
+			'groupTask.submitFailed' => '提交失败，请稍后重试',
+			'groupTask.taskId' => '任务ID',
+			'groupTask.pendingReview' => '待审核',
+			'groupTask.taskIdMissing' => '任务ID缺失，无法查看详情',
+			'groupTask.taskIdMissingSubmit' => '任务ID缺失，无法提交',
 			'mention.title' => '@提及',
 			'mention.noMention' => '暂无@提及',
 			'mention.allRead' => '全部已读',
@@ -6274,6 +7988,470 @@ extension on Translations {
 			'mention.viewContext' => '查看上下文',
 			'mention.mentionCount' => ({required Object count}) => '${count} 条新提及',
 			'mention.mentionAllDenied' => '仅管理员可以 @所有人',
+			'mention.navInfoMissing' => '消息定位信息缺失，无法跳转',
+			'groupList.attrAll' => '全部',
+			'groupList.attrOwner' => '我创建',
+			'groupList.attrManager' => '我管理',
+			'groupList.attrJoin' => '我加入',
+			'groupList.refresh' => '刷新',
+			'groupCategoryGroupCount' => ({required Object count}) => '${count} 个群聊',
+			'groupAnnouncementExpiry' => ({required Object time}) => '有效期至: ${time}',
+			'groupAlbumCreateTitle' => '新建群相册',
+			'groupAlbumNameHint' => '请输入相册名称',
+			'groupAlbumCreated' => '相册已创建',
+			'groupAlbumCreateFailed' => '创建失败，请稍后重试',
+			'groupAlbumDeleteTitle' => '删除群相册',
+			'groupAlbumDeleteConfirm' => ({required Object name}) => '确定删除相册「${name}」吗？',
+			'groupAlbumDeleted' => '相册已删除',
+			'groupAlbumDeleteFailed' => '删除失败，请稍后重试',
+			'groupAlbumRenameTitle' => '重命名相册',
+			'groupAlbumRenamed' => '相册名称已更新',
+			'groupAlbumRenameFailed' => '更新失败，请稍后重试',
+			'groupAlbumUploadTooltip' => '上传图片',
+			'groupAlbumDeleteTooltip' => '删除相册',
+			'groupAlbumNoAlbum' => '暂无群相册',
+			'groupAlbumUnnamed' => '未命名相册',
+			'groupAlbumPhotoCount' => ({required Object count}) => '${count} 张图片',
+			'groupAlbumPhotoReadFailed' => '图片读取失败，请重试',
+			'groupAlbumPhotoUploaded' => '图片上传成功',
+			'groupAlbumPhotoUploadFailed' => '图片上传失败，请稍后重试',
+			'groupAlbumCreateTooltip' => '新建相册',
+			'groupAlbumPhotoBatchDeleteTitle' => '批量删除图片',
+			'groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '确定删除选中的 ${count} 张图片吗？',
+			'groupAlbumPhotoDeleteFailed' => '删除失败，请稍后重试',
+			'groupAlbumPhotoDeletedAll' => ({required Object count}) => '已删除${count}张图片',
+			'groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => '已删除${success}张，${fail}张删除失败',
+			'groupAlbumPhotoDeleteTitle' => '删除图片',
+			'groupAlbumPhotoDeleteConfirm' => '确定删除这张图片吗？',
+			'groupAlbumPhotoDeleted' => '图片已删除',
+			'groupAlbumPhotoIdMissing' => '图片ID缺失，无法查看详情',
+			'groupAlbumPhotoListTitle' => '相册图片',
+			'groupAlbumPhotoSelectedCount' => ({required Object count}) => '已选择 ${count} 项',
+			'groupAlbumPhotoBatchDeleteTooltip' => '批量删除',
+			'groupAlbumPhotoExitSelection' => '退出选择',
+			'groupAlbumPhotoEmpty' => '暂无图片',
+			'groupAlbumPhotoUrlMissing' => '图片地址缺失，无法打开',
+			'groupAlbumPhotoUrlInvalid' => '图片地址无效',
+			'groupAlbumPhotoOpenFailed' => '无法打开图片链接',
+			'groupAlbumPhotoDetailTitle' => '图片详情',
+			'groupAlbumPhotoNotFound' => '图片不存在或已删除',
+			'groupAlbumPhotoOpenExternal' => '外部打开',
+			'groupAlbumPhotoSetCover' => '设为封面',
+			'groupAlbumPhotoCoverUpdated' => '已设为相册封面',
+			'groupAlbumPhotoCoverFailed' => '设置封面失败，请稍后重试',
+			'groupAlbumPhotoPrev' => '上一张',
+			'groupAlbumPhotoNext' => '下一张',
+			'groupAlbumPhotoResolution' => '分辨率',
+			'groupAlbumPhotoUploader' => '上传者',
+			'groupAlbumPhotoLikeCount' => '点赞数',
+			'groupAlbumPhotoCommentCount' => '评论数',
+			'groupAlbumPhotoMyLike' => '我的点赞',
+			'groupAlbumPhotoIdLabel' => '图片ID',
+			'sectionDisplay' => '显示',
+			'sectionTheme' => '主题',
+			'selectLanguage' => '选择语言',
+			'profileCompleted' => '资料已完善！',
+			'completionSuggestions' => '完善建议：',
+			'profileProgress' => ({required Object percent}) => '${percent}% 完成',
+			'sectionGeneral' => '通用',
+			'sectionPrivacySecurity' => '隐私与安全',
+			'sectionHelpAbout' => '帮助与关于',
+			'refreshDeviceKey' => '刷新设备密钥',
+			'refreshDeviceKeyHint' => '如果消息无法解密，点击此按钮刷新密钥',
+			'refreshingDeviceKey' => '正在刷新设备密钥...',
+			'deviceKeyRefreshed' => '设备密钥已刷新',
+			'e2eeKeyManagement' => 'E2EE 密钥管理',
+			'e2eeKeyManagementSubtitle' => '备份、恢复和管理端到端加密密钥',
+			'msgProtectedByComplianceKey' => '消息受合规密钥保护',
+			'msgOnlyVisibleToParties' => '消息仅收发双方可读',
+			'msgNotEncrypted' => '消息未加密传输',
+			'durationMinutes' => ({required Object count}) => '${count}分钟',
+			'durationSeconds' => ({required Object count}) => '${count}秒',
+			'rechargeTitle' => '充值',
+			'rechargeAmountHint' => '请输入充值金额（元），1元～10000元',
+			'rechargeAmountExample' => '例如：100',
+			'rechargeAmountError' => '请输入1元到10000元之间的金额',
+			'rechargeSuccess' => '充值成功',
+			'rechargeConfirm' => '确认充值',
+			'transactionHistory2' => '流水记录',
+			'noTransactionHistory' => '暂无流水记录',
+			'allLoaded' => '— 已全部加载 —',
+			'transactionTypeIncome' => '充值',
+			'transactionTypeExpense' => '消费',
+			'sectionLoginCredentials' => '登录凭证',
+			'channelInvitations' => '频道邀请',
+			'acceptInvitationFailed' => '接受邀请失败',
+			'rejectInvitationFailed' => '拒绝邀请失败',
+			'invitationAccepted' => '已接受邀请',
+			'invitationRejected' => '已拒绝邀请',
+			'invitationStatusPending' => '待处理',
+			'invitationStatusAccepted' => '已接受',
+			'invitationStatusRejected' => '已拒绝',
+			'invitationStatusExpired' => '已过期',
+			'invitationStatusCancelled' => '已取消',
+			'invitationStatusUnknown' => '未知',
+			'noReceivedInvitations' => '暂无收到的邀请',
+			'noSentInvitations' => '暂无发出的邀请',
+			'inviterLabel' => ({required Object uid}) => '邀请人: ${uid}',
+			'inviteeLabel' => ({required Object uid}) => '被邀请人: ${uid}',
+			'createdAtLabel' => ({required Object time}) => '创建时间: ${time}',
+			'expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
+			'openChannel' => '打开频道',
+			'myReceivedTab' => '我收到的',
+			'mySentTab' => '我发出的',
+			'processingDots' => '处理中...',
+			'reject' => '拒绝',
+			'myOrders' => '我的订单',
+			'paidChannelLocked' => '付费频道内容已锁定',
+			'purchaseUnlockHint' => '购买后可解锁频道历史消息与后续更新内容。',
+			'payingDots' => '支付中...',
+			'purchaseAndUnlock' => '立即购买并解锁',
+			'purchaseFailed' => '购买失败，请稍后重试',
+			'purchaseSuccess' => '购买成功',
+			'noOrders' => '暂无订单',
+			'orderDetailLoadFailed' => '订单详情加载失败',
+			'orderDetail' => '订单详情',
+			'orderNoLabel' => ({required Object no}) => '订单号: ${no}',
+			'orderStatusLabel' => ({required Object status}) => '状态: ${status}',
+			'orderAmountLabel' => ({required Object currency, required Object amount}) => '金额: ${currency} ${amount}',
+			'orderCreatedAtLabel' => ({required Object time}) => '创建时间: ${time}',
+			'orderPaymentAtLabel' => ({required Object time}) => '支付时间: ${time}',
+			'orderStatusPending' => '待支付',
+			'orderStatusPaid' => '已支付',
+			'orderStatusRefunded' => '已退款',
+			'orderStatusCancelled' => '已取消',
+			'orderStatusExpired' => '已过期',
+			'orderStatusUnknown' => '未知',
+			'removeReaction' => '移除反应',
+			'removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
+			'defaultFileName' => '文件',
+			'fileUrlInvalid' => '文件链接无效',
+			'fileOpenFailed' => '无法打开该文件',
+			'e2eeKeyRecoveryTitle' => '端到端加密密钥管理',
+			'e2eeRecoveryMethods' => '密钥恢复方法',
+			'e2eeDangerousOps' => '危险操作',
+			'e2eeDeviceTransfer' => '设备间传输',
+			'e2eeDeviceTransferDesc' => '通过二维码直接传输密钥到新设备',
+			'e2eeStatusAvailable' => '可用',
+			'e2eeSocialRecovery' => '社交恢复',
+			'e2eeSocialRecoveryDesc' => '通过信任的联系人协助恢复密钥',
+			'e2eeLocalBackup' => '本地备份',
+			'e2eeLocalBackupDesc' => '导出加密备份文件到本地或云端',
+			'e2eeGenerateNewKey' => '生成新密钥',
+			'e2eeGenerateNewKeyDesc' => '生成新的 E2EE 密钥对（旧消息将无法解密）',
+			'e2eeDeleteKey' => '删除密钥',
+			'e2eeDeleteKeyDesc' => '删除本地存储的密钥（无法恢复）',
+			'e2eeCurrentKeyInfo' => '当前密钥信息',
+			'e2eeE2EEEnabled' => '端到端加密已启用',
+			'e2eeActivated' => '已激活',
+			'e2eeDeviceIdLabel' => '设备 ID',
+			'e2eeKeyIdLabel' => '密钥 ID',
+			'e2eeCreatedAtLabel' => '创建时间',
+			'e2eeNoKeyDetected' => '未检测到 E2EE 密钥',
+			'e2eeNoKeyDesc' => '您需要先生成密钥对或从备份中恢复',
+			'e2eeAboutTitle' => '关于端到端加密',
+			'e2eeInfoPoint1' => '• 您的消息在发送前已加密，服务器无法查看内容',
+			'e2eeInfoPoint2' => '• 更换设备或删除密钥后，旧消息可能无法解密',
+			'e2eeInfoPoint3' => '• 请定期备份密钥以防数据丢失',
+			'e2eeExportBackup' => '导出备份',
+			'e2eeExportBackupDesc' => '生成加密备份文件',
+			'e2eeImportBackup' => '导入备份',
+			'e2eeImportBackupDesc' => '从备份文件恢复密钥',
+			'e2eeBackupManage' => '备份管理',
+			'e2eeBackupManageDesc' => '查看备份历史记录',
+			'e2eeGenerateKeyConfirm' => '确定要生成新的 E2EE 密钥对吗？',
+			'e2eeWarnOldMessagesLost' => '• 旧消息将无法解密',
+			'e2eeWarnNeedNewBackup' => '• 需要重新生成备份文件',
+			'e2eeWarnIrreversible' => '• 此操作不可撤销',
+			'e2eeConfirmGenerate' => '确认生成',
+			'e2eeDeleteKeyConfirm' => '确定要删除当前密钥吗？',
+			'e2eeWarnCannotRestore' => '• 删除后无法恢复',
+			'e2eeWarnAllMsgsLost' => '• 所有 E2EE 消息将无法解密',
+			'e2eeWarnNeedRestoreOrNew' => '• 需要从备份恢复或生成新密钥',
+			'e2eeConfirmDelete' => '确认删除',
+			'e2eeGeneratingKey' => '正在生成密钥，请稍候...',
+			'e2eeKeyGeneratedSuccess' => '密钥生成成功',
+			'e2eeNewKeyGenerated' => '新的 E2EE 密钥对已生成！',
+			'e2eeDeviceIdInfo' => ({required Object id}) => '设备 ID: ${id}',
+			'e2eeKeyIdInfo' => ({required Object id}) => '密钥 ID: ${id}',
+			'e2eeCreatedAtInfo' => ({required Object time}) => '创建时间: ${time}',
+			'e2eeImportantNote' => '重要提示',
+			'e2eeWarnOldMayNotDecrypt' => '• 旧消息可能无法解密',
+			'e2eeSuggestBackupNow' => '• 建议立即导出备份',
+			'e2eeGoBackup' => '去备份',
+			'gotIt' => '我知道了',
+			'e2eeKeyGenerateFailed' => '密钥生成失败，请重试',
+			'e2eeKeyDeleted' => '密钥已删除',
+			'e2eeDeleteFailed' => '删除失败，请重试',
+			'e2eeRecoverKeyTitle' => '恢复密钥',
+			'e2eeCanRecoverKey' => '可以恢复密钥',
+			'e2eeInsufficientShards' => '分片数量不足',
+			'e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助',
+			'e2eeProxyUser' => ({required Object uid}) => '代理用户: ${uid}',
+			'e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
+			'e2eeNoRecoveryShards' => '没有可用的恢复分片',
+			'e2eeReloadShards' => '重新加载',
+			'e2eeRecovering' => '恢复中...',
+			'e2eeStartRecoveryBtn' => ({required Object required}) => '开始恢复密钥（需要 ${required} 个代理协助）',
+			'e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '分片不足（需要 ${required} 个，当前 ${current} 个）',
+			'e2eeRecoverSuccess' => '恢复成功',
+			'e2eeKeyRestored' => '密钥已成功恢复',
+			'e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
+			'e2eeRecoverFailed' => '恢复失败',
+			'e2eeRecoverKeyFailed' => '恢复密钥失败，请重试',
+			'e2eeLoadingShards' => '加载分片信息...',
+			'e2eeNoShards' => '没有可用的分片',
+			'e2eeReady' => '准备就绪',
+			'e2eeLoadFailed' => '加载失败，请重试',
+			'e2eePreparing' => '准备恢复...',
+			'e2eeReadyWithShards' => ({required Object count}) => '准备就绪（${count} 个分片）',
+			'e2eeContactingProxy' => ({required Object name}) => '正在联系: ${name}',
+			'e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片',
+			'e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
+			'e2eeShardsCollected' => '分片收集完成，正在重组密钥...',
+			'e2eeRecoveryFailed' => '恢复失败，请重试',
+			'webFeatureMultiDevice' => '多设备同步',
+			'webFeatureMultiDeviceDesc' => '在手机和电脑之间无缝切换，消息实时同步',
+			'webFeatureE2EE' => '端到端加密',
+			'webFeatureE2EEDesc' => '所有消息都经过端到端加密，确保隐私安全',
+			'webFeatureNotification' => '桌面通知',
+			'webFeatureNotificationDesc' => '即使不在页面也能收到新消息提醒',
+			'webFeatureFileTransfer' => '文件传输',
+			'webFeatureFileTransferDesc' => '拖拽即可发送文件，支持各种格式',
+			'webQRLoginTitle' => '扫码登录',
+			'webQRLoginHint' => '使用 ImBoy 手机版扫描二维码',
+			'webQRScanned' => '已扫描',
+			'webQRConfirmOnPhone' => '请在手机上确认登录',
+			'webQRLoggingIn' => '登录中...',
+			'webQRExpired' => '二维码已过期',
+			'webQRLoginFailed' => '登录失败',
+			'webQRLoginSuccess' => '登录成功',
+			'webQRRefresh' => '刷新二维码',
+			'webQRExpiresIn' => ({required Object seconds}) => '${seconds} 秒后过期',
+			'webSwitchToPassword' => '使用账号密码登录',
+			'webSwitchToQR' => '使用 QR 码登录',
+			'webQRStatusWaiting' => '打开 ImBoy 手机版 > 设置 > 扫一扫',
+			'webQRStatusScanned' => '请在手机上点击"确认登录"',
+			'webQRStatusVerifying' => '正在验证...',
+			'webQRStatusExpired' => '请点击刷新重新扫码',
+			'webQRStatusFailed' => '登录失败，请重试',
+			'webQRStatusSuccess' => '正在跳转...',
+			'webPasswordLoginTitle' => '账号登录',
+			'webAccountHint' => '请输入账号/手机号/邮箱',
+			'webPasswordHint' => '请输入密码',
+			'webLoginEmptyError' => '请输入账号和密码',
+			'webQRGenerateFailed' => '生成二维码失败',
+			'webQRTokenInvalid' => '登录令牌无效',
+			'e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
+			'e2eeErrTimeout' => '加密超时，请检查网络连接后重试',
+			'e2eeErrNetwork' => '网络错误，加密失败，消息未发送',
+			'e2eeErrInvalidFormat' => '消息格式错误，加密失败',
+			'e2eeErrDefault' => '端到端加密失败，消息未发送',
+			'e2eeDecryptFailed' => '消息无法解密',
+			'e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
+			'e2eeDecryptReasonOtherDevice' => '• 您在其他设备上登录',
+			'e2eeDecryptReasonKeyExpired' => '• 设备密钥已过期',
+			'e2eeDecryptReasonDataCorrupt' => '• 应用数据损坏',
+			'e2eeDecryptChooseSolution' => '请选择解决方案：',
+			'e2eeDecryptActionRecreateKey' => '重新创建密钥（推荐）',
+			'e2eeDecryptActionRelogin' => '重新登录',
+			'e2eeDecryptActionRemindLater' => '稍后提醒我',
+			'e2eeBackupExportTitle' => '导出 E2EE 备份',
+			'e2eeBackupPwdCantRecover' => '• 备份密码无法找回，请务必牢记！',
+			'e2eeBackupStoreMultipleNote' => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）',
+			'e2eeBackupPwdLabel' => '备份密码 *',
+			'e2eeBackupPwdHint' => '至少 12 位，包含大小写字母、数字和特殊符号',
+			'e2eeBackupConfirmPwdLabel' => '确认密码 *',
+			'e2eeBackupConfirmPwdHint' => '再次输入密码',
+			'e2eeBackupNoteLabel' => '备注（可选）',
+			'e2eeBackupNoteHint' => '例如：主手机备份 - 2026年1月',
+			'e2eeBackupPwdStrengthLabel' => '密码强度',
+			'e2eeBackupPwdWeak' => '弱 - 建议增加复杂度',
+			'e2eeBackupPwdMedium' => '中等 - 建议增加长度或复杂度',
+			'e2eeBackupPwdStrong' => '强 - 可以使用',
+			'e2eeBackupPwdVeryStrong' => '非常强 - 安全',
+			'e2eeBackupGenerateBtn' => '生成备份文件',
+			'e2eeBackupFileGenerated' => '备份文件已生成！',
+			'e2eeBackupShareBtn' => '通过邮件/云盘分享',
+			'e2eeBackupShareContent' => '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。',
+			'e2eeBackupErrPwdMismatch' => '两次输入的密码不一致',
+			'e2eeBackupErrNoKeyData' => '无法获取密钥数据',
+			'e2eeBackupErrExportFailed' => '导出失败，请重试',
+			'e2eeBackupErrShareFailed' => '分享失败，请重试',
+			'e2eeBackupExportSuccessTitle' => '备份导出成功',
+			'e2eeBackupExportSuccessBody' => '您的 E2EE 密钥备份已成功生成。',
+			'e2eeBackupImportantNoteColon' => '重要提示：',
+			'e2eeBackupKeepSafe' => '• 请妥善保管备份文件和密码',
+			'e2eeBackupStoreMultipleLoc' => '• 建议将文件存储到多个安全位置',
+			'e2eeBackupPwdCantRecoverNote' => '• 密码无法找回，请务必牢记',
+			'e2eeBackupImportTitle' => '导入 E2EE 备份',
+			'e2eeBackupImportGuide' => '导入说明',
+			'e2eeBackupImportReplaceKey' => '• 导入后，当前的 E2EE 密钥将被替换',
+			'e2eeBackupImportTrustedSource' => '• 请确保备份文件来自可信任的来源',
+			'e2eeBackupSelectFile' => '选择备份文件',
+			'e2eeBackupSelectFileHint' => '点击选择备份文件 (.enc)',
+			'e2eeBackupInfoTitle' => '备份信息',
+			'e2eeBackupVersionLabel' => '版本号',
+			'e2eeBackupAlgorithmLabel' => '算法',
+			'e2eeBackupFileSizeLabel' => '文件大小',
+			'e2eeBackupFileValid' => '✓ 文件格式有效',
+			'e2eeBackupImportPwdHint' => '请输入备份时设置的密码',
+			'e2eeBackupImportBtn' => '导入密钥',
+			'e2eeBackupErrSelectFile' => '选择文件失败，请重试',
+			'e2eeBackupErrValidateFailed' => '文件验证失败，请检查文件格式',
+			'e2eeBackupErrImportFailed' => '导入失败，请检查密码是否正确',
+			'e2eeBackupImportSuccessTitle' => '导入成功',
+			'e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
+			'e2eeBackupImportSuccessNote' => '注意：旧消息可能无法访问，这是 E2EE 的正常行为',
+			'e2eeBackupNoRecords' => '暂无备份记录',
+			'e2eeBackupNoRecordsHint' => '导出备份后将在此显示历史记录',
+			'e2eeBackupDeviceLabel' => ({required Object id}) => '设备 ${id}',
+			'e2eeBackupCreatedAtLabel' => ({required Object time}) => '创建于 ${time}',
+			'e2eeBackupDetailTitle' => '备份详情',
+			'e2eeBackupDeviceIdLabel' => '设备 ID',
+			'e2eeBackupVersionNum' => '备份版本',
+			'e2eeBackupCreatedAtRow' => '创建时间',
+			'e2eeBackupFileSizeRow' => '文件大小',
+			'e2eeBackupNoteRow' => '备注',
+			'e2eeBackupDeleteTitle' => '删除备份记录',
+			'e2eeBackupDeleteConfirm' => '确定要删除此备份记录吗？',
+			'e2eeBackupDeleteSuccess' => '备份记录已删除',
+			'e2eeSocialCreateTitle' => '创建恢复分片',
+			'e2eeSocialShardSettings' => '分片设置',
+			'e2eeSocialTotalShards' => '总分片数',
+			'e2eeSocialThreshold' => '恢复阈值',
+			'e2eeSocialShardStoredNote' => '说明：分片将存储在代理设备上，服务端不保存任何分片',
+			'e2eeSocialThresholdHint' => ({required Object count}) => '恢复密钥时需要 ${count} 个代理协助',
+			'e2eeSocialSelectProxy' => '选择恢复代理',
+			'e2eeSocialAddProxy' => '添加代理',
+			'e2eeSocialProxyNeeded' => ({required Object count}) => '需要 ${count} 个信任的联系人作为代理',
+			'e2eeSocialAddProxyHint' => '请添加代理联系人',
+			'e2eeSocialProxyDefaultName' => ({required Object uid}) => '用户 ${uid}',
+			'e2eeSocialCreateNeedMore' => ({required Object count}) => '请先添加 ${count} 个代理',
+			'e2eeSocialCreateBtn' => '创建分片',
+			'e2eeSocialCreateSuccessTitle' => '分片创建成功',
+			'e2eeSocialTotalShardsInfo' => ({required Object count}) => '密钥已分割成 ${count} 个分片',
+			'e2eeSocialShardSentViaWs' => '分片已通过 WebSocket 直接发送到代理设备存储',
+			'e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥',
+			'e2eeSocialSentCount' => ({required Object sent, required Object total}) => '已发送到 ${sent} 个代理设备（共 ${total} 个）',
+			'e2eeSocialZeroTrustNote' => '零信任架构：服务端不保存任何分片',
+			'e2eeSocialCreateFailTitle' => '创建失败',
+			'e2eeSocialCreateFailBody' => '创建分片失败，请重试',
+			'e2eeSocialManageTitle' => '管理分片',
+			'e2eeSocialMyShards' => '我的分片',
+			'e2eeSocialProxyShards' => '代理分片',
+			'e2eeSocialNoShards' => '您还没有创建任何恢复分片',
+			'e2eeSocialNoProxyShards' => '没有代理分片',
+			'e2eeSocialCreateFirst' => '创建分片后才能看到内容',
+			'e2eeSocialShardOf' => ({required Object idx, required Object total}) => '分片 ${idx} / ${total}',
+			'e2eeSocialShardActive' => '活跃',
+			'e2eeSocialShardUsed' => '已使用',
+			'e2eeSocialShardValid' => '分片有效',
+			'e2eeSocialUserShard' => ({required Object uid}) => '用户 ${uid} 的密钥分片',
+			'e2eeSocialProxyUserLabel' => '代理用户',
+			'e2eeSocialRecoveryThresholdLabel' => '恢复阈值',
+			'e2eeSocialShardIndexLabel' => '分片编号',
+			'e2eeSocialKeyVersionLabel' => '密钥版本',
+			'e2eeSocialUsedAtLabel' => '使用时间',
+			'e2eeTransferSendTitle' => '发送密钥到新设备',
+			'e2eeTransferErrNoKey' => '请先生成密钥对',
+			'e2eeTransferErrInitFailed' => '初始化失败，请重试',
+			'e2eeTransferErrNoRecipientKey' => '接收方没有可用的公钥',
+			'e2eeTransferErrKeyNotFound' => '密钥未找到',
+			'e2eeTransferErrCreateFailed' => '创建传输会话失败，请重试',
+			'e2eeTransferCreateSessionBtn' => '创建传输会话',
+			'e2eeTransferQRHint' => '请在新设备上扫描此二维码',
+			'e2eeTransferQRExpiry' => ({required Object time}) => '二维码将在 ${time} 过期',
+			'e2eeTransferSessionCreated' => '传输会话已创建',
+			'e2eeTransferRefreshQR' => '刷新二维码',
+			'e2eeTransferEnterUidTitle' => '输入接收方用户 ID',
+			'e2eeTransferUidPlaceholder' => '接收方用户 ID',
+			'e2eeTransferCreateBtn' => '创建',
+			'e2eeTransferUidEmptyError' => '请输入有效的用户 ID',
+			'e2eeTransferReceiveTitle' => '从旧设备接收密钥',
+			'e2eeTransferReceiving' => '正在接受传输...',
+			'e2eeTransferSuccess' => '传输成功！',
+			'e2eeTransferFailed' => '传输失败，请重试',
+			'e2eeTransferProcessingMsg' => '处理中...',
+			'e2eeTransferSuccessTitle' => '传输成功',
+			'e2eeTransferSuccessBody' => '密钥已成功传输到当前设备',
+			'e2eeTransferScanError' => ({required Object error}) => '扫描错误: ${error}',
+			'e2eeTransferErrNoDeviceId' => '无法获取设备 ID',
+			'passwordEncryptFailed' => '密码加密失败',
+			'initConfigTimeout' => '配置获取超时: 请检查网络连接或服务端状态',
+			'initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
+			'initConfigProtocolError' => '服务故障协议有误',
+			'initConfigFetchFailed' => '配置获取失败，请检查网络连接',
+			'attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
+			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
+			'attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
+			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
+			'saveFailedRetry' => '保存失败，请重试',
+			'downloadFileNotFound' => '下载文件不存在，请重试',
+			'downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
+			'downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
+			'e2eeTransferPageTitle' => '设备间传输',
+			'e2eeTransferToNewDevice' => '传输到新设备',
+			'e2eeTransferSendDesc' => '通过二维码将密钥传输到新设备',
+			'e2eeTransferFromOldDevice' => '从旧设备接收密钥',
+			'e2eeTransferReceiveDesc' => '扫描旧设备二维码接收密钥',
+			'e2eeTransferPendingSection' => '待处理的传输',
+			'e2eeTransferLoadFailed' => '加载失败',
+			'e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
+			'e2eeTransferNoPending' => '暂无待处理的传输',
+			'e2eeTransferNoPendingDesc' => '当有设备向您发送密钥时，会显示在这里',
+			'e2eeTransferPendingItem' => '待处理的密钥传输',
+			'e2eeTransferPendingItemDesc' => '点击查看详情',
+			'e2eeTransferView' => '查看',
+			'e2eeSocialTitle' => '社交恢复',
+			'e2eeSocialCanRecover' => '可以恢复密钥',
+			'e2eeSocialSetupProxy' => '设置恢复代理',
+			'e2eeSocialEnoughShards' => '您已有足够的分片可以恢复密钥',
+			'e2eeSocialChooseProxy' => '选择信任的联系人作为恢复代理',
+			'e2eeSocialExistingShards' => '现有恢复分片',
+			'e2eeSocialMoreShards' => ({required Object count}) => '还有 ${count} 个分片...',
+			'e2eeSocialStatus' => ({required Object status}) => '状态: ${status}',
+			'e2eeSocialCreateShardsTitle' => '创建恢复分片',
+			'e2eeSocialCreateShardsDesc' => '将密钥分割成多个分片，存储到代理设备（服务端不保存）',
+			'e2eeSocialRecoverKeyTitle' => '恢复密钥',
+			'e2eeSocialRecoverKeyDesc' => '使用代理的分片恢复密钥',
+			'e2eeSocialManageShardsTitle' => '管理分片',
+			'e2eeSocialManageShardsDesc' => '查看和管理所有恢复分片',
+			'e2eeSocialZeroTrustHint1' => '零信任架构：服务端不存储分片，直接联系代理',
+			'e2eeSocialZeroTrustHint2' => '零信任架构：分片存储在代理设备',
+			'e2eeSocialZeroTrustHint3' => '零信任架构：分片由代理设备存储，服务端不接触明文',
+			'e2eeProxyLoadFriendsFailed' => '加载好友列表失败，请重试',
+			'e2eeProxyMinCount' => ({required Object count}) => '请至少选择 ${count} 个代理',
+			'e2eeProxyNoPublicKey' => '该好友没有可用的公钥',
+			'e2eeProxyGetKeyFailed' => ({required Object name}) => '获取 ${name} 的公钥失败',
+			'e2eeProxySelectFailed' => '选择代理失败，请重试',
+			'e2eeProxySelectTitle' => '选择恢复代理',
+			'e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '已选 ${selected} / ${total}',
+			'e2eeProxyNoFriends' => '暂无好友',
+			'e2eeProxyNoFriendsHint' => '请先添加好友后再设置恢复代理',
+			'e2eeProxyReachedMin' => '已达到最少代理数量',
+			_ => null,
+		} ?? switch (path) {
+			'e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个',
+			'e2eeProxyConfirmCount' => ({required Object count}) => '确认选择 (${count} 个代理)',
+			'e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
+			'buttonBackHome' => '返回首页',
+			'featureNotEnabled' => '当前功能未启用',
+			'imageLoadFailed' => '加载失败',
+			'loadFailedWithError' => ({required Object error}) => '加载失败: ${error}',
+			'webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
+			'channelMaxTagsCount' => '最多可添加 8 个标签',
+			'tagInputHint' => '输入标签...',
+			'e2eeRecreatingKey' => '正在重新创建密钥...',
+			'e2eeKeyRecreated' => '密钥已重新创建',
+			'e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
+			'pleaseRelogin' => '请重新登录',
+			'liveRoomCreateTitle' => '创建直播间',
+			'liveRoomTitleLabel' => '直播间标题',
+			'liveRoomTitleHint' => '请输入直播间标题',
+			'liveRoomCreating' => '创建中...',
+			'liveRoomTitleRequired' => '标题不能为空',
+			'liveRoomWatch' => '观看直播',
 			_ => null,
 		};
 	}

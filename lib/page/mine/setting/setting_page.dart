@@ -138,8 +138,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 通用设置 Section（TODO: 迁移到 slang i18n）
-            _buildSectionHeader(context, '通用'),
+            _buildSectionHeader(context, t.sectionGeneral),
             Container(
               // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -205,8 +204,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
 
-            // 隐私与安全 Section
-            _buildSectionHeader(context, '隐私与安全'),
+            _buildSectionHeader(context, t.sectionPrivacySecurity),
             Container(
               // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -282,8 +280,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 刷新设备密钥
                   _buildSettingItem(
                     context,
-                    title: '刷新设备密钥',
-                    subtitle: '如果消息无法解密，点击此按钮刷新密钥',
+                    title: t.refreshDeviceKey,
+                    subtitle: t.refreshDeviceKeyHint,
                     leadingIcon: Icons.refresh,
                     leadingIconColor: AppColors.info,
                     onTap: _isRefreshingKeys
@@ -293,7 +291,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             setState(() => _isRefreshingKeys = true);
 
                             try {
-                              EasyLoading.showToast('正在刷新设备密钥...');
+                              EasyLoading.showToast(t.refreshingDeviceKey);
                               // 清除E2EE缓存
                               E2EEService.clearCache();
                               await Future.delayed(
@@ -308,7 +306,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 );
                               }
 
-                              EasyLoading.showSuccess('设备密钥已刷新');
+                              EasyLoading.showSuccess(t.deviceKeyRefreshed);
                               if (kDebugMode) iPrint('E2EE: 设备密钥已手动刷新');
                             } on Exception catch (e) {
                               EasyLoading.showError(t.tipFailed);
@@ -330,8 +328,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // E2EE 密钥恢复
                   _buildSettingItem(
                     context,
-                    title: 'E2EE 密钥管理',
-                    subtitle: '备份、恢复和管理端到端加密密钥',
+                    title: t.e2eeKeyManagement,
+                    subtitle: t.e2eeKeyManagementSubtitle,
                     leadingIcon: Icons.vpn_key,
                     leadingIconColor: Colors.green,
                     onTap: () {
@@ -365,8 +363,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
 
-            // 帮助与关于 Section
-            _buildSectionHeader(context, '帮助与关于'),
+            _buildSectionHeader(context, t.sectionHelpAbout),
             Container(
               // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),

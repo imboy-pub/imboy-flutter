@@ -17,6 +17,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:imboy/component/ui/debounce_button.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
@@ -118,7 +119,7 @@ class QRLogin extends _$QRLogin {
       } else {
         state = QRLoginState(
           status: QRLoginStatus.failed,
-          errorMessage: '生成二维码失败',
+          errorMessage: t.webQRGenerateFailed,
         );
       }
     } catch (e) {
@@ -202,7 +203,7 @@ class QRLogin extends _$QRLogin {
     if (token == null || token.isEmpty) {
       state = state.copyWith(
         status: QRLoginStatus.failed,
-        errorMessage: '登录令牌无效',
+        errorMessage: t.webQRTokenInvalid,
       );
       return;
     }
@@ -346,26 +347,26 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           // 功能说明
           _buildFeatureItem(
             Icons.devices,
-            '多设备同步',
-            '在手机和电脑之间无缝切换，消息实时同步',
+            t.webFeatureMultiDevice,
+            t.webFeatureMultiDeviceDesc,
           ),
           const SizedBox(height: 32),
           _buildFeatureItem(
             Icons.lock_outline,
-            '端到端加密',
-            '所有消息都经过端到端加密，确保隐私安全',
+            t.webFeatureE2EE,
+            t.webFeatureE2EEDesc,
           ),
           const SizedBox(height: 32),
           _buildFeatureItem(
             Icons.notifications_outlined,
-            '桌面通知',
-            '即使不在页面也能收到新消息提醒',
+            t.webFeatureNotification,
+            t.webFeatureNotificationDesc,
           ),
           const SizedBox(height: 32),
           _buildFeatureItem(
             Icons.attach_file,
-            '文件传输',
-            '拖拽即可发送文件，支持各种格式',
+            t.webFeatureFileTransfer,
+            t.webFeatureFileTransferDesc,
           ),
         ],
         ),
@@ -446,9 +447,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 ref.read(qRLoginProvider.notifier)._stopPolling();
                 setState(() => _showPasswordLogin = true);
               },
-              child: const Text(
-                '使用账号密码登录',
-                style: TextStyle(
+              child: Text(
+                t.webSwitchToPassword,
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 14,
                 ),
@@ -464,9 +465,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 setState(() => _showPasswordLogin = false);
                 ref.read(qRLoginProvider.notifier).generateQRCode();
               },
-              child: const Text(
-                '使用 QR 码登录',
-                style: TextStyle(
+              child: Text(
+                t.webSwitchToQR,
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 14,
                 ),
@@ -483,18 +484,18 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
   Widget _buildQRLoginSection(QRLoginState qrState) {
     return Column(
       children: [
-        const Text(
-          '扫码登录',
-          style: TextStyle(
+        Text(
+          t.webQRLoginTitle,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          '使用 ImBoy 手机版扫描二维码',
-          style: TextStyle(
+        Text(
+          t.webQRLoginHint,
+          style: const TextStyle(
             fontSize: 14,
             color: AppColors.darkTextSecondary,
           ),
@@ -521,7 +522,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           ElevatedButton.icon(
             onPressed: () => ref.read(qRLoginProvider.notifier).refresh(),
             icon: const Icon(Icons.refresh),
-            label: const Text('刷新二维码'),
+            label: Text(t.webQRRefresh),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -534,8 +535,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         if (qrState.status == QRLoginStatus.waiting ||
             qrState.status == QRLoginStatus.scanned)
           Text(
-            '${qrState.remainingSeconds} 秒后过期',
-            style: TextStyle(
+            t.webQRExpiresIn(seconds: qrState.remainingSeconds),
+            style: const TextStyle(
               fontSize: 12,
               color: AppColors.darkTextDisabled,
             ),
@@ -565,27 +566,27 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
       case QRLoginStatus.scanned:
         return Container(
           color: AppColors.primary.withAlpha(26), // 0.1 * 255 ≈ 26
-          child: const Center(
+          child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.smartphone,
                   size: 64,
                   color: AppColors.primary,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
-                  '已扫描',
-                  style: TextStyle(
+                  t.webQRScanned,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
                 ),
                 Text(
-                  '请在手机上确认登录',
-                  style: TextStyle(
+                  t.webQRConfirmOnPhone,
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
@@ -596,17 +597,17 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         );
 
       case QRLoginStatus.confirming:
-        return const Center(
+        return Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(
+              const CircularProgressIndicator(
                 color: AppColors.primary,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
-                '登录中...',
-                style: TextStyle(
+                t.webQRLoggingIn,
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.primary,
                 ),
@@ -629,7 +630,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '二维码已过期',
+                  t.webQRExpired,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -654,7 +655,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  qrState.errorMessage ?? '登录失败',
+                  qrState.errorMessage ?? t.webQRLoginFailed,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.red,
@@ -667,19 +668,19 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         );
 
       case QRLoginStatus.success:
-        return const Center(
+        return Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.check_circle,
                 size: 64,
                 color: AppColors.primary,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
-                '登录成功',
-                style: TextStyle(
+                t.webQRLoginSuccess,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -697,22 +698,22 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
 
     switch (qrState.status) {
       case QRLoginStatus.waiting:
-        text = '打开 ImBoy 手机版 > 设置 > 扫一扫';
+        text = t.webQRStatusWaiting;
         icon = Icons.qr_code_scanner;
       case QRLoginStatus.scanned:
-        text = '请在手机上点击"确认登录"';
+        text = t.webQRStatusScanned;
         icon = Icons.smartphone;
       case QRLoginStatus.confirming:
-        text = '正在验证...';
+        text = t.webQRStatusVerifying;
         icon = Icons.hourglass_empty;
       case QRLoginStatus.expired:
-        text = '请点击刷新重新扫码';
+        text = t.webQRStatusExpired;
         icon = Icons.refresh;
       case QRLoginStatus.failed:
-        text = qrState.errorMessage ?? '登录失败，请重试';
+        text = qrState.errorMessage ?? t.webQRStatusFailed;
         icon = Icons.error_outline;
       case QRLoginStatus.success:
-        text = '正在跳转...';
+        text = t.webQRStatusSuccess;
         icon = Icons.check_circle;
     }
 
@@ -743,9 +744,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
   ) {
     return Column(
       children: [
-        const Text(
-          '账号登录',
-          style: TextStyle(
+        Text(
+          t.webPasswordLoginTitle,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -756,9 +757,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         TextField(
           controller: _accountController,
           style: TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            hintText: '请输入账号/手机号/邮箱',
-            hintStyle: TextStyle(color: AppColors.darkTextDisabled),
+          decoration: InputDecoration(
+            hintText: t.webAccountHint,
+            hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
             prefixIcon: Icon(Icons.person, color: AppColors.darkTextDisabled),
             filled: true,
             fillColor: AppColors.darkSurfaceContainerHighest,
@@ -775,7 +776,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           obscureText: passportState.loginPwdObscure,
           style: TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: '请输入密码',
+            hintText: t.webPasswordHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
             prefixIcon: const Icon(Icons.lock, color: AppColors.darkTextDisabled),
             suffixIcon: IconButton(
@@ -801,7 +802,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           width: double.infinity,
           height: 48,
           child: DebounceButton(
-            text: '登录',
+            text: t.login,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
@@ -818,7 +819,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               final pwd = _passwordController.text;
 
               if (account.isEmpty || pwd.isEmpty) {
-                passportNotifier.setError('请输入账号和密码');
+                passportNotifier.setError(t.webLoginEmptyError);
                 return;
               }
 
@@ -842,9 +843,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         // 忘记密码
         TextButton(
           onPressed: () => context.push(AppRoutes.forgotPassword),
-          child: const Text(
-            '忘记密码？',
-            style: TextStyle(
+          child: Text(
+            t.forgotPassword,
+            style: const TextStyle(
               color: AppColors.primary,
               fontSize: 14,
             ),

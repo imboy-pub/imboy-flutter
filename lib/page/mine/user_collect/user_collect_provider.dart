@@ -295,7 +295,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       as Future<CustomMessage?>,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('加载失败: ${snapshot.error}'));
+                  return Center(child: Text(t.loadFailedWithError(error: snapshot.error.toString())));
                 }
                 if (!snapshot.hasData) {
                   return const SizedBox.shrink();

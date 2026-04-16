@@ -1,86 +1,18 @@
+import 'dart:async' show unawaited;
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/page/group/announcement/announcement_model.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+
+export 'package:imboy/page/group/announcement/announcement_model.dart'
+    show AnnouncementModel;
+export 'package:imboy/page/group/announcement/announcement_permission_rules.dart'
+    show canManageAnnouncement;
 
 part 'group_announcement_provider.g.dart';
-
-/// 群组公告数据模型
-class AnnouncementModel {
-  final String id;
-  final String groupId;
-  final String content;
-  final String publisherId;
-  final String publisherName;
-  final int createdAt;
-  final int? expiredAt;
-
-  AnnouncementModel({
-    required this.id,
-    required this.groupId,
-    required this.content,
-    required this.publisherId,
-    required this.publisherName,
-    required this.createdAt,
-    this.expiredAt,
-  });
-
-  static int _parseTimestamp(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) {
-      if (value > 1000000000000) return value;
-      if (value > 1000000000) return value * 1000;
-      return value;
-    }
-    if (value is String) {
-      final intVal = int.tryParse(value);
-      if (intVal != null) {
-        if (intVal > 1000000000000) return intVal;
-        if (intVal > 1000000000) return intVal * 1000;
-        return intVal;
-      }
-      final dt = DateTime.tryParse(value);
-      if (dt != null) {
-        return dt.millisecondsSinceEpoch;
-      }
-    }
-    return 0;
-  }
-
-  static int? _parseOptionalTimestamp(dynamic value) {
-    if (value == null) return null;
-    final parsed = _parseTimestamp(value);
-    return parsed > 0 ? parsed : null;
-  }
-
-  factory AnnouncementModel.fromJson(Map<String, dynamic> json) {
-    final publisherId = (json['publisher_id'] ?? json['user_id'] ?? '')
-        .toString();
-    final publisherName = (json['publisher_name'] ?? json['creator_name'] ?? '')
-        .toString();
-
-    return AnnouncementModel(
-      id: (json['id'] ?? json['notice_id'] ?? '').toString(),
-      groupId: (json['group_id'] ?? '').toString(),
-      content: (json['content'] ?? json['body'] ?? '').toString(),
-      publisherId: publisherId,
-      publisherName: publisherName.isEmpty ? publisherId : publisherName,
-      createdAt: _parseTimestamp(json['created_at']),
-      expiredAt: _parseOptionalTimestamp(json['expired_at']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'group_id': groupId,
-      'content': content,
-      'publisher_id': publisherId,
-      'publisher_name': publisherName,
-      'created_at': createdAt,
-      'expired_at': expiredAt,
-    };
-  }
-}
 
 /// 群组公告状态
 class GroupAnnouncementState {
@@ -88,12 +20,16 @@ class GroupAnnouncementState {
   final bool isLoading;
   final bool hasMore;
   final int page;
+  /// 当前登录用户在本群的角色（0 = 未加载 / 不在群）。
+  /// 由 [GroupAnnouncementNotifier._loadCurrentRole] 异步填充。
+  final int currentUserRole;
 
   const GroupAnnouncementState({
     this.announcements = const [],
     this.isLoading = false,
     this.hasMore = true,
     this.page = 1,
+    this.currentUserRole = 0,
   });
 
   GroupAnnouncementState copyWith({
@@ -101,12 +37,14 @@ class GroupAnnouncementState {
     bool? isLoading,
     bool? hasMore,
     int? page,
+    int? currentUserRole,
   }) {
     return GroupAnnouncementState(
       announcements: announcements ?? this.announcements,
       isLoading: isLoading ?? this.isLoading,
       hasMore: hasMore ?? this.hasMore,
       page: page ?? this.page,
+      currentUserRole: currentUserRole ?? this.currentUserRole,
     );
   }
 }
@@ -115,20 +53,6 @@ class GroupAnnouncementState {
 @Riverpod(keepAlive: false)
 class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
   final int pageSize = 20;
-
-  String _buildNoticeTitle(String content) {
-    final firstLine = content.trim().split('\n').first.trim();
-    if (firstLine.isEmpty) return '群公告';
-    if (firstLine.length <= 20) return firstLine;
-    return '${firstLine.substring(0, 20)}...';
-  }
-
-  String _toRfc3339(int milliseconds) {
-    return DateTime.fromMillisecondsSinceEpoch(
-      milliseconds,
-      isUtc: false,
-    ).toUtc().toIso8601String();
-  }
 
   @override
   GroupAnnouncementState build(String groupId) {
@@ -195,8 +119,24 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
     }
   }
 
+  /// 异步加载当前用户在本群的角色，写入 state.currentUserRole。
+  /// 失败时静默回退，保持 0（安全默认：无权限）。
+  Future<void> _loadCurrentRole() async {
+    try {
+      final uid = UserRepoLocal.to.currentUid;
+      final member = await GroupMemberRepo().findByUserId(groupId, uid);
+      if (member != null) {
+        state = state.copyWith(currentUserRole: member.role);
+      }
+    } catch (_) {
+      // 静默失败：保持 currentUserRole=0，UI 不显示管理操作
+    }
+  }
+
   /// 下拉刷新
   Future<void> onRefresh() async {
+    // 角色加载与数据加载并行，互不阻塞
+    unawaited(_loadCurrentRole());
     await loadAnnouncements(isRefresh: true);
   }
 
@@ -221,10 +161,10 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
         '/v1/group_notice/add',
         data: {
           'gid': groupId,
-          'title': _buildNoticeTitle(content),
+          'title': buildNoticeTitle(content),
           'body': content,
           'status': 1,
-          'expired_at': _toRfc3339(expirationMillis),
+          'expired_at': toRfc3339(expirationMillis),
         },
       );
 

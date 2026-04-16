@@ -106,6 +106,7 @@ class API {
   static const groupMemberSameGroup = '/v1/group_member/same_group';
   static const groupMemberRole = '/v1/group_member/role';
   static const groupMemberMute = '/v1/group_member/mute';
+  static const groupMemberUnmute = '/v1/group_member/unmute';
   static const groupTransfer = '/v1/group/transfer';
   static const groupRemark = '/v1/group/remark';
 

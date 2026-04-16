@@ -191,7 +191,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               if (value is String)
                 Expanded(
                   child: Text(
-                    value.isEmpty ? '未设置' : value,
+                    value.isEmpty ? t.notSet : value,
                     textAlign: TextAlign.right,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/config/routes.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 class RouteFeatureGuard {
   static String? featureForPath(String path) {
@@ -60,7 +61,7 @@ class RouteFeatureGuard {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('当前功能未启用'),
+            content: Text(t.featureNotEnabled),
             duration: Duration(seconds: 2),
           ),
         );
