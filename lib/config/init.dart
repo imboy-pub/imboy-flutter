@@ -439,7 +439,7 @@ class AppInitializer {
         return error;
       }
 
-      if (kDebugMode) debugPrint('🔧 initConfig: 开���解密配置');
+      if (kDebugMode) debugPrint('🔧 initConfig: 开始解密配置');
       final key = await Env.signKey();
       if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
       if (kDebugMode) debugPrint('🔐 [INIT] signKey value: $key, iv: ${Env().solidifiedKeyIv}');
