@@ -10,8 +10,10 @@ import 'package:go_router/go_router.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart'
     show newFriendRemindProvider;
+import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
@@ -212,6 +214,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             NetworkFailureTips()
           else
             const SizedBox.shrink(),
+          // 频道置顶区（订阅频道 Telegram 式归并，feature flag 控制）
+          if (AppFeatureRegistry.isEnabled('channel'))
+            const SubscribedChannelStrip(),
           Expanded(
             child: SlidableAutoCloseBehavior(
               child: RefreshIndicator(
