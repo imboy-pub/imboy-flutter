@@ -4,7 +4,8 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/modules/moment_social/public.dart';
+import 'package:imboy/modules/channel_content/public.dart';
+import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -37,15 +38,16 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   /// GoRouterState.of(context) 必须在 initState 之后调用（依赖 InheritedWidget）
   bool _initialIndexApplied = false;
 
-  // 固定 3 Tab：消息 / 广场 / 我的
+  // 固定 4 Tab：消息 / 联系人 / 频道 / 我的
   int _normalizeIndex(int value) {
-    return value.clamp(0, 2);
+    return value.clamp(0, 3);
   }
 
   List<Widget> _buildPageList() {
     return [
       const ConversationPage(),
-      const MomentFeedPage(),
+      ContactPage(),
+      const ChannelListPage(),
       MinePage(),
     ];
   }
@@ -162,20 +164,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
             iconBuilder: (isSelected) {
               final conversationState = ref.watch(conversationProvider);
               final chatRemindCount = conversationState.chatMsgRemindCounter;
-              // 合流：私聊/群聊未读 + 订阅频道未读（feature flag 开启时）
-              final channelUnread = channelEnabled
-                  ? (ref
-                            .watch(subscribedChannelStripProvider)
-                            .value
-                            ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
-                        0)
-                  : 0;
-              final totalRemindCount = chatRemindCount + channelUnread;
               return badges.Badge(
-                showBadge: totalRemindCount > 0,
+                showBadge: chatRemindCount > 0,
                 position: badges.BadgePosition.topStart(top: -8, start: 20),
                 badgeContent: Text(
-                  totalRemindCount > 99 ? '99+' : totalRemindCount.toString(),
+                  chatRemindCount > 99 ? '99+' : chatRemindCount.toString(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: labelFontSize * 0.85,
@@ -196,16 +189,73 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
               );
             },
           ),
-          // 广场 Tab（朋友圈 Feed）
+          // 联系人 Tab（带新朋友请求角标）
           GlassBottomBarItem(
-            icon: Icons.explore_outlined,
-            activeIcon: Icons.explore,
-            label: t.titleSquare,
-            iconBuilder: (isSelected) => Icon(
-              isSelected ? Icons.explore : Icons.explore_outlined,
-              size: 26,
-              color: isSelected ? AppColors.primary : null,
-            ),
+            icon: Icons.people_alt_outlined,
+            activeIcon: Icons.people_alt,
+            label: t.titleContact,
+            iconBuilder: (isSelected) {
+              final count = ref.watch(newFriendRemindProvider).length;
+              return badges.Badge(
+                showBadge: count > 0,
+                position: badges.BadgePosition.topStart(top: -8, start: 20),
+                badgeContent: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    fontSize: labelFontSize * 0.85,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: AppColors.messageFailed,
+                  borderRadius: AppRadius.borderRadiusMedium,
+                  elevation: 2,
+                ),
+                child: Icon(
+                  isSelected ? Icons.people_alt : Icons.people_alt_outlined,
+                  size: 26,
+                  color: isSelected ? AppColors.primary : null,
+                ),
+              );
+            },
+          ),
+          // 频道 Tab
+          GlassBottomBarItem(
+            icon: Icons.campaign_outlined,
+            activeIcon: Icons.campaign,
+            label: t.channel.title,
+            iconBuilder: (isSelected) {
+              final channelUnread = channelEnabled
+                  ? (ref
+                            .watch(subscribedChannelStripProvider)
+                            .value
+                            ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
+                        0)
+                  : 0;
+              return badges.Badge(
+                showBadge: channelUnread > 0,
+                position: badges.BadgePosition.topStart(top: -8, start: 20),
+                badgeContent: Text(
+                  channelUnread > 99 ? '99+' : channelUnread.toString(),
+                  style: TextStyle(
+                    fontSize: labelFontSize * 0.85,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: AppColors.messageFailed,
+                  borderRadius: AppRadius.borderRadiusMedium,
+                  elevation: 2,
+                ),
+                child: Icon(
+                  isSelected ? Icons.campaign : Icons.campaign_outlined,
+                  size: 26,
+                  color: isSelected ? AppColors.primary : null,
+                ),
+              );
+            },
           ),
           GlassBottomBarItem(
             icon: Icons.person_outline,

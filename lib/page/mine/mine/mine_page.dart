@@ -202,6 +202,18 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ]),
                 const SizedBox(height: 16),
 
+                // 朋友圈（广场入口，Tab 撤销后下沉至此）
+                _buildMenuSection(context, [
+                  _buildMenuItem(
+                    context,
+                    title: t.moments,
+                    leadingIcon: Icons.wb_sunny_outlined,
+                    leadingIconColor: Colors.deepOrange,
+                    onTap: () => context.push('/moment/feed'),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+
                 // 频道（feature flag 控制，关闭时不渲染）
                 if (AppFeatureRegistry.isEnabled('channel')) ...[
                   _buildMenuSection(context, [

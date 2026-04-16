@@ -7,15 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:badges/badges.dart' as badges;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
-import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart'
-    show newFriendRemindProvider;
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
-import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -200,8 +195,6 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         leading: const SizedBox.shrink(),
         title: '${t.titleMessage}${state.connectDesc}',
         rightDMActions: <Widget>[
-          // 联系人入口（带新朋友请求角标），从联系人 Tab 迁入
-          _ContactsIconButton(),
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: const RightButton(),
@@ -407,39 +400,3 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   }
 }
 
-/// 联系人入口图标按钮（带新朋友请求角标）
-///
-/// 原联系人 Tab 角标移入此处，保证"新朋友请求"可见性不丢失。
-class _ContactsIconButton extends ConsumerWidget {
-  const _ContactsIconButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final newFriendCount = ref.watch(newFriendRemindProvider).length;
-    return badges.Badge(
-      showBadge: newFriendCount > 0,
-      position: badges.BadgePosition.topStart(top: -2, start: 18),
-      badgeContent: Text(
-        newFriendCount.toString(),
-        style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-      ),
-      badgeStyle: badges.BadgeStyle(
-        badgeColor: AppColors.messageFailed,
-        borderRadius: AppRadius.borderRadiusMedium,
-        elevation: 2,
-      ),
-      child: IconButton(
-        onPressed: () => context.push('/contact'),
-        tooltip: context.t.titleContact,
-        icon: Icon(
-          Icons.people_alt_outlined,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-    );
-  }
-}
