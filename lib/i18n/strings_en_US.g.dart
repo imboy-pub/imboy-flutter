@@ -815,6 +815,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get titleDiscover => 'Discover';
 	@override String get titleMine => 'Me';
 	@override String get titleSquare => 'Square';
+	@override String get myChannels => 'My Channels';
+	@override String get channelSquare => 'Channel Square';
 	@override String get today => 'Today';
 	@override String get tooBad => 'Too bad';
 	@override String get topChat => 'Pin chat';
@@ -2996,6 +2998,8 @@ extension on TranslationsEnUs {
 			'titleDiscover' => 'Discover',
 			'titleMine' => 'Me',
 			'titleSquare' => 'Square',
+			'myChannels' => 'My Channels',
+			'channelSquare' => 'Channel Square',
 			'today' => 'Today',
 			'tooBad' => 'Too bad',
 			'topChat' => 'Pin chat',
@@ -3241,10 +3245,10 @@ extension on TranslationsEnUs {
 			'fileShareNotImplemented' => 'File sharing feature not implemented',
 			'copiedToClipboard' => 'Copied to clipboard',
 			'voiceFileInvalid' => 'Voice file is invalid',
-			'copiedLink' => 'Copied link',
-			'retrySuccess' => 'Resent successfully',
 			_ => null,
 		} ?? switch (path) {
+			'copiedLink' => 'Copied link',
+			'retrySuccess' => 'Resent successfully',
 			'deleteSuccess' => 'Deleted successfully',
 			'localDeleteSuccess' => 'Local deletion successful',
 			'localDeleteFailed' => 'Local deletion failed',
@@ -3755,10 +3759,10 @@ extension on TranslationsEnUs {
 			'groupVote.endVoteFailed' => 'End failed, please try again',
 			'groupVote.eachOptionPerLine' => 'One option per line',
 			'groupVote.statusInProgress' => 'In Progress',
-			'groupVote.updateVote' => 'Update Vote',
-			'groupVote.cancelMyVote' => 'Cancel my vote',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.updateVote' => 'Update Vote',
+			'groupVote.cancelMyVote' => 'Cancel my vote',
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
 			'groupSchedule.title' => 'Group Schedule',
@@ -4269,10 +4273,10 @@ extension on TranslationsEnUs {
 			'imageLoadFailed' => 'Load failed',
 			'loadFailedWithError' => ({required Object error}) => 'Load failed: ${error}',
 			'webAudioNotSupported' => 'Voice messages are not supported on the web platform',
-			'channelMaxTagsCount' => 'Maximum 8 tags allowed',
-			'tagInputHint' => 'Enter tag...',
 			_ => null,
 		} ?? switch (path) {
+			'channelMaxTagsCount' => 'Maximum 8 tags allowed',
+			'tagInputHint' => 'Enter tag...',
 			'e2eeRecreatingKey' => 'Recreating key...',
 			'e2eeKeyRecreated' => 'Key recreated successfully',
 			'e2eeKeyRecreationFailed' => ({required Object error}) => 'Key creation failed: ${error}',

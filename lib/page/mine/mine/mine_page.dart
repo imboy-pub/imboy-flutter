@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -200,6 +201,28 @@ class _MinePageState extends ConsumerState<MinePage> {
                   ),
                 ]),
                 const SizedBox(height: 16),
+
+                // 频道（feature flag 控制，关闭时不渲染）
+                if (AppFeatureRegistry.isEnabled('channel')) ...[
+                  _buildMenuSection(context, [
+                    _buildMenuItem(
+                      context,
+                      title: t.myChannels,
+                      leadingIcon: Icons.campaign_outlined,
+                      leadingIconColor: AppColors.primary,
+                      onTap: () => context.push('/channel'),
+                    ),
+                    _buildDivider(context),
+                    _buildMenuItem(
+                      context,
+                      title: t.channelSquare,
+                      leadingIcon: Icons.explore_outlined,
+                      leadingIconColor: Colors.teal,
+                      onTap: () => context.push('/channel/discover'),
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+                ],
 
                 // 常用功能
                 _buildMenuSection(context, [

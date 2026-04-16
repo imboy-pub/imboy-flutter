@@ -2414,6 +2414,12 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '广场'
 	String get titleSquare => '广场';
 
+	/// zh-CN: '我的频道'
+	String get myChannels => '我的频道';
+
+	/// zh-CN: '频道广场'
+	String get channelSquare => '频道广场';
+
 	/// zh-CN: '今天'
 	String get today => '今天';
 
@@ -7174,6 +7180,8 @@ extension on Translations {
 			'titleDiscover' => '发现',
 			'titleMine' => '我的',
 			'titleSquare' => '广场',
+			'myChannels' => '我的频道',
+			'channelSquare' => '频道广场',
 			'today' => '今天',
 			'tooBad' => '太差了',
 			'topChat' => '置顶聊天',
@@ -7400,10 +7408,10 @@ extension on Translations {
 			'gradientPurple' => '渐变紫',
 			'solidColorBackground' => '纯色背景',
 			'customImage' => '自定义图片',
-			'selectImageFailed' => '选择图片失败',
-			'takePhotoFailed' => '拍照失败',
 			_ => null,
 		} ?? switch (path) {
+			'selectImageFailed' => '选择图片失败',
+			'takePhotoFailed' => '拍照失败',
 			'selectVideoFailed' => '选择视频失败',
 			'recordVideoFailed' => '录制视频失败',
 			'selectFileFailed' => '选择文件失败',
@@ -7914,10 +7922,10 @@ extension on Translations {
 			'groupVote.deadline' => '截止时间',
 			'groupVote.noDeadline' => '无截止时间',
 			'groupVote.noVote' => '暂无投票',
-			'groupVote.voteEnded' => '投票已结束',
-			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.voteEnded' => '投票已结束',
+			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
 			'groupVote.voteSuccess' => '投票成功',
 			'groupVote.hasVoted' => '已投票',
 			'groupVote.viewResults' => '查看结果',
@@ -8428,10 +8436,10 @@ extension on Translations {
 			'e2eeProxySelectTitle' => '选择恢复代理',
 			'e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '已选 ${selected} / ${total}',
 			'e2eeProxyNoFriends' => '暂无好友',
-			'e2eeProxyNoFriendsHint' => '请先添加好友后再设置恢复代理',
-			'e2eeProxyReachedMin' => '已达到最少代理数量',
 			_ => null,
 		} ?? switch (path) {
+			'e2eeProxyNoFriendsHint' => '请先添加好友后再设置恢复代理',
+			'e2eeProxyReachedMin' => '已达到最少代理数量',
 			'e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个',
 			'e2eeProxyConfirmCount' => ({required Object count}) => '确认选择 (${count} 个代理)',
 			'e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
