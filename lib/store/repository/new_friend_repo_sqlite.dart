@@ -133,8 +133,8 @@ class NewFriendRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
-    String from = json[NewFriendRepo.from] ?? json['from'];
-    String to = json[NewFriendRepo.to] ?? json['to'];
+    String from = (json[NewFriendRepo.from] ?? json['from'] ?? '').toString();
+    String to = (json[NewFriendRepo.to] ?? json['to'] ?? '').toString();
     Map<String, Object?> data = {};
     if (strNoEmpty(json[NewFriendRepo.msg])) {
       data[NewFriendRepo.msg] = json[NewFriendRepo.msg];
@@ -185,8 +185,8 @@ class NewFriendRepo {
   }
 
   Future<void> save(Map<String, dynamic> json) async {
-    String from = json[NewFriendRepo.from] ?? json['from'];
-    String to = json[NewFriendRepo.to] ?? json['to'];
+    String from = (json[NewFriendRepo.from] ?? json['from'] ?? '').toString();
+    String to = (json[NewFriendRepo.to] ?? json['to'] ?? '').toString();
     await _db.transaction<void>((txn) async {
       NewFriendModel? old = await findByFromTo(from, to, txn: txn);
       if (old != null) {

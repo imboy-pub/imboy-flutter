@@ -165,7 +165,7 @@ class UserDenylistRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
-    String uid = json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "");
+    String uid = (json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "")).toString();
     Map<String, Object?> data = {};
     if (strNoEmpty(json["account"])) {
       data[UserDenylistRepo.account] = json["account"];
@@ -218,7 +218,7 @@ class UserDenylistRepo {
   }
 
   Future<void> save(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "");
+    String uid = (json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "")).toString();
     await _db.transaction<void>((txn) async {
       DenylistModel? old = await findByDeniedUid(uid, txn: txn);
       if (old is DenylistModel) {

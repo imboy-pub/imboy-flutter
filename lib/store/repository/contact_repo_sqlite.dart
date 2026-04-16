@@ -221,7 +221,7 @@ class ContactRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
-    String peerId = json["id"] ?? (json[ContactRepo.peerId] ?? "");
+    String peerId = (json["id"] ?? (json[ContactRepo.peerId] ?? "")).toString();
 
     Map<String, Object?> data = {};
     if (strNoEmpty(json[ContactRepo.account])) {

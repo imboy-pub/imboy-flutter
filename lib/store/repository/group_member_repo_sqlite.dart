@@ -234,8 +234,8 @@ class GroupMemberRepo {
   }
 
   Future<GroupMemberModel> save(Map<String, dynamic> json) async {
-    String gid = json[GroupMemberRepo.groupId] ?? '';
-    String userId = json[GroupMemberRepo.userId] ?? '';
+    String gid = (json[GroupMemberRepo.groupId] ?? '').toString();
+    String userId = (json[GroupMemberRepo.userId] ?? '').toString();
     // iPrint("GroupMemberRepo_save $tagId");
     GroupMemberModel? old = await findByUserId(gid, userId);
     iPrint("GroupMemberRepo_save $gid, ${old?.toJson().toString()};");

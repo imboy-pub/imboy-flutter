@@ -77,7 +77,7 @@ class UserCollectRepo {
   }
 
   Future<UserCollectModel> save(Map<String, dynamic> json) async {
-    String kid = json[UserCollectRepo.kindId];
+    String kid = (json[UserCollectRepo.kindId] ?? '').toString();
     return await _db.transaction<UserCollectModel>((txn) async {
       UserCollectModel? old = await findByKindId(kid, txn: txn);
       if (old is UserCollectModel) {
