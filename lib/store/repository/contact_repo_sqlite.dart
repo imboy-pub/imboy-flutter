@@ -293,7 +293,7 @@ class ContactRepo {
   Future<ContactModel?> save(Map<String, dynamic> json) async {
     // debugPrint("contact_repo_save $checkIsFriend, ${json.toString()}");
     // json['id'] 兼容 api响应的数据
-    String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
+    String uid = (json['id'] ?? (json[ContactRepo.peerId] ?? "")).toString();
     if (uid.isEmpty) {
       // peerId 为空，跳过保存
       return null;
