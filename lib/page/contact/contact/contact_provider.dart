@@ -106,7 +106,7 @@ class ContactNotifier extends _$ContactNotifier {
         nameIndex: '↑',
         bgColor: Colors.deepOrange,
         iconData: const Center(
-          child: Icon(Icons.wb_sunny, size: 24, color: Colors.white),
+          child: Icon(Icons.dynamic_feed, size: 24, color: Colors.white),
         ),
       ),
     );
