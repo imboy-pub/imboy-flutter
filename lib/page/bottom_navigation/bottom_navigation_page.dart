@@ -10,6 +10,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart'
+    show subscribedChannelStripProvider;
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
@@ -160,11 +162,20 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
             iconBuilder: (isSelected) {
               final conversationState = ref.watch(conversationProvider);
               final chatRemindCount = conversationState.chatMsgRemindCounter;
+              // 合流：私聊/群聊未读 + 订阅频道未读（feature flag 开启时）
+              final channelUnread = channelEnabled
+                  ? (ref
+                            .watch(subscribedChannelStripProvider)
+                            .value
+                            ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
+                        0)
+                  : 0;
+              final totalRemindCount = chatRemindCount + channelUnread;
               return badges.Badge(
-                showBadge: chatRemindCount > 0,
+                showBadge: totalRemindCount > 0,
                 position: badges.BadgePosition.topStart(top: -8, start: 20),
                 badgeContent: Text(
-                  chatRemindCount > 99 ? '99+' : chatRemindCount.toString(),
+                  totalRemindCount > 99 ? '99+' : totalRemindCount.toString(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: labelFontSize * 0.85,
