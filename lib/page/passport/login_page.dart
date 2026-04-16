@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -59,7 +60,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
         final lastAccount = UserRepoLocal.to.lastLoginAccount;
         if (lastAccount.isNotEmpty) {
           _accountController.text = lastAccount;
-          debugPrint('📝 自动填充上一次登录账号: $lastAccount');
+          if (kDebugMode) {
+            debugPrint('📝 自动填充上一次登录账号: $lastAccount');
+          }
         }
       }
     });
@@ -221,31 +224,27 @@ class _LoginPageState extends ConsumerState<LoginPage>
           ),
           textStyle: const TextStyle(color: Colors.white, fontSize: 18),
           onPressed: () async {
-            debugPrint('🔘 登录按钮被点击');
             final account = _accountController.text;
             final pwd = _passwordController.text;
-            debugPrint('📝 账号: $account, 密码长度: ${pwd.length}');
 
             if (account.isEmpty || pwd.isEmpty) {
-              debugPrint('⚠️ 账号或密码为空');
               notifier.setError(
                 t.errorEmptyDirectory(param: "${t.account}/${t.password}"),
               );
               return;
             }
 
-            debugPrint('🔄 开始登录...');
             final error = await notifier.loginUser('account', account, pwd);
-            debugPrint('✅ 登录完成，错误: $error');
+            if (kDebugMode) {
+              debugPrint('✅ 登录完成，错误: $error');
+            }
 
             if (error == null) {
               notifier.saveHistory('account', account);
               if (mounted) {
-                debugPrint('🚀 导航到底部导航页');
                 context.go('/bottom_navigation');
               }
             } else {
-              debugPrint('❌ 登录失败: $error');
               notifier.snackBar(error);
             }
           },

@@ -72,7 +72,6 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(passportProvider);
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
 
@@ -320,21 +319,15 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 );
                               }
                             },
-                            style: state.showSignupContinue
-                                ? ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    minimumSize: const Size(
-                                      double.infinity,
-                                      52,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          AppRadius.borderRadiusRegular,
-                                    ),
-                                    elevation: 0,
-                                  )
-                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 52),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: AppRadius.borderRadiusRegular,
+                              ),
+                              elevation: 0,
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.only(
                                 left: 10,

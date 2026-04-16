@@ -248,16 +248,26 @@ class PassportNotifier extends _$PassportNotifier {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: c.withValues(alpha: 0.1),
+            color: Colors.white,
             shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: c.withValues(alpha: 0.18),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Image.asset(
             'assets/images/imboy_logo0.png',
-            width: 72,
-            height: 72,
+            width: 56,
+            height: 56,
             fit: BoxFit.contain,
+            // logo PNG 为白色，使用品牌色重新着色
+            color: c,
+            colorBlendMode: BlendMode.srcIn,
           ),
         ),
         const SizedBox(height: 16),
