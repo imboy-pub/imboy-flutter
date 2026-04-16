@@ -1580,6 +1580,10 @@ channel:
   updateRoleFailed: "Failed to update role"
   userId: "User ID"
   userIdHint: "Enter user ID"
+  selectFromContacts: "Select from contacts"
+  searchContactsHint: "Search by name or account"
+  noContactsToAdd: "All friends are already admins"
+  selectRole: "Select role"
   noAdmins: "No admins yet"
   roleCreator: "Creator"
   roleAdmin: "Admin"
@@ -1596,6 +1600,12 @@ channel:
   removeSubscriberFailed: "Failed to remove subscriber"
   subscribedAt: "Subscribed at"
   viewProfile: "View Profile"
+  # Invite contacts
+  inviteFromContacts: "Invite Friends"
+  inviteSearchHint: "Search by nickname or account"
+  noContactsToInvite: "All friends are already invited or subscribed"
+  inviteSuccess: "Invitation sent"
+  inviteFailed: "Failed to send invitation"
   # Edit channel
   updateSuccess: "Channel updated successfully"
   updateFailed: "Failed to update channel"

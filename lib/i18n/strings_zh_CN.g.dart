@@ -5899,6 +5899,18 @@ class TranslationsChannelZhCn {
 	/// zh-CN: '请输入用户ID'
 	String get userIdHint => '请输入用户ID';
 
+	/// zh-CN: '从联系人选择'
+	String get selectFromContacts => '从联系人选择';
+
+	/// zh-CN: '搜索昵称或账号'
+	String get searchContactsHint => '搜索昵称或账号';
+
+	/// zh-CN: '所有好友都已是管理员'
+	String get noContactsToAdd => '所有好友都已是管理员';
+
+	/// zh-CN: '选择角色'
+	String get selectRole => '选择角色';
+
 	/// zh-CN: '暂无管理员'
 	String get noAdmins => '暂无管理员';
 
@@ -5943,6 +5955,21 @@ class TranslationsChannelZhCn {
 
 	/// zh-CN: '查看资料'
 	String get viewProfile => '查看资料';
+
+	/// zh-CN: '邀请好友'
+	String get inviteFromContacts => '邀请好友';
+
+	/// zh-CN: '搜索昵称或账号'
+	String get inviteSearchHint => '搜索昵称或账号';
+
+	/// zh-CN: '所有好友都已被邀请或已订阅'
+	String get noContactsToInvite => '所有好友都已被邀请或已订阅';
+
+	/// zh-CN: '邀请已发送'
+	String get inviteSuccess => '邀请已发送';
+
+	/// zh-CN: '邀请发送失败'
+	String get inviteFailed => '邀请发送失败';
 
 	/// zh-CN: '频道更新成功'
 	String get updateSuccess => '频道更新成功';
@@ -7863,6 +7890,10 @@ extension on Translations {
 			'channel.updateRoleFailed' => '角色更新失败',
 			'channel.userId' => '用户ID',
 			'channel.userIdHint' => '请输入用户ID',
+			'channel.selectFromContacts' => '从联系人选择',
+			'channel.searchContactsHint' => '搜索昵称或账号',
+			'channel.noContactsToAdd' => '所有好友都已是管理员',
+			'channel.selectRole' => '选择角色',
 			'channel.noAdmins' => '暂无管理员',
 			'channel.roleCreator' => '创建者',
 			'channel.roleAdmin' => '管理员',
@@ -7878,6 +7909,11 @@ extension on Translations {
 			'channel.removeSubscriberFailed' => '移除订阅者失败',
 			'channel.subscribedAt' => '订阅于',
 			'channel.viewProfile' => '查看资料',
+			'channel.inviteFromContacts' => '邀请好友',
+			'channel.inviteSearchHint' => '搜索昵称或账号',
+			'channel.noContactsToInvite' => '所有好友都已被邀请或已订阅',
+			'channel.inviteSuccess' => '邀请已发送',
+			'channel.inviteFailed' => '邀请发送失败',
 			'channel.updateSuccess' => '频道更新成功',
 			'channel.updateFailed' => '频道更新失败',
 			'channel.typeCannotChange' => '创建后不可更改',
@@ -7913,6 +7949,8 @@ extension on Translations {
 			'groupTag.removeTitle' => '移除标签',
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupVote.title' => '群投票',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.createVote' => '创建投票',
 			'groupVote.voteTitle' => '投票标题',
 			'groupVote.voteOptions' => '投票选项',
@@ -7922,8 +7960,6 @@ extension on Translations {
 			'groupVote.deadline' => '截止时间',
 			'groupVote.noDeadline' => '无截止时间',
 			'groupVote.noVote' => '暂无投票',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.voteEnded' => '投票已结束',
 			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
 			'groupVote.voteSuccess' => '投票成功',
@@ -8427,6 +8463,8 @@ extension on Translations {
 			'e2eeSocialManageShardsDesc' => '查看和管理所有恢复分片',
 			'e2eeSocialZeroTrustHint1' => '零信任架构：服务端不存储分片，直接联系代理',
 			'e2eeSocialZeroTrustHint2' => '零信任架构：分片存储在代理设备',
+			_ => null,
+		} ?? switch (path) {
 			'e2eeSocialZeroTrustHint3' => '零信任架构：分片由代理设备存储，服务端不接触明文',
 			'e2eeProxyLoadFriendsFailed' => '加载好友列表失败，请重试',
 			'e2eeProxyMinCount' => ({required Object count}) => '请至少选择 ${count} 个代理',
@@ -8436,8 +8474,6 @@ extension on Translations {
 			'e2eeProxySelectTitle' => '选择恢复代理',
 			'e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '已选 ${selected} / ${total}',
 			'e2eeProxyNoFriends' => '暂无好友',
-			_ => null,
-		} ?? switch (path) {
 			'e2eeProxyNoFriendsHint' => '请先添加好友后再设置恢复代理',
 			'e2eeProxyReachedMin' => '已达到最少代理数量',
 			'e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个',

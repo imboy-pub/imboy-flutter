@@ -2014,6 +2014,10 @@ class _TranslationsChannelEnUs extends TranslationsChannelZhCn {
 	@override String get updateRoleFailed => 'Failed to update role';
 	@override String get userId => 'User ID';
 	@override String get userIdHint => 'Enter user ID';
+	@override String get selectFromContacts => 'Select from contacts';
+	@override String get searchContactsHint => 'Search by name or account';
+	@override String get noContactsToAdd => 'All friends are already admins';
+	@override String get selectRole => 'Select role';
 	@override String get noAdmins => 'No admins yet';
 	@override String get roleCreator => 'Creator';
 	@override String get roleAdmin => 'Admin';
@@ -2029,6 +2033,11 @@ class _TranslationsChannelEnUs extends TranslationsChannelZhCn {
 	@override String get removeSubscriberFailed => 'Failed to remove subscriber';
 	@override String get subscribedAt => 'Subscribed at';
 	@override String get viewProfile => 'View Profile';
+	@override String get inviteFromContacts => 'Invite Friends';
+	@override String get inviteSearchHint => 'Search by nickname or account';
+	@override String get noContactsToInvite => 'All friends are already invited or subscribed';
+	@override String get inviteSuccess => 'Invitation sent';
+	@override String get inviteFailed => 'Failed to send invitation';
 	@override String get updateSuccess => 'Channel updated successfully';
 	@override String get updateFailed => 'Failed to update channel';
 	@override String get typeCannotChange => 'Cannot be changed after creation';
@@ -3695,6 +3704,10 @@ extension on TranslationsEnUs {
 			'channel.updateRoleFailed' => 'Failed to update role',
 			'channel.userId' => 'User ID',
 			'channel.userIdHint' => 'Enter user ID',
+			'channel.selectFromContacts' => 'Select from contacts',
+			'channel.searchContactsHint' => 'Search by name or account',
+			'channel.noContactsToAdd' => 'All friends are already admins',
+			'channel.selectRole' => 'Select role',
 			'channel.noAdmins' => 'No admins yet',
 			'channel.roleCreator' => 'Creator',
 			'channel.roleAdmin' => 'Admin',
@@ -3710,6 +3723,11 @@ extension on TranslationsEnUs {
 			'channel.removeSubscriberFailed' => 'Failed to remove subscriber',
 			'channel.subscribedAt' => 'Subscribed at',
 			'channel.viewProfile' => 'View Profile',
+			'channel.inviteFromContacts' => 'Invite Friends',
+			'channel.inviteSearchHint' => 'Search by nickname or account',
+			'channel.noContactsToInvite' => 'All friends are already invited or subscribed',
+			'channel.inviteSuccess' => 'Invitation sent',
+			'channel.inviteFailed' => 'Failed to send invitation',
 			'channel.updateSuccess' => 'Channel updated successfully',
 			'channel.updateFailed' => 'Failed to update channel',
 			'channel.typeCannotChange' => 'Cannot be changed after creation',
@@ -3750,6 +3768,8 @@ extension on TranslationsEnUs {
 			'groupVote.noDeadline' => 'No deadline',
 			'groupVote.noVote' => 'No votes yet',
 			'groupVote.voteEnded' => 'Vote ended',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.totalVotes' => ({required Object count}) => '${count} votes',
 			'groupVote.voteSuccess' => 'Voted successfully',
 			'groupVote.hasVoted' => 'Already voted',
@@ -3759,8 +3779,6 @@ extension on TranslationsEnUs {
 			'groupVote.endVoteFailed' => 'End failed, please try again',
 			'groupVote.eachOptionPerLine' => 'One option per line',
 			'groupVote.statusInProgress' => 'In Progress',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.updateVote' => 'Update Vote',
 			'groupVote.cancelMyVote' => 'Cancel my vote',
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
@@ -4264,6 +4282,8 @@ extension on TranslationsEnUs {
 			'e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'Selected ${selected} / ${total}',
 			'e2eeProxyNoFriends' => 'No friends yet',
 			'e2eeProxyNoFriendsHint' => 'Add friends first before setting up recovery proxies',
+			_ => null,
+		} ?? switch (path) {
 			'e2eeProxyReachedMin' => 'Minimum proxy count reached',
 			'e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'Need at least ${count} trusted contacts — ${selected} selected',
 			'e2eeProxyConfirmCount' => ({required Object count}) => 'Confirm Selection (${count} proxies)',
@@ -4273,8 +4293,6 @@ extension on TranslationsEnUs {
 			'imageLoadFailed' => 'Load failed',
 			'loadFailedWithError' => ({required Object error}) => 'Load failed: ${error}',
 			'webAudioNotSupported' => 'Voice messages are not supported on the web platform',
-			_ => null,
-		} ?? switch (path) {
 			'channelMaxTagsCount' => 'Maximum 8 tags allowed',
 			'tagInputHint' => 'Enter tag...',
 			'e2eeRecreatingKey' => 'Recreating key...',

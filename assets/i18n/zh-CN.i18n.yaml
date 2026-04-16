@@ -1588,6 +1588,10 @@ channel:
   updateRoleFailed: "角色更新失败"
   userId: "用户ID"
   userIdHint: "请输入用户ID"
+  selectFromContacts: "从联系人选择"
+  searchContactsHint: "搜索昵称或账号"
+  noContactsToAdd: "所有好友都已是管理员"
+  selectRole: "选择角色"
   noAdmins: "暂无管理员"
   roleCreator: "创建者"
   roleAdmin: "管理员"
@@ -1604,6 +1608,12 @@ channel:
   removeSubscriberFailed: "移除订阅者失败"
   subscribedAt: "订阅于"
   viewProfile: "查看资料"
+  # 邀请联系人
+  inviteFromContacts: "邀请好友"
+  inviteSearchHint: "搜索昵称或账号"
+  noContactsToInvite: "所有好友都已被邀请或已订阅"
+  inviteSuccess: "邀请已发送"
+  inviteFailed: "邀请发送失败"
   # 编辑频道
   updateSuccess: "频道更新成功"
   updateFailed: "频道更新失败"
