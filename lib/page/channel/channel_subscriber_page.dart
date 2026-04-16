@@ -7,7 +7,12 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/channel/channel_admin_add_rules.dart'
+    show searchContactCandidates;
+import 'package:imboy/page/channel/channel_invitation_rules.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 /// 订阅者信息模型
 class SubscriberInfo {
@@ -42,7 +47,15 @@ class SubscriberInfo {
 class ChannelSubscriberPage extends ConsumerStatefulWidget {
   final String channelId;
 
-  const ChannelSubscriberPage({super.key, required this.channelId});
+  /// 当前用户是否有权发送邀请（私有频道管理员/创建者可用）。
+  /// 默认 false，由调用方（路由 extra 或父组件）传入。
+  final bool canInvite;
+
+  const ChannelSubscriberPage({
+    super.key,
+    required this.channelId,
+    this.canInvite = false,
+  });
 
   @override
   ConsumerState<ChannelSubscriberPage> createState() =>
@@ -201,6 +214,44 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     }
   }
 
+  Future<void> _showInviteContactPicker() async {
+    // 先获取已有待处理邀请列表，用于过滤联系人
+    List<Map<String, dynamic>> sentInvitations = [];
+    try {
+      sentInvitations = await ChannelService.to.getSentInvitations();
+    } catch (_) {
+      // 获取失败时不阻塞邀请流程，直接显示全量联系人
+    }
+    final pendingIds = extractPendingInviteeIds(sentInvitations);
+
+    if (!mounted) return;
+
+    final inviteeUid = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _InviteContactPickerSheet(
+        channelId: widget.channelId,
+        pendingInviteeIds: pendingIds,
+      ),
+    );
+
+    if (inviteeUid == null || !mounted) return;
+
+    final t = context.t;
+    final ok = await ChannelService.to.sendInvitation(
+      channelId: widget.channelId,
+      inviteeUid: inviteeUid,
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? t.channel.inviteSuccess : t.channel.inviteFailed),
+      ),
+    );
+    if (ok) unawaited(_loadSubscribers(refresh: true));
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -226,6 +277,13 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             ),
         ],
       ),
+      floatingActionButton: widget.canInvite
+          ? FloatingActionButton(
+              onPressed: _showInviteContactPicker,
+              tooltip: t.channel.inviteFromContacts,
+              child: const Icon(Icons.person_add_outlined),
+            )
+          : null,
       body: _buildBody(),
     );
   }
@@ -326,6 +384,167 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 邀请联系人选择底部抽屉
+// ---------------------------------------------------------------------------
+
+/// 从通讯录中选择联系人发送频道邀请。
+///
+/// 返回值为被选中联系人的 userId（String），取消或未选择时返回 null。
+class _InviteContactPickerSheet extends StatefulWidget {
+  final String channelId;
+  final List<String> pendingInviteeIds;
+
+  const _InviteContactPickerSheet({
+    required this.channelId,
+    required this.pendingInviteeIds,
+  });
+
+  @override
+  State<_InviteContactPickerSheet> createState() =>
+      _InviteContactPickerSheetState();
+}
+
+class _InviteContactPickerSheetState
+    extends State<_InviteContactPickerSheet> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  List<Map<String, dynamic>> _allContacts = [];
+  List<Map<String, dynamic>> _filtered = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContacts();
+    _searchCtrl.addListener(_onSearch);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.removeListener(_onSearch);
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadContacts() async {
+    try {
+      final friends = await ContactRepo().findFriend();
+      final maps = friends
+          .map(
+            (c) => {
+              'peer_id': c.peerId,
+              'nickname': c.title,
+              'account': c.account,
+              'remark': c.remark,
+              'avatar': c.avatar,
+            },
+          )
+          .toList();
+      final candidates = filterContactsForInvitation(
+        maps,
+        pendingInviteeIds: widget.pendingInviteeIds,
+      );
+      if (mounted) {
+        setState(() {
+          _allContacts = candidates;
+          _filtered = candidates;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _onSearch() {
+    final keyword = _searchCtrl.text;
+    setState(() {
+      _filtered = searchContactCandidates(_allContacts, keyword);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final screenH = MediaQuery.of(context).size.height;
+
+    return Container(
+      height: screenH * 0.75,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // 拖拽把手
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              t.channel.inviteFromContacts,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: t.channel.inviteSearchHint,
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _filtered.isEmpty
+                    ? Center(child: Text(t.channel.noContactsToInvite))
+                    : ListView.builder(
+                        itemCount: _filtered.length,
+                        itemBuilder: (context, index) {
+                          final c = _filtered[index];
+                          final nickname =
+                              (c['nickname'] as String? ?? '').trim();
+                          final account =
+                              (c['account'] as String? ?? '').trim();
+                          final avatar = c['avatar'] as String? ?? '';
+                          final peerId =
+                              c['peer_id']?.toString() ?? '';
+
+                          return ListTile(
+                            leading: Avatar(
+                              imgUri: avatar,
+                              width: 44,
+                              height: 44,
+                            ),
+                            title: Text(
+                              nickname.isNotEmpty ? nickname : peerId,
+                            ),
+                            subtitle: account.isNotEmpty
+                                ? Text(account)
+                                : null,
+                            onTap: () => Navigator.of(context).pop(peerId),
+                          );
+                        },
+                      ),
+          ),
+        ],
       ),
     );
   }

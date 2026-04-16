@@ -565,9 +565,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 name: 'channel_subscribers',
                 pageBuilder: (context, state) {
                   final channelId = state.pathParameters['channelId']!;
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final canInvite = extra?['canInvite'] as bool? ?? false;
                   return CupertinoPage(
                     key: state.pageKey,
-                    child: ChannelSubscriberPage(channelId: channelId),
+                    child: ChannelSubscriberPage(
+                      channelId: channelId,
+                      canInvite: canInvite,
+                    ),
                   );
                 },
               ),

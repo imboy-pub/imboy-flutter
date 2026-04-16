@@ -1152,7 +1152,16 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         context.push('/channel/$channelId/admins');
         break;
       case 'manage_subscribers':
-        context.push('/channel/$channelId/subscribers');
+        final invitationEnabled = AppFeatureRegistry.isEnabled(
+          'channel_invitation',
+        );
+        final isPrivate = channel?.type == ChannelType.private;
+        context.push(
+          '/channel/$channelId/subscribers',
+          extra: {
+            'canInvite': invitationEnabled && isPrivate,
+          },
+        );
         break;
     }
   }

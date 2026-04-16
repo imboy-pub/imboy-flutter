@@ -537,6 +537,28 @@ class ChannelService {
     }
   }
 
+  /// 发送邀请（私有频道管理员邀请联系人加入）
+  ///
+  /// 返回 `true` 表示邀请已成功创建；`false` 表示失败（已邀请/权限不足/网络异常）。
+  Future<bool> sendInvitation({
+    required String channelId,
+    required String inviteeUid,
+  }) async {
+    if (channelId.isEmpty || inviteeUid.isEmpty) return false;
+    try {
+      final result = await _api.createInvitation(
+        channelId: channelId,
+        inviteeUid: inviteeUid,
+      );
+      final ok = result != null;
+      iPrint('ChannelService: 发送邀请${ok ? "成功" : "失败"} - channel=$channelId invitee=$inviteeUid');
+      return ok;
+    } catch (e) {
+      iPrint('ChannelService: 发送邀请异常 - $e');
+      return false;
+    }
+  }
+
   // ==================== 统计和互动 ====================
 
   /// 获取频道统计。

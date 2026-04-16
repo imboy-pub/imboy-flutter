@@ -9,6 +9,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/page/channel/channel_admin_add_rules.dart';
 
 /// 管理员信息
 class _AdminInfo {
@@ -85,61 +87,45 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     }
   }
 
-  Future<void> _showAddAdminDialog() async {
-    final controller = TextEditingController();
-    final result = await showDialog<String>(
+  /// 打开联系人选人底部弹层
+  Future<void> _showContactPicker() async {
+    // 构造已有管理员 ID 集合，用于在选人界面过滤
+    final existingIds = _admins.map((a) => a.userId).toList();
+
+    final picked = await showModalBottomSheet<({String userId, int role})>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.channel.addAdmin),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: t.channel.userId,
-            hintText: t.channel.userIdHint,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(t.confirm),
-          ),
-        ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ContactPickerSheet(
+        existingAdminIds: existingIds,
+        channelId: widget.channelId,
       ),
     );
 
-    if (result != null && result.isNotEmpty && mounted) {
-      try {
-        // 默认角色：编辑（editor=1）。历史实现误传 0（=subscriber/none），
-        // 导致「添加管理员」实际把用户角色置为非订阅者，功能等同于没做。
-        // 角色映射见 ChannelUserRole.toInt()：editor=1, admin=2, creator=3。
-        final success = await _api.addAdmin(
-          widget.channelId,
-          result,
-          ChannelUserRole.editor.toInt(),
+    if (picked == null || !mounted) return;
+
+    try {
+      final success = await _api.addAdmin(
+        widget.channelId,
+        picked.userId,
+        picked.role,
+      );
+      if (!mounted) return;
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.channel.addAdminSuccess)),
         );
-        if (!mounted) return;
-        if (success) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.addAdminSuccess)));
-          unawaited(_loadAdmins());
-        } else {
-          // 对齐 catch 分支：success=false 不得静默。
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.addAdminFailed)),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.addAdminFailed)),
-          );
-        }
+        unawaited(_loadAdmins());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.channel.addAdminFailed)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.channel.addAdminFailed)),
+        );
       }
     }
   }
@@ -308,7 +294,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         rightDMActions: [
           IconButton(
             icon: const Icon(Icons.person_add),
-            onPressed: _showAddAdminDialog,
+            onPressed: _showContactPicker,
             tooltip: t.channel.addAdmin,
           ),
         ],
@@ -409,6 +395,224 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
                 ),
         );
       },
+    );
+  }
+}
+
+// =============================================================================
+// 联系人选人底部弹层
+// =============================================================================
+
+/// 从好友列表中选择要添加为管理员的联系人，并确认角色。
+///
+/// 返回值：`({userId, role})` 记录类型，调用方据此调 API；
+/// 用户取消时返回 null。
+class _ContactPickerSheet extends StatefulWidget {
+  final List<String> existingAdminIds;
+  final String channelId;
+
+  const _ContactPickerSheet({
+    required this.existingAdminIds,
+    required this.channelId,
+  });
+
+  @override
+  State<_ContactPickerSheet> createState() => _ContactPickerSheetState();
+}
+
+class _ContactPickerSheetState extends State<_ContactPickerSheet> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  List<Map<String, dynamic>> _candidates = [];
+  List<Map<String, dynamic>> _filtered = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContacts();
+    _searchCtrl.addListener(_onSearch);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.removeListener(_onSearch);
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadContacts() async {
+    final contacts = await ContactRepo().findFriend();
+    final maps = contacts
+        .map((c) => {
+              'peer_id': c.peerId,
+              'nickname': c.title, // title = remark ?? nickname ?? account
+              'account': c.account,
+              'remark': c.remark,
+              'avatar': c.avatar,
+            })
+        .toList();
+
+    final candidates = filterContactsForAdmin(
+      maps,
+      existingAdminIds: widget.existingAdminIds,
+    );
+
+    if (mounted) {
+      setState(() {
+        _candidates = candidates;
+        _filtered = candidates;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _onSearch() {
+    setState(() {
+      _filtered = searchContactCandidates(_candidates, _searchCtrl.text);
+    });
+  }
+
+  /// 弹出角色选择对话框，返回用户选择的角色值（1/2），取消返回 null。
+  Future<int?> _pickRole(BuildContext ctx) {
+    final t = ctx.t;
+    return showDialog<int>(
+      context: ctx,
+      builder: (context) => AlertDialog(
+        title: Text(t.channel.selectRole),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(t.channel.roleEditor),
+              subtitle: const Text('可发布消息'),
+              leading: const Icon(Icons.edit_outlined),
+              onTap: () => Navigator.pop(context, 1),
+            ),
+            ListTile(
+              title: Text(t.channel.roleAdmin),
+              subtitle: const Text('可管理频道'),
+              leading: const Icon(Icons.admin_panel_settings_outlined),
+              onTap: () => Navigator.pop(context, 2),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.cancel),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final maxHeight = MediaQuery.of(context).size.height * 0.75;
+
+    return Container(
+      height: maxHeight,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // 顶部拖拽指示器
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // 标题
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              children: [
+                Text(
+                  t.channel.selectFromContacts,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          // 搜索框
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: TextField(
+              controller: _searchCtrl,
+              autofocus: false,
+              decoration: InputDecoration(
+                hintText: t.channel.searchContactsHint,
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+            ),
+          ),
+          const Divider(height: 1),
+          // 联系人列表
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filtered.isEmpty
+                    ? Center(
+                        child: Text(
+                          _candidates.isEmpty
+                              ? t.channel.noContactsToAdd
+                              : t.noContacts,
+                          style: TextStyle(color: Colors.grey[500]),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: _filtered.length,
+                        itemBuilder: (ctx, i) {
+                          final c = _filtered[i];
+                          final avatar = c['avatar'] as String? ?? '';
+                          final nickname = c['nickname'] as String? ?? '';
+                          final account = c['account'] as String? ?? '';
+                          return ListTile(
+                            leading: Avatar(
+                              imgUri: avatar,
+                              width: 44,
+                              height: 44,
+                            ),
+                            title: Text(nickname),
+                            subtitle: account.isNotEmpty ? Text(account) : null,
+                            onTap: () async {
+                              final role = await _pickRole(ctx);
+                              if (role == null || !context.mounted) return;
+                              final userId =
+                                  c['peer_id']?.toString() ?? '';
+                              if (userId.isEmpty) return;
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(
+                                context,
+                                (userId: userId, role: role),
+                              );
+                            },
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }
