@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
+import 'package:imboy/page/moment/moment_friend_picker/moment_friend_picker_page.dart';
 import 'package:imboy/page/moment/moment_interactions.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -270,6 +271,57 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     Navigator.of(context).pop(true);
   }
 
+  /// 弹出好友选择器并把结果写回指定 controller。
+  /// 结果为 null 视为取消，不清空已有值。
+  Future<void> _pickUids({
+    required TextEditingController controller,
+    required String title,
+  }) async {
+    final initial = parseMomentUidList(controller.text);
+    final result = await Navigator.of(context).push<List<String>>(
+      MaterialPageRoute<List<String>>(
+        builder: (_) => MomentFriendPickerPage(
+          title: title,
+          initialSelectedUids: initial,
+        ),
+      ),
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      controller.text = result.join(',');
+    });
+  }
+
+  Widget _buildUidPickerField({
+    required TextEditingController controller,
+    required String labelText,
+    required String placeholder,
+    required String pickerTitle,
+  }) {
+    final selectedCount = parseMomentUidList(controller.text).length;
+    return InkWell(
+      onTap: () => _pickUids(controller: controller, title: pickerTitle),
+      borderRadius: BorderRadius.circular(4),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.chevron_right),
+        ),
+        child: Text(
+          selectedCount == 0
+              ? placeholder
+              : context.t.momentFriendPicker.selectedCount(
+                  count: selectedCount,
+                ),
+          style: selectedCount == 0
+              ? TextStyle(color: Theme.of(context).hintColor)
+              : null,
+        ),
+      ),
+    );
+  }
+
   void _showPicker() {
     showModalBottomSheet(
       context: context,
@@ -458,22 +510,20 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
           ),
           if (momentVisibilityRequiresAllowUids(_visibility)) ...[
             const SizedBox(height: 12),
-            TextField(
+            _buildUidPickerField(
               controller: _allowUidsController,
-              decoration: InputDecoration(
-                labelText: t.momentsAllowUidsLabel,
-                border: const OutlineInputBorder(),
-              ),
+              labelText: t.momentsAllowUidsLabel,
+              placeholder: t.momentFriendPicker.titleAllow,
+              pickerTitle: t.momentFriendPicker.titleAllow,
             ),
           ],
           if (momentVisibilityRequiresDenyUids(_visibility)) ...[
             const SizedBox(height: 12),
-            TextField(
+            _buildUidPickerField(
               controller: _denyUidsController,
-              decoration: InputDecoration(
-                labelText: t.momentsDenyUidsLabel,
-                border: const OutlineInputBorder(),
-              ),
+              labelText: t.momentsDenyUidsLabel,
+              placeholder: t.momentFriendPicker.titleDeny,
+              pickerTitle: t.momentFriendPicker.titleDeny,
             ),
           ],
           const SizedBox(height: 12),
