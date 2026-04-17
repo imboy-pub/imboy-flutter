@@ -58,7 +58,7 @@ ImBoy 采用**双蓝策略**：
 | 角色 | Token | 值 | 用途 |
 |------|-------|-----|------|
 | **品牌蓝** `brand` | `AppColors.primary` | `#2474E5` | Logo、启动页、Tab 选中态、主按钮（Primary Button）、发送消息气泡背景、FAB |
-| **iOS 系统蓝** `systemBlue` | `AppColors.iosBlue` _(新增)_ | `#007AFF` | 链接文本、Cell 右侧箭头/时间标签、顶部栏「取消/完成」文字按钮、Date/Time Picker、Switch 开启态 |
+| **iOS 系统蓝** `systemBlue` | `AppColors.iosBlue` | `#007AFF` | 链接文本、Cell 右侧箭头/时间标签、顶部栏「取消/完成」文字按钮、Date/Time Picker、Switch 开启态 |
 
 > **为什么分两个蓝？** `#2474E5` 是产品已定的品牌色（2026-01-15 决策，替代原 `#059669` 绿），承载识别；`#007AFF` 是 iOS 原生系统蓝，承载「系统语义」。两者色相接近，视觉上和谐共存。
 >
@@ -605,10 +605,10 @@ Layout:
 | `brand` / `primary` | `AppColors.primary` (`#2474E5`) | ✅ 已对齐 |
 | `brandLight` | `AppColors.primaryLight` (`#E3F2FD`) | ✅ 已对齐 |
 | `brandDark` | `AppColors.primaryDark` (`#1565C0`) | ✅ 已对齐 |
-| `iosBlue` | **新增** `AppColors.iosBlue = #007AFF` | ➕ 需要添加 |
-| `iosRed` | **新增** `AppColors.iosRed = #FF3B30` | ➕ 需要添加（可复用 `unreadBadgeBackground` 的微调版） |
-| `iosGreen` | **新增** `AppColors.iosGreen = #34C759` | ➕ 可复用 `onlineIndicator` |
-| `iosGray6` / `surfaceGrouped` | **新增** `AppColors.lightSurfaceGrouped = #F2F2F7` | ➕ 需要添加（现有 `lightSurfaceContainer = #EDEDED` 近似但偏微信风） |
+| `iosBlue` | `AppColors.iosBlue` (`#007AFF`) | ✅ 已落地（2026-04-17） |
+| `iosRed` | `AppColors.iosRed` (`#FF3B30`) | ✅ 已落地 |
+| `iosGreen` | `AppColors.iosGreen` (`#34C759`) | ✅ 已落地 |
+| `iosGray6` / `surfaceGrouped` | `AppColors.lightSurfaceGrouped` (`#F2F2F7`) | ✅ 已落地 |
 | `separator` | `AppColors.lightDivider` (`#E5E5E5`) | ⚠️ 建议调整为 `#C6C6C8` 更贴 iOS |
 | 暗色 `surface` | `AppColors.darkSurface` (`#121212`) | ⚠️ 建议调整为 `#1C1C1E` |
 | 暗色 `surfaceGrouped` | `AppColors.darkBackground` (`#121212`) | ⚠️ 建议新增 `#000000` (OLED) / `#1C1C1E` 两档 |

@@ -1200,3 +1200,44 @@ CREATE INDEX IF NOT EXISTS idx_group_member_mute_until
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 19;
+
+-- VERSION: 20
+-- DESC: 朋友圈通知中心 (Slice A-1) - 新增 moment_notify 表
+--       后端 moment_logic_notify:notify_post_liked/3 模式为 no_save，
+--       点赞通知不入服务端历史表；客户端必须本地落库才能做通知中心红点
+--       与历史列表。评论通知后端 save 但我们仍本地持久化以统一 UX。
+-- ============================================================
+
+-- ============================================================
+-- Step 1: 创建 moment_notify 表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS moment_notify (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  moment_id TEXT NOT NULL,
+  from_uid TEXT NOT NULL,
+  comment_id TEXT,
+  is_read INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL
+);
+
+-- ============================================================
+-- Step 2: 防 S2C 重复的唯一索引
+--         action + moment_id + from_uid + comment_id 四元组唯一。
+--         moment_like 时 comment_id 为 NULL，SQLite 唯一索引允许多行 NULL，
+--         所以评论与点赞不会互相冲突。
+-- ============================================================
+CREATE UNIQUE INDEX IF NOT EXISTS uq_moment_notify_dedup
+  ON moment_notify(user_id, action, moment_id, from_uid, comment_id);
+
+-- ============================================================
+-- Step 3: 列表与未读计数加速索引
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_moment_notify_user_read
+  ON moment_notify(user_id, is_read, created_at DESC);
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 20;
