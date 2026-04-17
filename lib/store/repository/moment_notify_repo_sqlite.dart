@@ -7,9 +7,13 @@
 ///   - unreadCount：顶部红点数
 ///   - delete / clear：用户手动删除
 ///
-/// 去重语义：依赖 v20 迁移建立的 `uq_moment_notify_dedup`
-///（user_id + action + moment_id + from_uid + comment_id）唯一索引，
+/// 去重语义：依赖 v21 迁移重建的 `uq_moment_notify_dedup` 唯一索引
+///（user_id + action + moment_id + from_uid + COALESCE(comment_id, '')），
 /// 重复 S2C 推送自动被 SQLite 吞掉，客户端无需上层去重逻辑。
+///
+/// 注：v20 原索引直接使用 `comment_id`，但 SQLite "NULL != NULL" 语义
+/// 使 `comment_id IS NULL` 的 moment_like 行无法被唯一索引拦截；
+/// v21 用 `COALESCE(comment_id, '')` 将 NULL 折叠为空串参与唯一约束修复。
 library;
 
 import 'package:sqflite_sqlcipher/sqflite.dart';

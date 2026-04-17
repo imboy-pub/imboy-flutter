@@ -89,6 +89,18 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 
 ## 变更记录 (Changelog)
 
+### 2026-04-18
+- **Completion Sprint Track A 推进：A-2 / A-4 / A-5 三切片落地（三次独立提交）** / **Completion Sprint Track A push: A-2 / A-4 / A-5 three slices landed (three independent commits)**：
+  - `0b5dba2f` **A-2 moment_notify Phase 1（朋友圈通知中心客户端本地闭环）** / **Moment notification center, client-local closure Phase 1**：17 文件 +1559/-9；SQLite v18→v20（新增 `moment_notify` 表 + dedup 唯一索引）；Riverpod 3 sealed state + 分页 provider；i18n `momentNotify.*` 新键；路由 `/moment_notify` + `moment_feed_page.dart` 入口；采用 **Option C 混合策略**：Phase 1 仅客户端本地（未来 Phase 2 再做后端 REST v1.1 `/v1/moment/notify/page`）/ Option C hybrid: Phase 1 client-only now; Phase 2 backend REST later
+  - `abf806de` **A-4 moment_friend_picker（朋友圈可见性好友选择器）** / **Moment-visibility friend picker**：4 文件 +778/-10；`friend_picker_rules.dart` 纯函数（`sortUidsForPayload` + `resolveTagSelectionState`，26 测全绿，零外部依赖）；`moment_create_page.dart` 接入 `_pickUids` + `_buildUidPickerField`
+  - `69ee2fea` **A-5 contact_tag_filter（联系人按标签筛选）** / **Contact-by-tag filter**：3 文件 +247/-0；`contact_tag_filter_rules.dart` 纯函数（`filterContactsByTagUids` + `unionTagUids`，18 测全绿）；`contact_page.dart` AppBar 新增 `label_outline` IconButton 跳 `user_tag_list`
+  - **全量回归 2661/2661 绿；`flutter analyze` 零警告** / Full regression 2661/2661 green; analyzer clean
+  - **code-reviewer 结论 APPROVE WITH COMMENTS**（1 HIGH / 3 MEDIUM / 2 LOW）/ code-reviewer verdict APPROVE WITH COMMENTS：
+    - **[HIGH]** `moment_like` 去重索引失效 —— SQLite `NULL != NULL` 语义使 `comment_id IS NULL` 行无法被唯一索引拦截；`ConflictAlgorithm.ignore` 对 NULL 列组无效。**修复方案（v21 migration）**：`CREATE UNIQUE INDEX uq_moment_notify_dedup ON moment_notify(user_id, action, moment_id, from_uid, COALESCE(comment_id, ''));` / HIGH: `moment_like` dedup unique index broken due to SQLite "NULL != NULL" semantics; fix with `COALESCE(comment_id, '')` in v21 migration
+    - MEDIUM：`_onScroll` 快速滚动早于 `isLoading=true` 守卫；`_ensureTagUids` 硬编码 `size:1000` 魔数；`FutureBuilder._resolveContact` 每次 rebuild 重建 Future / rapid-fire scroll guard race, hardcoded magic numbers, FutureBuilder rebuild
+    - LOW：`_loadTags` 硬编码 `size:200`；`refresh()/loadMore()` 静默 `on Exception`（state 缺 errorMessage 字段）/ hardcoded size, silent error swallow
+  - **Track A 进度 9/10**（A-1~A-9 ✅，仅 A-10 channel regression 待做）/ Track A progress 9/10, only A-10 channel regression left
+
 ### 2026-04-15
 - **群成员禁言/解禁 slice-9c 落地（UI 接线：群成员列表页实时刷新 + 聊天页输入框禁用/恢复）**：
   - **群成员列表页** `lib/page/group/group_member/group_member_page.dart`：

@@ -1241,3 +1241,30 @@ CREATE INDEX IF NOT EXISTS idx_moment_notify_user_read
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 20;
+
+-- VERSION: 21
+-- DESC: 修复 moment_notify 唯一索引 NULL 语义问题
+--       SQLite 的 "NULL != NULL" 语义使 `comment_id IS NULL` 的 moment_like 行
+--       无法被原有唯一索引拦截；`ConflictAlgorithm.ignore` 对含 NULL 列组无效，
+--       导致重复 S2C 推送会被允许插入（客户端通知中心出现重复项）。
+--       解决方案：DROP 旧索引，重建时用 `COALESCE(comment_id, '')` 将 NULL
+--       折叠为空串参与唯一约束。moment_like（comment_id=NULL）折叠后
+--       以 '' 参与比较，moment_comment（comment_id 非 NULL）按原值比较，
+--       两者仍互不冲突（action 已区分）。
+-- ============================================================
+
+DROP INDEX IF EXISTS uq_moment_notify_dedup;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_moment_notify_dedup
+  ON moment_notify(
+    user_id,
+    action,
+    moment_id,
+    from_uid,
+    COALESCE(comment_id, '')
+  );
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 21;
