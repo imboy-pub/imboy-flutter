@@ -320,6 +320,14 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         rightDMActions: [
           IconButton(
             onPressed: () {
+              context.pushNamed('user_tag_list');
+            },
+            icon: const Icon(Icons.label_outline),
+            tooltip: t.tags,
+            splashRadius: 24,
+          ),
+          IconButton(
+            onPressed: () {
               context.push('/contact/add_friend');
             },
             icon: const Icon(Icons.person_add_alt_outlined),
