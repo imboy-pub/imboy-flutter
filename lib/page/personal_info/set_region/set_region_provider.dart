@@ -49,16 +49,25 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
   @override
   SetRegionState build() {
-    _loadRegionData().then((_) async {
+    // 延后到 build 完成后执行，避免在 widget tree build 期间修改 provider
+    Future.microtask(() async {
+      await _loadRegionData();
+      if (!ref.mounted) return;
+
       final cachedSelected = await RegionCache.loadSelectedRegion();
+      if (!ref.mounted) return;
       if (cachedSelected.isNotEmpty) {
         initData(cachedSelected);
       }
+
       final cachedPath = await RegionCache.loadRegionPath();
+      if (!ref.mounted) return;
       if (cachedPath.isNotEmpty) {
         state = state.copyWith(regionPath: cachedPath);
       }
+
       final cachedList = await RegionCache.loadRegionList();
+      if (!ref.mounted) return;
       if (cachedList.isNotEmpty) {
         final bool hasFull = _fullRegionList.isNotEmpty;
         final bool cachedOk = _isValidRegionStructure(cachedList);
@@ -105,6 +114,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
   Future<void> _loadRegionData() async {
     try {
       final jsonString = await rootBundle.loadString('assets/data/region.json');
+      if (!ref.mounted) return;
       final List<dynamic> data = json.decode(jsonString);
       _fullRegionList = data;
       state = state.copyWith(regionList: data);
