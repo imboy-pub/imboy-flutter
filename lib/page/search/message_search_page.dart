@@ -49,10 +49,9 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     // 设置搜索范围
     if (widget.conversationUk3 != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(messageSearchProvider.notifier).setSearchScope(
-              widget.conversationUk3,
-              widget.conversationTitle,
-            );
+        ref
+            .read(messageSearchProvider.notifier)
+            .setSearchScope(widget.conversationUk3, widget.conversationTitle);
       });
     }
 
@@ -96,7 +95,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     } else {
       _highlightWords = {
         query.trim(): HighlightedWord(
-          onTap: () {},
           textStyle: TextStyle(
             backgroundColor: AppColors.primary.withValues(alpha: 0.2),
             color: AppColors.primary,
@@ -274,27 +272,24 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               context: context,
               label: t.all,
               isSelected: state.selectedType == 'all',
-              onTap: () => ref
-                  .read(messageSearchProvider.notifier)
-                  .setTypeFilter('all'),
+              onTap: () =>
+                  ref.read(messageSearchProvider.notifier).setTypeFilter('all'),
             ),
             const SizedBox(width: 8),
             _buildFilterChip(
               context: context,
               label: t.privateChat,
               isSelected: state.selectedType == 'C2C',
-              onTap: () => ref
-                  .read(messageSearchProvider.notifier)
-                  .setTypeFilter('C2C'),
+              onTap: () =>
+                  ref.read(messageSearchProvider.notifier).setTypeFilter('C2C'),
             ),
             const SizedBox(width: 8),
             _buildFilterChip(
               context: context,
               label: t.groupChat,
               isSelected: state.selectedType == 'C2G',
-              onTap: () => ref
-                  .read(messageSearchProvider.notifier)
-                  .setTypeFilter('C2G'),
+              onTap: () =>
+                  ref.read(messageSearchProvider.notifier).setTypeFilter('C2G'),
             ),
             const SizedBox(width: 16),
             // 时间范围过滤
@@ -437,9 +432,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
 
   /// 构建加载视图
   Widget _buildLoadingView() {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 
   /// 构建搜索历史
@@ -689,8 +682,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color:
-              Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
         boxShadow: [
           BoxShadow(

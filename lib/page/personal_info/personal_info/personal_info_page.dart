@@ -165,7 +165,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     required BuildContext context,
     required String title,
     required dynamic value,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     bool showArrow = true,
     bool isEditable = true,
   }) {
@@ -425,7 +425,6 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 context: context,
                 title: t.account,
                 value: UserRepoLocal.to.current.account,
-                onTap: () {},
                 showArrow: false,
                 isEditable: false,
               ),
@@ -434,7 +433,6 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   context: context,
                   title: t.loginEmail,
                   value: UserRepoLocal.to.current.email,
-                  onTap: () {},
                   showArrow: false,
                   isEditable: false,
                 ),
@@ -452,9 +450,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   // 导航到二维码页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
-                      builder: (_) => UserQrCodePage(),
-                    ),
+                    CupertinoPageRoute(builder: (_) => UserQrCodePage()),
                   );
                 },
               ),
@@ -467,9 +463,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   // 导航到更多信息页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
-                      builder: (_) => const MorePage(),
-                    ),
+                    CupertinoPageRoute(builder: (_) => const MorePage()),
                   );
                 },
               ),

@@ -8,6 +8,7 @@ import '../set_gender/set_gender_page.dart';
 import '../set_region/set_region_page.dart';
 import '../personal_info/personal_info_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -36,7 +37,7 @@ class MorePage extends ConsumerWidget {
                 context: context,
                 ref: ref,
                 icon: Icons.person_outline,
-                iconColor: const Color(0xFF007AFF),
+                iconColor: AppColors.iosBlue,
                 title: t.gender,
                 trailing: Text(
                   UserRepoLocal.to.current.genderTitle,
@@ -240,7 +241,10 @@ class MorePage extends ConsumerWidget {
   }
 
   /// 处理个性签名更新
-  Future<void> _handleSignatureUpdate(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleSignatureUpdate(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(

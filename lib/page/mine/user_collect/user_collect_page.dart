@@ -596,7 +596,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 _showContextMenu(_lastSecondaryTapPosition!, obj, index);
               }
             } on Exception catch (e) {
-              if (kDebugMode) debugPrint('showContextMenu error: ${e.runtimeType}');
+              if (kDebugMode) {
+                debugPrint('showContextMenu error: ${e.runtimeType}');
+              }
             }
           },
           child: Padding(
@@ -786,7 +788,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     );
                   }
                 } on Exception catch (e) {
-                  if (kDebugMode) debugPrint('Edit tag error: ${e.runtimeType}');
+                  if (kDebugMode) {
+                    debugPrint('Edit tag error: ${e.runtimeType}');
+                  }
                 }
               },
               icon: Icons.local_offer_outlined,
@@ -826,7 +830,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             children: [
               Row(
                 children: [
-                  Avatar(imgUri: widget.peer['avatar'] ?? '', onTap: () {}),
+                  Avatar(imgUri: widget.peer['avatar'] ?? ''),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10),
@@ -888,7 +892,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       builder: (context) {
         final currentState = ref.read(userCollectProvider);
         final notifier = ref.read(userCollectProvider.notifier);
-        final isRemoving = currentState.removingIds.contains(obj.kindId.toString());
+        final isRemoving = currentState.removingIds.contains(
+          obj.kindId.toString(),
+        );
 
         return Container(
           width: MediaQuery.of(context).size.width,
@@ -1013,7 +1019,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                     EasyLoading.showError(t.tipFailed);
                                   }
                                 } on Exception catch (e) {
-                                  if (kDebugMode) debugPrint('Delete error: ${e.runtimeType}');
+                                  if (kDebugMode) {
+                                    debugPrint(
+                                      'Delete error: ${e.runtimeType}',
+                                    );
+                                  }
                                   EasyLoading.showError(t.tipFailed);
                                 }
                               },
@@ -1081,7 +1091,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           PopupMenuItem(value: 'uncollect', child: Text(t.buttonDelete)),
           PopupMenuItem(
             value: 'pin_toggle',
-            child: Text(_pinnedIds.contains(obj.kindId.toString()) ? t.unpin : t.pin),
+            child: Text(
+              _pinnedIds.contains(obj.kindId.toString()) ? t.unpin : t.pin,
+            ),
           ),
         ],
       );
@@ -1131,7 +1143,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   EasyLoading.showError(t.tipFailed);
                 }
               } on Exception catch (e) {
-                if (kDebugMode) debugPrint('confirmRemove error: ${e.runtimeType}');
+                if (kDebugMode) {
+                  debugPrint('confirmRemove error: ${e.runtimeType}');
+                }
                 EasyLoading.showError(t.tipFailed);
               }
             },

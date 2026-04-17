@@ -378,7 +378,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.person_outline,
-          iconColor: const Color(0xFF007AFF),
+          iconColor: AppColors.iosBlue,
           title: t.nickname,
           value: profileState.nickname.isEmpty
               ? t.notSet
@@ -430,10 +430,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.email_outlined,
-          iconColor: const Color(0xFF007AFF),
+          iconColor: AppColors.iosBlue,
           title: t.email,
           value: profileState.email.isEmpty ? t.notSet : profileState.email,
-          onTap: () {},
           showArrow: false,
         ),
 
@@ -443,7 +442,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           iconColor: const Color(0xFF34C759),
           title: t.mobile,
           value: profileState.mobile.isEmpty ? t.notSet : profileState.mobile,
-          onTap: () {},
           showArrow: false,
         ),
       ],
@@ -497,7 +495,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.work_outline,
-          iconColor: const Color(0xFF007AFF),
+          iconColor: AppColors.iosBlue,
           title: t.profession,
           value: profileState.profession.isEmpty
               ? t.notSet
@@ -539,7 +537,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.qr_code_2,
-          iconColor: const Color(0xFF007AFF),
+          iconColor: AppColors.iosBlue,
           title: t.myQRCode,
           value: '',
           onTap: () => _showQRCode(context),
@@ -637,7 +635,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     required Color iconColor,
     required String title,
     required String value,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     Widget? trailing,
     bool showArrow = true,
     int maxLines = 1,
@@ -842,15 +840,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           padding: const EdgeInsets.only(top: 6),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(16),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Column(
             children: [
               // 顶部操作栏
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -871,9 +870,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         final success = await ref
                             .read(profileProvider.notifier)
                             .changeInfo({
-                          "field": "birthday",
-                          "value": birthdayStr,
-                        });
+                              "field": "birthday",
+                              "value": birthdayStr,
+                            });
                         if (success && mounted) {
                           // 更新本地用户信息
                           final payload = UserRepoLocal.to.current.toMap();
@@ -939,10 +938,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 final newSign = controller.text.trim();
                 if (newSign == currentSign) return;
 
-                final success = await ref.read(profileProvider.notifier).changeInfo({
-                  "field": "sign",
-                  "value": newSign,
-                });
+                final success = await ref
+                    .read(profileProvider.notifier)
+                    .changeInfo({"field": "sign", "value": newSign});
                 if (success && mounted) {
                   final payload = UserRepoLocal.to.current.toMap();
                   payload['sign'] = newSign;
@@ -1017,9 +1015,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       EasyLoading.show(status: t.uploading);
 
       // 调用上传 API
-      final success = await ref.read(profileProvider.notifier).uploadBackground(
-        imagePath,
-      );
+      final success = await ref
+          .read(profileProvider.notifier)
+          .uploadBackground(imagePath);
 
       EasyLoading.dismiss();
 
@@ -1107,10 +1105,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 final newValue = controller.text.trim();
                 if (newValue == currentValue) return;
 
-                final success = await ref.read(profileProvider.notifier).changeInfo({
-                  "field": field,
-                  "value": newValue,
-                });
+                final success = await ref
+                    .read(profileProvider.notifier)
+                    .changeInfo({"field": field, "value": newValue});
                 if (success && mounted) {
                   final payload = UserRepoLocal.to.current.toMap();
                   payload[field] = newValue;
@@ -1232,7 +1229,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 onTap: () async {
                   Navigator.pop(context);
                   // 导出为文本格式
-                  final textStr = '''
+                  final textStr =
+                      '''
 ${t.profile}
 ====================
 ${t.nickname}: ${user.nickname}

@@ -990,7 +990,6 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     if (state.currentQuery.isNotEmpty) {
       words = {
         state.currentQuery: HighlightedWord(
-          onTap: () {},
           textStyle: TextStyle(
             color: AppColors.primary,
             fontSize: 16,

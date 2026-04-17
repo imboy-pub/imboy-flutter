@@ -150,7 +150,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               peerIsReceiver
                   ? Row(
                       children: [
-                        Avatar(imgUri: model.avatar, onTap: () {}),
+                        Avatar(imgUri: model.avatar),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10),
@@ -169,7 +169,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                     )
                   : Row(
                       children: [
-                        Avatar(imgUri: peer['avatar']!, onTap: () {}),
+                        Avatar(imgUri: peer['avatar']!),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10),

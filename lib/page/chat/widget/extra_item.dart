@@ -258,7 +258,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
     // 防止手势冲突，确保ExtraItems内部交互不会影响输入框
     return GestureDetector(
-      // 阻止手势向上传递
+      // 阻止手势向上传递：故意留空，仅用于拦截 tap 事件
       onTap: () {},
       child: Container(
         // height: 240, // Remove fixed height to adapt to panel height

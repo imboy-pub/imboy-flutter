@@ -230,15 +230,15 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// S2: 默认快捷回复（i18n；首次使用时填充到存储）
   List<String> get _defaultQuickReplies => [
-        t.quickReplyOk,
-        t.quickReplyReceived,
-        t.quickReplyThanks,
-        t.understood,
-        t.quickReplyWait,
-        t.noProblem,
-        t.onMyWay,
-        t.quickReplyOkThanks,
-      ];
+    t.quickReplyOk,
+    t.quickReplyReceived,
+    t.quickReplyThanks,
+    t.understood,
+    t.quickReplyWait,
+    t.noProblem,
+    t.onMyWay,
+    t.quickReplyOkThanks,
+  ];
 
   /// S2: 从 StorageService 加载当前用户的快捷回复列表到 _quickReplies。
   /// 未持久化时返回内置默认。适配器 [_StorageServiceQuickReplyStore] 桥接
@@ -471,10 +471,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       child: IconButton(
                         tooltip: t.quickReplyManage,
-                        icon: Icon(
-                          Icons.tune,
-                          color: _themeColor('primary'),
-                        ),
+                        icon: Icon(Icons.tune, color: _themeColor('primary')),
                         onPressed: _openQuickReplyManage,
                       ),
                     );
@@ -514,8 +511,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     final currentDefaults = _defaultQuickReplies;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) =>
-            QuickReplyManagePage(defaults: currentDefaults),
+        builder: (_) => QuickReplyManagePage(defaults: currentDefaults),
       ),
     );
     if (!mounted) return;
@@ -789,7 +785,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       height: height,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque, // 面板区域消费手势，避免向上冒泡触发返回/侧滑
-        onTap: () {},
+        onTap: () {}, // 故意留空：仅用于消费 tap 手势，不执行任何动作
         child: child,
       ),
     );

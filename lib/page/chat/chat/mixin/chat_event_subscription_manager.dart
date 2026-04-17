@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart' show iPrint;
-import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
@@ -113,10 +112,7 @@ class ChatEventSubscriptionManager {
             // 清空聊天记录：重置分页游标并清空 ChatService 中的消息
             widgetRef.read(chatProvider.notifier).updateNextAutoId(0);
             // 清空 ChatService 中的现有消息，确保 UI 显示最新的空消息列表
-            widgetRef
-                .read(chatProvider.notifier)
-                .chatService
-                ?.setMessages([]);
+            widgetRef.read(chatProvider.notifier).chatService?.setMessages([]);
             iPrint('清空聊天记录: 已清空 ChatService 消息，重新加载');
             // 从数据库重新加载（此时数据库已无消息）
             await widgetRef
@@ -158,7 +154,8 @@ class ChatEventSubscriptionManager {
         // flutter_chat_core 包中的消息类型：TextMessage, ImageMessage 等
         // 它们的 runtimeType 是 'TextMessage' 等，不是抽象的 'Message'
         final dataType = event.dataType.toLowerCase();
-        final isMessageType = dataType == 'message' ||
+        final isMessageType =
+            dataType == 'message' ||
             dataType == 'textmessage' ||
             dataType == 'imagemessage' ||
             dataType == 'videomessage' ||
@@ -347,13 +344,10 @@ class ChatEventSubscriptionManager {
   }
 
   /// 显示错误 SnackBar（需要由调用者提供 BuildContext）
+  /// 3 秒后自动消失，无需额外确认按钮（避免出现"点了无反应"的伪按钮）
   void showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(label: t.buttonOk, onPressed: () {}),
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
     );
   }
 
