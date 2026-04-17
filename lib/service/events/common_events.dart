@@ -200,13 +200,13 @@ final class GroupMemberMuteEvent extends AppEvent {
 
   @override
   List<Object?> get props => [
-        gid,
-        userId,
-        muteUntilMs,
-        remainingSeconds,
-        durationText,
-        adminNickname,
-      ];
+    gid,
+    userId,
+    muteUntilMs,
+    remainingSeconds,
+    durationText,
+    adminNickname,
+  ];
 
   @override
   String toString() {
@@ -288,8 +288,15 @@ final class GroupMemberRoleEvent extends AppEvent {
   });
 
   @override
-  List<Object?> get props =>
-      [gid, userId, role, roleText, nickname, adminNickname, updatedAt];
+  List<Object?> get props => [
+    gid,
+    userId,
+    role,
+    roleText,
+    nickname,
+    adminNickname,
+    updatedAt,
+  ];
 
   @override
   String toString() =>
@@ -319,6 +326,67 @@ final class GroupEditEvent extends AppEvent {
 
   @override
   String toString() => 'GroupEditEvent(gid: $gid, updates: $updates)';
+}
+
+/// 群公告发布的广播事件（S2C `group_notice_published`）
+///
+/// 触发时机：群主/管理员通过 `POST /v1/group/notice/publish` 发布新公告
+/// 后，后端向所有群成员广播。UI 层（GroupAnnouncementProvider）可订阅此
+/// 事件触发 REST 拉取刷新，或在聊天页显示 toast / 气泡提示。
+///
+/// 本切片不写本地 announcement 表（后端 REST-only，公告数据源仍为 REST）。
+final class GroupNoticePublishedEvent extends AppEvent {
+  /// 群 ID
+  final int gid;
+
+  /// 公告 ID
+  final int noticeId;
+
+  /// 发布者用户 ID
+  final int publisherId;
+
+  /// 发布者昵称（可能为空串）
+  final String publisherNickname;
+
+  /// 公告标题（可能为空串）
+  final String title;
+
+  /// 公告正文（可能为空串）
+  final String body;
+
+  /// 过期时间戳（毫秒）；`null` 表示永不过期
+  final int? expiredAt;
+
+  /// 发布时间戳（毫秒）；0 表示未知
+  final int publishedAt;
+
+  const GroupNoticePublishedEvent({
+    required this.gid,
+    required this.noticeId,
+    required this.publisherId,
+    required this.publisherNickname,
+    required this.title,
+    required this.body,
+    required this.expiredAt,
+    required this.publishedAt,
+  });
+
+  @override
+  List<Object?> get props => [
+    gid,
+    noticeId,
+    publisherId,
+    publisherNickname,
+    title,
+    body,
+    expiredAt,
+    publishedAt,
+  ];
+
+  @override
+  String toString() =>
+      'GroupNoticePublishedEvent(gid: $gid, noticeId: $noticeId, '
+      'publisherId: $publisherId, title: $title)';
 }
 
 // ============================================================================
@@ -794,6 +862,40 @@ final class MomentTimelineChangedEvent extends AppEvent {
   @override
   String toString() {
     return 'MomentTimelineChangedEvent(action: $action, momentId: $momentId)';
+  }
+}
+
+/// 朋友圈通知中心未读数变更事件
+///
+/// 在以下时机触发：
+///   - S2C 新通知落库成功后（moment_like / moment_comment）
+///   - 用户点击通知 → 标记已读后
+///   - 用户执行"全部已读" / "清空全部" 后
+///
+/// 订阅方：底部导航"发现"入口红点、通知中心列表页、朋友圈入口红点。
+final class MomentNotifyUnreadChangedEvent extends AppEvent {
+  /// 当前用户未读总数。
+  final int unreadCount;
+
+  /// 触发来源（供 UI debug/埋点使用）：
+  /// - `s2c_like` / `s2c_comment` — 新通知入库
+  /// - `mark_read` — 单条已读
+  /// - `mark_all_read` — 全部已读
+  /// - `clear_all` — 清空全部
+  /// - `refresh` — UI 主动刷新
+  final String trigger;
+
+  const MomentNotifyUnreadChangedEvent({
+    required this.unreadCount,
+    required this.trigger,
+  });
+
+  @override
+  List<Object> get props => [unreadCount, trigger];
+
+  @override
+  String toString() {
+    return 'MomentNotifyUnreadChangedEvent(unread: $unreadCount, trigger: $trigger)';
   }
 }
 

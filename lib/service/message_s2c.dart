@@ -21,8 +21,10 @@ import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/store/api/user_api.dart';
 
+import 'package:imboy/store/model/moment_notify_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/moment_notify_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/config/routes.dart';
 
@@ -32,6 +34,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
 import 'package:imboy/service/group_member_role_s2c.dart';
+import 'package:imboy/service/group_notice_s2c.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
@@ -218,6 +221,10 @@ class MessageS2CService {
         case 'group_member_role':
           // 群成员角色变更广播（slice-4：写本地 group_member.role + 广播事件）
           await _handleGroupMemberRole(payloadMap);
+          break;
+        case 'group_notice_published':
+          // 群公告发布广播（W1.1：不写本地表，仅广播事件触发 UI 刷新）
+          await _handleGroupNoticePublished(payloadMap);
           break;
         case 'user_unmuted':
           // 当前用户禁言解除
@@ -736,7 +743,9 @@ class MessageS2CService {
 
     // 显示禁言提示
     final event = UserMutedEvent(
-      muteUntilMs: muteUntil is int ? muteUntil : int.tryParse('$muteUntil') ?? 0,
+      muteUntilMs: muteUntil is int
+          ? muteUntil
+          : int.tryParse('$muteUntil') ?? 0,
       reason: reason,
       conversationId: conversationId,
     );
@@ -752,10 +761,7 @@ class MessageS2CService {
         duration: const Duration(seconds: 3),
       );
     } else {
-      EasyLoading.showInfo(
-        t.youAreMuted,
-        duration: const Duration(seconds: 3),
-      );
+      EasyLoading.showInfo(t.youAreMuted, duration: const Duration(seconds: 3));
     }
   }
 
@@ -781,13 +787,13 @@ class MessageS2CService {
         iPrint('[S2C] group_member_mute 解析失败: $reason, payload=$payload');
         return;
       case GroupMemberMutePayload(
-          :final gid,
-          :final userId,
-          :final muteUntilMs,
-          :final remainingSeconds,
-          :final durationText,
-          :final adminNickname,
-        ):
+        :final gid,
+        :final userId,
+        :final muteUntilMs,
+        :final remainingSeconds,
+        :final durationText,
+        :final adminNickname,
+      ):
         iPrint(
           '[S2C] group_member_mute: gid=$gid, userId=$userId, '
           'muteUntilMs=$muteUntilMs, remainingSec=$remainingSeconds, '
@@ -797,25 +803,25 @@ class MessageS2CService {
         // Repo 写入：仅在 userId 非空时执行（老后端兼容）
         if (userId.isNotEmpty) {
           try {
-            await GroupMemberRepo().update(
-              gid.toString(),
-              userId,
-              {GroupMemberColumns.muteUntil: muteUntilMs},
-            );
+            await GroupMemberRepo().update(gid.toString(), userId, {
+              GroupMemberColumns.muteUntil: muteUntilMs,
+            });
           } catch (e) {
             // 当前用户未加入该群 / Repo 异常 → 吞异常，不阻塞 toast
             iPrint('[S2C] group_member_mute Repo update failed: $e');
           }
         }
 
-        AppEventBus.fire(GroupMemberMuteEvent(
-          gid: gid,
-          userId: userId,
-          muteUntilMs: muteUntilMs,
-          remainingSeconds: remainingSeconds,
-          durationText: durationText,
-          adminNickname: adminNickname,
-        ));
+        AppEventBus.fire(
+          GroupMemberMuteEvent(
+            gid: gid,
+            userId: userId,
+            muteUntilMs: muteUntilMs,
+            remainingSeconds: remainingSeconds,
+            durationText: durationText,
+            adminNickname: adminNickname,
+          ),
+        );
         // 仅在有可读文案时展示轻量提示，避免骚扰
         if (durationText.isNotEmpty && adminNickname.isNotEmpty) {
           EasyLoading.showInfo(
@@ -824,10 +830,10 @@ class MessageS2CService {
           );
         }
       case GroupMemberUnmutePayload(
-          :final gid,
-          :final userId,
-          :final adminNickname,
-        ):
+        :final gid,
+        :final userId,
+        :final adminNickname,
+      ):
         // slice-9b：解禁语义，Repo mute_until 置 NULL + 广播 Unmute 事件
         iPrint(
           '[S2C] group_member_unmute: gid=$gid, userId=$userId, '
@@ -836,21 +842,21 @@ class MessageS2CService {
 
         if (userId.isNotEmpty) {
           try {
-            await GroupMemberRepo().update(
-              gid.toString(),
-              userId,
-              {GroupMemberColumns.muteUntil: null},
-            );
+            await GroupMemberRepo().update(gid.toString(), userId, {
+              GroupMemberColumns.muteUntil: null,
+            });
           } catch (e) {
             iPrint('[S2C] group_member_unmute Repo update failed: $e');
           }
         }
 
-        AppEventBus.fire(GroupMemberUnmuteEvent(
-          gid: gid,
-          userId: userId,
-          adminNickname: adminNickname,
-        ));
+        AppEventBus.fire(
+          GroupMemberUnmuteEvent(
+            gid: gid,
+            userId: userId,
+            adminNickname: adminNickname,
+          ),
+        );
         if (adminNickname.isNotEmpty) {
           EasyLoading.showInfo(
             '$adminNickname 解除了群成员禁言',
@@ -905,15 +911,51 @@ class MessageS2CService {
         }
         await GroupMemberRepo().update(gid.toString(), userId.toString(), json);
       },
-      fireEvent: (p) => AppEventBus.fire(GroupMemberRoleEvent(
-        gid: p.gid,
-        userId: p.userId,
-        role: p.role,
-        roleText: p.roleText,
-        nickname: p.nickname,
-        adminNickname: p.adminNickname,
-        updatedAt: p.updatedAt,
-      )),
+      fireEvent: (p) => AppEventBus.fire(
+        GroupMemberRoleEvent(
+          gid: p.gid,
+          userId: p.userId,
+          role: p.role,
+          roleText: p.roleText,
+          nickname: p.nickname,
+          adminNickname: p.adminNickname,
+          updatedAt: p.updatedAt,
+        ),
+      ),
+      log: iPrint,
+    );
+  }
+
+  /// 处理群公告发布的广播（S2C `group_notice_published`）
+  ///
+  /// Action: group_notice_published
+  /// 触发时机：后端 `group_notice_logic:publish_notice/3` 在公告发布
+  /// 成功后向群内所有成员广播（规划中，见 W1.1 runbook）。
+  ///
+  /// 本切片**不写本地 announcement 表**：
+  ///   1. 后端当前 REST-only，公告数据源仍为 REST（避免引入 v20 migration）
+  ///   2. UI 层（`GroupAnnouncementProvider`）订阅 `GroupNoticePublishedEvent`
+  ///      后自行调 REST 刷新，或在聊天页显示 toast 提示
+  ///
+  /// 使用 `handleGroupNoticeS2C` 做分派（见
+  /// `test/service/group_notice_s2c_handler_test.dart`）。
+  static Future<void> _handleGroupNoticePublished(
+    Map<String, dynamic> payload,
+  ) async {
+    await handleGroupNoticeS2C(
+      payload: payload,
+      fireEvent: (p) => AppEventBus.fire(
+        GroupNoticePublishedEvent(
+          gid: p.gid,
+          noticeId: p.noticeId,
+          publisherId: p.publisherId,
+          publisherNickname: p.publisherNickname,
+          title: p.title,
+          body: p.body,
+          expiredAt: p.expiredAt,
+          publishedAt: p.publishedAt,
+        ),
+      ),
       log: iPrint,
     );
   }
@@ -935,12 +977,20 @@ class MessageS2CService {
   // ============================================
 
   /// 处理朋友圈相关 S2C 通知
+  ///
+  /// 分两条路径：
+  ///   1. timeline 变更事件 —— 永远广播，供朋友圈列表/详情页刷新（new/deleted
+  ///      /like/comment 都走这里）
+  ///   2. 通知中心落库 —— 仅 `moment_like` / `moment_comment` 入 `moment_notify`
+  ///      表，成功后额外广播 `MomentNotifyUnreadChangedEvent` 供红点实时刷新
   static Future<void> _handleMomentAction(
     String action,
     Map<String, dynamic> payload,
   ) async {
     final momentId = payload['moment_id']?.toString() ?? '';
     iPrint('[S2C] $action: momentId=$momentId');
+
+    // 1) timeline 广播（朋友圈列表 / 详情页订阅）
     AppEventBus.fire(
       MomentTimelineChangedEvent(
         action: action,
@@ -948,6 +998,52 @@ class MessageS2CService {
         payload: payload,
       ),
     );
+
+    // 2) 通知中心落库（仅 like / comment）
+    if (action != 'moment_like' && action != 'moment_comment') {
+      return;
+    }
+    final currentUid = UserRepoLocal.to.currentUid;
+    if (currentUid.isEmpty) {
+      // 未登录或未初始化，忽略（防御性：正常情况 S2C 不会在未登录态到达）
+      return;
+    }
+
+    final parseResult = MomentNotifyModel.fromS2CPayload(
+      action: action,
+      payload: payload,
+      currentUid: currentUid,
+      nowMs: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    switch (parseResult) {
+      case MomentNotifyParseOk(:final model):
+        try {
+          final repo = MomentNotifyRepo();
+          final rowId = await repo.insert(model);
+          if (rowId > 0) {
+            final unread = await repo.unreadCount(currentUid);
+            AppEventBus.fire(
+              MomentNotifyUnreadChangedEvent(
+                unreadCount: unread,
+                trigger: action == 'moment_like' ? 's2c_like' : 's2c_comment',
+              ),
+            );
+          }
+          // rowId == 0：被唯一索引拦截（重复 S2C），静默忽略
+        } catch (error, stack) {
+          // Repo 异常不能阻断其他 S2C 处理（例如 moment_notify 表在老版本
+          // 用户上尚未迁移到）
+          iPrint('[S2C] moment_notify insert failed: $error\n$stack');
+        }
+        return;
+      case MomentNotifyParseSkipSelf():
+        // 自赞 / 自评防御分支，后端已过滤，忽略即可
+        return;
+      case MomentNotifyParseInvalid(:final reason):
+        iPrint('[S2C] moment_notify invalid payload: $reason action=$action');
+        return;
+    }
   }
 
   /// 处理频道消息推送
