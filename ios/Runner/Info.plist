@@ -48,21 +48,13 @@
 		<true/>
 		<key>NSAppTransportSecurity</key>
 		<dict>
-			<key>NSAllowsArbitraryLoads</key>
-			<true/>
-			<key>NSAllowsArbitraryLoadsInWebContent</key>
+			<key>NSAllowsLocalNetworking</key>
 			<true/>
 		</dict>
 		<key>NSCameraUsageDescription</key>
 		<string>IMBoy needs camera access to take photos, scan QR codes, and make video calls.</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>This app needs access to location when open and in the background.</string>
-		<key>NSLocationAlwaysUsageDescription</key>
-		<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
-		<key>NSLocationUsageDescription</key>
-		<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
+		<string>IMBoy uses your location to share location in chats, discover nearby people, and create face-to-face groups. Location is only accessed while you are actively using these features.</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
@@ -79,11 +71,7 @@
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>audio</string>
-			<string>fetch</string>
-			<string>location</string>
-			<string>processing</string>
 			<string>remote-notification</string>
-			<string>voip</string>
 		</array>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
