@@ -1410,6 +1410,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsGroupScheduleEnUs groupSchedule = _TranslationsGroupScheduleEnUs._(_root);
 	@override late final _TranslationsGroupTaskEnUs groupTask = _TranslationsGroupTaskEnUs._(_root);
 	@override late final _TranslationsMentionEnUs mention = _TranslationsMentionEnUs._(_root);
+	@override late final _TranslationsMomentNotifyEnUs momentNotify = _TranslationsMomentNotifyEnUs._(_root);
+	@override late final _TranslationsMomentFriendPickerEnUs momentFriendPicker = _TranslationsMomentFriendPickerEnUs._(_root);
 	@override late final _TranslationsGroupListEnUs groupList = _TranslationsGroupListEnUs._(_root);
 	@override String groupCategoryGroupCount({required Object count}) => '${count} groups';
 	@override String groupAnnouncementExpiry({required Object time}) => 'Expires: ${time}';
@@ -2204,6 +2206,47 @@ class _TranslationsMentionEnUs extends TranslationsMentionZhCn {
 	@override String mentionCount({required Object count}) => '${count} new mentions';
 	@override String get mentionAllDenied => 'Only admins can @everyone';
 	@override String get navInfoMissing => 'Message location info missing, unable to navigate';
+}
+
+// Path: momentNotify
+class _TranslationsMomentNotifyEnUs extends TranslationsMomentNotifyZhCn {
+	_TranslationsMomentNotifyEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Notifications';
+	@override String get emptyTitle => 'No new notifications';
+	@override String get emptyHint => 'Likes and comments on your moments will appear here';
+	@override String get actionLike => 'liked your moment';
+	@override String get actionComment => 'commented on your moment';
+	@override String get markAllRead => 'Mark all read';
+	@override String get clearAll => 'Clear all';
+	@override String get clearConfirmTitle => 'Clear all notifications?';
+	@override String get clearConfirmMessage => 'This action cannot be undone';
+	@override String get confirm => 'OK';
+	@override String get cancel => 'Cancel';
+	@override String get delete => 'Delete';
+}
+
+// Path: momentFriendPicker
+class _TranslationsMomentFriendPickerEnUs extends TranslationsMomentFriendPickerZhCn {
+	_TranslationsMomentFriendPickerEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Select Friends';
+	@override String get titleAllow => 'Visible to...';
+	@override String get titleDeny => 'Hidden from...';
+	@override String get confirm => 'OK';
+	@override String confirmWithCount({required Object count}) => 'OK (${count})';
+	@override String selectedCount({required Object count}) => '${count} selected';
+	@override String get emptyFriends => 'No friends';
+	@override String get tagsLabel => 'By tag';
+	@override String get emptyTags => 'No tags';
+	@override String get tagLoadFailed => 'Failed to load tag';
+	@override String get searchHint => 'Search friends';
 }
 
 // Path: groupList
@@ -3842,6 +3885,29 @@ extension on TranslationsEnUs {
 			'mention.mentionCount' => ({required Object count}) => '${count} new mentions',
 			'mention.mentionAllDenied' => 'Only admins can @everyone',
 			'mention.navInfoMissing' => 'Message location info missing, unable to navigate',
+			'momentNotify.title' => 'Notifications',
+			'momentNotify.emptyTitle' => 'No new notifications',
+			'momentNotify.emptyHint' => 'Likes and comments on your moments will appear here',
+			'momentNotify.actionLike' => 'liked your moment',
+			'momentNotify.actionComment' => 'commented on your moment',
+			'momentNotify.markAllRead' => 'Mark all read',
+			'momentNotify.clearAll' => 'Clear all',
+			'momentNotify.clearConfirmTitle' => 'Clear all notifications?',
+			'momentNotify.clearConfirmMessage' => 'This action cannot be undone',
+			'momentNotify.confirm' => 'OK',
+			'momentNotify.cancel' => 'Cancel',
+			'momentNotify.delete' => 'Delete',
+			'momentFriendPicker.title' => 'Select Friends',
+			'momentFriendPicker.titleAllow' => 'Visible to...',
+			'momentFriendPicker.titleDeny' => 'Hidden from...',
+			'momentFriendPicker.confirm' => 'OK',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'OK (${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} selected',
+			'momentFriendPicker.emptyFriends' => 'No friends',
+			'momentFriendPicker.tagsLabel' => 'By tag',
+			'momentFriendPicker.emptyTags' => 'No tags',
+			'momentFriendPicker.tagLoadFailed' => 'Failed to load tag',
+			'momentFriendPicker.searchHint' => 'Search friends',
 			'groupList.attrAll' => 'All',
 			'groupList.attrOwner' => 'Created by me',
 			'groupList.attrManager' => 'I manage',
@@ -4259,6 +4325,8 @@ extension on TranslationsEnUs {
 			'e2eeSocialTitle' => 'Social Recovery',
 			'e2eeSocialCanRecover' => 'Key Recovery Available',
 			'e2eeSocialSetupProxy' => 'Set Up Recovery Proxies',
+			_ => null,
+		} ?? switch (path) {
 			'e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
 			'e2eeSocialChooseProxy' => 'Choose trusted contacts as recovery proxies',
 			'e2eeSocialExistingShards' => 'Existing Recovery Shards',
@@ -4282,8 +4350,6 @@ extension on TranslationsEnUs {
 			'e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'Selected ${selected} / ${total}',
 			'e2eeProxyNoFriends' => 'No friends yet',
 			'e2eeProxyNoFriendsHint' => 'Add friends first before setting up recovery proxies',
-			_ => null,
-		} ?? switch (path) {
 			'e2eeProxyReachedMin' => 'Minimum proxy count reached',
 			'e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'Need at least ${count} trusted contacts — ${selected} selected',
 			'e2eeProxyConfirmCount' => ({required Object count}) => 'Confirm Selection (${count} proxies)',

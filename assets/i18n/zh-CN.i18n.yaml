@@ -1753,6 +1753,35 @@ mention:
   mentionAllDenied: "仅管理员可以 @所有人"
   navInfoMissing: "消息定位信息缺失，无法跳转"
 
+# 朋友圈通知中心
+momentNotify:
+  title: "消息通知"
+  emptyTitle: "暂无新消息"
+  emptyHint: "好友点赞或评论你的朋友圈后，会出现在这里"
+  actionLike: "赞了你的朋友圈"
+  actionComment: "评论了你"
+  markAllRead: "全部已读"
+  clearAll: "清空全部"
+  clearConfirmTitle: "清空所有通知?"
+  clearConfirmMessage: "清空后无法恢复"
+  confirm: "确定"
+  cancel: "取消"
+  delete: "删除"
+
+# 朋友圈好友选择器
+momentFriendPicker:
+  title: "选择好友"
+  titleAllow: "指定可见"
+  titleDeny: "不给谁看"
+  confirm: "确定"
+  confirmWithCount: "确定($count)"
+  selectedCount: "已选 $count 人"
+  emptyFriends: "暂无好友"
+  tagsLabel: "按标签选"
+  emptyTags: "暂无标签"
+  tagLoadFailed: "标签加载失败"
+  searchHint: "搜索好友"
+
 # 群组列表过滤
 groupList:
   attrAll: "全部"

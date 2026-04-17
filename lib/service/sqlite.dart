@@ -31,7 +31,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
-  static const _dbVersion = 18; // v18: C7-α-1 新增 conversation.is_muted（本地 DND 免打扰）
+  // v20: Slice A-1 新增 moment_notify 表（朋友圈通知中心）
+  // v19: 群成员禁言 group_member.mute_until
+  // v18: C7-α-1 本地 DND 免打扰 conversation.is_muted
+  static const _dbVersion = 20;
 
   // 单例构造
   SqliteService._privateConstructor();

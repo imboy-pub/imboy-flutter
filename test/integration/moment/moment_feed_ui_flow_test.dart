@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/public.dart';
+import 'package:imboy/page/moment/moment_notify/moment_notify_provider.dart';
+import 'package:imboy/page/moment/moment_notify/moment_notify_state.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/store/api/moment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
+
+/// Test-only fake that bypasses singleton access (UserRepoLocal / MomentNotifyRepo)
+class _FakeMomentNotifyNotifier extends MomentNotifyNotifier {
+  @override
+  MomentNotifyState build() => const MomentNotifyState();
+}
 
 Future<void> _pumpMomentFeedPage(WidgetTester tester) async {
   addTearDown(() async {
@@ -31,8 +40,13 @@ class MomentTestWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TranslationProvider(
-      child: MaterialApp(home: child, navigatorObservers: observers ?? []),
+    return ProviderScope(
+      overrides: [
+        momentNotifyProvider.overrideWith(_FakeMomentNotifyNotifier.new),
+      ],
+      child: TranslationProvider(
+        child: MaterialApp(home: child, navigatorObservers: observers ?? []),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart'; // 引入 cachedImageProvider
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -15,6 +16,7 @@ import 'package:octo_image/octo_image.dart';
 
 import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
+import 'moment_notify/moment_notify_provider.dart';
 import 'moment_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
@@ -251,6 +253,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       appBar: AppBar(
         title: Text(t.moments),
         actions: [
+          const _MomentNotifyEntry(),
           IconButton(
             onPressed: _openCreate,
             icon: const Icon(Icons.add_a_photo_outlined),
@@ -667,3 +670,54 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
     );
   }
 }
+
+/// 朋友圈通知入口：铃铛图标 + 未读数红点徽章。
+///
+/// - 通过 [momentNotifyProvider] 订阅未读数，实时响应 S2C 推送；
+/// - 点击跳转 `/moment_notify` 列表页（路由已注册）。
+class _MomentNotifyEntry extends ConsumerWidget {
+  const _MomentNotifyEntry();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unread = ref.watch(
+      momentNotifyProvider.select((s) => s.unreadCount),
+    );
+    return IconButton(
+      onPressed: () => context.push('/moment_notify'),
+      tooltip: context.t.momentNotify.title,
+      icon: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Icon(Icons.notifications_none),
+          if (unread > 0)
+            Positioned(
+              right: -6,
+              top: -4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5,
+                  vertical: 1,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                child: Text(
+                  unread > 99 ? '99+' : '$unread',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    height: 1.2,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+

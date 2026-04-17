@@ -4139,6 +4139,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsGroupScheduleZhCn groupSchedule = TranslationsGroupScheduleZhCn.internal(_root);
 	late final TranslationsGroupTaskZhCn groupTask = TranslationsGroupTaskZhCn.internal(_root);
 	late final TranslationsMentionZhCn mention = TranslationsMentionZhCn.internal(_root);
+	late final TranslationsMomentNotifyZhCn momentNotify = TranslationsMomentNotifyZhCn.internal(_root);
+	late final TranslationsMomentFriendPickerZhCn momentFriendPicker = TranslationsMomentFriendPickerZhCn.internal(_root);
 	late final TranslationsGroupListZhCn groupList = TranslationsGroupListZhCn.internal(_root);
 
 	/// zh-CN: '$count 个群聊'
@@ -6377,6 +6379,93 @@ class TranslationsMentionZhCn {
 	String get navInfoMissing => '消息定位信息缺失，无法跳转';
 }
 
+// Path: momentNotify
+class TranslationsMomentNotifyZhCn {
+	TranslationsMomentNotifyZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '消息通知'
+	String get title => '消息通知';
+
+	/// zh-CN: '暂无新消息'
+	String get emptyTitle => '暂无新消息';
+
+	/// zh-CN: '好友点赞或评论你的朋友圈后，会出现在这里'
+	String get emptyHint => '好友点赞或评论你的朋友圈后，会出现在这里';
+
+	/// zh-CN: '赞了你的朋友圈'
+	String get actionLike => '赞了你的朋友圈';
+
+	/// zh-CN: '评论了你'
+	String get actionComment => '评论了你';
+
+	/// zh-CN: '全部已读'
+	String get markAllRead => '全部已读';
+
+	/// zh-CN: '清空全部'
+	String get clearAll => '清空全部';
+
+	/// zh-CN: '清空所有通知?'
+	String get clearConfirmTitle => '清空所有通知?';
+
+	/// zh-CN: '清空后无法恢复'
+	String get clearConfirmMessage => '清空后无法恢复';
+
+	/// zh-CN: '确定'
+	String get confirm => '确定';
+
+	/// zh-CN: '取消'
+	String get cancel => '取消';
+
+	/// zh-CN: '删除'
+	String get delete => '删除';
+}
+
+// Path: momentFriendPicker
+class TranslationsMomentFriendPickerZhCn {
+	TranslationsMomentFriendPickerZhCn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '选择好友'
+	String get title => '选择好友';
+
+	/// zh-CN: '指定可见'
+	String get titleAllow => '指定可见';
+
+	/// zh-CN: '不给谁看'
+	String get titleDeny => '不给谁看';
+
+	/// zh-CN: '确定'
+	String get confirm => '确定';
+
+	/// zh-CN: '确定($count)'
+	String confirmWithCount({required Object count}) => '确定(${count})';
+
+	/// zh-CN: '已选 $count 人'
+	String selectedCount({required Object count}) => '已选 ${count} 人';
+
+	/// zh-CN: '暂无好友'
+	String get emptyFriends => '暂无好友';
+
+	/// zh-CN: '按标签选'
+	String get tagsLabel => '按标签选';
+
+	/// zh-CN: '暂无标签'
+	String get emptyTags => '暂无标签';
+
+	/// zh-CN: '标签加载失败'
+	String get tagLoadFailed => '标签加载失败';
+
+	/// zh-CN: '搜索好友'
+	String get searchHint => '搜索好友';
+}
+
 // Path: groupList
 class TranslationsGroupListZhCn {
 	TranslationsGroupListZhCn.internal(this._root);
@@ -8033,6 +8122,29 @@ extension on Translations {
 			'mention.mentionCount' => ({required Object count}) => '${count} 条新提及',
 			'mention.mentionAllDenied' => '仅管理员可以 @所有人',
 			'mention.navInfoMissing' => '消息定位信息缺失，无法跳转',
+			'momentNotify.title' => '消息通知',
+			'momentNotify.emptyTitle' => '暂无新消息',
+			'momentNotify.emptyHint' => '好友点赞或评论你的朋友圈后，会出现在这里',
+			'momentNotify.actionLike' => '赞了你的朋友圈',
+			'momentNotify.actionComment' => '评论了你',
+			'momentNotify.markAllRead' => '全部已读',
+			'momentNotify.clearAll' => '清空全部',
+			'momentNotify.clearConfirmTitle' => '清空所有通知?',
+			'momentNotify.clearConfirmMessage' => '清空后无法恢复',
+			'momentNotify.confirm' => '确定',
+			'momentNotify.cancel' => '取消',
+			'momentNotify.delete' => '删除',
+			'momentFriendPicker.title' => '选择好友',
+			'momentFriendPicker.titleAllow' => '指定可见',
+			'momentFriendPicker.titleDeny' => '不给谁看',
+			'momentFriendPicker.confirm' => '确定',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '确定(${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => '已选 ${count} 人',
+			'momentFriendPicker.emptyFriends' => '暂无好友',
+			'momentFriendPicker.tagsLabel' => '按标签选',
+			'momentFriendPicker.emptyTags' => '暂无标签',
+			'momentFriendPicker.tagLoadFailed' => '标签加载失败',
+			'momentFriendPicker.searchHint' => '搜索好友',
 			'groupList.attrAll' => '全部',
 			'groupList.attrOwner' => '我创建',
 			'groupList.attrManager' => '我管理',
@@ -8440,6 +8552,8 @@ extension on Translations {
 			'e2eeTransferFromOldDevice' => '从旧设备接收密钥',
 			'e2eeTransferReceiveDesc' => '扫描旧设备二维码接收密钥',
 			'e2eeTransferPendingSection' => '待处理的传输',
+			_ => null,
+		} ?? switch (path) {
 			'e2eeTransferLoadFailed' => '加载失败',
 			'e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
 			'e2eeTransferNoPending' => '暂无待处理的传输',
@@ -8463,8 +8577,6 @@ extension on Translations {
 			'e2eeSocialManageShardsDesc' => '查看和管理所有恢复分片',
 			'e2eeSocialZeroTrustHint1' => '零信任架构：服务端不存储分片，直接联系代理',
 			'e2eeSocialZeroTrustHint2' => '零信任架构：分片存储在代理设备',
-			_ => null,
-		} ?? switch (path) {
 			'e2eeSocialZeroTrustHint3' => '零信任架构：分片由代理设备存储，服务端不接触明文',
 			'e2eeProxyLoadFriendsFailed' => '加载好友列表失败，请重试',
 			'e2eeProxyMinCount' => ({required Object count}) => '请至少选择 ${count} 个代理',

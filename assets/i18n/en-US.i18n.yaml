@@ -1740,6 +1740,35 @@ mention:
   mentionAllDenied: "Only admins can @everyone"
   navInfoMissing: "Message location info missing, unable to navigate"
 
+# Moment notification center
+momentNotify:
+  title: "Notifications"
+  emptyTitle: "No new notifications"
+  emptyHint: "Likes and comments on your moments will appear here"
+  actionLike: "liked your moment"
+  actionComment: "commented on your moment"
+  markAllRead: "Mark all read"
+  clearAll: "Clear all"
+  clearConfirmTitle: "Clear all notifications?"
+  clearConfirmMessage: "This action cannot be undone"
+  confirm: "OK"
+  cancel: "Cancel"
+  delete: "Delete"
+
+# Moment Friend Picker
+momentFriendPicker:
+  title: "Select Friends"
+  titleAllow: "Visible to..."
+  titleDeny: "Hidden from..."
+  confirm: "OK"
+  confirmWithCount: "OK ($count)"
+  selectedCount: "$count selected"
+  emptyFriends: "No friends"
+  tagsLabel: "By tag"
+  emptyTags: "No tags"
+  tagLoadFailed: "Failed to load tag"
+  searchHint: "Search friends"
+
 # Group List
 groupList:
   attrAll: "All"

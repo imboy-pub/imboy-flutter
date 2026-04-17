@@ -1,0 +1,299 @@
+/// 朋友圈通知中心列表页（Slice A-3 + A-4）。
+///
+/// - 展示 `moment_like` / `moment_comment` 的本地落库通知
+/// - 下拉刷新 / 触底分页
+/// - AppBar 两个操作：全部已读 / 清空全部
+/// - 点击单条 → 标记已读 + 跳转朋友圈详情
+/// - 左滑删除单条（Dismissible）
+library;
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/moment/moment_notify/moment_notify_provider.dart';
+import 'package:imboy/page/moment/moment_notify/moment_notify_state.dart';
+import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/moment_notify_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+
+class MomentNotifyPage extends ConsumerStatefulWidget {
+  const MomentNotifyPage({super.key});
+
+  @override
+  ConsumerState<MomentNotifyPage> createState() => _MomentNotifyPageState();
+}
+
+class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  /// 联系人头像 / 昵称缓存：key = fromUid。
+  /// 单向惰性填充，不做失效策略（通知中心本身容量有限）。
+  final Map<String, ContactModel?> _contactCache = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(momentNotifyProvider.notifier).refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 120) {
+      ref.read(momentNotifyProvider.notifier).loadMore();
+    }
+  }
+
+  Future<ContactModel?> _resolveContact(String uid) async {
+    if (uid.isEmpty) return null;
+    if (_contactCache.containsKey(uid)) return _contactCache[uid];
+    try {
+      final contact = await ContactRepo().findByUid(uid, autoFetch: false);
+      _contactCache[uid] = contact;
+      return contact;
+    } on Exception {
+      _contactCache[uid] = null;
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(momentNotifyProvider);
+    final notifier = ref.read(momentNotifyProvider.notifier);
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.momentNotify.title,
+        rightDMActions: [
+          if (state.unreadCount > 0)
+            TextButton(
+              onPressed: notifier.markAllRead,
+              child: Text(t.momentNotify.markAllRead),
+            ),
+          if (state.items.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: t.momentNotify.clearAll,
+              onPressed: () => _confirmClearAll(context, notifier),
+            ),
+        ],
+      ),
+      body: _buildBody(context, state, notifier),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    MomentNotifyState state,
+    MomentNotifyNotifier notifier,
+  ) {
+    if (state.items.isEmpty && !state.isLoading) {
+      return RefreshIndicator(
+        onRefresh: notifier.refresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            const SizedBox(height: 160),
+            Center(
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.notifications_none,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    t.momentNotify.emptyTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      t.momentNotify.emptyHint,
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: notifier.refresh,
+      child: ListView.separated(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: state.items.length + (state.hasMore ? 1 : 0),
+        separatorBuilder: (_, _) =>
+            const Divider(height: 1, indent: 72, endIndent: 16),
+        itemBuilder: (context, index) {
+          if (index >= state.items.length) {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          final item = state.items[index];
+          return _buildItem(context, item, notifier);
+        },
+      ),
+    );
+  }
+
+  Widget _buildItem(
+    BuildContext context,
+    MomentNotifyModel item,
+    MomentNotifyNotifier notifier,
+  ) {
+    final id = item.id;
+    final tile = FutureBuilder<ContactModel?>(
+      future: _resolveContact(item.fromUid),
+      builder: (context, snap) {
+        final contact = snap.data;
+        final nickname =
+            contact?.title ?? item.fromUid; // fallback 到 uid 避免骨架态
+        final avatarUrl = contact?.avatar ?? '';
+        final actionText = item.action == 'moment_like'
+            ? t.momentNotify.actionLike
+            : t.momentNotify.actionComment;
+        final timeText = DateTimeHelper.dateTimeFmt(
+          DateTime.fromMillisecondsSinceEpoch(item.createdAt),
+        );
+
+        return ListTile(
+          onTap: () => _onItemTap(context, item, notifier),
+          leading: Avatar(
+            imgUri: avatarUrl,
+            width: 44,
+            height: 44,
+          ),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  nickname,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              if (!item.isRead)
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+            ],
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  actionText,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  timeText,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (id == null) return tile;
+
+    return Dismissible(
+      key: ValueKey('moment_notify_$id'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        color: Colors.red,
+        child: Text(
+          t.momentNotify.delete,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      onDismissed: (_) => notifier.delete(id),
+      child: tile,
+    );
+  }
+
+  Future<void> _onItemTap(
+    BuildContext context,
+    MomentNotifyModel item,
+    MomentNotifyNotifier notifier,
+  ) async {
+    final id = item.id;
+    if (id != null && !item.isRead) {
+      await notifier.markRead(id);
+    }
+    if (!mounted) return;
+    context.push('/moment/${item.momentId}');
+  }
+
+  Future<void> _confirmClearAll(
+    BuildContext context,
+    MomentNotifyNotifier notifier,
+  ) async {
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.momentNotify.clearConfirmTitle),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(t.momentNotify.clearConfirmMessage),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.momentNotify.cancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t.momentNotify.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await notifier.clearAll();
+    }
+  }
+}

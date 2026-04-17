@@ -170,6 +170,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             CupertinoPage(key: state.pageKey, child: const MomentCreatePage()),
       ),
       GoRoute(
+        path: '/moment_notify',
+        name: 'moment_notify',
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const MomentNotifyPage(),
+        ),
+      ),
+      GoRoute(
         path: '${AppRoutes.momentRoot}/:momentId',
         name: 'moment_detail',
         pageBuilder: (context, state) {
