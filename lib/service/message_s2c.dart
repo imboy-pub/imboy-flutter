@@ -632,10 +632,11 @@ class MessageS2CService {
     Map<String, dynamic> payload,
   ) async {
     final msgId = parseModelNullableString(data['id']);
-    final msgType = data['type']?.toString() ?? 'C2C';
+    // 会话类型 (C2C/C2G)；call-site label `msgType:` 为 MessageActions 历史参数名，暂保留
+    final chatType = data['type']?.toString() ?? 'C2C';
 
     // 使用公共辅助类处理非好友错误（消除代码重复）
-    await MessageActions.handleNotAFriendError(msgId: msgId, msgType: msgType);
+    await MessageActions.handleNotAFriendError(msgId: msgId, msgType: chatType);
   }
 
   ///
@@ -647,10 +648,11 @@ class MessageS2CService {
     Map<String, dynamic> payload,
   ) async {
     final msgId = parseModelNullableString(data['id']);
-    final msgType = data['type']?.toString() ?? 'C2C';
+    // 会话类型 (C2C/C2G)；call-site label `msgType:` 为 MessageActions 历史参数名，暂保留
+    final chatType = data['type']?.toString() ?? 'C2C';
 
     // 使用公共辅助类处理黑名单错误（消除代码重复）
-    await MessageActions.handleDenylistError(msgId: msgId, msgType: msgType);
+    await MessageActions.handleDenylistError(msgId: msgId, msgType: chatType);
   }
 
   /// 处理用户注销
