@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/datetime.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'recently_registered_user_provider.dart';
@@ -190,53 +191,6 @@ class _RecentlyRegisteredUserPageState
     );
   }
 
-  /// 构建空状态
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(AppRadius.circle),
-            ),
-            child: Icon(
-              Icons.people_outline,
-              size: 60,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            t.noNewFriendRequests,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.noNewRegisteredUsers,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(recentlyRegisteredUserApi);
@@ -291,7 +245,13 @@ class _RecentlyRegisteredUserPageState
             // 用户列表
             Expanded(
               child: state.peopleList.isEmpty
-                  ? _buildEmptyState(context)
+                  ? NoDataView(
+                      text: t.noNewFriendRequests,
+                      description: t.noNewRegisteredUsers,
+                      icon: Icons.people_outline,
+                      iconBgSize: 120,
+                      iconSize: 60,
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 16),
                       itemCount: state.peopleList.length,

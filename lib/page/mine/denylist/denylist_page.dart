@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/store/model/denylist_model.dart';
@@ -204,50 +205,6 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
     );
   }
 
-  /// 构建空状态
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.circle),
-            ),
-            child: Icon(
-              Icons.block_outlined,
-              size: 60,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            t.denylistEmpty,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.denylistEmptyDesc,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// 构建警告提示卡片
   Widget _buildWarningCard(BuildContext context) {
     return Container(
@@ -314,7 +271,13 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           // 黑名单列表
           Expanded(
             child: denylistState.items.isEmpty
-                ? _buildEmptyState(context)
+                ? NoDataView(
+                    text: t.denylistEmpty,
+                    description: t.denylistEmptyDesc,
+                    icon: Icons.block_outlined,
+                    iconBgSize: 120,
+                    iconSize: 60,
+                  )
                 : AzListView(
                     data: denylistState.items,
                     itemCount: denylistState.items.length,
