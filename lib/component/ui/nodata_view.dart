@@ -29,6 +29,11 @@ class NoDataView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // F-38: 使用 Theme.of(context).colorScheme.onSurfaceVariant 替代硬编码
+    // AppColors.textSecondary。后者 getter 永远返回 lightTextSecondary，暗色模式失效。
+    // theme.dart 已配置 onSurfaceVariant → lightTextSecondary / darkTextSecondary，
+    // 通过 ColorScheme 访问可正确随主题切换。
+    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
     return Center(
       child: InkWell(
         onTap: onTop,
@@ -46,13 +51,13 @@ class NoDataView extends StatelessWidget {
                   padding: iconBgSize == null ? const EdgeInsets.all(16) : null,
                   alignment: iconBgSize == null ? null : Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withValues(alpha: 0.1),
+                    color: secondaryColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon!,
                     size: iconSize,
-                    color: AppColors.textSecondary, // 使用主题次要文字色
+                    color: secondaryColor, // 使用主题次要文字色
                   ),
                 ),
               if (icon != null) const SizedBox(height: 16),
@@ -63,7 +68,7 @@ class NoDataView extends StatelessWidget {
                 style: ThemeManager.instance.getTextStyle(
                   FontSizeType.medium,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary, // 使用主题次要文字色
+                  color: secondaryColor, // 使用主题次要文字色
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -75,9 +80,7 @@ class NoDataView extends StatelessWidget {
                   description!,
                   style: ThemeManager.instance.getTextStyle(
                     FontSizeType.small,
-                    color: AppColors.textSecondary.withValues(
-                      alpha: 0.7,
-                    ), // 使用更淡的次要文字色
+                    color: secondaryColor.withValues(alpha: 0.7), // 使用更淡的次要文字色
                   ),
                   textAlign: TextAlign.center,
                 ),
