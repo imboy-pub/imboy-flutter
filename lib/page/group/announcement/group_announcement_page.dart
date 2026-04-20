@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -33,10 +34,18 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(groupAnnouncementProvider(widget.groupId));
-    final notifier = ref.read(
-      groupAnnouncementProvider(widget.groupId).notifier,
-    );
+    final provider = groupAnnouncementProvider(widget.groupId);
+    // 监听 errorMessage 变化，toast 后清错（对齐 A-2 moment_notify 模式）
+    ref.listen<GroupAnnouncementState>(provider, (prev, next) {
+      final msg = next.errorMessage;
+      if (msg != null && msg.isNotEmpty && prev?.errorMessage != msg) {
+        EasyLoading.showToast(t.groupAnnouncementLoadFailed);
+        ref.read(provider.notifier).clearError();
+      }
+    });
+
+    final state = ref.watch(provider);
+    final notifier = ref.read(provider.notifier);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -344,8 +353,13 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     expiredAt:
                         expiredDateNotifier.value?.millisecondsSinceEpoch,
                   );
-                  if (success && context.mounted) {
-                    context.pop();
+                  if (success) {
+                    EasyLoading.showToast(
+                      t.groupAnnouncementPublishSuccess,
+                    );
+                    if (context.mounted) context.pop();
+                  } else {
+                    EasyLoading.showToast(t.groupAnnouncementPublishFailed);
                   }
                 }
               },
@@ -378,8 +392,11 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
               final success = await notifier.deleteAnnouncement(
                 announcement.id,
               );
-              if (success && context.mounted) {
-                context.pop();
+              if (success) {
+                EasyLoading.showToast(t.groupAnnouncementDeleteSuccess);
+                if (context.mounted) context.pop();
+              } else {
+                EasyLoading.showToast(t.groupAnnouncementDeleteFailed);
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

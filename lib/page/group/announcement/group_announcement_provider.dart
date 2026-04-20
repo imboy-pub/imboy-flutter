@@ -23,6 +23,10 @@ class GroupAnnouncementState {
   /// 当前登录用户在本群的角色（0 = 未加载 / 不在群）。
   /// 由 [GroupAnnouncementNotifier._loadCurrentRole] 异步填充。
   final int currentUserRole;
+  /// 最近一次 load/refresh/loadMore 失败的错误提示（null = 无错误 / 已消费）。
+  /// 仅对 UI 暴露"列表加载失败"语义，不包含 publish/delete 等副作用失败
+  /// （后者由 UI 侧按 bool 返回值直接 toast）。对齐 A-2 moment_notify 模式。
+  final String? errorMessage;
 
   const GroupAnnouncementState({
     this.announcements = const [],
@@ -30,14 +34,19 @@ class GroupAnnouncementState {
     this.hasMore = true,
     this.page = 1,
     this.currentUserRole = 0,
+    this.errorMessage,
   });
 
+  /// copyWith 语义：`errorMessage` 默认保留旧值（传 null 不覆盖，与其他字段一致）；
+  /// 调用方若要显式清错，传 `clearError: true`。
   GroupAnnouncementState copyWith({
     List<AnnouncementModel>? announcements,
     bool? isLoading,
     bool? hasMore,
     int? page,
     int? currentUserRole,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return GroupAnnouncementState(
       announcements: announcements ?? this.announcements,
@@ -45,6 +54,7 @@ class GroupAnnouncementState {
       hasMore: hasMore ?? this.hasMore,
       page: page ?? this.page,
       currentUserRole: currentUserRole ?? this.currentUserRole,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
@@ -59,23 +69,37 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
     return const GroupAnnouncementState();
   }
 
+  /// 消费完 errorMessage 后清除（配合 UI ref.listen 消费后调用）。
+  void clearError() {
+    if (state.errorMessage == null) return;
+    state = state.copyWith(clearError: true);
+  }
+
   /// 加载公告列表
   Future<void> loadAnnouncements({bool isRefresh = false}) async {
     final currentPage = isRefresh ? 1 : state.page;
 
     if (isRefresh) {
-      state = state.copyWith(page: 1, hasMore: true, isLoading: true);
+      state = state.copyWith(
+        page: 1,
+        hasMore: true,
+        isLoading: true,
+        clearError: true,
+      );
     }
 
     if (!state.hasMore) {
       return;
     }
 
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
+      // B-6-1 修复：后端无 /v1/group/notice/list 路由，正确路径是
+      // /v1/group_notice/page（imboy_router.erl:355；handler page/3 GET）。
+      // QS: gid/page/size；响应 payload: {list,total,page,size}。
       final response = await HttpClient.client.get(
-        '/v1/group/notice/list',
+        '/v1/group_notice/page',
         queryParameters: {
           'gid': groupId,
           'page': currentPage,
@@ -110,12 +134,16 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
           isLoading: false,
         );
       } else {
-        state = state.copyWith(isLoading: false);
-        // 可以考虑添加错误状态
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'load_failed: code=${response.code}',
+        );
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false);
-      // 可以考虑添加错误状态
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'load_failed: $e',
+      );
     }
   }
 
