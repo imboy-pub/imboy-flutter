@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,11 +31,15 @@ class MomentNotifyPage extends ConsumerStatefulWidget {
 }
 
 class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
+  static const double _loadMoreThreshold = 120;
+
   final ScrollController _scrollController = ScrollController();
 
-  /// 联系人头像 / 昵称缓存：key = fromUid。
+  /// 联系人 Future 缓存：key = fromUid。
+  /// 缓存 Future 而非 value，保证同一 uid 每次 rebuild 返回同一 Future 实例，
+  /// 避免 FutureBuilder 误入 waiting 态闪骨架。
   /// 单向惰性填充，不做失效策略（通知中心本身容量有限）。
-  final Map<String, ContactModel?> _contactCache = {};
+  final Map<String, Future<ContactModel?>> _contactFutureCache = {};
 
   @override
   void initState() {
@@ -56,26 +61,38 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final pos = _scrollController.position;
-    if (pos.pixels >= pos.maxScrollExtent - 120) {
-      ref.read(momentNotifyProvider.notifier).loadMore();
-    }
+    if (pos.pixels < pos.maxScrollExtent - _loadMoreThreshold) return;
+    // 早退守卫：快速滚动会在 isLoading=true 置位前触发多次回调；
+    // 这里先读瞬时 state，避免多余的 copyWith 写入（loadMore 内部也有守卫）。
+    final snapshot = ref.read(momentNotifyProvider);
+    if (snapshot.isLoading || !snapshot.hasMore) return;
+    ref.read(momentNotifyProvider.notifier).loadMore();
   }
 
-  Future<ContactModel?> _resolveContact(String uid) async {
-    if (uid.isEmpty) return null;
-    if (_contactCache.containsKey(uid)) return _contactCache[uid];
-    try {
-      final contact = await ContactRepo().findByUid(uid, autoFetch: false);
-      _contactCache[uid] = contact;
-      return contact;
-    } on Exception {
-      _contactCache[uid] = null;
-      return null;
-    }
+  /// 返回同一 uid 对应的同一 Future 实例，命中缓存时不触发新的 Repo 查询，
+  /// 也不让 FutureBuilder 重新进入 waiting 态。
+  Future<ContactModel?> _resolveContact(String uid) {
+    if (uid.isEmpty) return Future.value(null);
+    return _contactFutureCache.putIfAbsent(uid, () async {
+      try {
+        return await ContactRepo().findByUid(uid, autoFetch: false);
+      } on Exception {
+        return null;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // refresh/loadMore 失败时 toast 反馈；消费后即清错，避免重复弹。
+    ref.listen<MomentNotifyState>(momentNotifyProvider, (prev, next) {
+      final msg = next.errorMessage;
+      if (msg != null && msg.isNotEmpty && prev?.errorMessage != msg) {
+        EasyLoading.showToast(t.momentNotify.loadFailed);
+        ref.read(momentNotifyProvider.notifier).clearError();
+      }
+    });
+
     final state = ref.watch(momentNotifyProvider);
     final notifier = ref.read(momentNotifyProvider.notifier);
 

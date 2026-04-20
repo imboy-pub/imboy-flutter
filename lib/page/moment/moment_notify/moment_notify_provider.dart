@@ -59,10 +59,21 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
     }
   }
 
+  /// 消费完 errorMessage 后清除（配合 UI ref.listen 消费后调用）。
+  void clearError() {
+    if (state.errorMessage == null) return;
+    state = state.copyWith(clearError: true);
+  }
+
   /// 下拉刷新：重置分页并加载第一页 + 同步未读数。
   Future<void> refresh() async {
     if (_currentUid.isEmpty) return;
-    state = state.copyWith(isLoading: true, page: 0, hasMore: true);
+    state = state.copyWith(
+      isLoading: true,
+      page: 0,
+      hasMore: true,
+      clearError: true,
+    );
     try {
       final items = await _repo.page(
         userId: _currentUid,
@@ -77,8 +88,11 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
         unreadCount: unread,
         isLoading: false,
       );
-    } on Exception {
-      state = state.copyWith(isLoading: false);
+    } on Exception catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'refresh_failed: $e',
+      );
     }
   }
 
@@ -86,7 +100,7 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
   Future<void> loadMore() async {
     if (_currentUid.isEmpty) return;
     if (state.isLoading || !state.hasMore) return;
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
       final items = await _repo.page(
         userId: _currentUid,
@@ -99,8 +113,11 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
         hasMore: items.length >= _pageSize,
         isLoading: false,
       );
-    } on Exception {
-      state = state.copyWith(isLoading: false);
+    } on Exception catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'load_more_failed: $e',
+      );
     }
   }
 
