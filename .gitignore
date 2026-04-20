@@ -101,3 +101,13 @@ test_output/
 plugin/jverify
 .claude/
 .reports
+
+# Firebase config (contains project secrets)
+android/app/google-services.json
+
+# Backend Erlang crash dumps (should not be tracked in Flutter repo)
+erl_crash.dump
+
+# Slang i18n analyze outputs (regenerated on demand)
+assets/i18n/_missing_translations.yaml
+assets/i18n/_unused_translations.yaml
