@@ -155,6 +155,12 @@ codeSentToEmail: "Verification code sent to email"
 codeSentToMobile: "Verification code sent to mobile"
 collected: "Favorited"
 complaint: "Complaint"
+complaintReason:
+  spam: "Spam"
+  harassment: "Harassment"
+  inappropriate: "Inappropriate content"
+  other: "Other"
+complaintSuccess: "Complaint submitted"
 complaintFailed: "Complaint failed, please try again"
 completed: "Completed"
 confirmCode: "Confirmation code"
@@ -932,6 +938,11 @@ selectExpirationDateOptional: "Select expiration date (optional)"
 publish: "Publish"
 groupAnnouncementDeleteConfirm: "Are you sure you want to delete this announcement?"
 groupAnnouncementDelete: "Delete"
+groupAnnouncementLoadFailed: "Failed to load announcements, please try again later"
+groupAnnouncementPublishFailed: "Failed to publish announcement"
+groupAnnouncementPublishSuccess: "Announcement published"
+groupAnnouncementDeleteFailed: "Failed to delete announcement"
+groupAnnouncementDeleteSuccess: "Announcement deleted"
 # 新增翻译键 - 隐私设置相关
 privacyClearChatHistory: "Clear chat history"
 privacyClearChatHistoryConfirm: "Are you sure you want to clear all chat history? This action cannot be undone."
@@ -1632,6 +1643,11 @@ groupCategory:
   deleteCategoryConfirm: "Are you sure? Groups won't be deleted."
   categoryCreated: "Category created"
   categoryDeleted: "Category deleted"
+  renameCategory: "Rename Category"
+  categoryRenamed: "Category renamed"
+  renameFailed: "Rename failed, please retry"
+  deleteFailed: "Delete failed, please retry"
+  categoryDetailTip: "Groups under this category can be managed via \"Move to Category\" in the group list."
 
 # Group Tag
 groupTag:
@@ -1754,6 +1770,7 @@ momentNotify:
   confirm: "OK"
   cancel: "Cancel"
   delete: "Delete"
+  loadFailed: "Load failed, please retry"
 
 # Moment Friend Picker
 momentFriendPicker:

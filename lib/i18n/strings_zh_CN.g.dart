@@ -2795,6 +2795,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '删除'
 	String get groupAnnouncementDelete => '删除';
 
+	/// zh-CN: '公告加载失败，请稍后重试'
+	String get groupAnnouncementLoadFailed => '公告加载失败，请稍后重试';
+
+	/// zh-CN: '公告发布失败'
+	String get groupAnnouncementPublishFailed => '公告发布失败';
+
+	/// zh-CN: '公告已发布'
+	String get groupAnnouncementPublishSuccess => '公告已发布';
+
+	/// zh-CN: '公告删除失败'
+	String get groupAnnouncementDeleteFailed => '公告删除失败';
+
+	/// zh-CN: '公告已删除'
+	String get groupAnnouncementDeleteSuccess => '公告已删除';
+
 	/// zh-CN: '清除聊天记录'
 	String get privacyClearChatHistory => '清除聊天记录';
 
@@ -6422,6 +6437,9 @@ class TranslationsMomentNotifyZhCn {
 
 	/// zh-CN: '删除'
 	String get delete => '删除';
+
+	/// zh-CN: '加载失败，请稍后重试'
+	String get loadFailed => '加载失败，请稍后重试';
 }
 
 // Path: momentFriendPicker
@@ -7423,6 +7441,11 @@ extension on Translations {
 			'publish' => '发布',
 			'groupAnnouncementDeleteConfirm' => '确定要删除这条公告吗？',
 			'groupAnnouncementDelete' => '删除',
+			'groupAnnouncementLoadFailed' => '公告加载失败，请稍后重试',
+			'groupAnnouncementPublishFailed' => '公告发布失败',
+			'groupAnnouncementPublishSuccess' => '公告已发布',
+			'groupAnnouncementDeleteFailed' => '公告删除失败',
+			'groupAnnouncementDeleteSuccess' => '公告已删除',
 			'privacyClearChatHistory' => '清除聊天记录',
 			'privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
 			'privacyLogoutAccount' => '注销账号',
@@ -7519,13 +7542,13 @@ extension on Translations {
 			'defaultBackground' => '默认背景',
 			'geometricPattern' => '几何图案',
 			'simpleTexture' => '简约纹理',
+			_ => null,
+		} ?? switch (path) {
 			'ripplePattern' => '波纹图案',
 			'gradientBlue' => '渐变蓝',
 			'gradientPurple' => '渐变紫',
 			'solidColorBackground' => '纯色背景',
 			'customImage' => '自定义图片',
-			_ => null,
-		} ?? switch (path) {
 			'selectImageFailed' => '选择图片失败',
 			'takePhotoFailed' => '拍照失败',
 			'selectVideoFailed' => '选择视频失败',
@@ -8033,13 +8056,13 @@ extension on Translations {
 			'groupTag.tagName' => '标签名称',
 			'groupTag.tagColor' => '标签颜色',
 			'groupTag.noTag' => '暂无标签',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.tagAdded' => '标签添加成功',
 			'groupTag.tagRemoved' => '标签已移除',
 			'groupTag.removeTitle' => '移除标签',
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupVote.title' => '群投票',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.createVote' => '创建投票',
 			'groupVote.voteTitle' => '投票标题',
 			'groupVote.voteOptions' => '投票选项',
@@ -8134,6 +8157,7 @@ extension on Translations {
 			'momentNotify.confirm' => '确定',
 			'momentNotify.cancel' => '取消',
 			'momentNotify.delete' => '删除',
+			'momentNotify.loadFailed' => '加载失败，请稍后重试',
 			'momentFriendPicker.title' => '选择好友',
 			'momentFriendPicker.titleAllow' => '指定可见',
 			'momentFriendPicker.titleDeny' => '不给谁看',
@@ -8546,14 +8570,14 @@ extension on Translations {
 			'downloadFileNotFound' => '下载文件不存在，请重试',
 			'downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
 			'downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
+			_ => null,
+		} ?? switch (path) {
 			'e2eeTransferPageTitle' => '设备间传输',
 			'e2eeTransferToNewDevice' => '传输到新设备',
 			'e2eeTransferSendDesc' => '通过二维码将密钥传输到新设备',
 			'e2eeTransferFromOldDevice' => '从旧设备接收密钥',
 			'e2eeTransferReceiveDesc' => '扫描旧设备二维码接收密钥',
 			'e2eeTransferPendingSection' => '待处理的传输',
-			_ => null,
-		} ?? switch (path) {
 			'e2eeTransferLoadFailed' => '加载失败',
 			'e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
 			'e2eeTransferNoPending' => '暂无待处理的传输',

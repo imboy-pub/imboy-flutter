@@ -193,6 +193,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get codeSentToMobile => 'Verification code sent to mobile';
 	@override String get collected => 'Favorited';
 	@override String get complaint => 'Complaint';
+	@override late final _TranslationsComplaintReasonEnUs complaintReason = _TranslationsComplaintReasonEnUs._(_root);
+	@override String get complaintSuccess => 'Complaint submitted';
 	@override String get complaintFailed => 'Complaint failed, please try again';
 	@override String get completed => 'Completed';
 	@override String get confirmCode => 'Confirmation code';
@@ -942,6 +944,11 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get publish => 'Publish';
 	@override String get groupAnnouncementDeleteConfirm => 'Are you sure you want to delete this announcement?';
 	@override String get groupAnnouncementDelete => 'Delete';
+	@override String get groupAnnouncementLoadFailed => 'Failed to load announcements, please try again later';
+	@override String get groupAnnouncementPublishFailed => 'Failed to publish announcement';
+	@override String get groupAnnouncementPublishSuccess => 'Announcement published';
+	@override String get groupAnnouncementDeleteFailed => 'Failed to delete announcement';
+	@override String get groupAnnouncementDeleteSuccess => 'Announcement deleted';
 	@override String get privacyClearChatHistory => 'Clear chat history';
 	@override String get privacyClearChatHistoryConfirm => 'Are you sure you want to clear all chat history? This action cannot be undone.';
 	@override String get privacyLogoutAccount => 'Delete account';
@@ -1882,6 +1889,19 @@ class _TranslationsSplashEnUs extends TranslationsSplashZhCn {
 	@override String get security => 'Secure & Reliable';
 }
 
+// Path: complaintReason
+class _TranslationsComplaintReasonEnUs extends TranslationsComplaintReasonZhCn {
+	_TranslationsComplaintReasonEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => 'Spam';
+	@override String get harassment => 'Harassment';
+	@override String get inappropriate => 'Inappropriate content';
+	@override String get other => 'Other';
+}
+
 // Path: welcome
 class _TranslationsWelcomeEnUs extends TranslationsWelcomeZhCn {
 	_TranslationsWelcomeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -2069,6 +2089,11 @@ class _TranslationsGroupCategoryEnUs extends TranslationsGroupCategoryZhCn {
 	@override String get deleteCategoryConfirm => 'Are you sure? Groups won\'t be deleted.';
 	@override String get categoryCreated => 'Category created';
 	@override String get categoryDeleted => 'Category deleted';
+	@override String get renameCategory => 'Rename Category';
+	@override String get categoryRenamed => 'Category renamed';
+	@override String get renameFailed => 'Rename failed, please retry';
+	@override String get deleteFailed => 'Delete failed, please retry';
+	@override String get categoryDetailTip => 'Groups under this category can be managed via "Move to Category" in the group list.';
 }
 
 // Path: groupTag
@@ -2227,6 +2252,7 @@ class _TranslationsMomentNotifyEnUs extends TranslationsMomentNotifyZhCn {
 	@override String get confirm => 'OK';
 	@override String get cancel => 'Cancel';
 	@override String get delete => 'Delete';
+	@override String get loadFailed => 'Load failed, please retry';
 }
 
 // Path: momentFriendPicker
@@ -2426,6 +2452,11 @@ extension on TranslationsEnUs {
 			'codeSentToMobile' => 'Verification code sent to mobile',
 			'collected' => 'Favorited',
 			'complaint' => 'Complaint',
+			'complaintReason.spam' => 'Spam',
+			'complaintReason.harassment' => 'Harassment',
+			'complaintReason.inappropriate' => 'Inappropriate content',
+			'complaintReason.other' => 'Other',
+			'complaintSuccess' => 'Complaint submitted',
 			'complaintFailed' => 'Complaint failed, please try again',
 			'completed' => 'Completed',
 			'confirmCode' => 'Confirmation code',
@@ -2778,13 +2809,13 @@ extension on TranslationsEnUs {
 			'optionsRename' => 'I want to rename',
 			'optionsYes' => 'Yes',
 			'or' => 'Or',
+			_ => null,
+		} ?? switch (path) {
 			'otherParty' => 'Other party',
 			'p2pCallScreenLogic' => 'Call screen',
 			'p2pCallScreenView' => 'Call interface',
 			'packageSize' => 'Package size',
 			'paramAlreadyExist' => ({required Object param}) => '${param} already exists',
-			_ => null,
-		} ?? switch (path) {
 			'paramFormatError' => ({required Object param}) => '${param} format error',
 			'paramLogin' => ({required Object param}) => 'Log in with ${param}',
 			'password' => 'Password',
@@ -3177,6 +3208,11 @@ extension on TranslationsEnUs {
 			'publish' => 'Publish',
 			'groupAnnouncementDeleteConfirm' => 'Are you sure you want to delete this announcement?',
 			'groupAnnouncementDelete' => 'Delete',
+			'groupAnnouncementLoadFailed' => 'Failed to load announcements, please try again later',
+			'groupAnnouncementPublishFailed' => 'Failed to publish announcement',
+			'groupAnnouncementPublishSuccess' => 'Announcement published',
+			'groupAnnouncementDeleteFailed' => 'Failed to delete announcement',
+			'groupAnnouncementDeleteSuccess' => 'Announcement deleted',
 			'privacyClearChatHistory' => 'Clear chat history',
 			'privacyClearChatHistoryConfirm' => 'Are you sure you want to clear all chat history? This action cannot be undone.',
 			'privacyLogoutAccount' => 'Delete account',
@@ -3287,6 +3323,8 @@ extension on TranslationsEnUs {
 			'selectLocationFailed' => 'Failed to select location',
 			'sendCardNotImplemented' => 'Card sending feature not implemented',
 			'sendCardFailed' => 'Failed to send card',
+			_ => null,
+		} ?? switch (path) {
 			'voiceRecordResultEmpty' => 'Voice recording result is empty',
 			'uploadResponseInvalid' => 'Upload response data is invalid',
 			'voiceSendSuccess' => 'Voice sent successfully',
@@ -3297,8 +3335,6 @@ extension on TranslationsEnUs {
 			'fileShareNotImplemented' => 'File sharing feature not implemented',
 			'copiedToClipboard' => 'Copied to clipboard',
 			'voiceFileInvalid' => 'Voice file is invalid',
-			_ => null,
-		} ?? switch (path) {
 			'copiedLink' => 'Copied link',
 			'retrySuccess' => 'Resent successfully',
 			'deleteSuccess' => 'Deleted successfully',
@@ -3791,11 +3827,18 @@ extension on TranslationsEnUs {
 			'groupCategory.deleteCategoryConfirm' => 'Are you sure? Groups won\'t be deleted.',
 			'groupCategory.categoryCreated' => 'Category created',
 			'groupCategory.categoryDeleted' => 'Category deleted',
+			'groupCategory.renameCategory' => 'Rename Category',
+			'groupCategory.categoryRenamed' => 'Category renamed',
+			'groupCategory.renameFailed' => 'Rename failed, please retry',
+			'groupCategory.deleteFailed' => 'Delete failed, please retry',
+			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
 			'groupTag.tagColor' => 'Tag Color',
 			'groupTag.noTag' => 'No tags yet',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.tagAdded' => 'Tag added',
 			'groupTag.tagRemoved' => 'Tag removed',
 			'groupTag.removeTitle' => 'Remove Tag',
@@ -3811,8 +3854,6 @@ extension on TranslationsEnUs {
 			'groupVote.noDeadline' => 'No deadline',
 			'groupVote.noVote' => 'No votes yet',
 			'groupVote.voteEnded' => 'Vote ended',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.totalVotes' => ({required Object count}) => '${count} votes',
 			'groupVote.voteSuccess' => 'Voted successfully',
 			'groupVote.hasVoted' => 'Already voted',
@@ -3897,6 +3938,7 @@ extension on TranslationsEnUs {
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Cancel',
 			'momentNotify.delete' => 'Delete',
+			'momentNotify.loadFailed' => 'Load failed, please retry',
 			'momentFriendPicker.title' => 'Select Friends',
 			'momentFriendPicker.titleAllow' => 'Visible to...',
 			'momentFriendPicker.titleDeny' => 'Hidden from...',
@@ -4309,6 +4351,8 @@ extension on TranslationsEnUs {
 			'downloadFileNotFound' => 'Download file not found, please retry',
 			'downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
 			'downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
+			_ => null,
+		} ?? switch (path) {
 			'e2eeTransferPageTitle' => 'Transfer Between Devices',
 			'e2eeTransferToNewDevice' => 'Transfer to New Device',
 			'e2eeTransferSendDesc' => 'Transfer key to a new device via QR code',
@@ -4325,8 +4369,6 @@ extension on TranslationsEnUs {
 			'e2eeSocialTitle' => 'Social Recovery',
 			'e2eeSocialCanRecover' => 'Key Recovery Available',
 			'e2eeSocialSetupProxy' => 'Set Up Recovery Proxies',
-			_ => null,
-		} ?? switch (path) {
 			'e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
 			'e2eeSocialChooseProxy' => 'Choose trusted contacts as recovery proxies',
 			'e2eeSocialExistingShards' => 'Existing Recovery Shards',

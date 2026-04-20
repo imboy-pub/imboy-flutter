@@ -955,6 +955,11 @@ selectExpirationDateOptional: "选择有效期（可选）"
 publish: "发布"
 groupAnnouncementDeleteConfirm: "确定要删除这条公告吗？"
 groupAnnouncementDelete: "删除"
+groupAnnouncementLoadFailed: "公告加载失败，请稍后重试"
+groupAnnouncementPublishFailed: "公告发布失败"
+groupAnnouncementPublishSuccess: "公告已发布"
+groupAnnouncementDeleteFailed: "公告删除失败"
+groupAnnouncementDeleteSuccess: "公告已删除"
 # 新增翻译键 - 隐私设置相关
 privacyClearChatHistory: "清除聊天记录"
 privacyClearChatHistoryConfirm: "确定要清除所有聊天记录吗？此操作不可恢复。"
@@ -1767,6 +1772,7 @@ momentNotify:
   confirm: "确定"
   cancel: "取消"
   delete: "删除"
+  loadFailed: "加载失败，请稍后重试"
 
 # 朋友圈好友选择器
 momentFriendPicker:
