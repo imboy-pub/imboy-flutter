@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 
@@ -317,28 +318,13 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
 
   Widget _buildEmptyView() {
     return Expanded(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.info_outline, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              t.e2eeNoRecoveryShards,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              t.e2eeSocialZeroTrustHint2,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            CupertinoButton.filled(
-              onPressed: () => _loadShards(),
-              child: Text(t.e2eeReloadShards),
-            ),
-          ],
-        ),
+      child: NoDataView(
+        text: t.e2eeNoRecoveryShards,
+        description: t.e2eeSocialZeroTrustHint2,
+        icon: Icons.info_outline,
+        iconSize: 64,
+        onTop: _loadShards,
+        retryLabel: t.e2eeReloadShards,
       ),
     );
   }

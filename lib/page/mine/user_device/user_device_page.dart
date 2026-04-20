@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_device_model.dart';
@@ -103,37 +104,12 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 构建空状态
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: AppRadius.borderRadiusXLarge,
-            ),
-            child: Icon(
-              Icons.devices_outlined,
-              size: 40,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            t.noData,
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: t.noData,
+      icon: Icons.devices_outlined,
+      iconBgSize: 80,
+      iconSize: 40,
+      iconBgBorderRadius: AppRadius.borderRadiusXLarge,
     );
   }
 

@@ -17,6 +17,14 @@ class NoDataView extends StatelessWidget {
   /// 图标尺寸。默认 48（原值，向后兼容）。
   final double iconSize;
 
+  /// 图标容器形状。null = BoxShape.circle（向后兼容默认）；非 null 时容器渲染为
+  /// 带 borderRadius 的矩形，形状由传入的 BorderRadiusGeometry 决定（对齐 user_device 等矩形空态）。
+  final BorderRadiusGeometry? iconBgBorderRadius;
+
+  /// 重试按钮文案。null = t.buttonRetry（向后兼容默认）；非 null 时覆盖默认"重试"文本
+  /// （对齐 e2ee_social_recover 等需要自定义"重新加载分片"等语义的场景）。
+  final String? retryLabel;
+
   const NoDataView({
     super.key,
     required this.text,
@@ -25,6 +33,8 @@ class NoDataView extends StatelessWidget {
     this.description,
     this.iconBgSize,
     this.iconSize = 48,
+    this.iconBgBorderRadius,
+    this.retryLabel,
   });
 
   @override
@@ -52,7 +62,10 @@ class NoDataView extends StatelessWidget {
                   alignment: iconBgSize == null ? null : Alignment.center,
                   decoration: BoxDecoration(
                     color: secondaryColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                    shape: iconBgBorderRadius == null
+                        ? BoxShape.circle
+                        : BoxShape.rectangle,
+                    borderRadius: iconBgBorderRadius,
                   ),
                   child: Icon(
                     icon!,
@@ -103,7 +116,7 @@ class NoDataView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    t.buttonRetry,
+                    retryLabel ?? t.buttonRetry,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.primary, // 使用主题主色
