@@ -9,6 +9,7 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/helper/datetime.dart';
 
 import 'package:imboy/config/enum.dart';
@@ -472,49 +473,12 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
 
   /// 构建空状态
   Widget _buildEmptyState(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.person_add_outlined,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 40,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            t.noNewFriends,
-            style: TextStyle(
-              fontSize: FontSizeType.medium.size,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.noNewFriendRequests,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: t.noNewFriends,
+      description: t.noNewFriendRequests,
+      icon: Icons.person_add_outlined,
+      iconBgSize: 80,
+      iconSize: 40,
     );
   }
 

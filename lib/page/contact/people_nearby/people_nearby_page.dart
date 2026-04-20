@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'people_nearby_provider.dart';
@@ -433,44 +434,12 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
   /// 构建空状态
   Widget _buildEmptyState(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(shape: BoxShape.circle),
-            child: Icon(
-              Icons.location_searching,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 40,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            t.noNearbyPeople,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.clickSearchButtonToFind,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: t.noNearbyPeople,
+      description: t.clickSearchButtonToFind,
+      icon: Icons.location_searching,
+      iconBgSize: 80,
+      iconSize: 40,
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 
 import 'people_info_more_provider.dart';
 import 'people_info_same_group_page.dart';
@@ -266,48 +267,12 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
 
   /// 构建空状态提示
   Widget _buildEmptyState(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(32.0),
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.info_outline,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 40,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            t.noMoreInfo,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.noDetailedInfo,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: t.noMoreInfo,
+      description: t.noDetailedInfo,
+      icon: Icons.info_outline,
+      iconBgSize: 80,
+      iconSize: 40,
     );
   }
 
