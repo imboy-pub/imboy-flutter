@@ -70,6 +70,14 @@ post_install do |installer|
       end
       # snippet end
 
+      # AMap SDK doesn't ship arm64 simulator slice — exclude arm64 for simulator
+      # builds so Apple Silicon Macs can run iOS simulator.
+      if ["AMapFoundation", "AMap3DMap", "AMapSearch", "AMapLocation", "MAMapKit"].include?(target.name)
+        target.build_configurations.each do |build_configuration|
+          build_configuration.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        end
+      end
+
       # Fix for audio_waveforms iOS 13.0 concurrency compatibility
       if target.name == "audio_waveforms"
         target.build_configurations.each do |build_configuration|
