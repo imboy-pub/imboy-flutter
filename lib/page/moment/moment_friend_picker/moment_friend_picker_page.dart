@@ -28,6 +28,18 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
+/// 朋友圈选择器一次性拉取的标签数量上限。
+///
+/// 用户标签总数通常 < 50，取 200 留出成长空间同时避免分页 UI。
+/// 后端 `user_tag/page` 接口若超限会截断返回，不会报错。
+const int kFriendPickerTagPageSize = 200;
+
+/// 单个标签下一次性展开的好友数量上限（`pageRelation`）。
+///
+/// 经验值：绝大多数标签成员数远小于 1000；
+/// 超出的场景应由 UI 升级成二级分页而非在此盲目放大。
+const int kFriendPickerTagUidsPageSize = 1000;
+
 /// 单个标签在 UI 中的本地快照（含懒加载状态）。
 class _PickerTagEntry {
   _PickerTagEntry({required this.tag});
@@ -124,7 +136,7 @@ class _MomentFriendPickerPageState
     try {
       final resp = await UserTagApi().page(
         page: 1,
-        size: 200,
+        size: kFriendPickerTagPageSize,
         scene: 'friend',
       );
       final items = <_PickerTagEntry>[];
@@ -157,7 +169,7 @@ class _MomentFriendPickerPageState
     try {
       final resp = await UserTagApi().pageRelation(
         page: 1,
-        size: 1000,
+        size: kFriendPickerTagUidsPageSize,
         tagId: entry.tag.tagId,
         scene: 'friend',
       );
