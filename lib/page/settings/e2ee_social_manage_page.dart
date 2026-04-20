@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 
@@ -145,23 +146,11 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
   }
 
   Widget _buildEmptyView(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.folder_open, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.e2eeSocialCreateFirst,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: message,
+      description: t.e2eeSocialCreateFirst,
+      icon: Icons.folder_open,
+      iconSize: 64,
     );
   }
 

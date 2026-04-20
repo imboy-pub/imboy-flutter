@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -547,33 +548,11 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     MessageSearchState state,
     Translations t,
   ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.search_off,
-            size: 64,
-            color: AppColors.textSecondary.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            t.searchNoResults,
-            style: TextStyle(
-              fontSize: FontSizeType.large.size,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '"${state.currentQuery}"',
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
-              color: AppColors.textSecondary.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: t.searchNoResults,
+      description: '"${state.currentQuery}"',
+      icon: Icons.search_off,
+      iconSize: 64,
     );
   }
 

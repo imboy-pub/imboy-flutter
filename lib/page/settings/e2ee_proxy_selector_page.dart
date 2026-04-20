@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -253,23 +254,11 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
   }
 
   Widget _buildEmptyView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text(
-            t.e2eeProxyNoFriends,
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.e2eeProxyNoFriendsHint,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-          ),
-        ],
-      ),
+    return NoDataView(
+      text: t.e2eeProxyNoFriends,
+      description: t.e2eeProxyNoFriendsHint,
+      icon: Icons.people_outline,
+      iconSize: 64,
     );
   }
 
