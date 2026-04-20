@@ -862,7 +862,8 @@ class ChatNotifier extends _$ChatNotifier {
     iPrint('Chat.sendMessage: ${json.encode(msg)}');
 
     // v2.0: 从消息中提取字段
-    final msgType = msg['type']?.toString() ?? '';
+    // chatType 持会话类型 (C2C/C2G/C2S)，对齐 WebSocket API v2.0 顶层 `type` 字段
+    final chatType = msg['type']?.toString() ?? '';
     final msgAction = msg['action']?.toString() ?? '';
     final originalPayload = msg['payload'];
 
@@ -881,13 +882,13 @@ class ChatNotifier extends _$ChatNotifier {
       // 检查是否需要加密（C2C/C2G 消息，非 action 操作）
       final needEncrypt =
           msgAction.isEmpty &&
-          E2EEService.shouldEncryptOutgoingPayload(msgType);
+          E2EEService.shouldEncryptOutgoingPayload(chatType);
 
       if (needEncrypt) {
         try {
           final toUid = msg['to']?.toString() ?? '';
           final encrypted = await _encryptPayload(
-            chatType: msgType,
+            chatType: chatType,
             toId: toUid,
             plaintextMap: payload,
             action: msgAction,
