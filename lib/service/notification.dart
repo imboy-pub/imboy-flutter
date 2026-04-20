@@ -84,7 +84,9 @@ class NotificationService {
       final type = data['type'] as String?;
       final conversationUk3 = data['conversationUk3'] as String?;
       final peerId = data['peerId'] as String?;
-      final msgType = data['msgType'] as String?;
+      // 会话类型 (C2C/C2G)。payload key 从旧名 `msgType` 迁移到 `chatType`；
+      // 在 `showMessageNotification` 生产端保持同步。
+      final chatType = data['chatType'] as String?;
 
       iPrint('🔔 [Notification] 解析导航数据: type=$type, uk3=$conversationUk3, peerId=$peerId');
 
@@ -99,8 +101,8 @@ class NotificationService {
       switch (type) {
         case 'message':
           // 消息通知：跳转到聊天页面
-          if (conversationUk3 != null && peerId != null && msgType != null) {
-            _navigateToChat(context, conversationUk3, peerId, msgType);
+          if (conversationUk3 != null && peerId != null && chatType != null) {
+            _navigateToChat(context, conversationUk3, peerId, chatType);
           }
           break;
         case 'friend_request':
@@ -210,11 +212,12 @@ class NotificationService {
     String? senderAvatar,
   }) async {
     // 构建通知负载（用于点击跳转）
+    // payload key `chatType` 与 `_handleNavigation` 消费端保持同步
     final payload = json.encode({
       'type': 'message',
       'conversationUk3': conversationUk3,
       'peerId': peerId,
-      'msgType': msgType,
+      'chatType': msgType,
     });
 
     // 使用会话 UK3 的哈希值作为通知 ID（同一会话的消息复用通知）

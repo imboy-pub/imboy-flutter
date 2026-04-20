@@ -42,14 +42,14 @@ class SendToLogic {
         if (msg.metadata != null) ...msg.metadata!,
       };
 
-      // 获取并归一化消息类型，历史脏值统一按 C2C 处理
-      final msgType = _normalizeConversationType(conversation.type);
+      // 获取并归一化会话类型，历史脏值统一按 C2C 处理
+      final chatType = _normalizeConversationType(conversation.type);
 
       // 创建 MessageModel
       final msgModel = MessageModel(
         0,
         autoId: 0,
-        type: msgType,
+        type: chatType,
         status: 10, // 发送中
         fromId: int.tryParse(UserRepoLocal.to.currentUid) ?? 0,
         toId: conversation.peerId,
@@ -60,7 +60,7 @@ class SendToLogic {
       );
 
       // 添加消息到数据库
-      final msgRepo = MessageRepo(tableName: MessageRepo.getTableName(msgType));
+      final msgRepo = MessageRepo(tableName: MessageRepo.getTableName(chatType));
       await msgRepo.insert(msgModel);
 
       // 通过事件总线触发消息发送
