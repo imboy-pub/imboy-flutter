@@ -10,12 +10,21 @@ class NoDataView extends StatelessWidget {
   final IconData? icon;
   final String? description;
 
+  /// 图标圆形容器固定尺寸。null = 使用 padding:16 自适应（向后兼容默认）；
+  /// 非 null 时容器渲染为 iconBgSize × iconBgSize 的固定尺寸圆形（对齐手写空态的 80/120 尺寸惯例）。
+  final double? iconBgSize;
+
+  /// 图标尺寸。默认 48（原值，向后兼容）。
+  final double iconSize;
+
   const NoDataView({
     super.key,
     required this.text,
     this.onTop,
     this.icon,
     this.description,
+    this.iconBgSize,
+    this.iconSize = 48,
   });
 
   @override
@@ -32,14 +41,17 @@ class NoDataView extends StatelessWidget {
               // 图标 - 使用主题色
               if (icon != null)
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  width: iconBgSize,
+                  height: iconBgSize,
+                  padding: iconBgSize == null ? const EdgeInsets.all(16) : null,
+                  alignment: iconBgSize == null ? null : Alignment.center,
                   decoration: BoxDecoration(
                     color: AppColors.textSecondary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon!,
-                    size: 48,
+                    size: iconSize,
                     color: AppColors.textSecondary, // 使用主题次要文字色
                   ),
                 ),
