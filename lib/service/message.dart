@@ -416,9 +416,10 @@ class MessageService with EventSubscriptionManager {
   Future<void> _receiveMessage(Map data) async {
     final startTime = DateTimeHelper.millisecond();
     final msgId = parseModelString(data['id']);
-    final msgType = parseModelString(data['type']);
-    if (msgId.isEmpty || msgType.isEmpty) {
-      iPrint('❌ [消息格式] 缺少 id/type 字段: id=$msgId, type=$msgType');
+    // chatType 持会话类型 (C2C/C2G/C2S)，对齐 WebSocket API v2.0 顶层 `type` 字段
+    final chatType = parseModelString(data['type']);
+    if (msgId.isEmpty || chatType.isEmpty) {
+      iPrint('❌ [消息格式] 缺少 id/type 字段: id=$msgId, type=$chatType');
       return;
     }
     iPrint('⏱️ [1] _receiveMessage 开始: $startTime, msgId: $msgId');
@@ -478,7 +479,7 @@ class MessageService with EventSubscriptionManager {
       final decryptedPayload = await _handleE2EEMessage(
         data: data,
         msgId: msgId,
-        msgType: msgType,
+        msgType: chatType,
         createdAtMs: createdAtMs,
       );
 
@@ -524,12 +525,12 @@ class MessageService with EventSubscriptionManager {
 
     // 确保 payload 为 non-nullable（用于后续调用）
     final nonNullPayload = payload;
-    final repo = getMessageRepo(msgType);
+    final repo = getMessageRepo(chatType);
 
     // === 去重检查（廉价内存检查优先，昂贵的数据库查询放最后） ===
 
     // 1. 检查消息是否正在接收中（TTL 5 秒，内存 Map）
-    final receivingMsgKey = '${msgType}_$msgId';
+    final receivingMsgKey = '${chatType}_$msgId';
     final now = DateTimeHelper.millisecond();
     const ttlMs = 5000;
     _cleanExpiredReceivingMarks(now, ttlMs);
@@ -557,7 +558,7 @@ class MessageService with EventSubscriptionManager {
     if (_recentMessageContents.containsKey(contentHash)) {
       final previousMsgId = _recentMessageContents[contentHash]!.msgId;
       iPrint(
-        '⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$msgType',
+        '⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$chatType',
       );
       return;
     }
@@ -576,7 +577,7 @@ class MessageService with EventSubscriptionManager {
       // 先构造基本消息对象用于UI显示（使用默认peer信息）
       // First create basic message for UI display with default peer info
       final peerId = resolveConversationPeerId(
-        msgType: msgType,
+        msgType: chatType,
         data: data,
         currentUid: UserRepoLocal.to.currentUid,
       );
@@ -600,9 +601,9 @@ class MessageService with EventSubscriptionManager {
       final tempConv = ConversationModel(
         peerId: parseModelInt(peerId),
         avatar: '', // 稍后异步更新
-        title: msgType == 'C2G' ? t.groupChat : t.user, // 稍后异步更新
+        title: chatType == 'C2G' ? t.groupChat : t.user, // 稍后异步更新
         subtitle: subtitle,
-        type: msgType,
+        type: chatType,
         msgType: messageType,
         lastMsgId: parseModelInt(msgId),
         lastTime: data['created_at'] ?? DateTimeHelper.millisecond(),
@@ -615,7 +616,7 @@ class MessageService with EventSubscriptionManager {
       final tempMsg = MessageModel(
         parseModelInt(data['id']),
         autoId: 0,
-        type: msgType,
+        type: chatType,
         fromId: parseModelInt(data['from']),
         toId: parseModelInt(data['to']),
         payload: nonNullPayload,
