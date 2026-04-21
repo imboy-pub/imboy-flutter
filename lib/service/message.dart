@@ -801,7 +801,7 @@ class MessageService with EventSubscriptionManager {
     MessageRepo repo,
   ) async {
     final msgId = parseModelString(data['id']);
-    final msgType = parseModelString(data['type']); // 消息会话类型 (C2C/C2G/C2S)
+    final chatType = parseModelString(data['type']); // 消息会话类型 (C2C/C2G/C2S)
     // WebSocket API v2.0: 从顶层读取消息内容类型
     final rawMsgType = data['msg_type']?.toString(); // voice/text/image 等
 
@@ -816,7 +816,7 @@ class MessageService with EventSubscriptionManager {
       // 并行获取 peer 信息和检查用户状态
       // Parallel fetch peer info and check user status
       final results = await Future.wait([
-        _fetchPeerInfo(msgType, data),
+        _fetchPeerInfo(chatType, data),
         _isUserCurrentlyInChat(tempConv),
       ]);
 
@@ -843,7 +843,7 @@ class MessageService with EventSubscriptionManager {
         avatar: peerInfo['avatar']!,
         title: peerInfo['title']!,
         subtitle: tempConv.subtitle,
-        type: msgType,
+        type: chatType,
         msgType: msgContentType, // 【修复】使用修正后的消息类型
         lastMsgId: parseModelInt(msgId),
         lastTime: tempConv.lastTime,
@@ -863,7 +863,7 @@ class MessageService with EventSubscriptionManager {
       final msg = MessageModel(
         parseModelInt(msgId),
         autoId: 0,
-        type: msgType, // 消息会话类型 (C2C/C2G/C2S)
+        type: chatType, // 消息会话类型 (C2C/C2G/C2S)
         fromId: parseModelInt(data['from']),
         toId: parseModelInt(data['to']),
         payload: payload,
@@ -914,7 +914,7 @@ class MessageService with EventSubscriptionManager {
           senderName: peerInfo['title'] ?? '',
           conversationUk3: savedConv.uk3,
           peerId: peerInfo['peerId'] ?? '',
-          msgType: msgType,
+          msgType: chatType,
         );
       }
 
@@ -925,7 +925,7 @@ class MessageService with EventSubscriptionManager {
 
       // 处理失败，从 UI 中移除该消息
       // Failed to process, remove message from UI
-      _handleMessageProcessingFailure(msgId, msgType, tempConv, e);
+      _handleMessageProcessingFailure(msgId, chatType, tempConv, e);
     }
   }
 
