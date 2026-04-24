@@ -914,7 +914,7 @@ class MessageService with EventSubscriptionManager {
           senderName: peerInfo['title'] ?? '',
           conversationUk3: savedConv.uk3,
           peerId: peerInfo['peerId'] ?? '',
-          msgType: chatType,
+          chatType: chatType,
         );
       }
 
@@ -1123,19 +1123,21 @@ class MessageService with EventSubscriptionManager {
     required String senderName,
     required String conversationUk3,
     required String peerId,
-    required String msgType,
+    required String chatType,
   }) async {
     try {
       // 获取通知内容
       final content = _getNotificationContent(msg);
 
       // 调用通知服务显示通知
+      // 注意: _notificationService.showMessageNotification 的形参仍为 msgType,
+      // 是跨文件合约；值已对齐为会话类型 (C2C/C2G/C2S)，语义即 chatType。
       await _notificationService.showMessageNotification(
         senderName: senderName,
         content: content,
         conversationUk3: conversationUk3,
         peerId: peerId,
-        msgType: msgType,
+        msgType: chatType,
       );
 
       iPrint(
