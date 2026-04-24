@@ -479,7 +479,7 @@ class MessageService with EventSubscriptionManager {
       final decryptedPayload = await _handleE2EEMessage(
         data: data,
         msgId: msgId,
-        msgType: chatType,
+        chatType: chatType,
         createdAtMs: createdAtMs,
       );
 
@@ -1299,7 +1299,8 @@ class MessageService with EventSubscriptionManager {
   Future<Map<String, dynamic>> _handleE2EEMessage({
     required Map data,
     required String msgId,
-    required String msgType,
+    // ignore: unused_element_parameter
+    required String chatType,
     required int createdAtMs,
   }) async {
     // WebSocket API v2.0: 保留原始消息的 msg_type（内容类型）
