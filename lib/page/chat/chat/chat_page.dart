@@ -50,7 +50,6 @@ import 'package:imboy/service/storage.dart';
 const bool _useOptimizedMessageList = false;
 
 // 聊天页面主Widget
-// ignore: must_be_immutable
 class ChatPage extends ConsumerStatefulWidget {
   final String type; // 聊天类型 [C2C | C2G | C2S]
   final String peerId; // 对方ID (用户ID/群组ID/服务ID)
