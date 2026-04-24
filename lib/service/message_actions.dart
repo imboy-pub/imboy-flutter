@@ -1297,14 +1297,14 @@ class MessageActions {
   ///
   /// 参数：
   /// - [msgId]: 消息ID
-  /// - [msgType]: 消息类型 (C2C/C2G)
+  /// - [chatType]: 会话类型 (C2C/C2G)
   static Future<void> handleDenylistError({
     required String? msgId,
-    required String msgType,
+    required String chatType,
   }) async {
     try {
       // 1. 打印调试日志
-      iPrint('🚫 [DENYLIST] msgId=$msgId, msgType=$msgType');
+      iPrint('🚫 [DENYLIST] msgId=$msgId, chatType=$chatType');
       debugPrint('🚫 [DENYLIST] 无法发送消息 - 对方已将您加入黑名单');
 
       // 2. 通过事件总线通知 UI 显示错误提示
@@ -1328,7 +1328,7 @@ class MessageActions {
           AppEventBus.fire(
             MessageStatusUpdateRequestedEvent(
               messageId: msgId,
-              messageType: msgType,
+              messageType: chatType,
               newStatus: 41, // IMBoyMessageStatus.error
               notifyUI: true,
             ),
@@ -1343,7 +1343,7 @@ class MessageActions {
           AppEventBus.fire(
             RemoveFromRetryQueueRequestedEvent(
               messageId: msgId,
-              messageType: msgType,
+              messageType: chatType,
               reason: 'in_denylist',
             ),
           );
