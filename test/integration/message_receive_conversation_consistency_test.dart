@@ -52,7 +52,7 @@ void main() {
   }) async {
     final data = <String, dynamic>{'from': from, 'to': to};
     final peerIdStr = resolveConversationPeerId(
-      msgType: msgType,
+      chatType: msgType,
       data: data,
       currentUid: currentUid,
     );

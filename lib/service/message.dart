@@ -577,7 +577,7 @@ class MessageService with EventSubscriptionManager {
       // 先构造基本消息对象用于UI显示（使用默认peer信息）
       // First create basic message for UI display with default peer info
       final peerId = resolveConversationPeerId(
-        msgType: chatType,
+        chatType: chatType,
         data: data,
         currentUid: UserRepoLocal.to.currentUid,
       );
@@ -1027,7 +1027,7 @@ class MessageService with EventSubscriptionManager {
       title = g?.title ?? '群聊';
     } else {
       peerId = resolveConversationPeerId(
-        msgType: chatType,
+        chatType: chatType,
         data: data,
         currentUid: UserRepoLocal.to.currentUid,
       );

@@ -5,7 +5,7 @@ void main() {
   group('resolveConversationPeerId', () {
     test('C2C incoming uses sender as peer', () {
       final peerId = resolveConversationPeerId(
-        msgType: 'C2C',
+        chatType: 'C2C',
         data: {'from': 'u_other', 'to': 'u_me'},
         currentUid: 'u_me',
       );
@@ -15,7 +15,7 @@ void main() {
 
     test('C2C self echo uses receiver as peer', () {
       final peerId = resolveConversationPeerId(
-        msgType: 'C2C',
+        chatType: 'C2C',
         data: {'from': 'u_me', 'to': 'u_other'},
         currentUid: 'u_me',
       );
@@ -25,7 +25,7 @@ void main() {
 
     test('C2G uses group id from to', () {
       final peerId = resolveConversationPeerId(
-        msgType: 'C2G',
+        chatType: 'C2G',
         data: {'from': 'u_me', 'to': 'g_1'},
         currentUid: 'u_me',
       );
@@ -35,7 +35,7 @@ void main() {
 
     test('C2C falls back to to when from is empty', () {
       final peerId = resolveConversationPeerId(
-        msgType: 'C2C',
+        chatType: 'C2C',
         data: {'from': '', 'to': 'u_other'},
         currentUid: 'u_me',
       );

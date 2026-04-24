@@ -6,18 +6,18 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - incoming from other user: `from`
 /// - self echo from current user: `to`
 String resolveConversationPeerId({
-  required String msgType,
+  required String chatType,
   required Map data,
   required String currentUid,
 }) {
-  if (msgType == 'C2G') {
+  if (chatType == 'C2G') {
     return parseModelString(data['to']);
   }
 
   final from = parseModelString(data['from']);
   final to = parseModelString(data['to']);
 
-  if (msgType == 'C2C') {
+  if (chatType == 'C2C') {
     if (from == currentUid && to.isNotEmpty) {
       return to;
     }
