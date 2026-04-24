@@ -10,11 +10,26 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 class ContactApi extends HttpClient {
   Future<List<dynamic>> listFriend() async {
     IMBoyHttpResponse resp = await get(API.friendList);
-    // debugPrint("> on Api/listFriend resp: ${resp.payload.toString()}");
+    // [DIAG #19] API 层：响应形状与 friend 数组长度
+    final payload = resp.payload;
+    final friendRaw = (payload is Map) ? payload['friend'] : null;
+    debugPrint(
+      "> [DIAG #19] ContactApi.listFriend resp.ok=${resp.ok} "
+      "payload.isMap=${payload is Map} "
+      "payload.keys=${payload is Map ? payload.keys.toList() : null} "
+      "friend.isList=${friendRaw is List} "
+      "friend.length=${friendRaw is List ? friendRaw.length : -1}",
+    );
     if (!resp.ok) {
       return [];
     }
-    return resp.payload["friend"];
+    if (friendRaw is! List) {
+      debugPrint(
+        "> [DIAG #19] ContactApi.listFriend friend is NOT a List — returning []",
+      );
+      return [];
+    }
+    return friendRaw;
   }
 
   /// 同步非好友联系人信息

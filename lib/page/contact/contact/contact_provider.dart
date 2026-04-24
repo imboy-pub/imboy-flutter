@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/contact_api.dart' as contact_provider;
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -154,19 +155,41 @@ class ContactNotifier extends _$ContactNotifier {
 
   // 获取好友列表
   Future<List<ContactModel>> listFriend(bool onRefresh) async {
+    // [DIAG #19] 进入点：记录触发方式 + 当前 uid
+    debugPrint(
+      "> [DIAG #19] listFriend ENTER onRefresh=$onRefresh "
+      "currentUid=${UserRepoLocal.to.currentUid}",
+    );
     List<ContactModel> contact = [];
     if (onRefresh == false) {
       contact = await ContactRepo().findFriend();
     }
     if (contact.isNotEmpty) {
+      debugPrint(
+        "> [DIAG #19] listFriend EARLY-RETURN local count=${contact.length}",
+      );
       return contact;
     }
     final repo = ContactRepo();
     final dataMap = await contact_provider.ContactApi().listFriend();
+    debugPrint(
+      "> [DIAG #19] listFriend remote dataMap.length=${dataMap.length}",
+    );
+    int saveOk = 0;
+    int saveFail = 0;
     for (var json in dataMap) {
-      await repo.save(json);
+      final r = await repo.save(json);
+      if (r == null) {
+        saveFail++;
+      } else {
+        saveOk++;
+      }
     }
     contact = await ContactRepo().findFriend();
+    debugPrint(
+      "> [DIAG #19] listFriend AFTER save ok=$saveOk fail=$saveFail "
+      "final findFriend.count=${contact.length}",
+    );
     return contact;
   }
 

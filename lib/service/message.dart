@@ -933,7 +933,7 @@ class MessageService with EventSubscriptionManager {
   /// Handle message processing failure
   void _handleMessageProcessingFailure(
     String msgId,
-    String msgType,
+    String chatType,
     ConversationModel tempConv,
     dynamic error,
   ) {
@@ -959,7 +959,7 @@ class MessageService with EventSubscriptionManager {
       AppEventBus.fireData({
         'action': 'rollback_conversation',
         'peer_id': tempConv.peerId,
-        'type': msgType,
+        'type': chatType,
         'last_msg_id': tempConv.lastMsgId,
       });
 

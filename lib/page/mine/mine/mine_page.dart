@@ -1,39 +1,31 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mine_page.g.dart';
 
-/// Mine 模块的状态管理
-///
-/// 注意：当前 MinePage 使用 ConsumerStatefulWidget
-/// 所有状态管理已内联到 UI 中
-/// 此 Provider 保留用于未来扩展
 class MineState {
   const MineState();
 
-  MineState copyWith() {
-    return const MineState();
-  }
+  MineState copyWith() => const MineState();
 }
 
 @riverpod
 class MineNotifier extends _$MineNotifier {
   @override
-  MineState build() {
-    return const MineState();
-  }
+  MineState build() => const MineState();
 }
 
-/// 我的页面 - 个人中心主页
+/// 我的页面 - iOS InsetGrouped 风格（DESIGN.md §8.3）
 class MinePage extends ConsumerStatefulWidget {
   const MinePage({super.key});
 
@@ -46,233 +38,126 @@ class _MinePageState extends ConsumerState<MinePage> {
   Widget build(BuildContext context) {
     final userRepo = ref.watch(userRepoProvider);
     final user = userRepo.currentUser;
-    final theme = Theme.of(context);
+    final brightness = Theme.of(context).brightness;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 顶部背景和用户信息
-          SliverToBoxAdapter(
-            child: Stack(
-              children: [
-                // 背景渐变
-                Container(
-                  height: 220,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.primary,
-                        AppColors.primary.withValues(alpha: 0.7),
-                      ],
-                    ),
+          // 系统状态栏 + 页面标题占位
+          SliverSafeArea(
+            bottom: false,
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Text(
+                  t.titleMine,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    letterSpacing: 0.36,
                   ),
                 ),
-                // 用户信息
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 20,
-                    left: 20,
-                    right: 20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          // 头像
-                          GestureDetector(
-                            onTap: () => context.push('/personal_info/profile'),
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: CircleAvatar(
-                                radius: 40,
-                                backgroundColor: theme.colorScheme.surface,
-                                backgroundImage: strNoEmpty(user?.avatar)
-                                    ? cachedImageProvider(user!.avatar)
-                                    : null,
-                                child: !strNoEmpty(user?.avatar)
-                                    ? Text(
-                                        user!.nickname
-                                            .substring(0, 1)
-                                            .toUpperCase(),
-                                        style: theme.textTheme.headlineLarge
-                                            ?.copyWith(
-                                              color: AppColors.primary,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          // 昵称和ID
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user?.nickname ?? t.unknown,
-                                  style: theme.textTheme.headlineSmall
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'ID: ${user?.uid ?? '-'}',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // 二维码
-                          IconButton(
-                            onPressed: () => context.push('/qrcode/user'),
-                            icon: const Icon(
-                              Icons.qr_code_2,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      // 个性签名
-                      if (strNoEmpty(user?.sign))
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Text(
-                            user!.sign,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
 
-          // 功能列表
+          // 用户资料卡片（iOS Settings 风格 profile cell）
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _buildProfileCard(context, user),
+            ),
+          ),
+
+          // 功能菜单
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildMenuSection(context, [
-                  _buildMenuItem(
+                // 钱包
+                const SizedBox(height: 28),
+                _buildSection(context, [
+                  _buildItem(
                     context,
                     title: t.wallet,
-                    leadingIcon: Icons.account_balance_wallet_outlined,
-                    leadingIconColor: Colors.orange,
+                    icon: Icons.account_balance_wallet_outlined,
+                    iconColor: const Color(0xFFFF9500),
                     onTap: () => context.push('/wallet'),
                   ),
                 ]),
-                const SizedBox(height: 16),
 
-                // 频道（feature flag 控制，关闭时不渲染）
+                // 频道（feature flag 控制）
                 if (AppFeatureRegistry.isEnabled('channel')) ...[
-                  _buildMenuSection(context, [
-                    _buildMenuItem(
+                  const SizedBox(height: 28),
+                  _buildSection(context, [
+                    _buildItem(
                       context,
                       title: t.myChannels,
-                      leadingIcon: Icons.campaign_outlined,
-                      leadingIconColor: AppColors.primary,
+                      icon: Icons.campaign_outlined,
+                      iconColor: AppColors.primary,
                       onTap: () => context.push('/channel'),
                     ),
                     _buildDivider(context),
-                    _buildMenuItem(
+                    _buildItem(
                       context,
                       title: t.channelSquare,
-                      leadingIcon: Icons.explore_outlined,
-                      leadingIconColor: Colors.teal,
+                      icon: Icons.explore_outlined,
+                      iconColor: const Color(0xFF00C896),
                       onTap: () => context.push('/channel/discover'),
                     ),
                   ]),
-                  const SizedBox(height: 16),
                 ],
 
                 // 常用功能
-                _buildMenuSection(context, [
-                  _buildMenuItem(
+                const SizedBox(height: 28),
+                _buildSection(context, [
+                  _buildItem(
                     context,
                     title: t.favorites,
-                    leadingIcon: Icons.favorite_outline,
-                    leadingIconColor: Colors.redAccent,
+                    icon: Icons.favorite_outline,
+                    iconColor: const Color(0xFFFF3B30),
                     onTap: () => context.push('/favorites'),
                   ),
                   _buildDivider(context),
-                  _buildMenuItem(
+                  _buildItem(
                     context,
                     title: t.storageSpace,
-                    leadingIcon: Icons.sd_storage_outlined,
-                    leadingIconColor: Colors.blueAccent,
+                    icon: Icons.sd_storage_outlined,
+                    iconColor: AppColors.primary,
                     onTap: () => context.push('/storage_space'),
                   ),
                   _buildDivider(context),
-                  _buildMenuItem(
+                  _buildItem(
                     context,
                     title: t.loginDeviceManagement,
-                    leadingIcon: Icons.devices_outlined,
-                    leadingIconColor: Colors.teal,
+                    icon: Icons.devices_outlined,
+                    iconColor: const Color(0xFF00C896),
                     onTap: () => context.push('/devices'),
                   ),
                 ]),
 
-                const SizedBox(height: 16),
-
-                // 设置
-                _buildMenuSection(context, [
-                  _buildMenuItem(
+                // 设置与反馈
+                const SizedBox(height: 28),
+                _buildSection(context, [
+                  _buildItem(
                     context,
                     title: t.setting,
-                    leadingIcon: Icons.settings_outlined,
-                    leadingIconColor: Colors.grey,
+                    icon: Icons.settings_outlined,
+                    iconColor: AppColors.iosGray,
                     onTap: () => context.push('/mine/setting'),
                   ),
                   _buildDivider(context),
-                  _buildMenuItem(
+                  _buildItem(
                     context,
                     title: t.feedback,
-                    leadingIcon: Icons.feedback_outlined,
-                    leadingIconColor: Colors.purpleAccent,
+                    icon: Icons.feedback_outlined,
+                    iconColor: const Color(0xFF5C6BC0),
                     onTap: () => context.push('/feedback'),
                   ),
                 ]),
-
-                const SizedBox(height: 40),
               ]),
             ),
           ),
@@ -281,68 +166,99 @@ class _MinePageState extends ConsumerState<MinePage> {
     );
   }
 
-  /// 构建菜单分组
-  Widget _buildMenuSection(BuildContext context, List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: AppRadius.borderRadiusRegular,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  /// 构建菜单项
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required String title,
-    IconData? leadingIcon,
-    Color? leadingIconColor,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
+  /// iOS Settings 风格 profile cell
+  Widget _buildProfileCard(BuildContext context, dynamic user) {
     final theme = Theme.of(context);
     return Material(
-      color: Colors.transparent,
+      color: theme.cardColor,
+      borderRadius: BorderRadius.circular(10),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.borderRadiusRegular,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        onTap: () => context.push('/personal_info/profile'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              if (leadingIcon != null) ...[
-                Icon(
-                  leadingIcon,
-                  color: leadingIconColor ?? theme.primaryColor,
-                  size: 24,
-                ),
-                const SizedBox(width: 16),
-              ],
+              // 头像
+              CircleAvatar(
+                radius: 32,
+                backgroundColor: AppColors.primaryLight,
+                backgroundImage:
+                    strNoEmpty(user?.avatar) ? cachedImageProvider(user!.avatar) : null,
+                child: !strNoEmpty(user?.avatar)
+                    ? Text(
+                        user?.nickname?.substring(0, 1).toUpperCase() ?? '?',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 14),
+
+              // 名称 + ID + 签名
               Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user?.nickname ?? t.unknown,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                        letterSpacing: -0.41,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'ImBoy ID: ${user?.uid ?? '-'}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.iosGray,
+                        letterSpacing: -0.08,
+                      ),
+                    ),
+                    if (strNoEmpty(user?.sign)) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        user!.sign,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.iosGray,
+                          letterSpacing: -0.08,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              if (trailing != null) ...[
-                trailing,
-              ] else if (onTap != null) ...[
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: theme.hintColor.withValues(alpha: 0.3),
-                  size: 14,
+
+              // QR 码按钮
+              IconButton(
+                onPressed: () => context.push('/qrcode/user'),
+                icon: Icon(
+                  Icons.qr_code_2,
+                  color: AppColors.iosGray,
+                  size: 22,
                 ),
-              ],
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 2),
+
+              // chevron
+              Icon(
+                CupertinoIcons.chevron_right,
+                color: AppColors.iosGray,
+                size: 14,
+              ),
             ],
           ),
         ),
@@ -350,13 +266,83 @@ class _MinePageState extends ConsumerState<MinePage> {
     );
   }
 
-  /// 构建分割线
+  /// iOS InsetGrouped 分组容器
+  Widget _buildSection(BuildContext context, List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: children),
+    );
+  }
+
+  /// 菜单项（与 SettingPage._buildSettingItem 对齐）
+  Widget _buildItem(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    VoidCallback? onTap,
+  }) {
+    final theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+          child: Row(
+            children: [
+              // 图标容器（圆角方形，10% 背景）
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
+              const SizedBox(width: 14),
+
+              // 标题
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: theme.colorScheme.onSurface,
+                    letterSpacing: -0.32,
+                  ),
+                ),
+              ),
+
+              // chevron
+              Icon(
+                CupertinoIcons.chevron_right,
+                color: AppColors.iosGray,
+                size: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// iOS 原生内嵌分隔线（左 inset 56pt = 38 icon + 14 gap + 16 padding）
   Widget _buildDivider(BuildContext context) {
-    return Divider(
-      height: 1,
-      indent: 56,
-      endIndent: 16,
-      color: Theme.of(context).dividerColor.withValues(alpha: 0.05),
+    final brightness = Theme.of(context).brightness;
+    return Padding(
+      padding: const EdgeInsets.only(left: 68),
+      child: HorizontalLine(
+        height: 0.33,
+        color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.6),
+      ),
     );
   }
 }
