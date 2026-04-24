@@ -981,10 +981,10 @@ class MessageService with EventSubscriptionManager {
 
   /// 并行获取 peer 信息（带缓存优化）
   /// Fetch peer info in parallel with cache optimization
-  Future<Map<String, String>> _fetchPeerInfo(String msgType, Map data) async {
+  Future<Map<String, String>> _fetchPeerInfo(String chatType, Map data) async {
     String peerId, avatar, title;
 
-    if (msgType == 'C2G') {
+    if (chatType == 'C2G') {
       peerId = parseModelString(data['to']);
 
       // 检查内存缓存
@@ -1027,7 +1027,7 @@ class MessageService with EventSubscriptionManager {
       title = g?.title ?? '群聊';
     } else {
       peerId = resolveConversationPeerId(
-        msgType: msgType,
+        msgType: chatType,
         data: data,
         currentUid: UserRepoLocal.to.currentUid,
       );
