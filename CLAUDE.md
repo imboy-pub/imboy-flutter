@@ -89,6 +89,20 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 
 ## 变更记录 (Changelog)
 
+### 2026-04-24
+- **docs(stale-todo) 三片收尾清理**（静态文档债务审计批次，零代码影响）/ **Three-slice stale-todo cleanup batch (doc-debt audit, zero code impact)**：
+  - `552ffb22` 清理 2 处过时 TODO 注释 / Clean 2 stale TODO comments：
+    - `lib/store/api/group_member_api.dart:104` 原"TODO：后端提供 unmute 后开放独立方法"→ 改为"请用独立方法 [unmute]（slice-9a/9b 已落地）"
+    - `lib/service/group_member_mute_service.dart:65` 原"TODO(slice-2) Repo 支持注入后接入"→ 改为"已由 MessageS2CService._handleGroupMemberMute 通过 S2C 广播统一落库"
+  - `ace09ad2` 修正 4 处伪 `@Deprecated` 文档注释 / Fix 4 pseudo-`@Deprecated` doc comments：
+    - `lib/theme/default/app_colors.dart` 的 `lightBackground` / `lightCardBackground` / `darkBackground` / `darkCardBackground` 原 `/// @Deprecated(...)` 写在文档注释内（不会触发 `deprecated_member_use` 警告）→ 改为"建议：新代码使用 [xxx]"的说明性文案，避免误导
+    - 未升级为真实 `@Deprecated` 注解：26 个调用点跨 8 文件，会引入非零风险警告噪音
+  - `ab8706ed` 清理 `test/service/group_member_mute_s2c_parse_test.dart:12-16` 过时契约缺口注释 / Clean stale contract-gap comment：
+    - 原注释声称 "⚠️ 已知后端契约缺口：mute_notice/4 payload 缺 user_id" → slice-1-finalize (2026-04-15) 已闭合此缺口，test body 122-205 行已有新/老契约双路径覆盖
+  - **所有提交均严格控制面积**：仅 `lib/**` + `test/**`，保留区 `ios/*` + `plugin/r_upgrade` 零动 / All commits strictly scoped to `lib/**` + `test/**`; preservation zones `ios/*` + `plugin/r_upgrade` untouched
+  - **回归基线**：`flutter analyze` 零警告，测试全绿 / Regression baseline: `flutter analyze` clean, tests all green
+  - **静态债务出清**：lib/ 与 test/ 的 `TODO|FIXME|HACK|XXX` + `/// @Deprecated` 伪注释均已扫描完毕，sequential-safe loop 进入暂停态（剩余 pending 任务 #19/#20/#26/#28/#33/#35 均为真机/运行时依赖项）/ Static debt cleared; sequential-safe loop stalled — remaining pending tasks are device/runtime-dependent
+
 ### 2026-04-18
 - **Completion Sprint Track A 推进：A-2 / A-4 / A-5 三切片落地（三次独立提交）** / **Completion Sprint Track A push: A-2 / A-4 / A-5 three slices landed (three independent commits)**：
   - `0b5dba2f` **A-2 moment_notify Phase 1（朋友圈通知中心客户端本地闭环）** / **Moment notification center, client-local closure Phase 1**：17 文件 +1559/-9；SQLite v18→v20（新增 `moment_notify` 表 + dedup 唯一索引）；Riverpod 3 sealed state + 分页 provider；i18n `momentNotify.*` 新键；路由 `/moment_notify` + `moment_feed_page.dart` 入口；采用 **Option C 混合策略**：Phase 1 仅客户端本地（未来 Phase 2 再做后端 REST v1.1 `/v1/moment/notify/page`）/ Option C hybrid: Phase 1 client-only now; Phase 2 backend REST later
