@@ -277,25 +277,17 @@ enum FontSizeType {
 
 **注意**：颜色命名已更新（2026-01-14），旧命名标记为 `@Deprecated`。
 
-#### 主色调（新命名）
+#### 主色调
 ```dart
 class AppColors {
-  // ✅ 新命名（推荐使用）
   static const Color primary = Color(0xFF2474E5);
   static const Color primaryLight = Color(0xFFE3F2FD);
   static const Color primaryDark = Color(0xFF1565C0);
   static const Color primaryContainer = Color(0xFFBBDEFB);
   static const Color onPrimaryContainer = Color(0xFF0D47A1);
-
-  // ⚠️ 旧命名（已废弃，请使用新命名）
-  @Deprecated('使用 primary 代替')
-  static const Color primaryGreen = Color(0xFF2474E5);
-  @Deprecated('使用 primaryLight 代替')
-  static const Color primaryGreenLight = Color(0xFFE3F2FD);
-  @Deprecated('使用 primaryDark 代替')
-  static const Color primaryGreenDark = Color(0xFF1565C0);
 }
 ```
+> 旧命名 `primaryGreen` / `primaryGreenLight` / `primaryGreenDark` 已于早期迁移后从 `app_colors.dart` 完全移除（不再作为 `@Deprecated` 别名保留）；现用命名即上述 `primary*`。
 
 #### 亮色主题颜色
 ```dart
@@ -568,12 +560,12 @@ Container(
 A: 参考 [DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md) 文档，其中包含详细的迁移步骤和批量替换脚本。
 
 #### Q: 旧的颜色命名（如 primaryGreen）还能用吗？
-A: 可以，但已标记为 `@Deprecated`，建议使用新命名：
+A: **不能**。`primaryGreen` / `primaryGreenLight` / `primaryGreenDark` 已从 `app_colors.dart` 彻底删除（不再作为 `@Deprecated` 别名保留）。任何残留引用会直接触发编译错误，请迁移到 `AppColors.primary` / `primaryLight` / `primaryDark`：
 ```dart
-// ❌ 旧命名（已废弃）
+// ❌ 已移除（编译错误）
 AppColors.primaryGreen
 
-// ✅ 新命名（推荐）
+// ✅ 现用命名
 AppColors.primary
 ```
 
