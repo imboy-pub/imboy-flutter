@@ -9,11 +9,11 @@
 ///     "admin_nickname": String
 ///   }
 ///
-/// ⚠️ **已知后端契约缺口**：`mute_notice/4` 的第三个参数 `_UserId` 被忽略，
-/// 因此 payload 中不包含被禁言的 `user_id`。slice-1 的客户端处理只能做「广播
-/// 通知」（toast + 事件总线），无法直接更新 `group_member.mute_until` 行。
-/// 修复责任在后端（TODO：`imboy/src/logic/group_member_logic.erl:260-266`
-/// 的 Payload 需补 `<<"user_id">> => UserId`）。
+/// slice-1-finalize (2026-04-15) 已闭合先前记录的"后端契约缺口"：
+/// `mute_notice/4` Payload 已补 `<<"user_id">> => UserId`，客户端可定位
+/// 被禁言成员行并驱动 `GroupMemberRepo.update(...)` 写本地表。
+/// 下方 test body 同时覆盖新契约（含 user_id）与老契约（缺 user_id）的
+/// 向后兼容路径（见各 "slice-1-finalize:" 与 "向后兼容老后端" 用例）。
 ///
 /// 契约：
 ///   1. payload 正常 → `GroupMemberMutePayload(...)` 带全字段
