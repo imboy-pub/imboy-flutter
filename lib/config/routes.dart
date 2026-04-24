@@ -28,10 +28,6 @@ class AppRoutes {
   /// 联系人列表
   static const contact = '/contact';
 
-  /// 联系人详情（已废弃，使用 /contact/people/:id）
-  @Deprecated('Use /contact/people/:id instead')
-  static const contactDetail = '/contact_detail';
-
   /// 会话列表
   static const conversation = "/conversation";
 
