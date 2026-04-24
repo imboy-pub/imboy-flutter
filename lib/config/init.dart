@@ -51,9 +51,6 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'routes.dart';
 
-// ignore: prefer_generic_function_type_aliases
-typedef Callback(data);
-
 IMBoyCacheManager cacheManager = IMBoyCacheManager();
 
 typedef VoidCallbackConfirm = void Function(bool isOk);
