@@ -59,7 +59,8 @@ class AppColors {
   static const Color lightSurface = Colors.white;
 
   /// 亮色主题 - 背景颜色 - Material 3 Background
-  /// @Deprecated('使用 lightSurface 代替。Background 与 Surface 在当前实现中相同。')
+  ///
+  /// 建议：新代码使用 [lightSurface]（Background 与 Surface 在当前实现中相同）。
   static const Color lightBackground = Colors.white;
 
   /// 亮色主题 - 表面变体 - Material 3 Surface Variant
@@ -72,7 +73,8 @@ class AppColors {
   static const Color lightSurfaceContainerHighest = Color(0xFFE6E0E9);
 
   /// 亮色主题 - 卡片背景
-  /// @Deprecated('使用 lightSurface 或 lightSurfaceContainer 代替。')
+  ///
+  /// 建议：新代码使用 [lightSurface] 或 [lightSurfaceContainer]。
   static const Color lightCardBackground = Colors.white;
 
   /// 亮色主题 - 分割线颜色 - Material 3 Outline Variant
@@ -107,7 +109,8 @@ class AppColors {
   static const Color darkSurface = Color(0xFF121212);
 
   /// 暗色主题 - 背景颜色 - Material 3 Background
-  /// @Deprecated('使用 darkSurface 代替。Background 与 Surface 在当前实现中相同。')
+  ///
+  /// 建议：新代码使用 [darkSurface]（Background 与 Surface 在当前实现中相同）。
   static const Color darkBackground = Color(0xFF121212);
 
   /// 暗色主题 - 表面变体 - Material 3 Surface Variant
@@ -120,7 +123,8 @@ class AppColors {
   static const Color darkSurfaceContainerHighest = Color(0xFF2A2A2A);
 
   /// 暗色主题 - 卡片背景
-  /// @Deprecated('使用 darkSurfaceContainer 代替。')
+  ///
+  /// 建议：新代码使用 [darkSurfaceContainer]。
   static const Color darkCardBackground = darkSurfaceContainer;
 
   /// 暗色主题 - 分割线颜色 - Material 3 Outline Variant
