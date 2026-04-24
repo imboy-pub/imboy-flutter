@@ -9,7 +9,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
-// ignore: must_be_immutable
 class QuoteTipsWidget extends StatelessWidget {
   const QuoteTipsWidget({
     super.key,
