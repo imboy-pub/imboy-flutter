@@ -100,8 +100,8 @@ class GroupMemberApi extends HttpClient {
   /// [duration] 禁言时长（秒），**必须 > 0**。
   ///
   /// 注意：后端 `group_member_handler.erl` 在 `Duration =< 0` 时直接返回错误
-  /// `"禁言时长必须大于0"`，不会做解禁处理。取消禁言需要单独的后端 action
-  /// （TODO：后端提供 `unmute` 后开放独立方法），此方法不再承担该语义。
+  /// `"禁言时长必须大于0"`，不会做解禁处理。取消禁言请用独立方法 [unmute]
+  /// （slice-9a/9b 已落地）。
   ///
   /// 抛出 [ArgumentError]：当 `duration <= 0` 时；不发送任何网络请求。
   Future<bool> mute({

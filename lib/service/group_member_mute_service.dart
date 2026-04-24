@@ -60,10 +60,10 @@ final class UnmuteApiFailure extends UnmuteResult {
 ///   3. 推算 `muteUntilMs = now + durationSec * 1000`
 ///   4. 将 API 层抛出的 `ArgumentError`（二次防线）转成 `MuteValidationError`
 ///
-/// 非职责（本切片不做）：
-///   - 本地 Repo 持久化：`GroupMemberRepo` 依赖 `SqliteService.to` 单例，
-///     待 Repo 支持注入或通过 S2C 通知统一落库后再接入。TODO(slice-2)
-///   - 解除禁言：后端尚未提供 `unmute` action，前端不应传 `duration=0`
+/// 非职责：
+///   - 本地 Repo 持久化：已由 `MessageS2CService._handleGroupMemberMute`
+///     通过 S2C 广播统一落库（见 `message_s2c.dart` / slice-1-finalize）。
+///   - 解除禁言：请用 [unmute] 方法（slice-9a/9b 独立 action 已落地）。
 class GroupMemberMuteService {
   GroupMemberMuteService({
     GroupMemberApi? api,
