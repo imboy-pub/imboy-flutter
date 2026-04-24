@@ -23,8 +23,8 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/storage.dart';
-import '../component/helper/datetime.dart' show DateTimeHelper;
-import 'websocket_message_queue.dart';
+import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
+import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/config/init.dart' show navigateToSignIn;
 
 enum SocketStatus { connecting, connected, disconnected }

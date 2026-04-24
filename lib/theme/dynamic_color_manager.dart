@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dynamic_color/dynamic_color.dart';
 
-import 'default/app_colors.dart';
-import '../component/helper/func.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/component/helper/func.dart';
 
 /// 动态颜色管理器
 ///

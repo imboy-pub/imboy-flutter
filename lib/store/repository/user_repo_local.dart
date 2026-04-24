@@ -8,7 +8,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
 
-import '../../service/secure_token_storage_service.dart'
+import 'package:imboy/service/secure_token_storage_service.dart'
     show SecureTokenStorageService;
 
 /// 用户本地数据仓库

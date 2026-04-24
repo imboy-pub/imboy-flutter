@@ -9,7 +9,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
-import '../../component/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 
 class ConversationRepo {
   static String tableName = 'conversation';
