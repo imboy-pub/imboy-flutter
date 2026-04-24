@@ -26,7 +26,7 @@ void main() {
     test('首次收到消息，dbLookup=false → DeduplicationPass', () async {
       final result = await dedup.check(
         msgId: 'msg-001',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => false,
       );
 
@@ -41,7 +41,7 @@ void main() {
 
       final result = await dedup.check(
         msgId: 'msg-002',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => false,
       );
 
@@ -67,7 +67,7 @@ void main() {
 
       final result = await dedupWithClock.check(
         msgId: 'msg-003',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => false,
       );
 
@@ -80,7 +80,7 @@ void main() {
     test('dbLookup=true → DeduplicationDuplicate(db_exists)', () async {
       final result = await dedup.check(
         msgId: 'msg-004',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => true,
       );
 
@@ -95,7 +95,7 @@ void main() {
     test('dbLookup=false 且无其他命中 → DeduplicationPass', () async {
       final result = await dedup.check(
         msgId: 'msg-005',
-        msgType: 'C2G',
+        chatType: 'C2G',
         dbLookup: (_) async => false,
       );
 
@@ -111,7 +111,7 @@ void main() {
         () async {
           result = await dedup.check(
             msgId: '',
-            msgType: 'C2C',
+            chatType: 'C2C',
             contentHash: 'hash-abc',
             dbLookup: (_) async => false,
           );
@@ -129,7 +129,7 @@ void main() {
     test('msgId 为空 + contentHash 为空 → DeduplicationPass（不阻断）', () async {
       final result = await dedup.check(
         msgId: '',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => false,
       );
 
@@ -137,10 +137,10 @@ void main() {
     });
 
     // ------------------------------------------------------------------ //
-    // 8. receiving_ttl 按全局 msgId 去重（不区分 msgType）
+    // 8. receiving_ttl 按全局 msgId 去重（不区分 chatType）
     //
     // 设计决策：msgId 由服务端生成，全局唯一；以 msgId 作为单一键去重
-    // 比 (msgId, msgType) 联合键更保守，避免同一消息以不同类型二次入库。
+    // 比 (msgId, chatType) 联合键更保守，避免同一消息以不同类型二次入库。
     // ------------------------------------------------------------------ //
     test('markReceiving(C2C) 后，同 msgId 的 C2G check 也命中 receiving_ttl', () async {
       dedup.markReceiving('msg-008', 'C2C');
@@ -148,7 +148,7 @@ void main() {
       // 全局去重：C2G 同 msgId → 也应被拦截
       final resultC2G = await dedup.check(
         msgId: 'msg-008',
-        msgType: 'C2G',
+        chatType: 'C2G',
         dbLookup: (_) async => false,
       );
       expect(resultC2G, isA<DeduplicationDuplicate>());
@@ -157,7 +157,7 @@ void main() {
       // 同类型 C2C 必须命中
       final resultC2C = await dedup.check(
         msgId: 'msg-008',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => false,
       );
       expect(resultC2C, isA<DeduplicationDuplicate>());
@@ -175,7 +175,7 @@ void main() {
 
       final result = await dedup.check(
         msgId: 'msg-009',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => false,
       );
 
@@ -189,7 +189,7 @@ void main() {
     test('dbLookup 抛异常 → DeduplicationPass（不阻断主流程）', () async {
       final result = await dedup.check(
         msgId: 'msg-010',
-        msgType: 'C2C',
+        chatType: 'C2C',
         dbLookup: (_) async => throw Exception('DB 连接失败'),
       );
 
@@ -218,7 +218,7 @@ void main() {
       // 第一次 check 通过（没有标记过该 hash）
       await dedup.check(
         msgId: 'msg-012a',
-        msgType: 'C2C',
+        chatType: 'C2C',
         contentHash: 'same-hash',
         dbLookup: (_) async => false,
       );
@@ -226,7 +226,7 @@ void main() {
       // 第二次带相同 contentHash → 命中
       final result = await dedup.check(
         msgId: 'msg-012b',
-        msgType: 'C2C',
+        chatType: 'C2C',
         contentHash: 'same-hash',
         dbLookup: (_) async => false,
       );

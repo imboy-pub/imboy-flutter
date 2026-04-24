@@ -6,9 +6,9 @@
 ///   3. db_exists：dbLookup 返回 true → Duplicate
 ///   4. 其余 → Pass
 ///
-/// receiving_ttl 按**全局 msgId**去重，不区分 msgType。
+/// receiving_ttl 按**全局 msgId**去重，不区分 chatType。
 /// 服务端生成的 msgId 全局唯一，以单键去重更保守，防止同一消息以不同
-/// msgType 二次入库。
+/// chatType 二次入库。
 library;
 
 // ─────────────────────────────────────────────────────────────────────────── //
@@ -48,7 +48,7 @@ class MessageDeduplicator {
   /// receiving_ttl 窗口时长（毫秒）。
   static const int _ttlMs = 5000;
 
-  /// msgId → 首次接收时间戳（全局，不区分 msgType）。
+  /// msgId → 首次接收时间戳（全局，不区分 chatType）。
   final Map<String, int> _receivingWindow = {};
 
   /// 已见内容哈希集合，用于 content_hash 去重。
@@ -59,7 +59,7 @@ class MessageDeduplicator {
   /// 标记某 msgId 正在接收，打开 TTL 窗口。
   ///
   /// 幂等：同一 msgId 多次调用不报错（刷新时间戳）。
-  void markReceiving(String msgId, String msgType) {
+  void markReceiving(String msgId, String chatType) {
     if (msgId.isEmpty) return;
     _receivingWindow[msgId] = _clock();
   }
@@ -70,7 +70,7 @@ class MessageDeduplicator {
   /// 若 dbLookup 抛出异常，视为 Pass（不阻断主流程）。
   Future<DeduplicationResult> check({
     required String msgId,
-    required String msgType,
+    required String chatType,
     String? contentHash,
     required Future<bool> Function(String msgId) dbLookup,
   }) async {
