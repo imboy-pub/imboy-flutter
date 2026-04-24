@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'test_history.dart';
 import 'similarity_matcher.dart';
 
@@ -479,27 +480,27 @@ class PatternLearner {
   /// 打印模式摘要
   void printPatternSummary() {
     if (_patterns.isEmpty) {
-      print('暂无学习到的模式');
+      debugPrint('暂无学习到的模式');
       return;
     }
 
-    print('\n📊 学习到的失败模式');
-    print('━' * 60);
-    print('总模式数: ${_patterns.length}');
+    debugPrint('\n📊 学习到的失败模式');
+    debugPrint('━' * 60);
+    debugPrint('总模式数: ${_patterns.length}');
 
     for (final pattern in _patterns.take(10)) {
-      print('\n${pattern.name}');
-      print('  出现次数: ${pattern.occurrenceCount}');
-      print('  成功率: ${(pattern.successRate * 100).toStringAsFixed(0)}%');
-      print('  置信度: ${(pattern.confidence * 100).toStringAsFixed(0)}%');
-      print('  推荐策略: ${pattern.recommendedStrategy}');
-      print('  触发词: ${pattern.triggerKeywords.take(3).join(', ')}');
+      debugPrint('\n${pattern.name}');
+      debugPrint('  出现次数: ${pattern.occurrenceCount}');
+      debugPrint('  成功率: ${(pattern.successRate * 100).toStringAsFixed(0)}%');
+      debugPrint('  置信度: ${(pattern.confidence * 100).toStringAsFixed(0)}%');
+      debugPrint('  推荐策略: ${pattern.recommendedStrategy}');
+      debugPrint('  触发词: ${pattern.triggerKeywords.take(3).join(', ')}');
     }
 
     if (_patterns.length > 10) {
-      print('\n... 还有 ${_patterns.length - 10} 个模式');
+      debugPrint('\n... 还有 ${_patterns.length - 10} 个模式');
     }
 
-    print('━' * 60);
+    debugPrint('━' * 60);
   }
 }

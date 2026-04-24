@@ -41,17 +41,17 @@ class TestGenerator {
     try {
       // 1. 验证前置条件
       for (final condition in testCase.preconditions) {
-        print('  ✓ 验证前置条件: $condition');
+        debugPrint('  ✓ 验证前置条件: $condition');
         await _verifyPrecondition(tester, condition);
       }
 
       // 2. 执行测试步骤
       for (final step in testCase.steps) {
-        print('  → ${step.action}');
+        debugPrint('  → ${step.action}');
         await _executeStep(tester, step);
 
         // 验证预期结果
-        print('  ✓ ${step.expected}');
+        debugPrint('  ✓ ${step.expected}');
         await _verifyExpected(tester, step.expected);
       }
 

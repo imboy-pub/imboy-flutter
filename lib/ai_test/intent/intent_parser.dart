@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import '../core/ai_client.dart';
 import 'prompts.dart' show Prompts;
 
@@ -488,7 +489,7 @@ class IntentParser {
         allTests.addAll(tests);
       } catch (e) {
         // 记录错误但继续处理其他故事
-        print('⚠️ 生成测试失败，跳过: $story');
+        debugPrint('⚠️ 生成测试失败，跳过: $story');
       }
     }
 

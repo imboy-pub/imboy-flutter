@@ -3,6 +3,7 @@ library;
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'failure_analyzer.dart';
 import 'healing_strategy.dart';
 import '../core/test_generator.dart';
@@ -378,7 +379,7 @@ class SelfHealingEngine {
   Future<void> _applySelectorUpdateWithAi(FailureDetails failure) async {
     final screenshotPath = failure.context['screenshotPath'] as String?;
     if (screenshotPath == null || screenshotPath.isEmpty) {
-      print(
+      debugPrint(
         '[SelfHealingEngine] 无截图路径，跳过 AI 选择器分析'
         ' (selector: ${failure.selector ?? "(未知)"})',
       );
@@ -395,7 +396,7 @@ class SelfHealingEngine {
       screenshotPath,
       prompt,
     );
-    print('[SelfHealingEngine] AI 选择器建议: $suggestion');
+    debugPrint('[SelfHealingEngine] AI 选择器建议: $suggestion');
   }
 
   /// 检查是否需要人工干预
@@ -411,30 +412,30 @@ class SelfHealingEngine {
 
   /// 记录愈合会话日志
   void _logHealingSession(HealingSession session) {
-    print('\n${'═' * 70}');
-    print('🔧 自愈合会话: ${session.id}');
-    print('─' * 70);
-    print('失败类型: ${session.failure.type.name}');
-    print('错误消息: ${session.failure.errorMessage}');
-    print('置信度: ${(session.analysis.confidence * 100).toStringAsFixed(0)}%');
-    print('策略数量: ${session.analysis.strategies.length}');
-    print('尝试次数: ${session.attempts.length}');
-    print('结果: ${session.isResolved ? "✅ 已解决" : "❌ 未解决"}');
-    print('耗时: ${session.totalDuration}ms');
+    debugPrint('\n${'═' * 70}');
+    debugPrint('🔧 自愈合会话: ${session.id}');
+    debugPrint('─' * 70);
+    debugPrint('失败类型: ${session.failure.type.name}');
+    debugPrint('错误消息: ${session.failure.errorMessage}');
+    debugPrint('置信度: ${(session.analysis.confidence * 100).toStringAsFixed(0)}%');
+    debugPrint('策略数量: ${session.analysis.strategies.length}');
+    debugPrint('尝试次数: ${session.attempts.length}');
+    debugPrint('结果: ${session.isResolved ? "✅ 已解决" : "❌ 未解决"}');
+    debugPrint('耗时: ${session.totalDuration}ms');
 
     if (session.attempts.isNotEmpty) {
-      print('\n尝试历史:');
+      debugPrint('\n尝试历史:');
       for (final attempt in session.attempts) {
-        print('  $attempt');
+        debugPrint('  $attempt');
       }
     }
 
     if (!session.isResolved && session.analysis.requiresHumanIntervention) {
-      print('\n⚠️  此失败需要人工干预');
-      print('建议: ${session.analysis.explanation}');
+      debugPrint('\n⚠️  此失败需要人工干预');
+      debugPrint('建议: ${session.analysis.explanation}');
     }
 
-    print('${'═' * 70}\n');
+    debugPrint('${'═' * 70}\n');
   }
 
   /// 获取愈合会话
@@ -470,12 +471,12 @@ class SelfHealingEngine {
   /// 打印统计信息
   void printStatistics() {
     final stats = statistics;
-    print('\n📊 自愈合统计');
-    print('━' * 40);
-    print('  总次数: ${stats['total']}');
-    print('  成功次数: ${stats['successful']}');
-    print('  失败次数: ${stats['failed']}');
-    print('  成功率: ${stats['successRate']}%');
-    print('━' * 40);
+    debugPrint('\n📊 自愈合统计');
+    debugPrint('━' * 40);
+    debugPrint('  总次数: ${stats['total']}');
+    debugPrint('  成功次数: ${stats['successful']}');
+    debugPrint('  失败次数: ${stats['failed']}');
+    debugPrint('  成功率: ${stats['successRate']}%');
+    debugPrint('━' * 40);
   }
 }

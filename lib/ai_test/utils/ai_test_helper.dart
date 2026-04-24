@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import '../intent/intent_parser.dart';
 
 /// AI 测试工具类
@@ -40,8 +41,8 @@ class AITestHelper {
 
     final file = File(outputPath);
     await file.writeAsString(json);
-    print('✅ 测试用例已导出到: $outputPath');
-    print('   共生成 ${tests.length} 个测试用例');
+    debugPrint('✅ 测试用例已导出到: $outputPath');
+    debugPrint('   共生成 ${tests.length} 个测试用例');
   }
 
   /// 导出测试用例为 JSON
@@ -93,26 +94,26 @@ class AITestHelper {
 
   /// 打印测试用例摘要
   void printSummary(List<GeneratedTestCase> tests) {
-    print('\n📊 测试用例摘要');
-    print('━' * 60);
-    print('总数: ${tests.length}');
+    debugPrint('\n📊 测试用例摘要');
+    debugPrint('━' * 60);
+    debugPrint('总数: ${tests.length}');
 
     final stats = statistics(tests);
-    print('\n按类型:');
+    debugPrint('\n按类型:');
     stats['by_type'].forEach((type, count) {
-      print('  $type: $count');
+      debugPrint('  $type: $count');
     });
 
-    print('\n按优先级:');
+    debugPrint('\n按优先级:');
     stats['by_priority'].forEach((priority, count) {
-      print('  $priority: $count');
+      debugPrint('  $priority: $count');
     });
 
-    print('\n平均步骤数: ${stats['average_steps'].toStringAsFixed(1)}');
-    print('━' * 60);
+    debugPrint('\n平均步骤数: ${stats['average_steps'].toStringAsFixed(1)}');
+    debugPrint('━' * 60);
 
     for (final test in tests) {
-      print('  • ${test.name} (${test.type}, ${test.priority})');
+      debugPrint('  • ${test.name} (${test.type}, ${test.priority})');
     }
   }
 

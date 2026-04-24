@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'test_history.dart';
 import 'similarity_matcher.dart';
 import 'pattern_learner.dart';
@@ -325,31 +326,31 @@ class KnowledgeBase {
   void printStatus() {
     final stats = getStatistics();
 
-    print('\n📚 知识库状态');
-    print('━' * 60);
+    debugPrint('\n📚 知识库状态');
+    debugPrint('━' * 60);
 
     // 历史统计
     final historyStats = stats['history'] as Map<String, dynamic>;
-    print('📖 测试历史');
-    print('  总记录数: ${historyStats['total']}');
-    print('  成功次数: ${historyStats['success']}');
-    print('  失败次数: ${historyStats['failure']}');
-    print('  成功率: ${historyStats['successRate']}%');
+    debugPrint('📖 测试历史');
+    debugPrint('  总记录数: ${historyStats['total']}');
+    debugPrint('  成功次数: ${historyStats['success']}');
+    debugPrint('  失败次数: ${historyStats['failure']}');
+    debugPrint('  成功率: ${historyStats['successRate']}%');
 
     // 模式统计
     final patternStats = stats['patterns'] as Map<String, dynamic>;
-    print('\n🧠 学习模式');
-    print('  模式数: ${patternStats['total']}');
-    print('  平均置信度: ${(patternStats['avgConfidence'] * 100).toStringAsFixed(0)}%');
-    print('  平均成功率: ${(patternStats['avgSuccessRate'] * 100).toStringAsFixed(0)}%');
+    debugPrint('\n🧠 学习模式');
+    debugPrint('  模式数: ${patternStats['total']}');
+    debugPrint('  平均置信度: ${(patternStats['avgConfidence'] * 100).toStringAsFixed(0)}%');
+    debugPrint('  平均成功率: ${(patternStats['avgSuccessRate'] * 100).toStringAsFixed(0)}%');
 
     // 执行统计
-    print('\n⚙️  配置');
-    print('  自动学习: ${stats['config']['autoLearn']}');
-    print('  学习间隔: ${stats['config']['learnInterval']} 次执行');
-    print('  最大记录: ${stats['config']['maxRecords']}');
+    debugPrint('\n⚙️  配置');
+    debugPrint('  自动学习: ${stats['config']['autoLearn']}');
+    debugPrint('  学习间隔: ${stats['config']['learnInterval']} 次执行');
+    debugPrint('  最大记录: ${stats['config']['maxRecords']}');
 
-    print('━' * 60);
+    debugPrint('━' * 60);
   }
 
   /// 获取历史存储
