@@ -128,13 +128,13 @@ class NotificationService {
     dynamic context,
     String conversationUk3,
     String peerId,
-    String msgType,
+    String chatType,
   ) {
     try {
       // 构建聊天页面路径
-      // 格式: /chat/{peerId}?type={msgType}
+      // 格式: /chat/{peerId}?type={chatType}
       // 注意：路由配置是 /chat/:peerId，type 通过 query 参数传递
-      final path = '/chat/$peerId?type=$msgType';
+      final path = '/chat/$peerId?type=$chatType';
       iPrint('🔔 [Notification] 导航到聊天页面: $path');
 
       // 使用 go_router 导航
