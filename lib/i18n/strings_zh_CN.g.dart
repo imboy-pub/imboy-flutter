@@ -4067,6 +4067,18 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '用户5'
 	String get testUser5 => '用户5';
 
+	/// zh-CN: '好友请求'
+	String get notificationFriendRequest => '好友请求';
+
+	/// zh-CN: '$requesterName 请求添加您为好友'
+	String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 请求添加您为好友';
+
+	/// zh-CN: '群邀请'
+	String get notificationGroupInvite => '群邀请';
+
+	/// zh-CN: '$inviterName 邀请您加入群组 $groupName'
+	String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} 邀请您加入群组 ${groupName}';
+
 	/// zh-CN: '你撤回了一条消息'
 	String get youRevokedMessage => '你撤回了一条消息';
 
@@ -7873,6 +7885,10 @@ extension on Translations {
 			'testUser3' => '用户3',
 			'testUser4' => '用户4',
 			'testUser5' => '用户5',
+			'notificationFriendRequest' => '好友请求',
+			'notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 请求添加您为好友',
+			'notificationGroupInvite' => '群邀请',
+			'notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} 邀请您加入群组 ${groupName}',
 			'youRevokedMessage' => '你撤回了一条消息',
 			'otherRevokedMessage' => '对方撤回了一条消息',
 			'networkFailureTryAgain' => '网络故障，请重试！',
@@ -8058,12 +8074,12 @@ extension on Translations {
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
 			'groupCategory.deleteFailed' => '删除失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
 			'groupTag.tagName' => '标签名称',
-			_ => null,
-		} ?? switch (path) {
 			'groupTag.tagColor' => '标签颜色',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.tagAdded' => '标签添加成功',
@@ -8572,12 +8588,12 @@ extension on Translations {
 			'initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
 			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
+			_ => null,
+		} ?? switch (path) {
 			'attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'saveFailedRetry' => '保存失败，请重试',
 			'downloadFileNotFound' => '下载文件不存在，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
 			'downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
 			'e2eeTransferPageTitle' => '设备间传输',

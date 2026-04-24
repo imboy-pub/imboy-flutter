@@ -18,6 +18,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
@@ -1155,9 +1156,9 @@ class MessageRepo {
       // status = 30 (peer_revoked) 或 31 (my_revoked)
       // 保留原始 msg_type，让会话列表知道原始内容类型
       if (status == IMBoyMessageStatus.peerRevoked) {
-        return (msgType: msgType, subtitle: '[对方撤回了一条消息]');
+        return (msgType: msgType, subtitle: '[${t.otherRevokedMessage}]');
       } else {
-        return (msgType: msgType, subtitle: '[你撤回了一条消息]');
+        return (msgType: msgType, subtitle: '[${t.youRevokedMessage}]');
       }
     }
 

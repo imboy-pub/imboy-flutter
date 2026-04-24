@@ -1380,6 +1380,12 @@ chatErrorInDenylist: "You are on their blacklist"
 chatErrorInDenylistDesc: "Message cannot be sent - you have been blocked"
 chatErrorNotAFriend: "Not friends yet"
 chatErrorNotAFriendDesc: "Message cannot be sent - please add as friend first"
+# Local notification strings
+notificationFriendRequest: "Friend Request"
+notificationFriendRequestBody(requesterName): "$requesterName wants to add you as a friend"
+notificationGroupInvite: "Group Invite"
+notificationGroupInviteBody(inviterName, groupName): "$inviterName invited you to join $groupName"
+
 # ========================================
 # P1级Key别名支持（参数化改造）
 # P2级Key别名支持（语义相近）

@@ -1346,6 +1346,10 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get chatErrorInDenylistDesc => 'Message cannot be sent - you have been blocked';
 	@override String get chatErrorNotAFriend => 'Not friends yet';
 	@override String get chatErrorNotAFriendDesc => 'Message cannot be sent - please add as friend first';
+	@override String get notificationFriendRequest => 'Friend Request';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} wants to add you as a friend';
+	@override String get notificationGroupInvite => 'Group Invite';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} invited you to join ${groupName}';
 	@override String get youRevokedMessage => 'You revoked a message';
 	@override String get otherRevokedMessage => 'The other party revoked a message';
 	@override String get networkFailureTryAgain => 'Network error. Please try again!';
@@ -3614,6 +3618,10 @@ extension on TranslationsEnUs {
 			'chatErrorInDenylistDesc' => 'Message cannot be sent - you have been blocked',
 			'chatErrorNotAFriend' => 'Not friends yet',
 			'chatErrorNotAFriendDesc' => 'Message cannot be sent - please add as friend first',
+			'notificationFriendRequest' => 'Friend Request',
+			'notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} wants to add you as a friend',
+			'notificationGroupInvite' => 'Group Invite',
+			'notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} invited you to join ${groupName}',
 			'youRevokedMessage' => 'You revoked a message',
 			'otherRevokedMessage' => 'The other party revoked a message',
 			'networkFailureTryAgain' => 'Network error. Please try again!',
@@ -3835,12 +3843,12 @@ extension on TranslationsEnUs {
 			'groupCategory.categoryRenamed' => 'Category renamed',
 			'groupCategory.renameFailed' => 'Rename failed, please retry',
 			'groupCategory.deleteFailed' => 'Delete failed, please retry',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
-			_ => null,
-		} ?? switch (path) {
 			'groupTag.tagColor' => 'Tag Color',
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.tagAdded' => 'Tag added',
@@ -4349,12 +4357,12 @@ extension on TranslationsEnUs {
 			'initConfigFetchFailed' => 'Failed to fetch config, please check your network connection',
 			'attachmentGetFileFailed' => 'Unable to get file, please retry or choose from gallery',
 			'attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
+			_ => null,
+		} ?? switch (path) {
 			'attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
 			'attachmentGetOriginalImageFailed' => 'Unable to get original image data',
 			'saveFailedRetry' => 'Save failed, please try again',
 			'downloadFileNotFound' => 'Download file not found, please retry',
-			_ => null,
-		} ?? switch (path) {
 			'downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
 			'downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
 			'e2eeTransferPageTitle' => 'Transfer Between Devices',

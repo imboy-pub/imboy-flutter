@@ -1425,6 +1425,12 @@ testUser2: "用户2"
 testUser3: "用户3"
 testUser4: "用户4"
 testUser5: "用户5"
+# 本地通知文案
+notificationFriendRequest: "好友请求"
+notificationFriendRequestBody(requesterName): "$requesterName 请求添加您为好友"
+notificationGroupInvite: "群邀请"
+notificationGroupInviteBody(inviterName, groupName): "$inviterName 邀请您加入群组 $groupName"
+
 # ========================================
 # P1级Key别名支持（参数化改造）
 # P2级Key别名支持（语义相近）

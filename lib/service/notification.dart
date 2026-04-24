@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 通知点击响应回调类型
 typedef NotificationTapCallback = void Function(String? payload);
@@ -251,8 +252,8 @@ class NotificationService {
 
     await show(
       id: requesterId.hashCode,
-      title: '好友请求',
-      body: '$requesterName 请求添加您为好友',
+      title: t.notificationFriendRequest,
+      body: t.notificationFriendRequestBody(requesterName: requesterName),
       payload: payload,
     );
   }
@@ -274,8 +275,11 @@ class NotificationService {
 
     await show(
       id: groupId.hashCode,
-      title: '群邀请',
-      body: '$inviterName 邀请您加入群组 $groupName',
+      title: t.notificationGroupInvite,
+      body: t.notificationGroupInviteBody(
+        inviterName: inviterName,
+        groupName: groupName,
+      ),
       payload: payload,
     );
   }
