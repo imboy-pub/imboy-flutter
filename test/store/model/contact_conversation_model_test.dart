@@ -69,9 +69,7 @@ void main() {
           // 注意：无 updated_at 字段
         };
 
-        final before = DateTime.now().millisecondsSinceEpoch;
         final model = ContactModel.fromMap(realJson);
-        final after = DateTime.now().millisecondsSinceEpoch;
 
         // 解析产物身份 + 关键字段不为空
         expect(model.peerId, 1000000056);
@@ -84,9 +82,8 @@ void main() {
         expect(model.source, '');
         expect(model.lastSeenAt, isNull);
 
-        // updated_at 缺失 → parseModelDateTime(null) 回退到 DateTime.now()
-        expect(model.updatedAt, greaterThanOrEqualTo(before));
-        expect(model.updatedAt, lessThanOrEqualTo(after));
+        // updated_at 缺失 → 回退到 created_at（#19 Gap #1 修复）
+        expect(model.updatedAt, 1776598885315);
       },
     );
   });
