@@ -90,12 +90,12 @@ class E2EEService {
   /// 1. E2EE功能已启用（通过[E2EESettings.isEnabled]检查）
   /// 2. 消息类型为 C2C 或 C2G
   /// 3. 非action操作消息（action消息不加密）
-  static bool shouldEncryptOutgoingPayload(String msgType) {
+  static bool shouldEncryptOutgoingPayload(String chatType) {
     // 1. 检查后端策略：如果策略要求加密，强制加密
     final policyMode = EncryptionModeService.current;
     if (policyMode.requiresEncryption) {
       // 策略要求加密，只对 C2C/C2G 消息生效
-      if (msgType != 'C2C' && msgType != 'C2G') return false;
+      if (chatType != 'C2C' && chatType != 'C2G') return false;
       return true;
     }
 
@@ -105,7 +105,7 @@ class E2EEService {
     }
 
     // 只对 C2C 和 C2G 消息加密
-    if (msgType != 'C2C' && msgType != 'C2G') return false;
+    if (chatType != 'C2C' && chatType != 'C2G') return false;
 
     // action 检查由调用方完成
     return true;
