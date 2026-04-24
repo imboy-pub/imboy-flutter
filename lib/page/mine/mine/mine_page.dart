@@ -118,7 +118,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                     context,
                     title: t.favorites,
                     icon: Icons.favorite_outline,
-                    iconColor: const Color(0xFFFF3B30),
+                    iconColor: AppColors.iosRed,
                     onTap: () => context.push('/favorites'),
                   ),
                   _buildDivider(context),

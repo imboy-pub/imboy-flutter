@@ -361,7 +361,7 @@ class _FieldStatusRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final successColor = isDark ? cs.primary : AppColors.primary;
-    final errorColor = isDark ? cs.error : const Color(0xFFD32F2F);
+    final errorColor = cs.error;
 
     final color = ok ? successColor : errorColor;
     final icon = ok ? Icons.check_circle_rounded : Icons.info_outline_rounded;
