@@ -117,9 +117,23 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
             )
             .toList();
 
+        // #28 Gap #1 修复：后端 SELECT 未带 publisher_name，fromJson 已将
+        // publisherName 回退到 publisherId（TSID 数字串）。此处再通过本地
+        // 群成员表异步补齐昵称；发布者必是群成员，故查本地 SQLite 免走 N+1 网络。
+        final resolvedList = await resolveAnnouncementNicknames(
+          list,
+          (publisherId) async {
+            final member = await GroupMemberRepo().findByUserId(
+              groupId,
+              publisherId,
+            );
+            return member?.nickname;
+          },
+        );
+
         final updatedList = isRefresh
-            ? list
-            : [...state.announcements, ...list];
+            ? resolvedList
+            : [...state.announcements, ...resolvedList];
 
         final total = payload['total'] is int ? payload['total'] as int : null;
         final size = payload['size'] is int ? payload['size'] as int : pageSize;

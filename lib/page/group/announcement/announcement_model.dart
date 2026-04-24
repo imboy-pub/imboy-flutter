@@ -62,6 +62,80 @@ class AnnouncementModel {
       'expired_at': expiredAt,
     };
   }
+
+  AnnouncementModel copyWith({
+    String? id,
+    String? groupId,
+    String? content,
+    String? publisherId,
+    String? publisherName,
+    int? createdAt,
+    int? expiredAt,
+  }) {
+    return AnnouncementModel(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      content: content ?? this.content,
+      publisherId: publisherId ?? this.publisherId,
+      publisherName: publisherName ?? this.publisherName,
+      createdAt: createdAt ?? this.createdAt,
+      expiredAt: expiredAt ?? this.expiredAt,
+    );
+  }
+}
+
+/// 判断一条公告是否处于"昵称回退态"——即 publisherName 等于 publisherId
+/// （后端 SELECT 未带昵称，fromJson 回退到 publisherId 防空）。
+///
+/// 仅 fallback 态的项需要客户端补昵称（#28 Gap #1）。publisherId 空串
+/// 直接跳过（回退语义不成立）。
+bool isPublisherNameFallback(AnnouncementModel item) {
+  return item.publisherId.isNotEmpty && item.publisherName == item.publisherId;
+}
+
+/// 对列表中处于昵称回退态的公告，通过 [lookup] 异步补齐 publisherName。
+///
+/// 设计约束：
+/// - 仅对 [isPublisherNameFallback] 成立的项发起查询，已有真实昵称的项原样保留
+/// - 同一 publisherId 只查一次（去重后并发 Future.wait）
+/// - [lookup] 返回 null/空串 → 保持原值（TSID 数字串兜底），不阻塞 UI
+/// - [lookup] 抛异常 → 单项静默失败，其他项不受影响
+/// - 零命中时返回原列表实例（无不必要的 allocation）
+Future<List<AnnouncementModel>> resolveAnnouncementNicknames(
+  List<AnnouncementModel> items,
+  Future<String?> Function(String publisherId) lookup,
+) async {
+  final unresolvedIds = <String>{};
+  for (final item in items) {
+    if (isPublisherNameFallback(item)) {
+      unresolvedIds.add(item.publisherId);
+    }
+  }
+  if (unresolvedIds.isEmpty) return items;
+
+  final resolvedMap = <String, String>{};
+  await Future.wait(
+    unresolvedIds.map((id) async {
+      try {
+        final name = await lookup(id);
+        if (name != null && name.isNotEmpty) {
+          resolvedMap[id] = name;
+        }
+      } catch (_) {
+        // 单项失败不影响其他项
+      }
+    }),
+  );
+
+  if (resolvedMap.isEmpty) return items;
+
+  return items.map((item) {
+    final resolved = resolvedMap[item.publisherId];
+    if (resolved != null && isPublisherNameFallback(item)) {
+      return item.copyWith(publisherName: resolved);
+    }
+    return item;
+  }).toList();
 }
 
 /// 解析必填时间戳。
