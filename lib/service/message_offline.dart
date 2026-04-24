@@ -253,7 +253,7 @@ class MessageOfflineService {
         currentBatchFetched += await _processTypeBatch(
           payload: payload,
           typeKey: 'c2c',
-          msgType: 'C2C',
+          chatType: 'C2C',
         );
         if (_hasMore(payload['c2c'])) {
           overallHasMore = true;
@@ -263,7 +263,7 @@ class MessageOfflineService {
         currentBatchFetched += await _processTypeBatch(
           payload: payload,
           typeKey: 'c2g',
-          msgType: 'C2G',
+          chatType: 'C2G',
         );
         if (_hasMore(payload['c2g'])) {
           overallHasMore = true;
@@ -273,7 +273,7 @@ class MessageOfflineService {
         currentBatchFetched += await _processTypeBatch(
           payload: payload,
           typeKey: 's2c',
-          msgType: 'S2C',
+          chatType: 'S2C',
         );
         if (_hasMore(payload['s2c'])) {
           overallHasMore = true;
@@ -323,7 +323,7 @@ class MessageOfflineService {
   Future<int> _processTypeBatch({
     required Map<String, dynamic> payload,
     required String typeKey,
-    required String msgType,
+    required String chatType,
   }) async {
     final section = payload[typeKey];
     if (section is! Map) {
@@ -335,7 +335,7 @@ class MessageOfflineService {
       return 0;
     }
 
-    await _processOfflineMessages(rawList, msgType);
+    await _processOfflineMessages(rawList, chatType);
     return rawList.length;
   }
 
