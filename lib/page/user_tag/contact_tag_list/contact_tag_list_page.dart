@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_page.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_page.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'contact_tag_list_provider.dart';
@@ -87,7 +88,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
           SlidableAction(
             key: ValueKey("delete_$index"),
             flex: 1,
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.iosRed,
             onPressed: (_) async {
               showModalBottomSheet(
                 context: context,

@@ -17,6 +17,7 @@ import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'contact_tag_detail_provider.dart';
@@ -372,7 +373,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                 SlidableAction(
                                   key: ValueKey("delete_$index"),
                                   flex: 1,
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: AppColors.iosRed,
                                   onPressed: (_) async {
                                     await showDialog<bool>(
                                       context: context,

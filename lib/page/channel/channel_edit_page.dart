@@ -141,7 +141,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(t.channel.updateFailed),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.iosRed,
             ),
           );
         }
@@ -151,7 +151,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t.channel.updateFailed),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.iosRed,
           ),
         );
       }

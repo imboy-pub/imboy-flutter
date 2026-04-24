@@ -153,7 +153,7 @@ class _TagInputState extends State<TagInput> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: AppColors.iosRed,
         duration: const Duration(seconds: 2),
       ),
     );
