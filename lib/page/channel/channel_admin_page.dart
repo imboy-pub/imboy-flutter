@@ -484,13 +484,13 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
           children: [
             ListTile(
               title: Text(t.channel.roleEditor),
-              subtitle: const Text('可发布消息'),
+              subtitle: Text(t.channel.roleEditorDesc),
               leading: const Icon(Icons.edit_outlined),
               onTap: () => Navigator.pop(context, 1),
             ),
             ListTile(
               title: Text(t.channel.roleAdmin),
-              subtitle: const Text('可管理频道'),
+              subtitle: Text(t.channel.roleAdminDesc),
               leading: const Icon(Icons.admin_panel_settings_outlined),
               onTap: () => Navigator.pop(context, 2),
             ),

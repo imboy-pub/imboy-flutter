@@ -1600,7 +1600,9 @@ channel:
   noAdmins: "暂无管理员"
   roleCreator: "创建者"
   roleAdmin: "管理员"
+  roleAdminDesc: "可管理频道"
   roleEditor: "编辑"
+  roleEditorDesc: "可发布消息"
   roleUnknown: "未知"
   # 订阅者管理
   searchSubscribers: "搜索订阅者"

@@ -5937,8 +5937,14 @@ class TranslationsChannelZhCn {
 	/// zh-CN: '管理员'
 	String get roleAdmin => '管理员';
 
+	/// zh-CN: '可管理频道'
+	String get roleAdminDesc => '可管理频道';
+
 	/// zh-CN: '编辑'
 	String get roleEditor => '编辑';
+
+	/// zh-CN: '可发布消息'
+	String get roleEditorDesc => '可发布消息';
 
 	/// zh-CN: '未知'
 	String get roleUnknown => '未知';
@@ -8009,7 +8015,9 @@ extension on Translations {
 			'channel.noAdmins' => '暂无管理员',
 			'channel.roleCreator' => '创建者',
 			'channel.roleAdmin' => '管理员',
+			'channel.roleAdminDesc' => '可管理频道',
 			'channel.roleEditor' => '编辑',
+			'channel.roleEditorDesc' => '可发布消息',
 			'channel.roleUnknown' => '未知',
 			'channel.searchSubscribers' => '搜索订阅者',
 			'channel.subscriberSearchHint' => '输入昵称或ID搜索',
@@ -8054,10 +8062,10 @@ extension on Translations {
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
 			'groupTag.tagName' => '标签名称',
-			'groupTag.tagColor' => '标签颜色',
-			'groupTag.noTag' => '暂无标签',
 			_ => null,
 		} ?? switch (path) {
+			'groupTag.tagColor' => '标签颜色',
+			'groupTag.noTag' => '暂无标签',
 			'groupTag.tagAdded' => '标签添加成功',
 			'groupTag.tagRemoved' => '标签已移除',
 			'groupTag.removeTitle' => '移除标签',
@@ -8568,10 +8576,10 @@ extension on Translations {
 			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'saveFailedRetry' => '保存失败，请重试',
 			'downloadFileNotFound' => '下载文件不存在，请重试',
-			'downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
-			'downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
 			_ => null,
 		} ?? switch (path) {
+			'downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
+			'downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
 			'e2eeTransferPageTitle' => '设备间传输',
 			'e2eeTransferToNewDevice' => '传输到新设备',
 			'e2eeTransferSendDesc' => '通过二维码将密钥传输到新设备',

@@ -2043,7 +2043,9 @@ class _TranslationsChannelEnUs extends TranslationsChannelZhCn {
 	@override String get noAdmins => 'No admins yet';
 	@override String get roleCreator => 'Creator';
 	@override String get roleAdmin => 'Admin';
+	@override String get roleAdminDesc => 'Can manage channel';
 	@override String get roleEditor => 'Editor';
+	@override String get roleEditorDesc => 'Can publish messages';
 	@override String get roleUnknown => 'Unknown';
 	@override String get searchSubscribers => 'Search Subscribers';
 	@override String get subscriberSearchHint => 'Search by nickname or ID';
@@ -3790,7 +3792,9 @@ extension on TranslationsEnUs {
 			'channel.noAdmins' => 'No admins yet',
 			'channel.roleCreator' => 'Creator',
 			'channel.roleAdmin' => 'Admin',
+			'channel.roleAdminDesc' => 'Can manage channel',
 			'channel.roleEditor' => 'Editor',
+			'channel.roleEditorDesc' => 'Can publish messages',
 			'channel.roleUnknown' => 'Unknown',
 			'channel.searchSubscribers' => 'Search Subscribers',
 			'channel.subscriberSearchHint' => 'Search by nickname or ID',
@@ -3835,10 +3839,10 @@ extension on TranslationsEnUs {
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
-			'groupTag.tagColor' => 'Tag Color',
-			'groupTag.noTag' => 'No tags yet',
 			_ => null,
 		} ?? switch (path) {
+			'groupTag.tagColor' => 'Tag Color',
+			'groupTag.noTag' => 'No tags yet',
 			'groupTag.tagAdded' => 'Tag added',
 			'groupTag.tagRemoved' => 'Tag removed',
 			'groupTag.removeTitle' => 'Remove Tag',
@@ -4349,10 +4353,10 @@ extension on TranslationsEnUs {
 			'attachmentGetOriginalImageFailed' => 'Unable to get original image data',
 			'saveFailedRetry' => 'Save failed, please try again',
 			'downloadFileNotFound' => 'Download file not found, please retry',
-			'downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
-			'downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
 			_ => null,
 		} ?? switch (path) {
+			'downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
+			'downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
 			'e2eeTransferPageTitle' => 'Transfer Between Devices',
 			'e2eeTransferToNewDevice' => 'Transfer to New Device',
 			'e2eeTransferSendDesc' => 'Transfer key to a new device via QR code',

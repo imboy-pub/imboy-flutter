@@ -1598,7 +1598,9 @@ channel:
   noAdmins: "No admins yet"
   roleCreator: "Creator"
   roleAdmin: "Admin"
+  roleAdminDesc: "Can manage channel"
   roleEditor: "Editor"
+  roleEditorDesc: "Can publish messages"
   roleUnknown: "Unknown"
   # Subscriber management
   searchSubscribers: "Search Subscribers"
