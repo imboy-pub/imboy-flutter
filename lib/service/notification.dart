@@ -201,14 +201,14 @@ class NotificationService {
   /// [content] 消息内容（已格式化）
   /// [conversationUk3] 会话 UK3
   /// [peerId] 对方 ID（用户 ID 或群组 ID）
-  /// [msgType] 消息类型（C2C 或 C2G）
+  /// [chatType] 会话类型（C2C 或 C2G）
   /// [senderAvatar] 发送者头像（可选）
   Future<void> showMessageNotification({
     required String senderName,
     required String content,
     required String conversationUk3,
     required String peerId,
-    required String msgType,
+    required String chatType,
     String? senderAvatar,
   }) async {
     // 构建通知负载（用于点击跳转）
@@ -217,7 +217,7 @@ class NotificationService {
       'type': 'message',
       'conversationUk3': conversationUk3,
       'peerId': peerId,
-      'chatType': msgType,
+      'chatType': chatType,
     });
 
     // 使用会话 UK3 的哈希值作为通知 ID（同一会话的消息复用通知）
