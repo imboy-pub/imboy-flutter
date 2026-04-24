@@ -17,11 +17,13 @@ import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 class ConversationItem extends ConsumerWidget {
   final ConversationModel model;
   final Function()? onTapAvatar;
+  final Function()? onTap;
 
   const ConversationItem({
     super.key,
     required this.model,
     required this.onTapAvatar,
+    this.onTap,
   });
 
   @override
@@ -76,7 +78,7 @@ class ConversationItem extends ConsumerWidget {
         borderRadius: AppRadius.borderRadiusRegular,
         child: InkWell(
           borderRadius: AppRadius.borderRadiusRegular,
-          onTap: null,
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
@@ -88,13 +90,16 @@ class ConversationItem extends ConsumerWidget {
                   showBadge: (remindCounter > 0),
                   badgeContent: Text(
                     "$remindCounter",
+                    // DESIGN.md §3.4：数字优先等宽（未读徽章数字需对齐）
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: FontSizeType.tiny.size,
                       fontWeight: FontWeight.bold,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                   badgeStyle: badges.BadgeStyle(
+                    badgeColor: AppColors.messageFailed,
                     padding: const EdgeInsets.all(5),
                   ),
                   child: GestureDetector(
@@ -222,10 +227,12 @@ class ConversationItem extends ConsumerWidget {
     if (currentModel.lastTime > 0) {
       return Text(
         DateTimeHelper.lastTimeFmt(currentModel.lastTime),
+        // DESIGN.md §3.4：时间戳数字等宽对齐
         style: TextStyle(
           fontSize: FontSizeType.small.size,
           color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.6),
           fontWeight: FontWeight.w500,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 消息操作菜单组件
@@ -306,6 +307,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    final destructiveColor = AppColors.getIosRed(Theme.of(context).brightness);
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -322,29 +325,19 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isDestructive
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.error.withValues(alpha: 0.1)
-                      : Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.1),
+                      ? destructiveColor.withValues(alpha: 0.1)
+                      : primaryColor.withValues(alpha: 0.1),
                   borderRadius: AppRadius.borderRadiusMedium,
                   border: Border.all(
                     color: isDestructive
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.error.withValues(alpha: 0.2)
-                        : Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.2),
+                        ? destructiveColor.withValues(alpha: 0.2)
+                        : primaryColor.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
                 child: Icon(
                   icon,
-                  color: isDestructive
-                      ? Theme.of(context).colorScheme.error
-                      : Theme.of(context).colorScheme.primary,
+                  color: isDestructive ? destructiveColor : primaryColor,
                   size: 20,
                 ),
               ),
@@ -354,7 +347,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 style: TextStyle(
                   fontSize: 11,
                   color: isDestructive
-                      ? Theme.of(context).colorScheme.error
+                      ? destructiveColor
                       : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                 ),
@@ -393,7 +386,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 ),
                 const Divider(),
                 ListTile(
-                  leading: const Icon(Icons.group, color: Colors.red),
+                  leading: Icon(Icons.group, color: AppColors.iosRed),
                   title: Text(t.deleteForEveryone),
                   subtitle: Text(t.chatDeleteAll),
                   onTap: () {
@@ -442,7 +435,9 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   widget.onClose?.call();
                 },
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: AppColors.getIosRed(
+                    Theme.of(context).brightness,
+                  ),
                 ),
                 child: Text(t.buttonDelete),
               ),

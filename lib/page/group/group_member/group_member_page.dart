@@ -12,6 +12,7 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -195,11 +196,11 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     switch (role) {
       case 4:
         label = t.groupOwner;
-        color = Colors.orange;
+        color = AppColors.iosOrange;
         break;
       case 3:
         label = t.groupAdmin;
-        color = Colors.blue;
+        color = AppColors.getIosBlue(Theme.of(context).brightness);
         break;
       default:
         return const SizedBox.shrink();

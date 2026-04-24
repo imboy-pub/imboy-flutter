@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 聊天性能监控工具（增强版）
 /// 用于监控聊天界面的渲染性能和内存使用
@@ -336,7 +337,9 @@ class _PerformanceMonitorPanelState extends State<PerformanceMonitorPanel> {
             children: [
               Icon(
                 isGood ? Icons.check_circle : Icons.warning,
-                color: isGood ? Colors.green : Colors.orange,
+                color: isGood
+                    ? AppColors.getIosGreen(Theme.of(context).brightness)
+                    : AppColors.iosOrange,
                 size: 16,
               ),
               const SizedBox(width: 8),

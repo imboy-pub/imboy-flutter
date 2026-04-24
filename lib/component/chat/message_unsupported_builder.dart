@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 不支持的消息类型构建器
 ///
@@ -35,7 +36,7 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
           Icon(
             Icons.warning_amber_rounded,
             size: 16,
-            color: Theme.of(context).colorScheme.error,
+            color: AppColors.iosOrange,
           ),
           const SizedBox(width: 8),
           Flexible(

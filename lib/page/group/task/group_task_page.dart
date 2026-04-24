@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 群作业/任务页面
 class GroupTaskPage extends ConsumerStatefulWidget {
@@ -270,14 +271,14 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                           Icon(
                             Icons.schedule,
                             size: 14,
-                            color: _getDeadlineColor(deadline),
+                            color: _getDeadlineColor(context, deadline),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             _formatDeadline(deadline),
                             style: TextStyle(
                               fontSize: 12,
-                              color: _getDeadlineColor(deadline),
+                              color: _getDeadlineColor(context, deadline),
                             ),
                           ),
                         ],
@@ -294,14 +295,14 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     );
   }
 
-  Color _getDeadlineColor(int deadline) {
+  Color _getDeadlineColor(BuildContext context, int deadline) {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     if (deadline < now) {
-      return Colors.red;
+      return AppColors.getIosRed(Theme.of(context).brightness);
     } else if (deadline < now + 86400) {
-      return Colors.orange;
+      return AppColors.iosOrange;
     }
-    return Colors.grey;
+    return Theme.of(context).colorScheme.onSurfaceVariant;
   }
 
   String _formatDeadline(int deadline) {

@@ -402,28 +402,25 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     final currentState = ref.read(userCollectProvider);
     final notifier = ref.read(userCollectProvider.notifier);
 
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.editTag),
         content: Padding(
-          padding: const EdgeInsets.all(12),
-          child: TextField(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
             controller: tc,
-            decoration: InputDecoration(
-              hintText: t.favoriteGroupTagsEtc,
-              border: const OutlineInputBorder(),
-            ),
+            placeholder: t.favoriteGroupTagsEtc,
             minLines: 1,
             maxLines: 3,
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: Text(t.buttonCancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () async {
               final input = tc.text.trim();
               if (input.isEmpty) {
@@ -480,6 +477,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 EasyLoading.showError(t.tipFailed);
               }
             },
+            isDefaultAction: true,
             child: Text(t.buttonConfirm),
           ),
         ],
@@ -527,31 +525,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
     final bool isPinned = _pinnedIds.contains(obj.kindId.toString());
     final bool isSelected = _selectedIds.contains(obj.kindId.toString());
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final card = Container(
       decoration: BoxDecoration(
-        color: isDark
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusMedium,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.transparent
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: isDark
-            ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.15),
-                width: 0.5,
-              )
-            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -820,13 +798,14 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
   /// 发送到对话框
   Future<void> _sendToDialog(UserCollectModel model) async {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.sendTo),
-        content: SizedBox(
-          height: 200,
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
@@ -838,7 +817,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         widget.peer['title'] ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: CupertinoColors.label.resolveFrom(context),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -847,34 +826,30 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   ),
                 ],
               ),
-              const Divider(),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    model.info['payload']?['text'] ?? t.messageContent,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
+              const SizedBox(height: 12),
+              Text(
+                model.info['payload']?['text'] ?? t.messageContent,
+                style: TextStyle(
+                  color: CupertinoColors.label.resolveFrom(context),
                 ),
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: Text(t.buttonCancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).pop(model);
             },
-            child: Text(
-              t.buttonSend,
-              style: TextStyle(color: AppColors.primary),
-            ),
+            child: Text(t.buttonSend),
           ),
         ],
       ),
@@ -1061,7 +1036,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           ),
         );
       },
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20.0),
@@ -1113,17 +1088,18 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
   /// 确认删除
   void _confirmRemove(UserCollectModel obj, int index) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.sureDeleteData),
         content: Text(t.deleteCollectConfirmDesc),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: Text(t.buttonCancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () async {
               Navigator.pop(context);
 
@@ -1274,31 +1250,13 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   /// 构建顶部多选工具条
   Widget _buildMultiSelectBar(BuildContext context) {
     if (!_multiSelect) return const SizedBox.shrink();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusMedium,
-        border: isDark
-            ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
-                width: 0.5,
-              )
-            : null,
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
       ),
       child: Row(
         children: [
@@ -1358,30 +1316,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       'all': t.all,
     };
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusMedium,
-        border: isDark
-            ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
-                width: 0.5,
-              )
-            : null,
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(
@@ -1559,12 +1498,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   @override
   Widget build(BuildContext context) {
     final currentState = ref.watch(userCollectProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         leading: widget.isSelect

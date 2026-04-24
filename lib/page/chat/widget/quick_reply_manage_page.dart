@@ -12,6 +12,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 适配器：将项目的 [StorageService] 桥接到 domain 层 [QuickReplyStore]。
 /// 刻意保留在 UI 层文件里，保持 `quick_reply_service.dart` 纯粹可测。
@@ -195,12 +196,14 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                       key: itemKey,
                       direction: DismissDirection.endToStart,
                       background: Container(
-                        color: Theme.of(context).colorScheme.error,
+                        color: AppColors.getIosRed(
+                          Theme.of(context).brightness,
+                        ),
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Icon(
+                        child: const Icon(
                           Icons.delete_outline,
-                          color: Theme.of(context).colorScheme.onError,
+                          color: Colors.white,
                         ),
                       ),
                       onDismissed: (_) => _handleDelete(index),

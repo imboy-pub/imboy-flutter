@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/page/group/announcement/group_announcement_provider.dart';
 // canManageAnnouncement re-exported from group_announcement_provider.dart
@@ -175,9 +176,9 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     icon: Icon(
                       Icons.delete_outline,
                       size: 20,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.error.withValues(alpha: 0.7),
+                      color: AppColors.getIosRed(
+                        Theme.of(context).brightness,
+                      ).withValues(alpha: 0.7),
                     ),
                     onPressed: () {
                       _showDeleteDialog(context, announcement, notifier);
@@ -370,7 +371,12 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 EasyLoading.showToast(t.groupAnnouncementDeleteFailed);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.getIosRed(
+                Theme.of(context).brightness,
+              ),
+              foregroundColor: Colors.white,
+            ),
             child: Text(t.groupAnnouncementDelete),
           ),
         ],

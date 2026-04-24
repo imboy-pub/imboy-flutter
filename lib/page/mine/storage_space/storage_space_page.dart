@@ -33,8 +33,9 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     final storageState = ref.watch(storageSpaceProvider);
     final t = context.t;
 
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.storageSpace,
@@ -70,13 +71,6 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,13 +193,6 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,13 +248,6 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: AppRadius.borderRadiusLarge,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: Material(
               color: Colors.transparent,
@@ -337,13 +317,6 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

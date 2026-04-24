@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:popover/popover.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 class RightButton extends StatelessWidget {
@@ -168,7 +169,7 @@ class RightButtonList extends StatelessWidget {
     return Container(
       height: 1,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      color: const Color(0xFFE5E5E5),
+      color: AppColors.lightDivider,
     );
   }
 }

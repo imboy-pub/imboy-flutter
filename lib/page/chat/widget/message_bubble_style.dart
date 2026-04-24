@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 消息气泡样式配置类
@@ -22,16 +23,18 @@ class MessageBubbleStyle {
       groupStatus: groupStatus,
     );
 
-    // 根据发送方确定颜色
+    // DESIGN.md 双蓝策略：发送=品牌蓝 / 接收=surface token（去 Material 绿残留）
     Color bubbleColor = isSentByMe
-        ? (isDark ? const Color(0xFF2E7D32) : const Color(0xFF4CAF50))
-        : (isDark ? const Color(0xFF424242) : const Color(0xFFF5F5F5));
+        ? (isDark
+              ? AppColors.darkSentMessageBackground
+              : AppColors.lightSentMessageBackground)
+        : (isDark
+              ? AppColors.darkReceivedMessageBackground
+              : AppColors.lightReceivedMessageBackground);
 
-    // 高亮状态
+    // 高亮状态：统一走品牌蓝半透明，避免双蓝色标失控
     if (isHighlighted) {
-      bubbleColor = isDark
-          ? const Color(0xFF1976D2).withValues(alpha: 0.3)
-          : const Color(0xFF2196F3).withValues(alpha: 0.2);
+      bubbleColor = AppColors.primary.withValues(alpha: isDark ? 0.3 : 0.2);
     }
 
     return BoxDecoration(
@@ -159,7 +162,8 @@ class MessageBubbleStyle {
       case MessageStatus.delivered:
         return isDark ? Colors.white70 : Colors.black87;
       case MessageStatus.read:
-        return const Color(0xFF4CAF50);
+        // 已读指示走 iOS 系统绿（与品牌蓝区分），DESIGN.md 语义色
+        return isDark ? AppColors.iosGreenDark : AppColors.iosGreen;
       default:
         return isDark ? Colors.white54 : Colors.black54;
     }

@@ -14,6 +14,7 @@ import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 import 'remove_member_provider.dart';
@@ -72,7 +73,9 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                     isSelected
                         ? CupertinoIcons.check_mark_circled_solid
                         : CupertinoIcons.check_mark_circled,
-                    color: isSelected ? Colors.green : Colors.grey,
+                    color: isSelected
+                        ? AppColors.primary
+                        : Theme.of(context).colorScheme.outline,
                   ),
                 ),
                 Avatar(imgUri: model.avatar, width: 49, height: 49),
@@ -106,9 +109,9 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                         Expanded(
                           flex: 1,
                           child: IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.info_outline,
-                              color: Colors.green,
+                              color: AppColors.primary,
                             ),
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             onPressed: () {

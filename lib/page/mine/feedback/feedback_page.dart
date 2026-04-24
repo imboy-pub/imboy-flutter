@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -12,6 +13,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/api/attachment_api.dart' show AttachmentApi;
 import 'package:imboy/store/api/feedback_api.dart' show FeedbackApi;
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:feedback/feedback.dart';
 import 'package:imboy/page/mine/feedback/feedback_provider.dart';
@@ -142,7 +144,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           ),
         ],
       ),
-      backgroundColor: colorScheme.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -151,26 +153,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             const SizedBox(height: 8),
 
             // 反馈说明卡片
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colorScheme.primary.withAlpha(25),
-                      colorScheme.primary.withAlpha(10),
-                    ],
-                  ),
-                ),
-                child: Row(
+              child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -317,19 +307,17 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   ],
                 ),
               ),
-            ),
 
             const SizedBox(height: 24),
 
             // 反馈列表卡片
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
@@ -380,8 +368,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                       SlidableAction(
                                         key: ValueKey("delete_$index"),
                                         flex: 2,
-                                        backgroundColor: colorScheme.error,
-                                        foregroundColor: colorScheme.onError,
+                                        backgroundColor: AppColors.getIosRed(
+                                          Theme.of(context).brightness,
+                                        ),
+                                        foregroundColor: Colors.white,
                                         borderRadius:
                                             AppRadius.borderRadiusMedium,
                                         onPressed: (_) async {
@@ -404,7 +394,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   ],
                 ),
               ),
-            ),
 
             const SizedBox(height: 16),
           ],
@@ -485,12 +474,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
 
               const SizedBox(height: 12),
 
-              // 反馈内容
+              // 反馈内容（DESIGN.md §3.2：Body 16pt / w400，不用 w500 次强调）
               Text(
                 model.body,
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: colorScheme.onSurface,
                 ),
                 maxLines: 2,
@@ -547,53 +536,20 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
 
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, FeedbackModel model, int index) {
-    final colorScheme = Theme.of(context).colorScheme;
-    String tips = t.sureDeleteData;
-
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusRegular,
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: colorScheme.error,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              t.confirmDelete,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          tips,
-          style: TextStyle(
-            fontSize: 16,
-            color: colorScheme.onSurface.withAlpha(179),
-          ),
-        ),
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.confirmDelete),
+        content: Text(t.sureDeleteData),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: colorScheme.onSurface.withAlpha(179),
-            ),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(),
             child: Text(t.buttonCancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () async {
-              Navigator.of(context).pop();
+              Navigator.of(ctx).pop();
               bool res = await ref
                   .read(feedbackPageProvider.notifier)
                   .remove(model.feedbackId);
@@ -608,12 +564,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 EasyLoading.showError(t.tipFailed);
               }
             },
-            style: TextButton.styleFrom(foregroundColor: colorScheme.error),
             child: Text(t.buttonDelete),
           ),
         ],
       ),
-      barrierDismissible: true,
     );
   }
 }

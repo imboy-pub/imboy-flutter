@@ -53,9 +53,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.deviceDetails,
@@ -95,27 +93,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: isDark
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
-        border: isDark
-            ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.15),
-                width: 0.5,
-              )
-            : null,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -204,27 +183,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   Widget _buildDeviceDetailsCard(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
-        border: isDark
-            ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.15),
-                width: 0.5,
-              )
-            : null,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -411,64 +371,20 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
             ? () async {
                 // 确认对话框
                 final ok =
-                    await showDialog<bool>(
+                    await showCupertinoDialog<bool>(
                       context: context,
-                      builder: (ctx) => AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.borderRadiusRegular,
-                        ),
-                        title: Row(
-                          children: [
-                            Icon(
-                              Icons.power_settings_new,
-                              color: AppColors.warning,
-                              size: 22,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              t.forceDeviceOffline,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        content: Text(
-                          t.forceDeviceOfflineConfirm,
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.8),
-                            height: 1.4,
-                          ),
-                        ),
+                      builder: (ctx) => CupertinoAlertDialog(
+                        title: Text(t.forceDeviceOffline),
+                        content: Text(t.forceDeviceOfflineConfirm),
                         actions: [
-                          TextButton(
+                          CupertinoDialogAction(
                             onPressed: () => Navigator.of(ctx).pop(false),
-                            child: Text(
-                              t.buttonCancel,
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
-                            ),
+                            child: Text(t.buttonCancel),
                           ),
-                          ElevatedButton(
+                          CupertinoDialogAction(
+                            isDestructiveAction: true,
                             onPressed: () => Navigator.of(ctx).pop(true),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.warning,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: AppRadius.borderRadiusSmall,
-                              ),
-                            ),
-                            child: Text(
-                              t.confirmForceOffline,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            child: Text(t.confirmForceOffline),
                           ),
                         ],
                       ),
@@ -589,68 +505,19 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
 
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusRegular,
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: AppColors.warning,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              t.deleteThisDevice,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        content: Text(
-          t.deleteThisDeviceTips,
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.8),
-            height: 1.4,
-          ),
-        ),
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.deleteThisDevice),
+        content: Text(t.deleteThisDeviceTips),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              t.buttonCancel,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.buttonCancel),
           ),
-          ElevatedButton(
-            onPressed: () => _deleteDevice(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.warning.withValues(alpha: 0.1),
-              foregroundColor: AppColors.warning,
-              disabledBackgroundColor: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.12),
-              disabledForegroundColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.38),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.borderRadiusMedium,
-                side: BorderSide(
-                  color: AppColors.warning.withValues(alpha: 0.3),
-                  width: 0.5,
-                ),
-              ),
-            ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => _deleteDevice(ctx),
             child: Text(t.buttonDelete),
           ),
         ],

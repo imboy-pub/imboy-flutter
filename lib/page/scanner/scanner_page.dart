@@ -17,6 +17,7 @@ import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/page/scanner/scanner_result_page.dart';
 import 'package:imboy/page/scanner/scanner_provider.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class ScannerPage extends ConsumerStatefulWidget {
   const ScannerPage({super.key});
@@ -232,8 +233,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                                 ? Icons.flash_on
                                 : Icons.flash_off;
                             final color = state.torchState == TorchState.on
-                                ? Colors.yellow
-                                : Colors.grey;
+                                ? AppColors.iosYellow
+                                : Colors.white.withValues(alpha: 0.5);
                             return Icon(iconData, color: color);
                           },
                         ),
@@ -315,14 +316,18 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                             state.showSnackBar(
                               SnackBar(
                                 content: Text(t.noBarcodeFound),
-                                backgroundColor: Colors.red,
+                                backgroundColor: AppColors.getIosRed(
+                                  Theme.of(context).brightness,
+                                ),
                               ),
                             );
                           } else {
                             state.showSnackBar(
                               SnackBar(
                                 content: Text(t.barcodeFound),
-                                backgroundColor: Colors.green,
+                                backgroundColor: AppColors.getIosGreen(
+                                  Theme.of(context).brightness,
+                                ),
                               ),
                             );
                             onDetect(res);

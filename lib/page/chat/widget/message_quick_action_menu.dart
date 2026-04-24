@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
@@ -35,7 +36,7 @@ class MessageQuickActionMenu {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.refresh, color: Colors.orange),
+                leading: Icon(Icons.refresh, color: AppColors.iosOrange),
                 title: Text(t.chatResend),
                 onTap: () {
                   Navigator.pop(context);
@@ -43,7 +44,7 @@ class MessageQuickActionMenu {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                leading: Icon(Icons.delete_outline, color: AppColors.iosRed),
                 title: Text(t.chatDeleteMessage),
                 onTap: () {
                   Navigator.pop(context);
@@ -168,7 +169,10 @@ class MessageQuickActionMenu {
                 // 撤回 (仅限自己且在有效期内)
                 if (canRevoke)
                   ListTile(
-                    leading: const Icon(Icons.undo_rounded, color: Colors.orange),
+                    leading: Icon(
+                      Icons.undo_rounded,
+                      color: AppColors.iosOrange,
+                    ),
                     title: Text(t.revoke),
                     onTap: () {
                       Navigator.pop(context);
@@ -178,7 +182,10 @@ class MessageQuickActionMenu {
 
                 // 删除
                 ListTile(
-                  leading: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                  leading: Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppColors.iosRed,
+                  ),
                   title: Text(t.buttonDelete),
                   onTap: () {
                     Navigator.pop(context);

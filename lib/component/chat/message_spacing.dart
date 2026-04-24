@@ -49,8 +49,9 @@ class MessageSpacing {
   /// 消息气泡水平内边距（3 units）
   static const double bubblePaddingHorizontal = 12.0;
 
-  /// 消息气泡垂直内边距（2.5 units）
-  static const double bubblePaddingVertical = 10.0;
+  /// 消息气泡垂直内边距（2 units）
+  /// 收紧为 8pt，对齐 iMessage 紧凑视觉密度
+  static const double bubblePaddingVertical = 8.0;
 
   /// 消息气泡内边距统一 EdgeInsets
   static const EdgeInsets bubblePaddingAll = EdgeInsets.all(bubblePadding);
@@ -144,8 +145,9 @@ class MessageSpacing {
   // 圆角系统
   // ========================================
 
-  /// 主气泡圆角（4 units）
-  static const double bubbleBorderRadius = 16.0;
+  /// 主气泡圆角（5 units）- iOS 17+ iMessage 标准
+  /// 对齐 DESIGN.md 第 9.1 章：气泡主圆角 20pt
+  static const double bubbleBorderRadius = 20.0;
 
   /// 方向指示圆角（1 unit）- 右下角/左下角小圆角
   static const double bubbleDirectionRadius = 4.0;
@@ -155,6 +157,10 @@ class MessageSpacing {
 
   /// 视频缩略图圆角（3 units）
   static const double thumbnailBorderRadius = 12.0;
+
+  /// 图片消息圆角（3.5 units）
+  /// 统一单图 / 九宫格多图，对齐 iMessage 风格
+  static const double imageBorderRadius = 14.0;
 
   /// 音频播放按钮圆角（完全圆形）
   static const double playButtonBorderRadius = 20.0; // 40dp 直径的一半

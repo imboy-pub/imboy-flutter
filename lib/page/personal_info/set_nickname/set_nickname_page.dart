@@ -251,7 +251,9 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                               error,
                               style: ThemeManager.instance.getTextStyle(
                                 FontSizeType.small,
-                                color: Theme.of(context).colorScheme.error,
+                                color: AppColors.getIosRed(
+                                  Theme.of(context).brightness,
+                                ),
                               ),
                             ),
                           );
@@ -271,7 +273,9 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             color: state.remainingChars < 0
-                                ? Theme.of(context).colorScheme.error
+                                ? AppColors.getIosRed(
+                                    Theme.of(context).brightness,
+                                  )
                                 : AppColors.getTextColor(
                                     Theme.of(context).brightness,
                                     isSecondary: true,

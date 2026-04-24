@@ -243,7 +243,12 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                 const SizedBox(height: 2),
                 Text(
                   timeText,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  // DESIGN.md §3.4：时间戳数字等宽对齐
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
                 ),
               ],
             ),

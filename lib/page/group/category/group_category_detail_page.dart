@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/group_category_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 群分组详情页面
 class GroupCategoryDetailPage extends StatefulWidget {
@@ -91,7 +92,11 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
             child: Text(t.cancel),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.getIosRed(
+                Theme.of(context).brightness,
+              ),
+            ),
             onPressed: () => Navigator.pop(context, true),
             child: Text(t.confirm),
           ),
@@ -135,10 +140,15 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              leading: Icon(
+                Icons.delete_outline,
+                color: AppColors.getIosRed(Theme.of(context).brightness),
+              ),
               title: Text(
                 t.groupCategory.deleteCategory,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(
+                  color: AppColors.getIosRed(Theme.of(context).brightness),
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -217,11 +227,17 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
                 ),
                 const Divider(height: 1, indent: 56),
                 ListTile(
-                  leading:
-                      const Icon(Icons.delete_outline, color: Colors.red),
+                  leading: Icon(
+                    Icons.delete_outline,
+                    color: AppColors.getIosRed(Theme.of(context).brightness),
+                  ),
                   title: Text(
                     t.groupCategory.deleteCategory,
-                    style: const TextStyle(color: Colors.red),
+                    style: TextStyle(
+                      color: AppColors.getIosRed(
+                        Theme.of(context).brightness,
+                      ),
+                    ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _deleteCategory,

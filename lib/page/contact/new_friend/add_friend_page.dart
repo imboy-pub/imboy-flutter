@@ -184,7 +184,7 @@ class AddFriendPage extends ConsumerWidget {
                   _buildListTile(
                     context,
                     icon: Icons.qr_code_scanner_outlined,
-                    iconColor: Colors.blue,
+                    iconColor: AppColors.iosBlue,
                     title: t.scanQrCode,
                     subtitle: t.scanQrCodeBusinessCard,
                     onTap: () {

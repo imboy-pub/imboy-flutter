@@ -107,8 +107,10 @@ class NumericKeypad extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   color: isDark ? Colors.white : colorScheme.onSurface,
-                  fontWeight: FontWeight.w300,
+                  // DESIGN.md §3.3：禁止 w300/Thin；数字键盘改为 w400 Body 字重
+                  fontWeight: FontWeight.w400,
                   letterSpacing: 2,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
       ),

@@ -44,6 +44,7 @@ export 'package:imboy/service/events/common_events.dart';
 export 'package:imboy/theme/default/font_types.dart';
 export 'package:imboy/theme/default/config/chat_theme_config.dart';
 export 'package:imboy/theme/default/app_radius.dart';
+export 'package:imboy/theme/default/app_colors.dart';
 
 // 国际化
 export 'package:imboy/i18n/strings.g.dart';

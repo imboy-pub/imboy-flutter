@@ -13,6 +13,7 @@ import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 import 'contact_setting_provider.dart';
 import '../contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 联系人设置页面
@@ -176,15 +177,14 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    final destructiveColor = AppColors.getIosRed(Theme.of(context).brightness);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.errorContainer.withValues(alpha: 0.1),
+        color: destructiveColor.withValues(alpha: 0.1),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          color: destructiveColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -201,18 +201,14 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  color: Theme.of(context).colorScheme.error,
-                  size: 24,
-                ),
+                Icon(icon, color: destructiveColor, size: 24),
                 const SizedBox(width: 12),
                 Text(
                   title,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.error,
+                    color: destructiveColor,
                   ),
                 ),
               ],
@@ -263,12 +259,14 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: colorScheme.errorContainer.withValues(alpha: 0.2),
+                    color: AppColors.getIosRed(
+                      theme.brightness,
+                    ).withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.warning_amber_rounded,
-                    color: colorScheme.error,
+                    color: AppColors.getIosRed(theme.brightness),
                     size: 32,
                   ),
                 ),
@@ -336,7 +334,10 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colorScheme.error,
+                            backgroundColor: AppColors.getIosRed(
+                              theme.brightness,
+                            ),
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: AppRadius.borderRadiusXLarge,
                             ),
@@ -464,7 +465,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               title: t.addToDenylist,
               icon: Icons.block_outlined,
               iconColor: state.isInDenylist
-                  ? colorScheme.error
+                  ? AppColors.getIosRed(theme.brightness)
                   : colorScheme.onSurfaceVariant,
               value: state.isInDenylist,
               // 切换开关：true 加入黑名单；false 移出黑名单

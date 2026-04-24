@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
@@ -92,7 +93,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                       child: Text(
                         state.errorInfo,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.error,
+                          color: AppColors.getIosRed(theme.brightness),
                           fontSize: 16,
                         ),
                         textAlign: TextAlign.center,

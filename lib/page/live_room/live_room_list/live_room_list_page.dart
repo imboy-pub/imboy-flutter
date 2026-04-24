@@ -11,6 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/live_room_list/live_room_list_provider.dart';
 import 'package:imboy/store/api/live_room_api.dart';
 import 'package:imboy/store/model/live_room_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class LiveRoomListPage extends ConsumerStatefulWidget {
   const LiveRoomListPage({super.key});
@@ -160,23 +161,31 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Row(
-        children: [
-          Icon(
-            Icons.circle,
-            size: 8,
-            color: room.isLive ? Colors.red : Colors.grey,
-          ),
-          const SizedBox(width: 4),
-          Text(room.isLive ? 'LIVE' : 'Idle'),
-          const SizedBox(width: 12),
-          const Icon(Icons.remove_red_eye, size: 12, color: Colors.grey),
-          const SizedBox(width: 2),
-          Text(
-            '${room.viewerCount}',
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ],
+      subtitle: Builder(
+        builder: (context) {
+          final secondaryColor =
+              Theme.of(context).colorScheme.onSurfaceVariant;
+          return Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: room.isLive
+                    ? AppColors.getIosRed(Theme.of(context).brightness)
+                    : secondaryColor,
+              ),
+              const SizedBox(width: 4),
+              Text(room.isLive ? 'LIVE' : 'Idle'),
+              const SizedBox(width: 12),
+              Icon(Icons.remove_red_eye, size: 12, color: secondaryColor),
+              const SizedBox(width: 2),
+              Text(
+                '${room.viewerCount}',
+                style: TextStyle(color: secondaryColor, fontSize: 12),
+              ),
+            ],
+          );
+        },
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

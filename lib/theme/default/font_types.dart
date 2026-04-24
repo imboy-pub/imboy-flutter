@@ -152,14 +152,25 @@ enum FontSizeOption {
 }
 
 /// 字体权重类型枚举
+///
+/// ⚠️ DESIGN.md §3.3 强制规则：
+/// - **禁止使用** `thin` (w100) / `extraLight` (w200) / `light` (w300)
+///   — 小字号下可读性差，与 iOS HIG 不符
+/// - Body 一律 `normal` (w400)；强调用 `semiBold` (w600)；标题用 `semiBold`/`bold`
+/// - `medium` (w500) 仅用于 Callout/Subheadline 次强调，不与 `semiBold` 混用
+///
+/// 保留 thin/extraLight/light 枚举仅为向后兼容，新代码**不得使用**。
 enum FontWeightType {
   /// 细体
+  @Deprecated('DESIGN.md §3.3 禁用：可读性差，改用 normal(w400)')
   thin(FontWeight.w100, '细体'),
 
   /// 超轻
+  @Deprecated('DESIGN.md §3.3 禁用：可读性差，改用 normal(w400)')
   extraLight(FontWeight.w200, '超轻'),
 
   /// 轻体
+  @Deprecated('DESIGN.md §3.3 禁用：可读性差，改用 normal(w400)')
   light(FontWeight.w300, '轻体'),
 
   /// 普通

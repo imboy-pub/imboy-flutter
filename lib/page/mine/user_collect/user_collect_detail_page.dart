@@ -284,7 +284,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   Navigator.pop(context);
                 }
               },
-              iconColor: Theme.of(context).colorScheme.error,
+              iconColor: AppColors.getIosRed(Theme.of(context).brightness),
               isDestructive: true,
             ),
 
@@ -358,7 +358,9 @@ class UserCollectDetailPage extends ConsumerWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: isDestructive
-                              ? Theme.of(context).colorScheme.error
+                              ? AppColors.getIosRed(
+                                  Theme.of(context).brightness,
+                                )
                               : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
@@ -387,9 +389,7 @@ class UserCollectDetailPage extends ConsumerWidget {
     final notifier = ref.read(userCollectProvider.notifier);
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.details,
@@ -428,29 +428,8 @@ class UserCollectDetailPage extends ConsumerWidget {
               margin: const EdgeInsets.all(16.0),
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: isDark
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusMedium,
-                border: isDark
-                    ? Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.15),
-                        width: 0.5,
-                      )
-                    : null,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: Row(
                 children: [
@@ -547,29 +526,8 @@ class UserCollectDetailPage extends ConsumerWidget {
               margin: const EdgeInsets.all(16.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: isDark
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
-                border: isDark
-                    ? Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.15),
-                        width: 0.5,
-                      )
-                    : null,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: notifier.buildItemBody(context, obj, 'detail'),
             ),

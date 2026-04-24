@@ -47,7 +47,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     const inputFillColor = Color(0xFFF9FAFB);
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: hasBound ? t.changeEmail : t.bindEmail,
@@ -61,15 +61,6 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
@@ -142,13 +133,6 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
                   child: TextField(
                     controller: ref.read(bindEmailProvider.notifier).emailCtl,
@@ -220,9 +204,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(error),
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.errorContainer,
+                                      backgroundColor: AppColors.getIosRed(
+                                        Theme.of(context).brightness,
+                                      ),
                                     ),
                                   );
                                 } else if (mounted) {
@@ -294,13 +278,6 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
                   child: TextField(
                     controller: ref.read(bindEmailProvider.notifier).codeCtl,
@@ -345,9 +322,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(error),
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.errorContainer,
+                                  backgroundColor: AppColors.getIosRed(
+                                    Theme.of(context).brightness,
+                                  ),
                                 ),
                               );
                             } else if (mounted) {

@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 part 'logout_account_page.g.dart';
 
@@ -102,8 +103,9 @@ class LogoutAccountPage extends ConsumerWidget {
     final state = ref.watch(logoutAccountProvider);
     final agreed = state.selectedValue == 'read_and_agree';
 
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.logoutAccount,
@@ -114,10 +116,15 @@ class LogoutAccountPage extends ConsumerWidget {
           child: Column(
             children: [
               // 导出数据按钮
-              Card(
+              Container(
                 margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                clipBehavior: Clip.antiAlias,
                 child: ListTile(
-                  leading: Icon(Icons.download, color: cs.primary),
+                  leading: Icon(Icons.download, color: AppColors.primary),
                   title: Text(t.exportMyData),
                   subtitle: Text(
                     t.exportDataDesc,
@@ -133,7 +140,6 @@ class LogoutAccountPage extends ConsumerWidget {
                               .exportUserData();
                           EasyLoading.dismiss();
                           if (filePath == null) return;
-                          // 使用 share_plus 让用户选择保存位置
                           final result = await SharePlus.instance.share(
                             ShareParams(
                               files: [XFile(filePath)],
@@ -166,7 +172,8 @@ class LogoutAccountPage extends ConsumerWidget {
               const Spacer(),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                height: 50,
+                child: ElevatedButton(
                   onPressed: agreed && !state.isLoading
                       ? () async {
                           final ok = await ref
@@ -184,13 +191,33 @@ class LogoutAccountPage extends ConsumerWidget {
                           }
                         }
                       : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.iosRed,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: AppColors.iosRed.withValues(
+                      alpha: 0.3,
+                    ),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: state.isLoading
                       ? const SizedBox(
                           width: 18,
                           height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
-                      : Text(t.logoutAccount),
+                      : Text(
+                          t.logoutAccount,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ],

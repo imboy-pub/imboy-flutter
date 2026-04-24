@@ -10,6 +10,7 @@ import 'package:imboy/store/model/people_model.dart';
 
 import 'people_nearby_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 class PeopleNearbyPage extends ConsumerStatefulWidget {
@@ -167,8 +168,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                       color: !state.peopleNearbyVisible
                           ? Theme.of(context).colorScheme.primaryContainer
                                 .withValues(alpha: 0.15)
-                          : Theme.of(context).colorScheme.errorContainer
-                                .withValues(alpha: 0.15),
+                          : AppColors.getIosRed(
+                              Theme.of(context).brightness,
+                            ).withValues(alpha: 0.15),
                       borderRadius: AppRadius.borderRadiusSmall,
                     ),
                     child: Icon(
@@ -179,9 +181,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                           ? Theme.of(
                               context,
                             ).colorScheme.primary.withValues(alpha: 0.7)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.error.withValues(alpha: 0.7),
+                          : AppColors.getIosRed(
+                              Theme.of(context).brightness,
+                            ).withValues(alpha: 0.7),
                       size: 16,
                     ),
                   );

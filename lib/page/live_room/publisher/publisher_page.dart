@@ -8,6 +8,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/publisher/publisher_provider.dart'
     show publisherProvider;
 import 'package:imboy/store/model/live_room_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// WHIP Publisher 推流页面
 /// 使用 WHIP 协议（WebRTC-HTTP Ingestion Protocol）向媒体服务器推送音视频流
@@ -171,8 +172,8 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: state.stateStr == 'publishing'
-                        ? Colors.red
-                        : Colors.blue,
+                        ? AppColors.getIosRed(Theme.of(context).brightness)
+                        : AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
                 ),

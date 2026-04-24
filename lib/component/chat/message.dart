@@ -11,6 +11,7 @@ import 'package:imboy/plugins/builtin/register_builtin_plugins.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -58,10 +59,13 @@ class CustomMessageBuilder extends StatelessWidget {
   ) {
     final theme = Theme.of(context);
     final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
-    final colorScheme = theme.colorScheme;
-    final backgroundColor = isSentByMe
-        ? colorScheme.primaryContainer
-        : colorScheme.surfaceContainerLow;
+    // DESIGN.md 第 9/10 章：气泡背景统一走 AppColors，
+    // 发送=品牌蓝 / 接收=surface（暗色映射对应 darkSurface）
+    final backgroundColor = AppColors.getChatBubbleBackground(
+      isSentByMe,
+      false,
+      theme.brightness,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -165,7 +169,12 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
     imageSource: UserRepoLocal.to.current.avatar,
   );
 
-  final textStyle = TextStyle(fontSize: 14.0, color: txtColor); // 使用固定字体大小
+  // DESIGN.md §3.4：中文正文行高 1.4（多行预览可读性）
+  final textStyle = TextStyle(
+    fontSize: 14.0,
+    color: txtColor,
+    height: 1.4,
+  );
 
   // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
   final effectiveMsgType =

@@ -12,6 +12,7 @@ import 'package:imboy/component/webrtc/func.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 class ExtraItem extends StatelessWidget {
@@ -51,10 +52,10 @@ class ExtraItem extends StatelessWidget {
                 width: width ?? 56, // 稍微加大触控区域
                 height: height ?? 56,
                 decoration: BoxDecoration(
-                  // 使用更柔和的背景色：浅色模式下用极淡的灰，深色模式下用深灰
+                  // iOS 分组背景 token（DESIGN.md 第 10 章）
                   color: isDark
-                      ? const Color(0xFF2C2C2E)
-                      : const Color(0xFFF5F5F7),
+                      ? AppColors.darkSurfaceGrouped
+                      : AppColors.lightSurfaceGrouped,
                   borderRadius: AppRadius.borderRadiusLarge, // 更圆润的角
                   // 移除硬边框，使用极淡的内描边来增加精致感
                   border: Border.all(
@@ -67,8 +68,8 @@ class ExtraItem extends StatelessWidget {
                 child: Center(
                   child: IconTheme(
                     data: IconThemeData(
-                      //图标颜色：深色模式用白，浅色模式用深灰，不再随主题色变，保持工具属性
-                      color: isDark ? Colors.white : const Color(0xFF48484A),
+                      //图标颜色：深色用白 / 浅色用次级文字色，保持工具属性不随主题色漂移
+                      color: isDark ? Colors.white : AppColors.lightTextSecondary,
                       size: 26,
                     ),
                     child: image is ImageProvider

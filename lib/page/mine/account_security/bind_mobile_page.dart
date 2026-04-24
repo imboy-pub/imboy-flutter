@@ -50,7 +50,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
     const inputFillColor = Color(0xFFF9FAFB);
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: hasBound ? t.changeMobile : t.bindMobile,
@@ -64,15 +64,6 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).shadowColor.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
@@ -145,15 +136,8 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
-                  child: Padding(
+                  child:Padding(
                     padding: const EdgeInsets.only(left: 12),
                     child: PhoneInputWidget(
                       initialValue: '',
@@ -222,9 +206,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(error),
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.errorContainer,
+                                      backgroundColor: AppColors.getIosRed(
+                                        Theme.of(context).brightness,
+                                      ),
                                     ),
                                   );
                                 } else if (mounted) {
@@ -298,15 +282,8 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
-                  child: TextField(
+                  child:TextField(
                     controller: ref.read(bindMobileProvider.notifier).codeCtl,
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.done,
@@ -349,9 +326,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(error),
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.errorContainer,
+                                  backgroundColor: AppColors.getIosRed(
+                                    Theme.of(context).brightness,
+                                  ),
                                 ),
                               );
                             } else if (mounted) {

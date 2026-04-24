@@ -310,7 +310,11 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, size: 20, color: colorScheme.error),
+              Icon(
+                Icons.error_outline,
+                size: 20,
+                color: AppColors.getIosRed(Theme.of(context).brightness),
+              ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -353,15 +357,13 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       textColor = AppColors.sentMessageText;
       waveformColor = Colors.white70;
     } else {
-      // 使用对比度更高的灰色区分接收的语音消息
-      // 亮色模式：使用明显灰色（与纯白背景 #FFFFFF 对比）
-      // 暗色模式：使用稍浅的灰色（与深黑背景 #121212 对比）
+      // 接收语音气泡背景：统一走 AppColors token，对齐 DESIGN.md 第 9/10 章
+      // 暗色 → darkReceivedMessageBackground(#2A2A2A)
+      // 亮色 → lightSurfaceContainer(#EDEDED)
       if (isDark) {
-        // 暗色模式：深灰色，明显区别于 #121212 背景
-        bgColor = const Color(0xFF2C2C2C);
+        bgColor = AppColors.darkReceivedMessageBackground;
       } else {
-        // 亮色模式：浅的灰色，明显区别于 #FFFFFF 背景
-        bgColor = Colors.black12;
+        bgColor = AppColors.lightSurfaceContainer;
       }
       iconColor = colorScheme.primary;
       textColor = isDark
@@ -558,16 +560,17 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
   }
 
   Widget _buildUnreadIndicator() {
+    final unreadColor = AppColors.getIosRed(Theme.of(context).brightness);
     return Container(
       margin: const EdgeInsets.only(left: MessageSpacing.unreadIndicatorMargin),
       width: MessageSpacing.unreadIndicatorSize,
       height: MessageSpacing.unreadIndicatorSize,
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: unreadColor,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.red.withValues(alpha: 0.3),
+            color: unreadColor.withValues(alpha: 0.3),
             blurRadius: 4,
             spreadRadius: 1,
           ),
@@ -642,7 +645,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(t.audioPlayFailed),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.getIosRed(
+                Theme.of(context).brightness,
+              ),
             ),
           );
         }

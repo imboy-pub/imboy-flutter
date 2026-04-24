@@ -41,9 +41,9 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.loginDeviceManagement,
@@ -195,15 +195,6 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                   width: 0.5,
                 )
               : null,
-          boxShadow: [
-            BoxShadow(
-              color: isDark
-                  ? Colors.transparent
-                  : Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Material(
           color: Colors.transparent,
@@ -228,11 +219,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                     decoration: BoxDecoration(
                       color: isCurrentDevice
                           ? AppColors.primaryAlpha20
-                          : (isDark
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.outline.withValues(alpha: 0.1)
-                                : const Color(0xFFF5F5F5)),
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),
                     child: Icon(
@@ -381,53 +368,23 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, UserDeviceModel model) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusRegular,
-        ),
-        title: Text(
-          t.buttonDelete,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          t.deleteThisDeviceTips,
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.8),
-            height: 1.4,
-          ),
-        ),
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(t.buttonDelete),
+        content: Text(t.deleteThisDeviceTips),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              t.buttonCancel,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
+            child: Text(t.buttonCancel),
           ),
-          ElevatedButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () async {
               Navigator.of(context).pop();
               await _deleteDevice(model);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.lightError,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.borderRadiusSmall,
-              ),
-            ),
-            child: Text(
-              t.buttonDelete,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            child: Text(t.buttonDelete),
           ),
         ],
       ),
@@ -456,53 +413,23 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 显示"让该设备下线"确认对话框
   void _showForceOfflineDialog(BuildContext context, UserDeviceModel model) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusRegular,
-        ),
-        title: Text(
-          t.forceDeviceOffline,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          t.forceDeviceOfflineConfirm,
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.8),
-            height: 1.4,
-          ),
-        ),
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(t.forceDeviceOffline),
+        content: Text(t.forceDeviceOfflineConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              t.buttonCancel,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
+            child: Text(t.buttonCancel),
           ),
-          ElevatedButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () async {
               Navigator.of(context).pop();
               await _forceOffline(model);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.warning,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.borderRadiusSmall,
-              ),
-            ),
-            child: Text(
-              t.confirmForceOffline,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            child: Text(t.confirmForceOffline),
           ),
         ],
       ),

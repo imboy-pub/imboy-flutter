@@ -9,6 +9,7 @@ import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/mine/feedback/feedback_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 反馈详情页面
@@ -59,7 +60,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
         automaticallyImplyLeading: true,
         title: t.feedbackDetails,
       ),
-      backgroundColor: colorScheme.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -68,26 +69,14 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             const SizedBox(height: 8),
 
             // 反馈基本信息卡片
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colorScheme.primary.withAlpha(25),
-                      colorScheme.primary.withAlpha(10),
-                    ],
-                  ),
-                ),
-                child: Column(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 标题行
@@ -214,21 +203,19 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   ],
                 ),
               ),
-            ),
 
             const SizedBox(height: 16),
 
             // 评分信息卡片（如果有评分）
             if (widget.model.rating.isNotEmpty)
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
                   borderRadius: AppRadius.borderRadiusRegular,
                 ),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
+                child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -274,20 +261,18 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                     ],
                   ),
                 ),
-              ),
 
             if (widget.model.rating.isNotEmpty) const SizedBox(height: 16),
 
             // 反馈内容卡片
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                child: Column(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
@@ -330,20 +315,18 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   ],
                 ),
               ),
-            ),
 
             const SizedBox(height: 16),
 
             // 回复列表卡片
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                child: Column(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
@@ -391,7 +374,6 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   ],
                 ),
               ),
-            ),
 
             const SizedBox(height: 16),
           ],

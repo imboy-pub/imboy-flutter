@@ -25,6 +25,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'conversation_provider.dart';
@@ -230,23 +231,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                             return const SizedBox.shrink();
                           }
                           ConversationModel model = state.conversations[index];
-                          return InkWell(
-                            onTap: () {
-                              context.push(
-                                '/chat/${model.peerId}',
-                                extra: {
-                                  'type': strEmpty(model.type)
-                                      ? 'C2C'
-                                      : model.type,
-                                  'title': model.title,
-                                  'avatar': model.avatar,
-                                  'sign': model.sign,
-                                },
-                              );
-                            },
-                            onTapDown: (TapDownDetails details) {},
-                            onLongPress: () {},
-                            child: Slidable(
+                          return Slidable(
                               key: ValueKey(model.id),
                               groupTag: '0',
                               closeOnScroll: true,
@@ -306,9 +291,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                       );
                                     },
                                     autoClose: true,
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
+                                    backgroundColor: AppColors.primary,
                                     flex: 2,
                                     child: Builder(
                                       builder: (context) {
@@ -330,9 +313,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                   SlidableAction(
                                     key: ValueKey("pin_$index"),
                                     flex: 3,
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.tertiary,
+                                    backgroundColor: AppColors.iosOrange,
+                                    foregroundColor: Colors.white,
                                     onPressed: (_) async {
                                       final targetPinned = !model.isPinned;
                                       final ok = await notifier
@@ -355,12 +337,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                   SlidableAction(
                                     key: ValueKey("delete_$index"),
                                     flex: 2,
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.error,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onError,
+                                    backgroundColor: AppColors.iosRed,
+                                    foregroundColor: Colors.white,
                                     onPressed: (_) async {
                                       final ok = await notifier
                                           .deleteConversationRemote(model);
@@ -378,15 +356,27 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                   ),
                                 ],
                               ),
-                              child: ConversationItem(
-                                model: model,
-                                onTapAvatar: () {
-                                  context.push(
-                                    '/contact/people/${model.peerId}',
-                                    extra: {'scene': ''},
-                                  );
-                                },
-                              ),
+                            child: ConversationItem(
+                              model: model,
+                              onTap: () {
+                                context.push(
+                                  '/chat/${model.peerId}',
+                                  extra: {
+                                    'type': strEmpty(model.type)
+                                        ? 'C2C'
+                                        : model.type,
+                                    'title': model.title,
+                                    'avatar': model.avatar,
+                                    'sign': model.sign,
+                                  },
+                                );
+                              },
+                              onTapAvatar: () {
+                                context.push(
+                                  '/contact/people/${model.peerId}',
+                                  extra: {'scene': ''},
+                                );
+                              },
                             ),
                           );
                         },

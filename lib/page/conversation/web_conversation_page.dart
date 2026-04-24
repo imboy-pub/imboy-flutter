@@ -369,10 +369,12 @@ class _WebConversationItem extends StatelessWidget {
               conversation.unreadNum > 99
                   ? '99+'
                   : conversation.unreadNum.toString(),
+              // DESIGN.md §3.4：未读徽章数字等宽对齐
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
+                fontFeatures: [FontFeature.tabularFigures()],
               ),
               textAlign: TextAlign.center,
             ),

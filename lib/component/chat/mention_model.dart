@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_role_rules.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// @提及候选项
 class MentionCandidate {
@@ -99,10 +100,11 @@ String groupRoleLabel(int role) {
 }
 
 /// 获取角色标签背景颜色
+/// DESIGN.md 双蓝策略：群主用 iosOrange 强调（区分品牌蓝）/ 管理员用 primary
 Color groupRoleBgColor(int role, ColorScheme colorScheme) {
   switch (role) {
     case 4:
-      return const Color(0xFFFF9800).withValues(alpha: 0.1);
+      return AppColors.iosOrange.withValues(alpha: 0.1);
     case 3:
       return colorScheme.primary.withValues(alpha: 0.1);
     default:
@@ -114,7 +116,7 @@ Color groupRoleBgColor(int role, ColorScheme colorScheme) {
 Color groupRoleFgColor(int role, ColorScheme colorScheme) {
   switch (role) {
     case 4:
-      return const Color(0xFFFF9800);
+      return AppColors.iosOrange;
     case 3:
       return colorScheme.primary;
     default:

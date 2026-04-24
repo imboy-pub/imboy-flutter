@@ -4,6 +4,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 part 'message_scroll_provider.g.dart';
 
@@ -434,8 +435,10 @@ class ScrollToBottomButton extends ConsumerWidget {
                         child: Container(
                           width: 16,
                           height: 16,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
+                          decoration: BoxDecoration(
+                            color: AppColors.getIosRed(
+                              Theme.of(context).brightness,
+                            ),
                             shape: BoxShape.circle,
                           ),
                           child: Center(

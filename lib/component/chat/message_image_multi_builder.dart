@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:octo_image/octo_image.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoViewGallery;
@@ -67,7 +68,9 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
           return GestureDetector(
             onTap: () => _previewImage(index),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(
+                MessageSpacing.imageBorderRadius,
+              ),
               child: _buildImageWidget(uri, width, height),
             ),
           );

@@ -9,6 +9,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
@@ -95,7 +96,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
     return GestureDetector(
       onTap: _previewImage,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(MessageSpacing.imageBorderRadius),
         child: SizedBox(
           width: finalWidth,
           height: finalHeight,

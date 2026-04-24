@@ -18,6 +18,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:xid/xid.dart';
 
@@ -404,7 +405,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                           padding: const EdgeInsets.only(top: 4, right: 4),
                           child: Icon(
                             media == 'video' ? Icons.videocam : Icons.phone,
-                            color: Colors.green,
+                            color: AppColors.getIosGreen(
+                              Theme.of(context).brightness,
+                            ),
                           ),
                         ),
                       ],
@@ -412,14 +415,21 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                   ),
                 ],
               ),
-              Column(
-                children: [
-                  Text(
-                    state.callDuration,
-                    style: const TextStyle(color: Colors.green),
-                  ),
-                  Text(t.calling, style: const TextStyle(color: Colors.green)),
-                ],
+              Builder(
+                builder: (context) {
+                  final callingColor = AppColors.getIosGreen(
+                    Theme.of(context).brightness,
+                  );
+                  return Column(
+                    children: [
+                      Text(
+                        state.callDuration,
+                        style: TextStyle(color: callingColor),
+                      ),
+                      Text(t.calling, style: TextStyle(color: callingColor)),
+                    ],
+                  );
+                },
               ),
             ],
           ),

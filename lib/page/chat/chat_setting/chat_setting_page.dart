@@ -10,6 +10,7 @@ import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import 'chat_setting_provider.dart';
 
@@ -205,7 +206,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         borderRadius: AppRadius.borderRadiusRegular,
         border: Border.all(
           color: isDestructive
-              ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
+              ? AppColors.getIosRed(
+                  Theme.of(context).brightness,
+                ).withValues(alpha: 0.2)
               : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
         boxShadow: [
@@ -248,7 +251,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                       title,
                       style: TextStyle(
                         color: isDestructive
-                            ? Theme.of(context).colorScheme.error
+                            ? AppColors.getIosRed(
+                                Theme.of(context).brightness,
+                              )
                             : Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -371,7 +376,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           EasyLoading.showToast(v ? t.enabled : t.disabled);
         },
         icon: Icons.local_fire_department_outlined,
-        iconColor: Theme.of(context).colorScheme.error,
+        iconColor: AppColors.getIosRed(Theme.of(context).brightness),
         subtitle: _burnEnabled
             ? t.burnEnabledMessage(duration: _formatBurnAfterMs(_burnAfterMs))
             : t.burnDisabledMessage,
@@ -430,7 +435,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
               title: Text(
                 t.warning,
                 style: TextStyle(
-                  color: Theme.of(dialogContext).colorScheme.error,
+                  color: AppColors.getIosRed(
+                    Theme.of(dialogContext).brightness,
+                  ),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -470,7 +477,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(dialogContext).colorScheme.error,
+                    backgroundColor: AppColors.getIosRed(
+                      Theme.of(dialogContext).brightness,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 8,

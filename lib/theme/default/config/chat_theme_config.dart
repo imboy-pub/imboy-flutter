@@ -96,21 +96,17 @@ class ChatThemeConfig {
 
     return ChatTheme(
       colors: ChatColors(
-        // Material 3主要颜色 - 用于发送消息气泡
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
+        // DESIGN.md 双蓝策略：发送气泡用品牌蓝
+        primary: AppColors.lightSentMessageBackground,
+        onPrimary: AppColors.sentMessageText,
 
-        // Material 3表面颜色系统 - 支持护眼模式
+        // 表面颜色系统 - 支持护眼模式
         surface: backgroundColor, // 动态背景色
         onSurface: textColor, // 动态文本色
-        // 容器颜色 - 用于接收消息气泡
-        surfaceContainer: AppColors.lightCardBackground,
-        surfaceContainerLow: const Color(
-          0xFFF7F2FA,
-        ), // Material 3 Surface Container Low
-        surfaceContainerHigh: const Color(
-          0xFFECE6F0,
-        ), // Material 3 Surface Container High
+        // 接收消息气泡背景 - 走 AppColors token
+        surfaceContainer: AppColors.lightReceivedMessageBackground,
+        surfaceContainerLow: AppColors.lightSurfaceContainer,
+        surfaceContainerHigh: AppColors.lightCardBackground,
       ),
       typography: _buildChatTypography(
         isDark: false,
@@ -118,8 +114,8 @@ class ChatThemeConfig {
         fontScale: fontScale,
         context: context,
       ),
-      // Material 3形状系统 - Medium圆角 (16dp)
-      shape: AppRadius.borderRadiusRegular,
+      // DESIGN.md 第 9.1 章：聊天气泡圆角 20pt
+      shape: AppRadius.borderRadiusLarge,
     );
   }
 
@@ -146,19 +142,19 @@ class ChatThemeConfig {
 
     return ChatTheme(
       colors: ChatColors(
-        // Material 3主要颜色 - 暗色模式，用于发送消息气泡
-        primary: const Color(0xFF69F0AE), // Material 3 Primary Dark
-        onPrimary: Colors.white,
+        // DESIGN.md 双蓝策略：暗色发送气泡用品牌蓝变体（非 Material 3 绿色）
+        primary: AppColors.darkSentMessageBackground,
+        onPrimary: AppColors.sentMessageText,
 
-        // Material 3表面颜色系统 - 暗色模式，支持OLED优化
+        // 暗色表面系统，支持 OLED 优化
         surface: backgroundColor, // 动态背景色
         onSurface: textColor, // 动态文本色
-        // 容器颜色 - 用于接收消息气泡，支持OLED优化
-        surfaceContainer: containerColor, // 动态容器色
-        surfaceContainerLow: surfaceColor, // 动态表面色
-        surfaceContainerHigh: const Color(
-          0xFF2B2930,
-        ), // Material 3 Surface Container High Dark
+        // 接收气泡背景 - OLED 优化感知
+        surfaceContainer: isOLEDMode
+            ? AppColors.oledReceivedMessageBackground
+            : AppColors.darkReceivedMessageBackground,
+        surfaceContainerLow: surfaceColor,
+        surfaceContainerHigh: containerColor,
       ),
       typography: _buildChatTypography(
         isDark: true,
@@ -167,8 +163,8 @@ class ChatThemeConfig {
         fontScale: fontScale,
         context: context,
       ),
-      // Material 3形状系统 - Medium圆角 (16dp)
-      shape: AppRadius.borderRadiusRegular,
+      // DESIGN.md 第 9.1 章：聊天气泡圆角 20pt
+      shape: AppRadius.borderRadiusLarge,
     );
   }
 

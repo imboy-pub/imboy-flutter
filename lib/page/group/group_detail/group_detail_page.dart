@@ -21,6 +21,7 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/easy_dialog.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -712,20 +713,20 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   borderRadius: AppRadius.borderRadiusRegular,
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(
-                        context,
-                      ).colorScheme.error.withValues(alpha: 0.1),
-                      Theme.of(
-                        context,
-                      ).colorScheme.error.withValues(alpha: 0.05),
+                      AppColors.getIosRed(
+                        Theme.of(context).brightness,
+                      ).withValues(alpha: 0.1),
+                      AppColors.getIosRed(
+                        Theme.of(context).brightness,
+                      ).withValues(alpha: 0.05),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                   border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.error.withValues(alpha: 0.2),
+                    color: AppColors.getIosRed(
+                      Theme.of(context).brightness,
+                    ).withValues(alpha: 0.2),
                   ),
                 ),
                 child: ElevatedButton(
@@ -766,7 +767,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   child: Text(
                     isGroupOwner(state.role) ? t.groupDissolve : t.groupLeave,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                      color: AppColors.getIosRed(Theme.of(context).brightness),
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),

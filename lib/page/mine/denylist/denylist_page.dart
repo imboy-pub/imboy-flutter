@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/store/model/denylist_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 import 'denylist_provider.dart';
@@ -50,17 +51,18 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         },
         onLongPress: () async {
           // 长按移出黑名单（备选入口）
-          final confirmed = await showDialog<bool>(
+          final confirmed = await showCupertinoDialog<bool>(
             context: context,
-            builder: (ctx) => AlertDialog(
+            builder: (ctx) => CupertinoAlertDialog(
               title: Text(t.confirmRemove),
               content: Text(t.confirmRemoveFromDenylist),
               actions: [
-                TextButton(
+                CupertinoDialogAction(
                   onPressed: () => Navigator.of(ctx).pop(false),
                   child: Text(t.buttonCancel),
                 ),
-                ElevatedButton(
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
                   onPressed: () => Navigator.of(ctx).pop(true),
                   child: Text(t.buttonRemove),
                 ),
@@ -83,49 +85,20 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).cardColor,
             borderRadius: AppRadius.borderRadiusRegular,
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.15),
-              width: 0.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(
-                  context,
-                ).colorScheme.shadow.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 // 头像
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.shadow.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                    child: SizedBox(
-                      width: 52,
-                      height: 52,
-                      child: Avatar(imgUri: model.avatar),
-                    ),
+                ClipRRect(
+                  borderRadius: AppRadius.borderRadiusMedium,
+                  child: SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: Avatar(imgUri: model.avatar),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -169,7 +142,9 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                                 Icon(
                                   Icons.block,
                                   size: 12,
-                                  color: Theme.of(context).colorScheme.error,
+                                  color: AppColors.getIosRed(
+                                    Theme.of(context).brightness,
+                                  ),
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
@@ -177,7 +152,9 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.error,
+                                    color: AppColors.getIosRed(
+                                      Theme.of(context).brightness,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -211,12 +188,14 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.errorContainer.withValues(alpha: 0.1),
+        color: AppColors.getIosRed(
+          Theme.of(context).brightness,
+        ).withValues(alpha: 0.1),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          color: AppColors.getIosRed(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -224,7 +203,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         children: [
           Icon(
             Icons.warning_amber_rounded,
-            color: Theme.of(context).colorScheme.error,
+            color: AppColors.getIosRed(Theme.of(context).brightness),
             size: 24,
           ),
           const SizedBox(width: 12),
@@ -261,7 +240,9 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
   Widget build(BuildContext context) {
     final denylistState = ref.watch(denylistProvider);
 
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.denylist),
       body: Column(
         children: [
@@ -295,19 +276,21 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                         secondaryBackground: Container(
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          color: Theme.of(context).colorScheme.error,
+                          color: AppColors.getIosRed(
+                            Theme.of(context).brightness,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.remove_circle_outline,
-                                color: Theme.of(context).colorScheme.onError,
+                                color: Colors.white,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 t.buttonRemove,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onError,
+                                style: const TextStyle(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),

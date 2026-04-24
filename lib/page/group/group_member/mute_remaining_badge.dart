@@ -16,6 +16,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class MuteRemainingBadge extends StatelessWidget {
   /// 解禁时间（毫秒 epoch）；`null` 或 <= `nowMs` 视为未禁言。
@@ -35,7 +36,7 @@ class MuteRemainingBadge extends StatelessWidget {
     final label = muteRemainingLabel(muteUntilMs: muteUntilMs, nowMs: nowMs);
     if (label.isEmpty) return const SizedBox.shrink();
 
-    final color = Theme.of(context).colorScheme.error;
+    final color = AppColors.getIosRed(Theme.of(context).brightness);
     return Container(
       margin: const EdgeInsets.only(left: 6),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

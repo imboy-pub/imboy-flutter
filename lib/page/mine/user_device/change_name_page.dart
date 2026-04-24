@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 修改名称页面
@@ -54,9 +55,10 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(
@@ -93,9 +95,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
           filled: true,
-          fillColor: isDark
-              ? const Color.fromRGBO(70, 70, 70, 1.0)
-              : Colors.white70,
+          fillColor: Theme.of(context).cardColor,
           focusedBorder: OutlineInputBorder(
             borderRadius: AppRadius.borderRadiusTiny,
             borderSide: BorderSide(
@@ -114,7 +114,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
             borderRadius: AppRadius.borderRadiusTiny,
             borderSide: BorderSide(
               width: 1.0,
-              color: Theme.of(context).colorScheme.errorContainer,
+              color: AppColors.getIosRed(Theme.of(context).brightness),
             ),
           ),
           errorStyle: const TextStyle(),
@@ -122,7 +122,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
             borderRadius: AppRadius.borderRadiusTiny,
             borderSide: BorderSide(
               width: 1.0,
-              color: Theme.of(context).colorScheme.errorContainer,
+              color: AppColors.getIosRed(Theme.of(context).brightness),
             ),
           ),
           border: InputBorder.none,

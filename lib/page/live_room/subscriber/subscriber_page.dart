@@ -8,6 +8,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/subscriber/subscriber_provider.dart'
     show subscriberProvider;
 import 'package:imboy/store/model/live_room_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// WHEP Subscriber 拉流页面
 /// 使用 WHEP 协议（WebRTC-HTTP Egress Protocol）从媒体服务器拉取音视频流
@@ -157,8 +158,9 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                             : '开始播放',
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        state.stateStr == 'playing' ? Colors.red : Colors.blue,
+                    backgroundColor: state.stateStr == 'playing'
+                        ? AppColors.getIosRed(Theme.of(context).brightness)
+                        : AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
                 ),

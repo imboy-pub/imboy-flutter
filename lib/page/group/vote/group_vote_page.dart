@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_vote_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 群投票页面
 class GroupVotePage extends ConsumerStatefulWidget {
@@ -149,7 +150,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
     final status = vote['status'] ?? 0;
     final statusText =
         status == 1 ? t.groupVote.statusInProgress : t.groupVote.voteEnded;
-    final statusColor = status == 1 ? Colors.green : Colors.grey;
+    final statusColor = status == 1
+        ? AppColors.getIosGreen(Theme.of(context).brightness)
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     final voteId = _resolveVoteId(vote);
 
     return Card(

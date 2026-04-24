@@ -12,6 +12,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 选择好友页面
@@ -351,9 +352,9 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                   fontSize: 12,
                   color: Colors.white,
                 ),
-                downItemDecoration: const BoxDecoration(
+                downItemDecoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.green,
+                  color: AppColors.primary,
                 ),
                 indexHintWidth: 128 / 2,
                 indexHintHeight: 128 / 2,

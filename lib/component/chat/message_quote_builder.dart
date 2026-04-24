@@ -9,6 +9,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/assets.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class QuoteMessageBuilder extends StatelessWidget {
   const QuoteMessageBuilder({
@@ -230,12 +231,13 @@ class QuoteMessageBuilder extends StatelessWidget {
 
   /// 构建引用消息错误提示组件（使用统一间距 12dp）
   Widget _buildQuoteErrorWidget(BuildContext context, bool userIsAuthor) {
+    final errorColor = AppColors.getIosRed(Theme.of(context).brightness);
     return Container(
       margin: MessageSpacing.quoteContainerMarginAll,
       decoration: BoxDecoration(
         // 优化：使用更明显的背景色
         color: userIsAuthor
-            ? Theme.of(context).colorScheme.errorContainer
+            ? errorColor.withValues(alpha: 0.12)
             : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
       ),
@@ -251,7 +253,7 @@ class QuoteMessageBuilder extends StatelessWidget {
               height: 40,
               margin: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.error,
+                color: errorColor,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
                   bottomLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
@@ -267,14 +269,14 @@ class QuoteMessageBuilder extends StatelessWidget {
                     Icon(
                       Icons.error_outline,
                       size: 16,
-                      color: Theme.of(context).colorScheme.error,
+                      color: errorColor,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         t.quoteMessageNotAvailable,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+                          color: errorColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),

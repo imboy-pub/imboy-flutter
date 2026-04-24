@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 阅后即焚徽章组件
@@ -26,7 +27,7 @@ class BurnBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.error;
+    final color = AppColors.getIosRed(Theme.of(context).brightness);
     final bg = Theme.of(context).colorScheme.surface;
 
     if (burnReadAtMs <= 0 || burnAfterMs <= 0) {

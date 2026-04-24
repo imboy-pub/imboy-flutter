@@ -763,6 +763,19 @@ Scaffold(
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 0.1 | 2026-04-10 | 初版，确立 iOS 原生感方向 + 双蓝策略 |
+| 0.2 | 2026-04-24 | Slice-10~18 排版 / 色彩 / 数字等宽批量落地（详见下表） |
+
+### 0.2 批次明细（Slice-10 ~ Slice-18，2026-04-24）
+
+| Slice | 范围 | 变更要点 |
+|-------|------|---------|
+| 10~13 | 色彩批量（§2） | `primary` / `iosBlue` / `iosGreen` / `iosOrange` / `iosRed` 语义分层在登录、联系人、会话、Tab Bar、AppBar 落地 |
+| 14-C | GlassAppBar 返回按钮 | `common_bar.dart` 返回按钮改 `AppColors.getIosBlue(brightness)`（§2.1 双蓝策略：导航系统蓝） |
+| 14-D | contact/ 硬编码色彩 | `contact_page` 在线状态改 `getIosGreen`/`iosOrange`/`getIosBlue`；`contact_provider` `bgColor` 改 `iosOrange`/`iosGreen`/`iosBlue`；`add_friend_page` 扫码图标改 `iosBlue`（§2.4 语义色） |
+| 15 | 数字键盘字重 + enum 弃用 | `numeric_keypad` Thin → w400 Body（§3.3 禁 w300）；`FontSizeType` 给 `thin/extraLight/light` 加 `@Deprecated` 注释 |
+| 16 | w500/w600 混用整改 | `feedback_page.dart` 反馈内容 16pt 改 w400（§3.2 Body），保留合理的标题 w600 + caption w500 并列 |
+| 17 | `FontFeature.tabularFigures()` | 会话列表时间戳 / web 版未读徽章 / 朋友圈通知时间戳（§3.4 数字优先等宽） |
+| 18 | 行高补齐 | `messageMsgWidget` 引用/搜索预览 Body 加 `height: 1.4`（§3.4 CJK 1.4-1.5）；其他多行 body 经审计已均有 height |
 
 **未来演进约束**：
 - 颜色/字号/间距等「tokens」变更必须在此文档先落地，再改代码

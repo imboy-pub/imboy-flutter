@@ -1201,7 +1201,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 Expanded(
                   child: Container(
                     constraints: BoxConstraints(
-                      minHeight: 28,
+                      // iOS 最小触达区域 44pt（DESIGN.md 第 2 章）
+                      minHeight: 44,
                       maxHeight: (widget.maxLines ?? 6) * 24.0 + 24,
                     ),
                     margin: const EdgeInsets.symmetric(horizontal: 8),

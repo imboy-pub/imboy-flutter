@@ -18,6 +18,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import '../confirm_new_friend/confirm_new_friend_page.dart';
 import 'add_friend_page.dart';
@@ -218,8 +219,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           children: [
             SlidableAction(
               key: ValueKey("delete_$index"),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
+              backgroundColor: AppColors.getIosRed(
+                Theme.of(context).brightness,
+              ),
+              foregroundColor: Colors.white,
               borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(16),
                 bottomRight: Radius.circular(16),
@@ -441,9 +444,9 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.errorContainer.withValues(alpha: 0.3),
+          color: AppColors.getIosRed(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.1),
           borderRadius: AppRadius.borderRadiusLarge,
         ),
         child: Row(
@@ -452,14 +455,14 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             Icon(
               Icons.access_time,
               size: 16,
-              color: Theme.of(context).colorScheme.error,
+              color: AppColors.getIosRed(Theme.of(context).brightness),
             ),
             const SizedBox(width: 4),
             Text(
               t.expired,
               style: TextStyle(
                 fontSize: FontSizeType.small.size,
-                color: Theme.of(context).colorScheme.error,
+                color: AppColors.getIosRed(Theme.of(context).brightness),
                 fontWeight: FontWeight.w500,
               ),
             ),

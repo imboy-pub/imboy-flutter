@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/mine/select_region/select_region_provider.dart';
 
 /// 选择地区页面
@@ -47,7 +48,9 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(

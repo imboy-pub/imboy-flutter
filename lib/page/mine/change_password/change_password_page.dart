@@ -25,38 +25,15 @@ class ChangePasswordPage extends ConsumerWidget {
         automaticallyImplyLeading: true,
         title: t.changeLoginPassword,
       ),
-      backgroundColor: isDark
-          ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           children: [
             Container(
               decoration: BoxDecoration(
-                color: isDark
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusMedium,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: isDark
-                    ? Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.15),
-                        width: 0.5,
-                      )
-                    : null,
               ),
               child: ListTile(
                 leading: Container(
@@ -107,29 +84,8 @@ class ChangePasswordPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: isDark
-                    ? Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.15),
-                        width: 0.5,
-                      )
-                    : null,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

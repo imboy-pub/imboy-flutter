@@ -18,6 +18,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'people_info_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 class PeopleInfoPage extends ConsumerWidget {
@@ -260,12 +261,14 @@ class PeopleInfoPage extends ConsumerWidget {
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.errorContainer.withValues(alpha: 0.1),
+        color: AppColors.getIosRed(
+          Theme.of(context).brightness,
+        ).withValues(alpha: 0.1),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          color: AppColors.getIosRed(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -273,7 +276,7 @@ class PeopleInfoPage extends ConsumerWidget {
         children: [
           Icon(
             Icons.warning_amber_rounded,
-            color: Theme.of(context).colorScheme.error,
+            color: AppColors.getIosRed(Theme.of(context).brightness),
             size: 24,
           ),
           const SizedBox(width: 12),

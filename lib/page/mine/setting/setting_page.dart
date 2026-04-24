@@ -90,18 +90,19 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     if (Platform.isAndroid) {
       SystemNavigator.pop();
     } else if (Platform.isIOS) {
-      showDialog(
+      showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return CupertinoAlertDialog(
             title: Text(t.restartRequired),
             content: Text(t.applyChanges),
             actions: <Widget>[
-              TextButton(
-                child: Text(t.buttonConfirm),
+              CupertinoDialogAction(
+                isDefaultAction: true,
                 onPressed: () {
                   exit(0);
                 },
+                child: Text(t.buttonConfirm),
               ),
             ],
           );
@@ -311,8 +312,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             } on Exception catch (e) {
                               EasyLoading.showError(t.tipFailed);
                               if (kDebugMode) {
-                                iPrint(
-                                    'E2EE: 刷新设备密钥失败: ${e.runtimeType}');
+                                iPrint('E2EE: 刷新设备密钥失败: ${e.runtimeType}');
                               }
                             } finally {
                               // 恢复刷新状态
@@ -836,9 +836,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       trailing: CupertinoSwitch(
         value: value,
         onChanged: onChanged,
-        activeTrackColor: AppColors.getIosBlue(
-          Theme.of(context).brightness,
-        ),
+        activeTrackColor: AppColors.getIosBlue(Theme.of(context).brightness),
       ),
     );
   }

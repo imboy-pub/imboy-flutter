@@ -67,14 +67,12 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     final height = toolbarHeight ?? kToolbarHeight + 16;
 
     // Background color with opacity for glass effect
+    // DESIGN.md 第 9/10 章：AppBar 背景走 AppColors（暗色 darkSurface / 亮色 lightSurfaceGrouped）
     final glassBackgroundColor =
         backgroundColor ??
         (isDark
-            ? const Color(0xFF1E1E1E).withValues(alpha: 0.75)
-            : const Color(0xFFF7F7F7).withValues(
-                alpha: 0.85,
-              ) // WeChat style grey
-              );
+            ? AppColors.darkSurface.withValues(alpha: 0.75)
+            : AppColors.lightSurfaceGrouped.withValues(alpha: 0.85));
 
     // Border color to "catch the light"
     final borderColor = isDark
@@ -137,6 +135,9 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildDefaultLeading(BuildContext context) {
+    // DESIGN.md §1 双蓝策略：Nav 文字/图标按钮用 iOS 系统蓝 #007AFF，
+    // 品牌蓝 #2474E5 保留给 Tab 选中 / 主按钮 / 发送气泡等识别位置。
+    final navBlue = AppColors.getIosBlue(Theme.of(context).brightness);
     return GestureDetector(
       onTap: () {
         final nav = Navigator.of(context);
@@ -150,12 +151,12 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
         height: 36,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.1),
+          color: navBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back_ios_new,
-          color: AppColors.primary,
+          color: navBlue,
           size: 16,
         ),
       ),

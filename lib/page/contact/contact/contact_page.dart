@@ -15,6 +15,7 @@ import 'package:imboy/component/widget/user_online_status_widget.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
@@ -162,7 +163,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                       width: 14,
                       height: 14,
                       decoration: BoxDecoration(
-                        color: _getOnlineStatusColor(model),
+                        color: _getOnlineStatusColor(context, model),
                         shape: BoxShape.circle,
                         border: Border.all(color: theme.cardColor, width: 2),
                       ),
@@ -216,19 +217,20 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     );
   }
 
-  // 获取在线状态颜色
-  Color _getOnlineStatusColor(ContactModel model) {
+  // 获取在线状态颜色（DESIGN.md §5：使用 iOS 语义色，保持跨亮暗一致）
+  Color _getOnlineStatusColor(BuildContext context, ContactModel model) {
+    final brightness = Theme.of(context).brightness;
     if (model.status == 'online') {
-      return Colors.green;
+      return AppColors.getIosGreen(brightness);
     } else if (model.lastSeenAt != null) {
       final nowMs = DateTimeHelper.millisecond();
       final lastSeenMs = model.lastSeenAt!;
       final diffMs = nowMs - lastSeenMs;
 
       if (diffMs <= 1 * 3600 * 1000) {
-        return Colors.orange;
+        return AppColors.iosOrange;
       } else if (diffMs <= 24 * 3600 * 1000) {
-        return Colors.blue;
+        return AppColors.getIosBlue(brightness);
       } else if (diffMs <= 7 * 24 * 3600 * 1000) {
         return Colors.purple;
       } else {
