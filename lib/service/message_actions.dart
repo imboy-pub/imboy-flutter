@@ -1034,7 +1034,7 @@ class MessageActions {
   Future<void> sendInputStatus({
     required String conversationUk3,
     required String toId,
-    required String msgType,
+    required String chatType,
     required TypingStatus status,
   }) async {
     try {
@@ -1043,7 +1043,7 @@ class MessageActions {
 
       final inputMessage = {
         'id': Xid().toString(),
-        'type': msgType,
+        'type': chatType,
         'from': currentUid,
         'to': toId,
         'msg_type': 'custom',

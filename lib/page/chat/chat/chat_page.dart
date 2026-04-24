@@ -1303,7 +1303,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     MessagingFacade.instance.sendInputStatus(
       conversationUk3: _conversationUk3,
       toId: widget.peerId,
-      msgType: _chatType,
+      chatType: _chatType,
       status: status,
     );
   }
@@ -2280,7 +2280,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.lock_outline, color: Colors.orange),
+            Icon(Icons.lock_outline, color: AppColors.iosOrange),
             const SizedBox(width: 12),
             Text(t.e2eeDecryptFailed),
           ],

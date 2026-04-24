@@ -1255,12 +1255,12 @@ class MessageService with EventSubscriptionManager {
   Future<void> sendInputStatus({
     required String conversationUk3,
     required String toId,
-    required String msgType,
+    required String chatType,
     required TypingStatus status,
   }) => actions.sendInputStatus(
     conversationUk3: conversationUk3,
     toId: toId,
-    msgType: msgType,
+    chatType: chatType,
     status: status,
   );
 

@@ -61,12 +61,12 @@ class MessagingFacade {
   Future<void> sendInputStatus({
     required String conversationUk3,
     required String toId,
-    required String msgType,
+    required String chatType,
     required TypingStatus status,
   }) => _adapter.sendInputStatus(
     conversationUk3: conversationUk3,
     toId: toId,
-    msgType: msgType,
+    chatType: chatType,
     status: status,
   );
 
