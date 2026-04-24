@@ -89,6 +89,28 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 
 ## 变更记录 (Changelog)
 
+### 2026-04-25
+- **A-2 code-reviewer HIGH 回归保护测试落地（NULL 折叠语义钉死）** / **A-2 code-reviewer HIGH regression-protection test for NULL-fold semantics**：
+  - `d8b18048` 新增 `test/store/repository/moment_notify_dedup_index_test.dart`（8 个测试，SQLite ffi in-memory）/ add 8 in-memory SQLite tests
+    - **正向 7 测**：复用 v21 `uq_moment_notify_dedup` 索引 DDL，钉死 NULL 折叠后重复拦截 / action 区分 / 不同 from_uid / moment_id / user_id 可共存 / 显式空串 `""` 与 NULL 在 COALESCE 下等价
+    - **反例 1 测**：用 v20 直接 `comment_id` 索引复现 bug（`NULL != NULL` 允许两行 moment_like 都落库）→ 证明 v21 修复的语义差异真实存在，避免回归测试成为"自证循环"
+  - **查实 SQL 修复已在位**：`assets/migrations/upgrade.sql:1245-1270` v21 migration `COALESCE(comment_id, '')` + `lib/service/sqlite.dart:38` `_dbVersion=21` 已就位（原 code-reviewer HIGH 指向的 SQL 层修复此前已完成，仅缺回归保护测试）
+  - 全量回归 2686/2686 绿（+8 新）；`flutter analyze` 零警告 / Full regression 2686/2686 green (+8 new); analyzer clean
+- **A-2 code-reviewer MEDIUM 3 项代码层确认已修**（在位证据 + 无需额外 commit）/ **A-2 code-reviewer MEDIUM 3 items already fixed in code**：
+  - **① `_onScroll` 快速滚动竞态守卫**：`lib/page/moment/moment_notify/moment_notify_page.dart:66-68` 已有 `final snapshot = ref.read(momentNotifyProvider); if (snapshot.isLoading || !snapshot.hasMore) return;` 早退守卫，`loadMore` 内部二次守卫 → 双保险
+  - **② `_ensureTagUids` / `_loadTags` 魔数常量化**：`lib/page/moment/moment_friend_picker/moment_friend_picker_page.dart:31-41` 已抽出顶层 `const int kFriendPickerTagPageSize = 200` + `kFriendPickerTagUidsPageSize = 1000`，含 docstring 解释取值依据（标签总数 <50 / 单标签成员数 <1000）
+  - **③ `FutureBuilder._resolveContact` rebuild 重建 Future**：`lib/page/moment/moment_notify/moment_notify_page.dart:42-43 + 74-83` 已用 `final Map<String, Future<ContactModel?>> _contactFutureCache` + `putIfAbsent`，同一 uid 每次 rebuild 返回同一 Future 实例，FutureBuilder 不再误入 waiting 态闪骨架
+- **Track A 进度修订：9/10 → 10/10** / **Track A progress revision: 9/10 → 10/10**：
+  - 2026-04-18 条目 "Track A 进度 9/10，仅 A-10 channel regression 待做" 过时 / 2026-04-18 entry stale
+  - 实际 **#25 A-10 channel 模块全链路回归已 completed**：24 个测试覆盖列表/详情/消息 repo/规则/服务/运营 / 24 tests across list/detail/message-repo/rules/service/ops
+    - 纯函数测 7：`channel_detail_rules` / `channel_edit_rules` / `channel_admin_add_rules` / `channel_invitation_rules` / `channel_load_more_guard` 等
+    - 仓储测 6：`channel_repo_unread_atomic` / `channel_message_repo_{view_count,pinned_limit,query_contract}` / `channel_repo_last_message_id` 等
+    - 服务/S2C 测 3：`channel_service_operations` / `channel_service_unread_summary_sync` / `channel_s2c_sync`
+    - Widget / Provider 测 4：`channel_list_state_sync` / `channel_provider_state` / `channel_detail_actions` / `channel_detail_event`
+    - 模型测 4：`channel_model` / `channel_message_model` / `channel_subscription_model` / `channel_stats_model` 等
+  - **关键修复已登记**：2026-04-18 条目 "F4 pre-existing 测试失败修复" 详细记录 `channel_list_state_sync_test` 4 测修复（Riverpod 3 auto-dispose 语义陷阱）
+- **静态债务剩余面**：pending 任务 #19/#20/#26/#28/#33/#35 全为真机/运行时依赖项 → sequential-safe 循环再度进入暂停态，等待真机联调机会 / Sequential-safe loop stalled again; remaining pending tasks are device/runtime-dependent
+
 ### 2026-04-24
 - **docs(stale-todo) 三片收尾清理**（静态文档债务审计批次，零代码影响）/ **Three-slice stale-todo cleanup batch (doc-debt audit, zero code impact)**：
   - `552ffb22` 清理 2 处过时 TODO 注释 / Clean 2 stale TODO comments：
