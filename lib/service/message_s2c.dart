@@ -632,11 +632,14 @@ class MessageS2CService {
     Map<String, dynamic> payload,
   ) async {
     final msgId = parseModelNullableString(data['id']);
-    // 会话类型 (C2C/C2G)；call-site label `msgType:` 为 MessageActions 历史参数名，暂保留
+    // 会话类型 (C2C/C2G)
     final chatType = data['type']?.toString() ?? 'C2C';
 
     // 使用公共辅助类处理非好友错误（消除代码重复）
-    await MessageActions.handleNotAFriendError(msgId: msgId, msgType: chatType);
+    await MessageActions.handleNotAFriendError(
+      msgId: msgId,
+      chatType: chatType,
+    );
   }
 
   ///

@@ -1228,14 +1228,14 @@ class MessageActions {
   ///
   /// 参数：
   /// - [msgId]: 消息ID
-  /// - [msgType]: 消息类型 (C2C/C2G)
+  /// - [chatType]: 会话类型 (C2C/C2G)
   static Future<void> handleNotAFriendError({
     required String? msgId,
-    required String msgType,
+    required String chatType,
   }) async {
     try {
       // 1. 打印调试日志
-      iPrint('🚫 [NOT_A_FRIEND] msgId=$msgId, msgType=$msgType');
+      iPrint('🚫 [NOT_A_FRIEND] msgId=$msgId, chatType=$chatType');
       debugPrint('🚫 [NOT_A_FRIEND] 无法发送消息 - 非好友关系');
 
       // 2. 通过事件总线通知 UI 显示错误提示
@@ -1256,7 +1256,7 @@ class MessageActions {
           AppEventBus.fire(
             MessageStatusUpdateRequestedEvent(
               messageId: msgId,
-              messageType: msgType,
+              messageType: chatType,
               newStatus: 41, // IMBoyMessageStatus.error
               notifyUI: true,
             ),
@@ -1271,7 +1271,7 @@ class MessageActions {
           AppEventBus.fire(
             RemoveFromRetryQueueRequestedEvent(
               messageId: msgId,
-              messageType: msgType,
+              messageType: chatType,
               reason: 'not_a_friend',
             ),
           );
