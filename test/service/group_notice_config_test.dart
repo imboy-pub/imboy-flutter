@@ -27,27 +27,27 @@ void main() {
 
   group('readNoticeDisabled — 读契约', () {
     test('未设置（读返回 null）→ false', () {
-      bool? Function(String) readBool = (_) => null;
+      bool? readBool(String _) => null;
       expect(readNoticeDisabled(10, readBool: readBool), isFalse);
     });
 
     test('已设置为 true → true', () {
-      bool? Function(String) readBool = (k) =>
+      bool? readBool(String k) =>
           k == 'group_notice_disabled:10' ? true : null;
       expect(readNoticeDisabled(10, readBool: readBool), isTrue);
     });
 
     test('已设置为 false → false', () {
-      bool? Function(String) readBool = (_) => false;
+      bool? readBool(String _) => false;
       expect(readNoticeDisabled(10, readBool: readBool), isFalse);
     });
 
     test('gid <= 0 → 总是 false，不调 readBool', () {
       var called = false;
-      bool? Function(String) readBool = (_) {
+      bool? readBool(String _) {
         called = true;
         return true;
-      };
+      }
       expect(readNoticeDisabled(0, readBool: readBool), isFalse);
       expect(readNoticeDisabled(-1, readBool: readBool), isFalse);
       expect(called, isFalse, reason: '非法 gid 不应触发实际读取');
@@ -80,12 +80,12 @@ void main() {
       await setNoticeDisabled(
         0,
         true,
-        writeBool: (_, __) async => called = true,
+        writeBool: (_, _) async => called = true,
       );
       await setNoticeDisabled(
         -5,
         true,
-        writeBool: (_, __) async => called = true,
+        writeBool: (_, _) async => called = true,
       );
       expect(called, isFalse);
     });

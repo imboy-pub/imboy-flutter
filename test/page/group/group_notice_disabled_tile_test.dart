@@ -13,11 +13,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/group/group_detail/group_notice_disabled_tile.dart';
 
 void main() {
-  Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+  Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
   group('GroupNoticeDisabledTile — 渲染', () {
     testWidgets('value=true → Switch 选中', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         GroupNoticeDisabledTile(
           label: '消息免打扰',
           value: true,
@@ -29,7 +29,7 @@ void main() {
     });
 
     testWidgets('value=false → Switch 未选中', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         GroupNoticeDisabledTile(
           label: '消息免打扰',
           value: false,
@@ -41,7 +41,7 @@ void main() {
     });
 
     testWidgets('label 文案显示在 ListTile 中', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         const GroupNoticeDisabledTile(
           label: '消息免打扰',
           value: false,
@@ -55,7 +55,7 @@ void main() {
   group('GroupNoticeDisabledTile — 交互', () {
     testWidgets('tap Switch → onChanged 收到 !value', (tester) async {
       final calls = <bool>[];
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         GroupNoticeDisabledTile(
           label: '消息免打扰',
           value: false,
@@ -69,7 +69,7 @@ void main() {
 
     testWidgets('tap ListTile 整行 → onChanged 收到 !value', (tester) async {
       final calls = <bool>[];
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         GroupNoticeDisabledTile(
           label: '消息免打扰',
           value: true,
@@ -83,7 +83,7 @@ void main() {
     });
 
     testWidgets('onChanged=null → 整行 disabled（tap 不抛错且无状态变化）', (tester) async {
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrap(
         const GroupNoticeDisabledTile(
           label: '消息免打扰',
           value: true,

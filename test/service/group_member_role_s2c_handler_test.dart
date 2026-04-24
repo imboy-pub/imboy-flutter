@@ -77,7 +77,7 @@ void main() {
     test('applyRoleUpdate 抛异常 → fireEvent 仍被调用（吞异常 + log）', () async {
       await run(
         {'gid': 1, 'user_id': 2, 'role': 4},
-        applyRoleUpdate: (_, __, ___, ____) async {
+        applyRoleUpdate: (_, _, _, _) async {
           throw StateError('db locked');
         },
       );

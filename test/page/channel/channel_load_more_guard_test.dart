@@ -38,7 +38,7 @@ void main() {
     setUp(() {
       container = ProviderContainer();
       // 保活订阅，防止 Riverpod 3 auto-dispose 清空瞬态 state
-      container.listen(channelListProvider, (_, __) {});
+      container.listen(channelListProvider, (_, _) {});
       notifier = container.read(channelListProvider.notifier);
     });
 

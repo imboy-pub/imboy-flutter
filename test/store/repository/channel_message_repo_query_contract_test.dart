@@ -52,7 +52,7 @@ Future<void> _insert(
     'id': id,
     'channel_id': channelId,
     'created_at': createdAt,
-    if (reactionSummary != null) 'reaction_summary': reactionSummary,
+    'reaction_summary': ?reactionSummary,
   });
 }
 
@@ -360,7 +360,7 @@ void main() {
     });
 
     /// 与 ChannelMessageRepo.updateReactionSummary 等价
-    Future<int> _updateReaction(
+    Future<int> updateReaction(
       Database db,
       String messageId,
       Map<String, int> summary,
@@ -373,18 +373,18 @@ void main() {
       );
     }
 
-    Map<String, int>? _readReaction(Map<String, Object?> row) {
+    Map<String, int>? readReaction(Map<String, Object?> row) {
       final raw = row['reaction_summary'];
       if (raw == null) return null;
       return Map<String, int>.from(jsonDecode(raw as String) as Map);
     }
 
     test('更新后读回等于新 summary（全量替换）', () async {
-      await _updateReaction(db, msgId, {'like': 3});
+      await updateReaction(db, msgId, {'like': 3});
 
       final rows = await db.query('channel_message',
           where: 'id = ?', whereArgs: [msgId]);
-      final reaction = _readReaction(rows.first);
+      final reaction = readReaction(rows.first);
 
       // 全量替换：原有 heart 字段消失
       expect(reaction, {'like': 3});
@@ -393,7 +393,7 @@ void main() {
     });
 
     test('用空 map 替换 — 写入 {}，而非 null', () async {
-      await _updateReaction(db, msgId, {});
+      await updateReaction(db, msgId, {});
 
       final rows = await db.query('channel_message',
           where: 'id = ?', whereArgs: [msgId]);
@@ -404,12 +404,12 @@ void main() {
     });
 
     test('覆盖写：连续两次更新，最终值以第二次为准', () async {
-      await _updateReaction(db, msgId, {'fire': 10});
-      await _updateReaction(db, msgId, {'like': 1, 'wave': 7});
+      await updateReaction(db, msgId, {'fire': 10});
+      await updateReaction(db, msgId, {'like': 1, 'wave': 7});
 
       final rows = await db.query('channel_message',
           where: 'id = ?', whereArgs: [msgId]);
-      final reaction = _readReaction(rows.first);
+      final reaction = readReaction(rows.first);
 
       expect(reaction, {'like': 1, 'wave': 7});
       expect(reaction!.containsKey('fire'), isFalse);
@@ -417,13 +417,13 @@ void main() {
 
     test('消息不存在 — 返回 0（受影响行数）', () async {
       final affected =
-          await _updateReaction(db, 'non-exist', {'like': 1});
+          await updateReaction(db, 'non-exist', {'like': 1});
       expect(affected, 0);
     });
 
     test('受影响行数 == 1 当消息存在', () async {
       final affected =
-          await _updateReaction(db, msgId, {'thumbup': 3});
+          await updateReaction(db, msgId, {'thumbup': 3});
       expect(affected, 1);
     });
   });

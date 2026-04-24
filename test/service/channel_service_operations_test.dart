@@ -1016,7 +1016,7 @@ void main() {
 
   // ─── CH-7  syncMessages ───────────────────────────────────────────────────
   group('CH-7 syncMessages', () {
-    ChannelMessageModel _msg(int id) => ChannelMessageModel(
+    ChannelMessageModel msg(int id) => ChannelMessageModel(
           id: id,
           channelId: 100,
           content: 'content-$id',
@@ -1027,7 +1027,7 @@ void main() {
     test('API 返回 3 条消息 → saveMessage 被调 3 次 + 返回 3 条', () async {
       final msgRepo = _FakeChannelMessageRepo();
       final service = ChannelService.forTest(
-        api: _FakeChannelApi(messages: [_msg(1), _msg(2), _msg(3)]),
+        api: _FakeChannelApi(messages: [msg(1), msg(2), msg(3)]),
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
@@ -1067,7 +1067,7 @@ void main() {
 
   // ─── CH-8  publishMessage / getMessages / deleteChannel / markAsRead ────────
   group('CH-8 publishMessage', () {
-    ChannelMessageModel _msg(int id) => ChannelMessageModel(
+    ChannelMessageModel msg(int id) => ChannelMessageModel(
           id: id,
           channelId: 100,
           content: 'test',
@@ -1076,10 +1076,10 @@ void main() {
         );
 
     test('API 返回消息 → 保存到本地 + 返回消息', () async {
-      final msg = _msg(99);
+      final m = msg(99);
       final msgRepo = _FakeChannelMessageRepo();
       final service = ChannelService.forTest(
-        api: _FakeChannelApi(publishMessageResult: msg),
+        api: _FakeChannelApi(publishMessageResult: m),
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
@@ -1131,7 +1131,7 @@ void main() {
   });
 
   group('CH-8 getMessages (本地优先回退)', () {
-    ChannelMessageModel _msg(int id, int channelId) => ChannelMessageModel(
+    ChannelMessageModel msg(int id, int channelId) => ChannelMessageModel(
           id: id,
           channelId: channelId,
           content: 'c',
@@ -1141,10 +1141,10 @@ void main() {
 
     test('本地有数据 → 直接返回本地，不请求 API', () async {
       final msgRepo = _FakeChannelMessageRepo();
-      final localMsg = _msg(1, 100);
+      final localMsg = msg(1, 100);
       msgRepo.localMessages = [localMsg];
 
-      final api = _FakeChannelApi(messages: [_msg(2, 100)]); // API 有不同数据
+      final api = _FakeChannelApi(messages: [msg(2, 100)]); // API 有不同数据
       final service = ChannelService.forTest(
         api: api,
         repo: _FakeChannelRepo(),
@@ -1161,7 +1161,7 @@ void main() {
       final msgRepo = _FakeChannelMessageRepo();
       // localMessages 为空（默认）
 
-      final apiMsg = _msg(5, 100);
+      final apiMsg = msg(5, 100);
       final api = _FakeChannelApi(messages: [apiMsg]);
       final service = ChannelService.forTest(
         api: api,
