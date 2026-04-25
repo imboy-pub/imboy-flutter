@@ -22,6 +22,7 @@ import 'package:flutter/widgets.dart';
 /// - none (0px): 无圆角 - 直角
 /// - tiny (4px): 极小圆角 - 标签、徽章
 /// - small (8px): 小圆角 - 按钮、输入框
+/// - cell (10px): iOS Cell 圆角 - InsetGrouped ListTile（iOS HIG 标准，破例不在 4 基数表）
 /// - medium (12px): 中圆角 - 卡片、列表项
 /// - regular (16px): 常规圆角 - 对话框、底部菜单
 /// - large (20px): 大圆角 - 大型卡片
@@ -62,6 +63,15 @@ class AppRadius {
   /// - **列表项**（ListTile）
   /// - 弹出菜单
   static const double medium = 12.0;
+
+  /// iOS Cell 圆角 - 10px（iOS HIG InsetGrouped 标准）
+  ///
+  /// 破例不在 4px 基数表内，是 iOS InsetGrouped List 的硬性约束（DESIGN.md §5.1 line 253）。
+  ///
+  /// 使用场景：
+  /// - iOS 风格 Cell / InsetGrouped ListTile
+  /// - 设置页 / 个人资料页等系统级列表
+  static const double cell = 10.0;
 
   /// 常规圆角 - 16px
   ///
@@ -113,6 +123,11 @@ class AppRadius {
   ///
   /// 用于卡片、列表项等
   static BorderRadius get borderRadiusMedium => BorderRadius.circular(medium);
+
+  /// iOS Cell 圆角 - 10px
+  ///
+  /// 用于 iOS InsetGrouped ListTile / 系统级列表
+  static BorderRadius get borderRadiusCell => BorderRadius.circular(cell);
 
   /// 常规圆角 - 16px
   ///
