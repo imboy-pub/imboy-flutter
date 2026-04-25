@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/notification_payload_rules.dart';
 
 /// 通知点击响应回调类型
 typedef NotificationTapCallback = void Function(String? payload);
@@ -79,70 +80,60 @@ class NotificationService {
   }
 
   /// 处理通知点击后的导航
+  ///
+  /// 委托纯函数 [parseNotificationPayload] 解析（多键兼容 snake_case /
+  /// camelCase），根据 sealed [NotificationParseResult] 分发路由。
   void _handleNavigation(String payload) {
+    Map<String, dynamic> data;
     try {
-      final data = json.decode(payload) as Map<String, dynamic>;
-      final type = data['type'] as String?;
-      final conversationUk3 = data['conversationUk3'] as String?;
-      final peerId = data['peerId'] as String?;
-      // 会话类型 (C2C/C2G)。payload key 从旧名 `msgType` 迁移到 `chatType`；
-      // 在 `showMessageNotification` 生产端保持同步。
-      final chatType = data['chatType'] as String?;
+      data = json.decode(payload) as Map<String, dynamic>;
+    } on FormatException catch (e) {
+      iPrint('❌ [Notification] 解析 payload JSON 失败: $e');
+      return;
+    } on TypeError catch (e) {
+      iPrint('❌ [Notification] payload 不是 Map<String, dynamic>: $e');
+      return;
+    }
 
-      iPrint('🔔 [Notification] 解析导航数据: type=$type, uk3=$conversationUk3, peerId=$peerId');
+    final result = parseNotificationPayload(data);
 
-      // 获取导航上下文
-      final context = navigatorKey.currentContext;
-      if (context == null) {
-        iPrint('⚠️ [Notification] 无法获取导航上下文');
-        return;
-      }
+    final context = navigatorKey.currentContext;
+    if (context == null) {
+      iPrint('⚠️ [Notification] 无法获取导航上下文');
+      return;
+    }
 
-      // 根据通知类型进行导航
-      switch (type) {
-        case 'message':
-          // 消息通知：跳转到聊天页面
-          if (conversationUk3 != null && peerId != null && chatType != null) {
-            _navigateToChat(context, conversationUk3, peerId, chatType);
-          }
-          break;
-        case 'friend_request':
-          // 好友请求：跳转到新朋友页面
-          context.push('/contact/new_friend');
-          break;
-        case 'group_invite':
-          // 群邀请：跳转到群详情
-          if (peerId != null) {
-            context.push('/group/$peerId/detail');
-          }
-          break;
-        default:
-          iPrint('🔔 [Notification] 未知通知类型: $type');
-      }
-    } catch (e) {
-      iPrint('❌ [Notification] 解析导航数据失败: $e');
+    switch (result) {
+      case NotificationMessageRoute(:final peerId, :final chatType):
+        iPrint('🔔 [Notification] 路由到聊天: peerId=$peerId chatType=$chatType');
+        _navigateToChat(context, peerId, chatType);
+      case NotificationFriendRequestRoute():
+        iPrint('🔔 [Notification] 路由到新朋友页');
+        context.push(result.toRoutePath());
+      case NotificationGroupInviteRoute(:final groupId):
+        iPrint('🔔 [Notification] 路由到群详情: groupId=$groupId');
+        context.push(result.toRoutePath());
+      case NotificationParseSkip(:final reason):
+        iPrint('🔔 [Notification] 跳过路由: reason=$reason');
     }
   }
 
   /// 导航到聊天页面
+  ///
+  /// 路径格式：`/chat/$peerId?type=$chatType`
+  /// 路由配置见 `app_router.dart` 的 `/chat/:peerId`，type 通过 query 参数传递。
   void _navigateToChat(
     dynamic context,
-    String conversationUk3,
     String peerId,
     String chatType,
   ) {
     try {
-      // 构建聊天页面路径
-      // 格式: /chat/{peerId}?type={chatType}
-      // 注意：路由配置是 /chat/:peerId，type 通过 query 参数传递
       final path = '/chat/$peerId?type=$chatType';
       iPrint('🔔 [Notification] 导航到聊天页面: $path');
-
-      // 使用 go_router 导航
       if (context != null && context.mounted) {
         context.push(path);
       }
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [Notification] 导航到聊天页面失败: $e');
     }
   }
@@ -270,7 +261,9 @@ class NotificationService {
   }) async {
     final payload = json.encode({
       'type': 'group_invite',
-      'peerId': groupId,
+      // 使用 group_id 显式键，避免与 message 通知的 peerId 语义混淆；
+      // parseNotificationPayload 同时识别 group_id / groupId / peer_id 兜底。
+      'group_id': groupId,
     });
 
     await show(

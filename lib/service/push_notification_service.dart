@@ -22,6 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/notification.dart';
+import 'package:imboy/service/notification_payload_rules.dart';
 import 'package:imboy/store/api/push_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -199,31 +200,44 @@ class PushNotificationService {
   }
 
   /// 处理通知点击（从后台/关闭状态打开 app）
-  /// 冷启动时路由器可能尚未就绪，需要延迟重试
+  ///
+  /// 冷启动时路由器可能尚未就绪，需要延迟重试。
+  /// 委托纯函数 [parseNotificationPayload] 解析（与本地通知共享 schema）。
   void _handleNotificationTap(RemoteMessage message) {
     iPrint('[Push] 通知点击: ${message.messageId}');
-    final data = message.data;
-    if (data.containsKey('conversation_id')) {
-      final convId = data['conversation_id'];
-      final convType = data['type'] ?? 'C2C';
-      final title = message.notification?.title ?? '';
-      iPrint('[Push] 导航到会话: $convId (type=$convType)');
-      _navigateToChat(convId, convType, title);
-    }
+    // RemoteMessage.data 是 Map<String, String>；转 dynamic 以适配纯函数签名
+    final data = Map<String, dynamic>.from(message.data);
+    final result = parseNotificationPayload(data);
+    _navigateByResult(result);
   }
 
-  /// 导航到聊天页面，冷启动时最多重试 5 次（每次 500ms）
-  void _navigateToChat(String convId, String convType, String title, [int retry = 0]) {
+  /// 根据解析结果路由（含冷启动重试）
+  void _navigateByResult(NotificationParseResult result, [int retry = 0]) {
     final context = navigatorKey.currentContext;
-    if (context != null && context.mounted) {
-      context.go('/chat/$convId?type=$convType&title=$title');
-    } else if (retry < 5) {
-      // 冷启动时路由器尚未挂载，延迟重试
-      Future.delayed(const Duration(milliseconds: 500), () {
-        _navigateToChat(convId, convType, title, retry + 1);
-      });
-    } else {
+    if (context == null || !context.mounted) {
+      if (retry < 5) {
+        // 冷启动时路由器尚未挂载，延迟重试
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _navigateByResult(result, retry + 1);
+        });
+        return;
+      }
       iPrint('[Push] 导航失败: context 在 $retry 次重试后仍不可用');
+      return;
+    }
+
+    switch (result) {
+      case NotificationMessageRoute(:final peerId, :final chatType):
+        iPrint('[Push] 导航到会话: peerId=$peerId chatType=$chatType');
+        context.go(result.toRoutePath());
+      case NotificationFriendRequestRoute():
+        iPrint('[Push] 导航到新朋友页');
+        context.go(result.toRoutePath());
+      case NotificationGroupInviteRoute(:final groupId):
+        iPrint('[Push] 导航到群详情: groupId=$groupId');
+        context.go(result.toRoutePath());
+      case NotificationParseSkip(:final reason):
+        iPrint('[Push] 跳过路由: reason=$reason');
     }
   }
 }
