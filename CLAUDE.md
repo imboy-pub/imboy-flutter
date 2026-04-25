@@ -90,6 +90,13 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 ## 变更记录 (Changelog)
 
 ### 2026-04-25
+- **R-3-token-expansion#2 Chat Web 主题三件套 hex → AppColors Token** / **R-3-token-expansion#2: 3 Chat-Web theme hex literals folded into AppColors Tokens**：
+  - **新增 3 个 Token**（与既有 `chatWebSecondaryLight/Dark` + `chatWebBrand` 同主题家族）/ Add 3 new Tokens in same Chat-Web theme family：
+    - `chatWebBackgroundLight (#F0F2F5)` — 亮色 header / 容器背景，5 处
+    - `chatWebBackgroundDark (#202C33)` — 暗色 header / 容器背景，3 处
+    - `chatWebSurfaceDark (#2A3942)` — 暗色 input/selected/高一层 surface（比 BackgroundDark 略浅），4 处
+  - **范围**：3 文件 +20/-7：`lib/theme/default/app_colors.dart` +13 行 + `lib/page/conversation/web_conversation_page.dart` 3 处替换 + `lib/page/search/web_search_page.dart` 5 处替换
+  - **回归**：`flutter analyze` 三文件零警告；`grep` 兜底 lib/ 三 hex 0 命中（仅 Token 源头保留）/ analyzer clean, 0 hex residue
 - **#20 C2C 发送方本地 msg_c2c 表缺行修复（根因：MessageModel.id 类型与 Xid 不兼容）** / **#20 C2C sender-side missing local msg_c2c row fix (root cause: MessageModel.id type incompatible with Xid)**：
   - **根因**：`MessageModel.id` 字段为 `int`，与客户端 `Xid().toString()` 生成的 base32hex 字符串 ID 不兼容；`chat_provider._getMsgFromTMsg` 用 `int.tryParse(message.id) ?? 0` 强转必然回退 0 → 触发 `_validateMessageData` 的 `if (msg.id == 0)` 拦截 → `ArgumentError` 被外层 `try/catch` 静默吞掉 / Root: `int.tryParse(xid)` always returns null, falls to 0, then guarded out and silently swallowed
   - **接收侧无 bug**：Bob 接收方走 `batchInsertOfflineMessages` 另一路径，未碰 `int.tryParse` 强转
