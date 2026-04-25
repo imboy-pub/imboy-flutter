@@ -54,7 +54,7 @@ class MorePage extends ConsumerWidget {
                 context: context,
                 ref: ref,
                 icon: Icons.location_on_outlined,
-                iconColor: const Color(0xFF34C759),
+                iconColor: AppColors.iosGreen,
                 title: t.region,
                 trailing: Text(
                   _formatRegion(UserRepoLocal.to.current.region),
@@ -71,7 +71,7 @@ class MorePage extends ConsumerWidget {
                 context: context,
                 ref: ref,
                 icon: Icons.edit_outlined,
-                iconColor: const Color(0xFFFF9500),
+                iconColor: AppColors.iosOrange,
                 title: t.signature,
                 trailing: Expanded(
                   child: Text(

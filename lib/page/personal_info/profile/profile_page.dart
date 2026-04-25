@@ -389,7 +389,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.wc_outlined,
-          iconColor: const Color(0xFFFF9500),
+          iconColor: AppColors.iosOrange,
           title: t.gender,
           value: profileNotifier.getGenderText(profileState.gender),
           onTap: () => _editGender(context),
@@ -398,7 +398,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.cake_outlined,
-          iconColor: const Color(0xFFFF3B30),
+          iconColor: AppColors.iosRed,
           title: t.birthday,
           value: profileState.birthday.isEmpty
               ? t.notSet
@@ -409,7 +409,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.location_on_outlined,
-          iconColor: const Color(0xFF34C759),
+          iconColor: AppColors.iosGreen,
           title: t.region,
           value: profileNotifier.formatRegion(profileState.region),
           onTap: () => _editRegion(context),
@@ -439,7 +439,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.phone_outlined,
-          iconColor: const Color(0xFF34C759),
+          iconColor: AppColors.iosGreen,
           title: t.mobile,
           value: profileState.mobile.isEmpty ? t.notSet : profileState.mobile,
           showArrow: false,
@@ -461,7 +461,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.edit_outlined,
-          iconColor: const Color(0xFFFF9500),
+          iconColor: AppColors.iosOrange,
           title: t.personalSignature,
           value: profileState.signature.isEmpty
               ? t.notSet
@@ -506,7 +506,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.school_outlined,
-          iconColor: const Color(0xFF34C759),
+          iconColor: AppColors.iosGreen,
           title: t.school,
           value: profileState.school.isEmpty ? t.notSet : profileState.school,
           onTap: () => _editSchool(context),
@@ -515,7 +515,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.favorite_outline,
-          iconColor: const Color(0xFFFF3B30),
+          iconColor: AppColors.iosRed,
           title: t.hobbiesAndInterests,
           value: profileState.interests.isEmpty
               ? t.notSet
@@ -550,7 +550,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
         _buildInfoItem(
           context: context,
           icon: Icons.privacy_tip_outlined,
-          iconColor: const Color(0xFFFF9500),
+          iconColor: AppColors.iosOrange,
           title: t.privacySettings,
           value: '',
           onTap: () => context.push('/personal_info/privacy_settings'),

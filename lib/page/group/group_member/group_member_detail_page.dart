@@ -11,6 +11,7 @@ import 'package:imboy/service/group_member_mute_service.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -200,7 +201,7 @@ class _GroupMemberDetailPageState
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
               t.confirm,
-              style: const TextStyle(color: Color(0xFFFF3B30)),
+              style: const TextStyle(color: AppColors.iosRed),
             ),
           ),
         ],
@@ -300,7 +301,7 @@ class _GroupMemberDetailPageState
             else
               _buildActionButton(
                 label: t.muteMember,
-                color: const Color(0xFFFF3B30),
+                color: AppColors.iosRed,
                 onTap: _onMuteTap,
               ),
           ],

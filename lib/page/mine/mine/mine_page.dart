@@ -85,7 +85,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                     context,
                     title: t.wallet,
                     icon: Icons.account_balance_wallet_outlined,
-                    iconColor: const Color(0xFFFF9500),
+                    iconColor: AppColors.iosOrange,
                     onTap: () => context.push('/wallet'),
                   ),
                 ]),
