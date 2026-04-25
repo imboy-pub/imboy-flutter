@@ -392,6 +392,19 @@ class AppColors {
   /// 用途：Chat Web 列表 badge、强调按钮、未读高亮，与 [primary] 品牌蓝独立
   static const Color chatWebBrand = Color(0xFF00A884);
 
+  /// Chat Web - 亮色 header / 容器背景（WhatsApp Web 浅灰）
+  /// 用途：Chat Web 搜索框 header、section 分隔背景、icon circular 容器底
+  static const Color chatWebBackgroundLight = Color(0xFFF0F2F5);
+
+  /// Chat Web - 暗色 header / 容器背景（WhatsApp Web 深青）
+  /// 与 [chatWebBackgroundLight] 配对，用于暗色模式同位置
+  static const Color chatWebBackgroundDark = Color(0xFF202C33);
+
+  /// Chat Web - 暗色 input / selected / 高一层 surface（WhatsApp Web 中青）
+  /// 用途：暗色模式输入框 fillColor、列表选中态、圆形 icon 容器；
+  /// 比 [chatWebBackgroundDark] (#202C33) 略浅，制造分层
+  static const Color chatWebSurfaceDark = Color(0xFF2A3942);
+
   // ============ iOS 语义色工具方法 ============
   /// 根据主题亮度获取 iOS 系统蓝
   static Color getIosBlue(Brightness brightness) {

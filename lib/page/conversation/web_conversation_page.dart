@@ -112,7 +112,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
   Widget _buildSearchBar(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
-      color: isDark ? const Color(0xFF202C33) : const Color(0xFFF0F2F5),
+      color: isDark ? AppColors.chatWebBackgroundDark : AppColors.chatWebBackgroundLight,
       child: TextField(
         controller: _searchController,
         focusNode: _searchFocusNode,
@@ -133,7 +133,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
             size: 20,
           ),
           filled: true,
-          fillColor: isDark ? const Color(0xFF2A3942) : Colors.white,
+          fillColor: isDark ? AppColors.chatWebSurfaceDark : Colors.white,
           border: OutlineInputBorder(
             borderRadius: AppRadius.borderRadiusSmall,
             borderSide: BorderSide.none,
@@ -271,7 +271,7 @@ class _WebConversationItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isDark ? const Color(0xFF2A3942) : const Color(0xFFF0F2F5))
+              ? (isDark ? AppColors.chatWebSurfaceDark : AppColors.chatWebBackgroundLight)
               : Colors.transparent,
         ),
         child: Row(

@@ -427,7 +427,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   Widget _buildSearchBar(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
-      color: isDark ? const Color(0xFF202C33) : const Color(0xFFF0F2F5),
+      color: isDark ? AppColors.chatWebBackgroundDark : AppColors.chatWebBackgroundLight,
       child: Row(
         children: [
           // 返回按钮
@@ -458,7 +458,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   fontSize: 15,
                 ),
                 filled: true,
-                fillColor: isDark ? const Color(0xFF2A3942) : Colors.white,
+                fillColor: isDark ? AppColors.chatWebSurfaceDark : Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: AppRadius.borderRadiusSmall,
                   borderSide: BorderSide.none,
@@ -703,7 +703,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   Widget _buildSectionHeader(String title, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isDark ? const Color(0xFF202C33) : const Color(0xFFF0F2F5),
+      color: isDark ? AppColors.chatWebBackgroundDark : AppColors.chatWebBackgroundLight,
       child: Text(
         title,
         style: TextStyle(
@@ -815,7 +815,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A3942) : const Color(0xFFF0F2F5),
+        color: isDark ? AppColors.chatWebSurfaceDark : AppColors.chatWebBackgroundLight,
         shape: BoxShape.circle,
       ),
       child: Icon(
