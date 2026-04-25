@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -134,7 +135,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Column(
                   children: [

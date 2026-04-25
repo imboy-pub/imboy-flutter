@@ -429,7 +429,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
               backgroundColor: canConfirm ? Colors.blue : Colors.grey.shade300,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
               elevation: 0,
             ),

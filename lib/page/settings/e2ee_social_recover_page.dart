@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 社交恢复 - 恢复密钥页面
 /// 零信任架构：通过代理分片恢复密钥
@@ -131,7 +132,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -298,7 +299,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           height: 40,
           decoration: BoxDecoration(
             color: statusColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppRadius.borderRadiusSmall,
           ),
           child: Center(
             child: Text(

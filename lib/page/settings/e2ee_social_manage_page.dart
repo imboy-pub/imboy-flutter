@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 社交恢复 - 管理分片页面
 /// 查看和管理所有恢复分片
@@ -210,7 +211,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                     color: status == 'active'
                         ? Colors.green.shade100
                         : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.borderRadiusSmall,
                   ),
                   child: Text(
                     status == 'active'

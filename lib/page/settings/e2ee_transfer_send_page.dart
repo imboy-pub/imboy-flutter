@@ -6,6 +6,7 @@ import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 密钥传输 - 发送页面
 /// 显示二维码，供新设备扫描
@@ -199,7 +200,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.borderRadiusMedium,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
