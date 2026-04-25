@@ -7,6 +7,15 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
+/// Reaction 表情按钮的最小触达尺寸（pt）。
+///
+/// 来源：DESIGN.md §13.2 Hard Rule 1 / iOS HIG 硬指标 ——
+/// 任何可点击元素最小可触区域 44×44pt。
+///
+/// 视觉气泡（emoji + padding）尺寸保持 ~36pt 不变，
+/// 通过 `BoxConstraints(minWidth/minHeight)` 仅扩展 hit area。
+const double _kReactionMinTouchTarget = 44.0;
+
 /// 消息操作菜单组件
 /// 提供现代化的消息操作界面
 class MessageActionMenu extends StatefulWidget {
@@ -126,29 +135,43 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: reactions.map((emoji) {
+          // 触达层（≥44×44pt，DESIGN.md §13.2 Hard Rule 1）。
+          // 视觉气泡保留原 padding(8)+fontSize(20) 紧凑外观，
+          // 由 ConstrainedBox 把 hit area 扩到 44×44pt。
           return GestureDetector(
+            key: ValueKey('reaction_$emoji'),
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               HapticFeedback.lightImpact();
               widget.onReaction(emoji);
               widget.onClose?.call();
             },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: AppRadius.borderRadiusLarge,
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.2),
-                  width: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: _kReactionMinTouchTarget,
+                minHeight: _kReactionMinTouchTarget,
+              ),
+              child: Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.borderRadiusLarge,
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(emoji, style: const TextStyle(fontSize: 20)),
                 ),
               ),
-              child: Text(emoji, style: const TextStyle(fontSize: 20)),
             ),
           );
         }).toList(),
