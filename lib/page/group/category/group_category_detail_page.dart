@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/group_category_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 群分组详情页面
 class GroupCategoryDetailPage extends StatefulWidget {
@@ -190,7 +191,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.borderRadiusMedium,
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -215,7 +216,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.borderRadiusMedium,
             ),
             child: Column(
               children: [

@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_vote_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 群投票页面
 class GroupVotePage extends ConsumerStatefulWidget {
@@ -197,7 +198,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                     ),
                     decoration: BoxDecoration(
                       color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.borderRadiusMedium,
                     ),
                     child: Text(
                       statusText,

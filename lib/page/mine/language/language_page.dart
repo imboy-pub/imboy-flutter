@@ -300,7 +300,7 @@ class LanguagePage extends ConsumerWidget {
                         Colors.white.withValues(alpha: 0.7),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.borderRadiusMedium,
                     ),
                     textStyle: const TextStyle(
                       fontSize: 17,

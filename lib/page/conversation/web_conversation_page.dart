@@ -134,7 +134,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
           filled: true,
           fillColor: isDark ? const Color(0xFF2A3942) : Colors.white,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppRadius.borderRadiusSmall,
             borderSide: BorderSide.none,
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

@@ -25,6 +25,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 搜索结果类型
 enum SearchItemType {
@@ -458,7 +459,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 filled: true,
                 fillColor: isDark ? const Color(0xFF2A3942) : Colors.white,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.borderRadiusSmall,
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(

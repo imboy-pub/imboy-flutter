@@ -27,6 +27,7 @@ import 'package:imboy/store/api/user_tag_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 朋友圈选择器一次性拉取的标签数量上限。
 ///
@@ -333,13 +334,13 @@ class _MomentFriendPickerPageState
     final fg = selected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.borderRadiusRegular,
       onTap: entry.loading ? null : () => _onTagTap(entry),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.borderRadiusRegular,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
