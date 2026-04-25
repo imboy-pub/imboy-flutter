@@ -1083,7 +1083,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.grey.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.borderRadiusMedium,
           ),
           child: Text(
             dateText,
@@ -1445,7 +1445,7 @@ class _ChannelMessageItem extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: AppRadius.borderRadiusTiny,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1722,7 +1722,7 @@ class _ChannelMessageItem extends StatelessWidget {
         zoomInPhotoView(context, uri);
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         child: Image(
           image: cachedImageProvider(uri, w: 400),
           fit: BoxFit.cover,
@@ -1757,7 +1757,7 @@ class _ChannelMessageItem extends StatelessWidget {
         children: [
           if (thumb != null && thumb.isNotEmpty)
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadius.borderRadiusSmall,
               child: Image(
                 image: cachedImageProvider(thumb, w: 400),
                 fit: BoxFit.cover,
@@ -1770,7 +1770,7 @@ class _ChannelMessageItem extends StatelessWidget {
               height: 180,
               decoration: BoxDecoration(
                 color: Colors.grey.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
             ),
           Container(
@@ -1798,12 +1798,12 @@ class _ChannelMessageItem extends StatelessWidget {
           : () async {
               await _openFile(context, uri);
             },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppRadius.borderRadiusSmall,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.grey.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadius.borderRadiusSmall,
         ),
         child: Row(
           children: [
