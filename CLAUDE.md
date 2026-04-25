@@ -90,6 +90,20 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 ## 变更记录 (Changelog)
 
 ### 2026-04-25
+- **R-3-token-expansion 6 hex → AppColors Token（lib/page 26 文件大面积收编）** / **R-3-token-expansion: 6 hex literals folded into AppColors Tokens across 26 files in lib/page**：
+  - **新增 6 个 Token**（`lib/theme/default/app_colors.dart` +35 行）/ Add 6 new Tokens：
+    - `lightPageBackground (#F5F5F5)` — iOS Settings 风格页面级 Scaffold 背景，21 处使用 / iOS-Settings-style page-level Scaffold bg, 21 sites
+    - `darkSurfaceGroupedTertiary (#2C2C2E)` — iOS HIG `tertiarySystemGroupedBackground dark`，7 处；docstring 标注与 `darkSurfaceVariant (#2C2C2C)` 仅 1 hex 之差但语义不同（Material 3 surface variant vs Apple HIG 严格值）
+    - `iosGray3Dark (#48484A)` — iOS Gray 3 暗色自适应版（Apple HIG 官方），5 处
+    - `chatWebSecondaryLight (#667781)` — Chat Web 风格次级文本（亮色），21 处
+    - `chatWebSecondaryDark (#8696A0)` — Chat Web 风格次级文本（暗色），21 处
+    - `chatWebBrand (#00A884)` — Chat Web 风格品牌强调色（WhatsApp 绿），8 处
+  - **范围**：26 文件 +112/-67 / Scope: 26 files +112/-67：
+    - `lib/theme/default/app_colors.dart`：+35 行 Token 定义（含 docstring）
+    - `lib/page/` 25 文件 hex 字面量 → `AppColors.xxx`（covering update / more / add_friend / people_info / face_to_face / group_detail / personal_info / search_chat / group_list / tag_relation / launch_chat / group_select / change_info / privacy_settings / set_region / e2ee_proxy_selector / e2ee_key_recovery / set_nickname / web_search / web_conversation 等）
+    - 10 文件追加 `import 'package:imboy/theme/default/app_colors.dart'`
+    - **保留区零动**：`ios/*` / `plugin/r_upgrade` / `lib/page/passport/**`
+  - **回归**：`flutter analyze lib/` 零警告；`grep` 兜底 `lib/page/` 6 hex 0 命中（仅 app_colors.dart Token 源头保留）/ Regression: analyzer clean, 0 hex residue in `lib/page/`
 - **A-2 code-reviewer HIGH 回归保护测试落地（NULL 折叠语义钉死）** / **A-2 code-reviewer HIGH regression-protection test for NULL-fold semantics**：
   - `d8b18048` 新增 `test/store/repository/moment_notify_dedup_index_test.dart`（8 个测试，SQLite ffi in-memory）/ add 8 in-memory SQLite tests
     - **正向 7 测**：复用 v21 `uq_moment_notify_dedup` 索引 DDL，钉死 NULL 折叠后重复拦截 / action 区分 / 不同 from_uid / moment_id / user_id 可共存 / 显式空串 `""` 与 NULL 在 COALESCE 下等价
