@@ -23,8 +23,8 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -145,7 +145,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.borderRadiusCell,
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -211,7 +211,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.borderRadiusCell,
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -369,7 +369,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.borderRadiusCell,
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -485,7 +485,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadius.borderRadiusCell,
                 ),
                 child: _buildSettingItem(
                   context,
@@ -560,7 +560,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     foregroundColor: AppColors.iosRed,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.borderRadiusCell,
                     ),
                     elevation: 0,
                   ),
@@ -619,7 +619,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     foregroundColor: AppColors.iosRed,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.borderRadiusCell,
                     ),
                     elevation: 0,
                   ),
@@ -741,7 +741,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     color: (leadingIconColor ?? AppColors.primary).withValues(
                       alpha: 0.1,
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.borderRadiusCell,
                   ),
                   child: Icon(
                     leadingIcon,

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/api/user_api.dart';
 
@@ -69,7 +70,7 @@ class AccountSecurityPage extends ConsumerWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               color: cardColor,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.borderRadiusCell,
             ),
             child: Column(
               children: [

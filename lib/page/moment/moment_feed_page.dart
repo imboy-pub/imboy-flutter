@@ -12,6 +12,7 @@ import 'package:imboy/service/assets.dart'; // 引入 AssetsService
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:octo_image/octo_image.dart';
 
 import 'moment_confirm_dialog.dart';
@@ -701,7 +702,7 @@ class _MomentNotifyEntry extends ConsumerWidget {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.red,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadius.borderRadiusCell,
                 ),
                 constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                 child: Text(

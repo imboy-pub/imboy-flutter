@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -148,7 +149,7 @@ class FontSizePage extends ConsumerWidget {
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: cardColor,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.borderRadiusCell,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

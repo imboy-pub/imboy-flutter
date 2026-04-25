@@ -17,6 +17,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 import 'conversation_provider.dart';
 
@@ -362,7 +363,7 @@ class _WebConversationItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: const Color(0xFF00A884),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.borderRadiusCell,
             ),
             constraints: const BoxConstraints(minWidth: 20),
             child: Text(

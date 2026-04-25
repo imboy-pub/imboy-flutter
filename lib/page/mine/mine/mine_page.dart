@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mine_page.g.dart';
@@ -171,7 +172,7 @@ class _MinePageState extends ConsumerState<MinePage> {
     final theme = Theme.of(context);
     return Material(
       color: theme.cardColor,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: AppRadius.borderRadiusCell,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => context.push('/personal_info/profile'),
@@ -271,7 +272,7 @@ class _MinePageState extends ConsumerState<MinePage> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.borderRadiusCell,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -301,7 +302,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 height: 38,
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadius.borderRadiusCell,
                 ),
                 alignment: Alignment.center,
                 child: Icon(icon, color: iconColor, size: 20),

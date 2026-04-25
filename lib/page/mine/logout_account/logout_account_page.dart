@@ -11,6 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 part 'logout_account_page.g.dart';
 
@@ -120,7 +121,7 @@ class LogoutAccountPage extends ConsumerWidget {
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadius.borderRadiusCell,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
@@ -199,7 +200,7 @@ class LogoutAccountPage extends ConsumerWidget {
                     ),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadius.borderRadiusCell,
                     ),
                   ),
                   child: state.isLoading
