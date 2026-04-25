@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -110,7 +111,7 @@ Future<void> incomingCallScreen(
       backgroundColor: ThemeManager.instance.isDarkMode
           ? const Color.fromRGBO(80, 80, 80, 1)
           : const Color.fromRGBO(240, 240, 240, 1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusCell),
       child: SizedBox(
         width: size.width * 0.8,
         child: Row(

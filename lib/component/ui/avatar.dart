@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 import 'avatar_group.dart';
 
@@ -123,7 +124,7 @@ class Avatar extends StatelessWidget {
       height: height ?? 50,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(4.0),
+        borderRadius: AppRadius.borderRadiusTiny,
         border: Border.all(
           width: 0.5,
           style: BorderStyle.solid,

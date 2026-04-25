@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 part 'message_scroll_provider.g.dart';
 
@@ -410,7 +411,7 @@ class ScrollToBottomButton extends ConsumerWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.borderRadiusLarge,
               onTap: () {
                 manager.scrollToBottom(animated: true);
                 // 清除未读计数

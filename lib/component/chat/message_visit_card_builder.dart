@@ -5,6 +5,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -79,7 +80,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
         return Container(
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.borderRadiusLarge,
           ),
           child: SizedBox(
             width: MediaQuery.of(context).size.width * 0.618,

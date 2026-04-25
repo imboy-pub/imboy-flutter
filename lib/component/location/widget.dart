@@ -5,6 +5,7 @@ import 'package:amap_flutter_map_plus/amap_flutter_map_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'amap_helper.dart';
 import 'package:imboy/i18n/strings.g.dart'; // 确保这个文件中没有使用 niku
@@ -147,7 +148,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
         parallaxOffset: 0.5,
         minHeight: minPanelHeight,
         maxHeight: maxPanelHeight,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         onPanelSlide: (double pos) => setState(() {
           _fabHeightSend = pos * (maxPanelHeight - minPanelHeight) * .5 + 30;
           _fabHeight = pos * (maxPanelHeight - minPanelHeight) * .5 + 16;

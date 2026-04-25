@@ -8,6 +8,7 @@ import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
@@ -273,7 +274,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       constraints: const BoxConstraints(minWidth: 200, minHeight: 60),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
       ),
       child: Center(
         child: Padding(
@@ -293,7 +294,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       constraints: const BoxConstraints(minWidth: 200, minHeight: 60),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
       ),
       child: InkWell(
         onTap: () {
@@ -304,7 +305,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
             _initAudioPath();
           });
         },
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
         child: Padding(
           padding: MessageSpacing.bubblePaddingAll,
           child: Row(
@@ -375,7 +376,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
         boxShadow: [
           BoxShadow(
             color: bgColor.withValues(alpha: 0.2),
@@ -387,7 +388,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.borderRadiusLarge,
           onTap: () => _handlePlayPause(audioPath, msg, duration),
           child: Padding(
             padding: MessageSpacing.bubblePaddingSymmetric,

@@ -10,6 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -630,7 +631,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         decoration:
             widget.decoration ??
             BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: AppRadius.borderRadiusMedium,
               gradient: LinearGradient(
                 colors: [
                   ThemeManager.instance

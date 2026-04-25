@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class ImageView extends StatelessWidget {
   final String uri;
@@ -48,7 +49,7 @@ class ImageView extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(4.0),
+            borderRadius: AppRadius.borderRadiusTiny,
             color: Colors.black26.withValues(alpha: 0.1),
           ),
           child: const Icon(Icons.error),
@@ -69,7 +70,7 @@ class ImageView extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(4.0),
+          borderRadius: AppRadius.borderRadiusTiny,
           color: Colors.black26.withValues(alpha: 0.1),
         ),
         child: Text(t.noData),

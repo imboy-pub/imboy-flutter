@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class VideoControllerOverlay extends StatefulWidget {
   final VideoPlayerController controller;
@@ -207,7 +208,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
               color: const Color(
                 0xCC000000,
               ), // Colors.black.withValues(alpha: 0.8)
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.borderRadiusRegular,
               boxShadow: [
                 BoxShadow(
                   color: const Color(

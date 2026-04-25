@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ShimmerList extends StatelessWidget {
@@ -60,7 +61,7 @@ class ShimmerList extends StatelessWidget {
                         height: 16.0,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(4.0),
+                          borderRadius: AppRadius.borderRadiusTiny,
                         ),
                       ),
                       const SizedBox(height: 8.0),
@@ -70,7 +71,7 @@ class ShimmerList extends StatelessWidget {
                         height: 12.0,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(4.0),
+                          borderRadius: AppRadius.borderRadiusTiny,
                         ),
                       ),
                     ],

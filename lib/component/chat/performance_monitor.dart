@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 聊天性能监控工具（增强版）
 /// 用于监控聊天界面的渲染性能和内存使用
@@ -327,7 +328,7 @@ class _PerformanceMonitorPanelState extends State<PerformanceMonitorPanel> {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

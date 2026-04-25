@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -32,7 +33,7 @@ Widget searchBar(
       hintText: hintText ?? t.search,
       elevation: WidgetStateProperty.all(0),
       shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusSmall),
       ),
       backgroundColor: WidgetStateProperty.all(
         Theme.of(

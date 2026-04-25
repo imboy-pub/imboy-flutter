@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// Web 平台占位符音频组件
 class AudioMessageBuilder extends StatefulWidget {
@@ -48,7 +49,7 @@ class _AudioMessageBuilderStubState extends State<AudioMessageBuilder> {
       constraints: const BoxConstraints(minWidth: 200, minHeight: 60),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
       ),
       child: Padding(
         padding: MessageSpacing.bubblePaddingAll,
