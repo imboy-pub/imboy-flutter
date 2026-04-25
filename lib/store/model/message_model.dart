@@ -173,7 +173,10 @@ class ReEditMessage {
 
 class MessageModel {
   int autoId;
-  int id;
+  // String 类型对齐 backend `binary()` msg_id 契约（imboy/src/ds/message_ds.erl:566
+  // is_non_empty_binary 校验）。Xid 等 base32hex 字符串 ID 在 SQLite INTEGER 列上
+  // 通过 type affinity 直接落库（接收侧 batchInsertOfflineMessages 已是该模式）。
+  String id;
   String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   int fromId; // 等价于数据库的 from
   int toId; // 等价于数据库的 to
@@ -266,7 +269,7 @@ class MessageModel {
     }
 
     return MessageModel(
-      parseModelInt(data[MessageRepo.id]),
+      parseModelString(data[MessageRepo.id]),
       autoId: parseModelInt(data[MessageRepo.autoId]),
       type: type,
       status: parseModelInt(data[MessageRepo.status]),
@@ -1022,7 +1025,7 @@ class MessageModel {
 
     final uid = currentUid ?? UserRepoLocal.to.currentUid;
     return MessageModel(
-      parseModelInt(message.id),
+      message.id,
       autoId: 0,
       type: type,
       fromId: parseModelInt(message.authorId),

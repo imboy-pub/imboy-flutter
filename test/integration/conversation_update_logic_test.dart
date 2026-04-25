@@ -20,7 +20,7 @@ void main() {
       test('新消息到达时应该创建新会话', () {
         // 模拟新消息到达
         final msg = MessageModel(
-          1,
+          '1',
           autoId: 1,
           type: 'C2C',
           status: 11, // 已发送
@@ -34,7 +34,7 @@ void main() {
         );
 
         // 验证会话数据
-        expect(msg.id, 1);
+        expect(msg.id, '1');
         expect(msg.type, 'C2C');
         expect(msg.msgType, 'text');
         expect(msg.status, 11);
@@ -68,7 +68,7 @@ void main() {
 
         for (final type in types) {
           final msg = MessageModel(
-            1,
+            '1',
             autoId: 1,
             type: type,
             status: 11,

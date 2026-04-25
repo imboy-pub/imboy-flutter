@@ -259,7 +259,7 @@ void main() {
 
     group('消息去重机制', () {
       test('应该能够识别重复消息ID', () {
-        const msgId = 90001;
+        const msgId = '90001';
 
         // 第一次添加
         final msg1 = MessageModel(
@@ -293,7 +293,7 @@ void main() {
 
       test('应该保留最新版本的消息', () {
         // 去重策略：保留最新版本（autoId 更大）
-        const msgId = 90002;
+        const msgId = '90002';
 
         final oldMsg = MessageModel(
           msgId,

@@ -614,7 +614,7 @@ class MessageService with EventSubscriptionManager {
       // 创建临时消息对象用于立即显示
       // Create temporary message for immediate UI display
       final tempMsg = MessageModel(
-        parseModelInt(data['id']),
+        parseModelString(data['id']),
         autoId: 0,
         type: chatType,
         fromId: parseModelInt(data['from']),
@@ -861,7 +861,7 @@ class MessageService with EventSubscriptionManager {
         );
       }
       final msg = MessageModel(
-        parseModelInt(msgId),
+        parseModelString(msgId),
         autoId: 0,
         type: chatType, // 消息会话类型 (C2C/C2G/C2S)
         fromId: parseModelInt(data['from']),

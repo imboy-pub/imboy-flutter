@@ -233,7 +233,7 @@ void main() {
     group('新消息到达时的会话更新', () {
       test('新消息到达时应该创建新会话', () async {
         final msg = MessageModel(
-          201,
+          '201',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -256,7 +256,7 @@ void main() {
           subtitle: '新消息',
           msgType: msg.msgType!,
           lastTime: msg.createdAt,
-          lastMsgId: msg.id,
+          lastMsgId: int.tryParse(msg.id) ?? 0,
           unreadNum: 1,
         );
 
@@ -286,7 +286,7 @@ void main() {
 
         // 模拟新消息到达
         final newMsg = MessageModel(
-          202,
+          '202',
           autoId: 2,
           type: 'C2C',
           status: 11,

@@ -605,7 +605,7 @@ void main() {
 
         // 撤回消息
         final revokedMsg = MessageModel(
-          1, // 与会话的最后一条消息相同
+          '1', // 与会话的最后一条消息相同
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.peerRevoked, // 30
@@ -617,7 +617,8 @@ void main() {
         );
 
         // 验证：需要更新会话
-        final shouldUpdate = conv.lastMsgId == revokedMsg.id;
+        // conv.lastMsgId 为 int（旧契约），msg.id 为 String（新契约）
+        final shouldUpdate = conv.lastMsgId.toString() == revokedMsg.id;
 
         expect(shouldUpdate, true);
         expect(revokedMsg.status, 30);
@@ -642,7 +643,7 @@ void main() {
 
         // 撤回更早的消息
         final revokedMsg = MessageModel(
-          50, // 不是最后一条
+          '50', // 不是最后一条
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.peerRevoked,
@@ -654,7 +655,8 @@ void main() {
         );
 
         // 验证：不需要更新会话
-        final shouldUpdate = conv.lastMsgId == revokedMsg.id;
+        // conv.lastMsgId 为 int（旧契约），msg.id 为 String（新契约）
+        final shouldUpdate = conv.lastMsgId.toString() == revokedMsg.id;
 
         expect(shouldUpdate, false);
       });

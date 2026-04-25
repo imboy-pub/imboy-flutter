@@ -685,8 +685,10 @@ class ChatNotifier extends _$ChatNotifier {
     payload['peer_id'] = message.metadata?['peer_id'];
 
     // v2.0: 创建 MessageModel 时设置顶层 msgType 和 action 字段
+    // 修复 #20：直接使用 String 形式的 message.id（Xid 等 base32hex 不能 parse 为 int），
+    // 对齐 backend `binary()` msg_id 契约（imboy/src/ds/message_ds.erl:566）。
     MessageModel obj = MessageModel(
-      int.tryParse(message.id) ?? 0,
+      message.id,
       autoId: 0,
       type: type,
       fromId: int.tryParse(message.authorId) ?? 0,
@@ -770,8 +772,8 @@ class ChatNotifier extends _$ChatNotifier {
           stackTrace,
         );
         EasyLoading.showToast(_getE2EEErrorMessage(e));
-        if (obj.id != 0) {
-          await _updateMessageStatus(obj.id.toString(), IMBoyMessageStatus.error);
+        if (obj.id.isNotEmpty) {
+          await _updateMessageStatus(obj.id, IMBoyMessageStatus.error);
         }
         // fail-close：加密失败时阻止发送，不降级明文
         return false;
@@ -799,11 +801,11 @@ class ChatNotifier extends _$ChatNotifier {
       'created_at': obj.createdAt,
     };
 
-    if (obj.id == 0) {
+    if (obj.id.isEmpty) {
       iPrint('消息ID为空，无法发送');
       return false;
     }
-    return await _sendWithRetry(obj.id.toString(), msg);
+    return await _sendWithRetry(obj.id, msg);
   }
 
   /// 带重试机制的消息发送
@@ -1051,7 +1053,7 @@ class ChatNotifier extends _$ChatNotifier {
       final lastMsg = items.isEmpty ? null : items[0];
 
       MessageModel? finalLastMsg = lastMsg;
-      if (lastMsg != null && lastMsg.id.toString() == msg.id) {
+      if (lastMsg != null && lastMsg.id == msg.id) {
         final moreItems = await mRepo.page(
           conversationUk3: cm.uk3,
           page: 1,
@@ -2200,7 +2202,7 @@ class ChatNotifier extends _$ChatNotifier {
       readAt = nowMs;
       payload['burn_read_at'] = readAt;
       final messageId = item.id;
-      if (messageId != 0) {
+      if (messageId.isNotEmpty) {
         await repo.update({
           MessageRepo.id: messageId,
           MessageRepo.payload: payload,
@@ -2211,7 +2213,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (readAt > 0) {
       await _scheduleBurnDeletion(
         conversation: conversation,
-        messageId: item.id.toString(),
+        messageId: item.id,
         burnAfterMs: burnAfter,
         readAtMs: readAt,
       );

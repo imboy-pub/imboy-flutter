@@ -31,7 +31,7 @@ void main() {
       test('text 消息应该路由到 TextMessage', () async {
         // GIVEN: 一个 text 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -54,7 +54,7 @@ void main() {
       test('image 消息应该路由到 ImageMessage', () async {
         // GIVEN: 一个 image 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -84,7 +84,7 @@ void main() {
       test('file 消息应该路由到 FileMessage', () async {
         // GIVEN: 一个 file 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -113,7 +113,7 @@ void main() {
       test('video 消息应该路由到 VideoMessage', () async {
         // GIVEN: 一个 video 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -139,7 +139,7 @@ void main() {
       test('voice 消息应该路由到 AudioMessage（新规范）', () async {
         // GIVEN: 一个 voice 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -167,7 +167,7 @@ void main() {
       test('location 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 location 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -195,7 +195,7 @@ void main() {
       test('quote 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 quote 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -223,7 +223,7 @@ void main() {
       test('imageMulti 消息应该路由到 CustomMessage', () async {
         // GIVEN: 一个 imageMulti 类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -253,7 +253,7 @@ void main() {
       test('撤回的消息应该保留原始 msg_type 并使用 CustomMessage', () async {
         // GIVEN: 一个撤回的消息
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.peerRevoked, // 30
@@ -281,7 +281,7 @@ void main() {
       test('未知的消息类型应该路由到 CustomMessage 并标记为 unsupported', () async {
         // GIVEN: 一个未知类型的 MessageModel
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,

@@ -49,7 +49,7 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 pull_offline_msg 时', () async {
         // GIVEN: 一个 S2C 消息，action 有效，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 21, // seen
@@ -75,7 +75,7 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 c2c_revoke 时', () async {
         // GIVEN: 一个 S2C 撤回消息，action 有效，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 30, // peer_revoked
@@ -101,7 +101,7 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 apply_friend 时', () async {
         // GIVEN: 一个 S2C 好友申请消息，action 有效，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 21,
@@ -127,7 +127,7 @@ void main() {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 group_member_join 时', () async {
         // GIVEN: 一个 S2C 群成员加入消息，action 有效，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 21,
@@ -157,7 +157,7 @@ void main() {
       test('应该拒绝 S2C 消息当 action 为空且 msg_type 为空时', () async {
         // GIVEN: 一个 S2C 消息，action 和 msg_type 都为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 21,
@@ -184,7 +184,7 @@ void main() {
       test('应该拒绝 S2C 消息当 action 为 null 且 msg_type 为空时', () async {
         // GIVEN: 一个 S2C 消息，action 为 null，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 21,
@@ -211,7 +211,7 @@ void main() {
       test('应该接受 S2C 消息当 msg_type 和 action 都有效时', () async {
         // GIVEN: 一个 S2C 消息，msg_type 和 action 都有效
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'S2C',
           status: 21,
@@ -238,7 +238,7 @@ void main() {
       test('应该拒绝 C2C 消息的空 msg_type', () async {
         // GIVEN: 一个 C2C 消息，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -264,7 +264,7 @@ void main() {
       test('应该拒绝 C2C 消息的 null msg_type', () async {
         // GIVEN: 一个 C2C 消息，msg_type 为 null
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -290,7 +290,7 @@ void main() {
       test('应该正确处理 C2C 消息的有效 msg_type (text)', () async {
         // GIVEN: 一个 C2C 消息，msg_type 有效
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -316,7 +316,7 @@ void main() {
       test('应该正确处理 C2C 消息的有效 msg_type (image)', () async {
         // GIVEN: 一个 C2C 图片消息
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -342,7 +342,7 @@ void main() {
         // 注意：location 需要自定义 UI builder，在 flutter_chat_ui 中被视为 custom 类型
         // 代码会将其标记为 unknown_msg_type，这是预期行为
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -367,7 +367,7 @@ void main() {
       test('应该正确处理 C2C 消息的 visitCard 类型 (小驼峰)', () async {
         // GIVEN: 一个 C2C 名片消息（visitCard 类型）
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -395,7 +395,7 @@ void main() {
       test('应该拒绝 C2C 消息的下划线类型 (visit_card)', () async {
         // GIVEN: 一个 C2C 消息，msg_type=visit_card（非标准命名）
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -430,7 +430,7 @@ void main() {
       test('应该拒绝 C2G 消息的空 msg_type', () async {
         // GIVEN: 一个 C2G 消息，msg_type 为空
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2G',
           status: 11,
@@ -456,7 +456,7 @@ void main() {
       test('应该正确处理 C2G 消息的有效 msg_type', () async {
         // GIVEN: 一个 C2G 消息，msg_type 有效
         final model = MessageModel(
-          123,
+          '123',
           autoId: 1,
           type: 'C2G',
           status: 11,

@@ -102,7 +102,7 @@ class MessageRepo {
   // 数据验证：验证必填字段
   bool _validateMessageData(MessageModel msg) {
     // 验证 ID 不为空
-    if (msg.id == 0) {
+    if (msg.id.isEmpty) {
       debugPrint('MessageRepo: 消息 ID 不能为空');
       return false;
     }
@@ -285,7 +285,7 @@ class MessageRepo {
       // 同步写入 FTS 索引（异步，不阻塞消息插入）
       unawaited(_indexMessageToFts(
         type: msgType,
-        id: msg.id.toString(),
+        id: msg.id,
         conversationUk3: msg.conversationUk3,
         msgTypeField: msg.msgType ?? '',
         payload: msg.payload,
@@ -1426,7 +1426,7 @@ class _InsertedOfflineMessage {
 
   MessageModel toMessageModel() {
     return MessageModel(
-      parseModelInt(id),
+      id,
       autoId: 0,
       type: type,
       fromId: parseModelInt(fromId),

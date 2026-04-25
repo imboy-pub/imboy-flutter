@@ -979,7 +979,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         final payload = _extractPayloadFromMessage(msg);
         msg2 = MessageModel(
           autoId: 0,
-          parseModelInt(msg.id),
+          msg.id,
           type: tb, // 使用表名作为类型
           fromId: parseModelInt(msg.authorId),
           toId: parseModelInt(msg.metadata?['peer_id']),

@@ -68,7 +68,7 @@ class MessageSearchResult {
   /// 转换为 MessageModel
   MessageModel toMessageModel() {
     return MessageModel(
-      parseModelInt(id),
+      id,
       autoId: 0,
       type: type,
       status: status ?? IMBoyMessageStatus.delivered,

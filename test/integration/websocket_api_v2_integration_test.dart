@@ -37,7 +37,7 @@ void main() {
 
         final msg = MessageModel.fromJson(json);
 
-        expect(msg.id, 123);
+        expect(msg.id, '123');
         expect(msg.type, 'C2C');
         expect(msg.msgType, 'text'); // 从顶层读取
         // 修复：空字符串会保持为空字符串，不是 null
@@ -66,7 +66,7 @@ void main() {
 
         final msg = MessageModel.fromJson(json);
 
-        expect(msg.id, 2);
+        expect(msg.id, '2');
         expect(msg.type, 'S2C');
         expect(msg.action ?? '', 'pull_offline_msg'); // 从顶层读取
         // 修复：空字符串解析后保持为空字符串，不是 null
@@ -93,7 +93,7 @@ void main() {
 
         final msg = MessageModel.fromJson(json);
 
-        expect(msg.id, 456);
+        expect(msg.id, '456');
         expect(msg.e2ee, isA<Map>());
         expect(msg.e2ee!['e2ee'], true);
         expect(msg.payload, isA<String>()); // E2EE 消息 payload 是字符串
@@ -101,7 +101,7 @@ void main() {
 
       test('应该正确序列化 C2C 消息到 v2.0 格式', () {
         final msg = MessageModel(
-          789,
+          '789',
           autoId: 1,
           type: 'C2C',
           status: 1,
@@ -126,7 +126,7 @@ void main() {
 
       test('应该正确序列化 S2C 消息到 v2.0 格式', () {
         final msg = MessageModel(
-          456,
+          '456',
           autoId: 1,
           type: 'S2C',
           status: 1,
@@ -158,7 +158,7 @@ void main() {
         };
 
         final msg = MessageModel(
-          500,
+          '500',
           autoId: 1,
           type: 'C2C',
           status: 1,

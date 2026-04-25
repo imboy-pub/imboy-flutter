@@ -155,16 +155,16 @@ class MessageRetry with EventSubscriptionManager {
             final failedMessages = messages.where((msg) {
               return msg.status == status &&
                   msg.isAuthor == 1 && // 只重试自己发送的消息
-                  msg.id != 0; // 确保 msgId 不为零
+                  msg.id.isNotEmpty; // 确保 msgId 非空
             }).toList();
 
             for (final msg in failedMessages) {
               totalFound++;
 
               // 检查消息是否已经在重试队列中
-              if (!_retryQueue.containsKey(msg.id.toString())) {
+              if (!_retryQueue.containsKey(msg.id)) {
                 // 添加到重试队列
-                addToRetryQueue(msg.id.toString(), table);
+                addToRetryQueue(msg.id, table);
                 totalAdded++;
                 iPrint(
                   '✅ [RETRY_SCAN] 添加失败消息到重试队列: msgId=${msg.id}, status=$status, table=$table',

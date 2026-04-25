@@ -81,7 +81,7 @@ void main() {
       test('应该正确判断消息状态', () {
         // 测试状态判断辅助方法
         MessageModel(
-          301,
+          '301',
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.sending,
@@ -93,7 +93,7 @@ void main() {
         );
 
         final errorMsg = MessageModel(
-          302,
+          '302',
           autoId: 2,
           type: 'C2C',
           status: IMBoyMessageStatus.error,
@@ -105,7 +105,7 @@ void main() {
         );
 
         final sentMsg = MessageModel(
-          303,
+          '303',
           autoId: 3,
           type: 'C2C',
           status: IMBoyMessageStatus.sent,
@@ -156,7 +156,7 @@ void main() {
       test('应该判断消息是否为发送状态', () {
         // 测试状态判断辅助方法
         MessageModel(
-          301,
+          '301',
           autoId: 1,
           type: 'C2C',
           status: IMBoyMessageStatus.sending,
@@ -168,7 +168,7 @@ void main() {
         );
 
         final errorMsg = MessageModel(
-          302,
+          '302',
           autoId: 2,
           type: 'C2C',
           status: IMBoyMessageStatus.error,
@@ -180,7 +180,7 @@ void main() {
         );
 
         final sentMsg = MessageModel(
-          303,
+          '303',
           autoId: 3,
           type: 'C2C',
           status: IMBoyMessageStatus.sent,

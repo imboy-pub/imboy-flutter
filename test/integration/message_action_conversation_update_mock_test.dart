@@ -48,7 +48,7 @@ void main() {
 
         // 创建被撤回的消息
         final revokedMsg = MessageModel(
-          401,
+          '401',
           autoId: 1,
           type: 'C2C',
           status: 30, // peerRevoked
@@ -63,7 +63,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        final shouldUpdate = currentConv!.lastMsgId == revokedMsg.id;
+        final shouldUpdate = currentConv!.lastMsgId.toString() == revokedMsg.id;
         expect(shouldUpdate, true);
 
         // 更新会话状态
@@ -96,7 +96,7 @@ void main() {
 
         // 自己撤回消息（status=31）
         final myRevokedMsg = MessageModel(
-          402,
+          '402',
           autoId: 1,
           type: 'C2C',
           status: 31, // myRevoked
@@ -111,7 +111,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        if (currentConv!.lastMsgId == myRevokedMsg.id) {
+        if (currentConv!.lastMsgId.toString() == myRevokedMsg.id) {
           await conversationRepo.updateById(convId, {
             'last_msg_status': 31,
             'subtitle': '你撤回了一条消息',
@@ -141,7 +141,7 @@ void main() {
 
         // 撤回一条旧消息（不是最后一条）
         final oldRevokedMsg = MessageModel(
-          100,
+          '100',
           autoId: 1,
           type: 'C2C',
           status: 30,
@@ -156,7 +156,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        final shouldUpdate = currentConv!.lastMsgId == oldRevokedMsg.id;
+        final shouldUpdate = currentConv!.lastMsgId.toString() == oldRevokedMsg.id;
         expect(shouldUpdate, false);
 
         // 不应该更新会话
@@ -217,7 +217,7 @@ void main() {
         // 编辑消息
         final editedContent = '这是编辑后的消息内容';
         final editedMsg = MessageModel(
-          403,
+          '403',
           autoId: 1,
           type: 'C2C',
           status: 11,
@@ -232,7 +232,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        if (currentConv!.lastMsgId == editedMsg.id) {
+        if (currentConv!.lastMsgId.toString() == editedMsg.id) {
           await conversationRepo.updateById(convId, {
             'subtitle': editedContent,
           });
@@ -313,7 +313,7 @@ void main() {
 
         // 删除最后一条消息，用前一条更新
         final previousMsg = MessageModel(
-          404,
+          '404',
           autoId: 1,
           type: 'C2C',
           status: 11,

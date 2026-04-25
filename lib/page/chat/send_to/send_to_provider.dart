@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:xid/xid.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -47,7 +48,7 @@ class SendToLogic {
 
       // 创建 MessageModel
       final msgModel = MessageModel(
-        0,
+        Xid().toString(),
         autoId: 0,
         type: chatType,
         status: 10, // 发送中
