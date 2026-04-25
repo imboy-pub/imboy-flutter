@@ -24,6 +24,10 @@ class AppColors {
   /// 主色容器上的文本 - Material 3 On Primary Container
   static const Color onPrimaryContainer = Color(0xFF0D47A1);
 
+  /// 标签选中态强调色 - 区别于品牌主蓝 [primary]，用于 Tag 选中背景与文字色
+  /// 选用更亮的天蓝（#649BEC），避免与品牌蓝混淆，保持 Tag 视觉独立性
+  static const Color tagAccent = Color(0xFF649BEC);
+
   // ============ Material 3 次要色系统 ============
   /// 次要色 - Material 3 Secondary - Indigo 400
   static const Color secondary = Color(0xFF5C6BC0);
@@ -68,6 +72,11 @@ class AppColors {
 
   /// 亮色主题 - 表面容器 - Material 3 Surface Container (微信风格浅灰)
   static const Color lightSurfaceContainer = Color(0xFFEDEDED);
+
+  /// 亮色主题 - 表面容器低 - Material 3 Surface Container Low
+  /// 比 [lightSurfaceContainer] 更亮的 Surface 色阶，用于微信风格底部导航栏背景
+  /// （比 AppBar 略亮，营造分层感）
+  static const Color lightSurfaceContainerLow = Color(0xFFF7F7F7);
 
   /// 亮色主题 - 表面容器最高 - Material 3 Surface Container Highest
   static const Color lightSurfaceContainerHighest = Color(0xFFE6E0E9);

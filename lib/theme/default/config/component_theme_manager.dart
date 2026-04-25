@@ -427,7 +427,7 @@ class ComponentThemeManager {
     return BottomNavigationBarThemeData(
       backgroundColor: isDark
           ? AppColors.darkAppBarBackground
-          : const Color(0xFFF7F7F7), // 微信风格底部导航栏背景略亮于AppBar
+          : AppColors.lightSurfaceContainerLow, // 微信风格底部导航栏背景略亮于AppBar
       selectedItemColor: isDark ? AppColors.primaryLight : AppColors.primary,
       unselectedItemColor: isDark
           ? AppColors.darkTextDisabled

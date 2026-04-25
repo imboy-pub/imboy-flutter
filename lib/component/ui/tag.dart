@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 ///
 class TagItem extends StatelessWidget {
@@ -14,8 +15,8 @@ class TagItem extends StatelessWidget {
     required this.tag,
     required this.onTagDelete,
     this.backgroundColor = const Color(0xfff8f8f8),
-    this.selectedBackgroundColor = const Color(0xFF649BEC),
-    this.tagSelectedColor = const Color(0xFF649BEC),
+    this.selectedBackgroundColor = AppColors.tagAccent,
+    this.tagSelectedColor = AppColors.tagAccent,
   });
 
   @override
