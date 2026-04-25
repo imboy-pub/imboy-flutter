@@ -25,7 +25,7 @@ class GlassBottomNavigationBar extends StatelessWidget {
 
     // Background color with opacity for glass effect
     final backgroundColor = isDark
-        ? const Color(0xFF1E1E1E).withValues(alpha: 0.75)
+        ? AppColors.darkSurfaceContainer.withValues(alpha: 0.75)
         : const Color(0xFFF7F7F7).withValues(alpha: 0.85); // WeChat style grey
 
     // Border color to "catch the light"
