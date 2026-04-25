@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class GlassBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -74,7 +75,7 @@ class GlassBottomNavigationBar extends StatelessWidget {
                           color: isSelected
                               ? AppColors.primary.withValues(alpha: 0.15)
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: AppRadius.borderRadiusLarge,
                         ),
                         child: item.iconBuilder != null
                             ? item.iconBuilder!(isSelected)

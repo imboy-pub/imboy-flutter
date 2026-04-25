@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 无数据视图组件 - 使用优化后的主题系统
 class NoDataView extends StatelessWidget {
@@ -47,7 +48,7 @@ class NoDataView extends StatelessWidget {
     return Center(
       child: InkWell(
         onTap: onTop,
-        borderRadius: BorderRadius.circular(12), // 添加圆角点击效果
+        borderRadius: AppRadius.borderRadiusMedium, // 添加圆角点击效果
         child: Container(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -109,7 +110,7 @@ class NoDataView extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: AppRadius.borderRadiusRegular,
                     border: Border.all(
                       color: AppColors.primary.withValues(alpha: 0.2),
                       width: 1,

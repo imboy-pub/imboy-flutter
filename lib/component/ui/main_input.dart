@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 主输入容器组件 - 使用优化后的主题系统
 class MainInputBody extends StatefulWidget {
@@ -34,7 +35,7 @@ class MainInputBodyState extends State<MainInputBody> {
           widget.decoration ??
           BoxDecoration(
             color: defaultColor,
-            borderRadius: widget.borderRadius ?? BorderRadius.circular(8),
+            borderRadius: widget.borderRadius ?? AppRadius.borderRadiusSmall,
             border: Border.all(
               color: Theme.of(
                 context,
@@ -55,7 +56,7 @@ class MainInputBodyState extends State<MainInputBody> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(8),
+          borderRadius: widget.borderRadius ?? AppRadius.borderRadiusSmall,
           onTap: () {
             // 隐藏键盘
             FocusScope.of(context).requestFocus(FocusNode());

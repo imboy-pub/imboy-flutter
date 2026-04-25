@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 // 对话框类型枚举
 enum DialogType {
@@ -178,7 +179,7 @@ class EasyDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusRegular),
       contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
       title: type == DialogType.confirm
           ? Text(
@@ -195,7 +196,7 @@ class EasyDialog extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: dialogColor,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.borderRadiusMedium,
                   ),
                   child: Icon(iconData, size: 24, color: iconColor),
                 ),
@@ -247,7 +248,7 @@ class EasyDialog extends StatelessWidget {
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
             ),
             child: Text(
@@ -268,7 +269,7 @@ class EasyDialog extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
             ),
             child: Text(
@@ -290,7 +291,7 @@ class EasyDialog extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
             ),
             child: Text(

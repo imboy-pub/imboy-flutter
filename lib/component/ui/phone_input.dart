@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 // 条件导入：移动端使用完整的电话号码输入组件
 import 'phone_input_stub.dart'
@@ -100,15 +101,15 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
     final defaultDecoration = InputDecoration(
       hintText: widget.hintText ?? t.phoneInputHint,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -121,7 +122,7 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
         Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppRadius.borderRadiusSmall,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           margin: const EdgeInsets.only(right: 8),

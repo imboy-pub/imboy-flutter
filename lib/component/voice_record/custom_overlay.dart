@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 /// 语音录制悬浮层
@@ -55,7 +56,7 @@ class CustomOverlay extends StatelessWidget {
                   height: height,
                   decoration: BoxDecoration(
                     color: bgColor,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadius.borderRadiusLarge,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.2),
