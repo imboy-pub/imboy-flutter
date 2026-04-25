@@ -312,7 +312,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               decoration: InputDecoration(
                 hintText: context.t.channel.writeMessage,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppRadius.borderRadiusXLarge,
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
@@ -1777,7 +1777,7 @@ class _ChannelMessageItem extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.black54,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: AppRadius.borderRadiusXLarge,
             ),
             child: const Icon(Icons.play_arrow, color: Colors.white, size: 32),
           ),

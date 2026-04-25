@@ -559,7 +559,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                 hintText: t.channel.searchContactsHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppRadius.borderRadiusXLarge,
                   borderSide: BorderSide.none,
                 ),
                 filled: true,

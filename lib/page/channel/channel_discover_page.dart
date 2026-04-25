@@ -8,6 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'channel_provider.dart';
@@ -155,7 +156,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                       )
                     : null,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppRadius.borderRadiusXLarge,
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
