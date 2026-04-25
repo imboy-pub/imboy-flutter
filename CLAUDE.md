@@ -111,6 +111,22 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
     - 反例钉死旧 bug（`int.tryParse(xid)` 必然 null → 回退 0）/ Counter-example pins old bug
     - 空字符串 ID 业务层拦截 / Empty string ID business-layer guard
   - **回归**：`flutter analyze` 零警告；`flutter test` 2718/2718 绿（11 skip + 4 新）；保留区 `ios/*` + `plugin/r_upgrade` 未动 / Regression: analyzer clean, 2718/2718 tests green (+4 new), preservation zones untouched
+- **R-3-token-expansion#3 Chat Web divider/surfaceDarkest + Material info 蓝（5 文件 14 hex → Token）** / **R-3-token-expansion#3: Chat Web divider/surfaceDarkest + Material info blue, 14 hex literals folded into AppColors Tokens across 5 files**：
+  - **新增 5 个 Token**（`lib/theme/default/app_colors.dart` +22 行）/ Add 5 new Tokens：
+    - `chatWebDividerLight (#E9EDEF)` — Chat Web 风格亮色分隔线/边框，3 处使用 / Chat Web light divider, 3 sites
+    - `chatWebDividerDark (#3B4A54)` — Chat Web 风格暗色分隔线/边框，3 处使用 / Chat Web dark divider, 3 sites
+    - `chatWebSurfaceDarkest (#111B21)` — Chat Web 最深暗 surface（Black 近黑），比 `chatWebBackgroundDark` 更深，2 处使用 / Chat Web darkest surface, 2 sites
+    - `infoBlueContainer (#E1F5FE)` — Material Blue 50 信息容器底色（中性信息态色对），3 处使用 / Material Blue 50 info container, 3 sites
+    - `infoBlue (#0277BD)` — Material Blue 700 信息强调色 / icon 色，3 处使用 / Material Blue 700 info emphasis / icon color, 3 sites
+  - **范围**：6 文件 +38/-23 / Scope: 6 files +38/-23：
+    - `lib/theme/default/app_colors.dart`：+22 行 Token 定义（含 docstring）
+    - `lib/page/conversation/web_conversation_page.dart`：3 处替换
+    - `lib/page/search/web_search_page.dart`：5 处替换
+    - `lib/page/mine/user_device/user_device_page.dart`：2 处替换
+    - `lib/page/mine/user_device/user_device_detail_page.dart`：2 处替换
+    - `lib/page/mine/user_collect/user_collect_detail_page.dart`：2 处替换
+    - **保留区零动**：`ios/*` / `macos/*` / `plugin/r_upgrade`
+  - **回归**：6 文件 `flutter analyze` 零警告；`grep` 兜底 `lib/page/` 5 hex 0 命中（仅 app_colors.dart Token 源头保留）/ Regression: analyzer clean, 0 hex residue in `lib/page/`
 - **R-3-token-expansion 6 hex → AppColors Token（lib/page 26 文件大面积收编）** / **R-3-token-expansion: 6 hex literals folded into AppColors Tokens across 26 files in lib/page**：
   - **新增 6 个 Token**（`lib/theme/default/app_colors.dart` +35 行）/ Add 6 new Tokens：
     - `lightPageBackground (#F5F5F5)` — iOS Settings 风格页面级 Scaffold 背景，21 处使用 / iOS-Settings-style page-level Scaffold bg, 21 sites
