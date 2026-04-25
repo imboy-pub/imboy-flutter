@@ -140,7 +140,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       pinned: true,
       elevation: 0,
       backgroundColor: isDark
-          ? const Color(0xFF1E1E1E).withValues(alpha: 0.75)
+          ? AppColors.darkSurfaceContainer.withValues(alpha: 0.75)
           : Colors.white.withValues(alpha: 0.75),
       flexibleSpace: ClipRect(
         child: BackdropFilter(

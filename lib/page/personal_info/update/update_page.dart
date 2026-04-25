@@ -265,7 +265,7 @@ class UpdatePage extends ConsumerWidget {
                 counterStyle: TextStyle(
                   fontSize: 12,
                   color: isDark
-                      ? const Color(0xFF8E8E93)
+                      ? AppColors.iosGray
                       : const Color(0xFF999999),
                 ),
               ),

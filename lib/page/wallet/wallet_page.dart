@@ -188,7 +188,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
 
             // Payment Functions Grid (Money, Cards)
             Container(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: isDark ? AppColors.darkSurfaceContainer : Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -248,7 +248,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
 
             // Services Grid
             Container(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: isDark ? AppColors.darkSurfaceContainer : Colors.white,
               child: GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -386,7 +386,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           ),
         ),
         Container(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? AppColors.darkSurfaceContainer : Colors.white,
           child: walletState.transactions.isEmpty && !walletState.isTxLoading
               ? Padding(
                   padding: const EdgeInsets.all(32),

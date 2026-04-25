@@ -271,7 +271,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 borderSide: BorderSide(
                   color: isSelected
                       ? (Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFF1E1E1E)
+                            ? AppColors.darkSurfaceContainer
                             : Colors.white)
                       : Theme.of(context).colorScheme.surface,
                   width: 2,
