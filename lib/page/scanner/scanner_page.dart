@@ -15,6 +15,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/page/scanner/qr_login_confirm_page.dart';
+import 'package:imboy/page/scanner/qr_login_intent.dart';
 import 'package:imboy/page/scanner/scanner_result_page.dart';
 import 'package:imboy/page/scanner/scanner_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -91,6 +93,21 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
 
     final barcodeStr = barcodes.barcodes.last.rawValue;
     if (barcodeStr == null) {
+      return;
+    }
+
+    // slice-4: 优先识别 web 登录 QR（imboy://qr_login/<token> 私有 scheme），
+    // 不命中再 fallback 到现有 user/group/channel HTTP URL 名片识别。
+    final intent = detectQrLoginIntent(barcodeStr);
+    if (intent is QrLoginIntentWebLogin) {
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) =>
+              QrLoginConfirmPage(qrToken: intent.qrToken),
+        ),
+      );
       return;
     }
 

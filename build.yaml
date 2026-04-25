@@ -143,6 +143,7 @@ targets:
           - lib/theme/providers/theme_provider.dart
           # Scanner 模块
           - lib/page/scanner/scanner_provider.dart
+          - lib/page/scanner/qr_login_confirm_provider.dart
           # Service 模块
           - lib/service/notification_provider.dart
           - lib/service/voice_playback_service.dart

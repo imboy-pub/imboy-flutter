@@ -9,7 +9,7 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +22,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
+import 'package:imboy/page/passport/qr_login_response_rules.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/secure_token_storage_service.dart';
 
@@ -104,23 +105,28 @@ class QRLogin extends _$QRLogin {
         },
       );
 
-      if (response.ok && response.payload != null) {
-        final data = response.payload;
-        state = QRLoginState(
-          status: QRLoginStatus.waiting,
-          qrData: data['qr_token'] as String?,
-          sessionToken: data['session_token'] as String?,
-          remainingSeconds: 60,
-        );
-
-        // 开始轮询检查扫码状态
-        _startPolling();
-        _startExpireTimer();
-      } else {
-        state = QRLoginState(
-          status: QRLoginStatus.failed,
-          errorMessage: t.webQRGenerateFailed,
-        );
+      // slice-5b：委托纯函数解析（27 测覆盖契约：qr_token / session_token /
+      // expires_in / 字段缺失 / 非法类型等）。
+      switch (parseQrCreateResponse(
+          ok: response.ok, payload: response.payload)) {
+        case QrCreateSuccess(
+            :final qrToken,
+            :final sessionToken,
+            :final expiresInSeconds,
+          ):
+          state = QRLoginState(
+            status: QRLoginStatus.waiting,
+            qrData: qrToken,
+            sessionToken: sessionToken,
+            remainingSeconds: expiresInSeconds,
+          );
+          _startPolling();
+          _startExpireTimer();
+        case QrCreateFailure():
+          state = QRLoginState(
+            status: QRLoginStatus.failed,
+            errorMessage: t.webQRGenerateFailed,
+          );
       }
     } catch (e) {
       state = QRLoginState(
@@ -147,37 +153,42 @@ class QRLogin extends _$QRLogin {
           },
         );
 
-        // 如果返回错误（HTTP 错误或业务 code 不为 0），停止轮询
-        if (!response.ok || response.code != 0) {
-          timer.cancel();
-          return;
-        }
-
-        if (response.payload != null) {
-          final data = response.payload;
-          final statusStr = data['status'] as String?;
-
-          switch (statusStr) {
-            case 'scanned':
-              state = state.copyWith(status: QRLoginStatus.scanned);
-              break;
-            case 'confirmed':
-              state = state.copyWith(status: QRLoginStatus.confirming);
-              // 获取 token 并完成登录
-              await _completeLogin(data['token'] as String?);
-              break;
-            case 'expired':
-              state = state.copyWith(status: QRLoginStatus.expired);
+        // slice-5b：委托纯函数解析（27 测覆盖契约：6 status 字符串 /
+        // confirmed+token 防御 / payload 非 Map 等）。
+        final event = parseQrStatusResponse(
+          ok: response.ok,
+          code: response.code,
+          payload: response.payload,
+        );
+        switch (event) {
+          case QrStatusStopPolling():
+            timer.cancel();
+            return;
+          case QrStatusWaiting():
+            return; // 继续轮询
+          case QrStatusScanned():
+            state = state.copyWith(status: QRLoginStatus.scanned);
+          case QrStatusConfirmed(:final token):
+            state = state.copyWith(status: QRLoginStatus.confirming);
+            await _completeLogin(token);
+          case QrStatusExpired():
+            state = state.copyWith(status: QRLoginStatus.expired);
+            timer.cancel();
+          case QrStatusCancelled():
+            state = state.copyWith(status: QRLoginStatus.waiting);
+            await generateQRCode();
+          case QrStatusUnknown(:final rawStatus):
+            // 协议违反：confirmed 但 token 为空（后端契约保证不会发生，但客户端
+            // 防御性处理，保留原 Notifier 行为：状态机退回 failed）。
+            if (rawStatus == 'confirmed') {
+              state = state.copyWith(
+                status: QRLoginStatus.failed,
+                errorMessage: t.webQRTokenInvalid,
+              );
               timer.cancel();
-              break;
-            case 'cancelled':
-              state = state.copyWith(status: QRLoginStatus.waiting);
-              await generateQRCode();
-              break;
-            case 'waiting':
-              // 继续等待，不需要特殊处理
-              break;
-          }
+            } else if (kDebugMode) {
+              debugPrint('qr_login unknown status: $rawStatus');
+            }
         }
       } catch (e) {
         debugPrint('轮询扫码状态失败: $e');
@@ -555,8 +566,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             ),
           );
         }
+        // 私有 scheme 包装，便于手机端 scanner 通过 detectQrLoginIntent 识别
+        // 为 web 登录 QR（与 user/group/channel HTTP URL 名片命名空间隔离）。
         return QrImageView(
-          data: qrState.qrData!,
+          data: 'imboy://qr_login/${qrState.qrData!}',
           version: QrVersions.auto,
           size: 224,
           backgroundColor: Colors.white,
