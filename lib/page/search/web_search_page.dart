@@ -25,6 +25,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 搜索结果类型
@@ -433,7 +434,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           IconButton(
             icon: Icon(
               Icons.arrow_back,
-              color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+              color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
             ),
             onPressed: () => context.pop(),
           ),
@@ -452,8 +453,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 hintText: t.search,
                 hintStyle: TextStyle(
                   color: isDark
-                      ? const Color(0xFF8696A0)
-                      : const Color(0xFF667781),
+                      ? AppColors.chatWebSecondaryDark
+                      : AppColors.chatWebSecondaryLight,
                   fontSize: 15,
                 ),
                 filled: true,
@@ -471,8 +472,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                         icon: Icon(
                           Icons.clear,
                           color: isDark
-                              ? const Color(0xFF8696A0)
-                              : const Color(0xFF667781),
+                              ? AppColors.chatWebSecondaryDark
+                              : AppColors.chatWebSecondaryLight,
                           size: 18,
                         ),
                         onPressed: () {
@@ -496,13 +497,13 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Color(0xFF00A884),
+            color: AppColors.chatWebBrand,
           ),
           const SizedBox(height: 16),
           Text(
             t.search,
             style: TextStyle(
-              color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+              color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
               fontSize: 14,
             ),
           ),
@@ -528,7 +529,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               t.searchChatContent,
               style: TextStyle(
                 color:
-                    isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                    isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
                 fontSize: 14,
               ),
             ),
@@ -550,7 +551,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 t.searchHistory,
                 style: TextStyle(
                   color:
-                      isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                      isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -560,7 +561,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 child: Text(
                   t.clear,
                   style: const TextStyle(
-                    color: Color(0xFF00A884),
+                    color: AppColors.chatWebBrand,
                     fontSize: 14,
                   ),
                 ),
@@ -579,8 +580,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 leading: Icon(
                   Icons.history,
                   color: isDark
-                      ? const Color(0xFF8696A0)
-                      : const Color(0xFF667781),
+                      ? AppColors.chatWebSecondaryDark
+                      : AppColors.chatWebSecondaryLight,
                 ),
                 title: Text(
                   search,
@@ -593,8 +594,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   icon: Icon(
                     Icons.north_west,
                     color: isDark
-                        ? const Color(0xFF8696A0)
-                        : const Color(0xFF667781),
+                        ? AppColors.chatWebSecondaryDark
+                        : AppColors.chatWebSecondaryLight,
                     size: 18,
                   ),
                   onPressed: () {
@@ -654,7 +655,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               '${t.search}: "${_state.query}"',
               style: TextStyle(
                 color:
-                    isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                    isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -706,7 +707,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       child: Text(
         title,
         style: TextStyle(
-          color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+          color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -721,7 +722,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       words[item.highlightText!.toLowerCase()] = HighlightedWord(
         textStyle: TextStyle(
           color: isDark ? Colors.white : Colors.black,
-          backgroundColor: const Color(0xFF00A884).withAlpha(50),
+          backgroundColor: AppColors.chatWebBrand.withAlpha(50),
           fontWeight: FontWeight.bold,
         ),
       );
@@ -759,8 +760,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                       words: words,
                       textStyle: TextStyle(
                         color: isDark
-                            ? const Color(0xFF8696A0)
-                            : const Color(0xFF667781),
+                            ? AppColors.chatWebSecondaryDark
+                            : AppColors.chatWebSecondaryLight,
                         fontSize: 13,
                       ),
                       maxLines: 2,
@@ -781,7 +782,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 ),
                 style: TextStyle(
                   color:
-                      isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                      isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
                   fontSize: 12,
                 ),
               ),
@@ -819,7 +820,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       ),
       child: Icon(
         iconData,
-        color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+        color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
         size: 24,
       ),
     );

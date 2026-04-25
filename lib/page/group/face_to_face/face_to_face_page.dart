@@ -40,7 +40,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
           tooltip: t.buttonBack,
         ),
       ),
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       body: Column(
         children: [
           // 使用 Expanded 包裹可滚动内容，确保不会溢出

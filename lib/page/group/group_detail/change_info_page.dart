@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 import 'change_info_provider.dart';
@@ -82,7 +83,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: widget.title),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),

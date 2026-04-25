@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -26,7 +27,7 @@ class SetGenderPage extends ConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(title: t.gender, automaticallyImplyLeading: true),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

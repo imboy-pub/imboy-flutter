@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'people_info_more_provider.dart';
 import 'people_info_same_group_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 用户更多信息页面
@@ -282,7 +283,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.socialProfile,

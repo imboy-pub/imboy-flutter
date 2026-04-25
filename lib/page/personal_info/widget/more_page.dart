@@ -21,7 +21,7 @@ class MorePage extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(title: t.moreInfo, automaticallyImplyLeading: true),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

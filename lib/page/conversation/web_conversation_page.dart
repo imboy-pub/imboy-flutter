@@ -17,6 +17,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 import 'conversation_provider.dart';
@@ -123,12 +124,12 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
         decoration: InputDecoration(
           hintText: t.search,
           hintStyle: TextStyle(
-            color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+            color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
             fontSize: 14,
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+            color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
             size: 20,
           ),
           filled: true,
@@ -143,8 +144,8 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
                   icon: Icon(
                     Icons.clear,
                     color: isDark
-                        ? const Color(0xFF8696A0)
-                        : const Color(0xFF667781),
+                        ? AppColors.chatWebSecondaryDark
+                        : AppColors.chatWebSecondaryLight,
                     size: 18,
                   ),
                   onPressed: () {
@@ -165,20 +166,20 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isDark ? const Color(0xFF00A884).withAlpha(30) : const Color(0xFF00A884).withAlpha(20),
+      color: isDark ? AppColors.chatWebBrand.withAlpha(30) : AppColors.chatWebBrand.withAlpha(20),
       child: Row(
         children: [
           const Icon(
             Icons.cloud_off,
             size: 16,
-            color: Color(0xFF00A884),
+            color: AppColors.chatWebBrand,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
               style: const TextStyle(
-                color: Color(0xFF00A884),
+                color: AppColors.chatWebBrand,
                 fontSize: 12,
               ),
             ),
@@ -204,7 +205,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
             Text(
               t.searchChatRecord,
               style: TextStyle(
-                color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
                 fontSize: 14,
               ),
             ),
@@ -326,7 +327,7 @@ class _WebConversationItem extends StatelessWidget {
         Text(
           DateTimeHelper.lastTimeFmt(conversation.lastTime),
           style: TextStyle(
-            color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+            color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
             fontSize: 12,
           ),
         ),
@@ -348,7 +349,7 @@ class _WebConversationItem extends StatelessWidget {
           child: Text(
             conversation.subtitle,
             style: TextStyle(
-              color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+              color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
               fontSize: 14,
             ),
             overflow: TextOverflow.ellipsis,
@@ -362,7 +363,7 @@ class _WebConversationItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFF00A884),
+              color: AppColors.chatWebBrand,
               borderRadius: AppRadius.borderRadiusCell,
             ),
             constraints: const BoxConstraints(minWidth: 20),
@@ -395,14 +396,14 @@ class _WebConversationItem extends StatelessWidget {
       return Icon(
         Icons.access_time,
         size: 14,
-        color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+        color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
       );
     } else if (status == 11) {
       // 已发送
       return Icon(
         Icons.done,
         size: 14,
-        color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+        color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
       );
     }
     return const SizedBox.shrink();

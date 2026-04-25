@@ -14,6 +14,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 import 'group_list_provider.dart';
@@ -147,7 +148,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     final state = ref.watch(groupListProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         titleWidget: Text("${t.groupChat}(${state.groupList.length})"),
         automaticallyImplyLeading: true,

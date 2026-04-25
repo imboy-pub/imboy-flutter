@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/group/group_select/group_select_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class GroupSelectPage extends ConsumerStatefulWidget {
   const GroupSelectPage({super.key});
@@ -48,7 +49,7 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
     return Scaffold(
       backgroundColor: isDark
           ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: t.selectGroup,
         automaticallyImplyLeading: true,

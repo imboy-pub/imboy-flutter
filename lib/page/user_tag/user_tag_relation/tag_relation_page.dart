@@ -245,7 +245,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
     return Scaffold(
       backgroundColor: isDark
           ? Theme.of(context).colorScheme.surface
-          : const Color(0xFFF5F5F5),
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Text(widget.title ?? t.editTags),

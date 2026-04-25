@@ -52,7 +52,7 @@ class UpdatePage extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(
@@ -64,7 +64,7 @@ class UpdatePage extends ConsumerWidget {
                 color: state.valueChanged
                     ? AppColors.primary
                     : (isDark
-                          ? const Color(0xFF48484A)
+                          ? AppColors.iosGray3Dark
                           : AppColors.lightBorder),
                 borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
               ),
@@ -253,7 +253,7 @@ class UpdatePage extends ConsumerWidget {
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: isDark
-                      ? const Color(0xFF48484A)
+                      ? AppColors.iosGray3Dark
                       : const Color(0xFFCCCCCC),
                 ),
                 filled: false,

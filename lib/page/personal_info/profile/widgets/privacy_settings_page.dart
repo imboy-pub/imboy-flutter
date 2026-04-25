@@ -150,7 +150,7 @@ class PrivacySettingsPage extends ConsumerWidget {
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
             borderRadius: AppRadius.borderRadiusMedium,
             boxShadow: [
               BoxShadow(
@@ -176,7 +176,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                       child: Container(
                         height: 0.3,
                         color: isDark
-                            ? const Color(0xFF48484A)
+                            ? AppColors.iosGray3Dark
                             : AppColors.lightDivider,
                       ),
                     ),

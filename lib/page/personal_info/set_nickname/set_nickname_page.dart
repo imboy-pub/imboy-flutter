@@ -82,7 +82,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
               color: state.canSave && !state.isSaving
                   ? AppColors.primary
                   : (isDark
-                        ? const Color(0xFF48484A)
+                        ? AppColors.iosGray3Dark
                         : AppColors.lightBorder),
               borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
             ),

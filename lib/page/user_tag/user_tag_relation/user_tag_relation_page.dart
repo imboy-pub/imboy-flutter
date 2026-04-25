@@ -242,7 +242,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: widget.title ?? t.addTag,
         automaticallyImplyLeading: true,
@@ -264,7 +264,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                   context,
                   backgroundColor: isDark
                       ? colorScheme.surface
-                      : const Color(0xFFF5F5F5),
+                      : AppColors.lightPageBackground,
                   choiceChipTheme: ChoiceChipThemeData(
                     backgroundColor: isDark ? Colors.black12 : Colors.white,
                     selectedBackgroundColor: isDark
@@ -323,7 +323,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                   headerTheme: HeaderThemeData(
                     backgroundColor: isDark
                         ? colorScheme.surface
-                        : const Color(0xFFF5F5F5),
+                        : AppColors.lightPageBackground,
                   ),
                 ),
                 onApplyButtonClick: (list) async {

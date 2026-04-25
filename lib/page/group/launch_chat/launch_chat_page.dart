@@ -116,7 +116,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: t.selectContacts,
         leadingWidth: 72,

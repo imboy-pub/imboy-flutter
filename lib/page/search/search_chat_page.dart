@@ -965,7 +965,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? Theme.of(context).colorScheme.surface
-            : const Color(0xFFF5F5F5),
+            : AppColors.lightPageBackground,
       ),
       child: Row(
         children: [

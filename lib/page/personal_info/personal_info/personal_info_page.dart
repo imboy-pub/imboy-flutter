@@ -396,7 +396,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: t.personalInformation,
         automaticallyImplyLeading: true,

@@ -6,6 +6,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 社交恢复 - 好友选择器页面
@@ -328,7 +329,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
             ? (isDark
                   ? Colors.blue.withValues(alpha: 0.2)
                   : Colors.blue.withValues(alpha: 0.1))
-            : (isDark ? const Color(0xFF2C2C2E) : Colors.white),
+            : (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
           color: isSelected ? Colors.blue : Colors.transparent,
@@ -409,7 +410,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

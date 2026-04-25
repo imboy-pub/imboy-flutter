@@ -201,7 +201,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     final service = ref.read(groupDetailServiceProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         leading: IconButton(
           icon: Icon(

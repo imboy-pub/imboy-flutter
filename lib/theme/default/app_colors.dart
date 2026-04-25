@@ -78,6 +78,13 @@ class AppColors {
   /// （比 AppBar 略亮，营造分层感）
   static const Color lightSurfaceContainerLow = Color(0xFFF7F7F7);
 
+  /// 亮色主题 - 页面级 Scaffold 背景（iOS Settings 风格）
+  /// 介于 [lightSurfaceContainerLow] (#F7F7F7) 与 [lightSurfaceContainer] (#EDEDED) 之间，
+  /// 用于个人信息 / 群详情 / 联系人详情等设置页 Scaffold backgroundColor，
+  /// 暗色模式下对应 [Theme.colorScheme.surface]。
+  /// 与 [lightSurfaceGrouped] (#F2F2F7, iOS HIG 标准) 并存，本 Token 略浅、更接近 macOS 风格。
+  static const Color lightPageBackground = Color(0xFFF5F5F5);
+
   /// 亮色主题 - 表面容器最高 - Material 3 Surface Container Highest
   static const Color lightSurfaceContainerHighest = Color(0xFFE6E0E9);
 
@@ -330,6 +337,10 @@ class AppColors {
   /// iOS Gray 3 - 分隔线默认色（亮色模式）
   static const Color iosGray3 = Color(0xFFC7C7CC);
 
+  /// iOS Gray 3 - 暗色模式自适应版（Apple HIG 官方）
+  /// 用途：暗色模式下 grouped 列表内的分组分隔线、disabled 按钮背景、placeholder 文字色
+  static const Color iosGray3Dark = Color(0xFF48484A);
+
   /// iOS Gray 4
   static const Color iosGray4 = Color(0xFFD1D1D6);
 
@@ -356,6 +367,30 @@ class AppColors {
 
   /// 暗色主题 - 分组列表页背景（OLED 纯黑）
   static const Color darkSurfaceGroupedOled = Color(0xFF000000);
+
+  /// 暗色主题 - 三级分组卡片背景（iOS HIG tertiarySystemGroupedBackground dark）
+  /// 用途：暗色模式 grouped 列表内的卡片 Container（与亮色 [Colors.white] 配对），
+  /// 比 [darkSurfaceGrouped] (#1C1C1E) 略浅，制造分层。
+  /// 注意：与 [darkSurfaceVariant] (#2C2C2C) 仅 1 位 hex 之差，
+  ///       但 darkSurfaceVariant 是 Material 3 surface variant，
+  ///       本 Token 是 Apple HIG 严格值，语义不同应分别使用。
+  static const Color darkSurfaceGroupedTertiary = Color(0xFF2C2C2E);
+
+  // ============ Chat Web 风格颜色（WhatsApp Web 主题） ============
+  // 用于 web_conversation_page / web_search_page 的桌面 / Web Chat 风格界面，
+  // 视觉语言独立于品牌主蓝（#2474E5）与 iOS 系统蓝（#007AFF）。
+
+  /// Chat Web - 次级文本色（亮色模式，WhatsApp 灰）
+  /// 用途：Chat Web 列表项时间戳、副标题、辅助说明文字
+  static const Color chatWebSecondaryLight = Color(0xFF667781);
+
+  /// Chat Web - 次级文本色（暗色模式，WhatsApp 灰）
+  /// 与 [chatWebSecondaryLight] 配对使用
+  static const Color chatWebSecondaryDark = Color(0xFF8696A0);
+
+  /// Chat Web - 品牌强调色（WhatsApp 绿）
+  /// 用途：Chat Web 列表 badge、强调按钮、未读高亮，与 [primary] 品牌蓝独立
+  static const Color chatWebBrand = Color(0xFF00A884);
 
   // ============ iOS 语义色工具方法 ============
   /// 根据主题亮度获取 iOS 系统蓝

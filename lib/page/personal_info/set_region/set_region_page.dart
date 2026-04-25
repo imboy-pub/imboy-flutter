@@ -174,7 +174,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
               color: state.hasChanged
                   ? AppColors.primary
                   : (isDark
-                        ? const Color(0xFF48484A)
+                        ? AppColors.iosGray3Dark
                         : AppColors.lightBorder),
               borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
             ),
@@ -237,7 +237,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
               padding: EdgeInsets.all(AppSpacing.regular * 2),
               margin: EdgeInsets.all(AppSpacing.regular * 2),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
                 borderRadius: AppRadius.borderRadiusMedium,
                 boxShadow: [
                   BoxShadow(
