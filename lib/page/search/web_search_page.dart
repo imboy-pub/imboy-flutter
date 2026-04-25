@@ -404,7 +404,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? const Color(0xFF111B21) : Colors.white,
+      color: isDark ? AppColors.chatWebSurfaceDarkest : Colors.white,
       child: Column(
         children: [
           // 搜索栏
@@ -522,7 +522,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             Icon(
               Icons.search,
               size: 64,
-              color: isDark ? const Color(0xFF3B4A54) : const Color(0xFFE9EDEF),
+              color: isDark ? AppColors.chatWebDividerDark : AppColors.chatWebDividerLight,
             ),
             const SizedBox(height: 16),
             Text(
@@ -648,7 +648,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: isDark ? const Color(0xFF3B4A54) : const Color(0xFFE9EDEF),
+              color: isDark ? AppColors.chatWebDividerDark : AppColors.chatWebDividerLight,
             ),
             const SizedBox(height: 16),
             Text(

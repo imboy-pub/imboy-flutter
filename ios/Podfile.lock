@@ -70,7 +70,7 @@ PODS:
     - Firebase/Messaging (= 12.12.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (12.12.0):
+  - FirebaseCore (12.12.1):
     - FirebaseCoreInternal (~> 12.12.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
@@ -419,7 +419,7 @@ SPEC CHECKSUMS:
   Firebase: aa154fee4e9b8eac17aa42344988865b3e857d33
   firebase_core: 9156a152117c843440b0b990c785aa0259bc5447
   firebase_messaging: 0d962ab44ff24ed36deb8fa2ee043c4671858269
-  FirebaseCore: f28af0427998cd53f8d4826bce17260e33224053
+  FirebaseCore: 86241206e656f5c80c995e370e6c975913b9b284
   FirebaseCoreInternal: 7c12fc3011d889085e765e317d7b9fd1cef97af9
   FirebaseInstallations: 4e6e162aa4abaaeeeb01dd00179dfc5ad9c2194e
   FirebaseMessaging: 341004946fa7ffc741344b20f1b667514fc93e31

@@ -74,7 +74,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
       decoration: BoxDecoration(
         color: isDark
             ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : const Color(0xFFE1F5FE),
+            : AppColors.infoBlueContainer,
         borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Row(
@@ -89,7 +89,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                     ? Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.8)
-                    : const Color(0xFF0277BD),
+                    : AppColors.infoBlue,
                 height: 1.4,
                 fontSize: 13,
               ),

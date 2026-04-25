@@ -87,7 +87,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? const Color(0xFF111B21) : const Color(0xFFFFFFFF),
+      color: isDark ? AppColors.chatWebSurfaceDarkest : const Color(0xFFFFFFFF),
       child: Column(
         children: [
           // 顶部搜索栏
@@ -199,7 +199,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
             Icon(
               Icons.search,
               size: 64,
-              color: isDark ? const Color(0xFF3B4A54) : const Color(0xFFE9EDEF),
+              color: isDark ? AppColors.chatWebDividerDark : AppColors.chatWebDividerLight,
             ),
             const SizedBox(height: 16),
             Text(

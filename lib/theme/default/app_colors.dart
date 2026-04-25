@@ -405,6 +405,28 @@ class AppColors {
   /// 比 [chatWebBackgroundDark] (#202C33) 略浅，制造分层
   static const Color chatWebSurfaceDark = Color(0xFF2A3942);
 
+  /// Chat Web - 亮色分隔线 / 边框（WhatsApp Web 浅灰）
+  /// 用途：Chat Web 列表项分隔线、卡片边框
+  static const Color chatWebDividerLight = Color(0xFFE9EDEF);
+
+  /// Chat Web - 暗色分隔线 / 边框（WhatsApp Web 深青）
+  /// 与 [chatWebDividerLight] 配对
+  static const Color chatWebDividerDark = Color(0xFF3B4A54);
+
+  /// Chat Web - 最深暗 surface（WhatsApp Web Black 近黑）
+  /// 用途：暗色模式底层背景层（比 [chatWebBackgroundDark] (#202C33) 更深），
+  /// 用于 Scaffold 全屏背景或最底层容器
+  static const Color chatWebSurfaceDarkest = Color(0xFF111B21);
+
+  // ============ Material Info 蓝（中性信息态色对） ============
+  /// Material Blue 50 - 信息容器底色（亮/暗均使用此底）
+  /// 用途：mine 模块 device / collect 详情页等信息提示卡片背景
+  static const Color infoBlueContainer = Color(0xFFE1F5FE);
+
+  /// Material Blue 700 - 信息强调色 / icon 色
+  /// 与 [infoBlueContainer] 配对，用于 icon 与文字
+  static const Color infoBlue = Color(0xFF0277BD);
+
   // ============ iOS 语义色工具方法 ============
   /// 根据主题亮度获取 iOS 系统蓝
   static Color getIosBlue(Brightness brightness) {

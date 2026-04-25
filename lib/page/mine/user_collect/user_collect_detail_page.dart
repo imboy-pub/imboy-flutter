@@ -470,7 +470,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       ? Theme.of(
                           context,
                         ).colorScheme.primaryContainer.withValues(alpha: 0.1)
-                      : const Color(0xFFE1F5FE),
+                      : AppColors.infoBlueContainer,
                   borderRadius: AppRadius.borderRadiusMedium,
                   border: isDark
                       ? Border.all(
@@ -501,7 +501,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                             fontWeight: FontWeight.w600,
                             color: isDark
                                 ? Theme.of(context).colorScheme.onSurface
-                                : const Color(0xFF0277BD),
+                                : AppColors.infoBlue,
                           ),
                         ),
                       ],
