@@ -113,7 +113,16 @@ class ContactRepo {
       ContactRepo.categoryId: obj.categoryId,
     };
     if (txn != null) {
-      await txn.insert(ContactRepo.tableName, insert);
+      // [#19] 与非事务路径 `_db.insert` 对齐：必须传 ConflictAlgorithm.replace。
+      // 后端 /v1/friend/list 在多端同步 / 排序漂移场景下可能在同一响应里
+      // 重复返回某个 friend，命中 `uk_FromTo UNIQUE (user_id, peer_id)`
+      // 约束 → 抛 DatabaseException → 被 save() 的 try/catch 吞掉，造成单条
+      // 落库失败但日志静默。覆盖更新更符合"以后端最新数据为准"的语义。
+      await txn.insert(
+        ContactRepo.tableName,
+        insert,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     } else {
       await _db.insert(ContactRepo.tableName, insert);
     }
