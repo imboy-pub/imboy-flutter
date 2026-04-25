@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import '../profile_provider.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 隐私设置页面
@@ -176,7 +177,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                         height: 0.3,
                         color: isDark
                             ? const Color(0xFF48484A)
-                            : const Color(0xFFE5E5E5),
+                            : AppColors.lightDivider,
                       ),
                     ),
                 ],

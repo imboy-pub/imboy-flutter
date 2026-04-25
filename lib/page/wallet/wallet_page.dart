@@ -113,7 +113,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     return Scaffold(
       backgroundColor: isDark
           ? const Color(0xFF111111)
-          : const Color(0xFFEDEDED),
+          : AppColors.lightSurfaceContainer,
       appBar: AppBar(
         title: Text(t.wallet),
         backgroundColor: primaryColor,

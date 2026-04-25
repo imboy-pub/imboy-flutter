@@ -86,7 +86,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFE3F2FD)],
+            colors: [Colors.white, AppColors.primaryLight],
           ),
         ),
         child: SafeArea(
@@ -138,7 +138,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1565C0),
+                                color: AppColors.primaryDark,
                                 letterSpacing: -0.5,
                               ),
                               textAlign: TextAlign.center,

@@ -65,7 +65,7 @@ class UpdatePage extends ConsumerWidget {
                     ? AppColors.primary
                     : (isDark
                           ? const Color(0xFF48484A)
-                          : const Color(0xFFE5E5E5)),
+                          : AppColors.lightBorder),
                 borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
               ),
               child: Material(
