@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 群相册图片详情页
@@ -227,7 +228,7 @@ class _GroupAlbumPhotoDetailPageState
         AspectRatio(
           aspectRatio: 1,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.borderRadiusMedium,
             child: Container(
               color: Colors.grey.shade100,
               child: url.isNotEmpty
@@ -314,7 +315,7 @@ class _GroupAlbumPhotoDetailPageState
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
       ),
       child: Row(
         children: [

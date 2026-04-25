@@ -11,6 +11,7 @@ import 'package:imboy/service/group_member_mute_service.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// 群成员详情页（slice-10）。
@@ -314,7 +315,7 @@ class _GroupMemberDetailPageState
     return Card(
       elevation: 0,
       color: colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusMedium),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -363,7 +364,7 @@ class _GroupMemberDetailPageState
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Row(
         children: [
@@ -398,7 +399,7 @@ class _GroupMemberDetailPageState
           backgroundColor: color,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.borderRadiusMedium,
           ),
         ),
         onPressed: onTap,

@@ -5,6 +5,7 @@ import 'package:imboy/page/settings/e2ee_social_create_page.dart';
 import 'package:imboy/page/settings/e2ee_social_recover_page.dart';
 import 'package:imboy/page/settings/e2ee_social_manage_page.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 社交恢复入口页面
 /// 通过信任的联系人恢复密钥
@@ -84,7 +85,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -177,7 +178,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             height: 32,
             decoration: BoxDecoration(
               color: Colors.purple.shade100,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadius.borderRadiusSmall,
             ),
             child: Center(
               child: Text(
@@ -269,7 +270,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -278,7 +279,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),

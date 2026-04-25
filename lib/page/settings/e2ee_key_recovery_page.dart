@@ -238,7 +238,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   ),
                   decoration: BoxDecoration(
                     color: Colors.green,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.borderRadiusMedium,
                   ),
                   child: Text(
                     t.e2eeActivated,
@@ -453,7 +453,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                               color: status == t.e2eeStatusAvailable
                                   ? Colors.green.shade100
                                   : Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: AppRadius.borderRadiusSmall,
                             ),
                             child: Text(
                               status,
@@ -795,7 +795,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.borderRadiusSmall,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

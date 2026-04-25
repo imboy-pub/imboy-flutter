@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// 群相册图片列表页
 class GroupAlbumPhotoPage extends ConsumerStatefulWidget {
@@ -367,7 +368,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final url = _resolvePhotoUrl(photo);
     return InkWell(
       key: Key('group_album_photo_cell_$index'),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppRadius.borderRadiusSmall,
       onTap: () {
         if (_isSelectionMode) {
           _togglePhotoSelection(photo);
@@ -380,7 +381,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
         _enterSelectionMode(photo);
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.borderRadiusSmall,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -413,10 +414,10 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                 top: 2,
                 child: Material(
                   color: Colors.black54,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.borderRadiusRegular,
                   child: InkWell(
                     key: Key('group_album_photo_delete_$index'),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: AppRadius.borderRadiusRegular,
                     onTap: () => _deletePhoto(photo),
                     child: const Padding(
                       padding: EdgeInsets.all(4),
