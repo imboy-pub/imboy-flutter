@@ -90,6 +90,20 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 ## 变更记录 (Changelog)
 
 ### 2026-04-25
+- **#20 C2C 发送方本地 msg_c2c 表缺行修复（根因：MessageModel.id 类型与 Xid 不兼容）** / **#20 C2C sender-side missing local msg_c2c row fix (root cause: MessageModel.id type incompatible with Xid)**：
+  - **根因**：`MessageModel.id` 字段为 `int`，与客户端 `Xid().toString()` 生成的 base32hex 字符串 ID 不兼容；`chat_provider._getMsgFromTMsg` 用 `int.tryParse(message.id) ?? 0` 强转必然回退 0 → 触发 `_validateMessageData` 的 `if (msg.id == 0)` 拦截 → `ArgumentError` 被外层 `try/catch` 静默吞掉 / Root: `int.tryParse(xid)` always returns null, falls to 0, then guarded out and silently swallowed
+  - **接收侧无 bug**：Bob 接收方走 `batchInsertOfflineMessages` 另一路径，未碰 `int.tryParse` 强转
+  - **修复（commit `a0ff7f12`，20 文件 +288/-90）**：
+    - `MessageModel.id` 字段 `int` → `String`，对齐后端 `binary()` msg_id 契约
+    - `_validateMessageData` 守卫语义升级：`id == 0` → `id.isEmpty`
+    - SQLite `INTEGER NOT NULL` 列通过 type affinity 直接接收字符串（SQLite 弱类型存储）
+    - 9 个 `lib/*` 文件（chat_provider / send_to_provider / user_collect_provider / message.dart / message_actions / message_retry / message_model / message_repo_sqlite / fts_api）+ 11 个 `test/*` fixture 同步迁移
+  - **新增回归测试** `test/store/repository/message_c2c_send_side_test.dart`（4 测全绿）：
+    - Xid 字符串通过 type affinity 落库验证 / Verify Xid string lands via SQLite type affinity
+    - UNIQUE 索引拦截重复 ID / Verify UNIQUE index blocks duplicates
+    - 反例钉死旧 bug（`int.tryParse(xid)` 必然 null → 回退 0）/ Counter-example pins old bug
+    - 空字符串 ID 业务层拦截 / Empty string ID business-layer guard
+  - **回归**：`flutter analyze` 零警告；`flutter test` 2718/2718 绿（11 skip + 4 新）；保留区 `ios/*` + `plugin/r_upgrade` 未动 / Regression: analyzer clean, 2718/2718 tests green (+4 new), preservation zones untouched
 - **R-3-token-expansion 6 hex → AppColors Token（lib/page 26 文件大面积收编）** / **R-3-token-expansion: 6 hex literals folded into AppColors Tokens across 26 files in lib/page**：
   - **新增 6 个 Token**（`lib/theme/default/app_colors.dart` +35 行）/ Add 6 new Tokens：
     - `lightPageBackground (#F5F5F5)` — iOS Settings 风格页面级 Scaffold 背景，21 处使用 / iOS-Settings-style page-level Scaffold bg, 21 sites
