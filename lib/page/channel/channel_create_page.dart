@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -408,7 +409,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
               child: Row(
                 children: [
@@ -446,7 +447,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Row(
                   children: [

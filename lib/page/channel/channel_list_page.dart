@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'channel_provider.dart';
@@ -284,7 +285,7 @@ class _ChannelListItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: _getRoleColor(channel.userRole).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: AppRadius.borderRadiusTiny,
                 border: Border.all(
                   color: _getRoleColor(channel.userRole).withValues(alpha: 0.3),
                   width: 0.5,

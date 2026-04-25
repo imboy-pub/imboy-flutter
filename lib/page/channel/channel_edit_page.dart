@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -475,7 +476,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.grey.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
               child: Row(
                 children: [
@@ -511,7 +512,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Column(
                   children: [
