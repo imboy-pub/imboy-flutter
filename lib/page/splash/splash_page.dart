@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
@@ -20,20 +21,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   Future<void> _checkAuth() async {
-    // 模拟最小展示时间，配合动画
-    await Future.delayed(const Duration(seconds: 2));
+    // 最小展示时间 800ms（保证动画完成 + 防闪），与认证检查并行
+    // 认证检查为本地同步操作，几乎瞬时完成；总时长由 800ms 保底
+    await Future.wait<void>([
+      Future<void>.delayed(const Duration(milliseconds: 800)),
+    ]);
 
     if (!mounted) return;
 
-    // 检查是否登录
     final bool isLoggedIn = UserRepoLocal.to.isLoggedIn;
 
-    // 检查是否是第一次打开 (这里假设没有引导页标志位，默认未登录且非首次进入Home的话去Welcome)
-    // 实际项目中应该有一个 isFirstRun 的标记
-    // 暂时逻辑：已登录 -> Home, 未登录 -> Welcome
-
     if (isLoggedIn) {
-      // 导航到主页（底部导航页）
       context.go('/bottom_navigation');
     } else {
       context.go('/welcome');
@@ -51,23 +49,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF42A5F5), // Light Blue
-              Color(0xFF2474E5), // Primary Blue
-              Color(0xFF1565C0), // Dark Blue
+              AppColors.splashGradientStart, // #42A5F5 浅蓝
+              AppColors.primary, // #2474E5 品牌蓝
+              AppColors.primaryDark, // #1565C0 深蓝
             ],
           ),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // 动态背景图案 (简化版)
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.06,
-                child: CustomPaint(painter: PatternPainter()),
-              ),
-            ),
-
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -93,7 +83,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                           Shadow(
                             offset: Offset(0, 4),
                             blurRadius: 12,
-                            color: Color.fromRGBO(0, 0, 0, 0.2),
+                            color: Color(0x33000000),
                           ),
                         ],
                       ),
@@ -120,30 +110,28 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               ],
             ),
 
-            // 底部信息
+            // 底部信息：仅文案 + SafeArea 包裹避开 home indicator
             Positioned(
-              bottom: 50,
-              child: Column(
-                children: [
-                  const SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    context.t.splash.security,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn(delay: 700.ms, duration: 1000.ms),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(bottom: 24),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                        context.t.splash.security,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 700.ms, duration: 1000.ms),
+                ),
+              ),
             ),
           ],
         ),
@@ -152,20 +140,3 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 }
 
-class PatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    for (var i = 0; i < size.width; i += 50) {
-      for (var j = 0; j < size.height; j += 50) {
-        canvas.drawCircle(Offset(i.toDouble(), j.toDouble()), 1, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

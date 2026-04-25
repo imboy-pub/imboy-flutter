@@ -28,6 +28,27 @@ class AppColors {
   /// 选用更亮的天蓝（#649BEC），避免与品牌蓝混淆，保持 Tag 视觉独立性
   static const Color tagAccent = Color(0xFF649BEC);
 
+  /// Slate 风格中性次级文本（Tailwind slate-500 #64748B）
+  ///
+  /// 用于欢迎页 / 引导页等需要 **蓝灰中性调** 的次级文本，
+  /// 区别于 Material 3 紫灰 [lightTextSecondary] (#49454F)。
+  /// 与 [primary] (#2474E5) 蓝色家族同色相，视觉上更协调。
+  static const Color slateText = Color(0xFF64748B);
+
+  /// Slate 风格未激活指示器 / 浅边框（Tailwind slate-300 #CBD5E1）
+  ///
+  /// 用于欢迎页 PageView 指示器未激活态、浅色虚线分隔等。
+  /// 与 [slateText] 同色相系，配套使用。
+  static const Color slateMuted = Color(0xFFCBD5E1);
+
+  /// Splash 启动页渐变起始色 - Material Blue 400 (#42A5F5)
+  ///
+  /// 与 [primary] (#2474E5) + [primaryDark] (#1565C0) 组成
+  /// Splash 三段式品牌蓝渐变（topLeft → bottomRight 由浅入深）。
+  /// 注：值与 [darkSentMessageBackground] 相同但语义独立（渐变色 vs 气泡色），
+  /// 各自维护以避免跨场景耦合。
+  static const Color splashGradientStart = Color(0xFF42A5F5);
+
   // ============ Material 3 次要色系统 ============
   /// 次要色 - Material 3 Secondary - Indigo 400
   static const Color secondary = Color(0xFF5C6BC0);

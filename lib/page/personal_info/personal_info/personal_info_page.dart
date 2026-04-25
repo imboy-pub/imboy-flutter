@@ -133,15 +133,12 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    borderRadius: AppRadius.borderRadiusSmall,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: AppRadius.borderRadiusSmall,
-                    child: Avatar(imgUri: currentUserAvatar),
+                ClipRRect(
+                  borderRadius: AppRadius.borderRadiusSmall,
+                  child: Avatar(
+                    imgUri: currentUserAvatar,
+                    width: 64,
+                    height: 64,
                   ),
                 ),
                 Icon(
@@ -284,8 +281,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: isDark
-              ? AppColors.darkCardBackground
-              : AppColors.lightCardBackground,
+              ? AppColors.darkSurfaceContainer
+              : AppColors.lightSurface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),

@@ -86,18 +86,35 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, AppColors.primaryLight],
+            colors: [AppColors.lightSurface, AppColors.primaryLight],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // 语言选择按钮
+              // 顶部：左侧品牌锚点（Logo + wordmark） + 右侧语言选择
               Padding(
                 padding: AppSpacing.cardPadding,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    // 品牌锚点：与 Splash 视觉延续
+                    Image.asset(
+                      'assets/images/imboy_logo0.png',
+                      width: 28,
+                      height: 28,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'ImBoy',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryDark,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const Spacer(),
                     _LanguageSelector(
                       currentLocale: LocaleSettings.currentLocale,
                       onLocaleChanged: () {
@@ -148,7 +165,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               page['desc'] as String,
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF64748B),
+                                color: AppColors.slateText,
                                 height: 1.6,
                               ),
                               textAlign: TextAlign.center,
@@ -177,7 +194,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                             borderRadius: AppRadius.borderRadiusTiny,
                             color: _currentPage == index
                                 ? AppColors.primary
-                                : const Color(0xFFCBD5E1),
+                                : AppColors.slateMuted,
                           ),
                         );
                       }),
@@ -201,7 +218,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
+                            borderRadius: AppRadius.borderRadiusXLarge,
                           ),
                           elevation: 8,
                           shadowColor: AppColors.primary.withValues(alpha: 0.4),
@@ -232,7 +249,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF64748B),
+                              color: AppColors.slateText,
                             ),
                           ),
                         ),
@@ -347,7 +364,7 @@ class _LanguageSelector extends StatelessWidget {
                         : FontWeight.normal,
                     color: locale == currentLocale
                         ? AppColors.primary
-                        : const Color(0xFF64748B),
+                        : AppColors.slateText,
                   ),
                 ),
               ),
@@ -370,10 +387,16 @@ class _LanguageSelector extends StatelessWidget {
   }
 }
 
+// Welcome 引导页 SVG 插画配色
+//
+// 严格遵循 DESIGN.md 双蓝品牌策略：
+//   - 主渐变 gradBrand：splashGradientStart (#42A5F5) → primary (#2474E5)
+//   - 装饰球 / 高光：primary 系（避免绿/橙破坏品牌一致性）
+//   - 装饰星 / 强调点：primaryDark (#1565C0) 深蓝
 const String _defs = '''
     <defs>
-        <linearGradient id="gradGreen" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#34D399;stop-opacity:1" />
+        <linearGradient id="gradBrand" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#42A5F5;stop-opacity:1" />
             <stop offset="100%" style="stop-color:#2474E5;stop-opacity:1" />
         </linearGradient>
         <radialGradient id="highlight" cx="30%" cy="30%" r="70%">
@@ -390,13 +413,13 @@ const String _svgStep1 =
     '''
 <svg width="220" height="220" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     $_defs
-    <circle cx="60" cy="70" r="30" fill="url(#gradGreen)" opacity="0.3" />
-    <circle cx="150" cy="130" r="40" fill="url(#gradGreen)" opacity="0.2" />
-    <path d="M50 100 Q 50 60 90 60 H 130 Q 170 60 170 100 V 110 Q 170 150 130 150 H 90 Q 50 150 50 110 Z" fill="url(#gradGreen)" filter="url(#shadow)" />
+    <circle cx="60" cy="70" r="30" fill="url(#gradBrand)" opacity="0.3" />
+    <circle cx="150" cy="130" r="40" fill="url(#gradBrand)" opacity="0.2" />
+    <path d="M50 100 Q 50 60 90 60 H 130 Q 170 60 170 100 V 110 Q 170 150 130 150 H 90 Q 50 150 50 110 Z" fill="url(#gradBrand)" filter="url(#shadow)" />
     <path d="M50 100 Q 50 60 90 60 H 130 Q 170 60 170 100 V 110 Q 170 150 130 150 H 90 Q 50 150 50 110 Z" fill="url(#highlight)" />
     <rect x="80" y="90" width="60" height="8" rx="4" fill="white" opacity="0.9" />
     <rect x="80" y="110" width="40" height="8" rx="4" fill="white" opacity="0.6" />
-    <circle cx="160" cy="70" r="12" fill="#F59E0B" />
+    <circle cx="160" cy="70" r="12" fill="#1565C0" />
     <circle cx="160" cy="70" r="12" fill="url(#highlight)" />
 </svg>
 ''';
@@ -405,12 +428,12 @@ const String _svgStep2 =
     '''
 <svg width="220" height="220" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     $_defs
-    <circle cx="100" cy="100" r="80" stroke="url(#gradGreen)" stroke-width="2" fill="none" opacity="0.2" stroke-dasharray="10 10" />
-    <path d="M100 50 L145 70 V110 C145 140 100 165 100 165 C100 165 55 140 55 110 V70 Z" fill="url(#gradGreen)" filter="url(#shadow)" />
+    <circle cx="100" cy="100" r="80" stroke="url(#gradBrand)" stroke-width="2" fill="none" opacity="0.2" stroke-dasharray="10 10" />
+    <path d="M100 50 L145 70 V110 C145 140 100 165 100 165 C100 165 55 140 55 110 V70 Z" fill="url(#gradBrand)" filter="url(#shadow)" />
     <path d="M100 50 L145 70 V110 C145 140 100 165 100 165 C100 165 55 140 55 110 V70 Z" fill="url(#highlight)" />
     <path d="M85 110 L100 125 L125 95" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-    <circle cx="50" cy="60" r="5" fill="#10B981" opacity="0.6" />
-    <circle cx="160" cy="150" r="8" fill="#10B981" opacity="0.4" />
+    <circle cx="50" cy="60" r="5" fill="#42A5F5" opacity="0.6" />
+    <circle cx="160" cy="150" r="8" fill="#42A5F5" opacity="0.4" />
 </svg>
 ''';
 
@@ -419,10 +442,10 @@ const String _svgStep3 =
 <svg width="220" height="220" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     $_defs
     <path d="M60 140 Q 60 160 80 160 H 140 Q 160 160 160 140 Q 160 120 140 120 Q 130 100 110 100 Q 90 100 80 120 Q 60 120 60 140 Z" fill="#E3F2FD" />
-    <path d="M50 110 L160 60 L110 150 L95 100 Z" fill="url(#gradGreen)" filter="url(#shadow)" transform="translate(-10, -10)" />
+    <path d="M50 110 L160 60 L110 150 L95 100 Z" fill="url(#gradBrand)" filter="url(#shadow)" transform="translate(-10, -10)" />
     <path d="M50 110 L160 60 L110 150 L95 100 Z" fill="url(#highlight)" transform="translate(-10, -10)" />
-    <path d="M40 130 L20 140" stroke="#10B981" stroke-width="4" stroke-linecap="round" opacity="0.5" />
-    <path d="M50 150 L30 160" stroke="#10B981" stroke-width="4" stroke-linecap="round" opacity="0.3" />
-    <path d="M170 40 L175 50 L185 55 L175 60 L170 70 L165 60 L155 55 L165 50 Z" fill="#F59E0B" />
+    <path d="M40 130 L20 140" stroke="#42A5F5" stroke-width="4" stroke-linecap="round" opacity="0.5" />
+    <path d="M50 150 L30 160" stroke="#42A5F5" stroke-width="4" stroke-linecap="round" opacity="0.3" />
+    <path d="M170 40 L175 50 L185 55 L175 60 L170 70 L165 60 L155 55 L165 50 Z" fill="#1565C0" />
 </svg>
 ''';
