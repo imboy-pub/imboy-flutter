@@ -90,6 +90,26 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 ## 变更记录 (Changelog)
 
 ### 2026-04-25
+- **`56ccea0a` Splash + Welcome + 个人信息 UI/UX 统一升级（5 文件 +29/-39，3 Token，零回归）** / **Splash + Welcome + Personal Info UI/UX coherent uplift (5 files +29/-39, 3 new Tokens, zero regression)**：
+  - **个人信息头像 3 重 bug 闭环** / **Personal info avatar 3-fold bug closure**：外 64×64 容器 vs `Avatar` 内部默认 50×50 错位 + 双层圆角嵌套（外层 `borderRadiusSmall` + 内层 `borderRadiusTiny`）+ Avatar 灰底透出 → `ClipRRect` 直接包 `Avatar` 显式 `width: 64, height: 64`；同步替换 BottomSheet 弃用 Token（`darkCardBackground` → `darkSurfaceContainer`）/ Outer 64×64 vs Avatar default 50×50 mismatch + double-radius nesting + grey-bg bleed-through fixed by ClipRRect-wraps-Avatar with explicit dims; deprecated Token swap
+  - **Splash UX 清理 5 处** / **Splash UX cleanup, 5 sites**：
+    - 强制 `Future.delayed(2000ms)` → `Future.wait + 800ms` 并行最低延时（认证检查为本地同步操作几乎瞬时；总时长由 800ms 保底）/ Forced 2s → parallel 800ms min-delay; auth check is sync local, total bounded by floor
+    - 移除无效 `PatternPainter`（透明度 `0.06` 几乎不可见 + 整段 `CustomPainter` class）+ 多余 `CircularProgressIndicator`（路径为同步本地检查，无加载语义）/ Removed invisible PatternPainter (0.06 alpha) + redundant spinner (path is sync)
+    - 底部 `SafeArea(minimum: bottom 24)` 包裹避开 iOS 全面屏 home indicator / SafeArea wraps bottom to avoid notched home indicator
+    - `Color.fromRGBO(0, 0, 0, 0.2)` → `Color(0x33000000)` ARGB 字面量（弃用 RGBO 工厂迁移）/ Color.fromRGBO → ARGB hex literal
+    - 3 色渐变全 Token 化：`#42A5F5/#2474E5/#1565C0` → `splashGradientStart/primary/primaryDark`
+  - **Welcome 品牌锚点 + 全色 Token 化** / **Welcome brand anchor + full color Token-ization**：
+    - 顶部新增品牌锚点（`assets/images/imboy_logo0.png` 28×28 + "ImBoy" wordmark）补 Splash → Welcome 视觉延续 / Top brand anchor (Logo 28×28 + wordmark) bridges Splash → Welcome
+    - 按钮圆角硬编码 `BorderRadius.circular(28)` → `AppRadius.borderRadiusXLarge` (24pt)
+    - 4 处 hex 字面量 → Token：`Color(0xFF64748B)` (3 处) → `AppColors.slateText`、`Color(0xFFCBD5E1)` → `AppColors.slateMuted`
+    - **SVG 配色重绘对齐 DESIGN.md 双蓝品牌策略**：`gradGreen` 重命名 `gradBrand`，6 处绿 / 橙 hex (`#34D399` / `#10B981` / `#F59E0B`) → 蓝色家族 (`#42A5F5` / `#1565C0`)；起始色由 `#34D399` 改为 `#42A5F5` 与 Splash 渐变首段同色 / SVG palette repainted to dual-blue brand strategy: green / orange replaced by blue family aligning with Splash gradient
+  - **AppColors Token 扩展 +3** / **AppColors Token expansion +3**（`lib/theme/default/app_colors.dart` +21 行）：
+    - `slateText (#64748B)` — Tailwind slate-500 蓝灰中性次级文本，区别于 Material 3 紫灰 `lightTextSecondary` (#49454F)，与 `primary` 蓝色家族同色相
+    - `slateMuted (#CBD5E1)` — Tailwind slate-300 未激活指示器 / 浅边框，与 `slateText` 配套
+    - `splashGradientStart (#42A5F5)` — Material Blue 400 渐变起始色，与 `primary` + `primaryDark` 组成 Splash 三段式品牌蓝渐变（值与 `darkSentMessageBackground` 相同但语义独立）
+  - **范围**：5 文件 +29/-39 / Scope: 5 files +29/-39
+  - **保留区零动**：`ios/*` / `macos/*` / `plugin/r_upgrade` 未触碰 / Preservation zones untouched
+  - **回归**：`flutter analyze` 4 文件零警告（4.3s）；现有 `Avatar` / `Splash` / `Welcome` 调用链零行为变更 / Regression: analyzer clean (4.3s); zero behavioral change in call sites
 - **R-3-token-expansion#2 Chat Web 主题三件套 hex → AppColors Token** / **R-3-token-expansion#2: 3 Chat-Web theme hex literals folded into AppColors Tokens**：
   - **新增 3 个 Token**（与既有 `chatWebSecondaryLight/Dark` + `chatWebBrand` 同主题家族）/ Add 3 new Tokens in same Chat-Web theme family：
     - `chatWebBackgroundLight (#F0F2F5)` — 亮色 header / 容器背景，5 处
