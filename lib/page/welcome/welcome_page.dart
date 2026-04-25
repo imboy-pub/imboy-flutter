@@ -174,7 +174,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                           width: _currentPage == index ? 24 : 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadius.borderRadiusTiny,
                             color: _currentPage == index
                                 ? AppColors.primary
                                 : const Color(0xFFCBD5E1),

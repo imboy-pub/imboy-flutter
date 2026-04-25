@@ -12,6 +12,7 @@ import 'package:imboy/page/live_room/live_room_list/live_room_list_provider.dart
 import 'package:imboy/store/api/live_room_api.dart';
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class LiveRoomListPage extends ConsumerStatefulWidget {
   const LiveRoomListPage({super.key});
@@ -146,7 +147,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     return ListTile(
       leading: room.cover.isNotEmpty
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: AppRadius.borderRadiusTiny,
               child: Image(
                 image: cachedImageProvider(room.cover),
                 width: 56,

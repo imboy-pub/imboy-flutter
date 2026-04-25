@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 class MuteRemainingBadge extends StatelessWidget {
   /// 解禁时间（毫秒 epoch）；`null` 或 <= `nowMs` 视为未禁言。
@@ -42,7 +43,7 @@ class MuteRemainingBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: AppRadius.borderRadiusTiny,
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(

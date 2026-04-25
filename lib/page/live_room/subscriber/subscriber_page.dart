@@ -8,6 +8,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/subscriber/subscriber_provider.dart'
     show subscriberProvider;
 import 'package:imboy/store/model/live_room_model.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// WHEP Subscriber 拉流页面
@@ -98,7 +99,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.black54,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: AppRadius.borderRadiusTiny,
                     ),
                     child: Text(
                       state.stateStr,

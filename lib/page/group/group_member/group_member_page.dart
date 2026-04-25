@@ -13,6 +13,7 @@ import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -210,7 +211,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: AppRadius.borderRadiusTiny,
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(

@@ -9,6 +9,7 @@ import 'package:imboy/page/live_room/publisher/publisher_provider.dart'
     show publisherProvider;
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 /// WHIP Publisher 推流页面
 /// 使用 WHIP 协议（WebRTC-HTTP Ingestion Protocol）向媒体服务器推送音视频流
@@ -93,7 +94,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.black54,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: AppRadius.borderRadiusTiny,
                     ),
                     child: Text(
                       state.stateStr,
@@ -111,7 +112,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black54,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: AppRadius.borderRadiusTiny,
                       ),
                       child: Text(
                         'Key: ${'*' * 8}',

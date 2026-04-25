@@ -14,6 +14,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_compress/video_compress.dart';
 
@@ -301,7 +302,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     final selectedCount = parseMomentUidList(controller.text).length;
     return InkWell(
       onTap: () => _pickUids(controller: controller, title: pickerTitle),
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: AppRadius.borderRadiusTiny,
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: labelText,
