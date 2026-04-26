@@ -398,6 +398,9 @@ class ChatNotifier extends _$ChatNotifier {
     final items = await _pageMessages(obj, state.pageSize);
     state = state.copyWith(isLoading: false);
 
+    // Phase 2.1.e 续 — loadMoreMessages 加载完成后同步 messages 到 ChatState
+    syncMessagesToState();
+
     if (items.isEmpty) {
       state = state.copyWith(hasMoreMessage: false);
       return [];
