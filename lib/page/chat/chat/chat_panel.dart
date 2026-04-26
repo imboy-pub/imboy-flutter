@@ -64,6 +64,17 @@ class ChatPanel extends ConsumerWidget {
   /// 上拉到底加载更多（可选，分页）
   final Future<void> Function()? onEndReached;
 
+  // === 2.1.c 新增：底部输入区域（解耦设计 — 调用方传任何 widget） ===
+
+  /// 底部输入区域 widget（通常是 ChatInput；null = 不渲染输入区）
+  ///
+  /// 解耦设计：本 widget 不直接 import ChatInput（避免引入 StatefulWidget 重 state
+  /// 与 chat_provider 强依赖），由调用方决定传什么 widget。例如：
+  /// - 生产: `inputArea: ChatInput(peerId: peerId, ...)`
+  /// - 测试: `inputArea: TextField(...)` 或 `inputArea: SizedBox.shrink()`
+  /// - 只读模式: `inputArea: null`
+  final Widget? inputArea;
+
   const ChatPanel({
     super.key,
     required this.peerId,
@@ -77,6 +88,7 @@ class ChatPanel extends ConsumerWidget {
     this.onMessageDoubleTap,
     this.onMessageTap,
     this.onEndReached,
+    this.inputArea,
   }) : assert(
          messages == null ||
              (currentUserId != null &&
@@ -120,6 +132,7 @@ class ChatPanel extends ConsumerWidget {
                     onEndReached: onEndReached,
                   ),
           ),
+          ?inputArea,
         ],
       ),
     );
