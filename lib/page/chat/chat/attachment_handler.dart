@@ -4,6 +4,7 @@
 library;
 
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -112,6 +113,18 @@ class ChatAttachmentHandler {
   /// 处理相机选择
   Future<void> handlePickerSelection(BuildContext context) async {
     if (!context.mounted) return;
+    // Phase 2.2: Web 平台不支持原生 camera picker (wechat_camera_picker 是
+    // 移动端专用)。提示用户改用 + 号选文件（file_picker 已在 Web 工作）。
+    if (kIsWeb) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Camera not supported on Web. Use file picker instead.'),
+          ),
+        );
+      }
+      return;
+    }
     try {
       bool hasPermission = await requestCameraPermission();
       if (!hasPermission || !context.mounted) return;
