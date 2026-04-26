@@ -576,6 +576,9 @@ class ChatNotifier extends _$ChatNotifier {
       }
 
       iPrint('✅ [ChatProvider.addMessage] 完成: msgId=${message.id}');
+
+      // Phase 2.1.e — 同步 messages 到 ChatState（让外部 ref.watch 拿到新消息）
+      syncMessagesToState();
     } catch (e, stack) {
       iPrint('❌ [ChatProvider.addMessage] 异常: msgId=${message.id}, error=$e');
       iPrint('❌ [ChatProvider.addMessage] stackTrace: $stack');
