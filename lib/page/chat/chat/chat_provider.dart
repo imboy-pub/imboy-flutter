@@ -272,6 +272,20 @@ class ChatNotifier extends _$ChatNotifier {
     iPrint(
       'initChatService: 聊天服务初始化完成，当前消息数: ${_chatService?.messages.length ?? 0}',
     );
+
+    // Phase 2.1.e: 同步 messages 到 ChatState（让 WebShellBootstrap 等外部
+    // 消费方能 ref.watch(chatProvider).messages 响应式拿到列表）
+    syncMessagesToState();
+  }
+
+  /// Phase 2.1.e — 把 _chatService.messages 同步到 ChatState.messages
+  ///
+  /// 调用时机：init / 收消息 / 发消息 / loadMore 等关键路径后。
+  /// 当前最小切片仅在 initChatService 末尾调用，后续 slice 在更多变更点接入。
+  /// no-op 防御：service 不存在时仅清空 state.messages。
+  void syncMessagesToState() {
+    final list = _chatService?.messages.toList() ?? const <Message>[];
+    state = state.copyWith(messages: list);
   }
 
   // ===== 状态更新方法 =====
