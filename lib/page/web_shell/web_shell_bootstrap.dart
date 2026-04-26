@@ -27,6 +27,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:imboy/page/chat/chat/chat_panel.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 
@@ -55,9 +56,17 @@ class WebShellBootstrap extends ConsumerWidget {
       channelTab: const ChannelListPage(),
       mineTab: MinePage(),
 
-      // Selection builder — Phase 2/3 才做真实 panel，先占位
-      chatBuilder: (sel) =>
-          _PlaceholderPanel('Chat: ${sel.peerId} (${sel.chatType})'),
+      // 2.6 Chat selection → 真实 ChatPanel（2.1 骨架 + 2.1.b ChatMessageList 接入点）
+      // messages/currentUserId 暂不传 → ChatPanel 走占位分支（2.1 行为兼容）
+      // 后续 2.1.b.* 切片接入 chat_provider 后传入真实 messages
+      chatBuilder: (sel) => ChatPanel(
+        peerId: sel.peerId,
+        chatType: sel.chatType,
+        title: sel.peerId, // TODO 接入 contact_repo 解析昵称（2.1.d）
+        closeTooltip: t.cancel,
+        onClose: () =>
+            ref.read(webShellProvider.notifier).clearSelection(),
+      ),
       contactBuilder: (sel) => _PlaceholderPanel('Contact: ${sel.uid}'),
       channelBuilder: (sel) =>
           _PlaceholderPanel('Channel: ${sel.channelId}'),
