@@ -51,3 +51,6 @@ export 'web_shell_route_params.dart';
 
 // 桌面快捷键 → action 映射（Phase 4 提前投资）（1.1.l）
 export 'web_shell_keyboard_intent.dart';
+
+// ⭐ 三栏整合主入口 widget（无 i18n 依赖，参数注入）（1.1.h.2）
+export 'web_shell_page.dart';
