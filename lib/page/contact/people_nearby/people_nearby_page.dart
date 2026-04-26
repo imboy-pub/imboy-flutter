@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -68,13 +69,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusSmall,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 0,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：卡片用 surfaceGrouped 背景对比制造层级，不用投影
       ),
       child: Column(
         children: [
@@ -140,10 +135,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   Widget _buildVisibilityCard(BuildContext context) {
     final notifier = ref.read(peopleNearbyProvider.notifier);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: AppRadius.borderRadiusMedium,
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusMedium,
+      child: CellPressable(
         onTap: () {
           final state = ref.read(peopleNearbyProvider);
           if (!state.peopleNearbyVisible) {
@@ -257,15 +251,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: AppRadius.borderRadiusRegular,
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(
-                context,
-              ).colorScheme.shadow.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          // DESIGN.md §5.2 + §8.3：列表容器靠 surface 对比，不用投影
         ),
         child: Column(
           children: [
@@ -319,13 +305,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusRegular,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：列表项用边框区分而非投影
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.06),
           width: 0.5,
@@ -354,15 +334,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: AppRadius.borderRadiusXLarge,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.shadow.withValues(alpha: 0.1),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    // DESIGN.md §9.1 头像不带阴影
                   ),
                   child: Avatar(imgUri: model.avatar, width: 56, height: 56),
                 ),

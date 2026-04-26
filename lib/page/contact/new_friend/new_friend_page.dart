@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/search.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -67,17 +68,11 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusRegular,
+        // DESIGN.md §5.2 + §8.3：搜索栏容器用边框区分而非投影
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
           width: 0.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(4.0),
@@ -235,10 +230,9 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             ),
           ],
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: AppRadius.borderRadiusRegular,
+        child: ClipRRect(
+          borderRadius: AppRadius.borderRadiusRegular,
+          child: CellPressable(
             onTap: () {
               context.push(
                 '/people_info/${UserRepoLocal.to.currentUid == model.to.toString() ? model.from : model.to}',

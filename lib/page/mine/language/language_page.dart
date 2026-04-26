@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -350,16 +351,28 @@ class LanguagePage extends ConsumerWidget {
     required Brightness brightness,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      title: Text(item.title),
-      trailing: selected
-          ? Icon(
-              CupertinoIcons.check_mark,
-              size: 18,
-              color: AppColors.getIosBlue(brightness),
-            )
-          : null,
+    return CellPressable(
       onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                item.title,
+                style: const TextStyle(fontSize: 17, letterSpacing: -0.41),
+              ),
+            ),
+            if (selected)
+              Icon(
+                CupertinoIcons.check_mark,
+                size: 18,
+                color: AppColors.getIosBlue(brightness),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

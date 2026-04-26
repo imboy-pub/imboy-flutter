@@ -120,15 +120,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             decoration: BoxDecoration(
               color: isDark ? colorScheme.surface : Colors.white,
               borderRadius: AppRadius.borderRadiusMedium,
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+              // DESIGN.md §5.2 + §8.3：表单容器靠 surface 对比，不用投影
             ),
             child: TextFormField(
               decoration: InputDecoration(
@@ -153,15 +145,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             decoration: BoxDecoration(
               color: isDark ? colorScheme.surface : Colors.white,
               borderRadius: AppRadius.borderRadiusMedium,
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+              // DESIGN.md §5.2 + §8.3：表单容器靠 surface 对比，不用投影
             ),
             child: ListTile(
               title: Text(

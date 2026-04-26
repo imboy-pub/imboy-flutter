@@ -85,16 +85,13 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusLarge,
+        // DESIGN.md §5.2 例外：长按 ActionSheet 是 FAB-like 浮起 UI
+        // 推荐值 0 2 8 rgba(0,0,0,0.08)；原双层强投影 (0.15+0.05) 收敛为单层柔光
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

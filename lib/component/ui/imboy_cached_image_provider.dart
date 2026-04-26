@@ -6,6 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 
+/// gate 后的 debug 日志：仅 [IMBoyCacheManager.debugLogEnabled] 为 true 时输出
+/// 复用 IMBoyCacheManager 的全局 flag 让测试可统一关闭两边的日志
+void _log(String message) {
+  if (IMBoyCacheManager.debugLogEnabled) debugPrint(message);
+}
+
 /// 图片资源不存在异常（404）
 class ImageNotFoundException implements Exception {
   final String message;
@@ -50,7 +56,7 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         if (kDebugMode) {
-          debugPrint('加载图片 (尝试 ${attempt + 1}/$maxAttempts)');
+          _log('加载图片 (尝试 ${attempt + 1}/$maxAttempts)');
         }
 
         final file = await IMBoyCacheManager().getSingleFile(
@@ -60,7 +66,7 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
 
         // 验证文件存在且可读
         if (!await file.exists()) {
-          if (kDebugMode) debugPrint('⚠️ 文件不存在');
+          _log('⚠️ 文件不存在');
           if (attempt < maxAttempts - 1) {
             await _clearCacheAndRetry(url);
             continue;
@@ -72,7 +78,7 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
         final bytes = await file.readAsBytes();
 
         if (bytes.isEmpty) {
-          if (kDebugMode) debugPrint('⚠️ 文件为空');
+          _log('⚠️ 文件为空');
           if (attempt < maxAttempts - 1) {
             await _deleteFileIfExists(file);
             await _clearCacheAndRetry(url);
@@ -88,7 +94,7 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
           // debugPrint('✅ 图片加载成功: $url');
           return codec;
         } on Exception catch (decodeError) {
-          if (kDebugMode) debugPrint('⚠️ 图片解码失败: ${decodeError.runtimeType}');
+          _log('⚠️ 图片解码失败: ${decodeError.runtimeType}');
           if (attempt < maxAttempts - 1) {
             await _deleteFileIfExists(file);
             await _clearCacheAndRetry(url);
@@ -99,12 +105,12 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
       } on Exception catch (e) {
         // 404 错误不需要重试
         if (_isNotFoundError(e)) {
-          if (kDebugMode) debugPrint('❌ 图片资源不存在 (404)');
+          _log('❌ 图片资源不存在 (404)');
           throw ImageNotFoundException();
         }
 
         if (kDebugMode) {
-          debugPrint(
+          _log(
             '❌ IMBoyCachedImageProvider 加载失败 (尝试 ${attempt + 1}/$maxAttempts): ${e.runtimeType}',
           );
         }
@@ -128,10 +134,10 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     try {
       if (await file.exists()) {
         await file.delete();
-        if (kDebugMode) debugPrint('🗑️ 已删除缓存文件');
+        _log('🗑️ 已删除缓存文件');
       }
     } on Exception catch (e) {
-      if (kDebugMode) debugPrint('⚠️ 删除文件失败: ${e.runtimeType}');
+      _log('⚠️ 删除文件失败: ${e.runtimeType}');
     }
   }
 
@@ -140,9 +146,9 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     try {
       // 清除缓存管理器中的缓存
       await IMBoyCacheManager().emptyCache();
-      if (kDebugMode) debugPrint('🔄 已清除缓存，准备重试');
+      _log('🔄 已清除缓存，准备重试');
     } on Exception catch (e) {
-      if (kDebugMode) debugPrint('⚠️ 清除缓存失败: ${e.runtimeType}');
+      _log('⚠️ 清除缓存失败: ${e.runtimeType}');
     }
   }
 

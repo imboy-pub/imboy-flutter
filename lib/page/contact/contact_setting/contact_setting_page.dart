@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
@@ -78,10 +79,9 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
           width: 0.5,
         ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusMedium,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: CellPressable(
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -188,10 +188,9 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
           width: 1,
         ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusMedium,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: CellPressable(
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(

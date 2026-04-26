@@ -66,6 +66,9 @@ class WebShellBootstrap extends ConsumerWidget {
         closeTooltip: t.cancel,
         onClose: () =>
             ref.read(webShellProvider.notifier).clearSelection(),
+        // 2.1.c 续: 过渡占位输入框（真实 ChatInput 接入需 composerHeightNotifier/
+        // _handleSendPressed mixin/ExtraItems 链路 — 留作 Phase 2 后续切片）
+        inputArea: const _SimpleWebInput(),
       ),
       contactBuilder: (sel) => _PlaceholderPanel('Contact: ${sel.uid}'),
       channelBuilder: (sel) =>
@@ -78,6 +81,57 @@ class WebShellBootstrap extends ConsumerWidget {
 
       // Badge counts — 暂不接入 provider（Phase 1.1.h.1.b 时再 ref.watch
       // unreadMessageCountProvider 等真实数据源）
+    );
+  }
+}
+
+/// 2.1.c 续 — 真实 ChatInput 接入前的过渡输入框
+///
+/// 提供视觉完整性（TextField + 禁用 send button + 提示），让用户在 alpha
+/// 测试时知道发送功能尚未启用。真实 ChatInput 接入需要 chat_provider mixin
+/// + composerHeightNotifier + ExtraItems 等链路（Phase 2 后续切片）。
+class _SimpleWebInput extends StatelessWidget {
+  const _SimpleWebInput();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        border: Border(
+          top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              enabled: false,
+              decoration: InputDecoration(
+                hintText: 'Send message (TODO Phase 2.1.c real ChatInput)',
+                hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: colorScheme.outlineVariant),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.send),
+            tooltip: 'Disabled (Phase 2.1.c TODO)',
+            onPressed: null,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
     );
   }
 }

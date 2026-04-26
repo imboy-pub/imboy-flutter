@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -204,6 +205,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusRegular,
+        // DESIGN.md §5.2 + §8.3：Cell 用边框区分而非投影
+        // 移除 boxShadow（违反 InsetGrouped 范式：Cell 应靠 surfaceGrouped 背景对比制造层级）
         border: Border.all(
           color: isDestructive
               ? AppColors.getIosRed(
@@ -211,80 +214,77 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                 ).withValues(alpha: 0.2)
               : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: InkWell(
-        onTap: onTap,
+      // ClipRRect 让 CellPressable 按下高亮按 cell 圆角裁切（与 mine 模块统一）
+      child: ClipRRect(
         borderRadius: AppRadius.borderRadiusRegular,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: (iconColor ?? Theme.of(context).colorScheme.primary)
-                        .withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: iconColor ?? Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: isDestructive
-                            ? AppColors.getIosRed(
-                                Theme.of(context).brightness,
-                              )
-                            : Theme.of(context).colorScheme.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+        child: CellPressable(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                if (icon != null) ...[
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color:
+                          (iconColor ?? Theme.of(context).colorScheme.primary)
+                              .withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusMedium,
                     ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
+                    child: Icon(
+                      icon,
+                      size: 20,
+                      color: iconColor ?? Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        subtitle,
+                        title,
                         style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
-                          fontSize: 12,
+                          color: isDestructive
+                              ? AppColors.getIosRed(
+                                  Theme.of(context).brightness,
+                                )
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (trailing != null)
-                trailing
-              else
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
-            ],
+                if (trailing != null)
+                  trailing
+                else
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -350,8 +350,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         subtitle: mode == EncryptionMode.complianceE2ee
             ? t.msgProtectedByComplianceKey
             : mode == EncryptionMode.strictE2ee
-                ? t.msgOnlyVisibleToParties
-                : t.msgNotEncrypted,
+            ? t.msgOnlyVisibleToParties
+            : t.msgNotEncrypted,
         isFirst: true,
       ),
       // C7-α-2: 本地消息免打扰开关

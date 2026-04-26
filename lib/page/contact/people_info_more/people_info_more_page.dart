@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 
@@ -50,18 +51,11 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
           width: 0.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：Cell 卡片靠边框区分，不用投影
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusRegular,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusRegular,
+        child: CellPressable(
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -142,18 +136,11 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
           width: 0.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：Cell 卡片靠边框区分，不用投影
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusRegular,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusRegular,
+        child: CellPressable(
           onTap: state.groupCount > 0
               ? () {
                   Navigator.push(

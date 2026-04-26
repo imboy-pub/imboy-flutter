@@ -8,6 +8,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
+import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
@@ -77,7 +78,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: height * 0.12),
-                    notifier.title(color: AppColors.primary),
+                    const PassportTitle(color: AppColors.primary),
                     const SizedBox(height: 40),
 
                     // Tabs

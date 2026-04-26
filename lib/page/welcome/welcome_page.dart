@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/splash/splash_page.dart' show kBrandLogoHeroTag;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -97,12 +98,15 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 padding: AppSpacing.cardPadding,
                 child: Row(
                   children: [
-                    // 品牌锚点：与 Splash 视觉延续
-                    Image.asset(
-                      'assets/images/imboy_logo0.png',
-                      width: 28,
-                      height: 28,
-                      fit: BoxFit.contain,
+                    // 品牌锚点：与 Splash 视觉延续（Hero animation 接力 ~240→28pt）
+                    Hero(
+                      tag: kBrandLogoHeroTag,
+                      child: Image.asset(
+                        'assets/images/imboy_logo0.png',
+                        width: 28,
+                        height: 28,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     const Text(

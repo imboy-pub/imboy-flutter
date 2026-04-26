@@ -377,13 +377,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: AppRadius.borderRadiusLarge,
-        boxShadow: [
-          BoxShadow(
-            color: bgColor.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // DESIGN.md §9.1：聊天气泡（含语音气泡）不带阴影
       ),
       child: Material(
         color: Colors.transparent,
@@ -569,9 +563,11 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       decoration: BoxDecoration(
         color: unreadColor,
         shape: BoxShape.circle,
+        // DESIGN.md §5.2 例外：未读 Badge 类小指示器轻微 glow
+        // alpha 0.3 → 0.15 弱化（保留 spreadRadius 1 维持 glow 视觉）
         boxShadow: [
           BoxShadow(
-            color: unreadColor.withValues(alpha: 0.3),
+            color: unreadColor.withValues(alpha: 0.15),
             blurRadius: 4,
             spreadRadius: 1,
           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -43,15 +44,7 @@ class PeopleInfoPage extends ConsumerWidget {
             ? Theme.of(context).colorScheme.surfaceContainerHighest
             : Colors.white,
         borderRadius: AppRadius.borderRadiusMedium,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：Cell 用边框区分而非投影（暗色模式细边框，亮色透明）
         border: isDark
             ? Border.all(
                 color: Theme.of(
@@ -61,10 +54,9 @@ class PeopleInfoPage extends ConsumerWidget {
               )
             : null,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusMedium,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: CellPressable(
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -116,15 +108,7 @@ class PeopleInfoPage extends ConsumerWidget {
             ? Theme.of(context).colorScheme.surfaceContainerHighest
             : Colors.white,
         borderRadius: AppRadius.borderRadiusMedium,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：Cell 用边框区分而非投影（暗色模式细边框，亮色透明）
         border: isDark
             ? Border.all(
                 color: Theme.of(
@@ -134,10 +118,9 @@ class PeopleInfoPage extends ConsumerWidget {
               )
             : null,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusMedium,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: CellPressable(
           onTap: () {
             Navigator.push(
               context,
@@ -371,17 +354,7 @@ class PeopleInfoPage extends ConsumerWidget {
                         ? Theme.of(context).colorScheme.surfaceContainerHighest
                         : Colors.white,
                     borderRadius: AppRadius.borderRadiusRegular,
-                    boxShadow: [
-                      BoxShadow(
-                        color: isDark
-                            ? Theme.of(
-                                context,
-                              ).colorScheme.shadow.withValues(alpha: 0.05)
-                            : Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    // DESIGN.md §5.2 + §8.3：卡片用边框区分而非投影
                     border: isDark
                         ? Border.all(
                             color: Theme.of(
@@ -425,17 +398,7 @@ class PeopleInfoPage extends ConsumerWidget {
                               width: 0.5,
                             )
                           : null,
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? Theme.of(
-                                  context,
-                                ).colorScheme.shadow.withValues(alpha: 0.05)
-                              : Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      // DESIGN.md §5.2 + §8.3：卡片用边框区分而非投影
                     ),
                     child: UserOnlineStatusDetailWidget(
                       isOnline: state.status == 'online',

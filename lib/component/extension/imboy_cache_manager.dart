@@ -9,6 +9,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
 
 class IMBoyCacheManager {
+  /// 控制 debug 日志输出（默认 true）
+  ///
+  /// 测试场景设为 false 可静默 '📦 getSingleFile' / '加载图片' / '📥 下载完成' 等
+  /// debug 链日志，避免 widget test 输出污染。
+  /// 不影响生产环境（kDebugMode 在 release build 自动 false，本 flag 仅在 debug 生效）。
+  static bool debugLogEnabled = true;
+
+  /// gate 后的 debugPrint：仅 [debugLogEnabled] 为 true 时输出
+  static void _log(String message) {
+    if (debugLogEnabled) debugPrint(message);
+  }
+
   static final IMBoyCacheManager _instance = IMBoyCacheManager._();
 
   final CrossCache _crossCache;
@@ -92,7 +104,7 @@ class IMBoyCacheManager {
     bool validateImageData = true,
   }) async {
     // 添加调试日志
-    debugPrint('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
+    _log('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
 
     if (url.isEmpty) {
       throw Exception('IMBoyCacheManager getSingleFile url is empty');
@@ -109,12 +121,12 @@ class IMBoyCacheManager {
         bytes = await _crossCache.get(cacheKey);
         // 检查缓存是否为空
         if (bytes.isEmpty) {
-          debugPrint('缓存为空，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
+          _log('缓存为空，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
           throw Exception('Empty cache');
         }
         // 仅在需要时验证缓存数据是否有效
         if (validateImageData && !_isValidImageData(bytes)) {
-          debugPrint('缓存数据损坏，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
+          _log('缓存数据损坏，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
           await _crossCache.delete(cacheKey);
           throw Exception('Invalid cached image data');
         }
@@ -129,16 +141,16 @@ class IMBoyCacheManager {
           );
 
           // 调试：输出下载状态
-          debugPrint('📥 下载完成，大小: ${downloaded.length} bytes, validateImageData=$validateImageData');
+          _log('📥 下载完成，大小: ${downloaded.length} bytes, validateImageData=$validateImageData');
 
           // 检查下载的文件是否为空
           if (downloaded.isEmpty) {
-            debugPrint('下载的文件为空 (尝试 ${retry + 1}/$maxRetries): $url');
+            _log('下载的文件为空 (尝试 ${retry + 1}/$maxRetries): $url');
             if (retry < maxRetries - 1) {
               try {
                 await _crossCache.delete(cacheKey);
               } catch (e) {
-                debugPrint('[CacheManager] cache operation failed: $e');
+                _log('[CacheManager] cache operation failed: $e');
               }
               continue;
             }
@@ -149,12 +161,12 @@ class IMBoyCacheManager {
 
           // 仅在需要时验证下载的图片数据是否有效
           if (validateImageData && !_isValidImageData(downloaded)) {
-            debugPrint('⚠️ 图片数据验证失败，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
+            _log('⚠️ 图片数据验证失败，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
             if (retry < maxRetries - 1) {
               try {
                 await _crossCache.delete(cacheKey);
               } catch (e) {
-                debugPrint('[CacheManager] cache operation failed: $e');
+                _log('[CacheManager] cache operation failed: $e');
               }
               continue;
             }
@@ -166,16 +178,16 @@ class IMBoyCacheManager {
           await _crossCache.set(cacheKey, downloaded);
           await _crossCache.delete(viewUri.toString());
           bytes = downloaded;
-          debugPrint('✅ 下载成功');
+          _log('✅ 下载成功');
           // 下载成功，跳出循环
           break;
         } catch (downloadError) {
           // 404 错误不需要重试
           if (_isNotFoundError(downloadError)) {
-            debugPrint('❌ 资源不存在 (404): $url');
+            _log('❌ 资源不存在 (404): $url');
             rethrow;
           }
-          debugPrint('下载失败 (尝试 ${retry + 1}/$maxRetries): $downloadError');
+          _log('下载失败 (尝试 ${retry + 1}/$maxRetries): $downloadError');
           if (retry == maxRetries - 1) {
             rethrow;
           }
@@ -214,7 +226,7 @@ class IMBoyCacheManager {
             return file;
           }
         } catch (e) {
-          debugPrint('[CacheManager] cache operation failed: $e');
+          _log('[CacheManager] cache operation failed: $e');
           // 文件损坏，删除后重新写入
           await file.delete();
         }
@@ -247,7 +259,7 @@ class IMBoyCacheManager {
             await tempFile.delete();
           }
         } catch (e) {
-          debugPrint('[CacheManager] cache operation failed: $e');
+          _log('[CacheManager] cache operation failed: $e');
         }
         rethrow;
       }
@@ -267,7 +279,7 @@ class IMBoyCacheManager {
         return filePath.substring(lastDotIndex + 1);
       }
     } catch (e) {
-      debugPrint('[CacheManager] cache operation failed: $e');
+      _log('[CacheManager] cache operation failed: $e');
     }
     return null;
   }

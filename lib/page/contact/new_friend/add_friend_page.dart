@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
@@ -39,15 +40,7 @@ class AddFriendPage extends ConsumerWidget {
                     ? colorScheme.surfaceContainerHighest
                     : Colors.white,
                 borderRadius: AppRadius.borderRadiusMedium,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                // DESIGN.md §5.2 + §8.3：容器靠 surface 对比，不用投影
               ),
               child: Column(
                 children: [
@@ -133,15 +126,7 @@ class AddFriendPage extends ConsumerWidget {
                     ? colorScheme.surfaceContainerHighest
                     : Colors.white,
                 borderRadius: AppRadius.borderRadiusRegular,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                // DESIGN.md §5.2 + §8.3：容器靠 surface 对比，不用投影
                 border: isDark
                     ? Border.all(
                         color: colorScheme.outline.withValues(alpha: 0.15),
@@ -235,11 +220,10 @@ class AddFriendPage extends ConsumerWidget {
 
     return Column(
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
+        ClipRRect(
+          borderRadius: AppRadius.borderRadiusMedium,
+          child: CellPressable(
             onTap: onTap,
-            borderRadius: AppRadius.borderRadiusMedium,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(

@@ -40,7 +40,8 @@ class MessageBubbleStyle {
     return BoxDecoration(
       color: bubbleColor,
       borderRadius: borderRadius,
-      boxShadow: _getBubbleShadow(isDark),
+      // DESIGN.md §9.1 聊天气泡：iOS 气泡 **不带阴影**；
+      // 亮色用 0.5pt iosGray5 边框（仅接收方），暗色不加边框
     );
   }
 
@@ -103,21 +104,7 @@ class MessageBubbleStyle {
     return AppRadius.borderRadiusLarge;
   }
 
-  /// 获取消息气泡阴影
-  static List<BoxShadow> _getBubbleShadow(bool isDark) {
-    return [
-      BoxShadow(
-        color: isDark
-            ? Colors.black.withValues(alpha: 0.3)
-            : Colors.black.withValues(alpha: 0.1),
-        blurRadius: 4,
-        offset: const Offset(0, 2),
-        spreadRadius: 0,
-      ),
-    ];
-  }
-
-  /// 获取消息文本样式
+/// 获取消息文本样式
   static TextStyle getMessageTextStyle({
     required bool isSentByMe,
     required BuildContext context,

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -35,9 +36,9 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
 
   /// 构建黑名单用户卡片
   Widget _buildDenylistCard(BuildContext context, DenylistModel model) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusRegular,
+      child: CellPressable(
         onTap: () {
           Navigator.push(
             context,
@@ -387,13 +388,15 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                       indexHintDecoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: AppRadius.borderRadiusXLarge,
+                        // DESIGN.md §5.2 例外：Tooltip 类浮窗用极淡投影
+                        // 推荐值 0 2 8 rgba(0,0,0,0.08)，原 alpha 0.2 偏强已下调
                         boxShadow: [
                           BoxShadow(
                             color: Theme.of(
                               context,
-                            ).colorScheme.shadow.withValues(alpha: 0.2),
+                            ).colorScheme.shadow.withValues(alpha: 0.08),
                             blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),

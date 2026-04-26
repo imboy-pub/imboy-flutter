@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -725,92 +726,93 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            children: [
-              // 前导图标
-              if (leadingIcon != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: (leadingIconColor ?? AppColors.primary).withValues(
-                      alpha: 0.1,
-                    ),
-                    borderRadius: AppRadius.borderRadiusCell,
+    return CellPressable(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            // 前导图标
+            if (leadingIcon != null) ...[
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (leadingIconColor ?? AppColors.primary).withValues(
+                    alpha: 0.1,
                   ),
-                  child: Icon(
-                    leadingIcon,
-                    color: leadingIconColor ?? AppColors.primary,
-                    size: 20,
-                  ),
+                  borderRadius: AppRadius.borderRadiusCell,
                 ),
-                const SizedBox(width: 14),
-              ],
+                child: Icon(
+                  leadingIcon,
+                  color: leadingIconColor ?? AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 14),
+            ],
 
-              // 主要内容
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            // 主要内容
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: ref
+                        .read(themeProvider.notifier)
+                        .getTextStyle(
+                          FontSizeType.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 4),
                     Text(
-                      title,
+                      subtitle,
                       style: ref
                           .read(themeProvider.notifier)
                           .getTextStyle(
-                            FontSizeType.normal,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w500,
+                            FontSizeType.small,
+                            color: AppColors.textSecondary,
                           ),
                     ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: ref
-                            .read(themeProvider.notifier)
-                            .getTextStyle(
-                              FontSizeType.small,
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                    ],
                   ],
-                ),
+                ],
               ),
+            ),
 
-              // 值显示
-              if (value != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  value,
-                  style: ThemeManager.instance.getTextStyle(
-                    FontSizeType.normal,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-
-              // 尾部组件
-              if (trailing != null) ...[
-                const SizedBox(width: 8),
-                trailing,
-              ] else if (onTap != null) ...[
-                const SizedBox(width: 8),
-                // iOS 原生 Cell 右侧 chevron
-                Icon(
-                  CupertinoIcons.chevron_right,
-                  color: AppColors.iosGray,
-                  size: 14,
-                ),
-              ],
+            // 值显示
+            if (value != null) ...[
+              const SizedBox(width: 8),
+              Text(
+                value,
+                // 统一走 ref.read(themeProvider.notifier)，与上方 title/subtitle 一致
+                // （不再混用 ThemeManager.instance 单例 + Riverpod ref，便于测试隔离）
+                style: ref
+                    .read(themeProvider.notifier)
+                    .getTextStyle(
+                      FontSizeType.normal,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
             ],
-          ),
+
+            // 尾部组件
+            if (trailing != null) ...[
+              const SizedBox(width: 8),
+              trailing,
+            ] else if (onTap != null) ...[
+              const SizedBox(width: 8),
+              // iOS 原生 Cell 右侧 chevron
+              Icon(
+                CupertinoIcons.chevron_right,
+                color: AppColors.iosGray,
+                size: 14,
+              ),
+            ],
+          ],
         ),
       ),
     );

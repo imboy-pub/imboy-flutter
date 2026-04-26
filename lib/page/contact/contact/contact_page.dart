@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -109,15 +110,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: AppRadius.borderRadiusMedium,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        // DESIGN.md §5.2 + §8.3：联系人卡片用边框区分而非阴影；
+        // 移除原 boxShadow（违反 InsetGrouped 范式）—— 暗色用细边框，亮色透明
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.05)
@@ -281,7 +275,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   // 构建功能入口项（附近的人、新朋友等）
   Widget _buildFeatureItem(BuildContext context, ContactModel model) {
-    return InkWell(
+    return CellPressable(
       onTap: () {
         // 处理功能入口点击
         switch (model.peerId) {
@@ -362,7 +356,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                               return _buildFeatureItem(context, model);
                             }
 
-                            return InkWell(
+                            return CellPressable(
                               onTap: () => _handleContactTap(model),
                               onLongPress: () => _handleContactLongPress(model),
                               child: _buildChatItem(
@@ -399,11 +393,13 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                             downItemDecoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Theme.of(context).colorScheme.primary,
+                              // DESIGN.md §5.2 例外：indexBar 按下高亮 → 投影
+                              // alpha 0.3 → 0.08（对齐推荐值）
                               boxShadow: [
                                 BoxShadow(
                                   color: Theme.of(
                                     context,
-                                  ).colorScheme.primary.withValues(alpha: 0.3),
+                                  ).colorScheme.primary.withValues(alpha: 0.08),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -416,9 +412,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                                 context,
                               ).colorScheme.primary.withValues(alpha: 0.9),
                               borderRadius: AppRadius.borderRadiusSmall,
+                              // DESIGN.md §5.2 例外：字母索引 hint 浮窗（Tooltip 类）
+                              // alpha 0.1 → 0.08 对齐推荐值
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),

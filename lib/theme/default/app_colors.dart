@@ -348,6 +348,12 @@ class AppColors {
   /// iOS 系统黄 - 暗色
   static const Color iosYellowDark = Color(0xFFFFD60A);
 
+  /// iOS 风格青绿 / Mint 强调色
+  /// 用途：mine 模块频道（Channel）/ 设备管理图标背景，
+  /// 与 iOS 系统蓝/绿都不同，用于"次要功能但仍需视觉区分"的位置。
+  /// 取值 #00C896：mint 风格的中等饱和青绿，配合 10% alpha 容器背景使用。
+  static const Color iosTeal = Color(0xFF00C896);
+
   // iOS 中性灰阶（6 级，从浅到深命名与 Apple 保持一致）
   /// iOS Gray - 最常用次级文字色
   static const Color iosGray = Color(0xFF8E8E93);

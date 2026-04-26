@@ -59,9 +59,11 @@ class MentionListWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,
+        // DESIGN.md §5.2 例外：@ 提及候选下拉浮窗（Tooltip 类）
+        // alpha 0.1 → 0.08 对齐推荐值
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

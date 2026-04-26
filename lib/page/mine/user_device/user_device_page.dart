@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
@@ -196,10 +197,10 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                 )
               : null,
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: AppRadius.borderRadiusMedium,
+        // ClipRRect 让 CellPressable 高亮按卡片圆角裁切
+        child: ClipRRect(
+          borderRadius: AppRadius.borderRadiusMedium,
+          child: CellPressable(
             onTap: () {
               Navigator.push(
                 context,

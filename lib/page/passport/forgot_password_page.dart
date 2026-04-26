@@ -6,6 +6,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
+import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/passport/forgot_password_pin_code_page.dart';
 
@@ -62,7 +63,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: height * 0.12),
-                    notifier.title(color: AppColors.primary),
+                    const PassportTitle(color: AppColors.primary),
                     const SizedBox(height: 40),
 
                     Text(

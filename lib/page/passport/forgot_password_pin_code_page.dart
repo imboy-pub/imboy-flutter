@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/password.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/widget/fadeanimation.dart';
+import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -76,7 +77,7 @@ class _PinCodeVerificationPageState
                     const SizedBox(height: 80),
                     FadeAnimation(
                       delay: 0.8,
-                      child: notifier.title(color: AppColors.primary),
+                      child: const PassportTitle(color: AppColors.primary),
                     ),
                     const SizedBox(height: 40),
                     Container(

@@ -8,6 +8,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
+import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/login_history_input.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -105,7 +106,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: height * 0.12),
-                    notifier.title(color: AppColors.primary),
+                    const PassportTitle(color: AppColors.primary),
                     const SizedBox(height: 40),
 
                     // Tabs

@@ -400,9 +400,11 @@ class ScrollToBottomButton extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).primaryColor,
             shape: BoxShape.circle,
+            // DESIGN.md §5.2 例外：滚动到底 FAB 浮起按钮
+            // alpha 0.2 → 0.08 对齐推荐值
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

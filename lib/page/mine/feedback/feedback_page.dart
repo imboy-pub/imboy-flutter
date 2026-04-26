@@ -7,6 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image/image.dart' as img;
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -406,10 +407,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   Widget _buildFeedbackItem(BuildContext context, FeedbackModel model) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: AppRadius.borderRadiusMedium,
+    // ClipRRect 让 CellPressable 按下高亮按卡片圆角裁切，避免溢出
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusMedium,
+      child: CellPressable(
         onTap: () {
           context.push(
             '/feedback/detail/${model.feedbackId}',

@@ -41,7 +41,7 @@ final class MineNotifierProvider
   }
 }
 
-String _$mineNotifierHash() => r'4504673841848415f83b8ca46d15e6929e0c29bd';
+String _$mineNotifierHash() => r'6f0600f98906b53b6c72e877f13176b90e0ec69a';
 
 abstract class _$MineNotifier extends $Notifier<MineState> {
   MineState build();

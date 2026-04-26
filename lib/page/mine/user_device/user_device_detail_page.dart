@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -231,11 +232,10 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     VoidCallback? onTap,
     bool showArrow = false,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusRegular,
+      child: CellPressable(
         onTap: onTap,
-        borderRadius: AppRadius.borderRadiusRegular,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(

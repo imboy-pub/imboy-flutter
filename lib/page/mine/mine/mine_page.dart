@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -106,7 +108,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                       context,
                       title: t.channelSquare,
                       icon: Icons.explore_outlined,
-                      iconColor: const Color(0xFF00C896),
+                      iconColor: AppColors.iosTeal,
                       onTap: () => context.push('/channel/discover'),
                     ),
                   ]),
@@ -135,7 +137,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                     context,
                     title: t.loginDeviceManagement,
                     icon: Icons.devices_outlined,
-                    iconColor: const Color(0xFF00C896),
+                    iconColor: AppColors.iosTeal,
                     onTap: () => context.push('/devices'),
                   ),
                 ]),
@@ -168,99 +170,111 @@ class _MinePageState extends ConsumerState<MinePage> {
   }
 
   /// iOS Settings 风格 profile cell
-  Widget _buildProfileCard(BuildContext context, dynamic user) {
+  ///
+  /// [user] 当用户未登录或本地数据缺失时为 null，本方法走 fallback 显示
+  /// （`?` 占位首字母 + `t.unknown` 名 + `'-'` ID）。
+  Widget _buildProfileCard(BuildContext context, UserModel? user) {
     final theme = Theme.of(context);
-    return Material(
-      color: theme.cardColor,
-      borderRadius: AppRadius.borderRadiusCell,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => context.push('/personal_info/profile'),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              // 头像
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.primaryLight,
-                backgroundImage:
-                    strNoEmpty(user?.avatar) ? cachedImageProvider(user!.avatar) : null,
-                child: !strNoEmpty(user?.avatar)
-                    ? Text(
-                        user?.nickname?.substring(0, 1).toUpperCase() ?? '?',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                        ),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 14),
+    final hasAvatar = user != null && strNoEmpty(user.avatar);
+    final nickname = user?.nickname;
+    final initial = (nickname != null && nickname.isNotEmpty)
+        ? nickname.substring(0, 1).toUpperCase()
+        : '?';
+    final sign = user?.sign;
+    final hasSign = sign != null && strNoEmpty(sign);
 
-              // 名称 + ID + 签名
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user?.nickname ?? t.unknown,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                        letterSpacing: -0.41,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'ImBoy ID: ${user?.uid ?? '-'}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.iosGray,
-                        letterSpacing: -0.08,
-                      ),
-                    ),
-                    if (strNoEmpty(user?.sign)) ...[
-                      const SizedBox(height: 2),
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusCell,
+      child: ColoredBox(
+        color: theme.cardColor,
+        child: CellPressable(
+          onTap: () => context.push('/personal_info/profile'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                // 头像
+                CircleAvatar(
+                  radius: 32,
+                  backgroundColor: AppColors.primaryLight,
+                  backgroundImage:
+                      hasAvatar ? cachedImageProvider(user.avatar) : null,
+                  child: !hasAvatar
+                      ? Text(
+                          initial,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+
+                // 名称 + ID + 签名
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        user!.sign,
+                        nickname ?? t.unknown,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                          letterSpacing: -0.41,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'ImBoy ID: ${user?.uid ?? '-'}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                           color: AppColors.iosGray,
                           letterSpacing: -0.08,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
+                      if (hasSign) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          sign,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.iosGray,
+                            letterSpacing: -0.08,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
 
-              // QR 码按钮
-              IconButton(
-                onPressed: () => context.push('/qrcode/user'),
-                icon: Icon(
-                  Icons.qr_code_2,
+                // QR 码按钮
+                IconButton(
+                  onPressed: () => context.push('/qrcode/user'),
+                  icon: Icon(
+                    Icons.qr_code_2,
+                    color: AppColors.iosGray,
+                    size: 22,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(),
+                ),
+                const SizedBox(width: 2),
+
+                // chevron
+                Icon(
+                  CupertinoIcons.chevron_right,
                   color: AppColors.iosGray,
-                  size: 22,
+                  size: 14,
                 ),
-                padding: const EdgeInsets.all(4),
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 2),
-
-              // chevron
-              Icon(
-                CupertinoIcons.chevron_right,
-                color: AppColors.iosGray,
-                size: 14,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -288,48 +302,45 @@ class _MinePageState extends ConsumerState<MinePage> {
     VoidCallback? onTap,
   }) {
     final theme = Theme.of(context);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-          child: Row(
-            children: [
-              // 图标容器（圆角方形，10% 背景）
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.borderRadiusCell,
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, color: iconColor, size: 20),
+    return CellPressable(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        child: Row(
+          children: [
+            // 图标容器（圆角方形，10% 背景）
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: AppRadius.borderRadiusCell,
               ),
-              const SizedBox(width: 14),
+              alignment: Alignment.center,
+              child: Icon(icon, color: iconColor, size: 20),
+            ),
+            const SizedBox(width: 14),
 
-              // 标题
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: theme.colorScheme.onSurface,
-                    letterSpacing: -0.32,
-                  ),
+            // 标题
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface,
+                  letterSpacing: -0.32,
                 ),
               ),
+            ),
 
-              // chevron
-              Icon(
-                CupertinoIcons.chevron_right,
-                color: AppColors.iosGray,
-                size: 14,
-              ),
-            ],
-          ),
+            // chevron
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: AppColors.iosGray,
+              size: 14,
+            ),
+          ],
         ),
       ),
     );

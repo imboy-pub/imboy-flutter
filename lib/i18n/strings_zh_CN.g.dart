@@ -2519,6 +2519,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '浏览附件'
 	String get viewAttachments => '浏览附件';
 
+	/// zh-CN: '查看大图'
+	String get viewLargeImage => '查看大图';
+
 	/// zh-CN: '语音'
 	String get voice => '语音';
 
@@ -7367,6 +7370,7 @@ extension on Translations {
 			'videoMessage' => '[视频]',
 			'viewAllGroupMember' => '查看全部群成员',
 			'viewAttachments' => '浏览附件',
+			'viewLargeImage' => '查看大图',
 			'voice' => '语音',
 			'voiceCall' => '语音通话',
 			'voiceInput' => '语音输入',
@@ -7559,9 +7563,9 @@ extension on Translations {
 			'backgroundTransparency' => '背景透明度',
 			'defaultBackground' => '默认背景',
 			'geometricPattern' => '几何图案',
-			'simpleTexture' => '简约纹理',
 			_ => null,
 		} ?? switch (path) {
+			'simpleTexture' => '简约纹理',
 			'ripplePattern' => '波纹图案',
 			'gradientBlue' => '渐变蓝',
 			'gradientPurple' => '渐变紫',
@@ -8073,9 +8077,9 @@ extension on Translations {
 			'groupCategory.renameCategory' => '重命名分组',
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
-			'groupCategory.deleteFailed' => '删除失败，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
@@ -8587,9 +8591,9 @@ extension on Translations {
 			'initConfigProtocolError' => '服务故障协议有误',
 			'initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
-			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			_ => null,
 		} ?? switch (path) {
+			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'saveFailedRetry' => '保存失败，请重试',

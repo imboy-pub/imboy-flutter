@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:jverify/jverify.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/mine/change_password/set_password_page.dart';
@@ -239,73 +238,6 @@ class PassportNotifier extends _$PassportNotifier {
   /// 设置协议同意状态
   void setSelectedAgreement(String agreement) {
     state = state.copyWith(selectedAgreement: agreement);
-  }
-
-  /// 标题组件
-  Widget title({Color? color}) {
-    Color c = color ?? AppColors.primary;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: c.withValues(alpha: 0.18),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Image.asset(
-            'assets/images/imboy_logo0.png',
-            width: 56,
-            height: 56,
-            fit: BoxFit.contain,
-            // logo PNG 为白色，使用品牌色重新着色
-            color: c,
-            colorBlendMode: BlendMode.srcIn,
-          ),
-        ),
-        const SizedBox(height: 16),
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'IM',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: c,
-              letterSpacing: 1.2,
-            ),
-            children: [
-              TextSpan(
-                text: 'Boy',
-                style: TextStyle(
-                  color: AppColors.lightTextPrimary,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Simple · Secure · Reliable',
-          style: TextStyle(
-            color: AppColors.lightTextSecondary,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 4.0,
-          ),
-        ),
-      ],
-    );
   }
 
   /// 返回按钮组件

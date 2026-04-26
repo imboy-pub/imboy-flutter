@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
     show TagRelationPage;
@@ -40,17 +41,12 @@ class UserCollectDetailPage extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
+        // DESIGN.md §8.6 Modal Sheet：圆角 10pt（iOS 标准）+ 移除 boxShadow
+        // （iOS BottomSheet 自带 scrim 制造层级，不需要上浮投影）
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24.0),
-          topRight: Radius.circular(24.0),
+          topLeft: Radius.circular(AppRadius.cell),
+          topRight: Radius.circular(AppRadius.cell),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.15),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
       ),
       child: SafeArea(
         child: Column(
@@ -330,10 +326,10 @@ class UserCollectDetailPage extends ConsumerWidget {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusMedium,
+      // ClipRRect 让 CellPressable 高亮按 menu item 圆角裁切
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: CellPressable(
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
