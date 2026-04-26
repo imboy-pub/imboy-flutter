@@ -16,7 +16,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:imboy/page/chat/widget/chat_message_list.dart';
 
 /// Web 嵌入式聊天面板
 ///
@@ -41,6 +44,26 @@ class ChatPanel extends ConsumerWidget {
   /// 本 widget 不直接耦合 webShellProvider（保持模块边界）。
   final VoidCallback? onClose;
 
+  // === 2.1.b 新增：消息列表 props（可选，传入则用 ChatMessageList，否则占位） ===
+
+  /// 消息列表（null = 占位模式 / 空列表 = 显示空消息状态 / 非空 = 渲染列表）
+  final List<Message>? messages;
+
+  /// 当前用户 ID（messages 非 null 时必填）
+  final String? currentUserId;
+
+  /// 消息长按回调（messages 非 null 时必填）
+  final void Function(Message message)? onMessageLongPress;
+
+  /// 消息双击回调（messages 非 null 时必填）
+  final void Function(Message message)? onMessageDoubleTap;
+
+  /// 消息单击回调（可选）
+  final void Function(Message message)? onMessageTap;
+
+  /// 上拉到底加载更多（可选，分页）
+  final Future<void> Function()? onEndReached;
+
   const ChatPanel({
     super.key,
     required this.peerId,
@@ -48,7 +71,19 @@ class ChatPanel extends ConsumerWidget {
     required this.title,
     required this.closeTooltip,
     this.onClose,
-  });
+    this.messages,
+    this.currentUserId,
+    this.onMessageLongPress,
+    this.onMessageDoubleTap,
+    this.onMessageTap,
+    this.onEndReached,
+  }) : assert(
+         messages == null ||
+             (currentUserId != null &&
+                 onMessageLongPress != null &&
+                 onMessageDoubleTap != null),
+         'messages 提供时 currentUserId/onMessageLongPress/onMessageDoubleTap 必填',
+       );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,10 +106,19 @@ class ChatPanel extends ConsumerWidget {
             color: colorScheme.outlineVariant,
           ),
           Expanded(
-            child: _ChatPanelPlaceholder(
-              peerId: peerId,
-              chatType: chatType,
-            ),
+            child: messages == null
+                ? _ChatPanelPlaceholder(
+                    peerId: peerId,
+                    chatType: chatType,
+                  )
+                : ChatMessageList(
+                    messages: messages!,
+                    currentUserId: currentUserId!,
+                    onMessageLongPress: onMessageLongPress!,
+                    onMessageDoubleTap: onMessageDoubleTap!,
+                    onMessageTap: onMessageTap,
+                    onEndReached: onEndReached,
+                  ),
           ),
         ],
       ),
