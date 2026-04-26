@@ -48,3 +48,6 @@ export 'web_nav_items_factory.dart';
 
 // 深链参数编解码（URL ↔ state 互转，为 1.1.i 路由整合提供基础）（1.1.m）
 export 'web_shell_route_params.dart';
+
+// 桌面快捷键 → action 映射（Phase 4 提前投资）（1.1.l）
+export 'web_shell_keyboard_intent.dart';
