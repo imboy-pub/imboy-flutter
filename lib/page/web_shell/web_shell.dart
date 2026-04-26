@@ -54,3 +54,6 @@ export 'web_shell_keyboard_intent.dart';
 
 // ⭐ 三栏整合主入口 widget（无 i18n 依赖，参数注入）（1.1.h.2）
 export 'web_shell_page.dart';
+
+// ⭐ i18n + 业务接线层（路由调用方一行实例化）（1.1.h.1）
+export 'web_shell_bootstrap.dart';
