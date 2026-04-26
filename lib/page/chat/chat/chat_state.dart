@@ -4,6 +4,8 @@
 /// 所有状态变更通过 copyWith 方法
 library;
 
+import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
+
 /// 聊天状态
 class ChatState {
   /// 每页消息数量
@@ -43,6 +45,17 @@ class ChatState {
   /// msg_store 历史消息是否还有更多
   final bool historyHasMore;
 
+  /// 当前会话的消息列表（Phase 2.1.d 接缝字段）
+  ///
+  /// 默认 const []。ChatNotifier 在 init / 收消息 / 发消息 / 加载更多 等关键
+  /// 路径调 `state = state.copyWith(messages: _chatService.messages.toList())`
+  /// 同步给外部消费方（如 WebShellBootstrap.chatBuilder 接入 ChatPanel.messages）。
+  ///
+  /// 注：当前 chat_provider.dart 内部仍以 `_chatService.messages` 为唯一真相源，
+  /// 本字段是给外部 `ref.watch(chatProvider(peerId)).messages` 用的响应式镜像。
+  /// 后续 slice 在关键路径填充（避免本切片侵入 2554 行 chat_provider）。
+  final List<Message> messages;
+
   const ChatState({
     this.pageSize = 16,
     this.connected = true,
@@ -56,6 +69,7 @@ class ChatState {
     this.currentConversationId = '',
     this.lastHistorySeq = 0,
     this.historyHasMore = true,
+    this.messages = const [],
   });
 
   /// 创建副本
@@ -72,6 +86,7 @@ class ChatState {
     String? currentConversationId,
     int? lastHistorySeq,
     bool? historyHasMore,
+    List<Message>? messages,
   }) {
     return ChatState(
       pageSize: pageSize ?? this.pageSize,
@@ -87,6 +102,7 @@ class ChatState {
           currentConversationId ?? this.currentConversationId,
       lastHistorySeq: lastHistorySeq ?? this.lastHistorySeq,
       historyHasMore: historyHasMore ?? this.historyHasMore,
+      messages: messages ?? this.messages,
     );
   }
 
