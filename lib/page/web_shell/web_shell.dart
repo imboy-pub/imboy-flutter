@@ -45,3 +45,6 @@ export 'web_main_panel.dart';
 
 // NavItems 工厂（i18n + badge 与 widget 解耦）（1.1.h.0）
 export 'web_nav_items_factory.dart';
+
+// 深链参数编解码（URL ↔ state 互转，为 1.1.i 路由整合提供基础）（1.1.m）
+export 'web_shell_route_params.dart';
