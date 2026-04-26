@@ -73,6 +73,12 @@ class ChatState {
   /// msg_store 历史消息是否还有更多
   final bool historyHasMore;
 
+  /// Phase 2.1.d/e — 当前会话的消息列表（响应式镜像 _chatService.messages）
+  ///
+  /// 注：chat_provider.dart 内部 ChatState 与 chat_state.dart 是双份定义
+  /// （历史遗留），两边均加 messages 字段以保持兼容。后续重构应统一。
+  final List<Message> messages;
+
   const ChatState({
     this.pageSize = 16,
     this.connected = true,
@@ -86,6 +92,7 @@ class ChatState {
     this.currentConversationId = '',
     this.lastHistorySeq = 0,
     this.historyHasMore = true,
+    this.messages = const [],
   });
 
   ChatState copyWith({
@@ -101,6 +108,7 @@ class ChatState {
     String? currentConversationId,
     int? lastHistorySeq,
     bool? historyHasMore,
+    List<Message>? messages,
   }) {
     return ChatState(
       pageSize: pageSize ?? this.pageSize,
@@ -116,6 +124,7 @@ class ChatState {
           currentConversationId ?? this.currentConversationId,
       lastHistorySeq: lastHistorySeq ?? this.lastHistorySeq,
       historyHasMore: historyHasMore ?? this.historyHasMore,
+      messages: messages ?? this.messages,
     );
   }
 }
