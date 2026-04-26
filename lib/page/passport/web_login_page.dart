@@ -297,7 +297,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     // 监听 QR 登录成功
     ref.listen<QRLoginState>(qRLoginProvider, (previous, next) {
       if (next.status == QRLoginStatus.success) {
-        context.go('/bottom_navigation');
+        // Phase 1.1.i: WebLoginPage 仅在 kIsWeb 时被调用（参见 app_router.dart:113），
+// 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
+// BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
+context.go('/web_shell');
       }
     });
 
@@ -844,7 +847,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
 
               if (error == null) {
                 if (mounted) {
-                  context.go('/bottom_navigation');
+                  // Phase 1.1.i: WebLoginPage 仅在 kIsWeb 时被调用（参见 app_router.dart:113），
+// 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
+// BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
+context.go('/web_shell');
                 }
               } else {
                 passportNotifier.snackBar(error);

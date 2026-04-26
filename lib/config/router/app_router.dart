@@ -148,6 +148,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'bottom_navigation',
         builder: (context, state) => const BottomNavigationPage(),
       ),
+      // Web Shell 三栏壳（Phase 1.1.h.1+i）— Web 登录成功后跳转的入口
+      // 内部按响应式断点决定：< 900px → 回退 BottomNavigationPage，>= 900px → 三栏
+      // 深链支持：/web_shell?tab=chat&id=xxx&type=C2C 由 1.1.m parseShellRouteParams 解析
+      GoRoute(
+        path: '/web_shell',
+        name: 'web_shell',
+        builder: (context, state) => const WebShellBootstrap(),
+      ),
 
       // ==================== 会话列表 ====================
       GoRoute(
