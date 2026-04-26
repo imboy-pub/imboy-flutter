@@ -44,6 +44,9 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/services/message_handling_service.dart';
 
 import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
+// 技术债清理 (#14): 统一 ChatState 来源，避免与 chat_state.dart 双份定义
+import 'package:imboy/page/chat/chat/chat_state.dart';
+export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
 
 part 'chat_provider.g.dart';
 
@@ -54,80 +57,8 @@ MessageHandlingService messageHandlingService(Ref ref) {
   return const MessageHandlingService();
 }
 
-/// 聊天状态（Riverpod 不可变状态类）
-class ChatState {
-  final int pageSize;
-  final bool connected;
-  final bool hasMoreMessage;
-  final bool isLoading;
-  final bool isLoadingNewer;
-  final int nextAutoId;
-  final int prevAutoId;
-  final int memberCount;
-  final double composerHeight;
-  final String currentConversationId;
-
-  /// 上次拉取历史消息的 conv_seq 游标（用于 msg_store 分页，0 表示从头）
-  final int lastHistorySeq;
-
-  /// msg_store 历史消息是否还有更多
-  final bool historyHasMore;
-
-  /// Phase 2.1.d/e — 当前会话的消息列表（响应式镜像 _chatService.messages）
-  ///
-  /// 注：chat_provider.dart 内部 ChatState 与 chat_state.dart 是双份定义
-  /// （历史遗留），两边均加 messages 字段以保持兼容。后续重构应统一。
-  final List<Message> messages;
-
-  const ChatState({
-    this.pageSize = 16,
-    this.connected = true,
-    this.hasMoreMessage = true,
-    this.isLoading = false,
-    this.isLoadingNewer = false,
-    this.nextAutoId = 0,
-    this.prevAutoId = 0,
-    this.memberCount = 0,
-    this.composerHeight = 52.0,
-    this.currentConversationId = '',
-    this.lastHistorySeq = 0,
-    this.historyHasMore = true,
-    this.messages = const [],
-  });
-
-  ChatState copyWith({
-    int? pageSize,
-    bool? connected,
-    bool? hasMoreMessage,
-    bool? isLoading,
-    bool? isLoadingNewer,
-    int? nextAutoId,
-    int? prevAutoId,
-    int? memberCount,
-    double? composerHeight,
-    String? currentConversationId,
-    int? lastHistorySeq,
-    bool? historyHasMore,
-    List<Message>? messages,
-  }) {
-    return ChatState(
-      pageSize: pageSize ?? this.pageSize,
-      connected: connected ?? this.connected,
-      hasMoreMessage: hasMoreMessage ?? this.hasMoreMessage,
-      isLoading: isLoading ?? this.isLoading,
-      isLoadingNewer: isLoadingNewer ?? this.isLoadingNewer,
-      nextAutoId: nextAutoId ?? this.nextAutoId,
-      prevAutoId: prevAutoId ?? this.prevAutoId,
-      memberCount: memberCount ?? this.memberCount,
-      composerHeight: composerHeight ?? this.composerHeight,
-      currentConversationId:
-          currentConversationId ?? this.currentConversationId,
-      lastHistorySeq: lastHistorySeq ?? this.lastHistorySeq,
-      historyHasMore: historyHasMore ?? this.historyHasMore,
-      messages: messages ?? this.messages,
-    );
-  }
-}
+// 技术债 #14: ChatState 内部定义已删除，统一从 chat_state.dart import
+// （chat_state.dart 是 ChatState 的唯一真相源；本文件 export 它给下游使用）
 
 /// 聊天 Provider（Riverpod Notifier 实现）
 ///
