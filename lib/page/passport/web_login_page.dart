@@ -9,7 +9,7 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,10 +23,23 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/qr_login_response_rules.dart';
+import 'package:imboy/page/passport/qr_login_polling_rules.dart';
+import 'package:imboy/page/passport/qr_sse_session.dart';
+import 'package:imboy/page/passport/sse_client.dart';
+import 'package:imboy/page/passport/web_e2e_bypass.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/secure_token_storage_service.dart';
+import 'package:imboy/config/const.dart' show Keys;
+import 'package:imboy/service/storage.dart' show StorageService;
 
 part 'web_login_page.g.dart';
+
+// Step 2 (#8) — E2E 测试旁路 dart-define 守卫
+// 生产构建默认空字符串 → parseE2eBypassConfig 返回 BypassDisabled，零运行时开销
+const String _kWebE2eTokenEnv =
+    String.fromEnvironment('WEB_E2E_TOKEN', defaultValue: '');
+const String _kWebE2eUidEnv =
+    String.fromEnvironment('WEB_E2E_UID', defaultValue: '');
 
 /// QR 码登录状态
 enum QRLoginStatus {
@@ -77,12 +90,26 @@ class QRLoginState {
   }
 }
 
+/// QR SSE 客户端工厂签名（PR-4δ：让测试可注入 FakeSseClient）。
+typedef SseClientBuilder = SseClient Function();
+
 /// QR 码登录状态管理
 @riverpod
 class QRLogin extends _$QRLogin {
   Timer? _pollTimer;
   Timer? _expireTimer;
   String? _webDeviceId;
+
+  /// PR-4δ：SSE 会话（Web 平台主路径，失败 fallback 到 _startPolling）
+  QrSseSession? _sseSession;
+
+  /// PR-4δ：SSE 客户端工厂，测试可通过 setter 替换为 FakeSseClient
+  /// 默认走 platform-conditional createSseClient（Web 真实 EventSource，
+  /// 非 Web 走 IO stub 抛 UnsupportedError）。
+  SseClientBuilder _sseClientBuilder = createSseClient;
+  // ignore: avoid_setters_without_getters
+  set sseClientBuilderForTesting(SseClientBuilder builder) =>
+      _sseClientBuilder = builder;
 
   @override
   QRLoginState build() {
@@ -120,7 +147,13 @@ class QRLogin extends _$QRLogin {
             sessionToken: sessionToken,
             remainingSeconds: expiresInSeconds,
           );
-          _startPolling();
+          // PR-4δ: Web 平台优先 SSE 推送（实时），失败由 watcher 自动 fallback
+          // 到 _startPolling；非 Web 平台直接走轮询（无 EventSource 原生支持）。
+          if (kIsWeb) {
+            startSseSession(sessionToken);
+          } else {
+            _startPolling();
+          }
           _startExpireTimer();
         case QrCreateFailure():
           state = QRLoginState(
@@ -153,42 +186,42 @@ class QRLogin extends _$QRLogin {
           },
         );
 
-        // slice-5b：委托纯函数解析（27 测覆盖契约：6 status 字符串 /
-        // confirmed+token 防御 / payload 非 Map 等）。
+        // slice-5b：解析层（27 测覆盖契约：6 status 字符串 / confirmed+token 防御 /
+        // payload 非 Map 等）。
         final event = parseQrStatusResponse(
           ok: response.ok,
           code: response.code,
           payload: response.payload,
         );
-        switch (event) {
-          case QrStatusStopPolling():
+        // slice-5c：决策层（24 测覆盖：sessionToken 守卫 + 7 状态分支 + 协议违反）。
+        switch (derivePollingDecision(
+          sessionToken: state.sessionToken,
+          event: event,
+        )) {
+          case StopSilently():
             timer.cancel();
             return;
-          case QrStatusWaiting():
-            return; // 继续轮询
-          case QrStatusScanned():
+          case KeepPolling():
+            // 未知 status 时若需诊断可在此 debugPrint，但生产路径保持静默。
+            return;
+          case TransitionToScanned():
             state = state.copyWith(status: QRLoginStatus.scanned);
-          case QrStatusConfirmed(:final token):
+          case RequestCompleteLogin(:final token):
             state = state.copyWith(status: QRLoginStatus.confirming);
             await _completeLogin(token);
-          case QrStatusExpired():
+          case TransitionToExpired():
             state = state.copyWith(status: QRLoginStatus.expired);
             timer.cancel();
-          case QrStatusCancelled():
+          case TransitionToCancelledThenRefresh():
             state = state.copyWith(status: QRLoginStatus.waiting);
             await generateQRCode();
-          case QrStatusUnknown(:final rawStatus):
-            // 协议违反：confirmed 但 token 为空（后端契约保证不会发生，但客户端
-            // 防御性处理，保留原 Notifier 行为：状态机退回 failed）。
-            if (rawStatus == 'confirmed') {
-              state = state.copyWith(
-                status: QRLoginStatus.failed,
-                errorMessage: t.webQRTokenInvalid,
-              );
-              timer.cancel();
-            } else if (kDebugMode) {
-              debugPrint('qr_login unknown status: $rawStatus');
-            }
+          case ProtocolViolation():
+            // confirmed 但 token 为空（后端契约保证不会发生，但客户端防御）。
+            state = state.copyWith(
+              status: QRLoginStatus.failed,
+              errorMessage: t.webQRTokenInvalid,
+            );
+            timer.cancel();
         }
       } catch (e) {
         debugPrint('轮询扫码状态失败: $e');
@@ -200,39 +233,37 @@ class QRLogin extends _$QRLogin {
   void _startExpireTimer() {
     _expireTimer?.cancel();
     _expireTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.remainingSeconds <= 0) {
-        state = state.copyWith(status: QRLoginStatus.expired);
-        timer.cancel();
-        return;
+      switch (deriveExpireTickDecision(remainingSeconds: state.remainingSeconds)) {
+        case MarkExpired():
+          state = state.copyWith(status: QRLoginStatus.expired);
+          timer.cancel();
+        case DecrementRemaining(:final newRemainingSeconds):
+          state = state.copyWith(remainingSeconds: newRemainingSeconds);
       }
-      state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
     });
   }
 
   /// 完成登录
   Future<void> _completeLogin(String? token) async {
-    if (token == null || token.isEmpty) {
-      state = state.copyWith(
-        status: QRLoginStatus.failed,
-        errorMessage: t.webQRTokenInvalid,
-      );
-      return;
-    }
-
-    try {
-      // 保存 token
-      await SecureTokenStorageService.saveToken(token);
-
-      state = state.copyWith(status: QRLoginStatus.success);
-
-      // 停止轮询
-      _pollTimer?.cancel();
-      _expireTimer?.cancel();
-    } catch (e) {
-      state = state.copyWith(
-        status: QRLoginStatus.failed,
-        errorMessage: '登录失败: $e',
-      );
+    switch (deriveCompleteLoginDecision(token: token)) {
+      case RejectInvalidToken():
+        state = state.copyWith(
+          status: QRLoginStatus.failed,
+          errorMessage: t.webQRTokenInvalid,
+        );
+        return;
+      case ProceedWithToken(:final token):
+        try {
+          await SecureTokenStorageService.saveToken(token);
+          state = state.copyWith(status: QRLoginStatus.success);
+          _pollTimer?.cancel();
+          _expireTimer?.cancel();
+        } catch (e) {
+          state = state.copyWith(
+            status: QRLoginStatus.failed,
+            errorMessage: '登录失败: $e',
+          );
+        }
     }
   }
 
@@ -249,10 +280,70 @@ class QRLogin extends _$QRLogin {
     _expireTimer?.cancel();
   }
 
+  /// PR-4δ: 启动 SSE 会话（Web 平台主路径）。
+  ///
+  /// 标记 `@visibleForTesting` 而非 private —— 让单测可绕过 generateQRCode
+  /// 的 HTTP 调用直接验证状态机接线。生产路径只通过 generateQRCode 内部触发。
+  ///
+  /// onEvent 复用 `derivePollingDecision`：与轮询路径同套状态机，避免双轨漂移。
+  /// onFallback 调 `_startPolling()`：SSE 不可用时无缝降级。
+  @visibleForTesting
+  void startSseSession(String sessionToken, {int gracePeriodSeconds = 3}) {
+    _sseSession?.stop();  // 防重入：旧会话先清理
+    final session = QrSseSession(
+      client: _sseClientBuilder(),
+      onEvent: (event) {
+        switch (derivePollingDecision(
+          sessionToken: state.sessionToken,
+          event: event,
+        )) {
+          case StopSilently():
+          case KeepPolling():
+            // SSE 路径下 StopSilently 表示协议异常，等 watcher 触发 fallback
+            return;
+          case TransitionToScanned():
+            state = state.copyWith(status: QRLoginStatus.scanned);
+          case RequestCompleteLogin(:final token):
+            state = state.copyWith(status: QRLoginStatus.confirming);
+            _completeLogin(token);
+          case TransitionToExpired():
+            state = state.copyWith(status: QRLoginStatus.expired);
+            _stopSseSession();
+          case TransitionToCancelledThenRefresh():
+            state = state.copyWith(status: QRLoginStatus.waiting);
+            _stopSseSession();
+            generateQRCode();
+          case ProtocolViolation():
+            state = state.copyWith(
+              status: QRLoginStatus.failed,
+              errorMessage: t.webQRTokenInvalid,
+            );
+            _stopSseSession();
+        }
+      },
+      onFallback: () {
+        // SSE 不可用 → 启动 2 秒轮询兜底（与现有 _startPolling 完全一致）
+        _startPolling();
+      },
+    );
+    _sseSession = session;
+    final url = '/v1/passport/qr_login/subscribe?session_token=$sessionToken';
+    unawaited(session.start(url, gracePeriodSeconds: gracePeriodSeconds));
+  }
+
+  void _stopSseSession() {
+    final s = _sseSession;
+    _sseSession = null;
+    if (s != null) {
+      unawaited(s.stop());
+    }
+  }
+
   /// 清理资源
   void dispose() {
     _pollTimer?.cancel();
     _expireTimer?.cancel();
+    _stopSseSession();
   }
 }
 
@@ -272,10 +363,22 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
   @override
   void initState() {
     super.initState();
-    // Web 平台自动生成 QR 码
+    // Web 平台自动生成 QR 码（或 E2E 测试旁路：直接注入登录态跳 /web_shell）
     if (kIsWeb) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(qRLoginProvider.notifier).generateQRCode();
+      final bypass = parseE2eBypassConfig(
+        token: _kWebE2eTokenEnv,
+        uid: _kWebE2eUidEnv,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        switch (bypass) {
+          case BypassDisabled():
+            ref.read(qRLoginProvider.notifier).generateQRCode();
+          case BypassEnabled(:final token, :final uid):
+            // 注入登录态：写 currentUid + secure token，不走 QR/SSE 链路
+            await StorageService.to.setString(Keys.currentUid, uid);
+            await SecureTokenStorageService.saveToken(token);
+            if (mounted) context.go('/web_shell');
+        }
       });
     }
   }
