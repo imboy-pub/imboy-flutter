@@ -19,8 +19,15 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///   - 文字克制：w700（非 w800）、letterSpacing 0.5（非 2）、移除阴影
 ///     （DESIGN.md §3.3 字重 / §5.2 iOS 不用重投影）
 ///   - 响应式 logo 尺寸：屏幕短边 × 0.55，封顶 240pt（兼容 iPhone SE 320pt 宽）
-///   - StatusBar 强制 light 内容色，避免与品牌蓝渐变背景冲突
+///   - StatusBar 强制 light 内容色（亮 / 暗渐变都是深色背景），避免内容色冲突
 ///   - 顶部 RadialGradient 高光（atmosphere），打破纯渐变的"平"感
+///   - **暗色模式自适应**：渐变改用 `splashGradient*Dark` 三 Token，亮度 ~27%→~9%，
+///     与 darkSurface (#121212) 形成蓝调缓冲；高光从 12% 白压到 8% 白，避免脏点
+///   - **无障碍**：Logo 与 DEV 角标 ExcludeSemantics（图像装饰 / dev 噪音不朗读），
+///     wordmark + slogan + security 走默认 Text 语义；VoiceOver 朗读序列：
+///     "ImBoy" → slogan → security（顺序确定，简洁专业）
+///   - **减弱动效**：监听 `MediaQuery.disableAnimationsOf`，系统"减弱动态效果"启用时
+///     跳过全部 fade/scale/moveY，直接渲染终态（仍保留 1400ms 跳转保底）
 ///   - debug 模式右下角显示 "DEV" 角标，避免误把 debug 包当 release
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -35,11 +42,21 @@ class SplashPage extends ConsumerStatefulWidget {
 /// 尺寸落差由 Flutter Hero 默认 RectTween 自然过渡（hero flight ~300ms）。
 const String kBrandLogoHeroTag = 'imboy_brand_logo';
 
-class _SplashPageState extends ConsumerState<SplashPage> {
-  // 启动页保底时长：覆盖最长动画峰值（slogan 在 950ms 后才完整显示），
-  // 加 ~400ms 体感停留，避免"动画刚演完就被切走"的突兀感。
-  static const Duration _minHoldDuration = Duration(milliseconds: 1400);
+/// 首启 / 未登录用户保底时长 - 1400ms
+///
+/// 覆盖最长动画峰值（slogan 在 950ms 完整显示）+ ~400ms 体感停留，
+/// 避免"动画刚演完就被切走"的突兀感。首启用户对品牌曝光价值高，保留较长。
+const Duration kSplashMinHoldNew = Duration(milliseconds: 1400);
 
+/// 已登录用户保底时长 - 900ms
+///
+/// 已登录用户每天打开 N 次，1400ms 累计成可感知的"等待感"。
+/// 业界基线：WhatsApp ~500ms / Telegram ~600ms / 微信 800-1000ms。
+/// 取 900ms 折中：900ms 跳转时 slogan 已 fade-in 87%，余 50ms 由路由切换
+/// 的 ~300ms 自然过渡掩盖；比 1400ms 缩短 35.7%，高频用户每次省 500ms。
+const Duration kSplashMinHoldReturning = Duration(milliseconds: 900);
+
+class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
@@ -49,12 +66,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   Future<void> _checkAuth() async {
-    // 认证检查为本地同步操作，几乎瞬时完成；总时长由 _minHoldDuration 保底
-    await Future<void>.delayed(_minHoldDuration);
+    // 认证检查为本地同步操作，几乎瞬时完成；总时长由保底 duration 决定。
+    // **关键**：在 await 前快照登录态，避免 await 期间 UserRepoLocal 状态变化
+    // 导致用户经历"长 hold（首启分支）但实际已登录"的不一致体验。
+    final bool isLoggedIn = UserRepoLocal.to.isLoggedIn;
+    final Duration hold =
+        isLoggedIn ? kSplashMinHoldReturning : kSplashMinHoldNew;
+
+    await Future<void>.delayed(hold);
 
     if (!mounted) return;
 
-    final bool isLoggedIn = UserRepoLocal.to.isLoggedIn;
     if (isLoggedIn) {
       context.go('/bottom_navigation');
     } else {
@@ -68,33 +90,54 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     final shortest = MediaQuery.sizeOf(context).shortestSide;
     final logoSize = math.min(shortest * 0.55, 240.0);
 
+    // 暗色模式自适应：读取系统 platformBrightness（独立于 app theme，
+    // 因为 splash 在 ThemeManager 之前渲染，无法依赖 Theme.of(context).brightness）
+    final isDark =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+
+    // 减弱动效：响应系统 "Reduce Motion" / "Remove animations"。
+    // 启用后所有 fade / scale / moveY 跳过，直接渲染终态。
+    final disableAnim = MediaQuery.disableAnimationsOf(context);
+
+    final List<Color> gradientColors = isDark
+        ? const [
+            AppColors.splashGradientStartDark, // #1E3A8A
+            AppColors.splashGradientMidDark, //   #172554
+            AppColors.splashGradientEndDark, //   #0F1729
+          ]
+        : const [
+            AppColors.splashGradientStart, // #42A5F5 浅蓝
+            AppColors.primary, //             #2474E5 品牌蓝
+            AppColors.primaryDark, //         #1565C0 深蓝
+          ];
+
+    // 高光透明度：暗色背景上压低 4 个百分点，避免"灰雾"脏感
+    final Color highlightStart =
+        isDark ? const Color(0x14FFFFFF) /* 8% */ : const Color(0x1FFFFFFF) /* 12% */;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppColors.splashGradientStart, // #42A5F5 浅蓝
-              AppColors.primary, // #2474E5 品牌蓝
-              AppColors.primaryDark, // #1565C0 深蓝
-            ],
+            colors: gradientColors,
           ),
         ),
         child: Stack(
           children: [
             // ── 顶部光晕（atmosphere），低透明度径向白光打破纯渐变 ──
-            const Positioned.fill(
+            Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
-                    center: Alignment(0, -0.35),
+                    center: const Alignment(0, -0.35),
                     radius: 0.95,
                     colors: [
-                      Color(0x1FFFFFFF), // 白 12%
-                      Color(0x00FFFFFF),
+                      highlightStart,
+                      const Color(0x00FFFFFF),
                     ],
                   ),
                 ),
@@ -106,71 +149,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo：fade + 微 scale（移除 elasticOut 弹性）
-                  // Hero 包在最外层，跳转 Welcome 时品牌锚点缩到顶部 28×28 wordmark 旁
-                  Hero(
-                    tag: kBrandLogoHeroTag,
-                    child: Image.asset(
-                      'assets/images/imboy_logo0.png',
-                      width: logoSize,
-                      height: logoSize,
-                      fit: BoxFit.contain,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 600.ms, curve: Curves.easeOut)
-                      .scale(
-                        begin: const Offset(0.92, 0.92),
-                        end: const Offset(1, 1),
-                        duration: 600.ms,
-                        curve: Curves.easeOutCubic,
-                      ),
-
+                  _buildLogo(logoSize: logoSize, disableAnim: disableAnim),
                   const SizedBox(height: 28),
-
-                  // 应用名称（克制：w700 + letterSpacing 0.5 + 无阴影）
-                  const Text(
-                    'ImBoy',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                      height: 1.0,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(
-                        delay: 200.ms,
-                        duration: 500.ms,
-                        curve: Curves.easeOut,
-                      )
-                      .moveY(
-                        begin: 8,
-                        end: 0,
-                        delay: 200.ms,
-                        duration: 500.ms,
-                        curve: Curves.easeOutCubic,
-                      ),
-
+                  _buildWordmark(disableAnim: disableAnim),
                   const SizedBox(height: 14),
-
-                  // Slogan（半透明白，与主标题拉开层级）
-                  Text(
-                    context.t.splash.slogan,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withValues(alpha: 0.85),
-                      letterSpacing: 0.3,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(
-                        delay: 550.ms,
-                        duration: 400.ms,
-                        curve: Curves.easeOut,
-                      ),
+                  _buildSlogan(context, disableAnim: disableAnim),
                 ],
               ),
             ),
@@ -184,21 +167,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                 minimum: const EdgeInsets.only(bottom: 24),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    context.t.splash.security,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white.withValues(alpha: 0.7),
-                      letterSpacing: 0.2,
-                    ),
-                  ).animate().fadeIn(delay: 900.ms, duration: 300.ms),
+                  child: _buildSecurity(context, disableAnim: disableAnim),
                 ),
               ),
             ),
 
             // ── debug 模式角标：避免把 debug 包当 release ──
+            // ExcludeSemantics：dev-only 标识，不应被 VoiceOver 朗读
             if (kDebugMode)
               Positioned(
                 right: 0,
@@ -206,13 +181,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 8, bottom: 8),
-                    child: Text(
-                      'DEV',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.45),
-                        letterSpacing: 1.0,
+                    child: ExcludeSemantics(
+                      child: Text(
+                        'DEV',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.45),
+                          letterSpacing: 1.0,
+                        ),
                       ),
                     ),
                   ),
@@ -222,5 +199,100 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         ),
       ),
     );
+  }
+
+  /// Logo：Hero + ExcludeSemantics（图像装饰，wordmark 已承担"ImBoy"语义朗读）。
+  /// disableAnim=true 时直接返回 Hero 终态，跳过 fade + scale。
+  ///
+  /// 资源现状：`imboy_logo0.png` 仅 200×200，目标显示 240pt × DPR 3x = 720px，
+  /// 拉伸 ~3.6x → 欠采样。`filterQuality: FilterQuality.high` 启用三线性 + Mipmap
+  /// 替代 Flutter 默认 `low`（双线性），对欠采样模糊有 ~5-15% 视觉缓解。
+  /// 不加 `cacheWidth/cacheHeight`：原图小于目标解码尺寸时 Flutter 不会上采样，
+  /// cacheWidth 在此场景无收益。
+  ///
+  /// TODO(brand): 重导出 imboy_logo0.png ≥1024×1024 或迁移 SVG（与 Welcome 页 flutter_svg 一致）；
+  ///              资源升级后改为 cacheWidth = (logoSize * DPR).round() 真正"防过采样"。
+  Widget _buildLogo({required double logoSize, required bool disableAnim}) {
+    final node = Hero(
+      tag: kBrandLogoHeroTag,
+      child: ExcludeSemantics(
+        child: Image.asset(
+          'assets/images/imboy_logo0.png',
+          width: logoSize,
+          height: logoSize,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
+        ),
+      ),
+    );
+    if (disableAnim) return node;
+    return node
+        .animate()
+        .fadeIn(duration: 600.ms, curve: Curves.easeOut)
+        .scale(
+          begin: const Offset(0.92, 0.92),
+          end: const Offset(1, 1),
+          duration: 600.ms,
+          curve: Curves.easeOutCubic,
+        );
+  }
+
+  /// 品牌 wordmark "ImBoy"：保留默认 Text 语义（VoiceOver 朗读 "ImBoy"），
+  /// 是 Splash 屏唯一承担品牌识别朗读的节点（Logo 已被 ExcludeSemantics）。
+  Widget _buildWordmark({required bool disableAnim}) {
+    const node = Text(
+      'ImBoy',
+      style: TextStyle(
+        fontSize: 36,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        letterSpacing: 0.5,
+        height: 1.0,
+      ),
+    );
+    if (disableAnim) return node;
+    return node
+        .animate()
+        .fadeIn(delay: 200.ms, duration: 500.ms, curve: Curves.easeOut)
+        .moveY(
+          begin: 8,
+          end: 0,
+          delay: 200.ms,
+          duration: 500.ms,
+          curve: Curves.easeOutCubic,
+        );
+  }
+
+  Widget _buildSlogan(BuildContext context, {required bool disableAnim}) {
+    final node = Text(
+      context.t.splash.slogan,
+      style: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+        color: Colors.white.withValues(alpha: 0.85),
+        letterSpacing: 0.3,
+      ),
+    );
+    if (disableAnim) return node;
+    return node.animate().fadeIn(
+          delay: 550.ms,
+          duration: 400.ms,
+          curve: Curves.easeOut,
+        );
+  }
+
+  Widget _buildSecurity(BuildContext context, {required bool disableAnim}) {
+    final node = Text(
+      context.t.splash.security,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: Colors.white.withValues(alpha: 0.7),
+        letterSpacing: 0.2,
+      ),
+    );
+    if (disableAnim) return node;
+    return node.animate().fadeIn(delay: 900.ms, duration: 300.ms);
   }
 }

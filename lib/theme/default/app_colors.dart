@@ -49,6 +49,26 @@ class AppColors {
   /// 各自维护以避免跨场景耦合。
   static const Color splashGradientStart = Color(0xFF42A5F5);
 
+  /// Splash 启动页暗色渐变起始色 - Tailwind blue-900 (#1E3A8A)
+  ///
+  /// 用于系统暗色模式下的 Splash 三段式渐变首段，
+  /// 与 [splashGradientMidDark] (#172554) + [splashGradientEndDark] (#0F1729) 组成
+  /// "压暗的品牌蓝"渐变（亮度 ~27% → ~17% → ~9%）：
+  ///   - 保留蓝色家族识别（不退化为 [darkBackground] 纯灰）
+  ///   - 在 OLED / 强制深色场景下不刺眼
+  ///   - 与 [darkSurface] (#121212) 之间存在蓝调过渡，避免色温断层
+  static const Color splashGradientStartDark = Color(0xFF1E3A8A);
+
+  /// Splash 启动页暗色渐变中段色 - Tailwind blue-950 (#172554)
+  /// 与 [splashGradientStartDark] / [splashGradientEndDark] 配套使用
+  static const Color splashGradientMidDark = Color(0xFF172554);
+
+  /// Splash 启动页暗色渐变末段色 - 深蓝近黑 (#0F1729)
+  ///
+  /// 比 [darkSurface] (#121212) 略带蓝调，让 Splash → 主页面的暗色衔接
+  /// 在视觉上有一段"色温缓冲"，避免品牌蓝直接撞到中性纯灰。
+  static const Color splashGradientEndDark = Color(0xFF0F1729);
+
   // ============ Material 3 次要色系统 ============
   /// 次要色 - Material 3 Secondary - Indigo 400
   static const Color secondary = Color(0xFF5C6BC0);

@@ -1,10 +1,39 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/splash/splash_page.dart';
+
+/// Test-only fake — injected via `tester.platformDispatcher.accessibilityFeaturesTestValue`
+/// so `MediaQuery.disableAnimationsOf` reflects the system "Reduce Motion" state.
+///
+/// Injecting via `MediaQuery` widget does NOT work here because `MaterialApp.router`
+/// rebuilds its own `MediaQuery.fromView`, which reads `accessibilityFeatures` from
+/// `PlatformDispatcher` and overrides any ancestor `MediaQuery` widget.
+class _DisableAnimFeatures implements ui.AccessibilityFeatures {
+  const _DisableAnimFeatures();
+  @override
+  bool get accessibleNavigation => false;
+  @override
+  bool get boldText => false;
+  @override
+  bool get disableAnimations => true;
+  @override
+  bool get highContrast => false;
+  @override
+  bool get invertColors => false;
+  @override
+  bool get onOffSwitchLabels => false;
+  @override
+  bool get reduceMotion => true;
+  @override
+  bool get supportsAnnounce => false;
+}
 
 /// SplashPage 响应式 logo + Hero 锚点 + 品牌元素契约测试
 ///
@@ -146,5 +175,133 @@ void main() {
       expect(find.text('DEV'), findsOneWidget);
       await _drainSplashTimer(tester);
     });
+  });
+
+  // ── P0-4 hold duration tiers ─────────────────────────────────────────
+  group('SplashPage hold duration tiers', () {
+    test(
+      'Returning users get strictly shorter hold than first-time / logged-out',
+      () {
+        expect(
+          kSplashMinHoldReturning < kSplashMinHoldNew,
+          isTrue,
+          reason: 'Returning-user hold MUST be shorter (high-frequency UX)',
+        );
+      },
+    );
+
+    test(
+      'Returning hold ≥ 800ms — must still cover Hero flight + brand glance',
+      () {
+        // Hero RectTween flight ≈ 300ms, plus minimal brand glance ≈ 500ms.
+        // Below 800ms users see logo "flash and go" — perceived as broken.
+        expect(
+          kSplashMinHoldReturning.inMilliseconds,
+          greaterThanOrEqualTo(800),
+        );
+      },
+    );
+
+    test(
+      'First-time hold ≥ 950ms — must cover slogan fade-in end (delay 550ms + dur 400ms)',
+      () {
+        // slogan animation ends at 550 + 400 = 950ms. Cutting earlier = animation
+        // janks mid-flight. Reduce Motion still reaches end state instantly,
+        // so the floor is for the default-animation path.
+        expect(kSplashMinHoldNew.inMilliseconds, greaterThanOrEqualTo(950));
+      },
+    );
+
+    test('First-time hold ≤ 2000ms — guard against accidental long-hold regressions', () {
+      // Anything beyond 2s feels like a frozen launch — protect against
+      // a future "let's bump it for breathing room" misstep.
+      expect(kSplashMinHoldNew.inMilliseconds, lessThanOrEqualTo(2000));
+    });
+  });
+
+  // ── P0-2 accessibility: Semantics scoping + Reduce Motion ────────────
+  group('SplashPage accessibility', () {
+    testWidgets(
+      'Logo and DEV badge are wrapped in ExcludeSemantics so VoiceOver only '
+      'reads wordmark + slogan + security',
+      (tester) async {
+        await _pumpSplash(tester, size: const Size(390, 844));
+
+        // Logo's ExcludeSemantics lives inside the Hero subtree.
+        // (Wordmark conveys 'ImBoy' textually; logo image stays decorative.)
+        expect(
+          find.descendant(
+            of: find.byType(Hero),
+            matching: find.byType(ExcludeSemantics),
+          ),
+          findsOneWidget,
+          reason: 'Logo image must be excluded from a11y tree',
+        );
+
+        // DEV badge: ExcludeSemantics is the immediate ancestor of the text.
+        expect(
+          find.ancestor(
+            of: find.text('DEV'),
+            matching: find.byType(ExcludeSemantics),
+          ),
+          findsOneWidget,
+          reason: 'DEV badge (debug-only noise) must be excluded',
+        );
+
+        // wordmark / slogan / security must NOT be excluded (read naturally).
+        expect(
+          find.ancestor(
+            of: find.text('ImBoy'),
+            matching: find.byType(ExcludeSemantics),
+          ),
+          findsNothing,
+          reason: 'Wordmark "ImBoy" is the sole brand-name announcement',
+        );
+
+        await _drainSplashTimer(tester);
+      },
+    );
+
+    testWidgets(
+      'Default (no Reduce Motion): logo / wordmark / slogan / security all '
+      'wrapped in flutter_animate Animate widgets',
+      (tester) async {
+        await _pumpSplash(tester, size: const Size(390, 844));
+
+        // 4 staged entrance animations expected when Reduce Motion is off
+        expect(find.byType(Animate), findsNWidgets(4));
+        await _drainSplashTimer(tester);
+      },
+    );
+
+    testWidgets(
+      'Reduce Motion enabled: skips all Animate wrappers, renders end states '
+      'directly (Image / Text widgets still present, animations gone)',
+      (tester) async {
+        // Inject system-level disableAnimations=true via platformDispatcher.
+        // MediaQuery.disableAnimationsOf reads from there, so MaterialApp's
+        // internally-rebuilt MediaQuery will pick it up.
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const _DisableAnimFeatures();
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+
+        await _pumpSplash(tester, size: const Size(390, 844));
+
+        // Zero Animate wrappers — every staged entrance is short-circuited.
+        expect(
+          find.byType(Animate),
+          findsNothing,
+          reason: 'Reduce Motion must short-circuit flutter_animate chains',
+        );
+
+        // Brand surface still visually intact (terminal state rendered):
+        expect(find.byType(Image), findsOneWidget);
+        expect(find.text('ImBoy'), findsOneWidget);
+
+        await _drainSplashTimer(tester);
+      },
+    );
   });
 }

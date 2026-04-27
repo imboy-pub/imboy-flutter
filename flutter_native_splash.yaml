@@ -22,10 +22,14 @@ flutter_native_splash:
   # branding: assets/dart.png
   # branding_mode: bottom
 
-  # Dark mode configuration (optional)
-  # Dark mode uses the same gradient background as blue displays well on dark backgrounds
-  # background_image_dark: "assets/images/splash_gradient_bg.png"
-  # image_dark: assets/images/splash_logo.png
+  # Dark mode configuration
+  # Strategy: solid `color_dark` instead of a separate gradient PNG, to avoid
+  # adding a new dark-variant asset. Value matches `splashGradientMidDark`
+  # (#172554, Tailwind blue-950) — the visual midpoint of the Dart-side
+  # `SplashPage` dark gradient (start #1E3A8A → mid #172554 → end #0F1729),
+  # so the native → Dart transition stays color-coherent in dark mode.
+  color_dark: "#172554"
+  image_dark: assets/images/splash_logo.png
 
   # Android 12+ splash screen configuration
   # Android 12 uses the new Splash Screen API, requiring separate configuration
@@ -34,10 +38,9 @@ flutter_native_splash:
     image: assets/images/splash_logo.png
     # Icon background color (use primary blue)
     icon_background_color: "#2474E5"
-
-  # Android 12+ dark mode configuration (optional)
-  # image_dark: assets/images/splash_logo.png
-  # icon_background_color_dark: "#2474E5"
+    # Dark mode: brand identity preserved at lower luminance (#1E3A8A, Tailwind blue-900)
+    image_dark: assets/images/splash_logo.png
+    icon_background_color_dark: "#1E3A8A"
 
   # Platform switches: enable Android and iOS
   android: true
