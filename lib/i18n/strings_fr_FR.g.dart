@@ -1312,7 +1312,6 @@ class _TranslationsSplashFrFr extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => 'Communiquez librement';
-	@override String get security => 'Sûr et fiable · Maîtrise totale';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsFrFr {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => 'Communiquez librement',
-			'splash.security' => 'Sûr et fiable · Maîtrise totale',
 			'about' => 'À propos',
 			'aboutApp' => 'À propos de l\'application',
 			'accept' => 'Accepter',
@@ -1994,9 +1992,9 @@ extension on TranslationsFrFr {
 			'quickFilters' => 'Filtres rapides',
 			'quote' => 'Citer',
 			'quoteReply' => 'Réponse citée',
+			'rating' => 'Évaluation',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => 'Évaluation',
 			'reEdit' => 'Modifier à nouveau',
 			'readAgreeParam' => ({required Object param}) => 'J\'ai lu et accepté ${param}',
 			'recentChats' => 'Chats récents',
@@ -2508,9 +2506,9 @@ extension on TranslationsFrFr {
 			'sendNewMessage' => 'Envoyer un nouveau message',
 			'saveFailed' => 'Échec de l\'enregistrement.',
 			'markRead' => 'Marquer comme lu',
+			'markUnread' => 'Marquer comme non lu',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => 'Marquer comme non lu',
 			'discover' => 'Découvrir',
 			'shake' => 'Secouer',
 			'tip' => 'Conseil',

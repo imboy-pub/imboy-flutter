@@ -1312,7 +1312,6 @@ class _TranslationsSplashJaJp extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => '自由に話し、自然に繋がる';
-	@override String get security => '安全で信頼できる・自分で管理できる';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsJaJp {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => '自由に話し、自然に繋がる',
-			'splash.security' => '安全で信頼できる・自分で管理できる',
 			'about' => '概要',
 			'aboutApp' => 'このアプリについて',
 			'accept' => '承認',
@@ -1994,9 +1992,9 @@ extension on TranslationsJaJp {
 			'quickFilters' => 'クイックフィルター',
 			'quote' => '引用',
 			'quoteReply' => '引用返信',
+			'rating' => '評価',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => '評価',
 			'reEdit' => '再編集',
 			'readAgreeParam' => ({required Object param}) => '${param}を読んで同意しました',
 			'recentChats' => '最近のチャット',
@@ -2508,9 +2506,9 @@ extension on TranslationsJaJp {
 			'sendNewMessage' => '新しいメッセージを送信',
 			'saveFailed' => '保存に失敗しました',
 			'markRead' => '既読にする',
+			'markUnread' => '未読にする',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => '未読にする',
 			'discover' => '発見',
 			'shake' => 'シェイク',
 			'tip' => 'ヒント',

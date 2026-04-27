@@ -1312,7 +1312,6 @@ class _TranslationsSplashRuRu extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => 'Свободно общайтесь — легко и удобно';
-	@override String get security => 'Безопасно и надёжно · Под вашим контролем';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsRuRu {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
-			'splash.security' => 'Безопасно и надёжно · Под вашим контролем',
 			'about' => 'О приложении',
 			'aboutApp' => 'О приложении',
 			'accept' => 'Принять',
@@ -1994,9 +1992,9 @@ extension on TranslationsRuRu {
 			'quickFilters' => 'Быстрые фильтры',
 			'quote' => 'Цитата',
 			'quoteReply' => 'Цитировать ответ',
+			'rating' => 'Рейтинг',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => 'Рейтинг',
 			'reEdit' => 'Редактировать снова',
 			'readAgreeParam' => ({required Object param}) => 'Прочитал и согласен с ${param}',
 			'recentChats' => 'Недавние чаты',
@@ -2508,9 +2506,9 @@ extension on TranslationsRuRu {
 			'sendNewMessage' => 'Отправить новое сообщение',
 			'saveFailed' => 'Не удалось сохранить',
 			'markRead' => 'Пометить как прочитанное',
+			'markUnread' => 'Пометить как непрочитанное',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => 'Пометить как непрочитанное',
 			'discover' => 'Обзор',
 			'shake' => 'Встряхнуть',
 			'tip' => 'Совет',

@@ -1891,7 +1891,6 @@ class _TranslationsSplashEnUs extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => 'Connect Freely, Communicate Anywhere';
-	@override String get security => 'Secure & Reliable';
 }
 
 // Path: complaintReason
@@ -2305,7 +2304,6 @@ extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => 'Connect Freely, Communicate Anywhere',
-			'splash.security' => 'Secure & Reliable',
 			'about' => 'About',
 			'aboutApp' => 'About App',
 			'accept' => 'Accept',
@@ -2816,9 +2814,9 @@ extension on TranslationsEnUs {
 			'optionsRename' => 'I want to rename',
 			'optionsYes' => 'Yes',
 			'or' => 'Or',
+			'otherParty' => 'Other party',
 			_ => null,
 		} ?? switch (path) {
-			'otherParty' => 'Other party',
 			'p2pCallScreenLogic' => 'Call screen',
 			'p2pCallScreenView' => 'Call interface',
 			'packageSize' => 'Package size',
@@ -3330,9 +3328,9 @@ extension on TranslationsEnUs {
 			'locationSelectNotImplemented' => 'Location selection feature not implemented',
 			'selectLocationFailed' => 'Failed to select location',
 			'sendCardNotImplemented' => 'Card sending feature not implemented',
+			'sendCardFailed' => 'Failed to send card',
 			_ => null,
 		} ?? switch (path) {
-			'sendCardFailed' => 'Failed to send card',
 			'voiceRecordResultEmpty' => 'Voice recording result is empty',
 			'uploadResponseInvalid' => 'Upload response data is invalid',
 			'voiceSendSuccess' => 'Voice sent successfully',
@@ -3844,9 +3842,9 @@ extension on TranslationsEnUs {
 			'groupCategory.renameCategory' => 'Rename Category',
 			'groupCategory.categoryRenamed' => 'Category renamed',
 			'groupCategory.renameFailed' => 'Rename failed, please retry',
+			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			_ => null,
 		} ?? switch (path) {
-			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
@@ -4358,9 +4356,9 @@ extension on TranslationsEnUs {
 			'initConfigProtocolError' => 'Server returned an invalid protocol response',
 			'initConfigFetchFailed' => 'Failed to fetch config, please check your network connection',
 			'attachmentGetFileFailed' => 'Unable to get file, please retry or choose from gallery',
+			'attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			_ => null,
 		} ?? switch (path) {
-			'attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			'attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
 			'attachmentGetOriginalImageFailed' => 'Unable to get original image data',
 			'saveFailedRetry' => 'Save failed, please try again',

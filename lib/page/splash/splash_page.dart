@@ -24,8 +24,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///   - **暗色模式自适应**：渐变改用 `splashGradient*Dark` 三 Token，亮度 ~27%→~9%，
 ///     与 darkSurface (#121212) 形成蓝调缓冲；高光从 12% 白压到 8% 白，避免脏点
 ///   - **无障碍**：Logo 与 DEV 角标 ExcludeSemantics（图像装饰 / dev 噪音不朗读），
-///     wordmark + slogan + security 走默认 Text 语义；VoiceOver 朗读序列：
-///     "ImBoy" → slogan → security（顺序确定，简洁专业）
+///     wordmark + slogan 走默认 Text 语义；VoiceOver 朗读序列：
+///     "ImBoy" → slogan（信息密度收敛到品牌核心，1.4s 内可完整朗读）
 ///   - **减弱动效**：监听 `MediaQuery.disableAnimationsOf`，系统"减弱动态效果"启用时
 ///     跳过全部 fade/scale/moveY，直接渲染终态（仍保留 1400ms 跳转保底）
 ///   - debug 模式右下角显示 "DEV" 角标，避免误把 debug 包当 release
@@ -159,20 +159,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                   const SizedBox(height: 14),
                   _buildSlogan(context, disableAnim: disableAnim),
                 ],
-              ),
-            ),
-
-            // ── 底部安全文案（最末段进入） ──
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SafeArea(
-                minimum: const EdgeInsets.only(bottom: 24),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildSecurity(context, disableAnim: disableAnim),
-                ),
               ),
             ),
 
@@ -315,18 +301,4 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         );
   }
 
-  Widget _buildSecurity(BuildContext context, {required bool disableAnim}) {
-    final node = Text(
-      context.t.splash.security,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        color: Colors.white.withValues(alpha: 0.7),
-        letterSpacing: 0.2,
-      ),
-    );
-    if (disableAnim) return node;
-    return node.animate().fadeIn(delay: 900.ms, duration: 300.ms);
-  }
 }

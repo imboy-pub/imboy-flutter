@@ -1312,7 +1312,6 @@ class _TranslationsSplashItIt extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => 'Parla liberamente, comunica con facilità';
-	@override String get security => 'Sicuro e affidabile · sotto il tuo controllo';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsItIt {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => 'Parla liberamente, comunica con facilità',
-			'splash.security' => 'Sicuro e affidabile · sotto il tuo controllo',
 			'about' => 'Informazioni',
 			'aboutApp' => 'Informazioni sull\'app',
 			'accept' => 'Accetta',
@@ -1994,9 +1992,9 @@ extension on TranslationsItIt {
 			'quickFilters' => 'Filtri rapidi',
 			'quote' => 'Cita',
 			'quoteReply' => 'Risposta citata',
+			'rating' => 'Valutazione',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => 'Valutazione',
 			'reEdit' => 'Modifica di nuovo',
 			'readAgreeParam' => ({required Object param}) => 'Ho letto e accetto ${param}',
 			'recentChats' => 'Chat recenti',
@@ -2508,9 +2506,9 @@ extension on TranslationsItIt {
 			'sendNewMessage' => 'Invia nuovo messaggio',
 			'saveFailed' => 'Salvataggio non riuscito',
 			'markRead' => 'Segna come letto',
+			'markUnread' => 'Segna come non letto',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => 'Segna come non letto',
 			'discover' => 'Scopri',
 			'shake' => 'Scuoti',
 			'tip' => 'Suggerimento',

@@ -241,7 +241,7 @@ void main() {
   group('SplashPage accessibility', () {
     testWidgets(
       'Logo and DEV badge are wrapped in ExcludeSemantics so VoiceOver only '
-      'reads wordmark + slogan + security',
+      'reads wordmark + slogan',
       (tester) async {
         await _pumpSplash(tester, size: const Size(390, 844));
 
@@ -281,14 +281,15 @@ void main() {
     );
 
     testWidgets(
-      'Default (no Reduce Motion): 5 Animate widgets — atmosphere breathing '
-      '+ 4 staged entrance (logo / wordmark / slogan / security)',
+      'Default (no Reduce Motion): 4 Animate widgets — atmosphere breathing '
+      '+ 3 staged entrance (logo / wordmark / slogan)',
       (tester) async {
         await _pumpSplash(tester, size: const Size(390, 844));
 
-        // P1-6 added the atmosphere breathing layer (loop reverse fade
-        // 0.85 ↔ 1.0), bringing total Animate count from 4 → 5.
-        expect(find.byType(Animate), findsNWidgets(5));
+        // P1-6 added atmosphere breathing layer (5 total).
+        // P1-8 removed security text (back to 4): atmosphere + logo +
+        // wordmark + slogan.
+        expect(find.byType(Animate), findsNWidgets(4));
         await _drainSplashTimer(tester);
       },
     );

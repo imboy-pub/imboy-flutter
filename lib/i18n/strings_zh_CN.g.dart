@@ -5552,9 +5552,6 @@ class TranslationsSplashZhCn {
 
 	/// zh-CN: '畅所欲言，自在沟通'
 	String get slogan => '畅所欲言，自在沟通';
-
-	/// zh-CN: '安全可靠 · 自主可控'
-	String get security => '安全可靠 · 自主可控';
 }
 
 // Path: complaintReason
@@ -6538,7 +6535,6 @@ extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => '畅所欲言，自在沟通',
-			'splash.security' => '安全可靠 · 自主可控',
 			'about' => '关于',
 			'aboutApp' => '关于应用',
 			'accept' => '接受',
@@ -7049,9 +7045,9 @@ extension on Translations {
 			'notSeeHim' => '不看TA',
 			'notSet' => '未设置',
 			'notShow' => '不显示',
+			'notTurnedLocationService' => '您还没有打开位置信息服务',
 			_ => null,
 		} ?? switch (path) {
-			'notTurnedLocationService' => '您还没有打开位置信息服务',
 			'nowNewVersion' => '未检测到新版本',
 			'numUnit' => ({required Object param}) => '${param}个',
 			'off' => _root.disabled,
@@ -7563,9 +7559,9 @@ extension on Translations {
 			'backgroundTransparency' => '背景透明度',
 			'defaultBackground' => '默认背景',
 			'geometricPattern' => '几何图案',
+			'simpleTexture' => '简约纹理',
 			_ => null,
 		} ?? switch (path) {
-			'simpleTexture' => '简约纹理',
 			'ripplePattern' => '波纹图案',
 			'gradientBlue' => '渐变蓝',
 			'gradientPurple' => '渐变紫',
@@ -8077,9 +8073,9 @@ extension on Translations {
 			'groupCategory.renameCategory' => '重命名分组',
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
+			'groupCategory.deleteFailed' => '删除失败，请重试',
 			_ => null,
 		} ?? switch (path) {
-			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
@@ -8591,9 +8587,9 @@ extension on Translations {
 			'initConfigProtocolError' => '服务故障协议有误',
 			'initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
+			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			_ => null,
 		} ?? switch (path) {
-			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'saveFailedRetry' => '保存失败，请重试',

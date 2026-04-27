@@ -1312,7 +1312,6 @@ class _TranslationsSplashDeDe extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => 'Frei kommunizieren.';
-	@override String get security => 'Sicher · Verlässlich · Selbstbestimmt';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsDeDe {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => 'Frei kommunizieren.',
-			'splash.security' => 'Sicher · Verlässlich · Selbstbestimmt',
 			'about' => 'Über',
 			'aboutApp' => 'Über die App',
 			'accept' => 'Akzeptieren',
@@ -1994,9 +1992,9 @@ extension on TranslationsDeDe {
 			'quickFilters' => 'Schnellfilter',
 			'quote' => 'Zitat',
 			'quoteReply' => 'Zitatantwort',
+			'rating' => 'Bewertung',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => 'Bewertung',
 			'reEdit' => 'Erneut bearbeiten',
 			'readAgreeParam' => ({required Object param}) => 'Habe gelesen und zugestimmt ${param}',
 			'recentChats' => 'Letzte Chats',
@@ -2508,9 +2506,9 @@ extension on TranslationsDeDe {
 			'sendNewMessage' => 'Neue Nachricht senden',
 			'saveFailed' => 'Speichern fehlgeschlagen',
 			'markRead' => 'Als gelesen markieren',
+			'markUnread' => 'Als ungelesen markieren',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => 'Als ungelesen markieren',
 			'discover' => 'Entdecken',
 			'shake' => 'Schütteln',
 			'tip' => 'Tipp',

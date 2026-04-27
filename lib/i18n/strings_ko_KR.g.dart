@@ -1312,7 +1312,6 @@ class _TranslationsSplashKoKr extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => '자유롭게 대화하세요';
-	@override String get security => '안전하고 신뢰할 수 있음 · 스스로 통제';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsKoKr {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => '자유롭게 대화하세요',
-			'splash.security' => '안전하고 신뢰할 수 있음 · 스스로 통제',
 			'about' => '정보',
 			'aboutApp' => '앱 정보',
 			'accept' => '수락',
@@ -1994,9 +1992,9 @@ extension on TranslationsKoKr {
 			'quickFilters' => '빠른 필터',
 			'quote' => '인용',
 			'quoteReply' => '인용 답장',
+			'rating' => '평가',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => '평가',
 			'reEdit' => '다시 편집',
 			'readAgreeParam' => ({required Object param}) => '${param}을(를) 읽고 동의합니다',
 			'recentChats' => '최근 채팅',
@@ -2508,9 +2506,9 @@ extension on TranslationsKoKr {
 			'sendNewMessage' => '새 메시지 전송',
 			'saveFailed' => '저장 실패',
 			'markRead' => '읽음으로 표시',
+			'markUnread' => '읽지 않음으로 표시',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => '읽지 않음으로 표시',
 			'discover' => '발견',
 			'shake' => '흔들기',
 			'tip' => '팁',

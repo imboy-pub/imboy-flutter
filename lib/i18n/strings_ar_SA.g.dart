@@ -1312,7 +1312,6 @@ class _TranslationsSplashArSa extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => 'تواصل بحرية وبدون قيود';
-	@override String get security => 'آمن وموثوق - تحت سيطرتك الكاملة';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsArSa {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
-			'splash.security' => 'آمن وموثوق - تحت سيطرتك الكاملة',
 			'about' => 'حول',
 			'aboutApp' => 'حول التطبيق',
 			'accept' => 'قبول',
@@ -1994,9 +1992,9 @@ extension on TranslationsArSa {
 			'quickFilters' => 'تصفية سريعة',
 			'quote' => 'اقتباس',
 			'quoteReply' => 'رد الاقتباس',
+			'rating' => 'تقييم',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => 'تقييم',
 			'reEdit' => 'إعادة التعديل',
 			'readAgreeParam' => ({required Object param}) => 'لقد قرأت ووافقت على ${param}',
 			'recentChats' => 'المحادثات الأخيرة',
@@ -2508,9 +2506,9 @@ extension on TranslationsArSa {
 			'sendNewMessage' => 'إرسال رسالة جديدة',
 			'saveFailed' => 'فشل الحفظ',
 			'markRead' => 'تعليم كمقروء',
+			'markUnread' => 'تعليم كغير مقروء',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => 'تعليم كغير مقروء',
 			'discover' => 'اكتشاف',
 			'shake' => 'هز',
 			'tip' => 'تلميح',

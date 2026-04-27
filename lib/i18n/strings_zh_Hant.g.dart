@@ -1312,7 +1312,6 @@ class _TranslationsSplashZhHant extends TranslationsSplashZhCn {
 
 	// Translations
 	@override String get slogan => '暢所欲言，自在溝通';
-	@override String get security => '安全可靠 · 自主可控';
 }
 
 // Path: welcome
@@ -1483,7 +1482,6 @@ extension on TranslationsZhHant {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'splash.slogan' => '暢所欲言，自在溝通',
-			'splash.security' => '安全可靠 · 自主可控',
 			'about' => '關於',
 			'aboutApp' => '關於應用',
 			'accept' => '接受',
@@ -1994,9 +1992,9 @@ extension on TranslationsZhHant {
 			'quickFilters' => '快速篩選',
 			'quote' => '引用',
 			'quoteReply' => '引用回覆',
+			'rating' => '評級',
 			_ => null,
 		} ?? switch (path) {
-			'rating' => '評級',
 			'reEdit' => '重新編輯',
 			'readAgreeParam' => ({required Object param}) => '已經閱讀並同意${param}',
 			'recentChats' => '最近聊天',
@@ -2508,9 +2506,9 @@ extension on TranslationsZhHant {
 			'sendNewMessage' => '傳送新訊息',
 			'saveFailed' => '儲存失敗',
 			'markRead' => '標記已讀',
+			'markUnread' => '標記未讀',
 			_ => null,
 		} ?? switch (path) {
-			'markUnread' => '標記未讀',
 			'discover' => '發現',
 			'shake' => '搖一搖',
 			'tip' => '提示',
