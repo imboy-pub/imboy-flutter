@@ -138,18 +138,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         child: Stack(
           children: [
             // ── 顶部光晕（atmosphere），低透明度径向白光打破纯渐变 ──
+            // P1-6: 4000ms 全周期（2000ms 单程）opacity 0.85 ↔ 1.0 呼吸脉动，
+            //       让静态渐变有"激活感"。1.4s splash 内能感受到 ~10% 亮度缓变。
+            //       减弱动效启用时跳过呼吸（与 4 段 entrance 保持一致策略）。
             Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0, -0.35),
-                    radius: 0.95,
-                    colors: [
-                      highlightStart,
-                      const Color(0x00FFFFFF),
-                    ],
-                  ),
-                ),
+              child: _buildAtmosphereHighlight(
+                highlightStart: highlightStart,
+                disableAnim: disableAnim,
               ),
             ),
 
@@ -208,6 +203,36 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         ),
       ),
     );
+  }
+
+  /// 顶部 atmosphere 高光层。disableAnim=true 时返回静态终态，
+  /// 否则用 `.animate(onPlay: repeat reverse).fade(0.85 → 1.0, 2000ms)`
+  /// 形成 4000ms 全周期呼吸脉动（cubic easeInOut，无几何变化，零 GPU 额外成本）。
+  Widget _buildAtmosphereHighlight({
+    required Color highlightStart,
+    required bool disableAnim,
+  }) {
+    final node = DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: const Alignment(0, -0.35),
+          radius: 0.95,
+          colors: [
+            highlightStart,
+            const Color(0x00FFFFFF),
+          ],
+        ),
+      ),
+    );
+    if (disableAnim) return node;
+    return node
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .fade(
+          begin: 0.85,
+          end: 1.0,
+          duration: 2000.ms,
+          curve: Curves.easeInOut,
+        );
   }
 
   /// Logo：Hero + ExcludeSemantics（图像装饰，wordmark 已承担"ImBoy"语义朗读）。

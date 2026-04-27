@@ -281,13 +281,14 @@ void main() {
     );
 
     testWidgets(
-      'Default (no Reduce Motion): logo / wordmark / slogan / security all '
-      'wrapped in flutter_animate Animate widgets',
+      'Default (no Reduce Motion): 5 Animate widgets — atmosphere breathing '
+      '+ 4 staged entrance (logo / wordmark / slogan / security)',
       (tester) async {
         await _pumpSplash(tester, size: const Size(390, 844));
 
-        // 4 staged entrance animations expected when Reduce Motion is off
-        expect(find.byType(Animate), findsNWidgets(4));
+        // P1-6 added the atmosphere breathing layer (loop reverse fade
+        // 0.85 ↔ 1.0), bringing total Animate count from 4 → 5.
+        expect(find.byType(Animate), findsNWidgets(5));
         await _drainSplashTimer(tester);
       },
     );
