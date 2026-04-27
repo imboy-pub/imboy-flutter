@@ -23,6 +23,12 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///   - 屏幕方向不在本页处理：`run.dart` 启动时已全局
 ///     `SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])`
 ///     锁定，splash 永远不会出现横屏布局问题
+///
+/// 已知缺口（P2-10 诊断）：
+///   native splash 用 splash_logo.png 320×320，Dart splash 用 imboy_logo0.png
+///   200×200 — 两份不同 PNG，且 native UIImageView 默认显示 ~107pt（@3x），
+///   Dart logoSize 214.5pt（iPhone 14） / 320pt（iPad），交接瞬间 logo 跳大
+///   ~2x。修复需重出统一资源（≥1024×1024 SVG 优先），同步给 brand 团队。
 ///   - 顶部 RadialGradient 高光（atmosphere），打破纯渐变的"平"感
 ///   - **暗色模式自适应**：渐变改用 `splashGradient*Dark` 三 Token，亮度 ~27%→~9%，
 ///     与 darkSurface (#121212) 形成蓝调缓冲；高光从 12% 白压到 8% 白，避免脏点
