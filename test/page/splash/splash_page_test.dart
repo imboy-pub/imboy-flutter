@@ -163,6 +163,35 @@ void main() {
       await _drainSplashTimer(tester);
     });
 
+    testWidgets(
+      'P1-5 renders Hero with kBrandWordmarkHeroTag so wordmark "ImBoy" '
+      'flies from 36pt → Welcome 18pt instead of hard-cutting',
+      (tester) async {
+        await _pumpSplash(tester, size: const Size(390, 844));
+
+        final heroes = tester.widgetList<Hero>(find.byType(Hero));
+        final hasWordmarkHero =
+            heroes.any((h) => h.tag == 'imboy_brand_wordmark');
+        expect(
+          hasWordmarkHero,
+          isTrue,
+          reason:
+              'Wordmark must share a Hero tag with Welcome top wordmark to '
+              'avoid the visual "shrink and teleport" hard-cut at navigation',
+        );
+
+        // Sanity: Splash side must still expose both brand Hero anchors.
+        final brandHeroTags = heroes
+            .map((h) => h.tag)
+            .whereType<String>()
+            .where((t) => t.startsWith('imboy_brand_'))
+            .toSet();
+        expect(brandHeroTags, containsAll(['imboy_brand_logo', 'imboy_brand_wordmark']));
+
+        await _drainSplashTimer(tester);
+      },
+    );
+
     testWidgets('loads logo from assets/images/imboy_logo0.png', (
       tester,
     ) async {

@@ -42,6 +42,14 @@ class SplashPage extends ConsumerStatefulWidget {
 /// 尺寸落差由 Flutter Hero 默认 RectTween 自然过渡（hero flight ~300ms）。
 const String kBrandLogoHeroTag = 'imboy_brand_logo';
 
+/// 品牌 Wordmark "ImBoy" Hero tag（Splash → Welcome 共享，与 Logo 共同形成
+/// "品牌锚点连续过渡"，不再让用户感到 wordmark 在切页时"突然变小并瞬移"）。
+///
+/// Splash 的 wordmark 是 36pt w700 白色，Welcome 顶部 wordmark 是 18pt w700
+/// AppColors.primaryDark。RectTween 自然处理位置 + 尺寸过渡；颜色 white → navy
+/// 在 ~300ms hero flight 内跳变，因用户视线锁定在缩放过程，色变几乎不可察。
+const String kBrandWordmarkHeroTag = 'imboy_brand_wordmark';
+
 /// 首启 / 未登录用户保底时长 - 1400ms
 ///
 /// 覆盖最长动画峰值（slogan 在 950ms 完整显示）+ ~400ms 体感停留，
@@ -259,15 +267,26 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   /// 品牌 wordmark "ImBoy"：保留默认 Text 语义（VoiceOver 朗读 "ImBoy"），
   /// 是 Splash 屏唯一承担品牌识别朗读的节点（Logo 已被 ExcludeSemantics）。
+  ///
+  /// Hero 包裹（kBrandWordmarkHeroTag）→ Welcome 顶部 18pt wordmark 自然过渡，
+  /// 与 Logo Hero 共同构成 Splash → Welcome 的品牌锚点连续 flight。
   Widget _buildWordmark({required bool disableAnim}) {
-    const node = Text(
-      'ImBoy',
-      style: TextStyle(
-        fontSize: 36,
-        fontWeight: FontWeight.w700,
-        color: Colors.white,
-        letterSpacing: 0.5,
-        height: 1.0,
+    const node = Hero(
+      tag: kBrandWordmarkHeroTag,
+      // Material wrap 防 Hero flight 期间 Text 失去 ancestor TextStyle。
+      // 透明 Material 不引入视觉副作用。
+      child: Material(
+        type: MaterialType.transparency,
+        child: Text(
+          'ImBoy',
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: 0.5,
+            height: 1.0,
+          ),
+        ),
       ),
     );
     if (disableAnim) return node;

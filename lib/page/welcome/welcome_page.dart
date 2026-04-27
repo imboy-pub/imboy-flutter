@@ -5,7 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/splash/splash_page.dart' show kBrandLogoHeroTag;
+import 'package:imboy/page/splash/splash_page.dart'
+    show kBrandLogoHeroTag, kBrandWordmarkHeroTag;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -109,13 +110,21 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'ImBoy',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryDark,
-                        letterSpacing: 0.5,
+                    // P1-5: Hero 接力 Splash 36pt → Welcome 18pt 自然过渡
+                    // Material(transparent) 防 Hero flight 期间失去 TextStyle 上下文
+                    const Hero(
+                      tag: kBrandWordmarkHeroTag,
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: Text(
+                          'ImBoy',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryDark,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                     ),
                     const Spacer(),
