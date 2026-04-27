@@ -20,6 +20,9 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///     （DESIGN.md §3.3 字重 / §5.2 iOS 不用重投影）
 ///   - 响应式 logo 尺寸：屏幕短边 × 0.55，封顶 240pt（兼容 iPhone SE 320pt 宽）
 ///   - StatusBar 强制 light 内容色（亮 / 暗渐变都是深色背景），避免内容色冲突
+///   - 屏幕方向不在本页处理：`run.dart` 启动时已全局
+///     `SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])`
+///     锁定，splash 永远不会出现横屏布局问题
 ///   - 顶部 RadialGradient 高光（atmosphere），打破纯渐变的"平"感
 ///   - **暗色模式自适应**：渐变改用 `splashGradient*Dark` 三 Token，亮度 ~27%→~9%，
 ///     与 darkSurface (#121212) 形成蓝调缓冲；高光从 12% 白压到 8% 白，避免脏点
