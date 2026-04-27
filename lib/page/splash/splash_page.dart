@@ -86,9 +86,18 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 响应式 logo 尺寸：短边 0.55，封顶 240
+    // 响应式 logo 尺寸：短边 0.55，按设备类别两档封顶。
+    //
+    // 断点取 600pt：与 Material 3 / iOS 设计共识对齐 —
+    //   - 短边 ≤ 600pt → 手机（含 Foldable 折叠态、iPhone Mini ~ Pro Max 全系）
+    //   - 短边 > 600pt → 平板 / 大屏（iPad 768+, iPad Pro 12.9 ~ Foldable 展开态）
+    //
+    // 手机 cap 240pt：iPhone Pro Max 短边 430，0.55 → 236.5，封顶 240 几乎不裁切；
+    // 平板 cap 320pt：iPad 短边 768，0.55 → 422.4 → 封顶 320，避免 logo 占满屏幕；
+    //                  iPad Pro 12.9 短边 1024，0.55 → 563.2 → 320 仍合理（屏占比 ~31%）
     final shortest = MediaQuery.sizeOf(context).shortestSide;
-    final logoSize = math.min(shortest * 0.55, 240.0);
+    final double logoCap = shortest > 600 ? 320.0 : 240.0;
+    final logoSize = math.min(shortest * 0.55, logoCap);
 
     // 暗色模式自适应：读取系统 platformBrightness（独立于 app theme，
     // 因为 splash 在 ThemeManager 之前渲染，无法依赖 Theme.of(context).brightness）

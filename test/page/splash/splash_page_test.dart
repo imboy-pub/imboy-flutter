@@ -110,27 +110,45 @@ void main() {
       await _drainSplashTimer(tester);
     });
 
-    testWidgets('iPad portrait (768×1024): logo capped at 240', (
-      tester,
-    ) async {
-      await _pumpSplash(tester, size: const Size(768, 1024));
+    testWidgets(
+      'iPhone Pro Max (430×932): short side ≤ 600 → cap 240 (phone tier)',
+      (tester) async {
+        await _pumpSplash(tester, size: const Size(430, 932));
 
-      final logo = tester.widget<Image>(find.byType(Image));
-      expect(logo.width, 240);
-      expect(logo.height, 240);
-      await _drainSplashTimer(tester);
-    });
+        // 430 * 0.55 = 236.5 < 240 cap → uses 236.5
+        final logo = tester.widget<Image>(find.byType(Image));
+        expect(logo.width, closeTo(236.5, 0.5));
+        expect(logo.height, closeTo(236.5, 0.5));
+        await _drainSplashTimer(tester);
+      },
+    );
 
-    testWidgets('iPad landscape (1024×768): logo capped at 240', (
-      tester,
-    ) async {
-      await _pumpSplash(tester, size: const Size(1024, 768));
+    testWidgets(
+      'iPad portrait (768×1024): short side > 600 → tablet cap 320 (was 240)',
+      (tester) async {
+        await _pumpSplash(tester, size: const Size(768, 1024));
 
-      final logo = tester.widget<Image>(find.byType(Image));
-      expect(logo.width, 240);
-      expect(logo.height, 240);
-      await _drainSplashTimer(tester);
-    });
+        // P1-7: 768 > 600 breakpoint → cap raised to 320 to avoid
+        // "logo too small" feeling on tablet form factor
+        final logo = tester.widget<Image>(find.byType(Image));
+        expect(logo.width, 320);
+        expect(logo.height, 320);
+        await _drainSplashTimer(tester);
+      },
+    );
+
+    testWidgets(
+      'iPad Pro 12.9 landscape (1366×1024): short side 1024 > 600 → cap 320',
+      (tester) async {
+        await _pumpSplash(tester, size: const Size(1366, 1024));
+
+        // 1024 * 0.55 = 563.2 > 320 cap → cap kicks in
+        final logo = tester.widget<Image>(find.byType(Image));
+        expect(logo.width, 320);
+        expect(logo.height, 320);
+        await _drainSplashTimer(tester);
+      },
+    );
   });
 
   group('SplashPage brand anchors', () {
