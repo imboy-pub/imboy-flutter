@@ -41,6 +41,10 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
 
   StreamSubscription? _localeSubscription;
 
+  // 缓存 notifier 引用：dispose() 中不能再用 ref（widget 已 deactivate），
+  // 必须 initState 时缓存到字段内，参考 Riverpod 3.x 推荐模式
+  PassportNotifier? _passportNotifier;
+
   // 从 provider 或构造函数获取数据
   String get _account =>
       widget.account ?? ref.read(passportProvider).signupAccount ?? '';
@@ -54,6 +58,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
   @override
   void initState() {
     super.initState();
+    _passportNotifier = ref.read(passportProvider.notifier);
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
@@ -66,8 +71,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
   void dispose() {
     _localeSubscription?.cancel();
     _pinController.dispose();
-    // 清理临时数据
-    ref.read(passportProvider.notifier).clearSignupData();
+    // 清理临时数据：用缓存的 notifier 而非 ref（避免 dispose 阶段 ref 失效）
+    _passportNotifier?.clearSignupData();
     super.dispose();
   }
 

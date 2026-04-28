@@ -78,6 +78,79 @@ void main() {
     final confirmText = tester.widget<Text>(find.text('OK'));
     expect(confirmText.style?.color, isNot(AppColors.iosRed));
   });
+
+  testWidgets('renders 2 TextButton actions (cancel + confirm)',
+      (tester) async {
+    await pumpHost(tester, isDestructive: false);
+    expect(find.byType(AlertDialog), findsOneWidget);
+    final actions = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextButton),
+    );
+    expect(actions, findsNWidgets(2));
+  });
+
+  testWidgets('non-destructive confirm uses colorScheme.primary',
+      (tester) async {
+    await pumpHost(tester, isDestructive: false);
+    final confirmText = tester.widget<Text>(find.text('OK'));
+    final ctx = tester.element(find.byType(AlertDialog));
+    final expectedColor = Theme.of(ctx).colorScheme.primary;
+    expect(confirmText.style?.color, expectedColor);
+  });
+
+  testWidgets(
+    'barrier dismiss → null result coerces to false',
+    (tester) async {
+      _lastResult = null;
+      await pumpHost(tester, isDestructive: false);
+
+      // barrier 点击在不同 Flutter 渲染版本下命中行为不稳定，
+      // 用 navigator.maybePop() 模拟 barrierDismissible 路径：
+      // showDialog 返回 null → helper 内部 `result ?? false` → false
+      final navigator = Navigator.of(
+        tester.element(find.byType(AlertDialog)),
+        rootNavigator: true,
+      );
+      navigator.pop(); // pop 不带 result → showDialog 收到 null
+      await tester.pumpAndSettle();
+
+      expect(_lastResult, isFalse);
+      expect(find.byType(AlertDialog), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'default labels fall back to i18n buttonCancel/confirm '
+    'when confirmLabel/cancelLabel are null',
+    (tester) async {
+      late BuildContext captured;
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MaterialApp(
+            home: Builder(
+              builder: (ctx) {
+                captured = ctx;
+                return const Scaffold(body: SizedBox.shrink());
+              },
+            ),
+          ),
+        ),
+      );
+      // ignore: unawaited_futures
+      showMomentConfirmDialog(
+        captured,
+        title: 'T',
+        message: 'M',
+        // confirmLabel / cancelLabel 故意省略 → helper 走 i18n 兜底
+      );
+      await tester.pumpAndSettle();
+
+      // i18n: buttonCancel = "取消"，confirm = "确认"
+      expect(find.text('取消'), findsOneWidget);
+      expect(find.text('确认'), findsOneWidget);
+    },
+  );
 }
 
 bool? _lastResult;
