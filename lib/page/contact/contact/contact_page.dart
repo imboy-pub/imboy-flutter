@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,8 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/widget/user_online_status_widget.dart';
+import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
+import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -75,22 +78,49 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   }
 
   // 联系人列表项点击处理
+  // slice-1.6: kIsWeb 时派发 ContactSelection → 让 Web Shell 右栏显示反馈
+  // （contactBuilder 当前是 _PlaceholderPanel，但能让用户看到点击生效）；
+  // 其他平台保持原 context.push 行为（零回归）
   void _handleContactTap(ContactModel model) {
     if (model.onPressed != null) {
       model.onPressed!();
-    } else {
-      // 跳转到用户信息页
-      context.push('/contact/people/${model.peerId}?scene=contact_page');
+      return;
     }
+    if (kIsWeb) {
+      ref.read(webShellProvider.notifier).selectItem(
+            ContactSelection(uid: model.peerId.toString()),
+          );
+      return;
+    }
+    // 跳转到用户信息页
+    context.push('/contact/people/${model.peerId}?scene=contact_page');
   }
 
   // 联系人列表项长按处理
+  // slice-1.5: kIsWeb 时通过 webShellProvider 内嵌渲染右栏 ChatPanel；
+  // 其他平台保持原 query string 跳路由行为（零回归）。
   void _handleContactLongPress(ContactModel model) {
     if (model.iconData == null) {
-      // 跳转到聊天页
-      context.push(
-        '/chat/${model.peerId}?type=C2C&title=${model.title}&avatar=${model.avatar}&sign=${model.sign}',
+      final action = resolveConversationTap(
+        isWeb: kIsWeb,
+        peerId: model.peerId.toString(),
+        type: 'C2C',
+        title: model.title,
+        avatar: model.avatar,
+        sign: model.sign,
       );
+      switch (action) {
+        case WebSelectChat(:final peerId, :final chatType):
+          ref.read(webShellProvider.notifier).selectItem(
+                ChatSelection(peerId: peerId, chatType: chatType),
+              );
+        case MobilePushChat():
+          context.push(
+            '/chat/${action.peerId}?type=${action.chatType}'
+            '&title=${action.title}&avatar=${action.avatar}'
+            '&sign=${action.sign}',
+          );
+      }
     }
   }
 

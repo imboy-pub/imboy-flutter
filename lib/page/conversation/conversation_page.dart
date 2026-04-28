@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,12 +11,14 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/conversation/widget/right_button.dart'
     show RightButton;
+import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/websocket_events.dart'
@@ -359,17 +362,38 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                             child: ConversationItem(
                               model: model,
                               onTap: () {
-                                context.push(
-                                  '/chat/${model.peerId}',
-                                  extra: {
-                                    'type': strEmpty(model.type)
-                                        ? 'C2C'
-                                        : model.type,
-                                    'title': model.title,
-                                    'avatar': model.avatar,
-                                    'sign': model.sign,
-                                  },
+                                final action = resolveConversationTap(
+                                  isWeb: kIsWeb,
+                                  peerId: model.peerId.toString(),
+                                  type: model.type,
+                                  title: model.title,
+                                  avatar: model.avatar,
+                                  sign: model.sign,
                                 );
+                                switch (action) {
+                                  case WebSelectChat(
+                                        :final peerId,
+                                        :final chatType,
+                                      ):
+                                    ref
+                                        .read(webShellProvider.notifier)
+                                        .selectItem(
+                                          ChatSelection(
+                                            peerId: peerId,
+                                            chatType: chatType,
+                                          ),
+                                        );
+                                  case MobilePushChat():
+                                    context.push(
+                                      '/chat/${action.peerId}',
+                                      extra: {
+                                        'type': action.chatType,
+                                        'title': action.title,
+                                        'avatar': action.avatar,
+                                        'sign': action.sign,
+                                      },
+                                    );
+                                }
                               },
                               onTapAvatar: () {
                                 context.push(
