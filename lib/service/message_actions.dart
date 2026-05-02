@@ -5,6 +5,8 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -783,12 +785,24 @@ class MessageActions {
       }
 
       final currentUid = UserRepoLocal.to.currentUid;
+      final String toUid = msg.fromId.toString() == currentUid ? msg.toId.toString() : msg.fromId.toString();
+
+      if (WebSocketService.to.framing == FramingMode.v2) {
+        final int? numericMsgId = int.tryParse(messageId);
+        if (numericMsgId != null) {
+          final bytes = ImboyFrame.recall(numericMsgId);
+          WebSocketService.to.sendDirect(bytes);
+          iPrint('🔄 发送 v2 二进制撤回请求: msgId=$messageId');
+          return true;
+        }
+      }
+
       // v2.0: msg_type/action 字段提升到顶层
       final revokeMessage = {
         'id': Xid().toString(),
         'type': messageType,
         'from': currentUid,
-        'to': msg.fromId.toString() == currentUid ? msg.toId.toString() : msg.fromId.toString(),
+        'to': toUid,
         // v2.0: 字段提升到顶层
         'msg_type': 'custom',
         'action': 'message_revoke',
@@ -1042,6 +1056,16 @@ class MessageActions {
     try {
       final currentUid = UserRepoLocal.to.currentUid;
       final statusStr = status == TypingStatus.start ? 'start' : 'stop';
+
+      if (WebSocketService.to.framing == FramingMode.v2) {
+        final int? numericConvId = int.tryParse(toId);
+        if (numericConvId != null) {
+          final bytes = ImboyFrame.typing(numericConvId, status == TypingStatus.start);
+          WebSocketService.to.sendDirect(bytes);
+          iPrint('🔄 发送 v2 二进制输入状态: $statusStr, to=$toId');
+          return;
+        }
+      }
 
       final inputMessage = {
         'id': Xid().toString(),

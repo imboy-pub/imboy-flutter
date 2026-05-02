@@ -504,6 +504,9 @@ class MessageModel {
         // 位置消息：显示位置标题
         return payload['title']?.toString() ?? '[位置]';
 
+      case MessageType.expression:
+        return '[表情]';
+
       case MessageType.custom:
         // 自定义消息不再通过 payload 子类型字段解析
         return '';
@@ -571,6 +574,9 @@ class MessageModel {
       case MessageType.location:
         // 位置消息：显示位置标题
         return metadata['title']?.toString() ?? '[位置]';
+
+      case MessageType.expression:
+        return '[表情]';
 
       case MessageType.custom:
         // 自定义消息不再通过 payload 子类型字段解析

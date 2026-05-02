@@ -22,6 +22,8 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/config/init.dart' show AppInitializer, navigateToSignIn;
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
+import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -336,6 +338,8 @@ class MessageService with EventSubscriptionManager {
     } else if (action != null && action.isNotEmpty) {
       // C2C/C2G/C2S 的 action 走 handleActionMessage
       await _messageActions.handleActionMessage(action, data);
+    } else if (type == 'MSG_READ') {
+      await _receiveReadReceipt(data);
     } else {
       switch (type) {
         case 'C2C':
@@ -926,6 +930,59 @@ class MessageService with EventSubscriptionManager {
       // 处理失败，从 UI 中移除该消息
       // Failed to process, remove message from UI
       _handleMessageProcessingFailure(msgId, chatType, tempConv, e);
+    }
+  }
+
+  /// 处理已读回执
+  Future<void> _receiveReadReceipt(Map data) async {
+    final msgId = data['id']?.toString() ?? '';
+    if (msgId.isEmpty) return;
+
+    iPrint('📥 [READ_RECEIPT] 收到已读回执: msgId=$msgId');
+
+    // 更新消息状态为已读
+    // 这里需要知道消息所属的表名，由于 C2C/C2G 消息 ID 是全局唯一的，可以尝试遍历或从 metadata 中获取
+    // 简化处理：尝试更新 C2C 和 C2G 表
+    await updateStatus(
+      MessageRepo(tableName: MessageRepo.c2cTable),
+      msgId,
+      IMBoyMessageStatus.seen,
+    );
+    await updateStatus(
+      MessageRepo(tableName: MessageRepo.c2gTable),
+      msgId,
+      IMBoyMessageStatus.seen,
+    );
+
+    // 通知 UI 更新
+    AppEventBus.fire(
+      MessageStatusUpdateRequestedEvent(
+        messageId: msgId,
+        messageType: 'C2C', // 暂定，UI 会根据 ID 匹配
+        newStatus: IMBoyMessageStatus.seen,
+        notifyUI: true,
+      ),
+    );
+  }
+
+  /// 发送已读回执
+  Future<void> sendReadReceipt(String chatType, String msgId) async {
+    if (msgId.isEmpty) return;
+
+    if (WebSocketService.to.framing == FramingMode.v2) {
+      final int? numericId = int.tryParse(msgId);
+      if (numericId != null) {
+        final bytes = ImboyFrame.encode(
+          type: FrameType.msgRead,
+          flags: 0,
+          payload: Uint8List(8)..buffer.asByteData().setUint64(0, numericId, Endian.big),
+        );
+        WebSocketService.to.sendDirect(bytes);
+        iPrint('📤 [READ_RECEIPT] 发送 v2 已读回执: msgId=$msgId');
+      }
+    } else {
+      // V1 协议下的已读回执发送（如果支持）
+      iPrint('📤 [READ_RECEIPT] V1 协议暂不支持发送已读回执: msgId=$msgId');
     }
   }
 

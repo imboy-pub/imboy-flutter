@@ -461,6 +461,54 @@ class WebSocketService {
             iPrint('⚠️ [WS] v2 frame NACK: msgId=$msgId');
           }
           break;
+        case FrameType.msgRead:
+          // 已读状态帧
+          if (frame.payload.length >= 8) {
+            final msgId =
+                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            iPrint('📖 [WS] v2 frame msgRead: msgId=$msgId');
+            // 通过事件总线发布已读状态更新
+            AppEventBus.fire(
+              WebSocketMessageReceivedEvent(
+                type: 'MSG_READ',
+                data: {'id': msgId.toString(), 'action': 'MSG_READ'},
+              ),
+            );
+          }
+          break;
+        case FrameType.msgTyping:
+          if (frame.payload.length >= 9) {
+            final bd = ByteData.sublistView(frame.payload);
+            final convId = bd.getUint64(0, Endian.big);
+            final status = bd.getUint8(8);
+            iPrint('⌨️ [WS] v2 frame msgTyping: convId=$convId, status=$status');
+            AppEventBus.fire(
+              WebSocketMessageReceivedEvent(
+                type: 'S2C',
+                data: {
+                  'action': status == 1 ? 'typing' : 'stop_typing',
+                  'from': convId.toString(), // 简化处理
+                },
+              ),
+            );
+          }
+          break;
+        case FrameType.msgRecall:
+          if (frame.payload.length >= 8) {
+            final msgId =
+                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            iPrint('↩️ [WS] v2 frame msgRecall: msgId=$msgId');
+            AppEventBus.fire(
+              WebSocketMessageReceivedEvent(
+                type: 'S2C',
+                data: {
+                  'action': 'c2c_revoke',
+                  'payload': {'old_msg_id': msgId.toString()},
+                },
+              ),
+            );
+          }
+          break;
         case FrameType.msgS2C:
         case FrameType.msgC2C:
         case FrameType.msgC2G:
@@ -908,12 +956,18 @@ class WebSocketService {
 
   /// 同步发送消息（用于 ACK 等需要立即发送的场景）
   /// 不经过消息队列，直接通过 WebSocket 发送
-  bool sendDirect(String message) {
+  bool sendDirect(dynamic message) {
     if (_status == SocketStatus.connected && _channel != null) {
       try {
-        final payload = _framing == FramingMode.v2
-            ? _encodeV2BusinessFrame(message)
-            : message;
+        dynamic payload;
+        if (message is String) {
+          payload = _framing == FramingMode.v2
+              ? _encodeV2BusinessFrame(message)
+              : message;
+        } else {
+          // 二进制数据直接发送
+          payload = message;
+        }
         _channel!.sink.add(payload);
         return true;
       } catch (e) {

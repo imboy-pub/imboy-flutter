@@ -274,6 +274,44 @@ class ImboyFrame {
     );
   }
 
+  /// Typing 状态帧: [ConvID:8 BE] [Status:1] (1=start, 0=stop)
+  static Uint8List typing(int convId, bool isTyping) {
+    _checkUint64(convId);
+    final payload = Uint8List(9);
+    final bd = ByteData.sublistView(payload);
+    bd.setUint64(0, convId, Endian.big);
+    bd.setUint8(8, isTyping ? 1 : 0);
+    return encode(
+      type: FrameType.msgTyping,
+      flags: 0,
+      payload: payload,
+    );
+  }
+
+  /// 撤回帧: [MsgID:8 BE]
+  static Uint8List recall(int msgId) {
+    _checkUint64(msgId);
+    final payload = Uint8List(8);
+    ByteData.sublistView(payload).setUint64(0, msgId, Endian.big);
+    return encode(
+      type: FrameType.msgRecall,
+      flags: FrameFlags.ack,
+      payload: payload,
+    );
+  }
+
+  /// 已读帧: [MsgID:8 BE]
+  static Uint8List read(int msgId) {
+    _checkUint64(msgId);
+    final payload = Uint8List(8);
+    ByteData.sublistView(payload).setUint64(0, msgId, Endian.big);
+    return encode(
+      type: FrameType.msgRead,
+      flags: 0,
+      payload: payload,
+    );
+  }
+
   static void _checkSeq(int seq) {
     if (seq < 0 || seq > 0xFFFF) {
       throw ArgumentError('seq out of uint16 range: $seq');
