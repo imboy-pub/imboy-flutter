@@ -27,20 +27,18 @@ void main() {
       TestHelper.log('🚀 开始频道发布自动化测试');
       TestConfig.printHelp();
 
-      final backendReady = await _runStepWithTimeout('应用启动与后端探活', () async {
-        app.main();
-        await tester.pump(const Duration(milliseconds: 300));
-        await Future.delayed(const Duration(seconds: 3));
-        final ok = await _ensureBackendAvailable();
-        if (!ok) return false;
-        await _tryWaitForEntryState(tester);
-        return true;
-      }, timeout: const Duration(seconds: 120));
+      app.main();
+      await _shortSettle(tester);
+      await Future.delayed(const Duration(seconds: 3));
+
+      final backendReady = await _ensureBackendAvailable();
       if (!backendReady) {
         TestHelper.log('⚠️ 后端不可用，跳过频道发布自动化测试');
         TestHelper.log('[AUTO-SKIP] reason=backend_unavailable');
         return;
       }
+
+      await _tryWaitForEntryState(tester);
 
       if (TestHelper.needsLogin(tester)) {
         if (!TestConfig.isConfigured) {
@@ -48,11 +46,7 @@ void main() {
           TestHelper.log('[AUTO-SKIP] reason=missing_test_credentials');
           return;
         }
-        final ok = await _runStepWithTimeout(
-          '自动登录',
-          () => TestHelper.autoLogin(tester),
-          timeout: const Duration(seconds: 60),
-        );
+        final ok = await TestHelper.autoLogin(tester);
         if (!ok) {
           TestHelper.log('⚠️ 自动登录失败，跳过频道发布自动化测试');
           TestHelper.log('[AUTO-SKIP] reason=auto_login_failed');
@@ -230,7 +224,7 @@ Future<T> _runStepWithTimeout<T>(
   try {
     return await action().timeout(timeout);
   } on async.TimeoutException catch (e) {
-    fail('步骤超时: $stepName (${timeout.inSeconds}s) - ${e.message ?? "timeout"}');
+    throw StateError('步骤超时: $stepName (${timeout.inSeconds}s) - ${e.message ?? "timeout"}');
   } catch (_) {
     rethrow;
   }

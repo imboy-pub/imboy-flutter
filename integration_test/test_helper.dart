@@ -2,6 +2,10 @@
 //
 // 提供常用的测试辅助方法
 
+import 'dart:async' as async;
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -227,6 +231,96 @@ class TestHelper {
           : null,
       code: TestConfig.testCode.isNotEmpty ? TestConfig.testCode : null,
     );
+  }
+
+  // ============================================================
+  // 后端 API 验证辅助方法
+  // ============================================================
+
+  /// 探活后端是否可达
+  ///
+  /// [baseUrl] 后端基地址，默认 http://127.0.0.1:9800
+  /// [path] 探活路径，默认 /v1/app/init_config
+  /// [timeoutSeconds] 超时秒数
+  /// Returns: HTTP 状态码，null 表示连接失败
+  static Future<int?> probeBackend({
+    String baseUrl = 'http://127.0.0.1:9800',
+    String path = '/v1/app/init_config',
+    int timeoutSeconds = 5,
+  }) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final client = HttpClient()
+      ..connectionTimeout = Duration(seconds: timeoutSeconds)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    try {
+      final request =
+          await client.getUrl(uri).timeout(Duration(seconds: timeoutSeconds));
+      request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+      final response = await request
+          .close()
+          .timeout(Duration(seconds: timeoutSeconds));
+      await response.drain<List<int>>(<int>[]).timeout(
+        const Duration(seconds: 2),
+      );
+      log('后端探活: $uri → ${response.statusCode}');
+      return response.statusCode;
+    } on async.TimeoutException {
+      log('后端探活超时: $uri');
+      return null;
+    } on SocketException catch (e) {
+      log('后端探活连接失败: $uri - $e');
+      return null;
+    } catch (e) {
+      log('后端探活异常: $uri - $e');
+      return null;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  /// 发送 GET 请求到后端 API
+  ///
+  /// [baseUrl] 后端基地址
+  /// [path] API 路径
+  /// [token] 可选的 Bearer token
+  /// Returns: 解析后的 JSON Map，失败返回 null
+  static Future<Map<String, dynamic>?> apiGet({
+    required String baseUrl,
+    required String path,
+    String? token,
+    int timeoutSeconds = 10,
+  }) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final client = HttpClient()
+      ..connectionTimeout = Duration(seconds: timeoutSeconds)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    try {
+      final request =
+          await client.getUrl(uri).timeout(Duration(seconds: timeoutSeconds));
+      request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+      if (token != null && token.isNotEmpty) {
+        request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
+      }
+      final response = await request
+          .close()
+          .timeout(Duration(seconds: timeoutSeconds));
+      final body = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return jsonDecode(body) as Map<String, dynamic>;
+      }
+      log('API GET $path → ${response.statusCode}: $body');
+      return null;
+    } catch (e) {
+      log('API GET $path 异常: $e');
+      return null;
+    } finally {
+      client.close(force: true);
+    }
   }
 }
 
