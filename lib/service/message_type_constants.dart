@@ -51,6 +51,9 @@ enum MsgTypeEnum {
   /// 位置消息
   location,
 
+  /// 表情消息
+  expression,
+
   /// 语音消息（使用 voice 命名，符合 WebSocket API v2.0 规范）
   voice,
 
@@ -90,6 +93,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.file;
       case MsgTypeEnum.location:
         return MessageType.location;
+      case MsgTypeEnum.expression:
+        return MessageType.expression;
       case MsgTypeEnum.voice:
         return MessageType.voice;
       case MsgTypeEnum.video:
@@ -122,6 +127,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.file;
       case MessageType.location:
         return MsgTypeEnum.location;
+      case MessageType.expression:
+        return MsgTypeEnum.expression;
       case MessageType.voice:
         return MsgTypeEnum.voice;
       case MessageType.video:
@@ -257,6 +264,19 @@ abstract class MessageType {
   /// ```
   static const String location = 'location';
 
+  /// 表情消息
+  ///
+  /// payload 结构：
+  /// ```json
+  /// {
+  ///   "url": "https://cdn.example.com/emoji.png",
+  ///   "width": 120,
+  ///   "height": 120,
+  ///   "text": "[微笑]"
+  /// }
+  /// ```
+  static const String expression = 'expression';
+
   /// 引用消息
   ///
   /// payload 结构：
@@ -313,6 +333,7 @@ abstract class MessageType {
     video,
     file,
     location,
+    expression,
     quote,
     // 业务消息类型（直接作为 msg_type 使用）
     webrtcAudio,
@@ -339,7 +360,7 @@ abstract class MessageType {
 /// S2C 系统消息动作常量
 ///
 /// 用于 S2C 消息的 `action` 字段
-/// 定义服务端到客户端的各种系统指令
+/// 定义服务端到客户端的各种 system 指令
 abstract class S2CAction {
   // ==================== 消息操作 ====================
 

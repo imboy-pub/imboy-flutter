@@ -117,6 +117,7 @@ class ExtraItems extends ConsumerStatefulWidget {
     this.handleLocationSelection,
     this.handleVisitCardSelection,
     this.handleCollectSelection,
+    this.handleStickerSelection,
     required this.type,
     required this.options,
   });
@@ -130,6 +131,7 @@ class ExtraItems extends ConsumerStatefulWidget {
   handleLocationSelection;
   final void Function()? handleVisitCardSelection;
   final void Function()? handleCollectSelection;
+  final void Function()? handleStickerSelection;
 
   @override
   ConsumerState<ExtraItems> createState() => _ExtraItemsState();
@@ -253,6 +255,11 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           title: t.file,
           image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
           onPressed: widget.handleFileSelection,
+        ),
+        ExtraItem(
+          title: t.expression,
+          image: const Icon(Icons.face_outlined, size: iconSize),
+          onPressed: widget.handleStickerSelection,
         ),
       ]),
     ];

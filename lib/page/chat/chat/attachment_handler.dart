@@ -415,6 +415,33 @@ class ChatAttachmentHandler {
     );
   }
 
+  /// 发送表情消息
+  Future<void> sendExpressionMessage(
+    BuildContext context,
+    String url,
+    String text, {
+    int? width,
+    int? height,
+  }) async {
+    final message = CustomMessage(
+      authorId: _currentUser.id,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+        DateTimeHelper.millisecond(),
+        isUtc: true,
+      ),
+      id: Xid().toString(),
+      metadata: _withBurnMetadata({
+        'msg_type': 'expression',
+        'peer_id': peerId,
+        'url': url,
+        'text': text,
+        'width': width ?? 120,
+        'height': height ?? 120,
+      }),
+    );
+    await onMessageCreated(message);
+  }
+
   /// 发送收藏消息
   Future<void> sendCollectMessage(
     BuildContext context,

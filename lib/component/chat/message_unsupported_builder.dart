@@ -97,28 +97,3 @@ class UnsupportedMessageTypePlugin implements MessageTypePlugin {
     );
   }
 }
-
-class VideoMessageTypePlugin implements MessageTypePlugin {
-  const VideoMessageTypePlugin();
-
-  @override
-  String get id => 'builtin:${MessageType.video}';
-
-  @override
-  bool get isEnabled => true;
-
-  @override
-  MessagePluginSurface get surface => MessagePluginSurface.bubble;
-
-  @override
-  String get type => MessageType.video;
-
-  @override
-  Widget build(MessageViewModel message, MessageRenderContext context) {
-    return ImUnsupportedMessageBuilder(
-      type: context.type,
-      message: message,
-      user: context.user,
-    );
-  }
-}
