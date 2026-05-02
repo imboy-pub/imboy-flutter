@@ -85,7 +85,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       if (indexParam != null) {
         initialIndex = int.tryParse(indexParam) ?? 0;
       }
-    } on Exception {
+    } catch (e) {
       // 非 GoRouter 上下文时使用默认值
     }
 
@@ -124,6 +124,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
 
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
+    // 600px - 900px 为 tablet 模式（使用 NavigationRail）
+    final isTablet = width >= 600 && width < 900;
+
     if (rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {
         if (!mounted) {
@@ -136,156 +141,195 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       });
     }
 
+    final navigationItems = [
+      _NavigationItemData(
+        icon: Icons.chat_bubble_outline,
+        activeIcon: Icons.chat_bubble,
+        label: t.titleMessage,
+        remindCount: ref.watch(conversationProvider).chatMsgRemindCounter,
+      ),
+      _NavigationItemData(
+        icon: Icons.people_alt_outlined,
+        activeIcon: Icons.people_alt,
+        label: t.titleContact,
+        remindCount: ref.watch(newFriendRemindProvider).length,
+      ),
+      _NavigationItemData(
+        icon: Icons.campaign_outlined,
+        activeIcon: Icons.campaign,
+        label: t.channel.title,
+        remindCount: channelEnabled
+            ? (ref
+                      .watch(subscribedChannelStripProvider)
+                      .value
+                      ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
+                  0)
+            : 0,
+      ),
+      _NavigationItemData(
+        icon: Icons.person_outline,
+        activeIcon: Icons.person,
+        label: t.titleMine,
+        isStatusItem: true,
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       extendBody: true,
-      body: PageView(
-        controller: pageController,
-        onPageChanged: (index) {
-          ref.read(bottomNavigationProvider.notifier).changeIndex(index);
-        },
-        physics: const NeverScrollableScrollPhysics(),
-        children: pageList,
-      ),
-      bottomNavigationBar: GlassBottomNavigationBar(
-        currentIndex: bottomBarIndex,
-        onTap: (index) {
-          ref.read(bottomNavigationProvider.notifier).changeIndex(index);
-          if (pageController.hasClients) {
-            pageController.jumpToPage(index);
-          }
-        },
-        items: [
-          GlassBottomBarItem(
-            icon: Icons.chat_bubble_outline,
-            activeIcon: Icons.chat_bubble,
-            label: t.titleMessage,
-            iconBuilder: (isSelected) {
-              final conversationState = ref.watch(conversationProvider);
-              final chatRemindCount = conversationState.chatMsgRemindCounter;
-              return badges.Badge(
-                showBadge: chatRemindCount > 0,
-                position: badges.BadgePosition.topStart(top: -8, start: 20),
-                badgeContent: Text(
-                  chatRemindCount > 99 ? '99+' : chatRemindCount.toString(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: labelFontSize * 0.85,
-                    fontFamily: 'PingFang SC',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: AppColors.messageFailed,
-                  borderRadius: AppRadius.borderRadiusMedium,
-                  elevation: 2,
-                ),
-                child: Icon(
-                  isSelected ? Icons.chat_bubble : Icons.chat_bubble_outline,
-                  size: 26,
-                  color: isSelected ? AppColors.primary : null,
-                ),
-              );
-            },
-          ),
-          // 联系人 Tab（带新朋友请求角标）
-          GlassBottomBarItem(
-            icon: Icons.people_alt_outlined,
-            activeIcon: Icons.people_alt,
-            label: t.titleContact,
-            iconBuilder: (isSelected) {
-              final count = ref.watch(newFriendRemindProvider).length;
-              return badges.Badge(
-                showBadge: count > 0,
-                position: badges.BadgePosition.topStart(top: -8, start: 20),
-                badgeContent: Text(
-                  count.toString(),
-                  style: TextStyle(
-                    fontSize: labelFontSize * 0.85,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: AppColors.messageFailed,
-                  borderRadius: AppRadius.borderRadiusMedium,
-                  elevation: 2,
-                ),
-                child: Icon(
-                  isSelected ? Icons.people_alt : Icons.people_alt_outlined,
-                  size: 26,
-                  color: isSelected ? AppColors.primary : null,
-                ),
-              );
-            },
-          ),
-          // 频道 Tab
-          GlassBottomBarItem(
-            icon: Icons.campaign_outlined,
-            activeIcon: Icons.campaign,
-            label: t.channel.title,
-            iconBuilder: (isSelected) {
-              final channelUnread = channelEnabled
-                  ? (ref
-                            .watch(subscribedChannelStripProvider)
-                            .value
-                            ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
-                        0)
-                  : 0;
-              return badges.Badge(
-                showBadge: channelUnread > 0,
-                position: badges.BadgePosition.topStart(top: -8, start: 20),
-                badgeContent: Text(
-                  channelUnread > 99 ? '99+' : channelUnread.toString(),
-                  style: TextStyle(
-                    fontSize: labelFontSize * 0.85,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: AppColors.messageFailed,
-                  borderRadius: AppRadius.borderRadiusMedium,
-                  elevation: 2,
-                ),
-                child: Icon(
-                  isSelected ? Icons.campaign : Icons.campaign_outlined,
-                  size: 26,
-                  color: isSelected ? AppColors.primary : null,
-                ),
-              );
-            },
-          ),
-          GlassBottomBarItem(
-            icon: Icons.person_outline,
-            activeIcon: Icons.person,
-            label: t.titleMine,
-            iconBuilder: (isSelected) => badges.Badge(
-              showBadge: true,
-              position: badges.BadgePosition.topStart(top: 2, start: 22),
-              badgeStyle: badges.BadgeStyle(
-                badgeColor: socketStatus == WebSocketConnectionState.connected
-                    ? AppColors.success
-                    : AppColors.messageFailed,
-                borderRadius: AppRadius.borderRadiusSmall,
-                borderSide: BorderSide(
-                  color: isSelected
-                      ? (Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkSurfaceContainer
-                            : Colors.white)
-                      : Theme.of(context).colorScheme.surface,
-                  width: 2,
-                ),
+      body: Row(
+        children: [
+          if (isTablet)
+            NavigationRail(
+              selectedIndex: bottomBarIndex,
+              onDestinationSelected: (index) {
+                ref.read(bottomNavigationProvider.notifier).changeIndex(index);
+                if (pageController.hasClients) {
+                  pageController.jumpToPage(index);
+                }
+              },
+              labelType: NavigationRailLabelType.all,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+              indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+              selectedLabelTextStyle: const TextStyle(
+                color: AppColors.primary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
-              child: Icon(
-                isSelected ? Icons.person : Icons.person_outline,
-                size: 26,
-                color: isSelected ? AppColors.primary : null,
+              unselectedLabelTextStyle: TextStyle(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.5),
+                fontSize: 12,
               ),
+              destinations: navigationItems.map((item) {
+                return NavigationRailDestination(
+                  icon: _buildNavigationIcon(
+                    item,
+                    false,
+                    labelFontSize,
+                    socketStatus,
+                  ),
+                  selectedIcon: _buildNavigationIcon(
+                    item,
+                    true,
+                    labelFontSize,
+                    socketStatus,
+                  ),
+                  label: Text(item.label),
+                );
+              }).toList(),
+            ),
+          Expanded(
+            child: PageView(
+              controller: pageController,
+              onPageChanged: (index) {
+                ref.read(bottomNavigationProvider.notifier).changeIndex(index);
+              },
+              physics: const NeverScrollableScrollPhysics(),
+              children: pageList,
             ),
           ),
         ],
       ),
+      bottomNavigationBar: isTablet
+          ? null
+          : GlassBottomNavigationBar(
+              currentIndex: bottomBarIndex,
+              onTap: (index) {
+                ref.read(bottomNavigationProvider.notifier).changeIndex(index);
+                if (pageController.hasClients) {
+                  pageController.jumpToPage(index);
+                }
+              },
+              items: navigationItems.map((item) {
+                return GlassBottomBarItem(
+                  icon: item.icon,
+                  activeIcon: item.activeIcon,
+                  label: item.label,
+                  iconBuilder: (isSelected) => _buildNavigationIcon(
+                    item,
+                    isSelected,
+                    labelFontSize,
+                    socketStatus,
+                  ),
+                );
+              }).toList(),
+            ),
     );
   }
+
+  Widget _buildNavigationIcon(
+    _NavigationItemData item,
+    bool isSelected,
+    double labelFontSize,
+    WebSocketConnectionState socketStatus,
+  ) {
+    if (item.isStatusItem) {
+      return badges.Badge(
+        showBadge: true,
+        position: badges.BadgePosition.topStart(top: 2, start: 22),
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: socketStatus == WebSocketConnectionState.connected
+              ? AppColors.success
+              : AppColors.messageFailed,
+          borderRadius: AppRadius.borderRadiusSmall,
+          borderSide: BorderSide(
+            color: isSelected
+                ? (Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkSurfaceContainer
+                    : Colors.white)
+                : Theme.of(context).colorScheme.surface,
+            width: 2,
+          ),
+        ),
+        child: Icon(
+          isSelected ? item.activeIcon : item.icon,
+          size: 26,
+          color: isSelected ? AppColors.primary : null,
+        ),
+      );
+    }
+
+    return badges.Badge(
+      showBadge: item.remindCount > 0,
+      position: badges.BadgePosition.topStart(top: -8, start: 20),
+      badgeContent: Text(
+        item.remindCount > 99 ? '99+' : item.remindCount.toString(),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: labelFontSize * 0.85,
+          fontFamily: 'PingFang SC',
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      badgeStyle: badges.BadgeStyle(
+        badgeColor: AppColors.messageFailed,
+        borderRadius: AppRadius.borderRadiusMedium,
+        elevation: 2,
+      ),
+      child: Icon(
+        isSelected ? item.activeIcon : item.icon,
+        size: 26,
+        color: isSelected ? AppColors.primary : null,
+      ),
+    );
+  }
+}
+
+class _NavigationItemData {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final int remindCount;
+  final bool isStatusItem;
+
+  _NavigationItemData({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    this.remindCount = 0,
+    this.isStatusItem = false,
+  });
 }

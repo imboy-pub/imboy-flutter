@@ -14,7 +14,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 /// 会话列表项组件 - Riverpod 版本
-class ConversationItem extends ConsumerWidget {
+class ConversationItem extends ConsumerStatefulWidget {
   final ConversationModel model;
   final Function()? onTapAvatar;
   final Function()? onTap;
@@ -27,15 +27,24 @@ class ConversationItem extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConversationItem> createState() => _ConversationItemState();
+}
+
+class _ConversationItemState extends ConsumerState<ConversationItem> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
     // 使用 select 精确监听，避免整个会话列表变化时重建所有 item
     final int remindCounter = ref.watch(
       conversationProvider.select(
-        (s) => s.conversationRemind[model.uk3] ?? model.unreadNum,
+        (s) => s.conversationRemind[widget.model.uk3] ?? widget.model.unreadNum,
       ),
     );
     final ConversationModel currentModel = ref.watch(
-      conversationProvider.select((s) => s.conversationMap[model.uk3] ?? model),
+      conversationProvider.select(
+        (s) => s.conversationMap[widget.model.uk3] ?? widget.model,
+      ),
     );
 
     final theme = Theme.of(context);
@@ -52,120 +61,135 @@ class ConversationItem extends ConsumerWidget {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: AppRadius.borderRadiusRegular,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.transparent,
-          width: 0.5,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: AppRadius.borderRadiusRegular,
-        child: InkWell(
+    return AnimatedScale(
+      scale: _isPressed ? 0.98 : 1.0,
+      duration: const Duration(milliseconds: 100),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
           borderRadius: AppRadius.borderRadiusRegular,
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Avatar Area
-                badges.Badge(
-                  position: badges.BadgePosition.topEnd(top: -2, end: -2),
-                  showBadge: (remindCounter > 0),
-                  badgeContent: Text(
-                    "$remindCounter",
-                    // DESIGN.md §3.4：数字优先等宽（未读徽章数字需对齐）
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: FontSizeType.tiny.size,
-                      fontWeight: FontWeight.bold,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.transparent,
+            width: 0.5,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: AppRadius.borderRadiusRegular,
+          child: InkWell(
+            borderRadius: AppRadius.borderRadiusRegular,
+            onTap: widget.onTap,
+            onTapDown: (_) => setState(() => _isPressed = true),
+            onTapUp: (_) => setState(() => _isPressed = false),
+            onTapCancel: () => setState(() => _isPressed = false),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Avatar Area
+                  badges.Badge(
+                    position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                    showBadge: (remindCounter > 0),
+                    badgeContent: Text(
+                      "$remindCounter",
+                      // DESIGN.md §3.4：数字优先等宽（未读徽章数字需对齐）
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: FontSizeType.tiny.size,
+                        fontWeight: FontWeight.bold,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
-                  ),
-                  badgeStyle: badges.BadgeStyle(
-                    badgeColor: AppColors.messageFailed,
-                    padding: const EdgeInsets.all(5),
-                  ),
-                  child: GestureDetector(
-                    onTap: onTapAvatar,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: theme.scaffoldBackgroundColor,
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 5,
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: AppColors.messageFailed,
+                      padding: const EdgeInsets.all(5),
+                    ),
+                    child: GestureDetector(
+                      onTap: widget.onTapAvatar,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.scaffoldBackgroundColor,
+                            width: 2,
                           ),
-                        ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: widget.model.type == 'C2G'
+                            ? SmartGroupAvatar(
+                                avatar: widget.model.avatar,
+                                groupId: widget.model.peerId.toString(),
+                                onTap: widget.onTapAvatar,
+                                size: 52,
+                                avatarLoader: GroupListService().computeAvatar,
+                                heroTag: 'avatar_${widget.model.peerId}',
+                              )
+                            : Avatar(
+                                imgUri: widget.model.avatar,
+                                width: 52,
+                                height: 52,
+                                heroTag: 'avatar_${widget.model.peerId}',
+                              ),
                       ),
-                      child: model.type == 'C2G'
-                          ? SmartGroupAvatar(
-                              avatar: model.avatar,
-                              groupId: model.peerId.toString(),
-                              onTap: onTapAvatar,
-                              size: 52,
-                              avatarLoader: GroupListService().computeAvatar,
-                            )
-                          : Avatar(imgUri: model.avatar, width: 52, height: 52),
                     ),
                   ),
-                ),
 
-                const SizedBox(width: 14),
+                  const SizedBox(width: 14),
 
-                // Content Area
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Top Row: Title + Time
-                      Flexible(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(child: _buildTitle(currentModel, theme)),
-                            const SizedBox(width: 4),
-                            _buildTime(currentModel, theme),
-                          ],
+                  // Content Area
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Top Row: Title + Time
+                        Flexible(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(child: _buildTitle(currentModel, theme)),
+                              const SizedBox(width: 4),
+                              _buildTime(currentModel, theme),
+                            ],
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 6),
+                        const SizedBox(height: 6),
 
-                      // Bottom Row: Message Preview
-                      Flexible(
-                        child: Row(
-                          children: [
-                            Column(children: icon),
-                            Expanded(child: _buildContent(currentModel, theme)),
-                          ],
+                        // Bottom Row: Message Preview
+                        Flexible(
+                          child: Row(
+                            children: [
+                              Column(children: icon),
+                              Expanded(
+                                child: _buildContent(currentModel, theme),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

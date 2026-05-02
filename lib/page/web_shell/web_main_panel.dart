@@ -55,13 +55,27 @@ class WebMainPanel extends StatelessWidget {
     return Container(
       color: colorScheme.surface,
       // sealed switch 强制穷尽：未来新增 WebSelection 变体时此处编译失败
-      child: switch (selection) {
-        null => welcome,
-        final ChatSelection s => chatBuilder(s),
-        final ContactSelection s => contactBuilder(s),
-        final ChannelSelection s => channelBuilder(s),
-        final MineSelection s => mineBuilder(s),
-      },
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey(selection.hashCode),
+          child: switch (selection) {
+            null => welcome,
+            final ChatSelection s => chatBuilder(s),
+            final ContactSelection s => contactBuilder(s),
+            final ChannelSelection s => channelBuilder(s),
+            final MineSelection s => mineBuilder(s),
+          },
+        ),
+      ),
     );
   }
 }

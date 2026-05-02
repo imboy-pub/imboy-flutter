@@ -50,7 +50,19 @@ class WebMiddlePanel extends StatelessWidget {
             index: currentTab,
             children: tabs,
           )
-        : tabs[currentTab];
+        : AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            child: KeyedSubtree(
+              key: ValueKey<int>(currentTab),
+              child: tabs[currentTab],
+            ),
+          );
 
     return Container(
       width: width,

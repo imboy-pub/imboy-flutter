@@ -46,6 +46,8 @@ import 'package:imboy/component/chat/mention_text_reducer.dart'
 // 显式导入 StorageService（解决编译错误）
 import 'package:imboy/service/storage.dart';
 
+import 'package:imboy/component/ui/avatar.dart' as imboy;
+
 // 性能优化开关：设置为 true 使用优化的 ChatMessageList，false 使用原 ChatAnimatedList
 const bool _useOptimizedMessageList = false;
 
@@ -868,76 +870,60 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 滚动到目标消息
   Future<void> _scrollToTargetMessage() async {
+    if (widget.msgId.isEmpty) return;
+
     try {
       // 确保消息列表已加载
-      if (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
-          true) {
-        debugPrint("消息列表为空，无法滚动");
+      final messages = ref.read(chatProvider.notifier).chatService?.messages ?? [];
+      if (messages.isEmpty) {
+        debugPrint("[chat] 消息列表为空，无法滚动");
         return;
       }
 
       // 查找目标消息在列表中的索引
-      final messages = ref.read(chatProvider.notifier).chatService!.messages;
       final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
-
       if (targetIndex == -1) {
-        debugPrint("未找到目标消息: ${widget.msgId}");
+        debugPrint("[chat] 未找到目标消息: ${widget.msgId}");
         return;
       }
 
       debugPrint(
-        "找到目标消息: ${widget.msgId}, 索引: $targetIndex, 总消息数: ${messages.length}",
+        "[chat] 找到目标消息: ${widget.msgId}, 索引: $targetIndex, 总消息数: ${messages.length}",
       );
 
       // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
-      for (var attempt = 0; attempt < 12; attempt++) {
-        // 检查 widget 是否仍然 mounted（防止页面销毁后继续执行）
+      for (var attempt = 0; attempt < 15; attempt++) {
+        // 检查 widget 是否仍然 mounted
         if (!mounted) {
-          debugPrint("页面已销毁，停止滚动尝试");
+          debugPrint("[chat] 页面已销毁，停止滚动尝试");
           return;
         }
 
-        await WidgetsBinding.instance.endOfFrame;
-        // 渐进式等待：前几次快一点，后面慢一点
-        await Future.delayed(Duration(milliseconds: attempt < 3 ? 100 : 200));
+        // 渐进式等待
+        await Future.delayed(Duration(milliseconds: attempt < 3 ? 100 : 300));
 
-        // 再次检查 mounted（防止异步操作期间页面被销毁）
-        if (!mounted) {
-          debugPrint("页面已销毁，停止滚动尝试");
-          return;
-        }
+        if (!mounted) return;
 
-        await ref
-            .read(chatProvider.notifier)
-            .chatService
-            ?.scrollToMessage(
-              widget.msgId,
-              duration: const Duration(milliseconds: 500),
-              offset: 100.0,
-            );
+        // 尝试触发滚动
+        await ref.read(chatProvider.notifier).chatService?.scrollToMessage(
+          widget.msgId,
+          duration: const Duration(milliseconds: 500),
+          offset: 120.0, // 增加偏移量，避开 AppBar
+        );
 
-        // 检查目标消息是否在可视区域内
+        // 检查目标消息是否已挂载到视图树中
         if (_targetMessageKey.currentContext != null) {
-          final renderObject = _targetMessageKey.currentContext!
-              .findRenderObject();
-          if (renderObject is RenderBox) {
-            // 简单的可见性检查：只要 context 存在且 renderObject attached，说明已经 build 并进入了树
-            // 配合 scrollToMessage 的执行，通常意味着已经滚到了位置
-            debugPrint("滚动定位成功，目标消息已进入视图树，尝试次数: ${attempt + 1}");
-            break;
-          }
+          debugPrint("[chat] 滚动定位成功，目标消息已进入视图树，尝试次数: ${attempt + 1}");
+          break;
         }
       }
 
-      // 高亮消息（检查 mounted）
+      // 无论是否成功通过 Key 定位，最后都尝试高亮（如果消息在列表中）
       if (mounted) {
-        ref
-            .read(messageScrollManagerProvider.notifier)
-            .highlightMessage(widget.msgId);
+        ref.read(messageScrollManagerProvider.notifier).highlightMessage(widget.msgId);
       }
     } catch (e) {
-      debugPrint("滚动到目标消息失败: $e");
-      // 降级处理：使用简单的索引滚动
+      debugPrint("[chat] 滚动到目标消息失败: $e");
       _fallbackScrollToMessage();
     }
   }
@@ -954,41 +940,25 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       if (targetIndex == -1) return;
 
+      debugPrint("[chat] 执行降级滚动定位: index=$targetIndex");
+
       // 估算滚动位置 (reverse: true, index 0 is bottom)
-      // 假设平均消息高度为80像素
-      double estimatedOffset = targetIndex * 80.0;
+      // 假设平均消息高度为100像素（带头像和间距的消息通常更高）
+      double estimatedOffset = targetIndex * 100.0;
 
-      if (ref
-          .read(messageScrollManagerProvider.notifier)
-          .scrollController
-          .hasClients) {
-        final maxScroll = ref
-            .read(messageScrollManagerProvider.notifier)
-            .scrollController
-            .position
-            .maxScrollExtent;
-        if (estimatedOffset > maxScroll) {
-          estimatedOffset = maxScroll;
-        }
+      final scrollController = ref.read(messageScrollManagerProvider.notifier).scrollController;
+      if (scrollController.hasClients) {
+        final maxScroll = scrollController.position.maxScrollExtent;
+        final targetPosition = estimatedOffset.clamp(0.0, maxScroll);
 
-        ref
-            .read(messageScrollManagerProvider.notifier)
-            .scrollController
-            .jumpTo(estimatedOffset);
-
-        // 延迟高亮（检查 mounted）
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            ref
-                .read(messageScrollManagerProvider.notifier)
-                .highlightMessage(widget.msgId);
-          }
-        });
-
-        debugPrint("使用降级方法滚动到消息: ${widget.msgId}, 位置: $estimatedOffset");
+        scrollController.animateTo(
+          targetPosition,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+        );
       }
     } catch (e) {
-      debugPrint("降级滚动也失败: $e");
+      debugPrint("[chat] 降级滚动失败: $e");
     }
   }
 
@@ -1163,6 +1133,24 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
       }
     }
+  }
+
+  /// 处理贴图选择
+  Future<void> _handleStickerSelection() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StickerPicker(
+        onStickerSelected: (sticker) async {
+          Navigator.of(context).pop();
+          await _attachmentHandler.sendExpressionMessage(
+            context,
+            sticker.url,
+            sticker.text,
+          );
+        },
+      ),
+    );
   }
 
   // 消息双击事件
@@ -1539,12 +1527,37 @@ class ChatPageState extends ConsumerState<ChatPage>
         resizeToAvoidBottomInset: false, // 禁用系统自动避让，改为手动控制高度以避免抖动
         appBar: _showAppBar
             ? GlassAppBar(
-                titleWidget: Text(
-                  newGroupName.isEmpty ? widget.peerTitle : newGroupName,
-                  style: TextStyle(
-                    color: themeNotifier.getThemeColor('textPrimary'),
-                    fontSize: themeNotifier.getFontSize(FontSizeType.title),
-                  ),
+                titleWidget: Row(
+                  children: [
+                    if (widget.peerAvatar.isNotEmpty) ...[
+                      Hero(
+                        tag: 'avatar_${widget.peerId}',
+                        child: widget.type == 'C2G'
+                            ? imboy.SmartGroupAvatar(
+                                groupId: widget.peerId,
+                                avatar: widget.peerAvatar,
+                                size: 36,
+                              )
+                            : imboy.Avatar(
+                                imgUri: widget.peerAvatar,
+                                width: 36,
+                                height: 36,
+                              ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: Text(
+                        newGroupName.isEmpty ? widget.peerTitle : newGroupName,
+                        style: TextStyle(
+                          color: themeNotifier.getThemeColor('textPrimary'),
+                          fontSize:
+                              themeNotifier.getFontSize(FontSizeType.title),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
                 rightDMActions: topRightWidget,
                 automaticallyImplyLeading: true,
@@ -1643,6 +1656,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         handleLocationSelection: _handleLocationSelection,
         handleVisitCardSelection: _handleVisitCardSelection,
         handleCollectSelection: _handleCollectSelection,
+        handleStickerSelection: _handleStickerSelection,
         options: {
           "to": widget.peerId,
           "title": widget.peerTitle,
@@ -1943,10 +1957,12 @@ class ChatPageState extends ConsumerState<ChatPage>
               required bool isSentByMe,
               MessageGroupStatus? groupStatus,
             }) {
-              // 如果是目标消息，包裹 Key
+              // 如果是目标消息，绑定 GlobalKey 以便定位
+              Key? itemKey;
               if (widget.msgId.isNotEmpty && message.id == widget.msgId) {
-                child = Container(key: _targetMessageKey, child: child);
+                itemKey = _targetMessageKey;
               }
+
               final isSystemMessage = message.authorId == 'system';
               final isFirstInGroup = groupStatus?.isFirst ?? true;
               final isLastInGroup = groupStatus?.isLast ?? true;
@@ -2036,6 +2052,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                 child = messageBody;
               }
               final chatMsg = ChatMessage(
+                key: itemKey,
                 message: message,
                 index: index,
                 animation: animation,
@@ -2197,6 +2214,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       scrollController: ref
           .read(messageScrollManagerProvider.notifier)
           .scrollController,
+      // 传递 msgId 和 targetMessageKey 以支持滚动定位
+      targetMsgId: widget.msgId,
+      targetMessageKey: _targetMessageKey,
       onMessageLongPress: (message) => _onMessageLongPress(
         context,
         message,

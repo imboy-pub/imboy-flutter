@@ -6,6 +6,7 @@ export '../../widget/chat_input.dart';
 export '../../widget/extra_item.dart';
 export '../../widget/quote_tips.dart';
 export '../../widget/select_friend.dart';
+export '../../widget/sticker_picker.dart';
 
 // Provider 和 Controller (在 lib/page/chat/chat/ 目录)
 export '../chat_provider.dart';

@@ -32,6 +32,8 @@ class ChatMessageList extends StatelessWidget {
     this.onEndReached,
     this.onStartReached,
     this.messageTypeRegistry,
+    this.targetMsgId,
+    this.targetMessageKey,
   });
 
   final List<Message> messages;
@@ -43,6 +45,8 @@ class ChatMessageList extends StatelessWidget {
   final Future<void> Function()? onEndReached;
   final Future<void> Function()? onStartReached;
   final MessageTypeRegistry? messageTypeRegistry;
+  final String? targetMsgId;
+  final Key? targetMessageKey;
 
   // 估算的消息项高度，用于 ListView 滚动优化
   static const double _estimatedItemExtent = 80.0;
@@ -61,7 +65,14 @@ class ChatMessageList extends StatelessWidget {
         final message = messages[index];
         final isMe = message.authorId == currentUserId;
 
+        // 如果是目标消息，绑定 GlobalKey
+        Key? itemKey;
+        if (targetMsgId != null && message.id == targetMsgId) {
+          itemKey = targetMessageKey;
+        }
+
         return _MessageItem(
+          key: itemKey,
           message: message,
           isMe: isMe,
           messageTypeRegistry: messageTypeRegistry,
@@ -83,6 +94,7 @@ class ChatMessageList extends StatelessWidget {
 /// 消息项组件（优化版 - 移除 Dismissible 和 AnimatedBuilder）
 class _MessageItem extends StatelessWidget {
   const _MessageItem({
+    super.key,
     required this.message,
     required this.isMe,
     this.messageTypeRegistry,
