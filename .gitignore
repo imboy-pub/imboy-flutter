@@ -108,6 +108,9 @@ android/app/google-services.json
 # Backend Erlang crash dumps (should not be tracked in Flutter repo)
 erl_crash.dump
 
+# Local backups (e.g., pubspec.lock.preloop) — never track
+*.preloop
+
 # Slang i18n analyze outputs (regenerated on demand)
 assets/i18n/_missing_translations.yaml
 assets/i18n/_unused_translations.yaml

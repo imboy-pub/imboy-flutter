@@ -1,0 +1,142 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, dev, develop]
+    paths:
+      - 'imboyapp/**'
+      - 'imboy/**'
+      - 'script/run_integration_tests.sh'
+      - 'script/test.env'
+  pull_request:
+    branches: [main, dev, develop]
+  workflow_dispatch:
+    inputs:
+      test_device:
+        description: 'Test device (macos/android)'
+        required: false
+        default: 'macos'
+      smoke_only:
+        description: 'Run backend smoke only (skip Flutter tests)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  FLUTTER_VERSION: '3.29.3'
+  TEST_DEVICE: ${{ github.event.inputs.test_device || 'macos' }}
+
+jobs:
+  # ── Job 1: 静态分析 ──
+  analyze:
+    name: Static Analysis
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: imboyapp
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Dart analyze
+        run: dart analyze --fatal-infos
+
+      - name: Dart format check
+        run: dart format --set-exit-if-changed .
+
+  # ── Job 2: 单元测试 ──
+  unit-test:
+    name: Unit Tests
+    runs-on: macos-latest
+    needs: analyze
+    defaults:
+      run:
+        working-directory: imboyapp
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: imboyapp/coverage/
+          retention-days: 7
+
+  # ── Job 3: 集成测试（需要后端 + 测试账号） ──
+  integration-test:
+    name: Integration Tests (${{ github.event.inputs.test_device || 'macos' }})
+    runs-on: macos-latest
+    needs: unit-test
+    if: ${{ !github.event.inputs.smoke_only || github.event.inputs.smoke_only == 'false' }}
+    defaults:
+      run:
+        working-directory: imboyapp
+    env:
+      APP_ENV: local_office
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run integration tests
+        run: |
+          flutter test integration_test/all_tests.dart \
+            --dart-define=APP_ENV=${{ env.APP_ENV }} \
+            --dart-define=TEST_PHONE=${{ secrets.TEST_PHONE }} \
+            --dart-define=TEST_PASSWORD=${{ secrets.TEST_PASSWORD }} \
+            -d ${{ env.TEST_DEVICE }}
+        continue-on-error: true
+        id: integration
+
+      - name: Collect test output
+        if: always()
+        run: |
+          mkdir -p test_output/screenshots
+          echo "integration_exit_code=${{ steps.integration.outcome }}" >> test_output/summary.env
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-output
+          path: |
+            imboyapp/test_output/
+          retention-days: 14
+
+      - name: Check integration result
+        if: steps.integration.outcome == 'failure'
+        run: |
+          echo "::error::Integration tests failed"
+          exit 1

@@ -3647,6 +3647,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '设置背景图片'
 	String get setBackgroundImage => '设置背景图片';
 
+	/// zh-CN: '表情'
+	String get expression => '表情';
+
 	/// zh-CN: '扩展信息'
 	String get extendedInfo => '扩展信息';
 
@@ -7744,6 +7747,7 @@ extension on Translations {
 			'personalSignature' => '个性签名',
 			'personalBackground' => '个人背景',
 			'setBackgroundImage' => '设置背景图片',
+			'expression' => '表情',
 			'extendedInfo' => '扩展信息',
 			'profession' => '职业',
 			'school' => '学校',
@@ -8073,9 +8077,9 @@ extension on Translations {
 			'groupCategory.renameCategory' => '重命名分组',
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
-			'groupCategory.deleteFailed' => '删除失败，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
@@ -8587,9 +8591,9 @@ extension on Translations {
 			'initConfigProtocolError' => '服务故障协议有误',
 			'initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
-			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			_ => null,
 		} ?? switch (path) {
+			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'saveFailedRetry' => '保存失败，请重试',

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/message_audio_builder.dart';
+import 'package:imboy/component/chat/message_expression_builder.dart';
+import 'package:imboy/component/chat/message_file_builder.dart';
 import 'package:imboy/component/chat/message_image_builder.dart';
 import 'package:imboy/component/chat/message_image_multi_builder.dart';
 import 'package:imboy/component/chat/message_location_builder.dart';
 import 'package:imboy/component/chat/message_quote_builder.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/chat/message_unsupported_builder.dart';
+import 'package:imboy/component/chat/message_video_builder.dart';
 import 'package:imboy/component/chat/message_visit_card_builder.dart';
 import 'package:imboy/component/chat/message_webrtc_builder.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
@@ -32,7 +35,9 @@ void registerBuiltinPlugins(MessageTypeRegistry registry) {
     _ImageMultiMessageTypePlugin(),
     VoiceMessageTypePlugin(),
     VideoMessageTypePlugin(),
+    FileMessageTypePlugin(),
     LocationMessageTypePlugin(),
+    ExpressionMessageTypePlugin(),
     QuoteMessageTypePlugin(),
     WebrtcAudioMessageTypePlugin(),
     WebrtcVideoMessageTypePlugin(),

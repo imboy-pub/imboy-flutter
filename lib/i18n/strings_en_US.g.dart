@@ -1228,6 +1228,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String get personalSignature => 'Personal Signature';
 	@override String get personalBackground => 'Personal Background';
 	@override String get setBackgroundImage => 'Set Background Image';
+	@override String get expression => 'Expression';
 	@override String get extendedInfo => 'Extended Info';
 	@override String get profession => 'Profession';
 	@override String get school => 'School';
@@ -3499,6 +3500,7 @@ extension on TranslationsEnUs {
 			'personalSignature' => 'Personal Signature',
 			'personalBackground' => 'Personal Background',
 			'setBackgroundImage' => 'Set Background Image',
+			'expression' => 'Expression',
 			'extendedInfo' => 'Extended Info',
 			'profession' => 'Profession',
 			'school' => 'School',
@@ -3842,9 +3844,9 @@ extension on TranslationsEnUs {
 			'groupCategory.renameCategory' => 'Rename Category',
 			'groupCategory.categoryRenamed' => 'Category renamed',
 			'groupCategory.renameFailed' => 'Rename failed, please retry',
-			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
@@ -4356,9 +4358,9 @@ extension on TranslationsEnUs {
 			'initConfigProtocolError' => 'Server returned an invalid protocol response',
 			'initConfigFetchFailed' => 'Failed to fetch config, please check your network connection',
 			'attachmentGetFileFailed' => 'Unable to get file, please retry or choose from gallery',
-			'attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			_ => null,
 		} ?? switch (path) {
+			'attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			'attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
 			'attachmentGetOriginalImageFailed' => 'Unable to get original image data',
 			'saveFailedRetry' => 'Save failed, please try again',

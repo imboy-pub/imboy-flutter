@@ -84,7 +84,15 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(
 
 bool _isNavigatingToSignIn = false;
 
+/// 全局标记：App 正在关闭/重新初始化，禁止导航
+bool _isAppDisposing = false;
+
 void navigateToSignIn({String source = 'unknown'}) {
+  if (_isAppDisposing) {
+    logger.i('navigateToSignIn skipped (app disposing), source=$source');
+    return;
+  }
+
   if (_isNavigatingToSignIn) {
     logger.i('navigateToSignIn skipped (in-flight), source=$source');
     return;
@@ -94,6 +102,7 @@ void navigateToSignIn({String source = 'unknown'}) {
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
     try {
+      if (_isAppDisposing) return;
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
         context.go(AppRoutes.signIn);
@@ -793,6 +802,7 @@ class AppInitializer {
   /// 释放资源（在应用退出或重新初始化前调用）
   static Future<void> dispose() async {
     logger.i('Disposing AppInitializer resources...');
+    _isAppDisposing = true;
 
     // 取消网络监听器
     await _connectivitySubscription?.cancel();
@@ -840,6 +850,7 @@ class AppInitializer {
   /// 重置初始化状态（用于测试或重新初始化）
   static void reset() {
     _initialized = false;
+    _isAppDisposing = false;
     serviceContainer.clear();
     logger.i('AppInitializer reset completed');
   }
