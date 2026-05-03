@@ -106,12 +106,25 @@ class MessageRetry with EventSubscriptionManager {
     _retryQueue.clear();
   }
 
-  /// 启动重试定时器
-  /// Start retry timer.
+  /// 启动重试定时器（自适应：队列为空时自动停止以节省 CPU）
+  /// Start retry timer (adaptive: auto-stops when queue is empty).
   void startRetryTimer() {
+    _retryTimer?.cancel();
     _retryTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (_retryQueue.isEmpty) {
+        _retryTimer?.cancel();
+        _retryTimer = null;
+        return;
+      }
       retryFailedMessages();
     });
+  }
+
+  /// 确保定时器运行（添加消息时调用）
+  void _ensureTimerRunning() {
+    if (_retryTimer == null || !_retryTimer!.isActive) {
+      startRetryTimer();
+    }
   }
 
   /// 获取消息仓库（内联方法，避免依赖 MessageService）
@@ -219,6 +232,7 @@ class MessageRetry with EventSubscriptionManager {
       retryCount: 0,
       lastRetryTime: DateTimeHelper.millisecond(),
     );
+    _ensureTimerRunning();
     iPrint('消息加入重试队列: $messageId, type=$normalizedType');
   }
 

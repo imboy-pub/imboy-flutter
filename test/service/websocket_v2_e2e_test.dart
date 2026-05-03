@@ -16,8 +16,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/protocol/imboy.pb.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -284,6 +287,93 @@ void main() {
           ByteData.sublistView(r!.frame.payload).getUint64(0, Endian.big);
       expect(extracted, msgId);
       expect(extracted.toString(), '9876543210');
+    });
+  });
+
+  group('Protobuf S2C over v2 frame (full pipeline)', () {
+    test('logged_another_device: protobuf → v2 frame → decode → Map', () {
+      // 1. 构造 protobuf IMBoyMessage
+      final innerPayload = PayloadLoggedAnotherDevice(
+        did: 'dev-e2e-001',
+        dname: 'Pixel 9',
+      );
+      final msg = IMBoyMessage(
+        id: 'pb_s2c_001',
+        type: MsgDirection.S2C,
+        from: Int64(0),
+        to: Int64(1000000051),
+        msgType: ContentType.CUSTOM,
+        action: 'logged_another_device',
+        payload: innerPayload.writeToBuffer(),
+        createdAt: Int64(1746300000000),
+      );
+
+      // 2. 序列化并封装到 v2 frame
+      final pbBytes = msg.writeToBuffer();
+      final frame = ImboyFrame.encode(
+        type: FrameType.msgS2C,
+        flags: 0,
+        payload: Uint8List.fromList(pbBytes),
+      );
+
+      // 3. v2 frame 解码
+      final decoded = ImboyFrame.tryDecode(frame);
+      expect(decoded, isNotNull);
+      expect(decoded!.frame.type, FrameType.msgS2C);
+
+      // 4. protobuf codec 解码 payload
+      final pbMap = ImboyPbCodec.tryDecode(decoded.frame.payload);
+      expect(pbMap, isNotNull);
+      expect(pbMap!['id'], 'pb_s2c_001');
+      expect(pbMap['type'], 'S2C');
+      expect(pbMap['action'], 'logged_another_device');
+      expect(pbMap['to'], 1000000051);
+
+      final payload = pbMap['payload'] as Map;
+      expect(payload['did'], 'dev-e2e-001');
+      expect(payload['dname'], 'Pixel 9');
+    });
+
+    test('JSON fallback: non-protobuf S2C still works through v2 frame', () {
+      const jsonText = '{"id":"json-s2c","type":"S2C","action":"ping_ok"}';
+      final frame = ImboyFrame.encode(
+        type: FrameType.msgS2C,
+        flags: 0,
+        payload: Uint8List.fromList(utf8.encode(jsonText)),
+      );
+
+      final decoded = ImboyFrame.tryDecode(frame);
+      expect(decoded, isNotNull);
+
+      // protobuf decode should fail (not protobuf), JSON fallback should work
+      final pbMap = ImboyPbCodec.tryDecode(decoded!.frame.payload);
+      expect(pbMap, isNull);
+
+      final jsonMap = ImboyPbCodec.tryDecodeJsonFallback(decoded.frame.payload);
+      expect(jsonMap, isNotNull);
+      expect(jsonMap!['id'], 'json-s2c');
+      expect(jsonMap['action'], 'ping_ok');
+    });
+
+    test('device_force_offline: protobuf round-trip through v2 frame', () {
+      final inner = PayloadDeviceKicked(reason: 'security_breach');
+      final msg = IMBoyMessage(
+        id: 'kick_001',
+        type: MsgDirection.S2C,
+        action: 'device_force_offline',
+        payload: inner.writeToBuffer(),
+      );
+
+      final frame = ImboyFrame.encode(
+        type: FrameType.msgS2C,
+        flags: 0,
+        payload: Uint8List.fromList(msg.writeToBuffer()),
+      );
+
+      final decoded = ImboyFrame.tryDecode(frame);
+      final pbMap = ImboyPbCodec.tryDecode(decoded!.frame.payload);
+      expect(pbMap!['action'], 'device_force_offline');
+      expect((pbMap['payload'] as Map)['reason'], 'security_breach');
     });
   });
 }

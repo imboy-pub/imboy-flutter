@@ -58,7 +58,11 @@ class AttachmentApi {
       await AppInitializer.initConfig();
       baseUrl = StorageService.to.getString(Keys.uploadUrl);
     }
-    // 安全日志：脱敏输出上传 URL
+    if (strEmpty(baseUrl)) {
+      debugPrint("上传失败: uploadUrl 未配置，请检查后端 initConfig 接口是否返回 upload_url");
+      errorCallback(Exception('uploadUrl 未配置'));
+      return;
+    }
     debugPrint("> on upload URL configured");
     var options = BaseOptions(
       baseUrl: baseUrl,

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -20,7 +19,6 @@ import 'package:imboy/component/http/http_client.dart' show defaultHeaders;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/storage.dart';
@@ -606,7 +604,7 @@ class WebSocketService {
       try {
         // ⚡ 非阻塞处理：通过事件总线发布消息，解耦 WebSocket 和 MessageService
         AppEventBus.fire(WebSocketMessageReceivedEvent(type: type, data: msg));
-      } catch (e, s) {
+      } catch (e) {
         iPrint('[WS] dispatch error: $e');
       }
     } catch (e) {
@@ -934,7 +932,8 @@ class WebSocketService {
     // 设置超时确认（普通消息5秒，撤回消息10秒）
     int timeoutSeconds = isRevokeMessage ? 10 : 5;
 
-    final timer = Timer(Duration(seconds: timeoutSeconds), () {
+    late final Timer timer;
+    timer = Timer(Duration(seconds: timeoutSeconds), () {
       _confirmationTimers.remove(timer);
       if (_pendingMessages.remove(messageId)) {
         final isConnected = _status == SocketStatus.connected;
@@ -1059,6 +1058,11 @@ class WebSocketService {
     _v2HeartbeatTimer?.cancel();
     _v2HeartbeatTimer = null;
     _framing = FramingMode.none;
+    // 清理所有消息确认 Timer
+    for (final t in _confirmationTimers) {
+      t.cancel();
+    }
+    _confirmationTimers.clear();
   }
 
   void _cancelReconnectTimer() {
