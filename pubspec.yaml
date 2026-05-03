@@ -43,6 +43,7 @@ dependencies:
   dio_http2_adapter: ^2.7.0       # HTTP/2 support for improved performance
   web_socket_channel: ^3.0.3      # WebSocket support for real-time communication
   protobuf: ^6.0.0                # Protocol Buffers runtime for binary WS frames
+  fixnum: ^1.1.0                  # 64-bit integer support (protobuf generated code)
   http: ^1.6.0                     # Additional HTTP utilities
   connectivity_plus: ^7.1.1        # Network status monitoring (WiFi/Cellular)
   webview_flutter: ^4.13.0         # WebView integration for in-app browsing
@@ -333,6 +334,7 @@ dev_dependencies:
   # ┌─ Testing ─────────────────────────────────────────────────────┐
   mocktail: ^1.0.4                     # Mocking library for testing
   mockito: ^5.4.6                      # Mockito mocking library
+  fake_async: ^1.3.2                   # Fake async for testing (direct dep for analyzer)
 
   # ┌─ Integration Testing ──────────────────────────────────────────┐
   integration_test:
