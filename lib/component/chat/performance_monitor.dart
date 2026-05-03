@@ -27,15 +27,12 @@ class ChatPerformanceMonitor {
   Timer? _fpsMonitorTimer;
   double _currentFPS = 60.0;
 
-  /// 启动 FPS 监控
+  /// 启动 FPS 监控（目前禁用：原实现仅记录 Timer 回调频率而非真实帧率，
+  /// 每秒触发一次 Timer 在后台持续消耗 CPU 却产出无效数据。
+  /// 如需启用，应改用 SchedulerBinding.instance.addTimingsCallback。）
   void startFPSMonitor() {
     _fpsMonitorTimer?.cancel();
-    _fpsMonitorTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _calculateFPS();
-      if (kDebugMode) {
-        log('🎯 当前 FPS: $_currentFPS');
-      }
-    });
+    // no-op: 禁用无效 FPS 监控以减少 CPU 消耗
   }
 
   /// 停止 FPS 监控

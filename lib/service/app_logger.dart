@@ -87,14 +87,18 @@ class AppLogger {
     }
   }
 
-  /// 信息日志（开发和生产环境都输出）
+  /// 信息日志（仅调试模式输出，避免热路径 CPU 开销）
   static void info(String message, [Object? error, StackTrace? stackTrace]) {
-    _getLogger().i(message, error: error, stackTrace: stackTrace);
+    if (_isDebugMode) {
+      _getLogger().i(message, error: error, stackTrace: stackTrace);
+    }
   }
 
-  /// 警告日志
+  /// 警告日志（仅调试模式输出，避免 PrettyPrinter CPU 开销）
   static void warning(String message, [Object? error, StackTrace? stackTrace]) {
-    _getLogger().w(message, error: error, stackTrace: stackTrace);
+    if (_isDebugMode) {
+      _getLogger().w(message, error: error, stackTrace: stackTrace);
+    }
   }
 
   /// 错误日志（开发和生产环境都输出）

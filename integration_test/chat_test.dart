@@ -37,9 +37,14 @@ void main() {
         await tester.pumpAndSettle();
       }
 
-      // 截图
-      await binding.takeScreenshot('after_tap_conversation');
-      print('✅ 截图已保存');
+      // 截图（Web 平台跳过）
+      final bool isWeb = identical(0.0, 0);
+      if (!isWeb) {
+        await binding.takeScreenshot('after_tap_conversation');
+        print('✅ 截图已保存');
+      } else {
+        print('⚠️ Web 平台跳过截图');
+      }
     });
 
     testWidgets('输入框测试', (WidgetTester tester) async {
@@ -66,7 +71,10 @@ void main() {
         print('⚠️ 未找到输入框，可能需要先进入聊天页面');
       }
 
-      await binding.takeScreenshot('input_test');
+      final bool isWeb = identical(0.0, 0);
+      if (!isWeb) {
+        await binding.takeScreenshot('input_test');
+      }
     });
   });
 }

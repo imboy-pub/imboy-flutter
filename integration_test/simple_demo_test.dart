@@ -41,14 +41,22 @@ void main() {
         print('⚠️ 未找到 Scaffold（可能仍在加载登录页）');
       }
 
-      // 步骤 3: 截图
+      // 步骤 3: 截图（Web 平台跳过，因 takeScreenshot 会触发无限
+      // App resumed 事件循环）
       print('');
       print('📍 步骤 3: 尝试截图');
-      try {
-        await binding.takeScreenshot('simple_demo_test');
-        print('✅ 截图成功');
-      } catch (e) {
-        print('⚠️ 截图跳过: $e');
+      final isWeb = identical(0.0, 0);
+      if (!isWeb) {
+        try {
+          await binding
+              .takeScreenshot('simple_demo_test')
+              .timeout(const Duration(seconds: 5));
+          print('✅ 截图成功');
+        } catch (e) {
+          print('⚠️ 截图跳过: $e');
+        }
+      } else {
+        print('⚠️ Web 平台跳过截图');
       }
 
       print('');

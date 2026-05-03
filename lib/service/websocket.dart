@@ -10,6 +10,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -64,6 +65,7 @@ class WebSocketService {
   Timer? _reconnectTimer;
   Timer? _v2HeartbeatTimer;
   final List<StreamSubscription> _eventBusSubs = [];
+  final Set<Timer> _confirmationTimers = {};
   bool _initialized = false;
 
   // 配置参数
@@ -428,7 +430,7 @@ class WebSocketService {
       final frame = result.frame;
       switch (frame.type) {
         case FrameType.heartbeatPong:
-          iPrint('💓 [WS] v2 heartbeat pong 收到');
+          // 心跳 pong 静默处理，避免每 120s 触发一次 PrettyPrinter
           break;
         case FrameType.heartbeatPing:
           // 服务端主动 ping，回 pong
@@ -513,9 +515,15 @@ class WebSocketService {
         case FrameType.msgC2C:
         case FrameType.msgC2G:
         case FrameType.msgC2S:
-          // 业务消息：载荷是 UTF-8 JSON 字符串（与现有 v1 路径一致）
-          final text = utf8.decode(frame.payload, allowMalformed: true);
-          _onMessage(text);
+          // 业务消息：先尝试 protobuf 解码，失败则 JSON 回退
+          final pbMap = ImboyPbCodec.tryDecode(frame.payload);
+          if (pbMap != null) {
+            // Protobuf decoded successfully → re-encode as JSON for downstream
+            _onMessage(jsonEncode(pbMap));
+          } else {
+            final text = utf8.decode(frame.payload, allowMalformed: true);
+            _onMessage(text);
+          }
           break;
         default:
           iPrint('> ws: v2 未知 frame type=0x${frame.type.toRadixString(16)}');
@@ -537,10 +545,11 @@ class WebSocketService {
       return;
     }
 
-    // 仅记录消息长度，不输出内容（避免泄露敏感信息）
-    iPrint('📡 [WS] 收到消息 (length=${message.toString().length})');
-
-    // iPrint("ws_onMessage ${DateTime.now()}");
+    // v2 模式下收到 text frame（协议不匹配 / 服务端 bug）：
+    // 记录警告，但仍尝试 JSON 解析作为降级
+    if (_framing == FramingMode.v2 && message is String) {
+      iPrint('[WS] v2 收到 text frame (${message.length} chars)，降级 JSON');
+    }
 
     // 快速空值检查
     if (message == null || (message is String && message.trim().isEmpty)) {
@@ -559,16 +568,16 @@ class WebSocketService {
       final type = messageType.toUpperCase();
       msg['type'] = type;
 
-      iPrint('📩 [WS] 解析消息: type=$type, msgId=$messageId');
+      // 合并日志：每条消息仅 1 次日志调用（避免 PrettyPrinter 重复格式化）
+      iPrint('[WS] msg type=$type id=$messageId action=$action');
 
       // 【关键优化】立即发送ACK，避免服务器超时重试
       // 先处理 WEBRTC（需要独立处理）
       if (type.startsWith('WEBRTC_') && messageId.isNotEmpty) {
         try {
-          iPrint('🎯 [WS_ACK] 发送WEBRTC ACK: msgId=$messageId');
           AckManager.to.sendAckDirect('WEBRTC', messageId);
         } catch (e) {
-          iPrint('⚠️ [WS_ACK] WEBRTC ACK发送失败: msgId=$messageId, error=$e');
+          iPrint('[WS_ACK] WEBRTC ACK fail: $e');
         }
       }
 
@@ -576,13 +585,10 @@ class WebSocketService {
       // 优先级：S2C(服务端指令) > C2S(服务端确认) > C2C(单聊) > C2G(群聊)
       if (['S2C', 'C2S', 'C2C', 'C2G'].contains(type) && messageId.isNotEmpty) {
         try {
-          iPrint('🎯 [WS_ACK] 准备发送ACK: type=$type, msgId=$messageId');
           AckManager.to.sendAckDirect(type, messageId);
         } catch (e) {
-          iPrint('⚠️ [WS_ACK] ACK发送失败: msgId=$messageId, error=$e');
+          iPrint('[WS_ACK] fail: $e');
         }
-      } else if (messageId.isEmpty && !type.startsWith('WEBRTC_')) {
-        iPrint('⚠️ [WS_ACK] 消息ID为空，跳过ACK: type=$type');
       }
 
       // 消息确认处理（包含ACK和撤回确认）
@@ -593,32 +599,18 @@ class WebSocketService {
       if (action == 'CLIENT_ACK_CONFIRM' ||
           action == 'CLIENT_ACK_ERROR' ||
           action.endsWith('_ACK')) {
-        iPrint('⏭️ [WS] ACK消息已处理，跳过转发: action=$action, msgId=$messageId');
         return;
       }
 
       // 统一分发到事件总线（非阻塞，不等待处理完成）
-      // Unified dispatch to event bus (non-blocking, don't wait for processing)
       try {
-        iPrint("> msg listen: $type, ${DateTime.now()}");
-
-        // 如果有 ts 字段，则打印延迟
-        // Log latency if timestamp provided
-        if (msg.containsKey('ts')) {
-          final ts = parseModelInt(msg['ts']);
-          if (ts > 0) {
-            iPrint("> msg latency: ${DateTimeHelper.millisecond() - ts} ms");
-          }
-        }
-
         // ⚡ 非阻塞处理：通过事件总线发布消息，解耦 WebSocket 和 MessageService
-        // Non-blocking processing: publish message via event bus to decouple WebSocket and MessageService
         AppEventBus.fire(WebSocketMessageReceivedEvent(type: type, data: msg));
       } catch (e, s) {
-        iPrint('Error dispatching message event: $e - $s');
+        iPrint('[WS] dispatch error: $e');
       }
     } catch (e) {
-      iPrint('> ws: 消息处理失败: $e');
+      iPrint('[WS] parse error: ${e.runtimeType}');
       // 解析失败时发送原始消息事件
       _handleRawMessage(message);
     }
@@ -815,10 +807,10 @@ class WebSocketService {
         _status != SocketStatus.connected;
   }
 
-  /// 网络连通性检查（使用网络监控服务）
+  /// 网络连通性检查（使用网络监控服务，无 HTTP 开销）
   Future<bool> _checkNetworkConnectivity() async {
     try {
-      // 使用网络监控服务检查网络状态
+      // 使用网络监控服务检查网络状态（轻量，无 HTTP 请求）
       final hasNetwork = NetworkMonitorService.to.hasNetwork;
 
       if (!hasNetwork) {
@@ -828,71 +820,14 @@ class WebSocketService {
         return false;
       }
 
-      // 可选：真实网络连通性测试（更准确）
-      final hasRealNetwork = await _testRealNetworkConnectivity();
-
-      if (!hasRealNetwork) {
-        iPrint('> ws: 网络连通性测试失败，可能无法访问外网');
-        // 不立即断开，允许尝试连接（可能是DNS问题或测试服务器问题）
-        iPrint('> ws: 继续尝试 WebSocket 连接...');
-      }
-
-      return true; // 允许尝试连接，即使真实网络测试失败
+      return true;
     } catch (e) {
       iPrint('> ws: 网络连通性检查异常: $e');
-      // 出现异常时，假设网络可用，继续尝试连接
       return true;
     }
   }
 
-  /// 真实网络连通性测试
-  Future<bool> _testRealNetworkConnectivity() async {
-    // 【修复】确保 HttpClient 在所有情况下都被关闭
-    HttpClient? client;
-    try {
-      // 使用系统的 HTTP 客户端进行轻量级测试
-      client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 5);
-
-      // 【修复 H4】使用国际通用的测试 URL + 配置化
-      final testUrls = [
-        'https://1.1.1.1', // Cloudflare DNS (全球)
-        'https://8.8.8.8', // Google DNS (全球)
-        'https://cloudflare.com', // Cloudflare 官网
-        // Fallback: 使用配置的 WebSocket 服务器
-        if (Env.effectiveWsUrl != null)
-          Uri.parse(Env.effectiveWsUrl!).replace(scheme: 'https').toString(),
-      ];
-
-      for (final url in testUrls) {
-        try {
-          final uri = Uri.parse(url);
-          final request = await client.getUrl(uri);
-          request.headers.set('User-Agent', 'IMBoy-NetworkTest/1.0');
-
-          final response = await request.close().timeout(
-            const Duration(seconds: 3),
-          );
-
-          if (response.statusCode >= 200 && response.statusCode < 400) {
-            iPrint('> ws: 网络连通性测试成功 ($url)');
-            return true;
-          }
-        } catch (e) {
-          // 继续测试下一个 URL
-          continue;
-        }
-      }
-
-      return false;
-    } catch (e) {
-      iPrint('> ws: 网络测试异常: $e');
-      return false; // 测试异常时返回 false
-    } finally {
-      // 【修复】确保 HttpClient 被关闭
-      client?.close();
-    }
-  }
+  /// 手动关闭连接
 
   /// 手动关闭连接
   Future<void> closeSocket({bool permanent = false}) async {
@@ -999,7 +934,8 @@ class WebSocketService {
     // 设置超时确认（普通消息5秒，撤回消息10秒）
     int timeoutSeconds = isRevokeMessage ? 10 : 5;
 
-    Timer(Duration(seconds: timeoutSeconds), () {
+    final timer = Timer(Duration(seconds: timeoutSeconds), () {
+      _confirmationTimers.remove(timer);
       if (_pendingMessages.remove(messageId)) {
         final isConnected = _status == SocketStatus.connected;
         iPrint('> ws: 消息确认超时: $messageId (连接正常: $isConnected)');
@@ -1009,6 +945,7 @@ class WebSocketService {
         }
       }
     });
+    _confirmationTimers.add(timer);
 
     _pendingMessages.add(messageId);
   }

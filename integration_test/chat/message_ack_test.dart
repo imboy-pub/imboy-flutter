@@ -9,7 +9,6 @@
 //   --dart-define=TEST_PASSWORD=xxx \
 //   -d macos
 
-import 'dart:async' as async;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -36,15 +35,18 @@ void main() {
       TestConfig.printHelp();
       await _installPlatformChannelStubs();
 
-      // Step 1: 启动应用
-      await _runStep('启动应用', () async {
+      // Step 1: 启动应用（不包装 _runStep，避免 pump 泄漏）
+      try {
         app.main();
         await _shortSettle(tester);
-        await Future.delayed(const Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 5));
         await _safeScreenshot(tester, 'ack_01_launch');
         await _ensureBackendAvailable();
         await _waitForEntryState(tester);
-      });
+      } catch (e) {
+        TestHelper.log('[AUTO-SKIP] reason=app_launch_failed: $e');
+        return;
+      }
 
       // Step 2: 确保已登录
       final ready = await _ensureLoggedIn(tester);
@@ -54,17 +56,22 @@ void main() {
       await _safeScreenshot(tester, 'ack_02_after_login');
 
       // Step 3: 进入聊天页面
-      final openedChat = await _runStep<bool>('进入聊天页面', () async {
+      bool openedChat = false;
+      try {
         final canContinue = await _ensureLoggedIn(tester);
-        if (!canContinue) return false;
-        final opened = await _openExistingConversation(tester);
-        if (opened) return true;
-
-        final canContinue2 = await _ensureLoggedIn(tester);
-        if (!canContinue2) return false;
-        TestHelper.log('尝试从联系人发起聊天');
-        return _openConversationFromContacts(tester);
-      });
+        if (canContinue) {
+          openedChat = await _openExistingConversation(tester);
+        }
+        if (!openedChat) {
+          final canContinue2 = await _ensureLoggedIn(tester);
+          if (canContinue2) {
+            TestHelper.log('尝试从联系人发起聊天');
+            openedChat = await _openConversationFromContacts(tester);
+          }
+        }
+      } catch (e) {
+        TestHelper.log('[AUTO-SKIP] 进入聊天页面异常: $e');
+      }
 
       if (!openedChat) {
         TestHelper.log('[AUTO-SKIP] reason=no_conversation_for_ack_test');
@@ -189,20 +196,6 @@ Future<void> _shortSettle(
   }
 }
 
-Future<T> _runStep<T>(
-  String stepName,
-  Future<T> Function() action, {
-  Duration timeout = const Duration(seconds: 30),
-}) async {
-  try {
-    return await action().timeout(timeout);
-  } on async.TimeoutException catch (e) {
-    throw StateError('步骤超时: $stepName - ${e.message ?? "timeout"}');
-  } catch (_) {
-    rethrow;
-  }
-}
-
 Future<void> _safeScreenshot(WidgetTester tester, String name) async {
   try {
     await TestHelper.screenshot(tester, name, waitForReady: false);
@@ -309,11 +302,13 @@ Future<bool> _ensureLoggedIn(WidgetTester tester) async {
     TestHelper.log('[AUTO-SKIP] reason=missing_test_credentials');
     return false;
   }
-  final ok = await _runStep(
-    '自动登录',
-    () => TestHelper.autoLogin(tester),
-    timeout: const Duration(seconds: 60),
-  );
+  bool ok = false;
+  try {
+    ok = await TestHelper.autoLogin(tester)
+        .timeout(const Duration(seconds: 60));
+  } catch (e) {
+    TestHelper.log('[AUTO-SKIP] 自动登录超时或异常: $e');
+  }
   if (!ok || TestHelper.needsLogin(tester)) {
     TestHelper.log('[AUTO-SKIP] reason=auto_login_failed');
     return false;

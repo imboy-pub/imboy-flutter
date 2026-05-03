@@ -53,6 +53,12 @@ class _SignupPageState extends ConsumerState<SignupPage>
     super.dispose();
   }
 
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _inputFill =>
+      _isDark ? AppColors.darkSurfaceContainer : Colors.white;
+  Color get _unselectedLabel =>
+      _isDark ? AppColors.darkTextSecondary : Colors.grey;
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(passportProvider);
@@ -60,10 +66,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: SizedBox(
-        height: height,
-        child: Stack(
-          children: [
+      backgroundColor:
+          _isDark ? AppColors.darkSurface : null,
+      body: Stack(
+        children: [
             Positioned(
               top: -height * .15,
               right: -MediaQuery.of(context).size.width * .18,
@@ -85,7 +91,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     TabBar(
                       controller: _tabController,
                       labelColor: AppColors.primary,
-                      unselectedLabelColor: Colors.grey,
+                      unselectedLabelColor: _unselectedLabel,
                       indicatorColor: AppColors.primary,
                       tabs: [
                         Tab(text: t.email),
@@ -115,9 +121,12 @@ class _SignupPageState extends ConsumerState<SignupPage>
                       children: [
                         Text(
                           t.siginQ,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
+                            color: _isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -143,8 +152,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
               left: 0,
               child: notifier.backButton(color: AppColors.primary),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -154,38 +162,57 @@ class _SignupPageState extends ConsumerState<SignupPage>
       children: [
         TextField(
           controller: _nicknameController,
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           keyboardType: TextInputType.name,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             hintText: t.nicknameHint,
             prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
             ),
           ),
         ),
         const SizedBox(height: 15),
         TextField(
           controller: _emailController,
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             hintText: t.passport.hintEmail,
             prefixIcon: const Icon(Icons.email, color: AppColors.primary),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
             ),
           ),
         ),
         const SizedBox(height: 15),
         TextField(
           controller: _passwordController,
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           obscureText: state.loginPwdObscure,
           decoration: InputDecoration(
             hintText: t.passport.hintPassword,
@@ -197,10 +224,12 @@ class _SignupPageState extends ConsumerState<SignupPage>
               onPressed: () => notifier.toggleLoginPwdObscure(),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
             ),
           ),
         ),
@@ -255,16 +284,23 @@ class _SignupPageState extends ConsumerState<SignupPage>
       children: [
         TextField(
           controller: _nicknameController,
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           keyboardType: TextInputType.name,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             hintText: t.nicknameHint,
             prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
             ),
           ),
         ),
@@ -272,9 +308,11 @@ class _SignupPageState extends ConsumerState<SignupPage>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _inputFill,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(
+              color: _isDark ? AppColors.darkBorder : Colors.grey.shade200,
+            ),
           ),
           child: PhoneInputWidget(
             initialValue: '',
@@ -289,6 +327,11 @@ class _SignupPageState extends ConsumerState<SignupPage>
         const SizedBox(height: 15),
         TextField(
           controller: _passwordController,
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           obscureText: state.loginPwdObscure,
           decoration: InputDecoration(
             hintText: t.passport.hintPassword,
@@ -300,10 +343,12 @@ class _SignupPageState extends ConsumerState<SignupPage>
               onPressed: () => notifier.toggleLoginPwdObscure(),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
             ),
           ),
         ),
@@ -359,14 +404,29 @@ class _SignupPageState extends ConsumerState<SignupPage>
     // Placeholder for One-Click Login (JVerify usually)
     return Column(
       children: [
-        const Row(
+        Row(
           children: [
-            Expanded(child: Divider()),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Text("OR"),
+            Expanded(
+              child: Divider(
+                color: _isDark ? AppColors.darkBorder : null,
+              ),
             ),
-            Expanded(child: Divider()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                "OR",
+                style: TextStyle(
+                  color: _isDark
+                      ? AppColors.darkTextSecondary
+                      : Colors.grey,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Divider(
+                color: _isDark ? AppColors.darkBorder : null,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 20),
@@ -381,7 +441,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(
+                color: _isDark ? AppColors.darkBorder : Colors.grey.shade300,
+              ),
             ),
             child: const Icon(
               Icons.touch_app,
@@ -393,7 +455,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
         const SizedBox(height: 5),
         Text(
           t.passport.oneKeyLogin,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
+          style: TextStyle(
+            fontSize: 12,
+            color: _unselectedLabel,
+          ),
         ),
       ],
     );

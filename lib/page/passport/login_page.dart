@@ -81,6 +81,16 @@ class _LoginPageState extends ConsumerState<LoginPage>
     super.dispose();
   }
 
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _inputFill =>
+      _isDark ? AppColors.darkSurfaceContainer : Colors.white;
+  Color get _hintColor =>
+      _isDark ? AppColors.darkTextDisabled : Colors.grey[400]!;
+  Color get _suffixColor =>
+      _isDark ? AppColors.darkTextSecondary : Colors.grey[600]!;
+  Color get _unselectedLabel =>
+      _isDark ? AppColors.darkTextSecondary : Colors.grey;
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(passportProvider);
@@ -88,11 +98,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: SizedBox(
-        height: height,
-        child: Stack(
-          children: [
-            Positioned(
+      backgroundColor:
+          _isDark ? AppColors.darkSurface : null,
+      body: Stack(
+        children: [
+          Positioned(
               top: -height * .15,
               right: -MediaQuery.of(context).size.width * .18,
               child: const BezierContainer(),
@@ -113,7 +123,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     TabBar(
                       controller: _tabController,
                       labelColor: AppColors.primary,
-                      unselectedLabelColor: Colors.grey,
+                      unselectedLabelColor: _unselectedLabel,
                       indicatorColor: AppColors.primary,
                       tabs: [
                         Tab(text: t.account),
@@ -147,7 +157,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
                               context.push(AppRoutes.forgotPassword),
                           child: Text(
                             t.forgotPassword,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                              color: _isDark
+                                  ? AppColors.darkTextSecondary
+                                  : Colors.grey[600],
+                            ),
                           ),
                         ),
                         TextButton(
@@ -169,8 +183,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
               left: 0,
               child: notifier.backButton(color: AppColors.primary),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -190,25 +203,33 @@ class _LoginPageState extends ConsumerState<LoginPage>
         TextField(
           controller: _passwordController,
           obscureText: state.loginPwdObscure,
-          style: const TextStyle(color: AppColors.lightTextPrimary),
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           decoration: InputDecoration(
             hintText: t.pleaseInputParam(param: t.password),
-            hintStyle: TextStyle(
-              color: Colors.grey[400],
-            ),
+            hintStyle: TextStyle(color: _hintColor),
             prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
             suffixIcon: IconButton(
               icon: Icon(
                 state.loginPwdObscure ? Icons.visibility : Icons.visibility_off,
-                color: Colors.grey[600],
+                color: _suffixColor,
               ),
               onPressed: () => notifier.toggleLoginPwdObscure(),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.primary),
             ),
           ),
         ),
@@ -260,9 +281,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _inputFill,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(
+              color: _isDark ? AppColors.darkBorder : Colors.grey.shade200,
+            ),
           ),
           child: PhoneInputWidget(
             initialValue: '',
@@ -280,17 +303,29 @@ class _LoginPageState extends ConsumerState<LoginPage>
             Expanded(
               child: TextField(
                 controller: _mobileCodeController,
+                style: TextStyle(
+                  color: _isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
                 decoration: InputDecoration(
                   hintText: t.pleaseInputParam(param: t.confirmCode),
+                  hintStyle: TextStyle(color: _hintColor),
                   prefixIcon: const Icon(
                     Icons.security,
                     color: AppColors.primary,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: _inputFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderSide: _isDark
+                        ? const BorderSide(color: AppColors.darkBorder)
+                        : BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                 ),
               ),
@@ -363,17 +398,29 @@ class _LoginPageState extends ConsumerState<LoginPage>
             Expanded(
               child: TextField(
                 controller: _emailCodeController,
+                style: TextStyle(
+                  color: _isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
                 decoration: InputDecoration(
                   hintText: t.passport.hintVerifyCode,
+                  hintStyle: TextStyle(color: _hintColor),
                   prefixIcon: const Icon(
                     Icons.security,
                     color: AppColors.primary,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: _inputFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderSide: _isDark
+                        ? const BorderSide(color: AppColors.darkBorder)
+                        : BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                 ),
               ),

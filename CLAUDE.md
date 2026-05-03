@@ -89,6 +89,16 @@ When an AI agent (Claude Code / Cursor / Copilot) is asked to write, modify, or 
 
 ## 变更记录 (Changelog)
 
+### 2026-05-03
+- **注册流程全栈 bug 修复（前端 Flutter + 后端 Erlang）**
+  - **Flutter 前端** `signup_continue_page.dart`（2 处修复）：
+    - SnackBar 布局错误：`notifier.snackBar()` → 本地 `_showSnackBar(context, ...)` 使用 `ScaffoldMessenger.of(context)` + `SnackBarBehavior.fixed`，解决 `Floating SnackBar presented off screen` 断言失败
+    - RenderFlex 溢出 48px：移除 `MainAxisAlignment.center`，添加 `SizedBox(height: 80)` 底部安全间距
+  - **Erlang 后端** `user_ds.erl` `insert_and_get_id/1`（1 处修复）：
+    - BIGSERIAL→TSID 迁移遗漏：INSERT 前添加 `elib_tsid:generate(user)` 生成 `id`，解决 PostgreSQL 23502 `not_null_violation`
+    - 影响范围：`passport_logic.erl` 4 处调用全部受影响，注册功能完全不可用
+  - **TSID 全库审计**：确认其余 repo 层 INSERT 均已有 TSID，无其他遗漏
+
 ### 2026-04-25
 - **`56ccea0a` Splash + Welcome + 个人信息 UI/UX 统一升级（5 文件 +29/-39，3 Token，零回归）** / **Splash + Welcome + Personal Info UI/UX coherent uplift (5 files +29/-39, 3 new Tokens, zero regression)**：
   - **个人信息头像 3 重 bug 闭环** / **Personal info avatar 3-fold bug closure**：外 64×64 容器 vs `Avatar` 内部默认 50×50 错位 + 双层圆角嵌套（外层 `borderRadiusSmall` + 内层 `borderRadiusTiny`）+ Avatar 灰底透出 → `ClipRRect` 直接包 `Avatar` 显式 `width: 64, height: 64`；同步替换 BottomSheet 弃用 Token（`darkCardBackground` → `darkSurfaceContainer`）/ Outer 64×64 vs Avatar default 50×50 mismatch + double-radius nesting + grey-bg bleed-through fixed by ClipRRect-wraps-Avatar with explicit dims; deprecated Token swap

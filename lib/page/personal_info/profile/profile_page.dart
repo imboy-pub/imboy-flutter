@@ -269,22 +269,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             onTap: () => _previewAvatar(context, profileState.avatar),
             child: Stack(
               children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).primaryColor.withValues(alpha: 0.2),
-                      width: 2,
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                    child: Avatar(imgUri: profileState.avatar),
-                  ),
+                ClipRRect(
+                  borderRadius: AppRadius.borderRadiusMedium,
+                  child: Avatar(imgUri: profileState.avatar, width: 80,height: 80,),
                 ),
 
                 // 上传状态指示器

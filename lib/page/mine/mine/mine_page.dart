@@ -228,7 +228,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'ImBoy ID: ${user?.uid ?? '-'}',
+                        'ImBoy ID: ${user?.account ?? '-'}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w400,

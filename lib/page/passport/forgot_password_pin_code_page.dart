@@ -62,8 +62,22 @@ class _PinCodeVerificationPageState
     final state = ref.watch(passportProvider);
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor =
+        isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceContainerColor =
+        isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurfaceContainer;
+    final textPrimary =
+        isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final textSecondary =
+        isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final borderColor =
+        isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final errorColor =
+        isDark ? AppColors.darkError : AppColors.lightError;
+
     return Scaffold(
-      backgroundColor: AppColors.lightSurface,
+      backgroundColor: surfaceColor,
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Stack(
@@ -102,15 +116,15 @@ class _PinCodeVerificationPageState
                                 children: [
                                   TextSpan(
                                     text: widget.account,
-                                    style: const TextStyle(
-                                      color: AppColors.lightTextPrimary,
+                                    style: TextStyle(
+                                      color: textPrimary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
                                   ),
                                 ],
-                                style: const TextStyle(
-                                  color: AppColors.lightTextSecondary,
+                                style: TextStyle(
+                                  color: textSecondary,
                                   fontSize: 15,
                                 ),
                               ),
@@ -134,13 +148,12 @@ class _PinCodeVerificationPageState
                                 shape: MaterialPinShape.outlined,
                                 cellSize: const Size(40, 50),
                                 borderRadius: AppRadius.borderRadiusSmall,
-                                borderColor: AppColors.lightBorder,
+                                borderColor: borderColor,
                                 focusedBorderColor: AppColors.primary,
                                 filledBorderColor: AppColors.primary,
-                                fillColor:
-                                    AppColors.lightSurfaceContainer,
+                                fillColor: surfaceContainerColor,
                                 textStyle: TextStyle(
-                                  color: AppColors.lightTextPrimary,
+                                  color: textPrimary,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -162,8 +175,8 @@ class _PinCodeVerificationPageState
                             ),
                             child: Text(
                               hasError ? t.pinCodeFillTips : '',
-                              style: const TextStyle(
-                                color: AppColors.lightError,
+                              style: TextStyle(
+                                color: errorColor,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -175,8 +188,8 @@ class _PinCodeVerificationPageState
                               Expanded(
                                 child: Text(
                                   t.notReceiveCoeQ,
-                                  style: const TextStyle(
-                                    color: AppColors.lightTextSecondary,
+                                  style: TextStyle(
+                                    color: textSecondary,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -243,13 +256,13 @@ class _PinCodeVerificationPageState
                                     return PasswordTextField(
                                       obscureText: state.newPwdObscure,
                                       hintText: t.newPassword,
-                                      style: const TextStyle(
-                                        color: AppColors.lightTextPrimary,
+                                      style: TextStyle(
+                                        color: textPrimary,
                                       ),
-                                      hintStyle: const TextStyle(
-                                        color: AppColors.lightTextSecondary,
+                                      hintStyle: TextStyle(
+                                        color: textSecondary,
                                       ),
-                                      iconColor: AppColors.lightTextSecondary,
+                                      iconColor: textSecondary,
                                       onTap: () {
                                         notifier.toggleNewPwdObscure();
                                       },
@@ -273,13 +286,13 @@ class _PinCodeVerificationPageState
                                     return PasswordTextField(
                                       obscureText: state.retypePwdObscure,
                                       hintText: t.retypePassword,
-                                      style: const TextStyle(
-                                        color: AppColors.lightTextPrimary,
+                                      style: TextStyle(
+                                        color: textPrimary,
                                       ),
-                                      hintStyle: const TextStyle(
-                                        color: AppColors.lightTextSecondary,
+                                      hintStyle: TextStyle(
+                                        color: textSecondary,
                                       ),
-                                      iconColor: AppColors.lightTextSecondary,
+                                      iconColor: textSecondary,
                                       onTap: () {
                                         setState(() {
                                           notifier.setRetypePwdObscure(
@@ -370,8 +383,8 @@ class _PinCodeVerificationPageState
                         children: [
                           Text(
                             t.tryAgainQ,
-                            style: const TextStyle(
-                              color: AppColors.lightTextSecondary,
+                            style: TextStyle(
+                              color: textSecondary,
                               letterSpacing: 0.5,
                             ),
                           ),

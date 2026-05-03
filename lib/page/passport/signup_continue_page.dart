@@ -76,22 +76,63 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
     super.dispose();
   }
 
+  void _showSnackBar(
+    BuildContext context,
+    Widget message, {
+    Color backgroundColor = Colors.red,
+    Duration duration = const Duration(seconds: 5),
+  }) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: message,
+          backgroundColor: backgroundColor,
+          duration: duration,
+          behavior: SnackBarBehavior.fixed,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor =
+        isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceContainerColor =
+        isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurfaceContainer;
+    final textPrimary =
+        isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final textSecondary =
+        isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final borderColor =
+        isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final errorColor =
+        isDark ? AppColors.darkError : AppColors.lightError;
 
     // 验证数据完整性
     if (_account.isEmpty || _accountType.isEmpty || _pwd.isEmpty) {
       return Scaffold(
-        backgroundColor: AppColors.lightSurface,
+        backgroundColor: surfaceColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text(t.unknown, style: const TextStyle(fontSize: 18)),
+              Text(
+                t.unknown,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: textPrimary,
+                ),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -107,16 +148,13 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.lightSurface,
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Stack(
-          children: [
+      backgroundColor: surfaceColor,
+      body: Stack(
+        children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 80),
                     FadeAnimation(
@@ -146,15 +184,15 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 children: [
                                   TextSpan(
                                     text: _account,
-                                    style: const TextStyle(
-                                      color: AppColors.lightTextPrimary,
+                                    style: TextStyle(
+                                      color: textPrimary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
                                   ),
                                 ],
-                                style: const TextStyle(
-                                  color: AppColors.lightTextSecondary,
+                                style: TextStyle(
+                                  color: textSecondary,
                                   fontSize: 15,
                                 ),
                               ),
@@ -178,13 +216,12 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 shape: MaterialPinShape.outlined,
                                 cellSize: const Size(40, 50),
                                 borderRadius: AppRadius.borderRadiusSmall,
-                                borderColor: AppColors.lightBorder,
+                                borderColor: borderColor,
                                 focusedBorderColor: AppColors.primary,
                                 filledBorderColor: AppColors.primary,
-                                fillColor:
-                                    AppColors.lightSurfaceContainer,
+                                fillColor: surfaceContainerColor,
                                 textStyle: TextStyle(
-                                  color: AppColors.lightTextPrimary,
+                                  color: textPrimary,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -206,8 +243,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                             ),
                             child: Text(
                               hasError ? t.pinCodeFillTips : '',
-                              style: const TextStyle(
-                                color: AppColors.lightError,
+                              style: TextStyle(
+                                color: errorColor,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -218,8 +255,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                               Expanded(
                                 child: Text(
                                   t.notReceiveCoeQ,
-                                  style: const TextStyle(
-                                    color: AppColors.lightTextSecondary,
+                                  style: TextStyle(
+                                    color: textSecondary,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -232,41 +269,42 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                       _account,
                                       'signup',
                                     );
+                                    if (!context.mounted) return;
                                     if (res == null) {
-                                      notifier.snackBar(
+                                      _showSnackBar(
+                                        context,
                                         Text(
                                           t.codeSentToParam(param: _account),
                                           style: const TextStyle(
                                             color: Colors.white,
-                                            fontSize: 20,
+                                            fontSize: 16,
                                           ),
                                         ),
-                                        icon: const Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                        ),
+                                        backgroundColor: AppColors.primary,
                                       );
                                     } else {
                                       if (res == 'param_already_exist') {
                                         final label = _accountType == 'email'
                                             ? t.email
                                             : t.mobile;
-                                        notifier.snackBar(
+                                        _showSnackBar(
+                                          context,
                                           Text(
                                             t.paramAlreadyExist(param: label),
                                             style: const TextStyle(
                                               color: Colors.white,
-                                              fontSize: 20,
+                                              fontSize: 16,
                                             ),
                                           ),
                                         );
                                       } else {
-                                        notifier.snackBar(
+                                        _showSnackBar(
+                                          context,
                                           Text(
                                             res,
                                             style: const TextStyle(
                                               color: Colors.white,
-                                              fontSize: 20,
+                                              fontSize: 16,
                                             ),
                                           ),
                                         );
@@ -296,30 +334,30 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 code: currentText,
                                 pwd: _pwd,
                               );
+                              if (!context.mounted) return;
                               if (res == null) {
-                                notifier.snackBar(
+                                _showSnackBar(
+                                  context,
                                   Text(
                                     t.tipSuccess,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 20,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                  icon: const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.white,
-                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
                                 );
                                 // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
-                                if (!context.mounted) return;
                                 context.go('/manage_account');
                               } else {
-                                notifier.snackBar(
+                                _showSnackBar(
+                                  context,
                                   Text(
                                     res,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 20,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 );
@@ -361,8 +399,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                         children: [
                           Text(
                             t.tryAgainQ,
-                            style: const TextStyle(
-                              color: AppColors.lightTextSecondary,
+                            style: TextStyle(
+                              color: textSecondary,
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -384,6 +422,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                         ],
                       ),
                     ),
+                    // 底部安全间距，防止小屏/键盘弹出时溢出
+                    const SizedBox(height: 80),
                   ],
                 ),
               ),
@@ -393,8 +433,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
               left: 0,
               child: notifier.backButton(color: AppColors.primary),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

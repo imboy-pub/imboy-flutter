@@ -77,6 +77,13 @@ class TestHelper {
       await binding.convertFlutterSurfaceToImage();
     } catch (_) {}
 
+    // Web 平台 takeScreenshot 会触发无限 App resumed 循环，跳过
+    final bool isWeb = identical(0.0, 0);
+    if (isWeb) {
+      log('⚠️ Web 平台跳过截图($name)');
+      return;
+    }
+
     try {
       await binding.takeScreenshot(name);
     } catch (e) {

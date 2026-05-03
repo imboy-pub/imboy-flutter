@@ -721,8 +721,7 @@ class PassportNotifier extends _$PassportNotifier {
               : message,
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          behavior: SnackBarBehavior.fixed,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );

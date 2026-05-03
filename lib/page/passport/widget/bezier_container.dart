@@ -10,6 +10,15 @@ class BezierContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // 暗色模式使用低透明度品牌色渐变，亮色模式保持原样
+    final colors = isDark
+        ? [
+            AppColors.primary.withValues(alpha: 0.3),
+            AppColors.primaryLight.withValues(alpha: 0.1),
+          ]
+        : [AppColors.primary, AppColors.primaryLight];
+
     return Transform.rotate(
       angle: -pi / 3.5,
       child: ClipPath(
@@ -21,7 +30,7 @@ class BezierContainer extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [AppColors.primary, AppColors.primaryLight],
+              colors: colors,
             ),
           ),
         ),

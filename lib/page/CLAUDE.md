@@ -8,6 +8,14 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-05-03
+- 修复 `passport/signup_continue_page.dart` 注册验证页 SnackBar 布局错误 + RenderFlex 溢出
+  - **SnackBar 问题**：原 `notifier.snackBar()` 使用 `navigatorKey.currentContext`，可能解析到错误 Scaffold 导致 `Floating SnackBar presented off screen` 断言失败
+    - 修复：创建本地 `_showSnackBar(context, ...)` 方法，使用 `ScaffoldMessenger.of(context)` + `SnackBarBehavior.fixed`，所有 5 处调用点替换
+    - 添加 `context.mounted` 检查防止异步 await 后使用已失效的 BuildContext
+  - **RenderFlex 溢出**：`SingleChildScrollView` 内 Column 使用 `MainAxisAlignment.center` 导致底部溢出 48px
+    - 修复：移除 `mainAxisAlignment: MainAxisAlignment.center`，添加 `SizedBox(height: 80)` 底部安全间距
+
 ### 2026-01-05
 - 初始化页面层文档
 - 完成模块结构分析

@@ -38,6 +38,12 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     super.dispose();
   }
 
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _inputFill =>
+      _isDark ? AppColors.darkSurfaceContainer : Colors.white;
+  Color get _unselectedLabel =>
+      _isDark ? AppColors.darkTextSecondary : Colors.grey;
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(passportProvider);
@@ -45,6 +51,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor:
+          _isDark ? AppColors.darkSurface : null,
       body: SizedBox(
         height: height,
         child: Stack(
@@ -68,9 +76,12 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
 
                     Text(
                       t.recoverPassword,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: _isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -79,7 +90,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                     TabBar(
                       controller: _tabController,
                       labelColor: AppColors.primary,
-                      unselectedLabelColor: Colors.grey,
+                      unselectedLabelColor: _unselectedLabel,
                       indicatorColor: AppColors.primary,
                       tabs: [
                         Tab(text: t.email),
@@ -118,15 +129,22 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
       children: [
         TextField(
           controller: _emailController,
+          style: TextStyle(
+            color: _isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          ),
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             hintText: t.pleaseInputParam(param: t.email),
             prefixIcon: const Icon(Icons.email, color: AppColors.primary),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: _isDark
+                  ? const BorderSide(color: AppColors.darkBorder)
+                  : BorderSide.none,
             ),
           ),
         ),
@@ -184,9 +202,11 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _inputFill,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(
+              color: _isDark ? AppColors.darkBorder : Colors.grey.shade200,
+            ),
           ),
           child: PhoneInputWidget(
             initialValue: '',
