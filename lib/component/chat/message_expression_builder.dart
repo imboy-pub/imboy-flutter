@@ -7,7 +7,6 @@ import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/store/model/message_model.dart';
 
 /// 表情/贴图消息构建器
 class ExpressionMessageBuilder extends StatelessWidget {

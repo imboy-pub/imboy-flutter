@@ -5,7 +5,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/single/video_viewer.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/store/model/message_model.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:shimmer/shimmer.dart';
 

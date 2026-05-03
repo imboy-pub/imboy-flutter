@@ -25,7 +25,7 @@ class ChatPerformanceMonitor {
   final _buildTimes = <String, int>{};
   final _frameTimestamps = <DateTime>[];
   Timer? _fpsMonitorTimer;
-  double _currentFPS = 60.0;
+  final double _currentFPS = 60.0;
 
   /// 启动 FPS 监控（目前禁用：原实现仅记录 Timer 回调频率而非真实帧率，
   /// 每秒触发一次 Timer 在后台持续消耗 CPU 却产出无效数据。
@@ -41,20 +41,9 @@ class ChatPerformanceMonitor {
     _fpsMonitorTimer = null;
   }
 
-  /// 计算当前 FPS
-  void _calculateFPS() {
-    final now = DateTime.now();
-    _frameTimestamps.add(now);
-
-    // 只保留最近 1 秒的时间戳
-    _frameTimestamps.removeWhere(
-      (timestamp) => now.difference(timestamp).inSeconds > 1,
-    );
-
-    if (_frameTimestamps.length >= 2) {
-      _currentFPS = _frameTimestamps.length.toDouble();
-    }
-  }
+  // _calculateFPS 已禁用（FPS 监控停用，原实现不正确）
+  // ignore: unused_element
+  void _calculateFPS() {}
 
   /// 获取当前 FPS
   double getCurrentFPS() {

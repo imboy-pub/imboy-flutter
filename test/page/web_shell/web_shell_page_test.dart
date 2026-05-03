@@ -244,7 +244,8 @@ void main() {
       expect(find.byKey(const ValueKey('chat-panel')), findsOneWidget);
 
       container.read(webShellProvider.notifier).clearSelection();
-      await tester.pump();
+      // AnimatedSwitcher cross-fade 300ms，pump 完整时长让动画结束
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
 
       expect(find.byKey(const ValueKey('chat-panel')), findsNothing);
       expect(find.text('WelcomeText'), findsOneWidget);

@@ -138,8 +138,8 @@ void main() {
 
       // nickname
       expect(find.text('Tester'), findsOneWidget);
-      // ImBoy ID（uid 带 'ImBoy ID: ' 前缀）
-      expect(find.text('ImBoy ID: tsid_uid_001'), findsOneWidget);
+      // ImBoy ID（account 带 'ImBoy ID: ' 前缀）
+      expect(find.text('ImBoy ID: imboy_user'), findsOneWidget);
       // QR code icon（上方 mine_page 用 Icons.qr_code_2，本测试通过 IconButton 间接验证）
       expect(find.byIcon(Icons.qr_code_2), findsOneWidget);
     });

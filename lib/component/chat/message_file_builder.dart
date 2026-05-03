@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
-import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/store/model/message_model.dart';
 
 /// 文件消息构建器
 class MessageFileBuilder extends StatelessWidget {
