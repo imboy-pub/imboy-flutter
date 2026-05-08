@@ -43,8 +43,10 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           Navigator.push(
             context,
             CupertinoPageRoute(
-              builder: (context) =>
-                  PeopleInfoPage(id: model.deniedUid.toString(), scene: 'denylist'),
+              builder: (context) => PeopleInfoPage(
+                id: model.deniedUid.toString(),
+                scene: 'denylist',
+              ),
             ),
           ).then((_) {
             ref.read(denylistProvider.notifier).loadData(page: 1, size: 1000);

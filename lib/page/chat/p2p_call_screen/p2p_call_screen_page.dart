@@ -126,10 +126,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                   () {
                     if (!mounted) return;
-                    _hangUp(
-                      sendBye: false,
-                      callState: CallStateCode.rejected,
-                    );
+                    _hangUp(sendBye: false, callState: CallStateCode.rejected);
                   },
                 );
               });
@@ -153,7 +150,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                       callState: state.connected
                           ? CallStateCode.connected
                           : CallStateCode.peerHungUp,
-                      endAt: DateTimeHelper.millisecond() -
+                      endAt:
+                          DateTimeHelper.millisecond() -
                           CallTimeoutConfig.hangupDelay,
                     );
                   },
@@ -269,7 +267,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
     return Center(
       child: Padding(
         padding: EdgeInsets.only(
-          top: MediaQuery.of(context).size.height *
+          top:
+              MediaQuery.of(context).size.height *
               CallUILayoutConfig.peerInfoTopRatio,
         ),
         child: Column(
@@ -519,7 +518,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
             Center(
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height *
+                  top:
+                      MediaQuery.of(context).size.height *
                       CallUILayoutConfig.stateTipsTopRatio,
                 ),
                 child: Text(

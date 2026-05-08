@@ -134,10 +134,7 @@ class MentionData {
   /// @提及文本范围列表 (start, end)
   final List<MentionRange> ranges;
 
-  const MentionData({
-    this.mentionIds = const [],
-    this.ranges = const [],
-  });
+  const MentionData({this.mentionIds = const [], this.ranges = const []});
 
   /// 是否包含 @所有人
   bool get hasAllMention => mentionIds.contains('all');
@@ -155,7 +152,9 @@ class MentionData {
 
   /// 移除指定范围的 @提及
   MentionData removeRange(int start, int end) {
-    final newRanges = ranges.where((r) => !(r.start == start && r.end == end)).toList();
+    final newRanges = ranges
+        .where((r) => !(r.start == start && r.end == end))
+        .toList();
     final rangeUserIds = newRanges.map((r) => r.userId).toSet();
     final newIds = mentionIds.where((id) => rangeUserIds.contains(id)).toList();
     return MentionData(mentionIds: newIds, ranges: newRanges);
@@ -163,7 +162,9 @@ class MentionData {
 
   /// 根据光标位置移除 @提及
   MentionData removeByCursorPosition(int position) {
-    final newRanges = ranges.where((r) => !(position > r.start && position <= r.end)).toList();
+    final newRanges = ranges
+        .where((r) => !(position > r.start && position <= r.end))
+        .toList();
     final rangeUserIds = newRanges.map((r) => r.userId).toSet();
     final newIds = mentionIds.where((id) => rangeUserIds.contains(id)).toList();
     return MentionData(mentionIds: newIds, ranges: newRanges);
@@ -175,12 +176,16 @@ class MentionData {
   };
 
   factory MentionData.fromJson(Map<String, dynamic> json) {
-    final mentionIds = (json['mention_ids'] as List<dynamic>?)
-        ?.map((e) => e.toString())
-        .toList() ?? [];
-    final ranges = (json['ranges'] as List<dynamic>?)
-        ?.map((e) => MentionRange.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [];
+    final mentionIds =
+        (json['mention_ids'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [];
+    final ranges =
+        (json['ranges'] as List<dynamic>?)
+            ?.map((e) => MentionRange.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [];
     return MentionData(mentionIds: mentionIds, ranges: ranges);
   }
 }

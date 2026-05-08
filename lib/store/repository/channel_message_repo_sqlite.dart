@@ -315,7 +315,8 @@ class ChannelMessageRepo {
     // 删除不在保留列表中的消息
     final count = await _db.delete(
       tableName,
-      where: '${ChannelMessageRepo.channelId} = ? AND $id NOT IN ($placeholders)',
+      where:
+          '${ChannelMessageRepo.channelId} = ? AND $id NOT IN ($placeholders)',
       whereArgs: [channelId, ...excludeIds],
     );
 

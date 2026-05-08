@@ -30,7 +30,7 @@ class QuickReplyService {
   final List<String> _defaults;
 
   QuickReplyService(this._store, {required List<String> defaults})
-      : _defaults = List.unmodifiable(defaults);
+    : _defaults = List.unmodifiable(defaults);
 
   String _key(String uid) => '$_keyPrefix$uid';
 

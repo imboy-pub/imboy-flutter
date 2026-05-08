@@ -58,10 +58,11 @@ class QrLoginConfirmContent extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return switch (state) {
-      QrLoginConfirmIdle() ||
-      QrLoginConfirmScanning() => _loading('正在连接...'),
-      QrLoginConfirmAwaitingConfirm(:final deviceInfo) =>
-        _awaiting(context, deviceInfo),
+      QrLoginConfirmIdle() || QrLoginConfirmScanning() => _loading('正在连接...'),
+      QrLoginConfirmAwaitingConfirm(:final deviceInfo) => _awaiting(
+        context,
+        deviceInfo,
+      ),
       QrLoginConfirmConfirming() => _loading('正在登录...'),
       QrLoginConfirmSuccess() => _success(),
       QrLoginConfirmExpired() => _terminal(
@@ -111,11 +112,7 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
-          Icons.computer_outlined,
-          size: 80,
-          color: AppColors.primary,
-        ),
+        const Icon(Icons.computer_outlined, size: 80, color: AppColors.primary),
         const SizedBox(height: 24),
         const Text(
           'Web 端登录确认',
@@ -169,11 +166,7 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: const [
-        Icon(
-          Icons.check_circle_outline,
-          size: 80,
-          color: AppColors.primary,
-        ),
+        Icon(Icons.check_circle_outline, size: 80, color: AppColors.primary),
         SizedBox(height: 24),
         Text(
           '登录成功',
@@ -239,13 +232,12 @@ class _DeviceInfoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: lines
-            .map((line) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(
-                    line,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ))
+            .map(
+              (line) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Text(line, style: const TextStyle(fontSize: 14)),
+              ),
+            )
             .toList(),
       ),
     );

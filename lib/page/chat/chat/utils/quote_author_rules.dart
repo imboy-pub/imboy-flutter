@@ -20,5 +20,4 @@ String resolveQuoteAuthorName({
   required String currentUid,
   required String myNickname,
   required String peerTitle,
-}) =>
-    quoteAuthorId == currentUid ? myNickname : peerTitle;
+}) => quoteAuthorId == currentUid ? myNickname : peerTitle;

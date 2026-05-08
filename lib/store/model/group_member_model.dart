@@ -93,8 +93,12 @@ class GroupMemberModel {
       isJoin: parseModelInt(json[GroupMemberColumns.isJoin], defaultValue: 1),
       joinMode: parseModelString(json[GroupMemberColumns.joinMode]),
       status: parseModelInt(json[GroupMemberColumns.status], defaultValue: 1),
-      updatedAt: DateTimeHelper.parseTimestamp(json[GroupMemberColumns.updatedAt]),
-      createdAt: DateTimeHelper.parseTimestamp(json[GroupMemberColumns.createdAt]),
+      updatedAt: DateTimeHelper.parseTimestamp(
+        json[GroupMemberColumns.updatedAt],
+      ),
+      createdAt: DateTimeHelper.parseTimestamp(
+        json[GroupMemberColumns.createdAt],
+      ),
       muteUntilMs: _parseMuteUntil(json[GroupMemberColumns.muteUntil]),
     );
   }

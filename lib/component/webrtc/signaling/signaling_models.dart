@@ -118,8 +118,10 @@ class WebRTCSignalingModel {
   WebRTCMessagePriority get messagePriority {
     final priorityValue = priority;
     if (priorityValue != null) {
-      return WebRTCMessagePriority.values
-          .firstWhere((p) => p.weight == priorityValue, orElse: () => WebRTCMessagePriority.normal);
+      return WebRTCMessagePriority.values.firstWhere(
+        (p) => p.weight == priorityValue,
+        orElse: () => WebRTCMessagePriority.normal,
+      );
     }
     return WebRTCMessagePriorityExtension.fromSignalingType(type);
   }
@@ -243,7 +245,8 @@ class WebRTCQualityStatsData {
       frameRate: json['frameRate'] as int? ?? 0,
       codec: json['codec'] as String? ?? '',
       audioLevel: json['audioLevel'] as int? ?? 0,
-      timestamp: json['timestamp'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+      timestamp:
+          json['timestamp'] as int? ?? DateTime.now().millisecondsSinceEpoch,
     );
   }
 

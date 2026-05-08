@@ -1,550 +1,142 @@
-# 数据层 (Store Layer) 文档
+# 数据层 (Store Layer)
 
 [根目录](../../CLAUDE.md) > [lib](../) > **store**
 
-> 最后更新：2026-04-04 CST
+## 目录结构
 
----
+| 子模块 | 职责 | 数量 |
+|-------|------|------|
+| `model/` | 数据模型（toJson/fromJson） | 18+ |
+| `repository/` | 本地数据仓库（SQLite） | 11+ |
+| `api/` | 远程 HTTP API 客户端 | 15+ |
 
-## 变更记录 (Changelog)
+## 模型清单（model/）
 
-### 2026-04-04
-- 新增 `lib/store/api/msg_api.dart` — 消息历史 API（conv_seq 游标分页）
-- 对应后端 `GET /v1/msg/history`，需开启 `msg_archive_enabled=true`
+| 模型文件 | 关键字段 |
+|---------|---------|
+| `message_model.dart` | id, type(C2C/C2G/C2S/S2C), fromId, toId, payload, createdAt, status, conversationUk3, topicId, isAuthor |
+| `conversation_model.dart` | id, peerId, avatar, title, subtitle, type, msgType, lastMsgId, lastTime, unreadNum, payload, isShow |
+| `user_model.dart` | userId, nickname, avatar, region, sign, gender, createdAt |
+| `contact_model.dart` | id, uid, nickname, avatar, remark, isDeleted, isBlocklist, createdAt |
+| `group_model.dart` | id, title, avatar, introduction, memberCount, ownerId, createdAt |
+| `group_member_model.dart` | - |
+| `new_friend_model.dart` | - |
+| `user_tag_model.dart` | - |
+| `denylist_model.dart` | - |
+| `user_device_model.dart` | - |
+| `user_collect_model.dart` | - |
+| `feedback_model.dart` | - |
 
-### 2026-01-19
-- **重命名重构**：`provider/` 目录重命名为 `api/`
-- 统一命名规范：`*_provider.dart` → `*_api.dart`，`*Provider` → `*Api`
-- 解决与 Riverpod 的命名冲突
+## Repository 清单（repository/）
 
-### 2026-01-05
-- 初始化数据层文档
-- 完成模块结构分析
+| Repository | 关键方法 |
+|-----------|---------|
+| `user_repo_local.dart` | currentUid, currentUser, setting, accessToken, isLoggedIn, updateUser, updateSetting |
+| `message_repo_sqlite.dart` | insert, update, find, pageForConversation, page(kwd) |
+| `conversation_repo_sqlite.dart` | insert, updateById, findById, findByPeerId, page, delete, deleteByPeerId |
+| `contact_repo_sqlite.dart` | insert, updateById, findById, findByUid, all |
+| `group_repo_sqlite.dart` | insert, updateById, findById, findByGroupId, pageByUser |
+| `group_member_repo_sqlite.dart` | - |
+| `user_tag_repo_sqlite.dart` | - |
+| `new_friend_repo_sqlite.dart` | - |
+| `user_device_repo_sqlite.dart` | - |
+| `user_denylist_repo_sqlite.dart` | - |
+| `user_collect_repo_sqlite.dart` | - |
 
----
+## API 清单（api/）
 
-## 模块职责
+| Api 文件 | 关键方法 |
+|---------|---------|
+| `user_api.dart` | refreshAccessTokenApi, changeEmail, changePassword, userSearch |
+| `contact_api.dart` | listFriend, syncByUid, changeRemark, deleteContact |
+| `group_api.dart` | page, detail, groupAdd, groupEdit |
+| `msg_api.dart` | history(chatType, peerId, afterSeq, limit) — conv_seq游标分页 |
+| `auth_api.dart` | - |
+| `group_member_api.dart` | - |
+| `denylist_api.dart` | - |
+| `user_tag_api.dart` | - |
+| `feedback_api.dart` | - |
+| `location_api.dart` | - |
+| `user_device_api.dart` | - |
+| `user_collect_api.dart` | - |
+| `app_version_api.dart` | - |
+| `attachment_api.dart` | - |
+| `e2ee_api.dart` | - |
 
-数据层（`lib/store/`）负责应用的数据管理，包括数据模型定义、数据仓库（Repository）、API 客户端（Api）三部分。
+## 核心 API 签名
 
-### 核心职责
-- 数据模型（Model）定义
-- 本地数据存储和查询（Repository）
-- 远程 API 调用（Api）
-- 数据缓存和同步
-
----
-
-## 模块结构
-
-### 主要子模块
-
-| 子模块 | 职责描述 | 文件数量 |
-|-------|---------|---------|
-| `model/` | 数据模型定义 | 18+ 个模型 |
-| `repository/` | 数据仓库（SQLite） | 11+ 个仓库 |
-| `api/` | HTTP API 客户端 | 14+ 个 API 类 |
-
----
-
-## 入口与启动
-
-### Repository 导入示例
+### UserRepoLocal
 ```dart
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+UserRepoLocal repo = UserRepoLocal.to;
+String currentUid = repo.currentUid;
+UserModel? currentUser = repo.currentUser;
+String? accessToken = await repo.accessToken;
+bool isLoggedIn = repo.isLoggedIn;
+await repo.updateUser(userModel);
+await repo.updateSetting(newSetting);
 ```
 
-### Api 导入示例
+### MessageRepo
 ```dart
-import 'package:imboy/store/api/user_api.dart';
-import 'package:imboy/store/api/contact_api.dart';
-import 'package:imboy/store/api/group_api.dart';
-```
-
----
-
-## 对外接口
-
-### Repository 接口
-
-#### UserRepoLocal（用户仓库）
-```dart
-// 获取实例
-UserRepoLocal userRepo = UserRepoLocal.to;
-
-// 当前用户信息
-String currentUid = userRepo.currentUid;
-UserModel? currentUser = userRepo.currentUser;
-UserSetting setting = userRepo.setting;
-
-// Token 管理
-String? accessToken = await userRepo.accessToken;
-String? refreshToken = await userRepo.refreshToken;
-
-// 登录状态
-bool isLoggedIn = userRepo.isLoggedIn;
-
-// 用户操作
-await userRepo.updateUser(userModel);
-await userRepo.updateSetting(newSetting);
-```
-
-#### MessageRepo（消息仓库）
-```dart
-// 创建实例
+// 表名常量: c2cTable='message', c2gTable='group_message', c2sTable='c2s_message', s2cTable='s2c_message'
 MessageRepo msgRepo = MessageRepo(tableName: 'message');
-
-// 插入消息
 await msgRepo.insert(message);
-
-// 更新消息
 await msgRepo.update(data);
-
-// 分页查询
-List<MessageModel> messages = await msgRepo.pageForConversation(
-  uk3,
-  nextAutoId,
-  size,
-);
-
-// 搜索消息
-List<MessageModel> results = await msgRepo.page(
-  page: 1,
-  size: 20,
-  kwd: 'keyword',
-  conversationUk3: uk3,
-);
-
-// 查找单条消息
 MessageModel? msg = await msgRepo.find(messageId);
+List<MessageModel> msgs = await msgRepo.pageForConversation(uk3, nextAutoId, size);
+List<MessageModel> results = await msgRepo.page(page: 1, size: 20, kwd: 'kw', conversationUk3: uk3);
 ```
 
-#### ConversationRepo（会话仓库）
+### ConversationRepo
 ```dart
-// 创建实例
 ConversationRepo convRepo = ConversationRepo();
-
-// 插入会话
 int id = await convRepo.insert(conversation);
-
-// 更新会话
 await convRepo.updateById(id, data);
-
-// 查找会话
-ConversationModel? conv = await convRepo.findById(id);
 ConversationModel? conv = await convRepo.findByPeerId(type, peerId);
-
-// 分页查询
-List<ConversationModel> list = await convRepo.page(
-  page: 1,
-  size: 20,
-);
-
-// 删除会话
-await convRepo.delete(id);
+List<ConversationModel> list = await convRepo.page(page: 1, size: 20);
 await convRepo.deleteByPeerId(type, peerId);
 ```
 
-#### ContactRepo（联系人仓库）
+### MsgApi（需后端 msg_archive_enabled=true）
 ```dart
-// 创建实例
-ContactRepo contactRepo = ContactRepo();
-
-// 插入联系人
-int id = await contactRepo.insert(contact);
-
-// 更新联系人
-await contactRepo.updateById(id, data);
-
-// 查找联系人
-ContactModel? contact = await contactRepo.findById(id);
-ContactModel? contact = await contactRepo.findByUid(uid);
-
-// 获取所有联系人
-List<ContactModel> contacts = await contactRepo.all();
-```
-
-#### GroupRepo（群组仓库）
-```dart
-// 创建实例
-GroupRepo groupRepo = GroupRepo();
-
-// 插入群组
-int id = await groupRepo.insert(group);
-
-// 更新群组
-await groupRepo.updateById(id, data);
-
-// 查找群组
-GroupModel? group = await groupRepo.findById(id);
-GroupModel? group = await groupRepo.findByGroupId(groupId);
-
-// 获取用户的群组列表
-List<GroupModel> groups = await groupRepo.pageByUser(uid);
-```
-
-### Api 接口
-
-#### UserApi（用户 API）
-```dart
-// 创建实例
-UserApi api = UserApi.to;
-
-// 刷新 Token
-String newToken = await api.refreshAccessTokenApi(
-  refreshToken,
-);
-
-// 修改邮箱
-bool success = await api.changeEmail(
-  email: email,
-  code: code,
-);
-
-// 修改密码
-bool success = await api.changePassword(
-  newPwd: newPwd,
-  existingPwd: existingPwd,
-);
-
-// 搜索用户
-Map<String, dynamic>? result = await api.userSearch(
-  page: 1,
-  size: 10,
-  keyword: 'keyword',
-);
-```
-
-#### ContactApi（联系人 API）
-```dart
-// 创建实例
-ContactApi api = ContactApi();
-
-// 获取好友列表
-List<dynamic> friends = await api.listFriend();
-
-// 同步联系人信息
-ContactModel? contact = await api.syncByUid(uid);
-
-// 修改备注
-bool success = await api.changeRemark(uid, remark);
-
-// 删除联系人
-bool success = await api.deleteContact(uid);
-```
-
-#### GroupApi（群组 API）
-```dart
-// 创建实例
-GroupApi api = GroupApi();
-
-// 分页查询群组
-Map<String, dynamic>? result = await api.page(
-  page: 1,
-  size: 10,
-  attr: 'owner',
-);
-
-// 获取群组详情
-Map<String, dynamic> detail = await api.detail(gid: gid);
-
-// 创建群组
-Map<String, dynamic>? result = await api.groupAdd(
-  memberUserIds: [uid1, uid2],
-);
-
-// 编辑群组
-bool success = await api.groupEdit(
-  gid: gid,
-  data: {...},
-);
-```
-
-#### MsgApi（消息历史 API）
-```dart
-// 创建实例
 MsgApi api = MsgApi();
-
-// 拉取历史消息（conv_seq 游标分页，需后端开启 msg_archive_enabled=true）
 Map<String, dynamic>? result = await api.history(
-  chatType: 'c2c',      // 'c2c' 或 'c2g'
-  peerId: encodedUid,   // 对端 ID
-  afterSeq: 0,          // 上次拉取的 next_seq，0 表示从头
-  limit: 50,            // 每页条数，最大 100
+  chatType: 'c2c',    // 'c2c' | 'c2g'
+  peerId: encodedUid,
+  afterSeq: 0,        // 上次 next_seq，0=从头
+  limit: 50,          // 最大 100
 );
-
-// result 结构：
-// {
-//   "messages":  [...],   // 消息列表
-//   "next_seq":  42,      // 下次传入的 afterSeq
-//   "has_more":  true,    // 是否还有更多
-//   "conv_key":  "c2c:1:2"
-// }
+// result: { "messages":[...], "next_seq":42, "has_more":true, "conv_key":"c2c:1:2" }
+// ChatNotifier 封装了 loadHistory() / resetHistoryCursor()
+// 状态跟踪：ChatState.lastHistorySeq / ChatState.historyHasMore
 ```
 
-> 在 `ChatNotifier` 中封装好了 `loadHistory()` / `resetHistoryCursor()` 方法，
-> 状态通过 `ChatState.lastHistorySeq` 和 `ChatState.historyHasMore` 跟踪。
-
----
-
-## 关键依赖与配置
-
-### 外部依赖
-- `sqflite: ^2.4.2` - SQLite 数据库
-- `dio: ^5.9.0` - HTTP 客户端
-- `get: ^5.0.0` - 状态管理
-
-### 内部依赖
-- `lib/service/sqlite.dart` - 数据库服务
-- `lib/component/http/http_client.dart` - HTTP 客户端
-- `lib/config/init.dart` - 全局配置
-
----
-
-## 数据模型
-
-### 核心数据模型
-
-#### MessageModel（消息模型）
-```dart
-class MessageModel {
-  final String id;              // 消息 ID
-  final String type;            // 消息类型 (C2C, C2G, C2S, S2C)
-  final String fromId;          // 发送者 ID
-  final String toId;            // 接收者 ID
-  final Map<String, dynamic> payload;  // 消息负载
-  final int createdAt;          // 创建时间
-  final int isAuthor;           // 是否为发送者
-  final int status;             // 消息状态
-  final String conversationUk3; // 会话 UK3
-  final int topicId;            // 话题 ID
-
-  // toJson, fromJson 等序列化方法
-}
-```
-
-#### ConversationModel（会话模型）
-```dart
-class ConversationModel {
-  final int id;                  // 自增 ID
-  final String peerId;           // 对方 ID
-  final String avatar;           // 头像
-  final String title;            // 标题
-  final String subtitle;         // 副标题（最后消息预览）
-  final String type;             // 类型 (C2C, C2G)
-  final String msgType;          // 最后消息类型
-  final String lastMsgId;        // 最后消息 ID
-  final int lastTime;            // 最后消息时间
-  final int unreadNum;           // 未读数
-  final Map<String, dynamic> payload;  // 扩展数据
-  final int isShow;              // 是否显示
-
-  // toJson, fromJson, uk3 getter 等方法
-}
-```
-
-#### UserModel（用户模型）
-```dart
-class UserModel {
-  final String userId;           // 用户 ID
-  final String nickname;         // 昵称
-  final String avatar;           // 头像
-  final String? region;          // 地区
-  final String? sign;            // 签名
-  final int gender;              // 性别
-  final int createdAt;           // 注册时间
-
-  // toJson, fromJson 等方法
-}
-```
-
-#### ContactModel（联系人模型）
-```dart
-class ContactModel {
-  final int id;                  // 自增 ID
-  final String uid;              // 用户 ID
-  final String nickname;         // 昵称
-  final String avatar;           // 头像
-  final String? remark;          // 备注
-  final int isDeleted;           // 是否删除
-  final int isBlocklist;         // 是否在黑名单
-  final int createdAt;           // 添加时间
-
-  // toJson, fromJson 等方法
-}
-```
-
-#### GroupModel（群组模型）
-```dart
-class GroupModel {
-  final String id;               // 群组 ID
-  final String title;            // 群名称
-  final String? avatar;          // 群头像
-  final String? introduction;    // 群简介
-  final int memberCount;         // 成员数
-  final String ownerId;          // 群主 ID
-  final int createdAt;           // 创建时间
-
-  // toJson, fromJson 等方法
-}
-```
-
----
-
-## 测试与质量
-
-### 数据层测试
-- 模型序列化测试
-- Repository CRUD 测试
-- Provider API Mock 测试
-
-### 质量标准
-- 所有模型支持 `toJson`/`fromJson`
-- Repository 使用事务保证数据一致性
-- Provider 统一错误处理
-
----
-
-## Repository 设计模式
-
-### 基础结构
-```dart
-class ExampleRepo {
-  final SqliteService _db = SqliteService.to;
-  final String tableName = 'example';
-
-  // CRUD 操作
-  Future<int> insert(ExampleModel model) async { }
-  Future<int> update(Map<String, dynamic> data) async { }
-  Future<List<ExampleModel>> page({page, size}) async { }
-  Future<ExampleModel?> find(String id) async { }
-  Future<int> delete(String id) async { }
-}
-```
-
-### 表字段常量
-```dart
-class MessageRepo {
-  static const c2cTable = 'message';
-  static const c2gTable = 'group_message';
-  static const c2sTable = 'c2s_message';
-  static const s2cTable = 's2c_message';
-
-  static const id = 'id';
-  static const type = 'type';
-  static const from = 'from_id';
-  static const to = 'to_id';
-  // ...
-}
-```
-
----
-
-## Api 设计模式
-
-### 基础结构
-```dart
-class ExampleApi extends HttpClient {
-  // API 方法
-  Future<IMBoyHttpResponse> exampleApi(
-    Map<String, dynamic> data,
-  ) async {
-    try {
-      final response = await HttpClient.client.post(
-        '/api/example',
-        data: data,
-      );
-      return response;
-    } catch (e) {
-      return IMBoyHttpResponse.error(e.toString());
-    }
-  }
-}
-```
-
-### 统一响应处理
+### IMBoyHttpResponse（统一响应）
 ```dart
 class IMBoyHttpResponse {
-  final bool ok;           // 是否成功
-  final int code;          // 状态码
-  final String? msg;       // 消息
-  final dynamic payload;   // 数据负载
-
-  // 判断成功
+  final bool ok;
+  final int code;
+  final String? msg;
+  final dynamic payload;
   bool get success => ok && code == 200;
 }
 ```
 
----
+## Repository 设计模式
+```dart
+class ExampleRepo {
+  final SqliteService _db = SqliteService.to;
+  final String tableName = 'example';
+  Future<int> insert(ExampleModel model) async { ... }
+  Future<List<ExampleModel>> page({int page, int size}) async { ... }
+  Future<ExampleModel?> find(String id) async { ... }
+  Future<int> delete(String id) async { ... }
+}
+```
 
-## 常见问题 (FAQ)
+## 外部依赖
+`sqflite ^2.4.2` · `dio ^5.9.0` · `get ^5.0.0`
 
-### Q: 如何添加新的数据模型？
-A: 在 `lib/store/model/` 下创建新模型类，实现 `toJson`/`fromJson` 方法。
+**内部依赖**：`lib/service/sqlite.dart` · `lib/component/http/http_client.dart` · `lib/config/init.dart`
 
-### Q: 如何创建新的 Repository？
-A: 在 `lib/store/repository/` 下创建新的仓库类，继承基础 CRUD 模式。
-
-### Q: 如何调用新的 API？
-A: 在 `lib/store/api/` 下创建新的 Api 类，使用 `HttpClient` 发送请求。
-
-### Q: 如何处理数据库迁移？
-A: 在 `lib/service/migration_service.dart` 中添加迁移逻辑。
-
----
-
-## 相关文件清单
-
-### 数据模型（Model）
-- `lib/store/model/message_model.dart` - 消息模型
-- `lib/store/model/conversation_model.dart` - 会话模型
-- `lib/store/model/user_model.dart` - 用户模型
-- `lib/store/model/contact_model.dart` - 联系人模型
-- `lib/store/model/group_model.dart` - 群组模型
-- `lib/store/model/group_member_model.dart` - 群成员模型
-- `lib/store/model/new_friend_model.dart` - 新朋友模型
-- `lib/store/model/user_tag_model.dart` - 用户标签模型
-- `lib/store/model/denylist_model.dart` - 黑名单模型
-- `lib/store/model/user_device_model.dart` - 用户设备模型
-- `lib/store/model/user_collect_model.dart` - 收藏模型
-- `lib/store/model/feedback_model.dart` - 反馈模型
-
-### 数据仓库（Repository）
-- `lib/store/repository/user_repo_local.dart` - 用户仓库
-- `lib/store/repository/message_repo_sqlite.dart` - 消息仓库
-- `lib/store/repository/conversation_repo_sqlite.dart` - 会话仓库
-- `lib/store/repository/contact_repo_sqlite.dart` - 联系人仓库
-- `lib/store/repository/group_repo_sqlite.dart` - 群组仓库
-- `lib/store/repository/group_member_repo_sqlite.dart` - 群成员仓库
-- `lib/store/repository/user_tag_repo_sqlite.dart` - 用户标签仓库
-- `lib/store/repository/new_friend_repo_sqlite.dart` - 新朋友仓库
-- `lib/store/repository/user_device_repo_sqlite.dart` - 用户设备仓库
-- `lib/store/repository/user_denylist_repo_sqlite.dart` - 黑名单仓库
-- `lib/store/repository/user_collect_repo_sqlite.dart` - 收藏仓库
-
-### API 客户端（Api）
-- `lib/store/api/user_api.dart` - 用户 API
-- `lib/store/api/contact_api.dart` - 联系人 API
-- `lib/store/api/group_api.dart` - 群组 API
-- `lib/store/api/group_member_api.dart` - 群成员 API
-- `lib/store/api/auth_api.dart` - 认证 API
-- `lib/store/api/denylist_api.dart` - 黑名单 API
-- `lib/store/api/user_tag_api.dart` - 用户标签 API
-- `lib/store/api/feedback_api.dart` - 反馈 API
-- `lib/store/api/location_api.dart` - 位置 API
-- `lib/store/api/user_device_api.dart` - 用户设备 API
-- `lib/store/api/user_collect_api.dart` - 收藏 API
-- `lib/store/api/app_version_api.dart` - 应用版本 API
-- `lib/store/api/attachment_api.dart` - 附件 API
-- `lib/store/api/e2ee_api.dart` - 端到端加密 API
-- `lib/store/api/msg_api.dart` - 消息历史 API（conv_seq 游标分页）
-
----
-
-**相关文档**
-- [服务层文档](../service/CLAUDE.md)
-- [页面层文档](../page/CLAUDE.md)
-- [组件层文档](../component/CLAUDE.md)
+**相关文档**：[服务层](../service/CLAUDE.md) · [页面层](../page/CLAUDE.md) · [组件层](../component/CLAUDE.md)

@@ -69,12 +69,10 @@ class WebRTCConnection {
   WebRTCNetworkQualityMonitor? _qualityMonitor;
 
   /// 连接状态变更流
-  Stream<WebRTCConnectionStateEvent> get stateStream =>
-      _stateController.stream;
+  Stream<WebRTCConnectionStateEvent> get stateStream => _stateController.stream;
 
   /// 远程流变更流
-  Stream<MediaStream> get remoteStreamStream =>
-      _remoteStreamController.stream;
+  Stream<MediaStream> get remoteStreamStream => _remoteStreamController.stream;
 
   /// ICE 候选流
   Stream<RTCIceCandidate> get iceCandidateStream =>
@@ -222,7 +220,8 @@ class WebRTCConnection {
 
   /// 创建 Answer
   Future<RTCSessionDescription> createAnswer(
-      RTCSessionDescription offer) async {
+    RTCSessionDescription offer,
+  ) async {
     if (_state != WebRTCConnectionState.ready) {
       throw StateError('Connection not ready, current state: $_state');
     }
@@ -325,8 +324,10 @@ class WebRTCConnection {
       await _pc?.dispose();
       _pc = null;
 
-      _setState(WebRTCConnectionState.closed,
-          metadata: reason != null ? {'reason': reason} : null);
+      _setState(
+        WebRTCConnectionState.closed,
+        metadata: reason != null ? {'reason': reason} : null,
+      );
 
       await _stateController.close();
     } catch (e, s) {
@@ -409,7 +410,8 @@ class WebRTCConnection {
     _pc!.onRenegotiationNeeded = () async {
       debugPrint('Renegotiation needed');
       // 仅在作为发起方且未在协商中时处理
-      if (_state == WebRTCConnectionState.ready && mediaType == WebRTCMediaType.video) {
+      if (_state == WebRTCConnectionState.ready &&
+          mediaType == WebRTCMediaType.video) {
         // 可以在这里触发重新协商
       }
     };
@@ -517,7 +519,9 @@ class WebRTCConnection {
 
     // 备用配置：仅用于开发测试
     // 生产环境必须通过 config.iceServers 传入后端获取的 TURN 凭证
-    debugPrint('WARNING: Using fallback ICE configuration without TURN servers');
+    debugPrint(
+      'WARNING: Using fallback ICE configuration without TURN servers',
+    );
     return {
       'iceServers': [
         {'urls': 'stun:stun.l.google.com:19302'},

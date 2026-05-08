@@ -34,8 +34,7 @@ List<Map<String, dynamic>> filterContactsForInvitation(
 ///
 /// 只有私有频道（type == 'private'）才需要邀请；
 /// 公开频道和付费频道不走邀请流程。
-bool canSendChannelInvitation(String channelType) =>
-    channelType == 'private';
+bool canSendChannelInvitation(String channelType) => channelType == 'private';
 
 // ---------------------------------------------------------------------------
 // extractPendingInviteeIds

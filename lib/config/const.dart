@@ -22,6 +22,8 @@ class Keys {
   static const String uploadKey = "upload_key";
   static const String uploadScene = "upload_scene";
   static const String appFeatures = "app_features";
+  static const String appManifest = "app_manifest";
+  static const String appManifestEtag = "app_manifest_etag";
 
   static const String publicKey = "public_key";
   static const String privateKey = "private_key";
@@ -65,6 +67,7 @@ class API {
   static const findPassword = '/v1/passport/findpassword';
   static const appVersionCheck = '/v1/app_version/check';
   static const appFeatures = '/v1/app/features';
+  static const appManifest = '/v1/app/manifest';
   static const appPolicy = '/v1/app/policy';
   static const sqliteUpgradeDdl = '/v1/app_ddl/get?type=upgrade';
   static const sqliteDowngradeDdl = '/v1/app_ddl/get?type=downgrade';

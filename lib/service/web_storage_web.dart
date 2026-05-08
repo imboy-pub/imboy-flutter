@@ -15,23 +15,14 @@ Future<dynamic> initDb(String name, int version) async {
 }
 
 /// 保存数据（Web 实现）
-Future<void> put(
-  dynamic db,
-  String storeName,
-  String key,
-  String value,
-) async {
+Future<void> put(dynamic db, String storeName, String key, String value) async {
   // Web 平台的 IndexedDB put 操作
   // 注意：完整实现需要使用 package:web/web.dart 的 IndexedDB API
   // IndexedDB write not implemented for Web platform stub
 }
 
 /// 获取数据（Web 实现）
-Future<String?> get(
-  dynamic db,
-  String storeName,
-  String key,
-) async {
+Future<String?> get(dynamic db, String storeName, String key) async {
   // Web 平台的 IndexedDB get 操作
   // 注意：完整实现需要使用 package:web/web.dart 的 IndexedDB API
   // IndexedDB read not implemented for Web platform stub
@@ -39,11 +30,7 @@ Future<String?> get(
 }
 
 /// 删除数据（Web 实现）
-Future<void> delete(
-  dynamic db,
-  String storeName,
-  String key,
-) async {
+Future<void> delete(dynamic db, String storeName, String key) async {
   // Web 平台的 IndexedDB delete 操作
   // 注意：完整实现需要使用 package:web/web.dart 的 IndexedDB API
   // IndexedDB delete not implemented for Web platform stub

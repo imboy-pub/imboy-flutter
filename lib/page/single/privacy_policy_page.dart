@@ -85,11 +85,7 @@ class PrivacyPolicyPage extends ConsumerWidget {
                   '注销申请提交后有 60 天冷静期，期间可随时撤销。\n'
                   '冷静期结束后，您的账号数据将被永久删除。',
             ),
-            _buildSection(
-              theme,
-              '7. 联系我们',
-              '如有隐私相关问题，请通过应用内「反馈」功能联系我们。',
-            ),
+            _buildSection(theme, '7. 联系我们', '如有隐私相关问题，请通过应用内「反馈」功能联系我们。'),
             const SizedBox(height: 32),
           ],
         ),

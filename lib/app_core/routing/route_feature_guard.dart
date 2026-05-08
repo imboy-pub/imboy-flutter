@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+/// Describes why a route was blocked.
+enum RouteBlockReason {
+  featureFlag,
+  appEntry,
+}
 
 class RouteFeatureGuard {
   static String? featureForPath(String path) {
@@ -41,31 +48,101 @@ class RouteFeatureGuard {
     return null;
   }
 
-  static String? redirectPath({
-    required bool isLoggedIn,
-    required String currentPath,
-  }) {
-    if (!isLoggedIn) {
-      return null;
+  /// Map a route path to a manifest app entry name.
+  /// Returns null if the path is not guarded by manifest entries.
+  static String? appEntryForPath(String path) {
+    if (path == AppRoutes.momentFeed ||
+        path == AppRoutes.momentCreate ||
+        path.startsWith('${AppRoutes.momentRoot}/')) {
+      return 'moment';
     }
-
-    final featureKey = featureForPath(currentPath);
-    if (featureKey != null && !AppFeatureRegistry.isEnabled(featureKey)) {
-      return '/bottom_navigation';
+    if (path == '/channel' || path.startsWith('/channel/')) {
+      return 'channel';
+    }
+    if (path == '/contact/people_nearby' ||
+        path.startsWith('/contact/people_nearby/')) {
+      return 'location';
     }
     return null;
   }
 
-  static void notifyDisabledFeatureRedirect(BuildContext context) {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.featureNotEnabled),
-            duration: const Duration(seconds: 2),
-          ),
+  /// Human-readable name for a feature key or app entry.
+  static String _displayName(String key) => switch (key) {
+        FeatureKeys.moment || 'moment' => t.moment,
+        FeatureKeys.channel || 'channel' => t.channel.title,
+        FeatureKeys.channelDiscover => t.channel.discover,
+        FeatureKeys.channelInvitation => t.channelInvitations,
+        FeatureKeys.location || 'location' => t.findNearbyPeople,
+        FeatureKeys.groupVote => t.groupVote.title,
+        FeatureKeys.groupSchedule => t.groupSchedule.title,
+        FeatureKeys.groupTask => t.groupTask.title,
+        _ => '',
+      };
+
+  /// Combined check: manifest app_entries first, then feature flags.
+  static ({String redirect, RouteBlockReason reason, String name})?
+      checkBlocked({
+    required bool isLoggedIn,
+    required String currentPath,
+  }) {
+    if (!isLoggedIn) return null;
+
+    // Check manifest app_entries first (plugin-level gate)
+    final appEntry = appEntryForPath(currentPath);
+    if (appEntry != null) {
+      final manifest = AppManifestService.manifest;
+      if (manifest != null && !manifest.hasAppEntry(appEntry)) {
+        return (
+          redirect: '/bottom_navigation',
+          reason: RouteBlockReason.appEntry,
+          name: _displayName(appEntry),
         );
       }
+    }
+
+    // Then check fine-grained feature flags
+    final featureKey = featureForPath(currentPath);
+    if (featureKey != null && !AppFeatureRegistry.isEnabled(featureKey)) {
+      return (
+        redirect: '/bottom_navigation',
+        reason: RouteBlockReason.featureFlag,
+        name: _displayName(featureKey),
+      );
+    }
+
+    return null;
+  }
+
+  static String? redirectPath({
+    required bool isLoggedIn,
+    required String currentPath,
+  }) {
+    final result = checkBlocked(
+      isLoggedIn: isLoggedIn,
+      currentPath: currentPath,
+    );
+    return result?.redirect;
+  }
+
+  static void notifyDisabledFeatureRedirect(BuildContext context) {
+    notifyBlocked(context, null);
+  }
+
+  static void notifyBlocked(
+    BuildContext context,
+    ({RouteBlockReason reason, String name})? detail,
+  ) {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!context.mounted) return;
+      final message = detail == null || detail.name.isEmpty
+          ? t.featureNotEnabled
+          : t.featureDisabledName(name: detail.name);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     });
   }
 }

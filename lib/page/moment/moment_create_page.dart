@@ -281,10 +281,8 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     final initial = parseMomentUidList(controller.text);
     final result = await Navigator.of(context).push<List<String>>(
       MaterialPageRoute<List<String>>(
-        builder: (_) => MomentFriendPickerPage(
-          title: title,
-          initialSelectedUids: initial,
-        ),
+        builder: (_) =>
+            MomentFriendPickerPage(title: title, initialSelectedUids: initial),
       ),
     );
     if (!mounted || result == null) return;

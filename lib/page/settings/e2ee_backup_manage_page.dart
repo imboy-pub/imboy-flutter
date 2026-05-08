@@ -140,10 +140,19 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildDetailRow(t.e2eeBackupDeviceIdLabel, backup['device_id']),
-              _buildDetailRow(t.e2eeBackupVersionNum, '#${backup['backup_version']}'),
+              _buildDetailRow(
+                t.e2eeBackupVersionNum,
+                '#${backup['backup_version']}',
+              ),
               _buildDetailRow(t.e2eeBackupCreatedAtRow, backup['created_at']),
-              _buildDetailRow(t.e2eeBackupFileSizeRow, '${backup['file_size']} bytes'),
-              _buildDetailRow(t.e2eeBackupNoteRow, backup['user_notes'] ?? t.unknown),
+              _buildDetailRow(
+                t.e2eeBackupFileSizeRow,
+                '${backup['file_size']} bytes',
+              ),
+              _buildDetailRow(
+                t.e2eeBackupNoteRow,
+                backup['user_notes'] ?? t.unknown,
+              ),
             ],
           ),
         ),

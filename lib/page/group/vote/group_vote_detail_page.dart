@@ -111,7 +111,11 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? context.t.groupVote.voteSuccess : context.t.operationFailedAgainLater),
+        content: Text(
+          success
+              ? context.t.groupVote.voteSuccess
+              : context.t.operationFailedAgainLater,
+        ),
       ),
     );
 
@@ -129,9 +133,15 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? context.t.groupVote.cancelVoteSuccess : context.t.groupVote.cancelVoteFailed)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? context.t.groupVote.cancelVoteSuccess
+              : context.t.groupVote.cancelVoteFailed,
+        ),
+      ),
+    );
     if (success) {
       await _loadVoteDetail();
     }
@@ -148,7 +158,11 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     setState(() => _isSubmitting = false);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? context.t.groupVote.voteEnded : context.t.groupVote.endVoteFailed),
+        content: Text(
+          success
+              ? context.t.groupVote.voteEnded
+              : context.t.groupVote.endVoteFailed,
+        ),
       ),
     );
     if (success) {
@@ -276,9 +290,11 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(_hasVoted
-                          ? context.t.groupVote.updateVote
-                          : context.t.confirm),
+                    : Text(
+                        _hasVoted
+                            ? context.t.groupVote.updateVote
+                            : context.t.confirm,
+                      ),
               ),
             ),
           if (_voteStatus == 1) const SizedBox(height: 12),

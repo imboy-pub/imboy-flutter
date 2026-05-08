@@ -5,8 +5,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 // 条件导入：移动端使用完整的电话号码输入组件
-import 'phone_input_stub.dart'
-    if (dart.library.io) 'phone_input_mobile.dart';
+import 'phone_input_stub.dart' if (dart.library.io) 'phone_input_mobile.dart';
 
 /// 电话号码输入组件（Web/Mobile 自适应）
 ///

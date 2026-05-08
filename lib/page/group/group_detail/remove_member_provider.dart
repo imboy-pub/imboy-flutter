@@ -105,8 +105,9 @@ class RemoveMemberNotifier extends _$RemoveMemberNotifier {
       return false;
     }
 
-    final memberUserIds =
-        state.selects.map((item) => item.userId.toString()).toList();
+    final memberUserIds = state.selects
+        .map((item) => item.userId.toString())
+        .toList();
 
     final service = RemoveMemberService();
     final result = await service.leaveGroup(groupId, memberUserIds);

@@ -138,9 +138,13 @@ class _GroupAlbumPhotoDetailPageState
     try {
       final ok = await GroupAlbumService.to.deletePhoto(_currentPhotoId);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(ok ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ok ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed,
+          ),
+        ),
+      );
       if (ok) {
         Navigator.pop(context, true);
       }
@@ -160,9 +164,13 @@ class _GroupAlbumPhotoDetailPageState
         photoId: _currentPhotoId,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(ok ? t.groupAlbumPhotoCoverUpdated : t.groupAlbumPhotoCoverFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ok ? t.groupAlbumPhotoCoverUpdated : t.groupAlbumPhotoCoverFailed,
+          ),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isUpdatingCover = false);
@@ -172,7 +180,9 @@ class _GroupAlbumPhotoDetailPageState
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.albumName.isEmpty ? t.groupAlbumPhotoDetailTitle : widget.albumName;
+    final title = widget.albumName.isEmpty
+        ? t.groupAlbumPhotoDetailTitle
+        : widget.albumName;
     final counter = _photoIds.isNotEmpty
         ? ' ${_currentIndex + 1}/${_photoIds.length}'
         : '';

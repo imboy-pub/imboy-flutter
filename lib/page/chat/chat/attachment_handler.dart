@@ -119,7 +119,9 @@ class ChatAttachmentHandler {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Camera not supported on Web. Use file picker instead.'),
+            content: Text(
+              'Camera not supported on Web. Use file picker instead.',
+            ),
           ),
         );
       }

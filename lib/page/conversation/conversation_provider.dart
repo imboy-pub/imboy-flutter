@@ -413,7 +413,10 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (conversation.type != 'C2C' && conversation.type != 'C2G') {
         continue;
       }
-      final key = _authoritativeKey(conversation.type, conversation.peerId.toString());
+      final key = _authoritativeKey(
+        conversation.type,
+        conversation.peerId.toString(),
+      );
       if (authoritativeKeys.contains(key)) {
         continue;
       }
@@ -724,7 +727,9 @@ class ConversationNotifier extends _$ConversationNotifier {
         }
       }
     } catch (e) {
-      iPrint('[ConversationProvider] _cleanupExpiredBurnLastMessages failed: $e');
+      iPrint(
+        '[ConversationProvider] _cleanupExpiredBurnLastMessages failed: $e',
+      );
     }
   }
 

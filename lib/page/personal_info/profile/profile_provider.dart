@@ -140,6 +140,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       avatar: user.avatar,
       nickname: user.nickname,
       gender: user.gender,
+      birthday: user.birthday,
       region: user.region,
       signature: user.sign,
       email: user.email,
@@ -165,6 +166,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       avatar: user.avatar,
       nickname: user.nickname,
       gender: user.gender,
+      birthday: user.birthday,
       region: user.region,
       signature: user.sign,
       email: user.email,
@@ -331,18 +333,18 @@ class ProfileNotifier extends _$ProfileNotifier {
   }
 
   /// 修改用户信息的便捷方法
-  /// 
+  ///
   /// 参数 data 格式: {"field": "字段名", "value": "值"}
   /// 返回: 成功返回 true，失败返回 false
   Future<bool> changeInfo(Map<String, dynamic> data) async {
     final field = data['field'] as String?;
     final value = data['value'];
-    
+
     if (field == null) {
       iPrint('changeInfo: field 不能为空');
       return false;
     }
-    
+
     return updateUserInfo(field, value);
   }
 

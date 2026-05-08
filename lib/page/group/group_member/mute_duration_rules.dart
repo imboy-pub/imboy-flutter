@@ -35,11 +35,11 @@ final class MuteDurationOption {
 /// labelKey 命名对齐既有 `muteDuration*` 约定（见 assets/i18n/*.i18n.yaml）。
 /// 3600 / 86400 / 604800 复用已有键；其余为 slice-10a 新增。
 const List<MuteDurationOption> muteDurationOptions = [
-  MuteDurationOption(seconds: 300,     labelKey: 'muteDuration5min'),
-  MuteDurationOption(seconds: 600,     labelKey: 'muteDuration10min'),
-  MuteDurationOption(seconds: 1800,    labelKey: 'muteDuration30min'),
-  MuteDurationOption(seconds: 3600,    labelKey: 'muteDuration1hour'),   // 既有键
-  MuteDurationOption(seconds: 86400,   labelKey: 'muteDuration1day'),    // 既有键
-  MuteDurationOption(seconds: 604800,  labelKey: 'muteDuration7days'),   // 既有键
+  MuteDurationOption(seconds: 300, labelKey: 'muteDuration5min'),
+  MuteDurationOption(seconds: 600, labelKey: 'muteDuration10min'),
+  MuteDurationOption(seconds: 1800, labelKey: 'muteDuration30min'),
+  MuteDurationOption(seconds: 3600, labelKey: 'muteDuration1hour'), // 既有键
+  MuteDurationOption(seconds: 86400, labelKey: 'muteDuration1day'), // 既有键
+  MuteDurationOption(seconds: 604800, labelKey: 'muteDuration7days'), // 既有键
   MuteDurationOption(seconds: 2592000, labelKey: 'muteDuration30days'),
 ];

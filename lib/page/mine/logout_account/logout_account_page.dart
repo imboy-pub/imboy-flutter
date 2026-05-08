@@ -73,7 +73,10 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       state = state.copyWith(isLoading: false);
       return file.path;
     } on Exception {
-      state = state.copyWith(isLoading: false, error: t.operationFailedAgainLater);
+      state = state.copyWith(
+        isLoading: false,
+        error: t.operationFailedAgainLater,
+      );
       return null;
     }
   }
@@ -88,7 +91,10 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       state = state.copyWith(isLoading: false);
       return result;
     } on Exception {
-      state = state.copyWith(isLoading: false, error: t.operationFailedAgainLater);
+      state = state.copyWith(
+        isLoading: false,
+        error: t.operationFailedAgainLater,
+      );
       return false;
     }
   }

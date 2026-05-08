@@ -36,13 +36,11 @@ List<Map<String, dynamic>> filterContactsByTagUids(
       .toSet();
   if (tagSet.isEmpty) return <Map<String, dynamic>>[];
 
-  return contacts
-      .where((c) {
-        final raw = c['peer_id'];
-        if (raw == null) return false;
-        return tagSet.contains(raw.toString());
-      })
-      .toList();
+  return contacts.where((c) {
+    final raw = c['peer_id'];
+    if (raw == null) return false;
+    return tagSet.contains(raw.toString());
+  }).toList();
 }
 
 /// 计算多个标签的 UID 并集（OR 语义：任一标签命中即入选）。

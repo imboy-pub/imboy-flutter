@@ -74,7 +74,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
           // 缓存公钥信息供后续使用
           if (didToPem.isNotEmpty) {
-            _cachedPublicKeys[contact.peerId.toString()] = Map<String, String>.from(didToPem);
+            _cachedPublicKeys[contact.peerId.toString()] =
+                Map<String, String>.from(didToPem);
           }
 
           contactsWithKeys.add(contact);
@@ -137,7 +138,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
         try {
           // 优先使用缓存的公钥，避免重复请求
-          Map<String, String> didToPem = _cachedPublicKeys[contact.peerId.toString()] ?? {};
+          Map<String, String> didToPem =
+              _cachedPublicKeys[contact.peerId.toString()] ?? {};
 
           // 如果缓存中没有，从服务获取
           if (didToPem.isEmpty) {
@@ -171,7 +173,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           // 关闭加载对话框
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.e2eeProxyGetKeyFailed(name: contact.title))),
+            SnackBar(
+              content: Text(t.e2eeProxyGetKeyFailed(name: contact.title)),
+            ),
           );
           return;
         }
@@ -243,7 +247,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                     itemCount: _contacts.length,
                     itemBuilder: (context, index) {
                       final contact = _contacts[index];
-                      final isSelected = _selectedUids.contains(contact.peerId.toString());
+                      final isSelected = _selectedUids.contains(
+                        contact.peerId.toString(),
+                      );
                       return _buildContactItem(contact, isSelected, isDark);
                     },
                   ),

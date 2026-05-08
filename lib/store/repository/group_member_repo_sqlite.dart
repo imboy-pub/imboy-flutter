@@ -302,7 +302,10 @@ class GroupMemberRepo {
         whereArgs: [userId],
         distinct: true,
       );
-      return maps.map((m) => m[GroupMemberRepo.groupId]?.toString() ?? '').where((id) => id.isNotEmpty).toList();
+      return maps
+          .map((m) => m[GroupMemberRepo.groupId]?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toList();
     } catch (e) {
       debugPrint('GroupMemberRepo.groupIdsByUserId error: $e');
       return [];

@@ -138,9 +138,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     service.detail(gid: widget.groupId, sync: connected).then((
       GroupModel? g,
     ) async {
-      iPrint(
-        "logic.detail then connected $connected, gid=${widget.groupId}",
-      );
+      iPrint("logic.detail then connected $connected, gid=${widget.groupId}");
       if (g != null) {
         notifier.setMemberCount(g.memberCount);
         notifier.setTitle(g.title);
@@ -181,7 +179,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           obj.payload['groupId'] == widget.groupId) {
         await _lock.synchronized(() async {
           final payloadUserId = obj.payload['userId'];
-          notifier.removeMember(payloadUserId is int ? payloadUserId : int.tryParse(payloadUserId?.toString() ?? '0') ?? 0);
+          notifier.removeMember(
+            payloadUserId is int
+                ? payloadUserId
+                : int.tryParse(payloadUserId?.toString() ?? '0') ?? 0,
+          );
           backDoRefresh = true;
           if (mounted) {
             setState(() {});
@@ -201,7 +203,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     final service = ref.read(groupDetailServiceProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         leading: IconButton(
           icon: Icon(

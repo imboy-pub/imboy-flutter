@@ -102,10 +102,10 @@ class AckManager {
 
     // 订阅 WebSocket 状态变化事件（解耦：不再直接依赖 WebSocketService）
     _wsStatusSubscription?.cancel();
-    _wsStatusSubscription =
-        AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
-      _isWebSocketConnected = event.status == 'connected';
-    });
+    _wsStatusSubscription = AppEventBus.on<WebSocketStatusChangedEvent>()
+        .listen((event) {
+          _isWebSocketConnected = event.status == 'connected';
+        });
 
     // 【优化】启动定期清理 Timer（每小时清理一次孤立的 Timer）
     _timerCleanupTimer = Timer.periodic(

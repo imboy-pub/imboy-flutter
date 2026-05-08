@@ -47,7 +47,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     const inputFillColor = Color(0xFFF9FAFB);
 
     return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: hasBound ? t.changeEmail : t.bindEmail,

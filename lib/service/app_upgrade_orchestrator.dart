@@ -73,10 +73,10 @@ class AppUpgradeOrchestrator {
     required AppUpgradeReporter reporter,
     AppDowngradeCleaner? cleaner,
     UpgradeLogger? logger,
-  })  : _tracker = tracker,
-        _reporter = reporter,
-        _cleaner = cleaner ?? const _NoopDowngradeCleaner(),
-        _log = logger ?? _noopLogger;
+  }) : _tracker = tracker,
+       _reporter = reporter,
+       _cleaner = cleaner ?? const _NoopDowngradeCleaner(),
+       _log = logger ?? _noopLogger;
 
   final AppVersionTracker _tracker;
   final AppUpgradeReporter _reporter;

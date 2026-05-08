@@ -15,12 +15,13 @@ import 'package:imboy/store/model/channel_model.dart';
 /// - 去重（基于 Set）
 /// - 结果升序排序
 List<String> normalizeTags(List<String>? tags) {
-  final result = (tags ?? const <String>[])
-      .map((e) => e.trim())
-      .where((e) => e.isNotEmpty)
-      .toSet()
-      .toList()
-    ..sort();
+  final result =
+      (tags ?? const <String>[])
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toSet()
+          .toList()
+        ..sort();
   return result;
 }
 
@@ -49,10 +50,8 @@ bool isChannelUpdateApplied({
   String? avatar,
   List<String>? tags,
 }) {
-  final avatarMatched =
-      avatar == null || (channel.avatar ?? '') == avatar;
-  final tagsMatched =
-      tags == null || channelTagsEqual(channel.tags, tags);
+  final avatarMatched = avatar == null || (channel.avatar ?? '') == avatar;
+  final tagsMatched = tags == null || channelTagsEqual(channel.tags, tags);
   return channel.name == name &&
       (channel.description ?? '') == description &&
       avatarMatched &&

@@ -25,8 +25,7 @@ class QrLoginConfirmPage extends ConsumerStatefulWidget {
   final String qrToken;
 
   @override
-  ConsumerState<QrLoginConfirmPage> createState() =>
-      _QrLoginConfirmPageState();
+  ConsumerState<QrLoginConfirmPage> createState() => _QrLoginConfirmPageState();
 }
 
 class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
@@ -59,8 +58,7 @@ class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
       state: state,
       onConfirm: () =>
           ref.read(qrLoginConfirmProvider.notifier).confirm(widget.qrToken),
-      onCancel: () =>
-          ref.read(qrLoginConfirmProvider.notifier).cancelByMe(),
+      onCancel: () => ref.read(qrLoginConfirmProvider.notifier).cancelByMe(),
       onClose: () {
         if (mounted) Navigator.of(context).pop();
       },

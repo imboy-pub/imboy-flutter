@@ -17,7 +17,10 @@ class PrivacySettingsPage extends ConsumerWidget {
     final profileNotifier = ref.read(profileProvider.notifier);
 
     return Scaffold(
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.privacySettings),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.privacySettings,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

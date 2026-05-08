@@ -24,10 +24,12 @@ class SseClientImpl implements SseClient {
 
   @override
   Future<void> connect(String url) {
-    return Future.error(UnsupportedError(
-      'SseClient.connect 仅 Web 平台支持。'
-      '非 Web 平台应通过 kIsWeb 检查并走轮询路径。',
-    ));
+    return Future.error(
+      UnsupportedError(
+        'SseClient.connect 仅 Web 平台支持。'
+        '非 Web 平台应通过 kIsWeb 检查并走轮询路径。',
+      ),
+    );
   }
 
   @override

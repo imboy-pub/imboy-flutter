@@ -132,10 +132,7 @@ class GroupMemberApi extends HttpClient {
   /// 对应后端（slice-9b）：`POST /v1/group_member/unmute`，将 `mute_until`
   /// 设为 0 / NULL 并广播 `group_member_mute` 通知（mute_until=0）让客户端
   /// 同步本地 Repo。
-  Future<bool> unmute({
-    required String gid,
-    required String userId,
-  }) async {
+  Future<bool> unmute({required String gid, required String userId}) async {
     IMBoyHttpResponse resp = await post(
       API.groupMemberUnmute,
       data: {'gid': gid, 'user_id': userId},

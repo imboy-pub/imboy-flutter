@@ -14,7 +14,9 @@ class SoundManager {
         "Key press sound plugin not implemented: '${e.message}'.",
       );
     } on Exception catch (e) {
-      AppLogger.warning("Unexpected error playing key press sound: ${e.runtimeType}");
+      AppLogger.warning(
+        "Unexpected error playing key press sound: ${e.runtimeType}",
+      );
     }
   }
 
@@ -28,7 +30,9 @@ class SoundManager {
         "Metallic sound plugin not implemented: '${e.message}'.",
       );
     } on Exception catch (e) {
-      AppLogger.warning("Unexpected error playing metallic sound: ${e.runtimeType}");
+      AppLogger.warning(
+        "Unexpected error playing metallic sound: ${e.runtimeType}",
+      );
     }
   }
 }

@@ -297,7 +297,9 @@ Future<void> zoomInPhotoViewGalleryWithInitialPage(
   List<String> items,
   int initialPage,
 ) async {
-  iPrint("zoomInPhotoViewGalleryWithInitialPage: initialPage=$initialPage, total=${items.length}");
+  iPrint(
+    "zoomInPhotoViewGalleryWithInitialPage: initialPage=$initialPage, total=${items.length}",
+  );
   final size = MediaQuery.of(context).size;
   List<ImageProvider> galleryItems = [];
   for (var e in items) {

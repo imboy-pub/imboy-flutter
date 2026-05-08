@@ -100,6 +100,7 @@ class IMBoyCacheManager {
     String url, {
     Map<String, String>? headers,
     int maxRetries = 3,
+
     /// 是否验证图片数据（音频、视频等非图片文件应设为 false）
     bool validateImageData = true,
   }) async {
@@ -141,7 +142,9 @@ class IMBoyCacheManager {
           );
 
           // 调试：输出下载状态
-          _log('📥 下载完成，大小: ${downloaded.length} bytes, validateImageData=$validateImageData');
+          _log(
+            '📥 下载完成，大小: ${downloaded.length} bytes, validateImageData=$validateImageData',
+          );
 
           // 检查下载的文件是否为空
           if (downloaded.isEmpty) {

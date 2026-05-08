@@ -113,20 +113,20 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
       );
       if (!mounted) return;
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.channel.addAdminSuccess)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.channel.addAdminSuccess)));
         unawaited(_loadAdmins());
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.channel.addAdminFailed)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.channel.addAdminFailed)));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.channel.addAdminFailed)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.channel.addAdminFailed)));
       }
     }
   }
@@ -178,15 +178,15 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleSuccess)));
           unawaited(_loadAdmins());
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.updateRoleFailed)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleFailed)));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.updateRoleFailed)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleFailed)));
         }
       }
     }
@@ -237,15 +237,15 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminSuccess)));
           unawaited(_loadAdmins());
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.removeAdminFailed)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminFailed)));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.removeAdminFailed)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminFailed)));
         }
       }
     }
@@ -444,13 +444,15 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
   Future<void> _loadContacts() async {
     final contacts = await ContactRepo().findFriend();
     final maps = contacts
-        .map((c) => {
-              'peer_id': c.peerId,
-              'nickname': c.title, // title = remark ?? nickname ?? account
-              'account': c.account,
-              'remark': c.remark,
-              'avatar': c.avatar,
-            })
+        .map(
+          (c) => {
+            'peer_id': c.peerId,
+            'nickname': c.title, // title = remark ?? nickname ?? account
+            'account': c.account,
+            'remark': c.remark,
+            'avatar': c.avatar,
+          },
+        )
         .toList();
 
     final candidates = filterContactsForAdmin(
@@ -573,44 +575,36 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filtered.isEmpty
-                    ? Center(
-                        child: Text(
-                          _candidates.isEmpty
-                              ? t.channel.noContactsToAdd
-                              : t.noContacts,
-                          style: TextStyle(color: Colors.grey[500]),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _filtered.length,
-                        itemBuilder: (ctx, i) {
-                          final c = _filtered[i];
-                          final avatar = c['avatar'] as String? ?? '';
-                          final nickname = c['nickname'] as String? ?? '';
-                          final account = c['account'] as String? ?? '';
-                          return ListTile(
-                            leading: Avatar(
-                              imgUri: avatar,
-                              width: 44,
-                              height: 44,
-                            ),
-                            title: Text(nickname),
-                            subtitle: account.isNotEmpty ? Text(account) : null,
-                            onTap: () async {
-                              final role = await _pickRole(ctx);
-                              if (role == null || !context.mounted) return;
-                              final userId =
-                                  c['peer_id']?.toString() ?? '';
-                              if (userId.isEmpty) return;
-                              // ignore: use_build_context_synchronously
-                              Navigator.pop(
-                                context,
-                                (userId: userId, role: role),
-                              );
-                            },
-                          );
+                ? Center(
+                    child: Text(
+                      _candidates.isEmpty
+                          ? t.channel.noContactsToAdd
+                          : t.noContacts,
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _filtered.length,
+                    itemBuilder: (ctx, i) {
+                      final c = _filtered[i];
+                      final avatar = c['avatar'] as String? ?? '';
+                      final nickname = c['nickname'] as String? ?? '';
+                      final account = c['account'] as String? ?? '';
+                      return ListTile(
+                        leading: Avatar(imgUri: avatar, width: 44, height: 44),
+                        title: Text(nickname),
+                        subtitle: account.isNotEmpty ? Text(account) : null,
+                        onTap: () async {
+                          final role = await _pickRole(ctx);
+                          if (role == null || !context.mounted) return;
+                          final userId = c['peer_id']?.toString() ?? '';
+                          if (userId.isEmpty) return;
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context, (userId: userId, role: role));
                         },
-                      ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

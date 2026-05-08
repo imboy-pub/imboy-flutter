@@ -70,8 +70,10 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                 children: [
                   const Icon(Icons.remove_red_eye, size: 14),
                   const SizedBox(width: 2),
-                  Text('${widget.room!.viewerCount}',
-                      style: const TextStyle(fontSize: 12)),
+                  Text(
+                    '${widget.room!.viewerCount}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -95,8 +97,10 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                   top: 16,
                   left: 16,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black54,
                       borderRadius: AppRadius.borderRadiusTiny,
@@ -155,8 +159,8 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                     state.isConnecting
                         ? '连接中...'
                         : state.stateStr == 'playing'
-                            ? '停止播放'
-                            : '开始播放',
+                        ? '停止播放'
+                        : '开始播放',
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: state.stateStr == 'playing'

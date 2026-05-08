@@ -131,10 +131,12 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
         .toList(growable: false);
     final newUnread = await _repo.unreadCount(_currentUid);
     state = state.copyWith(items: updated, unreadCount: newUnread);
-    AppEventBus.fire(MomentNotifyUnreadChangedEvent(
-      unreadCount: newUnread,
-      trigger: 'mark_read',
-    ));
+    AppEventBus.fire(
+      MomentNotifyUnreadChangedEvent(
+        unreadCount: newUnread,
+        trigger: 'mark_read',
+      ),
+    );
   }
 
   /// 标记当前用户全部已读。
@@ -146,10 +148,12 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
         .map((m) => m.isRead ? m : m.copyWith(isRead: true))
         .toList(growable: false);
     state = state.copyWith(items: updated, unreadCount: 0);
-    AppEventBus.fire(const MomentNotifyUnreadChangedEvent(
-      unreadCount: 0,
-      trigger: 'mark_all_read',
-    ));
+    AppEventBus.fire(
+      const MomentNotifyUnreadChangedEvent(
+        unreadCount: 0,
+        trigger: 'mark_all_read',
+      ),
+    );
   }
 
   /// 删除单条通知。
@@ -157,14 +161,17 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
     if (_currentUid.isEmpty) return;
     final affected = await _repo.delete(id);
     if (affected <= 0) return;
-    final filtered =
-        state.items.where((m) => m.id != id).toList(growable: false);
+    final filtered = state.items
+        .where((m) => m.id != id)
+        .toList(growable: false);
     final newUnread = await _repo.unreadCount(_currentUid);
     state = state.copyWith(items: filtered, unreadCount: newUnread);
-    AppEventBus.fire(MomentNotifyUnreadChangedEvent(
-      unreadCount: newUnread,
-      trigger: 'refresh',
-    ));
+    AppEventBus.fire(
+      MomentNotifyUnreadChangedEvent(
+        unreadCount: newUnread,
+        trigger: 'refresh',
+      ),
+    );
   }
 
   /// 清空全部。
@@ -173,14 +180,16 @@ class MomentNotifyNotifier extends Notifier<MomentNotifyState> {
     final affected = await _repo.clearAll(_currentUid);
     if (affected <= 0 && state.items.isEmpty) return;
     state = state.copyWith(items: const [], unreadCount: 0, hasMore: false);
-    AppEventBus.fire(const MomentNotifyUnreadChangedEvent(
-      unreadCount: 0,
-      trigger: 'clear_all',
-    ));
+    AppEventBus.fire(
+      const MomentNotifyUnreadChangedEvent(
+        unreadCount: 0,
+        trigger: 'clear_all',
+      ),
+    );
   }
 }
 
 final momentNotifyProvider =
     NotifierProvider<MomentNotifyNotifier, MomentNotifyState>(
-  MomentNotifyNotifier.new,
-);
+      MomentNotifyNotifier.new,
+    );

@@ -236,7 +236,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       future: _audioPathCompleter.future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          iPrint('❌ audioPathSnapshot.hasError: ${snapshot.error?.runtimeType}');
+          iPrint(
+            '❌ audioPathSnapshot.hasError: ${snapshot.error?.runtimeType}',
+          );
           return _buildErrorWidget('音频加载失败');
         }
         if (!snapshot.hasData) {

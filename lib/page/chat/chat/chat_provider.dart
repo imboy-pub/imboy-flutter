@@ -909,8 +909,7 @@ class ChatNotifier extends _$ChatNotifier {
     List<String> removeKeys = const [],
   }) async {
     final needEncrypt =
-        action.isEmpty &&
-        E2EEService.shouldEncryptOutgoingPayload(chatType);
+        action.isEmpty && E2EEService.shouldEncryptOutgoingPayload(chatType);
     if (!needEncrypt) return null;
 
     // 1. 获取接收方设备公钥
@@ -1007,7 +1006,11 @@ class ChatNotifier extends _$ChatNotifier {
         if (_chatService?.isDisposed != true) {
           await _chatService?.removeMessageById(msg.id);
         }
-      } catch (e) { debugPrint('[ChatNotifier] remove message from chat service failed: $e'); }
+      } catch (e) {
+        debugPrint(
+          '[ChatNotifier] remove message from chat service failed: $e',
+        );
+      }
 
       final items = await mRepo.page(conversationUk3: cm.uk3, page: 1, size: 1);
       final lastMsg = items.isEmpty ? null : items[0];
@@ -1135,7 +1138,11 @@ class ChatNotifier extends _$ChatNotifier {
       if (updated.isNotEmpty) {
         AppEventBus.fireData(updated);
       }
-    } catch (e) { debugPrint('[ChatNotifier] emit updated messages after status change failed: $e'); }
+    } catch (e) {
+      debugPrint(
+        '[ChatNotifier] emit updated messages after status change failed: $e',
+      );
+    }
   }
 
   Future<void> _enqueueReadReceipt({
@@ -1179,7 +1186,9 @@ class ChatNotifier extends _$ChatNotifier {
           : (jsonDecode(raw) is List ? (jsonDecode(raw) as List) : <dynamic>[]);
       list.add(item);
       await sp.setString(key, jsonEncode(list));
-    } catch (e) { debugPrint('[ChatNotifier] enqueue pending item failed: $e'); }
+    } catch (e) {
+      debugPrint('[ChatNotifier] enqueue pending item failed: $e');
+    }
   }
 
   Future<void> _flushPending(String key) async {
@@ -1210,7 +1219,9 @@ class ChatNotifier extends _$ChatNotifier {
       }
 
       await sp.setString(key, '[]');
-    } catch (e) { debugPrint('[ChatNotifier] flush pending messages failed: $e'); }
+    } catch (e) {
+      debugPrint('[ChatNotifier] flush pending messages failed: $e');
+    }
   }
 
   /// 阅后即焚相关
@@ -1533,7 +1544,8 @@ class ChatNotifier extends _$ChatNotifier {
     bool isRevoked =
         (message is CustomMessage) &&
         msgTypeForMenu.toUpperCase().contains('REVOKE');
-    if (msgTypeForMenu == MessageType.webrtcAudio || msgTypeForMenu == MessageType.webrtcVideo) {
+    if (msgTypeForMenu == MessageType.webrtcAudio ||
+        msgTypeForMenu == MessageType.webrtcVideo) {
       isRevoked = true;
     }
 
@@ -1946,13 +1958,15 @@ class ChatNotifier extends _$ChatNotifier {
         return [];
       }
 
-      final messages = (result['messages'] as List?)
+      final messages =
+          (result['messages'] as List?)
               ?.whereType<Map>()
               .map((m) => Map<String, dynamic>.from(m))
               .toList(growable: false) ??
           const [];
 
-      final nextSeq = (result['next_seq'] as num?)?.toInt() ?? state.lastHistorySeq;
+      final nextSeq =
+          (result['next_seq'] as num?)?.toInt() ?? state.lastHistorySeq;
       final hasMore = (result['has_more'] as bool?) ?? false;
 
       state = state.copyWith(
@@ -2248,7 +2262,11 @@ class ChatNotifier extends _$ChatNotifier {
       if (updated != null) {
         AppEventBus.fireData(updated);
       }
-    } catch (e) { debugPrint('[ChatNotifier] update conversation last message after burn hidden failed: $e'); }
+    } catch (e) {
+      debugPrint(
+        '[ChatNotifier] update conversation last message after burn hidden failed: $e',
+      );
+    }
   }
 
   Future<void> _scheduleBurnDeletion({
@@ -2292,11 +2310,17 @@ class ChatNotifier extends _$ChatNotifier {
           if (_chatService?.isDisposed != true) {
             await _chatService?.removeMessageById(messageId);
           }
-        } catch (e) { debugPrint('[ChatNotifier] remove orphan burn message from chat service failed: $e'); }
+        } catch (e) {
+          debugPrint(
+            '[ChatNotifier] remove orphan burn message from chat service failed: $e',
+          );
+        }
         return;
       }
       await expireBurnMessage(conversation, messageId);
-    } catch (e) { debugPrint('[ChatNotifier] delete burn message failed: $e'); }
+    } catch (e) {
+      debugPrint('[ChatNotifier] delete burn message failed: $e');
+    }
     _burnDeleteTimers.remove(messageId)?.cancel();
   }
 
@@ -2338,7 +2362,9 @@ class ChatNotifier extends _$ChatNotifier {
       if (updated != null) {
         AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
       }
-    } catch (e) { debugPrint('[ChatNotifier] mark burn read at failed: $e'); }
+    } catch (e) {
+      debugPrint('[ChatNotifier] mark burn read at failed: $e');
+    }
   }
 
   /// 过期阅后即焚消息
@@ -2357,7 +2383,11 @@ class ChatNotifier extends _$ChatNotifier {
           if (_chatService?.isDisposed != true) {
             await _chatService?.removeMessageById(messageId);
           }
-        } catch (e) { debugPrint('[ChatNotifier] remove missing burn message from chat service failed: $e'); }
+        } catch (e) {
+          debugPrint(
+            '[ChatNotifier] remove missing burn message from chat service failed: $e',
+          );
+        }
         return;
       }
 
@@ -2379,14 +2409,20 @@ class ChatNotifier extends _$ChatNotifier {
         if (_chatService?.isDisposed != true) {
           await _chatService?.removeMessageById(messageId);
         }
-      } catch (e) { debugPrint('[ChatNotifier] remove expired burn message from chat service failed: $e'); }
+      } catch (e) {
+        debugPrint(
+          '[ChatNotifier] remove expired burn message from chat service failed: $e',
+        );
+      }
 
       await _updateConversationLastMessageAfterBurnHidden(
         conversation,
         repo,
         hiddenMessageId: messageId,
       );
-    } catch (e) { debugPrint('[ChatNotifier] expire burn message failed: $e'); }
+    } catch (e) {
+      debugPrint('[ChatNotifier] expire burn message failed: $e');
+    }
   }
 
   /// 记录已删除的消息ID

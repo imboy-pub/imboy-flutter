@@ -12,10 +12,7 @@ class StickerItem {
 
 /// 简单的贴图选择面板
 class StickerPicker extends StatelessWidget {
-  const StickerPicker({
-    super.key,
-    required this.onStickerSelected,
-  });
+  const StickerPicker({super.key, required this.onStickerSelected});
 
   final void Function(StickerItem sticker) onStickerSelected;
 
@@ -64,7 +61,9 @@ class StickerPicker extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.4),
               borderRadius: AppRadius.borderRadiusTiny,
             ),
           ),
@@ -93,7 +92,10 @@ class StickerPicker extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.insert_emoticon, size: 32), // 占位符，实际应使用 Image
+                          const Icon(
+                            Icons.insert_emoticon,
+                            size: 32,
+                          ), // 占位符，实际应使用 Image
                           const SizedBox(height: 4),
                           Text(
                             sticker.text,

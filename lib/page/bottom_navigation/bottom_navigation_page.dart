@@ -9,6 +9,7 @@ import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart'
@@ -38,16 +39,23 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   /// GoRouterState.of(context) 必须在 initState 之后调用（依赖 InheritedWidget）
   bool _initialIndexApplied = false;
 
-  // 固定 4 Tab：消息 / 联系人 / 频道 / 我的
+  bool _isTabEnabled(String entry) {
+    final manifest = AppManifestService.manifest;
+    if (manifest != null) {
+      return manifest.hasAppEntry(entry);
+    }
+    return true;
+  }
+
   int _normalizeIndex(int value) {
-    return value.clamp(0, 3);
+    return value.clamp(0, _buildPageList().length - 1);
   }
 
   List<Widget> _buildPageList() {
     return [
       const ConversationPage(),
       ContactPage(),
-      const ChannelListPage(),
+      if (_isTabEnabled('channel_tab')) const ChannelListPage(),
       MinePage(),
     ];
   }
@@ -154,18 +162,19 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         label: t.titleContact,
         remindCount: ref.watch(newFriendRemindProvider).length,
       ),
-      _NavigationItemData(
-        icon: Icons.campaign_outlined,
-        activeIcon: Icons.campaign,
-        label: t.channel.title,
-        remindCount: channelEnabled
-            ? (ref
-                      .watch(subscribedChannelStripProvider)
-                      .value
-                      ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
-                  0)
-            : 0,
-      ),
+      if (_isTabEnabled('channel_tab'))
+        _NavigationItemData(
+          icon: Icons.campaign_outlined,
+          activeIcon: Icons.campaign,
+          label: t.channel.title,
+          remindCount: channelEnabled
+              ? (ref
+                        .watch(subscribedChannelStripProvider)
+                        .value
+                        ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
+                    0)
+              : 0,
+        ),
       _NavigationItemData(
         icon: Icons.person_outline,
         activeIcon: Icons.person,
@@ -189,7 +198,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 }
               },
               labelType: NavigationRailLabelType.all,
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerLow,
               indicatorColor: AppColors.primary.withValues(alpha: 0.15),
               selectedLabelTextStyle: const TextStyle(
                 color: AppColors.primary,
@@ -197,10 +208,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelTextStyle: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
               destinations: navigationItems.map((item) {
@@ -278,8 +288,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
           borderSide: BorderSide(
             color: isSelected
                 ? (Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.darkSurfaceContainer
-                    : Colors.white)
+                      ? AppColors.darkSurfaceContainer
+                      : Colors.white)
                 : Theme.of(context).colorScheme.surface,
             width: 2,
           ),

@@ -38,11 +38,10 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.toolbarHeight,
     this.blur = 20.0,
     this.opacity = 0.75,
-  })  : assert(popTime >= 1, 'popTime must be at least 1'),
-        assert(popTime <= 10, 'popTime cannot exceed 10 for safety'),
-        assert(blur >= 0 && blur <= 50, 'blur must be between 0 and 50'),
-        assert(
-            opacity >= 0 && opacity <= 1, 'opacity must be between 0 and 1');
+  }) : assert(popTime >= 1, 'popTime must be at least 1'),
+       assert(popTime <= 10, 'popTime cannot exceed 10 for safety'),
+       assert(blur >= 0 && blur <= 50, 'blur must be between 0 and 50'),
+       assert(opacity >= 0 && opacity <= 1, 'opacity must be between 0 and 1');
 
   final Widget? leading;
   final double? leadingWidth;
@@ -155,11 +154,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: navBlue.withValues(alpha: 0.1),
           borderRadius: AppRadius.borderRadiusCell,
         ),
-        child: Icon(
-          Icons.arrow_back_ios_new,
-          color: navBlue,
-          size: 16,
-        ),
+        child: Icon(Icons.arrow_back_ios_new, color: navBlue, size: 16),
       ),
     );
   }

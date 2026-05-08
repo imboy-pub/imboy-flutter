@@ -50,7 +50,11 @@ final class EnvLocal implements Env, EnvField {
   final String anthropicApiKey = _Env.anthropicApiKey;
 
   @override
-  @EnviedField(defaultValue: false, varName: 'AI_TEST_ENABLED', obfuscate: false)
+  @EnviedField(
+    defaultValue: false,
+    varName: 'AI_TEST_ENABLED',
+    obfuscate: false,
+  )
   final bool aiTestEnabled = _Env.aiTestEnabled;
 
   @override

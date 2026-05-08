@@ -75,11 +75,15 @@ class _GroupScheduleDetailPageState
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(success
-          ? context.t.operationSuccessful
-          : context.t.operationFailedAgainLater),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? context.t.operationSuccessful
+              : context.t.operationFailedAgainLater,
+        ),
+      ),
+    );
     if (success) {
       await _loadDetail();
     }
@@ -94,11 +98,15 @@ class _GroupScheduleDetailPageState
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(success
-          ? context.t.groupSchedule.cancelSuccess
-          : context.t.groupSchedule.cancelFailed),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? context.t.groupSchedule.cancelSuccess
+              : context.t.groupSchedule.cancelFailed,
+        ),
+      ),
+    );
     if (success) {
       await _loadDetail();
     }
@@ -163,9 +171,11 @@ class _GroupScheduleDetailPageState
           ),
           const SizedBox(height: 8),
           Chip(
-            label: Text(status == 4
-                ? context.t.groupSchedule.statusCancelled
-                : context.t.groupSchedule.statusInProgress),
+            label: Text(
+              status == 4
+                  ? context.t.groupSchedule.statusCancelled
+                  : context.t.groupSchedule.statusInProgress,
+            ),
           ),
           const SizedBox(height: 12),
           _InfoLine(label: context.t.groupSchedule.startTime, value: startTime),

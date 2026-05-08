@@ -493,7 +493,8 @@ class PassportNotifier extends _$PassportNotifier {
       if (kDebugMode) {
         debugPrint('PlatformException in _login: $e, trace $s');
       }
-      if (e.code.contains('34018') || e.message?.contains('entitlement') == true) {
+      if (e.code.contains('34018') ||
+          e.message?.contains('entitlement') == true) {
         safeUpdateState((state) => state.copyWith(error: '安全存储初始化失败，请重启应用'));
       } else {
         safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
@@ -973,11 +974,13 @@ class PassportNotifier extends _$PassportNotifier {
       enableSms: true,
       loginAuthcallback: (event) {
         if (event.code == 6000) {
-          unawaited(quickLogin(
-            operator: event.operator!,
-            token: event.message!,
-            service: 'jverify',
-          ));
+          unawaited(
+            quickLogin(
+              operator: event.operator!,
+              token: event.message!,
+              service: 'jverify',
+            ),
+          );
         } else {
           snackBar(event.message);
         }

@@ -369,9 +369,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.t.channel.publishFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
     }
   }
 
@@ -645,7 +645,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final success = await _channelService.deleteChannel(channel.id.toString());
+              final success = await _channelService.deleteChannel(
+                channel.id.toString(),
+              );
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(t.channel.channelDeleted)),
@@ -736,7 +738,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         onPinned: (pinned) {
                           ref
                               .read(channelDetailProvider.notifier)
-                              .updateMessagePinned(message.id.toString(), pinned);
+                              .updateMessagePinned(
+                                message.id.toString(),
+                                pinned,
+                              );
                         },
                         onDeleted: () {
                           ref
@@ -792,10 +797,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text(
-                t.purchaseUnlockHint,
-                style: const TextStyle(fontSize: 14),
-              ),
+              Text(t.purchaseUnlockHint, style: const TextStyle(fontSize: 14)),
               const SizedBox(height: 14),
               Row(
                 children: [
@@ -811,7 +813,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.shopping_cart_checkout_outlined),
-                      label: Text(_isPaying ? t.payingDots : t.purchaseAndUnlock),
+                      label: Text(
+                        _isPaying ? t.payingDots : t.purchaseAndUnlock,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -869,7 +873,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final allOrders = await ChannelService.to.getMyOrders();
     if (!mounted) return;
 
-    final orders = allOrders.where((o) => o.channelId.toString() == channelId).toList();
+    final orders = allOrders
+        .where((o) => o.channelId.toString() == channelId)
+        .toList();
 
     await showModalBottomSheet(
       context: context,
@@ -882,7 +888,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               const SizedBox(height: 12),
               Text(
                 t.myOrders,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 8),
               Expanded(
@@ -941,15 +950,26 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             const SizedBox(height: 6),
             Text(t.orderStatusLabel(status: _orderStatusLabel(order.status))),
             const SizedBox(height: 6),
-            Text(t.orderAmountLabel(currency: order.currency, amount: order.amount.toStringAsFixed(2))),
+            Text(
+              t.orderAmountLabel(
+                currency: order.currency,
+                amount: order.amount.toStringAsFixed(2),
+              ),
+            ),
             const SizedBox(height: 6),
             Text(
-              t.orderCreatedAtLabel(time: DateFormat('yyyy-MM-dd HH:mm:ss').format(order.createdAt)),
+              t.orderCreatedAtLabel(
+                time: DateFormat('yyyy-MM-dd HH:mm:ss').format(order.createdAt),
+              ),
             ),
             if (order.paymentAt != null) ...[
               const SizedBox(height: 6),
               Text(
-                t.orderPaymentAtLabel(time: DateFormat('yyyy-MM-dd HH:mm:ss').format(order.paymentAt!)),
+                t.orderPaymentAtLabel(
+                  time: DateFormat(
+                    'yyyy-MM-dd HH:mm:ss',
+                  ).format(order.paymentAt!),
+                ),
               ),
             ],
           ],
@@ -1159,9 +1179,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         final isPrivate = channel?.type == ChannelType.private;
         context.push(
           '/channel/$channelId/subscribers',
-          extra: {
-            'canInvite': invitationEnabled && isPrivate,
-          },
+          extra: {'canInvite': invitationEnabled && isPrivate},
         );
         break;
     }

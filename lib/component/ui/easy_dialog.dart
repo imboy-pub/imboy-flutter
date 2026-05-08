@@ -179,7 +179,9 @@ class EasyDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusRegular),
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadius.borderRadiusRegular,
+      ),
       contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
       title: type == DialogType.confirm
           ? Text(

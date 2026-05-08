@@ -90,8 +90,10 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                   top: 16,
                   left: 16,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black54,
                       borderRadius: AppRadius.borderRadiusTiny,
@@ -109,7 +111,9 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     right: 16,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black54,
                         borderRadius: AppRadius.borderRadiusTiny,
@@ -117,7 +121,9 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                       child: Text(
                         'Key: ${'*' * 8}',
                         style: const TextStyle(
-                            color: Colors.white70, fontSize: 10),
+                          color: Colors.white70,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -168,8 +174,8 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     state.isConnecting
                         ? '连接中...'
                         : state.stateStr == 'publishing'
-                            ? '停止推流'
-                            : '开始推流',
+                        ? '停止推流'
+                        : '开始推流',
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: state.stateStr == 'publishing'

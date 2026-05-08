@@ -23,11 +23,7 @@ class PushApi extends HttpClient {
     }
     IMBoyHttpResponse resp = await post(
       API.pushRegister,
-      data: {
-        'token': token,
-        'platform': platform,
-        'device_id': deviceId,
-      },
+      data: {'token': token, 'platform': platform, 'device_id': deviceId},
     );
     if (kDebugMode) {
       debugPrint('> on PushApi/register resp: ok=${resp.ok}');

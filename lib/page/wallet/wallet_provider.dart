@@ -56,16 +56,15 @@ class WalletState {
     bool? isTxLoading,
     int? txPage,
     bool? txHasMore,
-  }) =>
-      WalletState(
-        isLoading: isLoading ?? this.isLoading,
-        balance: balance ?? this.balance,
-        error: error ?? this.error,
-        transactions: transactions ?? this.transactions,
-        isTxLoading: isTxLoading ?? this.isTxLoading,
-        txPage: txPage ?? this.txPage,
-        txHasMore: txHasMore ?? this.txHasMore,
-      );
+  }) => WalletState(
+    isLoading: isLoading ?? this.isLoading,
+    balance: balance ?? this.balance,
+    error: error ?? this.error,
+    transactions: transactions ?? this.transactions,
+    isTxLoading: isTxLoading ?? this.isTxLoading,
+    txPage: txPage ?? this.txPage,
+    txHasMore: txHasMore ?? this.txHasMore,
+  );
 }
 
 class WalletNotifier extends Notifier<WalletState> {
@@ -111,9 +110,7 @@ class WalletNotifier extends Notifier<WalletState> {
     final rawList = result['list'] as List<dynamic>? ?? [];
     final newTxs = rawList
         .whereType<Map>()
-        .map((e) => WalletTransaction.fromJson(
-              Map<String, dynamic>.from(e),
-            ))
+        .map((e) => WalletTransaction.fromJson(Map<String, dynamic>.from(e)))
         .toList();
     final total = (result['total'] as num?)?.toInt() ?? 0;
 

@@ -42,12 +42,9 @@ bool _certificateValidationCallback(X509Certificate cert) {
       '127.0.0.1',
       'imboy.pub',
     };
-    final allowed = trustedCNs.contains(cn) ||
-        cn.endsWith('.imboy.pub');
+    final allowed = trustedCNs.contains(cn) || cn.endsWith('.imboy.pub');
     if (!allowed) {
-      debugPrint(
-        "HttpClient: reject dev certificate, CN=$cn",
-      );
+      debugPrint("HttpClient: reject dev certificate, CN=$cn");
     }
     return allowed;
   }
@@ -89,6 +86,9 @@ class HttpClient {
     API.findPassword,
   };
   late Dio _dio;
+
+  /// Expose the underlying Dio instance for advanced usage (e.g. 304 handling).
+  Dio get dio => _dio;
 
   HttpClient({BaseOptions? options, HttpConfig? conf}) {
     options ??= BaseOptions(
@@ -252,8 +252,10 @@ class HttpClient {
         _tokenRefreshCompleter!.complete('');
         return '';
       }
-      final newTk = await UserApi.to
-          .refreshAccessTokenApi(rtk, checkNewToken: false);
+      final newTk = await UserApi.to.refreshAccessTokenApi(
+        rtk,
+        checkNewToken: false,
+      );
       _tokenRefreshCompleter!.complete(newTk);
       return newTk;
     } catch (e) {

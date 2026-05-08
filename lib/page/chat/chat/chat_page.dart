@@ -874,7 +874,8 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     try {
       // 确保消息列表已加载
-      final messages = ref.read(chatProvider.notifier).chatService?.messages ?? [];
+      final messages =
+          ref.read(chatProvider.notifier).chatService?.messages ?? [];
       if (messages.isEmpty) {
         debugPrint("[chat] 消息列表为空，无法滚动");
         return;
@@ -905,11 +906,14 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (!mounted) return;
 
         // 尝试触发滚动
-        await ref.read(chatProvider.notifier).chatService?.scrollToMessage(
-          widget.msgId,
-          duration: const Duration(milliseconds: 500),
-          offset: 120.0, // 增加偏移量，避开 AppBar
-        );
+        await ref
+            .read(chatProvider.notifier)
+            .chatService
+            ?.scrollToMessage(
+              widget.msgId,
+              duration: const Duration(milliseconds: 500),
+              offset: 120.0, // 增加偏移量，避开 AppBar
+            );
 
         // 检查目标消息是否已挂载到视图树中
         if (_targetMessageKey.currentContext != null) {
@@ -920,7 +924,9 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       // 无论是否成功通过 Key 定位，最后都尝试高亮（如果消息在列表中）
       if (mounted) {
-        ref.read(messageScrollManagerProvider.notifier).highlightMessage(widget.msgId);
+        ref
+            .read(messageScrollManagerProvider.notifier)
+            .highlightMessage(widget.msgId);
       }
     } catch (e) {
       debugPrint("[chat] 滚动到目标消息失败: $e");
@@ -946,7 +952,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 假设平均消息高度为100像素（带头像和间距的消息通常更高）
       double estimatedOffset = targetIndex * 100.0;
 
-      final scrollController = ref.read(messageScrollManagerProvider.notifier).scrollController;
+      final scrollController = ref
+          .read(messageScrollManagerProvider.notifier)
+          .scrollController;
       if (scrollController.hasClients) {
         final maxScroll = scrollController.position.maxScrollExtent;
         final targetPosition = estimatedOffset.clamp(0.0, maxScroll);
@@ -1317,9 +1325,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         EasyLoading.showInfo(t.mutedCannotSend);
         return false;
       case SendDenyDebounced():
-        iPrint(
-          '消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms',
-        );
+        iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
         return false;
       case SendAsEdit(:final messageId):
         iPrint('执行编辑消息: messageId=$messageId, newContent=$text');
@@ -1551,8 +1557,9 @@ class ChatPageState extends ConsumerState<ChatPage>
                         newGroupName.isEmpty ? widget.peerTitle : newGroupName,
                         style: TextStyle(
                           color: themeNotifier.getThemeColor('textPrimary'),
-                          fontSize:
-                              themeNotifier.getFontSize(FontSizeType.title),
+                          fontSize: themeNotifier.getFontSize(
+                            FontSizeType.title,
+                          ),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1842,8 +1849,10 @@ class ChatPageState extends ConsumerState<ChatPage>
                   .userIdToName
                   .values
                   .toSet();
-              final projected =
-                  MentionTextReducer.applyTo(message, activeNames);
+              final projected = MentionTextReducer.applyTo(
+                message,
+                activeNames,
+              );
               return FlyerChatTextMessage(
                 message: projected,
                 index: index,
@@ -2092,10 +2101,12 @@ class ChatPageState extends ConsumerState<ChatPage>
               if (!s.enableVisibilityRead) {
                 return chatMsg;
               }
-              final double fractionThreshold =
-                  normalizeVisibilityFraction(s.visibilityReadFraction);
-              final int delayMs =
-                  normalizeVisibilityDelayMs(s.visibilityReadDelayMs);
+              final double fractionThreshold = normalizeVisibilityFraction(
+                s.visibilityReadFraction,
+              );
+              final int delayMs = normalizeVisibilityDelayMs(
+                s.visibilityReadDelayMs,
+              );
               // 当来自对方的消息可视比例达到阈值并持续 delayMs 后推进水位
               return VisibilityDetector(
                 key: Key('msg_vis_${message.id}'),

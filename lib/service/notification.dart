@@ -122,11 +122,7 @@ class NotificationService {
   ///
   /// 路径格式：`/chat/$peerId?type=$chatType`
   /// 路由配置见 `app_router.dart` 的 `/chat/:peerId`，type 通过 query 参数传递。
-  void _navigateToChat(
-    dynamic context,
-    String peerId,
-    String chatType,
-  ) {
+  void _navigateToChat(dynamic context, String peerId, String chatType) {
     try {
       final path = '/chat/$peerId?type=$chatType';
       iPrint('🔔 [Notification] 导航到聊天页面: $path');

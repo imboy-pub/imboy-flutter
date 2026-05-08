@@ -38,12 +38,7 @@ class LiveRoomApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await post(
       API.liveRoomCreate,
-      data: {
-        'title': title,
-        'cover': cover,
-        'tag_id': tagId,
-        'scene': scene,
-      },
+      data: {'title': title, 'cover': cover, 'tag_id': tagId, 'scene': scene},
     );
     debugPrint("> on LiveRoomApi/create resp: ${resp.payload}");
     if (!resp.ok) {

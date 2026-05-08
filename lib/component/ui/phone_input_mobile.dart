@@ -33,14 +33,18 @@ class MobilePhoneInputWidget extends StatelessWidget {
       initialValue: initialValue.isNotEmpty
           ? PhoneNumber(isoCode: 'CN', phoneNumber: initialValue)
           : PhoneNumber(isoCode: 'CN'),
-      inputDecoration: decoration ??
+      inputDecoration:
+          decoration ??
           InputDecoration(
             hintText: hintText ?? t.phoneInputHint,
             border: OutlineInputBorder(
               borderRadius: AppRadius.borderRadiusSmall,
               borderSide: BorderSide(color: Colors.grey.shade300),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
     );
   }

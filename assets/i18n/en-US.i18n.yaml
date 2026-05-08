@@ -2289,6 +2289,7 @@ e2eeProxyNeedAtLeast(count): "Please select at least $count proxies"
 # General UI
 buttonBackHome: "Back to Home"
 featureNotEnabled: "This feature is not enabled"
+featureDisabledName(name): "$name is not enabled and temporarily unavailable"
 imageLoadFailed: "Load failed"
 loadFailedWithError(error): "Load failed: $error"
 webAudioNotSupported: "Voice messages are not supported on the web platform"

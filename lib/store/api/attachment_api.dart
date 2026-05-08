@@ -307,7 +307,9 @@ class AttachmentApi {
                 if (status == 'ok') {
                   callback(
                     responseData,
-                    AssetsService.viewUrl(responseData['data']['url']).toString(),
+                    AssetsService.viewUrl(
+                      responseData['data']['url'],
+                    ).toString(),
                   );
                 } else {
                   Map<String, dynamic> data = {

@@ -14,10 +14,7 @@ class MentionApi extends HttpClient {
     int? isRead,
     String? groupId,
   }) async {
-    final data = <String, dynamic>{
-      'page': page,
-      'size': size,
-    };
+    final data = <String, dynamic>{'page': page, 'size': size};
     if (isRead != null) data['is_read'] = isRead;
     if (groupId != null) data['group_id'] = groupId;
 
@@ -48,18 +45,17 @@ class MentionApi extends HttpClient {
 
   /// 标记@提及为已读
   Future<bool> markAsRead(int mentionId) async {
-    final resp = await post(API.mentionMarkRead, data: {
-      'mention_id': mentionId,
-    });
+    final resp = await post(
+      API.mentionMarkRead,
+      data: {'mention_id': mentionId},
+    );
     debugPrint("MentionApi_markAsRead resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 批量标记@提及为已读
   Future<bool> markAllAsRead({String? groupId}) async {
-    final data = <String, dynamic>{
-      'all': true,
-    };
+    final data = <String, dynamic>{'all': true};
     if (groupId != null) data['group_id'] = groupId;
 
     final resp = await post(API.mentionMarkRead, data: data);
@@ -73,11 +69,10 @@ class MentionApi extends HttpClient {
     required String keyword,
     int limit = 10,
   }) async {
-    final resp = await post(API.mentionSuggest, data: {
-      'group_id': groupId,
-      'keyword': keyword,
-      'limit': limit,
-    });
+    final resp = await post(
+      API.mentionSuggest,
+      data: {'group_id': groupId, 'keyword': keyword, 'limit': limit},
+    );
     debugPrint("MentionApi_getSuggest resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {

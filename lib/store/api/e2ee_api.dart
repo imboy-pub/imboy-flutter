@@ -31,7 +31,8 @@ class E2EEApi extends HttpClient {
       data: {
         'device_id': deviceId,
         'device_type': deviceType,
-        if (deviceName != null && deviceName.isNotEmpty) 'device_name': deviceName,
+        if (deviceName != null && deviceName.isNotEmpty)
+          'device_name': deviceName,
         'public_key': publicKey,
         'key_id': keyId,
       },

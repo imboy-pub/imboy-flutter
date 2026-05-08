@@ -149,7 +149,9 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
       controller: _controller,
       onDetect: _onDetect,
       errorBuilder: (context, error) {
-        return Center(child: Text(t.e2eeTransferScanError(error: error.toString())));
+        return Center(
+          child: Text(t.e2eeTransferScanError(error: error.toString())),
+        );
       },
     );
   }

@@ -234,10 +234,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               t.e2eeSocialRecoveryThresholdLabel,
               '$threshold / $totalShards',
             ),
-            _buildInfoRow(
-              t.e2eeBackupCreatedAtRow,
-              _formatDateTime(createdAt),
-            ),
+            _buildInfoRow(t.e2eeBackupCreatedAtRow, _formatDateTime(createdAt)),
             if (shard.containsKey('used_at'))
               _buildInfoRow(
                 t.e2eeSocialUsedAtLabel,
@@ -281,10 +278,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
             const SizedBox(height: 12),
             _buildInfoRow(t.e2eeSocialShardIndexLabel, '$shardIndex'),
             _buildInfoRow(t.e2eeSocialKeyVersionLabel, keyVersion.toString()),
-            _buildInfoRow(
-              t.e2eeBackupCreatedAtRow,
-              _formatDateTime(createdAt),
-            ),
+            _buildInfoRow(t.e2eeBackupCreatedAtRow, _formatDateTime(createdAt)),
             const SizedBox(height: 8),
             Row(
               children: [

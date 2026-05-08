@@ -20,9 +20,11 @@ class GroupAnnouncementState {
   final bool isLoading;
   final bool hasMore;
   final int page;
+
   /// 当前登录用户在本群的角色（0 = 未加载 / 不在群）。
   /// 由 [GroupAnnouncementNotifier._loadCurrentRole] 异步填充。
   final int currentUserRole;
+
   /// 最近一次 load/refresh/loadMore 失败的错误提示（null = 无错误 / 已消费）。
   /// 仅对 UI 暴露"列表加载失败"语义，不包含 publish/delete 等副作用失败
   /// （后者由 UI 侧按 bool 返回值直接 toast）。对齐 A-2 moment_notify 模式。
@@ -120,16 +122,15 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
         // #28 Gap #1 修复：后端 SELECT 未带 publisher_name，fromJson 已将
         // publisherName 回退到 publisherId（TSID 数字串）。此处再通过本地
         // 群成员表异步补齐昵称；发布者必是群成员，故查本地 SQLite 免走 N+1 网络。
-        final resolvedList = await resolveAnnouncementNicknames(
-          list,
-          (publisherId) async {
-            final member = await GroupMemberRepo().findByUserId(
-              groupId,
-              publisherId,
-            );
-            return member?.nickname;
-          },
-        );
+        final resolvedList = await resolveAnnouncementNicknames(list, (
+          publisherId,
+        ) async {
+          final member = await GroupMemberRepo().findByUserId(
+            groupId,
+            publisherId,
+          );
+          return member?.nickname;
+        });
 
         final updatedList = isRefresh
             ? resolvedList
@@ -154,10 +155,7 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'load_failed: $e',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: 'load_failed: $e');
     }
   }
 
@@ -245,7 +243,10 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
 
   /// 格式化时间（使用多语言相对时间格式化）
   String formatTime(int timestamp) {
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(
+      timestamp,
+      isUtc: true,
+    );
     return DateTimeHelper.dateTimeFmt(dateTime);
   }
 }

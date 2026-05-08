@@ -138,7 +138,8 @@ class MessageWebrtc {
     required String msgId,
     required ContactModel peer,
   }) async {
-    if (msgId.isEmpty || peer.peerId.toString() == UserRepoLocal.to.currentUid) return;
+    if (msgId.isEmpty || peer.peerId.toString() == UserRepoLocal.to.currentUid)
+      return;
     if (_addMessageLock) return;
     _addMessageLock = true;
     try {
@@ -166,7 +167,9 @@ class MessageWebrtc {
         status: MessageStatus.delivered,
         metadata: {
           'peer_id': peer.peerId,
-          'msg_type': media == 'video' ? MessageType.webrtcVideo : MessageType.webrtcAudio,
+          'msg_type': media == 'video'
+              ? MessageType.webrtcVideo
+              : MessageType.webrtcAudio,
           'media': media,
           'start_at': 0,
           'end_at': 0,
@@ -211,7 +214,8 @@ class MessageWebrtc {
 
     final metadata = (msg.payload as Map?)?.cast<String, dynamic>() ?? {};
     final msgType = metadata['msg_type'] ?? '';
-    if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType)) return;
+    if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType))
+      return;
 
     metadata['state'] = state;
     if (startAt >= 0 && metadata['start_at'] == 0) {

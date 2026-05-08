@@ -1867,6 +1867,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Please select at least ${count} proxies';
 	@override String get buttonBackHome => 'Back to Home';
 	@override String get featureNotEnabled => 'This feature is not enabled';
+	@override String featureDisabledName({required Object name}) => '${name} is not enabled and temporarily unavailable';
 	@override String get imageLoadFailed => 'Load failed';
 	@override String loadFailedWithError({required Object error}) => 'Load failed: ${error}';
 	@override String get webAudioNotSupported => 'Voice messages are not supported on the web platform';
@@ -4412,6 +4413,7 @@ extension on TranslationsEnUs {
 			'e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
 			'buttonBackHome' => 'Back to Home',
 			'featureNotEnabled' => 'This feature is not enabled',
+			'featureDisabledName' => ({required Object name}) => '${name} is not enabled and temporarily unavailable',
 			'imageLoadFailed' => 'Load failed',
 			'loadFailedWithError' => ({required Object error}) => 'Load failed: ${error}',
 			'webAudioNotSupported' => 'Voice messages are not supported on the web platform',

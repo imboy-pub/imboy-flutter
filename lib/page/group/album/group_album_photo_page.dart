@@ -170,7 +170,9 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.groupAlbumPhotoBatchDeleteTitle),
-        content: Text(t.groupAlbumPhotoBatchDeleteConfirm(count: selectedCount)),
+        content: Text(
+          t.groupAlbumPhotoBatchDeleteConfirm(count: selectedCount),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -207,7 +209,10 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final failCount = selectedCount - successCount;
     final message = failCount == 0
         ? t.groupAlbumPhotoDeletedAll(count: successCount)
-        : t.groupAlbumPhotoDeletedPartial(success: successCount, fail: failCount);
+        : t.groupAlbumPhotoDeletedPartial(
+            success: successCount,
+            fail: failCount,
+          );
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
@@ -240,9 +245,13 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
     final success = await GroupAlbumService.to.deletePhoto(photoId);
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed,
+        ),
+      ),
+    );
     if (success) {
       await _loadPhotos(refresh: true);
     }
@@ -280,7 +289,9 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.albumName.isEmpty ? t.groupAlbumPhotoListTitle : widget.albumName;
+    final title = widget.albumName.isEmpty
+        ? t.groupAlbumPhotoListTitle
+        : widget.albumName;
     final actionWidgets = _isSelectionMode
         ? <Widget>[
             IconButton(
@@ -335,7 +346,10 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     }
 
     if (_photos.isEmpty) {
-      return NoDataView(text: t.groupAlbumPhotoEmpty, onTop: () => _loadPhotos(refresh: true));
+      return NoDataView(
+        text: t.groupAlbumPhotoEmpty,
+        onTop: () => _loadPhotos(refresh: true),
+      );
     }
 
     return RefreshIndicator(

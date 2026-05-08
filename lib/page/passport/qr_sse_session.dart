@@ -25,9 +25,9 @@ class QrSseSession {
     required SseClient client,
     required void Function(QrStatusEvent event) onEvent,
     required void Function() onFallback,
-  })  : _client = client,
-        _onEvent = onEvent,
-        _onFallback = onFallback;
+  }) : _client = client,
+       _onEvent = onEvent,
+       _onFallback = onFallback;
 
   final SseClient _client;
   final void Function(QrStatusEvent) _onEvent;

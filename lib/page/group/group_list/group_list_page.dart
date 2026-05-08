@@ -148,7 +148,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     final state = ref.watch(groupListProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         titleWidget: Text("${t.groupChat}(${state.groupList.length})"),
         automaticallyImplyLeading: true,

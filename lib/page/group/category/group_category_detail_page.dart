@@ -42,9 +42,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: InputDecoration(
-            hintText: t.groupCategory.categoryName,
-          ),
+          decoration: InputDecoration(hintText: t.groupCategory.categoryName),
         ),
         actions: [
           TextButton(
@@ -106,8 +104,9 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
     );
 
     if (result == true) {
-      final success =
-          await GroupCategoryService.to.deleteCategory(widget.categoryId);
+      final success = await GroupCategoryService.to.deleteCategory(
+        widget.categoryId,
+      );
 
       if (!mounted) return;
 
@@ -235,9 +234,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
                   title: Text(
                     t.groupCategory.deleteCategory,
                     style: TextStyle(
-                      color: AppColors.getIosRed(
-                        Theme.of(context).brightness,
-                      ),
+                      color: AppColors.getIosRed(Theme.of(context).brightness),
                     ),
                   ),
                   trailing: const Icon(Icons.chevron_right),

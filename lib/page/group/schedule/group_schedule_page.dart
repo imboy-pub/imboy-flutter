@@ -188,11 +188,9 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
       child: InkWell(
         onTap: () async {
           if (scheduleId.isEmpty) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(
-              content: Text(t.groupSchedule.scheduleIdMissing),
-            ));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(t.groupSchedule.scheduleIdMissing)),
+            );
             return;
           }
           final encodedId = Uri.encodeComponent(scheduleId);

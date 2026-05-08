@@ -226,8 +226,8 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
             child: Icon(
               Icons.notifications_off_outlined,
               size: 14,
-              color: theme.textTheme.bodySmall?.color
-                      ?.withValues(alpha: 0.5) ??
+              color:
+                  theme.textTheme.bodySmall?.color?.withValues(alpha: 0.5) ??
                   Colors.grey,
             ),
           ),

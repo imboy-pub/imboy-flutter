@@ -18,8 +18,7 @@ bool shouldShowMessageAvatar({
   required bool isSystemMessage,
   required bool isLastInGroup,
   required bool? isRemoved,
-}) =>
-    !isSystemMessage && isLastInGroup && isRemoved != true;
+}) => !isSystemMessage && isLastInGroup && isRemoved != true;
 
 /// 判断当前消息是否应显示发送者昵称。
 ///
@@ -34,5 +33,4 @@ bool shouldShowMessageUsername({
   required bool isSystemMessage,
   required bool isFirstInGroup,
   required bool? isRemoved,
-}) =>
-    !isSystemMessage && isFirstInGroup && isRemoved != true;
+}) => !isSystemMessage && isFirstInGroup && isRemoved != true;

@@ -53,7 +53,9 @@ class EncrypterService {
       // 调试日志：仅在开发环境下输出
       if (kDebugMode) {
         debugPrint('[AES_DECRYPT] Key MD5: ${md5(key)}, IV MD5: ${md5(ivStr)}');
-        debugPrint('[AES_DECRYPT] Encrypted length: ${encryptedBytes.length} bytes');
+        debugPrint(
+          '[AES_DECRYPT] Encrypted length: ${encryptedBytes.length} bytes',
+        );
       }
 
       final cipher = CBCBlockCipher(AESEngine());

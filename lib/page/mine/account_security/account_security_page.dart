@@ -79,9 +79,7 @@ class AccountSecurityPage extends ConsumerWidget {
                   title: t.bindEmail,
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (_) => const BindEmailPage(),
-                      ),
+                      CupertinoPageRoute(builder: (_) => const BindEmailPage()),
                     );
                   },
                 ),

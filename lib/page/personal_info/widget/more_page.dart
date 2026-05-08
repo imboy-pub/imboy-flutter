@@ -12,16 +12,23 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-class MorePage extends ConsumerWidget {
+class MorePage extends ConsumerStatefulWidget {
   const MorePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MorePage> createState() => _MorePageState();
+}
+
+class _MorePageState extends ConsumerState<MorePage> {
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(title: t.moreInfo, automaticallyImplyLeading: true),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -31,11 +38,10 @@ class MorePage extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // 信息设置卡片组
-            _buildMenuGroup(context, ref, [
+            _buildMenuGroup(context, [
               // 性别设置项
               _buildInfoItem(
                 context: context,
-                ref: ref,
                 icon: Icons.person_outline,
                 iconColor: AppColors.iosBlue,
                 title: t.gender,
@@ -46,13 +52,12 @@ class MorePage extends ConsumerWidget {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                onPressed: () => _handleGenderUpdate(context, ref),
+                onPressed: () => _handleGenderUpdate(context),
               ),
 
               // 地区设置项
               _buildInfoItem(
                 context: context,
-                ref: ref,
                 icon: Icons.location_on_outlined,
                 iconColor: AppColors.iosGreen,
                 title: t.region,
@@ -63,13 +68,12 @@ class MorePage extends ConsumerWidget {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                onPressed: () => _handleRegionUpdate(context, ref),
+                onPressed: () => _handleRegionUpdate(context),
               ),
 
               // 个性签名设置项
               _buildInfoItem(
                 context: context,
-                ref: ref,
                 icon: Icons.edit_outlined,
                 iconColor: AppColors.iosOrange,
                 title: t.signature,
@@ -89,7 +93,7 @@ class MorePage extends ConsumerWidget {
                     ),
                   ),
                 ),
-                onPressed: () => _handleSignatureUpdate(context, ref),
+                onPressed: () => _handleSignatureUpdate(context),
               ),
             ]),
           ],
@@ -98,12 +102,7 @@ class MorePage extends ConsumerWidget {
     );
   }
 
-  /// 构建菜单组（仿iOS风格）
-  Widget _buildMenuGroup(
-    BuildContext context,
-    WidgetRef ref,
-    List<Widget> children,
-  ) {
+  Widget _buildMenuGroup(BuildContext context, List<Widget> children) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -147,10 +146,8 @@ class MorePage extends ConsumerWidget {
     );
   }
 
-  /// 构建信息项
   Widget _buildInfoItem({
     required BuildContext context,
-    required WidgetRef ref,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -196,26 +193,23 @@ class MorePage extends ConsumerWidget {
     );
   }
 
-  /// 格式化地区显示
   String _formatRegion(String region) {
     if (region.isEmpty) return t.notFilled;
-    // 简单处理，如果太长可以截断
     if (region.length > 10) {
       return '${region.substring(0, 9)}...';
     }
     return region;
   }
 
-  /// 处理性别更新
-  Future<void> _handleGenderUpdate(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleGenderUpdate(BuildContext context) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(builder: (_) => const SetGenderPage()),
     );
+    if (mounted) setState(() {});
   }
 
-  /// 处理地区更新
-  Future<void> _handleRegionUpdate(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleRegionUpdate(BuildContext context) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(
@@ -227,7 +221,6 @@ class MorePage extends ConsumerWidget {
                 .read(personalInfoProvider.notifier)
                 .changeInfo({"field": "region", "value": val});
             if (success) {
-              // 更新本地数据
               final payload = UserRepoLocal.to.current.toMap();
               payload['region'] = val;
               UserRepoLocal.to.changeInfo(payload);
@@ -238,13 +231,10 @@ class MorePage extends ConsumerWidget {
         ),
       ),
     );
+    if (mounted) setState(() {});
   }
 
-  /// 处理个性签名更新
-  Future<void> _handleSignatureUpdate(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
+  Future<void> _handleSignatureUpdate(BuildContext context) async {
     await Navigator.push(
       context,
       CupertinoPageRoute(
@@ -252,13 +242,12 @@ class MorePage extends ConsumerWidget {
           title: t.signature,
           value: UserRepoLocal.to.current.sign,
           field: 'input',
-          maxLength: 200, // 签名通常可以长一点
+          maxLength: 200,
           callback: (val) async {
             final success = await ref
                 .read(personalInfoProvider.notifier)
                 .changeInfo({"field": "sign", "value": val});
             if (success) {
-              // 更新本地数据
               final payload = UserRepoLocal.to.current.toMap();
               payload['sign'] = val;
               UserRepoLocal.to.changeInfo(payload);
@@ -269,5 +258,6 @@ class MorePage extends ConsumerWidget {
         ),
       ),
     );
+    if (mounted) setState(() {});
   }
 }

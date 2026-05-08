@@ -208,8 +208,8 @@ class E2EEService {
     final policyMode = EncryptionModeService.current;
     if (policyMode == EncryptionMode.complianceE2ee) {
       try {
-        final complianceKey =
-            await ComplianceKeyService.instance.getComplianceKey();
+        final complianceKey = await ComplianceKeyService.instance
+            .getComplianceKey();
         if (complianceKey != null) {
           final wrappedCompliance = await _wrapAESKey(
             aesKey: aesKey,
@@ -492,7 +492,8 @@ class E2EEService {
         // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
         if (didToPem.isEmpty && forceRefresh) {
           final cached = _userKeyCacheByDevice[uid];
-          if (cached != null && cached.isNotEmpty &&
+          if (cached != null &&
+              cached.isNotEmpty &&
               !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
             iPrint('⚠️ [E2EE] API 返回空，使用缓存: uid=$uid, 设备数=${cached.length}');
             return {'didToPem': cached};
@@ -508,7 +509,8 @@ class E2EEService {
         if (attempt >= maxRetries) {
           // 🔧 修复：API 调用失败时回退到未过期的缓存（用于测试环境）
           final cached = _userKeyCacheByDevice[uid];
-          if (cached != null && cached.isNotEmpty &&
+          if (cached != null &&
+              cached.isNotEmpty &&
               !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: uid=$uid, 设备数=${cached.length}');
             return {'didToPem': cached};
@@ -571,7 +573,8 @@ class E2EEService {
         // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
         if (didToPem.isEmpty && forceRefresh) {
           final cached = _groupKeyCacheByDevice[gid];
-          if (cached != null && cached.isNotEmpty &&
+          if (cached != null &&
+              cached.isNotEmpty &&
               !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
             iPrint('⚠️ [E2EE] API 返回空，使用缓存: gid=$gid, 设备数=${cached.length}');
             return {'didToPem': cached};
@@ -586,7 +589,8 @@ class E2EEService {
         if (attempt >= maxRetries) {
           // 🔧 修复：API 调用失败时回退到未过期的缓存（用于测试环境）
           final cached = _groupKeyCacheByDevice[gid];
-          if (cached != null && cached.isNotEmpty &&
+          if (cached != null &&
+              cached.isNotEmpty &&
               !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: gid=$gid, 设备数=${cached.length}');
             return {'didToPem': cached};

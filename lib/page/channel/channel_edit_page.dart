@@ -110,8 +110,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
     try {
       final api = ChannelApi();
-      final channelId =
-          (_channel?.id != null && _channel!.id != 0) ? _channel!.id.toString() : widget.channelId;
+      final channelId = (_channel?.id != null && _channel!.id != 0)
+          ? _channel!.id.toString()
+          : widget.channelId;
       final targetName = _nameController.text.trim();
       final targetDescription = _descriptionController.text.trim();
       final targetAvatar = _avatarUrl?.trim();
@@ -315,7 +316,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             const SizedBox(height: 8),
             Center(
               child: InkWell(
-                onTap: (_isSaving || _isUploadingAvatar) ? null : _showAvatarPicker,
+                onTap: (_isSaving || _isUploadingAvatar)
+                    ? null
+                    : _showAvatarPicker,
                 borderRadius: BorderRadius.circular(48),
                 child: Stack(
                   alignment: Alignment.center,
@@ -328,7 +331,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                           : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
                           ? cachedImageProvider(_avatarUrl!, w: 176)
                           : null,
-                      child: (_avatarFile == null &&
+                      child:
+                          (_avatarFile == null &&
                               (_avatarUrl == null || _avatarUrl!.isEmpty))
                           ? const Icon(Icons.camera_alt_outlined, size: 30)
                           : null,
@@ -417,7 +421,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 hintText: t.channel.customIdHint,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.alternate_email),
-                helperText: '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
+                helperText:
+                    '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
               ),
               readOnly: true,
               enabled: false,

@@ -17,17 +17,9 @@ Future<void> put(
 ) async {}
 
 /// 获取数据（存根）
-Future<String?> get(
-  dynamic db,
-  String storeName,
-  String key,
-) async {
+Future<String?> get(dynamic db, String storeName, String key) async {
   return null;
 }
 
 /// 删除数据（存根）
-Future<void> delete(
-  dynamic db,
-  String storeName,
-  String key,
-) async {}
+Future<void> delete(dynamic db, String storeName, String key) async {}

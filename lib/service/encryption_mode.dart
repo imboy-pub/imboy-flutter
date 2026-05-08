@@ -107,7 +107,9 @@ class EncryptionModeService {
         API.appPolicy,
       );
       if (!response.ok || response.payload is! Map) {
-        debugPrint('EncryptionModeService: skip refresh, code=${response.code}');
+        debugPrint(
+          'EncryptionModeService: skip refresh, code=${response.code}',
+        );
         return;
       }
 
@@ -126,7 +128,9 @@ class EncryptionModeService {
       }
 
       _initialized = true;
-      debugPrint('EncryptionModeService: mode=$_current (storage=$storageMode, e2ee=$e2eeMode)');
+      debugPrint(
+        'EncryptionModeService: mode=$_current (storage=$storageMode, e2ee=$e2eeMode)',
+      );
     } catch (e) {
       debugPrint('EncryptionModeService: refresh failed: $e');
       // 策略加载失败时，保留上次成功的模式而非静默降级为明文

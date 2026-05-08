@@ -54,7 +54,9 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.deviceDetails,

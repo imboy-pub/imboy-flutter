@@ -120,7 +120,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                 }
                               },
                               (Error error) {
-                                if (kDebugMode) debugPrint("> on upload error: ${error.runtimeType}");
+                                if (kDebugMode)
+                                  debugPrint(
+                                    "> on upload error: ${error.runtimeType}",
+                                  );
                               },
                               process: false,
                             );
@@ -145,7 +148,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           ),
         ],
       ),
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -162,152 +167,151 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
               child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withAlpha(51),
-                        borderRadius: AppRadius.borderRadiusMedium,
-                      ),
-                      child: Icon(
-                        Icons.feedback,
-                        color: colorScheme.primary,
-                        size: 24,
-                      ),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withAlpha(51),
+                      borderRadius: AppRadius.borderRadiusMedium,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            t.feedback,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            t.feedbackSlogan,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.onSurface.withAlpha(179),
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Icon(
+                      Icons.feedback,
+                      color: colorScheme.primary,
+                      size: 24,
                     ),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: AppRadius.borderRadiusSmall,
-                        onTap: _isSubmittingFeedback
-                            ? null
-                            : () {
-                                BetterFeedback.of(context).show((
-                                  UserFeedback feedback,
-                                ) async {
-                                  if (feedback.text.isEmpty) {
-                                    EasyLoading.showError(
-                                      t.feedbackContentRequired,
-                                    );
-                                    return;
-                                  }
-
-                                  // 防抖：设置提交状态
-                                  setState(() => _isSubmittingFeedback = true);
-
-                                  try {
-                                    img.Image image = img.decodeImage(
-                                      feedback.screenshot,
-                                    )!;
-                                    final result = img.encodeJpg(
-                                      image,
-                                      quality: 70,
-                                    );
-
-                                    await AttachmentApi.uploadBytes(
-                                      "feedback",
-                                      result,
-                                      (
-                                        Map<String, dynamic> resp,
-                                        String uri,
-                                      ) async {
-                                        FeedbackApi p = FeedbackApi();
-                                        var type =
-                                            feedback.extra?['feedback_type'] ??
-                                            '';
-                                        var rating =
-                                            feedback.extra?['rating'] ?? '';
-
-                                        Map<String, dynamic> data = {
-                                          'rating': rating,
-                                          'type': type
-                                              .toString()
-                                              .split('.')
-                                              .last
-                                              .replaceAll('_', ' '),
-                                          'contact_detail':
-                                              feedback
-                                                  .extra?['contact_detail'] ??
-                                              '',
-                                          'description': feedback.text,
-                                          'screenshot': [uri],
-                                        };
-                                        bool res = await p.add(data);
-                                        if (res) {
-                                          EasyLoading.showSuccess(
-                                            t.feedbackSuccessMsg,
-                                          );
-                                          _initData();
-                                        } else {
-                                          EasyLoading.showError(t.tipFailed);
-                                        }
-                                      },
-                                      (Error error) {
-                                        if (kDebugMode) {
-                                          debugPrint(
-                                            "> on upload error: ${error.runtimeType}",
-                                          );
-                                        }
-                                      },
-                                      process: false,
-                                    );
-                                  } finally {
-                                    // 恢复提交状态
-                                    if (mounted) {
-                                      setState(
-                                        () => _isSubmittingFeedback = false,
-                                      );
-                                    }
-                                  }
-                                });
-                              },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.feedback,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
                           ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            borderRadius: AppRadius.borderRadiusSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          t.feedbackSlogan,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurface.withAlpha(179),
                           ),
-                          child: Text(
-                            t.newFeedback,
-                            style: TextStyle(
-                              color: colorScheme.onPrimary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: AppRadius.borderRadiusSmall,
+                      onTap: _isSubmittingFeedback
+                          ? null
+                          : () {
+                              BetterFeedback.of(context).show((
+                                UserFeedback feedback,
+                              ) async {
+                                if (feedback.text.isEmpty) {
+                                  EasyLoading.showError(
+                                    t.feedbackContentRequired,
+                                  );
+                                  return;
+                                }
+
+                                // 防抖：设置提交状态
+                                setState(() => _isSubmittingFeedback = true);
+
+                                try {
+                                  img.Image image = img.decodeImage(
+                                    feedback.screenshot,
+                                  )!;
+                                  final result = img.encodeJpg(
+                                    image,
+                                    quality: 70,
+                                  );
+
+                                  await AttachmentApi.uploadBytes(
+                                    "feedback",
+                                    result,
+                                    (
+                                      Map<String, dynamic> resp,
+                                      String uri,
+                                    ) async {
+                                      FeedbackApi p = FeedbackApi();
+                                      var type =
+                                          feedback.extra?['feedback_type'] ??
+                                          '';
+                                      var rating =
+                                          feedback.extra?['rating'] ?? '';
+
+                                      Map<String, dynamic> data = {
+                                        'rating': rating,
+                                        'type': type
+                                            .toString()
+                                            .split('.')
+                                            .last
+                                            .replaceAll('_', ' '),
+                                        'contact_detail':
+                                            feedback.extra?['contact_detail'] ??
+                                            '',
+                                        'description': feedback.text,
+                                        'screenshot': [uri],
+                                      };
+                                      bool res = await p.add(data);
+                                      if (res) {
+                                        EasyLoading.showSuccess(
+                                          t.feedbackSuccessMsg,
+                                        );
+                                        _initData();
+                                      } else {
+                                        EasyLoading.showError(t.tipFailed);
+                                      }
+                                    },
+                                    (Error error) {
+                                      if (kDebugMode) {
+                                        debugPrint(
+                                          "> on upload error: ${error.runtimeType}",
+                                        );
+                                      }
+                                    },
+                                    process: false,
+                                  );
+                                } finally {
+                                  // 恢复提交状态
+                                  if (mounted) {
+                                    setState(
+                                      () => _isSubmittingFeedback = false,
+                                    );
+                                  }
+                                }
+                              });
+                            },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          borderRadius: AppRadius.borderRadiusSmall,
+                        ),
+                        child: Text(
+                          t.newFeedback,
+                          style: TextStyle(
+                            color: colorScheme.onPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
 
             const SizedBox(height: 24),
 
@@ -319,82 +323,78 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.history,
-                          color: colorScheme.primary,
-                          size: 20,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.history, color: colorScheme.primary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        t.feedbackHistory,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.feedbackHistory,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 反馈列表
-                    Container(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.6,
                       ),
-                      child: state.itemList.isEmpty
-                          ? SizedBox(
-                              height: 200,
-                              child: NoDataView(text: t.noData),
-                            )
-                          : ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: state.itemList.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder: (BuildContext context, int index) {
-                                FeedbackModel model = state.itemList[index];
-                                return Slidable(
-                                  key: ValueKey(model.feedbackId),
-                                  groupTag: '0',
-                                  closeOnScroll: true,
-                                  endActionPane: ActionPane(
-                                    extentRatio: 0.25,
-                                    motion: const BehindMotion(),
-                                    children: [
-                                      SlidableAction(
-                                        key: ValueKey("delete_$index"),
-                                        flex: 2,
-                                        backgroundColor: AppColors.getIosRed(
-                                          Theme.of(context).brightness,
-                                        ),
-                                        foregroundColor: Colors.white,
-                                        borderRadius:
-                                            AppRadius.borderRadiusMedium,
-                                        onPressed: (_) async {
-                                          _showDeleteDialog(
-                                            context,
-                                            model,
-                                            index,
-                                          );
-                                        },
-                                        label: t.buttonDelete,
-                                        spacing: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: _buildFeedbackItem(context, model),
-                                );
-                              },
-                            ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 反馈列表
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.6,
                     ),
-                  ],
-                ),
+                    child: state.itemList.isEmpty
+                        ? SizedBox(
+                            height: 200,
+                            child: NoDataView(text: t.noData),
+                          )
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: state.itemList.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (BuildContext context, int index) {
+                              FeedbackModel model = state.itemList[index];
+                              return Slidable(
+                                key: ValueKey(model.feedbackId),
+                                groupTag: '0',
+                                closeOnScroll: true,
+                                endActionPane: ActionPane(
+                                  extentRatio: 0.25,
+                                  motion: const BehindMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      key: ValueKey("delete_$index"),
+                                      flex: 2,
+                                      backgroundColor: AppColors.getIosRed(
+                                        Theme.of(context).brightness,
+                                      ),
+                                      foregroundColor: Colors.white,
+                                      borderRadius:
+                                          AppRadius.borderRadiusMedium,
+                                      onPressed: (_) async {
+                                        _showDeleteDialog(
+                                          context,
+                                          model,
+                                          index,
+                                        );
+                                      },
+                                      label: t.buttonDelete,
+                                      spacing: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: _buildFeedbackItem(context, model),
+                              );
+                            },
+                          ),
+                  ),
+                ],
               ),
+            ),
 
             const SizedBox(height: 16),
           ],

@@ -27,7 +27,9 @@ class AddFriendPage extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(title: t.addFriend, automaticallyImplyLeading: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),

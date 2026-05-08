@@ -14,10 +14,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 /// - [colorKey]  null 表示不显示图标；否则为 themeNotifier 颜色键
 ///   （'textSecondary' / 'primary' / 'sendMessageBg' / 'error'）
 class MessageStatusIconSpec {
-  const MessageStatusIconSpec({
-    required this.iconData,
-    required this.colorKey,
-  });
+  const MessageStatusIconSpec({required this.iconData, required this.colorKey});
 
   final IconData? iconData;
   final String? colorKey;
@@ -37,21 +34,22 @@ class MessageStatusIconSpec {
 MessageStatusIconSpec resolveMessageStatusIcon(MessageStatus? status) {
   return switch (status) {
     MessageStatus.sending => const MessageStatusIconSpec(
-        iconData: Icons.access_time,
-        colorKey: 'textSecondary',
-      ),
-    MessageStatus.sent || MessageStatus.delivered => const MessageStatusIconSpec(
-        iconData: Icons.done_all,
-        colorKey: 'primary',
-      ),
+      iconData: Icons.access_time,
+      colorKey: 'textSecondary',
+    ),
+    MessageStatus.sent ||
+    MessageStatus.delivered => const MessageStatusIconSpec(
+      iconData: Icons.done_all,
+      colorKey: 'primary',
+    ),
     MessageStatus.seen => const MessageStatusIconSpec(
-        iconData: Icons.done_all,
-        colorKey: 'sendMessageBg',
-      ),
+      iconData: Icons.done_all,
+      colorKey: 'sendMessageBg',
+    ),
     MessageStatus.error => const MessageStatusIconSpec(
-        iconData: Icons.error_outline,
-        colorKey: 'error',
-      ),
+      iconData: Icons.error_outline,
+      colorKey: 'error',
+    ),
     _ => const MessageStatusIconSpec(iconData: null, colorKey: null),
   };
 }

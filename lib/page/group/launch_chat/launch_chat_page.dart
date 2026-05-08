@@ -116,7 +116,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: t.selectContacts,
         leadingWidth: 72,
@@ -152,9 +154,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                       try {
                         EasyLoading.show(status: t.loading);
                         int memberCount = state.selects.length;
-                        iPrint(
-                          "state.selects $memberCount",
-                        );
+                        iPrint("state.selects $memberCount");
                         GroupModel? m = await ref
                             .read(launchChatProvider.notifier)
                             .groupAdd(state.selects);

@@ -28,6 +28,7 @@ import 'package:imboy/store/repository/moment_notify_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/config/routes.dart';
 
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -236,6 +237,9 @@ class MessageS2CService {
         case 'moment_deleted':
         case 'moment_updated':
           await _handleMomentAction(action, payloadMap);
+          break;
+        case 'manifest_updated':
+          await AppManifestService.refresh();
           break;
         default:
           debugPrint("⚠️ [S2C] 未知的 action: $action");
@@ -655,10 +659,7 @@ class MessageS2CService {
     final chatType = data['type']?.toString() ?? 'C2C';
 
     // 使用公共辅助类处理黑名单错误（消除代码重复）
-    await MessageActions.handleDenylistError(
-      msgId: msgId,
-      chatType: chatType,
-    );
+    await MessageActions.handleDenylistError(msgId: msgId, chatType: chatType);
   }
 
   /// 处理用户注销

@@ -81,13 +81,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return AppRoutes.signIn;
       }
 
-      final featureRedirect = RouteFeatureGuard.redirectPath(
+      final blocked = RouteFeatureGuard.checkBlocked(
         isLoggedIn: isLogin,
         currentPath: currentPath,
       );
-      if (featureRedirect != null) {
-        RouteFeatureGuard.notifyDisabledFeatureRedirect(context);
-        return featureRedirect;
+      if (blocked != null) {
+        RouteFeatureGuard.notifyBlocked(
+          context,
+          (reason: blocked.reason, name: blocked.name),
+        );
+        return blocked.redirect;
       }
 
       return null;
@@ -180,10 +183,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/moment_notify',
         name: 'moment_notify',
-        pageBuilder: (context, state) => CupertinoPage(
-          key: state.pageKey,
-          child: const MomentNotifyPage(),
-        ),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const MomentNotifyPage()),
       ),
       GoRoute(
         path: '${AppRoutes.momentRoot}/:momentId',
@@ -895,10 +896,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.privacyPolicy,
         name: 'privacy_policy',
-        pageBuilder: (context, state) => CupertinoPage(
-          key: state.pageKey,
-          child: const PrivacyPolicyPage(),
-        ),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const PrivacyPolicyPage()),
       ),
       GoRoute(
         path: AppRoutes.termsOfService,

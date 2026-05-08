@@ -224,11 +224,13 @@ class _MomentFriendPickerPageState
       if (trimmed.isEmpty) {
         _displayFriends = _friends;
       } else {
-        _displayFriends = _friends.where((c) {
-          final title = c.title.toLowerCase();
-          final pinyin = (c.namePinyin ?? '').toLowerCase();
-          return title.contains(trimmed) || pinyin.contains(trimmed);
-        }).toList(growable: false);
+        _displayFriends = _friends
+            .where((c) {
+              final title = c.title.toLowerCase();
+              final pinyin = (c.namePinyin ?? '').toLowerCase();
+              return title.contains(trimmed) || pinyin.contains(trimmed);
+            })
+            .toList(growable: false);
       }
     });
   }
@@ -329,9 +331,11 @@ class _MomentFriendPickerPageState
     final bg = selected
         ? theme.colorScheme.primary
         : partial
-            ? theme.colorScheme.primary.withValues(alpha: 0.25)
-            : theme.colorScheme.surfaceContainerHighest;
-    final fg = selected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface;
+        ? theme.colorScheme.primary.withValues(alpha: 0.25)
+        : theme.colorScheme.surfaceContainerHighest;
+    final fg = selected
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSurface;
 
     return InkWell(
       borderRadius: AppRadius.borderRadiusRegular,
@@ -356,8 +360,8 @@ class _MomentFriendPickerPageState
                 selected
                     ? Icons.check_circle
                     : partial
-                        ? Icons.remove_circle
-                        : Icons.circle_outlined,
+                    ? Icons.remove_circle
+                    : Icons.circle_outlined,
                 size: 14,
                 color: fg,
               ),

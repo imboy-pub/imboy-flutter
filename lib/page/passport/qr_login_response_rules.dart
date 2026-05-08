@@ -83,8 +83,8 @@ QrCreateResult parseQrCreateResponse({
   final sessionToken = _readNonEmptyString(payload, 'session_token');
   if (sessionToken == null) return const QrCreateFailure();
 
-  final expiresIn = _readPositiveInt(payload, 'expires_in') ??
-      _kDefaultExpiresInSeconds;
+  final expiresIn =
+      _readPositiveInt(payload, 'expires_in') ?? _kDefaultExpiresInSeconds;
 
   return QrCreateSuccess(
     qrToken: qrToken,

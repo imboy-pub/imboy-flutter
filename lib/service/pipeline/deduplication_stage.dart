@@ -41,7 +41,7 @@ final class DeduplicationDuplicate extends DeduplicationResult {
 /// [clock] 可注入时钟函数（返回 ms 时间戳），便于单元测试控制 TTL。
 class MessageDeduplicator {
   MessageDeduplicator({int Function()? clock})
-      : _clock = clock ?? _defaultClock;
+    : _clock = clock ?? _defaultClock;
 
   final int Function() _clock;
 

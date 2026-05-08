@@ -220,7 +220,9 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                     decoration: BoxDecoration(
                       color: isCurrentDevice
                           ? AppColors.primaryAlpha20
-                          : Theme.of(context).colorScheme.surfaceContainerHighest,
+                          : Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),
                     child: Icon(

@@ -286,7 +286,7 @@ class ShamirSecretSharing {
   /// 零值返回空数组（用于空秘密）
   static Uint8List _intToBytes(BigInt value) {
     if (value == BigInt.zero) {
-      return Uint8List(0);  // 空秘密返回空数组
+      return Uint8List(0); // 空秘密返回空数组
     }
 
     // 计算需要的字节数

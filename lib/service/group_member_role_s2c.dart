@@ -93,8 +93,9 @@ GroupMemberRoleParseResult parseGroupMemberRolePayload(
   }
 
   final updatedAtRaw = _asInt(payload['updated_at']);
-  final updatedAt =
-      (updatedAtRaw != null && updatedAtRaw > 0) ? updatedAtRaw : 0;
+  final updatedAt = (updatedAtRaw != null && updatedAtRaw > 0)
+      ? updatedAtRaw
+      : 0;
 
   return GroupMemberRolePayload(
     gid: gid,
@@ -119,8 +120,8 @@ GroupMemberRoleParseResult parseGroupMemberRolePayload(
 ///     （本地写失败不应阻塞广播）
 Future<void> handleGroupMemberRoleS2C({
   required Map<String, dynamic> payload,
-  required Future<void> Function(
-      int gid, int userId, int role, int updatedAt) applyRoleUpdate,
+  required Future<void> Function(int gid, int userId, int role, int updatedAt)
+  applyRoleUpdate,
   required void Function(GroupMemberRolePayload payload) fireEvent,
   void Function(String message)? log,
 }) async {
@@ -139,8 +140,10 @@ Future<void> handleGroupMemberRoleS2C({
           parsed.updatedAt,
         );
       } on Object catch (e, st) {
-        logFn('[group_member_role] apply_failed gid=${parsed.gid} '
-            'userId=${parsed.userId} role=${parsed.role} err=$e\n$st');
+        logFn(
+          '[group_member_role] apply_failed gid=${parsed.gid} '
+          'userId=${parsed.userId} role=${parsed.role} err=$e\n$st',
+        );
       }
       fireEvent(parsed);
   }

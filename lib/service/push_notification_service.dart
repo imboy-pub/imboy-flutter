@@ -30,8 +30,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class PushNotificationService {
   PushNotificationService._();
 
-  static final PushNotificationService _instance =
-      PushNotificationService._();
+  static final PushNotificationService _instance = PushNotificationService._();
   static PushNotificationService get instance => _instance;
 
   final PushApi _api = PushApi();
@@ -84,8 +83,7 @@ class PushNotificationService {
       );
       iPrint('[Push] 权限状态: ${settings.authorizationStatus}');
 
-      if (settings.authorizationStatus ==
-          AuthorizationStatus.denied) {
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
         iPrint('[Push] 用户拒绝推送权限，跳过 FCM');
         return;
       }

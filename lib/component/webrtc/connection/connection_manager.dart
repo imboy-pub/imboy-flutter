@@ -33,7 +33,7 @@ class WebRTCConnectionManager {
 
   /// 连接状态订阅映射 (sessionId -> subscription)
   final Map<String, StreamSubscription<WebRTCConnectionStateEvent>>
-      _connectionSubscriptions = {};
+  _connectionSubscriptions = {};
 
   /// 连接状态变更流控制器
   final StreamController<WebRTCConnectionStateEvent> _stateController =
@@ -87,8 +87,9 @@ class WebRTCConnectionManager {
 
     // 监听状态变更（保存订阅句柄，防止泄漏）
     _connectionSubscriptions[sessionId]?.cancel();
-    _connectionSubscriptions[sessionId] =
-        connection.stateStream.listen((event) {
+    _connectionSubscriptions[sessionId] = connection.stateStream.listen((
+      event,
+    ) {
       // 转发状态变更
       if (!_stateController.isClosed) {
         _stateController.add(event);
@@ -256,7 +257,9 @@ class WebRTCConnectionManager {
     debugPrint('User sessions: ${_userSessions.length}');
 
     _connections.forEach((sessionId, connection) {
-      debugPrint('  - $sessionId: ${connection.state} with ${connection.peerId}');
+      debugPrint(
+        '  - $sessionId: ${connection.state} with ${connection.peerId}',
+      );
     });
 
     final stats = getStatistics();
@@ -274,12 +277,16 @@ class WebRTCConnectionManager {
   /// 检查内存泄漏（用于调试）
   void checkMemoryLeaks() {
     if (_connections.isNotEmpty) {
-      debugPrint('⚠️  Memory leak warning: ${_connections.length} connections still active');
+      debugPrint(
+        '⚠️  Memory leak warning: ${_connections.length} connections still active',
+      );
       printDebugInfo();
     }
 
     if (_userSessions.isNotEmpty) {
-      debugPrint('⚠️  Memory leak warning: ${_userSessions.length} user sessions still active');
+      debugPrint(
+        '⚠️  Memory leak warning: ${_userSessions.length} user sessions still active',
+      );
     }
   }
 }

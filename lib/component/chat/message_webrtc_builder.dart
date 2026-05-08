@@ -137,24 +137,26 @@ class WebRTCMessageBuilder extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return InkWell(
-      onTap: peerId.isEmpty ? null : () async {
-        ContactModel? peer = await ContactRepo().findByUid(peerId);
-        // UserModel peer = UserModel(
-        //   uid: peerId,
-        //   account: c!.account,
-        //   nickname: c.nickname,
-        //   avatar: c.avatar,
-        // );
-        if (peer != null) {
-          openCallScreen(
-            context,
-            peer,
-            // session: s,
-            {'media': media},
-            caller: true,
-          );
-        }
-      },
+      onTap: peerId.isEmpty
+          ? null
+          : () async {
+              ContactModel? peer = await ContactRepo().findByUid(peerId);
+              // UserModel peer = UserModel(
+              //   uid: peerId,
+              //   account: c!.account,
+              //   nickname: c.nickname,
+              //   avatar: c.avatar,
+              // );
+              if (peer != null) {
+                openCallScreen(
+                  context,
+                  peer,
+                  // session: s,
+                  {'media': media},
+                  caller: true,
+                );
+              }
+            },
       child: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
         child: _buildBody(context, msgType, title, userIsAuthor),

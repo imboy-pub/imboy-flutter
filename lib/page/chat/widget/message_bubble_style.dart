@@ -104,7 +104,7 @@ class MessageBubbleStyle {
     return AppRadius.borderRadiusLarge;
   }
 
-/// 获取消息文本样式
+  /// 获取消息文本样式
   static TextStyle getMessageTextStyle({
     required bool isSentByMe,
     required BuildContext context,

@@ -86,7 +86,10 @@ class GroupListService {
     }
 
     final gmRepo = GroupMemberRepo();
-    final existed = await gmRepo.findByUserId(group.groupId.toString(), currentUid);
+    final existed = await gmRepo.findByUserId(
+      group.groupId.toString(),
+      currentUid,
+    );
     if (existed != null) {
       final patch = <String, dynamic>{};
       if (existed.status != 1) {

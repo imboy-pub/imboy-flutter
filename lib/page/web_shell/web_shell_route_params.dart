@@ -60,20 +60,14 @@ WebShellState parseShellRouteParams(Map<String, String> params) {
 
   // 根据 tab 类型构造对应 selection
   final WebSelection selection = switch (tabIndex) {
-    0 => ChatSelection(
-      peerId: id,
-      chatType: params[kRouteParamType] ?? 'C2C',
-    ),
+    0 => ChatSelection(peerId: id, chatType: params[kRouteParamType] ?? 'C2C'),
     1 => ContactSelection(uid: id),
     2 => ChannelSelection(channelId: id),
     3 => MineSelection(section: id),
     _ => throw StateError('unreachable: tabIndex $tabIndex'),
   };
 
-  return WebShellState(
-    currentTab: tabIndex,
-    selectedItem: selection,
-  );
+  return WebShellState(currentTab: tabIndex, selectedItem: selection);
 }
 
 /// 把 [WebShellState] 编码为 URL query 参数

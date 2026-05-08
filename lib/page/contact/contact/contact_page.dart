@@ -87,9 +87,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       return;
     }
     if (kIsWeb) {
-      ref.read(webShellProvider.notifier).selectItem(
-            ContactSelection(uid: model.peerId.toString()),
-          );
+      ref
+          .read(webShellProvider.notifier)
+          .selectItem(ContactSelection(uid: model.peerId.toString()));
       return;
     }
     // 跳转到用户信息页
@@ -111,9 +111,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       );
       switch (action) {
         case WebSelectChat(:final peerId, :final chatType):
-          ref.read(webShellProvider.notifier).selectItem(
-                ChatSelection(peerId: peerId, chatType: chatType),
-              );
+          ref
+              .read(webShellProvider.notifier)
+              .selectItem(ChatSelection(peerId: peerId, chatType: chatType));
         case MobilePushChat():
           context.push(
             '/chat/${action.peerId}?type=${action.chatType}'

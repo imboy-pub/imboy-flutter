@@ -87,8 +87,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // **关键**：在 await 前快照登录态，避免 await 期间 UserRepoLocal 状态变化
     // 导致用户经历"长 hold（首启分支）但实际已登录"的不一致体验。
     final bool isLoggedIn = UserRepoLocal.to.isLoggedIn;
-    final Duration hold =
-        isLoggedIn ? kSplashMinHoldReturning : kSplashMinHoldNew;
+    final Duration hold = isLoggedIn
+        ? kSplashMinHoldReturning
+        : kSplashMinHoldNew;
 
     await Future<void>.delayed(hold);
 
@@ -118,8 +119,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
     // 暗色模式自适应：读取系统 platformBrightness（独立于 app theme，
     // 因为 splash 在 ThemeManager 之前渲染，无法依赖 Theme.of(context).brightness）
-    final isDark =
-        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
 
     // 减弱动效：响应系统 "Reduce Motion" / "Remove animations"。
     // 启用后所有 fade / scale / moveY 跳过，直接渲染终态。
@@ -138,8 +138,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           ];
 
     // 高光透明度：暗色背景上压低 4 个百分点，避免"灰雾"脏感
-    final Color highlightStart =
-        isDark ? const Color(0x14FFFFFF) /* 8% */ : const Color(0x1FFFFFFF) /* 12% */;
+    final Color highlightStart = isDark
+        ? const Color(0x14FFFFFF) /* 8% */
+        : const Color(0x1FFFFFFF) /* 12% */;
 
     return Scaffold(
       body: Container(
@@ -220,10 +221,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         gradient: RadialGradient(
           center: const Alignment(0, -0.35),
           radius: 0.95,
-          colors: [
-            highlightStart,
-            const Color(0x00FFFFFF),
-          ],
+          colors: [highlightStart, const Color(0x00FFFFFF)],
         ),
       ),
     );
@@ -323,10 +321,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     );
     if (disableAnim) return node;
     return node.animate().fadeIn(
-          delay: 550.ms,
-          duration: 400.ms,
-          curve: Curves.easeOut,
-        );
+      delay: 550.ms,
+      duration: 400.ms,
+      curve: Curves.easeOut,
+    );
   }
-
 }

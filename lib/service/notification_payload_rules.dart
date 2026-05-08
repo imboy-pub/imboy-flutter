@@ -147,11 +147,8 @@ NotificationParseResult parseNotificationPayload(Map<String, dynamic> data) {
       // chat_type 在新 schema 是 'C2C'/'C2G'；
       // 旧 FCM payload 用 'type' 字段承载 chatType，因 resolveNotificationType
       // 已识别此种情况进入 message 分支，这里读 'type' 做兜底；缺省 'C2C'。
-      final chatType = _pickFirstNonEmpty(data, const [
-            'chat_type',
-            'chatType',
-            'type',
-          ]) ??
+      final chatType =
+          _pickFirstNonEmpty(data, const ['chat_type', 'chatType', 'type']) ??
           'C2C';
       return NotificationMessageRoute(
         peerId: peerId,
@@ -193,10 +190,7 @@ NotificationParseResult parseNotificationPayload(Map<String, dynamic> data) {
 }
 
 /// 取 keys 中首个非空（去空白后非空）字符串值
-String? _pickFirstNonEmpty(
-  Map<String, dynamic> data,
-  List<String> keys,
-) {
+String? _pickFirstNonEmpty(Map<String, dynamic> data, List<String> keys) {
   for (final key in keys) {
     final v = data[key];
     if (v == null) continue;

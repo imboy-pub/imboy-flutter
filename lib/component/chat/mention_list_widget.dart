@@ -254,7 +254,6 @@ class MentionListWidget extends StatelessWidget {
       ),
     );
   }
-
 }
 
 /// @提及列表弹出框

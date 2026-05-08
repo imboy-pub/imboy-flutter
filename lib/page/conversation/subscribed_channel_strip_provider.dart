@@ -41,10 +41,11 @@ final class SubscribedChannelSummary {
 /// - 自动响应 [ChannelStateChangedEvent] / [ChannelUnreadCountUpdatedEvent] /
 ///   [ChannelNewMessageEvent] 刷新
 /// - 受 channelEnabled feature flag 保护（调用方判断，本 provider 不感知）
-final subscribedChannelStripProvider = AsyncNotifierProvider<
-  SubscribedChannelStripNotifier,
-  List<SubscribedChannelSummary>
->(SubscribedChannelStripNotifier.new);
+final subscribedChannelStripProvider =
+    AsyncNotifierProvider<
+      SubscribedChannelStripNotifier,
+      List<SubscribedChannelSummary>
+    >(SubscribedChannelStripNotifier.new);
 
 class SubscribedChannelStripNotifier
     extends AsyncNotifier<List<SubscribedChannelSummary>> {
@@ -53,17 +54,13 @@ class SubscribedChannelStripNotifier
   @override
   Future<List<SubscribedChannelSummary>> build() async {
     _subscriptions
-      ..add(
-        AppEventBus.on<ChannelStateChangedEvent>().listen((_) => _reload()),
-      )
+      ..add(AppEventBus.on<ChannelStateChangedEvent>().listen((_) => _reload()))
       ..add(
         AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
           (e) => _applyUnreadUpdate(e),
         ),
       )
-      ..add(
-        AppEventBus.on<ChannelNewMessageEvent>().listen((_) => _reload()),
-      );
+      ..add(AppEventBus.on<ChannelNewMessageEvent>().listen((_) => _reload()));
 
     // Riverpod 在 provider dispose 时调用 onDispose
     ref.onDispose(() {

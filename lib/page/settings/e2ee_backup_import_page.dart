@@ -195,9 +195,18 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(t.e2eeBackupVersionLabel, _backupInfo!['version'].toString()),
-            _buildInfoRow(t.e2eeBackupAlgorithmLabel, _backupInfo!['algorithm'].toString()),
-            _buildInfoRow(t.e2eeBackupFileSizeLabel, '${_backupInfo!['file_size']} bytes'),
+            _buildInfoRow(
+              t.e2eeBackupVersionLabel,
+              _backupInfo!['version'].toString(),
+            ),
+            _buildInfoRow(
+              t.e2eeBackupAlgorithmLabel,
+              _backupInfo!['algorithm'].toString(),
+            ),
+            _buildInfoRow(
+              t.e2eeBackupFileSizeLabel,
+              '${_backupInfo!['file_size']} bytes',
+            ),
             const SizedBox(height: 8),
             Text(
               t.e2eeBackupFileValid,
@@ -346,7 +355,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           children: [
             Text(t.e2eeBackupImportSuccessBody),
             const SizedBox(height: 12),
-            Text('Device ID: ${_maskId(result['device_id']?.toString() ?? '')}'),
+            Text(
+              'Device ID: ${_maskId(result['device_id']?.toString() ?? '')}',
+            ),
             Text('Key ID: ${_maskId(result['key_id']?.toString() ?? '')}'),
             Text('${t.e2eeBackupCreatedAtRow}: ${result['created_at']}'),
             const SizedBox(height: 12),

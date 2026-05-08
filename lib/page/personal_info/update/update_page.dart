@@ -52,7 +52,9 @@ class UpdatePage extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(
@@ -63,9 +65,7 @@ class UpdatePage extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: state.valueChanged
                     ? AppColors.primary
-                    : (isDark
-                          ? AppColors.iosGray3Dark
-                          : AppColors.lightBorder),
+                    : (isDark ? AppColors.iosGray3Dark : AppColors.lightBorder),
                 borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
               ),
               child: Material(
@@ -264,9 +264,7 @@ class UpdatePage extends ConsumerWidget {
                 focusedErrorBorder: InputBorder.none,
                 counterStyle: TextStyle(
                   fontSize: 12,
-                  color: isDark
-                      ? AppColors.iosGray
-                      : const Color(0xFF999999),
+                  color: isDark ? AppColors.iosGray : const Color(0xFF999999),
                 ),
               ),
               readOnly: false,

@@ -37,26 +37,17 @@ class WebMiddlePanel extends StatelessWidget {
     this.width = 360,
     this.keepAlive = true,
   }) : assert(tabs.length >= 2, 'WebMiddlePanel 至少需要 2 个 tabs'),
-       assert(
-         currentTab >= 0 && currentTab < tabs.length,
-         'currentTab 越界',
-       );
+       assert(currentTab >= 0 && currentTab < tabs.length, 'currentTab 越界');
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final content = keepAlive
-        ? IndexedStack(
-            index: currentTab,
-            children: tabs,
-          )
+        ? IndexedStack(index: currentTab, children: tabs)
         : AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
+              return FadeTransition(opacity: animation, child: child);
             },
             child: KeyedSubtree(
               key: ValueKey<int>(currentTab),
@@ -69,10 +60,7 @@ class WebMiddlePanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         border: Border(
-          right: BorderSide(
-            color: colorScheme.outlineVariant,
-            width: 0.5,
-          ),
+          right: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
         ),
       ),
       child: content,

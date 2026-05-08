@@ -253,9 +253,15 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildInfoRow(t.e2eeDeviceIdLabel, _keyInfo['device_id'] ?? t.unknown),
+            _buildInfoRow(
+              t.e2eeDeviceIdLabel,
+              _keyInfo['device_id'] ?? t.unknown,
+            ),
             _buildInfoRow(t.e2eeKeyIdLabel, _keyInfo['key_id'] ?? t.unknown),
-            _buildInfoRow(t.e2eeCreatedAtLabel, _keyInfo['created_at'] ?? t.unknown),
+            _buildInfoRow(
+              t.e2eeCreatedAtLabel,
+              _keyInfo['created_at'] ?? t.unknown,
+            ),
           ],
         ),
       ),
@@ -363,20 +369,17 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 const SizedBox(width: 8),
                 Text(
                   t.e2eeAboutTitle,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              t.e2eeInfoPoint1,
-              style: const TextStyle(fontSize: 13),
-            ),
+            Text(t.e2eeInfoPoint1, style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 4),
-            Text(
-              t.e2eeInfoPoint2,
-              style: const TextStyle(fontSize: 13),
-            ),
+            Text(t.e2eeInfoPoint2, style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 4),
             Text(t.e2eeInfoPoint3, style: const TextStyle(fontSize: 13)),
           ],
@@ -648,7 +651,10 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             const SizedBox(height: 12),
             Text(
               t.warning,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
             ),
             Text(t.e2eeWarnOldMessagesLost),
             Text(t.e2eeWarnNeedNewBackup),
@@ -665,7 +671,10 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               Navigator.pop(context);
               _generateNewKey();
             },
-            child: Text(t.e2eeConfirmGenerate, style: const TextStyle(color: Colors.orange)),
+            child: Text(
+              t.e2eeConfirmGenerate,
+              style: const TextStyle(color: Colors.orange),
+            ),
           ),
         ],
       ),
@@ -686,7 +695,10 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             const SizedBox(height: 12),
             Text(
               t.warning,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
             ),
             Text(t.e2eeWarnCannotRestore),
             Text(t.e2eeWarnAllMsgsLost),
@@ -703,7 +715,10 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               Navigator.pop(context);
               _deleteKeys();
             },
-            child: Text(t.e2eeConfirmDelete, style: const TextStyle(color: Colors.red)),
+            child: Text(
+              t.e2eeConfirmDelete,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -788,9 +803,19 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               children: [
                 Text(t.e2eeNewKeyGenerated),
                 const SizedBox(height: 12),
-                Text(t.e2eeDeviceIdInfo(id: _maskId(keyInfo['device_id']?.toString() ?? ''))),
-                Text(t.e2eeKeyIdInfo(id: _maskId(keyInfo['key_id']?.toString() ?? ''))),
-                Text(t.e2eeCreatedAtInfo(time: keyInfo['created_at'].toString())),
+                Text(
+                  t.e2eeDeviceIdInfo(
+                    id: _maskId(keyInfo['device_id']?.toString() ?? ''),
+                  ),
+                ),
+                Text(
+                  t.e2eeKeyIdInfo(
+                    id: _maskId(keyInfo['key_id']?.toString() ?? ''),
+                  ),
+                ),
+                Text(
+                  t.e2eeCreatedAtInfo(time: keyInfo['created_at'].toString()),
+                ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),

@@ -239,9 +239,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                     ? () async {
                         EasyLoading.show(status: t.loading);
                         int memberCount = state.selects.length;
-                        iPrint(
-                          "selects $memberCount",
-                        );
+                        iPrint("selects $memberCount");
                         bool res = await ref
                             .read(addMemberProvider.notifier)
                             .joinGroup(widget.groupId, state.selects);

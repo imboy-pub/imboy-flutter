@@ -193,8 +193,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
       future: _resolveContact(item.fromUid),
       builder: (context, snap) {
         final contact = snap.data;
-        final nickname =
-            contact?.title ?? item.fromUid; // fallback 到 uid 避免骨架态
+        final nickname = contact?.title ?? item.fromUid; // fallback 到 uid 避免骨架态
         final avatarUrl = contact?.avatar ?? '';
         final actionText = item.action == 'moment_like'
             ? t.momentNotify.actionLike
@@ -205,11 +204,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
 
         return ListTile(
           onTap: () => _onItemTap(context, item, notifier),
-          leading: Avatar(
-            imgUri: avatarUrl,
-            width: 44,
-            height: 44,
-          ),
+          leading: Avatar(imgUri: avatarUrl, width: 44, height: 44),
           title: Row(
             children: [
               Expanded(
@@ -235,11 +230,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  actionText,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(actionText, maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 2),
                 Text(
                   timeText,

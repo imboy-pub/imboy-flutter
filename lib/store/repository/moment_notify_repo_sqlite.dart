@@ -48,7 +48,8 @@ class MomentNotifyRepo {
       MomentNotifyColumns.table,
       where: '${MomentNotifyColumns.userId} = ?',
       whereArgs: [userId],
-      orderBy: '${MomentNotifyColumns.createdAt} DESC, '
+      orderBy:
+          '${MomentNotifyColumns.createdAt} DESC, '
           '${MomentNotifyColumns.id} DESC',
       limit: limit,
       offset: offset,

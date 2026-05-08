@@ -104,7 +104,9 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _canRecover ? t.e2eeSocialCanRecover : t.e2eeSocialSetupProxy,
+                        _canRecover
+                            ? t.e2eeSocialCanRecover
+                            : t.e2eeSocialSetupProxy,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -113,7 +115,9 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _canRecover ? t.e2eeSocialEnoughShards : t.e2eeSocialChooseProxy,
+                        _canRecover
+                            ? t.e2eeSocialEnoughShards
+                            : t.e2eeSocialChooseProxy,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.purple.shade700,
@@ -144,7 +148,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 const SizedBox(width: 8),
                 Text(
                   t.e2eeSocialExistingShards,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -195,7 +202,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.e2eeProxyUser(uid: proxyUid), style: const TextStyle(fontSize: 13)),
+                Text(
+                  t.e2eeProxyUser(uid: proxyUid),
+                  style: const TextStyle(fontSize: 13),
+                ),
                 Text(
                   t.e2eeSocialStatus(status: status),
                   style: TextStyle(

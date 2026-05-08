@@ -81,9 +81,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
             decoration: BoxDecoration(
               color: state.canSave && !state.isSaving
                   ? AppColors.primary
-                  : (isDark
-                        ? AppColors.iosGray3Dark
-                        : AppColors.lightBorder),
+                  : (isDark ? AppColors.iosGray3Dark : AppColors.lightBorder),
               borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
             ),
             child: Material(

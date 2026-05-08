@@ -52,8 +52,7 @@ final class ContactSelection extends WebSelection {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ContactSelection && other.uid == uid;
+      identical(this, other) || other is ContactSelection && other.uid == uid;
 
   @override
   int get hashCode => uid.hashCode;
@@ -111,10 +110,7 @@ class WebShellState {
   /// 当前选中项（null = 显示右栏欢迎屏）
   final WebSelection? selectedItem;
 
-  const WebShellState({
-    this.currentTab = 0,
-    this.selectedItem,
-  });
+  const WebShellState({this.currentTab = 0, this.selectedItem});
 
   /// 不可变更新。
   ///
@@ -129,9 +125,7 @@ class WebShellState {
   }) {
     return WebShellState(
       currentTab: currentTab ?? this.currentTab,
-      selectedItem: clearSelection
-          ? null
-          : (selectedItem ?? this.selectedItem),
+      selectedItem: clearSelection ? null : (selectedItem ?? this.selectedItem),
     );
   }
 

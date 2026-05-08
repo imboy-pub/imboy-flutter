@@ -75,7 +75,9 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
     final controller = ref.read(contactSettingTagProvider.notifier);
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: t.setParam(param: t.remarksTags),
         automaticallyImplyLeading: true,

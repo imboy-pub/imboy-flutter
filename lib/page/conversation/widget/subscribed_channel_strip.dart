@@ -154,9 +154,7 @@ class _ChannelTile extends StatelessWidget {
   String _formatTime(int epochMs) {
     final dt = DateTime.fromMillisecondsSinceEpoch(epochMs).toLocal();
     final now = DateTime.now();
-    if (dt.year == now.year &&
-        dt.month == now.month &&
-        dt.day == now.day) {
+    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
       return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
     return '${dt.month}/${dt.day}';

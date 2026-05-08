@@ -223,7 +223,9 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      t.groupAnnouncementExpiry(time: notifier.formatTime(announcement.expiredAt!)),
+                      t.groupAnnouncementExpiry(
+                        time: notifier.formatTime(announcement.expiredAt!),
+                      ),
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -326,9 +328,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                         expiredDateNotifier.value?.millisecondsSinceEpoch,
                   );
                   if (success) {
-                    EasyLoading.showToast(
-                      t.groupAnnouncementPublishSuccess,
-                    );
+                    EasyLoading.showToast(t.groupAnnouncementPublishSuccess);
                     if (context.mounted) context.pop();
                   } else {
                     EasyLoading.showToast(t.groupAnnouncementPublishFailed);

@@ -58,9 +58,7 @@ class DenylistModel extends ISuspensionBean {
   factory DenylistModel.fromJson(Map<String, dynamic> json) {
     final avatar = parseModelString(json[UserDenylistRepo.avatar]);
     return DenylistModel(
-      deniedUid: parseModelInt(
-        json["id"] ?? json[UserDenylistRepo.deniedUid],
-      ),
+      deniedUid: parseModelInt(json["id"] ?? json[UserDenylistRepo.deniedUid]),
       account: parseModelString(json[UserDenylistRepo.account]),
       nickname: parseModelString(json[UserDenylistRepo.nickname]),
       avatar: avatar,

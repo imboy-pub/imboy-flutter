@@ -130,8 +130,9 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
   Widget _buildHeroAvatar(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final scaffoldBg =
-        isDark ? Theme.of(context).colorScheme.surface : AppColors.lightPageBackground;
+    final scaffoldBg = isDark
+        ? Theme.of(context).colorScheme.surface
+        : AppColors.lightPageBackground;
     final nickname = UserRepoLocal.to.current.nickname;
     final account = UserRepoLocal.to.current.account;
 
@@ -170,10 +171,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                               w: 192,
                             ),
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _AvatarFallback(
-                              text: nickname,
-                              isDark: isDark,
-                            ),
+                            errorBuilder: (_, _, _) =>
+                                _AvatarFallback(text: nickname, isDark: isDark),
                           ),
                         ),
                       ),
@@ -201,10 +200,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                           decoration: BoxDecoration(
                             color: AppColors.primary,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: scaffoldBg,
-                              width: 2.5,
-                            ),
+                            border: Border.all(color: scaffoldBg, width: 2.5),
                           ),
                           child: const Icon(
                             CupertinoIcons.camera_fill,
@@ -337,8 +333,9 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     // 暗色用 darkSurfaceGroupedTertiary (#2C2C2E)，比 Scaffold 的 darkSurfaceGrouped (#1C1C1E) 略浅，制造分层
-    final cellBackground =
-        isDark ? AppColors.darkSurfaceGroupedTertiary : AppColors.lightSurface;
+    final cellBackground = isDark
+        ? AppColors.darkSurfaceGroupedTertiary
+        : AppColors.lightSurface;
     final separatorColor = AppColors.getIosSeparator(brightness);
 
     return Container(
@@ -634,11 +631,7 @@ class _AvatarPreviewPage extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            CupertinoIcons.xmark,
-            color: Colors.white,
-            size: 22,
-          ),
+          icon: const Icon(CupertinoIcons.xmark, color: Colors.white, size: 22),
           tooltip: 'Close',
           onPressed: () => Navigator.of(context).pop(),
         ),

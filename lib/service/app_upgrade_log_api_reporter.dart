@@ -20,9 +20,6 @@ class AppUpgradeLogApiReporter implements AppUpgradeReporter {
     required String event,
     required String targetVsn,
     Map<String, dynamic>? extra,
-  }) => AppUpgradeLogApi.report(
-        event: event,
-        targetVsn: targetVsn,
-        extra: extra,
-      );
+  }) =>
+      AppUpgradeLogApi.report(event: event, targetVsn: targetVsn, extra: extra);
 }

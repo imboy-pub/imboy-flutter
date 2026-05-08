@@ -156,8 +156,7 @@ class AddMemberNotifier extends _$AddMemberNotifier {
       return false;
     }
 
-    final memberUserIds =
-        items.map((item) => item.peerId.toString()).toList();
+    final memberUserIds = items.map((item) => item.peerId.toString()).toList();
 
     // 调用服务层
     final service = AddMemberService();

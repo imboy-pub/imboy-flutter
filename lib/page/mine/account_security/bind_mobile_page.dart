@@ -50,7 +50,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
     const inputFillColor = Color(0xFFF9FAFB);
 
     return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: hasBound ? t.changeMobile : t.bindMobile,
@@ -137,7 +139,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
                   ),
-                  child:Padding(
+                  child: Padding(
                     padding: const EdgeInsets.only(left: 12),
                     child: PhoneInputWidget(
                       initialValue: '',
@@ -283,7 +285,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
                   ),
-                  child:TextField(
+                  child: TextField(
                     controller: ref.read(bindMobileProvider.notifier).codeCtl,
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.done,

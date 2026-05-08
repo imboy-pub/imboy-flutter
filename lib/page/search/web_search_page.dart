@@ -29,12 +29,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 搜索结果类型
-enum SearchItemType {
-  conversation,
-  message,
-  contact,
-  group,
-}
+enum SearchItemType { conversation, message, contact, group }
 
 /// 搜索结果项
 class SearchItem {
@@ -102,11 +97,7 @@ class WebSearchPage extends ConsumerStatefulWidget {
   /// 搜索范围（可选）
   final String? scope; // 'all', 'messages', 'contacts', 'groups'
 
-  const WebSearchPage({
-    super.key,
-    this.initialQuery,
-    this.scope,
-  });
+  const WebSearchPage({super.key, this.initialQuery, this.scope});
 
   @override
   ConsumerState<WebSearchPage> createState() => _WebSearchPageState();
@@ -155,9 +146,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       if (jsonStr.isNotEmpty) {
         final List<dynamic> history = jsonDecode(jsonStr);
         setState(() {
-          _state = _state.copyWith(
-            recentSearches: history.cast<String>(),
-          );
+          _state = _state.copyWith(recentSearches: history.cast<String>());
         });
       }
     } on Exception catch (e) {
@@ -220,10 +209,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
       if (!mounted) return;
       setState(() {
-        _state = _state.copyWith(
-          results: results,
-          isLoading: false,
-        );
+        _state = _state.copyWith(results: results, isLoading: false);
       });
 
       // 保存搜索记录
@@ -232,10 +218,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       if (kDebugMode) debugPrint('Search error: ${e.runtimeType}');
       if (!mounted) return;
       setState(() {
-        _state = _state.copyWith(
-          isLoading: false,
-          error: t.searchError,
-        );
+        _state = _state.copyWith(isLoading: false, error: t.searchError);
       });
     }
   }
@@ -257,21 +240,23 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           final isAuthor = item.fromId == UserRepoLocal.to.currentUid;
           final peerId = isAuthor ? item.toId : item.fromId;
 
-          results.add(SearchItem(
-            type: SearchItemType.message,
-            id: item.id,
-            title: peerId, // 后续需要获取联系人名称
-            subtitle: item.content,
-            avatar: '',
-            highlightText: query,
-            metadata: {
-              'timestamp': item.createdAt * 1000,
-              'conversationId': item.type == 'C2G' ? item.toId : peerId,
-              'type': item.type,
-              'fromId': item.fromId,
-              'toId': item.toId,
-            },
-          ));
+          results.add(
+            SearchItem(
+              type: SearchItemType.message,
+              id: item.id,
+              title: peerId, // 后续需要获取联系人名称
+              subtitle: item.content,
+              avatar: '',
+              highlightText: query,
+              metadata: {
+                'timestamp': item.createdAt * 1000,
+                'conversationId': item.type == 'C2G' ? item.toId : peerId,
+                'type': item.type,
+                'fromId': item.fromId,
+                'toId': item.toId,
+              },
+            ),
+          );
         }
       }
     } on Exception catch (e) {
@@ -288,16 +273,18 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       final contacts = await contactRepo.search(kwd: query, limit: 20);
 
       for (final contact in contacts) {
-        results.add(SearchItem(
-          type: SearchItemType.contact,
-          id: contact.peerId.toString(),
-          title: (contact.remark.isNotEmpty)
-              ? contact.remark
-              : contact.nickname,
-          subtitle: contact.sign,
-          avatar: contact.avatar,
-          highlightText: query,
-        ));
+        results.add(
+          SearchItem(
+            type: SearchItemType.contact,
+            id: contact.peerId.toString(),
+            title: (contact.remark.isNotEmpty)
+                ? contact.remark
+                : contact.nickname,
+            subtitle: contact.sign,
+            avatar: contact.avatar,
+            highlightText: query,
+          ),
+        );
       }
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('Search contacts error: ${e.runtimeType}');
@@ -313,16 +300,18 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       final groups = await groupRepo.search(kwd: query, limit: 20);
 
       for (final group in groups) {
-        results.add(SearchItem(
-          type: SearchItemType.group,
-          id: group.groupId.toString(),
-          title: group.title,
-          subtitle: group.introduction.isNotEmpty
-              ? group.introduction
-              : '${group.memberCount} ${t.groupMembers}',
-          avatar: group.avatar,
-          highlightText: query,
-        ));
+        results.add(
+          SearchItem(
+            type: SearchItemType.group,
+            id: group.groupId.toString(),
+            title: group.title,
+            subtitle: group.introduction.isNotEmpty
+                ? group.introduction
+                : '${group.memberCount} ${t.groupMembers}',
+            avatar: group.avatar,
+            highlightText: query,
+          ),
+        );
       }
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('Search groups error: ${e.runtimeType}');
@@ -341,21 +330,21 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       );
 
       for (final conv in conversations) {
-        results.add(SearchItem(
-          type: SearchItemType.conversation,
-          id: conv.peerId.toString(),
-          title: conv.title,
-          subtitle: conv.subtitle,
-          avatar: conv.avatar,
-          highlightText: query,
-          metadata: {
-            'type': conv.type,
-            'lastTime': conv.lastTime,
-          },
-        ));
+        results.add(
+          SearchItem(
+            type: SearchItemType.conversation,
+            id: conv.peerId.toString(),
+            title: conv.title,
+            subtitle: conv.subtitle,
+            avatar: conv.avatar,
+            highlightText: query,
+            metadata: {'type': conv.type, 'lastTime': conv.lastTime},
+          ),
+        );
       }
     } on Exception catch (e) {
-      if (kDebugMode) debugPrint('Search conversations error: ${e.runtimeType}');
+      if (kDebugMode)
+        debugPrint('Search conversations error: ${e.runtimeType}');
     }
     return results;
   }
@@ -415,8 +404,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             child: _state.isLoading
                 ? _buildLoadingState(isDark)
                 : _state.showRecent
-                    ? _buildRecentSearches(isDark)
-                    : _buildSearchResults(isDark),
+                ? _buildRecentSearches(isDark)
+                : _buildSearchResults(isDark),
           ),
         ],
       ),
@@ -427,14 +416,18 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   Widget _buildSearchBar(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
-      color: isDark ? AppColors.chatWebBackgroundDark : AppColors.chatWebBackgroundLight,
+      color: isDark
+          ? AppColors.chatWebBackgroundDark
+          : AppColors.chatWebBackgroundLight,
       child: Row(
         children: [
           // 返回按钮
           IconButton(
             icon: Icon(
               Icons.arrow_back,
-              color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+              color: isDark
+                  ? AppColors.chatWebSecondaryDark
+                  : AppColors.chatWebSecondaryLight,
             ),
             onPressed: () => context.pop(),
           ),
@@ -496,14 +489,14 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: AppColors.chatWebBrand,
-          ),
+          const CircularProgressIndicator(color: AppColors.chatWebBrand),
           const SizedBox(height: 16),
           Text(
             t.search,
             style: TextStyle(
-              color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+              color: isDark
+                  ? AppColors.chatWebSecondaryDark
+                  : AppColors.chatWebSecondaryLight,
               fontSize: 14,
             ),
           ),
@@ -522,14 +515,17 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             Icon(
               Icons.search,
               size: 64,
-              color: isDark ? AppColors.chatWebDividerDark : AppColors.chatWebDividerLight,
+              color: isDark
+                  ? AppColors.chatWebDividerDark
+                  : AppColors.chatWebDividerLight,
             ),
             const SizedBox(height: 16),
             Text(
               t.searchChatContent,
               style: TextStyle(
-                color:
-                    isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+                color: isDark
+                    ? AppColors.chatWebSecondaryDark
+                    : AppColors.chatWebSecondaryLight,
                 fontSize: 14,
               ),
             ),
@@ -550,8 +546,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               Text(
                 t.searchHistory,
                 style: TextStyle(
-                  color:
-                      isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+                  color: isDark
+                      ? AppColors.chatWebSecondaryDark
+                      : AppColors.chatWebSecondaryLight,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -648,14 +645,17 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: isDark ? AppColors.chatWebDividerDark : AppColors.chatWebDividerLight,
+              color: isDark
+                  ? AppColors.chatWebDividerDark
+                  : AppColors.chatWebDividerLight,
             ),
             const SizedBox(height: 16),
             Text(
               '${t.search}: "${_state.query}"',
               style: TextStyle(
-                color:
-                    isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+                color: isDark
+                    ? AppColors.chatWebSecondaryDark
+                    : AppColors.chatWebSecondaryLight,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -669,12 +669,15 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     final conversations = _state.results
         .where((r) => r.type == SearchItemType.conversation)
         .toList();
-    final messages =
-        _state.results.where((r) => r.type == SearchItemType.message).toList();
-    final contacts =
-        _state.results.where((r) => r.type == SearchItemType.contact).toList();
-    final groups =
-        _state.results.where((r) => r.type == SearchItemType.group).toList();
+    final messages = _state.results
+        .where((r) => r.type == SearchItemType.message)
+        .toList();
+    final contacts = _state.results
+        .where((r) => r.type == SearchItemType.contact)
+        .toList();
+    final groups = _state.results
+        .where((r) => r.type == SearchItemType.group)
+        .toList();
 
     return ListView(
       controller: _scrollController,
@@ -703,11 +706,15 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   Widget _buildSectionHeader(String title, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isDark ? AppColors.chatWebBackgroundDark : AppColors.chatWebBackgroundLight,
+      color: isDark
+          ? AppColors.chatWebBackgroundDark
+          : AppColors.chatWebBackgroundLight,
       child: Text(
         title,
         style: TextStyle(
-          color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+          color: isDark
+              ? AppColors.chatWebSecondaryDark
+              : AppColors.chatWebSecondaryLight,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -777,12 +784,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 item.metadata?['timestamp'] != null) ...[
               const SizedBox(width: 8),
               Text(
-                DateTimeHelper.lastTimeFmt(
-                  item.metadata!['timestamp'] as int,
-                ),
+                DateTimeHelper.lastTimeFmt(item.metadata!['timestamp'] as int),
                 style: TextStyle(
-                  color:
-                      isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+                  color: isDark
+                      ? AppColors.chatWebSecondaryDark
+                      : AppColors.chatWebSecondaryLight,
                   fontSize: 12,
                 ),
               ),
@@ -815,12 +821,16 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.chatWebSurfaceDark : AppColors.chatWebBackgroundLight,
+        color: isDark
+            ? AppColors.chatWebSurfaceDark
+            : AppColors.chatWebBackgroundLight,
         shape: BoxShape.circle,
       ),
       child: Icon(
         iconData,
-        color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+        color: isDark
+            ? AppColors.chatWebSecondaryDark
+            : AppColors.chatWebSecondaryLight,
         size: 24,
       ),
     );

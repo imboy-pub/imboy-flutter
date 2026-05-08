@@ -169,9 +169,7 @@ class SqliteService {
       // 二次兜底：用密码打开失败，尝试无密码打开
       if (encrypted && password != null) {
         try {
-          AppLogger.warning(
-            'Retrying database open without encryption...',
-          );
+          AppLogger.warning('Retrying database open without encryption...');
           return await openEncryptedDatabase(
             path,
             password: null,
@@ -183,9 +181,7 @@ class SqliteService {
             onOpen: _onOpen,
           );
         } catch (fallbackError) {
-          AppLogger.error(
-            'Fallback open also failed: $fallbackError',
-          );
+          AppLogger.error('Fallback open also failed: $fallbackError');
         }
       }
       // 返回 null 触发降级处理，避免应用崩溃
@@ -204,10 +200,7 @@ class SqliteService {
   ///
   /// 返回 true 表示数据库已加密或已删除可重建
   /// 返回 false 表示迁移失败且无法恢复
-  Future<bool> _migrateToEncryptedIfNeeded(
-    String path,
-    String password,
-  ) async {
+  Future<bool> _migrateToEncryptedIfNeeded(String path, String password) async {
     // 先尝试用密码打开，如果成功说明已经加密
     try {
       final testDb = await openEncryptedDatabase(path, password: password);
@@ -255,10 +248,7 @@ class SqliteService {
     Duration maxAge = const Duration(days: 7),
   }) async {
     // 清理两种命名模式的备份文件
-    final backupPaths = [
-      '$dbPath.plain.bak',
-      '$dbPath.pre_encrypt.bak',
-    ];
+    final backupPaths = ['$dbPath.plain.bak', '$dbPath.pre_encrypt.bak'];
     try {
       for (final backupPath in backupPaths) {
         final backupFile = File(backupPath);

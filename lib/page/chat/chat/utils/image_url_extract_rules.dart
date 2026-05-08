@@ -29,8 +29,7 @@ List<String> extractImageUrlsFromMessages(List<Message> messages) {
           (meta['effective_msg_type'] ?? meta['msg_type'] ?? '') as String;
 
       if (msgType == MessageType.image) {
-        final uri =
-            ((meta['source'] ?? meta['uri'] ?? '') as String);
+        final uri = ((meta['source'] ?? meta['uri'] ?? '') as String);
         if (uri.isNotEmpty) urls.add(uri);
       } else if (msgType == MessageType.imageMulti) {
         final images = meta['images'] as List<dynamic>?;

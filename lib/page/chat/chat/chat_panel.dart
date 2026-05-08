@@ -119,10 +119,7 @@ class ChatPanel extends ConsumerWidget {
           ),
           Expanded(
             child: messages == null
-                ? _ChatPanelPlaceholder(
-                    peerId: peerId,
-                    chatType: chatType,
-                  )
+                ? _ChatPanelPlaceholder(peerId: peerId, chatType: chatType)
                 : ChatMessageList(
                     messages: messages!,
                     currentUserId: currentUserId!,
@@ -203,10 +200,7 @@ class _ChatPanelPlaceholder extends StatelessWidget {
   final String peerId;
   final String chatType;
 
-  const _ChatPanelPlaceholder({
-    required this.peerId,
-    required this.chatType,
-  });
+  const _ChatPanelPlaceholder({required this.peerId, required this.chatType});
 
   @override
   Widget build(BuildContext context) {

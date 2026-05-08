@@ -27,7 +27,9 @@ class SetGenderPage extends ConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(title: t.gender, automaticallyImplyLeading: true),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

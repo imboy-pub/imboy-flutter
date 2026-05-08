@@ -7,7 +7,8 @@ import 'package:imboy/store/api/group_category_api.dart';
 ///
 /// 负责协调 API 和本地存储，处理群分组业务逻辑
 class GroupCategoryService {
-  static final GroupCategoryService to = GroupCategoryService._privateConstructor();
+  static final GroupCategoryService to =
+      GroupCategoryService._privateConstructor();
   GroupCategoryService._privateConstructor();
 
   final GroupCategoryApi _api = GroupCategoryApi();
@@ -95,7 +96,9 @@ class GroupCategoryService {
       );
       if (success) {
         iPrint('GroupCategoryService: 移动群到分组 - $groupId -> $categoryId');
-        AppEventBus.fire(GroupMovedEvent(groupId: groupId, categoryId: categoryId));
+        AppEventBus.fire(
+          GroupMovedEvent(groupId: groupId, categoryId: categoryId),
+        );
       }
       return success;
     } catch (e) {

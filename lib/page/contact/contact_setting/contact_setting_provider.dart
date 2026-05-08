@@ -71,7 +71,10 @@ class ContactSettingNotifier extends _$ContactSettingNotifier {
   /// - 删除消息和会话记录
   Future<bool> deleteContact(String uid) async {
     // 先查询会话
-    ConversationModel? model = await ConversationRepo().findByPeerId('C2C', uid);
+    ConversationModel? model = await ConversationRepo().findByPeerId(
+      'C2C',
+      uid,
+    );
 
     if (model != null) {
       // 使用事务删除会话及其消息（自动清理重试队列）

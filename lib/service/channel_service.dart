@@ -304,14 +304,13 @@ class ChannelService {
         final row = Map<String, dynamic>.from(item);
         final channelId = parseModelString(row['channel_id']);
         if (channelId.isEmpty) continue;
-        authoritativeByChannel[channelId] = parseModelInt(
-          row['unread_count'],
-        );
+        authoritativeByChannel[channelId] = parseModelInt(row['unread_count']);
       }
 
       final subscriptions = await _repo.getAllSubscriptions();
       for (final sub in subscriptions) {
-        final nextUnread = authoritativeByChannel[sub.channelId.toString()] ?? 0;
+        final nextUnread =
+            authoritativeByChannel[sub.channelId.toString()] ?? 0;
         if (sub.unreadCount == nextUnread) continue;
         await _repo.updateUnreadCount(sub.channelId.toString(), nextUnread);
         changed++;
@@ -372,10 +371,7 @@ class ChannelService {
 
       // 广播 0 未读，驱动 UI 徽标与 _ChannelUnreadCountCache 刷新。
       AppEventBus.fire(
-        ChannelUnreadCountUpdatedEvent(
-          channelId: channelId,
-          unreadCount: 0,
-        ),
+        ChannelUnreadCountUpdatedEvent(channelId: channelId, unreadCount: 0),
       );
 
       iPrint('ChannelService: 标记已读 - $channelId/$messageId');
@@ -551,7 +547,9 @@ class ChannelService {
         inviteeUid: inviteeUid,
       );
       final ok = result != null;
-      iPrint('ChannelService: 发送邀请${ok ? "成功" : "失败"} - channel=$channelId invitee=$inviteeUid');
+      iPrint(
+        'ChannelService: 发送邀请${ok ? "成功" : "失败"} - channel=$channelId invitee=$inviteeUid',
+      );
       return ok;
     } catch (e) {
       iPrint('ChannelService: 发送邀请异常 - $e');
@@ -925,7 +923,10 @@ class ChannelService {
     try {
       final subscriptions = await _repo.getAllSubscriptions();
       for (final sub in subscriptions) {
-        await _messageRepo.deleteOldMessages(sub.channelId.toString(), keepCount);
+        await _messageRepo.deleteOldMessages(
+          sub.channelId.toString(),
+          keepCount,
+        );
       }
       iPrint('ChannelService: 清理过期数据完成');
     } catch (e) {

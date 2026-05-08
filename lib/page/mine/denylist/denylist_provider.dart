@@ -166,9 +166,11 @@ class DenylistNotifier extends _$DenylistNotifier {
         ContactRepo.isFriend: 0,
       });
       // 隐藏会话
-      await ConversationRepo().updateByPeerId('C2C', model.deniedUid.toString(), {
-        ConversationRepo.isShow: 0,
-      });
+      await ConversationRepo().updateByPeerId(
+        'C2C',
+        model.deniedUid.toString(),
+        {ConversationRepo.isShow: 0},
+      );
     }
     return res;
   }

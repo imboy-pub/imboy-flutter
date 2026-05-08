@@ -11,7 +11,6 @@ class AppColors {
   /// 颜色值：#2474E5
   static const Color primary = Color(0xFF2474E5);
 
-
   /// 主色 - 浅色版本 - Material 3 Primary Light - Blue 50
   static const Color primaryLight = Color(0xFFE3F2FD);
 
@@ -496,7 +495,10 @@ class AppColors {
   }
 
   /// 根据主题亮度与 OLED 模式获取分组列表背景
-  static Color getSurfaceGrouped(Brightness brightness, {bool isOLEDMode = false}) {
+  static Color getSurfaceGrouped(
+    Brightness brightness, {
+    bool isOLEDMode = false,
+  }) {
     if (brightness == Brightness.light) {
       return lightSurfaceGrouped;
     }

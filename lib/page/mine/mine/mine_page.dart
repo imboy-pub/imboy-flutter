@@ -197,8 +197,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: AppColors.primaryLight,
-                  backgroundImage:
-                      hasAvatar ? cachedImageProvider(user.avatar) : null,
+                  backgroundImage: hasAvatar
+                      ? cachedImageProvider(user.avatar)
+                      : null,
                   child: !hasAvatar
                       ? Text(
                           initial,

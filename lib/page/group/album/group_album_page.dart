@@ -87,9 +87,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (!mounted) return;
 
     final success = created != null;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumCreated : t.groupAlbumCreateFailed)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? t.groupAlbumCreated : t.groupAlbumCreateFailed),
+      ),
+    );
     if (success) {
       await _loadAlbums();
     }
@@ -122,9 +124,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (confirm != true) return;
     final success = await GroupAlbumService.to.deleteAlbum(albumId);
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumDeleted : t.groupAlbumDeleteFailed)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? t.groupAlbumDeleted : t.groupAlbumDeleteFailed),
+      ),
+    );
     if (success) {
       await _loadAlbums();
     }
@@ -171,9 +175,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       albumName: nextName,
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(success ? t.groupAlbumRenamed : t.groupAlbumRenameFailed)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? t.groupAlbumRenamed : t.groupAlbumRenameFailed),
+      ),
+    );
     if (success) {
       await _loadAlbums();
     }
@@ -219,7 +225,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       if (!mounted) return;
       final success = uploaded != null;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(success ? t.groupAlbumPhotoUploaded : t.groupAlbumPhotoUploadFailed)),
+        SnackBar(
+          content: Text(
+            success ? t.groupAlbumPhotoUploaded : t.groupAlbumPhotoUploadFailed,
+          ),
+        ),
       );
       if (success) {
         await _loadAlbums();
@@ -276,7 +286,9 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   }
 
   Widget _buildAlbumItem(Map<String, dynamic> album) {
-    final name = (album['album_name'] ?? album['name'])?.toString() ?? t.groupAlbumUnnamed;
+    final name =
+        (album['album_name'] ?? album['name'])?.toString() ??
+        t.groupAlbumUnnamed;
     final photoCount = _toInt(album['photo_count']);
     final createdAt = album['created_at']?.toString() ?? '';
     final albumId = _resolveAlbumId(album);
@@ -298,7 +310,10 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
           }
         },
         subtitle: Text(
-          [t.groupAlbumPhotoCount(count: photoCount), if (createdAt.isNotEmpty) createdAt].join(' · '),
+          [
+            t.groupAlbumPhotoCount(count: photoCount),
+            if (createdAt.isNotEmpty) createdAt,
+          ].join(' · '),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

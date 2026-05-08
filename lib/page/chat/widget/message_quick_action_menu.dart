@@ -77,7 +77,8 @@ class MessageQuickActionMenu {
       builder: (BuildContext context) {
         final isMe = message.authorId == UserRepoLocal.to.currentUid;
         // 检查是否在撤回有效期内（例如2分钟）
-        final canRevoke = isMe &&
+        final canRevoke =
+            isMe &&
             DateTime.now().difference(
                   DateTime.fromMillisecondsSinceEpoch(
                     message.createdAt!.millisecondsSinceEpoch,
@@ -108,7 +109,7 @@ class MessageQuickActionMenu {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // 复制 (仅文本)
                 if (message is TextMessage)
                   ListTile(
@@ -151,7 +152,9 @@ class MessageQuickActionMenu {
                 ),
 
                 // 保存 (图片/视频/文件)
-                if (message is ImageMessage || message is FileMessage || message is VideoMessage)
+                if (message is ImageMessage ||
+                    message is FileMessage ||
+                    message is VideoMessage)
                   ListTile(
                     leading: const Icon(Icons.save_alt_rounded),
                     title: Text(t.chatSaveImage), // 这里可能需要通用的 save 文本
@@ -159,7 +162,9 @@ class MessageQuickActionMenu {
                       Navigator.pop(context);
                       await onSaveFile(
                         message.metadata?['name'] ?? message.id,
-                        message.metadata?['uri'] ?? message.metadata?['source'] ?? '',
+                        message.metadata?['uri'] ??
+                            message.metadata?['source'] ??
+                            '',
                       );
                     },
                   ),
@@ -192,7 +197,7 @@ class MessageQuickActionMenu {
                     onDelete();
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
               ],
             ),

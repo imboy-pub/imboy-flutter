@@ -77,8 +77,7 @@ final class MobilePushChat extends ConversationTapAction {
           other.sign == sign;
 
   @override
-  int get hashCode =>
-      Object.hash(peerId, chatType, title, avatar, sign);
+  int get hashCode => Object.hash(peerId, chatType, title, avatar, sign);
 
   @override
   String toString() =>

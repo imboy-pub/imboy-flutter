@@ -65,11 +65,9 @@ final class UnmuteApiFailure extends UnmuteResult {
 ///     通过 S2C 广播统一落库（见 `message_s2c.dart` / slice-1-finalize）。
 ///   - 解除禁言：请用 [unmute] 方法（slice-9a/9b 独立 action 已落地）。
 class GroupMemberMuteService {
-  GroupMemberMuteService({
-    GroupMemberApi? api,
-    int Function()? clock,
-  })  : _api = api ?? GroupMemberApi(),
-        _clock = clock ?? _defaultClock;
+  GroupMemberMuteService({GroupMemberApi? api, int Function()? clock})
+    : _api = api ?? GroupMemberApi(),
+      _clock = clock ?? _defaultClock;
 
   final GroupMemberApi _api;
   final int Function() _clock;

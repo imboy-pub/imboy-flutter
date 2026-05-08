@@ -266,11 +266,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                 padding: MessageSpacing.quoteContentPaddingAll,
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 16,
-                      color: errorColor,
-                    ),
+                    Icon(Icons.error_outline, size: 16, color: errorColor),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

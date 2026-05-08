@@ -17,10 +17,7 @@ library;
 ///
 /// - [errorType] 错误类型字符串（来自 AppErrorEvent.errorType）
 /// - [message]   错误消息文本（来自 AppErrorEvent.message，用于 fallback 匹配）
-bool isRelevantChatError({
-  required String errorType,
-  required String message,
-}) {
+bool isRelevantChatError({required String errorType, required String message}) {
   return errorType == 'not_a_friend' ||
       errorType == 'in_denylist' ||
       message.contains('非好友') ||

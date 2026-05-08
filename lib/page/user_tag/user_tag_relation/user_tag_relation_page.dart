@@ -242,7 +242,9 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         title: widget.title ?? t.addTag,
         automaticallyImplyLeading: true,

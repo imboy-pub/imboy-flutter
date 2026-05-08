@@ -785,7 +785,9 @@ class MessageActions {
       }
 
       final currentUid = UserRepoLocal.to.currentUid;
-      final String toUid = msg.fromId.toString() == currentUid ? msg.toId.toString() : msg.fromId.toString();
+      final String toUid = msg.fromId.toString() == currentUid
+          ? msg.toId.toString()
+          : msg.fromId.toString();
 
       if (WebSocketService.to.framing == FramingMode.v2) {
         final int? numericMsgId = int.tryParse(messageId);
@@ -861,7 +863,9 @@ class MessageActions {
         'id': Xid().toString(),
         'type': messageType,
         'from': currentUid,
-        'to': msg.fromId.toString() == currentUid ? msg.toId.toString() : msg.fromId.toString(),
+        'to': msg.fromId.toString() == currentUid
+            ? msg.toId.toString()
+            : msg.fromId.toString(),
         // v2.0: 字段提升到顶层
         'msg_type': 'text',
         'action': 'message_edit',
@@ -1060,7 +1064,10 @@ class MessageActions {
       if (WebSocketService.to.framing == FramingMode.v2) {
         final int? numericConvId = int.tryParse(toId);
         if (numericConvId != null) {
-          final bytes = ImboyFrame.typing(numericConvId, status == TypingStatus.start);
+          final bytes = ImboyFrame.typing(
+            numericConvId,
+            status == TypingStatus.start,
+          );
           WebSocketService.to.sendDirect(bytes);
           iPrint('🔄 发送 v2 二进制输入状态: $statusStr, to=$toId');
           return;

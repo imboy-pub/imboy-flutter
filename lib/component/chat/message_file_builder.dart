@@ -69,8 +69,9 @@ class MessageFileBuilder extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: (isSentByMe ? Colors.white : Colors.blue)
-                    .withValues(alpha: 0.2),
+                color: (isSentByMe ? Colors.white : Colors.blue).withValues(
+                  alpha: 0.2,
+                ),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(

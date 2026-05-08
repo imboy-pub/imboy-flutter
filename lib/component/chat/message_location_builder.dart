@@ -103,13 +103,19 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                                     msg.metadata?['latitude']?.toString() ?? '',
                                   );
                                   final lng = double.tryParse(
-                                    msg.metadata?['longitude']?.toString() ?? '',
+                                    msg.metadata?['longitude']?.toString() ??
+                                        '',
                                   );
                                   if (lat == null || lng == null) return;
                                   map.showMarker(
                                     coords: Coords(lat, lng),
-                                    title: msg.metadata?['title']?.toString() ?? '',
-                                    description: msg.metadata?['description']?.toString() ?? '',
+                                    title:
+                                        msg.metadata?['title']?.toString() ??
+                                        '',
+                                    description:
+                                        msg.metadata?['description']
+                                            ?.toString() ??
+                                        '',
                                   );
                                 },
                                 title: Text(map.mapName),

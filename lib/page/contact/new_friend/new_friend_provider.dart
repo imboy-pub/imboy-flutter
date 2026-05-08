@@ -64,8 +64,9 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     iPrint("CLIENT_ACK,S2C,${data['id']}");
 
     String uid = UserRepoLocal.to.currentUid;
-    String from = data["from"] ?? "";
-    String to = data["to"] ?? "";
+    // 防御性转换：后端 from/to 可能是 int 或 String
+    String from = (data["from"] ?? "").toString();
+    String to = (data["to"] ?? "").toString();
     var payload = data["payload"] ?? {};
     if (payload is String) {
       payload = json.decode(payload);
@@ -101,8 +102,8 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
   /// 确认添加朋友
   Future<void> receivedConfirmFriend(bool ack, Map data) async {
     iPrint("CLIENT_ACK,S2C,${data['id']}");
-    String from = data["from"];
-    String to = data["to"];
+    String from = (data["from"] ?? "").toString();
+    String to = (data["to"] ?? "").toString();
     NewFriendRepo repo = NewFriendRepo();
     NewFriendModel? obj = await repo.findByFromTo(to, from);
     if (obj != null) {

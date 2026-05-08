@@ -220,13 +220,13 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     if (confirm != true) return;
     final success = await GroupFileService.to.deleteFile(fileId);
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(
-      content: Text(
-        success ? t.groupFileDeleteSuccess : t.groupFileDeleteFailed,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? t.groupFileDeleteSuccess : t.groupFileDeleteFailed,
+        ),
       ),
-    ));
+    );
     if (success) {
       await _refreshAll();
     }
@@ -365,8 +365,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return false;
       final title = fileName.isEmpty
           ? (type == _MediaPreviewType.video
-              ? t.groupFileVideoPreview
-              : t.groupFileAudioPreview)
+                ? t.groupFileVideoPreview
+                : t.groupFileAudioPreview)
           : fileName;
 
       if (type == _MediaPreviewType.video) {

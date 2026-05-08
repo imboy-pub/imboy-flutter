@@ -21,7 +21,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
-import 'package:flutter_chat_core/flutter_chat_core.dart' show Message, TextMessage;
+import 'package:flutter_chat_core/flutter_chat_core.dart'
+    show Message, TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
 
@@ -85,8 +86,7 @@ class WebShellBootstrap extends ConsumerWidget {
         selection: sel,
         currentUserId: UserRepoLocal.to.currentUid,
         closeTooltip: t.cancel,
-        onClose: () =>
-            ref.read(webShellProvider.notifier).clearSelection(),
+        onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         // Phase 2.1.c: 真实可输入 + 可发送的简化 Web 输入区
         // 仅文本，不含 ExtraItems / 录音 / 相机（留待后续切片按需扩展）
         inputArea: _WebChatInput(
@@ -101,17 +101,15 @@ class WebShellBootstrap extends ConsumerWidget {
         selection: sel,
         sendButtonLabel: '发消息',
         closeTooltip: t.cancel,
-        onClose: () =>
-            ref.read(webShellProvider.notifier).clearSelection(),
+        onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         onSendMessage: () {
           // 派发 ChatSelection → chatBuilder 渲染 _WebChatPanel
-          ref.read(webShellProvider.notifier).selectItem(
-                ChatSelection(peerId: sel.uid, chatType: 'C2C'),
-              );
+          ref
+              .read(webShellProvider.notifier)
+              .selectItem(ChatSelection(peerId: sel.uid, chatType: 'C2C'));
         },
       ),
-      channelBuilder: (sel) =>
-          _PlaceholderPanel('Channel: ${sel.channelId}'),
+      channelBuilder: (sel) => _PlaceholderPanel('Channel: ${sel.channelId}'),
       // Phase 3.2-min: 最小可用 Mine 面板（用户简介 + 登出）
       // 真实 Mine 子页面（设置 / 个人信息 / 收藏 等）留待 Phase 3.2.b 渐进接入
       mineBuilder: (sel) => _WebMineMinPanel(
@@ -171,7 +169,8 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
   @override
   void didUpdateWidget(covariant _WebChatPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final selChanged = oldWidget.selection.peerId != widget.selection.peerId ||
+    final selChanged =
+        oldWidget.selection.peerId != widget.selection.peerId ||
         oldWidget.selection.chatType != widget.selection.chatType;
     if (selChanged) {
       // 切 peer 时清空旧元数据，避免显示上一会话的标题
@@ -225,9 +224,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = ref.watch(
-      chatProvider.select((s) => s.messages),
-    );
+    final messages = ref.watch(chatProvider.select((s) => s.messages));
     final title = pickChatTitle(
       chatType: widget.selection.chatType,
       peerId: widget.selection.peerId,
@@ -363,10 +360,7 @@ class _WebChatInput extends ConsumerStatefulWidget {
   final ChatSelection selection;
   final String currentUserId;
 
-  const _WebChatInput({
-    required this.selection,
-    required this.currentUserId,
-  });
+  const _WebChatInput({required this.selection, required this.currentUserId});
 
   @override
   ConsumerState<_WebChatInput> createState() => _WebChatInputState();
@@ -575,8 +569,8 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : c == null
-                    ? _buildUnsyncedBody(theme, colorScheme)
-                    : _buildContactBody(theme, colorScheme, c),
+                ? _buildUnsyncedBody(theme, colorScheme)
+                : _buildContactBody(theme, colorScheme, c),
           ),
         ],
       ),
@@ -603,10 +597,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
-            Text(
-              widget.selection.uid,
-              style: theme.textTheme.titleMedium,
-            ),
+            Text(widget.selection.uid, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
               '联系人信息未同步', // TODO i18n
@@ -621,9 +612,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               onPressed: widget.onSendMessage,
               icon: const Icon(Icons.message_outlined),
               label: Text(widget.sendButtonLabel),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(200, 44),
-              ),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(200, 44)),
             ),
           ],
         ),
@@ -699,9 +688,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             onPressed: widget.onSendMessage,
             icon: const Icon(Icons.message_outlined),
             label: Text(widget.sendButtonLabel),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(200, 44),
-            ),
+            style: ElevatedButton.styleFrom(minimumSize: const Size(200, 44)),
           ),
         ],
       ),
@@ -718,10 +705,7 @@ class _WebMineMinPanel extends ConsumerWidget {
   final String? section;
   final String logoutLabel;
 
-  const _WebMineMinPanel({
-    required this.section,
-    required this.logoutLabel,
-  });
+  const _WebMineMinPanel({required this.section, required this.logoutLabel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -782,9 +766,7 @@ class _WebMineMinPanel extends ConsumerWidget {
                   },
             icon: const Icon(Icons.logout),
             label: Text(logoutLabel),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(180, 44),
-            ),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(180, 44)),
           ),
         ],
       ),
@@ -816,15 +798,15 @@ class _PlaceholderPanel extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'TODO Phase 2/3',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

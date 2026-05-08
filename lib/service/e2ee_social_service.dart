@@ -390,7 +390,8 @@ class E2EESocialService {
         final onlineScore = await _calculateOnlineStatusScore(contactUid);
 
         // 加权总分
-        final totalScore = (relationScore * 0.30) +
+        final totalScore =
+            (relationScore * 0.30) +
             (interactionScore * 0.25) +
             (remarkScore * 0.15) +
             (groupScore * 0.15) +
@@ -437,7 +438,9 @@ class E2EESocialService {
   /// - 30-90天: 40分
   /// - 90-365天: 70分
   /// - 1年以上: 100分
-  static Future<double> _calculateRelationDurationScore(String contactUid) async {
+  static Future<double> _calculateRelationDurationScore(
+    String contactUid,
+  ) async {
     try {
       // 从联系人仓库获取好友添加时间
       final contactRepo = ContactRepo();
@@ -448,9 +451,7 @@ class E2EESocialService {
         return 30.0; // 默认中等偏低分数
       }
 
-      final updatedAt = DateTime.fromMillisecondsSinceEpoch(
-        contact.updatedAt,
-      );
+      final updatedAt = DateTime.fromMillisecondsSinceEpoch(contact.updatedAt);
       final days = DateTime.now().difference(updatedAt).inDays;
 
       if (days < 30) {
@@ -531,9 +532,7 @@ class E2EESocialService {
       final contactGroups = await groupMemberRepo.groupIdsByUserId(contactUid);
 
       // 计算交集
-      final commonGroups = myGroups.toSet().intersection(
-        contactGroups.toSet(),
-      );
+      final commonGroups = myGroups.toSet().intersection(contactGroups.toSet());
       final count = commonGroups.length;
 
       if (count == 0) {

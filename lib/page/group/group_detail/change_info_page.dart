@@ -83,7 +83,9 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : AppColors.lightPageBackground,
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightPageBackground,
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: widget.title),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),

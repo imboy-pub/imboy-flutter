@@ -5,8 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/component/helper/func.dart';
 // 条件导入：在非 Web 平台使用存根，避免 dart:js_interop 错误
-import 'device_ext_web_stub.dart'
-    if (dart.library.html) 'device_ext_web.dart';
+import 'device_ext_web_stub.dart' if (dart.library.html) 'device_ext_web.dart';
 
 /// 设备信息扩展
 ///
@@ -49,7 +48,7 @@ class DeviceExt extends DeviceInfoPlugin {
       return {
         "cos": "web",
         "did": deviceId,
-        "id": deviceId,  // 👈 后端期望的 id 字段
+        "id": deviceId, // 👈 后端期望的 id 字段
         "deviceName": "Web Browser",
         "deviceVersion": json.encode({
           'userAgent': userAgent,

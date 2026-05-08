@@ -87,7 +87,9 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
         : 0.3;
     final useCustomColor = StorageService.to.getBool('chat_use_custom_color');
     final customColorHex = StorageService.to.getString('chat_custom_color');
-    final customImagePath = StorageService.to.getString('chat_custom_image_path');
+    final customImagePath = StorageService.to.getString(
+      'chat_custom_image_path',
+    );
 
     state = ChatBackgroundState(
       currentBackground: currentBackground.isNotEmpty
@@ -285,7 +287,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
     final state = ref.watch(chatBackgroundManagerProvider);
 
     return Scaffold(
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.chatSettingBackground),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.chatSettingBackground,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -433,7 +438,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
   }
 
   /// 构建背景缩略图
-  Widget _buildBackgroundPreviewThumbnail(String option, ChatBackgroundState state) {
+  Widget _buildBackgroundPreviewThumbnail(
+    String option,
+    ChatBackgroundState state,
+  ) {
     switch (option) {
       case 'gradient_1':
         return Container(

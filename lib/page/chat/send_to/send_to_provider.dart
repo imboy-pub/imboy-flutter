@@ -10,7 +10,6 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
-
 import 'package:imboy/service/events/events.dart';
 
 /// 发送消息逻辑控制器
@@ -61,7 +60,9 @@ class SendToLogic {
       );
 
       // 添加消息到数据库
-      final msgRepo = MessageRepo(tableName: MessageRepo.getTableName(chatType));
+      final msgRepo = MessageRepo(
+        tableName: MessageRepo.getTableName(chatType),
+      );
       await msgRepo.insert(msgModel);
 
       // 通过事件总线触发消息发送

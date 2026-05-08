@@ -72,10 +72,7 @@ class MomentNotifyModel {
   final int createdAt;
 
   /// 合法 action 白名单。
-  static const Set<String> _validActions = {
-    'moment_like',
-    'moment_comment',
-  };
+  static const Set<String> _validActions = {'moment_like', 'moment_comment'};
 
   /// 从 S2C payload 构造 Model。
   ///
@@ -151,14 +148,14 @@ class MomentNotifyModel {
 
   /// 插入映射（不含 `id`，由 SQLite 自增填充）。
   Map<String, dynamic> toInsertMap() => <String, dynamic>{
-        MomentNotifyColumns.userId: userId,
-        MomentNotifyColumns.action: action,
-        MomentNotifyColumns.momentId: momentId,
-        MomentNotifyColumns.fromUid: fromUid,
-        MomentNotifyColumns.commentId: commentId,
-        MomentNotifyColumns.isRead: isRead ? 1 : 0,
-        MomentNotifyColumns.createdAt: createdAt,
-      };
+    MomentNotifyColumns.userId: userId,
+    MomentNotifyColumns.action: action,
+    MomentNotifyColumns.momentId: momentId,
+    MomentNotifyColumns.fromUid: fromUid,
+    MomentNotifyColumns.commentId: commentId,
+    MomentNotifyColumns.isRead: isRead ? 1 : 0,
+    MomentNotifyColumns.createdAt: createdAt,
+  };
 
   /// 从 SQLite 行构造 Model。
   factory MomentNotifyModel.fromRow(Map<String, dynamic> row) {

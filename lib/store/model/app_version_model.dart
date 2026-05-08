@@ -69,12 +69,18 @@ class AppVersionInfo {
       downloadUrl: parseModelString(json['download_url']),
       description: parseModelString(json['description']),
       upgradeType: parseModelString(json['upgrade_type'], defaultValue: 'none'),
-      minSupportedVsn: parseModelString(json['min_supported_vsn'], defaultValue: '0.0.0'),
+      minSupportedVsn: parseModelString(
+        json['min_supported_vsn'],
+        defaultValue: '0.0.0',
+      ),
       changelog: changelogList,
       fileSize: parseModelInt(json['file_size']),
       fileHash: parseModelString(json['file_hash']),
       updatable: parseModelBool(json['updatable']),
-      checkIntervalHours: parseModelInt(json['check_interval_hours'], defaultValue: 24),
+      checkIntervalHours: parseModelInt(
+        json['check_interval_hours'],
+        defaultValue: 24,
+      ),
       forceUpdate: parseModelInt(json['force_update'], defaultValue: 2),
     );
   }

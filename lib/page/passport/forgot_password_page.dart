@@ -51,8 +51,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor:
-          _isDark ? AppColors.darkSurface : null,
+      backgroundColor: _isDark ? AppColors.darkSurface : null,
       body: SizedBox(
         height: height,
         child: Stack(
@@ -213,7 +212,10 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             onInputChanged: (String fullNumber) {
               _fullMobile = fullNumber;
               // 同步到控制器
-              _mobileController.text = fullNumber.replaceFirst(RegExp(r'^\+\d+'), '');
+              _mobileController.text = fullNumber.replaceFirst(
+                RegExp(r'^\+\d+'),
+                '',
+              );
             },
             hintText: t.pleaseInputParam(param: t.mobile),
           ),

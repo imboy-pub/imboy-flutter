@@ -149,8 +149,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
 
   Widget _buildVoteItem(Map<String, dynamic> vote) {
     final status = vote['status'] ?? 0;
-    final statusText =
-        status == 1 ? t.groupVote.statusInProgress : t.groupVote.voteEnded;
+    final statusText = status == 1
+        ? t.groupVote.statusInProgress
+        : t.groupVote.voteEnded;
     final statusColor = status == 1
         ? AppColors.getIosGreen(Theme.of(context).brightness)
         : Theme.of(context).colorScheme.onSurfaceVariant;
@@ -163,9 +164,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
           if (voteId.isEmpty) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(SnackBar(
-              content: Text(t.groupVote.voteIdMissing),
-            ));
+            ).showSnackBar(SnackBar(content: Text(t.groupVote.voteIdMissing)));
             return;
           }
           await context.push(

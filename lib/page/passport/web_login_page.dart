@@ -36,23 +36,32 @@ part 'web_login_page.g.dart';
 
 // Step 2 (#8) — E2E 测试旁路 dart-define 守卫
 // 生产构建默认空字符串 → parseE2eBypassConfig 返回 BypassDisabled，零运行时开销
-const String _kWebE2eTokenEnv =
-    String.fromEnvironment('WEB_E2E_TOKEN', defaultValue: '');
-const String _kWebE2eUidEnv =
-    String.fromEnvironment('WEB_E2E_UID', defaultValue: '');
+const String _kWebE2eTokenEnv = String.fromEnvironment(
+  'WEB_E2E_TOKEN',
+  defaultValue: '',
+);
+const String _kWebE2eUidEnv = String.fromEnvironment(
+  'WEB_E2E_UID',
+  defaultValue: '',
+);
 
 /// QR 码登录状态
 enum QRLoginStatus {
   /// 等待扫码
   waiting,
+
   /// 已扫码，等待确认
   scanned,
+
   /// 已确认，登录中
   confirming,
+
   /// 已过期
   expired,
+
   /// 登录成功
   success,
+
   /// 登录失败
   failed,
 }
@@ -135,12 +144,14 @@ class QRLogin extends _$QRLogin {
       // slice-5b：委托纯函数解析（27 测覆盖契约：qr_token / session_token /
       // expires_in / 字段缺失 / 非法类型等）。
       switch (parseQrCreateResponse(
-          ok: response.ok, payload: response.payload)) {
+        ok: response.ok,
+        payload: response.payload,
+      )) {
         case QrCreateSuccess(
-            :final qrToken,
-            :final sessionToken,
-            :final expiresInSeconds,
-          ):
+          :final qrToken,
+          :final sessionToken,
+          :final expiresInSeconds,
+        ):
           state = QRLoginState(
             status: QRLoginStatus.waiting,
             qrData: qrToken,
@@ -181,9 +192,7 @@ class QRLogin extends _$QRLogin {
       try {
         final response = await HttpClient.client.get(
           '/v1/passport/qr_login/status',
-          queryParameters: {
-            'session_token': state.sessionToken,
-          },
+          queryParameters: {'session_token': state.sessionToken},
         );
 
         // slice-5b：解析层（27 测覆盖契约：6 status 字符串 / confirmed+token 防御 /
@@ -233,7 +242,9 @@ class QRLogin extends _$QRLogin {
   void _startExpireTimer() {
     _expireTimer?.cancel();
     _expireTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      switch (deriveExpireTickDecision(remainingSeconds: state.remainingSeconds)) {
+      switch (deriveExpireTickDecision(
+        remainingSeconds: state.remainingSeconds,
+      )) {
         case MarkExpired():
           state = state.copyWith(status: QRLoginStatus.expired);
           timer.cancel();
@@ -289,7 +300,7 @@ class QRLogin extends _$QRLogin {
   /// onFallback 调 `_startPolling()`：SSE 不可用时无缝降级。
   @visibleForTesting
   void startSseSession(String sessionToken, {int gracePeriodSeconds = 3}) {
-    _sseSession?.stop();  // 防重入：旧会话先清理
+    _sseSession?.stop(); // 防重入：旧会话先清理
     final session = QrSseSession(
       client: _sseClientBuilder(),
       onEvent: (event) {
@@ -401,9 +412,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     ref.listen<QRLoginState>(qRLoginProvider, (previous, next) {
       if (next.status == QRLoginStatus.success) {
         // Phase 1.1.i: WebLoginPage 仅在 kIsWeb 时被调用（参见 app_router.dart:113），
-// 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
-// BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
-context.go('/web_shell');
+        // 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
+        // BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
+        context.go('/web_shell');
       }
     });
 
@@ -412,10 +423,7 @@ context.go('/web_shell');
       body: Row(
         children: [
           // 左侧说明区域
-          Expanded(
-            flex: 3,
-            child: _buildLeftSection(context),
-          ),
+          Expanded(flex: 3, child: _buildLeftSection(context)),
           // 右侧登录区域
           Expanded(
             flex: 2,
@@ -441,51 +449,51 @@ context.go('/web_shell');
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-          // Logo
-          Row(
-            children: [
-              const Icon(
-                Icons.chat_bubble_outline,
-                size: 48,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                'ImBoy Web',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+            // Logo
+            Row(
+              children: [
+                const Icon(
+                  Icons.chat_bubble_outline,
+                  size: 48,
+                  color: AppColors.primary,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 60),
-          // 功能说明
-          _buildFeatureItem(
-            Icons.devices,
-            t.webFeatureMultiDevice,
-            t.webFeatureMultiDeviceDesc,
-          ),
-          const SizedBox(height: 32),
-          _buildFeatureItem(
-            Icons.lock_outline,
-            t.webFeatureE2EE,
-            t.webFeatureE2EEDesc,
-          ),
-          const SizedBox(height: 32),
-          _buildFeatureItem(
-            Icons.notifications_outlined,
-            t.webFeatureNotification,
-            t.webFeatureNotificationDesc,
-          ),
-          const SizedBox(height: 32),
-          _buildFeatureItem(
-            Icons.attach_file,
-            t.webFeatureFileTransfer,
-            t.webFeatureFileTransferDesc,
-          ),
-        ],
+                const SizedBox(width: 16),
+                const Text(
+                  'ImBoy Web',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 60),
+            // 功能说明
+            _buildFeatureItem(
+              Icons.devices,
+              t.webFeatureMultiDevice,
+              t.webFeatureMultiDeviceDesc,
+            ),
+            const SizedBox(height: 32),
+            _buildFeatureItem(
+              Icons.lock_outline,
+              t.webFeatureE2EE,
+              t.webFeatureE2EEDesc,
+            ),
+            const SizedBox(height: 32),
+            _buildFeatureItem(
+              Icons.notifications_outlined,
+              t.webFeatureNotification,
+              t.webFeatureNotificationDesc,
+            ),
+            const SizedBox(height: 32),
+            _buildFeatureItem(
+              Icons.attach_file,
+              t.webFeatureFileTransfer,
+              t.webFeatureFileTransferDesc,
+            ),
+          ],
         ),
       ),
     );
@@ -553,45 +561,45 @@ context.go('/web_shell');
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-          if (!_showPasswordLogin) ...[
-            // QR 码登录
-            _buildQRLoginSection(qrState),
-            const SizedBox(height: 24),
-            // 切换到密码登录
-            TextButton(
-              onPressed: () {
-                // 停止二维码轮询
-                ref.read(qRLoginProvider.notifier)._stopPolling();
-                setState(() => _showPasswordLogin = true);
-              },
-              child: Text(
-                t.webSwitchToPassword,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 14,
+            if (!_showPasswordLogin) ...[
+              // QR 码登录
+              _buildQRLoginSection(qrState),
+              const SizedBox(height: 24),
+              // 切换到密码登录
+              TextButton(
+                onPressed: () {
+                  // 停止二维码轮询
+                  ref.read(qRLoginProvider.notifier)._stopPolling();
+                  setState(() => _showPasswordLogin = true);
+                },
+                child: Text(
+                  t.webSwitchToPassword,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 14,
+                  ),
                 ),
               ),
-            ),
-          ] else ...[
-            // 账号密码登录
-            _buildPasswordLoginSection(passportState, passportNotifier),
-            const SizedBox(height: 24),
-            // 切换回 QR 码登录
-            TextButton(
-              onPressed: () {
-                setState(() => _showPasswordLogin = false);
-                ref.read(qRLoginProvider.notifier).generateQRCode();
-              },
-              child: Text(
-                t.webSwitchToQR,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 14,
+            ] else ...[
+              // 账号密码登录
+              _buildPasswordLoginSection(passportState, passportNotifier),
+              const SizedBox(height: 24),
+              // 切换回 QR 码登录
+              TextButton(
+                onPressed: () {
+                  setState(() => _showPasswordLogin = false);
+                  ref.read(qRLoginProvider.notifier).generateQRCode();
+                },
+                child: Text(
+                  t.webSwitchToQR,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 14,
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
-        ],
         ),
       ),
     );
@@ -667,9 +675,7 @@ context.go('/web_shell');
       case QRLoginStatus.waiting:
         if (qrState.qrData == null) {
           return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary,
-            ),
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
         }
         // 私有 scheme 包装，便于手机端 scanner 通过 detectQrLoginIntent 识别
@@ -705,10 +711,7 @@ context.go('/web_shell');
                 ),
                 Text(
                   t.webQRConfirmOnPhone,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ],
             ),
@@ -720,16 +723,11 @@ context.go('/web_shell');
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              const CircularProgressIndicator(color: AppColors.primary),
               const SizedBox(height: 16),
               Text(
                 t.webQRLoggingIn,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppColors.primary,
-                ),
+                style: const TextStyle(fontSize: 16, color: AppColors.primary),
               ),
             ],
           ),
@@ -742,18 +740,11 @@ context.go('/web_shell');
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.qr_code_scanner,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.qr_code_scanner, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 8),
                 Text(
                   t.webQRExpired,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -767,18 +758,11 @@ context.go('/web_shell');
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red,
-                ),
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 8),
                 Text(
                   qrState.errorMessage ?? t.webQRLoginFailed,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.red,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -846,10 +830,7 @@ context.go('/web_shell');
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.darkTextSecondary,
-            ),
+            style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
           ),
         ),
       ],
@@ -897,7 +878,10 @@ context.go('/web_shell');
           decoration: InputDecoration(
             hintText: t.webPasswordHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
-            prefixIcon: const Icon(Icons.lock, color: AppColors.darkTextDisabled),
+            prefixIcon: const Icon(
+              Icons.lock,
+              color: AppColors.darkTextDisabled,
+            ),
             suffixIcon: IconButton(
               icon: Icon(
                 passportState.loginPwdObscure
@@ -951,9 +935,9 @@ context.go('/web_shell');
               if (error == null) {
                 if (mounted) {
                   // Phase 1.1.i: WebLoginPage 仅在 kIsWeb 时被调用（参见 app_router.dart:113），
-// 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
-// BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
-context.go('/web_shell');
+                  // 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
+                  // BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
+                  context.go('/web_shell');
                 }
               } else {
                 passportNotifier.snackBar(error);
@@ -967,10 +951,7 @@ context.go('/web_shell');
           onPressed: () => context.push(AppRoutes.forgotPassword),
           child: Text(
             t.forgotPassword,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: AppColors.primary, fontSize: 14),
           ),
         ),
       ],

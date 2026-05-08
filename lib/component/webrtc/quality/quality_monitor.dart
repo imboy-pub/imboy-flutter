@@ -60,10 +60,7 @@ class WebRTCNetworkQualityMonitor {
       config.getNetworkQuality(_qualityScore);
 
   /// 创建质量监控器
-  WebRTCNetworkQualityMonitor({
-    required this.connection,
-    required this.config,
-  });
+  WebRTCNetworkQualityMonitor({required this.connection, required this.config});
 
   /// 开始监控
   void startMonitoring() {
@@ -77,7 +74,9 @@ class WebRTCNetworkQualityMonitor {
       return;
     }
 
-    debugPrint('Starting WebRTC quality monitoring (interval: ${config.monitorInterval})');
+    debugPrint(
+      'Starting WebRTC quality monitoring (interval: ${config.monitorInterval})',
+    );
 
     // 立即收集一次统计
     _collectStats();
@@ -182,7 +181,8 @@ class WebRTCNetworkQualityMonitor {
 
             // 码率
             final bytesSent = (report['bytesSent'] as num?)?.toInt() ?? 0;
-            final bytesReceived = (report['bytesReceived'] as num?)?.toInt() ?? 0;
+            final bytesReceived =
+                (report['bytesReceived'] as num?)?.toInt() ?? 0;
             bitrate = ((bytesSent + bytesReceived) * 8).toInt();
 
             // 编解码器

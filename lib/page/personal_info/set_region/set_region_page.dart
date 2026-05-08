@@ -41,7 +41,11 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
   @override
   void initState() {
     super.initState();
-    ref.read(setRegionProvider.notifier).initData(widget.currentValue);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(setRegionProvider.notifier).initData(widget.currentValue);
+      }
+    });
     _searchC.addListener(_onTopQueryChanged);
   }
 
@@ -173,9 +177,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
             decoration: BoxDecoration(
               color: state.hasChanged
                   ? AppColors.primary
-                  : (isDark
-                        ? AppColors.iosGray3Dark
-                        : AppColors.lightBorder),
+                  : (isDark ? AppColors.iosGray3Dark : AppColors.lightBorder),
               borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
             ),
             child: Material(
@@ -237,7 +239,9 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
               padding: EdgeInsets.all(AppSpacing.regular * 2),
               margin: EdgeInsets.all(AppSpacing.regular * 2),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+                color: isDark
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : Colors.white,
                 borderRadius: AppRadius.borderRadiusMedium,
                 boxShadow: [
                   BoxShadow(

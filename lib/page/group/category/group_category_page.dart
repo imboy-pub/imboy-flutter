@@ -44,9 +44,7 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: InputDecoration(
-            hintText: t.groupCategory.categoryName,
-          ),
+          decoration: InputDecoration(hintText: t.groupCategory.categoryName),
         ),
         actions: [
           TextButton(
@@ -119,7 +117,9 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
     return ListTile(
       leading: const Icon(Icons.folder),
       title: Text(category['name'] ?? ''),
-      subtitle: Text(t.groupCategoryGroupCount(count: category['group_count'] ?? 0)),
+      subtitle: Text(
+        t.groupCategoryGroupCount(count: category['group_count'] ?? 0),
+      ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
         Navigator.push(

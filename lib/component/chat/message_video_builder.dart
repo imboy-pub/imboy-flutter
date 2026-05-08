@@ -26,8 +26,10 @@ class MessageVideoBuilder extends StatelessWidget {
     final metadata = message.metadata ?? {};
     final String videoUrl = metadata['uri'] ?? metadata['url'] ?? '';
     final thumb = metadata['thumb'];
-    final String thumbUrl = (thumb is Map) ? (thumb['uri'] ?? '') : (thumb?.toString() ?? '');
-    
+    final String thumbUrl = (thumb is Map)
+        ? (thumb['uri'] ?? '')
+        : (thumb?.toString() ?? '');
+
     // 获取视频尺寸
     final widthVal = metadata['width'];
     final heightVal = metadata['height'];
@@ -50,10 +52,8 @@ class MessageVideoBuilder extends StatelessWidget {
         if (videoUrl.isNotEmpty) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => VideoViewerPage(
-                url: videoUrl,
-                thumb: thumbUrl,
-              ),
+              builder: (context) =>
+                  VideoViewerPage(url: videoUrl, thumb: thumbUrl),
             ),
           );
         }
@@ -62,7 +62,9 @@ class MessageVideoBuilder extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(MessageSpacing.imageBorderRadius),
+            borderRadius: BorderRadius.circular(
+              MessageSpacing.imageBorderRadius,
+            ),
             child: OctoImage(
               image: cachedImageProvider(thumbUrl),
               width: displayWidth,
@@ -90,11 +92,7 @@ class MessageVideoBuilder extends StatelessWidget {
               color: Colors.black26,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.play_arrow,
-              color: Colors.white,
-              size: 48,
-            ),
+            child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
           ),
           if (metadata['duration_ms'] != null)
             Positioned(

@@ -22,7 +22,8 @@ class TypingIndicatorWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TypingIndicatorWidget> createState() => _TypingIndicatorWidgetState();
+  ConsumerState<TypingIndicatorWidget> createState() =>
+      _TypingIndicatorWidgetState();
 }
 
 class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
@@ -35,10 +36,10 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
     super.initState();
     _subscription = AppEventBus.on<MessageTypingEvent>().listen((event) {
       if (!mounted) return;
-      
+
       // 过滤非当前会话的事件
       if (event.conversationUk3 != widget.conversationUk3) return;
-      
+
       // 过滤自己的输入事件（虽然一般不会收到自己的）
       if (event.typierId == UserRepoLocal.to.currentUid) return;
 
@@ -88,7 +89,7 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
 
     final themeNotifier = ref.watch(themeProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       alignment: Alignment.centerLeft,

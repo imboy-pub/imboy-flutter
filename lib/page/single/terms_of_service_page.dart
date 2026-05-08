@@ -70,11 +70,7 @@ class TermsOfServicePage extends ConsumerWidget {
                   '• 因不可抗力导致的服务中断，我们不承担责任\n'
                   '• 用户间的纠纷由用户自行协商解决',
             ),
-            _buildSection(
-              theme,
-              '6. 适用法律',
-              '本条款受中华人民共和国法律管辖。',
-            ),
+            _buildSection(theme, '6. 适用法律', '本条款受中华人民共和国法律管辖。'),
             const SizedBox(height: 32),
           ],
         ),

@@ -26,7 +26,7 @@ class ExpressionMessageBuilder extends StatelessWidget {
     final metadata = message.metadata ?? {};
     final String url = metadata['url'] ?? '';
     final String text = metadata['text'] ?? '';
-    
+
     // 从 metadata 中获取尺寸，如果没有则使用默认值
     final widthVal = metadata['width'];
     final heightVal = metadata['height'];
@@ -52,11 +52,7 @@ class ExpressionMessageBuilder extends StatelessWidget {
           placeholderBuilder: (context) => Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: width,
-              height: height,
-              color: Colors.white,
-            ),
+            child: Container(width: width, height: height, color: Colors.white),
           ),
           errorBuilder: (context, error, stackTrace) => Container(
             width: width,

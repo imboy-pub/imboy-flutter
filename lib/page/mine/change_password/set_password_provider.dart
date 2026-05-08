@@ -102,7 +102,10 @@ class SetPassword extends _$SetPassword {
   Future<String> _encryptPassword(String pubKey, String password) async {
     password = EncrypterService.md5(password);
     // 🔒 统一使用 RSA-OAEP-SHA256 加密（支持 Web 和移动端）
-    final encrypted = await RSAService.rsaEncryptWithPointyCastleAsync(password, pubKey);
+    final encrypted = await RSAService.rsaEncryptWithPointyCastleAsync(
+      password,
+      pubKey,
+    );
     return encrypted;
   }
 }

@@ -235,8 +235,9 @@ class FontSizePage extends ConsumerWidget {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: iosBlue,
-                    inactiveTrackColor:
-                        AppColors.iosGray4.withValues(alpha: 0.6),
+                    inactiveTrackColor: AppColors.iosGray4.withValues(
+                      alpha: 0.6,
+                    ),
                     thumbColor: Colors.white,
                     overlayColor: iosBlue.withValues(alpha: 0.2),
                     trackHeight: 4.0,

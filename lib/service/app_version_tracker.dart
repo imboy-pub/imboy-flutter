@@ -77,8 +77,8 @@ class AppVersionTracker {
     final transition = cmp > 0
         ? VersionTransition.upgraded
         : cmp < 0
-            ? VersionTransition.downgraded
-            : VersionTransition.unchanged;
+        ? VersionTransition.downgraded
+        : VersionTransition.unchanged;
 
     return VersionTransitionResult(
       transition: transition,

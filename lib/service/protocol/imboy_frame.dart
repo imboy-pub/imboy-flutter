@@ -120,8 +120,7 @@ class ImboyFrame {
     required Uint8List payload,
   }) {
     if (payload.length > maxPayload) {
-      throw ArgumentError(
-          'payload too large: ${payload.length} > $maxPayload');
+      throw ArgumentError('payload too large: ${payload.length} > $maxPayload');
     }
     if (type < 0 || type > 255) {
       throw ArgumentError('type out of range: $type');
@@ -159,7 +158,8 @@ class ImboyFrame {
     final m = bd.getUint16(0, Endian.big);
     if (m != magic) {
       throw FormatException(
-          'bad magic: 0x${m.toRadixString(16).padLeft(4, '0')}');
+        'bad magic: 0x${m.toRadixString(16).padLeft(4, '0')}',
+      );
     }
     final ver = bd.getUint8(2);
     final flags = bd.getUint8(3);
@@ -243,11 +243,7 @@ class ImboyFrame {
     _checkSeq(seq);
     final payload = Uint8List(2);
     ByteData.sublistView(payload).setUint16(0, seq, Endian.big);
-    return encode(
-      type: FrameType.heartbeatPong,
-      flags: 7,
-      payload: payload,
-    );
+    return encode(type: FrameType.heartbeatPong, flags: 7, payload: payload);
   }
 
   /// ACK 帧
@@ -255,11 +251,7 @@ class ImboyFrame {
     _checkUint64(msgId);
     final payload = Uint8List(8);
     ByteData.sublistView(payload).setUint64(0, msgId, Endian.big);
-    return encode(
-      type: FrameType.ack,
-      flags: 0,
-      payload: payload,
-    );
+    return encode(type: FrameType.ack, flags: 0, payload: payload);
   }
 
   /// NACK 帧
@@ -267,11 +259,7 @@ class ImboyFrame {
     _checkUint64(msgId);
     final payload = Uint8List(8);
     ByteData.sublistView(payload).setUint64(0, msgId, Endian.big);
-    return encode(
-      type: FrameType.nack,
-      flags: 0,
-      payload: payload,
-    );
+    return encode(type: FrameType.nack, flags: 0, payload: payload);
   }
 
   /// Typing 状态帧: [ConvID:8 BE] [Status:1] (1=start, 0=stop)
@@ -281,11 +269,7 @@ class ImboyFrame {
     final bd = ByteData.sublistView(payload);
     bd.setUint64(0, convId, Endian.big);
     bd.setUint8(8, isTyping ? 1 : 0);
-    return encode(
-      type: FrameType.msgTyping,
-      flags: 0,
-      payload: payload,
-    );
+    return encode(type: FrameType.msgTyping, flags: 0, payload: payload);
   }
 
   /// 撤回帧: [MsgID:8 BE]
@@ -305,11 +289,7 @@ class ImboyFrame {
     _checkUint64(msgId);
     final payload = Uint8List(8);
     ByteData.sublistView(payload).setUint64(0, msgId, Endian.big);
-    return encode(
-      type: FrameType.msgRead,
-      flags: 0,
-      payload: payload,
-    );
+    return encode(type: FrameType.msgRead, flags: 0, payload: payload);
   }
 
   static void _checkSeq(int seq) {

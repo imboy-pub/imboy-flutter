@@ -223,7 +223,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                 bottomRight: Radius.circular(16),
               ),
               onPressed: (_) async {
-                await notifier.delete(model.from.toString(), model.to.toString());
+                await notifier.delete(
+                  model.from.toString(),
+                  model.to.toString(),
+                );
               },
               icon: Icons.delete_outline,
               label: t.buttonDelete,

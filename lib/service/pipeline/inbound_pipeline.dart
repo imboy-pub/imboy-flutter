@@ -9,10 +9,7 @@ library;
 
 /// 消息在管道中传递的数据结构。
 final class InboundMessage {
-  const InboundMessage({
-    required this.msgId,
-    required this.payload,
-  });
+  const InboundMessage({required this.msgId, required this.payload});
 
   final String msgId;
   final Map<String, Object?> payload;

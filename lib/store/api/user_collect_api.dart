@@ -44,7 +44,9 @@ class UserCollectApi extends HttpClient {
     String source,
     Map<String, dynamic> info,
   ) async {
-    debugPrint("> on UserCollectApi add params: kind=$kind, kindId=$kindId, source=$source");
+    debugPrint(
+      "> on UserCollectApi add params: kind=$kind, kindId=$kindId, source=$source",
+    );
     debugPrint("> on UserCollectApi add info keys: ${info.keys.toList()}");
     IMBoyHttpResponse resp = await post(
       API.userCollectAdd,

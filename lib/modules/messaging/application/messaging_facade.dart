@@ -71,9 +71,6 @@ class MessagingFacade {
   );
 
   /// 标记消息为已读（轻量版，适用于非 Widget 上下文）
-  Future<bool> markAsRead(
-    String type,
-    String peerId,
-    List<String> msgIds,
-  ) => _adapter.markAsRead(type, peerId, msgIds);
+  Future<bool> markAsRead(String type, String peerId, List<String> msgIds) =>
+      _adapter.markAsRead(type, peerId, msgIds);
 }

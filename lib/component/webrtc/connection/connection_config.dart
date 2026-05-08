@@ -126,10 +126,7 @@ class WebRTCConnectionConfig {
         'offerToReceiveVideo': true,
       },
       answerConstraints: {
-        'mandatory': {
-          'OfferToReceiveAudio': true,
-          'OfferToReceiveVideo': true,
-        },
+        'mandatory': {'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true},
       },
       reconnectConfig: WebRTCReconnectConfig.defaultConfig(),
       qualityConfig: WebRTCQualityConfig.defaultConfig(),
@@ -167,10 +164,7 @@ class WebRTCConnectionConfig {
         'offerToReceiveVideo': true,
       },
       answerConstraints: {
-        'mandatory': {
-          'OfferToReceiveAudio': true,
-          'OfferToReceiveVideo': true,
-        },
+        'mandatory': {'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true},
       },
       connectionTimeout: const Duration(seconds: 45),
       iceTimeout: const Duration(seconds: 20),
@@ -181,10 +175,7 @@ class WebRTCConnectionConfig {
   Map<String, dynamic> getMediaConstraints(WebRTCMediaType mediaType) {
     switch (mediaType) {
       case WebRTCMediaType.audio:
-        return {
-          'audio': true,
-          'video': false,
-        };
+        return {'audio': true, 'video': false};
 
       case WebRTCMediaType.video:
         return {
@@ -201,10 +192,7 @@ class WebRTCConnectionConfig {
         };
 
       case WebRTCMediaType.data:
-        return {
-          'audio': false,
-          'video': false,
-        };
+        return {'audio': false, 'video': false};
 
       case WebRTCMediaType.screenShare:
         return {

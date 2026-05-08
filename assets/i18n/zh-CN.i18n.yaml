@@ -2291,6 +2291,7 @@ e2eeProxyNeedAtLeast(count): "请选择至少 $count 个代理"
 # General UI
 buttonBackHome: "返回首页"
 featureNotEnabled: "当前功能未启用"
+featureDisabledName(name): "$name 功能未启用，暂时无法访问"
 imageLoadFailed: "加载失败"
 loadFailedWithError(error): "加载失败: $error"
 webAudioNotSupported: "Web 平台暂不支持语音消息播放"

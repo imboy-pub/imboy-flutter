@@ -283,13 +283,15 @@ class MessageRepo {
       }
 
       // 同步写入 FTS 索引（异步，不阻塞消息插入）
-      unawaited(_indexMessageToFts(
-        type: msgType,
-        id: msg.id,
-        conversationUk3: msg.conversationUk3,
-        msgTypeField: msg.msgType ?? '',
-        payload: msg.payload,
-      ));
+      unawaited(
+        _indexMessageToFts(
+          type: msgType,
+          id: msg.id,
+          conversationUk3: msg.conversationUk3,
+          msgTypeField: msg.msgType ?? '',
+          payload: msg.payload,
+        ),
+      );
     } else {
       if (kDebugMode) {
         debugPrint("> on MessageModel/insert count $count");
@@ -942,13 +944,15 @@ class MessageRepo {
       if (inserted.isNotEmpty) {
         // 批量写入 FTS 索引（异步，不阻塞离线消息处理）
         for (final msg in inserted) {
-          unawaited(_indexMessageToFts(
-            type: msg.type,
-            id: msg.id,
-            conversationUk3: msg.conversationUk3,
-            msgTypeField: msg.msgType,
-            payload: msg.payload,
-          ));
+          unawaited(
+            _indexMessageToFts(
+              type: msg.type,
+              id: msg.id,
+              conversationUk3: msg.conversationUk3,
+              msgTypeField: msg.msgType,
+              payload: msg.payload,
+            ),
+          );
         }
 
         await _syncOfflineConversationsAndNotify(inserted);
@@ -1077,7 +1081,8 @@ class MessageRepo {
       } else {
         // 更新现有会话，总是更新最后消息信息
         int newUnreadNum = existing.unreadNum + agg.unreadDelta;
-        int newMentionUnread = existing.mentionUnread + agg.mentionDelta; // C7-β
+        int newMentionUnread =
+            existing.mentionUnread + agg.mentionDelta; // C7-β
         await conversationRepo.updateById(existing.id, {
           ConversationRepo.avatar: avatar.isNotEmpty ? avatar : existing.avatar,
           ConversationRepo.title: title.isNotEmpty ? title : existing.title,
@@ -1225,7 +1230,10 @@ class MessageRepo {
     required String msgTypeField,
     required Map<String, dynamic> payload,
   }) async {
-    final textContent = MessageFtsRepo.extractTextContent(msgTypeField, payload);
+    final textContent = MessageFtsRepo.extractTextContent(
+      msgTypeField,
+      payload,
+    );
     if (textContent.isEmpty) return;
 
     // 确定 FTS 表类型

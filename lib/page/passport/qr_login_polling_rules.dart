@@ -75,9 +75,10 @@ PollingDecision derivePollingDecision({
     QrStatusConfirmed(:final token) => RequestCompleteLogin(token),
     QrStatusExpired() => const TransitionToExpired(),
     QrStatusCancelled() => const TransitionToCancelledThenRefresh(),
-    QrStatusUnknown(:final rawStatus) => rawStatus == 'confirmed'
-        ? const ProtocolViolation()
-        : const KeepPolling(),
+    QrStatusUnknown(:final rawStatus) =>
+      rawStatus == 'confirmed'
+          ? const ProtocolViolation()
+          : const KeepPolling(),
   };
 }
 
@@ -105,9 +106,7 @@ final class MarkExpired extends ExpireTickDecision {
 ///
 /// **关键守卫**：`remainingSeconds <= 0` → `MarkExpired`（对齐 web_login_page.dart:203）；
 /// 防御负数（如外部 state 异常）。
-ExpireTickDecision deriveExpireTickDecision({
-  required int remainingSeconds,
-}) {
+ExpireTickDecision deriveExpireTickDecision({required int remainingSeconds}) {
   if (remainingSeconds <= 0) {
     return const MarkExpired();
   }
@@ -138,9 +137,7 @@ final class ProceedWithToken extends CompleteLoginDecision {
 ///
 /// **守卫语义**：与 web_login_page.dart:214 一致 — 仅 `token == null || token.isEmpty`
 /// 视为无效；**不 trim 空白**（保留原 Notifier 行为，避免引入语义漂移）。
-CompleteLoginDecision deriveCompleteLoginDecision({
-  required String? token,
-}) {
+CompleteLoginDecision deriveCompleteLoginDecision({required String? token}) {
   if (token == null || token.isEmpty) {
     return const RejectInvalidToken();
   }

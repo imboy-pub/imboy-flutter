@@ -174,10 +174,7 @@ class PublisherNotifier extends _$PublisherNotifier {
       await _notifyServerStart();
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('[WHIP Publisher] 推流失败: ${e.runtimeType}');
-      state = state.copyWith(
-        isConnecting: false,
-        stateStr: 'error',
-      );
+      state = state.copyWith(isConnecting: false, stateStr: 'error');
       await _cleanup(localRenderer);
     }
   }
@@ -189,7 +186,10 @@ class PublisherNotifier extends _$PublisherNotifier {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
       } on Exception catch (e) {
-        if (kDebugMode) debugPrint('[PublisherProvider] WebRTC operation failed: ${e.runtimeType}');
+        if (kDebugMode)
+          debugPrint(
+            '[PublisherProvider] WebRTC operation failed: ${e.runtimeType}',
+          );
       }
       _resourceUrl = null;
     }

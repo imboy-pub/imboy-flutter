@@ -71,8 +71,7 @@ class ImboyPbCodec {
   /// Decode the inner payload bytes.
   /// For known action types, try protobuf-specific payloads first, then JSON.
   /// For unknown actions, try JSON decode.
-  static dynamic _decodeInnerPayload(
-      List<int> payloadBytes, String action) {
+  static dynamic _decodeInnerPayload(List<int> payloadBytes, String action) {
     // Try protobuf-specific payload decode based on action
     final pbResult = _tryActionPayload(payloadBytes, action);
     if (pbResult != null) return pbResult;
@@ -89,20 +88,17 @@ class ImboyPbCodec {
 
   /// Try to decode action-specific protobuf payloads.
   static Map<String, dynamic>? _tryActionPayload(
-      List<int> bytes, String action) {
+    List<int> bytes,
+    String action,
+  ) {
     try {
       switch (action) {
         case 'logged_another_device':
           final pb = PayloadLoggedAnotherDevice.fromBuffer(bytes);
-          return {
-            'did': pb.did,
-            'dname': pb.dname,
-          };
+          return {'did': pb.did, 'dname': pb.dname};
         case 'please_refresh_token':
           final pb = PayloadRefreshToken.fromBuffer(bytes);
-          return {
-            'expire_at': pb.expireAt.toInt(),
-          };
+          return {'expire_at': pb.expireAt.toInt()};
         case 'app_upgrade':
           final pb = PayloadAppUpgrade.fromBuffer(bytes);
           return {
@@ -116,16 +112,12 @@ class ImboyPbCodec {
           };
         case 'device_force_offline':
           final pb = PayloadDeviceKicked.fromBuffer(bytes);
-          return {
-            'reason': pb.reason,
-          };
+          return {'reason': pb.reason};
         case 'c2c_del_everyone':
         case 'c2g_del_everyone':
         case 'c2g_del_for_me':
           final pb = PayloadMsgDeleted.fromBuffer(bytes);
-          return {
-            'old_msg_id': pb.oldMsgId,
-          };
+          return {'old_msg_id': pb.oldMsgId};
         default:
           return null;
       }
@@ -163,12 +155,14 @@ class ImboyPbCodec {
       'suite': e2ee.suite,
       'nonce': base64Encode(e2ee.nonce),
       'keys': e2ee.keys
-          .map((k) => {
-                'did': k.did,
-                'kid': k.kid,
-                'wrap_alg': k.wrapAlg,
-                'ek': base64Encode(k.ek),
-              })
+          .map(
+            (k) => {
+              'did': k.did,
+              'kid': k.kid,
+              'wrap_alg': k.wrapAlg,
+              'ek': base64Encode(k.ek),
+            },
+          )
           .toList(),
     };
   }

@@ -201,10 +201,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
 
   // 停止下载器运行（注销当前taskID）
   void closeCallback() {
-    AppUpgradeLogApi.report(
-      event: 'cancel',
-      targetVsn: widget.version,
-    );
+    AppUpgradeLogApi.report(event: 'cancel', targetVsn: widget.version);
     Navigator.of(context).pop();
     if (downloadId > 0) cancel(downloadId);
   }
@@ -285,10 +282,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   }
 
   Future<void> install() async {
-    AppUpgradeLogApi.report(
-      event: 'install',
-      targetVsn: widget.version,
-    );
+    AppUpgradeLogApi.report(event: 'install', targetVsn: widget.version);
     bool? isSuccess = await RUpgrade.install(downloadId);
     iPrint("upgrade_install $downloadId isSuccess $isSuccess");
   }
@@ -322,10 +316,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
 
       if (computedHash == expectedHash) {
         iPrint('SHA256 校验通过: $computedHash');
-        AppUpgradeLogApi.report(
-          event: 'verify_ok',
-          targetVsn: widget.version,
-        );
+        AppUpgradeLogApi.report(event: 'verify_ok', targetVsn: widget.version);
         install();
       } else {
         iPrint('SHA256 校验失败: expected=$expectedHash, got=$computedHash');
@@ -362,7 +353,9 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   void _retryDownload() {
     _hashRetryCount++;
     if (_hashRetryCount <= _maxHashRetry) {
-      EasyLoading.showError(t.downloadHashRetrying(retry: _hashRetryCount, max: _maxHashRetry));
+      EasyLoading.showError(
+        t.downloadHashRetrying(retry: _hashRetryCount, max: _maxHashRetry),
+      );
       upgradeApk(widget.downLoadUrl);
     } else {
       EasyLoading.showError(t.downloadHashFailed);

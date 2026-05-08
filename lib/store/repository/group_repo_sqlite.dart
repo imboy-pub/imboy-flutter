@@ -469,7 +469,9 @@ class GroupRepo {
       return 0;
     }
     if (gid.isEmpty) {
-      gid = (json[GroupRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? ''))).toString();
+      gid =
+          (json[GroupRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? '')))
+              .toString();
     }
     iPrint("GroupRepo_update ${data.toString()};");
     if (gid.isNotEmpty) {
@@ -495,7 +497,9 @@ class GroupRepo {
 
   Future<GroupModel> save(String gid, Map<String, dynamic> json) async {
     if (gid.isEmpty) {
-      gid = (json[GroupRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? ''))).toString();
+      gid =
+          (json[GroupRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? '')))
+              .toString();
     }
     return await _db.transaction<GroupModel>((txn) async {
       GroupModel? old = await findById(gid, txn: txn);

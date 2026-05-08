@@ -213,8 +213,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       _sendingComment = true;
     });
     final replyToUid = _replyToUid;
-    final mentionNames =
-        extractMentions(content).map((m) => m.name).toList();
+    final mentionNames = extractMentions(content).map((m) => m.name).toList();
     final added = await _api.addComment(
       widget.momentId,
       content: content,

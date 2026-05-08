@@ -52,8 +52,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         setState(() {
           _shards = localShards;
           _isLoading = false;
-          _statusMessage =
-              localShards.isEmpty ? t.e2eeNoShards : t.e2eeReady;
+          _statusMessage = localShards.isEmpty ? t.e2eeNoShards : t.e2eeReady;
         });
       } else {
         setState(() {
@@ -309,9 +308,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           ),
         ),
         title: Text(t.e2eeProxyUser(uid: proxyUid)),
-        subtitle: Text(
-          t.e2eeShardLabel(index: shardIndex, total: totalShards),
-        ),
+        subtitle: Text(t.e2eeShardLabel(index: shardIndex, total: totalShards)),
         trailing: Icon(statusIcon, color: statusColor, size: 20),
       ),
     );
@@ -387,8 +384,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               if (collected < total) {
                 final shard = _shards[collected];
                 _currentProxyName = shard['proxy_uid']?.toString() ?? '';
-                _statusMessage =
-                    t.e2eeCollectingShards(collected: collected, total: threshold);
+                _statusMessage = t.e2eeCollectingShards(
+                  collected: collected,
+                  total: threshold,
+                );
               } else {
                 _statusMessage = t.e2eeShardsCollected;
               }
@@ -414,10 +413,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                     const SizedBox(height: 8),
                     Text(
                       t.e2eeUsedShards(count: _collectedCount),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
                     Text(

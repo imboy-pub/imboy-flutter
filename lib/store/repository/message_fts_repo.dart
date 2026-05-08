@@ -192,7 +192,8 @@ class MessageFtsRepo {
       List<dynamic> params;
 
       if (conversationUk3 != null && conversationUk3.isNotEmpty) {
-        sql = 'SELECT id, conversation_uk3, '
+        sql =
+            'SELECT id, conversation_uk3, '
             'snippet($table, 2, \'<b>\', \'</b>\', \'...\', 32) as snippet, '
             'rank '
             'FROM $table '
@@ -200,7 +201,8 @@ class MessageFtsRepo {
             'ORDER BY rank LIMIT ?';
         params = [safeQuery, conversationUk3, limit];
       } else {
-        sql = 'SELECT id, conversation_uk3, '
+        sql =
+            'SELECT id, conversation_uk3, '
             'snippet($table, 2, \'<b>\', \'</b>\', \'...\', 32) as snippet, '
             'rank '
             'FROM $table '

@@ -41,9 +41,11 @@ class MigrationScriptPlanner {
         .where((s) => s.version > lo && s.version <= hi)
         .toList();
 
-    selected.sort((a, b) => isUpgrade
-        ? a.version.compareTo(b.version) // 升级：升序
-        : b.version.compareTo(a.version)); // 降级：降序
+    selected.sort(
+      (a, b) => isUpgrade
+          ? a.version.compareTo(b.version) // 升级：升序
+          : b.version.compareTo(a.version),
+    ); // 降级：降序
 
     return selected;
   }

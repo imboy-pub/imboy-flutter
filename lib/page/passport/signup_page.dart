@@ -66,92 +66,91 @@ class _SignupPageState extends ConsumerState<SignupPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor:
-          _isDark ? AppColors.darkSurface : null,
+      backgroundColor: _isDark ? AppColors.darkSurface : null,
       body: Stack(
         children: [
-            Positioned(
-              top: -height * .15,
-              right: -MediaQuery.of(context).size.width * .18,
-              child: const BezierContainer(),
-            ),
+          Positioned(
+            top: -height * .15,
+            right: -MediaQuery.of(context).size.width * .18,
+            child: const BezierContainer(),
+          ),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: height * 0.12),
-                    const PassportTitle(color: AppColors.primary),
-                    const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: height * 0.12),
+                  const PassportTitle(color: AppColors.primary),
+                  const SizedBox(height: 40),
 
-                    // Tabs
-                    TabBar(
+                  // Tabs
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: _unselectedLabel,
+                    indicatorColor: AppColors.primary,
+                    tabs: [
+                      Tab(text: t.email),
+                      Tab(text: t.mobile),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    height: 340,
+                    child: TabBarView(
                       controller: _tabController,
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: _unselectedLabel,
-                      indicatorColor: AppColors.primary,
-                      tabs: [
-                        Tab(text: t.email),
-                        Tab(text: t.mobile),
+                      children: [
+                        _buildEmailRegister(state, notifier),
+                        _buildMobileRegister(state, notifier),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                  ),
 
-                    SizedBox(
-                      height: 340,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildEmailRegister(state, notifier),
-                          _buildMobileRegister(state, notifier),
-                        ],
+                  const SizedBox(height: 20),
+                  // Quick Login / One Click Login
+                  _buildQuickLogin(notifier),
+
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        t.siginQ,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: _isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 20),
-                    // Quick Login / One Click Login
-                    _buildQuickLogin(notifier),
-
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          t.siginQ,
-                          style: TextStyle(
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () => context.go(AppRoutes.signIn),
+                        child: Text(
+                          t.login,
+                          style: const TextStyle(
+                            color: AppColors.primary,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: _isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.lightTextPrimary,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        InkWell(
-                          onTap: () => context.go(AppRoutes.signIn),
-                          child: Text(
-                            t.login,
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            Positioned(
-              top: 20,
-              left: 0,
-              child: notifier.backButton(color: AppColors.primary),
-            ),
+          ),
+          Positioned(
+            top: 20,
+            left: 0,
+            child: notifier.backButton(color: AppColors.primary),
+          ),
         ],
       ),
     );
@@ -171,7 +170,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             hintText: t.nicknameHint,
-            prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
+            prefixIcon: const Icon(
+              Icons.person_outline,
+              color: AppColors.primary,
+            ),
             filled: true,
             fillColor: _inputFill,
             border: OutlineInputBorder(
@@ -293,7 +295,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             hintText: t.nicknameHint,
-            prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
+            prefixIcon: const Icon(
+              Icons.person_outline,
+              color: AppColors.primary,
+            ),
             filled: true,
             fillColor: _inputFill,
             border: OutlineInputBorder(
@@ -318,8 +323,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
             initialValue: '',
             onInputChanged: (String fullNumber) {
               _fullMobile = fullNumber;
-              _mobileController.text =
-                  fullNumber.replaceFirst(RegExp(r'^\+\d+'), '');
+              _mobileController.text = fullNumber.replaceFirst(
+                RegExp(r'^\+\d+'),
+                '',
+              );
             },
             hintText: t.passport.hintMobile,
           ),
@@ -407,25 +414,19 @@ class _SignupPageState extends ConsumerState<SignupPage>
         Row(
           children: [
             Expanded(
-              child: Divider(
-                color: _isDark ? AppColors.darkBorder : null,
-              ),
+              child: Divider(color: _isDark ? AppColors.darkBorder : null),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
                 "OR",
                 style: TextStyle(
-                  color: _isDark
-                      ? AppColors.darkTextSecondary
-                      : Colors.grey,
+                  color: _isDark ? AppColors.darkTextSecondary : Colors.grey,
                 ),
               ),
             ),
             Expanded(
-              child: Divider(
-                color: _isDark ? AppColors.darkBorder : null,
-              ),
+              child: Divider(color: _isDark ? AppColors.darkBorder : null),
             ),
           ],
         ),
@@ -455,10 +456,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
         const SizedBox(height: 5),
         Text(
           t.passport.oneKeyLogin,
-          style: TextStyle(
-            fontSize: 12,
-            color: _unselectedLabel,
-          ),
+          style: TextStyle(fontSize: 12, color: _unselectedLabel),
         ),
       ],
     );

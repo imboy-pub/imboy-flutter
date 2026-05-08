@@ -34,8 +34,7 @@ class GroupMemberDetailPage extends ConsumerStatefulWidget {
       _GroupMemberDetailPageState();
 }
 
-class _GroupMemberDetailPageState
-    extends ConsumerState<GroupMemberDetailPage> {
+class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
   GroupMemberModel? _member;
   int _myRole = 1;
   bool _isLoading = true;
@@ -169,12 +168,13 @@ class _GroupMemberDetailPageState
                   ),
                 ),
               ),
-              ...muteDurationOptions.map((opt) => ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 24),
-                    title: Text(_labelForKey(opt.labelKey)),
-                    onTap: () => Navigator.of(ctx).pop(opt.seconds),
-                  )),
+              ...muteDurationOptions.map(
+                (opt) => ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  title: Text(_labelForKey(opt.labelKey)),
+                  onTap: () => Navigator.of(ctx).pop(opt.seconds),
+                ),
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -213,11 +213,11 @@ class _GroupMemberDetailPageState
 
   String _labelForKey(String key) {
     return switch (key) {
-      'muteDuration5min'  => t.muteDuration5min,
+      'muteDuration5min' => t.muteDuration5min,
       'muteDuration10min' => t.muteDuration10min,
       'muteDuration30min' => t.muteDuration30min,
       'muteDuration1hour' => t.muteDuration1hour,
-      'muteDuration1day'  => t.muteDuration1day,
+      'muteDuration1day' => t.muteDuration1day,
       'muteDuration7days' => t.muteDuration7days,
       'muteDuration30days' => t.muteDuration30days,
       _ => key,
@@ -262,11 +262,11 @@ class _GroupMemberDetailPageState
 
     final currentUid = UserRepoLocal.to.currentUid;
     final canMute = canMuteGroupMember(
-          currentUserId: currentUid,
-          currentRole: _myRole,
-          targetUserId: member.userId.toString(),
-          targetRole: member.role,
-        );
+      currentUserId: currentUid,
+      currentRole: _myRole,
+      targetUserId: member.userId.toString(),
+      targetRole: member.role,
+    );
     final isMuted = member.isMuted();
 
     return SingleChildScrollView(
@@ -311,8 +311,9 @@ class _GroupMemberDetailPageState
   }
 
   Widget _buildProfileCard(GroupMemberModel member, ColorScheme colorScheme) {
-    final displayName =
-        member.alias.isNotEmpty ? member.alias : member.nickname;
+    final displayName = member.alias.isNotEmpty
+        ? member.alias
+        : member.nickname;
     return Card(
       elevation: 0,
       color: colorScheme.surface,

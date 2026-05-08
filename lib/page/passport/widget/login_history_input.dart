@@ -129,10 +129,8 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final inputFill =
-        isDark ? AppColors.darkSurfaceContainer : Colors.white;
-    final borderDefault =
-        isDark ? AppColors.darkBorder : Colors.grey.shade200;
+    final inputFill = isDark ? AppColors.darkSurfaceContainer : Colors.white;
+    final borderDefault = isDark ? AppColors.darkBorder : Colors.grey.shade200;
 
     return CompositedTransformTarget(
       link: _layerLink,

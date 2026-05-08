@@ -21,8 +21,7 @@ class ComplianceKeyInfo {
 
   /// 缓存是否过期（55 分钟）
   /// 使用 55 分钟而非 60 分钟作为安全裕量，避免系统时钟微调导致缓存恰好过期
-  bool get isExpired =>
-      DateTime.now().difference(fetchedAt).inMinutes > 55;
+  bool get isExpired => DateTime.now().difference(fetchedAt).inMinutes > 55;
 }
 
 /// 合规密钥缓存服务（单例）
@@ -37,7 +36,9 @@ class ComplianceKeyService {
   /// 获取合规公钥（优先使用缓存）
   ///
   /// 返回 ComplianceKeyInfo 或 null（如果服务端未配置合规密钥）
-  Future<ComplianceKeyInfo?> getComplianceKey({bool forceRefresh = false}) async {
+  Future<ComplianceKeyInfo?> getComplianceKey({
+    bool forceRefresh = false,
+  }) async {
     // 使用缓存
     if (!forceRefresh && _cached != null && !_cached!.isExpired) {
       return _cached;

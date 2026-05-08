@@ -145,10 +145,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
       // stateStr 会在 onTrack 回调中更新为 'playing'
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('[WHEP Subscriber] 拉流失败: ${e.runtimeType}');
-      state = state.copyWith(
-        isConnecting: false,
-        stateStr: 'error',
-      );
+      state = state.copyWith(isConnecting: false, stateStr: 'error');
       await _cleanup(remoteRenderer);
     }
   }
@@ -159,7 +156,10 @@ class SubscriberNotifier extends _$SubscriberNotifier {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
       } on Exception catch (e) {
-        if (kDebugMode) debugPrint('[SubscriberProvider] WebRTC operation failed: ${e.runtimeType}');
+        if (kDebugMode)
+          debugPrint(
+            '[SubscriberProvider] WebRTC operation failed: ${e.runtimeType}',
+          );
       }
       _resourceUrl = null;
     }
@@ -179,8 +179,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
     Timer? timeout;
 
     _pc!.onIceGatheringState = (gatheringState) {
-      if (gatheringState ==
-              RTCIceGatheringState.RTCIceGatheringStateComplete &&
+      if (gatheringState == RTCIceGatheringState.RTCIceGatheringStateComplete &&
           !completer.isCompleted) {
         completer.complete();
       }

@@ -104,7 +104,9 @@ class UserCollectDetailPage extends ConsumerWidget {
                 Navigator.pop(context);
 
                 // 确保 obj.info 有正确的数据结构
-                final Map<String, dynamic> info = Map<String, dynamic>.from(obj.info);
+                final Map<String, dynamic> info = Map<String, dynamic>.from(
+                  obj.info,
+                );
 
                 debugPrint('收藏消息原始 info keys: ${info.keys.toList()}');
                 debugPrint('收藏消息 kind: ${obj.kind}');
@@ -159,7 +161,9 @@ class UserCollectDetailPage extends ConsumerWidget {
                 info['id'] = Xid().toString();
 
                 debugPrint('处理后的 info keys: ${info.keys.toList()}');
-                debugPrint('最终 msg_type: ${info['msg_type']}, type: ${info['type']}');
+                debugPrint(
+                  '最终 msg_type: ${info['msg_type']}, type: ${info['type']}',
+                );
                 debugPrint('payload 存在: ${info.containsKey('payload')}');
                 if (info['payload'] is Map) {
                   final payload = info['payload'] as Map<String, dynamic>;
@@ -248,7 +252,10 @@ class UserCollectDetailPage extends ConsumerWidget {
                       maxLength: 100,
                       callback: (remarkNew) async {
                         // 调用 Provider 的 remark 方法
-                        bool ok = await notifier.remark(obj.kindId.toString(), remarkNew);
+                        bool ok = await notifier.remark(
+                          obj.kindId.toString(),
+                          remarkNew,
+                        );
                         return ok;
                       },
                     ),
@@ -385,7 +392,9 @@ class UserCollectDetailPage extends ConsumerWidget {
     final notifier = ref.read(userCollectProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: t.details,

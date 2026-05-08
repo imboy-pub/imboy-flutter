@@ -100,8 +100,7 @@ class WebRTCReconnectConfig {
         );
 
       case ReconnectStrategy.linear:
-        final milliseconds =
-            retryDelay.inMilliseconds * (retryCount + 1);
+        final milliseconds = retryDelay.inMilliseconds * (retryCount + 1);
         return Duration(
           milliseconds: milliseconds.clamp(
             retryDelay.inMilliseconds,

@@ -60,11 +60,7 @@ Future<void> run() async {
 
   // 捕获 Dart 异步未处理异常（Future 中未被 catch 的错误）
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-    AppLogger.fatal(
-      'PlatformDispatcher uncaught error: $error',
-      error,
-      stack,
-    );
+    AppLogger.fatal('PlatformDispatcher uncaught error: $error', error, stack);
     // 返回 true 表示已处理，不再传播
     return true;
   };

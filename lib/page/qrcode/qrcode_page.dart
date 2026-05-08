@@ -537,10 +537,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
         limit: 9,
       );
 
-      return members
-          .map((m) => m.avatar)
-          .where((a) => a.isNotEmpty)
-          .toList();
+      return members.map((m) => m.avatar).where((a) => a.isNotEmpty).toList();
     } on Exception catch (e) {
       if (kDebugMode) iPrint('加载群成员头像失败: ${e.runtimeType}');
       return [];
@@ -1461,7 +1458,10 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   }
 
   /// 保存频道二维码
-  Future<void> _saveChannelQrCode(BuildContext context, String channelId) async {
+  Future<void> _saveChannelQrCode(
+    BuildContext context,
+    String channelId,
+  ) async {
     String filename = "${channelId}_qrcode.png";
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().savePhoto(
@@ -1469,7 +1469,8 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
         globalKey,
         filename,
       );
-      if (kDebugMode) iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
+      if (kDebugMode)
+        iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
       bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
           ? true
           : false;

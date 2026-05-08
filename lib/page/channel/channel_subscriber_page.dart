@@ -410,8 +410,7 @@ class _InviteContactPickerSheet extends StatefulWidget {
       _InviteContactPickerSheetState();
 }
 
-class _InviteContactPickerSheetState
-    extends State<_InviteContactPickerSheet> {
+class _InviteContactPickerSheetState extends State<_InviteContactPickerSheet> {
   final TextEditingController _searchCtrl = TextEditingController();
   List<Map<String, dynamic>> _allContacts = [];
   List<Map<String, dynamic>> _filtered = [];
@@ -514,35 +513,24 @@ class _InviteContactPickerSheetState
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _filtered.isEmpty
-                    ? Center(child: Text(t.channel.noContactsToInvite))
-                    : ListView.builder(
-                        itemCount: _filtered.length,
-                        itemBuilder: (context, index) {
-                          final c = _filtered[index];
-                          final nickname =
-                              (c['nickname'] as String? ?? '').trim();
-                          final account =
-                              (c['account'] as String? ?? '').trim();
-                          final avatar = c['avatar'] as String? ?? '';
-                          final peerId =
-                              c['peer_id']?.toString() ?? '';
+                ? Center(child: Text(t.channel.noContactsToInvite))
+                : ListView.builder(
+                    itemCount: _filtered.length,
+                    itemBuilder: (context, index) {
+                      final c = _filtered[index];
+                      final nickname = (c['nickname'] as String? ?? '').trim();
+                      final account = (c['account'] as String? ?? '').trim();
+                      final avatar = c['avatar'] as String? ?? '';
+                      final peerId = c['peer_id']?.toString() ?? '';
 
-                          return ListTile(
-                            leading: Avatar(
-                              imgUri: avatar,
-                              width: 44,
-                              height: 44,
-                            ),
-                            title: Text(
-                              nickname.isNotEmpty ? nickname : peerId,
-                            ),
-                            subtitle: account.isNotEmpty
-                                ? Text(account)
-                                : null,
-                            onTap: () => Navigator.of(context).pop(peerId),
-                          );
-                        },
-                      ),
+                      return ListTile(
+                        leading: Avatar(imgUri: avatar, width: 44, height: 44),
+                        title: Text(nickname.isNotEmpty ? nickname : peerId),
+                        subtitle: account.isNotEmpty ? Text(account) : null,
+                        onTap: () => Navigator.of(context).pop(peerId),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

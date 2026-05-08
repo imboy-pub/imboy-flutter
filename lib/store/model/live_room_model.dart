@@ -4,6 +4,7 @@ class LiveRoomModel {
   /// 统一用 String 承载，避免 Dart Web 平台 int 53 位精度截断 TSID 高位，
   /// 同时与后端 JSON 序列化（bigint → string）保持一致。
   final String id;
+
   /// 用户 ID (TSID BIGINT 字符串化)
   final String userId;
   final String title;

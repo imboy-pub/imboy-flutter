@@ -69,7 +69,9 @@ class ExtraItem extends StatelessWidget {
                   child: IconTheme(
                     data: IconThemeData(
                       //图标颜色：深色用白 / 浅色用次级文字色，保持工具属性不随主题色漂移
-                      color: isDark ? Colors.white : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? Colors.white
+                          : AppColors.lightTextSecondary,
                       size: 26,
                     ),
                     child: image is ImageProvider

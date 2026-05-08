@@ -125,7 +125,10 @@ class ConversationRepo {
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
     iPrint("ConversationRepo_save ${obj.toJson().toString()}");
-    ConversationModel? oldObj = await findByPeerId(obj.type, obj.peerId.toString());
+    ConversationModel? oldObj = await findByPeerId(
+      obj.type,
+      obj.peerId.toString(),
+    );
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
     int mentionUnreadOld = oldObj == null ? 0 : oldObj.mentionUnread; // C7-β
     // obj.isShow = oldObj?.isShow ?? 1;

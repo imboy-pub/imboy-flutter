@@ -155,7 +155,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     if (msg.from != s.peerId &&
         msg.webRtcType != 'peers' &&
         msg.webRtcType != 'heartbeat') {
-      iPrint('> rtc WARNING: message from unexpected peer ${msg.from}, expected ${s.peerId}');
+      iPrint(
+        '> rtc WARNING: message from unexpected peer ${msg.from}, expected ${s.peerId}',
+      );
       return;
     }
 
@@ -247,9 +249,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         candidateStr.isEmpty ||
         sdpMid is! String ||
         sdpMLineIndex is! int) {
-      iPrint(
-        '> rtc WARNING: invalid ICE candidate fields, skipping',
-      );
+      iPrint('> rtc WARNING: invalid ICE candidate fields, skipping');
       return;
     }
     RTCIceCandidate candidate = RTCIceCandidate(

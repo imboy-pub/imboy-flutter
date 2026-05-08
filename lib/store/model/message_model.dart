@@ -627,7 +627,9 @@ class MessageModel {
           );
           final decoded = jsonDecode(decryptedJson);
           if (decoded is! Map<String, dynamic>) {
-            throw FormatException('Expected JSON object, got ${decoded.runtimeType}');
+            throw FormatException(
+              'Expected JSON object, got ${decoded.runtimeType}',
+            );
           }
           payloadData = decoded;
           iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
@@ -654,7 +656,9 @@ class MessageModel {
         try {
           final decoded = jsonDecode(payload);
           if (decoded is! Map<String, dynamic>) {
-            throw FormatException('Expected JSON object, got ${decoded.runtimeType}');
+            throw FormatException(
+              'Expected JSON object, got ${decoded.runtimeType}',
+            );
           }
           payloadData = decoded;
         } catch (e) {
@@ -838,7 +842,8 @@ class MessageModel {
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
-    } else if (effectiveMsgType == MessageType.video || effectiveMsgType == MessageType.voice) {
+    } else if (effectiveMsgType == MessageType.video ||
+        effectiveMsgType == MessageType.voice) {
       // 视频/语音消息：使用 VideoMessage 或 AudioMessage
       // 语音消息统一使用 voice 命名
       if (effectiveMsgType == MessageType.video) {

@@ -20,8 +20,10 @@ import 'package:imboy/page/passport/sse_client.dart';
 /// Web 平台真实 EventSource 包装。
 class SseClientImpl implements SseClient {
   web.EventSource? _eventSource;
-  final StreamController<String> _framesCtrl = StreamController<String>.broadcast();
-  final StreamController<Object> _errorsCtrl = StreamController<Object>.broadcast();
+  final StreamController<String> _framesCtrl =
+      StreamController<String>.broadcast();
+  final StreamController<Object> _errorsCtrl =
+      StreamController<Object>.broadcast();
   bool _isOpen = false;
   bool _closed = false;
 

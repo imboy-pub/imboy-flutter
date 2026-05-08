@@ -36,8 +36,9 @@ class MentionTextReducer {
   ///
   /// 合法前缀 = 行首或非 `[A-Za-z0-9_]` 字符。与
   /// `MentionTextEditorHelper.detectMentionTrigger` 的白名单一致。
-  static final RegExp _mentionRe =
-      RegExp(r'(^|[^A-Za-z0-9_])@([A-Za-z0-9_\-\u4e00-\u9fa5]+)');
+  static final RegExp _mentionRe = RegExp(
+    r'(^|[^A-Za-z0-9_])@([A-Za-z0-9_\-\u4e00-\u9fa5]+)',
+  );
 
   /// 扫描 [text] 中的 @提及 token，按 [activeMemberNames] 做 C1 降级。
   ///

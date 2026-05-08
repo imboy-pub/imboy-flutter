@@ -66,7 +66,8 @@ String _arrayBufferToBase64(JSArrayBuffer buffer) {
   final charCodes = <int>[];
   for (var i = 0; i < len; i++) {
     // ignore: invalid_runtime_check_with_js_interop_types
-    final byte = (bytes as JSObject).callMethodVarArgs('at'.toJS, [i.toJS]) as JSNumber;
+    final byte =
+        (bytes as JSObject).callMethodVarArgs('at'.toJS, [i.toJS]) as JSNumber;
     charCodes.add(byte.toDartInt);
   }
   return base64.encode(charCodes);
@@ -101,23 +102,31 @@ Future<Map<String, String>> generateRSAKeyPairWeb() async {
 
     // 导出公钥 (SPKI 格式)
     final publicKey = _getProperty(keyPairJs, 'publicKey');
-    final publicKeyBuffer = await web.window.crypto.subtle.exportKey(
-      'spki',
-      // ignore: invalid_runtime_check_with_js_interop_types
-      publicKey as web.CryptoKey,
-    ).toDart;
+    final publicKeyBuffer = await web.window.crypto.subtle
+        .exportKey(
+          'spki',
+          // ignore: invalid_runtime_check_with_js_interop_types
+          publicKey as web.CryptoKey,
+        )
+        .toDart;
 
     // 导出私钥 (PKCS8 格式)
     final privateKey = _getProperty(keyPairJs, 'privateKey');
-    final privateKeyBuffer = await web.window.crypto.subtle.exportKey(
-      'pkcs8',
-      // ignore: invalid_runtime_check_with_js_interop_types
-      privateKey as web.CryptoKey,
-    ).toDart;
+    final privateKeyBuffer = await web.window.crypto.subtle
+        .exportKey(
+          'pkcs8',
+          // ignore: invalid_runtime_check_with_js_interop_types
+          privateKey as web.CryptoKey,
+        )
+        .toDart;
 
     // 转换为 Base64
-    final publicKeyBase64 = _arrayBufferToBase64(publicKeyBuffer as JSArrayBuffer);
-    final privateKeyBase64 = _arrayBufferToBase64(privateKeyBuffer as JSArrayBuffer);
+    final publicKeyBase64 = _arrayBufferToBase64(
+      publicKeyBuffer as JSArrayBuffer,
+    );
+    final privateKeyBase64 = _arrayBufferToBase64(
+      privateKeyBuffer as JSArrayBuffer,
+    );
 
     // 格式化为 PEM
     final publicKeyPem = _formatAsPem(
@@ -132,10 +141,7 @@ Future<Map<String, String>> generateRSAKeyPairWeb() async {
     );
 
     iPrint('✅ Web 平台 RSA 密钥对生成完成');
-    return {
-      'publicKey': publicKeyPem,
-      'privateKey': privateKeyPem,
-    };
+    return {'publicKey': publicKeyPem, 'privateKey': privateKeyPem};
   } catch (e, stackTrace) {
     iPrint('❌ Web 平台 RSA 密钥对生成失败: $e');
     iPrint('📚 堆栈: $stackTrace');
@@ -155,7 +161,9 @@ Future<String> rsaEncryptWeb(String plaintext, String pubKeyPem) async {
     // 转换 PEM 为 DER 格式
     final derBytes = _pemToDer(pubKeyPem);
     iPrint('📦 DER 数据长度: ${derBytes.length} bytes');
-    iPrint('📦 DER 前 20 字节: ${derBytes.sublist(0, derBytes.length > 20 ? 20 : derBytes.length)}');
+    iPrint(
+      '📦 DER 前 20 字节: ${derBytes.sublist(0, derBytes.length > 20 ? 20 : derBytes.length)}',
+    );
 
     // 创建算法参数对象
     final algorithm = _createJSObject();
@@ -168,20 +176,23 @@ Future<String> rsaEncryptWeb(String plaintext, String pubKeyPem) async {
     // 导入公钥
     iPrint('📦 开始导入公钥 (SPKI 格式)...');
     final publicKeyData = _createUint8Array(derBytes);
-    final publicKey = await web.window.crypto.subtle.importKey(
-      'spki',
-      publicKeyData,
-      algorithm,
-      false,
-      _createStringArray(['encrypt']),
-    ).toDart;
+    final publicKey = await web.window.crypto.subtle
+        .importKey(
+          'spki',
+          publicKeyData,
+          algorithm,
+          false,
+          _createStringArray(['encrypt']),
+        )
+        .toDart;
 
     iPrint('📦 公钥导入成功');
 
     // 编码明文
     final textEncoder = web.TextEncoder();
     final plaintextData = textEncoder.encode(plaintext);
-    final plaintextLength = (plaintextData as JSObject).getProperty('length'.toJS) as JSNumber;
+    final plaintextLength =
+        (plaintextData as JSObject).getProperty('length'.toJS) as JSNumber;
     iPrint('📦 明文长度: ${plaintextLength.toDartInt}');
 
     // 加密（算法参数必须与导入密钥时完全匹配）
@@ -191,17 +202,21 @@ Future<String> rsaEncryptWeb(String plaintext, String pubKeyPem) async {
     _setProperty(encryptHashObj, 'name', 'SHA-256'.toJS);
     _setProperty(encryptAlgorithm, 'hash', encryptHashObj);
 
-    final encryptedBuffer = await web.window.crypto.subtle.encrypt(
-      encryptAlgorithm,
-      // ignore: invalid_runtime_check_with_js_interop_types, unnecessary_cast
-      publicKey as web.CryptoKey,
-      plaintextData,
-    ).toDart;
+    final encryptedBuffer = await web.window.crypto.subtle
+        .encrypt(
+          encryptAlgorithm,
+          // ignore: invalid_runtime_check_with_js_interop_types, unnecessary_cast
+          publicKey as web.CryptoKey,
+          plaintextData,
+        )
+        .toDart;
 
     iPrint('📦 加密完成');
 
     // 转换为 Base64
-    final encryptedBase64 = _arrayBufferToBase64(encryptedBuffer as JSArrayBuffer);
+    final encryptedBase64 = _arrayBufferToBase64(
+      encryptedBuffer as JSArrayBuffer,
+    );
     iPrint('✅ Web 平台 RSA 加密完成, 结果长度: ${encryptedBase64.length}');
 
     return encryptedBase64;

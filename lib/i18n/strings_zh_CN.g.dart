@@ -5499,6 +5499,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '当前功能未启用'
 	String get featureNotEnabled => '当前功能未启用';
 
+	/// zh-CN: '$name 功能未启用，暂时无法访问'
+	String featureDisabledName({required Object name}) => '${name} 功能未启用，暂时无法访问';
+
 	/// zh-CN: '加载失败'
 	String get imageLoadFailed => '加载失败';
 
@@ -8645,6 +8648,7 @@ extension on Translations {
 			'e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
 			'buttonBackHome' => '返回首页',
 			'featureNotEnabled' => '当前功能未启用',
+			'featureDisabledName' => ({required Object name}) => '${name} 功能未启用，暂时无法访问',
 			'imageLoadFailed' => '加载失败',
 			'loadFailedWithError' => ({required Object error}) => '加载失败: ${error}',
 			'webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',

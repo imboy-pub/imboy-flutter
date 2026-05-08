@@ -79,8 +79,7 @@ extension WebRTCCallStateExtension on WebRTCCallState {
 
   /// 是否为发起方相关状态
   bool get isCallerState {
-    return this == WebRTCCallState.inviting ||
-        this == WebRTCCallState.ringing;
+    return this == WebRTCCallState.inviting || this == WebRTCCallState.ringing;
   }
 
   /// 是否为接收方相关状态
@@ -237,8 +236,7 @@ class WebRTCCallStateEvent {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(state, previousState, error, sessionId);
+  int get hashCode => Object.hash(state, previousState, error, sessionId);
 }
 
 /// WebRTC 通话方向
@@ -266,14 +264,12 @@ enum WebRTCCallType {
 extension WebRTCCallTypeExtension on WebRTCCallType {
   /// 是否需要视频
   bool get requiresVideo {
-    return this == WebRTCCallType.video ||
-        this == WebRTCCallType.screenShare;
+    return this == WebRTCCallType.video || this == WebRTCCallType.screenShare;
   }
 
   /// 是否需要音频
   bool get requiresAudio {
-    return this == WebRTCCallType.audio ||
-        this == WebRTCCallType.video;
+    return this == WebRTCCallType.audio || this == WebRTCCallType.video;
   }
 
   /// 类型名称

@@ -105,16 +105,22 @@ class WebRTCReconnectManager {
     _isReconnecting = true;
 
     final delay = config.calculateRetryDelay(_retryCount);
-    debugPrint('Scheduling reconnect attempt ${_retryCount + 1}/${config.maxRetries} '
-        'in ${delay.inSeconds}s (reason: $reason)');
+    debugPrint(
+      'Scheduling reconnect attempt ${_retryCount + 1}/${config.maxRetries} '
+      'in ${delay.inSeconds}s (reason: $reason)',
+    );
 
-    _notifyState(WebRTCReconnectState.scheduled,
-        metadata: {'delay': delay, 'attempt': _retryCount + 1});
+    _notifyState(
+      WebRTCReconnectState.scheduled,
+      metadata: {'delay': delay, 'attempt': _retryCount + 1},
+    );
 
     _retryTimer = Timer(delay, () async {
       _retryCount++;
-      _notifyState(WebRTCReconnectState.reconnecting,
-          metadata: {'attempt': _retryCount});
+      _notifyState(
+        WebRTCReconnectState.reconnecting,
+        metadata: {'attempt': _retryCount},
+      );
 
       try {
         debugPrint('Executing reconnect attempt $_retryCount');
@@ -170,7 +176,9 @@ class WebRTCReconnectManager {
 
       // 如果没有心跳回调或发送失败，仅记录日志
       if (heartbeatSent) {
-        debugPrint('Heartbeat sent at ${_lastHeartbeatTime!.toIso8601String()}');
+        debugPrint(
+          'Heartbeat sent at ${_lastHeartbeatTime!.toIso8601String()}',
+        );
       } else {
         debugPrint('Heartbeat skipped (no callback or send failed)');
       }
@@ -195,15 +203,19 @@ class WebRTCReconnectManager {
   }
 
   /// 通知状态变更
-  void _notifyState(WebRTCReconnectState state,
-      {Map<String, dynamic>? metadata}) {
+  void _notifyState(
+    WebRTCReconnectState state, {
+    Map<String, dynamic>? metadata,
+  }) {
     if (!_stateController.isClosed) {
-      _stateController.add(WebRTCReconnectStateEvent(
-        state: state,
-        retryCount: _retryCount,
-        maxRetries: config.maxRetries,
-        metadata: metadata,
-      ));
+      _stateController.add(
+        WebRTCReconnectStateEvent(
+          state: state,
+          retryCount: _retryCount,
+          maxRetries: config.maxRetries,
+          metadata: metadata,
+        ),
+      );
     }
   }
 

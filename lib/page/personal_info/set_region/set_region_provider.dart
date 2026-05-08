@@ -49,8 +49,10 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
   @override
   SetRegionState build() {
-    // 延后到 build 完成后执行，避免在 widget tree build 期间修改 provider
-    Future.microtask(() async {
+    // 使用 Future.delayed(Duration.zero) 而非 Future.microtask，
+    // 确保在当前 event loop turn 之后（即 build 帧完成后）才修改 state，
+    // 避免 Riverpod "modify during build" 错误。
+    Future.delayed(Duration.zero, () async {
       await _loadRegionData();
       if (!ref.mounted) return;
 

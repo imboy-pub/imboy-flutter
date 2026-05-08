@@ -25,7 +25,9 @@ class ChangePasswordPage extends ConsumerWidget {
         automaticallyImplyLeading: true,
         title: t.changeLoginPassword,
       ),
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),

@@ -64,10 +64,7 @@ class GroupCategoryApi extends HttpClient {
 
   /// 删除群分组
   Future<bool> deleteCategory(int categoryId) async {
-    final resp = await post(
-      API.groupCategoryDelete,
-      data: {'id': categoryId},
-    );
+    final resp = await post(API.groupCategoryDelete, data: {'id': categoryId});
     debugPrint("GroupCategoryApi_deleteCategory resp: ok=${resp.ok}");
     return resp.ok;
   }

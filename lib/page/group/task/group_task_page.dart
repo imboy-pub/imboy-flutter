@@ -156,8 +156,8 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final chipKey = index == 0
         ? const Key('filter_tab_all')
         : index == 1
-            ? const Key('filter_tab_todo')
-            : const Key('filter_tab_done');
+        ? const Key('filter_tab_todo')
+        : const Key('filter_tab_done');
     return FilterChip(
       key: chipKey,
       label: Text(label),
@@ -230,7 +230,9 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                     final submitTaskId = _resolveTaskSubmitId(task);
                     if (submitTaskId.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(t.groupTask.taskIdMissingSubmit)),
+                        SnackBar(
+                          content: Text(t.groupTask.taskIdMissingSubmit),
+                        ),
                       );
                       return;
                     }

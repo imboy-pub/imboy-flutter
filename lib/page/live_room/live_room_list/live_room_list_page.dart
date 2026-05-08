@@ -123,22 +123,22 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         child: state.isLoading && state.items.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : state.items.isEmpty
-                ? NoDataView(text: t.noData)
-                : ListView.separated(
-                    controller: _scrollController,
-                    itemCount: state.items.length + (state.hasMore ? 1 : 0),
-                    separatorBuilder: (_, _) =>
-                        const Divider(height: 1, indent: 16),
-                    itemBuilder: (context, index) {
-                      if (index == state.items.length) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                      return _buildRoomTile(context, state.items[index]);
-                    },
-                  ),
+            ? NoDataView(text: t.noData)
+            : ListView.separated(
+                controller: _scrollController,
+                itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                separatorBuilder: (_, _) =>
+                    const Divider(height: 1, indent: 16),
+                itemBuilder: (context, index) {
+                  if (index == state.items.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  return _buildRoomTile(context, state.items[index]);
+                },
+              ),
       ),
     );
   }
@@ -164,8 +164,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
       ),
       subtitle: Builder(
         builder: (context) {
-          final secondaryColor =
-              Theme.of(context).colorScheme.onSurfaceVariant;
+          final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
           return Row(
             children: [
               Icon(
@@ -195,7 +194,8 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
             IconButton(
               icon: const Icon(Icons.play_circle_outline),
               tooltip: t.liveRoomWatch,
-              onPressed: () => context.push('/live_room/subscriber', extra: room),
+              onPressed: () =>
+                  context.push('/live_room/subscriber', extra: room),
             ),
           const Icon(Icons.navigate_next),
         ],

@@ -681,9 +681,7 @@ class _MomentNotifyEntry extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unread = ref.watch(
-      momentNotifyProvider.select((s) => s.unreadCount),
-    );
+    final unread = ref.watch(momentNotifyProvider.select((s) => s.unreadCount));
     return IconButton(
       onPressed: () => context.push('/moment_notify'),
       tooltip: context.t.momentNotify.title,
@@ -696,10 +694,7 @@ class _MomentNotifyEntry extends ConsumerWidget {
               right: -6,
               top: -4,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 1,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
                   color: Colors.red,
                   borderRadius: AppRadius.borderRadiusCell,
@@ -721,4 +716,3 @@ class _MomentNotifyEntry extends ConsumerWidget {
     );
   }
 }
-

@@ -18,8 +18,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'web_shell_state.dart';
 
 /// Web Shell 全局状态 NotifierProvider
-final webShellProvider =
-    NotifierProvider<WebShellNotifier, WebShellState>(WebShellNotifier.new);
+final webShellProvider = NotifierProvider<WebShellNotifier, WebShellState>(
+  WebShellNotifier.new,
+);
 
 /// Web Shell Notifier：管理 currentTab + selectedItem 状态机
 class WebShellNotifier extends Notifier<WebShellState> {

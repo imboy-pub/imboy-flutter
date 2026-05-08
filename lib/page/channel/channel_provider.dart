@@ -481,10 +481,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       return false;
     } catch (e) {
       if (ref.mounted) {
-        state = state.copyWith(
-          isPublishing: false,
-          error: '${e.runtimeType}',
-        );
+        state = state.copyWith(isPublishing: false, error: '${e.runtimeType}');
       }
       return false;
     }
@@ -559,9 +556,11 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   /// 立刻更新消息的置顶状态，不等待后端推送
   void updateMessagePinned(String messageId, bool pinned) {
     final updated = state.messages
-        .map((message) => message.id.toString() == messageId
-            ? message.copyWith(isPinned: pinned)
-            : message)
+        .map(
+          (message) => message.id.toString() == messageId
+              ? message.copyWith(isPinned: pinned)
+              : message,
+        )
         .toList(growable: false);
     state = state.copyWith(messages: updated);
   }

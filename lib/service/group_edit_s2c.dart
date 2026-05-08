@@ -74,7 +74,7 @@ GroupEditParseResult parseGroupEditPayload(Map<String, dynamic> payload) {
 Future<void> handleGroupEditS2C({
   required Map<String, dynamic> payload,
   required Future<void> Function(int gid, Map<String, dynamic> updates)
-      applyUpdate,
+  applyUpdate,
   required void Function(int gid, Map<String, dynamic> updates) fireEvent,
   void Function(String message)? log,
 }) async {

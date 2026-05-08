@@ -110,13 +110,12 @@ class UserDeviceApi extends HttpClient {
     required String deviceType,
     required String deviceId,
   }) async {
-    debugPrint("> on Api/kickDevice request: deviceType=$deviceType, deviceId=$deviceId");
+    debugPrint(
+      "> on Api/kickDevice request: deviceType=$deviceType, deviceId=$deviceId",
+    );
     IMBoyHttpResponse resp = await post(
       API.userDeviceKick,
-      data: {
-        "device_type": deviceType,
-        "device_id": deviceId,
-      },
+      data: {"device_type": deviceType, "device_id": deviceId},
     );
     debugPrint(
       "> on Api/kickDevice response: ok=${resp.ok}, code=${resp.code}, payload=${resp.payload}",
@@ -145,10 +144,7 @@ class UserDeviceApi extends HttpClient {
     );
     IMBoyHttpResponse resp = await post(
       API.userDeviceKickOthers,
-      data: {
-        "device_type": deviceType,
-        "device_id": deviceId,
-      },
+      data: {"device_type": deviceType, "device_id": deviceId},
     );
     debugPrint(
       "> on Api/kickAllOtherDevices response: ok=${resp.ok}, code=${resp.code}, payload=${resp.payload}",

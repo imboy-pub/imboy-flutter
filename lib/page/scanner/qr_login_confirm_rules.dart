@@ -125,9 +125,7 @@ QrLoginConfirmState mapQrLoginErrorCode(int code, String? errorMessage) {
     case 403:
       return QrLoginConfirmFailed(errorMessage ?? _fallbackForCode(code));
     default:
-      return QrLoginConfirmFailed(
-        errorMessage ?? '未知错误（code=$code）',
-      );
+      return QrLoginConfirmFailed(errorMessage ?? '未知错误（code=$code）');
   }
 }
 
@@ -165,9 +163,7 @@ QrLoginConfirmState parseScanResponse({
     if (payload['status'] != 'scanned') {
       return const QrLoginConfirmFailed('协议错误：scan 响应缺 status');
     }
-    return QrLoginConfirmAwaitingConfirm(
-      deviceInfo: _readDeviceInfo(payload),
-    );
+    return QrLoginConfirmAwaitingConfirm(deviceInfo: _readDeviceInfo(payload));
   }
   return mapQrLoginErrorCode(code, errorMessage);
 }

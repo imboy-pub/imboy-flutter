@@ -104,15 +104,21 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     if (!mounted) return;
 
     if (!success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(accept ? t.acceptInvitationFailed : t.rejectInvitationFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            accept ? t.acceptInvitationFailed : t.rejectInvitationFailed,
+          ),
+        ),
+      );
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(accept ? t.invitationAccepted : t.invitationRejected)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(accept ? t.invitationAccepted : t.invitationRejected),
+      ),
+    );
     await _loadInvitations(showLoading: false);
   }
 
@@ -202,11 +208,15 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                       : t.inviteeLabel(uid: peerUid.isEmpty ? "-" : peerUid),
                 ),
                 Text(
-                  t.createdAtLabel(time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt)),
+                  t.createdAtLabel(
+                    time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt),
+                  ),
                 ),
                 if (expiresAt != null)
                   Text(
-                    t.expiredAtLabel(time: DateFormat("yyyy-MM-dd HH:mm").format(expiresAt)),
+                    t.expiredAtLabel(
+                      time: DateFormat("yyyy-MM-dd HH:mm").format(expiresAt),
+                    ),
                   ),
                 // Internal IDs removed from UI display
               ],
@@ -384,9 +394,13 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(t.inviterLabel(uid: inviterUid.isEmpty ? "-" : inviterUid)),
                   Text(
-                    t.createdAtLabel(time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt)),
+                    t.inviterLabel(uid: inviterUid.isEmpty ? "-" : inviterUid),
+                  ),
+                  Text(
+                    t.createdAtLabel(
+                      time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt),
+                    ),
                   ),
                   if (isPending) ...[
                     const SizedBox(height: 12),
@@ -400,7 +414,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                                     invitation: invitation,
                                     accept: false,
                                   ),
-                            child: Text(isProcessing ? t.processingDots : t.reject),
+                            child: Text(
+                              isProcessing ? t.processingDots : t.reject,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -412,7 +428,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                                     invitation: invitation,
                                     accept: true,
                                   ),
-                            child: Text(isProcessing ? t.processingDots : t.accept),
+                            child: Text(
+                              isProcessing ? t.processingDots : t.accept,
+                            ),
                           ),
                         ),
                       ],

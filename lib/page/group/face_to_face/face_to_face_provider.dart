@@ -118,7 +118,9 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       latitude: state.latitude,
     );
 
-    iPrint('[面对面建群] API 响应, gid=${payload['gid'] ?? ''}, memberCount=${(payload['member_list'] ?? []).length}');
+    iPrint(
+      '[面对面建群] API 响应, gid=${payload['gid'] ?? ''}, memberCount=${(payload['member_list'] ?? []).length}',
+    );
 
     // 解析成员列表
     List<dynamic> memberList = payload['member_list'] ?? [];
@@ -152,7 +154,9 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       code: code,
       gid: gid,
     );
-    iPrint("faceToFaceSave memberCount=${(payload['member_list'] ?? []).length}");
+    iPrint(
+      "faceToFaceSave memberCount=${(payload['member_list'] ?? []).length}",
+    );
 
     List<dynamic> memberList = payload['member_list'] ?? [];
     List<PeopleModel> memberList2 = [];

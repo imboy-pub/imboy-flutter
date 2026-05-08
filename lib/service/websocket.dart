@@ -268,7 +268,13 @@ class WebSocketService {
       }
 
       // 子协议协商：imboy.v2 优先，回退到现有 text/sip
-      const protocols = <String>[kSubProtocolV2, 'imboy-protobuf', 'imboy-json', 'text', 'sip'];
+      const protocols = <String>[
+        kSubProtocolV2,
+        'imboy-protobuf',
+        'imboy-json',
+        'text',
+        'sip',
+      ];
 
       if (kIsWeb) {
         // Web 平台使用 WebSocketChannel.connect (protocols 作为位置参数)
@@ -300,8 +306,10 @@ class WebSocketService {
       _v2HeartbeatTimer = null;
       if (_framing == FramingMode.v2) {
         _v2PingSeq = 0;
-        _v2HeartbeatTimer =
-            Timer.periodic(_pingInterval, (_) => _sendV2Heartbeat());
+        _v2HeartbeatTimer = Timer.periodic(
+          _pingInterval,
+          (_) => _sendV2Heartbeat(),
+        );
       }
 
       _updateStatus(SocketStatus.connected);
@@ -433,8 +441,9 @@ class WebSocketService {
         case FrameType.heartbeatPing:
           // 服务端主动 ping，回 pong
           if (frame.payload.length >= 2) {
-            final seq =
-                ByteData.sublistView(frame.payload).getUint16(0, Endian.big);
+            final seq = ByteData.sublistView(
+              frame.payload,
+            ).getUint16(0, Endian.big);
             try {
               _channel?.sink.add(ImboyFrame.heartbeatPong(seq));
             } catch (e) {
@@ -444,8 +453,9 @@ class WebSocketService {
           break;
         case FrameType.ack:
           if (frame.payload.length >= 8) {
-            final msgId =
-                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(
+              frame.payload,
+            ).getUint64(0, Endian.big);
             iPrint('✅ [WS] v2 frame ACK: msgId=$msgId');
             try {
               AckManager.to.ackConfirmed(msgId.toString());
@@ -456,16 +466,18 @@ class WebSocketService {
           break;
         case FrameType.nack:
           if (frame.payload.length >= 8) {
-            final msgId =
-                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(
+              frame.payload,
+            ).getUint64(0, Endian.big);
             iPrint('⚠️ [WS] v2 frame NACK: msgId=$msgId');
           }
           break;
         case FrameType.msgRead:
           // 已读状态帧
           if (frame.payload.length >= 8) {
-            final msgId =
-                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(
+              frame.payload,
+            ).getUint64(0, Endian.big);
             iPrint('📖 [WS] v2 frame msgRead: msgId=$msgId');
             // 通过事件总线发布已读状态更新
             AppEventBus.fire(
@@ -481,7 +493,9 @@ class WebSocketService {
             final bd = ByteData.sublistView(frame.payload);
             final convId = bd.getUint64(0, Endian.big);
             final status = bd.getUint8(8);
-            iPrint('⌨️ [WS] v2 frame msgTyping: convId=$convId, status=$status');
+            iPrint(
+              '⌨️ [WS] v2 frame msgTyping: convId=$convId, status=$status',
+            );
             AppEventBus.fire(
               WebSocketMessageReceivedEvent(
                 type: 'S2C',
@@ -495,8 +509,9 @@ class WebSocketService {
           break;
         case FrameType.msgRecall:
           if (frame.payload.length >= 8) {
-            final msgId =
-                ByteData.sublistView(frame.payload).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(
+              frame.payload,
+            ).getUint64(0, Endian.big);
             iPrint('↩️ [WS] v2 frame msgRecall: msgId=$msgId');
             AppEventBus.fire(
               WebSocketMessageReceivedEvent(
@@ -538,7 +553,9 @@ class WebSocketService {
   Future<void> _onMessage(dynamic message) async {
     // v2 路径：binary 数据走 frame 解码
     if (_framing == FramingMode.v2 && message is List<int>) {
-      final bytes = message is Uint8List ? message : Uint8List.fromList(message);
+      final bytes = message is Uint8List
+          ? message
+          : Uint8List.fromList(message);
       _handleV2Binary(bytes);
       return;
     }

@@ -27,10 +27,7 @@ class WebConversationPage extends ConsumerStatefulWidget {
   /// 选中的会话 ID（用于响应式布局）
   final String? selectedConversationId;
 
-  const WebConversationPage({
-    super.key,
-    this.selectedConversationId,
-  });
+  const WebConversationPage({super.key, this.selectedConversationId});
 
   @override
   ConsumerState<WebConversationPage> createState() =>
@@ -112,7 +109,9 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
   Widget _buildSearchBar(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
-      color: isDark ? AppColors.chatWebBackgroundDark : AppColors.chatWebBackgroundLight,
+      color: isDark
+          ? AppColors.chatWebBackgroundDark
+          : AppColors.chatWebBackgroundLight,
       child: TextField(
         controller: _searchController,
         focusNode: _searchFocusNode,
@@ -124,12 +123,16 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
         decoration: InputDecoration(
           hintText: t.search,
           hintStyle: TextStyle(
-            color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+            color: isDark
+                ? AppColors.chatWebSecondaryDark
+                : AppColors.chatWebSecondaryLight,
             fontSize: 14,
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+            color: isDark
+                ? AppColors.chatWebSecondaryDark
+                : AppColors.chatWebSecondaryLight,
             size: 20,
           ),
           filled: true,
@@ -138,7 +141,10 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
             borderRadius: AppRadius.borderRadiusSmall,
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 10,
+          ),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
                   icon: Icon(
@@ -166,14 +172,12 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isDark ? AppColors.chatWebBrand.withAlpha(30) : AppColors.chatWebBrand.withAlpha(20),
+      color: isDark
+          ? AppColors.chatWebBrand.withAlpha(30)
+          : AppColors.chatWebBrand.withAlpha(20),
       child: Row(
         children: [
-          const Icon(
-            Icons.cloud_off,
-            size: 16,
-            color: AppColors.chatWebBrand,
-          ),
+          const Icon(Icons.cloud_off, size: 16, color: AppColors.chatWebBrand),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -199,13 +203,17 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
             Icon(
               Icons.search,
               size: 64,
-              color: isDark ? AppColors.chatWebDividerDark : AppColors.chatWebDividerLight,
+              color: isDark
+                  ? AppColors.chatWebDividerDark
+                  : AppColors.chatWebDividerLight,
             ),
             const SizedBox(height: 16),
             Text(
               t.searchChatRecord,
               style: TextStyle(
-                color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+                color: isDark
+                    ? AppColors.chatWebSecondaryDark
+                    : AppColors.chatWebSecondaryLight,
                 fontSize: 14,
               ),
             ),
@@ -271,7 +279,9 @@ class _WebConversationItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isDark ? AppColors.chatWebSurfaceDark : AppColors.chatWebBackgroundLight)
+              ? (isDark
+                    ? AppColors.chatWebSurfaceDark
+                    : AppColors.chatWebBackgroundLight)
               : Colors.transparent,
         ),
         child: Row(
@@ -327,7 +337,9 @@ class _WebConversationItem extends StatelessWidget {
         Text(
           DateTimeHelper.lastTimeFmt(conversation.lastTime),
           style: TextStyle(
-            color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+            color: isDark
+                ? AppColors.chatWebSecondaryDark
+                : AppColors.chatWebSecondaryLight,
             fontSize: 12,
           ),
         ),
@@ -349,7 +361,9 @@ class _WebConversationItem extends StatelessWidget {
           child: Text(
             conversation.subtitle,
             style: TextStyle(
-              color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+              color: isDark
+                  ? AppColors.chatWebSecondaryDark
+                  : AppColors.chatWebSecondaryLight,
               fontSize: 14,
             ),
             overflow: TextOverflow.ellipsis,
@@ -396,14 +410,18 @@ class _WebConversationItem extends StatelessWidget {
       return Icon(
         Icons.access_time,
         size: 14,
-        color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+        color: isDark
+            ? AppColors.chatWebSecondaryDark
+            : AppColors.chatWebSecondaryLight,
       );
     } else if (status == 11) {
       // 已发送
       return Icon(
         Icons.done,
         size: 14,
-        color: isDark ? AppColors.chatWebSecondaryDark : AppColors.chatWebSecondaryLight,
+        color: isDark
+            ? AppColors.chatWebSecondaryDark
+            : AppColors.chatWebSecondaryLight,
       );
     }
     return const SizedBox.shrink();

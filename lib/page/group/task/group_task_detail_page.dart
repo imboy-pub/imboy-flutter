@@ -93,7 +93,9 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? context.t.groupTask.taskSubmitted : context.t.groupTask.submitFailed,
+          success
+              ? context.t.groupTask.taskSubmitted
+              : context.t.groupTask.submitFailed,
         ),
       ),
     );
@@ -159,7 +161,10 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                 ? widget.taskId
                 : _toText(_task!['task_id']),
           ),
-          _InfoLine(label: context.t.groupTask.pendingReview, value: _pendingReviewCount.toString()),
+          _InfoLine(
+            label: context.t.groupTask.pendingReview,
+            value: _pendingReviewCount.toString(),
+          ),
           const SizedBox(height: 16),
           if (!isCompleted)
             ElevatedButton(

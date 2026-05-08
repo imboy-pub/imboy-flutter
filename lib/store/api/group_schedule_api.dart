@@ -191,10 +191,7 @@ class GroupScheduleApi extends HttpClient {
     if (startTime != null) query['start_at'] = startTime;
     if (endTime != null) query['end_at'] = endTime;
 
-    final resp = await get(
-      API.groupScheduleMyList,
-      queryParameters: query,
-    );
+    final resp = await get(API.groupScheduleMyList, queryParameters: query);
 
     if (!resp.ok || resp.payload == null) {
       return [];

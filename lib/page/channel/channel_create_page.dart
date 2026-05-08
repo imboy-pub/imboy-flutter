@@ -64,7 +64,9 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
 
     if (channel != null && mounted) {
       // 刷新频道列表
-      unawaited(ref.read(channelListProvider.notifier).loadSubscribedChannels());
+      unawaited(
+        ref.read(channelListProvider.notifier).loadSubscribedChannels(),
+      );
       // 跳转到频道详情
       context.pushReplacement('/channel/${channel.id}');
     }
@@ -172,9 +174,9 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       return;
     }
     if (_tags.length >= _maxTags) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.channelMaxTagsCount)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.channelMaxTagsCount)));
       return;
     }
     setState(() => _tags.add(tag));

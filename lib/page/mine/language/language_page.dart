@@ -102,7 +102,8 @@ class LanguageNotifier extends _$LanguageNotifier {
           orElse: () => AppLocale.zhCn,
         );
       } on Exception catch (e) {
-        if (kDebugMode) debugPrint('LanguageNotifier: 解析保存的语言失败 - ${e.runtimeType}');
+        if (kDebugMode)
+          debugPrint('LanguageNotifier: 解析保存的语言失败 - ${e.runtimeType}');
       }
     }
 
@@ -113,7 +114,8 @@ class LanguageNotifier extends _$LanguageNotifier {
           .firstWhere((entry) => entry.value == currentLocale)
           .key;
     } on Exception catch (e) {
-      if (kDebugMode) debugPrint('LanguageNotifier: 查找语言 ID 失败 - ${e.runtimeType}');
+      if (kDebugMode)
+        debugPrint('LanguageNotifier: 查找语言 ID 失败 - ${e.runtimeType}');
     }
 
     return LanguageState(
@@ -262,19 +264,19 @@ class LanguagePage extends ConsumerWidget {
                     ),
                     child: Column(
                       children: [
-                        for (int i = 0;
-                            i < state.languageList.length;
-                            i++) ...[
+                        for (int i = 0; i < state.languageList.length; i++) ...[
                           _buildLanguageTile(
                             context,
                             item: state.languageList[i],
-                            selected: state.selectedLocale ==
+                            selected:
+                                state.selectedLocale ==
                                 localeIdMap[state.languageList[i].id],
                             brightness: brightness,
                             onTap: () => ref
                                 .read(languageProvider.notifier)
                                 .updateSelectedLanguage(
-                                    state.languageList[i].id),
+                                  state.languageList[i].id,
+                                ),
                           ),
                           if (i < state.languageList.length - 1)
                             _buildDivider(),
@@ -295,10 +297,12 @@ class LanguagePage extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor:
-                        AppColors.primary.withValues(alpha: 0.4),
-                    disabledForegroundColor:
-                        Colors.white.withValues(alpha: 0.7),
+                    disabledBackgroundColor: AppColors.primary.withValues(
+                      alpha: 0.4,
+                    ),
+                    disabledForegroundColor: Colors.white.withValues(
+                      alpha: 0.7,
+                    ),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: AppRadius.borderRadiusMedium,

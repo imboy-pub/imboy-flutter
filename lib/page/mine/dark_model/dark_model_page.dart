@@ -149,9 +149,7 @@ class DarkModelPage extends ConsumerWidget {
               activeThumbColor: Colors.white,
               activeTrackColor: AppColors.getIosBlue(brightness),
               onChanged: (val) {
-                ref
-                    .read(darkModelProvider.notifier)
-                    .configSwitchOnChanged(val);
+                ref.read(darkModelProvider.notifier).configSwitchOnChanged(val);
               },
             ),
           ),
@@ -169,9 +167,8 @@ class DarkModelPage extends ConsumerWidget {
                     context,
                     title: t.systemDefault,
                     selected: state.selectIndex == 2,
-                    onTap: () => ref
-                        .read(darkModelProvider.notifier)
-                        .tapDarkItem(2),
+                    onTap: () =>
+                        ref.read(darkModelProvider.notifier).tapDarkItem(2),
                     brightness: brightness,
                   ),
                   _buildDivider(),
@@ -179,9 +176,8 @@ class DarkModelPage extends ConsumerWidget {
                     context,
                     title: t.darkModel,
                     selected: state.selectIndex == 3,
-                    onTap: () => ref
-                        .read(darkModelProvider.notifier)
-                        .tapDarkItem(3),
+                    onTap: () =>
+                        ref.read(darkModelProvider.notifier).tapDarkItem(3),
                     brightness: brightness,
                   ),
                 ],

@@ -51,8 +51,14 @@ class DateTimeHelper {
   /// 格式化日期时间（秒级时间戳）
   /// [timestamp] 秒级时间戳
   /// [pattern] 格式化模式，默认 'y-MM-dd HH:mm'
-  static String formatDateTime(int timestamp, {String pattern = 'y-MM-dd HH:mm'}) {
-    DateTime dt = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: false);
+  static String formatDateTime(
+    int timestamp, {
+    String pattern = 'y-MM-dd HH:mm',
+  }) {
+    DateTime dt = DateTime.fromMillisecondsSinceEpoch(
+      timestamp * 1000,
+      isUtc: false,
+    );
     return DateFormat(pattern).format(dt);
   }
 

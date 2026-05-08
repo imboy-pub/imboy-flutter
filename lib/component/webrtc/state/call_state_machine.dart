@@ -136,8 +136,10 @@ class WebRTCCallStateMachine {
         break;
 
       case WebRTCConnectionState.failed:
-        _setState(WebRTCCallState.failed,
-            error: event.error ?? 'Connection failed');
+        _setState(
+          WebRTCCallState.failed,
+          error: event.error ?? 'Connection failed',
+        );
         break;
 
       case WebRTCConnectionState.closed:
@@ -218,9 +220,10 @@ class WebRTCCallStateMachine {
     }
 
     _endTime = DateTime.now();
-    _setState(WebRTCCallState.ended, metadata: {
-      'reason': reason ?? 'user_hangup',
-    });
+    _setState(
+      WebRTCCallState.ended,
+      metadata: {'reason': reason ?? 'user_hangup'},
+    );
 
     // 关闭连接
     await _connection?.close(reason: reason ?? 'hangup');
@@ -295,10 +298,7 @@ class WebRTCCallStateMachine {
     // 定义合法的状态转换
     const validTransitions = {
       // 从空闲状态
-      WebRTCCallState.idle: {
-        WebRTCCallState.inviting,
-        WebRTCCallState.ringing,
-      },
+      WebRTCCallState.idle: {WebRTCCallState.inviting, WebRTCCallState.ringing},
 
       // 从发起中状态
       WebRTCCallState.inviting: {
@@ -348,30 +348,19 @@ class WebRTCCallStateMachine {
       },
 
       // 从静音状态
-      WebRTCCallState.muted: {
-        WebRTCCallState.connected,
-        WebRTCCallState.ended,
-      },
+      WebRTCCallState.muted: {WebRTCCallState.connected, WebRTCCallState.ended},
 
       // 从失败状态
-      WebRTCCallState.failed: {
-        WebRTCCallState.ended,
-      },
+      WebRTCCallState.failed: {WebRTCCallState.ended},
 
       // 从拒绝状态
-      WebRTCCallState.rejected: {
-        WebRTCCallState.ended,
-      },
+      WebRTCCallState.rejected: {WebRTCCallState.ended},
 
       // 从忙碌状态
-      WebRTCCallState.busy: {
-        WebRTCCallState.ended,
-      },
+      WebRTCCallState.busy: {WebRTCCallState.ended},
 
       // 从无响应状态
-      WebRTCCallState.unanswered: {
-        WebRTCCallState.ended,
-      },
+      WebRTCCallState.unanswered: {WebRTCCallState.ended},
     };
 
     final allowedStates = validTransitions[_state];
@@ -523,7 +512,9 @@ class WebRTCCallStateMachineManager {
   Future<void> closeAll() async {
     debugPrint('Closing all CallStateMachines (${_stateMachines.length})');
 
-    final stateMachines = List<WebRTCCallStateMachine>.from(_stateMachines.values);
+    final stateMachines = List<WebRTCCallStateMachine>.from(
+      _stateMachines.values,
+    );
     _stateMachines.clear();
     _userSessions.clear();
 

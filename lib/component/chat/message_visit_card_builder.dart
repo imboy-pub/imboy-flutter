@@ -73,7 +73,8 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
         } else {
           // 接收方：使用与语音消息相同的背景色
           bgColor = isDark
-              ? AppColors.darkSurfaceVariant // 暗色模式：深灰色
+              ? AppColors
+                    .darkSurfaceVariant // 暗色模式：深灰色
               : Colors.black12; // 亮色模式：浅灰色
         }
 
@@ -99,10 +100,8 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
-                            builder: (context) => PeopleInfoPage(
-                              id: uid,
-                              scene: 'visitCard',
-                            ),
+                            builder: (context) =>
+                                PeopleInfoPage(id: uid, scene: 'visitCard'),
                           ),
                         );
                       },

@@ -194,7 +194,10 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
       for (var e in tagContactList) {
         oldObjectIds.add(e.peerId.toString());
         if (!objectIds.contains(e.peerId.toString())) {
-          ContactRepo().removeTag(peerId: e.peerId.toString(), tagName: tagName);
+          ContactRepo().removeTag(
+            peerId: e.peerId.toString(),
+            tagName: tagName,
+          );
           e.tag = e.tag.replaceAll("$tagName,", '');
         }
       }

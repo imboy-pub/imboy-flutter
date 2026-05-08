@@ -164,11 +164,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
   );
 
   // DESIGN.md §3.4：中文正文行高 1.4（多行预览可读性）
-  final textStyle = TextStyle(
-    fontSize: 14.0,
-    color: txtColor,
-    height: 1.4,
-  );
+  final textStyle = TextStyle(fontSize: 14.0, color: txtColor, height: 1.4);
 
   // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
   final effectiveMsgType =

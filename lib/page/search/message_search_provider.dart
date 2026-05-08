@@ -358,10 +358,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         );
       } else {
         // 全局搜索
-        ftsResults = await ftsRepo.searchAll(
-          query: query,
-          limit: limit,
-        );
+        ftsResults = await ftsRepo.searchAll(query: query, limit: limit);
       }
 
       if (ftsResults.isEmpty) return null;
@@ -378,10 +375,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         );
       }).toList();
 
-      return MessageSearchResponse(
-        items: items,
-        total: items.length,
-      );
+      return MessageSearchResponse(items: items, total: items.length);
     } on Exception {
       // FTS 查询失败，降级到服务端
       return null;

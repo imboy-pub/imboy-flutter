@@ -91,9 +91,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
           backgroundColor: backgroundColor,
           duration: duration,
           behavior: SnackBarBehavior.fixed,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
   }
@@ -103,18 +101,20 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor =
-        isDark ? AppColors.darkSurface : AppColors.lightSurface;
-    final surfaceContainerColor =
-        isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurfaceContainer;
-    final textPrimary =
-        isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final textSecondary =
-        isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final borderColor =
-        isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final errorColor =
-        isDark ? AppColors.darkError : AppColors.lightError;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
+    final surfaceContainerColor = isDark
+        ? AppColors.darkSurfaceContainer
+        : AppColors.lightSurfaceContainer;
+    final textPrimary = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.lightTextPrimary;
+    final textSecondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.lightTextSecondary;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final errorColor = isDark ? AppColors.darkError : AppColors.lightError;
 
     // 验证数据完整性
     if (_account.isEmpty || _accountType.isEmpty || _pwd.isEmpty) {
@@ -128,10 +128,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
               const SizedBox(height: 16),
               Text(
                 t.unknown,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: textPrimary,
-                ),
+                style: TextStyle(fontSize: 18, color: textPrimary),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
@@ -151,288 +148,283 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
       backgroundColor: surfaceColor,
       body: Stack(
         children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 80),
-                    FadeAnimation(
-                      delay: 0.8,
-                      child: const PassportTitle(color: AppColors.primary),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 80),
+                  FadeAnimation(
+                    delay: 0.8,
+                    child: const PassportTitle(color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 40),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadius.borderRadiusSmall,
                     ),
-                    const SizedBox(height: 40),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      decoration: BoxDecoration(
-                        borderRadius: AppRadius.borderRadiusSmall,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 0.0,
-                              vertical: 8,
-                            ),
-                            child: RichText(
-                              text: TextSpan(
-                                text: _accountType == 'email'
-                                    ? t.codeSentToEmail
-                                    : t.codeSentToMobile,
-                                children: [
-                                  TextSpan(
-                                    text: _account,
-                                    style: TextStyle(
-                                      color: textPrimary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 0.0,
+                            vertical: 8,
+                          ),
+                          child: RichText(
+                            text: TextSpan(
+                              text: _accountType == 'email'
+                                  ? t.codeSentToEmail
+                                  : t.codeSentToMobile,
+                              children: [
+                                TextSpan(
+                                  text: _account,
+                                  style: TextStyle(
+                                    color: textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                ],
+                                ),
+                              ],
+                              style: TextStyle(
+                                color: textSecondary,
+                                fontSize: 15,
+                              ),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Form(
+                          key: formKey,
+                          child: MaterialPinField(
+                            length: 6,
+                            pinController: _pinController,
+                            obscureText: true,
+                            obscuringWidget: Icon(
+                              Icons.safety_check,
+                              color: AppColors.primary,
+                              size: 24,
+                            ),
+                            blinkWhenObscuring: true,
+                            theme: MaterialPinTheme(
+                              shape: MaterialPinShape.outlined,
+                              cellSize: const Size(40, 50),
+                              borderRadius: AppRadius.borderRadiusSmall,
+                              borderColor: borderColor,
+                              focusedBorderColor: AppColors.primary,
+                              filledBorderColor: AppColors.primary,
+                              fillColor: surfaceContainerColor,
+                              textStyle: TextStyle(
+                                color: textPrimary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                            onCompleted: (v) {
+                              debugPrint("Completed");
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                currentText = value;
+                              });
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            hasError ? t.pinCodeFillTips : '',
+                            style: TextStyle(
+                              color: errorColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                t.notReceiveCoeQ,
                                 style: TextStyle(
                                   color: textSecondary,
                                   fontSize: 15,
                                 ),
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                          ),
-                          const SizedBox(height: 30),
-                          Form(
-                            key: formKey,
-                            child: MaterialPinField(
-                              length: 6,
-                              pinController: _pinController,
-                              obscureText: true,
-                              obscuringWidget: Icon(
-                                Icons.safety_check,
-                                color: AppColors.primary,
-                                size: 24,
-                              ),
-                              blinkWhenObscuring: true,
-                              theme: MaterialPinTheme(
-                                shape: MaterialPinShape.outlined,
-                                cellSize: const Size(40, 50),
-                                borderRadius: AppRadius.borderRadiusSmall,
-                                borderColor: borderColor,
-                                focusedBorderColor: AppColors.primary,
-                                filledBorderColor: AppColors.primary,
-                                fillColor: surfaceContainerColor,
-                                textStyle: TextStyle(
-                                  color: textPrimary,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              keyboardType: TextInputType.number,
-                              onCompleted: (v) {
-                                debugPrint("Completed");
-                              },
-                              onChanged: (value) {
-                                setState(() {
-                                  currentText = value;
-                                });
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0,
-                            ),
-                            child: Text(
-                              hasError ? t.pinCodeFillTips : '',
-                              style: TextStyle(
-                                color: errorColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  t.notReceiveCoeQ,
-                                  style: TextStyle(
-                                    color: textSecondary,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () async {
-                                    String? res = await notifier.sendCode(
-                                      _accountType,
-                                      _account,
-                                      'signup',
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () async {
+                                  String? res = await notifier.sendCode(
+                                    _accountType,
+                                    _account,
+                                    'signup',
+                                  );
+                                  if (!context.mounted) return;
+                                  if (res == null) {
+                                    _showSnackBar(
+                                      context,
+                                      Text(
+                                        t.codeSentToParam(param: _account),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      backgroundColor: AppColors.primary,
                                     );
-                                    if (!context.mounted) return;
-                                    if (res == null) {
+                                  } else {
+                                    if (res == 'param_already_exist') {
+                                      final label = _accountType == 'email'
+                                          ? t.email
+                                          : t.mobile;
                                       _showSnackBar(
                                         context,
                                         Text(
-                                          t.codeSentToParam(param: _account),
+                                          t.paramAlreadyExist(param: label),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
                                           ),
                                         ),
-                                        backgroundColor: AppColors.primary,
                                       );
                                     } else {
-                                      if (res == 'param_already_exist') {
-                                        final label = _accountType == 'email'
-                                            ? t.email
-                                            : t.mobile;
-                                        _showSnackBar(
-                                          context,
-                                          Text(
-                                            t.paramAlreadyExist(param: label),
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                            ),
+                                      _showSnackBar(
+                                        context,
+                                        Text(
+                                          res,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
                                           ),
-                                        );
-                                      } else {
-                                        _showSnackBar(
-                                          context,
-                                          Text(
-                                            res,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        );
-                                      }
+                                        ),
+                                      );
                                     }
-                                  },
-                                  child: Text(
-                                    t.resendCode,
-                                    style: const TextStyle(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                  }
+                                },
+                                child: Text(
+                                  t.resendCode,
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
 
-                          const SizedBox(height: 30),
-                          ElevatedButton(
-                            onPressed: () async {
-                              String? res = await notifier.confirmSignup(
-                                accountType: _accountType,
-                                account: _account,
-                                nickname: _nickname,
-                                code: currentText,
-                                pwd: _pwd,
-                              );
-                              if (!context.mounted) return;
-                              if (res == null) {
-                                _showSnackBar(
-                                  context,
-                                  Text(
-                                    t.tipSuccess,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
+                        const SizedBox(height: 30),
+                        ElevatedButton(
+                          onPressed: () async {
+                            String? res = await notifier.confirmSignup(
+                              accountType: _accountType,
+                              account: _account,
+                              nickname: _nickname,
+                              code: currentText,
+                              pwd: _pwd,
+                            );
+                            if (!context.mounted) return;
+                            if (res == null) {
+                              _showSnackBar(
+                                context,
+                                Text(
+                                  t.tipSuccess,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
                                   ),
-                                  backgroundColor: Colors.green,
-                                  duration: const Duration(seconds: 2),
-                                );
-                                // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
-                                context.go('/manage_account');
-                              } else {
-                                _showSnackBar(
-                                  context,
-                                  Text(
-                                    res,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(double.infinity, 52),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: AppRadius.borderRadiusRegular,
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              child: Text(
-                                t.signup,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 2),
+                              );
+                              // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
+                              context.go('/manage_account');
+                            } else {
+                              _showSnackBar(
+                                context,
+                                Text(
+                                  res,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppRadius.borderRadiusRegular,
                             ),
+                            elevation: 0,
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    FadeAnimation(
-                      delay: 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            t.tryAgainQ,
-                            style: TextStyle(
-                              color: textSecondary,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              if (!context.mounted) return;
-                              context.go('/sign_in');
-                            },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(
-                              t.login,
-                              style: TextStyle(
-                                color: AppColors.primary,
+                              t.signup,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                                fontSize: 14,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    // 底部安全间距，防止小屏/键盘弹出时溢出
-                    const SizedBox(height: 80),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+                  FadeAnimation(
+                    delay: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          t.tryAgainQ,
+                          style: TextStyle(
+                            color: textSecondary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (!context.mounted) return;
+                            context.go('/sign_in');
+                          },
+                          child: Text(
+                            t.login,
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 底部安全间距，防止小屏/键盘弹出时溢出
+                  const SizedBox(height: 80),
+                ],
               ),
             ),
-            Positioned(
-              top: 40,
-              left: 0,
-              child: notifier.backButton(color: AppColors.primary),
-            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 0,
+            child: notifier.backButton(color: AppColors.primary),
+          ),
         ],
       ),
     );

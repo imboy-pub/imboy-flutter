@@ -352,7 +352,8 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
           .where((tagName) => !resolvedTagIdByName.containsKey(tagName))
           .toList();
       if (unresolved.isNotEmpty) {
-        if (kDebugMode) debugPrint('syncFinalState missing tag ids: $unresolved');
+        if (kDebugMode)
+          debugPrint('syncFinalState missing tag ids: $unresolved');
         return false;
       }
     }
@@ -360,7 +361,8 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
     for (final tagName in plan.toRemove) {
       final tagId = resolvedTagIdByName[tagName];
       if (tagId == null || tagId <= 0) {
-        if (kDebugMode) debugPrint('syncFinalState invalid tag id for $tagName');
+        if (kDebugMode)
+          debugPrint('syncFinalState invalid tag id for $tagName');
         return false;
       }
       final removed = await _userTagApi.removeRelation(

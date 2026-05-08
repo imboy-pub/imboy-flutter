@@ -975,7 +975,8 @@ class MessageService with EventSubscriptionManager {
         final bytes = ImboyFrame.encode(
           type: FrameType.msgRead,
           flags: 0,
-          payload: Uint8List(8)..buffer.asByteData().setUint64(0, numericId, Endian.big),
+          payload: Uint8List(8)
+            ..buffer.asByteData().setUint64(0, numericId, Endian.big),
         );
         WebSocketService.to.sendDirect(bytes);
         iPrint('📤 [READ_RECEIPT] 发送 v2 已读回执: msgId=$msgId');
@@ -1243,11 +1244,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 获取通知内容
   String _getNotificationContent(MessageModel msg) {
-    return _messageTypeLabel(
-      msg.msgType ?? '',
-      msg.payload,
-      fallback: '[新消息]',
-    );
+    return _messageTypeLabel(msg.msgType ?? '', msg.payload, fallback: '[新消息]');
   }
 
   /// Handle error codes from server

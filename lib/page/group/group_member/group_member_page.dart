@@ -66,8 +66,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         if (event.gid.toString() != widget.groupId) return;
         if (event.userId.isEmpty) return;
         // 找到对应成员，原地更新 muteUntilMs 后触发重建
-        final idx =
-            _memberList.indexWhere((m) => m.userId.toString() == event.userId);
+        final idx = _memberList.indexWhere(
+          (m) => m.userId.toString() == event.userId,
+        );
         if (idx == -1) return;
         setState(() {
           _memberList[idx].muteUntilMs = event.muteUntilMs;
@@ -82,8 +83,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         if (!mounted) return;
         if (event.gid.toString() != widget.groupId) return;
         if (event.userId.isEmpty) return;
-        final idx =
-            _memberList.indexWhere((m) => m.userId.toString() == event.userId);
+        final idx = _memberList.indexWhere(
+          (m) => m.userId.toString() == event.userId,
+        );
         if (idx == -1) return;
         setState(() {
           _memberList[idx].muteUntilMs = null;
@@ -136,7 +138,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           limit: _pageSize,
           where: "${GroupMemberRepo.groupId} = ?",
           whereArgs: [widget.groupId],
-          orderBy: "${GroupMemberRepo.role} DESC, ${GroupMemberRepo.createdAt} ASC",
+          orderBy:
+              "${GroupMemberRepo.role} DESC, ${GroupMemberRepo.createdAt} ASC",
         );
       }
 
@@ -190,7 +193,6 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
   /// 构建角色标签
   Widget _buildRoleBadge(int role) {
-    
     String label;
     Color color;
 
@@ -228,7 +230,6 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   Widget _buildListItem(BuildContext context, GroupMemberModel member) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
 
     return InkWell(
       onTap: () async {
@@ -306,7 +307,6 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
   @override
   Widget build(BuildContext context) {
-    
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -319,33 +319,33 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       body: _isLoading && _memberList.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : _memberList.isEmpty
-              ? NoDataView(text: t.noData)
-              : EasyRefresh(
-                  controller: _refreshController,
-                  onRefresh: () async {
-                    await _loadData(refresh: true);
-                  },
-                  onLoad: _hasMore ? _loadMore : null,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _memberList.length,
-                    itemBuilder: (context, index) {
-                      final member = _memberList[index];
-                      return Column(
-                        children: [
-                          _buildListItem(context, member),
-                          if (index < _memberList.length - 1)
-                            Divider(
-                              height: 1,
-                              indent: 76,
-                              endIndent: 16,
-                              color: colorScheme.outline.withValues(alpha: 0.1),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+          ? NoDataView(text: t.noData)
+          : EasyRefresh(
+              controller: _refreshController,
+              onRefresh: () async {
+                await _loadData(refresh: true);
+              },
+              onLoad: _hasMore ? _loadMore : null,
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: _memberList.length,
+                itemBuilder: (context, index) {
+                  final member = _memberList[index];
+                  return Column(
+                    children: [
+                      _buildListItem(context, member),
+                      if (index < _memberList.length - 1)
+                        Divider(
+                          height: 1,
+                          indent: 76,
+                          endIndent: 16,
+                          color: colorScheme.outline.withValues(alpha: 0.1),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
     );
   }
 }

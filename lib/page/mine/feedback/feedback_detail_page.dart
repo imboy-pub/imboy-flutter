@@ -60,7 +60,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
         automaticallyImplyLeading: true,
         title: t.feedbackDetails,
       ),
-      backgroundColor: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -77,132 +79,133 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 标题行
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withAlpha(51),
-                            borderRadius: AppRadius.borderRadiusMedium,
-                          ),
-                          child: Icon(
-                            Icons.feedback,
-                            color: colorScheme.primary,
-                            size: 24,
-                          ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 标题行
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withAlpha(51),
+                          borderRadius: AppRadius.borderRadiusMedium,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.model.type == 'bug_report'
-                                    ? t.bugReport
-                                    : widget.model.type == 'feature_request'
-                                    ? t.featureRequest
-                                    : widget.model.type,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${t.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: colorScheme.onSurface.withAlpha(179),
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: Icon(
+                          Icons.feedback,
+                          color: colorScheme.primary,
+                          size: 24,
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.model.type == 'bug_report'
+                                  ? t.bugReport
+                                  : widget.model.type == 'feature_request'
+                                  ? t.featureRequest
+                                  : widget.model.type,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${t.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: colorScheme.onSurface.withAlpha(179),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(
+                            context,
+                            widget.model.statusDesc,
+                          ).withAlpha(51),
+                          borderRadius: AppRadius.borderRadiusSmall,
+                        ),
+                        child: Text(
+                          widget.model.statusDesc,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                             color: _getStatusColor(
                               context,
                               widget.model.statusDesc,
-                            ).withAlpha(51),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 操作按钮行
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
                             borderRadius: AppRadius.borderRadiusSmall,
-                          ),
-                          child: Text(
-                            widget.model.statusDesc,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: _getStatusColor(
+                            onTap: () {
+                              zoomInPhotoViewGallery(
                                 context,
-                                widget.model.statusDesc,
+                                widget.model.attach,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
                               ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // 操作按钮行
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: AppRadius.borderRadiusSmall,
-                              onTap: () {
-                                zoomInPhotoViewGallery(
-                                  context,
-                                  widget.model.attach,
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
+                              decoration: BoxDecoration(
+                                color: colorScheme.secondaryContainer.withAlpha(
+                                  128,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.secondaryContainer
-                                      .withAlpha(128),
-                                  borderRadius: AppRadius.borderRadiusSmall,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.screenshot,
+                                borderRadius: AppRadius.borderRadiusSmall,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.screenshot,
+                                    color: colorScheme.secondary,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    t.viewAttachments,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                       color: colorScheme.secondary,
-                                      size: 20,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      t.viewAttachments,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: colorScheme.secondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
 
             const SizedBox(height: 16),
 
@@ -216,51 +219,51 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   borderRadius: AppRadius.borderRadiusRegular,
                 ),
                 child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.star, color: Colors.amber, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            t.rating,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
-                            ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          t.rating,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            '${widget.model.rating} ${widget.model.ratingDesc}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.onSurface.withAlpha(179),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: RatingBar.builder(
-                          initialRating: double.parse(widget.model.rating),
-                          minRating: 1,
-                          direction: Axis.horizontal,
-                          allowHalfRating: true,
-                          itemCount: 5,
-                          itemSize: 32,
-                          itemPadding: const EdgeInsets.symmetric(
-                            horizontal: 4.0,
-                          ),
-                          itemBuilder: (context, _) =>
-                              const Icon(Icons.star, color: Colors.amber),
-                          onRatingUpdate: (rating) {},
-                          ignoreGestures: true,
                         ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${widget.model.rating} ${widget.model.ratingDesc}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurface.withAlpha(179),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: RatingBar.builder(
+                        initialRating: double.parse(widget.model.rating),
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemSize: 32,
+                        itemPadding: const EdgeInsets.symmetric(
+                          horizontal: 4.0,
+                        ),
+                        itemBuilder: (context, _) =>
+                            const Icon(Icons.star, color: Colors.amber),
+                        onRatingUpdate: (rating) {},
+                        ignoreGestures: true,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
             if (widget.model.rating.isNotEmpty) const SizedBox(height: 16),
 
@@ -273,48 +276,46 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.description,
-                          color: colorScheme.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.feedbackContent,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withAlpha(
-                          128,
-                        ),
-                        borderRadius: AppRadius.borderRadiusMedium,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.description,
+                        color: colorScheme.primary,
+                        size: 20,
                       ),
-                      child: Text(
-                        widget.model.body,
+                      const SizedBox(width: 8),
+                      Text(
+                        t.feedbackContent,
                         style: TextStyle(
                           fontSize: 16,
+                          fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
-                          height: 1.5,
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest.withAlpha(128),
+                      borderRadius: AppRadius.borderRadiusMedium,
                     ),
-                  ],
-                ),
+                    child: Text(
+                      widget.model.body,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorScheme.onSurface,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
 
             const SizedBox(height: 16),
 
@@ -327,53 +328,49 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.reply,
-                          color: colorScheme.secondary,
-                          size: 20,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.reply, color: colorScheme.secondary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        t.officialReply,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.officialReply,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 回复列表
-                    Container(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.4,
                       ),
-                      child: state.pageReplyList.isEmpty
-                          ? SizedBox(
-                              height: 120,
-                              child: NoDataView(text: t.noReply),
-                            )
-                          : ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: state.pageReplyList.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder: (BuildContext context, int index) {
-                                FeedbackReplyModel replyModel =
-                                    state.pageReplyList[index];
-                                return _buildReplyItem(context, replyModel);
-                              },
-                            ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 回复列表
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.4,
                     ),
-                  ],
-                ),
+                    child: state.pageReplyList.isEmpty
+                        ? SizedBox(
+                            height: 120,
+                            child: NoDataView(text: t.noReply),
+                          )
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: state.pageReplyList.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (BuildContext context, int index) {
+                              FeedbackReplyModel replyModel =
+                                  state.pageReplyList[index];
+                              return _buildReplyItem(context, replyModel);
+                            },
+                          ),
+                  ),
+                ],
               ),
+            ),
 
             const SizedBox(height: 16),
           ],

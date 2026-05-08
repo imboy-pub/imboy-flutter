@@ -31,7 +31,7 @@ class DefaultAppDowngradeCleaner implements AppDowngradeCleaner {
   /// 测试时传入 FakeStorage 以避免 SharedPreferences 平台通道。
   /// Tests pass a FakeStorage to avoid SharedPreferences platform channels.
   DefaultAppDowngradeCleaner({dynamic storage})
-      : _storage = storage ?? StorageService.to;
+    : _storage = storage ?? StorageService.to;
 
   /// WebSocket 消息队列存储 key（与 websocket_message_queue.dart 同步）。
   /// WebSocket message queue storage key (kept in sync with source file).

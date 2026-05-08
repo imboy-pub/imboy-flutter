@@ -271,7 +271,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               children: [
                 ClipRRect(
                   borderRadius: AppRadius.borderRadiusMedium,
-                  child: Avatar(imgUri: profileState.avatar, width: 80,height: 80,),
+                  child: Avatar(
+                    imgUri: profileState.avatar,
+                    width: 80,
+                    height: 80,
+                  ),
                 ),
 
                 // 上传状态指示器

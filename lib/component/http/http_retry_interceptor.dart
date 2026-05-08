@@ -55,7 +55,10 @@ class HttpRetryInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     // 检查是否应该重试
     if (_shouldRetry(err)) {
       final retryCount = err.requestOptions.extra[_retryCountKey] as int? ?? 0;

@@ -63,18 +63,20 @@ class _PinCodeVerificationPageState
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor =
-        isDark ? AppColors.darkSurface : AppColors.lightSurface;
-    final surfaceContainerColor =
-        isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurfaceContainer;
-    final textPrimary =
-        isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final textSecondary =
-        isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final borderColor =
-        isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final errorColor =
-        isDark ? AppColors.darkError : AppColors.lightError;
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurface;
+    final surfaceContainerColor = isDark
+        ? AppColors.darkSurfaceContainer
+        : AppColors.lightSurfaceContainer;
+    final textPrimary = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.lightTextPrimary;
+    final textSecondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.lightTextSecondary;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final errorColor = isDark ? AppColors.darkError : AppColors.lightError;
 
     return Scaffold(
       backgroundColor: surfaceColor,
@@ -256,9 +258,7 @@ class _PinCodeVerificationPageState
                                     return PasswordTextField(
                                       obscureText: state.newPwdObscure,
                                       hintText: t.newPassword,
-                                      style: TextStyle(
-                                        color: textPrimary,
-                                      ),
+                                      style: TextStyle(color: textPrimary),
                                       hintStyle: TextStyle(
                                         color: textSecondary,
                                       ),
@@ -286,9 +286,7 @@ class _PinCodeVerificationPageState
                                     return PasswordTextField(
                                       obscureText: state.retypePwdObscure,
                                       hintText: t.retypePassword,
-                                      style: TextStyle(
-                                        color: textPrimary,
-                                      ),
+                                      style: TextStyle(color: textPrimary),
                                       hintStyle: TextStyle(
                                         color: textSecondary,
                                       ),

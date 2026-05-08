@@ -167,9 +167,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
               }
               EasyLoading.show(status: t.loading);
               int memberCount = state.selects.length;
-              iPrint(
-                "selects $memberCount",
-              );
+              iPrint("selects $memberCount");
               bool res = await ref
                   .read(removeMemberProvider.notifier)
                   .removeMembers(widget.groupId);

@@ -67,7 +67,8 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   }
 
   bool _isSubscribed(ChannelModel channel) {
-    return _subscribedChannelIds.contains(channel.id.toString()) || channel.isSubscribed;
+    return _subscribedChannelIds.contains(channel.id.toString()) ||
+        channel.isSubscribed;
   }
 
   /// 加载推荐频道

@@ -98,91 +98,89 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor:
-          _isDark ? AppColors.darkSurface : null,
+      backgroundColor: _isDark ? AppColors.darkSurface : null,
       body: Stack(
         children: [
           Positioned(
-              top: -height * .15,
-              right: -MediaQuery.of(context).size.width * .18,
-              child: const BezierContainer(),
-            ),
+            top: -height * .15,
+            right: -MediaQuery.of(context).size.width * .18,
+            child: const BezierContainer(),
+          ),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: height * 0.12),
-                    const PassportTitle(color: AppColors.primary),
-                    const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: height * 0.12),
+                  const PassportTitle(color: AppColors.primary),
+                  const SizedBox(height: 40),
 
-                    // Tabs
-                    TabBar(
+                  // Tabs
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: _unselectedLabel,
+                    indicatorColor: AppColors.primary,
+                    tabs: [
+                      Tab(text: t.account),
+                      Tab(text: t.mobile),
+                      Tab(text: t.email),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Tab Views
+                  SizedBox(
+                    height: 300, // Adjust height as needed
+                    child: TabBarView(
                       controller: _tabController,
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: _unselectedLabel,
-                      indicatorColor: AppColors.primary,
-                      tabs: [
-                        Tab(text: t.account),
-                        Tab(text: t.mobile),
-                        Tab(text: t.email),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Tab Views
-                    SizedBox(
-                      height: 300, // Adjust height as needed
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildAccountLogin(state, notifier),
-                          _buildMobileLogin(state, notifier),
-                          _buildEmailLogin(state, notifier),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Quick Actions / Guides
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        TextButton(
-                          onPressed: () =>
-                              context.push(AppRoutes.forgotPassword),
-                          child: Text(
-                            t.forgotPassword,
-                            style: TextStyle(
-                              color: _isDark
-                                  ? AppColors.darkTextSecondary
-                                  : Colors.grey[600],
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.push(AppRoutes.signUp),
-                          child: Text(
-                            t.signup,
-                            style: TextStyle(color: AppColors.primary),
-                          ),
-                        ),
+                        _buildAccountLogin(state, notifier),
+                        _buildMobileLogin(state, notifier),
+                        _buildEmailLogin(state, notifier),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Quick Actions / Guides
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => context.push(AppRoutes.forgotPassword),
+                        child: Text(
+                          t.forgotPassword,
+                          style: TextStyle(
+                            color: _isDark
+                                ? AppColors.darkTextSecondary
+                                : Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.push(AppRoutes.signUp),
+                        child: Text(
+                          t.signup,
+                          style: TextStyle(color: AppColors.primary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
+          ),
 
-            Positioned(
-              top: 40,
-              left: 0,
-              child: notifier.backButton(color: AppColors.primary),
-            ),
+          Positioned(
+            top: 40,
+            left: 0,
+            child: notifier.backButton(color: AppColors.primary),
+          ),
         ],
       ),
     );
@@ -292,7 +290,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             onInputChanged: (String fullNumber) {
               _fullMobile = fullNumber;
               // 同步到控制器
-              _mobileController.text = fullNumber.replaceFirst(RegExp(r'^\+\d+'), '');
+              _mobileController.text = fullNumber.replaceFirst(
+                RegExp(r'^\+\d+'),
+                '',
+              );
             },
             hintText: t.pleaseInputParam(param: t.mobile),
           ),
@@ -342,7 +343,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
               ),
-              child: Text(t.getVerificationCode, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                t.getVerificationCode,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),

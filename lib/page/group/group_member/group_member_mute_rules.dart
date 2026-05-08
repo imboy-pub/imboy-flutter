@@ -83,10 +83,7 @@ bool canMuteGroupMember({
 ///
 /// 与后端 `format_duration/1`（`group_member_logic.erl:275-287`）保持相似
 /// 的向下截断策略：用整数除法取最大单位的整数部分。
-String muteRemainingLabel({
-  required int? muteUntilMs,
-  required int nowMs,
-}) {
+String muteRemainingLabel({required int? muteUntilMs, required int nowMs}) {
   if (muteUntilMs == null) return '';
   final remainingMs = muteUntilMs - nowMs;
   if (remainingMs <= 0) return '';

@@ -187,7 +187,9 @@ class LaunchChatService {
 
       if (group.title.isEmpty) {
         final groupListService = GroupListService();
-        group.computeTitle = await groupListService.computeTitle(group.groupId.toString());
+        group.computeTitle = await groupListService.computeTitle(
+          group.groupId.toString(),
+        );
       }
 
       return group;

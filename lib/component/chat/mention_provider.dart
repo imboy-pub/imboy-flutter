@@ -44,19 +44,25 @@ class MentionNotifier extends Notifier<MentionState> {
       // 从本地数据库加载群成员
       final repo = GroupMemberRepo();
       final members = await repo.page(
-        where: '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.status} = ?',
+        where:
+            '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.status} = ?',
         whereArgs: [groupId, 1],
-        orderBy: '${GroupMemberRepo.role} DESC, ${GroupMemberRepo.nickname} ASC',
+        orderBy:
+            '${GroupMemberRepo.role} DESC, ${GroupMemberRepo.nickname} ASC',
         limit: 500, // 限制最大数量
       );
 
       // 转换为 MentionCandidate 列表
-      final rawCandidates = members.map((m) => MentionCandidate(
-        userId: m.userId.toString(),
-        displayName: m.alias.isNotEmpty ? m.alias : m.nickname,
-        avatar: m.avatar,
-        role: m.role,
-      )).toList();
+      final rawCandidates = members
+          .map(
+            (m) => MentionCandidate(
+              userId: m.userId.toString(),
+              displayName: m.alias.isNotEmpty ? m.alias : m.nickname,
+              avatar: m.avatar,
+              role: m.role,
+            ),
+          )
+          .toList();
 
       // 查找当前用户的角色
       final currentUid = UserRepoLocal.to.currentUid;
@@ -64,7 +70,9 @@ class MentionNotifier extends Notifier<MentionState> {
       final userIdToName = <String, String>{};
 
       for (final m in members) {
-        userIdToName[m.userId.toString()] = m.alias.isNotEmpty ? m.alias : m.nickname;
+        userIdToName[m.userId.toString()] = m.alias.isNotEmpty
+            ? m.alias
+            : m.nickname;
         if (m.userId.toString() == currentUid) {
           currentUserRole = m.role;
         }
@@ -126,8 +134,10 @@ class MentionNotifier extends Notifier<MentionState> {
       conversationUk3: conversationUk3,
       sinceMs: now - _freqWindowMs,
     );
-    _freqCache[conversationUk3] =
-        (expiresAt: now + _freqCacheTtlMs, counts: counts);
+    _freqCache[conversationUk3] = (
+      expiresAt: now + _freqCacheTtlMs,
+      counts: counts,
+    );
     return counts;
   }
 
@@ -163,9 +173,10 @@ class MentionNotifier extends Notifier<MentionState> {
 }
 
 /// @提及状态 Provider
-final mentionNotifierProvider = NotifierProvider.autoDispose<MentionNotifier, MentionState>(
-  MentionNotifier.new,
-);
+final mentionNotifierProvider =
+    NotifierProvider.autoDispose<MentionNotifier, MentionState>(
+      MentionNotifier.new,
+    );
 
 /// @提及数据管理器
 ///
@@ -208,6 +219,7 @@ class MentionDataManager extends Notifier<MentionData> {
 }
 
 /// @提及数据 Provider
-final mentionDataManagerProvider = NotifierProvider.autoDispose<MentionDataManager, MentionData>(
-  MentionDataManager.new,
-);
+final mentionDataManagerProvider =
+    NotifierProvider.autoDispose<MentionDataManager, MentionData>(
+      MentionDataManager.new,
+    );
