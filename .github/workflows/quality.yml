@@ -37,13 +37,19 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Analyze (ratchet — warnings <= 830, infos <= 703)
+      - name: Analyze (ratchet — errors==0 / warnings<=830 / infos<=703)
         run: |
           set -euo pipefail
           flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.txt || true
-          warnings=$(awk -F'•' '/^  warning •/{c++} END{print c+0}' analyze.txt)
-          infos=$(awk -F'•' '/^  info •/{c++} END{print c+0}' analyze.txt)
-          errors=$(awk -F'•' '/^  error •/{c++} END{print c+0}' analyze.txt)
+          # flutter analyze 输出 column-aligned：
+          #   "warning • The type ..."           (无前导空格，warning 7 字符)
+          #   "   info • The argument ..."        (3 空格，让 • 列对齐)
+          #   "  error • Some fatal ..."          (2 空格)
+          # 用 awk $1 匹配最稳（无关空格对齐 + 无关 ANSI 色码）
+          stats=$(awk '$1=="warning"{w++} $1=="info"{i++} $1=="error"{e++} END{print w+0, i+0, e+0}' analyze.txt)
+          warnings=$(echo "$stats" | awk '{print $1}')
+          infos=$(echo "$stats" | awk '{print $2}')
+          errors=$(echo "$stats" | awk '{print $3}')
           echo "errors=$errors warnings=$warnings infos=$infos"
 
           if [ "$errors" -gt 0 ]; then
