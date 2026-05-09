@@ -117,9 +117,7 @@ void main() {
 
       test('should return null for missing type', () {
         // Arrange
-        final qrData = jsonEncode({
-          'session_id': 'session-123',
-        });
+        final qrData = jsonEncode({'session_id': 'session-123'});
 
         // Act
         final result = E2EETransferService.parseQRCodeData(qrData);
@@ -202,7 +200,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => E2EETransferService.encryptKeyBundle(keyBundle, invalidPublicKey),
+          () =>
+              E2EETransferService.encryptKeyBundle(keyBundle, invalidPublicKey),
           throwsA(isA<Exception>()),
         );
       });
@@ -259,8 +258,10 @@ void main() {
       test('key bundle should contain required fields', () {
         // Arrange
         final keyBundle = {
-          'private_key': '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----',
-          'public_key': '-----BEGIN PUBLIC KEY-----\ntest\n-----END PUBLIC KEY-----',
+          'private_key':
+              '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----', // gitleaks:allow
+          'public_key':
+              '-----BEGIN PUBLIC KEY-----\ntest\n-----END PUBLIC KEY-----',
           'device_id': 'device-abc-123',
           'key_id': 'kid-xyz-789',
           'created_at': DateTime.now().toUtc().toIso8601String(),

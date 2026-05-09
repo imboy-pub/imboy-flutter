@@ -298,6 +298,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
 
       if (privateKey == null ||
           !privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
+        // gitleaks:allow
         _addResult('密钥生成测试', TestStatus.fail, '私钥 PEM 格式错误');
         return;
       }
@@ -499,7 +500,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
         .length;
     final total = _testResults.length;
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('测试完成 ($total/$total 通过)'),

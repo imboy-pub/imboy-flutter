@@ -26,7 +26,8 @@ import 'rsa_web_stub.dart' if (dart.library.html) 'rsa_web.dart';
 /// 5. 保持原有接口不变
 class RSAService {
   // region 常量定义
-  static const _beginPrivateKey = '-----BEGIN PRIVATE KEY-----';
+  static const _beginPrivateKey =
+      '-----BEGIN PRIVATE KEY-----'; // gitleaks:allow
   static const _endPrivateKey = '-----END PRIVATE KEY-----';
   static const _beginPublicKey = '-----BEGIN PUBLIC KEY-----';
   static const _endPublicKey = '-----END PUBLIC KEY-----';

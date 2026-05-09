@@ -69,6 +69,13 @@ paths = [
     '''test/fixtures/''',
     '''integration_test/fixtures/''',
 
+    # 测试自动化运行时日志（YAML runners 输出含 signKey MD5 等 runtime hash）
+    '''test_automation/reports/''',
+
+    # 环境变量配置（已 gitignored，prod 配置仅本地副本，不进 git）
+    '''^\.env$''',
+    '''^\.env\..*''',
+
     # 文档
     '''docs/''',
     '''DESIGN\.md''',
