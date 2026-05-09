@@ -1,0 +1,51 @@
+# imboyapp SonarCloud scan workflow
+#
+# 关联：.claude/plans/quality-loop.md v1.3 T4.3（v1.1 §302 + §332）
+# 创建：2026-05-09 / iteration 78 / T4.3
+# 配置文件：imboyapp/sonar-project.properties
+# 前置：用户在 SonarCloud 创建 imboyapp 项目 + GitHub Secret SONAR_TOKEN
+
+name: imboyapp SonarCloud
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonarcloud:
+    name: SonarCloud scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run tests with coverage（best-effort）
+        run: |
+          set -euxo pipefail
+          flutter test --coverage || echo "::warning::flutter test failed; sonar 仍上传源码 + analyzer baseline"
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .

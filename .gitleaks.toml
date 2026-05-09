@@ -1,0 +1,136 @@
+# gitleaks config for imboyapp (Flutter 3.8+ / Dart client)
+# 关联：.claude/plans/quality-loop.md T1.4 (v1.1 polyrepo 适配)
+# 文档：https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml
+# 项目特性：Riverpod + go_router + slang i18n + Xid string id（非 TSID）
+# 保留区（禁止修改）：ios/* macos/* plugin/r_upgrade
+
+title = "imboyapp gitleaks config (Flutter)"
+
+[extend]
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# 全局白名单
+# ---------------------------------------------------------------------------
+[allowlist]
+description = "imboyapp 全局白名单：Flutter 构建产物、原生依赖、生成代码、保留区"
+
+paths = [
+    # Flutter / Dart 构建产物
+    '''build/''',
+    '''\.dart_tool/''',
+    '''\.flutter-plugins''',
+    '''\.flutter-plugins-dependencies''',
+    '''\.packages''',
+    '''pubspec\.lock''',
+
+    # iOS 原生（保留区，禁止修改）
+    '''ios/''',
+
+    # macOS 原生（保留区）
+    '''macos/''',
+
+    # plugin/r_upgrade（保留区）
+    '''plugin/r_upgrade/''',
+
+    # Android 原生（仅排除构建产物与本地配置）
+    '''android/\.gradle/''',
+    '''android/build/''',
+    '''android/app/build/''',
+    '''android/local\.properties''',
+    '''android/key\.properties''',
+    '''android/.*\.iml''',
+
+    # Linux / Windows 桌面构建（如启用）
+    '''linux/flutter/ephemeral/''',
+    '''windows/flutter/ephemeral/''',
+
+    # codegen / 生成代码（slang / freezed / json_serializable / build_runner / protobuf / auto_route）
+    '''lib/api/_gen/''',
+    '''lib/i18n/strings\.g\.dart''',
+    '''lib/.*\.g\.dart''',
+    '''lib/.*\.freezed\.dart''',
+    '''lib/.*\.gr\.dart''',
+    '''lib/.*\.pb\.dart''',
+    '''lib/.*\.pbenum\.dart''',
+    '''lib/.*\.pbjson\.dart''',
+    '''lib/.*\.pbserver\.dart''',
+
+    # SQLite 迁移 SQL 脚本（含表结构示例，可能含合成 ID）
+    '''assets/migrations/''',
+
+    # 二进制 / 媒体资产
+    '''(.*?)\.(jpg|jpeg|png|gif|webp|svg|ico|avif)$''',
+    '''(.*?)\.(woff|woff2|ttf|eot|otf)$''',
+    '''(.*?)\.(pdf|zip|tar|gz|bz2|7z|rar)$''',
+    '''(.*?)\.(mp3|mp4|wav|ogg|webm|mov|m4a|aac)$''',
+
+    # 测试 fixture
+    '''test/fixtures/''',
+    '''integration_test/fixtures/''',
+
+    # 文档
+    '''docs/''',
+    '''DESIGN\.md''',
+    '''README\.md''',
+    '''CHANGELOG\.md''',
+    '''CLAUDE\.md''',
+    '''lib/.*/CLAUDE\.md''',
+
+    # 编辑器 / 版本控制元数据
+    '''\.git/''',
+    '''\.idea/''',
+    '''\.vscode/''',
+]
+
+# 占位符 / 示例 token
+regexes = [
+    '''(?i)(your[_-]?(api[_-]?key|secret|token)|<changeme>|placeholder|example[_-]?key|xxxxxxxx)''',
+    '''(?i)(00000000|11111111|deadbeef|cafebabe|abcdef00)[a-f0-9]{8,}''',
+    '''^[A-Za-z0-9+/]{8,31}={0,2}$''',
+]
+
+# ---------------------------------------------------------------------------
+# Flutter 项目特定规则
+# ---------------------------------------------------------------------------
+[[rules]]
+id = "imboyapp-firebase-api-key"
+description = "Firebase Web API Key 硬编码（应通过 firebase_options.dart 受控生成文件）"
+regex = '''AIza[0-9A-Za-z_\-]{35}'''
+keywords = ["AIza"]
+tags = ["key", "firebase", "imboyapp"]
+
+[rules.allowlist]
+description = "firebase_options.dart 与 GoogleService-Info.plist 是受控生成文件"
+paths = [
+    '''lib/firebase_options\.dart''',
+    '''ios/Runner/GoogleService-Info\.plist''',
+    '''android/app/google-services\.json''',
+]
+
+[[rules]]
+id = "imboyapp-android-keystore-password"
+description = "Android keystore 密码硬编码（应放 key.properties 且 gitignore）"
+regex = '''(?i)(keyPassword|storePassword)\s*=\s*['"]?[^'"\s]{6,}['"]?'''
+keywords = ["keyPassword", "storePassword"]
+tags = ["secret", "android", "imboyapp"]
+
+[rules.allowlist]
+description = "key.properties 模板示例文件允许"
+paths = [
+    '''android/key\.properties\.example''',
+    '''android/key\.properties\.template''',
+]
+
+[[rules]]
+id = "imboyapp-env-config-secret"
+description = "lib/config/env_*.dart 中明文 API key/secret"
+regex = '''(?i)(api[_-]?key|secret[_-]?key|access[_-]?token)\s*[:=]\s*['"][A-Za-z0-9+/=_\-]{32,}['"]'''
+keywords = ["apiKey", "secretKey", "accessToken", "api_key", "secret_key"]
+tags = ["secret", "env-config", "imboyapp"]
+
+[rules.allowlist]
+description = "env_dev.dart / env_local.dart 允许占位符；env_pro.dart 严格检查"
+paths = [
+    '''lib/config/env_local\.dart''',
+]

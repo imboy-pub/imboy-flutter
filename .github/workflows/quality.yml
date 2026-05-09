@@ -1,0 +1,84 @@
+# imboyapp 质量门 — Flutter analyze + Secrets
+#
+# 关联：.claude/plans/quality-loop.md v1.3 T4.1（v1.1 §301: 三仓各一份）
+# 与 ci.yml/core-automation.yml/integration_test.yml 互补：本 workflow 仅跑质量门
+# Ratchet 上限：analyzer warnings 830 + infos 703 / gitleaks 22
+# 创建：2026-05-09 / iteration 74 / T4.1
+
+name: imboyapp Quality Gate
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ----------------------------------------------------------------
+  # 1) Flutter analyze (strict-* 启用后基线 830 warnings + 703 infos)
+  # ----------------------------------------------------------------
+  flutter-analyze:
+    name: Flutter analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze (ratchet — warnings <= 830, infos <= 703)
+        run: |
+          set -euo pipefail
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.txt || true
+          warnings=$(awk -F'•' '/^  warning •/{c++} END{print c+0}' analyze.txt)
+          infos=$(awk -F'•' '/^  info •/{c++} END{print c+0}' analyze.txt)
+          errors=$(awk -F'•' '/^  error •/{c++} END{print c+0}' analyze.txt)
+          echo "errors=$errors warnings=$warnings infos=$infos"
+
+          if [ "$errors" -gt 0 ]; then
+            echo "::error::flutter analyze errors $errors > 0 (零 error 基线)"
+            exit 1
+          fi
+          if [ "$warnings" -gt 830 ]; then
+            echo "::error::warnings $warnings exceed baseline 830 (ratchet)"
+            exit 1
+          fi
+          if [ "$infos" -gt 703 ]; then
+            echo "::warning::infos $infos exceed baseline 703 (ratchet, soft)"
+          fi
+
+  # ----------------------------------------------------------------
+  # 2) Secrets — gitleaks
+  # ----------------------------------------------------------------
+  secrets-scan:
+    name: Secrets scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify no new leaks (ratchet — baseline 22)
+        run: |
+          set -euo pipefail
+          # Install gitleaks
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar -xz -C /tmp gitleaks
+          /tmp/gitleaks detect --no-git --config .gitleaks.toml --redact --no-banner \
+            --report-format json --report-path /tmp/leaks.json || true
+          count=$(jq '. | length' /tmp/leaks.json 2>/dev/null || echo 0)
+          echo "leaks=$count"
+          if [ "$count" -gt 22 ]; then
+            echo "::error::Gitleaks $count leaks, exceeds baseline 22 (ratchet)"
+            exit 1
+          fi
