@@ -814,7 +814,7 @@ void main() {
           'last_msg_status': 11,
           'unread_num': 0,
           'is_show': 1,
-          'payload': {},
+          'payload': <String, dynamic>{},
         };
 
         final conv = ConversationModel.fromJson(json);

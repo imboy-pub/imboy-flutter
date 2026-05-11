@@ -329,10 +329,10 @@ void main() {
       test('服务不会因无效数据崩溃', () {
         // 模拟无效的响应格式
         final invalidResponses = [
-          {}, // 空对象
-          {'c2c': {}}, // 空消息列表
+          <String, dynamic>{}, // 空对象
+          {'c2c': <String, dynamic>{}}, // 空消息列表
           {
-            'c2c': {'list': []},
+            'c2c': {'list': <String>[]},
           }, // 空数组
         ];
 

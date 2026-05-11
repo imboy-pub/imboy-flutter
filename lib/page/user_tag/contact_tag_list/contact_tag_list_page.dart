@@ -73,7 +73,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
             flex: 2,
             backgroundColor: Colors.black87,
             onPressed: (_) async {
-              showModalBottomSheet(
+              showModalBottomSheet<void>(
                 context: context,
                 backgroundColor: isDark
                     ? const Color.fromRGBO(80, 80, 80, 1)
@@ -90,7 +90,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
             flex: 1,
             backgroundColor: AppColors.iosRed,
             onPressed: (_) async {
-              showModalBottomSheet(
+              showModalBottomSheet<void>(
                 context: context,
                 backgroundColor: isDark
                     ? const Color.fromRGBO(80, 80, 80, 1)
@@ -238,7 +238,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
               ),
             ),
             onTap: () {
-              showModalBottomSheet(
+              showModalBottomSheet<void>(
                 context: context,
                 backgroundColor: Theme.of(context).brightness == Brightness.dark
                     ? const Color.fromRGBO(80, 80, 80, 1)

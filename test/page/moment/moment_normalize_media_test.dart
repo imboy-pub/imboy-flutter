@@ -34,7 +34,7 @@ void main() {
 
   group('normalizeMedia list inputs', () {
     test('空 list → 空 list', () {
-      expect(normalizeMedia(const []), isEmpty);
+      expect(normalizeMedia(const <Map<String, dynamic>>[]), isEmpty);
     });
 
     test('全 Map 元素 → 全部保留', () {

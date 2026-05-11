@@ -52,7 +52,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 30, // peerRevoked 优先
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -121,7 +121,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 31, // myRevoked
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -142,7 +142,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -163,7 +163,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -184,7 +184,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -205,7 +205,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -251,7 +251,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -295,7 +295,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 5,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         expect(conv.unreadNum, 5);
@@ -600,7 +600,7 @@ void main() {
           lastMsgId: 1, // 最后一条消息
           lastMsgStatus: 20, // 已投递
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 撤回消息
@@ -638,7 +638,7 @@ void main() {
           lastMsgId: 100, // 最后一条消息
           lastMsgStatus: 20,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 撤回更早的消息
@@ -649,7 +649,7 @@ void main() {
           status: IMBoyMessageStatus.peerRevoked,
           fromId: 1100,
           toId: 1200,
-          payload: {},
+          payload: <String, dynamic>{},
           isAuthor: 0,
           conversationUk3: 'C2C_current_user_test_user',
         );
@@ -696,7 +696,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 31, // myRevoked
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -745,7 +745,7 @@ void main() {
           lastTime: 1642579500000,
           lastMsgId: 100,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 编辑更早的消息
@@ -770,7 +770,7 @@ void main() {
           lastTime: 1642579500000,
           lastMsgId: 100,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 删除最后一条消息，有前一条
@@ -796,7 +796,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 001,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 删除唯一消息
@@ -822,7 +822,7 @@ void main() {
           lastTime: 1642579500000,
           lastMsgId: 200,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 删除更早的消息
@@ -848,7 +848,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -870,7 +870,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -893,7 +893,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 31,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -915,7 +915,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -937,7 +937,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -959,7 +959,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: 30,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -1079,7 +1079,7 @@ void main() {
           lastMsgId: 1,
           lastMsgStatus: null,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         // 使用测试辅助类计算 content（绕过 StorageService 依赖）
@@ -1126,7 +1126,7 @@ void main() {
           lastTime: 1642579200000,
           lastMsgId: 1,
           unreadNum: 0,
-          payload: {},
+          payload: <String, dynamic>{},
         );
 
         expect(conv.unreadNum, 0);
@@ -1147,7 +1147,7 @@ void main() {
             lastTime: 1642579200000,
             lastMsgId: 1,
             unreadNum: 0,
-            payload: {},
+            payload: <String, dynamic>{},
           );
 
           expect(conv.title, title);

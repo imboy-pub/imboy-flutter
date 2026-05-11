@@ -93,7 +93,7 @@ class HttpRetryInterceptor extends Interceptor {
             err.requestOptions.headers['authorization'] =
                 currentHeaders['authorization'];
           }
-          final response = await retryDio.fetch(err.requestOptions);
+          final response = await retryDio.fetch<dynamic>(err.requestOptions);
           return handler.resolve(response);
         } catch (e) {
           // 重试失败，继续传递错误

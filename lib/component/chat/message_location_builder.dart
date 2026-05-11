@@ -88,7 +88,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
           InkWell(
             onTap: () {
               // 优化：支持选择地图APP打开位置
-              showModalBottomSheet(
+              showModalBottomSheet<void>(
                 context: context,
                 builder: (context) => Container(
                   color: Theme.of(context).colorScheme.surface,

@@ -105,7 +105,7 @@ Future<void> incomingCallScreen(
   final theme = Theme.of(context);
   final size = MediaQuery.of(context).size;
 
-  showDialog(
+  showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (dialogContext) => Dialog(

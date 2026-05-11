@@ -228,7 +228,7 @@ void main() {
         'e2ee_ver': 1,
         'e2ee_suite': 'RSA-OAEP-256+AES-256-GCM',
         'nonce': 'invalid',
-        'keys': [],
+        'keys': <dynamic>[],
       };
 
       expect(

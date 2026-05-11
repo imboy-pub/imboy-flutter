@@ -118,7 +118,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     final options = <int>[5000, 10000, 30000, 60000, 300000, 600000];
     int selectedIndex = options.indexWhere((e) => e == _burnAfterMs);
     if (selectedIndex < 0) selectedIndex = 2;
-    await showModalBottomSheet(
+    await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
@@ -424,7 +424,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         isFirst: true,
         onTap: () {
           String tips = t.confirmDeleteChatRecord;
-          showDialog(
+          showDialog<void>(
             context: context,
             barrierDismissible: true,
             builder: (dialogContext) => AlertDialog(

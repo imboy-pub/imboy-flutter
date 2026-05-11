@@ -314,7 +314,7 @@ class UserQrCodePage extends ConsumerWidget {
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         decoration: BoxDecoration(
@@ -792,7 +792,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   void _showGroupBottomSheet(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         decoration: BoxDecoration(
@@ -1272,7 +1272,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   void _showChannelBottomSheet(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         decoration: BoxDecoration(

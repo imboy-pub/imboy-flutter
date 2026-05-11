@@ -226,7 +226,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
         ? widget.peerNickname
         : widget.peerRemark;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {

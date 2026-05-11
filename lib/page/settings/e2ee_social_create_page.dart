@@ -276,7 +276,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           debugPrint('[E2EE] sent $sentCount/${shards.length} shards');
         }
 
-        showCupertinoDialog(
+        showCupertinoDialog<void>(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
@@ -337,7 +337,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
     } on Exception {
       if (mounted) {
         setState(() => _isLoading = false);
-        showCupertinoDialog(
+        showCupertinoDialog<void>(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(

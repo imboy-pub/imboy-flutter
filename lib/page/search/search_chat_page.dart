@@ -1016,7 +1016,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
 
   // 显示过滤器对话框
   void _showFilterDialog(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

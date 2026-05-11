@@ -371,7 +371,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, UserDeviceModel model) {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Text(t.buttonDelete),
@@ -416,7 +416,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 显示"让该设备下线"确认对话框
   void _showForceOfflineDialog(BuildContext context, UserDeviceModel model) {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Text(t.forceDeviceOffline),

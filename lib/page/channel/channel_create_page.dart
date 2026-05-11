@@ -139,7 +139,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
   }
 
   void _showAvatarPicker() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(

@@ -13,7 +13,7 @@ class _FakeGroupScheduleApi extends GroupScheduleApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -57,7 +57,7 @@ class _FakeGroupTaskApi extends GroupTaskApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -101,7 +101,7 @@ class _FakeGroupFileApi extends GroupFileApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -145,7 +145,7 @@ class _FakeGroupAlbumApi extends GroupAlbumApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> get(

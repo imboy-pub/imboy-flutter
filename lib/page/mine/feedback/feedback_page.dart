@@ -538,7 +538,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
 
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, FeedbackModel model, int index) {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.confirmDelete),

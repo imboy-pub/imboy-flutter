@@ -259,7 +259,7 @@ class MessageHandlingService {
     Message msg,
     Future<bool> Function(ConversationModel, Message) deleteFn,
   ) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

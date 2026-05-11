@@ -11,7 +11,7 @@ class _FakeUserTagApi extends UserTagApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -83,7 +83,7 @@ void main() {
 
     test('relationAdd should post scene/objectId/tag and return true', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.relationAdd(
         objectId: 'u_123',
@@ -103,7 +103,7 @@ void main() {
 
     test('changeName should post tag data and return true', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.changeName(scene: 'friend', tagId: 7, tagName: 'VIP');
 
@@ -128,7 +128,7 @@ void main() {
 
     test('deleteTag should post and return true', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.deleteTag(scene: 'collect', tagName: 'read_later');
 
@@ -166,7 +166,7 @@ void main() {
 
     test('pageRelation should use collect route when scene=collect', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({'items': []});
+      api.nextResponse = IMBoyHttpResponse.success({'items': <dynamic>[]});
 
       await api.pageRelation(page: 1, size: 5, scene: 'collect', tagId: 9, kwd: 'a');
 
@@ -179,7 +179,7 @@ void main() {
 
     test('pageRelation should use friend route when scene=friend', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({'items': []});
+      api.nextResponse = IMBoyHttpResponse.success({'items': <dynamic>[]});
 
       await api.pageRelation(page: 3, size: 15, scene: 'friend', tagId: 6);
 
@@ -192,7 +192,7 @@ void main() {
 
     test('pageRelation should fallback to friend route for unknown scene', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({'items': []});
+      api.nextResponse = IMBoyHttpResponse.success({'items': <dynamic>[]});
 
       await api.pageRelation(page: 1, size: 10, scene: 'unknown', tagId: 1);
 
@@ -202,7 +202,7 @@ void main() {
 
     test('removeRelation should post scene/tagId/objectId', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.removeRelation(tagId: 11, objectId: 'u_33', scene: 'friend');
 
@@ -217,7 +217,7 @@ void main() {
 
     test('setRelation should post scene/tag and objectIds', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.setRelation(
         scene: 'friend',

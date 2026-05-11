@@ -222,7 +222,7 @@ void main() {
 
     test('currentTab 越界（理论不可达，但防御）→ 空 map', () {
       final state = const WebShellState(currentTab: 99);
-      expect(shellStateToRouteParams(state), {});
+      expect(shellStateToRouteParams(state), <String, dynamic>{});
     });
   });
 

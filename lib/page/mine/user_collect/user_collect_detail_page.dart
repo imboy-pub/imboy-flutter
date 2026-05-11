@@ -409,7 +409,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 borderRadius: AppRadius.borderRadiusXLarge,
                 onTap: () {
                   // 使用 showModalBottomSheet 替代 Get.bottomSheet
-                  showModalBottomSheet(
+                  showModalBottomSheet<void>(
                     context: context,
                     isScrollControlled: true,
                     builder: (context) => _buildActionMenu(context, ref),

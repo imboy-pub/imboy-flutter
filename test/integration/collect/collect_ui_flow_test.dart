@@ -212,7 +212,7 @@ void main() {
           'tag': '',
           'updated_at': 1640000000,
           'created_at': 1630000000,
-          'info': {},
+          'info': <String, dynamic>{},
         };
 
         final model = UserCollectModel.fromJson(json);

@@ -273,7 +273,7 @@ void main() {
           'type': 'C2C',
           'msg_type': 'text',
           'action': '',
-          'e2ee': {'e2ee': true, 'e2ee_ver': 1, 'nonce': 'abc123', 'keys': []},
+          'e2ee': {'e2ee': true, 'e2ee_ver': 1, 'nonce': 'abc123', 'keys': <dynamic>[],},
           'payload': 'base64_nonce.base64_ciphertext', // 字符串格式
         };
 

@@ -720,7 +720,7 @@ class SqliteService {
     if (strNoEmpty(where)) {
       sql += " WHERE $where";
     }
-    final result = await _scalarQuery(sql, whereArgs);
+    final result = await _scalarQuery<T>(sql, whereArgs);
     if (result == null) return null;
 
     // 类型转换（适配 SQLite 类型系统）

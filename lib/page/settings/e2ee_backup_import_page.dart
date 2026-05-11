@@ -344,7 +344,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   void _showSuccessDialog(Map<String, dynamic> result) {
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(

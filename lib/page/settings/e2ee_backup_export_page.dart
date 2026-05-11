@@ -307,7 +307,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   }
 
   void _showSuccessDialog() {
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(

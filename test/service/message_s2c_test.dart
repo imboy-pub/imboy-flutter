@@ -118,7 +118,7 @@ void main() {
         'action': 'test_action',
         'from': 'server',
         'to': 'client',
-        'payload': {},
+        'payload': <String, dynamic>{},
         'server_ts': '1234567890',
       };
 
@@ -140,7 +140,7 @@ void main() {
         // 没有 action
         'from': 'server',
         'to': 'client',
-        'payload': {}, // 没有 msg_type
+        'payload': <String, dynamic>{}, // 没有 msg_type
       };
 
       final action = data['action'] ?? '';

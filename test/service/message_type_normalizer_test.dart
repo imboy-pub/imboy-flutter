@@ -8,19 +8,19 @@ void main() {
   group('MessageTypeNormalizer.normalize', () {
     test('应该保留标准消息类型', () {
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'text', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'text', payload: <String, dynamic>{}),
         equals('text'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'image', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'image', payload: <String, dynamic>{}),
         equals('image'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'quote', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'quote', payload: <String, dynamic>{}),
         equals('quote'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'voice', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'voice', payload: <String, dynamic>{}),
         equals('voice'),
       );
     });
@@ -35,11 +35,11 @@ void main() {
 
     test('下划线命名应判定为 unsupported', () {
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'visit_card', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'visit_card', payload: <String, dynamic>{}),
         equals('unsupported'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'webrtc_audio', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'webrtc_audio', payload: <String, dynamic>{}),
         equals('unsupported'),
       );
     });
@@ -54,15 +54,15 @@ void main() {
 
     test('应该处理空值与无效值', () {
       expect(
-        MessageTypeNormalizer.normalize(msgType: '', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: '', payload: <String, dynamic>{}),
         equals('unsupported'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: null, payload: {}),
+        MessageTypeNormalizer.normalize(msgType: null, payload: <String, dynamic>{}),
         equals('unsupported'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'invalid_type', payload: {}),
+        MessageTypeNormalizer.normalize(msgType: 'invalid_type', payload: <String, dynamic>{}),
         equals('unsupported'),
       );
     });
@@ -87,10 +87,10 @@ void main() {
   group('MessageTypeNormalizer.normalizeBatch', () {
     test('应该批量归一化消息列表', () {
       final messages = [
-        {'msg_type': 'audio', 'payload': {}},
-        {'msg_type': 'visit_card', 'payload': {}},
-        {'msg_type': 'image', 'payload': {}},
-        {'msg_type': 'text', 'payload': {}},
+        {'msg_type': 'audio', 'payload': <String, dynamic>{}},
+        {'msg_type': 'visit_card', 'payload': <String, dynamic>{}},
+        {'msg_type': 'image', 'payload': <String, dynamic>{}},
+        {'msg_type': 'text', 'payload': <String, dynamic>{}},
       ];
 
       final result = MessageTypeNormalizer.normalizeBatch(messages);
@@ -104,8 +104,8 @@ void main() {
 
     test('应该不修改原始消息列表', () {
       final messages = [
-        {'msg_type': 'audio', 'payload': {}},
-        {'msg_type': 'image', 'payload': {}},
+        {'msg_type': 'audio', 'payload': <String, dynamic>{}},
+        {'msg_type': 'image', 'payload': <String, dynamic>{}},
       ];
 
       final originalMsgType = messages[0]['msg_type'];
@@ -116,9 +116,9 @@ void main() {
 
     test('应该处理包含无效类型的消息列表', () {
       final messages = [
-        {'msg_type': 'text', 'payload': {}},
-        {'msg_type': 'invalid_type', 'payload': {}},
-        {'msg_type': '', 'payload': {}},
+        {'msg_type': 'text', 'payload': <String, dynamic>{}},
+        {'msg_type': 'invalid_type', 'payload': <String, dynamic>{}},
+        {'msg_type': '', 'payload': <String, dynamic>{}},
       ];
 
       final result = MessageTypeNormalizer.normalizeBatch(messages);

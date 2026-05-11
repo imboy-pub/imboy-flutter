@@ -60,7 +60,7 @@ class UserApi extends HttpClient {
     headers[Keys.refreshTokenKey] = refreshToken;
     var response = await Dio(
       BaseOptions(baseUrl: Env().apiBaseUrl),
-    ).post(API.refreshToken, options: Options(headers: headers));
+    ).post<dynamic>(API.refreshToken, options: Options(headers: headers));
     // iPrint("refreshAccessTokenApi ${response.toString()}");
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);

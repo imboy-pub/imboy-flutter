@@ -259,7 +259,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     final contentController = TextEditingController();
     final expiredDateNotifier = ValueNotifier<DateTime?>(null);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
@@ -349,7 +349,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     AnnouncementModel announcement,
     GroupAnnouncementNotifier notifier,
   ) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.confirmDelete),

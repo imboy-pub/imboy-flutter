@@ -48,7 +48,7 @@ void main() {
         'media_urls': ['url1'],
         'visibility': momentVisibilityAllowList,
         'allow_uids': ['u1'],
-        'deny_uids': [],
+        'deny_uids': <String>[],
         'saved_at': '2026-04-15T10:30:00.000Z',
       });
       expect(restored, isNotNull);

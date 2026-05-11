@@ -130,7 +130,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   }
 
   void _showBackupDetailDialog(Map<String, dynamic> backup) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.e2eeBackupDetailTitle),
@@ -167,7 +167,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   }
 
   void _showDeleteDialog(Map<String, dynamic> backup) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.e2eeBackupDeleteTitle),

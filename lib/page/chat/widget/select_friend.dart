@@ -135,7 +135,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         ? const Color.fromRGBO(100, 200, 100, 1) // 暗色模式：绿色
         : const Color.fromRGBO(33, 150, 243, 1); // 亮色模式：蓝色
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.sendTo),

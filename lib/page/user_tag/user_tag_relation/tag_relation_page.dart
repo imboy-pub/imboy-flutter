@@ -152,7 +152,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
 
   /// 清空所有标签
   void _clearAllTags() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.tagClearAll),

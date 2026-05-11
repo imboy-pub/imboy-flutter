@@ -87,7 +87,7 @@ class AppManifestService {
         validateStatus: (s) => s == 200 || s == 304,
         headers: _etag != null ? {'if-none-match': _etag} : null,
       );
-      final response = await HttpClient.client.dio.get(
+      final response = await HttpClient.client.dio.get<dynamic>(
         API.appManifest,
         options: options,
       );

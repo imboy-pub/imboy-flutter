@@ -94,7 +94,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           _isFailed = false;
         });
 
-        showCupertinoDialog(
+        showCupertinoDialog<void>(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(

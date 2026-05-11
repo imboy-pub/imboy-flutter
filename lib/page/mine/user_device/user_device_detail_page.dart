@@ -507,7 +507,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
 
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context) {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.deleteThisDevice),

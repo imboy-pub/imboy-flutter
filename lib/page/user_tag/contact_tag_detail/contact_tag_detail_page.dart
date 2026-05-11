@@ -148,7 +148,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
         rightDMActions: [
           InkWell(
             onTap: () {
-              showModalBottomSheet(
+              showModalBottomSheet<void>(
                 context: context,
                 backgroundColor: isDark
                     ? const Color.fromRGBO(80, 80, 80, 1)
@@ -175,7 +175,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                           ),
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            showModalBottomSheet(
+                            showModalBottomSheet<void>(
                               context: context,
                               backgroundColor: isDark
                                   ? const Color.fromRGBO(80, 80, 80, 1)

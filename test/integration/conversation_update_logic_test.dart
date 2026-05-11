@@ -74,7 +74,7 @@ void main() {
             status: 11,
             fromId: 8001,
             toId: type == 'C2G' ? 2001 : 8002,
-            payload: {},
+            payload: <String, dynamic>{},
             isAuthor: 1,
             conversationUk3:
                 '${type}_user1_${type == "C2G" ? "group1" : "user2"}',

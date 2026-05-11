@@ -424,7 +424,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   ) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(

@@ -163,7 +163,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
   void _showSearchDialog() {
     final controller = TextEditingController(text: _searchKeyword);
-    showDialog(
+    showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.t.channel.searchSubscribers),

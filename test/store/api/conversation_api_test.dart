@@ -8,8 +8,8 @@ class _RecordingConversationApi extends ConversationApi {
   final List<Map<String, dynamic>> postCalls = <Map<String, dynamic>>[];
   final List<Map<String, dynamic>> getCalls = <Map<String, dynamic>>[];
 
-  IMBoyHttpResponse postResponse = IMBoyHttpResponse.success(const {});
-  IMBoyHttpResponse getResponse = IMBoyHttpResponse.success(const {});
+  IMBoyHttpResponse postResponse = IMBoyHttpResponse.success(const <String, dynamic>{});
+  IMBoyHttpResponse getResponse = IMBoyHttpResponse.success(const <String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> post(

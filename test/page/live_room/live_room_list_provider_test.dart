@@ -213,7 +213,7 @@ void main() {
 
     test('loadMore is no-op when isLoading is true', () async {
       final api = _FakeLiveRoomApi(myListResult: {
-        'list': [],
+        'list': <dynamic>[],
         'total': 0,
         'page': 1,
         'size': 20,

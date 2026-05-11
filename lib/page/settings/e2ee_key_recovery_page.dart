@@ -582,7 +582,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
   /// 显示本地备份选项
   void _showLocalBackupOptions(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
@@ -639,7 +639,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
   /// 显示生成新密钥对话框
   void _showGenerateNewKeyDialog(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.e2eeGenerateNewKey),
@@ -683,7 +683,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
   /// 显示删除密钥对话框
   void _showDeleteKeyDialog(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.e2eeDeleteKey),
@@ -763,7 +763,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   /// 生成新密钥
   Future<void> _generateNewKey() async {
     // 显示加载对话框
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
@@ -793,7 +793,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
       // 3. 显示成功对话框
       if (mounted) {
-        showDialog(
+        showDialog<void>(
           context: context,
           builder: (context) => AlertDialog(
             title: Text(t.e2eeKeyGeneratedSuccess),

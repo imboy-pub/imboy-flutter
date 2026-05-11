@@ -322,7 +322,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   void _showPicker() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (ctx) {
         return SafeArea(

@@ -400,7 +400,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         setState(() => _isRecovering = false);
 
         if (success) {
-          showCupertinoDialog(
+          showCupertinoDialog<void>(
             context: context,
             builder: (context) {
               return CupertinoAlertDialog(
@@ -435,7 +435,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             },
           );
         } else {
-          showCupertinoDialog(
+          showCupertinoDialog<void>(
             context: context,
             builder: (context) {
               return CupertinoAlertDialog(
@@ -463,7 +463,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           _statusMessage = t.e2eeRecoveryFailed;
         });
 
-        showCupertinoDialog(
+        showCupertinoDialog<void>(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(

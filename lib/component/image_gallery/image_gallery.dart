@@ -233,7 +233,7 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
     thumbProvider = cachedImageProvider(thumb, w: -1);
   }
   if (!context.mounted) return;
-  showModalBottomSheet(
+  showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     enableDrag: false,
@@ -254,7 +254,7 @@ Future<void> zoomInPhotoViewGallery(BuildContext context, List items) async {
   for (var e in items) {
     galleryItems.add(cachedImageProvider(e, w: size.width.toDouble()));
   }
-  showModalBottomSheet(
+  showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     enableDrag: false,
@@ -309,7 +309,7 @@ Future<void> zoomInPhotoViewGalleryWithInitialPage(
   // 确保初始索引在有效范围内
   final validInitialPage = initialPage.clamp(0, items.length - 1);
 
-  showModalBottomSheet(
+  showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     enableDrag: false,

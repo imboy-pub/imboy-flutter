@@ -67,7 +67,7 @@ void main() {
 
     test('parseModelStringList handles List input', () {
       expect(parseModelStringList([1, 'two', 3]), ['1', 'two', '3']);
-      expect(parseModelStringList([]), isEmpty);
+      expect(parseModelStringList(<dynamic>[]), isEmpty);
     });
 
     test('parseModelStringList handles JSON string input', () {

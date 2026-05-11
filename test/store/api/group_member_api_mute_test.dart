@@ -23,7 +23,7 @@ class _FakeGroupMemberApi extends GroupMemberApi {
   String? lastUri;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> post(
@@ -72,7 +72,7 @@ void main() {
 
     test('duration > 0 → POST 到 API.groupMemberMute 且 body 正确', () async {
       final api = _FakeGroupMemberApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.mute(gid: 'g-42', userId: 'u-7', duration: 600);
 

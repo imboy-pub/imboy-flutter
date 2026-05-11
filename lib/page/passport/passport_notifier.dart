@@ -348,7 +348,7 @@ class PassportNotifier extends _$PassportNotifier {
   void _showCancelLogoutDialog() {
     final context = navigatorKey.currentContext;
     if (context == null) return;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.cancelLogoutTitle),

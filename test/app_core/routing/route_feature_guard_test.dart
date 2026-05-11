@@ -45,12 +45,12 @@ void main() {
     });
 
     test('returns null when all features enabled and manifest has entries', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
         'app_entries': ['moment', 'channel', 'location'],
-        'admin_entries': [],
-        'plugins': [],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
 
@@ -62,12 +62,12 @@ void main() {
     });
 
     test('blocks when manifest lacks app entry', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
         'app_entries': ['channel'],
-        'admin_entries': [],
-        'plugins': [],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
 
@@ -82,12 +82,12 @@ void main() {
     });
 
     test('blocks when feature flag disabled', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
         'app_entries': ['moment'],
-        'admin_entries': [],
-        'plugins': [],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
       AppFeatureRegistry.replaceSnapshotForTest({
@@ -105,12 +105,12 @@ void main() {
 
     test('manifest check takes priority over feature flag', () {
       AppFeatureRegistry.replaceSnapshotForTest({'moment': true});
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
-        'app_entries': [],
-        'admin_entries': [],
-        'plugins': [],
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
+        'app_entries': <dynamic>[],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
 
@@ -123,12 +123,12 @@ void main() {
     });
 
     test('returns null when not logged in', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
-        'app_entries': [],
-        'admin_entries': [],
-        'plugins': [],
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
+        'app_entries': <dynamic>[],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
 
@@ -140,12 +140,12 @@ void main() {
     });
 
     test('unguarded path passes regardless of manifest', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
-        'app_entries': [],
-        'admin_entries': [],
-        'plugins': [],
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
+        'app_entries': <dynamic>[],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
 
@@ -160,12 +160,12 @@ void main() {
   group('RouteFeatureGuard.redirectPath', () {
     test('delegates to checkBlocked and returns redirect', () {
       AppFeatureRegistry.replaceSnapshotForTest({'moment': true});
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
-        'app_entries': [],
-        'admin_entries': [],
-        'plugins': [],
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
+        'app_entries': <dynamic>[],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
 

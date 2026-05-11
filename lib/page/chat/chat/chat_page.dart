@@ -1145,7 +1145,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 处理贴图选择
   Future<void> _handleStickerSelection() async {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => StickerPicker(
@@ -2305,7 +2305,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   ///
   /// 当检测到E2EE密钥不匹配时，引导用户选择解决方案
   void _showE2EEKeyMismatchDialog() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(

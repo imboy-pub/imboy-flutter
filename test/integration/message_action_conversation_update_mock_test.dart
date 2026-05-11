@@ -54,7 +54,7 @@ void main() {
           status: 30, // peerRevoked
           fromId: 8001,
           toId: 3101,
-          payload: {},
+          payload: <String, dynamic>{},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user_revoke',
           createdAt: 1234567890,
@@ -102,7 +102,7 @@ void main() {
           status: 31, // myRevoked
           fromId: 9001,
           toId: 3102,
-          payload: {},
+          payload: <String, dynamic>{},
           isAuthor: 1,
           conversationUk3: 'C2C_me_user_self',
           createdAt: 1234567890,
@@ -147,7 +147,7 @@ void main() {
           status: 30,
           fromId: 8001,
           toId: 3103,
-          payload: {},
+          payload: <String, dynamic>{},
           isAuthor: 0,
           conversationUk3: 'C2C_user1_user_old_msg',
           createdAt: 1234567800,

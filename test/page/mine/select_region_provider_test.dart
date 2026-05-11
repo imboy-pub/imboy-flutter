@@ -111,7 +111,7 @@ void main() {
 
     test('hasChildren returns false for Map with empty children', () {
       final c = _makeContainer();
-      final model = {'title': 'Beijing', 'children': []};
+      final model = <String, dynamic>{'title': 'Beijing', 'children': <dynamic>[]};
       expect(_notifier(c).hasChildren(model), isFalse);
     });
 
@@ -135,14 +135,14 @@ void main() {
     test('getRegionTitle returns title from Map model', () {
       final c = _makeContainer();
       expect(
-        _notifier(c).getRegionTitle({'title': 'China', 'children': []}),
+        _notifier(c).getRegionTitle(<String, dynamic>{'title': 'China', 'children': <dynamic>[]}),
         'China',
       );
     });
 
     test('getRegionTitle returns empty for Map without title', () {
       final c = _makeContainer();
-      expect(_notifier(c).getRegionTitle({'children': []}), '');
+      expect(_notifier(c).getRegionTitle(<String, dynamic>{'children': <dynamic>[]}), '');
     });
 
     test('getRegionTitle returns empty for non-String non-Map', () {

@@ -650,7 +650,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     icon: Icons.delete_sweep_outlined,
                     onTap: () {
                       String tips = t.confirmDeleteChatRecord;
-                      EasyDialog.showWarning(
+                      EasyDialog.showWarning<void>(
                         context: context,
                         title: t.warning,
                         content: Text(tips),
@@ -738,7 +738,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     String tips =
                         "${isGroupOwner(state.role) ? t.sureToDissolveGroup : t.sureToLeaveGroup}\n${t.sureDeleteGroupChatRecord}";
 
-                    EasyDialog.showWarning(
+                    EasyDialog.showWarning<void>(
                       context: context,
                       title: t.tipTips,
                       content: Text(tips),
@@ -860,7 +860,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     final colorScheme = Theme.of(context).colorScheme;
     String? selectedReason;
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(

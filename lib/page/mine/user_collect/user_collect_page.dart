@@ -402,7 +402,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     final currentState = ref.read(userCollectProvider);
     final notifier = ref.read(userCollectProvider.notifier);
 
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Text(t.editTag),
@@ -798,7 +798,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
   /// 发送到对话框
   Future<void> _sendToDialog(UserCollectModel model) async {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Text(t.sendTo),
@@ -862,7 +862,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     UserCollectModel obj,
     int index,
   ) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) {
         final currentState = ref.read(userCollectProvider);
@@ -1088,7 +1088,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
   /// 确认删除
   void _confirmRemove(UserCollectModel obj, int index) {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Text(t.sureDeleteData),

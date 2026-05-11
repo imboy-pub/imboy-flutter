@@ -549,7 +549,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   /// 显示频道设置
   void _showChannelSettings(ChannelModel channel) {
     final channelId = _resolveChannelId(channel);
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (context) => DraggableScrollableSheet(
@@ -632,7 +632,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   /// 显示删除频道确认对话框
   void _showDeleteChannelDialog(ChannelModel channel) {
     final t = context.t;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.channel.deleteChannel),
@@ -877,7 +877,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         .where((o) => o.channelId.toString() == channelId)
         .toList();
 
-    await showModalBottomSheet(
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => SafeArea(
@@ -938,7 +938,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       return;
     }
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.orderDetail),
@@ -1120,7 +1120,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     switch (action) {
       case 'unsubscribe':
-        showDialog(
+        showDialog<void>(
           context: context,
           builder: (context) => AlertDialog(
             title: Text(t.channel.unsubscribeConfirm),
@@ -1210,7 +1210,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final t = context.t;
     final shareLink = 'https://imboy.pub/channel/${channel.id}';
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
@@ -1328,7 +1328,7 @@ class _ChannelMessageItem extends StatelessWidget {
   }
 
   void _showReactionPicker(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         padding: const EdgeInsets.all(16),
@@ -1616,7 +1616,7 @@ class _ChannelMessageItem extends StatelessWidget {
   /// 显示删除消息确认对话框
   void _showDeleteMessageDialog(BuildContext context) {
     final t = context.t;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.channel.deleteMessage),
@@ -1678,7 +1678,7 @@ class _ChannelMessageItem extends StatelessWidget {
   /// 显示移除反应确认对话框
   void _showRemoveReactionDialog(BuildContext context, String reactionType) {
     final emoji = ChannelReactionType.getIcon(reactionType);
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.removeReaction),

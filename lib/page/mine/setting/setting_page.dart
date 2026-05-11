@@ -91,7 +91,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     if (Platform.isAndroid) {
       SystemNavigator.pop();
     } else if (Platform.isIOS) {
-      showCupertinoDialog(
+      showCupertinoDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(

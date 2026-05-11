@@ -237,7 +237,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
   void _showToUidDialog() {
     final controller = TextEditingController();
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (ctx) {
         return CupertinoAlertDialog(
@@ -262,7 +262,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               onPressed: () {
                 final toUid = controller.text.trim();
                 if (toUid.isEmpty) {
-                  showCupertinoDialog(
+                  showCupertinoDialog<void>(
                     context: context,
                     builder: (c) {
                       return CupertinoAlertDialog(

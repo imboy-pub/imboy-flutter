@@ -55,7 +55,7 @@ void main() {
     });
 
     test('ok + 空 Map → QrCreateFailure（缺 qr_token）', () {
-      final result = parseQrCreateResponse(ok: true, payload: {});
+      final result = parseQrCreateResponse(ok: true, payload: <String, dynamic>{});
       expect(result, isA<QrCreateFailure>());
     });
 
@@ -202,7 +202,7 @@ void main() {
       final result = parseQrStatusResponse(
         ok: true,
         code: 0,
-        payload: {},
+        payload: <String, dynamic>{},
       );
       expect(result, isA<QrStatusUnknown>());
       expect((result as QrStatusUnknown).rawStatus, isNull);

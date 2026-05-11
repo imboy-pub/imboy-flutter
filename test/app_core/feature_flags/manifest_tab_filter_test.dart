@@ -3,15 +3,15 @@ import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 
 void main() {
   group('AppManifest.hasAppEntry', () {
-    tearDown(() => AppManifestService.replaceForTest({}));
+    tearDown(() => AppManifestService.replaceForTest(<String, dynamic>{}));
 
     test('returns true when entry exists in app_entries', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
         'app_entries': ['channel_tab', 'moment_tab'],
-        'admin_entries': [],
-        'plugins': [],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
       final manifest = AppManifestService.manifest!;
@@ -20,12 +20,12 @@ void main() {
     });
 
     test('returns false when entry absent from app_entries', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
         'app_entries': ['moment_tab'],
-        'admin_entries': [],
-        'plugins': [],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
       final manifest = AppManifestService.manifest!;
@@ -33,12 +33,12 @@ void main() {
     });
 
     test('empty app_entries returns false for any entry', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
-        'app_entries': [],
-        'admin_entries': [],
-        'plugins': [],
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
+        'app_entries': <dynamic>[],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
       final manifest = AppManifestService.manifest!;
@@ -57,30 +57,30 @@ void main() {
 
   group('AppManifest parsing edge cases', () {
     test('missing app_entries key defaults to empty list', () {
-      final manifest = AppManifest.fromMap({
-        'features': {},
-        'policy': {},
+      final manifest = AppManifest.fromMap(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
       });
       expect(manifest.appEntries, isEmpty);
       expect(manifest.hasAppEntry('channel_tab'), isFalse);
     });
 
     test('app_entries with mixed types coerced to strings', () {
-      final manifest = AppManifest.fromMap({
-        'features': {},
-        'policy': {},
+      final manifest = AppManifest.fromMap(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
         'app_entries': ['channel_tab', 123, true],
       });
       expect(manifest.appEntries, ['channel_tab', '123', 'true']);
     });
 
     test('toMap roundtrip preserves app_entries', () {
-      final raw = {
-        'features': {'channel': true},
-        'policy': {},
+      final raw = <String, dynamic>{
+        'features': <String, dynamic>{'channel': true},
+        'policy': <String, dynamic>{},
         'app_entries': ['channel_tab'],
         'admin_entries': ['channels_page'],
-        'plugins': [],
+        'plugins': <dynamic>[],
         'generated_at': 1234567890,
       };
       final manifest = AppManifest.fromMap(raw);
@@ -90,17 +90,17 @@ void main() {
   });
 
   group('Tab visibility logic simulation', () {
-    tearDown(() => AppManifestService.replaceForTest({}));
+    tearDown(() => AppManifestService.replaceForTest(<String, dynamic>{}));
 
     test(
       'all enabled -> 4 tabs (conversation, contact, channel, mine)',
       () {
-        AppManifestService.replaceForTest({
-          'features': {'channel': true, 'moment': true},
-          'policy': {},
+        AppManifestService.replaceForTest(<String, dynamic>{
+          'features': <String, dynamic>{'channel': true, 'moment': true},
+          'policy': <String, dynamic>{},
           'app_entries': ['channel_tab', 'moment_tab'],
-          'admin_entries': [],
-          'plugins': [],
+          'admin_entries': <dynamic>[],
+          'plugins': <dynamic>[],
           'generated_at': 0,
         });
         final manifest = AppManifestService.manifest!;
@@ -111,12 +111,12 @@ void main() {
     );
 
     test('channel disabled -> 3 tabs (conversation, contact, mine)', () {
-      AppManifestService.replaceForTest({
-        'features': {},
-        'policy': {},
-        'app_entries': [],
-        'admin_entries': [],
-        'plugins': [],
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{},
+        'policy': <String, dynamic>{},
+        'app_entries': <dynamic>[],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
         'generated_at': 0,
       });
       final manifest = AppManifestService.manifest!;

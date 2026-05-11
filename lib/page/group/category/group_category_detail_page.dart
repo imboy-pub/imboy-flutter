@@ -122,7 +122,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
   /// 显示更多操作菜单
   void _showMoreMenu() {
     final t = context.t;
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),

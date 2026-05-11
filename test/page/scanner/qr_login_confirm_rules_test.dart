@@ -103,7 +103,7 @@ void main() {
         ok: true,
         code: 0,
         errorMessage: null,
-        payload: const {},
+        payload: const <String, dynamic>{},
       );
       expect(result, isA<QrLoginConfirmFailed>());
     });
@@ -178,7 +178,7 @@ void main() {
         ok: true,
         code: 0,
         errorMessage: null,
-        payload: const {},
+        payload: const <String, dynamic>{},
       );
       expect(result, isA<QrLoginConfirmFailed>());
     });

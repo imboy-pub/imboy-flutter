@@ -118,7 +118,7 @@ class ApiTestClient {
   }) async {
     _log('登录: account=$account');
 
-    final response = await _dio.post(
+    final response = await _dio.post<Map<String, dynamic>>(
       '/v1/passport/login',
       data: {
         'account': account,
@@ -149,7 +149,7 @@ class ApiTestClient {
       headers['imboy-refreshtoken'] = _refreshToken!;
     }
 
-    final response = await _dio.post(
+    final response = await _dio.post<Map<String, dynamic>>(
       '/v1/refreshtoken',
       options: Options(headers: headers),
     );
@@ -167,7 +167,7 @@ class ApiTestClient {
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
-    final response = await _dio.get(
+    final response = await _dio.get<Map<String, dynamic>>(
       path,
       queryParameters: queryParameters,
       options: Options(headers: _authHeaders()),
@@ -180,7 +180,7 @@ class ApiTestClient {
     String path, {
     Map<String, dynamic>? data,
   }) async {
-    final response = await _dio.post(
+    final response = await _dio.post<Map<String, dynamic>>(
       path,
       data: data,
       options: Options(headers: _authHeaders()),

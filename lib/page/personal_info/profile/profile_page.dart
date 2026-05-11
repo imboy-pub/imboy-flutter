@@ -707,7 +707,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   // 编辑方法
   void _editAvatar(BuildContext context, ProfileNotifier profileNotifier) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         decoration: BoxDecoration(
@@ -777,7 +777,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   void _previewAvatar(BuildContext context, String avatarUrl) {
     if (avatarUrl.isEmpty) return;
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
@@ -821,7 +821,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       initialDate = DateTime(1990, 1, 1);
     }
 
-    showCupertinoModalPopup(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext context) {
         DateTime selectedDate = initialDate;
@@ -904,7 +904,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     final currentSign = UserRepoLocal.to.current.sign;
     final controller = TextEditingController(text: currentSign);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -950,7 +950,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     // 使用图片选择器选择背景图片
     final ImagePicker picker = ImagePicker();
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
         return SafeArea(
@@ -1071,7 +1071,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   }) {
     final controller = TextEditingController(text: currentValue);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -1124,7 +1124,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     // 分享个人资料 - 显示分享选项
     final user = UserRepoLocal.to.current;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
         return SafeArea(
@@ -1189,7 +1189,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     // 导出个人资料 - 生成 JSON 或文本文件
     final user = UserRepoLocal.to.current;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
         return SafeArea(

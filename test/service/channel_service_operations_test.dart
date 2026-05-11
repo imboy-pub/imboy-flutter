@@ -1975,7 +1975,7 @@ void main() {
         unreadCount: 5,
       );
       final api = _FakeChannelApi(
-        unreadSummaryResult: {'channels': [], 'total_unread': 0},
+        unreadSummaryResult: <String, dynamic>{'channels': <dynamic>[], 'total_unread': 0},
       );
       final svc = ChannelService.forTest(api: api, repo: repo);
       repo.allSubscriptionsList = [repo.subscriptions['10']!];

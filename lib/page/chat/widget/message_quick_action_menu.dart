@@ -20,7 +20,7 @@ class MessageQuickActionMenu {
     required VoidCallback onRetry,
     required VoidCallback onDelete,
   }) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
@@ -71,7 +71,7 @@ class MessageQuickActionMenu {
     required VoidCallback onRevoke,
     required VoidCallback onDelete,
   }) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {

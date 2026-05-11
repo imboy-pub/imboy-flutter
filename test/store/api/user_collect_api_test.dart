@@ -12,7 +12,7 @@ class _FakeUserCollectApi extends UserCollectApi {
   dynamic lastData;
   Options? lastOptions;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success({});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -86,7 +86,7 @@ void main() {
 
     test('remove should post kind_id and return true', () async {
       final api = _FakeUserCollectApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.remove(kindId: 'k100');
 
@@ -108,7 +108,7 @@ void main() {
 
     test('change should post data and return true', () async {
       final api = _FakeUserCollectApi();
-      api.nextResponse = IMBoyHttpResponse.success({});
+      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
       final ok = await api.change({'kind_id': 'k100', 'remark': 'todo'});
 

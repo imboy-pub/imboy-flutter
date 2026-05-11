@@ -270,7 +270,7 @@ void showTextMessage(String text) {
 
 /// 确认是否打开文件
 void confirmOpenFile(BuildContext context, String uri) {
-  showDialog(
+  showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
       content: SizedBox(

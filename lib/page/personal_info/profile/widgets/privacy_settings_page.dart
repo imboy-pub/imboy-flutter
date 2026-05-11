@@ -305,7 +305,7 @@ class PrivacySettingsPage extends ConsumerWidget {
 
   /// 显示清除聊天记录对话框
   void _showClearChatDialog(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.privacyClearChatHistory),
@@ -335,7 +335,7 @@ class PrivacySettingsPage extends ConsumerWidget {
 
   /// 显示注销账号对话框
   void _showDeleteAccountDialog(BuildContext parentContext) {
-    showDialog(
+    showDialog<void>(
       context: parentContext,
       builder: (dialogContext) => AlertDialog(
         title: Text(t.privacyLogoutAccount),

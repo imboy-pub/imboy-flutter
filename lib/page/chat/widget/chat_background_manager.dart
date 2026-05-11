@@ -560,7 +560,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
 
   /// 显示颜色选择器
   void _showColorPicker(BuildContext context, ChatBackgroundManager manager) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.backgroundSelectColor),

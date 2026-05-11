@@ -72,7 +72,7 @@ class AttachmentApi {
       receiveTimeout: const Duration(milliseconds: 30000),
     );
     await Dio(options)
-        .post(
+        .post<dynamic>(
           "$baseUrl/upload",
           data: formData,
           onSendProgress: (int sent, int total) {
@@ -126,7 +126,7 @@ class AttachmentApi {
       sendTimeout: const Duration(milliseconds: 60000),
       receiveTimeout: const Duration(milliseconds: 30000),
     );
-    return Dio(options).get("${Env.uploadUrl}/upload", queryParameters: data);
+    return Dio(options).get<dynamic>("${Env.uploadUrl}/upload", queryParameters: data);
   }
 
   /// 上传视频

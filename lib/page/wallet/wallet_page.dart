@@ -46,7 +46,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
   void _showTopupDialog(BuildContext context) {
     final controller = TextEditingController();
     final t = context.t;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.rechargeTitle),

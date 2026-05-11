@@ -386,7 +386,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
     final t = context.t;
     if (widget.isSentByMe) {
       // 发送者：可选择删除所有人或仅自己
-      showDialog(
+      showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -435,7 +435,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
       );
     } else {
       // 接收者：仅可删除自己看到的
-      showDialog(
+      showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -487,7 +487,7 @@ void showMessageActionMenu({
   VoidCallback? onRetry, // 新增：重试回调
   bool canEdit = false,
 }) {
-  showModalBottomSheet(
+  showModalBottomSheet<void>(
     context: context,
     backgroundColor: Colors.transparent,
     builder: (BuildContext context) {

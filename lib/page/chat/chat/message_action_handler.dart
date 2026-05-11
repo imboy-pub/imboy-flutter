@@ -272,7 +272,7 @@ class MessageActionHandler {
 
   /// 转发消息
   void forwardMessage(BuildContext context, Message msg) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? const Color.fromRGBO(80, 80, 80, 1)

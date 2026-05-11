@@ -36,7 +36,7 @@ void main() {
       expect(resp.ok, isFalse);
       expect(resp.code, 503);
       expect(resp.msg, 'network down');
-      expect(resp.payload, {});
+      expect(resp.payload, <String, dynamic>{});
       expect(resp.error, isA<NetworkException>());
     });
 
@@ -50,7 +50,7 @@ void main() {
       expect(resp.ok, isFalse);
       expect(resp.code, 520);
       expect(resp.msg, 'overridden');
-      expect(resp.payload, {});
+      expect(resp.payload, <String, dynamic>{});
       expect(resp.error, isA<NetworkException>());
     });
   });
