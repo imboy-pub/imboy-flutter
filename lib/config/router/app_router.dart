@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:feedback/feedback.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
+import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
@@ -252,7 +254,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           return CupertinoPage(
             key: state.pageKey,
-            child: SendToPage(msg: extra?['msg']),
+            child: SendToPage(msg: extra?['msg'] as Message),
           );
         },
       ),
@@ -1010,7 +1012,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return CupertinoPage(
             key: state.pageKey,
-            child: GroupQrCodePage(group: extra),
+            child: GroupQrCodePage(group: extra as GroupModel),
           );
         },
       ),

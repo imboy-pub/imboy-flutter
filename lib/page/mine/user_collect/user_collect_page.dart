@@ -358,7 +358,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         final obj = currentState.items[i];
         if (ids.contains(obj.kindId)) {
           try {
-            final ok = await notifier.remove(obj);
+            final ok = await notifier.remove(obj as UserCollectModel);
             if (ok) {
               successCount++;
             } else {
@@ -366,11 +366,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               failCount++;
             }
           } catch (_) {
-            updatedItems.add(obj);
+            updatedItems.add(obj as UserCollectModel);
             failCount++;
           }
         } else {
-          updatedItems.add(obj);
+          updatedItems.add(obj as UserCollectModel);
         }
       }
 
@@ -436,7 +436,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
                 for (final obj in currentState.items) {
                   if (!ids.contains(obj.kindId)) {
-                    updatedItems.add(obj);
+                    updatedItems.add(obj as UserCollectModel);
                     continue;
                   }
 
@@ -1639,7 +1639,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                           itemCount: currentState.items.length,
                           itemBuilder: (BuildContext context, int index) {
                             final obj = currentState.items[index];
-                            return _buildCollectItem(context, obj, index);
+                            return _buildCollectItem(context, obj as UserCollectModel, index);
                           },
                         ),
                 ),
