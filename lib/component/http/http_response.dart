@@ -31,7 +31,7 @@ class IMBoyHttpResponse {
     error = BadRequestException(message: errMsg, code: errCode);
     msg = errMsg ?? 'unknown error';
     code = errCode ?? 1;
-    this.payload = payload ?? {};
+    this.payload = payload ?? <String, dynamic>{};
     ok = false;
     // iPrint("IMBoyHttpResponse_failure code $code");
     // iPrint("IMBoyHttpResponse_failure msg $msg");
@@ -42,7 +42,7 @@ class IMBoyHttpResponse {
     error = BadResponseException(payload);
     code = 1;
     msg = 'bad response';
-    this.payload = payload ?? {};
+    this.payload = payload ?? <String, dynamic>{};
     ok = false;
   }
 
@@ -54,7 +54,7 @@ class IMBoyHttpResponse {
     this.error = error ?? UnknownException();
     code = errCode ?? this.error!.code;
     msg = errMsg ?? this.error!.message;
-    payload = {};
+    payload = <String, dynamic>{};
     ok = false;
   }
 }
