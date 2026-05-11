@@ -57,7 +57,7 @@ class MomentApi extends HttpClient {
   }
 
   Future<bool> deletePost(String momentId) async {
-    final resp = await post(API.momentDelete(momentId), data: {});
+    final resp = await post(API.momentDelete(momentId), data: <String, dynamic>{});
     return resp.ok;
   }
 
@@ -121,12 +121,12 @@ class MomentApi extends HttpClient {
   }
 
   Future<bool> likePost(String momentId) async {
-    final resp = await post(API.momentLike(momentId), data: {});
+    final resp = await post(API.momentLike(momentId), data: <String, dynamic>{});
     return resp.ok;
   }
 
   Future<bool> unlikePost(String momentId) async {
-    final resp = await post(API.momentUnlike(momentId), data: {});
+    final resp = await post(API.momentUnlike(momentId), data: <String, dynamic>{});
     return resp.ok;
   }
 
@@ -186,7 +186,7 @@ class MomentApi extends HttpClient {
   Future<bool> deleteComment(String momentId, String commentId) async {
     final resp = await post(
       API.momentCommentDelete(momentId, commentId),
-      data: {},
+      data: <String, dynamic>{},
     );
     return resp.ok;
   }

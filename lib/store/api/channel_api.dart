@@ -112,7 +112,7 @@ class ChannelApi extends HttpClient {
 
   /// 删除频道
   Future<bool> deleteChannel(String channelId) async {
-    final resp = await post('/v1/channel/$channelId/delete', data: {});
+    final resp = await post('/v1/channel/$channelId/delete', data: <String, dynamic>{});
     debugPrint("ChannelApi_deleteChannel resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -121,14 +121,14 @@ class ChannelApi extends HttpClient {
 
   /// 订阅频道
   Future<bool> subscribe(String channelId) async {
-    final resp = await post('/v1/channel/$channelId/subscribe', data: {});
+    final resp = await post('/v1/channel/$channelId/subscribe', data: <String, dynamic>{});
     debugPrint("ChannelApi_subscribe resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 取消订阅
   Future<bool> unsubscribe(String channelId) async {
-    final resp = await post('/v1/channel/$channelId/unsubscribe', data: {});
+    final resp = await post('/v1/channel/$channelId/unsubscribe', data: <String, dynamic>{});
     debugPrint("ChannelApi_unsubscribe resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -446,7 +446,7 @@ class ChannelApi extends HttpClient {
   Future<bool> deleteMessage(String channelId, String messageId) async {
     final resp = await post(
       '/v1/channel/$channelId/message/$messageId/delete',
-      data: {},
+      data: <String, dynamic>{},
     );
     debugPrint("ChannelApi_deleteMessage resp: ok=${resp.ok}");
     return resp.ok;
@@ -511,7 +511,7 @@ class ChannelApi extends HttpClient {
   }) async {
     final resp = await post(
       '/v1/channel/$channelId/message/$messageId/view',
-      data: {},
+      data: <String, dynamic>{},
     );
     debugPrint("ChannelApi_recordMessageView resp: ok=${resp.ok}");
     return resp.ok;
@@ -602,7 +602,7 @@ class ChannelApi extends HttpClient {
 
   /// 创建频道订单
   Future<ChannelOrderModel?> createOrder({required String channelId}) async {
-    final resp = await post('/v1/channel/$channelId/order', data: {});
+    final resp = await post('/v1/channel/$channelId/order', data: <String, dynamic>{});
     debugPrint(
       "ChannelApi_createOrder resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
     );
