@@ -92,8 +92,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
 
   /// 检查是否有变更
   bool _hasChanges() {
-    final currentSet = Set.from(_currentTags);
-    final originalSet = Set.from(_originalTags);
+    final currentSet = Set<dynamic>.from(_currentTags);
+    final originalSet = Set<dynamic>.from(_originalTags);
     return !currentSet.containsAll(originalSet) ||
         !originalSet.containsAll(currentSet);
   }

@@ -256,7 +256,7 @@ class MessageLoadingManager extends _$MessageLoadingManager {
 
       if (showLoading) {
         state = state.copyWith(loadingProgress: 1.0);
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 300));
       }
 
       return newMessages;

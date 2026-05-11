@@ -752,7 +752,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     } else if (type == InputType.voice) {
       // 切换到语音模式，收起所有面板
       FocusScope.of(context).unfocus();
-      await Future.delayed(const Duration(milliseconds: 100)); // 等待键盘收起
+      await Future<dynamic>.delayed(const Duration(milliseconds: 100)); // 等待键盘收起
       _updateComposerHeightByKeyboard();
     } else {
       // 切换到emoji/extra，先收起键盘，再展示面板
@@ -763,7 +763,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           ? const Duration(milliseconds: 150) // 从文本切换需要等键盘收起
           : const Duration(milliseconds: 50); // 从其他状态切换延迟较短
 
-      await Future.delayed(delay);
+      await Future<dynamic>.delayed(delay);
       if (!mounted) return;
 
       // 触发重新构建，让 ChatInputHeightListener 检测到高度变化并执行动画

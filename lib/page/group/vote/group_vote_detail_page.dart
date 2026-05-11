@@ -48,7 +48,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
   List<Map<String, dynamic>> _toMapList(dynamic value) {
     if (value is! List) return const [];
     return value
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }

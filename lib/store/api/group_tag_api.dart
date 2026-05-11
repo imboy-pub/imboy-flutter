@@ -9,7 +9,7 @@ import 'package:imboy/config/const.dart';
 class GroupTagApi extends HttpClient {
   List<Map<String, dynamic>> _normalizeTagList(dynamic raw) {
     if (raw is! List) return const [];
-    return raw.whereType<Map>().map((item) {
+    return raw.whereType<Map<String, dynamic>>().map((item) {
       final map = Map<String, dynamic>.from(item);
       final tagName = (map['tag_name'] ?? map['name'])?.toString();
       if (tagName != null) {

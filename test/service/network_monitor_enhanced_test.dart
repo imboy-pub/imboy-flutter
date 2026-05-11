@@ -240,12 +240,12 @@ void main() {
 
         // 模拟延迟重连
         final start = DateTime.now();
-        Future.delayed(const Duration(milliseconds: 500), () {
+        Future<dynamic>.delayed(const Duration(milliseconds: 500), () {
           final end = DateTime.now();
           delays.add(end.difference(start));
         });
 
-        await Future.delayed(const Duration(seconds: 1));
+        await Future<dynamic>.delayed(const Duration(seconds: 1));
 
         expect(delays.isNotEmpty, true);
         expect(delays.first.inMilliseconds, greaterThanOrEqualTo(500));
@@ -321,7 +321,7 @@ void main() {
         // 取消之前的计时器（模拟 debounce）
         timer.cancel();
 
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 500));
 
         expect(notificationCount, 0);
       });

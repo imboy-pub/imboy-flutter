@@ -59,10 +59,10 @@ class WebSocketService {
   bool _isFlushing = false;
 
   // 订阅管理
-  StreamSubscription? _wsSub;
+  StreamSubscription<dynamic>? _wsSub;
   Timer? _reconnectTimer;
   Timer? _v2HeartbeatTimer;
-  final List<StreamSubscription> _eventBusSubs = [];
+  final List<StreamSubscription<dynamic>> _eventBusSubs = [];
   final Set<Timer> _confirmationTimers = {};
   bool _initialized = false;
 
@@ -151,7 +151,7 @@ class WebSocketService {
     iPrint('> ws: 收到重连请求，source=${event.source}');
     if (event.force || _shouldReconnect()) {
       // 延迟重连以避免频繁重连
-      Future.delayed(const Duration(milliseconds: 300), () {
+      Future<dynamic>.delayed(const Duration(milliseconds: 300), () {
         if (_shouldReconnect()) {
           openSocket(from: event.source);
         }
@@ -718,10 +718,10 @@ class WebSocketService {
           _channel!.sink.add(payload);
           sentCount++;
           if (sentCount >= maxBatch) {
-            await Future.delayed(Duration(milliseconds: 300));
+            await Future<dynamic>.delayed(Duration(milliseconds: 300));
             sentCount = 0;
           } else {
-            await Future.delayed(minDelay);
+            await Future<dynamic>.delayed(minDelay);
           }
         } catch (e, s) {
           iPrint('> ws: flushMessageQueue failed: $e\n$s');

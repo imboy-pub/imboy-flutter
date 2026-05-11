@@ -101,7 +101,7 @@ void main() {
 
       if (resp['code'] == 0) {
         final data = resp['data'];
-        if (data != null && data is Map) {
+        if (data != null && data is Map<String, dynamic>) {
           // 如果有更新版本可用，验证字段完整性
           if (data['updatable'] == true) {
             expect(data.containsKey('vsn'), isTrue);
@@ -124,7 +124,7 @@ void main() {
       expect(resp.containsKey('code'), isTrue);
       if (resp['code'] == 0) {
         final data = resp['data'];
-        if (data != null && data is Map) {
+        if (data != null && data is Map<String, dynamic>) {
           // 版本号极大时应该没有更新
           expect(data['updatable'], isFalse,
               reason: '极大版本号不应有更新');
@@ -151,7 +151,7 @@ void main() {
       ApiAssert.success(resp, context: '获取用户信息');
       final data = resp['data'];
       expect(data, isNotNull);
-      expect(data, isA<Map>());
+      expect(data, isA<Map<String, dynamic>>());
 
       debugPrint('[E2E] 用户信息: uid=${client.currentUid}, '
           'nickname=${data?['nickname']}');
@@ -188,7 +188,7 @@ void main() {
       final data = resp['data'];
       if (data is List) {
         debugPrint('[E2E] 好友列表: ${data.length} 个好友');
-      } else if (data is Map) {
+      } else if (data is Map<String, dynamic>) {
         debugPrint('[E2E] 好友列表响应: $data');
       }
     });
@@ -260,7 +260,7 @@ void main() {
         debugPrint('[E2E] 初始化配置: ${data?.keys?.toList()}');
 
         // 验证关键配置字段
-        if (data is Map) {
+        if (data is Map<String, dynamic>) {
           // ws_url 是 WebSocket 连接的关键
           if (data.containsKey('ws_url')) {
             expect(data['ws_url'], isNotEmpty,

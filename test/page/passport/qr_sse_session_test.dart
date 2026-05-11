@@ -93,7 +93,7 @@ void main() {
       );
       await session.start('http://x');
       client.emitFrame('data: {"status":"scanned"}');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
       expect(received, hasLength(1));
       expect(received.first, isA<QrStatusScanned>());
       await session.stop();
@@ -110,7 +110,7 @@ void main() {
       await session.start('http://x');
       client.emitFrame('data: {"status":"scanned"}');
       client.emitFrame('data: {"status":"confirmed","token":"jwt_xyz"}');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
       expect(received, hasLength(2));
       expect(received[0], isA<QrStatusScanned>());
       expect(received[1], isA<QrStatusConfirmed>());
@@ -340,7 +340,7 @@ void main() {
       await session.start('http://x');
       await session.stop();
       client.emitFrame('data: {"status":"scanned"}');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
       expect(received, isEmpty);
     });
   });

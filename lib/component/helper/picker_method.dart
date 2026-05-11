@@ -227,10 +227,12 @@ class PickMethod {
       method: (BuildContext context, List<AssetEntity> assets) async {
         // Web 平台不需要请求权限
         if (kIsWeb) {
-          return AssetPicker.pickAssetsWithDelegate<AssetEntity, AssetPathEntity, AssetPickerProvider<AssetEntity, AssetPathEntity>, AssetPickerBuilderDelegate<AssetEntity, AssetPathEntity>>(
-            context,
-            delegate: delegate(),
-          );
+          return AssetPicker.pickAssetsWithDelegate<
+            AssetEntity,
+            AssetPathEntity,
+            AssetPickerProvider<AssetEntity, AssetPathEntity>,
+            AssetPickerBuilderDelegate<AssetEntity, AssetPathEntity>
+          >(context, delegate: delegate());
         }
         final PermissionState ps = await PhotoManager.requestPermissionExtend();
         if (ps != PermissionState.authorized && ps != PermissionState.limited) {
@@ -241,10 +243,12 @@ class PickMethod {
         if (!context.mounted) {
           return null;
         }
-        return AssetPicker.pickAssetsWithDelegate<AssetEntity, AssetPathEntity, AssetPickerProvider<AssetEntity, AssetPathEntity>, AssetPickerBuilderDelegate<AssetEntity, AssetPathEntity>>(
-          context,
-          delegate: delegate(),
-        );
+        return AssetPicker.pickAssetsWithDelegate<
+          AssetEntity,
+          AssetPathEntity,
+          AssetPickerProvider<AssetEntity, AssetPathEntity>,
+          AssetPickerBuilderDelegate<AssetEntity, AssetPathEntity>
+        >(context, delegate: delegate());
       },
       onLongPress: onLongPress,
     );

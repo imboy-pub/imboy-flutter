@@ -154,7 +154,7 @@ class DenylistNotifier extends _$DenylistNotifier {
     DenylistApi api = DenylistApi();
     UserDenylistRepo repo = UserDenylistRepo();
 
-    Map? payload = await api.add(deniedUserUid: model.deniedUid.toString());
+    Map<String, dynamic>? payload = await api.add(deniedUserUid: model.deniedUid.toString());
     bool res = payload == null ? false : true;
     if (res) {
       model.createdAt = payload['created_at'] ?? DateTimeHelper.millisecond();

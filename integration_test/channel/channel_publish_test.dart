@@ -29,7 +29,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
 
       final backendReady = await _ensureBackendAvailable();
       if (!backendReady) {
@@ -54,7 +54,7 @@ void main() {
         }
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
 
       final api = ChannelApi();
@@ -210,7 +210,7 @@ Future<bool> _waitMessagePersisted({
         TestHelper.log('⚠️ 拉取 channelId=$channelId 消息失败: $e');
       }
     }
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<dynamic>.delayed(const Duration(seconds: 2));
   }
 
   return false;
@@ -266,7 +266,7 @@ Future<void> _tryWaitForEntryState(WidgetTester tester) async {
     if (TestHelper.needsLogin(tester) || _isOnMainShellPage(tester)) {
       return;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 200));
   }
 

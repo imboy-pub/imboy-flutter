@@ -53,7 +53,7 @@ class UserTagRelationPage extends ConsumerStatefulWidget {
 }
 
 class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
-  final TextfieldTagsController _tagController = TextfieldTagsController();
+  final TextfieldTagsController<dynamic> _tagController = TextfieldTagsController<dynamic>();
   List<String> _originalTags = [];
   Map<String, int> _tagIdByName = {};
   bool _loaded = false;

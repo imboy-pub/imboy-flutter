@@ -86,7 +86,11 @@ void main() {
       expect(restored, isNotNull);
       expect(restored!.content, 'ok');
       expect(restored.mediaUrls, <String>[]);
-      expect(restored.visibility, momentVisibilityFriends, reason: '坏 visibility 回退到友安全默认');
+      expect(
+        restored.visibility,
+        momentVisibilityFriends,
+        reason: '坏 visibility 回退到友安全默认',
+      );
       expect(restored.savedAt, isNull);
     });
 

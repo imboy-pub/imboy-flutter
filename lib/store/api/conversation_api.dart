@@ -19,16 +19,16 @@ class ConversationApi extends HttpClient {
   List<Map<String, dynamic>> _parseMapListPayload(dynamic payload) {
     if (payload is List) {
       return payload
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((item) => Map<String, dynamic>.from(item))
           .toList(growable: false);
     }
 
-    if (payload is Map) {
+    if (payload is Map<String, dynamic>) {
       final rawList = payload['list'] ?? payload['items'] ?? payload['rows'];
       if (rawList is List) {
         return rawList
-            .whereType<Map>()
+            .whereType<Map<String, dynamic>>()
             .map((item) => Map<String, dynamic>.from(item))
             .toList(growable: false);
       }

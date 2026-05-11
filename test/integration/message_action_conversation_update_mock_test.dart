@@ -156,7 +156,8 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        final shouldUpdate = currentConv!.lastMsgId.toString() == oldRevokedMsg.id;
+        final shouldUpdate =
+            currentConv!.lastMsgId.toString() == oldRevokedMsg.id;
         expect(shouldUpdate, false);
 
         // 不应该更新会话

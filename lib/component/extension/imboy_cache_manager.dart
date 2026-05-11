@@ -195,7 +195,7 @@ class IMBoyCacheManager {
             rethrow;
           }
           // 等待一段时间后重试
-          await Future.delayed(Duration(milliseconds: 500 * (retry + 1)));
+          await Future<dynamic>.delayed(Duration(milliseconds: 500 * (retry + 1)));
         }
       }
     }

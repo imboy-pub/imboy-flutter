@@ -59,7 +59,7 @@ class MessageActionMenu extends StatefulWidget {
 }
 
 class _MessageActionMenuState extends State<MessageActionMenu> {
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {

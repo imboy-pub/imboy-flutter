@@ -327,7 +327,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_new');
@@ -358,7 +358,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].payload['content'], 'Hello World');
@@ -498,7 +498,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 4. Event received
         expect(receivedEvents.length, 1);
@@ -540,7 +540,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 4. Event received
         expect(receivedEvents.length, 1);

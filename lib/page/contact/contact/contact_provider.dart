@@ -207,7 +207,7 @@ class ContactNotifier extends _$ContactNotifier {
   }
 
   // 接收确认好友
-  void receivedConfirmFriend(Map data) {
+  void receivedConfirmFriend(Map<String, dynamic> data) {
     if (!ref.mounted) return;
     final repo = ContactRepo();
     final json = {

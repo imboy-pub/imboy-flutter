@@ -23,7 +23,7 @@ void main() {
       };
 
       expect(v2Message['msg_type'], 'text');
-      expect(v2Message['payload'], isA<Map>());
+      expect(v2Message['payload'], isA<Map<String, dynamic>>());
     });
 
     test('v2.0 图片消息格式', () {

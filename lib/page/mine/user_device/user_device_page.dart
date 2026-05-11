@@ -204,7 +204,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             onTap: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(
+                CupertinoPageRoute<dynamic>(
                   builder: (context) => UserDeviceDetailPage(model: model),
                 ),
               );

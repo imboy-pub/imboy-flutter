@@ -43,8 +43,7 @@ class E2ETestConfig {
 
   /// 是否已配置
   static bool get isConfigured =>
-      testPhone.isNotEmpty &&
-      (testPassword.isNotEmpty || testCode.isNotEmpty);
+      testPhone.isNotEmpty && (testPassword.isNotEmpty || testCode.isNotEmpty);
 
   /// 是否配置了双账号
   static bool get isDualConfigured =>
@@ -67,23 +66,25 @@ class ApiTestClient {
   String? get currentUid => _currentUid;
 
   ApiTestClient({required this.baseUrl})
-      : _dio = Dio(BaseOptions(
+    : _dio = Dio(
+        BaseOptions(
           baseUrl: baseUrl,
           contentType: 'application/json',
           connectTimeout: const Duration(seconds: 30),
           receiveTimeout: const Duration(seconds: 30),
           validateStatus: (status) => status != null,
-        ));
+        ),
+      );
 
   /// 构建默认请求头（模拟 Flutter 客户端）
   Map<String, String> _defaultHeaders() {
     final cos = Platform.isIOS
         ? 'ios'
         : Platform.isAndroid
-            ? 'android'
-            : Platform.isMacOS
-                ? 'macos'
-                : 'unknown';
+        ? 'android'
+        : Platform.isMacOS
+        ? 'macos'
+        : 'unknown';
     final did = 'e2e-test-device-${DateTime.now().millisecondsSinceEpoch}';
     final vsn = '0.8.0';
     final pkg = 'pub.imboy.app';
@@ -189,7 +190,7 @@ class ApiTestClient {
   }
 
   /// 解析响应
-  Map<String, dynamic> _parseResponse(Response response) {
+  Map<String, dynamic> _parseResponse(Response<dynamic> response) {
     if (response.data is Map<String, dynamic>) {
       return response.data as Map<String, dynamic>;
     }
@@ -229,12 +230,14 @@ class ApiAssert {
   }
 
   /// 断言 API 响应失败
-  static void failure(Map<String, dynamic> resp, {int? expectedCode, String? context}) {
+  static void failure(
+    Map<String, dynamic> resp, {
+    int? expectedCode,
+    String? context,
+  }) {
     final code = resp['code'];
     if (code == 0) {
-      throw AssertionError(
-        '${context ?? 'API'} 期望失败, 但实际成功(code=0)',
-      );
+      throw AssertionError('${context ?? 'API'} 期望失败, 但实际成功(code=0)');
     }
     if (expectedCode != null && code != expectedCode) {
       throw AssertionError(
@@ -251,9 +254,7 @@ class ApiAssert {
   }) {
     final data = resp['data'];
     if (data is! Map || !data.containsKey(field)) {
-      throw AssertionError(
-        '${context ?? 'API'} 响应数据缺少字段: $field',
-      );
+      throw AssertionError('${context ?? 'API'} 响应数据缺少字段: $field');
     }
   }
 
@@ -266,9 +267,7 @@ class ApiAssert {
     hasField(resp, field, context: context);
     final value = resp['data'][field];
     if (value == null || (value is String && value.isEmpty)) {
-      throw AssertionError(
-        '${context ?? 'API'} 字段 $field 为空',
-      );
+      throw AssertionError('${context ?? 'API'} 字段 $field 为空');
     }
   }
 }

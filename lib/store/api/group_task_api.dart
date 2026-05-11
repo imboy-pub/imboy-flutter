@@ -18,7 +18,7 @@ class GroupTaskApi extends HttpClient {
   List<Map<String, dynamic>> _parseListPayload(dynamic raw) {
     if (raw is! List) return const [];
     return raw
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }

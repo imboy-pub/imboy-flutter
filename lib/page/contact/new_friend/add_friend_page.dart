@@ -102,7 +102,7 @@ class AddFriendPage extends ConsumerWidget {
                         InkWell(
                           onTap: () {
                             Navigator.of(context).push(
-                              CupertinoPageRoute(
+                              CupertinoPageRoute<dynamic>(
                                 builder: (context) => UserQrCodePage(),
                               ),
                             );
@@ -146,7 +146,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.nearbyPeopleTips,
                     onTap: () {
                       Navigator.of(context).push(
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => const PeopleNearbyPage(),
                         ),
                       );
@@ -161,7 +161,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.enterSameGroup,
                     onTap: () {
                       Navigator.of(context).push(
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => FaceToFacePage(),
                         ),
                       );
@@ -176,7 +176,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.scanQrCodeBusinessCard,
                     onTap: () {
                       Navigator.of(context).push(
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => const ScannerPage(),
                         ),
                       );
@@ -191,7 +191,7 @@ class AddFriendPage extends ConsumerWidget {
                     subtitle: t.allowedBeSearched,
                     onTap: () {
                       Navigator.of(context).push(
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => RecentlyRegisteredUserPage(),
                         ),
                       );

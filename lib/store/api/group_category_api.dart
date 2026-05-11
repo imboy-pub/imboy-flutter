@@ -9,7 +9,7 @@ import 'package:imboy/config/const.dart';
 class GroupCategoryApi extends HttpClient {
   List<Map<String, dynamic>> _normalizeCategories(dynamic raw) {
     if (raw is! List) return const [];
-    return raw.whereType<Map>().map((item) {
+    return raw.whereType<Map<String, dynamic>>().map((item) {
       final map = Map<String, dynamic>.from(item);
       final name = (map['name'] ?? map['category_name'])?.toString();
       if (name != null) {

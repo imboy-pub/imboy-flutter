@@ -347,7 +347,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     } else {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) =>
                               VideoViewerPage(url: uri, thumb: thumb),
                         ),

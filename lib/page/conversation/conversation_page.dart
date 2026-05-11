@@ -45,15 +45,15 @@ class ConversationPage extends ConsumerStatefulWidget {
 }
 
 class _ConversationPageState extends ConsumerState<ConversationPage> {
-  StreamSubscription? ssMsg;
-  StreamSubscription? ssExtend; // 监听会话扩展事件（清空聊天记录等）
+  StreamSubscription<dynamic>? ssMsg;
+  StreamSubscription<dynamic>? ssExtend; // 监听会话扩展事件（清空聊天记录等）
 
   // 语言变化监听器
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   // 网络状态监听器
-  StreamSubscription? _connectivitySubscription;
-  StreamSubscription? _websocketStatusSubscription;
+  StreamSubscription<dynamic>? _connectivitySubscription;
+  StreamSubscription<dynamic>? _websocketStatusSubscription;
 
   @override
   void initState() {
@@ -124,7 +124,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         });
 
     // 监听会话消息
-    ssMsg = AppEventBus.on<DataWrapperEvent>().listen((event) async {
+    ssMsg = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) async {
       if (!mounted) return;
 
       // 处理不同的数据类型

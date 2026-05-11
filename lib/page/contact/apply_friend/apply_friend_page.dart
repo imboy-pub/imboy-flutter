@@ -297,7 +297,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
               icon: Icons.local_offer_outlined,
               onTap: () async {
                 final result = await Navigator.of(context).push(
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (context) => UserTagRelationPage(
                       peerId: widget.uid,
                       peerTag: providerState.peerTag.isEmpty

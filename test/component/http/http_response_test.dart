@@ -19,7 +19,9 @@ void main() {
     });
 
     test('failureFormResponse assigns safe defaults', () {
-      final resp = IMBoyHttpResponse.failureFormResponse(payload: {'raw': true});
+      final resp = IMBoyHttpResponse.failureFormResponse(
+        payload: {'raw': true},
+      );
 
       expect(resp.ok, isFalse);
       expect(resp.code, 1);
@@ -28,17 +30,20 @@ void main() {
       expect(resp.error, isA<BadResponseException>());
     });
 
-    test('failureFromError uses exception details when msg/code are absent', () {
-      final resp = IMBoyHttpResponse.failureFromError(
-        error: NetworkException(message: 'network down', code: 503),
-      );
+    test(
+      'failureFromError uses exception details when msg/code are absent',
+      () {
+        final resp = IMBoyHttpResponse.failureFromError(
+          error: NetworkException(message: 'network down', code: 503),
+        );
 
-      expect(resp.ok, isFalse);
-      expect(resp.code, 503);
-      expect(resp.msg, 'network down');
-      expect(resp.payload, <String, dynamic>{});
-      expect(resp.error, isA<NetworkException>());
-    });
+        expect(resp.ok, isFalse);
+        expect(resp.code, 503);
+        expect(resp.msg, 'network down');
+        expect(resp.payload, <String, dynamic>{});
+        expect(resp.error, isA<NetworkException>());
+      },
+    );
 
     test('failureFromError prefers explicit msg/code overrides', () {
       final resp = IMBoyHttpResponse.failureFromError(

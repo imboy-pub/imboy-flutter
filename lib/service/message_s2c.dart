@@ -68,7 +68,7 @@ class MessageS2CService {
   ///   "server_ts": "1234567890"
   /// }
   /// ```
-  static Future<void> switchS2C(Map data) async {
+  static Future<void> switchS2C(Map<String, dynamic> data) async {
     // 安全日志：只输出消息类型，不输出完整数据
     final msgId = data['id'] ?? '';
     final from = data['from'] ?? '';
@@ -267,7 +267,7 @@ class MessageS2CService {
   /// 触发时机：服务端通知客户端拉取离线消息
   /// 处理逻辑：发布离线消息拉取事件，由 MessageOfflineService 订阅处理
   static Future<void> _handlePullOfflineMsg(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     iPrint("pull_offline_msg 收到离线消息拉取指令，开始处理离线消息");
@@ -285,7 +285,7 @@ class MessageS2CService {
   /// 触发时机：对端撤回了一条消息
   /// 处理逻辑：使用公共辅助类将消息转换为撤回提示，更新数据库，触发UI刷新
   static Future<void> _handleC2CRevoke(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
     String from,
     String to,
@@ -325,7 +325,7 @@ class MessageS2CService {
   /// 触发时机：对端删除了一条消息（双方都删除）
   /// 处理逻辑：使用公共辅助类处理删除，触发UI更新
   static Future<void> _handleC2CDelEveryone(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
     String from,
     String to,
@@ -346,7 +346,7 @@ class MessageS2CService {
   /// 触发时机：群组消息被删除（所有人可见）
   /// 处理逻辑：使用公共辅助类处理删除，触发UI更新
   static Future<void> _handleC2GDelEveryone(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     final oldMsgId = payload['old_msg_id'] ?? '';
@@ -365,7 +365,7 @@ class MessageS2CService {
   /// 触发时机：有新成员加入群组
   /// 处理逻辑：更新群组成员列表，触发UI更新
   static Future<void> _handleGroupMemberJoin(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     final userId = data['from'];
@@ -426,7 +426,7 @@ class MessageS2CService {
   /// 触发时机：有成员离开群组
   /// 处理逻辑：更新群组成员列表，触发UI更新
   static Future<void> _handleGroupMemberLeave(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     final userId = payload['leave_uid'];
@@ -457,7 +457,7 @@ class MessageS2CService {
   /// 触发时机：好友申请被确认
   /// 处理逻辑：保存好友信息，更新UI
   static Future<void> _handleApplyFriendConfirm(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     /*
@@ -529,7 +529,7 @@ class MessageS2CService {
         await UserRepoLocal.to.quitLogin();
 
         // 使用延迟确保 quitLogin 完全执行完毕
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 使用 go_router 进行导航
         final context = navigatorKey.currentContext;
@@ -618,7 +618,7 @@ class MessageS2CService {
     await UserRepoLocal.to.quitLogin();
 
     // 使用延迟确保 quitLogin 完全执行完毕
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
     // 使用 go_router 进行导航
     final context = navigatorKey.currentContext;
@@ -632,7 +632,7 @@ class MessageS2CService {
   /// 触发时机：尝试向非好友用户发送消息
   /// 处理逻辑：使用公共辅助类处理非好友错误
   static Future<void> _handleNotAFriend(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     final msgId = parseModelNullableString(data['id']);
@@ -651,7 +651,7 @@ class MessageS2CService {
   /// 触发时机：对方将您加入黑名单
   /// 处理逻辑：使用公共辅助类处理黑名单错误
   static Future<void> _handleInDenylist(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     final msgId = parseModelNullableString(data['id']);
@@ -668,7 +668,7 @@ class MessageS2CService {
   /// 触发时机：好友账号注销
   /// 处理逻辑：发布用户注销事件，由UI层订阅显示提示
   static Future<void> _handleUserCancel(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     final userId = data['from']?.toString() ?? '';
@@ -685,7 +685,7 @@ class MessageS2CService {
 
   /// 处理用户状态变更（上线/下线/隐身）
   static Future<void> _handleUserStatusChange(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
     String status,
   ) async {
@@ -700,16 +700,16 @@ class MessageS2CService {
   }
 
   static Future<void> _handleUserOnline(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) => _handleUserStatusChange(data, payload, 'online');
 
   static Future<void> _handleUserOffline(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) => _handleUserStatusChange(data, payload, 'offline');
 
-  static Future<void> _handleUserHide(Map data, Map<String, dynamic> payload) =>
+  static Future<void> _handleUserHide(Map<String, dynamic> data, Map<String, dynamic> payload) =>
       _handleUserStatusChange(data, payload, 'hide');
 
   /// 处理 E2EE 设备密钥变更通知
@@ -1061,7 +1061,7 @@ class MessageS2CService {
   /// 触发时机：订阅的频道发布新消息
   /// 处理逻辑：保存消息到本地，更新未读计数
   static Future<void> _handleChannelMessage(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
     iPrint('[S2C] channel_message: 收到频道消息');

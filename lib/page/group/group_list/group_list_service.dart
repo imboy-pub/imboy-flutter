@@ -49,7 +49,7 @@ class GroupListService {
         continue;
       }
       for (final item in rows) {
-        if (item is! Map) {
+        if (item is! Map<String, dynamic>) {
           continue;
         }
         final json = Map<String, dynamic>.from(item);
@@ -170,7 +170,7 @@ class GroupListService {
       }
 
       for (final item in rows) {
-        if (item is! Map) {
+        if (item is! Map<String, dynamic>) {
           continue;
         }
         final json = Map<String, dynamic>.from(item);
@@ -245,7 +245,7 @@ class GroupListService {
     if (db == null) {
       return [];
     }
-    List<Map> list = await db.rawQuery(sql, [gid]);
+    List<Map<String, dynamic>> list = await db.rawQuery(sql, [gid]);
     List<String> li = [UserRepoLocal.to.current.avatar];
     if (list.isNotEmpty) {
       for (var e in list) {
@@ -294,7 +294,7 @@ class GroupListService {
     }
 
     try {
-      List<Map> list = await db.rawQuery(sql, [gid]);
+      List<Map<String, dynamic>> list = await db.rawQuery(sql, [gid]);
       iPrint("computeTitle $gid, ${list.length} members found in local db");
 
       if (list.isNotEmpty) {

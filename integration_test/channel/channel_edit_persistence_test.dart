@@ -26,7 +26,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
 
       final backendReady = await _ensureBackendAvailable();
       if (!backendReady) {
@@ -51,7 +51,7 @@ void main() {
         }
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
 
       final api = ChannelApi();
@@ -219,7 +219,7 @@ Future<bool> _waitDescriptionPersisted({
         return true;
       }
     }
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<dynamic>.delayed(const Duration(seconds: 2));
   }
   return false;
 }
@@ -303,7 +303,7 @@ Future<void> _tryWaitForEntryState(WidgetTester tester) async {
     if (TestHelper.needsLogin(tester) || _isOnMainShellPage(tester)) {
       return;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 200));
   }
   TestHelper.log('ℹ️ 未识别到明确入口态，继续执行 API 驱动测试');

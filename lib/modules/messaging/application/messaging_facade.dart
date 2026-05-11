@@ -17,7 +17,7 @@ class MessagingFacade {
 
   Stream<bool> get onlineStatusStream => _adapter.onlineStatusStream;
 
-  Future<void> processMessage(String type, Map data) =>
+  Future<void> processMessage(String type, Map<String, dynamic> data) =>
       _adapter.processMessage(type, data);
 
   Future<void> addLocalMsg({

@@ -75,7 +75,7 @@ class _DetailDeleteHostState extends State<_DetailDeleteHost> {
           ElevatedButton(
             onPressed: () async {
               final result = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(
+                MaterialPageRoute<dynamic>(
                   builder: (_) => const GroupAlbumPhotoDetailPage(
                     groupId: 'g1',
                     albumId: 'a1',

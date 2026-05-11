@@ -372,7 +372,7 @@ class PassportNotifier extends _$PassportNotifier {
               Navigator.pop(ctx);
               Navigator.pushReplacement(
                 ctx,
-                CupertinoPageRoute(
+                CupertinoPageRoute<dynamic>(
                   builder: (_) => const BottomNavigationPage(),
                 ),
               );
@@ -481,7 +481,7 @@ class PassportNotifier extends _$PassportNotifier {
 
           // 登录成功后主动连接 WebSocket
           // 延迟一小段时间确保存储操作完成
-          await Future.delayed(const Duration(milliseconds: 100));
+          await Future<dynamic>.delayed(const Duration(milliseconds: 100));
           WebSocketService.to.openSocket(from: 'login');
           unawaited(
             AppInitializer.triggerGroupMembershipSelfHeal(source: 'login'),
@@ -544,7 +544,7 @@ class PassportNotifier extends _$PassportNotifier {
           await _reportE2EEPublicKey();
 
           // 登录成功后主动连接 WebSocket
-          await Future.delayed(const Duration(milliseconds: 100));
+          await Future<dynamic>.delayed(const Duration(milliseconds: 100));
           WebSocketService.to.openSocket(from: 'loginByCode');
           unawaited(
             AppInitializer.triggerGroupMembershipSelfHeal(
@@ -816,7 +816,7 @@ class PassportNotifier extends _$PassportNotifier {
       }
       if (status == 1 || status == 2) {
         await UserRepoLocal.to.loginAfter(account, resp2.payload);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
         WebSocketService.to.openSocket(from: 'quickLogin');
         unawaited(
           AppInitializer.triggerGroupMembershipSelfHeal(source: 'quickLogin'),
@@ -829,7 +829,7 @@ class PassportNotifier extends _$PassportNotifier {
         if (context != null) {
           Navigator.pushReplacement(
             context,
-            CupertinoPageRoute(builder: (_) => SetPasswordPage()),
+            CupertinoPageRoute<dynamic>(builder: (_) => SetPasswordPage()),
           );
         }
       } else {
@@ -840,13 +840,13 @@ class PassportNotifier extends _$PassportNotifier {
           if (needGuide) {
             Navigator.pushAndRemoveUntil(
               context,
-              CupertinoPageRoute(builder: (_) => const ManageAccountPage()),
+              CupertinoPageRoute<dynamic>(builder: (_) => const ManageAccountPage()),
               (route) => false,
             );
           } else {
             Navigator.pushAndRemoveUntil(
               context,
-              CupertinoPageRoute(builder: (_) => const BottomNavigationPage()),
+              CupertinoPageRoute<dynamic>(builder: (_) => const BottomNavigationPage()),
               (route) => false,
             );
           }

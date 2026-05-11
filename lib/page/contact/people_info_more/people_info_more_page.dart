@@ -145,7 +145,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
               ? () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (_) => PeopleInfoSameGroupPage(
                         groupList: state.sameGroupList,
                       ),

@@ -101,7 +101,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (_) => const E2EETransferPage(),
                         ),
                       );
@@ -122,7 +122,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (_) => const E2EESocialPage(),
                         ),
                       );
@@ -596,7 +596,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (_) => const E2EEBackupExportPage(),
                   ),
                 );
@@ -610,7 +610,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (_) => const E2EEBackupImportPage(),
                   ),
                 );
@@ -624,7 +624,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (_) => const E2EEBackupManagePage(),
                   ),
                 );
@@ -859,7 +859,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 导入到备份导出页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (_) => const E2EEBackupExportPage(),
                     ),
                   );

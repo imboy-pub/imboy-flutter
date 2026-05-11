@@ -267,14 +267,14 @@ class SetPasswordPage extends ConsumerWidget {
                         (user.email.isEmpty || user.mobile.isEmpty);
                     if (needGuide) {
                       Navigator.of(context).pushAndRemoveUntil(
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => const ManageAccountPage(),
                         ),
                         (route) => false,
                       );
                     } else {
                       Navigator.of(context).pushAndRemoveUntil(
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => const BottomNavigationPage(),
                         ),
                         (route) => false,

@@ -132,7 +132,7 @@ class RouteFeatureGuard {
     BuildContext context,
     ({RouteBlockReason reason, String name})? detail,
   ) {
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future<dynamic>.delayed(const Duration(milliseconds: 300), () {
       if (!context.mounted) return;
       final message = detail == null || detail.name.isEmpty
           ? t.featureNotEnabled

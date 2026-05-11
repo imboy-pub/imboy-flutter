@@ -94,7 +94,7 @@ class MessageSearchResponse {
     final itemsList = json['items'] as List<dynamic>? ?? [];
     return MessageSearchResponse(
       items: itemsList
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map(
             (item) =>
                 MessageSearchResult.fromJson(Map<String, dynamic>.from(item)),

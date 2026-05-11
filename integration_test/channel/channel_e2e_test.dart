@@ -27,7 +27,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'channel_01_app_launch');
       final backendOk = await _ensureBackendAvailable();
       if (!backendOk) {
@@ -58,7 +58,7 @@ void main() {
         TestHelper.log('✅ 已登录或无需登录');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_02_after_login');
 
@@ -68,7 +68,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_03_channel_tab');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -81,7 +81,7 @@ void main() {
           find.text('发现频道'),
           find.text('Discover Channels'),
         ]);
-        await Future.delayed(const Duration(seconds: 2));
+        await Future<dynamic>.delayed(const Duration(seconds: 2));
         await _shortSettle(tester);
         hasChannelItem = tester.any(find.byType(ListTile));
       }
@@ -100,7 +100,7 @@ void main() {
         TestHelper.log('⚠️ 点击已订阅频道项失败，跳过频道详情验证');
         return;
       }
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_05_channel_detail');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -133,7 +133,7 @@ void main() {
         await _shortSettle(tester);
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_07_after_publish');
 
@@ -160,7 +160,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'channel_create_01_app_launch');
       final backendOk2 = await _ensureBackendAvailable();
       if (!backendOk2) {
@@ -191,7 +191,7 @@ void main() {
         TestHelper.log('✅ 已登录或无需登录');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_create_02_after_login');
 
@@ -201,7 +201,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_create_03_channel_tab');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -212,7 +212,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_create_04_create_page');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -248,7 +248,7 @@ void main() {
         }
       }
 
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_create_06_after_submit');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -295,7 +295,7 @@ void main() {
         await _shortSettle(tester);
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'channel_create_08_after_publish');
 
@@ -366,7 +366,7 @@ Future<bool> _waitForEntryState(WidgetTester tester) async {
         _isOnMainShellPage(tester)) {
       return true;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
 

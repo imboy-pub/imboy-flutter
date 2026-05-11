@@ -43,7 +43,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   bool _isLoading = false;
   int _myRole = 1;
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
   // slice-9c：群成员禁言/解禁 S2C 事件订阅
   StreamSubscription<GroupMemberMuteEvent>? _ssMemberMute;
   StreamSubscription<GroupMemberUnmuteEvent>? _ssMemberUnmute;

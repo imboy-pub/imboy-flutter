@@ -43,7 +43,7 @@ void main() {
         // 修复：空字符串会保持为空字符串，不是 null
         expect(msg.action ?? '', '');
         expect(msg.e2ee, isNull); // 空 e2ee 字符串解析后为 null
-        expect(msg.payload, isA<Map>());
+        expect(msg.payload, isA<Map<String, dynamic>>());
       });
 
       test('应该正确解析 S2C 消息（action 在顶层）', () {
@@ -94,7 +94,7 @@ void main() {
         final msg = MessageModel.fromJson(json);
 
         expect(msg.id, '456');
-        expect(msg.e2ee, isA<Map>());
+        expect(msg.e2ee, isA<Map<String, dynamic>>());
         expect(msg.e2ee!['e2ee'], true);
         expect(msg.payload, isA<String>()); // E2EE 消息 payload 是字符串
       });
@@ -175,9 +175,9 @@ void main() {
         final json = msg.toJson();
 
         expect(json['msg_type'], 'text');
-        // 修复：e2ee 字段直接写入 Map（不是 JSON 字符串）
-        expect(json['e2ee'], isA<Map>());
-        expect((json['e2ee'] as Map)['e2ee'], true);
+        // 修复：e2ee 字段直接写入 Map<String, dynamic>（不是 JSON 字符串）
+        expect(json['e2ee'], isA<Map<String, dynamic>>());
+        expect((json['e2ee'] as Map<String, dynamic>)['e2ee'], true);
         // payload 保持字符串格式
         expect(json['payload'], 'base64_nonce.base64_ciphertext');
       });
@@ -242,7 +242,7 @@ void main() {
         expect(json, containsPair('e2ee', ''));
 
         // 验证 payload 不包含 msg_type
-        final payload = json['payload'] as Map;
+        final payload = json['payload'] as Map<String, dynamic>;
         expect(payload, isNot(contains('msg_type')));
       });
 
@@ -273,7 +273,12 @@ void main() {
           'type': 'C2C',
           'msg_type': 'text',
           'action': '',
-          'e2ee': {'e2ee': true, 'e2ee_ver': 1, 'nonce': 'abc123', 'keys': <dynamic>[],},
+          'e2ee': {
+            'e2ee': true,
+            'e2ee_ver': 1,
+            'nonce': 'abc123',
+            'keys': <dynamic>[],
+          },
           'payload': 'base64_nonce.base64_ciphertext', // 字符串格式
         };
 
@@ -281,7 +286,7 @@ void main() {
         expect(json['payload'], isA<String>());
 
         // e2ee 元数据中不应包含 ciphertext
-        final e2ee = json['e2ee'] as Map;
+        final e2ee = json['e2ee'] as Map<String, dynamic>;
         expect(e2ee, isNot(contains('ciphertext')));
         expect(e2ee, isNot(contains('ct')));
       });

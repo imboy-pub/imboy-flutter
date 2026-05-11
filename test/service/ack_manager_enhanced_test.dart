@@ -87,7 +87,7 @@ void main() {
 
         // 模拟重试
         retryHistory.add(DateTime.now());
-        Future.delayed(const Duration(milliseconds: 100), () {
+        Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
           retryHistory.add(DateTime.now());
         });
 
@@ -104,7 +104,7 @@ void main() {
         );
 
         // 等待超时（实际超时是 30 秒，这里模拟）
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 清理过期 ACK
         ackManager.cleanupExpired();
@@ -156,7 +156,7 @@ void main() {
         expect(stats['pending_count'], 2);
         expect(stats['max_retries'], 3);
         expect(stats['retry_interval_ms'], 3000);
-        expect(stats['pending_ack_list'], isA<List>());
+        expect(stats['pending_ack_list'], isA<List<dynamic>>());
       });
 
       test('应该更新 ACK 状态', () {
@@ -230,7 +230,7 @@ void main() {
           }
         });
 
-        await Future.delayed(const Duration(seconds: 4));
+        await Future<dynamic>.delayed(const Duration(seconds: 4));
 
         expect(cleanupCount, greaterThanOrEqualTo(3));
       });
@@ -273,7 +273,7 @@ void main() {
         );
 
         // 等待超时
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 清理
         ackManager.cleanupExpired();

@@ -286,7 +286,7 @@ class HttpClient {
       // 获取当前 context（用于显示 SnackBar）
       final context = navigatorKey.currentState?.overlay?.context;
       if (context != null && context.mounted) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -300,7 +300,7 @@ class HttpClient {
       }
 
       // 延迟跳转，让用户看到提示
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
 
       _notifyAuthExpired(reason: 'token_expired');
       _loginExpiredCompleter!.complete();
@@ -309,7 +309,7 @@ class HttpClient {
       _loginExpiredCompleter!.completeError(e);
     } finally {
       // 延迟重置，防止跳转过程中的重复请求立即重入
-      Future.delayed(const Duration(seconds: 2), () {
+      Future<dynamic>.delayed(const Duration(seconds: 2), () {
         _loginExpiredCompleter = null;
       });
     }
@@ -364,7 +364,7 @@ class HttpClient {
   /// 带网络检查的通用请求执行器（DRY）
   Future<IMBoyHttpResponse> _executeWithNetworkCheck(
     String uri,
-    Future<Response> Function() requestFn, {
+    Future<Response<dynamic>> Function() requestFn, {
     HttpTransformer? httpTransformer,
     void Function(IMBoyHttpResponse)? onResponse,
   }) async {
@@ -482,7 +482,7 @@ class HttpClient {
     );
   }
 
-  Future<Response> download(
+  Future<Response<dynamic>> download(
     String urlPath,
     savePath, {
     ProgressCallback? onReceiveProgress,

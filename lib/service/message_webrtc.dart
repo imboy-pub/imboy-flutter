@@ -76,7 +76,7 @@ class MessageWebrtc {
 
   /// Handle WebRTC-specific messages
   /// 处理 WebRTC 信令：OFFER, BUSY, BYE 等
-  Future<void> handleWebRTC(String type, Map data) async {
+  Future<void> handleWebRTC(String type, Map<String, dynamic> data) async {
     final msgId = data['id'];
     if (['WEBRTC_OFFER', 'WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
       webrtcMsgIds.add(msgId);
@@ -214,7 +214,7 @@ class MessageWebrtc {
     if (msg == null) return;
     webrtcMsgIds.clear();
 
-    final metadata = (msg.payload as Map?)?.cast<String, dynamic>() ?? {};
+    final metadata = (msg.payload as Map<String, dynamic>?)?.cast<String, dynamic>() ?? {};
     final msgType = metadata['msg_type'] ?? '';
     if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType)) {
       return;

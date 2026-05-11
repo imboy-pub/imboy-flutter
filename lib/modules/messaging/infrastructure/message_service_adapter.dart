@@ -19,7 +19,7 @@ class MessageServiceAdapter {
 
   Stream<bool> get onlineStatusStream => _service.onlineStatusStream;
 
-  Future<void> processMessage(String type, Map data) =>
+  Future<void> processMessage(String type, Map<String, dynamic> data) =>
       _service.processMessage(type, data);
 
   Future<void> addLocalMsg({

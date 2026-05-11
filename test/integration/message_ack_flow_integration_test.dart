@@ -149,7 +149,7 @@ void main() {
         ackManager.sendAck('C2C', msgId, overrideDeviceId: 'test_device');
 
         // 等待事件传播
-        await Future.delayed(const Duration(milliseconds: 200));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 200));
 
         // 【修复】验证事件已接收
         expect(eventReceived, true, reason: '应该收到 WebSocket 发送请求事件');
@@ -176,9 +176,9 @@ void main() {
             });
 
         ackManager.sendAck('C2C', msgId, overrideDeviceId: 'test_device');
-        await Future.delayed(const Duration(milliseconds: 15));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 15));
         ackManager.ackConfirmed(msgId);
-        await Future.delayed(const Duration(milliseconds: 30));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 30));
 
         final stats = ackManager.getStats();
         expect(capturedEvent, isNotNull);
@@ -210,13 +210,13 @@ void main() {
           messageType: 'C2C',
           retryCount: 3,
         );
-        await Future.delayed(const Duration(milliseconds: 20));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 20));
 
         final stats = ackManager.getStats();
         expect(capturedEvent, isNotNull);
         expect(stats['retry_ceiling_hit_count'], 1);
-        expect(stats['recent_retry_ceiling_hits'], isA<List>());
-        expect((stats['recent_retry_ceiling_hits'] as List).isNotEmpty, isTrue);
+        expect(stats['recent_retry_ceiling_hits'], isA<List<dynamic>>());
+        expect((stats['recent_retry_ceiling_hits'] as List<dynamic>).isNotEmpty, isTrue);
         expect(capturedEvent!.retryCount, 3);
         expect(capturedEvent!.maxRetryCount, 3);
 

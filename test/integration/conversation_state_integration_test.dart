@@ -32,21 +32,24 @@ void main() {
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(pathProviderChannel, (methodCall) async {
-      switch (methodCall.method) {
-        case 'getTemporaryDirectory':
-        case 'getApplicationDocumentsDirectory':
-        case 'getApplicationSupportDirectory':
-        case 'getDatabasesPath':
-          return Directory.systemTemp.path;
-        default:
-          return Directory.systemTemp.path;
-      }
-    });
+          switch (methodCall.method) {
+            case 'getTemporaryDirectory':
+            case 'getApplicationDocumentsDirectory':
+            case 'getApplicationSupportDirectory':
+            case 'getDatabasesPath':
+              return Directory.systemTemp.path;
+            default:
+              return Directory.systemTemp.path;
+          }
+        });
 
     SharedPreferences.setMockInitialValues({});
     // 初始化存储服务（数据库服务依赖它）
     await StorageService.init();
-    await StorageService.to.setString(Keys.currentUid, 'test_uid_for_conversation');
+    await StorageService.to.setString(
+      Keys.currentUid,
+      'test_uid_for_conversation',
+    );
     // 初始化数据库服务
     await SqliteService.to.db;
   });
@@ -58,7 +61,7 @@ void main() {
 
   group('会话状态同步集成测试', () {
     late ConversationRepo conversationRepo;
-    late StreamSubscription<DataWrapperEvent> eventSubscription;
+    late StreamSubscription<DataWrapperEvent<dynamic>> eventSubscription;
 
     setUp(() async {
       conversationRepo = ConversationRepo();
@@ -75,7 +78,7 @@ void main() {
       }
 
       // 订阅会话更新事件
-      eventSubscription = AppEventBus.on<DataWrapperEvent>().listen((event) {
+      eventSubscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
         // 测试中只记录事件，不做处理
       });
     });

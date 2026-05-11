@@ -109,7 +109,7 @@ class WalletNotifier extends Notifier<WalletState> {
 
     final rawList = result['list'] as List<dynamic>? ?? [];
     final newTxs = rawList
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((e) => WalletTransaction.fromJson(Map<String, dynamic>.from(e)))
         .toList();
     final total = (result['total'] as num?)?.toInt() ?? 0;

@@ -432,7 +432,7 @@ class AppInitializer {
               '⚠️ initConfig: 请求失败 code=${resp1.code}，${delay.inSeconds}秒后重试...',
             );
           }
-          await Future.delayed(delay);
+          await Future<dynamic>.delayed(delay);
         }
       }
 

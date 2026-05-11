@@ -88,7 +88,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   Duration recordingDuration = const Duration();
 
   String filePath = '';
-  StreamSubscription? recordStream;
+  StreamSubscription<dynamic>? recordStream;
 
   @override
   void initState() {

@@ -34,7 +34,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'pwd_01_app_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -64,7 +64,7 @@ void main() {
         }
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'pwd_02_after_login');
 
@@ -86,7 +86,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'pwd_03_mine_page');
 
@@ -112,7 +112,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'pwd_04_settings_page');
 
@@ -131,7 +131,7 @@ void main() {
       }
 
       await _tapFinder(tester, changePwdBtn.first);
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'pwd_05_change_password_page');
 
@@ -191,7 +191,7 @@ void main() {
         await _tapFinder(tester, submitBtn.first);
       }
 
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'pwd_07_after_submit');
 
@@ -293,7 +293,7 @@ Future<bool> _waitForEntryState(WidgetTester tester) async {
         hasGlassBottomBar) {
       return true;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
   return false;

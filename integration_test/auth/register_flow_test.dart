@@ -38,7 +38,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'register_01_app_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -81,7 +81,7 @@ void main() {
       }
 
       await _tapFinder(tester, signupBtn.first);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'register_03_signup_page');
 
@@ -138,7 +138,7 @@ void main() {
         await _tapFinder(tester, submitBtn.first);
       }
 
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'register_05_after_submit');
 
@@ -249,7 +249,7 @@ Future<bool> _waitForEntryState(WidgetTester tester) async {
         hasGlassBottomBar) {
       return true;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
   return false;

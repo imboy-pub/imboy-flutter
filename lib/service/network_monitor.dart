@@ -101,7 +101,7 @@ class NetworkMonitorService {
     iPrint('检测到网络变化，准备重连WebSocket: $oldType -> $newType');
 
     // 延迟一小段时间确保网络稳定
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future<dynamic>.delayed(const Duration(milliseconds: 500), () {
       // 检查用户是否已登录
       if (!UserRepoLocal.to.isLoggedIn) {
         iPrint('用户未登录，取消WebSocket重连');

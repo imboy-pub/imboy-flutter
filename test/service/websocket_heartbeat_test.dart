@@ -38,7 +38,7 @@ void main() {
           }
         });
 
-        await Future.delayed(const Duration(seconds: 4));
+        await Future<dynamic>.delayed(const Duration(seconds: 4));
         timer.cancel();
 
         expect(heartbeatReceived.length, greaterThanOrEqualTo(3));
@@ -64,7 +64,7 @@ void main() {
         var lastHeartbeat = DateTime.now();
 
         // 模拟心跳超时
-        await Future.delayed(const Duration(seconds: 2));
+        await Future<dynamic>.delayed(const Duration(seconds: 2));
         final timeSinceLastHeartbeat = DateTime.now().difference(lastHeartbeat);
 
         // 在实际测试中，这个值应该超过 heartbeatTimeout
@@ -80,7 +80,7 @@ void main() {
           reconnectTriggered = true;
         });
 
-        await Future.delayed(const Duration(seconds: 3));
+        await Future<dynamic>.delayed(const Duration(seconds: 3));
         expect(reconnectTriggered, true);
       });
 
@@ -216,7 +216,7 @@ void main() {
 
         // 模拟消息处理
         final start = DateTime.now();
-        await Future.delayed(const Duration(milliseconds: 10));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
         final end = DateTime.now();
         messageProcessingTime.add(end.difference(start));
 

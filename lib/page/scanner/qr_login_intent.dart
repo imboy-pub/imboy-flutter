@@ -29,7 +29,7 @@ library;
 /// ```dart
 /// switch (detectQrLoginIntent(barcodeStr)) {
 ///   case QrLoginIntentWebLogin(:final qrToken):
-///     Navigator.push(context, MaterialPageRoute(
+///     Navigator.push(context, MaterialPageRoute<dynamic>(
 ///       builder: (_) => QrLoginConfirmPage(qrToken: qrToken),
 ///     ));
 ///   case QrLoginIntentOther(:final raw):

@@ -47,7 +47,7 @@ class _GroupScheduleDetailPageState
   List<Map<String, dynamic>> _toMapList(dynamic value) {
     if (value is! List) return const [];
     return value
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }
@@ -145,7 +145,7 @@ class _GroupScheduleDetailPageState
     }
 
     final scheduleRaw = _detail!['schedule'];
-    final schedule = scheduleRaw is Map
+    final schedule = scheduleRaw is Map<String, dynamic>
         ? Map<String, dynamic>.from(scheduleRaw)
         : Map<String, dynamic>.from(_detail!);
     final participants = _toMapList(_detail!['participants']);

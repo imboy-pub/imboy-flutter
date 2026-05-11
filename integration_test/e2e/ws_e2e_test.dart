@@ -46,7 +46,7 @@ void main() {
     // 如果未配置 WS_URL，尝试从 init 接口获取
     if (wsBaseUrl.isEmpty) {
       final initResp = await apiClient.get('/v1/init');
-      if (initResp['code'] == 0 && initResp['data'] is Map) {
+      if (initResp['code'] == 0 && initResp['data'] is Map<String, dynamic>) {
         wsBaseUrl = initResp['data']['ws_url'] ?? '';
       }
     }
@@ -87,11 +87,11 @@ void main() {
       expect(ws, isNotNull, reason: 'WebSocket 应连接成功');
 
       // 等待连接稳定
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
 
       // 发送 ping 验证连接存活
       ws.add('ping');
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 500));
 
       await ws.close();
       debugPrint('[E2E-WS] 连接建立并关闭成功');
@@ -101,7 +101,7 @@ void main() {
       try {
         final ws = await _connectWebSocket(wsBaseUrl);
         // 如果连接成功，等待看是否会被踢出
-        await Future.delayed(const Duration(seconds: 2));
+        await Future<dynamic>.delayed(const Duration(seconds: 2));
         await ws.close();
         // 即使连接成功，也属于正常行为（服务端可能先接受后校验）
         debugPrint('[E2E-WS] 无 token 连接: 已建立（服务端延迟校验）');
@@ -193,7 +193,7 @@ void main() {
       });
 
       // 等待一段时间收集消息
-      await Future.delayed(const Duration(seconds: 5));
+      await Future<dynamic>.delayed(const Duration(seconds: 5));
 
       await ws.close();
 
@@ -204,7 +204,7 @@ void main() {
         if (msg is String) {
           try {
             final parsed = jsonDecode(msg);
-            expect(parsed, isA<Map>(),
+            expect(parsed, isA<Map<String, dynamic>>(),
                 reason: 'S2C 消息应为 JSON 对象');
             debugPrint('[E2E-WS] S2C 消息解析: ${parsed.keys}');
           } on FormatException {
@@ -243,7 +243,7 @@ void main() {
 
       // 每 3 秒发送 ping 保活
       for (var i = 0; i < 3; i++) {
-        await Future.delayed(const Duration(seconds: 3));
+        await Future<dynamic>.delayed(const Duration(seconds: 3));
         if (disconnected) break;
         ws.add('ping');
         debugPrint('[E2E-WS] 稳定性: ping #${i + 1}');

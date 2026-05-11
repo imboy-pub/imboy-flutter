@@ -25,7 +25,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
 
       final backendReady = await _ensureBackendAvailable();
       if (!backendReady) {
@@ -54,7 +54,7 @@ void main() {
         }
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       await _shortSettle(tester);
 
       final api = ChannelApi();
@@ -140,7 +140,7 @@ Future<_VerifyResult> _verifySingleSubscribedChannel({
       debugNotes.add('candidate=$id byCustom returned empty-id payload');
     }
 
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 400));
   }
 
   if (resolved == null) {
@@ -182,7 +182,7 @@ Future<ChannelModel?> _resolveChannelWithRetry(
     if (channel != null) return channel;
 
     // 简单退避，缓解 429 抖动
-    await Future.delayed(Duration(milliseconds: 300 * (i + 1)));
+    await Future<dynamic>.delayed(Duration(milliseconds: 300 * (i + 1)));
   }
   return null;
 }
@@ -243,7 +243,7 @@ Future<void> _tryWaitForEntryState(WidgetTester tester) async {
     if (TestHelper.needsLogin(tester) || _isOnMainShellPage(tester)) {
       return;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 200));
   }
   TestHelper.log('ℹ️ 未识别到明确入口态，继续执行 API 驱动测试');

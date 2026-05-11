@@ -107,7 +107,7 @@ class TestHelper {
         return operation();
       } catch (e) {
         if (i == maxAttempts - 1) rethrow;
-        await Future.delayed(delay);
+        await Future<dynamic>.delayed(delay);
       }
     }
     throw StateError('重试失败');
@@ -187,7 +187,7 @@ class TestHelper {
 
       // 6. 等待登录完成
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await tester.pumpAndSettle();
 
       // 登录动作提交后若仍停留在登录页，视为登录失败，避免误判成功。

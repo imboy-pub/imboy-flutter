@@ -39,7 +39,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
   String currentText = "";
   final formKey = GlobalKey<FormState>();
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   // 缓存 notifier 引用：dispose() 中不能再用 ref（widget 已 deactivate），
   // 必须 initState 时缓存到字段内，参考 Riverpod 3.x 推荐模式

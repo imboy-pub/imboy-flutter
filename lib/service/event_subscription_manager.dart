@@ -44,7 +44,7 @@
 /// // 方式2：在 Riverpod Notifier 中使用
 /// @riverpod
 /// class MyNotifier extends _$MyNotifier {
-///   final List<StreamSubscription> _subscriptions = [];
+///   final List<StreamSubscription<dynamic>> _subscriptions = [];
 ///
 ///   @override
 ///   MyState build() {
@@ -85,11 +85,11 @@ import 'dart:async';
 /// - 线程安全
 mixin EventSubscriptionManager {
   /// 所有订阅的集合
-  final List<StreamSubscription> _subscriptions = [];
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
 
   /// 订阅事件并自动管理生命周期
   ///
-  /// [subscription] StreamSubscription 对象
+  /// [subscription] StreamSubscription<dynamic> 对象
   ///
   /// 返回传入的订阅对象，支持链式调用
   ///
@@ -110,7 +110,7 @@ mixin EventSubscriptionManager {
 
   /// 批量订阅事件
   ///
-  /// [subscriptions] StreamSubscription 列表
+  /// [subscriptions] StreamSubscription<dynamic> 列表
   ///
   /// 示例：
   /// ```dart
@@ -119,7 +119,7 @@ mixin EventSubscriptionManager {
   ///   AppEventBus.on<NetworkEvent>().listen((event) { ... }),
   /// ]);
   /// ```
-  void subscribeAll(List<StreamSubscription> subscriptions) {
+  void subscribeAll(List<StreamSubscription<dynamic>> subscriptions) {
     _subscriptions.addAll(subscriptions);
   }
 

@@ -183,7 +183,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   String? _editingMessageId; // 当前正在编辑的消息ID
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
-  StreamSubscription? _connectivitySubscription; // 网络状态监听
+  StreamSubscription<dynamic>? _connectivitySubscription; // 网络状态监听
 
   // 附件处理器（延迟初始化，依赖 conversationUk3）
   late final ChatAttachmentHandler _attachmentHandler;
@@ -901,7 +901,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
 
         // 渐进式等待
-        await Future.delayed(Duration(milliseconds: attempt < 3 ? 100 : 300));
+        await Future<dynamic>.delayed(Duration(milliseconds: attempt < 3 ? 100 : 300));
 
         if (!mounted) return;
 
@@ -1122,7 +1122,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 打开收藏页面（选择模式）
     final result = await Navigator.push<UserCollectModel>(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (context) => UserCollectPage(isSelect: true, peer: peer),
       ),
     );
@@ -1524,7 +1524,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (chatState.composerHeight > 52) {
           final navigator = Navigator.of(context);
           _chatInputKey.currentState?.hideAllPanel();
-          await Future.delayed(const Duration(milliseconds: 300));
+          await Future<dynamic>.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
           navigator.pop();
         }

@@ -63,8 +63,8 @@ class GroupDetailPage extends ConsumerStatefulWidget {
 class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   bool backDoRefresh = false;
   final Lock _lock = Lock();
-  StreamSubscription? ssMsgExt;
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? ssMsgExt;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   /// slice-7 (C6 UI) — 群消息免打扰本地偏好（KV 存储，见 `group_notice_config.dart`）。
   /// widget.groupId 是 String（TSID），KV key 内部按字符串插值，数值大小无关。
@@ -370,7 +370,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         // 导航到修改群名页面
                         Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          CupertinoPageRoute<dynamic>(
                             builder: (_) => ChangeInfoPage(
                               group: group,
                               title: t.groupName,

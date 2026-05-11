@@ -71,7 +71,7 @@ void main() {
       container.listen<dynamic>(qRLoginProvider, (_, _) {});
 
       notifier.startSseSession('sess_test_1');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
 
       // sessionToken 必须先有值才能让 derivePollingDecision 通过 sessionToken 守卫
       // 但 startSseSession 不修改 state，需要测试时手动初始化
@@ -87,7 +87,7 @@ void main() {
       container.listen<dynamic>(qRLoginProvider, (_, _) {});
 
       notifier.startSseSession('my_session_xyz');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
 
       expect(fake.lastUrl,
           '/v1/passport/qr_login/subscribe?session_token=my_session_xyz');
@@ -105,9 +105,9 @@ void main() {
       container.listen<dynamic>(qRLoginProvider, (_, _) {});
 
       notifier.startSseSession('sess_1');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
       notifier.startSseSession('sess_2');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
 
       expect(fakeOld.closed, isTrue, reason: '重入时旧 session 必须 close');
       expect(fakeNew.connectCalls, 1);
@@ -120,9 +120,9 @@ void main() {
       container.listen<dynamic>(qRLoginProvider, (_, _) {});
 
       notifier.startSseSession('sess_dispose');
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
       notifier.dispose();
-      await Future.delayed(Duration.zero);
+      await Future<dynamic>.delayed(Duration.zero);
 
       expect(fake.closed, isTrue, reason: 'dispose 必须清理 SSE 会话');
     });

@@ -160,7 +160,7 @@ class E2EEService {
   ///   'to': 'user123',
   ///   'msg_type': 'text',
   ///   'payload': result['ciphertext'],  // 密文作为 payload（字符串）
-  ///   'e2ee': result['e2ee'],           // 元数据放入 e2ee（Map）
+  ///   'e2ee': result['e2ee'],           // 元数据放入 e2ee（Map<String, dynamic>）
   /// };
   /// ```
   static Future<Map<String, dynamic>> buildE2EEData({
@@ -294,7 +294,7 @@ class E2EEService {
     }
 
     final myKey = keys
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((x) => x.cast<String, dynamic>())
         .firstWhere(
           (k) => k['did'] == myDid,
@@ -359,8 +359,8 @@ class E2EEService {
     final e2ee = payload['e2ee'];
     if (e2ee == null || e2ee == '') return payload;
 
-    final e2eeData = e2ee is Map ? e2ee.cast<String, dynamic>() : null;
-    if (e2eeData is! Map) {
+    final e2eeData = e2ee is Map<String, dynamic> ? e2ee.cast<String, dynamic>() : null;
+    if (e2eeData is! Map<String, dynamic>) {
       return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
     }
 
@@ -373,7 +373,7 @@ class E2EEService {
 
     final myDid = deviceId;
     final me = keys
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((x) => x.cast<String, dynamic>())
         .firstWhere((r) => r['did'] == myDid, orElse: () => {});
     if (me.isEmpty) {
@@ -410,7 +410,7 @@ class E2EEService {
       );
 
       final decoded = jsonDecode(plaintext);
-      if (decoded is! Map) {
+      if (decoded is! Map<String, dynamic>) {
         return _decryptFailedPayload(payload, reason: 'invalid_plaintext');
       }
 
@@ -519,7 +519,7 @@ class E2EEService {
           rethrow;
         }
         iPrint('获取用户设备密钥失败，第$attempt次重试...');
-        await Future.delayed(retryDelay);
+        await Future<dynamic>.delayed(retryDelay);
       }
     }
 
@@ -561,7 +561,7 @@ class E2EEService {
         for (final m in members) {
           final devices = m['devices'];
           if (devices is! List) continue;
-          for (final d in devices.whereType<Map>()) {
+          for (final d in devices.whereType<Map<String, dynamic>>()) {
             final row = d.cast<String, dynamic>();
             final did = row['device_id']?.toString() ?? '';
             final pem = row['public_key']?.toString() ?? '';
@@ -599,7 +599,7 @@ class E2EEService {
           rethrow;
         }
         iPrint('获取群组设备密钥失败，第$attempt次重试...');
-        await Future.delayed(retryDelay);
+        await Future<dynamic>.delayed(retryDelay);
       }
     }
 
@@ -643,10 +643,10 @@ class E2EEService {
       String? rawCiphertext;
       Map<String, dynamic>? rawE2ee;
 
-      if (rawPayload is Map) {
+      if (rawPayload is Map<String, dynamic>) {
         rawCiphertext = rawPayload['payload']?.toString();
         final e2eeData = rawPayload['e2ee'];
-        if (e2eeData is Map) {
+        if (e2eeData is Map<String, dynamic>) {
           rawE2ee = e2eeData.cast<String, dynamic>();
         }
       }
@@ -673,7 +673,7 @@ class E2EEService {
 
       // 解析解密后的内容
       final decoded = jsonDecode(plaintext);
-      if (decoded is! Map) {
+      if (decoded is! Map<String, dynamic>) {
         throw Exception('解密后的内容不是 JSON 对象');
       }
 

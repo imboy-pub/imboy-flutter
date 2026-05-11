@@ -57,7 +57,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     );
   }
 
-  Future getImageFromSource(ImageSource source) async {
+  Future<dynamic> getImageFromSource(ImageSource source) async {
     iPrint("getImageFromSource start");
     final res = await Connectivity().checkConnectivity();
     if (res.contains(ConnectivityResult.none)) {
@@ -88,7 +88,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
 
     String? url = await Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => CropImageRoute(
           originalImage,
           "avatar",
@@ -511,7 +511,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 onTap: () async {
                   final result = await Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (_) => const SetNicknamePage()),
+                    CupertinoPageRoute<dynamic>(builder: (_) => const SetNicknamePage()),
                   );
 
                   if (result == true && context.mounted) {
@@ -549,7 +549,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+                    CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
                   );
                 },
               ),
@@ -562,7 +562,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   // 导航到更多信息页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (_) => const MorePage()),
+                    CupertinoPageRoute<dynamic>(builder: (_) => const MorePage()),
                   );
                 },
               ),

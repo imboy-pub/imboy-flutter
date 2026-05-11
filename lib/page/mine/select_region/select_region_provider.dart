@@ -90,7 +90,7 @@ class SelectRegionNotifier extends _$SelectRegionNotifier {
   }
 
   /// 获取地区子节点
-  List getRegionChildren(dynamic model) {
+  List<dynamic> getRegionChildren(dynamic model) {
     if (model is Map) {
       return model["children"] ?? [];
     }

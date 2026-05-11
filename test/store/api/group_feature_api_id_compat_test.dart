@@ -13,7 +13,9 @@ class _FakeGroupScheduleApi extends GroupScheduleApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -57,7 +59,9 @@ class _FakeGroupTaskApi extends GroupTaskApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -101,7 +105,9 @@ class _FakeGroupFileApi extends GroupFileApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -145,7 +151,9 @@ class _FakeGroupAlbumApi extends GroupAlbumApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -544,7 +552,10 @@ void main() {
 
     test('renameAlbum should post album_id and album_name', () async {
       final api = _FakeGroupAlbumApi();
-      final ok = await api.renameAlbum(albumId: 'alb_test_id', albumName: '新名字');
+      final ok = await api.renameAlbum(
+        albumId: 'alb_test_id',
+        albumName: '新名字',
+      );
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');

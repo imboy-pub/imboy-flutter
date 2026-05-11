@@ -432,7 +432,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_new');
@@ -457,7 +457,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_deleted');

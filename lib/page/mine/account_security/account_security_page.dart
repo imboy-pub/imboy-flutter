@@ -79,7 +79,7 @@ class AccountSecurityPage extends ConsumerWidget {
                   title: t.bindEmail,
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (_) => const BindEmailPage()),
+                      CupertinoPageRoute<dynamic>(builder: (_) => const BindEmailPage()),
                     );
                   },
                 ),
@@ -89,7 +89,7 @@ class AccountSecurityPage extends ConsumerWidget {
                   title: t.bindMobile,
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(
+                      CupertinoPageRoute<dynamic>(
                         builder: (_) => const BindMobilePage(),
                       ),
                     );

@@ -26,7 +26,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   bool _isLoading = true;
   int _page = 1;
   bool _hasMore = true;
-  StreamSubscription? _mentionSub;
+  StreamSubscription<dynamic>? _mentionSub;
 
   @override
   void initState() {

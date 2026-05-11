@@ -18,17 +18,11 @@ void main() {
     });
 
     test('未知 tab name → 默认 state', () {
-      expect(
-        parseShellRouteParams({'tab': 'unknown'}),
-        const WebShellState(),
-      );
+      expect(parseShellRouteParams({'tab': 'unknown'}), const WebShellState());
     });
 
     test('tab 大小写敏感: "Chat" 不匹配（仅小写）', () {
-      expect(
-        parseShellRouteParams({'tab': 'Chat'}),
-        const WebShellState(),
-      );
+      expect(parseShellRouteParams({'tab': 'Chat'}), const WebShellState());
     });
 
     test('有 tab 缺 id → 仅恢复 currentTab，selection=null', () {
@@ -87,10 +81,7 @@ void main() {
 
   group('parseShellRouteParams — Tab 1 ContactSelection', () {
     test('contact + id', () {
-      final state = parseShellRouteParams({
-        'tab': 'contact',
-        'id': 'u1',
-      });
+      final state = parseShellRouteParams({'tab': 'contact', 'id': 'u1'});
       expect(state.currentTab, 1);
       expect(state.selectedItem, const ContactSelection(uid: 'u1'));
     });
@@ -107,29 +98,17 @@ void main() {
 
   group('parseShellRouteParams — Tab 2 ChannelSelection', () {
     test('channel + id', () {
-      final state = parseShellRouteParams({
-        'tab': 'channel',
-        'id': 'ch_42',
-      });
+      final state = parseShellRouteParams({'tab': 'channel', 'id': 'ch_42'});
       expect(state.currentTab, 2);
-      expect(
-        state.selectedItem,
-        const ChannelSelection(channelId: 'ch_42'),
-      );
+      expect(state.selectedItem, const ChannelSelection(channelId: 'ch_42'));
     });
   });
 
   group('parseShellRouteParams — Tab 3 MineSelection', () {
     test('mine + id (section)', () {
-      final state = parseShellRouteParams({
-        'tab': 'mine',
-        'id': 'privacy',
-      });
+      final state = parseShellRouteParams({'tab': 'mine', 'id': 'privacy'});
       expect(state.currentTab, 3);
-      expect(
-        state.selectedItem,
-        const MineSelection(section: 'privacy'),
-      );
+      expect(state.selectedItem, const MineSelection(section: 'privacy'));
     });
 
     test('mine 缺失 id → currentTab=3 + selection=null', () {
@@ -141,17 +120,13 @@ void main() {
 
   group('shellStateToRouteParams — 编码', () {
     test('默认 state → 仅 tab=chat', () {
-      expect(
-        shellStateToRouteParams(const WebShellState()),
-        {'tab': 'chat'},
-      );
+      expect(shellStateToRouteParams(const WebShellState()), {'tab': 'chat'});
     });
 
     test('currentTab=2 + null selection → tab=channel', () {
-      expect(
-        shellStateToRouteParams(const WebShellState(currentTab: 2)),
-        {'tab': 'channel'},
-      );
+      expect(shellStateToRouteParams(const WebShellState(currentTab: 2)), {
+        'tab': 'channel',
+      });
     });
 
     test('ChatSelection → 输出 id + type', () {
@@ -159,10 +134,11 @@ void main() {
         currentTab: 0,
         selectedItem: ChatSelection(peerId: 'p1', chatType: 'C2G'),
       );
-      expect(
-        shellStateToRouteParams(state),
-        {'tab': 'chat', 'id': 'p1', 'type': 'C2G'},
-      );
+      expect(shellStateToRouteParams(state), {
+        'tab': 'chat',
+        'id': 'p1',
+        'type': 'C2G',
+      });
     });
 
     test('ContactSelection → 输出 id（不输出 type）', () {
@@ -170,10 +146,7 @@ void main() {
         currentTab: 1,
         selectedItem: ContactSelection(uid: 'u1'),
       );
-      expect(
-        shellStateToRouteParams(state),
-        {'tab': 'contact', 'id': 'u1'},
-      );
+      expect(shellStateToRouteParams(state), {'tab': 'contact', 'id': 'u1'});
     });
 
     test('ChannelSelection → 输出 id', () {
@@ -181,10 +154,7 @@ void main() {
         currentTab: 2,
         selectedItem: ChannelSelection(channelId: 'ch1'),
       );
-      expect(
-        shellStateToRouteParams(state),
-        {'tab': 'channel', 'id': 'ch1'},
-      );
+      expect(shellStateToRouteParams(state), {'tab': 'channel', 'id': 'ch1'});
     });
 
     test('MineSelection(section=null) → 仅 tab', () {
@@ -192,10 +162,7 @@ void main() {
         currentTab: 3,
         selectedItem: MineSelection(),
       );
-      expect(
-        shellStateToRouteParams(state),
-        {'tab': 'mine'},
-      );
+      expect(shellStateToRouteParams(state), {'tab': 'mine'});
     });
 
     test('MineSelection(section=privacy) → 输出 id=privacy', () {
@@ -203,10 +170,7 @@ void main() {
         currentTab: 3,
         selectedItem: MineSelection(section: 'privacy'),
       );
-      expect(
-        shellStateToRouteParams(state),
-        {'tab': 'mine', 'id': 'privacy'},
-      );
+      expect(shellStateToRouteParams(state), {'tab': 'mine', 'id': 'privacy'});
     });
 
     test('MineSelection(section=空字符串) → 视为无 section，仅输出 tab', () {
@@ -214,10 +178,7 @@ void main() {
         currentTab: 3,
         selectedItem: MineSelection(section: ''),
       );
-      expect(
-        shellStateToRouteParams(state),
-        {'tab': 'mine'},
-      );
+      expect(shellStateToRouteParams(state), {'tab': 'mine'});
     });
 
     test('currentTab 越界（理论不可达，但防御）→ 空 map', () {

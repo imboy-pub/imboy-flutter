@@ -123,7 +123,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
           scale: widget.imageScale,
         );
         upload(croppedFile);
-        Future.delayed(const Duration(milliseconds: 200)).then((value) {
+        Future<dynamic>.delayed(const Duration(milliseconds: 200)).then((value) {
           sample.delete();
           croppedFile.delete();
         });

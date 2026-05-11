@@ -146,12 +146,12 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
     if (_highlight < 0 || _highlight >= state.regionList.length) return;
     final region = state.regionList[_highlight];
     String title = '';
-    List children = [];
+    List<dynamic> children = [];
     if (region is String) {
       title = region;
     } else if (region is Map) {
       title = (region['title'] ?? '').toString();
-      children = (region['children'] ?? <dynamic>[]) as List;
+      children = (region['children'] ?? <dynamic>[]) as List<dynamic>;
     }
     ref
         .read(setRegionProvider.notifier)
@@ -330,7 +330,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                   itemBuilder: (context, index) {
                     final region = state.regionList[index];
                     String title = '';
-                    List children = [];
+                    List<dynamic> children = [];
                     if (region is String) {
                       title = region;
                     } else if (region is Map) {

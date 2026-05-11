@@ -8,19 +8,31 @@ void main() {
   group('MessageTypeNormalizer.normalize', () {
     test('应该保留标准消息类型', () {
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'text', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'text',
+          payload: <String, dynamic>{},
+        ),
         equals('text'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'image', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'image',
+          payload: <String, dynamic>{},
+        ),
         equals('image'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'quote', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'quote',
+          payload: <String, dynamic>{},
+        ),
         equals('quote'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'voice', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'voice',
+          payload: <String, dynamic>{},
+        ),
         equals('voice'),
       );
     });
@@ -35,11 +47,17 @@ void main() {
 
     test('下划线命名应判定为 unsupported', () {
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'visit_card', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'visit_card',
+          payload: <String, dynamic>{},
+        ),
         equals('unsupported'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'webrtc_audio', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'webrtc_audio',
+          payload: <String, dynamic>{},
+        ),
         equals('unsupported'),
       );
     });
@@ -54,15 +72,24 @@ void main() {
 
     test('应该处理空值与无效值', () {
       expect(
-        MessageTypeNormalizer.normalize(msgType: '', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: '',
+          payload: <String, dynamic>{},
+        ),
         equals('unsupported'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: null, payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: null,
+          payload: <String, dynamic>{},
+        ),
         equals('unsupported'),
       );
       expect(
-        MessageTypeNormalizer.normalize(msgType: 'invalid_type', payload: <String, dynamic>{}),
+        MessageTypeNormalizer.normalize(
+          msgType: 'invalid_type',
+          payload: <String, dynamic>{},
+        ),
         equals('unsupported'),
       );
     });

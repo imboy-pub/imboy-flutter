@@ -39,7 +39,7 @@ void main() {
       try {
         app.main();
         await _shortSettle(tester);
-        await Future.delayed(const Duration(seconds: 5));
+        await Future<dynamic>.delayed(const Duration(seconds: 5));
         await _safeScreenshot(tester, 'ack_01_launch');
         await _ensureBackendAvailable();
         await _waitForEntryState(tester);
@@ -100,7 +100,7 @@ void main() {
       }
 
       // Step 5: 等待 ACK
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'ack_05_after_send');
 
@@ -131,7 +131,7 @@ void main() {
         find.byIcon(Icons.send),
       ]);
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'ack_06_second_message');
 
@@ -268,7 +268,7 @@ Future<void> _waitForEntryState(WidgetTester tester) async {
         _isOnConversationListPage(tester)) {
       return;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 200));
   }
   TestHelper.log('ℹ️ 入口状态等待超时，继续执行测试');
@@ -349,7 +349,7 @@ Future<bool> _openExistingConversation(WidgetTester tester) async {
 
   for (int i = 0; i < 6; i++) {
     if (_isOnChatPage(tester)) return true;
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 500));
     await tester.pump(const Duration(milliseconds: 120));
   }
   return _isOnChatPage(tester);
@@ -427,7 +427,7 @@ Future<Finder> _findChatInput(WidgetTester tester) async {
     if (_isOnChatPage(tester) && tester.any(fields)) {
       return fields.first;
     }
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 500));
     await tester.pump(const Duration(milliseconds: 120));
   }
   throw TestFailure('未找到聊天输入框');

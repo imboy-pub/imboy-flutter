@@ -215,7 +215,7 @@ class PushNotificationService {
     if (context == null || !context.mounted) {
       if (retry < 5) {
         // 冷启动时路由器尚未挂载，延迟重试
-        Future.delayed(const Duration(milliseconds: 500), () {
+        Future<dynamic>.delayed(const Duration(milliseconds: 500), () {
           _navigateByResult(result, retry + 1);
         });
         return;

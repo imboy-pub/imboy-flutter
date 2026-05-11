@@ -14,14 +14,14 @@ class GroupFileApi extends HttpClient {
   List<Map<String, dynamic>> _normalizeList(dynamic raw) {
     if (raw is! List) return const [];
     return raw
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }
 
   List<Map<String, dynamic>> _normalizeCategoryStats(dynamic raw) {
     if (raw is! List) return const [];
-    return raw.whereType<Map>().map((item) {
+    return raw.whereType<Map<String, dynamic>>().map((item) {
       final map = Map<String, dynamic>.from(item);
       map['category'] = (map['category'] ?? '').toString();
       map['count'] = _toInt(map['count']);

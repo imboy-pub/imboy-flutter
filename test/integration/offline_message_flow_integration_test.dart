@@ -64,7 +64,7 @@ void main() {
           );
 
           // 等待事件传播
-          await Future.delayed(const Duration(milliseconds: 100));
+          await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
           // 验证事件已触发（实际环境中会执行拉取）
           pullRequested = true;
@@ -82,7 +82,7 @@ void main() {
         );
 
         // 等待事件传播
-        await Future.delayed(const Duration(milliseconds: 200));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 200));
 
         // 验证事件触发成功
         expect(true, true);
@@ -360,7 +360,7 @@ void main() {
         );
 
         // 等待事件传播
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 验证事件触发成功
         expect(true, true);

@@ -124,7 +124,7 @@ class PeopleInfoPage extends ConsumerWidget {
           onTap: () {
             Navigator.push(
               context,
-              CupertinoPageRoute(
+              CupertinoPageRoute<dynamic>(
                 builder: (_) => ContactSettingTagPage(
                   peerId: id,
                   peerAvatar: state.avatar,
@@ -212,7 +212,7 @@ class PeopleInfoPage extends ConsumerWidget {
       child: ElevatedButton(
         onPressed: () => Navigator.push(
           context,
-          CupertinoPageRoute(
+          CupertinoPageRoute<dynamic>(
             builder: (_) => ApplyFriendPage(
               id,
               state.nickname,
@@ -307,7 +307,7 @@ class PeopleInfoPage extends ConsumerWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          CupertinoPageRoute<dynamic>(
                             builder: (_) => ContactSettingPage(
                               peerId: id,
                               peerAvatar: '',
@@ -420,7 +420,7 @@ class PeopleInfoPage extends ConsumerWidget {
                     isDark: isDark,
                     onTap: () => Navigator.push(
                       context,
-                      CupertinoPageRoute(
+                      CupertinoPageRoute<dynamic>(
                         builder: (_) => PeopleInfoMorePage(id: id),
                       ),
                     ),
@@ -447,7 +447,7 @@ class PeopleInfoPage extends ConsumerWidget {
                         }
                         Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          CupertinoPageRoute<dynamic>(
                             builder: (_) => ChatPage(
                               peerId: id,
                               peerTitle: peerTitle,

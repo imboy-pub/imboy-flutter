@@ -335,7 +335,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
               icon: Icons.local_offer_outlined,
               onTap: () async {
                 final result = await Navigator.of(context).push(
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (context) => UserTagRelationPage(
                       peerId: widget.from,
                       peerTag: providerState.peerTag.isEmpty

@@ -12,7 +12,9 @@ class _FakeUserCollectApi extends UserCollectApi {
   dynamic lastData;
   Options? lastOptions;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -56,27 +58,33 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('UserCollectApi', () {
-    test('page should request API.userCollectPage and return payload on success', () async {
-      final api = _FakeUserCollectApi();
-      api.nextResponse = IMBoyHttpResponse.success({
-        'items': [
-          {'kind_id': 'a1'}
-        ],
-        'total': 1,
-      });
+    test(
+      'page should request API.userCollectPage and return payload on success',
+      () async {
+        final api = _FakeUserCollectApi();
+        api.nextResponse = IMBoyHttpResponse.success({
+          'items': [
+            {'kind_id': 'a1'},
+          ],
+          'total': 1,
+        });
 
-      final result = await api.page({'page': 2, 'size': 10, 'kind': 3});
+        final result = await api.page({'page': 2, 'size': 10, 'kind': 3});
 
-      expect(result, isNotNull);
-      expect(result?['total'], 1);
-      expect(api.lastMethod, 'GET');
-      expect(api.lastUri, API.userCollectPage);
-      expect(api.lastQuery, {'page': 2, 'size': 10, 'kind': 3});
-    });
+        expect(result, isNotNull);
+        expect(result?['total'], 1);
+        expect(api.lastMethod, 'GET');
+        expect(api.lastUri, API.userCollectPage);
+        expect(api.lastQuery, {'page': 2, 'size': 10, 'kind': 3});
+      },
+    );
 
     test('page should return null on failure', () async {
       final api = _FakeUserCollectApi();
-      api.nextResponse = IMBoyHttpResponse.failure(errCode: 500, errMsg: 'failed');
+      api.nextResponse = IMBoyHttpResponse.failure(
+        errCode: 500,
+        errMsg: 'failed',
+      );
 
       final result = await api.page({'page': 1});
 
@@ -98,7 +106,10 @@ void main() {
 
     test('remove should return false when response is not ok', () async {
       final api = _FakeUserCollectApi();
-      api.nextResponse = IMBoyHttpResponse.failure(errCode: 500, errMsg: 'failed');
+      api.nextResponse = IMBoyHttpResponse.failure(
+        errCode: 500,
+        errMsg: 'failed',
+      );
 
       final ok = await api.remove(kindId: 'k100');
 
@@ -120,7 +131,10 @@ void main() {
 
     test('change should return false on failure', () async {
       final api = _FakeUserCollectApi();
-      api.nextResponse = IMBoyHttpResponse.failure(errCode: 500, errMsg: 'failed');
+      api.nextResponse = IMBoyHttpResponse.failure(
+        errCode: 500,
+        errMsg: 'failed',
+      );
 
       final ok = await api.change({'kind_id': 'k100', 'remark': 'todo'});
 

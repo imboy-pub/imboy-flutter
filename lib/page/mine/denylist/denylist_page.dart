@@ -42,7 +42,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         onTap: () {
           Navigator.push(
             context,
-            CupertinoPageRoute(
+            CupertinoPageRoute<dynamic>(
               builder: (context) => PeopleInfoPage(
                 id: model.deniedUid.toString(),
                 scene: 'denylist',

@@ -119,7 +119,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
         _storeContactInfo(resp.payload);
 
         // 触发新好友提醒计数重新计算
-        Future.delayed(const Duration(seconds: 1), () {
+        Future<dynamic>.delayed(const Duration(seconds: 1), () {
           if (ref.mounted) {
             ref.read(newFriendRemindProvider.notifier).countReminders();
           }

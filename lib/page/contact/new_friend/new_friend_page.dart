@@ -36,7 +36,7 @@ class NewFriendPage extends ConsumerStatefulWidget {
 }
 
 class _NewFriendPageState extends ConsumerState<NewFriendPage> {
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {
@@ -377,7 +377,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         child: ElevatedButton(
           onPressed: () {
             Navigator.of(context).push(
-              CupertinoPageRoute(
+              CupertinoPageRoute<dynamic>(
                 builder: (context) => ConfirmNewFriendPage(
                   to: model.to.toString(),
                   from: model.from.toString(),
@@ -503,7 +503,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                 borderRadius: AppRadius.borderRadiusXLarge,
                 onTap: () {
                   Navigator.of(context).push(
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => const AddFriendPage(),
                     ),
                   );

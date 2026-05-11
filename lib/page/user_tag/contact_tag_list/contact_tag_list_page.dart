@@ -180,7 +180,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
           onTap: () {
             Navigator.push(
               context,
-              CupertinoPageRoute(
+              CupertinoPageRoute<dynamic>(
                 builder: (context) => ContactTagDetailPage(tag: obj),
               ),
             );

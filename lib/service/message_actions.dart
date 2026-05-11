@@ -65,7 +65,7 @@ class MessageActions {
   /// - 消息编辑：message_edit, message_edit_ack
   ///
   /// 注意：S2C 消息的 action（服务端通知）在 MessageS2CService.switchS2C 中处理
-  Future<void> handleActionMessage(String action, Map data) async {
+  Future<void> handleActionMessage(String action, Map<String, dynamic> data) async {
     iPrint(
       "🔄 处理action消息: action=$action, msgId=${data['id']}, type=${data['type']}",
     );
@@ -106,7 +106,7 @@ class MessageActions {
     }
   }
 
-  Future<void> _handleReadAction(Map data) async {
+  Future<void> _handleReadAction(Map<String, dynamic> data) async {
     try {
       final msgType = parseModelString(data['type']);
       final msgId = parseModelString(data['id']);
@@ -158,7 +158,7 @@ class MessageActions {
 
   /// 处理消息已读确认（message_read_ack）
   /// 当对方确认收到并查看了我们发送的消息时触发
-  Future<void> _handleReadAckAction(Map data) async {
+  Future<void> _handleReadAckAction(Map<String, dynamic> data) async {
     try {
       final msgType = parseModelString(data['type']);
       final msgId = parseModelString(data['id']);
@@ -220,7 +220,7 @@ class MessageActions {
     }
   }
 
-  Future<void> _handleReactionAction(Map data) async {
+  Future<void> _handleReactionAction(Map<String, dynamic> data) async {
     try {
       final msgType = parseModelString(data['type']);
       final msgId = parseModelString(data['id']);
@@ -248,7 +248,7 @@ class MessageActions {
 
       final newPayload = Map<String, dynamic>.from(msg.payload);
       final reactionsRaw = newPayload['reactions'];
-      final reactions = reactionsRaw is Map
+      final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
           : <String, dynamic>{};
       final usersRaw = reactions[emoji];
@@ -290,7 +290,7 @@ class MessageActions {
 
   /// Handle revoke action messages
   /// 处理撤回action消息
-  Future<void> _handleRevokeAction(Map data, {required bool isAck}) async {
+  Future<void> _handleRevokeAction(Map<String, dynamic> data, {required bool isAck}) async {
     final msgType = parseModelString(data['type']);
     final msgId = parseModelString(data['id']);
     final payload = parseModelJsonMap(data['payload']) ?? {};
@@ -311,7 +311,7 @@ class MessageActions {
 
   /// Process revoke acknowledgment
   /// 处理撤回确认
-  Future<void> _processRevokeAck(Map data, String originalMsgId) async {
+  Future<void> _processRevokeAck(Map<String, dynamic> data, String originalMsgId) async {
     final msgType = parseModelString(data['type']);
     final currentUid = UserRepoLocal.to.currentUid;
 
@@ -368,7 +368,7 @@ class MessageActions {
 
   /// Process revoke request
   /// 处理撤回请求
-  Future<void> _processRevokeRequest(Map data, String originalMsgId) async {
+  Future<void> _processRevokeRequest(Map<String, dynamic> data, String originalMsgId) async {
     final msgType = parseModelString(data['type']);
     final fromId = parseModelString(data['from']);
     final currentUid = UserRepoLocal.to.currentUid;
@@ -418,7 +418,7 @@ class MessageActions {
 
   /// Handle edit action messages
   /// 处理编辑action消息
-  Future<void> _handleEditAction(Map data, {required bool isAck}) async {
+  Future<void> _handleEditAction(Map<String, dynamic> data, {required bool isAck}) async {
     final msgType = parseModelString(data['type']);
     final msgId = parseModelString(data['id']);
     final payload = parseModelJsonMap(data['payload']) ?? {};
@@ -441,7 +441,7 @@ class MessageActions {
   /// Process edit acknowledgment
   /// 处理编辑确认
   Future<void> _processEditAck(
-    Map data,
+    Map<String, dynamic> data,
     String originalMsgId,
     String newContent,
   ) async {
@@ -506,7 +506,7 @@ class MessageActions {
   /// Process edit request
   /// 处理编辑请求
   Future<void> _processEditRequest(
-    Map data,
+    Map<String, dynamic> data,
     String originalMsgId,
     String newContent,
   ) async {
@@ -563,7 +563,7 @@ class MessageActions {
   Future<void> _processPeerEdit(
     MessageModel msg,
     MessageRepo repo,
-    Map data,
+    Map<String, dynamic> data,
     String newContent,
   ) async {
     try {
@@ -682,7 +682,7 @@ class MessageActions {
   Future<void> _processPeerRevoke(
     MessageModel msg,
     MessageRepo repo,
-    Map data,
+    Map<String, dynamic> data,
   ) async {
     try {
       // 保存原始消息内容（如果是文本消息）
@@ -1000,7 +1000,7 @@ class MessageActions {
   }
 
   /// 处理输入状态消息
-  Future<void> _handleInputAction(Map data) async {
+  Future<void> _handleInputAction(Map<String, dynamic> data) async {
     try {
       final msgType = parseModelString(data['type']);
       final fromId = parseModelString(data['from']);

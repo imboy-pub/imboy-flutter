@@ -124,7 +124,7 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
+          MaterialPageRoute<dynamic>(
             builder: (_) => GroupCategoryDetailPage(
               categoryId: category['id'],
               categoryName: category['name'] ?? '',

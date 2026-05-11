@@ -76,23 +76,23 @@ bool strNoEmpty(String? val) {
 }
 
 /// 字符串不为空
-bool mapNoEmpty(Map? value) {
+bool mapNoEmpty(Map<String, dynamic>? value) {
   if (value == null) {
     return false;
   }
   return value.isNotEmpty;
 }
 
-///判断List是否为空
-bool listEmpty(List? list) {
+///判断List<dynamic>是否为空
+bool listEmpty(List<dynamic>? list) {
   if (list == null) {
     return true;
   }
   return list.isEmpty;
 }
 
-///判断List是否为非空
-bool listNoEmpty(List? list) {
+///判断List<dynamic>是否为非空
+bool listNoEmpty(List<dynamic>? list) {
   if (list == null) {
     return false;
   }

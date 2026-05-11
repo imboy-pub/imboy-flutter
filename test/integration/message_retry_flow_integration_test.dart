@@ -143,7 +143,7 @@ void main() {
         );
 
         // 等待事件传播
-        await Future.delayed(const Duration(milliseconds: 200));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 200));
 
         // 验证收到了网络连接事件
         expect(messageRetry.isOnline, true);
@@ -224,7 +224,7 @@ void main() {
         );
 
         // 等待事件传播
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 验证收到了事件
         expect(receivedSource, 'test_event');
@@ -255,7 +255,7 @@ void main() {
         );
 
         // 等待事件传播
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 验证收到了事件
         expect(removedMessageId, msgId);
@@ -267,12 +267,12 @@ void main() {
     group('并发安全', () {
       test('应该能够处理并发重试请求', () async {
         const msgCount = 10;
-        final futures = <Future>[];
+        final futures = <Future<dynamic>>[];
 
         // 同时添加多个消息到重试队列
         for (int i = 0; i < msgCount; i++) {
           futures.add(
-            Future.delayed(
+            Future<dynamic>.delayed(
               const Duration(milliseconds: 10),
               () => messageRetry.addToRetryQueue('concurrent_$i', 'C2C'),
             ),

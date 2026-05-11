@@ -83,7 +83,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final total = _toInt(payload['total']);
     final normalized = list is List
         ? list
-              .whereType<Map>()
+              .whereType<Map<String, dynamic>>()
               .map((item) => Map<String, dynamic>.from(item))
               .toList()
         : <Map<String, dynamic>>[];

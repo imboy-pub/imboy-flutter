@@ -13,7 +13,7 @@ import 'http_transformer.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 IMBoyHttpResponse handleResponse(
-  Response? response, {
+  Response<dynamic>? response, {
   required String uri,
   HttpTransformer? httpTransformer,
 }) {

@@ -33,7 +33,7 @@ class BottomNavigationPage extends ConsumerStatefulWidget {
 class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   late final PageController pageController;
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   /// 是否已根据 GoRouter 的 query 参数初始化过 index
   /// GoRouterState.of(context) 必须在 initState 之后调用（依赖 InheritedWidget）

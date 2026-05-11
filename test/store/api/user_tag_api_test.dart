@@ -11,7 +11,9 @@ class _FakeUserTagApi extends UserTagApi {
   Map<String, dynamic>? lastQuery;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> get(
@@ -53,27 +55,41 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('UserTagApi', () {
-    test('page should request API.userTagPage and return payload on success', () async {
-      final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({'items': [1, 2], 'total': 2});
+    test(
+      'page should request API.userTagPage and return payload on success',
+      () async {
+        final api = _FakeUserTagApi();
+        api.nextResponse = IMBoyHttpResponse.success({
+          'items': [1, 2],
+          'total': 2,
+        });
 
-      final result = await api.page(page: 2, size: 20, scene: 'friend', kwd: 'tom');
+        final result = await api.page(
+          page: 2,
+          size: 20,
+          scene: 'friend',
+          kwd: 'tom',
+        );
 
-      expect(result, isNotNull);
-      expect(result?['total'], 2);
-      expect(api.lastMethod, 'GET');
-      expect(api.lastUri, API.userTagPage);
-      expect(api.lastQuery, {
-        'page': 2,
-        'size': 20,
-        'scene': 'friend',
-        'kwd': 'tom',
-      });
-    });
+        expect(result, isNotNull);
+        expect(result?['total'], 2);
+        expect(api.lastMethod, 'GET');
+        expect(api.lastUri, API.userTagPage);
+        expect(api.lastQuery, {
+          'page': 2,
+          'size': 20,
+          'scene': 'friend',
+          'kwd': 'tom',
+        });
+      },
+    );
 
     test('page should return null on failure', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.failure(errCode: 500, errMsg: 'failed');
+      api.nextResponse = IMBoyHttpResponse.failure(
+        errCode: 500,
+        errMsg: 'failed',
+      );
 
       final result = await api.page();
 
@@ -81,46 +97,56 @@ void main() {
       expect(api.lastUri, API.userTagPage);
     });
 
-    test('relationAdd should post scene/objectId/tag and return true', () async {
-      final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+    test(
+      'relationAdd should post scene/objectId/tag and return true',
+      () async {
+        final api = _FakeUserTagApi();
+        api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
-      final ok = await api.relationAdd(
-        objectId: 'u_123',
-        tag: [1, 2],
-        scene: 'friend',
-      );
+        final ok = await api.relationAdd(
+          objectId: 'u_123',
+          tag: [1, 2],
+          scene: 'friend',
+        );
 
-      expect(ok, isTrue);
-      expect(api.lastMethod, 'POST');
-      expect(api.lastUri, API.userTagRelationAdd);
-      expect(api.lastData, {
-        'scene': 'friend',
-        'objectId': 'u_123',
-        'tag': [1, 2],
-      });
-    });
+        expect(ok, isTrue);
+        expect(api.lastMethod, 'POST');
+        expect(api.lastUri, API.userTagRelationAdd);
+        expect(api.lastData, {
+          'scene': 'friend',
+          'objectId': 'u_123',
+          'tag': [1, 2],
+        });
+      },
+    );
 
     test('changeName should post tag data and return true', () async {
       final api = _FakeUserTagApi();
       api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
-      final ok = await api.changeName(scene: 'friend', tagId: 7, tagName: 'VIP');
+      final ok = await api.changeName(
+        scene: 'friend',
+        tagId: 7,
+        tagName: 'VIP',
+      );
 
       expect(ok, isTrue);
       expect(api.lastUri, API.userTagChangeName);
-      expect(api.lastData, {
-        'scene': 'friend',
-        'tagId': 7,
-        'tagName': 'VIP',
-      });
+      expect(api.lastData, {'scene': 'friend', 'tagId': 7, 'tagName': 'VIP'});
     });
 
     test('changeName should return false on non-ERROR failure code', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.failure(errCode: 500, errMsg: 'failed');
+      api.nextResponse = IMBoyHttpResponse.failure(
+        errCode: 500,
+        errMsg: 'failed',
+      );
 
-      final ok = await api.changeName(scene: 'friend', tagId: 7, tagName: 'VIP');
+      final ok = await api.changeName(
+        scene: 'friend',
+        tagId: 7,
+        tagName: 'VIP',
+      );
 
       expect(ok, isFalse);
       expect(api.lastUri, API.userTagChangeName);
@@ -134,10 +160,7 @@ void main() {
 
       expect(ok, isTrue);
       expect(api.lastUri, API.userTagDelete);
-      expect(api.lastData, {
-        'scene': 'collect',
-        'tag': 'read_later',
-      });
+      expect(api.lastData, {'scene': 'collect', 'tag': 'read_later'});
     });
 
     test('addTag should return payload tagId on success', () async {
@@ -148,15 +171,15 @@ void main() {
 
       expect(tagId, 88);
       expect(api.lastUri, API.userTagAdd);
-      expect(api.lastData, {
-        'scene': 'friend',
-        'tag': 'core',
-      });
+      expect(api.lastData, {'scene': 'friend', 'tag': 'core'});
     });
 
     test('addTag should return 0 on non-ERROR failure code', () async {
       final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.failure(errCode: 500, errMsg: 'failed');
+      api.nextResponse = IMBoyHttpResponse.failure(
+        errCode: 500,
+        errMsg: 'failed',
+      );
 
       final tagId = await api.addTag(scene: 'friend', tagName: 'core');
 
@@ -168,7 +191,13 @@ void main() {
       final api = _FakeUserTagApi();
       api.nextResponse = IMBoyHttpResponse.success({'items': <dynamic>[]});
 
-      await api.pageRelation(page: 1, size: 5, scene: 'collect', tagId: 9, kwd: 'a');
+      await api.pageRelation(
+        page: 1,
+        size: 5,
+        scene: 'collect',
+        tagId: 9,
+        kwd: 'a',
+      );
 
       expect(api.lastMethod, 'GET');
       expect(api.lastUri, API.userTagRelationCollectPage);
@@ -190,21 +219,28 @@ void main() {
       expect(api.lastQuery?['tag_id'], 6);
     });
 
-    test('pageRelation should fallback to friend route for unknown scene', () async {
-      final api = _FakeUserTagApi();
-      api.nextResponse = IMBoyHttpResponse.success({'items': <dynamic>[]});
+    test(
+      'pageRelation should fallback to friend route for unknown scene',
+      () async {
+        final api = _FakeUserTagApi();
+        api.nextResponse = IMBoyHttpResponse.success({'items': <dynamic>[]});
 
-      await api.pageRelation(page: 1, size: 10, scene: 'unknown', tagId: 1);
+        await api.pageRelation(page: 1, size: 10, scene: 'unknown', tagId: 1);
 
-      expect(api.lastUri, API.userTagRelationFriendPage);
-      expect(api.lastQuery?['scene'], 'unknown');
-    });
+        expect(api.lastUri, API.userTagRelationFriendPage);
+        expect(api.lastQuery?['scene'], 'unknown');
+      },
+    );
 
     test('removeRelation should post scene/tagId/objectId', () async {
       final api = _FakeUserTagApi();
       api.nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
 
-      final ok = await api.removeRelation(tagId: 11, objectId: 'u_33', scene: 'friend');
+      final ok = await api.removeRelation(
+        tagId: 11,
+        objectId: 'u_33',
+        scene: 'friend',
+      );
 
       expect(ok, isTrue);
       expect(api.lastUri, API.userTagRelationRemove);

@@ -143,7 +143,7 @@ class ErrorHandler {
 /// 用于管理内存和资源清理
 class MemoryManager {
   final List<VoidCallback> _disposeCallbacks = [];
-  final List<StreamSubscription> _subscriptions = [];
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
 
   /// 添加资源清理回调
   void addDisposeCallback(VoidCallback callback) {
@@ -151,7 +151,7 @@ class MemoryManager {
   }
 
   /// 添加流订阅
-  void addSubscription(StreamSubscription subscription) {
+  void addSubscription(StreamSubscription<dynamic> subscription) {
     _subscriptions.add(subscription);
   }
 

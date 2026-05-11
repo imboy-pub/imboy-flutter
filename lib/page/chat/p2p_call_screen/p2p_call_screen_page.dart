@@ -46,7 +46,7 @@ class P2pCallScreenPage extends ConsumerStatefulWidget {
 class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
   String msgId = '';
   String media = 'video';
-  StreamSubscription? subscription;
+  StreamSubscription<dynamic>? subscription;
 
   RTCVideoRenderer localRenderer = RTCVideoRenderer();
   RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
@@ -122,7 +122,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 if (mounted) {
                   notifier.updateStateTips(t.peerNoResponse);
                 }
-                Future.delayed(
+                Future<dynamic>.delayed(
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                   () {
                     if (!mounted) return;
@@ -141,7 +141,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 final state = ref.read(p2pCallScreenProvider);
                 notifier.stopCallTimer();
                 notifier.updateStateTips(t.peerHasHungUp);
-                Future.delayed(
+                Future<dynamic>.delayed(
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                   () {
                     if (!mounted) return;
@@ -162,7 +162,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               if (mounted) {
                 notifier.updateStateTips(t.busyTryAgainLater);
               }
-              Future.delayed(
+              Future<dynamic>.delayed(
                 const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                 () {
                   if (!mounted) return;

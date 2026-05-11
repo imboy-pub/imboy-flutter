@@ -353,21 +353,14 @@ class _FakeChannelRepo extends ChannelRepo {
     int limit = 50,
   }) async {
     return localChannels
-        .where(
-          (c) => c.name.toLowerCase().contains(keyword.toLowerCase()),
-        )
+        .where((c) => c.name.toLowerCase().contains(keyword.toLowerCase()))
         .toList();
   }
 
   @override
-  Future<ChannelModel?> getChannel(
-    String channelId, {
-    dynamic txn,
-  }) async {
+  Future<ChannelModel?> getChannel(String channelId, {dynamic txn}) async {
     try {
-      return localChannels.firstWhere(
-        (c) => c.id.toString() == channelId,
-      );
+      return localChannels.firstWhere((c) => c.id.toString() == channelId);
     } on StateError {
       return null;
     }
@@ -380,7 +373,7 @@ class _FakeChannelRepo extends ChannelRepo {
 
   @override
   Future<List<Map<String, dynamic>>>
-      getSubscribedChannelsWithSubscription() async {
+  getSubscribedChannelsWithSubscription() async {
     return channelsWithSubscription;
   }
 }
@@ -396,10 +389,7 @@ class _FakeChannelMessageRepo extends ChannelMessageRepo {
   List<ChannelMessageModel> localMessages = <ChannelMessageModel>[];
 
   @override
-  Future<void> saveMessage(
-    ChannelMessageModel message, {
-    dynamic txn,
-  }) async {
+  Future<void> saveMessage(ChannelMessageModel message, {dynamic txn}) async {
     savedMessages.add(message);
   }
 
@@ -495,19 +485,20 @@ void main() {
         messageRepo: messageRepo,
       );
       final events = <ChannelNewMessageEvent>[];
-      final sub =
-          AppEventBus.on<ChannelNewMessageEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelNewMessageEvent>().listen(events.add);
 
       await service.handleChannelMessage(_validMessageData());
 
       await Future<void>.delayed(const Duration(milliseconds: 10));
       await sub.cancel();
 
-      expect(messageRepo.savedMessages, hasLength(1),
-          reason: '有效消息必须写本地');
+      expect(messageRepo.savedMessages, hasLength(1), reason: '有效消息必须写本地');
       expect(messageRepo.savedMessages.single.id, 500);
-      expect(channelRepo.incrementedChannels, equals(['100']),
-          reason: 'unreadCount 必须 +1');
+      expect(
+        channelRepo.incrementedChannels,
+        equals(['100']),
+        reason: 'unreadCount 必须 +1',
+      );
       expect(
         events.any((e) => e.channelId == '100'),
         isTrue,
@@ -524,8 +515,7 @@ void main() {
         messageRepo: messageRepo,
       );
       final events = <ChannelNewMessageEvent>[];
-      final sub =
-          AppEventBus.on<ChannelNewMessageEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelNewMessageEvent>().listen(events.add);
 
       await service.handleChannelMessage(
         _validMessageData(channelId: 0, id: 500),
@@ -534,8 +524,11 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
       await sub.cancel();
 
-      expect(messageRepo.savedMessages, isEmpty,
-          reason: 'channelId=0 是无效载荷，不得写库');
+      expect(
+        messageRepo.savedMessages,
+        isEmpty,
+        reason: 'channelId=0 是无效载荷，不得写库',
+      );
       expect(channelRepo.incrementedChannels, isEmpty);
       expect(events, isEmpty);
     });
@@ -549,8 +542,7 @@ void main() {
         messageRepo: messageRepo,
       );
       final events = <ChannelNewMessageEvent>[];
-      final sub =
-          AppEventBus.on<ChannelNewMessageEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelNewMessageEvent>().listen(events.add);
 
       await service.handleChannelMessage(
         _validMessageData(channelId: 100, id: 0),
@@ -559,8 +551,11 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
       await sub.cancel();
 
-      expect(messageRepo.savedMessages, isEmpty,
-          reason: 'message.id=0 是无效载荷，不得写库');
+      expect(
+        messageRepo.savedMessages,
+        isEmpty,
+        reason: 'message.id=0 是无效载荷，不得写库',
+      );
       expect(channelRepo.incrementedChannels, isEmpty);
       expect(events, isEmpty);
     });
@@ -577,8 +572,9 @@ void main() {
           messageRepo: _FakeChannelMessageRepo(),
         );
         final events = <ChannelStateChangedEvent>[];
-        final sub =
-            AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
 
         await service.handleChannelInvitationCreated({'channel_id': '2001'});
 
@@ -597,49 +593,43 @@ void main() {
       },
     );
 
-    test(
-      'handleChannelInvitationCreated 空 channel_id → 忽略不广播',
-      () async {
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(),
-          repo: _FakeChannelRepo(),
-          messageRepo: _FakeChannelMessageRepo(),
-        );
-        final events = <ChannelStateChangedEvent>[];
-        final sub =
-            AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+    test('handleChannelInvitationCreated 空 channel_id → 忽略不广播', () async {
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(),
+        repo: _FakeChannelRepo(),
+        messageRepo: _FakeChannelMessageRepo(),
+      );
+      final events = <ChannelStateChangedEvent>[];
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
 
-        await service.handleChannelInvitationCreated({'channel_id': ''});
+      await service.handleChannelInvitationCreated({'channel_id': ''});
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(events, isEmpty);
-      },
-    );
+      expect(events, isEmpty);
+    });
 
     test(
       'handleChannelInvitationAccepted 有效 channel → 写库 + 广播 accepted 事件',
       () async {
         final channelRepo = _FakeChannelRepo();
         final service = ChannelService.forTest(
-          api: _FakeChannelApi(
-            channelById: {'3001': _channel(3001)},
-          ),
+          api: _FakeChannelApi(channelById: {'3001': _channel(3001)}),
           repo: channelRepo,
           messageRepo: _FakeChannelMessageRepo(),
         );
         final events = <ChannelStateChangedEvent>[];
-        final sub =
-            AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
 
         await service.handleChannelInvitationAccepted({'channel_id': '3001'});
 
         await Future<void>.delayed(const Duration(milliseconds: 10));
         await sub.cancel();
 
-        expect(channelRepo.savedChannels, hasLength(1),
-            reason: '邀请接受后应写入频道信息');
+        expect(channelRepo.savedChannels, hasLength(1), reason: '邀请接受后应写入频道信息');
         expect(channelRepo.savedChannels.single.id, 3001);
         expect(
           events.any(
@@ -653,41 +643,38 @@ void main() {
       },
     );
 
-    test(
-      'handleChannelInvitationAccepted channel.id==0 → 不写库但仍广播事件',
-      () async {
-        // 与 handleChannelSubscribed 对齐：id=0 无效不写库，
-        // 但邀请已接受这一事实仍需广播让 UI 知晓（由用户手动重试详情）。
-        final channelRepo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(
-            channelById: {'4001': _channel(0)},
-          ),
-          repo: channelRepo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
-        final events = <ChannelStateChangedEvent>[];
-        final sub =
-            AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+    test('handleChannelInvitationAccepted channel.id==0 → 不写库但仍广播事件', () async {
+      // 与 handleChannelSubscribed 对齐：id=0 无效不写库，
+      // 但邀请已接受这一事实仍需广播让 UI 知晓（由用户手动重试详情）。
+      final channelRepo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(channelById: {'4001': _channel(0)}),
+        repo: channelRepo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
+      final events = <ChannelStateChangedEvent>[];
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
 
-        await service.handleChannelInvitationAccepted({'channel_id': '4001'});
+      await service.handleChannelInvitationAccepted({'channel_id': '4001'});
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(channelRepo.savedChannels, isEmpty,
-            reason: 'channel.id=0 的无效载荷不得写库');
-        expect(
-          events.any(
-            (e) =>
-                e.channelId == '4001' &&
-                e.action == 'channel_invitation_accepted',
-          ),
-          isTrue,
-          reason: '即使频道信息无效，邀请接受事件仍须广播',
-        );
-      },
-    );
+      expect(
+        channelRepo.savedChannels,
+        isEmpty,
+        reason: 'channel.id=0 的无效载荷不得写库',
+      );
+      expect(
+        events.any(
+          (e) =>
+              e.channelId == '4001' &&
+              e.action == 'channel_invitation_accepted',
+        ),
+        isTrue,
+        reason: '即使频道信息无效，邀请接受事件仍须广播',
+      );
+    });
   });
 
   // ── CH-3: createAndPayOrder ─────────────────────────────────────────────────
@@ -703,8 +690,7 @@ void main() {
       final result = await service.createAndPayOrder('ch-99');
 
       expect(result, isNull);
-      expect(api.payOrderCalls, isEmpty,
-          reason: '创建订单失败后不应调 payOrder');
+      expect(api.payOrderCalls, isEmpty, reason: '创建订单失败后不应调 payOrder');
       expect(api.getOrderCalls, isEmpty);
     });
 
@@ -722,10 +708,12 @@ void main() {
       final result = await service.createAndPayOrder('ch-99');
 
       expect(result, isNull);
-      expect(api.payOrderCalls, equals(['order-001']),
-          reason: 'payOrder 必须以 createOrder 返回的 orderNo 调用');
-      expect(api.getOrderCalls, isEmpty,
-          reason: '支付失败后不应调 getOrder');
+      expect(
+        api.payOrderCalls,
+        equals(['order-001']),
+        reason: 'payOrder 必须以 createOrder 返回的 orderNo 调用',
+      );
+      expect(api.getOrderCalls, isEmpty, reason: '支付失败后不应调 getOrder');
     });
 
     test('全部成功 → 返回 getOrder 的最终订单', () async {
@@ -751,203 +739,186 @@ void main() {
 
   // ── CH-4: deleteMessage / setMessagePinned ──────────────────────────────────
   group('CH-4: deleteMessage / setMessagePinned', () {
-    test(
-      'deleteMessage 成功 → 删本地 + 广播 ChannelMessageDeletedEvent',
-      () async {
-        final messageRepo = _FakeChannelMessageRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(deleteMessageResult: true),
-          repo: _FakeChannelRepo(),
-          messageRepo: messageRepo,
-        );
-        final events = <ChannelMessageDeletedEvent>[];
-        final sub =
-            AppEventBus.on<ChannelMessageDeletedEvent>().listen(events.add);
+    test('deleteMessage 成功 → 删本地 + 广播 ChannelMessageDeletedEvent', () async {
+      final messageRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(deleteMessageResult: true),
+        repo: _FakeChannelRepo(),
+        messageRepo: messageRepo,
+      );
+      final events = <ChannelMessageDeletedEvent>[];
+      final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+        events.add,
+      );
 
-        final ok = await service.deleteMessage('ch-1', 'msg-1');
+      final ok = await service.deleteMessage('ch-1', 'msg-1');
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(ok, isTrue);
-        expect(messageRepo.deletedMessageIds, equals(['msg-1']),
-            reason: 'API 成功后必须删本地');
-        expect(
-          events.any(
-            (e) => e.channelId == 'ch-1' && e.messageId == 'msg-1',
-          ),
-          isTrue,
-          reason: '删除成功后必须广播事件驱动 UI 移除气泡',
-        );
-      },
-    );
+      expect(ok, isTrue);
+      expect(
+        messageRepo.deletedMessageIds,
+        equals(['msg-1']),
+        reason: 'API 成功后必须删本地',
+      );
+      expect(
+        events.any((e) => e.channelId == 'ch-1' && e.messageId == 'msg-1'),
+        isTrue,
+        reason: '删除成功后必须广播事件驱动 UI 移除气泡',
+      );
+    });
 
-    test(
-      'deleteMessage API 失败 → 返回 false + 不删本地 + 不广播',
-      () async {
-        final messageRepo = _FakeChannelMessageRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(deleteMessageResult: false),
-          repo: _FakeChannelRepo(),
-          messageRepo: messageRepo,
-        );
-        final events = <ChannelMessageDeletedEvent>[];
-        final sub =
-            AppEventBus.on<ChannelMessageDeletedEvent>().listen(events.add);
+    test('deleteMessage API 失败 → 返回 false + 不删本地 + 不广播', () async {
+      final messageRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(deleteMessageResult: false),
+        repo: _FakeChannelRepo(),
+        messageRepo: messageRepo,
+      );
+      final events = <ChannelMessageDeletedEvent>[];
+      final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+        events.add,
+      );
 
-        final ok = await service.deleteMessage('ch-1', 'msg-2');
+      final ok = await service.deleteMessage('ch-1', 'msg-2');
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(ok, isFalse);
-        expect(messageRepo.deletedMessageIds, isEmpty,
-            reason: 'API 失败时不得删本地，防止半一致');
-        expect(events, isEmpty);
-      },
-    );
+      expect(ok, isFalse);
+      expect(
+        messageRepo.deletedMessageIds,
+        isEmpty,
+        reason: 'API 失败时不得删本地，防止半一致',
+      );
+      expect(events, isEmpty);
+    });
 
-    test(
-      'setMessagePinned 成功 → 更新本地 pinnedByMessageId',
-      () async {
-        final messageRepo = _FakeChannelMessageRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(setMessagePinnedResult: true),
-          repo: _FakeChannelRepo(),
-          messageRepo: messageRepo,
-        );
+    test('setMessagePinned 成功 → 更新本地 pinnedByMessageId', () async {
+      final messageRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(setMessagePinnedResult: true),
+        repo: _FakeChannelRepo(),
+        messageRepo: messageRepo,
+      );
 
-        final ok = await service.setMessagePinned('ch-1', 'msg-3', true);
+      final ok = await service.setMessagePinned('ch-1', 'msg-3', true);
 
-        expect(ok, isTrue);
-        expect(messageRepo.pinnedByMessageId, equals({'msg-3': true}),
-            reason: 'API 成功后必须更新本地置顶状态');
-      },
-    );
+      expect(ok, isTrue);
+      expect(
+        messageRepo.pinnedByMessageId,
+        equals({'msg-3': true}),
+        reason: 'API 成功后必须更新本地置顶状态',
+      );
+    });
 
-    test(
-      'setMessagePinned API 失败 → 返回 false + 不更新本地',
-      () async {
-        final messageRepo = _FakeChannelMessageRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(setMessagePinnedResult: false),
-          repo: _FakeChannelRepo(),
-          messageRepo: messageRepo,
-        );
+    test('setMessagePinned API 失败 → 返回 false + 不更新本地', () async {
+      final messageRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(setMessagePinnedResult: false),
+        repo: _FakeChannelRepo(),
+        messageRepo: messageRepo,
+      );
 
-        final ok = await service.setMessagePinned('ch-1', 'msg-4', true);
+      final ok = await service.setMessagePinned('ch-1', 'msg-4', true);
 
-        expect(ok, isFalse);
-        expect(messageRepo.pinnedByMessageId, isEmpty,
-            reason: 'API 失败时不得修改本地状态');
-      },
-    );
+      expect(ok, isFalse);
+      expect(messageRepo.pinnedByMessageId, isEmpty, reason: 'API 失败时不得修改本地状态');
+    });
   });
 
   // ── CH-5: subscribeChannel / unsubscribeChannel ─────────────────────────────
   group('CH-5: subscribeChannel / unsubscribeChannel', () {
-    test(
-      'subscribeChannel 成功 → 写频道 + 写订阅关系 + 返回 true',
-      () async {
-        final repo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(
-            subscribeResult: true,
-            channelById: {'ch-1': _channel(1001)},
-          ),
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
+    test('subscribeChannel 成功 → 写频道 + 写订阅关系 + 返回 true', () async {
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(
+          subscribeResult: true,
+          channelById: {'ch-1': _channel(1001)},
+        ),
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
 
-        final ok = await service.subscribeChannel('ch-1');
+      final ok = await service.subscribeChannel('ch-1');
 
-        expect(ok, isTrue);
-        expect(repo.savedChannels, hasLength(1),
-            reason: '订阅后需写入频道信息');
-        expect(repo.savedChannels.single.id, 1001);
-        expect(repo.savedSubscriptions, hasLength(1),
-            reason: '订阅后需写入订阅关系');
-      },
-    );
+      expect(ok, isTrue);
+      expect(repo.savedChannels, hasLength(1), reason: '订阅后需写入频道信息');
+      expect(repo.savedChannels.single.id, 1001);
+      expect(repo.savedSubscriptions, hasLength(1), reason: '订阅后需写入订阅关系');
+    });
 
-    test(
-      'subscribeChannel API 失败 → 返回 false，不写本地',
-      () async {
-        final repo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(subscribeResult: false),
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
+    test('subscribeChannel API 失败 → 返回 false，不写本地', () async {
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(subscribeResult: false),
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
 
-        final ok = await service.subscribeChannel('ch-2');
+      final ok = await service.subscribeChannel('ch-2');
 
-        expect(ok, isFalse);
-        expect(repo.savedChannels, isEmpty);
-        expect(repo.savedSubscriptions, isEmpty);
-      },
-    );
+      expect(ok, isFalse);
+      expect(repo.savedChannels, isEmpty);
+      expect(repo.savedSubscriptions, isEmpty);
+    });
 
-    test(
-      'subscribeChannel getChannel 返回 null → 返回 false，不写订阅',
-      () async {
-        final repo = _FakeChannelRepo();
-        // subscribeResult=true 但 channelById 为空（getChannel 返回 null）
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(subscribeResult: true, channelById: const {}),
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
+    test('subscribeChannel getChannel 返回 null → 返回 false，不写订阅', () async {
+      final repo = _FakeChannelRepo();
+      // subscribeResult=true 但 channelById 为空（getChannel 返回 null）
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(subscribeResult: true, channelById: const {}),
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
 
-        final ok = await service.subscribeChannel('ch-3');
+      final ok = await service.subscribeChannel('ch-3');
 
-        expect(ok, isFalse,
-            reason: '频道信息拉取失败时订阅应回滚，避免空壳订阅');
-        expect(repo.savedSubscriptions, isEmpty);
-      },
-    );
+      expect(ok, isFalse, reason: '频道信息拉取失败时订阅应回滚，避免空壳订阅');
+      expect(repo.savedSubscriptions, isEmpty);
+    });
 
-    test(
-      'unsubscribeChannel 成功 → 删订阅关系 + 返回 true',
-      () async {
-        final repo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(unsubscribeResult: true),
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
+    test('unsubscribeChannel 成功 → 删订阅关系 + 返回 true', () async {
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(unsubscribeResult: true),
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
 
-        final ok = await service.unsubscribeChannel('ch-4');
+      final ok = await service.unsubscribeChannel('ch-4');
 
-        expect(ok, isTrue);
-        expect(repo.deletedSubscriptions, equals(['ch-4']),
-            reason: '退订后必须删除本地订阅关系');
-      },
-    );
+      expect(ok, isTrue);
+      expect(
+        repo.deletedSubscriptions,
+        equals(['ch-4']),
+        reason: '退订后必须删除本地订阅关系',
+      );
+    });
 
-    test(
-      'unsubscribeChannel API 失败 → 返回 false + 不删本地',
-      () async {
-        final repo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(unsubscribeResult: false),
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
+    test('unsubscribeChannel API 失败 → 返回 false + 不删本地', () async {
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(unsubscribeResult: false),
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
 
-        final ok = await service.unsubscribeChannel('ch-5');
+      final ok = await service.unsubscribeChannel('ch-5');
 
-        expect(ok, isFalse);
-        expect(repo.deletedSubscriptions, isEmpty,
-            reason: 'API 失败时不得删本地订阅，防止半一致');
-      },
-    );
+      expect(ok, isFalse);
+      expect(
+        repo.deletedSubscriptions,
+        isEmpty,
+        reason: 'API 失败时不得删本地订阅，防止半一致',
+      );
+    });
   });
 
   // ─── CH-6  syncSubscribedChannels ──────────────────────────────────────────
   group('CH-6 syncSubscribedChannels', () {
-    test('API 返回两个频道 → 两个 saveChannel + 两个 saveSubscription（均为新）',
-        () async {
+    test('API 返回两个频道 → 两个 saveChannel + 两个 saveSubscription（均为新）', () async {
       final ch1 = _channel(1);
       final ch2 = _channel(2);
       final repo = _FakeChannelRepo(); // subscriptions 为空 → 全部视为新订阅
@@ -961,8 +932,11 @@ void main() {
 
       expect(result, hasLength(2));
       expect(repo.savedChannels, hasLength(2));
-      expect(repo.savedSubscriptions, hasLength(2),
-          reason: '两个频道均未存在订阅，各自应创建一条 subscription');
+      expect(
+        repo.savedSubscriptions,
+        hasLength(2),
+        reason: '两个频道均未存在订阅，各自应创建一条 subscription',
+      );
     });
 
     test('已存在订阅的频道 → saveChannel 但不重复 saveSubscription', () async {
@@ -982,8 +956,7 @@ void main() {
       await service.syncSubscribedChannels();
 
       expect(repo.savedChannels, hasLength(1));
-      expect(repo.savedSubscriptions, isEmpty,
-          reason: '订阅已存在，不得重复插入');
+      expect(repo.savedSubscriptions, isEmpty, reason: '订阅已存在，不得重复插入');
     });
 
     test('API 返回空列表 → 返回空 + 不写库', () async {
@@ -1017,12 +990,12 @@ void main() {
   // ─── CH-7  syncMessages ───────────────────────────────────────────────────
   group('CH-7 syncMessages', () {
     ChannelMessageModel msg(int id) => ChannelMessageModel(
-          id: id,
-          channelId: 100,
-          content: 'content-$id',
-          msgType: 'channel_text',
-          createdAt: DateTime.fromMillisecondsSinceEpoch(id * 1000),
-        );
+      id: id,
+      channelId: 100,
+      content: 'content-$id',
+      msgType: 'channel_text',
+      createdAt: DateTime.fromMillisecondsSinceEpoch(id * 1000),
+    );
 
     test('API 返回 3 条消息 → saveMessage 被调 3 次 + 返回 3 条', () async {
       final msgRepo = _FakeChannelMessageRepo();
@@ -1068,12 +1041,12 @@ void main() {
   // ─── CH-8  publishMessage / getMessages / deleteChannel / markAsRead ────────
   group('CH-8 publishMessage', () {
     ChannelMessageModel msg(int id) => ChannelMessageModel(
-          id: id,
-          channelId: 100,
-          content: 'test',
-          msgType: 'channel_text',
-          createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
-        );
+      id: id,
+      channelId: 100,
+      content: 'test',
+      msgType: 'channel_text',
+      createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
+    );
 
     test('API 返回消息 → 保存到本地 + 返回消息', () async {
       final m = msg(99);
@@ -1132,12 +1105,12 @@ void main() {
 
   group('CH-8 getMessages (本地优先回退)', () {
     ChannelMessageModel msg(int id, int channelId) => ChannelMessageModel(
-          id: id,
-          channelId: channelId,
-          content: 'c',
-          msgType: 'channel_text',
-          createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
-        );
+      id: id,
+      channelId: channelId,
+      content: 'c',
+      msgType: 'channel_text',
+      createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
+    );
 
     test('本地有数据 → 直接返回本地，不请求 API', () async {
       final msgRepo = _FakeChannelMessageRepo();
@@ -1203,37 +1176,39 @@ void main() {
       final ok = await service.deleteChannel('ch-99');
 
       expect(ok, isFalse);
-      expect(repo.deletedChannels, isEmpty,
-          reason: 'API 失败时不应删本地，防止半一致');
+      expect(repo.deletedChannels, isEmpty, reason: 'API 失败时不应删本地，防止半一致');
     });
   });
 
   group('CH-8 markAsRead', () {
-    test('成功路径 → API + Repo 均被调用 + 广播 ChannelUnreadCountUpdatedEvent',
-        () async {
-      final repo = _FakeChannelRepo();
-      final api = _FakeChannelApi(markAsReadResult: true);
-      final service = ChannelService.forTest(
-        api: api,
-        repo: repo,
-        messageRepo: _FakeChannelMessageRepo(),
-      );
+    test(
+      '成功路径 → API + Repo 均被调用 + 广播 ChannelUnreadCountUpdatedEvent',
+      () async {
+        final repo = _FakeChannelRepo();
+        final api = _FakeChannelApi(markAsReadResult: true);
+        final service = ChannelService.forTest(
+          api: api,
+          repo: repo,
+          messageRepo: _FakeChannelMessageRepo(),
+        );
 
-      final events = <ChannelUnreadCountUpdatedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(events.add);
+        final events = <ChannelUnreadCountUpdatedEvent>[];
+        final sub = AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
+          events.add,
+        );
 
-      final ok = await service.markAsRead('ch-1', 'msg-42');
-      await Future.delayed(const Duration(milliseconds: 10));
-      await sub.cancel();
+        final ok = await service.markAsRead('ch-1', 'msg-42');
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
 
-      expect(ok, isTrue);
-      expect(api.markAsReadCalls, contains(('ch-1', 'msg-42')));
-      expect(repo.markAsReadCalls, contains(('ch-1', 'msg-42')));
-      expect(events, hasLength(1));
-      expect(events.first.channelId, 'ch-1');
-      expect(events.first.unreadCount, 0);
-    });
+        expect(ok, isTrue);
+        expect(api.markAsReadCalls, contains(('ch-1', 'msg-42')));
+        expect(repo.markAsReadCalls, contains(('ch-1', 'msg-42')));
+        expect(events, hasLength(1));
+        expect(events.first.channelId, 'ch-1');
+        expect(events.first.unreadCount, 0);
+      },
+    );
 
     test('API 抛异常 → 返回 false，不广播事件', () async {
       final service = ChannelService.forTest(
@@ -1243,11 +1218,12 @@ void main() {
       );
 
       final events = <ChannelUnreadCountUpdatedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
+        events.add,
+      );
 
       final ok = await service.markAsRead('ch-1', 'msg-42');
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
       await sub.cancel();
 
       expect(ok, isFalse);
@@ -1274,8 +1250,7 @@ void main() {
 
       expect(result, hasLength(1));
       expect(result.first.id, 1, reason: '应返回本地命中，不是 API 数据');
-      expect(api.searchChannelCalls, isEmpty,
-          reason: '本地有结果时不应调 API');
+      expect(api.searchChannelCalls, isEmpty, reason: '本地有结果时不应调 API');
     });
 
     test('本地无命中 → 回退到 API', () async {
@@ -1326,8 +1301,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(result!.id, 42, reason: '本地有数据应返回本地，不是 API 数据');
-      expect(api.getChannelCalls, isEmpty,
-          reason: '本地命中时不应调 API');
+      expect(api.getChannelCalls, isEmpty, reason: '本地命中时不应调 API');
     });
 
     test('本地无数据 → 调 API + 保存到本地', () async {
@@ -1346,8 +1320,7 @@ void main() {
       expect(result, isNotNull);
       expect(result!.id, 55, reason: '本地无数据应返回 API 数据');
       expect(api.getChannelCalls, equals(['55']));
-      expect(repo.savedChannels, hasLength(1),
-          reason: 'API 命中后应保存到本地');
+      expect(repo.savedChannels, hasLength(1), reason: 'API 命中后应保存到本地');
       expect(repo.savedChannels.first.id, 55);
     });
 
@@ -1364,8 +1337,7 @@ void main() {
       final result = await service.getChannel('999');
 
       expect(result, isNull);
-      expect(repo.savedChannels, isEmpty,
-          reason: 'API 返回 null 时不应写本地');
+      expect(repo.savedChannels, isEmpty, reason: 'API 返回 null 时不应写本地');
     });
   });
 
@@ -1433,35 +1405,44 @@ void main() {
 
   // ─── CH-11  handleChannelMessageRevoked ──────────────────────────────────
   group('CH-11 handleChannelMessageRevoked', () {
-    test('有效载荷 → 删本地 + 广播 ChannelMessageDeletedEvent(reason=revoked)',
-        () async {
-      final msgRepo = _FakeChannelMessageRepo();
-      final service = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: _FakeChannelRepo(),
-        messageRepo: msgRepo,
-      );
+    test(
+      '有效载荷 → 删本地 + 广播 ChannelMessageDeletedEvent(reason=revoked)',
+      () async {
+        final msgRepo = _FakeChannelMessageRepo();
+        final service = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: msgRepo,
+        );
 
-      final events = <ChannelMessageDeletedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelMessageDeletedEvent>().listen(events.add);
+        final events = <ChannelMessageDeletedEvent>[];
+        final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+          events.add,
+        );
 
-      await service.handleChannelMessageRevoked({
-        'channel_id': 'ch-10',
-        'message_id': 'msg-10',
-      });
+        await service.handleChannelMessageRevoked({
+          'channel_id': 'ch-10',
+          'message_id': 'msg-10',
+        });
 
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-      await sub.cancel();
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await sub.cancel();
 
-      expect(msgRepo.deletedMessageIds, equals(['msg-10']),
-          reason: '撤回必须删本地消息');
-      expect(events, hasLength(1));
-      expect(events.first.channelId, 'ch-10');
-      expect(events.first.messageId, 'msg-10');
-      expect(events.first.reason, 'revoked',
-          reason: '撤回事件 reason 应为 revoked，与删除区分');
-    });
+        expect(
+          msgRepo.deletedMessageIds,
+          equals(['msg-10']),
+          reason: '撤回必须删本地消息',
+        );
+        expect(events, hasLength(1));
+        expect(events.first.channelId, 'ch-10');
+        expect(events.first.messageId, 'msg-10');
+        expect(
+          events.first.reason,
+          'revoked',
+          reason: '撤回事件 reason 应为 revoked，与删除区分',
+        );
+      },
+    );
 
     test('channel_id 为空 → 忽略，不删本地不广播', () async {
       final msgRepo = _FakeChannelMessageRepo();
@@ -1472,8 +1453,9 @@ void main() {
       );
 
       final events = <ChannelMessageDeletedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelMessageDeletedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+        events.add,
+      );
 
       await service.handleChannelMessageRevoked({
         'channel_id': '',
@@ -1496,8 +1478,9 @@ void main() {
       );
 
       final events = <ChannelMessageDeletedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelMessageDeletedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+        events.add,
+      );
 
       await service.handleChannelMessageRevoked({
         'channel_id': 'ch-10',
@@ -1710,10 +1693,7 @@ void main() {
     // ── handleChannelSubscribed ──────────────────────────────────────────────
     test('subscribed — 空 channel_id → 忽略，不写库不广播', () async {
       final repo = _FakeChannelRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-      );
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
       await svc.handleChannelSubscribed({'channel_id': ''});
       expect(repo.savedChannels, isEmpty);
       expect(repo.savedSubscriptions, isEmpty);
@@ -1725,10 +1705,7 @@ void main() {
         channelId: 42,
         subscribedAt: DateTime(2025, 1, 1),
       );
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-      );
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
       await svc.handleChannelSubscribed({'channel_id': 'ch-42'});
       expect(repo.savedChannels, isEmpty); // 没有二次写
     });
@@ -1752,32 +1729,37 @@ void main() {
       expect(repo.savedSubscriptions, isEmpty);
     });
 
-    test('subscribed — 合法 channel → saveChannel + saveSubscription + 广播事件', () async {
-      final repo = _FakeChannelRepo();
-      final now = DateTime(2025, 1, 1);
-      final channel = ChannelModel(
-        id: 99,
-        name: 'valid',
-        type: ChannelType.public,
-        creatorId: 1,
-        createdAt: now,
-        updatedAt: now,
-      );
-      final api = _FakeChannelApi(channelByIdFromApi: channel);
-      final svc = ChannelService.forTest(api: api, repo: repo);
+    test(
+      'subscribed — 合法 channel → saveChannel + saveSubscription + 广播事件',
+      () async {
+        final repo = _FakeChannelRepo();
+        final now = DateTime(2025, 1, 1);
+        final channel = ChannelModel(
+          id: 99,
+          name: 'valid',
+          type: ChannelType.public,
+          creatorId: 1,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final api = _FakeChannelApi(channelByIdFromApi: channel);
+        final svc = ChannelService.forTest(api: api, repo: repo);
 
-      final events = <ChannelStateChangedEvent>[];
-      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
-      addTearDown(sub.cancel);
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+        addTearDown(sub.cancel);
 
-      await svc.handleChannelSubscribed({'channel_id': '99'});
-      await Future.delayed(const Duration(milliseconds: 10));
+        await svc.handleChannelSubscribed({'channel_id': '99'});
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(repo.savedChannels, hasLength(1));
-      expect(repo.savedChannels.first.id, 99);
-      expect(repo.savedSubscriptions, hasLength(1));
-      expect(events.any((e) => e.action == 'channel_subscribed'), isTrue);
-    });
+        expect(repo.savedChannels, hasLength(1));
+        expect(repo.savedChannels.first.id, 99);
+        expect(repo.savedSubscriptions, hasLength(1));
+        expect(events.any((e) => e.action == 'channel_subscribed'), isTrue);
+      },
+    );
 
     // ── handleChannelUnsubscribed ────────────────────────────────────────────
     test('unsubscribed — 空 channel_id → 忽略', () async {
@@ -1792,44 +1774,43 @@ void main() {
       expect(repo.deletedSubscriptions, isEmpty);
     });
 
-    test('unsubscribed — 合法 id → deleteSubscription + deleteMessagesByChannel + 广播', () async {
-      final repo = _FakeChannelRepo();
-      final msgRepo = _FakeChannelMessageRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-        messageRepo: msgRepo,
-      );
+    test(
+      'unsubscribed — 合法 id → deleteSubscription + deleteMessagesByChannel + 广播',
+      () async {
+        final repo = _FakeChannelRepo();
+        final msgRepo = _FakeChannelMessageRepo();
+        final svc = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: repo,
+          messageRepo: msgRepo,
+        );
 
-      final events = <ChannelStateChangedEvent>[];
-      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
-      addTearDown(sub.cancel);
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+        addTearDown(sub.cancel);
 
-      await svc.handleChannelUnsubscribed({'channel_id': 'ch-5'});
-      await Future.delayed(const Duration(milliseconds: 10));
+        await svc.handleChannelUnsubscribed({'channel_id': 'ch-5'});
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(repo.deletedSubscriptions, contains('ch-5'));
-      expect(msgRepo.deletedByChannelCalls, contains('ch-5'));
-      expect(events.any((e) => e.action == 'channel_unsubscribed'), isTrue);
-    });
+        expect(repo.deletedSubscriptions, contains('ch-5'));
+        expect(msgRepo.deletedByChannelCalls, contains('ch-5'));
+        expect(events.any((e) => e.action == 'channel_unsubscribed'), isTrue);
+      },
+    );
 
     // ── handleChannelUpdated ─────────────────────────────────────────────────
     test('updated — 缺少 channel 字段 → 忽略', () async {
       final repo = _FakeChannelRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-      );
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
       await svc.handleChannelUpdated({'other': 'data'});
       expect(repo.savedChannels, isEmpty);
     });
 
     test('updated — channel.id=0 → 忽略无效载荷', () async {
       final repo = _FakeChannelRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-      );
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
       await svc.handleChannelUpdated({
         'channel': {'id': 0, 'name': 'bad'},
       });
@@ -1838,10 +1819,7 @@ void main() {
 
     test('updated — 合法 channel → saveChannel + 广播 channel_updated', () async {
       final repo = _FakeChannelRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-      );
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
 
       final events = <ChannelStateChangedEvent>[];
       final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
@@ -1857,7 +1835,7 @@ void main() {
           'updated_at': '2025-06-01T00:00:00Z',
         },
       });
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
       expect(repo.savedChannels, hasLength(1));
       expect(events.any((e) => e.action == 'channel_updated'), isTrue);
@@ -1876,26 +1854,31 @@ void main() {
       expect(repo.deletedChannels, isEmpty);
     });
 
-    test('deleted — 合法 id → deleteChannel + deleteMessagesByChannel + 广播', () async {
-      final repo = _FakeChannelRepo();
-      final msgRepo = _FakeChannelMessageRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-        messageRepo: msgRepo,
-      );
+    test(
+      'deleted — 合法 id → deleteChannel + deleteMessagesByChannel + 广播',
+      () async {
+        final repo = _FakeChannelRepo();
+        final msgRepo = _FakeChannelMessageRepo();
+        final svc = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: repo,
+          messageRepo: msgRepo,
+        );
 
-      final events = <ChannelStateChangedEvent>[];
-      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
-      addTearDown(sub.cancel);
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+        addTearDown(sub.cancel);
 
-      await svc.handleChannelDeleted({'channel_id': 'ch-3'});
-      await Future.delayed(const Duration(milliseconds: 10));
+        await svc.handleChannelDeleted({'channel_id': 'ch-3'});
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(repo.deletedChannels, contains('ch-3'));
-      expect(msgRepo.deletedByChannelCalls, contains('ch-3'));
-      expect(events.any((e) => e.action == 'channel_deleted'), isTrue);
-    });
+        expect(repo.deletedChannels, contains('ch-3'));
+        expect(msgRepo.deletedByChannelCalls, contains('ch-3'));
+        expect(events.any((e) => e.action == 'channel_deleted'), isTrue);
+      },
+    );
 
     // ── handleChannelMessageDeleted ──────────────────────────────────────────
     test('messageDeleted — 空 channel_id → 忽略', () async {
@@ -1905,8 +1888,10 @@ void main() {
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
-      await svc.handleChannelMessageDeleted(
-          {'channel_id': '', 'message_id': 'msg-1'});
+      await svc.handleChannelMessageDeleted({
+        'channel_id': '',
+        'message_id': 'msg-1',
+      });
       expect(msgRepo.deletedMessages, isEmpty);
     });
 
@@ -1917,55 +1902,65 @@ void main() {
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
-      await svc.handleChannelMessageDeleted(
-          {'channel_id': 'ch-1', 'message_id': ''});
+      await svc.handleChannelMessageDeleted({
+        'channel_id': 'ch-1',
+        'message_id': '',
+      });
       expect(msgRepo.deletedMessages, isEmpty);
     });
 
-    test('messageDeleted — 合法 ids → deleteMessage + 广播 reason=deleted', () async {
-      final msgRepo = _FakeChannelMessageRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: _FakeChannelRepo(),
-        messageRepo: msgRepo,
-      );
+    test(
+      'messageDeleted — 合法 ids → deleteMessage + 广播 reason=deleted',
+      () async {
+        final msgRepo = _FakeChannelMessageRepo();
+        final svc = ChannelService.forTest(
+          api: _FakeChannelApi(),
+          repo: _FakeChannelRepo(),
+          messageRepo: msgRepo,
+        );
 
-      final events = <ChannelMessageDeletedEvent>[];
-      final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(events.add);
-      addTearDown(sub.cancel);
+        final events = <ChannelMessageDeletedEvent>[];
+        final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+          events.add,
+        );
+        addTearDown(sub.cancel);
 
-      await svc.handleChannelMessageDeleted(
-          {'channel_id': 'ch-1', 'message_id': 'msg-99'});
-      await Future.delayed(const Duration(milliseconds: 10));
+        await svc.handleChannelMessageDeleted({
+          'channel_id': 'ch-1',
+          'message_id': 'msg-99',
+        });
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(msgRepo.deletedMessages, contains('msg-99'));
-      expect(events.any((e) => e.reason == 'deleted'), isTrue);
-    });
+        expect(msgRepo.deletedMessages, contains('msg-99'));
+        expect(events.any((e) => e.reason == 'deleted'), isTrue);
+      },
+    );
   });
 
   // ─── CH-15 syncUnreadSummary + invitationCreated / invitationAccepted / orderPaid
   group('CH-15 syncUnreadSummary & invitation/order handlers', () {
     // ── syncUnreadSummary ────────────────────────────────────────────────────
-    test('syncUnreadSummary — channels 缺失 → 返回空 map，广播 success=false', () async {
-      final api = _FakeChannelApi(unreadSummaryResult: {'total_unread': 0});
-      // channels 字段缺失（非 List）
-      final svc = ChannelService.forTest(
-        api: api,
-        repo: _FakeChannelRepo(),
-      );
+    test(
+      'syncUnreadSummary — channels 缺失 → 返回空 map，广播 success=false',
+      () async {
+        final api = _FakeChannelApi(unreadSummaryResult: {'total_unread': 0});
+        // channels 字段缺失（非 List）
+        final svc = ChannelService.forTest(api: api, repo: _FakeChannelRepo());
 
-      final syncEvents = <ChannelUnreadSummarySyncEvent>[];
-      final sub = AppEventBus.on<ChannelUnreadSummarySyncEvent>()
-          .listen(syncEvents.add);
-      addTearDown(sub.cancel);
+        final syncEvents = <ChannelUnreadSummarySyncEvent>[];
+        final sub = AppEventBus.on<ChannelUnreadSummarySyncEvent>().listen(
+          syncEvents.add,
+        );
+        addTearDown(sub.cancel);
 
-      final result = await svc.syncUnreadSummary(trigger: 'test');
-      await Future.delayed(const Duration(milliseconds: 10));
+        final result = await svc.syncUnreadSummary(trigger: 'test');
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(result, isEmpty);
-      expect(syncEvents.any((e) => !e.success), isTrue);
-      expect(api.getUnreadSummaryCalls, 1);
-    });
+        expect(result, isEmpty);
+        expect(syncEvents.any((e) => !e.success), isTrue);
+        expect(api.getUnreadSummaryCalls, 1);
+      },
+    );
 
     test('syncUnreadSummary — channels=[] 权威空集 → 清零所有订阅未读', () async {
       final repo = _FakeChannelRepo();
@@ -1975,7 +1970,10 @@ void main() {
         unreadCount: 5,
       );
       final api = _FakeChannelApi(
-        unreadSummaryResult: <String, dynamic>{'channels': <dynamic>[], 'total_unread': 0},
+        unreadSummaryResult: <String, dynamic>{
+          'channels': <dynamic>[],
+          'total_unread': 0,
+        },
       );
       final svc = ChannelService.forTest(api: api, repo: repo);
       repo.allSubscriptionsList = [repo.subscriptions['10']!];
@@ -2026,12 +2024,13 @@ void main() {
         repo: _FakeChannelRepo(),
       );
       final syncEvents = <ChannelUnreadSummarySyncEvent>[];
-      final sub = AppEventBus.on<ChannelUnreadSummarySyncEvent>()
-          .listen(syncEvents.add);
+      final sub = AppEventBus.on<ChannelUnreadSummarySyncEvent>().listen(
+        syncEvents.add,
+      );
       addTearDown(sub.cancel);
 
       final result = await svc.syncUnreadSummary();
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
       expect(result, isEmpty);
       expect(syncEvents.any((e) => !e.success), isTrue);
@@ -2044,12 +2043,11 @@ void main() {
         repo: _FakeChannelRepo(),
       );
       final events = <ChannelStateChangedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
       addTearDown(sub.cancel);
 
       await svc.handleChannelInvitationCreated({'channel_id': ''});
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
       expect(events, isEmpty);
     });
 
@@ -2059,12 +2057,11 @@ void main() {
         repo: _FakeChannelRepo(),
       );
       final events = <ChannelStateChangedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
       addTearDown(sub.cancel);
 
       await svc.handleChannelInvitationCreated({'channel_id': 'ch-55'});
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
       expect(
         events.any((e) => e.action == 'channel_invitation_created'),
@@ -2077,19 +2074,22 @@ void main() {
       final repo = _FakeChannelRepo();
       final now = DateTime(2025, 1, 1);
       final badChannel = ChannelModel(
-        id: 0, name: 'bad', type: ChannelType.public,
-        creatorId: 0, createdAt: now, updatedAt: now,
+        id: 0,
+        name: 'bad',
+        type: ChannelType.public,
+        creatorId: 0,
+        createdAt: now,
+        updatedAt: now,
       );
       final api = _FakeChannelApi(channelByIdFromApi: badChannel);
       final svc = ChannelService.forTest(api: api, repo: repo);
 
       final events = <ChannelStateChangedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
       addTearDown(sub.cancel);
 
       await svc.handleChannelInvitationAccepted({'channel_id': 'ch-0'});
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
       expect(repo.savedChannels, isEmpty); // 不写库
       expect(
@@ -2102,19 +2102,22 @@ void main() {
       final repo = _FakeChannelRepo();
       final now = DateTime(2025, 1, 1);
       final channel = ChannelModel(
-        id: 77, name: 'ok', type: ChannelType.public,
-        creatorId: 1, createdAt: now, updatedAt: now,
+        id: 77,
+        name: 'ok',
+        type: ChannelType.public,
+        creatorId: 1,
+        createdAt: now,
+        updatedAt: now,
       );
       final api = _FakeChannelApi(channelByIdFromApi: channel);
       final svc = ChannelService.forTest(api: api, repo: repo);
 
       final events = <ChannelStateChangedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
       addTearDown(sub.cancel);
 
       await svc.handleChannelInvitationAccepted({'channel_id': '77'});
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
       expect(repo.savedChannels.any((c) => c.id == 77), isTrue);
       expect(
@@ -2126,39 +2129,41 @@ void main() {
     // ── handleChannelOrderPaid ───────────────────────────────────────────────
     test('orderPaid — 空 channel_id → 忽略', () async {
       final repo = _FakeChannelRepo();
-      final svc = ChannelService.forTest(
-        api: _FakeChannelApi(),
-        repo: repo,
-      );
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
       await svc.handleChannelOrderPaid({'channel_id': ''});
       expect(repo.savedChannels, isEmpty);
     });
 
-    test('orderPaid — 合法 id → 广播 channel_order_paid + channel_subscribed 副作用', () async {
-      final repo = _FakeChannelRepo();
-      final now = DateTime(2025, 1, 1);
-      final channel = ChannelModel(
-        id: 88, name: 'paid', type: ChannelType.paid,
-        creatorId: 1, createdAt: now, updatedAt: now,
-      );
-      final api = _FakeChannelApi(channelByIdFromApi: channel);
-      final svc = ChannelService.forTest(api: api, repo: repo);
+    test(
+      'orderPaid — 合法 id → 广播 channel_order_paid + channel_subscribed 副作用',
+      () async {
+        final repo = _FakeChannelRepo();
+        final now = DateTime(2025, 1, 1);
+        final channel = ChannelModel(
+          id: 88,
+          name: 'paid',
+          type: ChannelType.paid,
+          creatorId: 1,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final api = _FakeChannelApi(channelByIdFromApi: channel);
+        final svc = ChannelService.forTest(api: api, repo: repo);
 
-      final events = <ChannelStateChangedEvent>[];
-      final sub =
-          AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
-      addTearDown(sub.cancel);
+        final events = <ChannelStateChangedEvent>[];
+        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
+          events.add,
+        );
+        addTearDown(sub.cancel);
 
-      await svc.handleChannelOrderPaid({'channel_id': '88'});
-      await Future.delayed(const Duration(milliseconds: 10));
+        await svc.handleChannelOrderPaid({'channel_id': '88'});
+        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(
-        events.any((e) => e.action == 'channel_order_paid'),
-        isTrue,
-      );
-      // handleChannelSubscribed 副作用：channel 写库
-      expect(repo.savedChannels.any((c) => c.id == 88), isTrue);
-    });
+        expect(events.any((e) => e.action == 'channel_order_paid'), isTrue);
+        // handleChannelSubscribed 副作用：channel 写库
+        expect(repo.savedChannels.any((c) => c.id == 88), isTrue);
+      },
+    );
   });
 
   // ─── CH-16 简单委托方法（错误降级 + 透传）
@@ -2167,8 +2172,12 @@ void main() {
     test('getSubscribedChannels — API 成功 → 透传列表', () async {
       final now = DateTime(2025, 1, 1);
       final ch = ChannelModel(
-        id: 1, name: 'ch', type: ChannelType.public,
-        creatorId: 0, createdAt: now, updatedAt: now,
+        id: 1,
+        name: 'ch',
+        type: ChannelType.public,
+        creatorId: 0,
+        createdAt: now,
+        updatedAt: now,
       );
       final api = _FakeChannelApi(subscribedChannels: [ch]);
       final svc = ChannelService.forTest(api: api, repo: _FakeChannelRepo());
@@ -2191,8 +2200,7 @@ void main() {
         channelId: 10,
         subscribedAt: DateTime(2025, 1, 1),
       );
-      final svc =
-          ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
+      final svc = ChannelService.forTest(api: _FakeChannelApi(), repo: repo);
       expect(await svc.isSubscribed('ch-10'), isTrue);
     });
 
@@ -2256,7 +2264,9 @@ void main() {
 
     test('getSentInvitations — API 成功 → 透传', () async {
       final api = _FakeChannelApi(
-        sentInvitationsResult: [{'id': 'inv-sent-1'}],
+        sentInvitationsResult: [
+          {'id': 'inv-sent-1'},
+        ],
       );
       final svc = ChannelService.forTest(api: api, repo: _FakeChannelRepo());
       expect(await svc.getSentInvitations(), hasLength(1));
@@ -2320,8 +2330,12 @@ void main() {
     test('discoverChannels — 透传 API 结果', () async {
       final now = DateTime(2025, 1, 1);
       final ch = ChannelModel(
-        id: 7, name: 'discover-ch', type: ChannelType.public,
-        creatorId: 0, createdAt: now, updatedAt: now,
+        id: 7,
+        name: 'discover-ch',
+        type: ChannelType.public,
+        creatorId: 0,
+        createdAt: now,
+        updatedAt: now,
       );
       final api = _FakeChannelApi();
       api.discoverChannelsResult = [ch];
@@ -2340,16 +2354,14 @@ class _ThrowingChannelApi extends ChannelApi {
   Future<List<ChannelModel>> getSubscribedChannels({
     String? cursor,
     int limit = 50,
-  }) =>
-      Future.error(Exception('network error'));
+  }) => Future.error(Exception('network error'));
 
   @override
   Future<List<ChannelMessageModel>> getMessages({
     required String channelId,
     int? cursor,
     int limit = 20,
-  }) =>
-      Future.error(Exception('network error'));
+  }) => Future.error(Exception('network error'));
 
   @override
   Future<ChannelMessageModel?> publishMessage({
@@ -2357,8 +2369,7 @@ class _ThrowingChannelApi extends ChannelApi {
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
-  }) =>
-      Future.error(Exception('network error'));
+  }) => Future.error(Exception('network error'));
 
   @override
   Future<bool> markAsRead(String channelId, String messageId) =>
@@ -2369,16 +2380,14 @@ class _ThrowingChannelApi extends ChannelApi {
     required String channelId,
     required String messageId,
     required String reactionType,
-  }) =>
-      Future.error(Exception('network error'));
+  }) => Future.error(Exception('network error'));
 
   @override
   Future<bool> removeReaction({
     required String channelId,
     required String messageId,
     required String reactionType,
-  }) =>
-      Future.error(Exception('network error'));
+  }) => Future.error(Exception('network error'));
 
   @override
   Future<ChannelStatsModel?> getChannelStats(String channelId) =>
@@ -2412,8 +2421,7 @@ class _ThrowingChannelApi extends ChannelApi {
   Future<List<ChannelModel>> discoverChannels({
     String? category,
     int limit = 20,
-  }) =>
-      Future.error(Exception('network error'));
+  }) => Future.error(Exception('network error'));
 }
 
 /// ChannelRepo stub：getAllSubscriptions 抛出异常，用于验证 cleanupOldData 异常降级

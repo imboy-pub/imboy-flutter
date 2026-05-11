@@ -38,7 +38,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   List<ContactModel> _contactList = [];
 
   // ignore: prefer_collection_literals
-  final Set _currIndexBarData = {};
+  final Set<dynamic> _currIndexBarData = {};
 
   @override
   void initState() {
@@ -50,7 +50,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     });
   }
 
-  List selects = [];
+  List<dynamic> selects = [];
 
   // 构建索引栏项目
   Widget _buildSusItem(BuildContext context, String tag) {

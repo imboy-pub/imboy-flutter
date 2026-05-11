@@ -776,7 +776,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     final peerId = result.type == 'C2C' ? result.toId : result.fromId;
 
     Navigator.of(context).push(
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (context) => ChatPage(
           peerId: peerId,
           type: result.type,

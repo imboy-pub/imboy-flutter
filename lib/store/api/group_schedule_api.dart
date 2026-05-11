@@ -48,7 +48,7 @@ class GroupScheduleApi extends HttpClient {
   List<Map<String, dynamic>> _normalizeScheduleList(dynamic raw) {
     if (raw is! List) return const [];
     return raw
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => _normalizeSchedule(Map<String, dynamic>.from(item)))
         .toList();
   }
@@ -146,7 +146,7 @@ class GroupScheduleApi extends HttpClient {
 
     final payload = Map<String, dynamic>.from(resp.payload);
     final schedule = payload['schedule'];
-    if (schedule is Map) {
+    if (schedule is Map<String, dynamic>) {
       payload['schedule'] = _normalizeSchedule(
         Map<String, dynamic>.from(schedule),
       );

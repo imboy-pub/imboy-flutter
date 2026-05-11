@@ -471,7 +471,7 @@ class WebRTCCallStateMachineManager {
 
       // 处理终止状态，清理状态机
       if (event.state.isTerminal) {
-        Future.delayed(const Duration(seconds: 5), () {
+        Future<dynamic>.delayed(const Duration(seconds: 5), () {
           removeStateMachine(sessionId);
         });
       }

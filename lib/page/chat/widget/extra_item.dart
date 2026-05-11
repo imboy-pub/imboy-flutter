@@ -125,7 +125,7 @@ class ExtraItems extends ConsumerStatefulWidget {
   });
 
   final String type; // [C2C | C2G | C2S]
-  final Map options;
+  final Map<String, dynamic> options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;
   final void Function(BuildContext)? handlePickerSelection;

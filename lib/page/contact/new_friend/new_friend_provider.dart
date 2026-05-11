@@ -60,7 +60,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
   }
 
   /// 收到添加朋友
-  Future<void> receivedAddFriend(Map data) async {
+  Future<void> receivedAddFriend(Map<String, dynamic> data) async {
     iPrint("CLIENT_ACK,S2C,${data['id']}");
 
     String uid = UserRepoLocal.to.currentUid;
@@ -100,7 +100,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
   }
 
   /// 确认添加朋友
-  Future<void> receivedConfirmFriend(bool ack, Map data) async {
+  Future<void> receivedConfirmFriend(bool ack, Map<String, dynamic> data) async {
     iPrint("CLIENT_ACK,S2C,${data['id']}");
     String from = (data["from"] ?? "").toString();
     String to = (data["to"] ?? "").toString();
@@ -157,7 +157,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
   }
 
   /// 用户搜索
-  Future<List> userSearch({int page = 1, int size = 10, String? kwd}) async {
+  Future<List<dynamic>> userSearch({int page = 1, int size = 10, String? kwd}) async {
     // 使用 userApiProvider 调用 API
     final userApi = ref.read(userApiProvider);
     Map<String, dynamic>? payload = await userApi.userSearch(

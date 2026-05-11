@@ -99,7 +99,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                         if (uid == null || uid.toString().isEmpty) return;
                         Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          CupertinoPageRoute<dynamic>(
                             builder: (context) =>
                                 PeopleInfoPage(id: uid, scene: 'visitCard'),
                           ),

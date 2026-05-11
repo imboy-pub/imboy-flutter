@@ -78,7 +78,7 @@ class DualTestHelper {
       }
 
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await tester.pumpAndSettle();
 
       if (needsLogin(tester)) {

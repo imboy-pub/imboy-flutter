@@ -39,7 +39,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   bool _muteEnabled = false;
   int? _conversationId;
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {
@@ -404,7 +404,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         onTap: () {
           Navigator.push(
             context,
-            CupertinoPageRoute(
+            CupertinoPageRoute<dynamic>(
               builder: (_) => SearchChatPage(
                 type: widget.type,
                 peerId: widget.options?['peer_id'],

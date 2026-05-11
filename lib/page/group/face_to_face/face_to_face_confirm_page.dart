@@ -40,8 +40,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   // [{"nickname": "", "avatar":"", "user_id":""}]
   List<PeopleModel> memberList = [];
 
-  StreamSubscription? ssMsg;
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? ssMsg;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   // 防抖状态
   bool _isJoiningGroup = false;

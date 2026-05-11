@@ -71,8 +71,7 @@ void main() {
       final input = <String, dynamic>{'url': 'a.jpg'};
       final out = normalizeMedia([input]);
       out.first['url'] = 'mutated.jpg';
-      expect(input['url'], 'a.jpg',
-          reason: '返回的是 Map.from 复制，原 Map 必须保持不变');
+      expect(input['url'], 'a.jpg', reason: '返回的是 Map.from 复制，原 Map 必须保持不变');
     });
 
     test('返回的 List 是 non-growable（防意外 add 调用）', () {
@@ -88,10 +87,7 @@ void main() {
 
     test('Map 元素含嵌套结构 → 浅拷贝（嵌套引用共享，但顶层 key/val 独立）', () {
       final nestedList = <String>['x', 'y'];
-      final input = <String, dynamic>{
-        'url': 'a.jpg',
-        'tags': nestedList,
-      };
+      final input = <String, dynamic>{'url': 'a.jpg', 'tags': nestedList};
       final out = normalizeMedia([input]);
       // 浅拷贝：nestedList 还是同一个引用
       expect(identical(out.first['tags'], nestedList), isTrue);

@@ -51,7 +51,7 @@ class MessageVideoBuilder extends StatelessWidget {
       onTap: () {
         if (videoUrl.isNotEmpty) {
           Navigator.of(context).push(
-            MaterialPageRoute(
+            MaterialPageRoute<dynamic>(
               builder: (context) =>
                   VideoViewerPage(url: videoUrl, thumb: thumbUrl),
             ),

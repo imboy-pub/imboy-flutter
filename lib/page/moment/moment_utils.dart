@@ -6,7 +6,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 List<Map<String, dynamic>> normalizeMedia(dynamic rawMedia) {
   if (rawMedia is! List) return const [];
   return rawMedia
-      .whereType<Map>()
+      .whereType<Map<String, dynamic>>()
       .map((item) => Map<String, dynamic>.from(item))
       .toList(growable: false);
 }

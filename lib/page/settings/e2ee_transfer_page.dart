@@ -24,7 +24,7 @@ class E2EETransferPage extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(
+                CupertinoPageRoute<dynamic>(
                   builder: (_) => const E2EETransferSendPage(),
                 ),
               );
@@ -38,7 +38,7 @@ class E2EETransferPage extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(
+                CupertinoPageRoute<dynamic>(
                   builder: (_) => const E2EETransferReceivePage(),
                 ),
               );
@@ -125,7 +125,7 @@ class E2EETransferPage extends StatelessWidget {
                     // 跳转到接收页面
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(
+                      CupertinoPageRoute<dynamic>(
                         builder: (_) => E2EETransferReceivePage(
                           sessionId: transfer['session_id'],
                         ),

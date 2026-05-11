@@ -66,7 +66,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       }
 
       if (!isLogin) {
-        Future.delayed(const Duration(seconds: 1), () {
+        Future<dynamic>.delayed(const Duration(seconds: 1), () {
           if (context.mounted) {
             final t = context.t;
             ScaffoldMessenger.of(context).showSnackBar(

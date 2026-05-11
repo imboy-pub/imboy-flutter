@@ -92,23 +92,19 @@ void main() {
   group('Tab visibility logic simulation', () {
     tearDown(() => AppManifestService.replaceForTest(<String, dynamic>{}));
 
-    test(
-      'all enabled -> 4 tabs (conversation, contact, channel, mine)',
-      () {
-        AppManifestService.replaceForTest(<String, dynamic>{
-          'features': <String, dynamic>{'channel': true, 'moment': true},
-          'policy': <String, dynamic>{},
-          'app_entries': ['channel_tab', 'moment_tab'],
-          'admin_entries': <dynamic>[],
-          'plugins': <dynamic>[],
-          'generated_at': 0,
-        });
-        final manifest = AppManifestService.manifest!;
-        final tabCount =
-            3 + (manifest.hasAppEntry('channel_tab') ? 1 : 0);
-        expect(tabCount, 4);
-      },
-    );
+    test('all enabled -> 4 tabs (conversation, contact, channel, mine)', () {
+      AppManifestService.replaceForTest(<String, dynamic>{
+        'features': <String, dynamic>{'channel': true, 'moment': true},
+        'policy': <String, dynamic>{},
+        'app_entries': ['channel_tab', 'moment_tab'],
+        'admin_entries': <dynamic>[],
+        'plugins': <dynamic>[],
+        'generated_at': 0,
+      });
+      final manifest = AppManifestService.manifest!;
+      final tabCount = 3 + (manifest.hasAppEntry('channel_tab') ? 1 : 0);
+      expect(tabCount, 4);
+    });
 
     test('channel disabled -> 3 tabs (conversation, contact, mine)', () {
       AppManifestService.replaceForTest(<String, dynamic>{
@@ -120,14 +116,12 @@ void main() {
         'generated_at': 0,
       });
       final manifest = AppManifestService.manifest!;
-      final tabCount =
-          3 + (manifest.hasAppEntry('channel_tab') ? 1 : 0);
+      final tabCount = 3 + (manifest.hasAppEntry('channel_tab') ? 1 : 0);
       expect(tabCount, 3);
     });
 
     test('normalizeIndex clamps to dynamic tab count', () {
-      int normalizeIndex(int value, int count) =>
-          value.clamp(0, count - 1);
+      int normalizeIndex(int value, int count) => value.clamp(0, count - 1);
       expect(normalizeIndex(0, 3), 0);
       expect(normalizeIndex(2, 3), 2);
       expect(normalizeIndex(3, 3), 2);

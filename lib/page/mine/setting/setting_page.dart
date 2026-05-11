@@ -296,7 +296,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               EasyLoading.showToast(t.refreshingDeviceKey);
                               // 清除E2EE缓存
                               E2EEService.clearCache();
-                              await Future.delayed(
+                              await Future<dynamic>.delayed(
                                 const Duration(milliseconds: 500),
                               );
 
@@ -336,7 +336,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (_) => const E2EEKeyRecoveryPage(),
                         ),
                       );
@@ -354,7 +354,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          CupertinoPageRoute<dynamic>(
                             builder: (_) => const E2EEDevTestPage(),
                           ),
                         );
@@ -384,7 +384,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (_) => MarkdownPage(
                             title: t.updateLog,
                             url:
@@ -406,7 +406,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (_) => MarkdownPage(
                             title: t.helpDocument,
                             url:
@@ -428,7 +428,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (_) => MarkdownPage(
                             title: t.privacyPolicy,
                             url:
@@ -676,7 +676,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => MarkdownPage(
           title: "${t.about} $appName",
           rightDMActions: rightDMActions,

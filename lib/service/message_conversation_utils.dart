@@ -7,7 +7,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - self echo from current user: `to`
 String resolveConversationPeerId({
   required String chatType,
-  required Map data,
+  required Map<String, dynamic> data,
   required String currentUid,
 }) {
   if (chatType == 'C2G') {

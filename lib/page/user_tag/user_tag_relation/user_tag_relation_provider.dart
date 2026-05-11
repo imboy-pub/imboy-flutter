@@ -23,7 +23,7 @@ List<String> normalizeTagNames(Iterable<dynamic> tags) {
 
 Map<String, int> buildTagIdByNameMap(List<dynamic> items) {
   final tagIdByName = <String, int>{};
-  for (final item in items.whereType<Map>()) {
+  for (final item in items.whereType<Map<String, dynamic>>()) {
     final name = item['name']?.toString().trim() ?? '';
     final rawTagId = item['tag_id'] ?? item['id'];
     final tagId = rawTagId is int
@@ -39,7 +39,7 @@ Map<String, int> buildTagIdByNameMap(List<dynamic> items) {
 
 Map<String, int> buildTagUsageCountMap(List<dynamic> items) {
   final usageCount = <String, int>{};
-  for (final item in items.whereType<Map>()) {
+  for (final item in items.whereType<Map<String, dynamic>>()) {
     final name = item['name']?.toString().trim() ?? '';
     if (name.isEmpty) {
       continue;
@@ -55,7 +55,7 @@ Map<String, int> buildTagUsageCountMap(List<dynamic> items) {
 
 List<String> buildTagNameList(List<dynamic> items) {
   return normalizeTagNames(
-    items.whereType<Map>().map((item) => item['name']?.toString() ?? ''),
+    items.whereType<Map<String, dynamic>>().map((item) => item['name']?.toString() ?? ''),
   );
 }
 
@@ -226,7 +226,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
       return const [];
     }
     return rawItems
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList(growable: false);
   }
@@ -429,7 +429,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
         }
 
         // 处理标签操作
-        Set<String> updatedTags = Set.from(currentTags);
+        Set<String> updatedTags = Set<dynamic>.from(currentTags);
 
         // 删除标签
         for (String tagToRemove in tagsToRemove) {

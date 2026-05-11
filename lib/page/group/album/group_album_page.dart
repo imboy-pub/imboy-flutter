@@ -38,7 +38,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       setState(() {
         _albums = list is List
             ? list
-                  .whereType<Map>()
+                  .whereType<Map<String, dynamic>>()
                   .map((item) => Map<String, dynamic>.from(item))
                   .toList()
             : <Map<String, dynamic>>[];

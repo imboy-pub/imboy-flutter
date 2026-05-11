@@ -28,7 +28,7 @@ class UserDeviceDetailPage extends ConsumerStatefulWidget {
 }
 
 class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
   String _deviceName = '';
 
   @override
@@ -469,7 +469,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   void _editDeviceName(BuildContext context) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (context) => ChangeNamePage(
           title: t.setParam(param: t.deviceName),
           value: widget.model.deviceName,

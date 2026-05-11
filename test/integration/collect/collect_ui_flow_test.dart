@@ -39,11 +39,7 @@ void main() {
     test('选择模式可以包含完整的会话信息', () {
       const page = UserCollectPage(
         isSelect: true,
-        peer: {
-          'peer_id': 'g_2001',
-          'peer_name': 'Group Chat',
-          'type': 'C2G',
-        },
+        peer: {'peer_id': 'g_2001', 'peer_name': 'Group Chat', 'type': 'C2G'},
       );
 
       expect(page.isSelect, isTrue);
@@ -93,9 +89,7 @@ void main() {
       final state = UserCollectState();
       expect(state.removingIds, isEmpty);
 
-      final updated = state.copyWith(
-        removingIds: {'kind_001', 'kind_002'},
-      );
+      final updated = state.copyWith(removingIds: {'kind_001', 'kind_002'});
       expect(updated.removingIds.length, 2);
       expect(updated.removingIds.contains('kind_001'), isTrue);
       expect(updated.removingIds.contains('kind_002'), isTrue);
@@ -301,8 +295,9 @@ void main() {
       ];
 
       final existingIds = existingItems.map((e) => e.kindId).toSet();
-      final filtered =
-          newItems.where((r) => !existingIds.contains(r.kindId)).toList();
+      final filtered = newItems
+          .where((r) => !existingIds.contains(r.kindId))
+          .toList();
 
       expect(filtered.length, 1);
       expect(filtered.first.kindId, 3);
@@ -370,11 +365,7 @@ void main() {
         ];
 
       // 切换标签时应该重置
-      final newState = state.copyWith(
-        page: 1,
-        items: [],
-        kind: 'all',
-      );
+      final newState = state.copyWith(page: 1, items: [], kind: 'all');
 
       expect(newState.page, 1);
       expect(newState.items, isEmpty);
@@ -496,8 +487,7 @@ void main() {
       ];
 
       // 删除 kind_001
-      final updatedItems =
-          items.where((item) => item.kindId != 1).toList();
+      final updatedItems = items.where((item) => item.kindId != 1).toList();
 
       expect(updatedItems.length, 1);
       expect(updatedItems.first.kindId, 2);
@@ -600,8 +590,9 @@ void main() {
 
       final selectedIds = {1, 3};
 
-      final remainingItems =
-          items.where((item) => !selectedIds.contains(item.kindId)).toList();
+      final remainingItems = items
+          .where((item) => !selectedIds.contains(item.kindId))
+          .toList();
 
       expect(remainingItems.length, 1);
       expect(remainingItems.first.kindId, 2);
@@ -665,16 +656,10 @@ void main() {
     });
 
     test('加载失败时应该正确处理', () {
-      final state = UserCollectState().copyWith(
-        isLoading: true,
-        hasMore: true,
-      );
+      final state = UserCollectState().copyWith(isLoading: true, hasMore: true);
 
       // 加载失败，设置 hasMore 为 false 防止无限加载
-      final failed = state.copyWith(
-        isLoading: false,
-        hasMore: false,
-      );
+      final failed = state.copyWith(isLoading: false, hasMore: false);
 
       expect(failed.isLoading, isFalse);
       expect(failed.hasMore, isFalse);
@@ -801,8 +786,9 @@ void main() {
         ),
       ];
 
-      final remainingItems =
-          items.where((item) => !selectedIds.contains(item.kindId)).toList();
+      final remainingItems = items
+          .where((item) => !selectedIds.contains(item.kindId))
+          .toList();
 
       // 5. 验证删除结果
       expect(remainingItems.length, 1);

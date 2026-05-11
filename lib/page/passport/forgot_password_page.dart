@@ -173,7 +173,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                 if (mounted) {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => PinCodeVerificationPage(
                         account: email,
                         accountType: 'email',
@@ -245,7 +245,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                 if (mounted) {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => PinCodeVerificationPage(
                         account: _fullMobile,
                         accountType: 'mobile',

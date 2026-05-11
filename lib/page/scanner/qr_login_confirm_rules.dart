@@ -157,8 +157,8 @@ QrLoginConfirmState parseScanResponse({
   required dynamic payload,
 }) {
   if (ok && code == 0) {
-    if (payload is! Map) {
-      return const QrLoginConfirmFailed('协议错误：scan 响应非 Map');
+    if (payload is! Map<String, dynamic>) {
+      return const QrLoginConfirmFailed('协议错误：scan 响应非 Map<String, dynamic>');
     }
     if (payload['status'] != 'scanned') {
       return const QrLoginConfirmFailed('协议错误：scan 响应缺 status');
@@ -178,8 +178,8 @@ QrLoginConfirmState parseConfirmResponse({
   required dynamic payload,
 }) {
   if (ok && code == 0) {
-    if (payload is! Map) {
-      return const QrLoginConfirmFailed('协议错误：confirm 响应非 Map');
+    if (payload is! Map<String, dynamic>) {
+      return const QrLoginConfirmFailed('协议错误：confirm 响应非 Map<String, dynamic>');
     }
     if (payload['status'] != 'confirmed') {
       return const QrLoginConfirmFailed('协议错误：confirm 响应缺 status');
@@ -194,14 +194,14 @@ QrLoginConfirmState parseConfirmResponse({
 // ---------------------------------------------------------------------------
 
 /// 读取 device_name / platform，全空 / 全空白时返回 null（防 UI 渲染空白行）。
-QrLoginDeviceInfo? _readDeviceInfo(Map payload) {
+QrLoginDeviceInfo? _readDeviceInfo(Map<String, dynamic> payload) {
   final deviceName = _readNonEmptyString(payload, 'device_name');
   final platform = _readNonEmptyString(payload, 'platform');
   if (deviceName == null && platform == null) return null;
   return QrLoginDeviceInfo(deviceName: deviceName, platform: platform);
 }
 
-String? _readNonEmptyString(Map map, String key) {
+String? _readNonEmptyString(Map<String, dynamic> map, String key) {
   final v = map[key];
   if (v is! String) return null;
   final trimmed = v.trim();

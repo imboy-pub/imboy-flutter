@@ -194,7 +194,7 @@ class AMapHelper {
 
     // 5. 添加超时保护（15秒）
     final Future<AMapPosition?> timeoutFuture =
-        Future.delayed(const Duration(seconds: 15), () => null).then((_) {
+        Future<dynamic>.delayed(const Duration(seconds: 15), () => null).then((_) {
           debugPrint('⏰ AMapHelper 定位超时（15秒）');
           if (!completer.isCompleted) {
             completer.complete(null);
@@ -256,7 +256,7 @@ class AMapApi {
 
   /// 高德定位搜索https://restapi.amap.com/v5/place/text?parameters
   /// https://lbs.amap.com/api/webservice/guide/api/search
-  static Future<Response> getAmapPoi(
+  static Future<Response<dynamic>> getAmapPoi(
     String location,
     String types,
     int page,
@@ -276,7 +276,7 @@ class AMapApi {
     );
   }
 
-  static Future<Response> getMapByKeyword(
+  static Future<Response<dynamic>> getMapByKeyword(
     String keywords,
     String types,
     String region,

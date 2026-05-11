@@ -22,7 +22,7 @@ class LiveRoomListPage extends ConsumerStatefulWidget {
 }
 
 class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
   final _scrollController = ScrollController();
   final _api = LiveRoomApi();
 

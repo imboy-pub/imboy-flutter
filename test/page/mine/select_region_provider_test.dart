@@ -11,8 +11,7 @@ ProviderContainer _makeContainer() {
 SelectRegionNotifier _notifier(ProviderContainer c) =>
     c.read(selectRegionProvider.notifier);
 
-SelectRegionState _state(ProviderContainer c) =>
-    c.read(selectRegionProvider);
+SelectRegionState _state(ProviderContainer c) => c.read(selectRegionProvider);
 
 void main() {
   group('SelectRegionState.copyWith', () {
@@ -111,7 +110,10 @@ void main() {
 
     test('hasChildren returns false for Map with empty children', () {
       final c = _makeContainer();
-      final model = <String, dynamic>{'title': 'Beijing', 'children': <dynamic>[]};
+      final model = <String, dynamic>{
+        'title': 'Beijing',
+        'children': <dynamic>[],
+      };
       expect(_notifier(c).hasChildren(model), isFalse);
     });
 
@@ -135,14 +137,20 @@ void main() {
     test('getRegionTitle returns title from Map model', () {
       final c = _makeContainer();
       expect(
-        _notifier(c).getRegionTitle(<String, dynamic>{'title': 'China', 'children': <dynamic>[]}),
+        _notifier(c).getRegionTitle(<String, dynamic>{
+          'title': 'China',
+          'children': <dynamic>[],
+        }),
         'China',
       );
     });
 
     test('getRegionTitle returns empty for Map without title', () {
       final c = _makeContainer();
-      expect(_notifier(c).getRegionTitle(<String, dynamic>{'children': <dynamic>[]}), '');
+      expect(
+        _notifier(c).getRegionTitle(<String, dynamic>{'children': <dynamic>[]}),
+        '',
+      );
     });
 
     test('getRegionTitle returns empty for non-String non-Map', () {

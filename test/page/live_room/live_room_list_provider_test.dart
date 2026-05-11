@@ -15,8 +15,8 @@ class _FakeLiveRoomApi extends LiveRoomApi {
   _FakeLiveRoomApi({
     Map<String, dynamic>? myListResult,
     Map<int, Map<String, dynamic>?>? pageResults,
-  })  : _defaultResult = myListResult,
-        pageResults = pageResults ?? const {};
+  }) : _defaultResult = myListResult,
+       pageResults = pageResults ?? const {};
 
   @override
   Future<Map<String, dynamic>?> myList({int page = 1, int size = 20}) async {
@@ -82,13 +82,15 @@ void main() {
     });
 
     test('toMap round-trips through fromJson', () {
-      final original = LiveRoomModel.fromJson(_roomJson(
-        id: 'abc',
-        userId: 'u1',
-        title: 'hello',
-        status: 1,
-        viewerCount: 7,
-      ));
+      final original = LiveRoomModel.fromJson(
+        _roomJson(
+          id: 'abc',
+          userId: 'u1',
+          title: 'hello',
+          status: 1,
+          viewerCount: 7,
+        ),
+      );
       final roundTripped = LiveRoomModel.fromJson(original.toMap());
       expect(roundTripped.id, original.id);
       expect(roundTripped.userId, original.userId);
@@ -212,19 +214,17 @@ void main() {
     });
 
     test('loadMore is no-op when isLoading is true', () async {
-      final api = _FakeLiveRoomApi(myListResult: {
-        'list': <dynamic>[],
-        'total': 0,
-        'page': 1,
-        'size': 20,
-      });
+      final api = _FakeLiveRoomApi(
+        myListResult: {'list': <dynamic>[], 'total': 0, 'page': 1, 'size': 20},
+      );
       final container = makeContainer(api);
       addTearDown(container.dispose);
 
       // Force isLoading = true by triggering loadFirst without await
       final notifier = container.read(liveRoomListProvider.notifier);
       // Can't easily interleave; verify callCount guard instead
-      await notifier.loadMore(); // hasMore is true but isLoading=false, should call
+      await notifier
+          .loadMore(); // hasMore is true but isLoading=false, should call
       expect(api.callCount, 1);
     });
   });

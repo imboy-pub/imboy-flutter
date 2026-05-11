@@ -331,7 +331,7 @@ class _SlowFakeGroupTaskService implements IGroupTaskService {
     int page = 1,
     int size = 20,
   }) async {
-    await Future.delayed(const Duration(seconds: 10));
+    await Future<dynamic>.delayed(const Duration(seconds: 10));
     return [];
   }
 

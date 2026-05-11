@@ -102,7 +102,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     final list = payload['list'];
     final normalizedList = list is List
         ? list
-              .whereType<Map>()
+              .whereType<Map<String, dynamic>>()
               .map((item) => Map<String, dynamic>.from(item))
               .toList()
         : <Map<String, dynamic>>[];
@@ -292,7 +292,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return false;
       await Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => WebViewPage(url, title)));
+      ).push(MaterialPageRoute<dynamic>(builder: (_) => WebViewPage(url, title)));
       return true;
     } catch (_) {
       return false;
@@ -371,7 +371,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
       if (type == _MediaPreviewType.video) {
         await Navigator.of(context).push(
-          MaterialPageRoute(
+          MaterialPageRoute<dynamic>(
             builder: (_) => VideoViewerPage(url: url, thumb: url),
           ),
         );
@@ -379,7 +379,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       }
 
       await Navigator.of(context).push(
-        MaterialPageRoute(
+        MaterialPageRoute<dynamic>(
           builder: (_) => _GroupFileAudioPreviewPage(url: url, title: title),
         ),
       );

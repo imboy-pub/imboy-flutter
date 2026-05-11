@@ -208,7 +208,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (_) => UserTagRelationPage(
                       peerId: widget.peerId,
                       peerTag: _currentTag,

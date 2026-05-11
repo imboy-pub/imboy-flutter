@@ -65,7 +65,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                     onTap: () async {
                       // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
                       context.go('/bottom_navigation?index=2');
-                      await Future.delayed(const Duration(milliseconds: 100));
+                      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
                       if (!mounted) return;
                       context.push('/account_security');
                     },
@@ -77,7 +77,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                     onTap: () async {
                       // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
                       context.go('/bottom_navigation?index=2');
-                      await Future.delayed(const Duration(milliseconds: 100));
+                      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
                       if (!mounted) return;
                       context.push('/account_security');
                     },

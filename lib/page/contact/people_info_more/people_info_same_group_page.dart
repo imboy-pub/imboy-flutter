@@ -29,7 +29,7 @@ class PeopleInfoSameGroupPage extends ConsumerStatefulWidget {
 class _PeopleInfoSameGroupPageState
     extends ConsumerState<PeopleInfoSameGroupPage> {
   final GroupListService _groupListService = GroupListService();
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {

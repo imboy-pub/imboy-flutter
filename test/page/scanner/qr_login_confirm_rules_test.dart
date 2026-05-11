@@ -21,32 +21,35 @@ import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
 
 void main() {
   group('parseScanResponse — 成功路径', () {
-    test('ok + status="scanned" + 无设备信息 → AwaitingConfirm(deviceInfo=null)', () {
-      final result = parseScanResponse(
-        ok: true,
-        code: 0,
-        errorMessage: null,
-        payload: {'status': 'scanned'},
-      );
-      expect(result, isA<QrLoginConfirmAwaitingConfirm>());
-      expect(
-        (result as QrLoginConfirmAwaitingConfirm).deviceInfo,
-        isNull,
-      );
-    });
+    test(
+      'ok + status="scanned" + 无设备信息 → AwaitingConfirm(deviceInfo=null)',
+      () {
+        final result = parseScanResponse(
+          ok: true,
+          code: 0,
+          errorMessage: null,
+          payload: {'status': 'scanned'},
+        );
+        expect(result, isA<QrLoginConfirmAwaitingConfirm>());
+        expect((result as QrLoginConfirmAwaitingConfirm).deviceInfo, isNull);
+      },
+    );
 
-    test('ok + status="scanned" + device_name → AwaitingConfirm(deviceInfo with name)', () {
-      final result = parseScanResponse(
-        ok: true,
-        code: 0,
-        errorMessage: null,
-        payload: {'status': 'scanned', 'device_name': 'Chrome 120'},
-      );
-      expect(result, isA<QrLoginConfirmAwaitingConfirm>());
-      final s = result as QrLoginConfirmAwaitingConfirm;
-      expect(s.deviceInfo?.deviceName, 'Chrome 120');
-      expect(s.deviceInfo?.platform, isNull);
-    });
+    test(
+      'ok + status="scanned" + device_name → AwaitingConfirm(deviceInfo with name)',
+      () {
+        final result = parseScanResponse(
+          ok: true,
+          code: 0,
+          errorMessage: null,
+          payload: {'status': 'scanned', 'device_name': 'Chrome 120'},
+        );
+        expect(result, isA<QrLoginConfirmAwaitingConfirm>());
+        final s = result as QrLoginConfirmAwaitingConfirm;
+        expect(s.deviceInfo?.deviceName, 'Chrome 120');
+        expect(s.deviceInfo?.platform, isNull);
+      },
+    );
 
     test('ok + status="scanned" + 完整 device 字段 → 完整 DeviceInfo', () {
       final result = parseScanResponse(
@@ -214,10 +217,7 @@ void main() {
         payload: null,
       );
       expect(result, isA<QrLoginConfirmFailed>());
-      expect(
-        (result as QrLoginConfirmFailed).errorMessage,
-        '二维码尚未扫码',
-      );
+      expect((result as QrLoginConfirmFailed).errorMessage, '二维码尚未扫码');
     });
 
     test('code=5201 (EXPIRED) → Expired', () {
@@ -260,10 +260,7 @@ void main() {
 
     test('5201 EXPIRED → Expired（无 msg 字段，UI 用本地化文案）', () {
       expect(mapQrLoginErrorCode(5201, null), isA<QrLoginConfirmExpired>());
-      expect(
-        mapQrLoginErrorCode(5201, '二维码已过期'),
-        isA<QrLoginConfirmExpired>(),
-      );
+      expect(mapQrLoginErrorCode(5201, '二维码已过期'), isA<QrLoginConfirmExpired>());
     });
 
     test('5202 CANCELLED → CancelledByOther', () {
@@ -274,28 +271,19 @@ void main() {
     });
 
     test('5203 ALREADY_USED → AlreadyUsed', () {
-      expect(
-        mapQrLoginErrorCode(5203, null),
-        isA<QrLoginConfirmAlreadyUsed>(),
-      );
+      expect(mapQrLoginErrorCode(5203, null), isA<QrLoginConfirmAlreadyUsed>());
     });
 
     test('5204 NOT_SCANNED → Failed', () {
       final result = mapQrLoginErrorCode(5204, '二维码尚未扫码');
       expect(result, isA<QrLoginConfirmFailed>());
-      expect(
-        (result as QrLoginConfirmFailed).errorMessage,
-        '二维码尚未扫码',
-      );
+      expect((result as QrLoginConfirmFailed).errorMessage, '二维码尚未扫码');
     });
 
     test('5205 DEVICE_LIMIT → Failed (msg 透传)', () {
       final result = mapQrLoginErrorCode(5205, '设备数量达到上限');
       expect(result, isA<QrLoginConfirmFailed>());
-      expect(
-        (result as QrLoginConfirmFailed).errorMessage,
-        '设备数量达到上限',
-      );
+      expect((result as QrLoginConfirmFailed).errorMessage, '设备数量达到上限');
     });
 
     test('400 BAD_REQUEST → Failed', () {
@@ -309,19 +297,13 @@ void main() {
     test('未知 code → Failed (msg 透传，code 透传到 fallback 文案)', () {
       final result = mapQrLoginErrorCode(9999, null);
       expect(result, isA<QrLoginConfirmFailed>());
-      expect(
-        (result as QrLoginConfirmFailed).errorMessage,
-        contains('9999'),
-      );
+      expect((result as QrLoginConfirmFailed).errorMessage, contains('9999'));
     });
 
     test('未知 code + 有 msg → Failed (msg 优先于 fallback)', () {
       final result = mapQrLoginErrorCode(9999, '服务器内部错误');
       expect(result, isA<QrLoginConfirmFailed>());
-      expect(
-        (result as QrLoginConfirmFailed).errorMessage,
-        '服务器内部错误',
-      );
+      expect((result as QrLoginConfirmFailed).errorMessage, '服务器内部错误');
     });
   });
 

@@ -32,7 +32,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'group_01_app_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -65,7 +65,7 @@ void main() {
         TestHelper.log('✅ 已登录或无需登录');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_02_after_login');
 
@@ -97,7 +97,7 @@ void main() {
       }
 
       await _tapFinder(tester, launchChatText.first);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_04_launch_chat_page');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -108,7 +108,7 @@ void main() {
       if (!hasContactList) {
         // 可能还在加载
         TestHelper.log('ℹ️ 发起聊天页未显示联系人列表，等待加载');
-        await Future.delayed(const Duration(seconds: 2));
+        await Future<dynamic>.delayed(const Duration(seconds: 2));
         await _shortSettle(tester);
       }
 
@@ -157,7 +157,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_06_after_create');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -185,7 +185,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'group_msg_01_app_launch');
 
       final backendOk2 = await _ensureBackendAvailable();
@@ -218,7 +218,7 @@ void main() {
         TestHelper.log('✅ 已登录或无需登录');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_msg_02_after_login');
 
@@ -232,7 +232,7 @@ void main() {
 
       // 点击第一个会话
       await _tapFinder(tester, listTiles.first);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_msg_03_conversation_opened');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -259,7 +259,7 @@ void main() {
         await _shortSettle(tester);
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_msg_05_after_send');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -278,7 +278,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'group_member_01_app_launch');
 
       final backendOk3 = await _ensureBackendAvailable();
@@ -311,7 +311,7 @@ void main() {
         TestHelper.log('✅ 已登录或无需登录');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_member_02_after_login');
 
@@ -323,7 +323,7 @@ void main() {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_member_03_group_list');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -337,7 +337,7 @@ void main() {
       }
 
       await _tapFinder(tester, groupListTiles.first);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'group_member_04_group_detail');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -469,7 +469,7 @@ Future<bool> _waitForEntryState(WidgetTester tester) async {
         _isOnMainShellPage(tester)) {
       return true;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
   TestHelper.log('⚠️ 入口状态等待超时，跳过');

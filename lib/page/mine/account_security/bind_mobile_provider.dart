@@ -131,7 +131,7 @@ class BindMobileNotifier extends _$BindMobileNotifier {
   void startCountdown() {
     state = state.copyWith(seconds: 60);
     Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<dynamic>.delayed(const Duration(seconds: 1));
       if (state.seconds <= 0) return false;
       final newSeconds = state.seconds - 1;
       state = state.copyWith(seconds: newSeconds);

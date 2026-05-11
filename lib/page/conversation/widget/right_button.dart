@@ -116,7 +116,7 @@ class RightButtonList extends StatelessWidget {
           onTap: () {
             Navigator.of(context).pop();
             Navigator.of(context).push(
-              CupertinoPageRoute(builder: (context) => const ScannerPage()),
+              CupertinoPageRoute<dynamic>(builder: (context) => const ScannerPage()),
             );
           },
         ),

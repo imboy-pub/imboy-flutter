@@ -24,7 +24,7 @@ void main() {
       final obs = createVisibilityObserver();
       final received = <bool>[];
       final sub = obs.visibilityChanges.listen(received.add);
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
       await sub.cancel();
       expect(received, isEmpty);
     });

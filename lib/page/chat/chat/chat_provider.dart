@@ -98,11 +98,11 @@ class ChatNotifier extends _$ChatNotifier {
   StreamSubscription<Duration>? _justAudioPositionSubscription;
 
   // Stream subscriptions
-  StreamSubscription? _ssMsgExt;
-  StreamSubscription? _ssMsg;
-  StreamSubscription? _ssMsgState;
-  StreamSubscription? _ssReEdit;
-  StreamSubscription? _connectivitySubscription;
+  StreamSubscription<dynamic>? _ssMsgExt;
+  StreamSubscription<dynamic>? _ssMsg;
+  StreamSubscription<dynamic>? _ssMsgState;
+  StreamSubscription<dynamic>? _ssReEdit;
+  StreamSubscription<dynamic>? _connectivitySubscription;
 
   // VoicePlaybackState 访问器
   VoicePlaybackState get voicePlaybackState =>
@@ -680,7 +680,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 通过WebSocket发送消息
   /// WebSocket API v2.0: msg_type/action/e2ee 字段提升到顶层
-  /// - 普通消息: payload 是 Map（只包含内容）
+  /// - 普通消息: payload 是 Map<String, dynamic>（只包含内容）
   /// - E2EE 消息: payload 是密文字符串
   Future<bool> _sendWsMsg(MessageModel obj) async {
     iPrint('📤 [_sendWsMsg] 开始: msgId=${obj.id}, status=${obj.status}');
@@ -698,10 +698,10 @@ class ChatNotifier extends _$ChatNotifier {
     // v2.0: 优先使用 MessageModel 的顶层字段
     String msgType = obj.msgType ?? '';
     String action = obj.action ?? '';
-    // v2.0: e2ee 字段必须是 Map 类型（不能是 JSON 字符串）
+    // v2.0: e2ee 字段必须是 Map<String, dynamic> 类型（不能是 JSON 字符串）
     Map<String, dynamic>? e2ee;
 
-    // v2.0: payload 可以是 Map 或 String（E2EE 密文）
+    // v2.0: payload 可以是 Map<String, dynamic> 或 String（E2EE 密文）
     dynamic finalPayload;
 
     // 检查是否需要端到端加密（action 消息不加密）
@@ -757,7 +757,7 @@ class ChatNotifier extends _$ChatNotifier {
       'msg_type': msgType,
       'action': action,
       'e2ee': e2ee,
-      'payload': finalPayload, // Map 或 String
+      'payload': finalPayload, // Map<String, dynamic> 或 String
       'created_at': obj.createdAt,
     };
 
@@ -830,7 +830,7 @@ class ChatNotifier extends _$ChatNotifier {
     final originalPayload = msg['payload'];
 
     // v2.0: 设置顶层字段（如果未设置）
-    if (!msg.containsKey('msg_type') && originalPayload is Map) {
+    if (!msg.containsKey('msg_type') && originalPayload is Map<String, dynamic>) {
       msg['msg_type'] = originalPayload['msg_type']?.toString() ?? '';
     }
     if (!msg.containsKey('action')) {
@@ -838,7 +838,7 @@ class ChatNotifier extends _$ChatNotifier {
     }
     // v2.0: e2ee 字段只在加密时设置，非加密消息保持 null
 
-    if (originalPayload is Map) {
+    if (originalPayload is Map<String, dynamic>) {
       final payload = Map<String, dynamic>.from(originalPayload);
 
       // 检查是否需要加密（C2C/C2G 消息，非 action 操作）
@@ -1203,7 +1203,7 @@ class ChatNotifier extends _$ChatNotifier {
       if (items.isEmpty) return;
 
       for (final it in items) {
-        if (it is! Map) continue;
+        if (it is! Map<String, dynamic>) continue;
         final map = it.cast<String, dynamic>();
         final messageId = map['id']?.toString() ?? Xid().toString();
 
@@ -1377,7 +1377,7 @@ class ChatNotifier extends _$ChatNotifier {
 
       final newPayload = Map<String, dynamic>.from(msg.payload);
       final reactionsRaw = newPayload['reactions'];
-      final reactions = reactionsRaw is Map
+      final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
           : <String, dynamic>{};
       final usersRaw = reactions[emoji];
@@ -1927,7 +1927,7 @@ class ChatNotifier extends _$ChatNotifier {
   /// - [peerId]    对端 ID
   /// - [limit]     每页条数，默认 50
   ///
-  /// 返回拉到的消息列表（原始 Map），同时更新 [state.lastHistorySeq] 和
+  /// 返回拉到的消息列表（原始 Map<String, dynamic>），同时更新 [state.lastHistorySeq] 和
   /// [state.historyHasMore] 用于下一次翻页。
   Future<List<Map<String, dynamic>>> loadHistory({
     required String chatType,
@@ -1960,7 +1960,7 @@ class ChatNotifier extends _$ChatNotifier {
 
       final messages =
           (result['messages'] as List?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((m) => Map<String, dynamic>.from(m))
               .toList(growable: false) ??
           const [];
@@ -2581,7 +2581,7 @@ class ChatStreamStateNotifier extends Notifier<Map<String, StreamState>> {
 
   /// 清除已完成的流（节省内存）
   void clearCompleted() {
-    state = Map.fromEntries(
+    state = Map<String, dynamic>.fromEntries(
       state.entries.where((e) => e.value is! StreamStateCompleted),
     );
   }

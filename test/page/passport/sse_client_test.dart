@@ -25,7 +25,7 @@ void main() {
       // 监听 100ms 应该没收到任何 frame
       final received = <String>[];
       final sub = client.frames.listen(received.add);
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
       await sub.cancel();
       expect(received, isEmpty);
     });
@@ -34,7 +34,7 @@ void main() {
       final client = createSseClient();
       final received = <Object>[];
       final sub = client.errors.listen(received.add);
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
       await sub.cancel();
       expect(received, isEmpty);
     });

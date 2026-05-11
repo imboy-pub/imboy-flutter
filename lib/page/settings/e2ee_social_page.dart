@@ -232,7 +232,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           onTap: () {
             Navigator.push(
               context,
-              CupertinoPageRoute(builder: (_) => const E2EESocialCreatePage()),
+              CupertinoPageRoute<dynamic>(builder: (_) => const E2EESocialCreatePage()),
             );
           },
         ),
@@ -246,7 +246,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             onTap: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(
+                CupertinoPageRoute<dynamic>(
                   builder: (_) => const E2EESocialRecoverPage(),
                 ),
               );
@@ -261,7 +261,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           onTap: () {
             Navigator.push(
               context,
-              CupertinoPageRoute(builder: (_) => const E2EESocialManagePage()),
+              CupertinoPageRoute<dynamic>(builder: (_) => const E2EESocialManagePage()),
             );
           },
         ),

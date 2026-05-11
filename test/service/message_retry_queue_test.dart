@@ -53,7 +53,7 @@ void main() {
         ),
       );
 
-      await Future.delayed(const Duration(milliseconds: 60));
+      await Future<dynamic>.delayed(const Duration(milliseconds: 60));
       expect(retry.getRetryInfo('msg_rm'), isNull);
     });
   });

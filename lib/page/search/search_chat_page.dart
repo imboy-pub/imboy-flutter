@@ -203,7 +203,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           try {
             await Navigator.push(
               context,
-              CupertinoPageRoute(
+              CupertinoPageRoute<dynamic>(
                 builder: (context) => ChatPage(
                   peerId: widget.peerId,
                   peerTitle: widget.peerTitle,

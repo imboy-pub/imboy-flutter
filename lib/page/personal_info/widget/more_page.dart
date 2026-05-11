@@ -204,7 +204,7 @@ class _MorePageState extends ConsumerState<MorePage> {
   Future<void> _handleGenderUpdate(BuildContext context) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(builder: (_) => const SetGenderPage()),
+      CupertinoPageRoute<dynamic>(builder: (_) => const SetGenderPage()),
     );
     if (mounted) setState(() {});
   }
@@ -212,7 +212,7 @@ class _MorePageState extends ConsumerState<MorePage> {
   Future<void> _handleRegionUpdate(BuildContext context) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => SetRegionPage(
           title: t.region,
           currentValue: UserRepoLocal.to.current.region,
@@ -237,7 +237,7 @@ class _MorePageState extends ConsumerState<MorePage> {
   Future<void> _handleSignatureUpdate(BuildContext context) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => UpdatePage(
           title: t.signature,
           value: UserRepoLocal.to.current.sign,

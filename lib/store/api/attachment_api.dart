@@ -80,7 +80,7 @@ class AttachmentApi {
             if (process) {
               EasyLoading.showProgress(sent / total, status: t.uploading);
               if (sent == total) {
-                Future.delayed(const Duration(milliseconds: 2000), () {
+                Future<dynamic>.delayed(const Duration(milliseconds: 2000), () {
                   EasyLoading.dismiss();
                 });
               }
@@ -126,7 +126,9 @@ class AttachmentApi {
       sendTimeout: const Duration(milliseconds: 60000),
       receiveTimeout: const Duration(milliseconds: 30000),
     );
-    return Dio(options).get<dynamic>("${Env.uploadUrl}/upload", queryParameters: data);
+    return Dio(
+      options,
+    ).get<dynamic>("${Env.uploadUrl}/upload", queryParameters: data);
   }
 
   /// 上传视频

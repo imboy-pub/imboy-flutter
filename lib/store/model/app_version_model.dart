@@ -59,7 +59,7 @@ class AppVersionInfo {
     final rawChangelog = json['changelog'];
     if (rawChangelog is List) {
       changelogList = rawChangelog
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((e) => Map<String, dynamic>.from(e))
           .toList();
     }

@@ -49,10 +49,10 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
   @override
   SetRegionState build() {
-    // 使用 Future.delayed(Duration.zero) 而非 Future.microtask，
+    // 使用 Future<dynamic>.delayed(Duration.zero) 而非 Future.microtask，
     // 确保在当前 event loop turn 之后（即 build 帧完成后）才修改 state，
     // 避免 Riverpod "modify during build" 错误。
-    Future.delayed(Duration.zero, () async {
+    Future<dynamic>.delayed(Duration.zero, () async {
       await _loadRegionData();
       if (!ref.mounted) return;
 
@@ -148,7 +148,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
           if (t == null || t is! String) {
             return false;
           }
-          if (ch == null || ch is! List) {
+          if (ch == null || ch is! List<dynamic>) {
             return false;
           }
           if (!_isValidRegionStructure(ch.cast<dynamic>())) {
@@ -208,7 +208,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
         }
       } else if (item is Map) {
         final title = (item['title'] ?? '').toString();
-        final children = (item['children'] ?? <dynamic>[]) as List;
+        final children = (item['children'] ?? <dynamic>[]) as List<dynamic>;
 
         if (title.toLowerCase().contains(lc)) {
           out.add(item);
@@ -227,7 +227,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
               matchedChildren.add(c);
               continue;
             }
-            final gc = (c['children'] ?? <dynamic>[]) as List;
+            final gc = (c['children'] ?? <dynamic>[]) as List<dynamic>;
             final matchedGrand = <dynamic>[];
             for (final g in gc) {
               if (g is String) {
@@ -260,7 +260,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
   /// 选择地区
   void selectRegion(
     String regionName,
-    List children,
+    List<dynamic> children,
     BuildContext context,
     Future<bool> Function(String) onSave,
   ) {
@@ -274,7 +274,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
   /// 进入下一级页面
   void _navigateToSubRegion(
     String parentName,
-    List children,
+    List<dynamic> children,
     BuildContext context,
     Future<bool> Function(String) onSave,
   ) {
@@ -282,7 +282,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => _SubRegionPage(
           title: parentName,
           children: children,
@@ -332,7 +332,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
       dynamic currentNode = _fullRegionList;
 
       for (final pathItem in currentPath) {
-        if (currentNode is! List) return false;
+        if (currentNode is! List<dynamic>) return false;
 
         dynamic found;
         for (final item in currentNode) {
@@ -354,7 +354,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
         }
       }
 
-      if (currentNode is List) {
+      if (currentNode is List<dynamic>) {
         for (final item in currentNode) {
           if (item is String && item == nextSelection) {
             return true;
@@ -380,7 +380,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
       for (int i = 0; i < path.length; i++) {
         final pathItem = path[i];
-        if (currentNode is! List) return false;
+        if (currentNode is! List<dynamic>) return false;
 
         dynamic found;
         for (final item in currentNode) {
@@ -455,7 +455,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 /// 子级地区页面
 class _SubRegionPage extends StatefulWidget {
   final String title;
-  final List children;
+  final List<dynamic> children;
   final List<String> parentPath;
   final Function(List<String>) onRegionSelected;
   final Future<bool> Function(String) onSave;
@@ -473,8 +473,8 @@ class _SubRegionPage extends StatefulWidget {
 }
 
 class _SubRegionPageState extends State<_SubRegionPage> {
-  late List _source;
-  late List _list;
+  late List<dynamic> _source;
+  late List<dynamic> _list;
   final TextEditingController _searchC = TextEditingController();
   final FocusNode _searchF = FocusNode();
   Timer? _debounce;
@@ -484,8 +484,8 @@ class _SubRegionPageState extends State<_SubRegionPage> {
   @override
   void initState() {
     super.initState();
-    _source = List.from(widget.children);
-    _list = List.from(_source);
+    _source = List<dynamic>.from(widget.children);
+    _list = List<dynamic>.from(_source);
     _searchC.addListener(_onQueryChanged);
   }
 
@@ -505,7 +505,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       final kw = _searchC.text.trim();
       if (kw.isEmpty) {
-        setState(() => _list = List.from(_source));
+        setState(() => _list = List<dynamic>.from(_source));
         return;
       }
       setState(() {
@@ -525,7 +525,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
         }
       } else if (item is Map) {
         final title = (item['title'] ?? '').toString();
-        final children = (item['children'] ?? <dynamic>[]) as List;
+        final children = (item['children'] ?? <dynamic>[]) as List<dynamic>;
 
         if (title.toLowerCase().contains(lc)) {
           out.add(item);
@@ -544,7 +544,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
               matchedChildren.add(c);
               continue;
             }
-            final gc = (c['children'] ?? <dynamic>[]) as List;
+            final gc = (c['children'] ?? <dynamic>[]) as List<dynamic>;
             final matchedGrand = <dynamic>[];
             for (final g in gc) {
               if (g is String && g.toLowerCase().contains(lc)) {
@@ -567,12 +567,12 @@ class _SubRegionPageState extends State<_SubRegionPage> {
 
   void _onTap(dynamic model, List<String> path) async {
     String title = '';
-    List children = [];
+    List<dynamic> children = [];
     if (model is String) {
       title = model;
     } else if (model is Map) {
       title = (model['title'] ?? '').toString();
-      children = (model['children'] ?? <dynamic>[]) as List;
+      children = (model['children'] ?? <dynamic>[]) as List<dynamic>;
     }
     title = title.trim();
 
@@ -580,7 +580,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
       final newPath = _buildConsistentPath(path, title);
       Navigator.push(
         context,
-        CupertinoPageRoute(
+        CupertinoPageRoute<dynamic>(
           builder: (_) => _SubRegionPage(
             title: title,
             children: children,
@@ -658,12 +658,12 @@ class _SubRegionPageState extends State<_SubRegionPage> {
               itemBuilder: (context, index) {
                 final item = _list[index];
                 String title = '';
-                List children = [];
+                List<dynamic> children = [];
                 if (item is String) {
                   title = item;
                 } else if (item is Map) {
                   title = (item['title'] ?? '').toString();
-                  children = (item['children'] ?? <dynamic>[]) as List;
+                  children = (item['children'] ?? <dynamic>[]) as List<dynamic>;
                 }
                 final hasChildren = children.isNotEmpty;
 

@@ -96,7 +96,7 @@ void main() {
           }
         });
 
-        await Future.delayed(const Duration(seconds: 4));
+        await Future<dynamic>.delayed(const Duration(seconds: 4));
         timer.cancel();
 
         expect(cleanupTimes.length, greaterThanOrEqualTo(3));

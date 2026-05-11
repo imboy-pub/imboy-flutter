@@ -26,15 +26,14 @@ class AppManifest {
     return AppManifest(
       features: Map<String, dynamic>.from(raw['features'] as Map? ?? {}),
       policy: Map<String, dynamic>.from(raw['policy'] as Map? ?? {}),
-      appEntries: (raw['app_entries'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
+      appEntries:
+          (raw['app_entries'] as List?)?.map((e) => e.toString()).toList() ??
           [],
-      adminEntries: (raw['admin_entries'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
+      adminEntries:
+          (raw['admin_entries'] as List?)?.map((e) => e.toString()).toList() ??
           [],
-      plugins: (raw['plugins'] as List?)
+      plugins:
+          (raw['plugins'] as List?)
               ?.map((e) => Map<String, dynamic>.from(e as Map))
               .toList() ??
           [],
@@ -43,13 +42,13 @@ class AppManifest {
   }
 
   Map<String, dynamic> toMap() => {
-        'features': features,
-        'policy': policy,
-        'app_entries': appEntries,
-        'admin_entries': adminEntries,
-        'plugins': plugins,
-        'generated_at': generatedAt,
-      };
+    'features': features,
+    'policy': policy,
+    'app_entries': appEntries,
+    'admin_entries': adminEntries,
+    'plugins': plugins,
+    'generated_at': generatedAt,
+  };
 
   /// Check if an app entry (e.g. "moment", "channel") is enabled.
   bool hasAppEntry(String entry) => appEntries.contains(entry);

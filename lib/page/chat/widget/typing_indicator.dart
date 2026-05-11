@@ -29,7 +29,7 @@ class TypingIndicatorWidget extends ConsumerStatefulWidget {
 class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
   bool _isTyping = false;
   Timer? _hideTimer;
-  StreamSubscription? _subscription;
+  StreamSubscription<dynamic>? _subscription;
 
   @override
   void initState() {

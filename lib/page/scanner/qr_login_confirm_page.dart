@@ -45,7 +45,7 @@ class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
     ref.listen<QrLoginConfirmState>(qrLoginConfirmProvider, (prev, next) {
       switch (next) {
         case QrLoginConfirmSuccess() || QrLoginConfirmCancelledByMe():
-          Future.delayed(const Duration(milliseconds: 800), () {
+          Future<dynamic>.delayed(const Duration(milliseconds: 800), () {
             if (mounted) Navigator.of(context).pop();
           });
         default:

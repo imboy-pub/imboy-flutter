@@ -72,8 +72,8 @@ class ChatEventSubscriptionManager {
 
   // Stream 订阅实例
   StreamSubscription<ChatExtendEvent>? _ssMsgExt;
-  StreamSubscription<DataWrapperEvent>? _ssMsg;
-  StreamSubscription<DataWrapperEvent>? _ssMsgState;
+  StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsg;
+  StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsgState;
   StreamSubscription<ReEditMessageEvent>? _ssReEdit;
   StreamSubscription<AppErrorEvent>? _ssAppError;
 
@@ -148,7 +148,7 @@ class ChatEventSubscriptionManager {
 
   /// 监听新消息事件
   void _setupMessageListener() {
-    _ssMsg = AppEventBus.on<DataWrapperEvent>().listen(
+    _ssMsg = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
       (event) async {
         // 检查数据类型，处理 Message 及其子类型
         // flutter_chat_core 包中的消息类型：TextMessage, ImageMessage 等
@@ -208,7 +208,7 @@ class ChatEventSubscriptionManager {
             }
           }
           // 为节省内存，5秒后从 msgIds 移出 msg.id
-          Future.delayed(
+          Future<dynamic>.delayed(
             const Duration(seconds: 5),
             () => msgIds.remove(msg.id),
           );
@@ -224,7 +224,7 @@ class ChatEventSubscriptionManager {
 
   /// 监听消息状态更新事件
   void _setupMessageStateListener(VoidCallback onMountedStateChanged) {
-    _ssMsgState = AppEventBus.on<DataWrapperEvent>().listen(
+    _ssMsgState = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
       (event) {
         // 检查数据类型，只处理消息列表类型的事件
         if (event.dataType != 'MessageList' && event.dataType != 'messages') {

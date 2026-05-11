@@ -419,7 +419,7 @@ class MessageRepo {
     int size,
   ) async {
     String where;
-    List args;
+    List<dynamic> args;
     int offset;
 
     if (nextAutoId <= 0) {
@@ -475,7 +475,7 @@ class MessageRepo {
     int size,
   ) async {
     String where;
-    List args;
+    List<dynamic> args;
 
     if (prevAutoId <= 0) {
       where = "${MessageRepo.conversationUk3} = ?";

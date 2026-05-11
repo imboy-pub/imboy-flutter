@@ -384,7 +384,7 @@ class UserQrCodePage extends ConsumerWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => const ScannerPage(),
                     ),
                   );
@@ -862,7 +862,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => const ScannerPage(),
                     ),
                   );
@@ -1343,7 +1343,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => const ScannerPage(),
                     ),
                   );

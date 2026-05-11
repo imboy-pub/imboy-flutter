@@ -23,7 +23,9 @@ class _FakeGroupMemberApi extends GroupMemberApi {
   String? lastUri;
   dynamic lastData;
   int requestCount = 0;
-  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(<String, dynamic>{});
+  IMBoyHttpResponse nextResponse = IMBoyHttpResponse.success(
+    <String, dynamic>{},
+  );
 
   @override
   Future<IMBoyHttpResponse> post(
@@ -79,11 +81,7 @@ void main() {
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
       expect(api.lastUri, API.groupMemberMute);
-      expect(api.lastData, {
-        'gid': 'g-42',
-        'user_id': 'u-7',
-        'duration': 600,
-      });
+      expect(api.lastData, {'gid': 'g-42', 'user_id': 'u-7', 'duration': 600});
     });
 
     test('后端返回失败 → 方法返回 false（不抛异常）', () async {

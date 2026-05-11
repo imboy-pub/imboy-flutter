@@ -382,7 +382,7 @@ class MessageHandlingService {
         iPrint('=== ${t.revokeRequestSendComplete} ===');
 
         // 确保UI更新完成后再显示成功提示
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 300));
         EasyLoading.showSuccess(t.revokeSuccess);
       } else {
         EasyLoading.dismiss();
@@ -436,7 +436,7 @@ class MessageHandlingService {
         iPrint('=== ${t.editRequestSendComplete} ===');
 
         // 确保UI更新完成后再显示成功提示
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 300));
         EasyLoading.showSuccess(t.editSuccess);
       } else {
         EasyLoading.dismiss();

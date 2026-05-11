@@ -318,7 +318,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 处理消息的主入口
   /// Main entry point for message processing
-  Future<void> processMessage(String type, Map data) async {
+  Future<void> processMessage(String type, Map<String, dynamic> data) async {
     final msgId = data['id']?.toString() ?? 'unknown';
     final from = data['from']?.toString() ?? 'unknown';
     final to = data['to']?.toString() ?? 'unknown';
@@ -417,7 +417,7 @@ class MessageService with EventSubscriptionManager {
   ///   "payload": "base64_nonce.base64_ciphertext"
   /// }
   /// ```
-  Future<void> _receiveMessage(Map data) async {
+  Future<void> _receiveMessage(Map<String, dynamic> data) async {
     final startTime = DateTimeHelper.millisecond();
     final msgId = parseModelString(data['id']);
     // chatType 持会话类型 (C2C/C2G/C2S)，对齐 WebSocket API v2.0 顶层 `type` 字段
@@ -435,12 +435,12 @@ class MessageService with EventSubscriptionManager {
     final e2eeRaw = data['e2ee'];
     Map<String, dynamic>? e2ee;
 
-    // 解析 e2ee（可能是字符串或 Map）
+    // 解析 e2ee（可能是字符串或 Map<String, dynamic>）
     if (e2eeRaw != null && e2eeRaw.toString().isNotEmpty) {
       if (e2eeRaw is String) {
         try {
           e2ee = jsonDecode(e2eeRaw);
-          if (e2ee is! Map) {
+          if (e2ee is! Map<String, dynamic>) {
             e2ee = null;
           } else {
             e2ee = e2ee!.cast<String, dynamic>();
@@ -448,13 +448,13 @@ class MessageService with EventSubscriptionManager {
         } catch (e) {
           iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
         }
-      } else if (e2eeRaw is Map) {
+      } else if (e2eeRaw is Map<String, dynamic>) {
         e2ee = e2eeRaw.cast<String, dynamic>();
       }
     }
 
     // v2.0: 处理 E2EE 消息（payload 为字符串）
-    // 或普通消息（payload 为 Map）
+    // 或普通消息（payload 为 Map<String, dynamic>）
     Map<String, dynamic>? payload;
     final payloadRaw = data['payload'];
 
@@ -490,13 +490,13 @@ class MessageService with EventSubscriptionManager {
       // 解密后的 payload
       payload = decryptedPayload;
     } else {
-      // 普通（非 E2EE）消息：payload 应该是 Map
-      if (payloadRaw is Map) {
+      // 普通（非 E2EE）消息：payload 应该是 Map<String, dynamic>
+      if (payloadRaw is Map<String, dynamic>) {
         payload = parseModelJsonMap(payloadRaw);
       } else if (payloadRaw is String && payloadRaw.isNotEmpty) {
         try {
           final decoded = jsonDecode(payloadRaw);
-          if (decoded is Map) {
+          if (decoded is Map<String, dynamic>) {
             payload = parseModelJsonMap(decoded);
           }
         } catch (e) {
@@ -533,7 +533,7 @@ class MessageService with EventSubscriptionManager {
 
     // === 去重检查（廉价内存检查优先，昂贵的数据库查询放最后） ===
 
-    // 1. 检查消息是否正在接收中（TTL 5 秒，内存 Map）
+    // 1. 检查消息是否正在接收中（TTL 5 秒，内存 Map<String, dynamic>）
     final receivingMsgKey = '${chatType}_$msgId';
     final now = DateTimeHelper.millisecond();
     const ttlMs = 5000;
@@ -555,7 +555,7 @@ class MessageService with EventSubscriptionManager {
       return;
     }
 
-    // 3. 基于内容的去重检查（LRU 缓存，内存 Map）
+    // 3. 基于内容的去重检查（LRU 缓存，内存 Map<String, dynamic>）
     final contentHash = _generateContentHash(data);
     iPrint('🔑 [去重检查] contentHash=$contentHash, msgId=$msgId');
 
@@ -664,7 +664,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 正在接收的消息集合（用于快速去重，不阻塞UI）
   /// Set of messages being received (for fast deduplication, non-blocking)
-  /// 优化：使用 Map 存储时间戳，支持 TTL 自动过期
+  /// 优化：使用 Map<String, dynamic> 存储时间戳，支持 TTL 自动过期
   final Map<String, int> _receivingMessages =
       <String, int>{}; // msgKey -> timestamp
 
@@ -725,7 +725,7 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 最近接收的消息内容哈希（用于检测内容重复但 msg_id 不同的消息）
-  /// Map: contentHash -> (msgId, timestamp)
+  /// Map<String, dynamic>: contentHash -> (msgId, timestamp)
   final Map<String, _ContentHashEntry> _recentMessageContents =
       <String, _ContentHashEntry>{};
 
@@ -737,7 +737,7 @@ class MessageService with EventSubscriptionManager {
   ///
   /// 优先使用 msgId 作为唯一标识（最可靠的去重方式）
   /// 只有在没有 msgId 的情况下，才回退到基于内容字段的哈希
-  String _generateContentHash(Map data) {
+  String _generateContentHash(Map<String, dynamic> data) {
     // 优先使用 msgId 进行去重（最可靠）
     final msgId = data['id']?.toString() ?? '';
 
@@ -798,7 +798,7 @@ class MessageService with EventSubscriptionManager {
   /// 在后台异步处理消息数据存储
   /// Process message data storage asynchronously in background
   Future<void> _processMessageInBackground(
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
     ConversationModel tempConv,
     MessageModel tempMsg,
@@ -934,7 +934,7 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 处理已读回执
-  Future<void> _receiveReadReceipt(Map data) async {
+  Future<void> _receiveReadReceipt(Map<String, dynamic> data) async {
     final msgId = data['id']?.toString() ?? '';
     if (msgId.isEmpty) return;
 
@@ -1039,7 +1039,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 并行获取 peer 信息（带缓存优化）
   /// Fetch peer info in parallel with cache optimization
-  Future<Map<String, String>> _fetchPeerInfo(String chatType, Map data) async {
+  Future<Map<String, String>> _fetchPeerInfo(String chatType, Map<String, dynamic> data) async {
     String peerId, avatar, title;
 
     if (chatType == 'C2G') {
@@ -1113,7 +1113,7 @@ class MessageService with EventSubscriptionManager {
 
   /// Handle server-side ACK for sent messages
   /// 处理服务端发送确认
-  Future<void> _receiveServerAck(Map data) async {
+  Future<void> _receiveServerAck(Map<String, dynamic> data) async {
     final msgId = parseModelString(data['id']);
     final type = parseModelString(data['type']);
     if (msgId.isEmpty || type.isEmpty) return;
@@ -1249,7 +1249,7 @@ class MessageService with EventSubscriptionManager {
 
   /// Handle error codes from server
   /// 处理服务端错误通知
-  Future<void> _handleError(Map data) async {
+  Future<void> _handleError(Map<String, dynamic> data) async {
     final code = int.tryParse(data['code']?.toString() ?? '') ?? 0;
     // * Msg2.code = 1 无需弹窗错误，可以记录日志后直接忽略错误 Msg2.payload 可能为空，不需要处理
     // * Msg2.code = 2 带title弹窗，Msg2.payload 不能为空 必须包含 title content 字段
@@ -1347,9 +1347,9 @@ class MessageService with EventSubscriptionManager {
   /// - [createdAtMs]: 创建时间戳（毫秒）
   ///
   /// ## 返回值
-  /// 解密后的 payload（Map），如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
+  /// 解密后的 payload（Map<String, dynamic>），如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
   Future<Map<String, dynamic>> _handleE2EEMessage({
-    required Map data,
+    required Map<String, dynamic> data,
     required String msgId,
     // ignore: unused_element_parameter
     required String chatType,
@@ -1381,13 +1381,13 @@ class MessageService with EventSubscriptionManager {
       if (e2eeRaw is String) {
         try {
           final decoded = jsonDecode(e2eeRaw);
-          if (decoded is Map) {
+          if (decoded is Map<String, dynamic>) {
             e2ee = decoded.cast<String, dynamic>();
           }
         } catch (e) {
           iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
         }
-      } else if (e2eeRaw is Map) {
+      } else if (e2eeRaw is Map<String, dynamic>) {
         e2ee = e2eeRaw.cast<String, dynamic>();
       }
     }
@@ -1415,7 +1415,7 @@ class MessageService with EventSubscriptionManager {
 
       // 4. 解析解密后的 JSON 内容
       final decoded = jsonDecode(plaintext);
-      if (decoded is! Map) {
+      if (decoded is! Map<String, dynamic>) {
         throw Exception('解密后的内容不是 JSON 对象');
       }
 
@@ -1510,7 +1510,7 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 处理文本消息
-  void _handleTextMessage(Map data, Map<String, dynamic> payload) {
+  void _handleTextMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final text = payload['text']?.toString() ?? '';
     iPrint(
       '📝 [文本消息] ${text.substring(0, text.length > 50 ? 50 : text.length)}...',
@@ -1518,48 +1518,48 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 处理图片消息
-  void _handleImageMessage(Map data, Map<String, dynamic> payload) {
+  void _handleImageMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final url = payload['url']?.toString() ?? '';
     iPrint('🖼️ [图片消息] $url');
   }
 
   /// 处理语音消息
-  void _handleVoiceMessage(Map data, Map<String, dynamic> payload) {
+  void _handleVoiceMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final duration = payload['duration']?.toInt() ?? 0;
     final url = payload['url']?.toString() ?? '';
     iPrint('🎤 [语音消息] 时长: $duration秒, URL: $url');
   }
 
   /// 处理视频消息
-  void _handleVideoMessage(Map data, Map<String, dynamic> payload) {
+  void _handleVideoMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final url = payload['url']?.toString() ?? '';
     final duration = payload['duration']?.toInt() ?? 0;
     iPrint('🎬 [视频消息] 时长: $duration秒, URL: $url');
   }
 
   /// 处理文件消息
-  void _handleFileMessage(Map data, Map<String, dynamic> payload) {
+  void _handleFileMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final filename = payload['filename']?.toString() ?? '';
     final size = payload['size']?.toInt() ?? 0;
     iPrint('📎 [文件消息] 文件名: $filename, 大小: $size 字节');
   }
 
   /// 处理引用消息
-  void _handleQuoteMessage(Map data, Map<String, dynamic> payload) {
+  void _handleQuoteMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final quoteText = payload['quote_text']?.toString() ?? '';
     final text = payload['text']?.toString() ?? '';
     iPrint('💬 [引用消息] 引用: $quoteText, 内容: $text');
   }
 
   /// 处理位置消息
-  void _handleLocationMessage(Map data, Map<String, dynamic> payload) {
+  void _handleLocationMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final title = payload['title']?.toString() ?? '';
     final address = payload['address']?.toString() ?? '';
     iPrint('📍 [位置消息] 标题: $title, 地址: $address');
   }
 
   /// 处理自定义消息
-  void _handleCustomMessage(Map data, Map<String, dynamic> payload) {
+  void _handleCustomMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
     final contentType =
         data['msg_type']?.toString() ??
         payload['msg_type']?.toString() ??
@@ -1586,7 +1586,7 @@ class MessageService with EventSubscriptionManager {
   /// - `e2ee`：端到端加密消息（已解密）
   void _dispatchMessageByType(
     String messageType,
-    Map data,
+    Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) {
     switch (messageType) {

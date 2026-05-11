@@ -33,7 +33,7 @@ class GroupListPage extends ConsumerStatefulWidget {
 }
 
 class _GroupListPageState extends ConsumerState<GroupListPage> {
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {

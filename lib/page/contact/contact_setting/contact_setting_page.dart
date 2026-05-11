@@ -321,7 +321,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                               EasyLoading.showSuccess(t.tipSuccess);
                               if (mounted) {
                                 Navigator.of(context).pushAndRemoveUntil(
-                                  CupertinoPageRoute(
+                                  CupertinoPageRoute<dynamic>(
                                     builder: (context) =>
                                         const BottomNavigationPage(),
                                   ),
@@ -421,7 +421,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (_) => ContactSettingTagPage(
                       peerId: widget.peerId,
                       peerAvatar: widget.peerAvatar,

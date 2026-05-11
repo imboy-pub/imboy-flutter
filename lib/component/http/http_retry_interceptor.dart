@@ -82,7 +82,7 @@ class HttpRetryInterceptor extends Interceptor {
           onRetry?.call(err, retryCount + 1);
 
           // 延迟后重试
-          await Future.delayed(delay);
+          await Future<dynamic>.delayed(delay);
 
           // 使用绑定的 Dio 实例重试，保留完整的配置（headers、adapter、证书等）
           // 如果未绑定则回退到 requestOptions 自带的配置

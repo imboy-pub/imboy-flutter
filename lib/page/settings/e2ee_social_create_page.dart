@@ -229,7 +229,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
     final result = await Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => E2EEProxySelectorPage(
           selectedUids: selectedUids,
           requiredCount: _totalShards,

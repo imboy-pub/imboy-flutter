@@ -14,13 +14,14 @@ void main() {
     test('returns channel for channel routes', () {
       expect(RouteFeatureGuard.appEntryForPath('/channel'), 'channel');
       expect(RouteFeatureGuard.appEntryForPath('/channel/xyz'), 'channel');
-      expect(
-          RouteFeatureGuard.appEntryForPath('/channel/discover'), 'channel');
+      expect(RouteFeatureGuard.appEntryForPath('/channel/discover'), 'channel');
     });
 
     test('returns location for people_nearby', () {
-      expect(RouteFeatureGuard.appEntryForPath('/contact/people_nearby'),
-          'location');
+      expect(
+        RouteFeatureGuard.appEntryForPath('/contact/people_nearby'),
+        'location',
+      );
     });
 
     test('returns null for unguarded paths', () {

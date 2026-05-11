@@ -20,7 +20,7 @@ import 'package:imboy/i18n/strings.g.dart';
 /// 发送WebRTC消息
 Future<bool> sendWebRTCMsg(
   String event,
-  Map payload, {
+  Map<String, dynamic> payload, {
   required String msgId,
   required String to,
   String? debug,
@@ -31,7 +31,7 @@ Future<bool> sendWebRTCMsg(
     return false;
   }
 
-  Map request = {};
+  Map<String, dynamic> request = {};
   request["ts"] = DateTimeHelper.millisecond();
   request["id"] = msgId;
   request["to"] = to;

@@ -62,8 +62,8 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   int maxLength = 0;
   int currentLength = 0;
 
-  StreamSubscription? _localeSubscription;
-  StreamSubscription? _downloadSubscription; // 下载进度订阅
+  StreamSubscription<dynamic>? _localeSubscription;
+  StreamSubscription<dynamic>? _downloadSubscription; // 下载进度订阅
 
   @override
   void initState() {

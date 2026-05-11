@@ -49,7 +49,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   bool _loadError = false;
   bool _isInitialized = false;
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   /// 最近一次次要点击（右键/触控板次要点击）的位置
   Offset? _lastSecondaryTapPosition;
@@ -555,7 +555,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 if (kDebugMode) debugPrint('Navigating to detail page');
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (context) =>
                         UserCollectDetailPage(obj: obj, pageIndex: index),
                   ),
@@ -734,7 +734,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 try {
                   final result = await Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => TagRelationPage(
                         peerId: obj.kindId.toString(),
                         peerTag: obj.tag,

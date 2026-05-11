@@ -173,7 +173,7 @@ Future<void> _waitForTokenInChat(
       return;
     }
     await tester.pump(const Duration(milliseconds: 200));
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 300));
   }
   throw StateError('Timeout waiting chat token: $token');
 }
@@ -210,7 +210,7 @@ Future<void> _ensureExpectedAccount(WidgetTester tester) async {
       '[DUAL] account mismatch ${_identitySummary(identity)} expected=$expected, relogin',
     );
     await account_identity.quitLoginIfPossible();
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
 
     app.main();
     await _shortSettle(tester, total: const Duration(seconds: 3));
@@ -516,7 +516,7 @@ Future<void> _waitForEntryState(WidgetTester tester) async {
         _isOnConversationListPage(tester)) {
       return;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 150));
   }
   DualTestHelper.log('ℹ️ Entry state timeout: not on login/main/conversation page');
@@ -628,7 +628,7 @@ Future<bool> _openExistingConversation(WidgetTester tester) async {
 
   for (int i = 0; i < 6; i++) {
     if (_isOnChatPage(tester)) return true;
-    await Future.delayed(const Duration(milliseconds: 450));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 450));
     await tester.pump(const Duration(milliseconds: 120));
   }
   return _isOnChatPage(tester);
@@ -640,7 +640,7 @@ Future<Finder> _findChatInputStrict(WidgetTester tester) async {
     if (_isOnChatPage(tester) && tester.any(fields)) {
       return fields.first;
     }
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 120));
   }
   throw TestFailure('Chat input not found');

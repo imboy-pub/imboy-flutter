@@ -1116,7 +1116,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   void _showQRCode(BuildContext context) {
     Navigator.push(
       context,
-      CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+      CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
     );
   }
 
@@ -1138,7 +1138,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   // 导航到二维码页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+                    CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
                   );
                 },
               ),

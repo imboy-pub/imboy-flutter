@@ -90,7 +90,7 @@ Widget searchBar(
   );
 }
 
-class SearchBarDelegate extends SearchDelegate {
+class SearchBarDelegate extends SearchDelegate<dynamic> {
   final String? searchLabel;
   final String? queryTips;
   final Future<dynamic> Function(dynamic arg1)? doSearch;
@@ -144,7 +144,7 @@ class SearchBarDelegate extends SearchDelegate {
   @override
   TextInputType get keyboardType => TextInputType.text;
 
-  Future doSearchFuture() async {
+  Future<dynamic> doSearchFuture() async {
     if (query.isEmpty || doSearch == null) return [];
     return doSearch!(query);
   }
@@ -166,7 +166,7 @@ class SearchBarDelegate extends SearchDelegate {
 
     return FutureBuilder(
       future: doSearchFuture(),
-      builder: (context, AsyncSnapshot snapshot) {
+      builder: (context, AsyncSnapshot<dynamic> snapshot) {
         if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(

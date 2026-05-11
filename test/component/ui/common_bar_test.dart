@@ -108,7 +108,7 @@ void main() {
                   builder: (context) => ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        MaterialPageRoute<dynamic>(
                           builder: (context) => Scaffold(
                             appBar: const GlassAppBar(
                               title: 'Page 2',

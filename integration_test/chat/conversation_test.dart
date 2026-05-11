@@ -33,7 +33,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'conv_01_app_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -101,7 +101,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'conv_menu_01_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -189,7 +189,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'conv_search_01_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -325,7 +325,7 @@ Future<bool> _waitForEntryState(WidgetTester tester) async {
     if (_isOnConversationListPage(tester) || _isOnMainShellPage(tester)) {
       return true;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
   return false;

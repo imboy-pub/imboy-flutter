@@ -178,7 +178,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   // 使用 Navigator.push 替代 Get.to
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<dynamic>(
                       builder: (context) => SendToPage(msg: msg),
                     ),
                   ).then((value) {
@@ -203,7 +203,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (context) => TagRelationPage(
                       peerId: obj.kindId.toString(),
                       peerTag: obj.tag,
@@ -244,7 +244,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<dynamic>(
                     builder: (context) => UpdatePage(
                       title: t.setParam(param: t.remark),
                       value: obj.remark,

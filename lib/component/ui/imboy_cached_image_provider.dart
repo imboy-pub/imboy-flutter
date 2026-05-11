@@ -121,7 +121,7 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
         }
 
         // 等待一段时间后重试
-        await Future.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+        await Future<dynamic>.delayed(Duration(milliseconds: 200 * (attempt + 1)));
       }
     }
 

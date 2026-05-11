@@ -14,7 +14,7 @@ final webSocketStatusProvider = StreamProvider<WebSocketConnectionState>((ref) {
   final controller = StreamController<WebSocketConnectionState>.broadcast();
 
   // 监听 WebSocket 状态变化事件
-  StreamSubscription? subscription;
+  StreamSubscription<dynamic>? subscription;
   subscription = AppEventBus.on<WebSocketStatusChangedEvent>().listen((event) {
     final newState = switch (event.status.toLowerCase()) {
       'connecting' => WebSocketConnectionState.connecting,

@@ -40,10 +40,7 @@ void main() {
     test('ok + 缺失 expires_in → 默认 60 秒（对齐后端 cache_session 60s TTL）', () {
       final result = parseQrCreateResponse(
         ok: true,
-        payload: {
-          'qr_token': 'token_abc',
-          'session_token': 'sess_xyz',
-        },
+        payload: {'qr_token': 'token_abc', 'session_token': 'sess_xyz'},
       );
       expect(result, isA<QrCreateSuccess>());
       expect((result as QrCreateSuccess).expiresInSeconds, 60);
@@ -55,7 +52,10 @@ void main() {
     });
 
     test('ok + 空 Map → QrCreateFailure（缺 qr_token）', () {
-      final result = parseQrCreateResponse(ok: true, payload: <String, dynamic>{});
+      final result = parseQrCreateResponse(
+        ok: true,
+        payload: <String, dynamic>{},
+      );
       expect(result, isA<QrCreateFailure>());
     });
 

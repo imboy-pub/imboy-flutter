@@ -59,7 +59,7 @@ class ScannerResultPage extends StatelessWidget {
                     if (isUrl(scanResult)) {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        CupertinoPageRoute<dynamic>(
                           builder: (context) => WebViewPage(
                             scanResult,
                             '',

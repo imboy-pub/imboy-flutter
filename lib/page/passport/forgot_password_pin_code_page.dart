@@ -37,7 +37,7 @@ class _PinCodeVerificationPageState
   String currentText = "";
   final formKey = GlobalKey<FormState>();
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {

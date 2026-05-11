@@ -12,7 +12,7 @@ import 'package:imboy/page/mine/select_region/select_region_provider.dart';
 /// 选择地区页面
 class SelectRegionPage extends ConsumerStatefulWidget {
   final String parent;
-  final List children;
+  final List<dynamic> children;
 
   final Future<bool> Function(String, String) callback;
   final Future<bool> Function(String) outCallback;
@@ -37,7 +37,7 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
   void initState() {
     super.initState();
     // 延迟初始化，避免在 build 期间修改状态
-    Future.delayed(const Duration(milliseconds: 100), () {
+    Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
       ref.read(selectRegionProvider.notifier).valueOnChange(false);
     });
   }
@@ -121,7 +121,7 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
     final provider = ref.watch(selectRegionProvider);
 
     String title = notifier.getRegionTitle(model);
-    List children = notifier.getRegionChildren(model);
+    List<dynamic> children = notifier.getRegionChildren(model);
     bool haveChildren = children.isNotEmpty;
     title = title.trim();
 
@@ -163,7 +163,7 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
             parent = provider.selectedVal;
             Navigator.push(
               context,
-              CupertinoPageRoute(
+              CupertinoPageRoute<dynamic>(
                 builder: (_) => SelectRegionPage(
                   parent: parent,
                   children: children,

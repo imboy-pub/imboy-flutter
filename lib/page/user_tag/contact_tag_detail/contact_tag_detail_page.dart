@@ -125,7 +125,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
     final detailState = ref.watch(contactTagDetailProvider);
     await Navigator.push(
       ctx,
-      CupertinoPageRoute(
+      CupertinoPageRoute<dynamic>(
         builder: (_) => SelectFriendPage(
           tag: widget.tag,
           tagContactList: detailState.contactList,

@@ -59,12 +59,12 @@ class PersonalInfoNotifier extends _$PersonalInfoNotifier {
     if (label == 'more') {
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (_) => const MorePage()),
+        CupertinoPageRoute<dynamic>(builder: (_) => const MorePage()),
       );
     } else if (label == "user_qrcode") {
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+        CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
       );
     }
   }

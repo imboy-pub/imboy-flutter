@@ -31,7 +31,7 @@ void main() {
       TestHelper.log('步骤 1/6: 启动应用');
       app.main();
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await TestHelper.screenshot(tester, '01_app_launch');
 
       // 步骤 2: 检查登录状态并自动登录
@@ -60,7 +60,7 @@ void main() {
         TestHelper.log('✅ 已登录或自动登录');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await TestHelper.screenshot(tester, '02_after_login_check');
 
       // 步骤 3: 进入会话列表
@@ -83,7 +83,7 @@ void main() {
         TestHelper.log('⚠️ 未找到会话/聊天/消息标签');
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await TestHelper.screenshot(tester, '03_conversation_list');
 
       // 步骤 4: 尝试打开聊天
@@ -95,7 +95,7 @@ void main() {
         await TestHelper.safeTap(tester, listTile.first);
         TestHelper.log('✅ 点击了第一个会话');
         await tester.pumpAndSettle();
-        await Future.delayed(const Duration(seconds: 2));
+        await Future<dynamic>.delayed(const Duration(seconds: 2));
       } else {
         TestHelper.log('⚠️ 未找到会话项');
       }
@@ -134,7 +134,7 @@ void main() {
           await tester.pumpAndSettle();
         }
 
-        await Future.delayed(const Duration(seconds: 2));
+        await Future<dynamic>.delayed(const Duration(seconds: 2));
         await TestHelper.screenshot(tester, '06_message_sent');
       } else {
         TestHelper.log('⚠️ 未找到输入框');
@@ -152,7 +152,7 @@ void main() {
 
       app.main();
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
 
       // 检查当前页面
       await TestHelper.screenshot(tester, 'dual_device_current');

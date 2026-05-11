@@ -95,7 +95,7 @@ class AckManager {
   int? _lastAckRttMs;
 
   /// WebSocket 状态订阅
-  StreamSubscription? _wsStatusSubscription;
+  StreamSubscription<dynamic>? _wsStatusSubscription;
 
   void _init() {
     if (_isInitialized) return;

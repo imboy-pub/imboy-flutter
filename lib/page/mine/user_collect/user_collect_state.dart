@@ -7,7 +7,7 @@ class UserCollectState {
   bool kindActive = false;
 
   /// 列表数据
-  List items = [];
+  List<dynamic> items = [];
 
   /// 标签列表 Widget（用于筛选）
   List<Widget> tagItems = [];
@@ -52,7 +52,7 @@ class UserCollectState {
   /// 创建状态副本
   UserCollectState copyWith({
     bool? kindActive,
-    List? items,
+    List<dynamic>? items,
     List<Widget>? tagItems,
     int? page,
     int? size,

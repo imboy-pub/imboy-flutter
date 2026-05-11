@@ -33,7 +33,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   late MobileScannerController controller;
   bool _isControllerInitialized = false;
 
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {
@@ -105,7 +105,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       if (!mounted) return;
       Navigator.push(
         context,
-        CupertinoPageRoute(
+        CupertinoPageRoute<dynamic>(
           builder: (context) => QrLoginConfirmPage(qrToken: intent.qrToken),
         ),
       );
@@ -119,7 +119,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         EasyLoading.showError(resp.msg);
         return;
       }
-      Map payload = resp.payload;
+      Map<String, dynamic> payload = resp.payload;
       if (kDebugMode) debugPrint("> on qrcode: type=${payload['type']}");
       String result = payload['result'] ?? '';
       String type = payload['type'] ?? 'user';
@@ -127,7 +127,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
-          CupertinoPageRoute(
+          CupertinoPageRoute<dynamic>(
             builder: (context) =>
                 PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
           ),
@@ -137,7 +137,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         if (!mounted) return;
         Navigator.push(
           context,
-          CupertinoPageRoute(
+          CupertinoPageRoute<dynamic>(
             builder: (context) => ChatPage(
               peerId: payload['id'],
               peerTitle: payload['title'],
@@ -158,7 +158,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       if (!mounted) return;
       Navigator.push(
         context,
-        CupertinoPageRoute(
+        CupertinoPageRoute<dynamic>(
           builder: (context) => ScannerResultPage(scanResult: barcodeStr),
         ),
       );

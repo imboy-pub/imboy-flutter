@@ -18,7 +18,7 @@ class DenylistApi extends HttpClient {
   }
 
   /// 加入黑名单
-  Future<Map?> add({required String deniedUserUid}) async {
+  Future<Map<String, dynamic>?> add({required String deniedUserUid}) async {
     IMBoyHttpResponse resp = await post(
       API.denylistAdd,
       data: {"denied_user_id": deniedUserUid},

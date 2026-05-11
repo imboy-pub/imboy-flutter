@@ -196,7 +196,7 @@ class ChannelApi extends HttpClient {
     final resp = await get('/v1/channels/unread/summary');
     debugPrint("ChannelApi_getUnreadSummary resp: ok=${resp.ok}");
 
-    if (!resp.ok || resp.payload == null || resp.payload is! Map) {
+    if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return const {
         'total_unread': 0,
         'unread_channels': 0,
@@ -208,7 +208,7 @@ class ChannelApi extends HttpClient {
     final rawChannels = payload['channels'];
     final channels = rawChannels is List
         ? rawChannels
-              .whereType<Map>()
+              .whereType<Map<String, dynamic>>()
               .map(
                 (item) => <String, dynamic>{
                   'channel_id': parseModelString(item['channel_id']),
@@ -636,7 +636,7 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
     return list
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map(
           (json) => ChannelOrderModel.fromJson(Map<String, dynamic>.from(json)),
         )

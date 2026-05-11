@@ -300,7 +300,7 @@ class ChannelService {
       }
 
       final authoritativeByChannel = <String, int>{};
-      for (final item in rawChannels.whereType<Map>()) {
+      for (final item in rawChannels.whereType<Map<String, dynamic>>()) {
         final row = Map<String, dynamic>.from(item);
         final channelId = parseModelString(row['channel_id']);
         if (channelId.isEmpty) continue;

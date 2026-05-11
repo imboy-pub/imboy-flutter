@@ -37,7 +37,7 @@ class UpdatePage extends ConsumerWidget {
     // 初始化控制器
     if (controller.text.isEmpty && value.isNotEmpty) {
       controller.text = value;
-      Future.delayed(const Duration(milliseconds: 100)).then((e) {
+      Future<dynamic>.delayed(const Duration(milliseconds: 100)).then((e) {
         ref.read(updatePageProvider.notifier).valueOnChange(value, false);
       });
     }

@@ -34,7 +34,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_new');
@@ -103,7 +103,7 @@ void main() {
 
         // Simulate like action
         final liked = parseModelBool(moment['liked']);
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final likeCount = parseModelInt(stats['like_count']);
 
         moment['liked'] = !liked;
@@ -113,7 +113,7 @@ void main() {
         moment['stats'] = stats;
 
         expect(moment['liked'], isTrue);
-        expect((moment['stats'] as Map)['like_count'], 6);
+        expect((moment['stats'] as Map<String, dynamic>)['like_count'], 6);
       });
 
       test('unlike in feed decreases like count', () {
@@ -125,7 +125,7 @@ void main() {
 
         // Simulate unlike action
         final liked = parseModelBool(moment['liked']);
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final likeCount = parseModelInt(stats['like_count']);
 
         moment['liked'] = !liked;
@@ -135,7 +135,7 @@ void main() {
         moment['stats'] = stats;
 
         expect(moment['liked'], isFalse);
-        expect((moment['stats'] as Map)['like_count'], 9);
+        expect((moment['stats'] as Map<String, dynamic>)['like_count'], 9);
       });
 
       test('like state persists after scroll away and back', () {
@@ -148,7 +148,7 @@ void main() {
         // Scroll simulation - state should remain
         final firstItem = feedItems[0];
         expect(firstItem['liked'], isTrue);
-        expect((firstItem['stats'] as Map)['like_count'], 6);
+        expect((firstItem['stats'] as Map<String, dynamic>)['like_count'], 6);
       });
 
       test('like count never goes below zero', () {
@@ -159,7 +159,7 @@ void main() {
         };
 
         final liked = parseModelBool(moment['liked']);
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final likeCount = parseModelInt(stats['like_count']);
 
         stats['like_count'] = liked
@@ -177,7 +177,7 @@ void main() {
           'stats': {'comment_count': 3},
         };
 
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final commentCount = parseModelInt(stats['comment_count']);
 
         stats['comment_count'] = commentCount + 1;
@@ -191,7 +191,7 @@ void main() {
           'stats': {'comment_count': 5},
         };
 
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final commentCount = parseModelInt(stats['comment_count']);
 
         stats['comment_count'] = commentCount > 0 ? commentCount - 1 : 0;
@@ -205,7 +205,7 @@ void main() {
           'stats': {'comment_count': 0},
         };
 
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final commentCount = parseModelInt(stats['comment_count']);
 
         stats['comment_count'] = commentCount > 0 ? commentCount - 1 : 0;
@@ -233,10 +233,10 @@ void main() {
         // After returning, feed should be refreshed
         // Simulating refresh by updating feed item
         feedItem['liked'] = detailState['liked'];
-        feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map);
+        feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
 
         expect(feedItem['liked'], isTrue);
-        expect((feedItem['stats'] as Map)['like_count'], 6);
+        expect((feedItem['stats'] as Map<String, dynamic>)['like_count'], 6);
       });
 
       test('comment in detail page reflects in feed after return', () {
@@ -255,9 +255,9 @@ void main() {
         };
 
         // After returning, feed should be refreshed
-        feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map);
+        feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
 
-        expect((feedItem['stats'] as Map)['comment_count'], 4);
+        expect((feedItem['stats'] as Map<String, dynamic>)['comment_count'], 4);
       });
 
       test('delete in detail page removes from feed after return', () {
@@ -299,11 +299,11 @@ void main() {
 
         // After returning, feed should reflect all changes
         feedItem['liked'] = detailState['liked'];
-        feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map);
+        feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
 
         expect(feedItem['liked'], isTrue);
-        expect((feedItem['stats'] as Map)['like_count'], 7);
-        expect((feedItem['stats'] as Map)['comment_count'], 5);
+        expect((feedItem['stats'] as Map<String, dynamic>)['like_count'], 7);
+        expect((feedItem['stats'] as Map<String, dynamic>)['comment_count'], 5);
       });
     });
 
@@ -324,7 +324,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_deleted');
@@ -349,7 +349,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_like');
@@ -374,7 +374,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, 1);
         expect(receivedEvents[0].action, 'moment_comment');
@@ -412,7 +412,7 @@ void main() {
           ),
         );
 
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         // 4. Verify event received
         expect(receivedEvents.length, 1);
@@ -438,7 +438,7 @@ void main() {
 
         // 2. Perform like
         final liked = parseModelBool(moment['liked']);
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         final likeCount = parseModelInt(stats['like_count']);
 
         moment['liked'] = !liked;
@@ -449,7 +449,7 @@ void main() {
 
         // 3. Verify state
         expect(moment['liked'], isTrue);
-        expect((moment['stats'] as Map)['like_count'], 6);
+        expect((moment['stats'] as Map<String, dynamic>)['like_count'], 6);
       });
 
       test('full flow: detail -> like -> return -> verify feed', () {
@@ -465,7 +465,7 @@ void main() {
         final detailState = Map<String, dynamic>.from(feedItem);
         detailState['liked'] = true;
         final detailStats =
-            Map<String, dynamic>.from(detailState['stats'] as Map);
+            Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
         detailStats['like_count'] = 6;
         detailState['stats'] = detailStats;
 
@@ -475,12 +475,12 @@ void main() {
         // 4. If return is true, feed refreshes
         if (returnResult) {
           feedItem['liked'] = detailState['liked'];
-          feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map);
+          feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
         }
 
         // 5. Verify feed consistency
         expect(feedItem['liked'], isTrue);
-        expect((feedItem['stats'] as Map)['like_count'], 6);
+        expect((feedItem['stats'] as Map<String, dynamic>)['like_count'], 6);
       });
 
       test('full flow: detail -> comment -> return -> verify feed', () {
@@ -494,7 +494,7 @@ void main() {
         // 2. Open detail, add comment
         final detailState = Map<String, dynamic>.from(feedItem);
         final detailStats =
-            Map<String, dynamic>.from(detailState['stats'] as Map);
+            Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
         detailStats['comment_count'] = 4;
         detailState['stats'] = detailStats;
 
@@ -503,11 +503,11 @@ void main() {
 
         // 4. If return is true, feed refreshes
         if (returnResult) {
-          feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map);
+          feedItem['stats'] = Map<String, dynamic>.from(detailState['stats'] as Map<String, dynamic>);
         }
 
         // 5. Verify feed consistency
-        expect((feedItem['stats'] as Map)['comment_count'], 4);
+        expect((feedItem['stats'] as Map<String, dynamic>)['comment_count'], 4);
       });
 
       test('full flow: detail -> delete -> return -> verify feed', () {
@@ -548,7 +548,7 @@ void main() {
         // Rapid like
         for (int i = 0; i < 10; i++) {
           final liked = parseModelBool(moment['liked']);
-          final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+          final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
           final likeCount = parseModelInt(stats['like_count']);
 
           moment['liked'] = !liked;
@@ -560,7 +560,7 @@ void main() {
 
         // After 10 toggles (even number), should return to original state
         expect(moment['liked'], isFalse);
-        expect((moment['stats'] as Map)['like_count'], 5);
+        expect((moment['stats'] as Map<String, dynamic>)['like_count'], 5);
       });
 
       test('event during refresh does not cause race condition', () async {
@@ -644,16 +644,16 @@ void main() {
           'stats': {'like_count': 5},
         };
 
-        final stats = Map<String, dynamic>.from(moment['stats'] as Map);
+        final stats = Map<String, dynamic>.from(moment['stats'] as Map<String, dynamic>);
         stats['like_count'] = 6;
 
         final updatedMoment = Map<String, dynamic>.from(moment);
         updatedMoment['stats'] = stats;
 
         // Original should be unchanged
-        expect((moment['stats'] as Map)['like_count'], 5);
+        expect((moment['stats'] as Map<String, dynamic>)['like_count'], 5);
         // Updated should have new value
-        expect((updatedMoment['stats'] as Map)['like_count'], 6);
+        expect((updatedMoment['stats'] as Map<String, dynamic>)['like_count'], 6);
       });
 
       test('media array is properly normalized', () {
@@ -665,7 +665,7 @@ void main() {
         ];
 
         final normalizedMedia = rawMedia
-            .whereType<Map>()
+            .whereType<Map<String, dynamic>>()
             .map((item) => Map<String, dynamic>.from(item))
             .toList();
 

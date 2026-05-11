@@ -25,7 +25,7 @@ void main() {
 
       app.main();
       await _shortSettle(tester);
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<dynamic>.delayed(const Duration(seconds: 3));
       await _safeScreenshot(tester, 'c2c_01_launch');
 
       final backendOk = await _ensureBackendAvailable();
@@ -102,7 +102,7 @@ void main() {
         await _shortSettle(tester);
       }
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<dynamic>.delayed(const Duration(seconds: 2));
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'c2c_05_after_send');
       await _drainUnexpectedFrameworkExceptions(tester);
@@ -261,7 +261,7 @@ Future<bool> _waitForEntryState(WidgetTester tester) async {
         _isOnConversationListPage(tester)) {
       return true;
     }
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 200));
   }
   TestHelper.log('⚠️ 入口状态等待超时');
@@ -335,7 +335,7 @@ Future<bool> _openExistingConversation(WidgetTester tester) async {
 
   for (int i = 0; i < 6; i++) {
     if (_isOnChatPage(tester)) return true;
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 500));
     await tester.pump(const Duration(milliseconds: 120));
   }
   return _isOnChatPage(tester);
@@ -467,7 +467,7 @@ Future<Finder?> _findChatInput(WidgetTester tester) async {
     if (_isOnChatPage(tester) && tester.any(fields)) {
       return fields.first;
     }
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 500));
     await tester.pump(const Duration(milliseconds: 120));
   }
   return null;

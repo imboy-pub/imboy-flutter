@@ -122,7 +122,7 @@ class AppUpgradeService {
 
     // 延迟 3 秒，不阻塞启动 / Delay 3 s to avoid blocking startup
     unawaited(
-      Future.delayed(const Duration(seconds: 3), checkAndPrompt).catchError((
+      Future<dynamic>.delayed(const Duration(seconds: 3), checkAndPrompt).catchError((
         Object e,
         StackTrace st,
       ) {
@@ -237,7 +237,7 @@ class AppUpgradeService {
 
     try {
       await Navigator.of(context).push(
-        CupertinoPageRoute(
+        CupertinoPageRoute<dynamic>(
           builder: (_) => UpgradePage(
             version: info.vsn,
             downLoadUrl: info.downloadUrl,

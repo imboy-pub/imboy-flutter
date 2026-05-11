@@ -86,7 +86,7 @@ void main() {
       expect(decrypted['n'], 1);
       expect(decrypted['sender_did'], deviceId);
       expect(decrypted['client_send_ts'], 1710000000000);
-      expect(decrypted['_e2ee'], isA<Map>());
+      expect(decrypted['_e2ee'], isA<Map<String, dynamic>>());
     });
 
     test('decryptIncomingPayload 对非法密文格式返回失败标记', () async {

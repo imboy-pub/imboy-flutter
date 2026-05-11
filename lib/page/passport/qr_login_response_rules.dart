@@ -68,14 +68,14 @@ const int _kDefaultExpiresInSeconds = 60;
 /// 解析 `POST /v1/passport/qr_login/create` 的响应。
 ///
 /// - HTTP 错误（`ok=false`）→ [QrCreateFailure]
-/// - payload 非 Map 或缺关键字段 / 空字段 → [QrCreateFailure]
+/// - payload 非 Map<String, dynamic> 或缺关键字段 / 空字段 → [QrCreateFailure]
 /// - `expires_in` 容错解析（int / 字符串数字 / 缺失 → 默认 60）
 QrCreateResult parseQrCreateResponse({
   required bool ok,
   required dynamic payload,
 }) {
   if (!ok) return const QrCreateFailure();
-  if (payload is! Map) return const QrCreateFailure();
+  if (payload is! Map<String, dynamic>) return const QrCreateFailure();
 
   final qrToken = _readNonEmptyString(payload, 'qr_token');
   if (qrToken == null) return const QrCreateFailure();
@@ -150,7 +150,7 @@ final class QrStatusUnknown extends QrStatusEvent {
 /// 解析 `GET /v1/passport/qr_login/status` 的响应。
 ///
 /// - `ok=false` 或 `code≠0` → [QrStatusStopPolling]（停止轮询，避免攻击会话）
-/// - payload 非 Map → [QrStatusStopPolling]
+/// - payload 非 Map<String, dynamic> → [QrStatusStopPolling]
 /// - 已知 status 字符串 → 对应变体
 /// - `confirmed` 必须附非空非全空白 token，否则降级为 [QrStatusUnknown]
 /// - 未知 status → [QrStatusUnknown]，调用方继续轮询
@@ -160,7 +160,7 @@ QrStatusEvent parseQrStatusResponse({
   required dynamic payload,
 }) {
   if (!ok || code != 0) return const QrStatusStopPolling();
-  if (payload is! Map) return const QrStatusStopPolling();
+  if (payload is! Map<String, dynamic>) return const QrStatusStopPolling();
 
   final rawStatus = payload['status'];
   if (rawStatus is! String) {
@@ -189,8 +189,8 @@ QrStatusEvent parseQrStatusResponse({
 // 内部解析辅助
 // ---------------------------------------------------------------------------
 
-/// 从 Map 读取字段，要求非空非全空白字符串；否则返回 null。
-String? _readNonEmptyString(Map map, String key) {
+/// 从 Map<String, dynamic> 读取字段，要求非空非全空白字符串；否则返回 null。
+String? _readNonEmptyString(Map<String, dynamic> map, String key) {
   final value = map[key];
   if (value is! String) return null;
   final trimmed = value.trim();
@@ -198,8 +198,8 @@ String? _readNonEmptyString(Map map, String key) {
   return trimmed;
 }
 
-/// 从 Map 读取正整数（容错 int / 字符串数字）；否则返回 null。
-int? _readPositiveInt(Map map, String key) {
+/// 从 Map<String, dynamic> 读取正整数（容错 int / 字符串数字）；否则返回 null。
+int? _readPositiveInt(Map<String, dynamic> map, String key) {
   final value = map[key];
   if (value is int && value > 0) return value;
   if (value is String) {

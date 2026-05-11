@@ -32,7 +32,7 @@ void main() {
         // Act
         final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
 
-        // Assert: should decode to Map successfully
+        // Assert: should decode to Map<String, dynamic> successfully
         expect(result, isNotNull);
         expect(result!['id'], 'msg_001');
         expect(result['type'], 'S2C');
@@ -41,9 +41,9 @@ void main() {
         expect(result['action'], 'logged_another_device');
         expect(result['server_ts'], 1746300000100);
 
-        // payload should be JSON-decoded Map
+        // payload should be JSON-decoded Map<String, dynamic>
         final payloadMap = result['payload'];
-        expect(payloadMap, isA<Map>());
+        expect(payloadMap, isA<Map<String, dynamic>>());
         expect(payloadMap['did'], 'device-abc-123');
         expect(payloadMap['dname'], 'iPhone 16e');
       });
@@ -70,7 +70,7 @@ void main() {
     });
 
     group('tryDecodeJsonFallback', () {
-      test('decodes valid JSON bytes to Map', () {
+      test('decodes valid JSON bytes to Map<String, dynamic>', () {
         final json = jsonEncode({
           'id': 'msg_002',
           'type': 'S2C',
@@ -122,7 +122,7 @@ void main() {
         expect(decoded, isNotNull);
         expect(decoded!['id'], 'rt_msg');
         expect(decoded['action'], 'logged_another_device');
-        final inner = decoded['payload'] as Map;
+        final inner = decoded['payload'] as Map<String, dynamic>;
         expect(inner['did'], 'dev-rt-001');
         expect(inner['dname'], 'MacBook Pro');
       });
@@ -141,7 +141,7 @@ void main() {
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'please_refresh_token');
-        final p = decoded['payload'] as Map;
+        final p = decoded['payload'] as Map<String, dynamic>;
         expect(p['expire_at'], 1746303600000);
       });
 
@@ -159,7 +159,7 @@ void main() {
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'device_force_offline');
-        final p = decoded['payload'] as Map;
+        final p = decoded['payload'] as Map<String, dynamic>;
         expect(p['reason'], 'duplicate_login');
       });
 
@@ -177,7 +177,7 @@ void main() {
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'c2c_del_everyone');
-        final p = decoded['payload'] as Map;
+        final p = decoded['payload'] as Map<String, dynamic>;
         expect(p['old_msg_id'], 'original_123');
       });
 
@@ -199,7 +199,7 @@ void main() {
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'app_upgrade');
-        final p = decoded['payload'] as Map;
+        final p = decoded['payload'] as Map<String, dynamic>;
         expect(p['upgrade_type'], 'soft');
         expect(p['vsn'], '2.0.0');
         expect(p['download_url'], 'https://example.com/app.apk');
@@ -220,7 +220,7 @@ void main() {
             ImboyPbCodec.tryDecode(Uint8List.fromList(msg.writeToBuffer()));
 
         expect(decoded, isNotNull);
-        final p = decoded!['payload'] as Map;
+        final p = decoded!['payload'] as Map<String, dynamic>;
         // JSON fallback should parse the inner bytes as JSON
         expect(p['expire_at'], 1234567890);
       });

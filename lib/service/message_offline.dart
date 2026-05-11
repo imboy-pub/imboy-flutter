@@ -288,7 +288,7 @@ class MessageOfflineService {
 
         if (hasMore) {
           // 短暂延迟，避免分页场景下连续高频请求
-          await Future.delayed(_pagePullDelay);
+          await Future<dynamic>.delayed(_pagePullDelay);
         }
       }
 

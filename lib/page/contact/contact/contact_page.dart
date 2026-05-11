@@ -34,7 +34,7 @@ class ContactPage extends ConsumerStatefulWidget {
 
 class _ContactPageState extends ConsumerState<ContactPage> {
   // 语言变化监听器
-  StreamSubscription? _localeSubscription;
+  StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {

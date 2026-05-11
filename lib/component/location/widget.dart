@@ -264,7 +264,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                               //将新的marker添加到map里
                               _markers[marker.id] = marker;
                             });
-                            Future.delayed(
+                            Future<dynamic>.delayed(
                               const Duration(milliseconds: 500),
                               () {
                                 takeSnapshotReturn(map!);
@@ -533,7 +533,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     // "address":"宝田一路与臣田三路交叉口东南100米","distance":"22","pcode":"440000","adcode":"440306","pname":"广东省","cityname":"深圳市",
     // "type":"餐饮服务;快餐厅;快餐厅","typecode":"050300","adname":"宝安区","citycode":"0755","name":"影朵自选快餐",
     // "location":"113.876030,22.591599","id":"B0ID7UCWEP"},
-    List poiList = [];
+    List<dynamic> poiList = [];
     String status = response.data["status"] ?? 0;
     if (response.statusCode == 200 && status == "1") {
       poiList = response.data["pois"];
@@ -583,7 +583,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       10,
       page,
     );
-    List poiList = [];
+    List<dynamic> poiList = [];
     int status = response.data["status"] ?? 0;
     if (response.statusCode == 200 && status == 1) {
       poiList = response.data["pois"];

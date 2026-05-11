@@ -183,7 +183,7 @@ class ThemeNotifier extends _$ThemeNotifier {
 
       // 等待动画完成
       final animationDuration = duration ?? const Duration(milliseconds: 300);
-      await Future.delayed(animationDuration);
+      await Future<dynamic>.delayed(animationDuration);
     } finally {
       state = state.copyWith(isThemeChanging: false);
     }
