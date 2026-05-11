@@ -41,7 +41,7 @@ class GroupAlbumApi extends HttpClient {
       };
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload);
+    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     final list = _normalizeList(payload['list'] ?? payload['items']);
     final total = _toInt(payload['total'], fallback: list.length);
     return {
@@ -77,7 +77,7 @@ class GroupAlbumApi extends HttpClient {
       return null;
     }
 
-    return Map<String, dynamic>.from(resp.payload);
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
 
   /// 重命名群相册
@@ -128,7 +128,7 @@ class GroupAlbumApi extends HttpClient {
       return null;
     }
 
-    return Map<String, dynamic>.from(resp.payload);
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
 
   /// 获取相册图片列表
@@ -162,7 +162,7 @@ class GroupAlbumApi extends HttpClient {
       };
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload);
+    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     final list = _normalizeList(payload['list'] ?? payload['items']);
     final total = _toInt(payload['total'], fallback: list.length);
     return {
@@ -189,7 +189,7 @@ class GroupAlbumApi extends HttpClient {
       return null;
     }
 
-    return Map<String, dynamic>.from(resp.payload);
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
 
   /// 删除相册图片

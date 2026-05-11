@@ -115,7 +115,7 @@ class QuoteTipsWidget extends StatelessWidget {
     }
 
     // WebSocket API v2.0: 读取 msg_type 和 status
-    String msgType = message?.metadata?['msg_type'] ?? '';
+    String msgType = message?.metadata?['msg_type'] as String? ?? '';
     final status = message?.metadata?['status'] as int?;
 
     // 优先检查 status 字段（撤回状态 30-39）
@@ -138,7 +138,7 @@ class QuoteTipsWidget extends StatelessWidget {
         ],
       );
     } else if (msgType == MessageType.quote) {
-      String txt = message?.metadata?['quote_text'] ?? '';
+      String txt = message?.metadata?['quote_text'] as String? ?? '';
       body = Row(
         children: [
           Icon(
@@ -158,7 +158,7 @@ class QuoteTipsWidget extends StatelessWidget {
         ],
       );
     } else if (msgType == MessageType.voice) {
-      double durationMS = (message?.metadata?["duration_ms"] ?? 0) / 1000;
+      double durationMS = (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
       body = Row(
         children: [
           Icon(
@@ -207,7 +207,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           if (message?.metadata?['thumb']?['uri'] != null)
-            ImageView(uri: message?.metadata?['thumb']['uri'], height: 40)
+            ImageView(uri: message?.metadata?['thumb']['uri'] as String, height: 40)
           else
             Container(
               width: 40,

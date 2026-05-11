@@ -177,7 +177,7 @@ class LaunchChatService {
 
     if (payload != null) {
       final groupRepo = GroupRepo();
-      final group = await groupRepo.save('', payload['group']);
+      final group = await groupRepo.save('', payload['group'] as Map<String, dynamic>);
 
       final gmRepo = GroupMemberRepo();
       final memberList =
@@ -212,7 +212,7 @@ class LaunchChatService {
           payload['member_list'] ?? <Map<String, dynamic>>[];
 
       final gData = <String, dynamic>{
-        GroupRepo.memberCount: (g?.memberCount ?? 0) + memberList.length,
+        GroupRepo.memberCount: (g?.memberCount ?? 0) + (memberList.length as num),
       };
       if (sum > 0) {
         gData[GroupRepo.userIdSum] = sum;
@@ -244,7 +244,7 @@ class LaunchChatService {
           payload['member_list'] ?? <Map<String, dynamic>>[];
 
       final gData = <String, dynamic>{
-        GroupRepo.memberCount: (g?.memberCount ?? 0) - memberList.length,
+        GroupRepo.memberCount: (g?.memberCount ?? 0) - (memberList.length as num),
       };
       if (sum > 0) {
         gData[GroupRepo.userIdSum] = sum;

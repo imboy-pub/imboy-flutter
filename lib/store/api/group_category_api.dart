@@ -46,7 +46,7 @@ class GroupCategoryApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 重命名群分组

@@ -116,9 +116,9 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
   Widget _buildCategoryItem(Map<String, dynamic> category) {
     return ListTile(
       leading: const Icon(Icons.folder),
-      title: Text(category['name'] ?? ''),
+      title: Text(category['name'] as String? ?? ''),
       subtitle: Text(
-        t.groupCategoryGroupCount(count: category['group_count'] ?? 0),
+        t.groupCategoryGroupCount(count: category['group_count'] as Object? ?? 0),
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
@@ -126,8 +126,8 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
           context,
           MaterialPageRoute<dynamic>(
             builder: (_) => GroupCategoryDetailPage(
-              categoryId: category['id'],
-              categoryName: category['name'] ?? '',
+              categoryId: category['id'] as int,
+              categoryName: category['name'] as String? ?? '',
             ),
           ),
         ).then((result) {

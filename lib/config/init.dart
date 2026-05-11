@@ -474,7 +474,7 @@ class AppInitializer {
           EncrypterService.md5(key),
           Env().solidifiedKeyIv,
         ),
-      );
+      ) as Map<String, dynamic>;
       if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');
 
       if (payload.containsKey('error')) {
@@ -498,7 +498,7 @@ class AppInitializer {
       }
 
       if (wsUrl != null && wsUrl.isNotEmpty == true) {
-        await StorageService.to.setString(Keys.wsUrl, wsUrl);
+        await StorageService.to.setString(Keys.wsUrl, wsUrl as String);
         if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
       } else {
         if (kDebugMode) {
@@ -506,16 +506,16 @@ class AppInitializer {
         }
       }
 
-      await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
-      await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
+      await StorageService.to.setString(Keys.uploadUrl, payload['upload_url'] as String);
+      await StorageService.to.setString(Keys.uploadKey, payload['upload_key'] as String);
       await StorageService.to.setString(
         Keys.uploadScene,
-        payload['upload_scene'],
+        payload['upload_scene'] as String,
       );
 
       await StorageService.to.setString(
         Keys.apiPublicKey,
-        payload['login_rsa_pub_key'],
+        payload['login_rsa_pub_key'] as String,
       );
 
       // 4. 缓存结果并完成

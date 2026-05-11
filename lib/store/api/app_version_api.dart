@@ -13,7 +13,7 @@ class AppVersionApi extends HttpClient {
     if (kDebugMode) {
       debugPrint("AppVersionApi_check resp: ok=${resp.ok}");
     }
-    return resp.payload ?? {};
+    return (resp.payload ?? <String, dynamic>{}) as Map<String, dynamic>;
   }
 
   Future<List<String>> sqliteUpgradeDdl(int oldVsn, int newVsn) async {

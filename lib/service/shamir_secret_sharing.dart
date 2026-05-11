@@ -107,7 +107,7 @@ class ShamirSecretSharing {
 
     // 使用拉格朗日插值法计算 f(0)
     final secretInt = _lagrangeInterpolate(
-      shares.map((s) => BigInt.from(s['x'])).toList(),
+      shares.map((s) => BigInt.from(s['x'] as num)).toList(),
       shares.map((s) => s['y'] as BigInt).toList(),
       BigInt.zero,
     );

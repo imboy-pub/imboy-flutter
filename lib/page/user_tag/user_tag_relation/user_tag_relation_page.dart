@@ -80,8 +80,8 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
     final statistics = await ref
         .read(userTagRelationProvider.notifier)
         .getTagStatistics(widget.scene, ensureTags: tagItems);
-    final res = List<String>.from(statistics['tags'] ?? const <String>[]);
-    _tagIdByName = Map<String, int>.from(statistics['tag_id_by_name'] ?? {});
+    final res = List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>);
+    _tagIdByName = Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
     // 当前 tag合并到 recentTagItems
     for (var item in tagItems) {
       if (!res.contains(item)) {
@@ -187,7 +187,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                             // runSpacing: 7.0,
                             children: (inputFieldValues.tags.map((dynamic tag) {
                               return TagItem(
-                                tag: tag,
+                                tag: tag as String,
                                 onTagDelete: (String tag) {
                                   inputFieldValues.onTagRemoved(tag);
                                   final state2 =

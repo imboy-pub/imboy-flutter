@@ -83,6 +83,6 @@ class E2EEApi extends HttpClient {
   Future<Map<String, dynamic>?> getComplianceKey() async {
     IMBoyHttpResponse resp = await get(API.e2eeComplianceKey);
     if (!resp.ok) return null;
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 }

@@ -116,7 +116,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
         await _receivedConfirmFriend({"from": to, "to": from});
 
         // 存储好友信息
-        _storeContactInfo(resp.payload);
+        _storeContactInfo(resp.payload as Map<String, dynamic>?);
 
         // 触发新好友提醒计数重新计算
         Future<dynamic>.delayed(const Duration(seconds: 1), () {
@@ -138,8 +138,8 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
 
   /// 收到确认好友
   Future<void> _receivedConfirmFriend(Map<String, dynamic> data) async {
-    String from = data["from"];
-    String to = data["to"];
+    String from = data["from"] as String;
+    String to = data["to"] as String;
     NewFriendRepo repo = NewFriendRepo();
     var obj = await repo.findByFromTo(to, from);
     if (obj != null) {
@@ -169,8 +169,8 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
             await ContactRepo().insert(
               ContactModel(
                 peerId: parseModelInt(peerId),
-                nickname: payload['nickname'] ?? '',
-                avatar: payload['avatar'] ?? '',
+                nickname: payload['nickname'] as String? ?? '',
+                avatar: payload['avatar'] as String? ?? '',
               ),
             );
           }

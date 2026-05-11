@@ -183,7 +183,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                 children: [
                   Expanded(
                     child: Text(
-                      vote['title'] ?? '',
+                      vote['title'] as String? ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -209,7 +209,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
               const SizedBox(height: 8),
               Text(
                 t.groupVote.participantCount(
-                  count: vote['participant_count'] ?? 0,
+                  count: vote['participant_count'] as Object? ?? 0,
                 ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),

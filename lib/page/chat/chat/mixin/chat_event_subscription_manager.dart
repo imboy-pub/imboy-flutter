@@ -133,7 +133,7 @@ class ChatEventSubscriptionManager {
               widgetRef
                   .read(chatProvider.notifier)
                   .chatService
-                  ?.removeMessageById(obj.payload['msg']?.id ?? '');
+                  ?.removeMessageById(obj.payload['msg']?.id as String? ?? '');
             }
           }
         } catch (e) {
@@ -176,7 +176,7 @@ class ChatEventSubscriptionManager {
         final Message msg = event.data as Message;
         try {
           final String msgConversationUk3 =
-              msg.metadata?['conversation_uk3'] ?? '';
+              msg.metadata?['conversation_uk3'] as String? ?? '';
           if (msgConversationUk3 != conversationUk3 ||
               msgIds.contains(msg.id)) {
             return;

@@ -439,11 +439,11 @@ class MessageService with EventSubscriptionManager {
     if (e2eeRaw != null && e2eeRaw.toString().isNotEmpty) {
       if (e2eeRaw is String) {
         try {
-          e2ee = jsonDecode(e2eeRaw);
+          e2ee = jsonDecode(e2eeRaw) as Map<String, dynamic>?;
           if (e2ee is! Map<String, dynamic>) {
             e2ee = null;
           } else {
-            e2ee = e2ee!.cast<String, dynamic>();
+            e2ee = e2ee.cast<String, dynamic>();
           }
         } catch (e) {
           iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
@@ -610,7 +610,7 @@ class MessageService with EventSubscriptionManager {
         type: chatType,
         msgType: messageType,
         lastMsgId: parseModelInt(msgId),
-        lastTime: data['created_at'] ?? DateTimeHelper.millisecond(),
+        lastTime: (data['created_at'] ?? DateTimeHelper.millisecond()) as int,
         unreadNum: 0,
         id: 0,
       );
@@ -664,7 +664,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 正在接收的消息集合（用于快速去重，不阻塞UI）
   /// Set of messages being received (for fast deduplication, non-blocking)
-  /// 优化：使用 Map<String, dynamic> 存储时间戳，支持 TTL 自动过期
+  /// 优化：使用 `Map<String, dynamic>` 存储时间戳，支持 TTL 自动过期
   final Map<String, int> _receivingMessages =
       <String, int>{}; // msgKey -> timestamp
 
@@ -725,7 +725,7 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 最近接收的消息内容哈希（用于检测内容重复但 msg_id 不同的消息）
-  /// Map<String, dynamic>: contentHash -> (msgId, timestamp)
+  /// `Map<String, dynamic>`: contentHash -> (msgId, timestamp)
   final Map<String, _ContentHashEntry> _recentMessageContents =
       <String, _ContentHashEntry>{};
 
@@ -1244,7 +1244,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 获取通知内容
   String _getNotificationContent(MessageModel msg) {
-    return _messageTypeLabel(msg.msgType ?? '', msg.payload, fallback: '[新消息]');
+    return _messageTypeLabel(msg.msgType ?? '', msg.payload as Map<String, dynamic>, fallback: '[新消息]');
   }
 
   /// Handle error codes from server
@@ -1347,7 +1347,7 @@ class MessageService with EventSubscriptionManager {
   /// - [createdAtMs]: 创建时间戳（毫秒）
   ///
   /// ## 返回值
-  /// 解密后的 payload（Map<String, dynamic>），如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
+  /// 解密后的 payload（`Map<String, dynamic>`），如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
   Future<Map<String, dynamic>> _handleE2EEMessage({
     required Map<String, dynamic> data,
     required String msgId,

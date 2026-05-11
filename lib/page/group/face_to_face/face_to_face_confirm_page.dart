@@ -155,7 +155,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
         iPrint("[面对面确认] join_group 事件, 找到索引: $i");
 
         if (i == -1) {
-          memberList.insert(0, obj.payload['people']);
+          memberList.insert(0, obj.payload['people'] as PeopleModel);
           iPrint('[面对面确认] 添加新成员到列表');
           if (mounted) {
             setState(() {});
@@ -231,8 +231,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                           Map<String, dynamic> res = await notifier
                               .faceToFaceSave(widget.gid, widget.code);
                           List<PeopleModel> memberList =
-                              res['memberList'] ?? [];
-                          Map<String, dynamic> group = res['group'];
+                              res['memberList'] as List<PeopleModel>? ?? [];
+                          Map<String, dynamic> group = res['group'] as Map<String, dynamic>;
                           await GroupRepo().save('', group);
 
                           if (context.mounted) {

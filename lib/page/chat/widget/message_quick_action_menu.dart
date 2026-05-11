@@ -161,9 +161,9 @@ class MessageQuickActionMenu {
                     onTap: () async {
                       Navigator.pop(context);
                       await onSaveFile(
-                        message.metadata?['name'] ?? message.id,
-                        message.metadata?['uri'] ??
-                            message.metadata?['source'] ??
+                        message.metadata?['name'] as String? ?? message.id,
+                        message.metadata?['uri'] as String? ??
+                            message.metadata?['source'] as String? ??
                             '',
                       );
                     },

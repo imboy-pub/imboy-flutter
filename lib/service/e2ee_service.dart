@@ -406,7 +406,7 @@ class E2EEService {
     try {
       final plaintext = await decryptE2EEMessage(
         ciphertext: ciphertext,
-        e2ee: e,
+        e2ee: e as Map<String, dynamic>,
       );
 
       final decoded = jsonDecode(plaintext);
@@ -414,7 +414,7 @@ class E2EEService {
         return _decryptFailedPayload(payload, reason: 'invalid_plaintext');
       }
 
-      final plain = decoded.cast<String, dynamic>();
+      final plain = decoded;
 
       // 保留原始元数据
       if (payload.containsKey('client_send_ts')) {

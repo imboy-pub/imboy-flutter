@@ -92,7 +92,7 @@ class ConversationModel {
   String get content {
     // iPrint("ConversationModel_content msgType $msgType;  ${payload.toString()}");
     // 处理系统提示信息
-    String sysPrompt = _parseSysPrompt(payload?['sys_prompt'] ?? '');
+    String sysPrompt = _parseSysPrompt((payload?['sys_prompt'] ?? '') as String);
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
@@ -112,7 +112,7 @@ class ConversationModel {
       if (lastMsgStatus == IMBoyMessageStatus.peerRevoked) {
         // 对方撤回 (status=30)
         if (title.isEmpty) {
-          title = payload?['peer_name'] ?? '';
+          title = payload?['peer_name'] as String? ?? '';
         }
         String suffix = '';
         if (title.length > 12) {
@@ -199,7 +199,7 @@ class ConversationModel {
       type: parseModelString(json[ConversationRepo.type]),
       msgType: parseModelString(msgTypeRaw),
       isShow: parseModelInt(json[ConversationRepo.isShow], defaultValue: 1),
-      payload: payload != null ? Map<String, dynamic>.from(payload) : null,
+      payload: payload != null ? Map<String, dynamic>.from(payload as Map<dynamic, dynamic>) : null,
     );
   }
 

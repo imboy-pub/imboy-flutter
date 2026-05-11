@@ -622,7 +622,7 @@ class MessageModel {
         try {
           final ciphertext = payload;
           final decryptedJson = await E2EEService.decryptE2EEMessage(
-            ciphertext: ciphertext,
+            ciphertext: ciphertext as String,
             e2ee: e2ee!,
           );
           final decoded = jsonDecode(decryptedJson);
@@ -654,7 +654,7 @@ class MessageModel {
       } else {
         // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析
         try {
-          final decoded = jsonDecode(payload);
+          final decoded = jsonDecode(payload as String);
           if (decoded is! Map<String, dynamic>) {
             throw FormatException(
               'Expected JSON object, got ${decoded.runtimeType}',
@@ -678,7 +678,7 @@ class MessageModel {
         }
       }
     } else if (payload is Map<String, dynamic>) {
-      payloadData = payload;
+      payloadData = payload as Map<String, dynamic>;
     } else {
       iPrint('⚠️ toTypeMessage: payload 无效或为空，id=$id, payload=$payload');
       return TextMessage(
@@ -759,7 +759,7 @@ class MessageModel {
       // 这里应该不会为空，因为已经通过了 isValidMsgType 检查
     }
 
-    String sysPrompt = payloadData['sys_prompt'] ?? '';
+    String sysPrompt = payloadData['sys_prompt'] as String? ?? '';
     Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
     // WebSocket API v2.0: 将 msgType、status、action、effectiveMsgType 添加到 metadata，供 UI 层使用
@@ -789,8 +789,7 @@ class MessageModel {
       imageSource: avatar,
       // payload['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
       name: nickname.isEmpty
-          ? (payloadData['peer_name'] ??
-                (payloadData['quote_msg_author_name'] ?? ''))
+          ? ((payloadData['peer_name'] ?? (payloadData['quote_msg_author_name'] ?? '')) as String?)
           : nickname,
     );
     DateTime createdDt = DateTimeHelper.millisecondToDateTime(createdAt);
@@ -812,7 +811,7 @@ class MessageModel {
         createdAt: createdDt,
         id: safeId,
         // peerId: toId,
-        text: payloadData['text'] ?? '',
+        text: (payloadData['text'] ?? '') as String,
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -822,11 +821,11 @@ class MessageModel {
         createdAt: createdDt,
         id: safeId,
         // peerId: toId,
-        text: payloadData['name'] ?? '',
-        size: payloadData['size'] ?? 0,
-        source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
-        width: (payloadData['width'] ?? 0) / 1.0,
-        height: (payloadData['height'] ?? 0) / 1.0,
+        text: (payloadData['name'] ?? '') as String,
+        size: (payloadData['size'] ?? 0) as int?,
+        source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+        width: ((payloadData['width'] ?? 0) as num) / 1.0,
+        height: ((payloadData['height'] ?? 0) as num) / 1.0,
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -836,9 +835,9 @@ class MessageModel {
         createdAt: createdDt,
         id: safeId,
         // peerId: toId,
-        name: payloadData['name'] ?? '',
-        size: payloadData['size'] ?? 0,
-        source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
+        name: (payloadData['name'] ?? '') as String,
+        size: (payloadData['size'] ?? 0) as int?,
+        source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -852,12 +851,12 @@ class MessageModel {
           createdAt: createdDt,
           id: safeId,
           // peerId: toId,
-          source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
-          text: payloadData['name'] ?? '',
-          name: payloadData['name'] ?? '',
-          size: payloadData['size'] ?? 0,
-          width: (payloadData['width'] ?? 0) / 1.0,
-          height: (payloadData['height'] ?? 0) / 1.0,
+          source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+          text: (payloadData['name'] ?? '') as String?,
+          name: (payloadData['name'] ?? '') as String?,
+          size: (payloadData['size'] ?? 0) as int?,
+          width: ((payloadData['width'] ?? 0) as num) / 1.0,
+          height: ((payloadData['height'] ?? 0) as num) / 1.0,
           status: typesStatus,
           metadata: {...metadata, ...payloadData},
         );
@@ -868,12 +867,12 @@ class MessageModel {
           createdAt: createdDt,
           id: safeId,
           // peerId: toId,
-          source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
-          text: payloadData['name'] ?? '',
-          size: payloadData['size'] ?? 0,
-          duration: Duration(milliseconds: payloadData['duration_ms'] ?? 0),
+          source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+          text: (payloadData['name'] ?? '') as String?,
+          size: (payloadData['size'] ?? 0) as int?,
+          duration: Duration(milliseconds: (payloadData['duration_ms'] ?? 0) as int),
           waveform: payloadData['waveform'] != null
-              ? List<double>.from(payloadData['waveform'])
+              ? List<double>.from(payloadData['waveform'] as Iterable<dynamic>)
               : null,
           status: typesStatus,
           metadata: {...metadata, ...payloadData},
@@ -893,7 +892,7 @@ class MessageModel {
         authorId: author.id,
         createdAt: createdDt,
         id: safeId,
-        text: payloadData['text'] ?? '',
+        text: (payloadData['text'] ?? '') as String,
         status: typesStatus,
         metadata: {
           ...metadata,
@@ -1038,14 +1037,14 @@ class MessageModel {
     return MessageModel(
       message.id,
       autoId: 0,
-      type: type,
+      type: type as String?,
       fromId: parseModelInt(message.authorId),
       toId: parseModelInt(peerId),
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
       isAuthor: message.authorId == uid ? 1 : 0,
-      topicId: payload['topic_id'] ?? 0,
-      conversationUk3: conversationUk3,
+      topicId: (payload['topic_id'] ?? 0) as int,
+      conversationUk3: conversationUk3 as String,
       status: 0,
       // WebSocket API v2.0: 设置顶层字段
       msgType: type == 'S2C' ? null : msgType,

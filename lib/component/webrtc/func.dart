@@ -78,7 +78,7 @@ Future<void> incomingCallScreen(
   option['msgId'] = msgId;
 
   await MessagingFacade.instance.addLocalMsg(
-    media: option['media'],
+    media: option['media'] as String,
     caller: false,
     msgId: msgId,
     peer: peer,

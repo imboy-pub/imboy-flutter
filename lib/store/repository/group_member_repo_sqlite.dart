@@ -145,15 +145,15 @@ class GroupMemberRepo {
   }) async {
     Map<String, Object?> data = {};
 
-    String? nickname = json[GroupMemberRepo.nickname];
+    String? nickname = json[GroupMemberRepo.nickname] as String?;
     if (nickname != null) {
       data[GroupMemberRepo.nickname] = json[GroupMemberRepo.nickname];
     }
-    String? avatar = json[GroupMemberRepo.avatar];
+    String? avatar = json[GroupMemberRepo.avatar] as String?;
     if (avatar != null) {
       data[GroupMemberRepo.avatar] = json[GroupMemberRepo.avatar];
     }
-    String? sign = json[GroupMemberRepo.sign];
+    String? sign = json[GroupMemberRepo.sign] as String?;
     if (sign != null) {
       data[GroupMemberRepo.sign] = json[GroupMemberRepo.sign];
     }
@@ -164,33 +164,33 @@ class GroupMemberRepo {
       data[GroupMemberRepo.account] = account;
     }
 
-    String? inviteCode = json[GroupMemberRepo.inviteCode];
+    String? inviteCode = json[GroupMemberRepo.inviteCode] as String?;
     if (strNoEmpty(inviteCode)) {
       data[GroupMemberRepo.inviteCode] = json[GroupMemberRepo.inviteCode];
     }
-    String? alias = json[GroupMemberRepo.alias];
+    String? alias = json[GroupMemberRepo.alias] as String?;
     if (alias != null) {
       data[GroupMemberRepo.alias] = json[GroupMemberRepo.alias];
     }
-    String? description = json[GroupMemberRepo.description];
+    String? description = json[GroupMemberRepo.description] as String?;
     if (description != null) {
       data[GroupMemberRepo.description] = json[GroupMemberRepo.description];
     }
-    int? isJoin = json[GroupMemberRepo.isJoin];
+    int? isJoin = json[GroupMemberRepo.isJoin] as int?;
     if (isJoin != null) {
       data[GroupMemberRepo.isJoin] = json[GroupMemberRepo.isJoin];
     }
-    int? status = json[GroupMemberRepo.status];
+    int? status = json[GroupMemberRepo.status] as int?;
     if (status != null) {
       data[GroupMemberRepo.status] = json[GroupMemberRepo.status];
     }
 
-    int role = json[GroupMemberRepo.role] ?? 0;
+    int role = json[GroupMemberRepo.role] as int? ?? 0;
     if (role > 0) {
       data[GroupMemberRepo.role] = role;
     }
 
-    int updatedAt = json[GroupMemberRepo.updatedAt] ?? 0;
+    int updatedAt = json[GroupMemberRepo.updatedAt] as int? ?? 0;
     if (updatedAt > 0) {
       data[GroupMemberRepo.updatedAt] = updatedAt;
     }

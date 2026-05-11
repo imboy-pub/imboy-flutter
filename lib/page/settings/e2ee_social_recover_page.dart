@@ -308,7 +308,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           ),
         ),
         title: Text(t.e2eeProxyUser(uid: proxyUid)),
-        subtitle: Text(t.e2eeShardLabel(index: shardIndex, total: totalShards)),
+        subtitle: Text(t.e2eeShardLabel(index: shardIndex as Object, total: totalShards as Object)),
         trailing: Icon(statusIcon, color: statusColor, size: 20),
       ),
     );

@@ -75,7 +75,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) {
         final backup = _backupHistory[index];
-        return _buildBackupCard(backup);
+        return _buildBackupCard(backup as Map<String, dynamic>);
       },
     );
   }
@@ -180,7 +180,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _deleteBackup(backup['id']);
+              _deleteBackup(backup['id'] as int);
             },
             child: Text(
               t.buttonDelete,

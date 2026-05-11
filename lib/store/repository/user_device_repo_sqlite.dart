@@ -83,14 +83,14 @@ class UserDeviceRepo {
     Transaction? txn,
   }) async {
     Map<String, Object?> data = {};
-    if (strNoEmpty(json[UserDeviceRepo.deviceVsn])) {
+    if (strNoEmpty(json[UserDeviceRepo.deviceVsn] as String?)) {
       data[UserDeviceRepo.deviceVsn] = json[UserDeviceRepo.deviceVsn];
     }
-    if (strNoEmpty(json[UserDeviceRepo.deviceName])) {
+    if (strNoEmpty(json[UserDeviceRepo.deviceName] as String?)) {
       data[UserDeviceRepo.deviceName] = json[UserDeviceRepo.deviceName];
     }
 
-    int lastActiveAt = json[UserDeviceRepo.lastActiveAt] ?? 0;
+    int lastActiveAt = json[UserDeviceRepo.lastActiveAt] as int? ?? 0;
     if (lastActiveAt > 0) {
       data[UserDeviceRepo.lastActiveAt] = lastActiveAt;
     }

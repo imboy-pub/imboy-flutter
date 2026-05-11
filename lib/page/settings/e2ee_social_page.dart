@@ -203,11 +203,11 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t.e2eeProxyUser(uid: proxyUid),
+                  t.e2eeProxyUser(uid: proxyUid as Object),
                   style: const TextStyle(fontSize: 13),
                 ),
                 Text(
-                  t.e2eeSocialStatus(status: status),
+                  t.e2eeSocialStatus(status: status as Object),
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'active' ? Colors.green : Colors.grey,

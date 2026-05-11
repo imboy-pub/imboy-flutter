@@ -114,7 +114,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
           try {
             final vsnStr = parseModelString(deviceInfo['deviceVersion']);
             if (vsnStr.isNotEmpty) {
-              deviceVsn = jsonDecode(vsnStr);
+              deviceVsn = jsonDecode(vsnStr) as Map<dynamic, dynamic>;
             }
           } on Exception catch (e) {
             if (kDebugMode) {
@@ -241,7 +241,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
         final devices = result['devices'] as List<dynamic>? ?? [];
         state = state.copyWith(
           activeSessions: List<Map<String, dynamic>>.from(
-            devices.map((d) => Map<String, dynamic>.from(d)),
+            devices.map((d) => Map<String, dynamic>.from(d as Map<dynamic, dynamic>)),
           ),
           isLoadingSessions: false,
         );

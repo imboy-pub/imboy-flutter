@@ -32,7 +32,7 @@ class UserRepoLocal {
   //
   UserSettingModel get setting {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
-    return UserSettingModel.fromJson(u['setting'] ?? {});
+    return UserSettingModel.fromJson(u['setting'] as Map<String, dynamic>? ?? {});
   }
 
   // 令牌 token
@@ -206,8 +206,8 @@ class UserRepoLocal {
       payload['uid'].toString(),
     );
 
-    await SecureTokenStorageService.saveToken(payload['token']);
-    await SecureTokenStorageService.saveRefreshToken(payload['refreshtoken']);
+    await SecureTokenStorageService.saveToken(payload['token'] as String);
+    await SecureTokenStorageService.saveRefreshToken(payload['refreshtoken'] as String);
 
     payload.remove('token');
     payload.remove('refreshtoken');

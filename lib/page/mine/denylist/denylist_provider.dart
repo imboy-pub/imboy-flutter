@@ -106,7 +106,7 @@ class DenylistNotifier extends _$DenylistNotifier {
     for (var json in (payload['list'] as List)) {
       json[ContactRepo.isFriend] = 1;
       // checkIsFriend = true 的时候，保留旧的 isFriend 值
-      DenylistModel model = DenylistModel.fromJson(json);
+      DenylistModel model = DenylistModel.fromJson(json as Map<String, dynamic>);
       await repo.insert(model);
       list.add(model);
     }
@@ -157,7 +157,7 @@ class DenylistNotifier extends _$DenylistNotifier {
     Map<String, dynamic>? payload = await api.add(deniedUserUid: model.deniedUid.toString());
     bool res = payload == null ? false : true;
     if (res) {
-      model.createdAt = payload['created_at'] ?? DateTimeHelper.millisecond();
+      model.createdAt = payload['created_at'] as int? ?? DateTimeHelper.millisecond();
       await repo.insert(model);
       // 隐藏联系人
       await ContactRepo().update({

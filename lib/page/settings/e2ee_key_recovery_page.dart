@@ -255,12 +255,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             const SizedBox(height: 16),
             _buildInfoRow(
               t.e2eeDeviceIdLabel,
-              _keyInfo['device_id'] ?? t.unknown,
+              _keyInfo['device_id'] as String? ?? t.unknown,
             ),
-            _buildInfoRow(t.e2eeKeyIdLabel, _keyInfo['key_id'] ?? t.unknown),
+            _buildInfoRow(t.e2eeKeyIdLabel, _keyInfo['key_id'] as String? ?? t.unknown),
             _buildInfoRow(
               t.e2eeCreatedAtLabel,
-              _keyInfo['created_at'] ?? t.unknown,
+              _keyInfo['created_at'] as String? ?? t.unknown,
             ),
           ],
         ),

@@ -641,7 +641,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   final int _itemHeight = 60;
   List<ContactModel> contactList = [];
   List<ContactModel> selectedContact = [];
-  Set<dynamic> currIndexBarData = {};
+  Set<String> currIndexBarData = {};
 
   @override
   void initState() {

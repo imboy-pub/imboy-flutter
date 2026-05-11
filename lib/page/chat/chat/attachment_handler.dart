@@ -197,7 +197,7 @@ class ChatAttachmentHandler {
       text: await entity.titleAsync,
       height: entity.height * 1.0,
       width: entity.width * 1.0,
-      size: resp["data"]["size"],
+      size: resp["data"]["size"] as int?,
       source: imgUrl,
       metadata: _withBurnMetadata({
         'peer_id': peerId,
@@ -296,7 +296,7 @@ class ChatAttachmentHandler {
       text: await entity.titleAsync,
       height: entity.height * 1.0,
       width: entity.width * 1.0,
-      size: resp["data"]["size"],
+      size: resp["data"]["size"] as int?,
       source: imgUrl,
       metadata: _withBurnMetadata({
         'peer_id': peerId,

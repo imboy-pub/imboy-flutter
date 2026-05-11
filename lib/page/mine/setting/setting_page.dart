@@ -35,7 +35,7 @@ final allowSearchProvider = Provider<bool>((ref) {
   if (settingData.isNotEmpty) {
     try {
       final settingMap = jsonDecode(settingData) as Map<String, dynamic>;
-      return settingMap['allow_search'] ?? true;
+      return (settingMap['allow_search'] ?? true) as bool;
     } on Exception {
       return true;
     }

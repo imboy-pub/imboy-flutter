@@ -407,11 +407,11 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
             CupertinoPageRoute<dynamic>(
               builder: (_) => SearchChatPage(
                 type: widget.type,
-                peerId: widget.options?['peer_id'],
-                peerTitle: widget.options?['peerTitle'],
-                peerAvatar: widget.options?['peerAvatar'],
-                peerSign: widget.options?['peerSign'] ?? '',
-                conversationUk3: widget.options?['conversationUk3'],
+                peerId: widget.options?['peer_id'] as String,
+                peerTitle: widget.options?['peerTitle'] as String,
+                peerAvatar: widget.options?['peerAvatar'] as String,
+                peerSign: widget.options?['peerSign'] as String? ?? '',
+                conversationUk3: widget.options?['conversationUk3'] as String,
               ),
             ),
           );

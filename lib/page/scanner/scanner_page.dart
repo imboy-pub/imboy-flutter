@@ -119,29 +119,29 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         EasyLoading.showError(resp.msg);
         return;
       }
-      Map<String, dynamic> payload = resp.payload;
+      Map<String, dynamic> payload = resp.payload as Map<String, dynamic>;
       if (kDebugMode) debugPrint("> on qrcode: type=${payload['type']}");
-      String result = payload['result'] ?? '';
-      String type = payload['type'] ?? 'user';
+      String result = payload['result'] as String? ?? '';
+      String type = payload['type'] as String? ?? 'user';
       if (result == '' && type == 'user') {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
           CupertinoPageRoute<dynamic>(
             builder: (context) =>
-                PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
+                PeopleInfoPage(id: payload['id'] as String, scene: 'qrcode'),
           ),
         );
       } else if (result == '' && type == 'group') {
-        await GroupMemberRepo().save(payload['group_member']);
+        await GroupMemberRepo().save(payload['group_member'] as Map<String, dynamic>);
         if (!mounted) return;
         Navigator.push(
           context,
           CupertinoPageRoute<dynamic>(
             builder: (context) => ChatPage(
-              peerId: payload['id'],
-              peerTitle: payload['title'],
-              peerAvatar: payload['avatar'],
+              peerId: payload['id'] as String,
+              peerTitle: payload['title'] as String,
+              peerAvatar: payload['avatar'] as String,
               peerSign: '',
               type: 'C2G',
               options: {'memberCount': payload['member_count']},

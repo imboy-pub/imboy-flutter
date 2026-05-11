@@ -127,7 +127,7 @@ class E2EETransferPage extends StatelessWidget {
                       context,
                       CupertinoPageRoute<dynamic>(
                         builder: (_) => E2EETransferReceivePage(
-                          sessionId: transfer['session_id'],
+                          sessionId: transfer['session_id'] as String?,
                         ),
                       ),
                     );

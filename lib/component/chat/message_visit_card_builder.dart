@@ -101,7 +101,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                           context,
                           CupertinoPageRoute<dynamic>(
                             builder: (context) =>
-                                PeopleInfoPage(id: uid, scene: 'visitCard'),
+                                PeopleInfoPage(id: uid as String, scene: 'visitCard'),
                           ),
                         );
                       },
@@ -110,14 +110,14 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 4, right: 4),
-                            child: Avatar(imgUri: msg.metadata?['avatar']),
+                            child: Avatar(imgUri: msg.metadata?['avatar'] as String),
                           ),
                           Expanded(
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                msg.metadata?['title'] ??
-                                    (msg.metadata?['account'] ?? ''),
+                                (msg.metadata?['title'] ??
+                                    (msg.metadata?['account'] ?? '')) as String,
                                 textAlign: TextAlign.left,
                                 // style: TextStyle(
                                 //   color:

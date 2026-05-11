@@ -38,7 +38,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   List<ContactModel> _contactList = [];
 
   // ignore: prefer_collection_literals
-  final Set<dynamic> _currIndexBarData = {};
+  final Set<String> _currIndexBarData = {};
 
   @override
   void initState() {

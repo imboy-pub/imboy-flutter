@@ -42,7 +42,7 @@ class GroupTaskApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 更新任务
@@ -168,7 +168,7 @@ class GroupTaskApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 获取我的任务

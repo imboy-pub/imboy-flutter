@@ -233,7 +233,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      schedule['title'] ?? '',
+                      schedule['title'] as String? ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -250,7 +250,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                         children: [
                           const Icon(Icons.location_on, size: 14),
                           Text(
-                            schedule['location'],
+                            schedule['location'] as String,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

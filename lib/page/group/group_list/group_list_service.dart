@@ -249,7 +249,7 @@ class GroupListService {
     List<String> li = [UserRepoLocal.to.current.avatar];
     if (list.isNotEmpty) {
       for (var e in list) {
-        String t = e['avatar'] ?? '';
+        String t = e['avatar'] as String? ?? '';
         if (t.isNotEmpty) {
           li.add(t);
         }
@@ -266,8 +266,8 @@ class GroupListService {
     if (payload != null && payload['list'] != null) {
       GroupMemberRepo repo = GroupMemberRepo();
       for (var item in (payload['list'] as List)) {
-        unawaited(repo.save(item));
-        String t = item['avatar'] ?? '';
+        unawaited(repo.save(item as Map<String, dynamic>));
+        String t = item['avatar'] as String? ?? '';
         if (t.trim().isNotEmpty) {
           li.add(t);
         }
@@ -398,7 +398,7 @@ class GroupListService {
       return [];
     }
     for (var json in (payload['list'] as List)) {
-      GroupModel m = await repo.save('', json);
+      GroupModel m = await repo.save('', json as Map<String, dynamic>);
       await _syncSelfMembershipShadow(attr: normalizedAttr, group: m);
       list.add(m);
     }

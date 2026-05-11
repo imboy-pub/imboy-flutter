@@ -24,10 +24,10 @@ class MessageVideoBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String videoUrl = metadata['uri'] ?? metadata['url'] ?? '';
+    final String videoUrl = metadata['uri'] as String? ?? metadata['url'] as String? ?? '';
     final thumb = metadata['thumb'];
     final String thumbUrl = (thumb is Map)
-        ? (thumb['uri'] ?? '')
+        ? (thumb['uri'] as String? ?? '')
         : (thumb?.toString() ?? '');
 
     // 获取视频尺寸

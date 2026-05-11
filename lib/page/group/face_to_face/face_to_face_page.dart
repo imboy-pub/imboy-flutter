@@ -120,9 +120,9 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                   EasyLoading.dismiss();
 
                   Map<String, dynamic> res = await notifier.faceToFace(value);
-                  notifier.updateErrorInfo(res['error'] ?? '');
+                  notifier.updateErrorInfo(res['error'] as String? ?? '');
 
-                  String gid = res['gid'] ?? '';
+                  String gid = res['gid'] as String? ?? '';
                   if (gid.isNotEmpty && context.mounted) {
                     context.push(
                       '/group/face_to_face_confirm',

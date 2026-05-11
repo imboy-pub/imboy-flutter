@@ -329,10 +329,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         password: password,
       );
 
-      await StorageSecureService.to.savePrivateKey(result['private_key']);
-      await StorageSecureService.to.savePublicKey(result['public_key']);
-      await StorageSecureService.to.setDeviceId(result['device_id']);
-      await StorageSecureService.to.setKeyId(result['key_id']);
+      await StorageSecureService.to.savePrivateKey(result['private_key'] as String);
+      await StorageSecureService.to.savePublicKey(result['public_key'] as String);
+      await StorageSecureService.to.setDeviceId(result['device_id'] as String);
+      await StorageSecureService.to.setKeyId(result['key_id'] as String);
 
       setState(() => _isImporting = false);
 

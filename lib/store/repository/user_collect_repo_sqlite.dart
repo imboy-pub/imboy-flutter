@@ -136,10 +136,10 @@ class UserCollectRepo {
   }) async {
     // iPrint("user_collect_repo_sqlite/update $kid, ${json.toString()}");
     Map<String, Object?> data = {};
-    if (strNoEmpty(json[UserCollectRepo.remark])) {
+    if (strNoEmpty(json[UserCollectRepo.remark] as String?)) {
       data[UserCollectRepo.remark] = json[UserCollectRepo.remark];
     }
-    String? tag = json[UserCollectRepo.tag];
+    String? tag = json[UserCollectRepo.tag] as String?;
     if (tag != null) {
       data[UserCollectRepo.tag] = _formatTag(tag);
     }
@@ -153,11 +153,11 @@ class UserCollectRepo {
     var info = json[UserCollectRepo.info] ?? <String, dynamic>{};
     if (info is String && strNoEmpty(info)) {
       data[UserCollectRepo.info] = info;
-    } else if (mapNoEmpty(info)) {
+    } else if (mapNoEmpty(info as Map<String, dynamic>?)) {
       data[UserCollectRepo.info] = jsonEncode(info);
     }
 
-    int updatedAt = json[UserCollectRepo.updatedAt] ?? 0;
+    int updatedAt = json[UserCollectRepo.updatedAt] as int? ?? 0;
     if (updatedAt > 0) {
       data[UserCollectRepo.updatedAt] = updatedAt;
     }

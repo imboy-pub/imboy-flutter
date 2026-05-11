@@ -123,17 +123,17 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     );
 
     // 解析成员列表
-    List<dynamic> memberList = payload['member_list'] ?? [];
+    List<dynamic> memberList = payload['member_list'] as List<dynamic>? ?? [];
     List<PeopleModel> memberList2 = [];
     for (var item in memberList) {
       if (item is Map) {
         final itemMap = Map<String, dynamic>.from(item);
         memberList2.add(
           PeopleModel(
-            id: itemMap['user_id'],
-            account: itemMap['account'] ?? '',
-            avatar: itemMap['avatar'] ?? '',
-            nickname: itemMap['alias'] ?? (itemMap['nickname'] ?? ''),
+            id: itemMap['user_id'] as int,
+            account: itemMap['account'] as String? ?? '',
+            avatar: itemMap['avatar'] as String? ?? '',
+            nickname: itemMap['alias'] as String? ?? (itemMap['nickname'] as String? ?? ''),
           ),
         );
       }
@@ -158,17 +158,17 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       "faceToFaceSave memberCount=${(payload['member_list'] ?? <dynamic>[]).length}",
     );
 
-    List<dynamic> memberList = payload['member_list'] ?? [];
+    List<dynamic> memberList = payload['member_list'] as List<dynamic>? ?? [];
     List<PeopleModel> memberList2 = [];
     for (var item in memberList) {
       if (item is Map) {
         final itemMap = Map<String, dynamic>.from(item);
         memberList2.add(
           PeopleModel(
-            id: itemMap['user_id'],
-            account: itemMap['account'] ?? '',
-            avatar: itemMap['avatar'] ?? '',
-            nickname: itemMap['alias'] ?? (itemMap['nickname'] ?? ''),
+            id: itemMap['user_id'] as int,
+            account: itemMap['account'] as String? ?? '',
+            avatar: itemMap['avatar'] as String? ?? '',
+            nickname: itemMap['alias'] as String? ?? (itemMap['nickname'] as String? ?? ''),
           ),
         );
       }

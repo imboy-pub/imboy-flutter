@@ -44,7 +44,7 @@ class UserApi extends HttpClient {
     if (!resp.ok) {
       return {};
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>;
   }
 
   Future<String> refreshAccessTokenApi(
@@ -68,7 +68,7 @@ class UserApi extends HttpClient {
     if (ErrorCode.shouldReLogin(resp.code)) {
       checkNewToken = true;
     }
-    String newToken = resp.payload?['token'] ?? '';
+    String newToken = resp.payload?['token'] as String? ?? '';
     if (checkNewToken && strEmpty(newToken)) {
       UserRepoLocal.to.quitLogin();
       navigateToSignIn(source: 'user_api_relogin');
@@ -92,7 +92,7 @@ class UserApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<Map<String, dynamic>?> userSearch({
@@ -109,7 +109,7 @@ class UserApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<bool> changeEmail({
@@ -222,7 +222,7 @@ class UserApi extends HttpClient {
         EasyLoading.showError(resp.msg);
         return null;
       }
-      return resp.payload;
+      return resp.payload as Map<String, dynamic>?;
     } catch (e) {
       iPrint("> on UserApi/exportUserData error: $e");
       EasyLoading.showError(t.operationFailedAgainLater);

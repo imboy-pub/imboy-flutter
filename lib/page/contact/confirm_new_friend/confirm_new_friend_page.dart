@@ -373,7 +373,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
-                Map<String, dynamic> p2 = json.decode(widget.payload);
+                Map<String, dynamic> p2 = json.decode(widget.payload) as Map<String, dynamic>;
                 p2['to'] = {
                   "remark": _remarkController.text,
                   "account": UserRepoLocal.to.current.account,

@@ -259,10 +259,10 @@ class ProfileNotifier extends _$ProfileNotifier {
         // 更新状态
         switch (field) {
           case 'avatar':
-            state = state.copyWith(avatar: value);
+            state = state.copyWith(avatar: value as String?);
             break;
           case 'nickname':
-            state = state.copyWith(nickname: value);
+            state = state.copyWith(nickname: value as String?);
             break;
           case 'gender':
             state = state.copyWith(
@@ -272,19 +272,19 @@ class ProfileNotifier extends _$ProfileNotifier {
             );
             break;
           case 'region':
-            state = state.copyWith(region: value);
+            state = state.copyWith(region: value as String?);
             break;
           case 'sign':
-            state = state.copyWith(signature: value);
+            state = state.copyWith(signature: value as String?);
             break;
           case 'email':
-            state = state.copyWith(email: value);
+            state = state.copyWith(email: value as String?);
             break;
           case 'mobile':
-            state = state.copyWith(mobile: value);
+            state = state.copyWith(mobile: value as String?);
             break;
           case 'birthday':
-            state = state.copyWith(birthday: value);
+            state = state.copyWith(birthday: value as String?);
             break;
           // 隐私设置字段
           case 'allow_search':
@@ -427,7 +427,7 @@ class ProfileNotifier extends _$ProfileNotifier {
         'background',
         imageFile,
         (Map<String, dynamic> resp, String url) {
-          String status = resp['status'] ?? '';
+          String status = resp['status'] as String? ?? '';
           if (status == 'ok') {
             backgroundUrl = url;
             iPrint('背景图片上传成功');

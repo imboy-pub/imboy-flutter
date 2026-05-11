@@ -25,7 +25,7 @@ class MentionApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 获取未读@提及数量
@@ -40,7 +40,7 @@ class MentionApi extends HttpClient {
       return 0;
     }
 
-    return resp.payload['count'] ?? 0;
+    return (resp.payload['count'] as int?) ?? 0;
   }
 
   /// 标记@提及为已读

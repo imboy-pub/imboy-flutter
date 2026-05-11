@@ -236,7 +236,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       iPrint("取消发送录音");
     } else if (strNoEmpty(filePath)) {
       if (kDebugMode) debugPrint("进行发送录音 waveform length: ${waveform.length}");
-      await widget.stopRecord!.call(
+      widget.stopRecord!.call(
         AudioFile(
           file: File(filePath),
           duration: recordingDuration,

@@ -246,7 +246,7 @@ class MessageActions {
         return;
       }
 
-      final newPayload = Map<String, dynamic>.from(msg.payload);
+      final newPayload = Map<String, dynamic>.from(msg.payload as Map<dynamic, dynamic>);
       final reactionsRaw = newPayload['reactions'];
       final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
@@ -411,7 +411,7 @@ class MessageActions {
     AppEventBus.fire(
       WebSocketMessageSendRequestEvent(
         message: json.encode(ackMessage),
-        messageId: data['id'],
+        messageId: data['id'] as String,
       ),
     );
   }
@@ -476,7 +476,7 @@ class MessageActions {
 
     if (isMyEdit) {
       // 自己编辑的确认
-      final newPayload = Map<String, dynamic>.from(originalMsg.payload);
+      final newPayload = Map<String, dynamic>.from(originalMsg.payload as Map<dynamic, dynamic>);
       newPayload['text'] = newContent;
       newPayload['edited_at'] =
           payload['edited_at'] ?? DateTimeHelper.millisecond();
@@ -553,7 +553,7 @@ class MessageActions {
     AppEventBus.fire(
       WebSocketMessageSendRequestEvent(
         message: json.encode(ackMessage),
-        messageId: data['id'],
+        messageId: data['id'] as String,
       ),
     );
   }
@@ -570,7 +570,7 @@ class MessageActions {
       final payload = parseModelJsonMap(data['payload']) ?? {};
 
       // 构建新的payload
-      final newPayload = Map<String, dynamic>.from(msg.payload);
+      final newPayload = Map<String, dynamic>.from(msg.payload as Map<dynamic, dynamic>);
       newPayload['text'] = newContent;
       newPayload['edited_at'] =
           payload['edited_at'] ?? DateTimeHelper.millisecond();
@@ -692,8 +692,8 @@ class MessageActions {
       await MessageActions.convertMessageToRevoked(
         originalMsg: msg,
         repo: repo,
-        revokeUserId: data['from'],
-        originalText: originalText,
+        revokeUserId: data['from'] as String,
+        originalText: originalText as String?,
         isMyRevoke: false, // 对方撤回
       );
 

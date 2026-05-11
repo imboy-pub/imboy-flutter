@@ -27,7 +27,7 @@ class LocationApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 让自己可见

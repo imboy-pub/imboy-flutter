@@ -60,9 +60,9 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       final statistics = await ref
           .read(userTagRelationProvider.notifier)
           .getTagStatistics(widget.scene, ensureTags: _originalTags);
-      _suggestedTags = List<String>.from(statistics['tags'] ?? []);
-      _tagUsageCount = Map<String, int>.from(statistics['usage_count'] ?? {});
-      _tagIdByName = Map<String, int>.from(statistics['tag_id_by_name'] ?? {});
+      _suggestedTags = List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>);
+      _tagUsageCount = Map<String, int>.from((statistics['usage_count'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
+      _tagIdByName = Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
 
       // 确保当前标签包含在建议列表中
       for (String tag in _currentTags) {

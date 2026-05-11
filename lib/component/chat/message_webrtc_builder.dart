@@ -92,20 +92,20 @@ class WebRTCMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     bool userIsAuthor = UserRepoLocal.to.currentUid == message.authorId;
     String peerId = userIsAuthor
-        ? (message.metadata?['peer_id'] ?? '')
+        ? (message.metadata?['peer_id'] as String? ?? '')
         : message.authorId;
-    int state = message.metadata?['state'] ?? 0;
+    int state = message.metadata?['state'] as int? ?? 0;
 
     // 优先使用 msg_type 判断（WebSocket API v2.0）
-    final msgType = message.metadata?['msg_type'] ?? '';
+    final msgType = (message.metadata?['msg_type'] ?? '') as String;
 
     // 新格式：msg_type = 'webrtcAudio' 或 'webrtcVideo'
     // 统一使用 msg_type = webrtcAudio / webrtcVideo
     final isVideo = msgType == MessageType.webrtcVideo;
     String media = isVideo ? 'video' : 'audio';
 
-    int startAt = message.metadata?['start_at'] ?? 0;
-    int endAt = message.metadata?['end_at'] ?? 0;
+    int startAt = message.metadata?['start_at'] as int? ?? 0;
+    int endAt = message.metadata?['end_at'] as int? ?? 0;
     String callCuration = '';
     if (startAt > 0 && endAt > startAt) {
       DateTime date = DateTime.fromMillisecondsSinceEpoch(

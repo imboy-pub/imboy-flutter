@@ -83,7 +83,7 @@ bool mapNoEmpty(Map<String, dynamic>? value) {
   return value.isNotEmpty;
 }
 
-///判断List<dynamic>是否为空
+///判断`List<dynamic>`是否为空
 bool listEmpty(List<dynamic>? list) {
   if (list == null) {
     return true;
@@ -91,7 +91,7 @@ bool listEmpty(List<dynamic>? list) {
   return list.isEmpty;
 }
 
-///判断List<dynamic>是否为非空
+///判断`List<dynamic>`是否为非空
 bool listNoEmpty(List<dynamic>? list) {
   if (list == null) {
     return false;

@@ -1437,7 +1437,7 @@ final class ChatMessageAddRequestedEvent extends AppEvent {
     peerAvatar,
     peerNickname,
     conversationType,
-    message,
+    message as Object,
     sendToServer,
   ];
 

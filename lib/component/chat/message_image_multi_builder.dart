@@ -35,7 +35,7 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
     super.initState();
     // 从 metadata 中获取图片数组
     images = List<Map<String, dynamic>>.from(
-      widget.message.metadata?['images'] ?? [],
+      (widget.message.metadata?['images'] ?? <Map<String, dynamic>>[]) as Iterable,
     );
   }
 
@@ -61,9 +61,9 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
         itemCount: images.length,
         itemBuilder: (context, index) {
           final img = images[index];
-          final uri = img['uri'] ?? '';
-          final width = (img['width'] ?? 0).toDouble();
-          final height = (img['height'] ?? 0).toDouble();
+          final uri = (img['uri'] ?? '') as String;
+          final width = (img['width'] as num? ?? 0).toDouble();
+          final height = (img['height'] as num? ?? 0).toDouble();
 
           return GestureDetector(
             onTap: () => _previewImage(index),
@@ -117,7 +117,7 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
   void _previewImage(int index) {
     // 提取所有图片URL用于预览
     final List<String> imageUrls = images
-        .map<String>((img) => img['uri'] ?? '')
+        .map<String>((img) => (img['uri'] ?? '') as String)
         .where((uri) => uri.isNotEmpty)
         .toList();
 

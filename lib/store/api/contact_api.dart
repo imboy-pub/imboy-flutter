@@ -44,8 +44,8 @@ class ContactApi extends HttpClient {
     }
     if (resp.ok && resp.payload.isNotEmpty == true) {
       try {
-        await (ContactRepo()).save(resp.payload);
-        ct = ContactModel.fromMap(resp.payload);
+        await (ContactRepo()).save(resp.payload as Map<String, dynamic>);
+        ct = ContactModel.fromMap(resp.payload as Map<String, dynamic>);
       } on Exception catch (e) {
         if (kDebugMode) {
           debugPrint("> on Api/syncByUid error: $e");

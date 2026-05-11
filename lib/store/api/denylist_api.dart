@@ -14,7 +14,7 @@ class DenylistApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 加入黑名单
@@ -24,7 +24,7 @@ class DenylistApi extends HttpClient {
       data: {"denied_user_id": deniedUserUid},
     );
     debugPrint("> on Api/denylistAdd resp: ${resp.toString()}");
-    return resp.ok ? resp.payload : null;
+    return resp.ok ? resp.payload as Map<String, dynamic>? : null;
   }
 
   /// 移除黑名单

@@ -120,10 +120,10 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
     final appAllBytes = appBytes + cacheBytes + dataBytes;
 
     state = state.copyWith(
-      appBytes: appBytes,
-      cacheBytes: cacheBytes,
-      dataBytes: dataBytes,
-      appAllBytes: appAllBytes,
+      appBytes: appBytes as int?,
+      cacheBytes: cacheBytes as int?,
+      dataBytes: dataBytes as int?,
+      appAllBytes: appAllBytes as int?,
     );
   }
 

@@ -333,7 +333,7 @@ class MessageHandlingService {
     required Future<void> Function(String, String) saveFileFn,
   }) async {
     if (msg is CustomMessage) {
-      await saveFileFn(msg.metadata!['md5'], msg.metadata!['uri']);
+      await saveFileFn(msg.metadata!['md5'] as String, msg.metadata!['uri'] as String);
     } else if (msg is ImageMessage) {
       await saveFileFn(msg.text ?? Xid().toString(), msg.source);
     } else if (msg is FileMessage) {

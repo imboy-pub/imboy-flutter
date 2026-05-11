@@ -440,7 +440,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 设置会话
   Future<void> _setupConversation() async {
-    bool showConversation = widget.options?['showConversation'] ?? true;
+    bool showConversation = widget.options?['showConversation'] as bool? ?? true;
 
     final conversationResult = await ref
         .read(conversationProvider.notifier)
@@ -529,7 +529,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 初始化群组信息
   Future<void> _initGroupInfo() async {
     if (_chatType == MessageFlowType.c2g) {
-      final memberCount = widget.options?['memberCount'] ?? 0;
+      final memberCount = (widget.options?['memberCount'] ?? 0) as int;
       ref.read(chatProvider.notifier).updateMemberCount(memberCount);
       newGroupName = await ref
           .read(chatProvider.notifier)
@@ -1122,7 +1122,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 打开收藏页面（选择模式）
     final result = await Navigator.push<UserCollectModel>(
       context,
-      CupertinoPageRoute<dynamic>(
+      CupertinoPageRoute<UserCollectModel>(
         builder: (context) => UserCollectPage(isSelect: true, peer: peer),
       ),
     );
@@ -1184,7 +1184,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         _showAppBar = false;
       });
     } else if (message is CustomMessage) {
-      String txt = message.metadata?['quote_text'] ?? '';
+      String txt = message.metadata?['quote_text'] as String? ?? '';
       if (txt.isNotEmpty) showTextMessage(txt);
     }
   }
@@ -2290,7 +2290,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       await _reloadConversationSettings();
     }
     if (value is Map<String, dynamic>) {
-      int num = value['memberCount'] ?? 0;
+      int num = value['memberCount'] as int? ?? 0;
       if (num > 0) {
         ref.read(chatProvider.notifier).updateMemberCount(num);
         newGroupName = await ref

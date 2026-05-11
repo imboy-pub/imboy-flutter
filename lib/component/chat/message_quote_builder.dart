@@ -31,7 +31,7 @@ class QuoteMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool userIsAuthor = user.id == message.authorId;
-    Map<String, dynamic> quoteMsgMap = message.metadata?['quote_msg'] ?? {};
+    Map<String, dynamic> quoteMsgMap = message.metadata?['quote_msg'] as Map<String, dynamic>? ?? {};
 
     // 如果引用消息数据为空，显示错误提示
     if (quoteMsgMap.isEmpty) {
@@ -50,7 +50,7 @@ class QuoteMessageBuilder extends StatelessWidget {
       return _buildQuoteErrorWidget(context, userIsAuthor);
     }
 
-    String text = message.metadata?['quote_text'] ?? '';
+    String text = message.metadata?['quote_text'] as String? ?? '';
 
     //  左侧竖条，灰底，圆角，主内容和引用分开
     return Column(
@@ -124,8 +124,8 @@ class QuoteMessageBuilder extends StatelessWidget {
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  message.metadata?['quote_msg_author_name'] ??
-                                      '',
+                                  (message.metadata?['quote_msg_author_name'] ??
+                                      '') as String,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -184,7 +184,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                               confirmOpenFile(context, uri);
                             } else if (quoteMsg is CustomMessage) {
                               String txt =
-                                  quoteMsg.metadata?['quote_text'] ?? '';
+                                  quoteMsg.metadata?['quote_text'] as String? ?? '';
                               if (txt.isNotEmpty) {
                                 showTextMessage(txt);
                               }
@@ -355,7 +355,7 @@ class QuoteMessageBuilder extends StatelessWidget {
         ],
       );
     } else if (quoteMsg is CustomMessage) {
-      String msgType = quoteMsg.metadata?['msg_type'] ?? '';
+      String msgType = quoteMsg.metadata?['msg_type'] as String? ?? '';
       String displayText = '';
       IconData iconData = Icons.help_outline;
 
@@ -369,11 +369,11 @@ class QuoteMessageBuilder extends StatelessWidget {
           iconData = Icons.videocam;
           break;
         case 'location':
-          displayText = quoteMsg.metadata?['title'] ?? t.locationMessage;
+          displayText = quoteMsg.metadata?['title'] as String? ?? t.locationMessage;
           iconData = Icons.location_on;
           break;
         case 'visitCard':
-          displayText = quoteMsg.metadata?['title'] ?? t.card;
+          displayText = quoteMsg.metadata?['title'] as String? ?? t.card;
           iconData = Icons.person;
           break;
         case 'revoked':
@@ -381,7 +381,7 @@ class QuoteMessageBuilder extends StatelessWidget {
           iconData = Icons.block;
           break;
         default:
-          displayText = quoteMsg.metadata?['quote_text'] ?? t.customMessage;
+          displayText = quoteMsg.metadata?['quote_text'] as String? ?? t.customMessage;
           iconData = Icons.insert_drive_file;
       }
 

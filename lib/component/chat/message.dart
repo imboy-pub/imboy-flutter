@@ -174,7 +174,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
   switch (effectiveMsgType) {
     case 'voice':
       return AudioMessageBuilder(
-        type: msg.metadata?['type'] ?? 'C2C',
+        type: (msg.metadata?['type'] ?? 'C2C') as String,
         user: user,
         message: msg as CustomMessage,
       );

@@ -21,9 +21,9 @@ class MessageFileBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String filename = metadata['name'] ?? metadata['filename'] ?? '未知文件';
-    final int size = metadata['size'] ?? 0;
-    final String uri = metadata['uri'] ?? '';
+    final String filename = metadata['name'] as String? ?? metadata['filename'] as String? ?? '未知文件';
+    final int size = metadata['size'] as int? ?? 0;
+    final String uri = metadata['uri'] as String? ?? '';
     final bool isSentByMe = message.authorId == user.id;
 
     return GestureDetector(

@@ -243,11 +243,11 @@ class _ChannelListItem extends StatelessWidget {
   String _getRoleLabel(ChannelUserRole role, dynamic t) {
     switch (role) {
       case ChannelUserRole.creator:
-        return t.channel.roleCreator;
+        return t.channel.roleCreator as String;
       case ChannelUserRole.admin:
-        return t.channel.roleAdmin;
+        return t.channel.roleAdmin as String;
       case ChannelUserRole.editor:
-        return t.channel.roleEditor;
+        return t.channel.roleEditor as String;
       case ChannelUserRole.subscriber:
       case ChannelUserRole.none:
         return '';

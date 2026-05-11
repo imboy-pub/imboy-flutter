@@ -174,7 +174,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       // 添加30秒超时保护
       final tmpF = await IMBoyCacheManager()
           .getSingleFile(
-            uri,
+            uri as String,
             validateImageData: false, // 音频文件不验证图片格式
           )
           .timeout(
@@ -250,7 +250,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
 
         // 获取时长
         Duration duration;
-        final metadataDuration = Duration(milliseconds: durationMs ?? 0);
+        final metadataDuration = Duration(milliseconds: (durationMs as int?) ?? 0);
 
         if (metadataDuration.inMilliseconds > 0) {
           duration = metadataDuration;

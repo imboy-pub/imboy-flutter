@@ -15,7 +15,7 @@ class UserDeviceApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 修改设备名称（简化版，仅返回成功/失败）
@@ -69,7 +69,7 @@ class UserDeviceApi extends HttpClient {
       );
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 检查登录冲突
@@ -97,7 +97,7 @@ class UserDeviceApi extends HttpClient {
       );
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 踢出指定设备
@@ -126,7 +126,7 @@ class UserDeviceApi extends HttpClient {
       );
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 踢出所有其他设备
@@ -155,6 +155,6 @@ class UserDeviceApi extends HttpClient {
       );
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 }

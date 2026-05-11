@@ -89,7 +89,7 @@ mixin EventSubscriptionManager {
 
   /// 订阅事件并自动管理生命周期
   ///
-  /// [subscription] StreamSubscription<dynamic> 对象
+  /// [subscription] `StreamSubscription<dynamic>` 对象
   ///
   /// 返回传入的订阅对象，支持链式调用
   ///
@@ -110,7 +110,7 @@ mixin EventSubscriptionManager {
 
   /// 批量订阅事件
   ///
-  /// [subscriptions] StreamSubscription<dynamic> 列表
+  /// [subscriptions] `StreamSubscription<dynamic>` 列表
   ///
   /// 示例：
   /// ```dart

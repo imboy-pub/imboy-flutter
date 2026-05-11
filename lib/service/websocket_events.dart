@@ -84,7 +84,7 @@ final class WebSocketErrorEvent extends AppEvent {
   const WebSocketErrorEvent({required this.error});
 
   @override
-  List<Object> get props => [error];
+  List<Object> get props => [error as Object];
 }
 
 /// WebSocket 连接状态变化事件

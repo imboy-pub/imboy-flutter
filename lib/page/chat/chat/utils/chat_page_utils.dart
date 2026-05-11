@@ -115,7 +115,7 @@ class ChatPageUtils {
   /// [message] - 要检查的消息
   /// 返回消息类型字符串
   static String getMessageType(Message message) {
-    return message.metadata?['msg_type'] ?? 'unknown';
+    return (message.metadata?['msg_type'] ?? 'unknown') as String;
   }
 
   /// 检查消息是否由当前用户发送

@@ -79,32 +79,32 @@ class MessageWebrtc {
   Future<void> handleWebRTC(String type, Map<String, dynamic> data) async {
     final msgId = data['id'];
     if (['WEBRTC_OFFER', 'WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
-      webrtcMsgIds.add(msgId);
+      webrtcMsgIds.add(msgId as String);
     }
 
     if (type == 'WEBRTC_OFFER') {
       final peerId = data['from'];
-      final contact = await _contactRepo.findByUid(peerId);
+      final contact = await _contactRepo.findByUid(peerId as String);
       if (contact != null && navigatorKey.currentContext != null) {
         await incomingCallScreen(
           navigatorKey.currentContext!,
-          msgId,
+          msgId as String,
           ContactModel.fromMap({
             'id': contact.peerId,
             'nickname': contact.title,
             'avatar': contact.avatar,
             'sign': contact.sign,
           }),
-          data['payload'],
+          data['payload'] as Map<String, dynamic>,
         );
       }
     } else {
       final msgModel = WebRTCSignalingModel(
-        msgId: data['id'],
-        type: data['type'],
-        from: data['from'],
-        to: data['to'],
-        payload: data['payload'],
+        msgId: data['id'] as String,
+        type: data['type'] as String,
+        from: data['from'] as String,
+        to: data['to'] as String,
+        payload: data['payload'] as Map<String, dynamic>,
       );
       if (['WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
         // 批量更新本地消息状态为结束/忙碌

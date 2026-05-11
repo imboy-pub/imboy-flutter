@@ -438,8 +438,8 @@ class PassportNotifier extends _$PassportNotifier {
   ) async {
     try {
       Map<String, dynamic> data = await _encryptPassword(password);
-      if (strNoEmpty(data['error'])) {
-        safeUpdateState((state) => state.copyWith(error: data['error']));
+      if (strNoEmpty(data['error'] as String?)) {
+        safeUpdateState((state) => state.copyWith(error: data['error'] as String?));
         return 0;
       }
 
@@ -472,9 +472,9 @@ class PassportNotifier extends _$PassportNotifier {
         safeUpdateState((state) => state.copyWith(error: resp2.error!.message));
         return 0;
       } else {
-        int status = (resp2.payload['status'] ?? 1).toInt();
+        int status = (resp2.payload['status'] ?? 1) as int;
         if (status == 1 || status == 2) {
-          await UserRepoLocal.to.loginAfter(account, resp2.payload);
+          await UserRepoLocal.to.loginAfter(account, resp2.payload as Map<String, dynamic>);
 
           // 上报 E2EE 公钥到服务器
           await _reportE2EEPublicKey();
@@ -536,9 +536,9 @@ class PassportNotifier extends _$PassportNotifier {
         safeUpdateState((state) => state.copyWith(error: resp2.error!.message));
         return 0;
       } else {
-        int status = (resp2.payload['status'] ?? 1).toInt();
+        int status = (resp2.payload['status'] ?? 1) as int;
         if (status == 1 || status == 2) {
-          await UserRepoLocal.to.loginAfter(account, resp2.payload);
+          await UserRepoLocal.to.loginAfter(account, resp2.payload as Map<String, dynamic>);
 
           // 步骤 5.5: 上报 E2EE 公钥到服务器
           await _reportE2EEPublicKey();
@@ -600,9 +600,9 @@ class PassportNotifier extends _$PassportNotifier {
     required String pwd,
   }) async {
     Map<String, dynamic> data1 = await _encryptPassword(pwd);
-    if (strNoEmpty(data1['error'])) {
+    if (strNoEmpty(data1['error'] as String?)) {
       state = state.copyWith(error: '');
-      return data1['error'];
+      return data1['error'] as String?;
     }
     final data = {
       "type": accountType,
@@ -669,9 +669,9 @@ class PassportNotifier extends _$PassportNotifier {
     }
     try {
       Map<String, dynamic> result = await _encryptPassword(newPwd);
-      if (strNoEmpty(result['error'])) {
-        state = state.copyWith(error: result['error']);
-        return result['error'];
+      if (strNoEmpty(result['error'] as String?)) {
+        state = state.copyWith(error: result['error'] as String?);
+        return result['error'] as String?;
       }
 
       Map<String, dynamic> postData = {
@@ -719,7 +719,7 @@ class PassportNotifier extends _$PassportNotifier {
                   message,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 )
-              : message,
+              : message as Widget,
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
           behavior: SnackBarBehavior.fixed,
@@ -809,20 +809,20 @@ class PassportNotifier extends _$PassportNotifier {
       state = state.copyWith(error: resp2.error!.message);
       return state.error;
     } else {
-      int status = (resp2.payload['status'] ?? 1).toInt();
-      String account = resp2.payload['account'] ?? '';
+      int status = (resp2.payload['status'] ?? 1) as int;
+      String account = resp2.payload['account'] as String? ?? '';
       if (account.isNotEmpty) {
         await StorageService.to.setString(Keys.lastLoginAccount, account);
       }
       if (status == 1 || status == 2) {
-        await UserRepoLocal.to.loginAfter(account, resp2.payload);
+        await UserRepoLocal.to.loginAfter(account, resp2.payload as Map<String, dynamic>);
         await Future<dynamic>.delayed(const Duration(milliseconds: 100));
         WebSocketService.to.openSocket(from: 'quickLogin');
         unawaited(
           AppInitializer.triggerGroupMembershipSelfHeal(source: 'quickLogin'),
         );
       }
-      String action = resp2.payload['action'] ?? '';
+      String action = resp2.payload['action'] as String? ?? '';
       if (action == 'need_set_password') {
         await StorageService.to.setBool(Keys.needSetPwd, true);
         final context = navigatorKey.currentContext;
@@ -879,7 +879,7 @@ class PassportNotifier extends _$PassportNotifier {
 
     Map<dynamic, dynamic> res = await jverify!.checkVerifyEnable();
     iPrint("checkVerifyEnable_res ${res.toString()}");
-    bool result = res[fResultKey];
+    bool result = res[fResultKey] as bool;
     if (result == false) {
       snackBar('当前网络环境不支持，或者手机没有绑定电话卡');
       return null;
@@ -1034,8 +1034,8 @@ class PassportNotifier extends _$PassportNotifier {
       // 上报公钥到服务器
       final success = await E2EEApi().reportDeviceKey(
         deviceId: deviceId,
-        deviceType: deviceType,
-        deviceName: deviceName,
+        deviceType: deviceType as String,
+        deviceName: deviceName as String?,
         publicKey: publicKey,
         keyId: keyId,
       );

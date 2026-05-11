@@ -725,7 +725,6 @@ class SqliteService {
 
     // 类型转换（适配 SQLite 类型系统）
     try {
-      if (result is T) return result;
       if (T == int) return int.tryParse(result.toString()) as T?;
       if (T == double) return double.tryParse(result.toString()) as T?;
       if (T == String) return result.toString() as T;

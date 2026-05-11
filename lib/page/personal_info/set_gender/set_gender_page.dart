@@ -91,7 +91,7 @@ class SetGenderPage extends ConsumerWidget {
               : () async {
                   final success = await ref
                       .read(setGenderProvider.notifier)
-                      .selectGender(option['id'], ref);
+                      .selectGender(option['id'] as String, ref);
                   if (success && context.mounted) {
                     Navigator.of(context).pop(true);
                   }
@@ -114,7 +114,7 @@ class SetGenderPage extends ConsumerWidget {
                     borderRadius: AppRadius.borderRadiusLarge,
                   ),
                   child: Icon(
-                    option['icon'],
+                    option['icon'] as IconData?,
                     color: isSelected
                         ? colorScheme.primary
                         : colorScheme.onSurface.withValues(alpha: 0.6),
@@ -127,7 +127,7 @@ class SetGenderPage extends ConsumerWidget {
                 // 性别文本
                 Expanded(
                   child: Text(
-                    option['title'],
+                    option['title'] as String,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.medium,
                       fontWeight: isSelected

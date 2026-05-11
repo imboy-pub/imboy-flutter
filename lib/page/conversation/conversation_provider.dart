@@ -304,7 +304,7 @@ class ConversationNotifier extends _$ConversationNotifier {
           ? createdAt
           : int.tryParse(createdAt.toString()) ?? 0;
       final currentTime = DateTimeHelper.millisecond();
-      return (currentTime - createdTime) > burnAfter;
+      return (currentTime - createdTime) > (burnAfter as num);
     } catch (e) {
       return false;
     }
@@ -718,7 +718,7 @@ class ConversationNotifier extends _$ConversationNotifier {
         final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId.toString());
         if (lastMsg == null) continue;
 
-        if (!isBurnExpiredPayload(lastMsg.payload)) continue;
+        if (!isBurnExpiredPayload(lastMsg.payload as Map<String, dynamic>?)) continue;
 
         await expireBurnMessage(cm, cm.lastMsgId.toString());
         final updated = await repo.findById(cm.id);

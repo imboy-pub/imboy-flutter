@@ -252,7 +252,7 @@ Future<void> zoomInPhotoViewGallery(BuildContext context, List<dynamic> items) a
   final size = MediaQuery.of(context).size;
   List<dynamic> galleryItems = [];
   for (var e in items) {
-    galleryItems.add(cachedImageProvider(e, w: size.width.toDouble()));
+    galleryItems.add(cachedImageProvider(e as String, w: size.width.toDouble()));
   }
   showModalBottomSheet<void>(
     context: context,
@@ -266,7 +266,7 @@ Future<void> zoomInPhotoViewGallery(BuildContext context, List<dynamic> items) a
         scrollPhysics: const BouncingScrollPhysics(),
         builder: (BuildContext context, int index) {
           return PhotoViewGalleryPageOptions(
-            imageProvider: galleryItems[index],
+            imageProvider: galleryItems[index] as ImageProvider<Object>,
             initialScale: PhotoViewComputedScale.contained * 0.8,
           );
         },

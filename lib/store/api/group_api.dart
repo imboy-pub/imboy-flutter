@@ -21,7 +21,7 @@ class GroupApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<Map<String, dynamic>> detail({required String gid}) async {
@@ -33,7 +33,7 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload : {};
+    return resp.ok ? resp.payload as Map<String, dynamic> : <String, dynamic>{};
   }
 
   /// 获取群备注（仅自己可见）
@@ -67,7 +67,7 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload : null;
+    return resp.ok ? resp.payload as Map<String, dynamic>? : null;
   }
 
   /// 面对面建群
@@ -90,7 +90,7 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload : {};
+    return resp.ok ? resp.payload as Map<String, dynamic> : <String, dynamic>{};
   }
 
   Future<Map<String, dynamic>> groupFace2faceSave({
@@ -107,7 +107,7 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload : {};
+    return resp.ok ? (resp.payload as Map<String, dynamic>) : <String, dynamic>{};
   }
 
   Future<Map<String, dynamic>?> groupAdd({
@@ -121,7 +121,7 @@ class GroupApi extends HttpClient {
     debugPrint(
       "GroupApi/add resp.ok: ${resp.ok}, resp.code: ${resp.code}, resp.payload: ${resp.payload}",
     );
-    return resp.ok ? resp.payload : null;
+    return resp.ok ? resp.payload as Map<String, dynamic>? : null;
   }
 
   Future<bool> groupEdit({
@@ -146,7 +146,7 @@ class GroupApi extends HttpClient {
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload['tagId'] : 0;
+    return resp.ok ? resp.payload['tagId'] as int : 0;
   }
 
   Future<Map<String, dynamic>?> pageRelation({
@@ -177,7 +177,7 @@ class GroupApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<bool> removeRelation({

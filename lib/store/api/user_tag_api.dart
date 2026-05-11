@@ -22,7 +22,7 @@ class UserTagApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 添加标签、移除标签功能
@@ -79,7 +79,7 @@ class UserTagApi extends HttpClient {
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload['tagId'] : 0;
+    return resp.ok ? (resp.payload['tagId'] as int) : 0;
   }
 
   Future<Map<String, dynamic>?> pageRelation({
@@ -110,7 +110,7 @@ class UserTagApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<bool> removeRelation({

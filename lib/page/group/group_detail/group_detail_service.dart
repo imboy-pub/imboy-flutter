@@ -32,7 +32,7 @@ class GroupDetailService {
     }
     g = await GroupRepo().save(gid, payload);
     if (payload.containsKey('member_count')) {
-      g.memberCount = payload['member_count'];
+      g.memberCount = payload['member_count'] as int;
     }
     DateTime e = DateTime.now();
     iPrint("detail time diff: ${e.difference(s)} gid=$gid");
@@ -107,7 +107,7 @@ class GroupDetailService {
     iPrint("GroupMemberApi/page count=${payload?['list']?.length}");
     if (payload != null && payload['list'] != null) {
       for (var item in (payload['list'] as List)) {
-        GroupMemberModel obj2 = await repo.save(item);
+        GroupMemberModel obj2 = await repo.save(item as Map<String, dynamic>);
         list2.add(
           PeopleModel(
             id: obj2.userId,

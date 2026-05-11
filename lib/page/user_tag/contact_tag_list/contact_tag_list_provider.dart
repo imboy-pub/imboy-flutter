@@ -95,7 +95,7 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
       json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
       // 标签应用场景 1  用户收藏记录标签  2 用户朋友标签
       json[UserTagRepo.scene] = 2;
-      UserTagModel model = UserTagModel.fromJson(json);
+      UserTagModel model = UserTagModel.fromJson(json as Map<String, dynamic>);
       await repo.save(json);
       list.add(model);
     }

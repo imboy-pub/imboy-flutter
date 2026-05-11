@@ -88,7 +88,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
 
     String? url = await Navigator.push(
       context,
-      CupertinoPageRoute<dynamic>(
+      CupertinoPageRoute<String>(
         builder: (_) => CropImageRoute(
           originalImage,
           "avatar",

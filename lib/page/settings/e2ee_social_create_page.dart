@@ -171,7 +171,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
   Widget _buildProxyItem(int index, Map<String, dynamic> proxy) {
     final nickname =
-        proxy['nickname'] ?? t.e2eeSocialProxyDefaultName(uid: proxy['uid']);
+        proxy['nickname'] as Object? ?? t.e2eeSocialProxyDefaultName(uid: proxy['uid'] as Object);
     final uid = proxy['uid'];
 
     return Card(
@@ -180,7 +180,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         leading: CircleAvatar(
           backgroundColor: Colors.purple,
           child: Text(
-            nickname.substring(0, 1).toUpperCase(),
+            (nickname as String).substring(0, 1).toUpperCase(),
             style: const TextStyle(color: Colors.white),
           ),
         ),

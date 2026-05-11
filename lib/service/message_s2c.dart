@@ -94,10 +94,10 @@ class MessageS2CService {
           await _handlePullOfflineMsg(data, payloadMap);
           break;
         case 'c2c_revoke':
-          await _handleC2CRevoke(data, payloadMap, from, to);
+          await _handleC2CRevoke(data, payloadMap, from as String, to as String);
           break;
         case 'c2c_del_everyone':
-          await _handleC2CDelEveryone(data, payloadMap, from, to);
+          await _handleC2CDelEveryone(data, payloadMap, from as String, to as String);
           break;
         case 'c2g_del_everyone':
           await _handleC2GDelEveryone(data, payloadMap);
@@ -143,7 +143,7 @@ class MessageS2CService {
           break;
         case 'please_refresh_token':
           autoAck = false;
-          await _handlePleaseRefreshToken(payloadMap, msgId);
+          await _handlePleaseRefreshToken(payloadMap, msgId as String);
           break;
         case 'app_upgrade':
           await _handleAppUpgrade(payloadMap);
@@ -250,7 +250,7 @@ class MessageS2CService {
       if (autoAck) {
         iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
         // 直接发送 ACK 确认
-        AckManager.to.sendAckDirect('S2C', msgId);
+        AckManager.to.sendAckDirect('S2C', msgId as String);
       }
     } catch (e, s) {
       iPrint("switchS2C error: $e, $s");
@@ -312,7 +312,7 @@ class MessageS2CService {
         originalMsg: oldMsg,
         repo: messageRepo,
         revokeUserId: from,
-        originalText: payload['text'],
+        originalText: payload['text'] as String?,
       );
     } else {
       iPrint("未找到要撤回的消息: $revokeMsgId");
@@ -334,7 +334,7 @@ class MessageS2CService {
 
     // 使用公共辅助类处理删除（消除代码重复）
     await MessageActions.handleC2CDeleteMessage(
-      oldMsgId: oldMsgId,
+      oldMsgId: oldMsgId as String,
       from: from,
       to: to,
     );
@@ -354,8 +354,8 @@ class MessageS2CService {
 
     // 使用公共辅助类处理删除（消除代码重复）
     await MessageActions.handleC2GDeleteMessage(
-      oldMsgId: oldMsgId,
-      groupId: groupId,
+      oldMsgId: oldMsgId as String,
+      groupId: groupId as String,
     );
   }
 
@@ -383,9 +383,9 @@ class MessageS2CService {
     iPrint('  └─ 完整 payload: $payload');
 
     final joinRes = await GroupListService().memberJoin(
-      groupId: gid,
-      userId: userId,
-      userIdSum: userIdSum,
+      groupId: gid as String,
+      userId: userId as String,
+      userIdSum: userIdSum as int,
     );
 
     iPrint('📢 [S2C] 发布 join_group 事件到 ChatExtendEvent');
@@ -398,10 +398,10 @@ class MessageS2CService {
           'userId': userId,
           'isFirst': joinRes?['isFirst'] ?? false,
           'people': PeopleModel(
-            id: userId,
-            account: account,
-            nickname: nickname,
-            avatar: avatar,
+            id: userId as int,
+            account: account as String,
+            nickname: nickname as String,
+            avatar: avatar as String,
           ),
         },
       ),
@@ -417,7 +417,7 @@ class MessageS2CService {
   /// 处理逻辑：清理群组相关数据，更新UI
   static Future<void> _handleGroupDissolve(Map<String, dynamic> payload) async {
     final gid = payload['gid'];
-    await GroupDetailService().cleanData(gid);
+    await GroupDetailService().cleanData(gid as String);
   }
 
   /// 处理群组成员离开
@@ -434,9 +434,9 @@ class MessageS2CService {
     final userIdSum = payload['user_id_sum'] ?? 0;
 
     await GroupListService().memberLeave(
-      groupId: gid,
-      userId: userId,
-      userIdSum: userIdSum,
+      groupId: gid as String,
+      userId: userId as String,
+      userIdSum: userIdSum as int,
     );
 
     AppEventBus.fire(
@@ -445,7 +445,7 @@ class MessageS2CService {
         payload: {
           'groupId': gid,
           'userId': userId,
-          'people': PeopleModel(id: userId, account: ''),
+          'people': PeopleModel(id: userId as int, account: ''),
         },
       ),
     );
@@ -593,7 +593,7 @@ class MessageS2CService {
           barrierDismissible: true,
           builder: (ctx) => AlertDialog(
             title: Text(t.offlineNotification),
-            content: Text(t.forcedOfflineByDevice(device: byName)),
+            content: Text(t.forcedOfflineByDevice(device: byName as Object)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),

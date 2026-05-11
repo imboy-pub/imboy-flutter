@@ -37,10 +37,10 @@ class MapLocationPicker extends StatefulWidget {
       (arguments as Map)["lat"] as double,
       (arguments as Map)["lng"] as double,
     );
-    citycode = (arguments as Map)["citycode"];
+    citycode = (arguments as Map)["citycode"] as String;
     // citycode = "350100";
     // latLng = LatLng(26.017794, 119.41755599999999);
-    isMapImage = (arguments as Map)["isMapImage"];
+    isMapImage = (arguments as Map)["isMapImage"] as bool;
   }
 }
 
@@ -534,9 +534,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     // "type":"餐饮服务;快餐厅;快餐厅","typecode":"050300","adname":"宝安区","citycode":"0755","name":"影朵自选快餐",
     // "location":"113.876030,22.591599","id":"B0ID7UCWEP"},
     List<dynamic> poiList = [];
-    String status = response.data["status"] ?? 0;
+    String status = response.data["status"] as String? ?? '0';
     if (response.statusCode == 200 && status == "1") {
-      poiList = response.data["pois"];
+      poiList = response.data["pois"] as List<dynamic>;
     }
     for (var e in poiList) {
       // e['location'] "116.310905,39.992806",
@@ -544,16 +544,16 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // latitude '纬度坐标 -90,90
       poiInfoList.add(
         AMapPosition(
-          id: e['id'],
-          name: e['name'],
+          id: e['id'] as String,
+          name: e['name'] as String,
           latLng: LatLng(
             double.parse(e['location'].toString().split(",")[1]), // latitude
             double.parse(e['location'].toString().split(",")[0]), // longitude
           ),
-          address: e['address'] ?? '',
+          address: (e['address'] ?? '') as String,
           // pcode: e['pcode'],
-          adCode: e['adcode'] ?? '',
-          distance: e['distance'] ?? '',
+          adCode: (e['adcode'] ?? '') as String,
+          distance: (e['distance'] ?? '') as String,
         ),
       );
     }
@@ -584,9 +584,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       page,
     );
     List<dynamic> poiList = [];
-    int status = response.data["status"] ?? 0;
+    int status = response.data["status"] as int? ?? 0;
     if (response.statusCode == 200 && status == 1) {
-      poiList = response.data["pois"];
+      poiList = response.data["pois"] as List<dynamic>;
     }
     for (var e in poiList) {
       // e['location'] "116.310905,39.992806",
@@ -594,16 +594,16 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // latitude '纬度坐标 -90,90
       poiInfoList.add(
         AMapPosition(
-          id: e['id'],
-          name: e['name'],
+          id: e['id'] as String,
+          name: e['name'] as String,
           latLng: LatLng(
             double.parse(e['location'].toString().split(",")[1]), // latitude
             double.parse(e['location'].toString().split(",")[0]), // longitude
           ),
-          address: e['address'] ?? '',
+          address: (e['address'] ?? '') as String,
           // pcode: e['pcode'],
-          adCode: e['adcode'] ?? '',
-          distance: e['distance'] ?? '',
+          adCode: (e['adcode'] ?? '') as String,
+          distance: (e['distance'] ?? '') as String,
         ),
       );
     }

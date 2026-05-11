@@ -28,7 +28,7 @@ class RevokedMessageBuilder extends StatelessWidget {
     final Map<String, dynamic> metadata = message.metadata ?? {};
     final int? status = metadata['status'] as int?;
     final bool userIsAuthor = user.id == message.authorId;
-    final String text = metadata['text'] ?? '';
+    final String text = metadata['text'] as String? ?? '';
     final int nowMs = DateTimeHelper.millisecond();
 
     // 调试输出（仅记录非敏感信息）
@@ -85,7 +85,7 @@ class RevokedMessageBuilder extends StatelessWidget {
           } else {
             // 优先使用会话模型中的title，其次使用联系人信息
             String contactTitle = _getContactTitleFromConversation(
-              snapshot.data?['conversation'],
+              snapshot.data?['conversation'] as ConversationModel?,
               metadata,
             );
             nickname = '"$contactTitle"';
@@ -136,7 +136,7 @@ class RevokedMessageBuilder extends StatelessWidget {
   Future<Map<String, dynamic>?> _fetchConversationAndContact() async {
     try {
       // 从消息元数据中获取会话UK3
-      String conversationUk3 = message.metadata?['conversation_uk3'] ?? '';
+      String conversationUk3 = message.metadata?['conversation_uk3'] as String? ?? '';
       // 根据会话UK3解析出类型和peerId
       final parts = conversationUk3.split('_');
       if (parts.length >= 3) {
@@ -177,7 +177,7 @@ class RevokedMessageBuilder extends StatelessWidget {
     }
 
     // 如果没有会话和联系人信息，尝试从元数据中获取
-    String peerName = metadata['peer_name'] ?? '';
+    String peerName = metadata['peer_name'] as String? ?? '';
     if (peerName.trim().isNotEmpty) {
       return peerName;
     }

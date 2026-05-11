@@ -334,8 +334,8 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                     if (region is String) {
                       title = region;
                     } else if (region is Map) {
-                      title = region['title'] ?? '';
-                      children = region['children'] ?? [];
+                      title = region['title'] as String? ?? '';
+                      children = region['children'] as List<dynamic>? ?? [];
                     }
                     final hasChildren = children.isNotEmpty;
                     final isSelected = ref

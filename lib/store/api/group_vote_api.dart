@@ -81,7 +81,7 @@ class GroupVoteApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 获取投票列表
@@ -121,7 +121,7 @@ class GroupVoteApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 投票
@@ -211,6 +211,6 @@ class GroupVoteApi extends HttpClient {
       return [];
     }
 
-    return [Map<String, dynamic>.from(resp.payload)];
+    return [Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>)];
   }
 }

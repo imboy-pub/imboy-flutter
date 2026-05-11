@@ -55,7 +55,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
   @override
   void initState() {
     super.initState();
-    msgId = widget.option['msgId'] ?? Xid().toString();
+    msgId = widget.option['msgId'] as String? ?? Xid().toString();
     _initData();
   }
 
@@ -95,7 +95,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
   }
 
   Future<void> _initData() async {
-    media = widget.option['media'] ?? 'video';
+    media = widget.option['media'] as String? ?? 'video';
     debugPrint("> rtc initData view ${DateTime.now()}");
 
     await localRenderer.initialize();

@@ -136,7 +136,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   /// 构建搜索结果项 - 优化版本，使用缓存
   Widget wordView(Message item, ContactModel? author) {
     final msg = item;
-    String subtitle = msg.metadata?['text'] ?? '';
+    String subtitle = msg.metadata?['text'] as String? ?? '';
 
     return InkWell(
       borderRadius: AppRadius.borderRadiusMedium,

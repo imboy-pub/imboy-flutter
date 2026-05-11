@@ -177,7 +177,7 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
           );
         }
 
-        List<dynamic> items = snapshot.data;
+        List<dynamic> items = snapshot.data as List<dynamic>;
 
         if (doBuildResults != null) {
           return doBuildResults!(items);
@@ -213,13 +213,13 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
                         ),
                         onTap: () => onTapForItem(items[i]),
                         leading: Avatar(
-                          imgUri: items[i].avatar,
+                          imgUri: items[i].avatar as String,
                           onTap: () {},
                           width: 40,
                           height: 40,
                         ),
                         title: Text(
-                          items[i].title,
+                          items[i].title as String,
                           style: ThemeManager.instance
                               .getTextStyle(
                                 FontSizeType.large,

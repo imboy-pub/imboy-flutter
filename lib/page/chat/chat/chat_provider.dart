@@ -361,8 +361,8 @@ class ChatNotifier extends _$ChatNotifier {
         service?.setMessages(newItems);
         iPrint('loadMoreMessages: 调用 setMessages 之后');
         state = state.copyWith(
-          nextAutoId: newItems.first.metadata?['auto_id'] ?? 0,
-          prevAutoId: newItems.last.metadata?['auto_id'] ?? 0,
+          nextAutoId: newItems.first.metadata?['auto_id'] as int? ?? 0,
+          prevAutoId: newItems.last.metadata?['auto_id'] as int? ?? 0,
         );
         iPrint(
           'loadMoreMessages: 已设置消息到 ChatService, nextAutoId=${state.nextAutoId}, prevAutoId=${state.prevAutoId}',
@@ -370,7 +370,7 @@ class ChatNotifier extends _$ChatNotifier {
       } else {
         _chatService?.insertAllMessages(newItems, index: 0);
         state = state.copyWith(
-          nextAutoId: newItems.first.metadata?['auto_id'] ?? state.nextAutoId,
+          nextAutoId: newItems.first.metadata?['auto_id'] as int? ?? state.nextAutoId,
         );
         iPrint('loadMoreMessages: 已插入消息到 ChatService');
       }
@@ -638,7 +638,7 @@ class ChatNotifier extends _$ChatNotifier {
       };
     }
 
-    String sysPrompt = message.metadata?['sys_prompt'] ?? '';
+    String sysPrompt = message.metadata?['sys_prompt'] as String? ?? '';
     if (strNoEmpty(sysPrompt)) {
       payload['sys_prompt'] = sysPrompt;
     }
@@ -680,7 +680,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 通过WebSocket发送消息
   /// WebSocket API v2.0: msg_type/action/e2ee 字段提升到顶层
-  /// - 普通消息: payload 是 Map<String, dynamic>（只包含内容）
+  /// - 普通消息: payload 是 `Map<String, dynamic>`（只包含内容）
   /// - E2EE 消息: payload 是密文字符串
   Future<bool> _sendWsMsg(MessageModel obj) async {
     iPrint('📤 [_sendWsMsg] 开始: msgId=${obj.id}, status=${obj.status}');
@@ -692,8 +692,7 @@ class ChatNotifier extends _$ChatNotifier {
     }
 
     final clientSendTs = DateTimeHelper.millisecond();
-    Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(obj.payload);
-    payloadWithTs['client_send_ts'] = clientSendTs;
+    Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(obj.payload as Map<dynamic, dynamic>);    payloadWithTs['client_send_ts'] = clientSendTs;
 
     // v2.0: 优先使用 MessageModel 的顶层字段
     String msgType = obj.msgType ?? '';
@@ -714,7 +713,7 @@ class ChatNotifier extends _$ChatNotifier {
         final encrypted = await _encryptPayload(
           chatType: obj.type ?? 'C2C',
           toId: obj.toId.toString(),
-          plaintextMap: obj.payload,
+          plaintextMap: obj.payload as Map<String, dynamic>,
           action: action,
           removeKeys: ['client_send_ts'],
         );
@@ -1375,7 +1374,7 @@ class ChatNotifier extends _$ChatNotifier {
       if (msg == null) return null;
       final currentUid = UserRepoLocal.to.currentUid;
 
-      final newPayload = Map<String, dynamic>.from(msg.payload);
+      final newPayload = Map<String, dynamic>.from(msg.payload as Map<dynamic, dynamic>);
       final reactionsRaw = newPayload['reactions'];
       final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
@@ -1484,7 +1483,7 @@ class ChatNotifier extends _$ChatNotifier {
     List<popupmenu.MenuItemProvider> items = [];
 
     bool canCopy = false;
-    String msgType = message.metadata?['msg_type'] ?? '';
+    String msgType = message.metadata?['msg_type'] as String? ?? '';
     if (message is TextMessage) {
       canCopy = true;
     } else if (msgType == MessageType.quote) {
@@ -1625,7 +1624,7 @@ class ChatNotifier extends _$ChatNotifier {
     var repo = MessageRepo(tableName: tableName);
     MessageModel? msg = await repo.find(msgId);
     if (msg == null) return;
-    Map<String, dynamic> payload = msg.payload;
+    Map<String, dynamic> payload = msg.payload as Map<String, dynamic>;
     // WebSocket API v2.0: 从顶层 msgType 字段读取，不再从 payload 读取
     payload['msg_type'] = msg.msgType ?? 'text';
     payload['sys_prompt'] = sysPrompt;
@@ -1870,7 +1869,7 @@ class ChatNotifier extends _$ChatNotifier {
       final nowMs = DateTimeHelper.millisecond();
       final kept = <MessageModel>[];
       for (final item in items) {
-        final payload = item.payload;
+        final payload = item.payload as Map<String, dynamic>;
         if (_isBurnExpired(payload, nowMs)) {
           await removeMessage(obj, await item.toTypeMessage());
           continue;
@@ -1903,7 +1902,7 @@ class ChatNotifier extends _$ChatNotifier {
       if (newItems.isNotEmpty) {
         _chatService?.insertAllMessages(newItems);
         state = state.copyWith(
-          prevAutoId: newItems.last.metadata?['auto_id'] ?? state.prevAutoId,
+          prevAutoId: newItems.last.metadata?['auto_id'] as int? ?? state.prevAutoId,
         );
       }
 
@@ -1927,7 +1926,7 @@ class ChatNotifier extends _$ChatNotifier {
   /// - [peerId]    对端 ID
   /// - [limit]     每页条数，默认 50
   ///
-  /// 返回拉到的消息列表（原始 Map<String, dynamic>），同时更新 [state.lastHistorySeq] 和
+  /// 返回拉到的消息列表（原始 `Map<String, dynamic>`），同时更新 [state.lastHistorySeq] 和
   /// [state.historyHasMore] 用于下一次翻页。
   Future<List<Map<String, dynamic>>> loadHistory({
     required String chatType,
@@ -2165,7 +2164,7 @@ class ChatNotifier extends _$ChatNotifier {
     required MessageModel item,
     required int nowMs,
   }) async {
-    final payload = item.payload;
+    final payload = item.payload as Map<String, dynamic>;
     if (!_isBurnPayload(payload)) return;
     if (_isBurnTombstonePayload(payload)) return;
     final burnAfter = _burnAfterMsFromPayload(payload);
@@ -2209,7 +2208,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (items.isEmpty) return null;
 
     for (final item in items) {
-      final payload = item.payload;
+      final payload = item.payload as Map<String, dynamic>;
       if (_isBurnTombstonePayload(payload)) continue;
       if (_isBurnExpired(payload, nowMs)) continue;
       return item;
@@ -2335,7 +2334,7 @@ class ChatNotifier extends _$ChatNotifier {
       final repo = MessageRepo(tableName: tb);
       final m = await repo.find(messageId);
       if (m == null) return;
-      final payload = Map<String, dynamic>.from(m.payload);
+      final payload = Map<String, dynamic>.from(m.payload as Map<dynamic, dynamic>);
       if (!_isBurnPayload(payload)) return;
 
       final burnAfter = _burnAfterMsFromPayload(payload);
@@ -2391,7 +2390,7 @@ class ChatNotifier extends _$ChatNotifier {
         return;
       }
 
-      final payload = Map<String, dynamic>.from(m.payload);
+      final payload = Map<String, dynamic>.from(m.payload as Map<dynamic, dynamic>);
       if (!_isBurnPayload(payload)) {
         await removeMessage(conversation, await m.toTypeMessage());
         return;
@@ -2581,7 +2580,7 @@ class ChatStreamStateNotifier extends Notifier<Map<String, StreamState>> {
 
   /// 清除已完成的流（节省内存）
   void clearCompleted() {
-    state = Map<String, dynamic>.fromEntries(
+    state = Map<String, StreamState>.fromEntries(
       state.entries.where((e) => e.value is! StreamStateCompleted),
     );
   }

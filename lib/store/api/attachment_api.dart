@@ -92,8 +92,8 @@ class AttachmentApi {
           debugPrint(
             "> on upload completed with status ${response.statusCode}",
           );
-          Map<String, dynamic> resp = json.decode(response.data);
-          callback(resp, AssetsService.viewUrl(resp['data']['url']).toString());
+          Map<String, dynamic> resp = json.decode(response.data as String) as Map<String, dynamic>;
+          callback(resp, AssetsService.viewUrl(resp['data']['url'] as String).toString());
         })
         .catchError((Object e) {
           debugPrint("> on upload error ${e.toString()}");
@@ -230,11 +230,11 @@ class AttachmentApi {
       Map<String, dynamic> preData = {'md5': videoMd5};
       await preUpload(prefix, preData)
           .then((response) async {
-            Map<String, dynamic> responseData = json.decode(response.data);
-            String status = responseData['status'] ?? '';
+            Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+            String status = responseData['status'] as String? ?? '';
             if (status == 'ok') {
               videoUri = AssetsService.viewUrl(
-                responseData['data']['url'],
+                responseData['data']['url'] as String,
               ).toString();
             } else {
               Map<String, dynamic> data = {
@@ -247,7 +247,7 @@ class AttachmentApi {
                 Map<String, dynamic> resp,
                 String uri,
               ) {
-                String status = resp['status'] ?? '';
+                String status = resp['status'] as String? ?? '';
                 if (status == 'ok') {
                   videoUri = uri;
                 }
@@ -304,13 +304,13 @@ class AttachmentApi {
           Map<String, dynamic> preData = {'md5': sha1.convert(originData)};
           await preUpload(prefix, preData)
               .then((response) async {
-                Map<String, dynamic> responseData = json.decode(response.data);
-                String status = responseData['status'] ?? '';
+                Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+                String status = responseData['status'] as String? ?? '';
                 if (status == 'ok') {
                   callback(
                     responseData,
                     AssetsService.viewUrl(
-                      responseData['data']['url'],
+                      responseData['data']['url'] as String,
                     ).toString(),
                   );
                 } else {
@@ -333,12 +333,12 @@ class AttachmentApi {
       Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
       await preUpload(prefix, preData)
           .then((response) async {
-            Map<String, dynamic> responseData = json.decode(response.data);
-            String status = responseData['status'] ?? '';
+            Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+            String status = responseData['status'] as String? ?? '';
             if (status == 'ok') {
               callback(
                 responseData,
-                AssetsService.viewUrl(responseData['data']['url']).toString(),
+                AssetsService.viewUrl(responseData['data']['url'] as String).toString(),
               );
             } else {
               Map<String, dynamic> data = {
@@ -366,12 +366,12 @@ class AttachmentApi {
       Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
       await preUpload(prefix, preData)
           .then((response) async {
-            Map<String, dynamic> responseData = json.decode(response.data);
-            String status = responseData['status'] ?? '';
+            Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+            String status = responseData['status'] as String? ?? '';
             if (status == 'ok') {
               callback(
                 responseData,
-                AssetsService.viewUrl(responseData['data']['url']).toString(),
+                AssetsService.viewUrl(responseData['data']['url'] as String).toString(),
               );
             } else {
               Map<String, dynamic> data = {

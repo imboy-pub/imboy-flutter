@@ -156,13 +156,13 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     );
     List<String> friendUidList = [];
     for (var f in li) {
-      friendUidList.add(f[ContactRepo.peerId]);
+      friendUidList.add(f[ContactRepo.peerId] as String);
     }
 
     List<PeopleModel> l = [];
     for (var json in (payload['list'] as List)) {
       json['unit'] = payload['unit'];
-      PeopleModel model = PeopleModel.fromJson(json);
+      PeopleModel model = PeopleModel.fromJson(json as Map<String, dynamic>);
       if (json['id'] != UserRepoLocal.to.currentUid) {
         model.isFriend = friendUidList.contains(json['id']);
         l.add(model);

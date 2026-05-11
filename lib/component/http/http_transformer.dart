@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'http_response.dart';
 
-/// Response<dynamic> 解析
+/// `Response<dynamic>` 解析
 abstract class HttpTransformer {
   IMBoyHttpResponse parse(Response<dynamic> response, String uri);
 }

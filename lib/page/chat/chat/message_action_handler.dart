@@ -210,7 +210,7 @@ class MessageActionHandler {
     if (msg is CustomMessage) {
       await ref
           .read(chatProvider.notifier)
-          .saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
+          .saveFile(msg.metadata!['md5'] as String, msg.metadata!['uri'] as String);
     } else if (msg is ImageMessage) {
       await ref
           .read(chatProvider.notifier)

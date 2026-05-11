@@ -165,7 +165,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       case 'peers':
         break;
       case 'offer':
-        final sid = msg.payload['sid'] ?? s.sid;
+        final sid = (msg.payload['sid'] ?? s.sid) as String;
         final sd = msg.payload['sd'];
         // SDP 基本格式校验
         if (sd is! Map || sd['sdp'] is! String || sd['type'] != 'offer') {
@@ -187,12 +187,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           s2.remoteCandidates.clear();
         }
 
-        final sd2 = RTCSessionDescription(sd['sdp'], sd['type']);
+        final sd2 = RTCSessionDescription(sd['sdp'] as String, sd['type'] as String);
         await s2.pc!.setRemoteDescription(sd2);
         await _createAnswer(s2, msg.msgId, media);
         break;
       case 'answer':
-        final sid = msg.payload['sid'] ?? s.sid;
+        final sid = (msg.payload['sid'] ?? s.sid) as String;
         final sd = msg.payload['sd'];
         // SDP 基本格式校验
         if (sd is! Map || sd['sdp'] is! String || sd['type'] != 'answer') {
@@ -203,7 +203,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
         makingOffer = false;
         await s2!.pc?.setRemoteDescription(
-          RTCSessionDescription(sd['sdp'], sd['type']),
+          RTCSessionDescription(sd['sdp'] as String, sd['type'] as String),
         );
         webRTCSessions[sid] = s2;
         onCallStateChange?.call(s2, WebRTCCallState.callStateConnected);
@@ -211,7 +211,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       case 'candidate':
         final peerId = msg.from;
         final candidateMap = msg.payload['candidate'];
-        await _receiveCandidate(peerId, candidateMap);
+        await _receiveCandidate(peerId, candidateMap as Map<String, dynamic>);
         break;
       case 'leave':
         closeSessionByPeerId(s.peerId);

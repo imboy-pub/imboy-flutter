@@ -50,7 +50,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
   void _initImageInfo() {
     // 从 metadata 中获取图片信息
     final metadata = widget.message.metadata ?? {};
-    _imageUrl = metadata['source'] ?? metadata['uri'] ?? '';
+    _imageUrl = metadata['source'] as String? ?? metadata['uri'] as String? ?? '';
 
     // 确保 width 和 height 是 double 类型
     final width = metadata['width'];

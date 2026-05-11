@@ -96,7 +96,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       return;
     }
     // 直接发送 ACK 确认
-    AckManager.to.sendAckDirect('S2C', msgId);
+    AckManager.to.sendAckDirect('S2C', msgId as String);
   }
 
   /// 确认添加朋友
@@ -118,7 +118,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
         return;
       }
       // 直接发送 ACK 确认
-      AckManager.to.sendAckDirect('S2C', msgId);
+      AckManager.to.sendAckDirect('S2C', msgId as String);
     }
   }
 
@@ -170,7 +170,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     }
     List<PeopleModel> list = [];
     for (var vo in (payload?['list'] as List)) {
-      list.add(PeopleModel.fromJson(vo));
+      list.add(PeopleModel.fromJson(vo as Map<String, dynamic>));
     }
     return list;
   }

@@ -78,7 +78,7 @@ class RecentlyRegisteredUserNotifier
     ContactRepo repo = ContactRepo();
     List<PeopleModel> list = [];
     for (var json in (payload['list'] as List)) {
-      PeopleModel model = PeopleModel.fromJson(json);
+      PeopleModel model = PeopleModel.fromJson(json as Map<String, dynamic>);
       await repo.update({
         'id': json['id'],
         ContactRepo.isFriend: json['is_friend'],

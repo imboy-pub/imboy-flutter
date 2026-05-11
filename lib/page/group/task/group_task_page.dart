@@ -249,7 +249,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      task['title'] ?? '',
+                      task['title'] as String? ?? '',
                       style: TextStyle(
                         fontSize: 16,
                         decoration: status == 1
@@ -260,7 +260,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                     if (task['description'] != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        task['description'],
+                        task['description'] as String,
                         style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

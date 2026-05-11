@@ -634,7 +634,7 @@ class WebSocketService {
   /// 统一消息解析方法
   Map<String, dynamic> _parseMessage(dynamic message) {
     if (message is String) {
-      return jsonDecode(message);
+      return jsonDecode(message) as Map<String, dynamic>;
     } else if (message is Map<String, dynamic>) {
       return message;
     } else if (message is Map) {

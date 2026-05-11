@@ -22,7 +22,7 @@ class DeviceExt extends DeviceInfoPlugin {
 
   static Future<String> get did async {
     final Map<String, dynamic>? info = await to.detail;
-    return info!["did"];
+    return info!["did"] as String;
   }
 
   Future<Map<String, dynamic>?> get detail async {

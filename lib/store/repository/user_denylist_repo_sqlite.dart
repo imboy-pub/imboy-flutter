@@ -168,26 +168,26 @@ class UserDenylistRepo {
     String uid = (json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? ""))
         .toString();
     Map<String, Object?> data = {};
-    if (strNoEmpty(json["account"])) {
+    if (strNoEmpty(json["account"] as String?)) {
       data[UserDenylistRepo.account] = json["account"];
     }
-    if (strNoEmpty(json["nickname"])) {
+    if (strNoEmpty(json["nickname"] as String?)) {
       data[UserDenylistRepo.nickname] = json["nickname"];
     }
-    if (strNoEmpty(json["avatar"] ?? "")) {
+    if (strNoEmpty((json["avatar"] ?? "") as String?)) {
       data[UserDenylistRepo.avatar] = json["avatar"];
     }
 
-    if (strNoEmpty(json["remark"])) {
+    if (strNoEmpty(json["remark"] as String?)) {
       data[UserDenylistRepo.remark] = json["remark"];
     }
-    if (strNoEmpty(json["region"])) {
+    if (strNoEmpty(json["region"] as String?)) {
       data[UserDenylistRepo.region] = json["region"];
     }
-    if (strNoEmpty(json["sign"])) {
+    if (strNoEmpty(json["sign"] as String?)) {
       data[UserDenylistRepo.sign] = json["sign"];
     }
-    if (strNoEmpty(json["source"])) {
+    if (strNoEmpty(json["source"] as String?)) {
       data[UserDenylistRepo.source] = json["source"];
     }
     if ((json["gender"] as num) > 0) {

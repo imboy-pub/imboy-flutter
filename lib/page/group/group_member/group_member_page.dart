@@ -151,11 +151,11 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       );
 
       if (payload != null && payload['list'] != null) {
-        List<dynamic> list = payload['list'];
+        List<dynamic> list = payload['list'] as List<dynamic>;
         List<GroupMemberModel> newMembers = [];
 
         for (var item in list) {
-          GroupMemberModel member = await repo.save(item);
+          GroupMemberModel member = await repo.save(item as Map<String, dynamic>);
           newMembers.add(member);
         }
 
@@ -166,7 +166,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         }
 
         // 检查是否还有更多数据
-        int total = payload['total'] ?? 0;
+        int total = payload['total'] as int? ?? 0;
         _hasMore = _memberList.length < total;
       }
 

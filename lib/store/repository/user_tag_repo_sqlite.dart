@@ -97,22 +97,21 @@ class UserTagRepo {
     if (strNoEmpty("${json[UserTagRepo.name]}")) {
       data[UserTagRepo.name] = json[UserTagRepo.name].toString();
     }
-    String? subtitle = json[UserTagRepo.subtitle];
+    String? subtitle = json[UserTagRepo.subtitle] as String?;
     if (subtitle != null) {
       data[UserTagRepo.subtitle] = json[UserTagRepo.subtitle];
     }
 
-    int refererTime = json[UserTagRepo.refererTime] ?? 0;
+    int refererTime = json[UserTagRepo.refererTime] as int? ?? 0;
     if (refererTime > 0) {
       data[UserTagRepo.refererTime] = refererTime;
     }
 
-    int updatedAt = json[UserTagRepo.updatedAt] ?? 0;
+    int updatedAt = json[UserTagRepo.updatedAt] as int? ?? 0;
     if (updatedAt > 0) {
       data[UserTagRepo.updatedAt] = updatedAt;
     }
-    int tagId = json[UserTagRepo.tagId] ?? (json['id'] ?? 0);
-    iPrint("UserTagRepo_update ${data.toString()};");
+    int tagId = json[UserTagRepo.tagId] as int? ?? (json['id'] as int? ?? 0);
     if (tagId > 0) {
       if (txn != null) {
         return await txn.update(
@@ -135,7 +134,7 @@ class UserTagRepo {
   }
 
   Future<UserTagModel> save(Map<String, dynamic> json) async {
-    int tagId = json[UserTagRepo.tagId] ?? (json['id'] ?? 0);
+    int tagId = json[UserTagRepo.tagId] as int? ?? (json['id'] as int? ?? 0);
     return await _db.transaction<UserTagModel>((txn) async {
       UserTagModel? old = await findByTagId(tagId, txn: txn);
       iPrint("UserTagRepo_save $tagId, ${old?.toMap().toString()};");

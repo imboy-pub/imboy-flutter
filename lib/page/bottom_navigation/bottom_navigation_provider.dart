@@ -45,7 +45,7 @@ class NewFriendRemindNotifier extends _$NewFriendRemindNotifier {
 
     final Set<String> newFroms = {
       for (var e in items)
-        if (e[NewFriendRepo.from] != null) e[NewFriendRepo.from],
+        if (e[NewFriendRepo.from] != null) e[NewFriendRepo.from] as String,
     };
 
     // 再次检查（防止在异步间隙中被 disposed）

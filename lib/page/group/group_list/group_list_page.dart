@@ -190,7 +190,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                 hintText: t.search,
                 queryTips: t.groupSearchTips,
                 doSearch: ((query) =>
-                    GroupRepo().searchByAttr(attr: state.attr, kwd: query)),
+                    GroupRepo().searchByAttr(attr: state.attr, kwd: query as String)),
                 onTapForItem: (model) {
                   if (model is GroupModel) {
                     context.push(

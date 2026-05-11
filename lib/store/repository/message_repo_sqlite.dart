@@ -289,7 +289,7 @@ class MessageRepo {
           id: msg.id,
           conversationUk3: msg.conversationUk3,
           msgTypeField: msg.msgType ?? '',
-          payload: msg.payload,
+          payload: msg.payload as Map<String, dynamic>,
         ),
       );
     } else {

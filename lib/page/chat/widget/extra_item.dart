@@ -194,10 +194,10 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
                 if (widget.handleLocationSelection != null &&
                     result["image"] != null) {
                   widget.handleLocationSelection!(
-                    result["id"],
-                    result["image"],
-                    result["address"],
-                    result["title"],
+                    result["id"] as String,
+                    result["image"] as Uint8List,
+                    result["address"] as String,
+                    result["title"] as String,
                     result["latitude"].toString(),
                     result["longitude"].toString(),
                   );

@@ -44,7 +44,7 @@ class MomentApi extends HttpClient {
     if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload);
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
 
   Future<Map<String, dynamic>?> getPost(String momentId) async {
@@ -53,7 +53,7 @@ class MomentApi extends HttpClient {
     if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload);
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
 
   Future<bool> deletePost(String momentId) async {
@@ -74,7 +74,7 @@ class MomentApi extends HttpClient {
     if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
     }
-    final payload = Map<String, dynamic>.from(resp.payload);
+    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     final rawList = payload['list'];
     final list = rawList is List
         ? rawList
@@ -104,7 +104,7 @@ class MomentApi extends HttpClient {
     if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
     }
-    final payload = Map<String, dynamic>.from(resp.payload);
+    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     final rawList = payload['list'];
     final list = rawList is List
         ? rawList
@@ -148,7 +148,7 @@ class MomentApi extends HttpClient {
     if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload);
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
 
   Future<MomentPageResult<Map<String, dynamic>>> listComments(
@@ -167,7 +167,7 @@ class MomentApi extends HttpClient {
     if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
       return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
     }
-    final payload = Map<String, dynamic>.from(resp.payload);
+    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     final rawList = payload['list'];
     final list = rawList is List
         ? rawList

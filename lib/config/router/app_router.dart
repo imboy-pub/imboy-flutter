@@ -1010,7 +1010,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return CupertinoPage(
             key: state.pageKey,
-            child: GroupQrCodePage(group: extra as dynamic),
+            child: GroupQrCodePage(group: extra),
           );
         },
       ),

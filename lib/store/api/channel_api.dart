@@ -50,7 +50,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelModel.fromJson(resp.payload);
+    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
   /// 获取频道信息
@@ -62,7 +62,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelModel.fromJson(resp.payload);
+    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
   /// 通过自定义 ID 获取频道
@@ -74,7 +74,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelModel.fromJson(resp.payload);
+    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
   /// 更新频道信息
@@ -107,7 +107,7 @@ class ChannelApi extends HttpClient {
       );
     }
 
-    return ChannelModel.fromJson(resp.payload);
+    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
   /// 删除频道
@@ -173,7 +173,7 @@ class ChannelApi extends HttpClient {
       );
     }
 
-    final channels = list.map((json) => ChannelModel.fromJson(json)).toList();
+    final channels = list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
     final dynamic next =
         resp.payload['next_cursor'] ??
         resp.payload['cursor'] ??
@@ -204,7 +204,7 @@ class ChannelApi extends HttpClient {
       };
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload);
+    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     final rawChannels = payload['channels'];
     final channels = rawChannels is List
         ? rawChannels
@@ -238,7 +238,7 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelModel.fromJson(json)).toList();
+    return list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   /// 获取频道订阅者列表
@@ -291,7 +291,7 @@ class ChannelApi extends HttpClient {
       throw Exception('publish response payload is empty');
     }
 
-    return ChannelMessageModel.fromJson(resp.payload);
+    return ChannelMessageModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
   /// 获取频道消息列表
@@ -316,7 +316,7 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelMessageModel.fromJson(json)).toList();
+    return list.map((json) => ChannelMessageModel.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   /// 标记已读
@@ -349,7 +349,7 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelModel.fromJson(json)).toList();
+    return list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   /// 发现频道（推荐）
@@ -370,7 +370,7 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelModel.fromJson(json)).toList();
+    return list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   // ==================== 管理员操作 ====================
@@ -466,7 +466,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   // ==================== 统计相关 API ====================
@@ -480,7 +480,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelStatsModel.fromJson(resp.payload);
+    return ChannelStatsModel.fromJson(resp.payload as Map<String, dynamic>);
   }
 
   /// 获取频道每日统计数据
@@ -501,7 +501,7 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelDailyStatsModel.fromJson(json)).toList();
+    return list.map((json) => ChannelDailyStatsModel.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   /// 记录消息阅读
@@ -611,7 +611,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelOrderModel.fromJson(Map<String, dynamic>.from(resp.payload));
+    return ChannelOrderModel.fromJson(Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>));
   }
 
   /// 支付订单（模拟支付）
@@ -652,6 +652,6 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelOrderModel.fromJson(Map<String, dynamic>.from(resp.payload));
+    return ChannelOrderModel.fromJson(Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>));
   }
 }

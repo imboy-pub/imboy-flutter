@@ -127,8 +127,8 @@ class ChatAudioHandler {
       audioUri = typedMessage.source;
       duration = typedMessage.duration.inMilliseconds;
     } else if (typedMessage is CustomMessage) {
-      audioUri = typedMessage.metadata?['uri'];
-      duration = typedMessage.metadata?['duration_ms'] ?? 0;
+      audioUri = typedMessage.metadata?['uri'] as String?;
+      duration = typedMessage.metadata?['duration_ms'] as int? ?? 0;
     }
 
     if (audioUri == null || audioUri.isEmpty) {

@@ -322,7 +322,7 @@ class AddFriendPage extends ConsumerWidget {
           leading: ClipRRect(
             borderRadius: AppRadius.borderRadiusSmall,
             child: Image(
-              image: cachedImageProvider(model.avatar ?? '', w: 56),
+              image: cachedImageProvider(model.avatar as String? ?? '', w: 56),
               width: 56,
               height: 56,
               fit: BoxFit.cover,
@@ -336,12 +336,12 @@ class AddFriendPage extends ConsumerWidget {
               },
             ),
           ),
-          title: Text(model.title),
+          title: Text(model.title as String),
           subtitle: Row(
             children: [
-              genderIcon(model.gender),
+              genderIcon(model.gender as int),
               const Space(width: 10),
-              if (model.region.isNotEmpty == true) Text(model.region),
+              if (model.region.isNotEmpty == true) Text(model.region as String),
             ],
           ),
           trailing: isSelf

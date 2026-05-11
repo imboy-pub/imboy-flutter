@@ -185,7 +185,7 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
         trailing: haveChildren
             ? navigateNextIcon
             : (isSelected && provider.regionSelected[title] != null
-                  ? provider.regionSelected[title]!['trailing']
+                  ? provider.regionSelected[title]!['trailing'] as Widget?
                   : null),
       ),
     );

@@ -47,11 +47,11 @@ class UserCollectModel {
       kind: parseModelInt(data['kind']),
       kindId: parseModelInt(data['kind_id']),
       source: (data['source'] ?? '').toString(),
-      remark: data['remark'] ?? '',
-      tag: data['tag'] ?? '',
+      remark: (data['remark'] ?? '') as String,
+      tag: (data['tag'] ?? '') as String,
       updatedAt: DateTimeHelper.parseTimestamp(data['updated_at']),
       createdAt: DateTimeHelper.parseTimestamp(data['created_at']),
-      info: Map<String, dynamic>.from(info1),
+      info: Map<String, dynamic>.from(info1 as Map<dynamic, dynamic>),
     );
   }
 

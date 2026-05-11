@@ -82,7 +82,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           queryTips: t.hintLoginAccount,
           searchLabel: t.hintLoginAccount,
           doSearch: ((query) async {
-            return notifier.userSearch(kwd: query);
+            return notifier.userSearch(kwd: query as String?);
           }),
           doBuildResults: (results) =>
               _doBuildUserSearchResults(context, results),
@@ -121,7 +121,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     }
 
     return items.map((item) {
-      PeopleModel model = item;
+      PeopleModel model = item as PeopleModel;
       bool isSelf = model.id.toString() == UserRepoLocal.to.currentUid;
 
       return Container(
@@ -534,7 +534,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                       padding: const EdgeInsets.only(bottom: 16.0),
                       itemCount: state.items.length,
                       itemBuilder: (BuildContext context, int index) {
-                        NewFriendModel model = state.items[index];
+                        NewFriendModel model = state.items[index] as NewFriendModel;
                         return _buildFriendRequestItem(context, model, index);
                       },
                     ),

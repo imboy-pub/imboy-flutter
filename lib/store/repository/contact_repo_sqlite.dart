@@ -233,30 +233,30 @@ class ContactRepo {
     String peerId = (json["id"] ?? (json[ContactRepo.peerId] ?? "")).toString();
 
     Map<String, Object?> data = {};
-    if (strNoEmpty(json[ContactRepo.account])) {
+    if (strNoEmpty(json[ContactRepo.account] as String?)) {
       data[ContactRepo.account] = json[ContactRepo.account];
     }
-    if (strNoEmpty(json[ContactRepo.nickname])) {
+    if (strNoEmpty(json[ContactRepo.nickname] as String?)) {
       data[ContactRepo.nickname] = json[ContactRepo.nickname];
     }
-    if (strNoEmpty(json[ContactRepo.avatar])) {
+    if (strNoEmpty(json[ContactRepo.avatar] as String?)) {
       data[ContactRepo.avatar] = json[ContactRepo.avatar];
     }
 
-    if (strNoEmpty(json[ContactRepo.remark])) {
+    if (strNoEmpty(json[ContactRepo.remark] as String?)) {
       data[ContactRepo.remark] = json[ContactRepo.remark];
     }
-    String? tag = json[ContactRepo.tag];
+    String? tag = json[ContactRepo.tag] as String?;
     if (tag != null) {
       data[ContactRepo.tag] = _formatTag(tag);
     }
-    if (strNoEmpty(json[ContactRepo.region])) {
+    if (strNoEmpty(json[ContactRepo.region] as String?)) {
       data[ContactRepo.region] = json[ContactRepo.region];
     }
-    if (strNoEmpty(json[ContactRepo.sign])) {
+    if (strNoEmpty(json[ContactRepo.sign] as String?)) {
       data[ContactRepo.sign] = json[ContactRepo.sign];
     }
-    if (strNoEmpty(json[ContactRepo.source])) {
+    if (strNoEmpty(json[ContactRepo.source] as String?)) {
       data[ContactRepo.source] = json[ContactRepo.source];
     }
 

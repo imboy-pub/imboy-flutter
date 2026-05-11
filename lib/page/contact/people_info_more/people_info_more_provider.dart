@@ -86,7 +86,7 @@ class PeopleInfoMoreNotifier extends _$PeopleInfoMoreNotifier {
       var repo = GroupRepo();
 
       for (var json in (p['list'] as List)) {
-        GroupModel m = await repo.save('', json);
+        GroupModel m = await repo.save('', json as Map<String, dynamic>);
         list.add(m);
       }
 

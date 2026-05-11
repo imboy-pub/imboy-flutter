@@ -75,7 +75,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
 
   Widget _buildMessageView(BuildContext context, CustomMessage msg) {
     // bool userIsAuthor = user.id == message.author.id;
-    String thumb = msg.metadata?['thumb'];
+    String thumb = msg.metadata?['thumb'] as String;
     return SizedBox(
       width: widget.width ?? MediaQuery.of(context).size.width * 0.618,
       height: widget.height ?? 240,

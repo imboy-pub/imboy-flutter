@@ -144,7 +144,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     try {
       final jsonStr = StorageService.to.getString('web_search_history');
       if (jsonStr.isNotEmpty) {
-        final List<dynamic> history = jsonDecode(jsonStr);
+        final List<dynamic> history = jsonDecode(jsonStr) as List<dynamic>;
         setState(() {
           _state = _state.copyWith(recentSearches: history.cast<String>());
         });

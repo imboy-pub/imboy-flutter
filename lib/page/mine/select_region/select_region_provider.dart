@@ -74,7 +74,7 @@ class SelectRegionNotifier extends _$SelectRegionNotifier {
       return false;
     } else if (model is Map) {
       final children = model["children"] ?? <dynamic>[];
-      return children.isNotEmpty;
+      return children.isNotEmpty as bool;
     }
     return false;
   }
@@ -84,7 +84,7 @@ class SelectRegionNotifier extends _$SelectRegionNotifier {
     if (model is String) {
       return model;
     } else if (model is Map) {
-      return model["title"] ?? "";
+      return (model["title"] ?? "") as String;
     }
     return "";
   }
@@ -92,7 +92,7 @@ class SelectRegionNotifier extends _$SelectRegionNotifier {
   /// 获取地区子节点
   List<dynamic> getRegionChildren(dynamic model) {
     if (model is Map) {
-      return model["children"] ?? [];
+      return (model["children"] ?? <dynamic>[]) as List<dynamic>;
     }
     return [];
   }

@@ -136,20 +136,20 @@ class NewFriendRepo {
     String from = (json[NewFriendRepo.from] ?? json['from'] ?? '').toString();
     String to = (json[NewFriendRepo.to] ?? json['to'] ?? '').toString();
     Map<String, Object?> data = {};
-    if (strNoEmpty(json[NewFriendRepo.msg])) {
+    if (strNoEmpty(json[NewFriendRepo.msg] as String?)) {
       data[NewFriendRepo.msg] = json[NewFriendRepo.msg];
     }
-    if (strNoEmpty(json[NewFriendRepo.nickname])) {
+    if (strNoEmpty(json[NewFriendRepo.nickname] as String?)) {
       data[NewFriendRepo.nickname] = json[NewFriendRepo.nickname];
     }
-    if (strNoEmpty(json[NewFriendRepo.avatar])) {
+    if (strNoEmpty(json[NewFriendRepo.avatar] as String?)) {
       data[NewFriendRepo.avatar] = json[NewFriendRepo.avatar];
     }
 
     if ((json[NewFriendRepo.status] as num) >= 0) {
       data[NewFriendRepo.status] = json["status"];
     }
-    if (strNoEmpty(json[NewFriendRepo.payload])) {
+    if (strNoEmpty(json[NewFriendRepo.payload] as String?)) {
       data[NewFriendRepo.payload] = json[NewFriendRepo.payload];
     }
 

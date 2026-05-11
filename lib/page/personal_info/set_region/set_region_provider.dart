@@ -117,7 +117,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
     try {
       final jsonString = await rootBundle.loadString('assets/data/region.json');
       if (!ref.mounted) return;
-      final List<dynamic> data = json.decode(jsonString);
+      final List<dynamic> data = json.decode(jsonString) as List<dynamic>;
       _fullRegionList = data;
       state = state.copyWith(regionList: data);
       await RegionCache.saveRegionList(data);

@@ -19,7 +19,7 @@ class GroupMemberApi extends HttpClient {
       // EasyLoading.showError(resp.msg);
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<Map<String, dynamic>?> join({
@@ -35,7 +35,7 @@ class GroupMemberApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<Map<String, dynamic>?> leave({
@@ -51,7 +51,7 @@ class GroupMemberApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   Future<bool> changeAlias(String gid, String alias) async {
@@ -73,7 +73,7 @@ class GroupMemberApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload;
+    return resp.payload as Map<String, dynamic>?;
   }
 
   /// 更新群成员角色

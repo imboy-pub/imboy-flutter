@@ -452,15 +452,15 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   // 创建新的对象而不是使用 copyWith
                   updatedItems.add(
                     UserCollectModel(
-                      userId: obj.userId,
-                      kind: obj.kind,
-                      kindId: obj.kindId,
-                      source: obj.source,
-                      remark: obj.remark,
+                      userId: obj.userId as int,
+                      kind: obj.kind as int,
+                      kindId: obj.kindId as int,
+                      source: obj.source as String,
+                      remark: obj.remark as String,
                       tag: parts.join(','),
-                      updatedAt: obj.updatedAt,
-                      createdAt: obj.createdAt,
-                      info: obj.info,
+                      updatedAt: obj.updatedAt as int,
+                      createdAt: obj.createdAt as int,
+                      info: obj.info as Map<String, dynamic>,
                     ),
                   );
                 }
@@ -748,15 +748,15 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     final updatedItems = currentState.items.map((item) {
                       if (item.kindId == obj.kindId) {
                         return UserCollectModel(
-                          userId: item.userId,
-                          kind: item.kind,
-                          kindId: item.kindId,
-                          source: item.source,
-                          remark: item.remark,
+                          userId: item.userId as int,
+                          kind: item.kind as int,
+                          kindId: item.kindId as int,
+                          source: item.source as String,
+                          remark: item.remark as String,
                           tag: result.toString(),
-                          updatedAt: item.updatedAt,
-                          createdAt: item.createdAt,
-                          info: item.info,
+                          updatedAt: item.updatedAt as int,
+                          createdAt: item.createdAt as int,
+                          info: item.info as Map<String, dynamic>,
                         );
                       }
                       return item;
@@ -828,7 +828,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                model.info['payload']?['text'] ?? t.messageContent,
+                model.info['payload']?['text'] as String? ?? t.messageContent,
                 style: TextStyle(
                   color: CupertinoColors.label.resolveFrom(context),
                 ),

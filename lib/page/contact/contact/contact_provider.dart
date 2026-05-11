@@ -179,7 +179,7 @@ class ContactNotifier extends _$ContactNotifier {
     int saveOk = 0;
     int saveFail = 0;
     for (var json in dataMap) {
-      final r = await repo.save(json);
+      final r = await repo.save(json as Map<String, dynamic>);
       if (r == null) {
         saveFail++;
       } else {

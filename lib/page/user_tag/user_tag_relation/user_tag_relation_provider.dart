@@ -296,7 +296,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
     List<String> ensureTags = const [],
   }) async {
     final statistics = await _loadTagStatistics(scene, ensureTags: ensureTags);
-    return List<String>.from(statistics['tags'] ?? const <String>[]);
+    return List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>);
   }
 
   /// 获取标签使用频率统计
@@ -306,7 +306,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
     List<String> ensureTags = const [],
   }) async {
     final statistics = await _loadTagStatistics(scene, ensureTags: ensureTags);
-    return Map<String, int>.from(statistics['usage_count'] ?? const {});
+    return Map<String, int>.from((statistics['usage_count'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
   }
 
   /// 获取标签统计信息
@@ -345,7 +345,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
           ensureTags: missingTagIds,
         );
         resolvedTagIdByName.addAll(
-          Map<String, int>.from(statistics['tag_id_by_name'] ?? const {}),
+          Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>),
         );
       }
       final unresolved = plan.toRemove
@@ -429,7 +429,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
         }
 
         // 处理标签操作
-        Set<String> updatedTags = Set<dynamic>.from(currentTags);
+        Set<String> updatedTags = Set<dynamic>.from(currentTags).cast<String>();
 
         // 删除标签
         for (String tagToRemove in tagsToRemove) {
@@ -481,9 +481,9 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
   void updateTagStatistics(Map<String, dynamic> statistics) {
     state = state.copyWith(
       tagStatistics: statistics,
-      recentTagItems: List<String>.from(statistics['tags'] ?? []),
-      tagUsageCount: Map<String, int>.from(statistics['usage_count'] ?? {}),
-      tagIdByName: Map<String, int>.from(statistics['tag_id_by_name'] ?? {}),
+      recentTagItems: List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>),
+      tagUsageCount: Map<String, int>.from((statistics['usage_count'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>),
+      tagIdByName: Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>),
     );
   }
 

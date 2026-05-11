@@ -122,12 +122,12 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
         height: 24,
         decoration: BoxDecoration(
           color: Color(
-            int.tryParse(tag['color'] ?? '0xFF2196F3') ?? 0xFF2196F3,
+            int.tryParse(tag['color'] as String? ?? '0xFF2196F3') ?? 0xFF2196F3,
           ),
           shape: BoxShape.circle,
         ),
       ),
-      title: Text(tag['name'] ?? ''),
+      title: Text(tag['name'] as String? ?? ''),
       trailing: IconButton(
         icon: const Icon(Icons.delete_outline),
         onPressed: () async {

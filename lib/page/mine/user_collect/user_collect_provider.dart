@@ -125,7 +125,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
       for (var json in (payload['list'] as List)) {
         json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
-        final UserCollectModel model = UserCollectModel.fromJson(json);
+        final UserCollectModel model = UserCollectModel.fromJson(json as Map<String, dynamic>);
         await repo.save(json);
         result.add(model);
       }
@@ -200,7 +200,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         children: [
           Expanded(
             child: Text(
-              obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
+              obj.info['text'] as String? ?? (obj.info['payload']['text'] as String? ?? ''),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -212,7 +212,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         ],
       );
     } else if (obj.kind == 2) {
-      String uri = obj.info['payload']['uri'] ?? '';
+      String uri = obj.info['payload']['uri'] as String? ?? '';
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -239,7 +239,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             child: Row(
               children: [
                 Text(
-                  formatBytes(obj.info['payload']['size'] ?? ''),
+                  formatBytes(obj.info['payload']['size'] as int? ?? 0),
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -264,7 +264,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         ],
       );
     } else if (obj.kind == 3) {
-      int durationMS = obj.info['payload']['duration_ms'] ?? 0;
+      int durationMS = obj.info['payload']['duration_ms'] as int? ?? 0;
       // row > expand > column > text 换行有效
       body = scene == 'page'
           ? Row(
@@ -320,7 +320,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               },
             );
     } else if (obj.kind == 4) {
-      String uri = obj.info['payload']['thumb']['uri'] ?? '';
+      String uri = obj.info['payload']['thumb']['uri'] as String? ?? '';
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -337,9 +337,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 child: InkWell(
                   onTap: () {
                     final String uri =
-                        obj.info['payload']['video']['uri'] ?? '';
+                        obj.info['payload']['video']['uri'] as String? ?? '';
                     final String thumb =
-                        obj.info['payload']['thumb']['uri'] ?? '';
+                        obj.info['payload']['thumb']['uri'] as String? ?? '';
                     if (uri.isEmpty) {
                       EasyLoading.showError(
                         t.collectedVideoFormatIncorrectCannotFindVideoUri,
@@ -373,7 +373,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             child: Row(
               children: [
                 Text(
-                  formatBytes(obj.info['payload']['video']['size'] ?? 0),
+                  formatBytes(obj.info['payload']['video']['size'] as int? ?? 0),
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -409,7 +409,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   children: [
                     Flexible(
                       child: Text(
-                        obj.info['payload']['name'] ?? '',
+                        obj.info['payload']['name'] as String? ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -423,7 +423,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 Row(
                   children: [
                     Text(
-                      "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                      "$mimeType  ${formatBytes(obj.info['payload']['size'] as int? ?? 0)}",
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -443,7 +443,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   children: [
                     Flexible(
                       child: Text(
-                        obj.info['payload']['name'] ?? '',
+                        obj.info['payload']['name'] as String? ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -461,7 +461,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        "${t.fileSize}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                        "${t.fileSize}: ${formatBytes(obj.info['payload']['size'] as int? ?? 0)}",
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -491,8 +491,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               ],
             );
     } else if (obj.kind == 6) {
-      String title = obj.info['payload']['title'] ?? '';
-      String address = obj.info['payload']['address'] ?? '';
+      String title = obj.info['payload']['title'] as String? ?? '';
+      String address = obj.info['payload']['address'] as String? ?? '';
 
       body = scene == 'page'
           ? Row(
@@ -590,8 +590,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             );
     } else if (obj.kind == 7) {
       // 个人名片
-      String nickname = obj.info['payload']['nickname'] ?? '';
-      String avatar = obj.info['payload']['avatar'] ?? '';
+      String nickname = obj.info['payload']['nickname'] as String? ?? '';
+      String avatar = obj.info['payload']['avatar'] as String? ?? '';
       body = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1237,7 +1237,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (message == null) return 0;
 
     try {
-      String msgType = message.metadata?['msg_type'] ?? '';
+      String msgType = message.metadata?['msg_type'] as String? ?? '';
       String messageType = message.runtimeType.toString();
 
       // 判断文本消息
@@ -1263,7 +1263,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             return 7;
           default:
             // 检查payload中的msg_type
-            String msgType = message.metadata?['payload']?['msg_type'] ?? '';
+            String msgType = message.metadata?['payload']?['msg_type'] as String? ?? '';
             switch (msgType) {
               case 'text':
                 return 1;
@@ -1305,7 +1305,7 @@ class UserCollectHelper {
     // 注意：这个方法需要在有 WidgetRef 的上下文中使用
     // 或者创建一个临时的 UserCollectNotifier 实例
     final notifier = UserCollectNotifier();
-    return await notifier.add(tb: tb, msg: msg);
+    return await notifier.add(tb: tb, msg: msg as Message);
   }
 
   /// 获取收藏类型（静态方法）

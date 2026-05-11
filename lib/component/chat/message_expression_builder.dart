@@ -24,8 +24,8 @@ class ExpressionMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String url = metadata['url'] ?? '';
-    final String text = metadata['text'] ?? '';
+    final String url = metadata['url'] as String? ?? '';
+    final String text = metadata['text'] as String? ?? '';
 
     // 从 metadata 中获取尺寸，如果没有则使用默认值
     final widthVal = metadata['width'];

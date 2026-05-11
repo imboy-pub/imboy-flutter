@@ -169,7 +169,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           obj.payload['groupId'] == widget.groupId &&
           (obj.payload['isFirst'] ?? false) == true) {
         await _lock.synchronized(() async {
-          notifier.addMember(obj.payload['people']);
+          notifier.addMember(obj.payload['people'] as PeopleModel);
           backDoRefresh = true;
           if (mounted) {
             setState(() {});

@@ -202,7 +202,7 @@ class GroupVoteService {
       final voteId = data['vote_id'];
       iPrint('GroupVoteService: 投票已结束 - $voteId, 群: $groupId');
       AppEventBus.fire(
-        VoteEndedEvent(groupId: groupId, voteId: voteId.toString()),
+        VoteEndedEvent(groupId: groupId as String, voteId: voteId.toString()),
       );
     } catch (e) {
       iPrint('GroupVoteService: 处理投票结束消息失败 - $e');

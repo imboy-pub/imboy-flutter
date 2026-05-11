@@ -85,7 +85,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 subtitle: t.copyTextContent,
                 onTap: () async {
                   Navigator.pop(context);
-                  final String txt = obj.info['payload']['text'] ?? '';
+                  final String txt = obj.info['payload']['text'] as String? ?? '';
                   if (txt.isNotEmpty) {
                     Clipboard.setData(ClipboardData(text: txt));
                     EasyLoading.showToast(t.copied);

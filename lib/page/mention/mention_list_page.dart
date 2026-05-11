@@ -201,7 +201,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     return ListTile(
       leading: Stack(
         children: [
-          Avatar(imgUri: mention['avatar'] ?? '', width: 48, height: 48),
+          Avatar(imgUri: mention['avatar'] as String? ?? '', width: 48, height: 48),
           if (!isRead)
             Positioned(
               right: 0,
@@ -218,13 +218,13 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
         ],
       ),
       title: Text(
-        mention['nickname'] ?? '',
+        mention['nickname'] as String? ?? '',
         style: TextStyle(
           fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
         ),
       ),
       subtitle: Text(
-        mention['content'] ?? '',
+        mention['content'] as String? ?? '',
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
