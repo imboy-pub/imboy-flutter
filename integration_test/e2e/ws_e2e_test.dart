@@ -140,7 +140,7 @@ void main() {
             if (!completer.isCompleted) completer.complete();
           }
         },
-        onError: (error) {
+        onError: (Object error) {
           debugPrint('[E2E-WS] 错误: $error');
           if (!completer.isCompleted) completer.completeError(error);
         },
@@ -235,7 +235,7 @@ void main() {
       ws.listen(
         (data) => debugPrint('[E2E-WS] 稳定性: 收到 $data'),
         onDone: () => disconnected = true,
-        onError: (e) {
+        onError: (Object e) {
           disconnected = true;
           debugPrint('[E2E-WS] 稳定性: 错误 $e');
         },

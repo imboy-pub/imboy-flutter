@@ -45,7 +45,7 @@ class MessageActionMenu extends StatefulWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete; // 删除我的消息
   final VoidCallback onForward;
-  final Function(String) onReaction;
+  final void Function(String) onReaction;
   final VoidCallback? onRevoke; // 新增：撤回功能
   final VoidCallback? onSave; // 新增：保存功能
   final VoidCallback? onCollect; // 新增：收藏功能
@@ -479,7 +479,7 @@ void showMessageActionMenu({
   required VoidCallback onEdit,
   required VoidCallback onDelete,
   required VoidCallback onForward,
-  required Function(String) onReaction,
+  required void Function(String) onReaction,
   VoidCallback? onRevoke, // 新增：撤回回调
   VoidCallback? onSave, // 新增：保存回调
   VoidCallback? onCollect, // 新增：收藏回调

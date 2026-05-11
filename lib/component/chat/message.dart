@@ -42,7 +42,7 @@ class CustomMessageBuilder extends StatelessWidget {
   final String type; // C2C C2G
   final CustomMessage message;
   final MessageTypeRegistry? registry;
-  final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+  final void Function(String audioPath, CustomMessage msg, Duration totalDuration)?
   onPlayPause;
   // 播放状态参数（用于语音消息）
   final bool isPlaying;

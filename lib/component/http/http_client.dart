@@ -388,7 +388,7 @@ class HttpClient {
 
   Future<IMBoyHttpResponse> post(
     String uri, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -414,7 +414,7 @@ class HttpClient {
 
   Future<IMBoyHttpResponse> delete(
     String uri, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -436,7 +436,7 @@ class HttpClient {
 
   Future<IMBoyHttpResponse> patch(
     String uri, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -462,7 +462,7 @@ class HttpClient {
 
   Future<IMBoyHttpResponse> put(
     String uri, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -484,13 +484,13 @@ class HttpClient {
 
   Future<Response<dynamic>> download(
     String urlPath,
-    savePath, {
+    String savePath, {
     ProgressCallback? onReceiveProgress,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    data,
+    Object? data,
     Options? options,
     HttpTransformer? httpTransformer,
   }) async {

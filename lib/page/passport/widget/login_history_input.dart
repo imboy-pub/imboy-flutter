@@ -6,8 +6,8 @@ class LoginHistoryInput extends StatefulWidget {
   final String hintText;
   final IconData prefixIcon;
   final List<String> historyList;
-  final Function(String) onSelect;
-  final Function(String) onDelete;
+  final void Function(String) onSelect;
+  final void Function(String) onDelete;
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType keyboardType;

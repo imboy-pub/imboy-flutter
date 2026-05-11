@@ -19,7 +19,7 @@ class LocationMessageBuilder extends StatefulWidget {
   final CustomMessage? message;
   final Map<String, dynamic>? info;
 
-  final Function()? onPlay;
+  final void Function()? onPlay;
   final double? width, height;
 
   const LocationMessageBuilder({

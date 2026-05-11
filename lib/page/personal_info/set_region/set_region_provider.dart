@@ -457,7 +457,7 @@ class _SubRegionPage extends StatefulWidget {
   final String title;
   final List<dynamic> children;
   final List<String> parentPath;
-  final Function(List<String>) onRegionSelected;
+  final void Function(List<String>) onRegionSelected;
   final Future<bool> Function(String) onSave;
 
   const _SubRegionPage({

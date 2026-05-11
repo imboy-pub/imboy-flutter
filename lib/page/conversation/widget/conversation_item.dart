@@ -16,8 +16,8 @@ import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 /// 会话列表项组件 - Riverpod 版本
 class ConversationItem extends ConsumerStatefulWidget {
   final ConversationModel model;
-  final Function()? onTapAvatar;
-  final Function()? onTap;
+  final void Function()? onTapAvatar;
+  final void Function()? onTap;
 
   const ConversationItem({
     super.key,

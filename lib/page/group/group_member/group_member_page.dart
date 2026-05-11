@@ -74,7 +74,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           _memberList[idx].muteUntilMs = event.muteUntilMs;
         });
       },
-      onError: (error) =>
+      onError: (Object error) =>
           debugPrint('GroupMemberMuteEvent listener error: $error'),
     );
 
@@ -91,7 +91,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           _memberList[idx].muteUntilMs = null;
         });
       },
-      onError: (error) =>
+      onError: (Object error) =>
           debugPrint('GroupMemberUnmuteEvent listener error: $error'),
     );
   }

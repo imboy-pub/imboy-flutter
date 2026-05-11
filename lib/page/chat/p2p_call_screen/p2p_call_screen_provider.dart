@@ -93,18 +93,18 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   Timer? _iceDisconnectTimer;
 
   // 回调函数
-  Function(RTCSignalingState state)? onSignalingStateChange;
-  Function(WebRTCSession? session, WebRTCCallState state)? onCallStateChange;
-  Function(MediaStream stream)? onLocalStream;
-  Function(WebRTCSession session, MediaStream stream)? onAddRemoteStream;
-  Function(WebRTCSession session, MediaStream stream)? onRemoveRemoteStream;
-  Function(
+  void Function(RTCSignalingState state)? onSignalingStateChange;
+  void Function(WebRTCSession? session, WebRTCCallState state)? onCallStateChange;
+  void Function(MediaStream stream)? onLocalStream;
+  void Function(WebRTCSession session, MediaStream stream)? onAddRemoteStream;
+  void Function(WebRTCSession session, MediaStream stream)? onRemoveRemoteStream;
+  void Function(
     WebRTCSession session,
     RTCDataChannel dc,
     RTCDataChannelMessage data,
   )?
   onDataChannelMessage;
-  Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
+  void Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
   final Map<String, dynamic> _offerSdpConstraints = {
     'mandatory': <String, dynamic>{},
@@ -556,7 +556,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   Future<void> _createDataChannel(
     WebRTCSession session, {
-    label = DataChannelConfig.defaultLabel,
+    String label = DataChannelConfig.defaultLabel,
   }) async {
     final pc = session.pc;
     if (pc == null) {

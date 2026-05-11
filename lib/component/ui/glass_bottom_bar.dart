@@ -5,7 +5,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 
 class GlassBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  final void Function(int) onTap;
   final List<GlassBottomBarItem> items;
   final double height;
   final double blur;

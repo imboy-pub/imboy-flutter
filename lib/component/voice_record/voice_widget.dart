@@ -40,8 +40,8 @@ class AudioFile {
 }
 
 class VoiceWidget extends StatefulWidget {
-  final Function()? startRecord;
-  final Function(AudioFile? obj)? stopRecord;
+  final void Function()? startRecord;
+  final void Function(AudioFile? obj)? stopRecord;
 
   final double? height;
   final EdgeInsets? margin;
@@ -516,7 +516,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             });
           }
         },
-        onError: (error) {
+        onError: (Object error) {
           iPrint("Error in record stream: ${error.runtimeType}");
           // 发生错误时取消订阅
           cancelRecorderSubscriptions(from: 'stream_error');

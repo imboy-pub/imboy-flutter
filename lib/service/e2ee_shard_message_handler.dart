@@ -128,7 +128,7 @@ class E2EEShardMessageHandler {
             // 发送确认消息给服务端
             _sendShardStoredConfirmation(shardId, payload);
           })
-          .catchError((error) {
+          .catchError((Object error) {
             debugPrint('❌ [E2EE] 分片存储失败: $error');
           });
     } catch (e) {
@@ -271,12 +271,12 @@ class E2EEShardMessageHandler {
                     _sendDecryptShardError(shardId, '解密失败');
                   }
                 })
-                .catchError((error) {
+                .catchError((Object error) {
                   debugPrint('❌ [E2EE] 解密过程中出错: $error');
                   _sendDecryptShardError(shardId, '解密过程中出错');
                 });
           })
-          .catchError((error) {
+          .catchError((Object error) {
             debugPrint('❌ [E2EE] 读取分片失败: $error');
             _sendDecryptShardError(shardId, '读取分片失败');
           });

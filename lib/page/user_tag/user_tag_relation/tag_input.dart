@@ -15,7 +15,7 @@ class TagInput extends StatefulWidget {
   final List<String> initialTags;
   final List<String> suggestedTags;
   final Map<String, int> tagUsageCount;
-  final Function(List<String>) onTagsChanged;
+  final void Function(List<String>) onTagsChanged;
   final String? hintText;
   final int maxTagLength;
   final int maxTags;

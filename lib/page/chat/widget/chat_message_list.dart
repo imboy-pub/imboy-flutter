@@ -38,9 +38,9 @@ class ChatMessageList extends StatelessWidget {
 
   final List<Message> messages;
   final String currentUserId;
-  final Function(Message) onMessageLongPress;
-  final Function(Message) onMessageDoubleTap;
-  final Function(Message)? onMessageTap;
+  final void Function(Message) onMessageLongPress;
+  final void Function(Message) onMessageDoubleTap;
+  final void Function(Message)? onMessageTap;
   final ScrollController? scrollController;
   final Future<void> Function()? onEndReached;
   final Future<void> Function()? onStartReached;

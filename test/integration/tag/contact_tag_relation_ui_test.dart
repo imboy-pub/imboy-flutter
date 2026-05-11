@@ -18,7 +18,7 @@ import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider
 Widget _buildContactTagPage({
   String peerTag = 'tag_a,tag_b',
   String peerRemark = 'old-remark',
-  Function(String)? onRemarkChanged,
+  void Function(String)? onRemarkChanged,
 }) {
   return TranslationProvider(
     child: ProviderScope(

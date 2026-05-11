@@ -6,7 +6,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 /// 移动端电话号码输入组件（完整功能）
 class MobilePhoneInputWidget extends StatelessWidget {
   final String initialValue;
-  final Function(String) onInputChanged;
+  final void Function(String) onInputChanged;
   final String? hintText;
   final InputDecoration? decoration;
 

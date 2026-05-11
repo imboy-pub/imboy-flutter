@@ -386,7 +386,7 @@ class _MomentCard extends StatelessWidget {
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
   // 用于自动播放控制
-  final Function(String videoUrl)? onVideoVisible;
+  final void Function(String videoUrl)? onVideoVisible;
 
   const _MomentCard({
     required this.item,
@@ -497,7 +497,7 @@ class _MomentCard extends StatelessWidget {
 
 class _MomentMediaPreview extends StatelessWidget {
   final List<Map<String, dynamic>> media;
-  final Function(String videoUrl)? onVideoVisible;
+  final void Function(String videoUrl)? onVideoVisible;
 
   const _MomentMediaPreview({required this.media, this.onVideoVisible});
 
@@ -524,7 +524,7 @@ class _MomentMediaPreview extends StatelessWidget {
 class _MomentMediaCell extends StatefulWidget {
   final Map<String, dynamic> item;
   final double size;
-  final Function(String videoUrl)? onVideoVisible;
+  final void Function(String videoUrl)? onVideoVisible;
 
   const _MomentMediaCell({
     required this.item,

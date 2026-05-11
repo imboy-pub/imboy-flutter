@@ -25,7 +25,7 @@ class ContactSettingTagPage extends ConsumerStatefulWidget {
   final String peerSource;
   final String peerRemark;
   final String peerTag;
-  final Function(String)? onRemarkChanged;
+  final void Function(String)? onRemarkChanged;
 
   const ContactSettingTagPage({
     super.key,

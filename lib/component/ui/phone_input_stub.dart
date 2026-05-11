@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 /// 占位符组件（实际不会被调用）
 class MobilePhoneInputWidget extends StatelessWidget {
   final String initialValue;
-  final Function(String) onInputChanged;
+  final void Function(String) onInputChanged;
   final String? hintText;
   final InputDecoration? decoration;
 

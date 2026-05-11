@@ -155,7 +155,7 @@ class WebSocketService {
         if (_shouldReconnect()) {
           openSocket(from: event.source);
         }
-      }).catchError((e) {
+      }).catchError((Object e) {
         iPrint('> ws: 重连请求处理失败: $e');
       });
     }

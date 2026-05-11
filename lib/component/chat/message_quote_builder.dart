@@ -24,7 +24,7 @@ class QuoteMessageBuilder extends StatelessWidget {
   final String type; // C2C C2G
   final User user;
   final CustomMessage message;
-  final Function(String quoteMessageId)? onQuoteTap;
+  final void Function(String quoteMessageId)? onQuoteTap;
 
   // RxDouble quoteMsgBgColorOpacity = 0.1.obs; // 已移除：使用 Theme 代替
 

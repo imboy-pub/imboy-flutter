@@ -95,7 +95,7 @@ class AttachmentApi {
           Map<String, dynamic> resp = json.decode(response.data);
           callback(resp, AssetsService.viewUrl(resp['data']['url']).toString());
         })
-        .catchError((e) {
+        .catchError((Object e) {
           debugPrint("> on upload error ${e.toString()}");
           errorCallback(e);
         });
@@ -254,7 +254,7 @@ class AttachmentApi {
               }, errorCallback);
             }
           })
-          .catchError((e) {
+          .catchError((Object e) {
             errorCallback(e);
           });
       EntityImage thumb = EntityImage(
@@ -320,7 +320,7 @@ class AttachmentApi {
                   await _upload(prefix, data, callback, errorCallback);
                 }
               })
-              .catchError((e) {
+              .catchError((Object e) {
                 debugPrint("> on preUpload catchError ${e.toString()}");
                 errorCallback(e);
               });
@@ -348,7 +348,7 @@ class AttachmentApi {
               await _upload(prefix, data, callback, errorCallback);
             }
           })
-          .catchError((e) {
+          .catchError((Object e) {
             debugPrint("> on preUpload catchError ${e.toString()}");
             errorCallback(e);
           });
@@ -380,7 +380,7 @@ class AttachmentApi {
               await _upload(prefix, data, callback, errorCallback);
             }
           })
-          .catchError((e) {
+          .catchError((Object e) {
             debugPrint("> on preUpload catchError ${e.toString()}");
             errorCallback(e);
           });
@@ -389,7 +389,7 @@ class AttachmentApi {
 
   static Future<void> uploadFile(
     String prefix,
-    var file,
+    Object file,
     Function callback,
     Function errorCallback, {
     String name = "",

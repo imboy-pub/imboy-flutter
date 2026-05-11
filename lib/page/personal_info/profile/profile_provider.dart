@@ -386,7 +386,7 @@ class ProfileNotifier extends _$ProfileNotifier {
           }
           completer.complete(status == 'ok');
         },
-        (e) {
+        (Object e) {
           iPrint('上传头像失败: ${e.runtimeType}');
           completer.complete(false);
         },
@@ -437,7 +437,7 @@ class ProfileNotifier extends _$ProfileNotifier {
             completer.complete(false);
           }
         },
-        (error) {
+        (Object error) {
           iPrint('背景图片上传异常: ${error.runtimeType}');
           completer.complete(false);
         },

@@ -13,7 +13,7 @@ import 'phone_input_stub.dart' if (dart.library.io) 'phone_input_mobile.dart';
 /// - 移动端：使用 InternationalPhoneNumberInput（完整功能）
 class PhoneInputWidget extends StatelessWidget {
   final String initialValue;
-  final Function(String) onInputChanged;
+  final void Function(String) onInputChanged;
   final String? hintText;
   final InputDecoration? decoration;
 
@@ -50,7 +50,7 @@ class PhoneInputWidget extends StatelessWidget {
 /// Web 平台简单电话号码输入组件
 class _WebPhoneInputWidget extends StatefulWidget {
   final String initialValue;
-  final Function(String) onInputChanged;
+  final void Function(String) onInputChanged;
   final String? hintText;
   final InputDecoration? decoration;
 

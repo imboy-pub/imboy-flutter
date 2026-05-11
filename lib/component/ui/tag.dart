@@ -4,7 +4,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///
 class TagItem extends StatelessWidget {
   final String tag;
-  final Function(String tag) onTagDelete;
+  final void Function(String tag) onTagDelete;
 
   final Color backgroundColor;
   final Color selectedBackgroundColor;

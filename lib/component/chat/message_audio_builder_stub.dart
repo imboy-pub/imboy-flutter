@@ -15,12 +15,12 @@ class AudioMessageBuilder extends StatefulWidget {
   final User user;
   final CustomMessage? message;
   final Map<String, dynamic>? info;
-  final Function()? onPlay;
+  final void Function()? onPlay;
   final bool isPlaying;
   final bool isPaused;
   final int currentPositionMs;
   final int currentDurationMs;
-  final Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+  final void Function(String audioPath, CustomMessage msg, Duration totalDuration)?
   onPlayPause;
 
   const AudioMessageBuilder({

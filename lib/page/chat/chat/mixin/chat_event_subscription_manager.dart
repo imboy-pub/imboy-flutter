@@ -140,7 +140,7 @@ class ChatEventSubscriptionManager {
           debugPrint('_setupChatExtendListener error: $e');
         }
       },
-      onError: (error) {
+      onError: (Object error) {
         debugPrint('ssMsgExt stream error: $error');
       },
     );
@@ -216,7 +216,7 @@ class ChatEventSubscriptionManager {
           debugPrint('_setupMessageListener error: $e');
         }
       },
-      onError: (error) {
+      onError: (Object error) {
         debugPrint('ssMsg stream error: $error');
       },
     );
@@ -294,7 +294,7 @@ class ChatEventSubscriptionManager {
           debugPrint('_setupMessageStateListener error: $e');
         }
       },
-      onError: (error) {
+      onError: (Object error) {
         debugPrint('ssMsgState stream error: $error');
       },
     );
@@ -316,7 +316,7 @@ class ChatEventSubscriptionManager {
           debugPrint('ssReEdit error: $e');
         }
       },
-      onError: (error) {
+      onError: (Object error) {
         debugPrint('ssReEdit stream error: $error');
       },
     );
@@ -337,7 +337,7 @@ class ChatEventSubscriptionManager {
           debugPrint('ssAppError error: $e');
         }
       },
-      onError: (error) {
+      onError: (Object error) {
         debugPrint('ssAppError stream error: $error');
       },
     );

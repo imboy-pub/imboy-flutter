@@ -72,7 +72,7 @@ class PickMethod {
 
   factory PickMethod.camera({
     required int maxAssetsCount,
-    required Function(BuildContext, AssetEntity) handleResult,
+    required void Function(BuildContext, AssetEntity) handleResult,
   }) {
     return PickMethod(
       icon: '📷',
@@ -217,7 +217,7 @@ class PickMethod {
 
   factory PickMethod.keepScrollOffset({
     required DefaultAssetPickerBuilderDelegate Function() delegate,
-    required Function(PermissionState state) onPermission,
+    required void Function(PermissionState state) onPermission,
     GestureLongPressCallback? onLongPress,
   }) {
     return PickMethod(

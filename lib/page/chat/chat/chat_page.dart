@@ -593,7 +593,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             EasyLoading.showToast(error.message);
           }
         },
-        onError: (error) {
+        onError: (Object error) {
           debugPrint('AppErrorEvent listener error: $error');
         },
       );
@@ -604,7 +604,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           if (!mounted) return;
           _showE2EEKeyMismatchDialog();
         },
-        onError: (error) {
+        onError: (Object error) {
           debugPrint('E2EEKeyMismatchEvent listener error: $error');
         },
       );
@@ -621,7 +621,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           }
           _applyMuteState(event);
         },
-        onError: (error) {
+        onError: (Object error) {
           debugPrint('UserMutedEvent listener error: $error');
         },
       );
@@ -637,7 +637,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           }
           _clearMuteState();
         },
-        onError: (error) {
+        onError: (Object error) {
           debugPrint('UserUnmutedEvent listener error: $error');
         },
       );
@@ -652,7 +652,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             if (event.userId.toString() != UserRepoLocal.to.currentUid) return;
             _currentUserGroupRole = event.role;
           },
-          onError: (error) {
+          onError: (Object error) {
             debugPrint('GroupMemberRoleEvent listener error: $error');
           },
         );
@@ -666,7 +666,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             if (event.userId != currentUid) return;
             _applyGroupMemberMuteState(event);
           },
-          onError: (error) {
+          onError: (Object error) {
             debugPrint('GroupMemberMuteEvent listener error: $error');
           },
         );
@@ -678,7 +678,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             if (event.userId != currentUid) return;
             _clearMuteState();
           },
-          onError: (error) {
+          onError: (Object error) {
             debugPrint('GroupMemberUnmuteEvent listener error: $error');
           },
         );
