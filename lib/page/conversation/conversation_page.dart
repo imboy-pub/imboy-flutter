@@ -133,7 +133,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         obj.title = await notifier.computeTitle(obj);
         // 更新会话
         await notifier.replace(obj);
-      } else if (event.data is List && event.data.isNotEmpty) {
+      } else if (event.data is List && event.data.isNotEmpty == true) {
         // 处理消息列表（用于批量更新）
         final messages = event.data as List;
         if (messages.first is Message) {

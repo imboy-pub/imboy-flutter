@@ -290,7 +290,7 @@ class MessageS2CService {
     String from,
     String to,
   ) async {
-    final revokeMsgId = payload['old_msg_id'] ?? '';
+    final revokeMsgId = (payload['old_msg_id'] ?? '') as String;
 
     iPrint("收到对端撤回消息: revokeMsgId=$revokeMsgId");
 

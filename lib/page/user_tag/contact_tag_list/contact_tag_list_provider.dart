@@ -91,7 +91,7 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
       return [];
     }
 
-    for (var json in payload['list']) {
+    for (var json in (payload['list'] as List)) {
       json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
       // 标签应用场景 1  用户收藏记录标签  2 用户朋友标签
       json[UserTagRepo.scene] = 2;

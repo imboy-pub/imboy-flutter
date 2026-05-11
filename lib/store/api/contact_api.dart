@@ -42,7 +42,7 @@ class ContactApi extends HttpClient {
     if (kDebugMode) {
       debugPrint("> on Api/syncByUid resp: ok=${resp.ok}");
     }
-    if (resp.ok && resp.payload.isNotEmpty) {
+    if (resp.ok && resp.payload.isNotEmpty == true) {
       try {
         await (ContactRepo()).save(resp.payload);
         ct = ContactModel.fromMap(resp.payload);

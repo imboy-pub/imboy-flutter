@@ -126,7 +126,7 @@ class NotificationService {
     try {
       final path = '/chat/$peerId?type=$chatType';
       iPrint('🔔 [Notification] 导航到聊天页面: $path');
-      if (context != null && context.mounted) {
+      if (context != null && context.mounted == true) {
         context.push(path);
       }
     } on Object catch (e) {

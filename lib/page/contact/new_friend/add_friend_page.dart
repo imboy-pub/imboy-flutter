@@ -341,7 +341,7 @@ class AddFriendPage extends ConsumerWidget {
             children: [
               genderIcon(model.gender),
               const Space(width: 10),
-              if (model.region.isNotEmpty) Text(model.region),
+              if (model.region.isNotEmpty == true) Text(model.region),
             ],
           ),
           trailing: isSelf
@@ -349,7 +349,7 @@ class AddFriendPage extends ConsumerWidget {
               : Container(
                   width: 80,
                   alignment: Alignment.centerRight,
-                  child: (model.isFriend ?? false)
+                  child: ((model.isFriend ?? false) as bool)
                       ? Text(t.added)
                       : Text(t.buttonAdd),
                 ),

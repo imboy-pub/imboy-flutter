@@ -143,7 +143,7 @@ class RemoveMemberService {
       final g = await gRepo.findById(groupId);
       final gmRepo = GroupMemberRepo();
 
-      final sum = payload['user_id_sum'] ?? 0;
+      final sum = (payload['user_id_sum'] ?? 0) as int;
       final memberList = payload['member_list'] ?? <dynamic>[];
 
       final gData = {

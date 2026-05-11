@@ -98,7 +98,7 @@ class ChatEventSubscriptionManager {
           // 监听新成员加入
           if (obj.type == 'join_group' &&
               obj.payload['groupId'] == peerId &&
-              (obj.payload['isFirst'] ?? false)) {
+              (obj.payload['isFirst'] ?? false) == true) {
             final currentCount = widgetRef.read(chatProvider).memberCount;
             widgetRef
                 .read(chatProvider.notifier)

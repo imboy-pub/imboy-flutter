@@ -127,7 +127,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
         debugPrint(
           "tag_add_view_validator diff $diff, $tag, len:${tag.length}",
         );
-        if (tag.length > 14) {
+        if ((tag.length as int) > 14) {
           // 最最最最最最最最最最最最最最1
           return t.upToWords(param: '14');
         }

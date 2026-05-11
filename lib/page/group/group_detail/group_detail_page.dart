@@ -167,7 +167,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       iPrint("group_detail ChatExtendEvent type=${obj.type}");
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.groupId &&
-          (obj.payload['isFirst'] ?? false)) {
+          (obj.payload['isFirst'] ?? false) == true) {
         await _lock.synchronized(() async {
           notifier.addMember(obj.payload['people']);
           backDoRefresh = true;

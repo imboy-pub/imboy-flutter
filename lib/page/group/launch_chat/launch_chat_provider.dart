@@ -182,7 +182,7 @@ class LaunchChatService {
       final gmRepo = GroupMemberRepo();
       final memberList =
           payload['member_list'] ?? <Map<String, dynamic>>[];
-      for (var json in memberList) {
+      for (var json in (memberList as List)) {
         await gmRepo.save(json as Map<String, dynamic>);
       }
 
@@ -207,7 +207,7 @@ class LaunchChatService {
       final g = await gRepo.findById(gid);
       final gmRepo = GroupMemberRepo();
 
-      final sum = payload['user_id_sum'] ?? 0;
+      final sum = (payload['user_id_sum'] ?? 0) as int;
       final memberList =
           payload['member_list'] ?? <Map<String, dynamic>>[];
 
@@ -219,7 +219,7 @@ class LaunchChatService {
       }
       await gRepo.update(gid, gData);
 
-      for (var json in memberList) {
+      for (var json in (memberList as List)) {
         await gmRepo.save(json as Map<String, dynamic>);
       }
       return true;
@@ -239,7 +239,7 @@ class LaunchChatService {
       final g = await gRepo.findById(gid);
       final gmRepo = GroupMemberRepo();
 
-      final sum = payload['user_id_sum'] ?? 0;
+      final sum = (payload['user_id_sum'] ?? 0) as int;
       final memberList =
           payload['member_list'] ?? <Map<String, dynamic>>[];
 

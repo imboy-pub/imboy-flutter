@@ -103,7 +103,7 @@ class DenylistNotifier extends _$DenylistNotifier {
     if (payload == null) {
       return [];
     }
-    for (var json in payload['list']) {
+    for (var json in (payload['list'] as List)) {
       json[ContactRepo.isFriend] = 1;
       // checkIsFriend = true 的时候，保留旧的 isFriend 值
       DenylistModel model = DenylistModel.fromJson(json);

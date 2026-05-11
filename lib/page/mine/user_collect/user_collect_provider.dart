@@ -123,7 +123,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         return [];
       }
 
-      for (var json in payload['list']) {
+      for (var json in (payload['list'] as List)) {
         json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
         final UserCollectModel model = UserCollectModel.fromJson(json);
         await repo.save(json);

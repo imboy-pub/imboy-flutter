@@ -190,7 +190,7 @@ class UserDenylistRepo {
     if (strNoEmpty(json["source"])) {
       data[UserDenylistRepo.source] = json["source"];
     }
-    if (json["gender"] > 0) {
+    if ((json["gender"] as num) > 0) {
       data[UserDenylistRepo.gender] = json["gender"];
     }
 

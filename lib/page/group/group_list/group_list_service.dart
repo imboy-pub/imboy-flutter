@@ -265,7 +265,7 @@ class GroupListService {
     );
     if (payload != null && payload['list'] != null) {
       GroupMemberRepo repo = GroupMemberRepo();
-      for (var item in payload['list']) {
+      for (var item in (payload['list'] as List)) {
         unawaited(repo.save(item));
         String t = item['avatar'] ?? '';
         if (t.trim().isNotEmpty) {
@@ -335,7 +335,7 @@ class GroupListService {
         GroupMemberRepo repo = GroupMemberRepo();
         List<String> names = [];
 
-        for (var item in payload['list']) {
+        for (var item in (payload['list'] as List)) {
           if (item is Map<String, dynamic>) {
             await repo.save(item);
             String t = (item['alias']?.toString() ?? '').trim();
@@ -397,7 +397,7 @@ class GroupListService {
     if (payload == null) {
       return [];
     }
-    for (var json in payload['list']) {
+    for (var json in (payload['list'] as List)) {
       GroupModel m = await repo.save('', json);
       await _syncSelfMembershipShadow(attr: normalizedAttr, group: m);
       list.add(m);

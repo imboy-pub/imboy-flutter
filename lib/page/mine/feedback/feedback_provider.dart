@@ -65,7 +65,7 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     if (payload == null) {
       return [];
     }
-    for (var json in payload['list']) {
+    for (var json in (payload['list'] as List)) {
       FeedbackModel model = FeedbackModel.fromJson(json);
       list.add(model);
     }
@@ -122,7 +122,7 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     if (payload == null) {
       return [];
     }
-    for (var json in payload['list']) {
+    for (var json in (payload['list'] as List)) {
       FeedbackReplyModel model = FeedbackReplyModel.fromJson(json);
       list.add(model);
     }

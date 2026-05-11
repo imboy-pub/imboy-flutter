@@ -440,7 +440,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     continue;
                   }
 
-                  String newTag = obj.tag.isEmpty ? input : '${obj.tag},$input';
+                  String newTag = obj.tag.isEmpty == true ? input : '${obj.tag},$input';
                   // 清理重复标签
                   final parts = newTag
                       .split(',')

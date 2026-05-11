@@ -78,14 +78,14 @@ class PeopleInfoMoreNotifier extends _$PeopleInfoMoreNotifier {
       return;
     }
 
-    final count = p['count'] ?? 0;
+    final count = (p['count'] ?? 0) as int;
     state = state.copyWith(groupCount: count);
 
     if (count > 0) {
       List<GroupModel> list = [];
       var repo = GroupRepo();
 
-      for (var json in p['list']) {
+      for (var json in (p['list'] as List)) {
         GroupModel m = await repo.save('', json);
         list.add(m);
       }

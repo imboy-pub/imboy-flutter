@@ -189,7 +189,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
 
             // 单图消息
             if (effectiveMsgType == MessageType.image) {
-              final uri = metadata['source'] ?? metadata['uri'] ?? '';
+              final uri = (metadata['source'] ?? metadata['uri'] ?? '') as String;
               if (uri.isNotEmpty) {
                 imageUrls.add(uri);
               }
@@ -199,7 +199,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
               final images = metadata['images'] as List<dynamic>?;
               if (images != null) {
                 for (final img in images) {
-                  final uri = img['uri'] ?? '';
+                  final uri = (img['uri'] ?? '') as String;
                   if (uri.isNotEmpty) {
                     imageUrls.add(uri);
                   }

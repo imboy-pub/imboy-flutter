@@ -91,7 +91,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
 
     // 使用事件总线发送 ACK
     final msgId = data['id'];
-    if (msgId == null || msgId.isEmpty) {
+    if (msgId == null || msgId.isEmpty == true) {
       iPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK");
       return;
     }
@@ -113,7 +113,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     }
     if (ack) {
       final msgId = data['id'];
-      if (msgId == null || msgId.isEmpty) {
+      if (msgId == null || msgId.isEmpty == true) {
         iPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK");
         return;
       }
@@ -169,7 +169,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       return [];
     }
     List<PeopleModel> list = [];
-    for (var vo in payload?['list']) {
+    for (var vo in (payload?['list'] as List)) {
       list.add(PeopleModel.fromJson(vo));
     }
     return list;

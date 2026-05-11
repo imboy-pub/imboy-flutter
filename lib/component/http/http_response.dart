@@ -17,7 +17,7 @@ class IMBoyHttpResponse {
     msg = 'success';
 
     // 从服务器响应中提取时间戳并更新时间偏移
-    if (payload is Map && payload.containsKey('sv_ts')) {
+    if (payload is Map && payload.containsKey('sv_ts') == true) {
       try {
         final serverTs = int.parse('${payload['sv_ts']}');
         NtpHelper.updateOffsetFromServer(serverTs);

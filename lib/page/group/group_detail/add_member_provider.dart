@@ -185,7 +185,7 @@ class AddMemberService {
       final g = await gRepo.findById(groupId);
       final gmRepo = GroupMemberRepo();
 
-      final sum = payload['user_id_sum'] ?? 0;
+      final sum = (payload['user_id_sum'] ?? 0) as int;
       final memberList = payload['member_list'] ?? <dynamic>[];
 
       final gData = {
@@ -196,7 +196,7 @@ class AddMemberService {
       }
       await gRepo.update(groupId, gData);
 
-      for (var json in memberList) {
+      for (var json in (memberList as List)) {
         await gmRepo.save(json as Map<String, dynamic>);
       }
       return true;

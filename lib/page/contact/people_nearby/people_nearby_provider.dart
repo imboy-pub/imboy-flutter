@@ -160,7 +160,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     }
 
     List<PeopleModel> l = [];
-    for (var json in payload['list']) {
+    for (var json in (payload['list'] as List)) {
       json['unit'] = payload['unit'];
       PeopleModel model = PeopleModel.fromJson(json);
       if (json['id'] != UserRepoLocal.to.currentUid) {

@@ -106,7 +106,7 @@ class GroupDetailService {
     );
     iPrint("GroupMemberApi/page count=${payload?['list']?.length}");
     if (payload != null && payload['list'] != null) {
-      for (var item in payload['list']) {
+      for (var item in (payload['list'] as List)) {
         GroupMemberModel obj2 = await repo.save(item);
         list2.add(
           PeopleModel(

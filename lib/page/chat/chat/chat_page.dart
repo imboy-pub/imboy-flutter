@@ -1468,7 +1468,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         } else if (message is CustomMessage &&
             message.metadata?['msg_type'] == MessageType.quote) {
           // 引用消息的复制功能
-          final quoteText = message.metadata?['quote_text'] ?? '';
+          final quoteText = (message.metadata?['quote_text'] ?? '') as String;
           if (quoteText.isNotEmpty) {
             Clipboard.setData(ClipboardData(text: quoteText));
             EasyLoading.showToast(t.copied);

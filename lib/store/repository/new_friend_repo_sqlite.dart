@@ -146,7 +146,7 @@ class NewFriendRepo {
       data[NewFriendRepo.avatar] = json[NewFriendRepo.avatar];
     }
 
-    if (json[NewFriendRepo.status] >= 0) {
+    if ((json[NewFriendRepo.status] as num) >= 0) {
       data[NewFriendRepo.status] = json["status"];
     }
     if (strNoEmpty(json[NewFriendRepo.payload])) {
@@ -154,11 +154,11 @@ class NewFriendRepo {
     }
 
     if (json[NewFriendRepo.updatedAt] != null &&
-        json[NewFriendRepo.updatedAt] >= 0) {
+        (json[NewFriendRepo.updatedAt] as num) >= 0) {
       data[NewFriendRepo.updatedAt] = json[NewFriendRepo.updatedAt];
     }
     if (json[NewFriendRepo.createdAt] != null &&
-        json[NewFriendRepo.createdAt] >= 0) {
+        (json[NewFriendRepo.createdAt] as num) >= 0) {
       data[NewFriendRepo.createdAt] = json[NewFriendRepo.createdAt];
     }
 

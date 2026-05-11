@@ -501,7 +501,7 @@ class UserQrCodePage extends ConsumerWidget {
         filename,
       );
       if (kDebugMode) iPrint("savePhoto isSuccess: ${res?['isSuccess']}");
-      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
+      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false) == true
           ? true
           : false;
       if (isSuccess) {
@@ -984,7 +984,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
         filename,
       );
       if (kDebugMode) iPrint("savePhoto group isSuccess: ${res?['isSuccess']}");
-      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
+      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false) == true
           ? true
           : false;
       if (isSuccess) {
@@ -1472,7 +1472,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
       if (kDebugMode) {
         iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
       }
-      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
+      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false) == true
           ? true
           : false;
       if (isSuccess) {

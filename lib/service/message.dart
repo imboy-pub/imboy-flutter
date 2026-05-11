@@ -1217,7 +1217,7 @@ class MessageService with EventSubscriptionManager {
       case 'image':
         return '[图片]';
       case 'voice':
-        final duration = payload['duration']?.toInt() ?? 0;
+        final duration = (payload['duration']?.toInt() ?? 0) as int;
         return duration > 0 ? '[语音 $duration"]' : '[语音]';
       case 'video':
         return '[视频]';

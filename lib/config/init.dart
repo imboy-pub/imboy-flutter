@@ -450,7 +450,7 @@ class AppInitializer {
         return error;
       }
 
-      final encrypted = resp1.payload['res'] ?? '';
+      final encrypted = (resp1.payload['res'] ?? '') as String;
       if (kDebugMode) debugPrint('🔧 initConfig: 加密内容长度=${encrypted.length}');
 
       if (encrypted.isEmpty) {
@@ -493,11 +493,11 @@ class AppInitializer {
       final wsUrl = payload['ws_url'];
       if (kDebugMode) {
         debugPrint(
-          '🔧 initConfig: ws_url present: ${wsUrl != null && wsUrl.isNotEmpty}',
+          '🔧 initConfig: ws_url present: ${wsUrl != null && wsUrl.isNotEmpty == true}',
         );
       }
 
-      if (wsUrl != null && wsUrl.isNotEmpty) {
+      if (wsUrl != null && wsUrl.isNotEmpty == true) {
         await StorageService.to.setString(Keys.wsUrl, wsUrl);
         if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
       } else {

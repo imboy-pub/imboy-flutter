@@ -23,8 +23,8 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 从 metadata 获取消息类型信息
-    final msgType = message.metadata?['msg_type'] ?? 'unknown';
-    final originalType = message.metadata?['original_type'] ?? '';
+    final msgType = (message.metadata?['msg_type'] ?? 'unknown') as String;
+    final originalType = (message.metadata?['original_type'] ?? '') as String;
 
     final displayType = msgType.isNotEmpty ? msgType : originalType;
 

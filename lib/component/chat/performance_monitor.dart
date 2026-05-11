@@ -192,7 +192,7 @@ class ChatPerformanceMonitor {
     log(
       '🎯 FPS: ${report['fps'].toStringAsFixed(1)} / ${report['target_fps']}',
     );
-    log('✅ 达标: ${report['fps_achieved'] ? "是" : "否"}');
+    log('✅ 达标: ${report['fps_achieved'] == true ? "是" : "否"}');
     log('⏱️ 平均构建时间: ${report['avg_build_time_ms'].toStringAsFixed(2)}ms');
     log('🐌 慢消息数量: ${report['slow_messages_count']}');
     log(
