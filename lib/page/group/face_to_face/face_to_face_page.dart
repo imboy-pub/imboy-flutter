@@ -129,7 +129,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                       extra: {
                         'code': value,
                         'gid': gid,
-                        'memberList': res['memberList'] ?? [],
+                        'memberList': res['memberList'] ?? <dynamic>[],
                       },
                     );
                   }

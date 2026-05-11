@@ -33,13 +33,13 @@ class UserCollectModel {
   });
 
   factory UserCollectModel.fromJson(Map<String, dynamic> data) {
-    var info1 = data['info'] ?? {};
+    var info1 = data['info'] ?? <String, dynamic>{};
     try {
       if (info1 is String) {
         info1 = json.decode(info1);
       }
     } catch (e) {
-      info1 = {};
+      info1 = <String, dynamic>{};
     }
 
     return UserCollectModel(

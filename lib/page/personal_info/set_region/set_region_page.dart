@@ -151,7 +151,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
       title = region;
     } else if (region is Map) {
       title = (region['title'] ?? '').toString();
-      children = (region['children'] ?? []) as List;
+      children = (region['children'] ?? <dynamic>[]) as List;
     }
     ref
         .read(setRegionProvider.notifier)

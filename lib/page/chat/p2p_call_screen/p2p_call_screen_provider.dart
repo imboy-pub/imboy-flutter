@@ -107,8 +107,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
   final Map<String, dynamic> _offerSdpConstraints = {
-    'mandatory': {},
-    'optional': [
+    'mandatory': <String, dynamic>{},
+    'optional': <Map<String, dynamic>>[
       {'DtlsSrtpKeyAgreement': true},
     ],
   };
@@ -119,7 +119,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       'OfferToReceiveVideo': true,
       'IceRestart': true,
     },
-    'optional': [],
+    'optional': <Map<String, dynamic>>[],
   };
 
   @override
@@ -324,7 +324,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
                 'minFrameRate': VideoQualityConfig.minFrameRate.toString(),
               },
               'facingMode': 'user',
-              'optional': [],
+              'optional': <Map<String, dynamic>>[],
             }
           : false,
     };

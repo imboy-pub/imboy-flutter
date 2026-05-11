@@ -208,7 +208,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
         }
       } else if (item is Map) {
         final title = (item['title'] ?? '').toString();
-        final children = (item['children'] ?? []) as List;
+        final children = (item['children'] ?? <dynamic>[]) as List;
 
         if (title.toLowerCase().contains(lc)) {
           out.add(item);
@@ -227,7 +227,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
               matchedChildren.add(c);
               continue;
             }
-            final gc = (c['children'] ?? []) as List;
+            final gc = (c['children'] ?? <dynamic>[]) as List;
             final matchedGrand = <dynamic>[];
             for (final g in gc) {
               if (g is String) {
@@ -348,7 +348,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
         if (found == null) return false;
 
         if (found is Map) {
-          currentNode = found['children'] ?? [];
+          currentNode = found['children'] ?? <dynamic>[];
         } else {
           return false;
         }
@@ -397,7 +397,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
         if (i < path.length - 1) {
           if (found is Map) {
-            currentNode = found['children'] ?? [];
+            currentNode = found['children'] ?? <dynamic>[];
           } else {
             return false;
           }
@@ -525,7 +525,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
         }
       } else if (item is Map) {
         final title = (item['title'] ?? '').toString();
-        final children = (item['children'] ?? []) as List;
+        final children = (item['children'] ?? <dynamic>[]) as List;
 
         if (title.toLowerCase().contains(lc)) {
           out.add(item);
@@ -544,7 +544,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
               matchedChildren.add(c);
               continue;
             }
-            final gc = (c['children'] ?? []) as List;
+            final gc = (c['children'] ?? <dynamic>[]) as List;
             final matchedGrand = <dynamic>[];
             for (final g in gc) {
               if (g is String && g.toLowerCase().contains(lc)) {
@@ -572,7 +572,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
       title = model;
     } else if (model is Map) {
       title = (model['title'] ?? '').toString();
-      children = (model['children'] ?? []) as List;
+      children = (model['children'] ?? <dynamic>[]) as List;
     }
     title = title.trim();
 
@@ -663,7 +663,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                   title = item;
                 } else if (item is Map) {
                   title = (item['title'] ?? '').toString();
-                  children = (item['children'] ?? []) as List;
+                  children = (item['children'] ?? <dynamic>[]) as List;
                 }
                 final hasChildren = children.isNotEmpty;
 

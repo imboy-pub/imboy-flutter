@@ -360,7 +360,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                                 ? ''
                                 : "${providerState.peerTag},",
                           },
-                          "to": {},
+                          "to": <String, dynamic>{},
                         };
 
                         final success = await ref

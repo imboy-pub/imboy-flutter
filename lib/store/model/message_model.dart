@@ -472,7 +472,7 @@ class MessageModel {
     final msgType = model.msgType ?? MessageType.unsupported;
     final payload = model.payload is Map
         ? model.payload as Map<String, dynamic>
-        : {};
+        : <String, dynamic>{};
 
     switch (msgType) {
       case MessageType.text:
@@ -912,7 +912,7 @@ class MessageModel {
         metadata: {
           ...metadata,
           ...payloadData,
-          'images': payloadData['images'] ?? [],
+          'images': payloadData['images'] ?? <String>[],
           'total': payloadData['total'] ?? 0,
         },
       );

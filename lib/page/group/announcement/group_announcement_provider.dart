@@ -111,8 +111,8 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
 
       if (response.code == 0) {
         final payload = response.payload ?? <String, dynamic>{};
-        final rawList = payload['items'] ?? payload['list'] ?? [];
-        final list = (rawList is List ? rawList : const [])
+        final rawList = payload['items'] ?? payload['list'] ?? <dynamic>[];
+        final list = (rawList is List ? rawList : const <Map>[])
             .whereType<Map>()
             .map(
               (e) => AnnouncementModel.fromJson(Map<String, dynamic>.from(e)),

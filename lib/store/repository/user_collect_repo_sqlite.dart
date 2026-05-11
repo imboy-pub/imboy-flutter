@@ -150,7 +150,7 @@ class UserCollectRepo {
         strNoEmpty(json[UserCollectRepo.source].toString())) {
       data[UserCollectRepo.source] = json[UserCollectRepo.source];
     }
-    var info = json[UserCollectRepo.info] ?? {};
+    var info = json[UserCollectRepo.info] ?? <String, dynamic>{};
     if (info is String && strNoEmpty(info)) {
       data[UserCollectRepo.info] = info;
     } else if (mapNoEmpty(info)) {

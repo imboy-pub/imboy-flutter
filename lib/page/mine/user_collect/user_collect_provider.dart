@@ -1025,7 +1025,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         if (kDebugMode) {
           debugPrint("userCollectLogic/add 解析payload失败: ${e.runtimeType}");
         }
-        info['payload'] = {};
+        info['payload'] = <String, dynamic>{};
       }
     }
 

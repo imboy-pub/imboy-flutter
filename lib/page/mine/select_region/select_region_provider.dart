@@ -73,7 +73,7 @@ class SelectRegionNotifier extends _$SelectRegionNotifier {
     if (model is String) {
       return false;
     } else if (model is Map) {
-      final children = model["children"] ?? [];
+      final children = model["children"] ?? <dynamic>[];
       return children.isNotEmpty;
     }
     return false;

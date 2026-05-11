@@ -236,7 +236,7 @@ class ConversationModel {
     ConversationRepo.lastMsgStatus: 0,
     ConversationRepo.unreadNum: "",
     ConversationRepo.type: 0,
-    ConversationRepo.msgType: {},
+    ConversationRepo.msgType: <String, dynamic>{},
   });
 
   ConversationModel copyWith({

@@ -67,7 +67,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     // 防御性转换：后端 from/to 可能是 int 或 String
     String from = (data["from"] ?? "").toString();
     String to = (data["to"] ?? "").toString();
-    var payload = data["payload"] ?? {};
+    var payload = data["payload"] ?? <String, dynamic>{};
     if (payload is String) {
       payload = json.decode(payload);
     }

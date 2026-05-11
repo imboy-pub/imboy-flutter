@@ -848,7 +848,7 @@ class ConversationNotifier extends _$ConversationNotifier {
           ConversationRepo.type: type,
           ConversationRepo.msgType: '',
           ConversationRepo.isShow: 1,
-          ConversationRepo.payload: {},
+          ConversationRepo.payload: <String, dynamic>{},
         }),
       );
       m = await repo.findByPeerId(type, peerId);

@@ -187,7 +187,7 @@ class WebRTCConnectionConfig {
               'minFrameRate': '30',
             },
             'facingMode': 'user',
-            'optional': [],
+            'optional': <Map<String, dynamic>>[],
           },
         };
 

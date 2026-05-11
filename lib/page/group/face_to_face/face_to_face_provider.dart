@@ -119,7 +119,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     );
 
     iPrint(
-      '[面对面建群] API 响应, gid=${payload['gid'] ?? ''}, memberCount=${(payload['member_list'] ?? []).length}',
+      '[面对面建群] API 响应, gid=${payload['gid'] ?? ''}, memberCount=${(payload['member_list'] ?? <dynamic>[]).length}',
     );
 
     // 解析成员列表
@@ -155,7 +155,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       gid: gid,
     );
     iPrint(
-      "faceToFaceSave memberCount=${(payload['member_list'] ?? []).length}",
+      "faceToFaceSave memberCount=${(payload['member_list'] ?? <dynamic>[]).length}",
     );
 
     List<dynamic> memberList = payload['member_list'] ?? [];
@@ -174,6 +174,6 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       }
     }
 
-    return {'group': payload['group'] ?? {}, 'memberList': memberList2};
+    return {'group': payload['group'] ?? <String, dynamic>{}, 'memberList': memberList2};
   }
 }
