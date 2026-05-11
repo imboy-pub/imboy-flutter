@@ -25,16 +25,13 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   cupertino_icons: ^1.0.8        # iOS style icons
   flutter_screenutil: ^5.9.3    # Screen adaptation utility
-  google_fonts: ^8.0.2           # Google Fonts integration
   flutter_animate: ^4.5.2        # Animation library for smooth transitions
   octo_image: ^2.1.0              # Multi-purpose Flutter image widget
   flutter_svg: ^2.2.4             # SVG rendering support
   dotted_border: ^3.1.0           # Custom border styles
-  flutter_spinkit: ^5.2.2         # Loading animations
   shimmer: ^3.0.0                 # Shimmer effect for loading states
   flutter_easyloading: ^3.0.5     # Toast/loading widgets
   flutter_native_splash: ^2.4.7    # Splash screen generation utility
-  fps_monitor: ^2.0.0              # Performance monitoring for FPS tracking
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Network & Web                                               │
@@ -66,7 +63,6 @@ dependencies:
   sqflite_sqlcipher: ^3.4.0          # SQLCipher encrypted SQLite (drop-in sqflite replacement)
   # sqflite: ^2.4.2                 # 已被 sqflite_sqlcipher 替代
   path: ^1.9.0                     # Path manipulation utilities
-  archive: ^4.0.9                  # ZIP compression for data backup functionality
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🎨 Theme & UI Enhancement                                      │
@@ -92,10 +88,6 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
       ref: leeyi
   image: ^4.8.0                      # Image manipulation library
-  image_gallery_saver:               # Save images to gallery
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/image_gallery_saver.git
-      ref: leeyi
   video_player: ^2.11.1               # Video playback support
   flutter_local_notifications: ^21.0.0 # Local notifications support
 
@@ -123,7 +115,6 @@ dependencies:
   flyer_chat_text_stream_message: any # Text stream message component
   flyer_chat_video_message: any      # Video message component
 
-  bubble: ^1.2.1                    # Chat bubble styling
   emoji_picker_flutter: ^4.4.0       # Emoji picker integration
   highlight_text: ^1.8.0            # Text highlighting support
   flutter_markdown: ^0.7.7          # Markdown rendering
@@ -176,7 +167,6 @@ dependencies:
   file_saver: ^0.3.1                  # File saving utilities
   xid: ^1.2.1                        # Unique ID generation
   ntp: ^2.0.0                        # Network Time Protocol (time sync)
-  clock: ^1.1.2                      # Time-related utilities
   equatable: ^2.0.7                  # Object equality comparisons
   synchronized: ^3.4.0               # Synchronization primitives
   share_plus: ^13.0.0                # Sharing functionality
@@ -211,7 +201,6 @@ dependencies:
   sentry_flutter: ^9.16.0            # Sentry 错误追踪和性能监控
 
   envied: ^1.3.2                    # Environment variables management
-  local_auth: ^3.0.1                 # Local device authentication (biometrics)
   pin_code_fields: ^9.3.0             # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
   jverify: ^3.1.7                   # JVerification integration
@@ -350,6 +339,8 @@ dev_dependencies:
 # └─────────────────────────────────────────────────────────────────┘
 # For information on the generic Dart part of this file, see:
 # https://dart.dev/tools/pub/pubspec
+  permission_handler_platform_interface: any
+  plugin_platform_interface: any
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

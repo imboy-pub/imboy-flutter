@@ -401,8 +401,9 @@ class AppInitializer {
       IMBoyHttpResponse? resp1;
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
         final startTime = DateTime.now();
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('🔧 initConfig: attempt $attempt/$maxRetries');
+        }
 
         resp1 = await HttpClient.client
             .get(API.initConfig)
@@ -418,26 +419,30 @@ class AppInitializer {
             );
 
         final elapsed = DateTime.now().difference(startTime).inMilliseconds;
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
+        }
 
         if (resp1.ok) break;
 
         if (attempt < maxRetries) {
           final delay = Duration(seconds: 1 << (attempt - 1)); // 1s, 2s, 4s
-          if (kDebugMode)
+          if (kDebugMode) {
             debugPrint(
               '⚠️ initConfig: 请求失败 code=${resp1.code}，${delay.inSeconds}秒后重试...',
             );
+          }
           await Future.delayed(delay);
         }
       }
 
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint("initConfig completed with code ${resp1!.code}");
+      }
       if (!resp1!.ok) {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
+        }
         final error = {
           "error": t.initConfigNetworkError(code: resp1.code.toString()),
         };
@@ -458,10 +463,11 @@ class AppInitializer {
       if (kDebugMode) debugPrint('🔧 initConfig: 开始解密配置');
       final key = await Env.signKey();
       if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
           '🔐 [INIT] signKey value: $key, iv: ${Env().solidifiedKeyIv}',
         );
+      }
       Map<String, dynamic> payload = jsonDecode(
         EncrypterService.aesDecrypt(
           encrypted,
@@ -485,17 +491,19 @@ class AppInitializer {
       }
 
       final wsUrl = payload['ws_url'];
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
           '🔧 initConfig: ws_url present: ${wsUrl != null && wsUrl.isNotEmpty}',
         );
+      }
 
       if (wsUrl != null && wsUrl.isNotEmpty) {
         await StorageService.to.setString(Keys.wsUrl, wsUrl);
         if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
       } else {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('⚠️ initConfig: ws_url is null or empty, not saved');
+        }
       }
 
       await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);

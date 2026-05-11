@@ -102,8 +102,9 @@ class LanguageNotifier extends _$LanguageNotifier {
           orElse: () => AppLocale.zhCn,
         );
       } on Exception catch (e) {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('LanguageNotifier: 解析保存的语言失败 - ${e.runtimeType}');
+        }
       }
     }
 
@@ -114,8 +115,9 @@ class LanguageNotifier extends _$LanguageNotifier {
           .firstWhere((entry) => entry.value == currentLocale)
           .key;
     } on Exception catch (e) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('LanguageNotifier: 查找语言 ID 失败 - ${e.runtimeType}');
+      }
     }
 
     return LanguageState(

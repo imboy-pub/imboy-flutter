@@ -120,10 +120,11 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                 }
                               },
                               (Error error) {
-                                if (kDebugMode)
+                                if (kDebugMode) {
                                   debugPrint(
                                     "> on upload error: ${error.runtimeType}",
                                   );
+                                }
                               },
                               process: false,
                             );

@@ -350,8 +350,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("VoiceWidget didChangeAppLifecycleState: $state");
+    }
 
     // 当应用进入后台、暂停或不活动状态时，停止录音
     if (state == AppLifecycleState.paused ||
@@ -359,8 +360,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         state == AppLifecycleState.inactive) {
       // 如果正在录音，强制停止
       if (recorder.isRecording && overlayEntry != null) {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint("App going to background, force stopping recording");
+        }
         forceStopRecording();
       }
     }
@@ -398,10 +400,11 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   void onInputModeChanged() {
     if (kDebugMode) debugPrint("VoiceWidget onInputModeChanged");
     if (overlayEntry != null) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
           "Voice widget detected input mode change, stopping recording",
         );
+      }
       forceStopRecording();
     }
   }

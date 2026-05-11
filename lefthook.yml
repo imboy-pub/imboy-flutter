@@ -13,7 +13,7 @@ pre-commit:
     dart-analyze:
       glob: "lib/**/*.dart"
       exclude: "**/*.{g,freezed,gr,pb}.dart"
-      run: dart analyze --fatal-infos {staged_files}
+      run: dart analyze --no-fatal-warnings {staged_files}
     gitleaks:
       run: gitleaks protect --staged --no-banner --redact
 

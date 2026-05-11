@@ -186,10 +186,11 @@ class PublisherNotifier extends _$PublisherNotifier {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
       } on Exception catch (e) {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint(
             '[PublisherProvider] WebRTC operation failed: ${e.runtimeType}',
           );
+        }
       }
       _resourceUrl = null;
     }

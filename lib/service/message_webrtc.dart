@@ -138,8 +138,10 @@ class MessageWebrtc {
     required String msgId,
     required ContactModel peer,
   }) async {
-    if (msgId.isEmpty || peer.peerId.toString() == UserRepoLocal.to.currentUid)
+    if (msgId.isEmpty ||
+        peer.peerId.toString() == UserRepoLocal.to.currentUid) {
       return;
+    }
     if (_addMessageLock) return;
     _addMessageLock = true;
     try {
@@ -214,8 +216,9 @@ class MessageWebrtc {
 
     final metadata = (msg.payload as Map?)?.cast<String, dynamic>() ?? {};
     final msgType = metadata['msg_type'] ?? '';
-    if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType))
+    if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType)) {
       return;
+    }
 
     metadata['state'] = state;
     if (startAt >= 0 && metadata['start_at'] == 0) {

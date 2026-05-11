@@ -343,8 +343,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         );
       }
     } on Exception catch (e) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('Search conversations error: ${e.runtimeType}');
+      }
     }
     return results;
   }

@@ -32,14 +32,16 @@ Future<bool> requestLocationPermission() async {
   // 先检查权限，再检查服务状态
   // 获取当前的权限
   var status = await Permission.location.status;
-  if (kDebugMode)
+  if (kDebugMode) {
     debugPrint("requestLocationPermission initial status: $status");
+  }
 
   if (status == PermissionStatus.granted) {
     // 已经授权，检查位置服务是否开启
     bool isEnabled = await Permission.location.serviceStatus.isEnabled;
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("requestLocationPermission serviceStatus: $isEnabled");
+    }
 
     if (!isEnabled) {
       // 权限已授予，但位置服务未开启
@@ -51,19 +53,22 @@ Future<bool> requestLocationPermission() async {
     return true;
   } else {
     // 未授权则发起一次申请
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("requestLocationPermission requesting permission...");
+    }
     status = await Permission.location.request();
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("requestLocationPermission request result: $status");
+    }
 
     if (status == PermissionStatus.granted) {
       // 权限授予成功，检查位置服务
       bool isEnabled = await Permission.location.serviceStatus.isEnabled;
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
           "requestLocationPermission after grant serviceStatus: $isEnabled",
         );
+      }
 
       if (!isEnabled) {
         EasyLoading.showInfo(t.notTurnedLocationService);
@@ -109,8 +114,9 @@ Future<bool> requestPhotoPermission() async {
       return false;
     }
   } on Exception catch (e) {
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("requestPhotoPermission error: ${e.runtimeType}");
+    }
     EasyLoading.showInfo(t.permissionAcquisitionFailed);
     return false;
   }
@@ -136,8 +142,9 @@ Future<bool> requestCameraPermission() async {
       }
     }
   } on Exception catch (e) {
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("requestCameraPermission error: ${e.runtimeType}");
+    }
     EasyLoading.showInfo(t.permissionAcquisitionFailed);
     return false;
   }

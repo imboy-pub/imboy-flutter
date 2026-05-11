@@ -1469,8 +1469,9 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
         globalKey,
         filename,
       );
-      if (kDebugMode)
+      if (kDebugMode) {
         iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
+      }
       bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false)
           ? true
           : false;
