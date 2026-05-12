@@ -587,6 +587,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '联系人标签'
 	String get contactTags => '联系人标签';
 
+	/// zh-CN: '联系人信息未同步'
+	String get contactInfoNotSynced => '联系人信息未同步';
+
 	/// zh-CN: '继续下载'
 	String get continueDownloading => '继续下载';
 
@@ -1253,6 +1256,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// zh-CN: '正在退出登录...'
 	String get loggingOut => '正在退出登录...';
 
+	/// zh-CN: '退出登录失败'
+	String get logoutFailed => '退出登录失败';
+
 	/// zh-CN: '《注销须知》'
 	String get logoutNotice => '《注销须知》';
 
@@ -1534,6 +1540,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '您还没有授权获取经纬度'
 	String get notAuthorizedLatLong => '您还没有授权获取经纬度';
+
+	/// zh-CN: '未登录'
+	String get notLoggedIn => '未登录';
 
 	/// zh-CN: '还不错'
 	String get notBad => '还不错';
@@ -2191,6 +2200,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	/// zh-CN: '消息已发出，但被对方拒收了。'
 	String get sendMsgRejected => '消息已发出，但被对方拒收了。';
+
+	/// zh-CN: '发消息'
+	String get sendMessage => '发消息';
 
 	/// zh-CN: '分别发送给'
 	String get sendSeparatelyTo => '分别发送给';
@@ -6726,6 +6738,7 @@ extension on Translations {
 			'contactSettingTag' => '联系人设置标签',
 			'contactTagListLogic' => '联系人标签列表逻辑',
 			'contactTags' => '联系人标签',
+			'contactInfoNotSynced' => '联系人信息未同步',
 			'continueDownloading' => '继续下载',
 			'copied' => '已复制',
 			'copy' => '复制',
@@ -6948,6 +6961,7 @@ extension on Translations {
 			'loginEmail' => '登录邮箱',
 			'logoutAccount' => '注销账号',
 			'loggingOut' => '正在退出登录...',
+			'logoutFailed' => '退出登录失败',
 			'logoutNotice' => '《注销须知》',
 			'exportMyData' => '导出我的数据',
 			'exportDataSuccess' => '数据已导出',
@@ -7042,6 +7056,7 @@ extension on Translations {
 			'noUpdateDescription' => '无更新说明',
 			'normalModel' => '普通模式',
 			'notAuthorizedLatLong' => '您还没有授权获取经纬度',
+			'notLoggedIn' => '未登录',
 			'notBad' => '还不错',
 			'notBound' => '未绑定',
 			'notFilled' => '未填写',
@@ -7049,11 +7064,11 @@ extension on Translations {
 			'notLetHimSee' => '不让TA看',
 			'notReceiveCoeQ' => '没有收到验证码？',
 			'notSeeHim' => '不看TA',
+			_ => null,
+		} ?? switch (path) {
 			'notSet' => '未设置',
 			'notShow' => '不显示',
 			'notTurnedLocationService' => '您还没有打开位置信息服务',
-			_ => null,
-		} ?? switch (path) {
 			'nowNewVersion' => '未检测到新版本',
 			'numUnit' => ({required Object param}) => '${param}个',
 			'off' => _root.disabled,
@@ -7263,6 +7278,7 @@ extension on Translations {
 			'sendFriendRequest' => '发送添加朋友申请',
 			'sendMsgNotFriendTips' => '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
 			'sendMsgRejected' => '消息已发出，但被对方拒收了。',
+			'sendMessage' => '发消息',
 			'sendSeparatelyTo' => '分别发送给',
 			'sendTo' => '发送给',
 			'send' => _root.buttonSend,
@@ -7562,12 +7578,12 @@ extension on Translations {
 			'selectCustomBackgroundImage' => '选择自定义背景图片',
 			'currentBackground' => '当前背景',
 			'previewArea' => '预览区域',
+			_ => null,
+		} ?? switch (path) {
 			'backgroundTransparency' => '背景透明度',
 			'defaultBackground' => '默认背景',
 			'geometricPattern' => '几何图案',
 			'simpleTexture' => '简约纹理',
-			_ => null,
-		} ?? switch (path) {
 			'ripplePattern' => '波纹图案',
 			'gradientBlue' => '渐变蓝',
 			'gradientPurple' => '渐变紫',
@@ -8076,12 +8092,12 @@ extension on Translations {
 			'groupCategory.deleteCategory' => '删除分组',
 			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',
 			'groupCategory.categoryCreated' => '分组创建成功',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryDeleted' => '分组已删除',
 			'groupCategory.renameCategory' => '重命名分组',
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupTag.title' => '群标签',
@@ -8590,12 +8606,12 @@ extension on Translations {
 			'e2eeTransferErrNoDeviceId' => '无法获取设备 ID',
 			'passwordEncryptFailed' => '密码加密失败',
 			'initConfigTimeout' => '配置获取超时: 请检查网络连接或服务端状态',
+			_ => null,
+		} ?? switch (path) {
 			'initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
 			'initConfigProtocolError' => '服务故障协议有误',
 			'initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
-			_ => null,
-		} ?? switch (path) {
 			'attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'attachmentGetOriginalImageFailed' => '无法获取原始图片数据',

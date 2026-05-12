@@ -19,27 +19,27 @@ class StickerPicker extends StatelessWidget {
   // 模拟一组内置贴图（实际应用中通常从服务器拉取或有更完善的管理）
   static const List<StickerItem> _defaultStickers = [
     StickerItem(
-      url: 'http://a.imboy.pub/sticker/default/smile.png',
+      url: 'https://a.imboy.pub/sticker/default/smile.png',
       text: '[微笑]',
     ),
     StickerItem(
-      url: 'http://a.imboy.pub/sticker/default/laugh.png',
+      url: 'https://a.imboy.pub/sticker/default/laugh.png',
       text: '[大笑]',
     ),
     StickerItem(
-      url: 'http://a.imboy.pub/sticker/default/cry.png',
+      url: 'https://a.imboy.pub/sticker/default/cry.png',
       text: '[哭泣]',
     ),
     StickerItem(
-      url: 'http://a.imboy.pub/sticker/default/angry.png',
+      url: 'https://a.imboy.pub/sticker/default/angry.png',
       text: '[生气]',
     ),
     StickerItem(
-      url: 'http://a.imboy.pub/sticker/default/heart.png',
+      url: 'https://a.imboy.pub/sticker/default/heart.png',
       text: '[爱心]',
     ),
     StickerItem(
-      url: 'http://a.imboy.pub/sticker/default/thumb.png',
+      url: 'https://a.imboy.pub/sticker/default/thumb.png',
       text: '[点赞]',
     ),
   ];

@@ -95,11 +95,10 @@ class WebShellBootstrap extends ConsumerWidget {
         ),
       ),
       // Phase 3.0: 真实联系人详情面板（avatar + title + sign + 发消息按钮）
-      // TODO i18n 切片：sendButtonLabel / closeTooltip 接 slang t.xxx 后替换
       contactBuilder: (sel) => _WebContactInfoPanel(
         key: ValueKey('contact:${sel.uid}'),
         selection: sel,
-        sendButtonLabel: '发消息',
+        sendButtonLabel: t.sendMessage,
         closeTooltip: t.cancel,
         onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         onSendMessage: () {
@@ -112,10 +111,8 @@ class WebShellBootstrap extends ConsumerWidget {
       channelBuilder: (sel) => _PlaceholderPanel('Channel: ${sel.channelId}'),
       // Phase 3.2-min: 最小可用 Mine 面板（用户简介 + 登出）
       // 真实 Mine 子页面（设置 / 个人信息 / 收藏 等）留待 Phase 3.2.b 渐进接入
-      mineBuilder: (sel) => _WebMineMinPanel(
-        section: sel.section,
-        logoutLabel: '登出', // TODO i18n
-      ),
+      mineBuilder: (sel) =>
+          _WebMineMinPanel(section: sel.section, logoutLabel: t.buttonLogout),
 
       // mobile fallback — < 900px 时无缝复用移动端入口
       mobileFallback: const BottomNavigationPage(),
@@ -268,6 +265,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
     if (copyable == null && !canRecall) return;
 
     final ctx = context;
+    final t = Translations.of(ctx);
     showModalBottomSheet<void>(
       context: ctx,
       builder: (sheetCtx) {
@@ -279,15 +277,15 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                 ListTile(
                   key: const ValueKey('web-msg-action-copy'),
                   leading: const Icon(Icons.copy),
-                  title: const Text('复制'), // TODO i18n t.copy
+                  title: Text(t.buttonCopy),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await Clipboard.setData(ClipboardData(text: copyable));
                     if (!mounted) return;
                     ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
-                      const SnackBar(
-                        content: Text('已复制'), // TODO i18n t.copied
-                        duration: Duration(seconds: 1),
+                      SnackBar(
+                        content: Text(t.copied),
+                        duration: const Duration(seconds: 1),
                       ),
                     );
                   },
@@ -296,7 +294,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                 ListTile(
                   key: const ValueKey('web-msg-action-recall'),
                   leading: const Icon(Icons.replay),
-                  title: const Text('撤回'), // TODO i18n t.revoke
+                  title: Text(t.revoke),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
                     _revokeMessage(message);
@@ -305,7 +303,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
               ListTile(
                 key: const ValueKey('web-msg-action-cancel'),
                 leading: const Icon(Icons.close),
-                title: const Text('取消'), // TODO i18n t.cancel
+                title: Text(t.cancel),
                 onTap: () => Navigator.of(sheetCtx).pop(),
               ),
             ],
@@ -321,6 +319,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
   /// 失败时仅 SnackBar 提示，不抛异常给上层（避免 widget tree unhandled future）。
   Future<void> _revokeMessage(Message message) async {
     final ctx = context;
+    final t = Translations.of(ctx);
     try {
       final ok = await MessagingFacade.instance.sendRevokeMessage(
         message.id,
@@ -329,7 +328,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
         SnackBar(
-          content: Text(ok ? '撤回成功' : '撤回失败'), // TODO i18n
+          content: Text(ok ? t.revokeSuccess : t.revokeFailed),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -337,7 +336,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
         SnackBar(
-          content: Text('撤回失败: $e'), // TODO i18n
+          content: Text('${t.revokeFailed}: $e'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -584,6 +583,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
   /// - 跨端同步延迟（mobile 加好友 → web 端 contact 表还未推送）
   /// 不阻塞用户聊天意图：仍然提供"发消息"按钮（用 selection.uid 直接进 chat）
   Widget _buildUnsyncedBody(ThemeData theme, ColorScheme colorScheme) {
+    final t = Translations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -600,7 +600,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             Text(widget.selection.uid, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
-              '联系人信息未同步', // TODO i18n
+              t.contactInfoNotSynced,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -711,6 +711,7 @@ class _WebMineMinPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final t = Translations.of(context);
     final uid = UserRepoLocal.to.currentUid;
     return Container(
       color: colorScheme.surface,
@@ -731,7 +732,7 @@ class _WebMineMinPanel extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            uid.isEmpty ? '未登录' : 'UID: $uid', // TODO i18n
+            uid.isEmpty ? t.notLoggedIn : 'UID: $uid',
             style: theme.textTheme.titleMedium,
           ),
           if (section != null) ...[
@@ -757,9 +758,9 @@ class _WebMineMinPanel extends ConsumerWidget {
                       context.go(AppRoutes.signIn);
                     } else {
                       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                        const SnackBar(
-                          content: Text('登出失败'), // TODO i18n
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(t.logoutFailed),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     }
