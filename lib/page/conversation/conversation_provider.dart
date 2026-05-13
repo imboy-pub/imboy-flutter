@@ -87,6 +87,8 @@ class ConversationNotifier extends _$ConversationNotifier {
         timer.cancel();
       }
       _debounceTimers.clear();
+      _batchUpdateTimer?.cancel();
+      _pendingUpdates.clear();
     });
 
     return const ConversationState();
@@ -102,6 +104,10 @@ class ConversationNotifier extends _$ConversationNotifier {
     state = state.copyWith(connectDesc: desc);
   }
 
+  // Use a timer and map to batch state updates to prevent UI stuttering
+  Timer? _batchUpdateTimer;
+  final Map<String, ConversationModel> _pendingUpdates = {};
+
   // Replace single conversation
   void replaceConversation(ConversationModel obj) {
     if (obj.uk3.isEmpty) return;
@@ -110,9 +116,22 @@ class ConversationNotifier extends _$ConversationNotifier {
       iPrint('⚠️ [replaceConversation] ConversationNotifier 已释放，跳过更新');
       return;
     }
-    final newMap = Map<String, ConversationModel>.from(state.conversationMap);
-    newMap[obj.uk3] = obj;
-    state = state.copyWith(conversationMap: newMap);
+
+    _pendingUpdates[obj.uk3] = obj;
+
+    // If a timer is already running, wait for it to execute
+    if (_batchUpdateTimer?.isActive ?? false) return;
+
+    // Batch updates every 100ms to avoid full rebuilds on rapid events
+    _batchUpdateTimer = Timer(const Duration(milliseconds: 100), () {
+      if (!ref.mounted || _pendingUpdates.isEmpty) return;
+
+      final newMap = Map<String, ConversationModel>.from(state.conversationMap);
+      newMap.addAll(_pendingUpdates);
+      _pendingUpdates.clear();
+
+      state = state.copyWith(conversationMap: newMap);
+    });
   }
 
   // Remove conversation from map
@@ -718,7 +737,8 @@ class ConversationNotifier extends _$ConversationNotifier {
         final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId.toString());
         if (lastMsg == null) continue;
 
-        if (!isBurnExpiredPayload(lastMsg.payload as Map<String, dynamic>?)) continue;
+        if (!isBurnExpiredPayload(lastMsg.payload as Map<String, dynamic>?))
+          continue;
 
         await expireBurnMessage(cm, cm.lastMsgId.toString());
         final updated = await repo.findById(cm.id);

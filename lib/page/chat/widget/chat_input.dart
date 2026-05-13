@@ -730,7 +730,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
   }
 
-  /// 切换输入类型（文本/语音/表情/扩展面板），优化版本：更平滑的高度过渡
+  /// 切换输入类型（文本/语音/表情/扩展面板），优化版本：实现键盘高度锁定 (Height Locking) 消除闪烁
   Future<void> updateState(InputType type) async {
     if (type == _inputType.value) return;
 
@@ -752,22 +752,18 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     } else if (type == InputType.voice) {
       // 切换到语音模式，收起所有面板
       FocusScope.of(context).unfocus();
-      await Future<dynamic>.delayed(const Duration(milliseconds: 100)); // 等待键盘收起
+      // 等待键盘收起的微小延迟
+      await Future<dynamic>.delayed(const Duration(milliseconds: 50));
       _updateComposerHeightByKeyboard();
     } else {
-      // 切换到emoji/extra，先收起键盘，再展示面板
+      // 切换到emoji/extra：不等待键盘收起，直接展示面板（利用已缓存的 _keyboardHeight 作为 panelHeight）
+      // 这就是业界标杆的“高度锁定”机制，消除切换闪烁
       FocusScope.of(context).unfocus();
 
-      // 根据之前的状态调整延迟时间
-      final delay = oldType == InputType.text
-          ? const Duration(milliseconds: 150) // 从文本切换需要等键盘收起
-          : const Duration(milliseconds: 50); // 从其他状态切换延迟较短
-
-      await Future<dynamic>.delayed(delay);
-      if (!mounted) return;
-
-      // 触发重新构建，让 ChatInputHeightListener 检测到高度变化并执行动画
-      setState(() {});
+      if (mounted) {
+        // 直接重建，因为面板的高度会使用刚才锁定的键盘高度
+        setState(() {});
+      }
     }
   }
 
@@ -1102,9 +1098,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     if (_inputType.value == InputType.emoji ||
         _inputType.value == InputType.extra) {
-      // 面板展开模式：面板高度 = 目标高度 - 当前键盘高度（实现键盘收起时面板逐渐出现）
-      // 这里使用原始 bottomInset，因为我们需要填补键盘腾出的空间
-      panelHeight = max(0, targetPanelHeight - bottomInset);
+      // 业界标杆的高度锁定策略：
+      // 直接将 panelHeight 设置为目标高度，由于 Scaffold 禁用了自适应，
+      // 键盘会像幕布一样在面板上方滑落，露出下方的固定面板，彻底消灭高度跳跃引发的闪烁
+      panelHeight = targetPanelHeight;
     } else if (_inputType.value == InputType.text) {
       // 文本模式：
       // 由于 resizeToAvoidBottomInset: false，我们需要手动增加面板高度以避让键盘

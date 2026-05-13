@@ -440,7 +440,8 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 设置会话
   Future<void> _setupConversation() async {
-    bool showConversation = widget.options?['showConversation'] as bool? ?? true;
+    bool showConversation =
+        widget.options?['showConversation'] as bool? ?? true;
 
     final conversationResult = await ref
         .read(conversationProvider.notifier)
@@ -829,9 +830,10 @@ class ChatPageState extends ConsumerState<ChatPage>
             .read(activeConversationProvider.notifier)
             .setActiveConversation(conversationUk3);
 
-        // 修复：进入聊天页面时，自动推进已读水位到最新消息，清空未读数
-        // 这样用户不需要滚动到消息可见区域，小红点就会消失
-        _clearUnreadOnEnter();
+        // 移除进入聊天页面瞬间全量清空未读数的逻辑
+        // 改为依赖 VisibilityDetector 的渐进式水位推进。
+        // 未读数应当在用户切实“滚动并看到”新消息时，被 _readDelayTimers 逐步消化。
+        // _clearUnreadOnEnter();
       } else {
         ref.read(activeConversationProvider.notifier).clearActiveConversation();
       }
@@ -840,33 +842,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
   }
 
-  /// 进入聊天页面时清空未读数
-  ///
-  /// 通过推进已读水位到最新消息来实现未读数的清空
-  /// 这样用户进入聊天页面后，小红点会立即消失，而不需要滚动到消息可见区域
-  Future<void> _clearUnreadOnEnter() async {
-    try {
-      final conversationNotifier = ref.read(conversationProvider.notifier);
-
-      // 不直接使用 conversation 字段（可能尚未初始化）
-      // 而是通过 peerId 和 type 从数据库或 provider 中获取会话对象
-      final ConversationRepo repo = ConversationRepo();
-      final conv = await repo.findByPeerId(_chatType, widget.peerId);
-
-      if (conv == null) {
-        debugPrint('_clearUnreadOnEnter: 会话未找到，跳过清空未读数');
-        return;
-      }
-
-      // 调用 advanceWatermarkToLatest 来推进已读水位到最新消息
-      // 这会自动重算未读数，通常会将未读数设置为 0
-      await conversationNotifier.advanceWatermarkToLatest(conv);
-
-      debugPrint('_clearUnreadOnEnter: 已清空会话未读数: ${conv.uk3}');
-    } catch (e) {
-      debugPrint('_clearUnreadOnEnter: 清空未读数失败: $e');
-    }
-  }
+  // 移除了 _clearUnreadOnEnter()，依靠消息本身的可见性检查来渐进式消除未读数
 
   // 滚动到目标消息
   Future<void> _scrollToTargetMessage() async {
@@ -901,7 +877,9 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
 
         // 渐进式等待
-        await Future<dynamic>.delayed(Duration(milliseconds: attempt < 3 ? 100 : 300));
+        await Future<dynamic>.delayed(
+          Duration(milliseconds: attempt < 3 ? 100 : 300),
+        );
 
         if (!mounted) return;
 

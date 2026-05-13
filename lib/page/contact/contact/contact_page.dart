@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -78,15 +77,16 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   }
 
   // 联系人列表项点击处理
-  // slice-1.6: kIsWeb 时派发 ContactSelection → 让 Web Shell 右栏显示反馈
+  // slice-1.6: 大屏时派发 ContactSelection → 让 Web Shell 右栏显示反馈
   // （contactBuilder 当前是 _PlaceholderPanel，但能让用户看到点击生效）；
-  // 其他平台保持原 context.push 行为（零回归）
+  // 窄屏保持原 context.push 行为（零回归）
   void _handleContactTap(ContactModel model) {
     if (model.onPressed != null) {
       model.onPressed!();
       return;
     }
-    if (kIsWeb) {
+    final useSplitView = MediaQuery.sizeOf(context).width > 800;
+    if (useSplitView) {
       ref
           .read(webShellProvider.notifier)
           .selectItem(ContactSelection(uid: model.peerId.toString()));
@@ -97,12 +97,13 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   }
 
   // 联系人列表项长按处理
-  // slice-1.5: kIsWeb 时通过 webShellProvider 内嵌渲染右栏 ChatPanel；
-  // 其他平台保持原 query string 跳路由行为（零回归）。
+  // slice-1.5: 大屏时通过 webShellProvider 内嵌渲染右栏 ChatPanel；
+  // 窄屏保持原 query string 跳路由行为（零回归）。
   void _handleContactLongPress(ContactModel model) {
     if (model.iconData == null) {
+      final useSplitView = MediaQuery.sizeOf(context).width > 800;
       final action = resolveConversationTap(
-        isWeb: kIsWeb,
+        useSplitView: useSplitView,
         peerId: model.peerId.toString(),
         type: 'C2C',
         title: model.title,

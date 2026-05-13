@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -362,8 +361,10 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                             child: ConversationItem(
                               model: model,
                               onTap: () {
+                                final useSplitView =
+                                    MediaQuery.sizeOf(context).width > 800;
                                 final action = resolveConversationTap(
-                                  isWeb: kIsWeb,
+                                  useSplitView: useSplitView,
                                   peerId: model.peerId.toString(),
                                   type: model.type,
                                   title: model.title,

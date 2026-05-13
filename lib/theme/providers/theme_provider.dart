@@ -325,7 +325,12 @@ class ThemeNotifier extends _$ThemeNotifier {
       fontSize: getScaledFontSize(type, context: context),
       fontWeight: fontWeight ?? FontWeight.normal,
       color: color,
-      fontFamily: 'PingFang SC',
+      fontFamilyFallback: const [
+        'PingFang SC',
+        'Heiti SC',
+        'Microsoft YaHei',
+        'sans-serif',
+      ],
     );
   }
 

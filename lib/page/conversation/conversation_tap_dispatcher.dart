@@ -84,12 +84,12 @@ final class MobilePushChat extends ConversationTapAction {
       'MobilePushChat(peerId: $peerId, chatType: $chatType, title: $title)';
 }
 
-/// 决策函数：根据平台类型派发不同 action
+/// 决策函数：根据平台类型和屏幕宽度派发不同 action
 ///
 /// [type] 为 null 或空字符串时默认 'C2C'（与 `conversation_page.dart:365-367` 既有
 /// `strEmpty(model.type) ? 'C2C' : model.type` 兜底语义对齐）。
 ConversationTapAction resolveConversationTap({
-  required bool isWeb,
+  required bool useSplitView,
   required String peerId,
   required String? type,
   String? title,
@@ -98,7 +98,7 @@ ConversationTapAction resolveConversationTap({
 }) {
   final chatType = (type == null || type.isEmpty) ? 'C2C' : type;
 
-  if (isWeb) {
+  if (useSplitView) {
     return WebSelectChat(peerId: peerId, chatType: chatType);
   }
   return MobilePushChat(

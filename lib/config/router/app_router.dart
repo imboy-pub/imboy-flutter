@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:feedback/feedback.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,10 +88,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         currentPath: currentPath,
       );
       if (blocked != null) {
-        RouteFeatureGuard.notifyBlocked(
-          context,
-          (reason: blocked.reason, name: blocked.name),
-        );
+        RouteFeatureGuard.notifyBlocked(context, (
+          reason: blocked.reason,
+          name: blocked.name,
+        ));
         return blocked.redirect;
       }
 
@@ -114,8 +114,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.signIn,
         name: 'sign_in',
         builder: (context, state) {
-          // Web 平台且宽屏使用 WebLoginPage
-          if (kIsWeb) {
+          // 大屏桌面/Web 环境使用 WebLoginPage
+          final useSplitView = MediaQuery.sizeOf(context).width > 800;
+          if (useSplitView) {
             return const WebLoginPage();
           }
           return const LoginPage();

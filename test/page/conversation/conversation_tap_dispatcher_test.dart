@@ -13,7 +13,7 @@ void main() {
   group('resolveConversationTap — Web 分支', () {
     test('isWeb=true → WebSelectChat 携带 peerId + chatType', () {
       final action = resolveConversationTap(
-        isWeb: true,
+        useSplitView: true,
         peerId: 'u-001',
         type: 'C2C',
       );
@@ -25,7 +25,7 @@ void main() {
 
     test('isWeb=true + type=C2G → WebSelectChat chatType=C2G', () {
       final action = resolveConversationTap(
-        isWeb: true,
+        useSplitView: true,
         peerId: 'g-001',
         type: 'C2G',
       );
@@ -33,19 +33,21 @@ void main() {
       expect((action as WebSelectChat).chatType, 'C2G');
     });
 
-    test('isWeb=true + type=null → 默认 C2C（与 conversation_page.dart:365-367 兼容）',
-        () {
-      final action = resolveConversationTap(
-        isWeb: true,
-        peerId: 'u-002',
-        type: null,
-      );
-      expect((action as WebSelectChat).chatType, 'C2C');
-    });
+    test(
+      'isWeb=true + type=null → 默认 C2C（与 conversation_page.dart:365-367 兼容）',
+      () {
+        final action = resolveConversationTap(
+          useSplitView: true,
+          peerId: 'u-002',
+          type: null,
+        );
+        expect((action as WebSelectChat).chatType, 'C2C');
+      },
+    );
 
     test('isWeb=true + type=空字符串 → 默认 C2C', () {
       final action = resolveConversationTap(
-        isWeb: true,
+        useSplitView: true,
         peerId: 'u-003',
         type: '',
       );
@@ -54,7 +56,7 @@ void main() {
 
     test('isWeb=true 不携带 title/avatar/sign（Web Shell 自己解析）', () {
       final action = resolveConversationTap(
-        isWeb: true,
+        useSplitView: true,
         peerId: 'u-004',
         type: 'C2C',
         title: '应被忽略',
@@ -70,7 +72,7 @@ void main() {
   group('resolveConversationTap — Mobile 分支', () {
     test('isWeb=false → MobilePushChat 携带全 metadata', () {
       final action = resolveConversationTap(
-        isWeb: false,
+        useSplitView: false,
         peerId: 'u-005',
         type: 'C2C',
         title: '张三',
@@ -88,7 +90,7 @@ void main() {
 
     test('isWeb=false + type=null → MobilePushChat 默认 C2C', () {
       final action = resolveConversationTap(
-        isWeb: false,
+        useSplitView: false,
         peerId: 'u-006',
         type: null,
       );
@@ -97,7 +99,7 @@ void main() {
 
     test('isWeb=false 携带 type=C2G → 透传', () {
       final action = resolveConversationTap(
-        isWeb: false,
+        useSplitView: false,
         peerId: 'g-002',
         type: 'C2G',
       );
@@ -106,7 +108,7 @@ void main() {
 
     test('MobilePushChat title/avatar/sign 可全为 null', () {
       final action = resolveConversationTap(
-        isWeb: false,
+        useSplitView: false,
         peerId: 'u-007',
         type: 'C2C',
       );
@@ -127,19 +129,15 @@ void main() {
       }
 
       expect(
-        describe(resolveConversationTap(
-          isWeb: true,
-          peerId: 'x',
-          type: 'C2C',
-        )),
+        describe(
+          resolveConversationTap(useSplitView: true, peerId: 'x', type: 'C2C'),
+        ),
         'web',
       );
       expect(
-        describe(resolveConversationTap(
-          isWeb: false,
-          peerId: 'x',
-          type: 'C2C',
-        )),
+        describe(
+          resolveConversationTap(useSplitView: false, peerId: 'x', type: 'C2C'),
+        ),
         'mobile',
       );
     });
