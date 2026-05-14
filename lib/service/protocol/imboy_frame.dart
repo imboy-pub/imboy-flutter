@@ -46,6 +46,7 @@ class FrameType {
   static const int msgTyping = 0x25;
   static const int msgRead = 0x26;
   static const int msgRecall = 0x27;
+  static const int msgC2CH = 0x28;
 
   // 0x80-0xEF RPC/扩展
   static const int rpcReq = 0x80;

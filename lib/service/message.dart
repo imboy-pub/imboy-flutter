@@ -1121,6 +1121,35 @@ class MessageService with EventSubscriptionManager {
     // 【改进】添加SERVER_ACK接收日志
     iPrint('📥 [SERVER_ACK] 收到服务端ACK: msgId=$msgId, type=$type');
 
+    // 针对频道消息的特殊处理
+    if (type == 'C2CH_SERVER_ACK') {
+      try {
+        final payload = parseModelJsonMap(data['payload']);
+        if (payload != null && payload.containsKey('id')) {
+          final realId = parseModelInt(payload['id']);
+          final localId = int.tryParse(msgId);
+          if (realId > 0 && localId != null && localId < 0) {
+            import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
+            await ChannelMessageRepo().updateMessageId(localId, realId);
+            iPrint('✅ [SERVER_ACK] 频道消息已确认: 临时ID $localId -> 真实ID $realId');
+            // 可以触发事件刷新频道消息流
+            import 'package:imboy/service/event_bus.dart';
+            import 'package:imboy/service/events/common_events.dart';
+            AppEventBus.fire(
+              ChannelStateChangedEvent(
+                channelId: payload['channel_id']?.toString() ?? '',
+                action: 'message_ack',
+                payload: {'local_id': localId, 'real_id': realId},
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        iPrint('❌ [SERVER_ACK] 频道消息ACK处理异常: $e');
+      }
+      return;
+    }
+
     // 【重要】从重试队列中移除该消息，避免重复发送（解耦：通过事件总线）
     // Remove from retry queue to avoid duplicate sending (decoupling: via event bus)
     AppEventBus.fire(

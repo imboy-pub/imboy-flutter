@@ -535,6 +535,16 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     if (!ref.mounted) return;
 
     switch (event.action) {
+      case 'message_ack':
+        final localId = event.payload['local_id'];
+        final realId = event.payload['real_id'];
+        if (localId != null && realId != null) {
+          final updated = state.messages
+              .map((m) => m.id == localId ? m.copyWith(id: realId) : m)
+              .toList();
+          state = state.copyWith(messages: updated);
+        }
+        break;
       case 'channel_updated':
         final channelData = event.payload['channel'];
         if (channelData is Map) {

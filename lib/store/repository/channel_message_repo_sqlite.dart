@@ -52,6 +52,17 @@ class ChannelMessageRepo {
     iPrint('ChannelMessageRepo: 保存消息 ${message.id}');
   }
 
+  /// 更新消息ID（用于服务器返回ACK时将临时负数ID替换为真实ID）
+  Future<bool> updateMessageId(int oldId, int newId) async {
+    final count = await _db.update(
+      tableName,
+      {id: newId},
+      where: '$id = ?',
+      whereArgs: [oldId],
+    );
+    return count > 0;
+  }
+
   /// 批量保存消息
   Future<void> saveMessages(
     List<ChannelMessageModel> messages, {

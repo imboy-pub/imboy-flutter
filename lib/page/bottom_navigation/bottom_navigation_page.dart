@@ -40,6 +40,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   bool _initialIndexApplied = false;
 
   bool _isTabEnabled(String entry) {
+    if (entry == 'channel_tab') {
+      return AppFeatureRegistry.isEnabled('channel');
+    }
     final manifest = AppManifestService.manifest;
     if (manifest != null) {
       return manifest.hasAppEntry(entry);

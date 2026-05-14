@@ -26,6 +26,8 @@ class MsgDirection extends $pb.ProtobufEnum {
       MsgDirection._(3, _omitEnumNames ? '' : 'C2S');
   static const MsgDirection S2C =
       MsgDirection._(4, _omitEnumNames ? '' : 'S2C');
+  static const MsgDirection C2CH =
+      MsgDirection._(5, _omitEnumNames ? '' : 'C2CH');
 
   /// WebRTC signaling types
   static const MsgDirection WEBRTC_OFFER =
@@ -46,6 +48,8 @@ class MsgDirection extends $pb.ProtobufEnum {
       MsgDirection._(22, _omitEnumNames ? '' : 'CLIENT_ACK');
   static const MsgDirection CLIENT_ACK_CONFIRM =
       MsgDirection._(23, _omitEnumNames ? '' : 'CLIENT_ACK_CONFIRM');
+  static const MsgDirection C2CH_SERVER_ACK =
+      MsgDirection._(24, _omitEnumNames ? '' : 'C2CH_SERVER_ACK');
 
   static const $core.List<MsgDirection> values = <MsgDirection>[
     MSG_DIRECTION_UNSPECIFIED,
@@ -53,6 +57,7 @@ class MsgDirection extends $pb.ProtobufEnum {
     C2G,
     C2S,
     S2C,
+    C2CH,
     WEBRTC_OFFER,
     WEBRTC_ANSWER,
     WEBRTC_CANDIDATE,
@@ -61,6 +66,7 @@ class MsgDirection extends $pb.ProtobufEnum {
     C2G_SERVER_ACK,
     CLIENT_ACK,
     CLIENT_ACK_CONFIRM,
+    C2CH_SERVER_ACK,
   ];
 
   static final $core.Map<$core.int, MsgDirection> _byValue =
@@ -141,6 +147,8 @@ class S2CAction extends $pb.ProtobufEnum {
       S2CAction._(12, _omitEnumNames ? '' : 'POLICY_VIOLATION');
   static const S2CAction LOGGED_ANOTHER_DEVICE =
       S2CAction._(13, _omitEnumNames ? '' : 'LOGGED_ANOTHER_DEVICE');
+  static const S2CAction C2CH_DEL_EVERYONE =
+      S2CAction._(14, _omitEnumNames ? '' : 'C2CH_DEL_EVERYONE');
 
   static const $core.List<S2CAction> values = <S2CAction>[
     S2C_ACTION_UNSPECIFIED,
@@ -157,10 +165,11 @@ class S2CAction extends $pb.ProtobufEnum {
     INVALID_MESSAGE_TYPE,
     POLICY_VIOLATION,
     LOGGED_ANOTHER_DEVICE,
+    C2CH_DEL_EVERYONE,
   ];
 
   static final $core.List<S2CAction?> _byValue =
-      $pb.ProtobufEnum.$_initByValueList(values, 13);
+      $pb.ProtobufEnum.$_initByValueList(values, 14);
   static S2CAction? valueOf($core.int value) =>
       value < 0 || value >= _byValue.length ? null : _byValue[value];
 

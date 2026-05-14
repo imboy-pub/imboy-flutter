@@ -14,6 +14,7 @@ import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -283,66 +284,118 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   /// 构建消息输入框
   Widget _buildMessageInput(ChannelModel channel, bool isBusy) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceGrouped = isDark
+        ? AppColors.darkBackground
+        : AppColors.lightSurfaceGrouped;
+    final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final separator = isDark
+        ? const Color(0xFF545458)
+        : const Color(0xFFC6C6C8);
+
+    final bool hasText = _messageController.text.isNotEmpty;
+
     return Container(
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
+        left: 8,
+        right: 8,
         top: 8,
         bottom: MediaQuery.of(context).padding.bottom + 8,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-        ),
+        color: surfaceGrouped,
+        border: Border(top: BorderSide(color: separator, width: 0.33)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // 附件按钮
+          // 左侧 + 按钮
           IconButton(
-            icon: Icon(Icons.attach_file, color: Colors.grey[600]),
+            icon: const Icon(Icons.add, size: 28),
+            color: Colors.grey[600],
             onPressed: isBusy ? null : () => _pickAndSendMedia(channel),
           ),
           // 输入框
           Expanded(
-            child: TextField(
-              controller: _messageController,
-              focusNode: _messageFocusNode,
-              enabled: !isBusy,
-              decoration: InputDecoration(
-                hintText: context.t.channel.writeMessage,
-                border: OutlineInputBorder(
-                  borderRadius: AppRadius.borderRadiusXLarge,
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey.withValues(alpha: 0.1),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 2),
+              constraints: const BoxConstraints(minHeight: 44, maxHeight: 120),
+              decoration: BoxDecoration(
+                color: surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF38383A)
+                      : Colors.grey.withValues(alpha: 0.2),
+                  width: 0.5,
                 ),
               ),
-              maxLines: 4,
-              minLines: 1,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) {
-                if (!isBusy) {
-                  _sendMessage(channel);
-                }
-              },
+              child: TextField(
+                controller: _messageController,
+                focusNode: _messageFocusNode,
+                enabled: !isBusy,
+                onChanged: (_) {
+                  // 触发 UI 刷新以切换发送/语音按钮
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                  hintText: context.t.channel.writeMessage,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10, // 调整以垂直居中
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 17,
+                  color: isDark ? Colors.white : Colors.black,
+                  height: 1.4, // CJK行高
+                ),
+                maxLines: null, // 允许自动折行
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) {
+                  if (!isBusy) {
+                    _sendMessage(channel);
+                  }
+                },
+              ),
             ),
           ),
           const SizedBox(width: 8),
-          // 发送按钮
-          FloatingActionButton.small(
-            onPressed: isBusy ? null : () => _sendMessage(channel),
+          // 右侧：发送/语音按钮
+          Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: hasText ? AppColors.primary : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
             child: isBusy
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                ? const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
-                : const Icon(Icons.send, size: 20),
+                : IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      hasText ? Icons.arrow_upward : Icons.mic_none,
+                      size: 20,
+                      color: hasText ? Colors.white : Colors.grey[600],
+                    ),
+                    onPressed: isBusy
+                        ? null
+                        : () {
+                            if (hasText) {
+                              _sendMessage(channel);
+                            } else {
+                              // TODO: 频道语音发送功能
+                            }
+                          },
+                  ),
           ),
         ],
       ),
@@ -1383,49 +1436,85 @@ class _ChannelMessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
+    final isSentByMe = message.authorId == currentUid;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final t = context.t;
+
+    final isMedia =
+        message.msgType == ChannelMessageType.image ||
+        message.msgType == 'image' ||
+        message.msgType == ChannelMessageType.video ||
+        message.msgType == 'video';
+
+    // Send Bubble: brand / white
+    // Receive Bubble: surface / label
+    final bubbleBg = isMedia
+        ? Colors.transparent
+        : (isSentByMe
+              ? AppColors.primary
+              : (isDark ? const Color(0xFF1C1C1E) : AppColors.lightSurface));
+
+    // received light outline
+    final bubbleBorder = (!isSentByMe && !isDark && !isMedia)
+        ? Border.all(color: const Color(0xFFE5E5EA), width: 0.5)
+        : null;
+
+    final textColor = isSentByMe
+        ? Colors.white
+        : (isDark ? Colors.white : Colors.black);
+
+    // 消息本身的内容区
+    final contentWidget = _buildMessageContent(context, textColor);
+
+    final avatarWidget = CircleAvatar(
+      radius: 18,
+      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+      backgroundImage:
+          message.authorAvatar != null && message.authorAvatar!.isNotEmpty
+          ? cachedImageProvider(message.authorAvatar!, w: 64)
+          : null,
+      child: (message.authorAvatar == null || message.authorAvatar!.isEmpty)
+          ? Text(
+              message.authorName != null && message.authorName!.isNotEmpty
+                  ? message.authorName![0].toUpperCase()
+                  : '?',
+              style: const TextStyle(fontSize: 14),
+            )
+          : null,
+    );
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: isSentByMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
-          // 作者信息
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                backgroundImage:
-                    message.authorAvatar != null &&
-                        message.authorAvatar!.isNotEmpty
-                    ? cachedImageProvider(message.authorAvatar!, w: 64)
-                    : null,
-                child:
-                    message.authorAvatar == null ||
-                        message.authorAvatar!.isEmpty
-                    ? Text(
-                        message.authorName != null &&
-                                message.authorName!.isNotEmpty
-                            ? message.authorName![0].toUpperCase()
-                            : '?',
-                        style: const TextStyle(fontSize: 12),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+          if (!isSentByMe) ...[avatarWidget, const SizedBox(width: 8)],
+
+          Flexible(
+            child: Column(
+              crossAxisAlignment: isSentByMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                // 作者与时间
+                if (!isSentByMe)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           message.authorName ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
-                            fontSize: 14,
                           ),
                         ),
-                        // 管理员标签
                         if (isManaged) ...[
                           const SizedBox(width: 4),
                           Container(
@@ -1438,8 +1527,8 @@ class _ChannelMessageItem extends StatelessWidget {
                               borderRadius: BorderRadius.circular(3),
                             ),
                             child: Text(
-                              context.t.channel.admin,
-                              style: TextStyle(
+                              t.channel.admin,
+                              style: const TextStyle(
                                 fontSize: 9,
                                 color: AppColors.primary,
                               ),
@@ -1448,129 +1537,163 @@ class _ChannelMessageItem extends StatelessWidget {
                         ],
                       ],
                     ),
-                    Text(
-                      _formatTime(message.createdAt),
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-              if (message.isPinned)
+                  ),
+
+                // 气泡
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.72,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusTiny,
+                    color: bubbleBg,
+                    border: bubbleBorder,
+                    borderRadius: BorderRadius.circular(isMedia ? 14 : 20),
+                  ),
+                  padding: isMedia
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: contentWidget,
+                ),
+
+                // 底部反应与统计
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 4,
+                    left: isSentByMe ? 0 : 4,
+                    right: isSentByMe ? 4 : 0,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.push_pin, size: 12, color: AppColors.primary),
-                      const SizedBox(width: 2),
-                      Text(
-                        context.t.channel.pinned,
-                        style: TextStyle(
-                          fontSize: 10,
+                      // 置顶
+                      if (message.isPinned) ...[
+                        const Icon(
+                          Icons.push_pin,
+                          size: 12,
                           color: AppColors.primary,
                         ),
+                        const SizedBox(width: 8),
+                      ],
+                      // 浏览量
+                      if (message.viewCount > 0 || isSentByMe) ...[
+                        Icon(
+                          Icons.remove_red_eye_outlined,
+                          size: 12,
+                          color: Colors.grey[500],
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${message.viewCount}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      // 反应
+                      GestureDetector(
+                        onTap: () => _showReactionPicker(context),
+                        child: Icon(
+                          Icons.thumb_up_outlined,
+                          size: 12,
+                          color: Colors.grey[500],
+                        ),
                       ),
+                      if (message.reactionSummary != null &&
+                          message.reactionSummary!.isNotEmpty) ...[
+                        const SizedBox(width: 4),
+                        _buildReactionSummary(context),
+                      ],
+                      // 管理操作
+                      if (isManaged) ...[
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTapDown: (details) {
+                            final renderBox =
+                                context.findRenderObject() as RenderBox?;
+                            final position = renderBox?.localToGlobal(
+                              Offset.zero,
+                            );
+                            if (position != null) {
+                              showMenu(
+                                context: context,
+                                position: RelativeRect.fromLTRB(
+                                  position.dx,
+                                  position.dy,
+                                  position.dx + renderBox!.size.width,
+                                  position.dy + renderBox.size.height,
+                                ),
+                                items: [
+                                  PopupMenuItem(
+                                    value: message.isPinned ? 'unpin' : 'pin',
+                                    child: ListTile(
+                                      leading: Icon(
+                                        message.isPinned
+                                            ? Icons.push_pin_outlined
+                                            : Icons.push_pin,
+                                        size: 20,
+                                      ),
+                                      title: Text(
+                                        message.isPinned
+                                            ? t.channel.unpinMessage
+                                            : t.channel.pinMessage,
+                                      ),
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: ListTile(
+                                      leading: Icon(
+                                        Icons.delete_outline,
+                                        size: 20,
+                                        color: Colors.red[400],
+                                      ),
+                                      title: Text(
+                                        t.channel.deleteMessage,
+                                        style: TextStyle(
+                                          color: Colors.red[400],
+                                        ),
+                                      ),
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                ],
+                              ).then((value) {
+                                if (value != null) {
+                                  _handleMessageAction(value, context);
+                                }
+                              });
+                            }
+                          },
+                          child: Icon(
+                            Icons.more_horiz,
+                            size: 14,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                      // 状态 (如发送中，失败) -> 用 ID < 0 判定
+                      if (isSentByMe && message.id < 0) ...[
+                        const SizedBox(width: 8),
+                        const SizedBox(
+                          width: 10,
+                          height: 10,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.5,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-              // 管理员操作菜单
-              if (isManaged)
-                PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_horiz,
-                    color: Colors.grey[500],
-                    size: 20,
-                  ),
-                  onSelected: (value) => _handleMessageAction(value, context),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: message.isPinned ? 'unpin' : 'pin',
-                      child: ListTile(
-                        leading: Icon(
-                          message.isPinned
-                              ? Icons.push_pin_outlined
-                              : Icons.push_pin,
-                          size: 20,
-                        ),
-                        title: Text(
-                          message.isPinned
-                              ? context.t.channel.unpinMessage
-                              : context.t.channel.pinMessage,
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.delete_outline,
-                          size: 20,
-                          color: Colors.red[400],
-                        ),
-                        title: Text(
-                          context.t.channel.deleteMessage,
-                          style: TextStyle(color: Colors.red[400]),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // 消息内容
-          _buildMessageContent(context),
-          const SizedBox(height: 8),
-          // 统计和反应
-          Row(
-            children: [
-              // 阅读量
-              Icon(
-                Icons.remove_red_eye_outlined,
-                size: 14,
-                color: Colors.grey[500],
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${message.viewCount}',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-              ),
-              const SizedBox(width: 16),
-              // 反应按钮
-              GestureDetector(
-                onTap: () => _showReactionPicker(context),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.thumb_up_outlined,
-                      size: 14,
-                      color: Colors.grey[500],
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      context.t.channel.react,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-              // 显示反应统计
-              if (message.reactionSummary != null &&
-                  message.reactionSummary!.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                _buildReactionSummary(context),
               ],
-            ],
+            ),
           ),
+
+          if (isSentByMe) ...[const SizedBox(width: 8), avatarWidget],
         ],
       ),
     );
@@ -1705,34 +1828,34 @@ class _ChannelMessageItem extends StatelessWidget {
     return formatMessageTime(time);
   }
 
-  Widget _buildMessageContent(BuildContext context) {
+  Widget _buildMessageContent(BuildContext context, Color textColor) {
     switch (message.msgType) {
       case ChannelMessageType.image:
       case 'image':
-        return _buildImageContent(context);
+        return _buildImageContent(context, textColor);
       case ChannelMessageType.video:
       case 'video':
-        return _buildVideoContent(context);
+        return _buildVideoContent(context, textColor);
       case ChannelMessageType.file:
       case 'file':
-        return _buildFileContent(context);
+        return _buildFileContent(context, textColor);
       default:
-        return _buildTextContent();
+        return _buildTextContent(textColor);
     }
   }
 
-  Widget _buildTextContent() {
+  Widget _buildTextContent(Color textColor) {
     return SelectableText(
       message.content,
-      style: const TextStyle(fontSize: 15, height: 1.5),
+      style: TextStyle(fontSize: 16, height: 1.4, color: textColor),
     );
   }
 
-  Widget _buildImageContent(BuildContext context) {
+  Widget _buildImageContent(BuildContext context, Color textColor) {
     final payload = message.payload;
     final uri = payload?['uri'] as String?;
 
-    if (uri == null) return _buildTextContent();
+    if (uri == null) return _buildTextContent(textColor);
 
     return GestureDetector(
       onTap: () {
@@ -1750,7 +1873,7 @@ class _ChannelMessageItem extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoContent(BuildContext context) {
+  Widget _buildVideoContent(BuildContext context, Color textColor) {
     final payload = message.payload;
     String? thumb;
     final dynamic thumbRaw = payload?['thumb'];
@@ -1804,7 +1927,7 @@ class _ChannelMessageItem extends StatelessWidget {
     );
   }
 
-  Widget _buildFileContent(BuildContext context) {
+  Widget _buildFileContent(BuildContext context, Color textColor) {
     final payload = message.payload;
     final name = payload?['name'] as String? ?? t.defaultFileName;
     final size = payload?['size'] as int? ?? 0;
@@ -1825,7 +1948,7 @@ class _ChannelMessageItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.insert_drive_file, color: Colors.grey[600], size: 32),
+            Icon(Icons.insert_drive_file, size: 36, color: textColor),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -1833,17 +1956,24 @@ class _ChannelMessageItem extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                    ),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     _formatFileSize(size),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textColor.withValues(alpha: 0.7),
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.download, color: Colors.grey[600]),
           ],
         ),
       ),

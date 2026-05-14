@@ -395,6 +395,9 @@ class WebSocketService {
             case 'C2G':
               type = FrameType.msgC2G;
               break;
+            case 'C2CH':
+              type = FrameType.msgC2CH;
+              break;
             case 'C2S':
               type = FrameType.msgC2S;
               break;
