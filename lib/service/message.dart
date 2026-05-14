@@ -23,6 +23,7 @@ import 'package:imboy/config/init.dart' show AppInitializer, navigateToSignIn;
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1039,7 +1040,10 @@ class MessageService with EventSubscriptionManager {
 
   /// 并行获取 peer 信息（带缓存优化）
   /// Fetch peer info in parallel with cache optimization
-  Future<Map<String, String>> _fetchPeerInfo(String chatType, Map<String, dynamic> data) async {
+  Future<Map<String, String>> _fetchPeerInfo(
+    String chatType,
+    Map<String, dynamic> data,
+  ) async {
     String peerId, avatar, title;
 
     if (chatType == 'C2G') {
@@ -1129,12 +1133,8 @@ class MessageService with EventSubscriptionManager {
           final realId = parseModelInt(payload['id']);
           final localId = int.tryParse(msgId);
           if (realId > 0 && localId != null && localId < 0) {
-            import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
             await ChannelMessageRepo().updateMessageId(localId, realId);
             iPrint('✅ [SERVER_ACK] 频道消息已确认: 临时ID $localId -> 真实ID $realId');
-            // 可以触发事件刷新频道消息流
-            import 'package:imboy/service/event_bus.dart';
-            import 'package:imboy/service/events/common_events.dart';
             AppEventBus.fire(
               ChannelStateChangedEvent(
                 channelId: payload['channel_id']?.toString() ?? '',
@@ -1273,7 +1273,11 @@ class MessageService with EventSubscriptionManager {
 
   /// 获取通知内容
   String _getNotificationContent(MessageModel msg) {
-    return _messageTypeLabel(msg.msgType ?? '', msg.payload as Map<String, dynamic>, fallback: '[新消息]');
+    return _messageTypeLabel(
+      msg.msgType ?? '',
+      msg.payload as Map<String, dynamic>,
+      fallback: '[新消息]',
+    );
   }
 
   /// Handle error codes from server
@@ -1539,7 +1543,10 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 处理文本消息
-  void _handleTextMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleTextMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final text = payload['text']?.toString() ?? '';
     iPrint(
       '📝 [文本消息] ${text.substring(0, text.length > 50 ? 50 : text.length)}...',
@@ -1547,48 +1554,69 @@ class MessageService with EventSubscriptionManager {
   }
 
   /// 处理图片消息
-  void _handleImageMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleImageMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final url = payload['url']?.toString() ?? '';
     iPrint('🖼️ [图片消息] $url');
   }
 
   /// 处理语音消息
-  void _handleVoiceMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleVoiceMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final duration = payload['duration']?.toInt() ?? 0;
     final url = payload['url']?.toString() ?? '';
     iPrint('🎤 [语音消息] 时长: $duration秒, URL: $url');
   }
 
   /// 处理视频消息
-  void _handleVideoMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleVideoMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final url = payload['url']?.toString() ?? '';
     final duration = payload['duration']?.toInt() ?? 0;
     iPrint('🎬 [视频消息] 时长: $duration秒, URL: $url');
   }
 
   /// 处理文件消息
-  void _handleFileMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleFileMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final filename = payload['filename']?.toString() ?? '';
     final size = payload['size']?.toInt() ?? 0;
     iPrint('📎 [文件消息] 文件名: $filename, 大小: $size 字节');
   }
 
   /// 处理引用消息
-  void _handleQuoteMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleQuoteMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final quoteText = payload['quote_text']?.toString() ?? '';
     final text = payload['text']?.toString() ?? '';
     iPrint('💬 [引用消息] 引用: $quoteText, 内容: $text');
   }
 
   /// 处理位置消息
-  void _handleLocationMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleLocationMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final title = payload['title']?.toString() ?? '';
     final address = payload['address']?.toString() ?? '';
     iPrint('📍 [位置消息] 标题: $title, 地址: $address');
   }
 
   /// 处理自定义消息
-  void _handleCustomMessage(Map<String, dynamic> data, Map<String, dynamic> payload) {
+  void _handleCustomMessage(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
     final contentType =
         data['msg_type']?.toString() ??
         payload['msg_type']?.toString() ??

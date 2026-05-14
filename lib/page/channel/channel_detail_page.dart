@@ -1443,9 +1443,7 @@ class _ChannelMessageItem extends StatelessWidget {
 
     final isMedia =
         message.msgType == ChannelMessageType.image ||
-        message.msgType == 'image' ||
-        message.msgType == ChannelMessageType.video ||
-        message.msgType == 'video';
+        message.msgType == ChannelMessageType.video;
 
     // Send Bubble: brand / white
     // Receive Bubble: surface / label
@@ -1822,10 +1820,6 @@ class _ChannelMessageItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatTime(DateTime time) {
-    return formatMessageTime(time);
   }
 
   Widget _buildMessageContent(BuildContext context, Color textColor) {

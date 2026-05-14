@@ -536,8 +536,8 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
     switch (event.action) {
       case 'message_ack':
-        final localId = event.payload['local_id'];
-        final realId = event.payload['real_id'];
+        final localId = event.payload['local_id'] as int?;
+        final realId = event.payload['real_id'] as int?;
         if (localId != null && realId != null) {
           final updated = state.messages
               .map((m) => m.id == localId ? m.copyWith(id: realId) : m)

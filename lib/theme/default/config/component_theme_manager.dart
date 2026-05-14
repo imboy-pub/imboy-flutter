@@ -5,6 +5,13 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 
+const _kFontFamilyFallback = [
+  'PingFang SC',
+  'Heiti SC',
+  'Microsoft YaHei',
+  'sans-serif',
+];
+
 /// 组件主题管理器
 /// 统一管理所有组件主题，支持动态字体缩放和 Material 3 设计规范
 class ComponentThemeManager {
@@ -46,12 +53,7 @@ class ComponentThemeManager {
         fontSize: scaledTitleSize,
         fontWeight: FontWeight.w600,
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       centerTitle: true,
       toolbarHeight: AppSizes.appBarHeight,
@@ -88,12 +90,7 @@ class ComponentThemeManager {
         textStyle: TextStyle(
           fontSize: scaledFontSize,
           fontWeight: FontWeight.w500,
-          fontFamilyFallback: const [
-            'PingFang SC',
-            'Heiti SC',
-            'Microsoft YaHei',
-            'sans-serif',
-          ],
+          fontFamilyFallback: _kFontFamilyFallback,
         ),
       ),
     );
@@ -123,12 +120,7 @@ class ComponentThemeManager {
         textStyle: TextStyle(
           fontSize: scaledFontSize,
           fontWeight: FontWeight.w500,
-          fontFamilyFallback: const [
-            'PingFang SC',
-            'Heiti SC',
-            'Microsoft YaHei',
-            'sans-serif',
-          ],
+          fontFamilyFallback: _kFontFamilyFallback,
         ),
       ),
     );
@@ -162,12 +154,7 @@ class ComponentThemeManager {
         textStyle: TextStyle(
           fontSize: scaledFontSize,
           fontWeight: FontWeight.w500,
-          fontFamilyFallback: const [
-            'PingFang SC',
-            'Heiti SC',
-            'Microsoft YaHei',
-            'sans-serif',
-          ],
+          fontFamilyFallback: _kFontFamilyFallback,
         ),
       ),
     );
@@ -301,56 +288,31 @@ class ComponentThemeManager {
             ? AppColors.darkTextDisabled
             : AppColors.lightTextDisabled,
         fontSize: scaledHintSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       labelStyle: TextStyle(
         color: isDark
             ? AppColors.darkTextSecondary
             : AppColors.lightTextSecondary,
         fontSize: scaledLabelSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       floatingLabelStyle: TextStyle(
         color: isDark ? AppColors.primaryLight : AppColors.primary,
         fontSize: scaledFloatingLabelSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       errorStyle: TextStyle(
         color: isDark ? AppColors.darkError : AppColors.lightError,
         fontSize: scaledErrorSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       helperStyle: TextStyle(
         color: isDark
             ? AppColors.darkTextSecondary
             : AppColors.lightTextSecondary,
         fontSize: scaledHelperSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
     );
   }
@@ -384,12 +346,7 @@ class ComponentThemeManager {
         fontSize: scaledTitleSize,
         fontWeight: FontWeight.w500,
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       subtitleTextStyle: TextStyle(
         fontSize: scaledSubtitleSize,
@@ -397,12 +354,7 @@ class ComponentThemeManager {
         color: isDark
             ? AppColors.darkTextSecondary
             : AppColors.lightTextSecondary,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       leadingAndTrailingTextStyle: TextStyle(
         fontSize: scaledSubtitleSize,
@@ -410,12 +362,7 @@ class ComponentThemeManager {
         color: isDark
             ? AppColors.darkTextSecondary
             : AppColors.lightTextSecondary,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       dense: false,
       horizontalTitleGap: AppSpacing.regular,
@@ -450,22 +397,12 @@ class ComponentThemeManager {
       labelStyle: TextStyle(
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         fontSize: scaledLabelSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       secondaryLabelStyle: TextStyle(
         color: Colors.white,
         fontSize: scaledLabelSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
       ),
       brightness: isDark ? Brightness.dark : Brightness.light,
       elevation: 0,
@@ -505,12 +442,7 @@ class ComponentThemeManager {
       selectedLabelStyle: TextStyle(
         color: isDark ? AppColors.primaryLight : AppColors.primary,
         fontSize: scaledLabelSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
         fontWeight: FontWeight.w500,
       ),
       unselectedLabelStyle: TextStyle(
@@ -518,12 +450,7 @@ class ComponentThemeManager {
             ? AppColors.darkTextDisabled
             : AppColors.lightTextSecondary,
         fontSize: scaledLabelSize,
-        fontFamilyFallback: const [
-          'PingFang SC',
-          'Heiti SC',
-          'Microsoft YaHei',
-          'sans-serif',
-        ],
+        fontFamilyFallback: _kFontFamilyFallback,
         fontWeight: FontWeight.w500,
       ),
       type: BottomNavigationBarType.fixed,

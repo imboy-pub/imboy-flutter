@@ -19,6 +19,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// Channel 服务
 ///
@@ -182,14 +183,11 @@ class ChannelService {
     Map<String, dynamic>? payload,
   }) async {
     try {
-      // 迁移至 WebSocket v2 (C2CH) 
+      // 迁移至 WebSocket v2 (C2CH)
       final localId = -DateTime.now().millisecondsSinceEpoch;
-      
-      import 'package:imboy/store/repository/user_repo_local.dart';
-      
       final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
-      final currentName = UserRepoLocal.to.currentUser.nickname;
-      final currentAvatar = UserRepoLocal.to.currentUser.avatar;
+      final currentName = UserRepoLocal.to.currentUser?.nickname;
+      final currentAvatar = UserRepoLocal.to.currentUser?.avatar;
 
       final msgData = {
         'id': localId,
@@ -204,9 +202,9 @@ class ChannelService {
         'view_count': 0,
         'is_pinned': false,
       };
-      
+
       final pendingMsg = ChannelMessageModel.fromJson(msgData);
-      
+
       // 先落库本地（带负数ID表示等待服务端确认）
       await _messageRepo.saveMessage(pendingMsg);
 
@@ -218,11 +216,14 @@ class ChannelService {
         'payload': {
           'msg_type': msgType,
           'content': content,
-          ...(payload ?? {})
-        }
+          ...(payload ?? {}),
+        },
       };
-      
-      WebSocketService.to.sendMessage(jsonEncode(wsPayload), localId.toString());
+
+      WebSocketService.to.sendMessage(
+        jsonEncode(wsPayload),
+        localId.toString(),
+      );
 
       iPrint('ChannelService: 通过 WS 发送 C2CH 消息成功 - localId=$localId');
       return pendingMsg;
