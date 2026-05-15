@@ -137,8 +137,19 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Inject Firebase google-services.json
+        if: ${{ secrets.GOOGLE_SERVICES_JSON_B64 != '' }}
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > android/app/google-services.json
+
       - name: Build APK (Release)
-        run: flutter build apk --release
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          flutter build apk --release \
+            --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
@@ -167,8 +178,19 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Inject Firebase GoogleService-Info.plist
+        if: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 != '' }}
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
+        run: |
+          echo "$GOOGLE_SERVICE_INFO_PLIST_B64" | base64 -d > ios/Runner/GoogleService-Info.plist
+
       - name: Build iOS (Release)
-        run: flutter build ios --release --no-codesign
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
   # ==================== 静态分析任务 ====================
   analyze:
