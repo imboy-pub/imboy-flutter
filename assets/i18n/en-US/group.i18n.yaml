@@ -1,0 +1,42 @@
+financialManagement: Wealth Management
+enterSameGroup: Join the same group chat with friends nearby
+enterTheGroup: Enter this group
+groupAlias: My nickname in this group
+groupAlbum: Group Album
+groupDissolve: Dissolve group
+groupJoin: Join group
+groupLeave: Leave group
+groupManagement: Group management
+groupMembers: Group members
+groupName: Group chat name
+mutualGroupsWithHer: Groups in common
+groupOwner: Owner
+groupAdmin: Admin
+groupGuest: Guest
+groupMember: Member
+setAdmin: Set as Admin
+transferGroup: Transfer Ownership
+joinTime: Join Time
+selectGroup: Select group chat
+sureToDissolveGroup: Are you sure you want to dissolve this group?
+sureToLeaveGroup: Are you sure you want to leave this group?
+groupAlbumNameHint: Enter album name
+groupAlbumRenameTitle: Rename Album
+groupAlbumRenamed: Album name updated
+groupAlbumUnnamed: Unnamed album
+groupAlbumPhotoCount(count): $count photos
+groupAlbumPhotoIdMissing: "Photo ID missing, cannot view details"
+groupAlbumPhotoListTitle: Album Photos
+groupAlbumPhotoSelectedCount(count): $count selected
+groupAlbumPhotoEmpty: No photos yet
+groupAlbumPhotoUrlMissing: "Photo URL missing, cannot open"
+groupAlbumPhotoUrlInvalid: Invalid photo URL
+groupAlbumPhotoDetailTitle: Photo Details
+groupAlbumPhotoSetCover: Set as cover
+groupAlbumPhotoPrev: Previous
+groupAlbumPhotoLikeCount: Likes
+groupAlbumPhotoCommentCount: Comments
+groupAlbumPhotoMyLike: My like
+groupAlbumPhotoIdLabel: Photo ID
+e2eeKeyManagement: E2EE Key Management
+e2eeKeyManagementSubtitle: "Backup, restore and manage end-to-end encryption keys"

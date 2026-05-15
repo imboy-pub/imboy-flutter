@@ -1,0 +1,190 @@
+change: Изменить
+entertainment: Кино и мероприятия
+lifePayment: Оплата счетов
+medicalHealth: Здоровье
+meituanDelivery: Доставка Meituan
+tencentService: Сервисы Tencent
+traffic: Транспорт
+totalAssets: Общие активы
+album: Фото
+appSize: Размер приложения
+arSa: Арабский (Саудовская Аравия)
+audio: Аудио
+barcodeFound: "Штрих-код найден!"
+botQianFan: Робот Qianfan
+cache: Кэш
+camera: Камера
+changeNameView: Изменить имя
+changeParam: Изменить $param
+chooseFromAlbum: Выбрать из альбома
+clean: Очистить
+codeSentToParam: Код подтверждения отправлен на $param
+codeSentToType: Код подтверждения отправлен на $param
+collected: Сохранено
+completed: Завершено
+copied: Скопировано
+darkModel: Тёмная тема
+deDd: Немецкий (Германия)
+disable: Отключено
+earlier: Раньше
+enGb: Английский (Великобритания)
+enUs: Английский (США)
+enable: Включено
+example: "Пример:"
+expired: Истёк
+extraItem: Дополнительный элемент
+faceToFaceLogic: Логика общения лицом к лицу
+favorites: Избранное
+female: Женский
+followSystem: Следовать системе
+frFr: Французский (Франция)
+from: От
+goClean: Перейти к очистке
+good: Отлично
+hangup: Завершить
+haveSet: Установлено
+httpParse: HTTP-разбор
+iAm: Я
+itIt: Итальянский (Италия)
+jaJp: Японский (Япония)
+keepSecret: Конфиденциально
+lastActiveTime: Последняя активность
+lastSeenHide: Скрыть онлайн-статус
+lastSeenNever: Никогда в сети
+lastSeenWeeksAgo: $param недель назад
+lastSeenExactTime: Последний раз в сети $param
+licenseAgreement: «Лицензионное соглашение и условия обслуживания»
+liveBroadcast: Прямая трансляция
+liveRoomListView: Представление списка трансляций
+publisherPage: Страница трансляции
+subscriber: Подписчик
+loggingOut: Выход...
+loudspeaker: Динамик
+makeYourselfInvisible: Сделать себя невидимым
+makeYourselfVisible: Сделать себя видимым
+male: Мужской
+manage: Управление
+markImportant: Важное
+markImportantDesc: Пометить как важное сообщение
+markStar: Избранное
+markStarDesc: Добавить в избранное
+markTodo: Сделать
+markTodoDesc: Пометить как задачу
+multiSelect: Множественный выбор
+multiSelectMode: Режим множественного выбора
+myFavorites: Моё избранное
+myLive: Моя трансляция
+name: Имя
+numUnit: $param шт.
+openInBrowser: Открыть в браузере
+or: Или
+otherParty: Собеседник
+packageSize: Размер пакета
+peerHasHungUp: Собеседник завершил вызов
+play: Воспроизвести
+pleaseInputParam: Введите $param
+pleaseSelect: Выберите
+quickFilters: Быстрые фильтры
+quote: Цитата
+recentlyUsed: Недавно использованные
+releaseEnd: Отпустите для завершения
+remainingChars: Осталось $param символов
+replied: Ответлено
+ringing: Звонок...
+ruRu: Русский (Россия)
+selectedCount: Выбрано ($count)
+selected: Выбрано
+sent: Отправлено
+sentByMe: Отправлено мной
+sentByOthers: Отправлено другими
+setParam: Установить $param
+setting: Настройки
+siginQ: Уже есть аккаунт?
+signInWith: Войти через $param
+source: Источник
+speakingTooShort: Слишком короткое голосовое сообщение
+speed: Скорость
+star: "@:main.markStar"
+stillNeeded: Ещё нужно
+storageSpace: Память
+termOfServices: Условия обслуживания
+text: Текст
+thisWeek: На этой неделе
+timeRange: Временной диапазон
+timeWeekdays: "Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье"
+titleMine: Мой
+tooBad: Очень плохо
+tryAgainQ: Попробовать снова?
+type: Тип
+unanswered: Нет ответа
+unnamed: Без имени
+upToWords: Максимум $param символов
+upgrade: Обновление
+usedSpace: Использованное место
+webView: Веб-представление
+you: Вы
+yourFeel: Что вы чувствуете?
+zhCn: Упрощённый китайский
+zhHant: Традиционный китайский
+bound: Привязано
+correct: Верно
+pendingInput: Ожидание ввода
+lengthCheck: Проверка длины
+bugReport: Сообщить об ошибке
+deleting: Удаление...
+current: Текущий
+publish: Опубликовать
+privacyPolicy: Политика конфиденциальности
+termsOfService: Условия использования
+saving: "@:common.loading"
+topStories: Посмотреть
+systemDefault: По умолчанию системы
+custom: Пользовательский
+previewArea: Область предварительного просмотра
+simpleTexture: Простая текстура
+gradientBlue: Градиент синий
+gradientPurple: Градиент фиолетовый
+copiedToClipboard: Скопировано в буфер обмена
+copiedLink: Ссылка скопирована
+destroyTime: Время уничтожения
+previewEffect: Эффект предварительного просмотра
+thisIsTitleText: Это текст заголовка
+thisIsAuxiliaryText: Это вспомогательный текст
+toBeCompleted: Требуется завершение
+availableCount: Доступно
+mostUsed: Наиболее используемые
+commentPlaceholder: Комментарий...
+delayMsLabel: "Задержка в мс (>=100)"
+processed: Обработано
+export: Экспорт
+school: Школа
+hobbiesAndInterests: Хобби и интересы
+interests: Interests
+pleaseEnterSchool: Please enter school
+pleaseEnterInterests: Please enter interests
+manageVisibility: Управление видимостью личной информации
+exportToLocal: Экспортировать профиль локально
+exportAsText: Export as text format
+selectFromAlbum: Выбрать из альбома
+volumeUp: Увеличить громкость
+volumeDown: Уменьшить громкость
+fastRewind: Быстрая перемотка назад $seconds сек
+pleaseTryAgain: "Пожалуйста, попробуйте снова"
+secret: Конфиденциально
+takePhoto: Сделать фото
+publishing: Публикация...
+deletingInProgressPleaseWait: "Удаление в процессе, пожалуйста, подождите..."
+testUser1: Пользователь1
+testUser2: Пользователь2
+testUser3: Пользователь3
+testUser4: Пользователь4
+testUser5: Пользователь5
+collecting: Сохранение...
+user: Пользователь
+recommended: Рекомендуется
+larger: Больше
+currentLength: "Текущая длина: $param1 / $param2"
+fillIn: Заполнить
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role

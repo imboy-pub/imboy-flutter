@@ -1,0 +1,23 @@
+title: Group Tasks
+createTask: Create Task
+taskTitle: Task Title
+taskDescription: Description
+assignTo: Assign To
+deadline: Deadline
+noDeadline: No deadline
+noTask: No tasks yet
+all: All
+pending: Pending
+completed: Completed
+taskCreated: Task created
+taskSubmitted: Task submitted
+taskCompleted: Task completed
+overdue: Overdue
+daysLeft: $days days left
+hoursLeft: $hours hours left
+dueSoon: Due soon
+submitFailed: "Submit failed, please try again"
+taskId: Task ID
+pendingReview: Pending Review
+taskIdMissing: "Task ID missing, cannot view details"
+taskIdMissingSubmit: "Task ID missing, cannot submit"

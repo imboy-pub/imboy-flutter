@@ -1,0 +1,10 @@
+retrievePassword: パスワードを回復
+hintEmail: メールアドレスを入力してください
+hintMobile: 携帯電話番号を入力してください
+forgetPassword: パスワードをお忘れですか？
+register: 登録
+hintPassword: パスワードを入力してください
+hintVerifyCode: 認証コードを入力してください
+getVerifyCode: 認証コードを取得
+hasAccount: 既にアカウントをお持ちですか？
+oneKeyLogin: ワンタップログイン

@@ -1,0 +1,278 @@
+change: 修改
+entertainment: 电影演出
+lifePayment: 生活缴费
+medicalHealth: 医疗健康
+meituanDelivery: 美团外卖
+tencentService: 腾讯服务
+traffic: 交通出行
+totalAssets: 总资产
+album: 照片
+appSize: 应用大小
+arSa: 阿拉伯语（沙特阿拉伯）
+audio: 音频
+barcodeFound: 找到条形码！
+botQianFan: 千帆机器人
+liveRoomWhipLabel: WHIP 推流地址
+liveRoomWhepLabel: WHEP 拉流地址
+cache: 缓存
+camera: 拍摄
+changeNameView: 修改名称视图
+changeParam: 修改$param
+chooseFromAlbum: 从相册选择
+clean: 清理
+codeSentToParam: 验证码已发送到$param
+codeSentToType: 验证码已发送到$param
+collected: 已收藏
+completed: 已完结
+copied: 已复制
+darkModel: 深色模式
+deDd: 德语（德国）
+disable: 禁用
+earlier: 更早
+enGb: 英国英语
+enUs: 美国英语
+enable: 启用
+example: "例:"
+expired: 已过期
+extraItem: 额外项目
+faceToFaceLogic: 面对面建群逻辑
+favorites: 收藏
+female: 女
+followSystem: 跟随系统
+frFr: 法语（法国）
+from: 来自
+goClean: 前往清理
+good: 很棒
+hangup: 挂断
+haveSet: 已设置
+httpParse: HTTP解析
+iAm: 我是
+itIt: 意大利语（意大利）
+jaJp: 日语（日本）
+keepSecret: 保密
+lastActiveTime: 最近活跃时间
+lastSeenHide: 隐藏在线状态
+lastSeenNever: 从未上线
+lastSeenWeeksAgo: $param周前
+lastSeenExactTime: 上次在线 $param
+licenseAgreement: 《软件许可及服务协议》
+liveBroadcast: 直播
+liveRoomListView: 直播间列表视图
+publisherPage: 推流页面
+subscriber: 订阅者
+loggingOut: 正在退出登录...
+loudspeaker: 扩音器
+makeYourselfInvisible: 让自己不可见
+makeYourselfVisible: 让自己可见
+male: 男
+manage: 管理
+markImportant: 重要
+markImportantDesc: 标记为重要消息
+markStar: 收藏
+markStarDesc: 收藏此消息
+markTodo: 待办
+markTodoDesc: 标记为待办事项
+multiSelect: 多选
+multiSelectMode: 多选模式
+myFavorites: 我的收藏
+myLive: 我的直播
+name: 名称
+numUnit: $param个
+openInBrowser: 在浏览器中打开
+or: 或者
+otherParty: 对方
+packageSize: 包大小
+peerHasHungUp: 对方已挂断
+play: 播放
+pleaseInputParam: 请输入$param
+pleaseSelect: 请选择
+quickFilters: 快速筛选
+quote: 引用
+recentlyUsed: 最近使用
+releaseEnd: 松开结束
+remainingChars: 还可输入 $param 个字符
+kickMember: 移出群聊
+memberDetail: 成员详情
+memberRole: 成员角色
+replied: 已回复
+ringing: 已响铃...
+ruRu: 俄罗斯俄语
+selectedCount: 已选 ($count)
+selected: 已选
+sent: 已发送
+sentByMe: 我发送的
+sentByOthers: 他人发送的
+setParam: 设置$param
+setting: 设置
+siginQ: 已经有账号了？
+signInWith: 用$param登录
+source: 来源
+speakingTooShort: 说话时间太短
+speed: 速度
+star: "@:main.markStar"
+stillNeeded: 还需
+storageSpace: 存储空间
+termOfServices: 服务条款
+text: 文本
+thisWeek: 本周
+timeRange: 时间范围
+timeWeekdays: "星期一,星期二,星期三,星期四,星期五,星期六,星期日"
+titleMine: 我的
+titleSquare: 广场
+tooBad: 太差了
+tryAgainQ: 想再试一次吗？
+type: 类型
+unanswered: 未应答
+unnamed: 未命名
+upToWords: 最多$param个字
+upgrade: 升级
+usedSpace: 已使用空间
+webView: 网页视图
+you: 你
+yourFeel: 这让你感觉如何?
+zhCn: 简体中文
+zhHant: 繁体中文
+bound: 已绑定
+correct: 正确
+pendingInput: 待输入
+lengthCheck: 长度检查
+bugReport: 错误报告
+deleting: 删除中...
+current: 当前
+publish: 发布
+privacyPolicy: 隐私政策
+termsOfService: 服务条款
+saving: "@:common.loading"
+topStories: 看一看
+systemDefault: 系统默认
+custom: 自定义
+previewArea: 预览区域
+simpleTexture: 简约纹理
+gradientBlue: 渐变蓝
+gradientPurple: 渐变紫
+copiedToClipboard: 已复制到剪贴板
+copiedLink: 已复制链接
+destroyTime: 销毁时间
+previewEffect: 预览效果
+thisIsTitleText: 这是标题文本
+thisIsAuxiliaryText: 这是辅助说明文字
+toBeCompleted: 待完善
+availableCount: 可选择
+mostUsed: 最常用
+commentPlaceholder: 评论...
+delayMsLabel: "延时毫秒 (>=100)"
+processed: 已处理
+export: 导出
+school: 学校
+hobbiesAndInterests: 兴趣爱好
+interests: 兴趣爱好
+pleaseEnterSchool: 请输入学校
+pleaseEnterInterests: 请输入兴趣爱好
+manageVisibility: 管理个人信息的可见性
+exportToLocal: 导出个人资料到本地
+exportAsText: 导出为文本格式
+selectFromAlbum: 从相册选择
+volumeUp: 音量增加
+volumeDown: 音量减少
+fastRewind: 快退 $seconds秒
+pleaseTryAgain: 请重试
+secret: 保密
+takePhoto: 拍照
+publishing: 发布中...
+deletingInProgressPleaseWait: 正在删除中，请稍候...
+testUser1: 用户1
+testUser2: 用户2
+testUser3: 用户3
+testUser4: 用户4
+testUser5: 用户5
+collecting: 收藏中...
+user: 用户
+recommended: 推荐
+larger: 更大
+currentLength: 当前长度：$param1 / $param2
+fillIn: 填入
+msgProtectedByComplianceKey: 消息受合规密钥保护
+inviterLabel(uid): "邀请人: $uid"
+inviteeLabel(uid): "被邀请人: $uid"
+mySentTab: 我发出的
+reject: 拒绝
+myOrders: 我的订单
+purchaseUnlockHint: 购买后可解锁频道历史消息与后续更新内容。
+payingDots: 支付中...
+purchaseAndUnlock: 立即购买并解锁
+orderDetail: 订单详情
+orderAmountLabel(currency, amount): "金额: $currency $amount"
+e2eeKeyRecoveryTitle: 端到端加密密钥管理
+e2eeRecoveryMethods: 密钥恢复方法
+e2eeDangerousOps: 危险操作
+e2eeSocialRecovery: 社交恢复
+e2eeSocialRecoveryDesc: 通过信任的联系人协助恢复密钥
+e2eeKeyIdLabel: 密钥 ID
+e2eeWarnIrreversible: • 此操作不可撤销
+e2eeWarnNeedRestoreOrNew: • 需要从备份恢复或生成新密钥
+gotIt: 我知道了
+e2eeRecoverKeyTitle: 恢复密钥
+e2eeCanRecoverKey: 可以恢复密钥
+e2eeInsufficientShards: 分片数量不足
+e2eeProxyUser(uid): "代理用户: $uid"
+e2eeShardLabel(index, total): 分片 $index / $total
+e2eeReloadShards: 重新加载
+e2eeRecovering: 恢复中...
+e2eeKeyRestored: 密钥已成功恢复
+e2eeUsedShards(count): 已使用 $count 个代理分片
+e2eePreparing: 准备恢复...
+e2eeRecoveryProgressLabel(collected, total): "进度: $collected / $total 个分片"
+e2eeCollectingShards(collected, total): 正在收集分片 ($collected/$total)...
+e2eeShardsCollected: 分片收集完成，正在重组密钥...
+webQRLoggingIn: 登录中...
+webQRExpired: 二维码已过期
+webQRRefresh: 刷新二维码
+webSwitchToQR: 使用 QR 码登录
+e2eeErrDefault: 端到端加密失败，消息未发送
+e2eeSocialTotalShards: 总分片数
+e2eeSocialThreshold: 恢复阈值
+e2eeSocialThresholdHint(count): 恢复密钥时需要 $count 个代理协助
+e2eeSocialSelectProxy: 选择恢复代理
+e2eeSocialProxyNeeded(count): 需要 $count 个信任的联系人作为代理
+e2eeSocialProxyDefaultName(uid): 用户 $uid
+e2eeSocialShardSentViaWs: 分片已通过 WebSocket 直接发送到代理设备存储
+e2eeSocialSentCount(sent, total): 已发送到 $sent 个代理设备（共 $total 个）
+e2eeSocialManageTitle: 管理分片
+e2eeSocialMyShards: 我的分片
+e2eeSocialProxyShards: 代理分片
+e2eeSocialShardOf(idx, total): 分片 $idx / $total
+e2eeSocialShardActive: 活跃
+e2eeSocialShardUsed: 已使用
+e2eeSocialShardValid: 分片有效
+e2eeSocialUserShard(uid): 用户 $uid 的密钥分片
+e2eeSocialProxyUserLabel: 代理用户
+e2eeSocialRecoveryThresholdLabel: 恢复阈值
+e2eeSocialShardIndexLabel: 分片编号
+e2eeTransferQRHint: 请在新设备上扫描此二维码
+e2eeTransferQRExpiry(time): 二维码将在 $time 过期
+e2eeTransferRefreshQR: 刷新二维码
+e2eeTransferEnterUidTitle: 输入接收方用户 ID
+e2eeTransferUidPlaceholder: 接收方用户 ID
+e2eeTransferReceiving: 正在接受传输...
+e2eeTransferPageTitle: 设备间传输
+e2eeTransferPendingItem: 待处理的密钥传输
+e2eeTransferPendingItemDesc: 点击查看详情
+e2eeTransferView: 查看
+e2eeSocialTitle: 社交恢复
+e2eeSocialCanRecover: 可以恢复密钥
+e2eeSocialSetupProxy: 设置恢复代理
+e2eeSocialChooseProxy: 选择信任的联系人作为恢复代理
+e2eeSocialExistingShards: 现有恢复分片
+e2eeSocialRecoverKeyTitle: 恢复密钥
+e2eeSocialRecoverKeyDesc: 使用代理的分片恢复密钥
+e2eeSocialManageShardsTitle: 管理分片
+e2eeSocialManageShardsDesc: 查看和管理所有恢复分片
+e2eeSocialZeroTrustHint1: 零信任架构：服务端不存储分片，直接联系代理
+e2eeSocialZeroTrustHint2: 零信任架构：分片存储在代理设备
+e2eeSocialZeroTrustHint3: 零信任架构：分片由代理设备存储，服务端不接触明文
+e2eeProxyMinCount(count): 请至少选择 $count 个代理
+e2eeProxySelectTitle: 选择恢复代理
+e2eeProxySelectedCount(selected, total): 已选 $selected / $total
+e2eeProxyReachedMin: 已达到最少代理数量
+liveRoomTitleLabel: 直播间标题
+liveRoomTitleHint: 请输入直播间标题

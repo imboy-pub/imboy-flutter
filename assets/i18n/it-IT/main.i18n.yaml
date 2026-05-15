@@ -1,0 +1,190 @@
+change: Modifica
+entertainment: Cinema e spettacoli
+lifePayment: Pagamento bollette
+medicalHealth: Salute
+meituanDelivery: Consegna Meituan
+tencentService: Servizi Tencent
+traffic: Trasporti
+totalAssets: Attivi totali
+album: Foto
+appSize: Dimensione app
+arSa: Arabo (Arabia Saudita)
+audio: Audio
+barcodeFound: "Codice a barre trovato!"
+botQianFan: Robot Qianfan
+cache: Cache
+camera: Fotocamera
+changeNameView: Schermata modifica nome
+changeParam: Modifica $param
+chooseFromAlbum: Scegli dalla galleria
+clean: Pulisci
+codeSentToParam: Codice di verifica inviato a $param
+codeSentToType: Codice di verifica inviato a $param
+collected: Raccolto
+completed: Completato
+copied: Copiato
+darkModel: Modalità scura
+deDd: Tedesco (Germania)
+disable: Disabilita
+earlier: Prima
+enGb: Inglese (Regno Unito)
+enUs: Inglese (Stati Uniti)
+enable: Abilita
+example: "Es:"
+expired: Scaduto
+extraItem: Elemento aggiuntivo
+faceToFaceLogic: Logica faccia a faccia
+favorites: Preferiti
+female: Donna
+followSystem: Segui sistema
+frFr: Francese (Francia)
+from: Da
+goClean: Vai a pulire
+good: Ottimo
+hangup: Riaggancia
+haveSet: Impostato
+httpParse: Analisi HTTP
+iAm: Io sono
+itIt: Italiano (Italia)
+jaJp: Giapponese (Giappone)
+keepSecret: Segreto
+lastActiveTime: Orario attività recente
+lastSeenHide: Nascondi stato online
+lastSeenNever: Mai online
+lastSeenWeeksAgo: Online $param settimane fa
+lastSeenExactTime: Online l'ultima volta $param
+licenseAgreement: «Accordo di licenza software e servizi»
+liveBroadcast: Live streaming
+liveRoomListView: Vista stanza live
+publisherPage: Pagina streaming
+subscriber: Iscritto
+loggingOut: Disconnessione in corso...
+loudspeaker: Altoparlante
+makeYourselfInvisible: Renditi invisibile
+makeYourselfVisible: Renditi visibile
+male: Uomo
+manage: Gestisci
+markImportant: Importante
+markImportantDesc: Segna come messaggio importante
+markStar: Preferito
+markStarDesc: Aggiungi questo messaggio ai preferiti
+markTodo: Da fare
+markTodoDesc: Segna come attività
+multiSelect: Selezione multipla
+multiSelectMode: Modalità selezione multipla
+myFavorites: I miei preferiti
+myLive: Il mio live
+name: Nome
+numUnit: $param elementi
+openInBrowser: Apri nel browser
+or: Oppure
+otherParty: Altra parte
+packageSize: Dimensione pacchetto
+peerHasHungUp: L'altra parte ha riagganciato
+play: Riproduci
+pleaseInputParam: Inserisci $param
+pleaseSelect: Seleziona
+quickFilters: Filtri rapidi
+quote: Cita
+recentlyUsed: Usato di recente
+releaseEnd: Rilascia per finire
+remainingChars: Puoi inserire ancora $param caratteri
+replied: Risposto
+ringing: Sta squillando...
+ruRu: Russo (Russia)
+selectedCount: Selezionato ($count)
+selected: Selezionato
+sent: Inviato
+sentByMe: Inviato da me
+sentByOthers: Inviato da altri
+setParam: Imposta $param
+setting: Impostazioni
+siginQ: Hai già un account?
+signInWith: Accedi con $param
+source: Fonte
+speakingTooShort: Messaggio vocale troppo breve
+speed: Velocità
+star: "@:main.markStar"
+stillNeeded: Ancora necessario
+storageSpace: Spazio di archiviazione
+termOfServices: Termini di servizio
+text: Testo
+thisWeek: Questa settimana
+timeRange: Intervallo di tempo
+timeWeekdays: "Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica"
+titleMine: Io
+tooBad: Troppo brutto
+tryAgainQ: Vuoi riprovare?
+type: Tipo
+unanswered: Senza risposta
+unnamed: Senza nome
+upToWords: Al massimo $param caratteri
+upgrade: Aggiorna
+usedSpace: Spazio utilizzato
+webView: Vista web
+you: Tu
+yourFeel: Come ti fa sentire?
+zhCn: Cinese semplificato
+zhHant: Cinese tradizionale
+bound: Collegato
+correct: Corretto
+pendingInput: In attesa di input
+lengthCheck: Controllo lunghezza
+bugReport: Segnalazione errore
+deleting: Eliminazione in corso...
+current: Attuale
+publish: Pubblica
+privacyPolicy: Informativa sulla privacy
+termsOfService: Termini di servizio
+saving: "@:common.loading"
+topStories: Storie principali
+systemDefault: Predefinito di sistema
+custom: Personalizzato
+previewArea: Area anteprima
+simpleTexture: Texture semplice
+gradientBlue: Blu sfumato
+gradientPurple: Viola sfumato
+copiedToClipboard: Copiato negli appunti
+copiedLink: Link copiato
+destroyTime: Tempo di distruzione
+previewEffect: Effetto anteprima
+thisIsTitleText: Questo è testo titolo
+thisIsAuxiliaryText: Questo è testo ausiliario
+toBeCompleted: Da completare
+availableCount: Disponibile
+mostUsed: Più usati
+commentPlaceholder: Commento...
+delayMsLabel: "Ritardo in ms (>=100)"
+processed: Elaborato
+export: Esporta
+school: Scuola
+hobbiesAndInterests: "Hobby & Interessi"
+interests: Interests
+pleaseEnterSchool: Please enter school
+pleaseEnterInterests: Please enter interests
+manageVisibility: Gestisci visibilità delle info personali
+exportToLocal: Esporta profilo localmente
+exportAsText: Export as text format
+selectFromAlbum: Seleziona dalla galleria
+volumeUp: Volume su
+volumeDown: Volume giù
+fastRewind: Indietro veloce $seconds secondi
+pleaseTryAgain: Riprova
+secret: Segreto
+takePhoto: Scatta foto
+publishing: Pubblicazione...
+deletingInProgressPleaseWait: "Eliminazione in corso, attendere..."
+testUser1: Utente 1
+testUser2: Utente 2
+testUser3: Utente 3
+testUser4: Utente 4
+testUser5: Utente 5
+collecting: Raccolta in corso...
+user: Utente
+recommended: Consigliato
+larger: Più grande
+currentLength: "Lunghezza attuale: $param1 / $param2"
+fillIn: Compila
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role

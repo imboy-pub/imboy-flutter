@@ -1,0 +1,101 @@
+account: Konto
+accountSecurity: Kontosicherheit
+mobileRecharge: Handy-Aufladung
+avatar: Profilbild
+accountSecurityEnhance: Kontosicherheit verbessern
+bindMobile: Mobilfunknummer verbinden
+bindMobileFor: "Für Anmeldung, Passwort-Wiederherstellung und Empfang wichtiger Benachrichtigungen"
+linkEmail: E-Mail verknüpfen
+linkEmailFor: "Für Anmeldung, Identitätsprüfung und Erhalt von Rechnungen"
+codeSentToEmail: Bestätigungscode an E-Mail gesendet
+codeSentToMobile: Bestätigungscode an Mobilfunknummer gesendet
+currentDevice: Aktuelles Gerät
+deviceAvailableSpace: Verfügbarer Speicherplatz auf dem Gerät
+deviceList: Geräteliste
+deviceName: Gerätename
+deviceType: Gerätetyp
+deviceUsedSpace: Vom Gerät verwendeter Speicherplatz
+email: E-Mail
+existingPassword: Aktuelles Passwort
+forgotPassword: Passwort vergessen?
+gender: Geschlecht
+genderSaving: Wird gespeichert...
+groupQrcode: Gruppen-QR-Code
+hintLoginAccount: Konto/E-Mail
+logOut: Abmelden
+areYouSureLogOut: Möchten Sie sich wirklich abmelden?
+login: Anmelden
+loginDeviceManagement: Geräteverwaltung
+loginEmail: Anmelde-E-Mail
+logoutAccount: Konto löschen
+mobile: Mobilfunk
+mobileQuickLogin: Schnellanmeldung
+myAccount: Mein Konto
+myQrcode: Mein QR-Code
+newPassword: Neues Passwort
+newlyRegisteredPeople: Kürzlich registrierte Personen
+nickname: Spitzname
+nicknameChangeVisibility: "Geänderter Spitzname wird nur in dieser Gruppe angezeigt, alle Mitglieder können ihn sehen."
+nicknameCharsRemaining: Noch $param Zeichen möglich
+nicknameHint: Spitzname eingeben
+nicknameSaving: Wird gespeichert...
+paramLogin: $param Anmeldung
+password: Passwort
+recentlyRegisteredUser: Kürzlich registrierter Benutzer
+recoverCodePasswordDesc: Wir senden Ihnen den Passwort-Wiederherstellungscode per E-Mail.
+recoverPassword: Passwort wiederherstellen
+recoverPasswordDesc: Bitte geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Code zum Zurücksetzen des Passworts.
+recoverPasswordIntro: "Machen Sie sich keine Sorgen, das passiert oft."
+birthday: Geburtstag
+region: Region
+retypePassword: Passwort erneut eingeben
+scanQrCode: QR-Code scannen
+securityCenter: Sicherheitszentrum
+setNickname: Spitzname festlegen
+signature: Signatur
+signup: Registrieren
+signupFormDesc: "Bitte füllen Sie dieses Formular aus, um die Registrierung abzuschließen"
+sourceQrcode: Durch Scannen hinzufügen
+switchAccount: Konto wechseln
+changeEmail: E-Mail ändern
+bindEmail: E-Mail binden
+currentEmail: Aktuelle E-Mail
+newEmailSameAsCurrent: Neue E-Mail identisch mit aktueller Bindung
+newMobileSameAsCurrent: Neue Mobilfunknummer identisch mit aktueller Bindung
+setPassword: Passwort festlegen
+setLoginPassword: Anmeldepasswort festlegen
+enhanceAccountSecurity: Kontosicherheit verbessern
+passwordLengthRequirement: "Passwortlänge: 4-32 beliebige Zeichen"
+passwordMinLength: Passwort muss mindestens $min Zeichen lang sein
+pleaseEnterPassword: Bitte Passwort eingeben
+changeMobile: Mobilfunknummer ändern
+currentMobile: Aktuelle Mobilfunknummer
+newMobile: Neue Mobilfunknummer
+enterMobileHint: Mobilfunknummer eingeben
+codeSentToMobileParam: Gesendet an $param
+privacyLogoutAccount: Konto löschen
+wallet: Wallet
+changeLoginPassword: Anmeldepasswort ändern
+loginExpiredTitle: Hinweis
+otherDevice: Anderes Gerät
+loginPassword: Anmeldepasswort
+loginPasswordDesc: Wird für die Anmeldung im IMBoy-Konto verwendet
+oldPassword: Altes Passwort
+enterOldPassword: Bitte altes Passwort eingeben
+enterNewPassword: Bitte neues Passwort eingeben
+enterNewPasswordAgain: Bitte neues Passwort erneut eingeben
+balance: Guthaben
+recharge: Aufladen
+withdraw: Abheben
+paymentPassword: Zahlungs-Passwort
+setPaymentPassword: Zahlungs-Passwort festlegen
+enterPaymentPassword: Bitte Zahlungs-Passwort eingeben
+myQRCode: Mein QR-Code
+profile: Profile
+setGender: Geschlecht festlegen
+setBirthday: Geburtstag festlegen
+sentToEmail: Gesendet an $param
+nicknameRules: "• Spitznamenlänge: 2-24 Zeichen
+• Darf nicht nur aus Leerzeichen oder Emojis bestehen
+• Darf keine sensiblen Wörter enthalten
+• Änderungen werden in allen Chats angezeigt"

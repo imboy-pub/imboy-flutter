@@ -1,0 +1,169 @@
+bankCard: بطاقة بنكية
+cards: بطاقات
+jdShopping: تسوق JD
+receivePayment: استلام ودفع
+alreadyEntered: لقد أدخلت بالفعل
+alreadyMember: عضو بالفعل
+appSqliteFileSizeExplain: حجم ملف sqlite المُنشأ محلياً للحساب الحالي؛ يمكنك مسح الصور ومقاطع الفيديو والملفات من سجلات الدردشة المحددة، أو مسح جميع رسائل الدردشة من سجلات الدردشة المحددة.
+attachmentProvider: مزود المرفقات
+audioMessage: رسالة صوتية
+awaitingReply: في انتظار الرد
+businessCard: بطاقة عمل
+busyTryAgainLater: الطرف الآخر مشغول، يرجى المحاولة مرة أخرى لاحقاً
+later: لاحقاً
+changeGroupChatName: بعد تعديل اسم المجموعة، سيتم إخطار الأعضاء الآخرين في المجموعة.
+chatHistory: سجل الدردشة
+chatHoldDownTalk: اضغط مطولاً للتحدث
+chatMessage: رسالة الدردشة
+chatMomentSportDataEtc: الدردشة واللحظات والبيانات الرياضية وغيرها
+chatSettingMute: كتم الإشعارات
+chatSettingMuteDesc: تعطيل إشعارات الرسائل لهذه الدردشة
+chatSettingMuted: تم تمكين الكتم
+chatSettingPin: تثبيت الدردشة
+chatSettingPinDesc: تثبيت هذه الدردشة في أعلى القائمة
+chatSettingUnmuted: تم تعطيل الكتم
+chatStatusSending: جارٍ الإرسال
+chatStatusSent: تم الإرسال
+chatStatusDelivered: تم التسليم
+chatStatusSeen: تمت القراءة
+chatStatusSendingDesc: جارٍ إرسال الرسالة...
+chatStatusSentDesc: تم إرسال الرسالة
+chatStatusDeliveredDesc: تم تسليم الرسالة
+chatStatusSeenDesc: تمت قراءة الرسالة
+createGroupF2f: إنشاء مجموعة وجهاً لوجه
+displayProfile: عرض ملفك الشخصي
+file: ملف
+fileMessage: "[ملف]"
+fileSize: حجم الملف
+forgotPasswordPinCodeView: عرض رمز التحقق لنسيان كلمة المرور
+forward: إعادة توجيه
+forwardReply: إعادة توجيه الرد
+forwardTo: إعادة توجيه إلى
+forwardToFriend: إعادة توجيه إلى صديق
+great: ممتاز جداً
+groupChat: دردشة جماعية
+image: صورة
+imageMessage: "[صورة]"
+initiateChat: بدء مجموعة
+justChat: دردشة فقط
+location: الموقع
+message: رسالة
+messageHandlingMixin: مزيج معالجة الرسائل
+messageMarkTitle: تعليم الرسالة
+customMessage: رسالة مخصصة
+card: بطاقة عمل
+messageType: نوع الرسالة
+messageVisitCardBuilder: منشئ بطاقة زيارة الرسالة
+messageWasWithdrawn: تم سحب رسالة
+messageWasWithdrawnWithTitle: $param سحب رسالة
+messageWebrtcBuilder: منشئ رسالة الويب rtc
+momentStatus: منشورات والحالة
+offline: غير متصل
+online: متصل
+paramAlreadyExist: $param موجود بالفعل
+pin: تثبيت
+pinChat: تثبيت الدردشة
+pinned: تم التثبيت
+privateReply: رد خاص
+qrCodeBusinessCard: بطاقة عمل رمز QR
+quoteReply: رد الاقتباس
+rating: تقييم
+readAgreeParam: لقد قرأت ووافقت على $param
+recentChats: المحادثات الأخيرة
+recentForwards: إعادة التوجيه الأخيرة
+remindMeLater: ذكرني لاحقاً
+repliedAt: رد في
+reply: رد
+replyTo: رد على
+resendCode: إعادة إرسال رمز التحقق
+revoke: سحب
+scanQrCodeBusinessCard: مسح بطاقة عمل رمز QR
+sendFriendRequest: إرسال طلب إضافة صديق
+sendMsgRejected: تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.
+sendSeparatelyTo: إرسال بشكل منفصل إلى
+sendTo: إرسال إلى
+send: "@:common.buttonSend"
+sender: المرسل
+sending: جارٍ الإرسال...
+signatureInputHint: تلميح إدخال التوقيع
+signaturePlaceholder: عنصر نائب للتوقيع
+signupIntro: "تم إرسال رمز التأكيد إلى بريدك الإلكتروني،
+يرجى إدخال رمز التأكيد لتأكيد حسابك."
+socialProfile: الملف الاجتماعي
+status: الحالة
+storageSpaceData: مساحة التخزين والبيانات
+sureOpenTheFile: هل أنت متأكد من فتح الملف؟
+textMessage: رسالة نصية
+titleMessage: الرسائل
+topChat: دردشة مثبتة
+unpin: إلغاء التثبيت
+unsupportedFileType: نوع ملف غير مدعوم
+userData: بيانات المستخدم
+video: فيديو
+videoMessage: "[فيديو]"
+viewAttachments: تصفح المرفقات
+voice: صوت
+voiceInput: إدخال صوتي
+voiceMessage: رسالة صوتية
+youWithdrewAMessage: قمت بسحب رسالة
+formatCheck: فحص التنسيق
+featureRequest: طلب ميزة
+resendCodeWithCount: إعادة الإرسال ($count ثانية)
+chatResend: إعادة الإرسال
+chatReply: رد
+chatOpenFile: فتح الملف
+chatOpenLink: فتح الرابط
+avatarSelectPhoto: اختيار صورة
+avatarTakePhoto: التقاط صورة
+avatarSelectFromAlbum: اختيار من الألبوم
+profileExportProfile: تصدير الملف الشخصي
+momentsSend: إرسال
+videoCompressInProgress: هناك مهمة ضغط قيد التنفيذ
+videoCompressing: جارٍ ضغط الفيديو...
+loginExpiredMessage: انتهت صلاحية تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى
+geometricPattern: نمط هندسي
+ripplePattern: نمط تموج
+customImage: صورة مخصصة
+voiceRecordResultEmpty: نتيجة تسجيل الصوت فارغة
+voiceFileInvalid: ملف الصوت غير صالح
+burnAfterReading: الحرق بعد القراءة
+visibleThresholdRead: عتبة الرؤية المقروءة
+readThresholdDelay: عتبة القراءة والتأخير
+goodReadability: قابلية قراءة جيدة
+profileCompleteness: اكتمال الملف الشخصي
+tagStatistics: إحصائيات العلامات
+alreadySent: تم الإرسال
+visibleRatioLabel: نسبة الرؤية (0.1~1.0)
+unsupportedMessageType: نوع رسالة غير مدعوم
+passwordMismatch: كلمتا المرور غير متطابقتين
+pleaseTryAgainLater: يرجى المحاولة مرة أخرى لاحقاً
+sendNewMessage: إرسال رسالة جديدة
+markRead: تعليم كمقروء
+markUnread: تعليم كغير مقروء
+pleaseEnterSignature: Please enter signature
+exportProfile: تصدير الملف الشخصي
+setSignature: تعيين التوقيع الشخصي
+setAvatar: تعيين الصورة الرمزية
+fastForward: تقديم سريع $seconds ثانية
+messageId: معرف الرسالة
+chatType: نوع الدردشة
+voiceFileEmptyPleaseTryAgain: ملف الصوت فارغ، يرجى المحاولة مرة أخرى
+sendingVoice: جارٍ إرسال الصوت...
+deletingMessage: جارٍ حذف الرسالة...
+deletingLocalMessage: جارٍ حذف الرسائل المحلية...
+quickReplyReceived: تم الاستلام
+quickReplyThanks: شكراً
+quickReplyWait: انتظر قليلاً
+messageMute: "@:chat.chatSettingMute"
+quickReplyManage: 管理快捷回复
+quickReplyEmpty: 暂无快捷回复，点击右下角添加
+quickReplyDuplicate: 内容已存在
+quickReplyMaxReached: 最多 $max 条
+quickReplyHint: 输入内容...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message

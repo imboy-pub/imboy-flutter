@@ -1,0 +1,263 @@
+bankCard: 银行卡
+cards: 张
+jdShopping: 京东购物
+receivePayment: 收付款
+alreadyEntered: 你已经输入过了
+alreadyMember: 已是成员
+appSqliteFileSizeExplain: 当前账号本地生成的sqlite文件大小；可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。
+attachmentProvider: 附件提供者
+audioMessage: 语音消息
+awaitingReply: 待回复
+businessCard: 名片
+busyTryAgainLater: 对方正忙，请稍后重试
+later: 以后再说
+peerIsTyping(name): $name 正在输入...
+changeGroupChatName: 修改群聊名称后，将在群内通知其他成员。
+chatHistory: 聊天记录
+chatHoldDownTalk: 按住说话
+chatMessage: 聊天消息
+chatMomentSportDataEtc: 聊天、朋友圈、运动数据等
+chatSettingMute: 消息免打扰
+chatSettingMuteDesc: 关闭此聊天的消息通知
+chatSettingMuted: 已开启免打扰
+chatSettingPin: 置顶聊天
+chatSettingPinDesc: 将此聊天置顶到列表顶部
+chatSettingUnmuted: 已关闭免打扰
+chatStatusSending: 发送中
+chatStatusSent: 已发送
+chatStatusDelivered: 已送达
+chatStatusSeen: 已读
+chatStatusSendingDesc: 消息正在发送...
+chatStatusSentDesc: 消息已发送
+chatStatusDeliveredDesc: 消息已送达
+chatStatusSeenDesc: 消息已读
+createGroupF2f: 面对面建群
+displayProfile: 显示你的资料
+file: 文件
+fileMessage: "[文件]"
+fileSize: 文件大小
+forgotPasswordPinCodeView: 忘记密码验证码视图
+forward: 转发
+forwardReply: 转发回复
+forwardTo: 转发给
+forwardToFriend: 转发给朋友
+great: 非常棒
+groupFile: 群文件
+groupFileImagePreview: 图片预览
+groupFileVideoPreview: 视频预览
+groupFileAudioPreview: 音频预览
+groupFileMediaPause: 暂停
+groupFileMediaPlay: 播放
+groupFileUrlMissing: 文件地址缺失，无法打开
+groupFileUrlInvalid: 文件地址无效
+groupFilePreview: 文件预览
+groupFileUnnamed: 未命名文件
+groupFileCategoryEmpty: "${category}暂无文件"
+groupFileEmpty: 暂无群文件
+groupFileCategoryDoc: 文档
+groupFileCategoryImage: 图片
+groupFileCategoryVideo: 视频
+groupFileCategoryAudio: 音频
+groupFileCategoryOther: 其他
+groupChat: 群聊
+image: 图片
+imageMessage: "[图片]"
+initiateChat: 发起群聊
+justChat: 仅聊天
+location: 位置
+exportMyData: 导出我的数据
+exportDataDesc: 导出你的个人信息、联系人和聊天记录
+message: 消息
+messageHandlingMixin: 消息处理混入
+messageMarkTitle: 消息标记
+customMessage: 自定义消息
+card: 名片
+messageType: 消息类型
+messageVisitCardBuilder: 消息名片构建器
+messageWasWithdrawn: 撤回了一条消息
+messageWasWithdrawnWithTitle: $param撤回了一条消息
+messageWebrtcBuilder: 音视频消息构建器
+momentStatus: 朋友圈和状态
+offline: 离线
+online: 在线
+paramAlreadyExist: $param已存在
+pin: 置顶
+pinChat: 置顶聊天
+pinned: 已置顶
+privateReply: 私聊回复
+qrCodeBusinessCard: 二维码名片
+quoteReply: 引用回复
+rating: 评级
+readAgreeParam: 已经阅读并同意$param
+recentChats: 最近聊天
+recentForwards: 最近转发
+remindMeLater: 下次再说
+quickReplyManage: 管理快捷回复
+quickReplyEmpty: 暂无快捷回复，点击右下角添加
+quickReplyDuplicate: 内容已存在
+quickReplyMaxReached: 最多 $max 条
+quickReplyHint: 输入内容...
+muteMember: 禁言成员
+unmuteMember: 取消禁言
+muteUntil: 禁言至
+muted: 已禁言
+mutedFor: 禁言 $label
+muteUnitMinutes: $count 分钟
+muteUnitHours: $count 小时
+muteUnitDays: $count 天
+youAreMuted: 你已被禁言
+youAreMutedWithTime: 你已被禁言，剩余 $minutes 分钟
+repliedAt: 回复于
+reply: 回复
+replyTo: 回复
+resendCode: 重发验证码
+revoke: 撤回
+scanQrCodeBusinessCard: 扫描二维码名片
+singleChat: 单聊
+privateChat: 私聊
+groupMessage: 群消息
+sendFriendRequest: 发送添加朋友申请
+sendMsgRejected: 消息已发出，但被对方拒收了。
+sendMessage: 发消息
+sendSeparatelyTo: 分别发送给
+sendTo: 发送给
+send: "@:common.buttonSend"
+sender: 发送者
+sending: 正在发送...
+signatureInputHint: 签名输入提示
+signaturePlaceholder: 签名占位符
+signupIntro: "确认码已发送到您的邮箱，
+请输入确认码确认您的帐户。"
+socialProfile: 社交资料
+status: 状态
+storageSpaceData: 存储空间和数据
+sureOpenTheFile: 确定要打开文件吗？
+textMessage: 文本消息
+titleMessage: 消息
+topChat: 置顶聊天
+unpin: 取消置顶
+unsupportedFileType: 不支持的文件类型
+userData: 用户数据
+video: 视频
+videoMessage: "[视频]"
+viewAttachments: 浏览附件
+viewLargeImage: 查看大图
+voice: 语音
+voiceInput: 语音输入
+voiceMessage: 语音消息
+youWithdrewAMessage: 你撤回了一条消息
+formatCheck: 格式检查
+featureRequest: 功能请求
+resendCodeWithCount: 重新发送（$count秒）
+chatResend: 重新发送
+chatReply: 回复
+chatOpenFile: 打开文件
+chatOpenLink: 打开链接
+avatarSelectPhoto: 选择照片
+avatarTakePhoto: 拍照
+avatarSelectFromAlbum: 从相册选择
+profileExportProfile: 导出资料
+momentsSend: 发送
+videoCompressInProgress: 已有压缩任务在进行中
+videoCompressing: 正在压缩视频...
+loginExpiredMessage: "登录过期,请重新登录"
+geometricPattern: 几何图案
+ripplePattern: 波纹图案
+customImage: 自定义图片
+voiceRecordResultEmpty: 语音录制结果为空
+voiceFileInvalid: 语音文件无效
+burnAfterReading: 阅后即焚
+visibleThresholdRead: 可视阈值已读
+readThresholdDelay: 已读阈值与延时
+goodReadability: 可读性良好
+profileCompleteness: 资料完善度
+tagStatistics: 标签统计
+alreadySent: 已发送
+visibleRatioLabel: 可见比例 (0.1~1.0)
+unsupportedMessageType: 不支持的消息类型
+passwordMismatch: 两次密码不一致
+pleaseTryAgainLater: 请稍后重试
+momentsSelectVideo: 选择视频
+momentsRecordVideo: 拍摄视频
+momentsVisibilityPrivate: 仅自己
+momentsMediaTooManyImages: 最多只能选择 9 张图片
+momentsMediaTooManyVideos: 最多只能选择 1 个视频
+momentsMediaMixedImageAndVideo: 图片和视频不能同时发布
+momentsReplyPrefix: "回复 @"
+momentsReplySeparator: ：
+momentsReplyingTo: "正在回复 @{name}"
+sendNewMessage: 发送新消息
+markRead: 标记已读
+markUnread: 标记未读
+pleaseEnterSignature: 请输入个性签名
+exportProfile: 导出资料
+setSignature: 设置个性签名
+setAvatar: 设置头像
+fastForward: 快进 $seconds秒
+messageId: 消息ID
+chatType: 聊天类型
+voiceFileEmptyPleaseTryAgain: 语音文件为空，请重试
+sendingVoice: 正在发送语音...
+deletingMessage: 正在删除...
+deletingLocalMessage: 正在删除本地消息...
+quickReplyReceived: 收到
+quickReplyThanks: 谢谢
+quickReplyWait: 稍等
+messageMute: "@:chat.chatSettingMute"
+groupCategoryGroupCount(count): $count 个群聊
+groupAlbumCreateTitle: 新建群相册
+groupAlbumCreated: 相册已创建
+profileCompleted: 资料已完善！
+profileProgress(percent): "${percent}% 完成"
+createdAtLabel(time): "创建时间: $time"
+expiredAtLabel(time): "过期时间: $time"
+myReceivedTab: 我收到的
+orderStatusLabel(status): "状态: $status"
+orderCreatedAtLabel(time): "创建时间: $time"
+orderPaymentAtLabel(time): "支付时间: $time"
+orderStatusPending: 待支付
+orderStatusPaid: 已支付
+orderStatusRefunded: 已退款
+orderStatusExpired: 已过期
+defaultFileName: 文件
+fileUrlInvalid: 文件链接无效
+e2eeStatusAvailable: 可用
+e2eeGenerateNewKey: 生成新密钥
+e2eeGenerateNewKeyDesc: 生成新的 E2EE 密钥对（旧消息将无法解密）
+e2eeActivated: 已激活
+e2eeCreatedAtLabel: 创建时间
+e2eeGeneratingKey: 正在生成密钥，请稍候...
+e2eeNewKeyGenerated: 新的 E2EE 密钥对已生成！
+e2eeReady: 准备就绪
+e2eeReadyWithShards(count): 准备就绪（$count 个分片）
+webFeatureMultiDevice: 多设备同步
+webFeatureMultiDeviceDesc: 在手机和电脑之间无缝切换，消息实时同步
+webFeatureE2EE: 端到端加密
+webFeatureE2EEDesc: 所有消息都经过端到端加密，确保隐私安全
+webFeatureFileTransfer: 文件传输
+webFeatureFileTransferDesc: 拖拽即可发送文件，支持各种格式
+webQRStatusWaiting: "打开 ImBoy 手机版 > 设置 > 扫一扫"
+webQRStatusScanned: 请在手机上点击"确认登录"
+webQRStatusVerifying: 正在验证...
+webQRStatusExpired: 请点击刷新重新扫码
+e2eeErrInvalidFormat: 消息格式错误，加密失败
+e2eeSocialCreateTitle: 创建恢复分片
+e2eeSocialCreateBtn: 创建分片
+e2eeSocialCreateFailTitle: 创建失败
+e2eeSocialCreateFailBody: 创建分片失败，请重试
+e2eeSocialCreateFirst: 创建分片后才能看到内容
+e2eeSocialUsedAtLabel: 使用时间
+e2eeTransferSendTitle: 发送密钥到新设备
+e2eeTransferCreateBtn: 创建
+e2eeTransferReceiveTitle: 从旧设备接收密钥
+e2eeTransferSendDesc: 通过二维码将密钥传输到新设备
+e2eeTransferReceiveDesc: 扫描旧设备二维码接收密钥
+e2eeSocialStatus(status): "状态: $status"
+e2eeSocialCreateShardsTitle: 创建恢复分片
+e2eeSocialCreateShardsDesc: 将密钥分割成多个分片，存储到代理设备（服务端不保存）
+e2eeProxyNeedAtLeast(count): 请选择至少 $count 个代理
+e2eeRecreatingKey: 正在重新创建密钥...
+e2eeKeyRecreated: 密钥已重新创建
+liveRoomCreateTitle: 创建直播间
+liveRoomCreating: 创建中...
+liveRoomWatch: 观看直播

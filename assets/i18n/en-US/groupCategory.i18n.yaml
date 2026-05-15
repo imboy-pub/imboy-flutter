@@ -1,0 +1,17 @@
+title: Group Categories
+createCategory: Create Category
+categoryName: Category Name
+categoryDesc: Description (Optional)
+noCategory: No categories yet
+createFirst: Create your first category
+addGroup: Add Group to Category
+removeGroup: Remove from Category
+deleteCategory: Delete Category
+deleteCategoryConfirm: Are you sure? Groups won't be deleted.
+categoryCreated: Category created
+categoryDeleted: Category deleted
+renameCategory: Rename Category
+categoryRenamed: Category renamed
+renameFailed: "Rename failed, please retry"
+deleteFailed: "Delete failed, please retry"
+categoryDetailTip: Groups under this category can be managed via "Move to Category" in the group list.

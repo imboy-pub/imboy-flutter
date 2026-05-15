@@ -1,0 +1,10 @@
+retrievePassword: 비밀번호 찾기
+hintEmail: 이메일을 입력해 주세요
+hintMobile: 휴대폰 번호를 입력해 주세요
+forgetPassword: 비밀번호를 잊으셨나요?
+register: 회원가입
+hintPassword: 비밀번호를 입력해 주세요
+hintVerifyCode: 인증 코드를 입력해 주세요
+getVerifyCode: 인증 코드 받기
+hasAccount: 이미 계정이 있으신가요?
+oneKeyLogin: 원클릭 로그인

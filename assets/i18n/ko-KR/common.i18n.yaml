@@ -1,0 +1,714 @@
+about: 정보
+aboutApp: 앱 정보
+accept: 수락
+acceptFriendRequest: 친구 요청 수락
+addFriend: 친구 추가
+addPhoneContact: 연락처 추가
+creditCardRepayment: 신용카드 상환
+smallChange: 잔액
+addTag: 태그 추가
+addToContacts: 연락처에 추가
+addToDenylist: 차단 목록에 추가
+added: 추가됨
+addedToDenylistTips: 차단 목록에 추가되었습니다. 더 이상 상대방의 메시지를 받지 않습니다.
+agreeContinue: 동의하고 계속
+all: 전체
+allSenders: 모든 발신자
+allTags: 모든 태그
+allTime: 모든 시간
+allTypes: 모든 유형
+allowSearchMe: 검색 허용
+allowedBeSearched: 최근 가입하고 검색 허용으로 설정된 친구
+appSizeTips: "앱 실행에 필요한 파일을 포함합니다. APK 파일, 최적화된 컴파일러 출력 및 압축 해제된 네이티브 라이브러리가 포함됩니다."
+applyAddFriend: 친구 추가 신청
+awaitingVerification: 검증 대기 중
+buttonAccomplish: 완료
+buttonAdd: 추가
+buttonBack: 뒤로
+buttonBind: 연결
+bindMobileAndEmailTips: 휴대폰 번호와 이메일을 연결하여 계정 보안을 강화하세요
+bindNow: 지금 연결
+buttonCancel: 취소
+buttonChangePassword: 비밀번호 변경
+buttonClose: 닫기
+buttonConfirm: 확인
+buttonContinue: 계속
+buttonCopy: 복사
+buttonDelete: 삭제
+buttonDeleteAccount: 계정 탈퇴
+buttonInviteCode: 초대 코드
+buttonLogin: 로그인
+buttonLogout: 로그아웃
+buttonNextStep: 다음 단계
+buttonOk: 확인
+buttonRegister: 회원가입
+buttonResetPassword: 비밀번호 재설정
+buttonRetry: 재시도
+buttonSave: 저장
+buttonSelectFromAlbum: 앨범에서 선택
+buttonSend: 전송
+buttonSetEmpty: 비우기
+buttonSubmit: 제출
+buttonTakingPictures: 사진 촬영
+cacheTips: 캐시는 앱 사용 중 생성되는 임시 데이터입니다. 캐시를 정리해도 정상적인 사용에 영향을 주지 않습니다.
+callDuration: 통화 시간
+calling: 통화 중
+canNotAddYourselfFriend: 자신을 친구로 추가할 수 없습니다
+cancel: "@:common.buttonCancel"
+ok: "@:common.buttonOk"
+save: "@:common.buttonSave"
+reset: 재설정
+clear: 지우기
+saveTag: 태그 저장 ($count)
+cancelLogoutBody: 이 계정은 탈퇴 철회 기간 중입니다. 로그인하면 탈퇴 절차가 중단된 것으로 간주됩니다. 탈퇴를 계속하려면 탈퇴 신청 후 15일 이내에 IMBoy에 로그인하지 마세요.
+cancelLogoutTitle: 계정 탈퇴를 취소할까요?
+cancelled: 취소됨
+chatSettingBackground: 채팅 배경
+chatSettingBackgroundCustom: 사용자 지정 배경이 설정됨
+chatSettingBackgroundDefault: 기본 배경
+chatSettingBackgroundSelectorTip: 배경 선택 기능 개발 중
+chatSettingBackgroundSuccess: 배경 설정 성공
+chatSettingClearHistory: 채팅 기록 비우기
+chatSettingClearHistoryConfirm: 모든 채팅 기록을 비우시겠습니까? 이 작업은 되돌릴 수 없습니다.
+chatSettingClearHistoryDesc: 모든 메시지를 삭제합니다. 이 작업은 되돌릴 수 없습니다.
+chatSettingClearedSuccess: 비우기 성공
+chatSettingPinnedSuccess: 고정 성공
+chatSettingUnpinnedSuccess: 고정 취소
+chatSettings: 채팅 설정
+chatStatusFailed: 전송 실패
+chatStatusFailedDesc: "전송 실패, 탭하여 재시도"
+chatErrorInDenylist: 상대방이 차단함
+chatErrorInDenylistDesc: 메시지를 보낼 수 없음 - 상대방이 차단했음
+chatErrorNotAFriend: 아직 친구가 아님
+chatErrorNotAFriendDesc: 메시지를 보낼 수 없음 - 먼저 친구로 추가하세요
+checkForUpdates: 업데이트 확인
+clearAll: 모두 지우기
+clearChatRecord: 채팅 기록 비우기
+confirmCode: 인증 코드
+confirmCodeError: 인증 코드가 비어있습니다
+confirmCodeSuccess: 계정이 확인되었습니다.
+confirmDeleteChatRecord: 채팅 기록을 삭제하시겠습니까?
+confirmNewFriend: 새 친구 확인
+confirmNewFriendLogic: 새 친구 확인 논리
+confirmRecoverSuccess: 비밀번호가 성공적으로 변경되었습니다.
+contactSetting: 연락처 설정
+contactSettingTag: 연락처 설정 태그
+contactTagListLogic: 연락처 태그 목록 논리
+contactTags: 연락처 태그
+continueDownloading: 다운로드 계속
+copy: 복사
+coupon: 쿠폰
+createGroupF2fConfirmTips: 이 친구들도 그룹 채팅에 들어갑니다
+createGroupF2fTips: 주변 친구와 같은 4자리 숫자를 입력하여 같은 그룹 채팅에 들어가세요
+delete: "@:common.buttonDelete"
+deleteCollectConfirmDesc: 삭제 후 복구할 수 없습니다. 이 수집 항목을 삭제하시겠습니까?
+deleteContact: 연락처 삭제
+deleteForEveryone: 모든 사용자의 메시지 삭제
+deleteForMe: 내 메시지 삭제
+deleteTagTips: 태그를 삭제해도 태그의 연락처는 삭제되지 않습니다
+deleteThisDevice: 이 기기 삭제
+deleteThisDeviceTips: 삭제 후 다음에 이 기기에서 로그인할 때 보안 검증이 필요합니다.
+denylistNoteDesc: 차단된 사용자는 메시지를 보낼 수 없으며 활동을 볼 수 없습니다. 사용자를 클릭하여 세부 정보를 볼 수 있습니다.
+denylistNoteTitle: 차단 목록 설명
+details: 세부 정보
+deviceDetails: 기기 세부 정보
+downloaded: 다운로드됨
+edit: 편집
+editTag: 태그 편집
+errorAccessDenied: $param에 대한 액세스가 거부되었습니다
+errorCliVersionNotFound: "@:common.error"
+errorEmptyDirectory: $param이(가) 비어있습니다
+errorFailedConnectServer: "@:common.error"
+errorFailedToConnect: "@:common.error"
+errorFileNotFound: $param에서 파일을 찾을 수 없습니다
+errorFolderNotFound: 폴더 $param을(를) 찾을 수 없습니다
+errorHttpNotSupported: "@:common.error"
+errorInternalServer: "@:common.error"
+errorInvalid: $param이(가) 유효하지 않습니다
+errorInvalidDart: "@:common.error"
+errorInvalidFileOrDirectory: "@:common.error"
+errorInvalidJson: "@:common.error"
+errorInvalidRequest: "@:common.error"
+errorLengthBetween: $param의 길이는 $min과(와) $max 사이여야 합니다
+errorManyRequest: "@:common.error"
+errorNoPackageToRemove: "@:common.error"
+errorNoValidFileOrUrl: "@:common.error"
+errorNonexistentDirectory: "@:common.error"
+errorPackageNotFound: "@:common.error"
+errorPassword: 비밀번호 오류
+errorRequestForbidden: "@:common.error"
+errorRequestSyntax: "@:common.error"
+errorRequired: $param은(는) 필수입니다
+errorRequiredPath: "@:common.error"
+errorRetypePassword: "@:common.error"
+errorSame: $param1과(와) $param2은(는) 같아야 합니다
+errorServerDown: "@:common.error"
+errorServerRefused: "@:common.error"
+errorSpecialCharactersInKey: "@:common.error"
+errorUnexpected: "@:common.error"
+errorUnnecessaryParameter: "@:common.error"
+errorUnnecessaryParameterPlural: "@:common.error"
+errorUpdateCli: "@:common.error"
+failedGetLatLong: "@:common.errorNetwork"
+failedGetMapTryAgain: "@:common.errorNetwork"
+failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
+feedback: 피드백 제안
+feedbackBuilder: 피드백 빌더
+feedbackContentRequired: 피드백 내용은 비워둘 수 없습니다
+feedbackDetails: 피드백 제안 세부 정보
+feedbackModel: 피드백 모델
+feedbackReplyModel: 피드백 답장 모델
+feedbackSuccessMsg: "피드백을 받았습니다. 빠르게 처리하겠습니다!"
+followSystemTips: 켜면 시스템 따라 다크 모드가 켜지거나 꺼집니다
+forceLogoutNotification: "기기 [$param]에 의해 강제 로그아웃되었습니다"
+friendPermissions: 친구 권한
+friendsPermissionsView: 친구 권한 보기
+genderConflictError: "성별 설정 충돌, 다시 시도해 주세요"
+genderNetworkError: "네트워크 오류, 네트워크 연결을 확인해 주세요"
+genderUpdateFailed: "성별 설정 실패, 다시 시도해 주세요"
+genderUpdateSuccess: 성별 설정 성공
+groupAddLocal: 연락처에 저장
+groupAnnouncement: 그룹 공지
+groupQrcodeTips: "이 QR코드는 $days일 내 ($date 전) 유효하며, 다시 들어가면 업데이트됩니다"
+groupSearchTips: 그룹 이름 및 그룹 소개
+helpDocument: 도움말 문서
+hintEditGroupAnnouncement: 그룹 공지 편집
+httpResponse: HTTP 응답
+incomingCall: $param에서 수신 전화
+info: 정보
+infoLoggedInOnAnotherDevice: 귀하의 계정이 다른 기기($param)에서 로그인되었습니다.
+installNow: 지금 설치
+iosAppIdUnknown: "AppStore에 등록되지 않았거나 AppID[$param]이(가) 존재하지 않습니다"
+koKr: 한국어 (한국)
+languageSetting: 언어 설정
+languageState: 언어 상태
+lastActiveTips: 기기가 안전 상태일 때 친구 메시지의 적시 송수신을 위해 로그인 시간이 자동으로 연장되며 이때 최근 활성 시간이 업데이트됩니다.
+lastSeenJustNow: 방금 온라인
+lastSeenLongTimeAgo: 오래전 온라인
+lastSeenMonthsAgo: $param개월 전
+leaveYourSuggestions: 소중한 의견과 제안을 남겨주세요
+loadError: "로딩 실패, 다시 시도해 주세요"
+loadMore: 더 로드
+loading: 로딩 중
+locationMessage: 위치 메시지
+loginDeviceManagementTips: 귀하의 계정은 다음 기기에서 로그인했습니다. 기기를 삭제할 수 있으며 삭제 후 해당 기기에서 로그인할 때 보안 검증이 필요합니다.
+logoutNotice: 《계정 탈퇴 안내》
+manually: 수동 선택
+messageCall: 메시지 보내기
+messageContent: 메시지 내용
+messageLocationBuilder: 메시지 위치 빌더
+messageNotification: 메시지 알림
+messageRevoked: 메시지가 회수되었습니다
+quoteMessageNotAvailable: 인용된 메시지를 사용할 수 없습니다
+messageRevokedBuilder: 메시지 회수 빌더
+microphone: 마이크
+microphonePermissionNotObtained: 마이크 권한을 얻지 못했습니다
+moreInfo: 더 많은 정보
+myAddress: 내 주소
+nearbyPeopleTips: 주변 사람들과 연락처를 교환하고 새 친구를 사귀세요
+needContinueWorkHard: 계속 노력이 필요합니다
+needSubmitEffect: 확인 및 제출이 필요하면 작업이 적용됩니다
+networkErrorWithAction: "$param 실패, 네트워크 연결을 확인하세요"
+networkException: 네트워크 연결 오류
+errorNetwork: 네트워크 오류
+networkExceptionPlaseNeedNetworkToViewData: "네트워크 상태 오류, 데이터를 보려면 네트워크를 켜야 합니다"
+networkFailureTips: 네트워크 오류 팁
+newVersionDetected: 새 버전 감지
+newVersionDetectedWithVersion: 새 버전 $param 감지
+nextStep: 다음 단계
+nicknameConflictError: 닉네임이 이미 사용 중입니다. 다른 닉네임을 선택해 주세요
+nicknameEmojiOnlyError: 닉네임은 이모지만 포함할 수 없습니다
+nicknameEmptyError: 닉네임은 비워둘 수 없습니다
+nicknameLengthError: 닉네임 길이는 2-24자 사이여야 합니다
+nicknameNetworkError: "네트워크 오류, 네트워크 연결을 확인해 주세요"
+nicknameSensitiveWordError: 닉네임에 민감 단어가 포함되어 있습니다. 다시 입력해 주세요
+nicknameServerError: "서버 오류, 나중에 다시 시도해 주세요"
+nicknameUpdateFailed: "닉네임 수정 실패, 다시 시도해 주세요"
+nicknameUpdateSuccess: 닉네임 수정 성공
+nicknameWhitespaceError: 닉네임은 공백만 포함할 수 없습니다
+noAvatar: 프로필 사진 없음
+noBarcodeFound: "바코드를 찾지 못했습니다!"
+noContacts: 연락처 없음
+noConversationMessages: 대화 메시지 없음
+noData: 데이터 없음
+noMembersInCurrentTag: 현재 태그에 구성원 없음
+noMoreData: 더 이상 데이터 없음
+noNewFriends: 새 친구 없음
+noPermission: 권한 없음
+noReply: 답변 없음
+noSiginQ: 계정이 아직 없으신가요?
+noUpdateDescription: 업데이트 설명 없음
+normalModel: 일반 모드
+notAuthorizedLatLong: 위도 경도를 얻도록 승인하지 않았습니다
+notBad: 나쁘지 않음
+notBound: 연결되지 않음
+notFilled: 작성되지 않음
+notInstallAnyMapApp: 지도 앱이 설치되어 있지 않습니다
+notLetHimSee: 그 사람에게 보이지 않게
+notReceiveCoeQ: 인증 코드를 받지 못하셨나요?
+notSeeHim: 그 사람을 보지 않기
+notSet: 설정되지 않음
+notShow: 표시 안 함
+notTurnedLocationService: 위치 서비스를 켜지 않았습니다
+nowNewVersion: 새 버전을 감지하지 못했습니다
+off: "@:common.disabled"
+offlineNotification: 오프라인 알림
+on: "@:common.enabled"
+operationFailedAgainLater: "작업 실패, 나중에 다시 시도해 주세요"
+optionsNo: 아니요
+optionsRename: 이름을 바꾸고 싶습니다
+optionsYes: 네
+p2pCallScreenLogic: P2P 통화 화면 논리
+p2pCallScreenView: P2P 통화 화면 보기
+paramFormatError: $param 형식 오류
+pauseDownloading: 다운로드 일시 중지
+peerNoResponse: 상대방이 응답하지 않습니다...
+peopleInfoMoreLogic: 사용자 정보 추가 논리
+peopleInfoSameGroupView: 같은 그룹 사용자 보기
+perMinuteOnce: 1분에 한 번만 요청할 수 있습니다
+permission: 권한
+permissionAcquisitionFailed: 권한 획득 실패
+personalCard: 개인 명함
+personalInfoDesc: 개인 정보 설명
+personalInfoTip: 개인 정보 팁
+personalInformation: 개인 정보
+pinCodeFillTips: 격자를 채우세요
+pleaseSelectMembersForAdd: 추가할 구성원을 선택해 주세요
+profileSettings: 프로필 설정
+reEdit: 다시 편집
+recoverPasswordSuccess: 인증 코드 전송 성공
+regionCancel: 취소
+regionConfirm: 확인
+regionNoResult: 결과 없음
+regionSearchHint: 지역 이름으로 검색
+regionSearchTips: 지역 이름 또는 지역 코드로 검색
+regionSelectTitle: 지역 선택
+releaseFingerCancelSending: 손가락을 놓으면 전송 취소
+removeContactFromTag: 태그에서 연락처 제거
+removeMember: 구성원 제거
+resendCodeSuccess: 새 이메일이 전송되었습니다.
+resetFilters: 필터 재설정
+saveQrCode: QR코드 저장
+saveSuccess: 저장 성공
+scanQrcodeAddFriend: 위 QR코드 패턴을 스캔하여 친구로 추가하세요
+search: 검색
+searchChatContent: 채팅 내용 검색
+searchChatRecord: 채팅 기록 검색
+searchError: 검색 오류
+searchFilterAll: 모든 필터
+searchFilterImage: 이미지 필터
+searchFilterText: 텍스트 필터
+searchFilterToday: 오늘 필터
+searchFilters: 검색 필터
+searchFriendsTips: "친구 닉네임, 메모로 친구 검색"
+searchHint: 키워드를 입력하여 메시지를 검색하세요
+searchHistory: 검색 기록
+searchLocation: 위치 검색
+searchMessagesHint: 메시지 검색 팁
+searchNoFound: "검색 결과가 없습니다 :("
+searchNoResults: 검색 결과 없음
+noSearchHistory: 검색 기록 없음
+searchRegion: 지역 검색
+searchResults: 검색 결과
+searchResultsCount: $current / $total 결과
+searchSuggestions: 검색 제안
+selectAll: 모두 선택
+selectContacts: 연락처 선택
+selectRegionView: 지역 선택 보기
+selectedItems: $param개 선택된 항목
+selectedRegion: 선택된 지역
+sendMsgNotFriendTips: 상대방이 친구 확인을 켰습니다. 아직 친구가 아닙니다. 먼저 친구 확인 요청을 보내주세요.
+setChatBackground: 현재 채팅 배경 설정
+share: 공유
+signatureTips: 서명 팁
+slideUpCancelSending: 손가락을 위로 올리면 전송 취소
+storagePermissionNotObtained: 저장소 권한을 얻지 못했습니다
+strongReminder: 강력한 알림
+submittedAt: 제출 시간
+sureDeleteData: 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.
+sureDeleteGroupChatRecord: 그룹 채팅 기록을 삭제하시겠습니까?
+switchEnvironment: 환경 전환
+thisMonth: 이번 달
+timeDaysAgo: $param일 전
+timeHoursAgo: $param시간 전
+timeJustNow: 방금
+timeMinutesAgo: $param분 전
+timeToday: 오늘
+timeYesterday: 어제
+tipConnectDesc: 네트워크 없음
+tipConnectDescWithParen: ($param)
+tipDeleteContact: 연락처 "$param"을(를) 삭제하고 해당 연락처의 채팅 기록도 삭제합니다
+tipDeviceSpace: 기기 공간 $param1‰ 사용($param2)
+tipDraft: 임시 저장
+tipEmptyChatPlaceholder: 아직 메시지가 없습니다
+tipFailed: "작업 실패!"
+tipGreeting: 환영합니다
+tipProvidersTitleFirst: 또는 다음 계정으로 로그인
+tipSuccess: "작업 성공!"
+tipTips: 팁
+titleContact: 연락처
+today: 오늘
+unknown: 알 수 없음
+unknownMessage: 알 수 없는 메시지
+updateLog: 업데이트 로그
+updateNow: 지금 업데이트
+uploading: Uploading
+uploadSuccess: Upload successful
+uploadFailed: Upload failed
+userDataTips: "앱 실행에 필요한 파일과 채팅 메시지, 친구 관계 등 모든 기록 데이터를 포함합니다."
+userDisabledOrDeleted: 사용자가 비활성화되거나 삭제됨
+userNotExist: 사용자가 존재하지 않습니다
+userOnlineStatusWidget: 사용자 온라인 상태 위젯
+userTagRelationView: 사용자 태그 관계 보기
+userTagSaveView: 사용자 태그 저장 보기
+verificationMessageSentByPeerIs: "상대방이 보낸 확인 메시지: $param"
+version: 버전
+videoCall: 비디오 통화
+viewAllGroupMember: 모든 그룹 구성원 보기
+voiceCall: 음성 통화
+voiceInputNotImplemented: 음성 입력 기능이 아직 구현되지 않음
+waitingDownload: 다운로드 대기 중
+waitingPeerAccept: 상대방의 수락을 기다리는 중...
+warning: "경고:"
+webpageLoading: 웹페이지 로딩 중...
+whatYourFeedback: 피드백은 무엇입니까?
+yesterday: 어제
+yourContactInformation: 연락처 정보
+confirmRemove: 제거 확인
+confirmRemoveFromDenylist: 이 사용자를 차단 목록에서 제거하시겠습니까?
+buttonRemove: 제거
+removedFromDenylist: 차단 목록에서 제거됨
+newEmailAddress: 새 이메일 주소
+emailAddress: 이메일 주소
+enterEmailAddress: 이메일 주소를 입력해 주세요
+getVerificationCode: 인증 코드 받기
+confirmChange: 변경 확인
+verificationCodeSentToEmail: 인증 코드가 이 이메일로 전송됩니다. 유효 기간 내에 확인을 완료해 주세요.
+verificationCodeSentToMobile: 인증 코드가 이 휴대폰으로 전송됩니다. 유효 기간 내에 확인을 완료해 주세요.
+pleaseEnterCorrectEmailAddress: 올바른 이메일 주소를 입력해 주세요
+pleaseEnter6DigitVerificationCode: 6자리 인증 코드를 입력해 주세요
+verificationCodeSent: 인증 코드가 전송되었습니다
+sendFailed: 전송 실패
+noChangeNeeded: 수정 불필요
+submissionFailed: 제출 실패
+checkVerificationCodeOrRetry: 인증 코드를 확인하거나 나중에 다시 시도해 주세요
+forceOffline: 강제 오프라인
+forceDeviceOffline: 이 기기 강제 오프라인
+forceDeviceOfflineConfirm: 해당 기기에 강제 오프라인 명령을 보냅니다. 계속할까요?
+confirmForceOffline: 강제 오프라인 확인
+forceOfflineCommandSent: 강제 오프라인 명령을 전송했습니다
+feedbackSlogan: 귀하의 제안은 우리 개선의 동력입니다
+newFeedback: 새 피드백
+feedbackHistory: 피드백 기록
+confirmDelete: 삭제 확인
+processing: "@:common.loading"
+verificationCode: 인증 코드
+feedbackContent: 피드백 내용
+officialReply: 공식 답변
+setPasswordSecurityTips: 계정 보안을 높이고 인증 코드를 받지 못해 로그인할 수 없는 상황을 방지하기 위해 로그인 비밀번호를 설정하세요.
+locationHidden: 위치가 숨겨졌습니다
+locationVisible: 위치가 표시됩니다
+noNearbyPeople: 주변에 사람이 없습니다
+clickSearchButtonToFind: 위쪽 검색 버튼을 클릭하여 주변 사람을 찾아주세요
+operationSuccess: "@:common.success"
+operationFailed: "@:common.error"
+featureInDevelopment: 기능 개발 중...
+addedToDenylist: 차단 목록에 추가됨
+bindSuccess: 연결 성공
+mobileUpdatedToParam: 휴대폰 번호가 $param으로 업데이트되었습니다
+groupAnnouncementPublish: 공지 게시
+pleaseEnterAnnouncementContent: 공지 내용을 입력해 주세요
+selectExpirationDateOptional: 만료 날짜 선택 (선택 사항)
+groupAnnouncementDeleteConfirm: 이 공지를 삭제하시겠습니까?
+groupAnnouncementDelete: 삭제
+privacyClearChatHistory: 채팅 기록 삭제
+privacyClearChatHistoryConfirm: 모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+privacyLogoutAccountConfirm: 계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.
+privacySettings: 개인정보 설정
+searchSettings: 검색 설정
+allowSearchByAccount: 계정으로 검색 허용
+allowSearchByAccountDesc: 다른 사용자가 계정으로 귀하를 찾을 수 있습니다
+allowAddByPhone: 휴대폰 번호로 추가 허용
+allowAddByPhoneDesc: 다른 사용자가 휴대폰 번호로 친구 추가할 수 있습니다
+allowAddByQR: QR코드로 추가 허용
+allowAddByQRDesc: 다른 사용자가 QR코드를 스캔하여 친구 추가할 수 있습니다
+statusSettings: 상태 설정
+showOnlineStatus: 온라인 상태 표시
+showOnlineStatusDesc: 친구가 온라인 상태를 볼 수 있습니다
+allowNearbyVisible: 주변 사용자에게 표시
+dataSettings: 데이터 설정
+clearChatRecords: 채팅 기록 삭제
+clearChatRecordsDesc: 모든 채팅 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다
+deleteAccountAction: 계정 탈퇴
+deleteAccountActionDesc: 계정과 모든 데이터를 영구 삭제합니다. 되돌릴 수 없습니다.
+chatHistoryCleared: 채팅 기록이 삭제되었습니다
+accountDeletionNotAvailable: 계정 삭제 기능을 아직 사용할 수 없습니다
+chatDeleteMessage: 메시지 삭제
+chatCopy: 복사
+chatSaveImage: 이미지 저장
+chatDeleteLocalOnly: 로컬만 삭제
+chatDownloadFile: 파일 다운로드
+chatShareFile: 파일 공유
+chatCopyLink: 링크 복사
+chatShareLink: 링크 공유
+chatDeleteFailed: 삭제 실패
+chatNetworkErrorDeleteLocal: "네트워크 연결 실패, 로컬 메시지만 삭제하시겠습니까?"
+chatDeleteConfirm: 이 메시지를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+chatDeleteOnlyLocal: "나만 삭제, 상대방에게는 여전히 표시"
+chatDeleteAll: "모든 사용자의 채팅에서 삭제, 되돌릴 수 없음"
+chatInitFailed: 채팅 초기화 실패
+cameraShootFailed: 촬영 실패
+avatarSave: 저장
+avatarDeleteAvatar: 프로필 사진 삭제
+avatarEditAvatar: 프로필 사진 편집
+backgroundUseCustomColor: 사용자 지정 색상 사용
+backgroundOnlySolidColor: 단색 배경에만 적용
+backgroundSelectColor: 색상 선택
+profileShareProfile: 프로필 공유
+tagClearAllConfirm: 모든 태그를 비우시겠습니까?
+tagClearAll: 모두 비우기 확인
+audioPlayFailed: 재생 실패
+videoFileNotFound: 입력 파일을 찾을 수 없습니다
+videoCompressFailed: "압축 실패, 빈 결과 반환"
+videoFurtherCompressFailed: 추가 압축 실패
+forcedOfflineByDevice: "기기 [$device]에서 강제 로그아웃되었습니다"
+searchDescription: "미니 프로그램, 공식 계정, 기사, 모멘트, 이모티콘 등"
+testDirectNavigation: 직접 네비게이션 테스트
+tagNameTooLong: 태그 이름은 14자를 초과할 수 없습니다
+tagNameNoComma: 태그 이름에 쉼표를 포함할 수 없습니다
+tagNameNoLeadingTrailingSpaces: 태그 이름에 앞뒤 공백을 포함할 수 없습니다
+tagNameNoSpecialChars: 태그 이름에 특수 문자를 포함할 수 없습니다
+commonTags: 자주 사용하는 태그
+loadingTagDataFailed: 태그 데이터 로드 실패
+pleaseEnterContent: 내용을 입력하세요
+comingSoon: 출시 예정
+chatBackground: 채팅 배경
+useSystemDefaultBackground: 시스템 기본 배경 사용
+selectCustomBackgroundImage: 사용자 지정 배경 이미지 선택
+currentBackground: 현재 배경
+backgroundTransparency: 배경 투명도
+defaultBackground: 기본 배경
+solidColorBackground: 단색 배경
+selectImageFailed: 이미지 선택 실패
+takePhotoFailed: 사진 촬영 실패
+selectVideoFailed: 비디오 선택 실패
+recordVideoFailed: 비디오 녹화 실패
+selectFileFailed: 파일 선택 실패
+locationSelectNotImplemented: 위치 선택 기능이 아직 구현되지 않음
+selectLocationFailed: 위치 선택 실패
+sendCardNotImplemented: 명함 전송 기능이 아직 구현되지 않음
+sendCardFailed: 명함 전송 실패
+uploadResponseInvalid: 업로드 응답 데이터가 유효하지 않습니다
+voiceSendSuccess: 음성 전송 성공
+voiceSendFailed: 음성 전송 실패
+featureNotImplemented: 기능이 아직 구현되지 않음
+sendCollectionNotImplemented: 즐겨찾기 전송 기능이 아직 구현되지 않음
+fileOpenNotImplemented: 파일 열기 기능이 아직 구현되지 않음
+fileShareNotImplemented: 파일 공유 기능이 아직 구현되지 않음
+retrySuccess: 재시도 성공
+deleteSuccess: 삭제 성공
+localDeleteSuccess: 로컬 삭제 성공
+localDeleteFailed: 로컬 삭제 실패
+revokeSuccess: 회수 성공
+editContentCannotBeEmpty: 편집 내용은 비워둘 수 없습니다
+editSuccess: 편집 성공
+messageNotFound: 메시지를 찾을 수 없습니다
+conversationNotFound: 대화를 찾을 수 없습니다
+enabled: 활성화됨
+disabled: 비활성화됨
+configureVisibleThreshold: 가시성 임계값 구성
+fontSizeSettingUpdated: 글꼴 크기 설정이 업데이트되었습니다
+fontSizeSetting: 글꼴 크기 설정
+fontTooSmallMayAffect: 글꼴이 너무 작아 읽기에 영향을 줄 수 있습니다
+dragSliderAdjustFontSize: 슬라이더를 드래그하여 글꼴 크기 조정
+personalInfo: 개인 정보
+nicknameNotSet: 닉네임이 설정되지 않음
+basicInfo: 기본 정보
+contactInfo: 연락처 정보
+editTags: 태그 편집
+quickActions: 빠른 작업
+noNewFriendRequests: 현재 새 친구 요청이 없습니다
+pleaseEnterVerificationMessage: 확인 메시지를 입력해 주세요
+unknownRegion: 알 수 없는 지역
+noCommonGroups: 공통 그룹 없음
+noMoreInfo: 더 이상 정보 없음
+userNotSetSignature: 이 사용자는 개인 서명 등 세부 정보를 설정하지 않았습니다
+verificationMessage: 확인 메시지
+burnEnabledMessage: "활성화 후: 메시지가 읽힌 후 $duration 후 자동으로 삭제됩니다"
+burnDisabledMessage: "비활성화 후: 메시지가 자동으로 삭제되지 않습니다"
+visibleEnabledMessage: "활성화 후: 가시성 비율≥$percentage%, 지속 시간≥$delayms"
+visibleDisabledMessage: "비활성화 후: 가시성을 기반으로 자동 읽음 표시하지 않음"
+visibleThresholdInfo: "가시성 비율: $percentage% | 지연: $delayms"
+noGroupAnnouncement: 그룹 공지 없음
+announcementContentCannotBeEmpty: 공지 내용은 비워둘 수 없습니다
+announcementPublishSuccess: 공지 게시 성공
+tips: 팁
+featureComingSoon: 기능 출시 예정
+understood: 이해함
+noProblem: 문제 없음
+onMyWay: 곧 도착합니다
+sendOfflineCommand: 강제 로그아웃
+offlineCommandSent: 오프라인 명령 전송됨
+operationOptions: 작업 옵션
+copyTextContent: 텍스트 내용 복사
+shareWithOtherFriends: 다른 친구와 공유
+addTagsToFavorites: 즐겨찾기에 태그 추가
+addRemarkToFavorites: 즐겨찾기에 메모 추가
+deleteThisCollection: 이 수집 항목 삭제
+pullUpLoadMore: 위로 당겨서 더 로드
+changeSuccess: 수정 성공
+loginPasswordUpdated: 로그인 비밀번호가 업데이트되었습니다
+lengthOk: 길이 적합
+confirmNewPassword: 새 비밀번호 확인
+validationPassed: 검증 통과
+changeFailed: 수정 실패
+submitted: 제출됨
+viewSecurityHelp: 보안 도움말 보기
+transactionHistory: 거래 내역
+paymentPasswordSetSuccess: 결제 비밀번호 설정 성공
+paymentPasswordSetFailed: 결제 비밀번호 설정 실패
+nextVoiceMessageNotFound: 다음 음성 메시지를 찾을 수 없습니다
+noNextVoiceMessage: 재생할 다음 음성 메시지가 없습니다
+nextVoiceMessageNoPath: 다음 음성 메시지에 오디오 파일 경로가 없습니다
+saveFailed: 저장 실패
+tip: 팁
+confirm: 확인
+success: 성공
+personalDisplay: 개인 표시
+personalSignature: 개인 서명
+personalBackground: 개인 배경
+setBackgroundImage: 배경 이미지 설정
+extendedInfo: 추가 정보
+profession: 직업
+pleaseEnterProfession: Please enter profession
+functionSettings: 기능 설정
+shareProfile: 프로필 공유
+shareWithFriends: 친구와 프로필 공유
+shareQRCode: Share QR Code
+copyLink: Copy Link
+shareTo: Share To
+shareFailed: Share failed
+exportAsJson: Export as JSON format
+exportSuccessThenCopiedToClipboard: $param format profile exported and copied to clipboard
+exportFailed: Export failed
+setRegion: 지역 설정
+avatarUpdateSuccess: 프로필 사진 업데이트 성공
+avatarUpdateFailed: 프로필 사진 업데이트 실패
+deleteOperationAbnormal: "삭제 작업 비정상, 다시 시도하세요"
+revoking: 회수 중...
+editing: 편집 중...
+messageIdCannotBeEmpty: 메시지 ID가 비어있어 작업을 수행할 수 없습니다
+startRevokeMessageFlow: 메시지 회수 흐름 시작
+revokeMessageTracking: 메시지 회수 추적
+useNewActionMechanism: 새 작업 메커니즘 사용
+revokeMessageSendResult: 메시지 회수 전송 결과
+revokeRequestSendComplete: 회수 요청 전송 완료
+revokeFailed: 회수 실패
+revokeMessageException: 메시지 회수 예외
+revokeOperationAbnormal: 회수 작업 비정상
+startEditMessageFlow: 메시지 편집 흐름 시작
+editMessageTracking: 메시지 편집 추적
+newContent: 새 내용
+editMessageSendResult: 메시지 편집 전송 결과
+editRequestSendComplete: 편집 요청 전송 완료
+editFailed: 편집 실패
+editMessageException: 메시지 편집 예외
+editOperationAbnormal: 편집 작업 비정상
+uploadAvatarFailed: 프로필 사진 업로드 실패
+error: 오류
+cannotOpenWebpage: 웹페이지를 열 수 없습니다
+groupIdCannotBeEmpty: 그룹 ID는 비워둘 수 없습니다
+selectImageFailedWithError: 이미지 선택 실패
+uploadAvatarFailedWithError: 프로필 사진 업로드 실패
+avatarSelectedUploadPending: 프로필 사진이 선택되었습니다. 업로드 기능 개발 중
+emailEditFeaturePending: 이메일 편집 기능 개발 중...
+reactionAdded: 리액션이 추가되었습니다
+reactionCancelled: 리액션이 취소되었습니다
+retryFailedPleaseCheckNetwork: "재시도 실패, 네트워크 연결을 확인해 주세요"
+retryAbnormal: 재시도 비정상
+deleteFailedPleaseTryAgain: "삭제 실패, 다시 시도해 주세요"
+deleteFailedPleaseCheckNetwork: "삭제 실패, 네트워크 연결을 확인해 주세요"
+voiceRecordFailedPleaseTryAgain: "음성 녹음 실패, 다시 시도해 주세요"
+voiceFileNotFoundPleaseTryAgain: 음성 파일을 찾을 수 없습니다. 다시 시도해 주세요
+voiceFileCannotReadPleaseTryAgain: 음성 파일을 읽을 수 없습니다. 다시 시도해 주세요
+voiceFileReadFailedPleaseTryAgain: 음성 파일 읽기 실패. 다시 시도해 주세요
+voiceProcessingAbnormal: 음성 처리 비정상
+voiceUploadFailedPleaseCheckNetwork: "음성 업로드 실패, 네트워크 연결을 확인해 주세요"
+voiceSendAbnormal: 음성 전송 비정상
+voiceDuration: 음성 길이
+playbackFailed: 재생 실패
+revokeOperationAbnormalPleaseTryAgain: "회수 작업 비정상, 다시 시도해 주세요"
+collectionFailedPleaseTryAgain: "수집 실패, 다시 시도해 주세요"
+reactionSent: 리액션이 전송되었습니다
+seconds: 초
+messageCannotLocatedMayBeDeleted: 메시지를 찾을 수 없습니다. 삭제되었을 수 있습니다
+settingFailedPleaseTryAgain: "설정 실패, 다시 시도해 주세요"
+partialDeleteSuccess: "부분 삭제 성공: $success 성공, $fail 실패"
+collectedVideoFormatIncorrectCannotFindVideoUri: 수집된 비디오 메시지 형식이 올바르지 않습니다. 비디오 URI를 찾을 수 없습니다
+recordingCancelled: 녹음이 취소됨
+pullOfflineMessagesFailed: 오프라인 메시지 가져오기 실패
+pullOfflineMessagesAbnormal: 오프라인 메시지 가져오기 비정상
+logoutRequestFailedPleaseCheckNetwork: "로그아웃 요청 실패, 네트워크 연결을 확인해 주세요"
+permissionOnlySupportAndroidAndIos: 권한은 Android와 iOS만 지원합니다
+messageSendFailedPleaseCheckNetwork: "메시지 전송 실패, 네트워크 연결을 확인해 주세요"
+retryingSend: 재전송 중...
+quickReplyOk: 좋아요
+quickReplyOkThanks: "좋아요, 감사합니다"
+tagInspiration: 영감
+noDetailedInfo: 이 사용자는 개인 서명 등 세부 정보를 설정하지 않았습니다
+noNewRegisteredUsers: "현재 새로 등록한 사용자가 없습니다
+나중에 다시 확인하세요"
+newRegisteredUsersTip: 최근 등록한 사용자가 여기에 표시됩니다. 친구로 추가할 수 있습니다
+youRevokedMessage: 메시지를 회수했습니다
+otherRevokedMessage: 상대방이 메시지를 회수했습니다
+networkFailureTryAgain: "네트워크 오류, 다시 시도해 주세요!"
+networkNotAvailable: 현재 네트워크를 사용할 수 없습니다.
+pleaseCheckNetworkConnection: 네트워크 연결을 확인해 주세요.
+lastSeenMinutesAgo: "@:common.timeMinutesAgo"
+lastSeenHoursAgo: "@:common.timeHoursAgo"
+lastSeenDaysAgo: "@:common.timeDaysAgo"
+fontSettings: "@:common.fontSizeSetting"
+failed: "@:common.error"
+lazyUserNoSignature: 아직 소개글을 작성하지 않았습니다
+noFavoritesYet: "즐겨찾기가 없습니다. 흥미로운 메시지를 수집해 보세요!"
+fontPreviewText: 이것은 본문 텍스트입니다. 여기서 다른 글꼴 크기의 표시 효과를 볼 수 있습니다.
+smaller: 더 작게
+currentFontScale: "현재: $param1 $param2%"
+emailUpdatedTo: 이메일이 $param으로 업데이트되었습니다
+atMentionYouTag: "[@你] "
+atMentionLeftMember: "@已退群成员"
+muteNotifications: 消息免打扰
+muteNotificationsHint: 开启后不会收到新消息提醒，但仍可在会话列表看到未读
+revokeExpired: 超过 2 分钟，无法撤回
+quickReplyAddTitle: 新增快捷回复
+quickReplyEditTitle: 编辑快捷回复
+removeAdmin: Remove Admin
+setAdminConfirm: Set this member as admin?
+removeAdminConfirm: Remove admin role from this member?
+muteMemberConfirm: Mute this member?
+unmuteMemberConfirm: Unmute this member?
+kickMemberConfirm: Remove this member from the group?
+transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
+setAdminSuccess: Admin set
+setAdminFailed: Failed to set admin
+removeAdminSuccess: Admin removed
+removeAdminFailed: Failed to remove admin
+muteMemberSuccess: Member muted
+muteMemberFailed: Failed to mute member
+unmuteMemberSuccess: Member unmuted
+unmuteMemberFailed: Failed to unmute member
+kickMemberSuccess: Member removed
+kickMemberFailed: Failed to remove member
+transferGroupSuccess: Ownership transferred
+transferGroupFailed: Failed to transfer ownership
+notMuted: Not Muted
+muteDuration: Mute Duration
+muteDuration1hour: 1 Hour
+muteDuration6hours: 6 Hours
+muteDuration12hours: 12 Hours
+muteDuration1day: 1 Day
+muteDuration3days: 3 Days
+muteDuration7days: 7 Days
+muteDurationPermanent: Permanent
+searchScope: Search scope
+searchAll: All messages

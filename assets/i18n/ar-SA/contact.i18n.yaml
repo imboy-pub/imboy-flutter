@@ -1,0 +1,49 @@
+applyFriend: طلب إضافة صديق
+applyFriendLogic: منطق طلب الصداقة
+applyParam: طلب $param
+blocked: تم الحظر
+applyChanges: يرجى إعادة تشغيل التطبيق لتطبيق التغييرات
+inputNewTag: أدخل علامة جديدة...
+denylist: القائمة السوداء
+denylistEmpty: القائمة السوداء فارغة
+denylistEmptyDesc: "لم تقم بحظر أي مستخدم بعد
+المستخدمون المحظورون لن يتمكنوا من إرسال رسائل إليك"
+favoriteGroupTagsEtc: الأسماء وأسماء المجموعات والعلامات المفضلة
+groupRemarkView: عرض ملاحظات المجموعة
+groupRemarkVisibility: ملاحظات المجموعة مرئية لك فقط
+newFriend: صديق جديد
+recommendToFriend: التوصية به للأصدقاء
+remark: ملاحظة
+remarksTags: ملاحظات وعلامات
+applyFilters: تطبيق التصفية
+selectAGroup: اختيار مجموعة
+selectFriend: اختيار صديق
+selectFriends: اختيار الأصدقاء
+selectOrEnterTag: اختيار أو إدخال علامة
+tags: العلامات
+tellFriend: أخبر الأصدقاء
+tagNameRequired: اسم العلامة لا يمكن أن يكون فارغاً
+suggestedTags: علامات مقترحة
+tagManagement: إدارة العلامات
+currentTags: العلامات الحالية ($param)
+pleaseEnterRemark: يرجى إدخال الملاحظة
+enterRemark: يرجى إدخال الملاحظة
+pleaseEnterTags: يرجى إدخال العلامات
+tagLengthExceeded: لا يمكن أن يتجاوز طول العلامة $param حرف
+maxTagsExceeded: يمكنك إضافة $param علامات كحد أقصى
+selectedTags: العلامات المحددة ($param/$max)
+tagImportant: مهم
+tagUrgent: عاجل
+tagWork: عمل
+tagLife: حياة
+tagStudy: دراسة
+tagEntertainment: ترفيه
+tagTravel: سفر
+tagFood: طعام
+tagHealth: صحة
+tagFamily: عائلة
+tagFriends: أصدقاء
+tagProject: مشروع
+tagIdeas: أفكار
+tagMemo: مذكرة
+friendRequestSent: تم الإرسال

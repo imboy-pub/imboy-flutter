@@ -1,0 +1,278 @@
+change: Change
+entertainment: "Movies & Shows"
+lifePayment: Bill Payment
+medicalHealth: Healthcare
+meituanDelivery: Meituan Delivery
+tencentService: Tencent Services
+traffic: Transport
+totalAssets: Total Assets
+album: Photos
+appSize: App size
+arSa: Arabic (Saudi Arabia)
+audio: Audio
+barcodeFound: "Barcode found!"
+botQianFan: Qianfan Bot
+liveRoomWhipLabel: WHIP Stream URL
+liveRoomWhepLabel: WHEP Stream URL
+cache: Cache
+camera: Camera
+changeNameView: Change display name
+changeParam: Change $param
+chooseFromAlbum: Select from album
+clean: Clean
+codeSentToParam: Verification code sent to $param
+codeSentToType: Verification code sent to $param
+collected: Favorited
+completed: Completed
+copied: Copied
+darkModel: Dark mode
+deDd: German (Germany)
+disable: Disable
+earlier: Earlier
+enGb: English (UK)
+enUs: English (US)
+enable: Enable
+example: "Example:"
+expired: Expired
+extraItem: Extra item
+faceToFaceLogic: Face to face
+favorites: Favorite
+female: Female
+followSystem: Follow system
+frFr: French (France)
+from: From
+goClean: Go to clean
+good: Great
+hangup: Hang up
+haveSet: Set
+httpParse: Network request
+iAm: I am
+itIt: Italian (Italy)
+jaJp: Japanese (Japan)
+keepSecret: Private
+lastActiveTime: Last active time
+lastSeenHide: Hide online status
+lastSeenNever: Never online
+lastSeenWeeksAgo: $param weeks ago
+lastSeenExactTime: Last online $param
+licenseAgreement: Software License and Service Agreement
+liveBroadcast: Live
+liveRoomListView: Live rooms
+publisherPage: Stream page
+subscriber: Subscriber
+loggingOut: Logging out...
+loudspeaker: Speaker
+makeYourselfInvisible: Make yourself invisible
+makeYourselfVisible: Make yourself visible
+male: Male
+manage: Manage
+markImportant: Important
+markImportantDesc: Mark as important message
+markStar: Favorite
+markStarDesc: Favorite this message
+markTodo: Todo
+markTodoDesc: Mark as todo item
+multiSelect: Multi-select
+multiSelectMode: Multi-select mode
+myFavorites: My favorites
+myLive: My live
+name: Name
+numUnit: $param items
+openInBrowser: Open in browser
+or: Or
+otherParty: Other party
+packageSize: Package size
+peerHasHungUp: Other party hung up
+play: Play
+pleaseInputParam: Please enter $param
+pleaseSelect: Please select
+quickFilters: Quick filters
+quote: Quote
+recentlyUsed: Recently used
+releaseEnd: Release to end
+remainingChars: $param characters remaining
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
+replied: Replied
+ringing: Ringing...
+ruRu: Russian (Russia)
+selectedCount: Selected ($count)
+selected: Selected
+sent: Sent
+sentByMe: Sent by me
+sentByOthers: Sent by others
+setParam: Set $param
+setting: Settings
+siginQ: Already have an account?
+signInWith: Sign in with $param
+source: Source
+speakingTooShort: Speaking time too short
+speed: Speed
+star: "@:main.markStar"
+stillNeeded: Still need
+storageSpace: Storage space
+termOfServices: Terms of service
+text: Text
+thisWeek: This week
+timeRange: Time range
+timeWeekdays: "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday"
+titleMine: Me
+titleSquare: Square
+tooBad: Too bad
+tryAgainQ: Want to try again?
+type: Type
+unanswered: Unanswered
+unnamed: Unnamed
+upToWords: Up to $param characters
+upgrade: Upgrade
+usedSpace: Used space
+webView: Web page
+you: You
+yourFeel: How does this make you feel?
+zhCn: Simplified Chinese
+zhHant: Traditional Chinese
+bound: Bound
+correct: Correct
+pendingInput: Pending input
+lengthCheck: Length check
+bugReport: Bug report
+deleting: Deleting...
+current: Current
+publish: Publish
+privacyPolicy: Privacy Policy
+termsOfService: Terms of Service
+saving: "@:common.loading"
+topStories: Top Stories
+systemDefault: System Default
+custom: Custom
+previewArea: Preview Area
+simpleTexture: Simple Texture
+gradientBlue: Gradient Blue
+gradientPurple: Gradient Purple
+copiedToClipboard: Copied to clipboard
+copiedLink: Copied link
+destroyTime: Destroy Time
+previewEffect: Preview Effect
+thisIsTitleText: This is title text
+thisIsAuxiliaryText: This is auxiliary text
+toBeCompleted: To be completed
+availableCount: Available
+mostUsed: Most Used
+commentPlaceholder: Comment...
+delayMsLabel: "Delay in ms (>=100)"
+processed: Processed
+export: Export
+school: School
+hobbiesAndInterests: "Hobbies & Interests"
+interests: Interests
+pleaseEnterSchool: Please enter school
+pleaseEnterInterests: Please enter interests
+manageVisibility: Manage visibility of personal info
+exportToLocal: Export profile to local
+exportAsText: Export as text format
+selectFromAlbum: Select from Album
+volumeUp: Volume Up
+volumeDown: Volume Down
+fastRewind: Fast Rewind $seconds
+pleaseTryAgain: Please try again
+secret: Secret
+takePhoto: Take Photo
+publishing: Publishing...
+deletingInProgressPleaseWait: "Deleting in progress, please wait..."
+testUser1: User 1
+testUser2: User 2
+testUser3: User 3
+testUser4: User 4
+testUser5: User 5
+collecting: Collecting...
+user: User
+recommended: Recommended
+larger: Larger
+currentLength: "Current length: $param1 / $param2"
+fillIn: Fill In
+msgProtectedByComplianceKey: Message protected by compliance key
+inviterLabel(uid): "Inviter: $uid"
+inviteeLabel(uid): "Invitee: $uid"
+mySentTab: Sent
+reject: Reject
+myOrders: My Orders
+purchaseUnlockHint: Purchase to unlock channel history and future updates.
+payingDots: Paying...
+purchaseAndUnlock: "Purchase & Unlock Now"
+orderDetail: Order Details
+orderAmountLabel(currency, amount): "Amount: $currency $amount"
+e2eeKeyRecoveryTitle: End-to-End Encryption Key Management
+e2eeRecoveryMethods: Key Recovery Methods
+e2eeDangerousOps: Dangerous Operations
+e2eeSocialRecovery: Social Recovery
+e2eeSocialRecoveryDesc: Recover key with help from trusted contacts
+e2eeKeyIdLabel: Key ID
+e2eeWarnIrreversible: • This action cannot be undone
+e2eeWarnNeedRestoreOrNew: • Must restore from backup or generate a new key
+gotIt: Got it
+e2eeRecoverKeyTitle: Recover Key
+e2eeCanRecoverKey: Key can be recovered
+e2eeInsufficientShards: Insufficient shards
+e2eeProxyUser(uid): "Proxy user: $uid"
+e2eeShardLabel(index, total): Shard $index / $total
+e2eeReloadShards: Reload
+e2eeRecovering: Recovering...
+e2eeKeyRestored: Key has been successfully restored
+e2eeUsedShards(count): Used $count proxy shards
+e2eePreparing: Preparing to recover...
+e2eeRecoveryProgressLabel(collected, total): "Progress: $collected / $total shards"
+e2eeCollectingShards(collected, total): Collecting shards ($collected/$total)...
+e2eeShardsCollected: "Shards collected, reassembling key..."
+webQRLoggingIn: Logging in...
+webQRExpired: QR code expired
+webQRRefresh: Refresh QR Code
+webSwitchToQR: Login with QR code
+e2eeErrDefault: "End-to-end encryption failed, message not sent"
+e2eeSocialTotalShards: Total shards
+e2eeSocialThreshold: Recovery threshold
+e2eeSocialThresholdHint(count): Need $count proxies to recover key
+e2eeSocialSelectProxy: Select recovery proxies
+e2eeSocialProxyNeeded(count): Need $count trusted contacts as proxies
+e2eeSocialProxyDefaultName(uid): User $uid
+e2eeSocialShardSentViaWs: Shards sent directly to proxy devices via WebSocket
+e2eeSocialSentCount(sent, total): Sent to $sent proxy devices (out of $total)
+e2eeSocialManageTitle: Manage shards
+e2eeSocialMyShards: My shards
+e2eeSocialProxyShards: Proxy shards
+e2eeSocialShardOf(idx, total): Shard $idx / $total
+e2eeSocialShardActive: Active
+e2eeSocialShardUsed: Used
+e2eeSocialShardValid: Shard valid
+e2eeSocialUserShard(uid): Key shard for user $uid
+e2eeSocialProxyUserLabel: Proxy user
+e2eeSocialRecoveryThresholdLabel: Recovery threshold
+e2eeSocialShardIndexLabel: Shard index
+e2eeTransferQRHint: Scan this QR code on your new device
+e2eeTransferQRExpiry(time): QR code expires at $time
+e2eeTransferRefreshQR: Refresh QR code
+e2eeTransferEnterUidTitle: Enter recipient user ID
+e2eeTransferUidPlaceholder: Recipient user ID
+e2eeTransferReceiving: Receiving transfer...
+e2eeTransferPageTitle: Transfer Between Devices
+e2eeTransferPendingItem: Pending Key Transfer
+e2eeTransferPendingItemDesc: Tap to view details
+e2eeTransferView: View
+e2eeSocialTitle: Social Recovery
+e2eeSocialCanRecover: Key Recovery Available
+e2eeSocialSetupProxy: Set Up Recovery Proxies
+e2eeSocialChooseProxy: Choose trusted contacts as recovery proxies
+e2eeSocialExistingShards: Existing Recovery Shards
+e2eeSocialRecoverKeyTitle: Recover Key
+e2eeSocialRecoverKeyDesc: Use proxy shards to recover your key
+e2eeSocialManageShardsTitle: Manage Shards
+e2eeSocialManageShardsDesc: View and manage all recovery shards
+e2eeSocialZeroTrustHint1: "Zero-trust: Server never stores shards — contact proxies directly"
+e2eeSocialZeroTrustHint2: "Zero-trust: Shards are stored on proxy devices"
+e2eeSocialZeroTrustHint3: "Zero-trust: Shards stored by proxies — server never sees plaintext"
+e2eeProxyMinCount(count): Please select at least $count proxies
+e2eeProxySelectTitle: Select Recovery Proxies
+e2eeProxySelectedCount(selected, total): Selected $selected / $total
+e2eeProxyReachedMin: Minimum proxy count reached
+liveRoomTitleLabel: Live Room Title
+liveRoomTitleHint: Enter live room title

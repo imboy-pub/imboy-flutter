@@ -1,0 +1,7 @@
+restartRequired: 需要重新啟動應用
+networkFailureGuidance: 網路故障排查指引
+pleaseCheckNetwork: 請檢查您的網路設定。
+networkTroubleshootingStep1: 1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。
+networkTroubleshootingStep2: 2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。
+networkTroubleshootingStep3: 3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。
+suggestCheckNetwork: 建議檢查網路設定。

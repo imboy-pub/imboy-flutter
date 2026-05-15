@@ -1,0 +1,190 @@
+change: 수정
+entertainment: 영화 및 공연
+lifePayment: 생활 요금 결제
+medicalHealth: 의료 건강
+meituanDelivery: 메이퇀 배달
+tencentService: 텐센트 서비스
+traffic: 교통
+totalAssets: 총 자산
+album: 사진
+appSize: 앱 크기
+arSa: 아랍어 (사우디아라비아)
+audio: 오디오
+barcodeFound: "바코드를 찾았습니다!"
+botQianFan: 천판 로봇
+cache: 캐시
+camera: 촬영
+changeNameView: 이름 변경
+changeParam: $param 수정
+chooseFromAlbum: 앨범에서 선택
+clean: 정리
+codeSentToParam: 인증 코드가 $param으로 전송되었습니다
+codeSentToType: 인증 코드가 $param으로 전송되었습니다
+collected: 수집됨
+completed: 완료됨
+copied: 복사됨
+darkModel: 다크 모드
+deDd: 독일어 (독일)
+disable: 비활성화
+earlier: 이전
+enGb: 영국 영어
+enUs: 미국 영어
+enable: 활성화
+example: "예:"
+expired: 만료됨
+extraItem: 추가 항목
+faceToFaceLogic: 대면 논리
+favorites: 즐겨찾기
+female: 여성
+followSystem: 시스템 따르기
+frFr: 프랑스어 (프랑스)
+from: 에서
+goClean: 정리하러 가기
+good: 좋음
+hangup: 전화 끊기
+haveSet: 설정됨
+httpParse: HTTP 구문 분석
+iAm: 나는
+itIt: 이탈리아어 (이탈리아)
+jaJp: 일본어 (일본)
+keepSecret: 비공개
+lastActiveTime: 최근 활성 시간
+lastSeenHide: 온라인 상태 숨기기
+lastSeenNever: 온라인 한 적 없음
+lastSeenWeeksAgo: $param주 전
+lastSeenExactTime: 마지막 온라인 $param
+licenseAgreement: 《소프트웨어 라이선스 및 서비스 약관》
+liveBroadcast: 라이브 방송
+liveRoomListView: 라이브 방 목록 보기
+publisherPage: 스트리밍 페이지
+subscriber: 구독자
+loggingOut: 로그아웃 중...
+loudspeaker: 스피커
+makeYourselfInvisible: 자신을 보이지 않게
+makeYourselfVisible: 자신을 보이게
+male: 남성
+manage: 관리
+markImportant: 중요
+markImportantDesc: 중요 메시지로 표시
+markStar: 즐겨찾기
+markStarDesc: 이 메시지를 즐겨찾기에 추가
+markTodo: 할 일
+markTodoDesc: 할 일로 표시
+multiSelect: 다중 선택
+multiSelectMode: 다중 선택 모드
+myFavorites: 내 즐겨찾기
+myLive: 내 라이브
+name: 이름
+numUnit: $param개
+openInBrowser: 브라우저에서 열기
+or: 또는
+otherParty: 상대방
+packageSize: 패키지 크기
+peerHasHungUp: 상대방이 전화를 끊었습니다
+play: 재생
+pleaseInputParam: $param을(를) 입력해 주세요
+pleaseSelect: 선택해 주세요
+quickFilters: 빠른 필터
+quote: 인용
+recentlyUsed: 최근 사용
+releaseEnd: 놓으면 종료
+remainingChars: $param자 더 입력할 수 있습니다
+replied: 답장됨
+ringing: 벨 울림...
+ruRu: 러시아어
+selectedCount: 선택됨 ($count)
+selected: 선택됨
+sent: 전송됨
+sentByMe: 내가 보낸
+sentByOthers: 다른 사람이 보낸
+setParam: $param 설정
+setting: 설정
+siginQ: 이미 계정이 있으신가요?
+signInWith: $param으로 로그인
+source: 출처
+speakingTooShort: 말하기 시간이 너무 짧습니다
+speed: 속도
+star: "@:main.markStar"
+stillNeeded: 필요
+storageSpace: 저장 공간
+termOfServices: 서비스 약관
+text: 텍스트
+thisWeek: 이번 주
+timeRange: 시간 범위
+timeWeekdays: "월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일"
+titleMine: 내 정보
+tooBad: 너무 나쁨
+tryAgainQ: 다시 시도하시겠습니까?
+type: 유형
+unanswered: 응답 없음
+unnamed: 이름 없음
+upToWords: 최대 $param자
+upgrade: 업그레이드
+usedSpace: 사용된 공간
+webView: 웹 보기
+you: 당신
+yourFeel: 어떻게 생각하시나요?
+zhCn: 중국어 간체
+zhHant: 중국어 번체
+bound: 연결됨
+correct: 올바름
+pendingInput: 입력 대기 중
+lengthCheck: 길이 검사
+bugReport: 오류 보고
+deleting: 삭제 중...
+current: 현재
+publish: 게시
+privacyPolicy: 개인정보 처리방침
+termsOfService: 서비스 이용약관
+saving: "@:common.loading"
+topStories: 둘러보기
+systemDefault: 시스템 기본값
+custom: 사용자 지정
+previewArea: 미리보기 영역
+simpleTexture: 심플 텍스처
+gradientBlue: 그라데이션 블루
+gradientPurple: 그라데이션 퍼플
+copiedToClipboard: 클립보드에 복사됨
+copiedLink: 링크 복사됨
+destroyTime: 삭제 시간
+previewEffect: 미리보기 효과
+thisIsTitleText: 이것은 제목 텍스트입니다
+thisIsAuxiliaryText: 이것은 보조 텍스트입니다
+toBeCompleted: 미완성
+availableCount: 선택 가능
+mostUsed: 가장 많이 사용
+commentPlaceholder: 댓글...
+delayMsLabel: "지연 시간(ms) (>=100)"
+processed: 처리됨
+export: 내보내기
+school: 학교
+hobbiesAndInterests: 취미 및 관심사
+interests: Interests
+pleaseEnterSchool: Please enter school
+pleaseEnterInterests: Please enter interests
+manageVisibility: 개인정보 표시 관리
+exportToLocal: 프로필을 로컬로 내보내기
+exportAsText: Export as text format
+selectFromAlbum: 앨범에서 선택
+volumeUp: 볼륨 높이기
+volumeDown: 볼륨 낮추기
+fastRewind: $seconds초 되감기
+pleaseTryAgain: 다시 시도해 주세요
+secret: 비공개
+takePhoto: 사진 촬영
+publishing: 게시 중...
+deletingInProgressPleaseWait: 삭제 중입니다. 잠시 기다려 주세요...
+testUser1: 사용자 1
+testUser2: 사용자 2
+testUser3: 사용자 3
+testUser4: 사용자 4
+testUser5: 사용자 5
+collecting: 수집 중...
+user: 사용자
+recommended: 추천
+larger: 더 크게
+currentLength: "현재 길이: $param1 / $param2"
+fillIn: 입력
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role

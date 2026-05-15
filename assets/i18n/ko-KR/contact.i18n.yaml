@@ -1,0 +1,49 @@
+applyFriend: 친구 신청
+applyFriendLogic: 친구 신청 논리
+applyParam: $param 신청
+blocked: 차단됨
+applyChanges: 변경사항을 적용하려면 앱을 재시작하세요
+inputNewTag: 새 태그 입력...
+denylist: 차단 목록
+denylistEmpty: 차단 목록이 비어있습니다
+denylistEmptyDesc: "차단한 사용자가 없습니다
+차단된 사용자는 메시지를 보낼 수 없습니다"
+favoriteGroupTagsEtc: "즐겨찾기 이름, 그룹 이름, 태그 등"
+groupRemarkView: 그룹 메모 보기
+groupRemarkVisibility: 그룹 채팅 메모는 나에게만 보입니다
+newFriend: 새 친구
+recommendToFriend: 친구에게 추천
+remark: 메모
+remarksTags: 메모 및 태그
+applyFilters: 필터 적용
+selectAGroup: 그룹 선택
+selectFriend: 친구 선택
+selectFriends: 친구 선택
+selectOrEnterTag: 태그 선택 또는 입력
+tags: 태그
+tellFriend: 친구에게 알리기
+tagNameRequired: 태그 이름은 비워둘 수 없습니다
+suggestedTags: 제안된 태그
+tagManagement: 태그 관리
+currentTags: 현재 태그 ($param)
+pleaseEnterRemark: 메모를 입력해 주세요
+enterRemark: 메모 이름을 입력해 주세요
+pleaseEnterTags: 태그를 입력하세요
+tagLengthExceeded: 태그 길이는 $param자를 초과할 수 없습니다
+maxTagsExceeded: 최대 $param개의 태그를 추가할 수 있습니다
+selectedTags: 선택된 태그 ($param/$max)
+tagImportant: 중요
+tagUrgent: 긴급
+tagWork: 업무
+tagLife: 생활
+tagStudy: 공부
+tagEntertainment: 엔터테인먼트
+tagTravel: 여행
+tagFood: 음식
+tagHealth: 건강
+tagFamily: 가족
+tagFriends: 친구
+tagProject: 프로젝트
+tagIdeas: 아이디어
+tagMemo: 메모
+friendRequestSent: 전송됨

@@ -1,0 +1,49 @@
+applyFriend: 申請好友
+applyFriendLogic: 申請好友邏輯
+applyParam: 申請$param
+blocked: 已封鎖
+applyChanges: 請重新啟動應用以套用變更
+inputNewTag: 輸入新標籤...
+denylist: 黑名單
+denylistEmpty: 黑名單為空
+denylistEmptyDesc: "您還沒有封鎖任何用家
+被封鎖的用家將無法給您傳送訊息"
+favoriteGroupTagsEtc: 收藏人名、群組名、標籤等
+groupRemarkView: 群組備註
+groupRemarkVisibility: 群組聊天的備註僅自己可見
+newFriend: 新朋友
+recommendToFriend: 把他推薦給好友
+remark: 備註
+remarksTags: 備註和標籤
+applyFilters: 套用篩選
+selectAGroup: 選擇一個群組
+selectFriend: 選擇好友
+selectFriends: 選擇好友
+selectOrEnterTag: 選擇或輸入標籤
+tags: 標籤
+tellFriend: 告訴朋友
+tagNameRequired: 標籤名稱不能為空
+suggestedTags: 建議標籤
+tagManagement: 標籤管理
+currentTags: 目前標籤 ($param)
+pleaseEnterRemark: 請輸入備註名
+enterRemark: 請輸入備註名
+pleaseEnterTags: 請輸入標籤
+tagLengthExceeded: 標籤長度不能超過 $param 個字元
+maxTagsExceeded: 最多只能新增 $param 個標籤
+selectedTags: 已選標籤 ($param/$max)
+tagImportant: 重要
+tagUrgent: 緊急
+tagWork: 工作
+tagLife: 生活
+tagStudy: 學習
+tagEntertainment: 娛樂
+tagTravel: 旅行
+tagFood: 美食
+tagHealth: 健康
+tagFamily: 家庭
+tagFriends: 好友
+tagProject: 專案
+tagIdeas: 想法
+tagMemo: 備忘
+friendRequestSent: 已傳送

@@ -1,0 +1,101 @@
+account: Аккаунт
+accountSecurity: Безопасность аккаунта
+mobileRecharge: Пополнение мобильного
+avatar: Аватар
+accountSecurityEnhance: Повысить безопасность аккаунта
+bindMobile: Привязать мобильный
+bindMobileFor: "Для входа, восстановления пароля и уведомлений"
+linkEmail: Связать электронную почту
+linkEmailFor: "Для входа, проверки личности и получения счетов"
+codeSentToEmail: Код подтверждения отправлен на электронную почту
+codeSentToMobile: Код подтверждения отправлен на мобильный
+currentDevice: Текущее устройство
+deviceAvailableSpace: Доступное место на устройстве
+deviceList: Список устройств
+deviceName: Имя устройства
+deviceType: Тип устройства
+deviceUsedSpace: Использованное место на устройстве
+email: Электронная почта
+existingPassword: Текущий пароль
+forgotPassword: Забыли пароль?
+gender: Пол
+genderSaving: Сохранение...
+groupQrcode: QR-код группы
+hintLoginAccount: Аккаунт/Эл. почта
+logOut: Выйти
+areYouSureLogOut: "Вы уверены, что хотите выйти?"
+login: Войти
+loginDeviceManagement: Управление устройствами входа
+loginEmail: Эл. почта для входа
+logoutAccount: Удалить аккаунт
+mobile: Мобильный
+mobileQuickLogin: Быстрый вход
+myAccount: Мой аккаунт
+myQrcode: Мой QR-код
+newPassword: Новый пароль
+newlyRegisteredPeople: Недавно зарегистрированные
+nickname: Никнейм
+nicknameChangeVisibility: Никнейм виден только в этой группе
+nicknameCharsRemaining: Можно ввести ещё $param символов
+nicknameHint: Введите никнейм
+nicknameSaving: Сохранение...
+paramLogin: Войти через $param
+password: Пароль
+recentlyRegisteredUser: Недавно зарегистрированный пользователь
+recoverCodePasswordDesc: Код восстановления отправлен на эл. почту
+recoverPassword: Восстановить пароль
+recoverPasswordDesc: Введите адрес электронной почты. Мы отправим вам код для сброса пароля.
+recoverPasswordIntro: "Не расстраивайтесь, это бывает."
+birthday: Дата рождения
+region: Регион
+retypePassword: Введите пароль снова
+scanQrCode: Сканировать QR-код
+securityCenter: Центр безопасности
+setNickname: Установить никнейм
+signature: Подпись
+signup: Регистрация
+signupFormDesc: "Заполните форму, чтобы завершить регистрацию"
+sourceQrcode: Добавить через сканирование
+switchAccount: Переключить аккаунт
+changeEmail: Изменить эл. почту
+bindEmail: Привязать эл. почту
+currentEmail: Текущая эл. почта
+newEmailSameAsCurrent: Новая эл. почта совпадает с текущей
+newMobileSameAsCurrent: Новый мобильный совпадает с текущим
+setPassword: Установить пароль
+setLoginPassword: Установить пароль для входа
+enhanceAccountSecurity: Повысить безопасность аккаунта
+passwordLengthRequirement: "Пароль: 4-32 символа"
+passwordMinLength: Пароль должен быть не менее $min символов
+pleaseEnterPassword: "Пожалуйста, введите пароль"
+changeMobile: Изменить мобильный
+currentMobile: Текущий мобильный
+newMobile: Новый мобильный
+enterMobileHint: Введите номер мобильного
+codeSentToMobileParam: Отправлено на $param
+privacyLogoutAccount: Удалить аккаунт
+wallet: Кошелёк
+changeLoginPassword: Изменить пароль для входа
+loginExpiredTitle: Уведомление
+otherDevice: Другое устройство
+loginPassword: Пароль для входа
+loginPasswordDesc: Используется для входа в аккаунт IMBoy
+oldPassword: Старый пароль
+enterOldPassword: "Пожалуйста, введите старый пароль"
+enterNewPassword: "Пожалуйста, введите новый пароль"
+enterNewPasswordAgain: "Пожалуйста, введите новый пароль ещё раз"
+balance: Баланс
+recharge: Пополнить
+withdraw: Вывести
+paymentPassword: Платёжный пароль
+setPaymentPassword: Установить платёжный пароль
+enterPaymentPassword: "Пожалуйста, введите платёжный пароль"
+myQRCode: Мой QR-код
+profile: Profile
+setGender: Установить пол
+setBirthday: Установить дату рождения
+sentToEmail: Отправлено на $param
+nicknameRules: "• 2–24 символа
+• Нельзя только пробелы или только эмодзи
+• Нельзя чувствительные слова
+• После изменения отображается во всех чатах"

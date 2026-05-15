@@ -1,0 +1,42 @@
+financialManagement: 理财通
+enterSameGroup: 与身边的朋友进入同一个群聊
+enterTheGroup: 进入该群
+groupAlias: 我在本群的昵称
+groupAlbum: 群相册
+groupDissolve: 解散群聊
+groupJoin: 加入群聊
+groupLeave: 退出群聊
+groupManagement: 群管理
+groupMembers: 群成员
+groupName: 群聊名称
+mutualGroupsWithHer: 我和他的共同群聊
+groupOwner: 群主
+groupAdmin: 管理员
+groupGuest: 嘉宾
+groupMember: 普通成员
+setAdmin: 设为管理员
+transferGroup: 转让群主
+joinTime: 加入时间
+selectGroup: 选择群聊
+sureToDissolveGroup: 确定要解散本群吗？
+sureToLeaveGroup: 确定要退出本群吗？
+groupAlbumNameHint: 请输入相册名称
+groupAlbumRenameTitle: 重命名相册
+groupAlbumRenamed: 相册名称已更新
+groupAlbumUnnamed: 未命名相册
+groupAlbumPhotoCount(count): $count 张图片
+groupAlbumPhotoIdMissing: 图片ID缺失，无法查看详情
+groupAlbumPhotoListTitle: 相册图片
+groupAlbumPhotoSelectedCount(count): 已选择 $count 项
+groupAlbumPhotoEmpty: 暂无图片
+groupAlbumPhotoUrlMissing: 图片地址缺失，无法打开
+groupAlbumPhotoUrlInvalid: 图片地址无效
+groupAlbumPhotoDetailTitle: 图片详情
+groupAlbumPhotoSetCover: 设为封面
+groupAlbumPhotoPrev: 上一张
+groupAlbumPhotoLikeCount: 点赞数
+groupAlbumPhotoCommentCount: 评论数
+groupAlbumPhotoMyLike: 我的点赞
+groupAlbumPhotoIdLabel: 图片ID
+e2eeKeyManagement: E2EE 密钥管理
+e2eeKeyManagementSubtitle: 备份、恢复和管理端到端加密密钥

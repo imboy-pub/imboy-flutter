@@ -1,0 +1,7 @@
+restartRequired: Riavvio richiesto
+networkFailureGuidance: Guida errori di rete
+pleaseCheckNetwork: Controlla le impostazioni di rete.
+networkTroubleshootingStep1: 1. Apri impostazioni telefono e mantieni l'interruttore Wi-Fi attivo.
+networkTroubleshootingStep2: 2. Apri impostazioni telefono - Generale - Dati cellulare e mantieni l'interruttore Dati cellulare attivo.
+networkTroubleshootingStep3: "3. Se ancora impossibile connettersi alla rete, verifica se il Wi-Fi connesso dal telefono ha accesso a Internet o contatta l'operatore di rete."
+suggestCheckNetwork: Si consiglia di controllare le impostazioni di rete.

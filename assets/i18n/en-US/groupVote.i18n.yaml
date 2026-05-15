@@ -1,0 +1,24 @@
+title: Group Votes
+createVote: Create Vote
+voteTitle: Vote Title
+voteOptions: Options
+addOption: Add Option
+allowMultiple: Allow Multiple Choice
+anonymous: Anonymous Vote
+deadline: Deadline
+noDeadline: No deadline
+noVote: No votes yet
+voteEnded: Vote ended
+totalVotes: $count votes
+voteSuccess: Voted successfully
+hasVoted: Already voted
+viewResults: View Results
+cancelVoteSuccess: Vote cancelled
+cancelVoteFailed: "Cancel failed, please try again"
+endVoteFailed: "End failed, please try again"
+eachOptionPerLine: One option per line
+statusInProgress: In Progress
+updateVote: Update Vote
+cancelMyVote: Cancel my vote
+voteIdMissing: "Vote ID missing, cannot view details"
+participantCount: $count participants

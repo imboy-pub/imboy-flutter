@@ -1,0 +1,101 @@
+account: Account
+accountSecurity: Sicurezza account
+mobileRecharge: Ricarica mobile
+avatar: Avatar
+accountSecurityEnhance: Migliora la sicurezza dell'account
+bindMobile: Collega numero di telefono
+bindMobileFor: "Usato per accedere, recuperare la password e ricevere notifiche importanti"
+linkEmail: Collega email
+linkEmailFor: "Usato per accedere, verificare l'identità e ricevere bollette"
+codeSentToEmail: Codice di verifica inviato all'email
+codeSentToMobile: Codice di verifica inviato al telefono
+currentDevice: Dispositivo corrente
+deviceAvailableSpace: Spazio disponibile dispositivo
+deviceList: Lista dispositivi
+deviceName: Nome dispositivo
+deviceType: Tipo dispositivo
+deviceUsedSpace: Spazio utilizzato dispositivo
+email: Email
+existingPassword: Password attuale
+forgotPassword: Password dimenticata?
+gender: Genere
+genderSaving: Salvataggio in corso...
+groupQrcode: Codice QR gruppo
+hintLoginAccount: Account/Email
+logOut: Disconnetti
+areYouSureLogOut: Sei sicuro di volerti disconnettere?
+login: Accedi
+loginDeviceManagement: Gestione dispositivi di accesso
+loginEmail: Email di accesso
+logoutAccount: Disattiva account
+mobile: Cellulare
+mobileQuickLogin: Accesso rapido
+myAccount: Il mio account
+myQrcode: Il mio codice QR
+newPassword: Nuova password
+newlyRegisteredPeople: Persone appena registrate
+nickname: Nickname
+nicknameChangeVisibility: "Dopo la modifica del nickname, verrà visualizzato solo in questo gruppo e tutti i membri del gruppo potranno vederlo."
+nicknameCharsRemaining: Puoi inserire ancora $param caratteri
+nicknameHint: Inserisci nickname
+nicknameSaving: Salvataggio in corso...
+paramLogin: Accesso $param
+password: Password
+recentlyRegisteredUser: Utente registrato di recente
+recoverCodePasswordDesc: Invieremo il codice di recupero password alla tua email.
+recoverPassword: Recupera password
+recoverPasswordDesc: Inserisci il tuo indirizzo email. Ti invieremo un codice per reimpostare la password.
+recoverPasswordIntro: "Non preoccuparti, succede."
+birthday: Compleanno
+region: Regione
+retypePassword: Reinserisci password
+scanQrCode: Scansiona codice QR
+securityCenter: Centro sicurezza
+setNickname: Imposta nickname
+signature: Firma
+signup: Registrati
+signupFormDesc: Compila questo modulo per completare la registrazione
+sourceQrcode: Aggiungi scansionando
+switchAccount: Cambia account
+changeEmail: Modifica email
+bindEmail: Collega email
+currentEmail: Email attuale
+newEmailSameAsCurrent: La nuova email è la stessa di quella attuale
+newMobileSameAsCurrent: Il nuovo numero di telefono è lo stesso di quello attuale
+setPassword: Imposta password
+setLoginPassword: Imposta password di accesso
+enhanceAccountSecurity: Migliora sicurezza account
+passwordLengthRequirement: La lunghezza della password è di 4-32 caratteri arbitrari
+passwordMinLength: La password deve essere di almeno $min caratteri
+pleaseEnterPassword: Inserisci password
+changeMobile: Cambia numero di telefono
+currentMobile: Numero di telefono attuale
+newMobile: Nuovo numero di telefono
+enterMobileHint: Inserisci numero di telefono
+codeSentToMobileParam: Inviato a $param
+privacyLogoutAccount: Disattiva account
+wallet: Portafoglio
+changeLoginPassword: Modifica password di accesso
+loginExpiredTitle: Avviso
+otherDevice: Altro dispositivo
+loginPassword: Password di accesso
+loginPasswordDesc: Usata per accedere all'account IMBoy
+oldPassword: Vecchia password
+enterOldPassword: Inserisci la vecchia password
+enterNewPassword: Inserisci nuova password
+enterNewPasswordAgain: Inserisci di nuovo la nuova password
+balance: Saldo
+recharge: Ricarica
+withdraw: Preleva
+paymentPassword: Password di pagamento
+setPaymentPassword: Imposta password di pagamento
+enterPaymentPassword: Inserisci password di pagamento
+myQRCode: Il mio codice QR
+profile: Profile
+setGender: Imposta genere
+setBirthday: Imposta compleanno
+sentToEmail: Inviato a $param
+nicknameRules: "• Lunghezza nickname: 2-24 caratteri
+• Non può contenere solo spazi bianchi o emoji
+• Non può contenere parole sensibili
+• Le modifiche saranno riflesse in tutte le chat"

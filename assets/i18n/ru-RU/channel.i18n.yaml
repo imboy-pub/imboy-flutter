@@ -1,0 +1,115 @@
+title: Каналы
+loading: Загрузка...
+subscribed: Подписан
+managed: Управляемый
+discover: Обзор
+search: Поиск
+create: Создать канал
+searchHint: Поиск по названию или ID
+searchTip: Введите ключевые слова для поиска
+noResults: Каналы не найдены
+noRecommendedChannels: Нет рекомендуемых каналов Проверьте позже
+noSubscribedChannels: "Нет подписок
+Найдите больше каналов"
+noManagedChannels: "Нет управляемых каналов
+Создайте канал для начала"
+noMessages: Нет сообщений
+subscribers: подписчиков
+pinned: Закреплено
+view: Просмотр
+subscribe: Подписаться
+subscribeSuccess: Подписка оформлена
+subscribeFailed: Ошибка подписки
+unsubscribe: Отписаться
+unsubscribeConfirm: Отписаться
+unsubscribeConfirmDesc: "Вы уверены, что хотите отписаться? Вы не будете получать сообщения."
+share: Поделиться
+shareNotImplemented: Функция скоро будет доступна
+nameLabel: Название канала
+nameHint: Введите название канала
+nameRequired: Название обязательно
+nameTooLong: Название не должно превышать 50 символов
+descriptionLabel: Описание
+descriptionHint: Опишите ваш канал (опционально)
+customIdLabel: Пользовательский ID (опционально)
+customIdHint: "напр: my_channel"
+customIdHelper: Позволяет искать по ID
+customIdInvalid: "Только буквы, цифры и подчеркивания"
+customIdLength: Должно быть 4-30 символов
+typeLabel: Тип канала
+typePublic: Публичный
+typePrivate: Приватный
+typePublicDesc: Любой может найти и подписаться
+typePrivateDesc: Доступ только по ссылке-приглашению
+createTips: После создания вы сможете отправлять сообщения подписчикам. Только админы могут публиковать.
+today: Сегодня
+yesterday: Вчера
+daysAgo: дней назад
+messages: Сообщения
+views: Просмотры
+reactions: Реакции
+selectReaction: Выбрать реакцию
+react: Реагировать
+admin: Управление
+settings: Настройки
+editChannel: Редактировать канал
+editChannelDesc: "Обновить название, описание и т.д."
+editChannelNotImplemented: Редактирование канала скоро будет доступно
+manageAdmins: Управление админами
+manageAdminsDesc: Добавить или удалить администраторов канала
+manageAdminsNotImplemented: Управление админами скоро будет доступно
+manageSubscribers: Управление подписчиками
+manageSubscribersDesc: Просмотр и управление подписчиками канала
+manageSubscribersNotImplemented: Управление подписчиками скоро будет доступно
+deleteChannel: Удалить канал
+deleteChannelDesc: Это действие нельзя отменить
+deleteChannelConfirm: "Вы уверены, что хотите удалить этот канал? Это действие необратимо."
+deleteChannelNotImplemented: Удаление канала скоро будет доступно
+channelDeleted: Канал удалён
+deleteChannelFailed: Ошибка удаления канала
+writeMessage: Написать сообщение...
+publishFailed: Ошибка публикации
+pinMessage: Закрепить сообщение
+unpinMessage: Открепить
+pinMessageNotImplemented: Функция закрепления скоро будет доступна
+unpinMessageNotImplemented: Функция открепления скоро будет доступна
+messagePinned: Сообщение закреплено
+messageUnpinned: Сообщение откреплено
+deleteMessage: Удалить сообщение
+deleteMessageConfirm: "Вы уверены, что хотите удалить это сообщение?"
+messageDeleted: Сообщение удалено
+addAdmin: Добавить администратора
+addAdminSuccess: Администратор успешно добавлен
+addAdminFailed: Не удалось добавить администратора
+removeAdmin: Удалить администратора
+removeAdminConfirm: "Вы уверены, что хотите удалить этого администратора?"
+removeAdminSuccess: Администратор удалён
+removeAdminFailed: Не удалось удалить администратора
+changeRole: Изменить роль
+updateRoleSuccess: Роль успешно обновлена
+updateRoleFailed: Не удалось обновить роль
+userId: ID пользователя
+userIdHint: Введите ID пользователя
+noAdmins: Нет администраторов
+roleCreator: Создатель
+roleAdmin: Администратор
+roleEditor: Редактор
+roleUnknown: Неизвестно
+searchSubscribers: Поиск подписчиков
+subscriberSearchHint: Поиск по имени или ID
+noSearchResults: Подходящие подписчики не найдены
+noSubscribers: Нет подписчиков
+removeSubscriber: Удалить подписчика
+removeSubscriberConfirm: "Вы уверены, что хотите удалить этого подписчика?"
+removeSubscriberSuccess: Подписчик удалён
+removeSubscriberFailed: Не удалось удалить подписчика
+subscribedAt: Подписан
+viewProfile: Посмотреть профиль
+updateSuccess: Канал успешно обновлён
+updateFailed: Не удалось обновить канал
+typeCannotChange: Нельзя изменить после создания
+stats: Статистика
+shareToChat: Отправить другу
+qrcode: QR-код канала
+qrcodeTips: QR-код действителен $days дней (до $date)
+defaultName: Канал без названия

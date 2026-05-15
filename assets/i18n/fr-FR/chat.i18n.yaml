@@ -1,0 +1,169 @@
+bankCard: Carte bancaire
+cards: cartes
+jdShopping: Shopping JD
+receivePayment: Paiement et réception
+alreadyEntered: Vous l’avez déjà saisi
+alreadyMember: Déjà membre
+appSqliteFileSizeExplain: "Taille du fichier SQLite généré localement pour le compte actuel. Vous pouvez nettoyer les images, vidéos et fichiers des conversations sélectionnées, ou supprimer tous les messages des conversations sélectionnées."
+attachmentProvider: Fournisseur de pièces jointes
+audioMessage: Message vocal
+awaitingReply: En attente de réponse
+businessCard: Carte de visite
+busyTryAgainLater: Votre interlocuteur est occupé. Réessayez plus tard.
+later: Plus tard
+changeGroupChatName: "Après avoir modifié le nom du groupe, les autres membres seront notifiés dans le groupe."
+chatHistory: Historique de conversation
+chatHoldDownTalk: Maintenez pour parler
+chatMessage: Message de conversation
+chatMomentSportDataEtc: "Conversations, moments, données sportives, etc."
+chatSettingMute: Ne pas déranger
+chatSettingMuteDesc: Désactiver les notifications de messages pour cette conversation
+chatSettingMuted: Ne pas déranger activé
+chatSettingPin: Épingler la conversation
+chatSettingPinDesc: Épingler cette conversation en haut de la liste
+chatSettingUnmuted: Ne pas déranger désactivé
+chatStatusSending: Envoi en cours
+chatStatusSent: Envoyé
+chatStatusDelivered: Livré
+chatStatusSeen: Lu
+chatStatusSendingDesc: Message en cours d'envoi...
+chatStatusSentDesc: Message envoyé
+chatStatusDeliveredDesc: Message livré
+chatStatusSeenDesc: Message lu
+createGroupF2f: Créer un groupe en face à face
+displayProfile: Afficher votre profil
+file: Fichier
+fileMessage: "[Fichier]"
+fileSize: Taille du fichier
+forgotPasswordPinCodeView: Vue du code PIN de mot de passe oublié
+forward: Transférer
+forwardReply: Transférer la réponse
+forwardTo: Transférer à
+forwardToFriend: Transférer à un ami
+great: Excellent
+groupChat: Conversation de groupe
+image: Photo
+imageMessage: "[Image]"
+initiateChat: Initier une conversation de groupe
+justChat: Chat uniquement
+location: Emplacement
+message: Message
+messageHandlingMixin: Mixin de gestion des messages
+messageMarkTitle: Marquer le message
+customMessage: Message personnalisé
+card: Carte de visite
+messageType: Type de message
+messageVisitCardBuilder: Générateur de messages de carte de visite
+messageWasWithdrawn: a retiré un message
+messageWasWithdrawnWithTitle: $param a retiré un message
+messageWebrtcBuilder: Générateur de messages WebRTC
+momentStatus: Moments et statut
+offline: Hors ligne
+online: En ligne
+paramAlreadyExist: $param existe déjà.
+pin: Épingler
+pinChat: Épingler la conversation
+pinned: Épinglé
+privateReply: Réponse privée
+qrCodeBusinessCard: Carte de visite QR
+quoteReply: Réponse citée
+rating: Évaluation
+readAgreeParam: J'ai lu et accepté $param
+recentChats: Chats récents
+recentForwards: Transferts récents
+remindMeLater: Me rappeler plus tard.
+repliedAt: Répondu à
+reply: Répondre
+replyTo: Répondre à
+resendCode: Renvoyer le code
+revoke: Retirer
+scanQrCodeBusinessCard: Scanner la carte de visite QR
+sendFriendRequest: Envoyer une demande d’ami
+sendMsgRejected: Message envoyé mais rejeté par votre interlocuteur.
+sendSeparatelyTo: Envoyer séparément à
+sendTo: Envoyer à
+send: "@:common.buttonSend"
+sender: Expéditeur
+sending: Envoi en cours...
+signatureInputHint: Conseil de saisie de signature
+signaturePlaceholder: Espace réservé pour la signature
+signupIntro: "Le code de confirmation a été envoyé à votre adresse e-mail.
+Veuillez saisir le code de confirmation pour confirmer votre compte."
+socialProfile: Profil social
+status: Statut
+storageSpaceData: Espace de stockage et données
+sureOpenTheFile: Confirmer l'ouverture du fichier ?
+textMessage: Message texte
+titleMessage: Messages
+topChat: Conversation épinglée
+unpin: Désépingler
+unsupportedFileType: Type de fichier non pris en charge.
+userData: Données utilisateur
+video: Vidéo
+videoMessage: "[Vidéo]"
+viewAttachments: Voir les pièces jointes.
+voice: Vocal
+voiceInput: Saisie vocale
+voiceMessage: Message vocal
+youWithdrewAMessage: Vous avez révoqué un message.
+formatCheck: Vérification du format
+featureRequest: Demande de fonctionnalité
+resendCodeWithCount: Renvoyer ($count secondes)
+chatResend: Renvoyer
+chatReply: Répondre
+chatOpenFile: Ouvrir le fichier
+chatOpenLink: Ouvrir le lien
+avatarSelectPhoto: Sélectionner une photo
+avatarTakePhoto: Prendre une photo
+avatarSelectFromAlbum: Sélectionner depuis l'album
+profileExportProfile: Exporter le profil
+momentsSend: Envoyer
+videoCompressInProgress: Tâche de compression en cours.
+videoCompressing: Compression vidéo en cours...
+loginExpiredMessage: Connexion expirée. Veuillez vous reconnecter.
+geometricPattern: Motif géométrique
+ripplePattern: Motif ondulé
+customImage: Image personnalisée
+voiceRecordResultEmpty: Résultat de l'enregistrement vocal vide.
+voiceFileInvalid: Fichier vocal invalide.
+burnAfterReading: Détruire après lecture
+visibleThresholdRead: Seuil de visibilité lu
+readThresholdDelay: Seuil de lecture et délai
+goodReadability: Bonne lisibilité
+profileCompleteness: Exhaustivité du profil
+tagStatistics: Statistiques des étiquettes
+alreadySent: Déjà envoyé
+visibleRatioLabel: Rapport de visibilité (0.1~1.0)
+unsupportedMessageType: Type de message non pris en charge.
+passwordMismatch: Les mots de passe ne correspondent pas.
+pleaseTryAgainLater: Réessayez plus tard.
+sendNewMessage: Envoyer un nouveau message
+markRead: Marquer comme lu
+markUnread: Marquer comme non lu
+pleaseEnterSignature: Please enter signature
+exportProfile: Exporter le profil
+setSignature: Définir la signature
+setAvatar: Définir l'avatar
+fastForward: Avance rapide de $seconds secondes
+messageId: ID du message
+chatType: Type de conversation
+voiceFileEmptyPleaseTryAgain: Fichier vocal vide. Réessayez.
+sendingVoice: Envoi du message vocal en cours...
+deletingMessage: Suppression en cours...
+deletingLocalMessage: Suppression du message local en cours...
+quickReplyReceived: Reçu
+quickReplyThanks: Merci
+quickReplyWait: Un instant
+messageMute: "@:chat.chatSettingMute"
+quickReplyManage: 管理快捷回复
+quickReplyEmpty: 暂无快捷回复，点击右下角添加
+quickReplyDuplicate: 内容已存在
+quickReplyMaxReached: 最多 $max 条
+quickReplyHint: 输入内容...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message

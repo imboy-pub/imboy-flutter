@@ -1,0 +1,1041 @@
+about: About
+aboutApp: About App
+accept: Accept
+acceptFriendRequest: Accept friend request
+addFriend: Add friend
+addPhoneContact: Add phone contact
+creditCardRepayment: Credit Card Repayment
+smallChange: Pocket Money
+addTag: Add tag
+addToContacts: Add to contacts
+addToDenylist: Add to blocklist
+added: Added
+addedToDenylistTips: Added to blocklist. You will no longer receive messages from this user.
+agreeContinue: Agree and continue
+all: All
+allSenders: All senders
+allTags: All tags
+allTime: All time
+allTypes: All types
+allowSearchMe: Allow others to search me
+allowedBeSearched: Recently registered friends who allow search
+appSizeTips: "Includes APK, compiler output, and native library files required for the app to function."
+applyAddFriend: Request to add friend
+awaitingVerification: Awaiting verification
+buttonAccomplish: Done
+buttonAdd: Add
+buttonBack: Back
+buttonBind: Bind
+bindMobileAndEmailTips: Bind phone number and email to make your account more secure
+bindNow: Bind now
+buttonCancel: Cancel
+buttonCreate: Create
+buttonChangePassword: Change password
+phoneInputHint: Enter phone number
+buttonClose: Close
+buttonConfirm: Confirm
+buttonContinue: Continue
+buttonCopy: Copy
+buttonDelete: Delete
+buttonDeleteAccount: Delete account
+buttonInviteCode: Invite code
+buttonLogin: Login
+buttonLogout: Log out
+buttonNextStep: Next step
+buttonOk: OK
+buttonRegister: Register
+buttonResetPassword: Reset password
+buttonRetry: Retry
+buttonSave: Save
+buttonSelectFromAlbum: Select from album
+buttonSend: Send
+buttonSetEmpty: Clear
+buttonSubmit: Submit
+buttonTakingPictures: Camera
+cacheTips: Cache is temporary data generated during app usage. Clearing cache will not affect your normal use.
+callDuration: Call duration
+calling: Calling
+canNotAddYourselfFriend: You cannot add yourself as a friend
+cancel: "@:common.buttonCancel"
+ok: "@:common.buttonOk"
+operationSuccessful: Operation successful
+save: "@:common.buttonSave"
+reset: Reset
+clear: Clear
+saveTag: Save tags ($count)
+cancelLogoutBody: "This account is in the account deletion reconsideration period. If you successfully log in, the deletion process will be terminated. To continue with deletion, please do not log in to IMBoy within 15 days after submitting the deletion request."
+cancelLogoutTitle: Terminate deletion process?
+cancelled: Cancelled
+chatSettingBackground: Chat background
+chatSettingBackgroundCustom: Custom background set
+chatSettingBackgroundDefault: Default background
+chatSettingBackgroundSelectorTip: Background selection feature is under development
+chatSettingBackgroundSuccess: Background set successfully
+chatSettingClearHistory: Clear chat history
+chatSettingClearHistoryConfirm: Are you sure you want to clear all chat history? This action cannot be undone.
+chatSettingClearHistoryDesc: "Delete all messages, this action cannot be undone"
+chatSettingClearedSuccess: Cleared successfully
+chatSettingPinnedSuccess: Pinned successfully
+chatSettingUnpinnedSuccess: Unpinned successfully
+chatSettings: Chat settings
+checkForUpdates: Check for updates
+clearAll: Clear all
+clearChatRecord: Clear chat history
+complaintSuccess: Complaint submitted
+complaintFailed: "Complaint failed, please try again"
+confirmCode: Confirmation code
+confirmCodeError: Confirmation code is empty
+confirmCodeSuccess: Account confirmed.
+confirmDeleteChatRecord: Delete chat records?
+confirmNewFriend: Confirm new friend
+confirmNewFriendLogic: Confirm friend request
+confirmRecoverSuccess: Password changed successfully.
+contactSetting: Contact setting
+contactSettingTag: Contact setting tag
+contactTagListLogic: Contact tags
+contactTags: Contact tags
+continueDownloading: Continue downloading
+copy: Copy
+coupon: Coupons
+createGroupF2fConfirmTips: These friends will also join the group chat
+createGroupF2fTips: Enter the same four digits as friends nearby to join the same group chat
+delete: "@:common.buttonDelete"
+deleteCollectConfirmDesc: "Cannot be recovered after deletion, are you sure you want to delete this favorite?"
+deleteContact: Delete contact
+deleteForEveryone: Delete for everyone
+deleteForMe: Delete for me
+deleteTagTips: "After deleting the tag, contacts in the tag will not be deleted"
+deleteThisDevice: Delete this device
+deleteThisDeviceTips: "After deletion, security verification will be required when logging in to this device next time."
+denylistNoteDesc: Blocked users cannot send you messages or view your updates. Click on user to view details.
+denylistNoteTitle: Blocklist description
+details: Details
+deviceDetails: Device details
+downloaded: Downloaded
+edit: Edit
+editTag: Edit tag
+errorAccessDenied: Access to $param denied
+errorCliVersionNotFound: "@:common.error"
+errorEmptyDirectory: $param is empty
+errorFailedConnectServer: "@:common.error"
+errorFailedToConnect: "@:common.error"
+errorFileNotFound: File not found in $param
+errorFolderNotFound: Folder $param not found
+errorHttpNotSupported: "@:common.error"
+errorInternalServer: "@:common.error"
+errorInvalid: $param is invalid
+errorInvalidDart: "@:common.error"
+errorInvalidFileOrDirectory: "@:common.error"
+errorInvalidJson: "@:common.error"
+errorInvalidRequest: "@:common.error"
+errorLengthBetween: $param length must be between $min and $max
+errorManyRequest: Too many requests
+errorNoPackageToRemove: "@:common.error"
+errorNoValidFileOrUrl: "@:common.error"
+errorNonexistentDirectory: "@:common.error"
+errorPackageNotFound: "@:common.error"
+errorPassword: Incorrect password
+errorRequestForbidden: "@:common.error"
+errorRequestSyntax: "@:common.error"
+errorRequired: $param is required
+errorRequiredPath: "@:common.error"
+errorRetypePassword: "@:common.error"
+errorSame: $param1 and $param2 must be the same
+errorServerDown: "@:common.error"
+errorServerRefused: "@:common.error"
+errorSpecialCharactersInKey: "@:common.error"
+errorUnexpected: "@:common.error"
+errorUnnecessaryParameter: "@:common.error"
+errorUnnecessaryParameterPlural: "@:common.error"
+errorUpdateCli: "@:common.error"
+failedGetLatLong: "@:common.errorNetwork"
+failedGetMapTryAgain: "@:common.errorNetwork"
+failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
+feedback: Feedback
+feedbackBuilder: Submit feedback
+feedbackContentRequired: Feedback content cannot be empty
+feedbackDetails: Feedback details
+feedbackModel: Feedback
+feedbackReplyModel: Feedback reply
+feedbackSuccessMsg: "We have received your feedback and will process it as soon as possible!"
+followSystemTips: "When enabled, dark mode will follow system settings"
+forceLogoutNotification: "You have been forced offline by device [$param]"
+friendPermissions: Friend permissions
+friendsPermissionsView: Privacy settings
+genderConflictError: "Gender setting conflict, please try again"
+genderNetworkError: "Network error, please check network connection"
+genderUpdateFailed: "Gender setting failed, please try again"
+genderUpdateSuccess: Gender setting successful
+groupAddLocal: Save to contacts
+groupAnnouncement: Group announcement
+groupFileUploadSuccess: File uploaded successfully
+groupFileUploadFailed: "Upload failed, please try again"
+groupFileDeleteSuccess: File deleted
+groupFileDeleteFailed: "Delete failed, please try again"
+groupFileClosePreview: Close preview
+groupFileUploadTooltip: Upload file
+groupFileSearch: Search group files
+groupFileReadFailed: "File read failed, please try again"
+groupFileDeleteTitle: Delete Group File
+groupFileDeleteConfirm: Delete file "$name"?
+groupFileImageLoadFailed: Image failed to load
+groupFileOpenFailed: Cannot open file link
+groupFileSearchClear: Clear
+groupFileSearchAction: Search
+groupFileCategoryAll: All
+groupFileSearchEmpty: No matching files
+groupFileAudioLoadFailed: Audio failed to load
+groupFileAudioLoading: Loading audio...
+groupQrcodeTips: "This QR code is valid for $days days (before $date), will update when re-entering"
+groupSearchTips: Group name and description
+helpDocument: Help documentation
+hintEditGroupAnnouncement: Edit group announcement
+httpResponse: Response
+incomingCall: $param calling
+info: Info
+infoLoggedInOnAnotherDevice: Your account has been logged in on another device at $param
+installNow: Install now
+iosAppIdUnknown: "AppStore not listed or AppID[$param] does not exist"
+koKr: Korean (South Korea)
+languageSetting: Language Settings
+languageState: Language setting
+lastActiveTips: "When the device is in a secure state, the login time will be automatically extended to ensure timely message delivery, and the last active time will be updated."
+lastSeenJustNow: Just online
+lastSeenLongTimeAgo: Online a long time ago
+lastSeenMonthsAgo: $param months ago
+leaveYourSuggestions: Please leave your valuable comments and suggestions
+loadError: "Loading failed, please try again"
+loadMore: Load more
+loading: Loading...
+locationMessage: Location message
+loginDeviceManagementTips: "Your account has been logged in on the following devices. You can delete devices, and security verification will be required when logging in to those devices."
+logoutNotice: Account Deletion Notice
+exportDataSuccess: Data exported successfully
+manually: Manual selection
+messageCall: Send message
+messageContent: Message content
+messageLocationBuilder: Location message
+messageNotification: Message notifications
+messageRevoked: Message recalled
+quoteMessageNotAvailable: Referenced message is unavailable
+messageRevokedBuilder: Recalled message
+microphone: Microphone
+microphonePermissionNotObtained: Microphone permission not granted
+moreInfo: More info
+myAddress: My address
+nearbyPeopleTips: Exchange contact information with nearby people and make new friends
+needContinueWorkHard: "Keep going!"
+needSubmitEffect: Please confirm to submit
+networkErrorWithAction: "$param failed, please check your network connection"
+networkException: Network connection error
+errorNetwork: Network error
+networkExceptionPlaseNeedNetworkToViewData: Network error. Please connect to view data.
+networkFailureTips: Please check your network connection
+newVersionDetected: New version detected
+newVersionDetectedWithVersion: New version detected $param
+nextStep: Next
+nicknameConflictError: "Nickname already taken, please choose another"
+nicknameEmojiOnlyError: Nickname cannot contain only emojis
+nicknameEmptyError: Nickname cannot be empty
+nicknameLengthError: Nickname length should be between 2-24 characters
+nicknameNetworkError: "Network error, please check network connection"
+nicknameSensitiveWordError: "Nickname contains sensitive words, please re-enter"
+nicknameServerError: "Server error, please try again later"
+nicknameUpdateFailed: "Nickname update failed, please try again"
+nicknameUpdateSuccess: Nickname updated successfully
+nicknameWhitespaceError: Nickname cannot contain only whitespace
+noAvatar: No avatar
+noBarcodeFound: "Barcode not found!"
+noContacts: No contacts
+noConversationMessages: No conversation messages
+noData: No data
+noMembersInCurrentTag: No members in current tag
+noMoreData: No more data
+noNewFriends: No new friends
+noPermission: No permission
+noReply: No reply yet
+noSiginQ: Don't have an account?
+noUpdateDescription: No update description
+normalModel: Normal mode
+notAuthorizedLatLong: You have not authorized to get latitude and longitude
+notBad: Not bad
+notBound: Not bound
+notFilled: Not filled
+notInstallAnyMapApp: You don't have any map app installed
+notLetHimSee: Don't let them see
+notReceiveCoeQ: Didn't receive verification code?
+notSeeHim: Don't see them
+notSet: Not set
+notShow: Don't show
+notTurnedLocationService: You have not turned on location service
+nowNewVersion: No new version detected
+off: "@:common.disabled"
+offlineNotification: Offline notification
+on: "@:common.enabled"
+operationFailedAgainLater: Operation failed. Please try again later.
+optionsNo: No
+optionsRename: I want to rename
+optionsYes: Yes
+p2pCallScreenLogic: Call screen
+p2pCallScreenView: Call interface
+paramFormatError: $param format error
+pauseDownloading: Pause download
+peerNoResponse: Other party not responding...
+peopleInfoMoreLogic: More information
+peopleInfoSameGroupView: Common groups
+perMinuteOnce: Only once per minute
+permission: Permission
+permissionAcquisitionFailed: Permission acquisition failed
+personalCard: Personal card
+personalInfoDesc: Personal info description
+personalInfoTip: Personal info tip
+personalInformation: Profile
+pinCodeFillTips: Please fill all squares
+pleaseSelectMembersForAdd: Please select members to add
+profileSettings: Profile settings
+reEdit: Re-edit
+recoverPasswordSuccess: Verification code sent successfully
+regionCancel: Cancel
+regionConfirm: OK
+regionNoResult: No results yet
+regionSearchHint: Search by region name
+regionSearchTips: Search by region name or code
+regionSelectTitle: Select region
+releaseFingerCancelSending: Release finger to cancel sending
+removeContactFromTag: Remove contact from tag
+removeMember: Remove member
+atMentionYouTag: "[@you] "
+atMentionLeftMember: "@Left member"
+muteNotifications: Mute notifications
+muteNotificationsHint: You won't get new-message alerts; unread counts still show in the list
+revokeExpired: Can't revoke messages older than 2 minutes
+quickReplyAddTitle: Add quick reply
+quickReplyEditTitle: Edit quick reply
+removeAdmin: Remove Admin
+setAdminConfirm: Set this member as admin?
+removeAdminConfirm: Remove admin role from this member?
+muteMemberConfirm: Mute this member?
+unmuteMemberConfirm: Unmute this member?
+kickMemberConfirm: Remove this member from the group?
+transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
+setAdminSuccess: Admin set
+setAdminFailed: Failed to set admin
+removeAdminSuccess: Admin removed
+removeAdminFailed: Failed to remove admin
+muteMemberSuccess: Member muted
+muteMemberFailed: Failed to mute member
+unmuteMemberSuccess: Member unmuted
+unmuteMemberFailed: Failed to unmute member
+kickMemberSuccess: Member removed
+kickMemberFailed: Failed to remove member
+transferGroupSuccess: Ownership transferred
+transferGroupFailed: Failed to transfer ownership
+notMuted: Not Muted
+muteDuration: Mute Duration
+muteDuration1hour: 1 Hour
+muteDuration6hours: 6 Hours
+muteDuration12hours: 12 Hours
+muteDuration1day: 1 Day
+muteDuration3days: 3 Days
+muteDuration7days: 7 Days
+muteDurationPermanent: Permanent
+muteDuration5min: 5 Minutes
+muteDuration10min: 10 Minutes
+muteDuration30min: 30 Minutes
+muteDuration30days: 30 Days
+muteUnitSeconds: $count sec
+throttleWarning: "Too many requests, please try again later"
+throttleRetryAfter: "Too many requests, please retry after $seconds seconds"
+mutedCannotSend: Cannot send messages while muted
+resendCodeSuccess: New email sent.
+resetFilters: Reset filters
+saveQrCode: Save QR code
+saveSuccess: Saved successfully
+scanQrcodeAddFriend: Scan the QR code above to add me as a friend
+search: Search
+searchScope: Search scope
+searchAll: All messages
+searchChatContent: Find chat content
+searchChatRecord: Find chat history
+searchError: Search error
+searchFilterAll: Filter all
+searchFilterImage: Filter images
+searchFilterText: Filter text
+searchFilterToday: Filter today
+searchFilters: Search filters
+searchFriendsTips: Search friends by nickname or remark
+searchHint: Enter keywords to search messages
+searchHistory: Search history
+searchLocation: Search location
+searchMessagesHint: Search messages tip
+searchNoFound: "Search results empty :("
+searchNoResults: No search results
+noSearchHistory: No search history yet
+searchRegion: Search region
+searchResults: Search results
+searchResultsCount: Result $current of $total
+searchSuggestions: Search suggestions
+selectAll: Select all
+selectContacts: Select contacts
+selectRegionView: Select region
+selectedItems: $param items selected
+selectedRegion: Selected region
+sendMsgNotFriendTips: Friend verification required. Please send a friend request first to chat.
+setChatBackground: Set current chat background
+share: Share
+signatureTips: Signature tips
+slideUpCancelSending: Swipe up to cancel sending
+storagePermissionNotObtained: Storage permission not granted
+strongReminder: Strong reminder
+submittedAt: Submitted at
+sureDeleteData: Confirm deletion? This action cannot be undone.
+sureDeleteGroupChatRecord: Delete group chat records?
+switchEnvironment: Switch environment
+thisMonth: This month
+timeDaysAgo: $param days ago
+timeHoursAgo: $param hours ago
+timeJustNow: Just now
+timeMinutesAgo: $param minutes ago
+timeToday: Today
+timeYesterday: Yesterday
+tipConnectDesc: No network
+tipConnectDescWithParen: ($param)
+tipDeleteContact: Delete contact "$param" and also delete chat records with this contact
+tipDeviceSpace: Occupies $param1‰ of device storage($param2)
+tipDraft: Draft
+tipEmptyChatPlaceholder: No messages here yet
+tipFailed: "Operation failed!"
+tipGreeting: Welcome
+tipProvidersTitleFirst: Or sign in with
+tipSuccess: "Operation successful!"
+tipTips: Tips
+titleContact: Contacts
+today: Today
+unknown: Unknown
+unknownMessage: Unknown message
+updateLog: Update log
+updateNow: Update now
+uploading: Uploading
+uploadSuccess: Upload successful
+uploadFailed: Upload failed
+userDataTips: Includes app runtime files and all user data like chat messages and friend connections.
+userDisabledOrDeleted: User is disabled or deleted
+userNotExist: User does not exist
+userOnlineStatusWidget: Online status
+userTagRelationView: Tag contacts
+userTagSaveView: Save tags
+verificationMessageSentByPeerIs: "Verification message from the other party: $param"
+version: Version
+videoCall: Video call
+viewAllGroupMember: View all group members
+voiceCall: Voice call
+voiceInputNotImplemented: Voice input feature not implemented
+waitingDownload: Waiting for download
+waitingPeerAccept: Waiting for the other party to accept invite...
+warning: "Warning:"
+webpageLoading: Loading webpage...
+whatYourFeedback: What is your feedback?
+yesterday: Yesterday
+yourContactInformation: Your contact information
+confirmRemove: Confirm remove
+confirmRemoveFromDenylist: Confirm to remove this user from blocklist?
+buttonRemove: Remove
+removedFromDenylist: Removed from blocklist
+newEmailAddress: New email address
+emailAddress: Email address
+enterEmailAddress: Please enter email address
+getVerificationCode: Get verification code
+confirmChange: Confirm change
+verificationCodeSentToEmail: Verification code will be sent to this email. Please verify within the validity period.
+verificationCodeSentToMobile: Verification code will be sent to this phone. Please verify within the validity period.
+pleaseEnterCorrectEmailAddress: Please enter correct email address
+pleaseEnter6DigitVerificationCode: Please enter 6-digit verification code
+verificationCodeSent: Verification code sent
+sendFailed: Failed to send
+noChangeNeeded: No change needed
+submissionFailed: Submission failed
+checkVerificationCodeOrRetry: Please check verification code or try again later
+forceOffline: Offline
+forceDeviceOffline: Make this device offline
+forceDeviceOfflineConfirm: "Will send offline command to this device, confirm to continue?"
+confirmForceOffline: Confirm offline
+forceOfflineCommandSent: Offline command sent
+feedbackSlogan: Your suggestions are our motivation for improvement
+newFeedback: New feedback
+feedbackHistory: Feedback history
+confirmDelete: Confirm delete
+processing: "@:common.loading"
+verificationCode: Verification code
+feedbackContent: Feedback content
+officialReply: Official reply
+setPasswordSecurityTips: Set a login password to enhance security and ensure you can always access your account.
+locationHidden: Your location has been hidden
+locationVisible: Your location has been shown
+noNearbyPeople: No nearby people yet
+clickSearchButtonToFind: Click the search button above to find nearby people
+operationSuccess: "@:common.success"
+operationFailed: "@:common.error"
+featureInDevelopment: Feature under development...
+addedToDenylist: Added to blocklist
+bindSuccess: Bound successfully
+mobileUpdatedToParam: Mobile number updated to $param
+groupAnnouncementPublish: Publish announcement
+pleaseEnterAnnouncementContent: Please enter announcement content
+selectExpirationDateOptional: Select expiration date (optional)
+groupAnnouncementDeleteConfirm: Are you sure you want to delete this announcement?
+groupAnnouncementDelete: Delete
+groupAnnouncementLoadFailed: "Failed to load announcements, please try again later"
+groupAnnouncementPublishFailed: Failed to publish announcement
+groupAnnouncementPublishSuccess: Announcement published
+groupAnnouncementDeleteFailed: Failed to delete announcement
+groupAnnouncementDeleteSuccess: Announcement deleted
+privacyClearChatHistory: Clear chat history
+privacyClearChatHistoryConfirm: Are you sure you want to clear all chat history? This action cannot be undone.
+privacyLogoutAccountConfirm: "Are you sure you want to delete your account? This action will permanently delete your account and all data, and cannot be undone."
+privacySettings: Privacy settings
+searchSettings: Search settings
+allowSearchByAccount: Allow search by account
+allowSearchByAccountDesc: Other users can find you through your account
+allowAddByPhone: Allow add by phone
+allowAddByPhoneDesc: Other users can add you as a friend through your phone number
+allowAddByQR: Allow add by QR code
+allowAddByQRDesc: Other users can add you as a friend by scanning your QR code
+statusSettings: Status settings
+showOnlineStatus: Show online status
+showOnlineStatusDesc: Friends can see your online status
+allowNearbyVisible: Visible to nearby people
+dataSettings: Data settings
+clearChatRecords: Clear chat records
+clearChatRecordsDesc: "Clear all chat records, this action cannot be undone"
+deleteAccountAction: Delete account
+deleteAccountActionDesc: "Permanently delete account and all data, this action cannot be undone"
+chatHistoryCleared: Chat history cleared
+accountDeletionNotAvailable: Account deletion feature is not available yet
+chatDeleteMessage: Delete message
+chatCopy: Copy
+chatSaveImage: Save image
+chatDeleteLocalOnly: Delete local only
+chatDownloadFile: Download file
+chatShareFile: Share file
+chatCopyLink: Copy link
+chatShareLink: Share link
+chatDeleteFailed: Delete failed
+chatNetworkErrorDeleteLocal: Network connection failed. Delete local message only?
+chatDeleteConfirm: Are you sure you want to delete this message? This action cannot be undone.
+chatDeleteOnlyLocal: "Delete only for you, still visible to others"
+chatDeleteAll: "Delete for everyone, cannot be undone"
+chatInitFailed: Chat initialization failed
+cameraShootFailed: Camera failed
+avatarSave: Save
+avatarDeleteAvatar: Delete avatar
+avatarEditAvatar: Edit avatar
+backgroundUseCustomColor: Use custom color
+backgroundOnlySolidColor: Only applies to solid color backgrounds
+backgroundSelectColor: Select color
+profileShareProfile: Share profile
+tagClearAllConfirm: Are you sure you want to clear all tags?
+tagClearAll: Confirm clear
+audioPlayFailed: Playback failed
+videoFileNotFound: Input file not found
+videoCompressFailed: "Compression failed, returned empty result"
+videoFurtherCompressFailed: Further compression failed
+forcedOfflineByDevice: "You have been forced offline by device [$device]"
+searchDescription: "Mini programs, official accounts, articles, moments, emojis, and more"
+testDirectNavigation: Test direct navigation
+tagNameTooLong: Tag name cannot exceed 14 characters
+tagNameNoComma: Tag name cannot contain commas
+tagNameNoLeadingTrailingSpaces: Tag name cannot contain leading or trailing spaces
+tagNameNoSpecialChars: Tag name cannot contain special characters
+commonTags: Common Tags
+loadingTagDataFailed: Failed to load tag data
+pleaseEnterContent: Please enter content
+comingSoon: Coming soon
+chatBackground: Chat Background
+useSystemDefaultBackground: Use system default background
+selectCustomBackgroundImage: Select custom background image
+currentBackground: Current Background
+backgroundTransparency: Background Transparency
+defaultBackground: Default Background
+solidColorBackground: Solid Color Background
+selectImageFailed: Failed to select image
+takePhotoFailed: Failed to take photo
+selectVideoFailed: Failed to select video
+recordVideoFailed: Failed to record video
+selectFileFailed: Failed to select file
+locationSelectNotImplemented: Location selection feature not implemented
+selectLocationFailed: Failed to select location
+sendCardNotImplemented: Card sending feature not implemented
+sendCardFailed: Failed to send card
+uploadResponseInvalid: Upload response data is invalid
+voiceSendSuccess: Voice sent successfully
+voiceSendFailed: Failed to send voice
+featureNotImplemented: Feature not implemented
+sendCollectionNotImplemented: Collection sending feature not implemented
+fileOpenNotImplemented: File opening feature not implemented
+fileShareNotImplemented: File sharing feature not implemented
+retrySuccess: Resent successfully
+deleteSuccess: Deleted successfully
+localDeleteSuccess: Local deletion successful
+localDeleteFailed: Local deletion failed
+revokeSuccess: Revoked successfully
+editContentCannotBeEmpty: Edit content cannot be empty
+editSuccess: Edit successful
+messageNotFound: Message not found
+conversationNotFound: Conversation not found
+enabled: Enabled
+disabled: Disabled
+configureVisibleThreshold: Configure Visible Threshold
+fontSizeSettingUpdated: Font size setting updated
+fontSizeSetting: Font Size Setting
+fontTooSmallMayAffect: Font is too small and may affect reading
+dragSliderAdjustFontSize: Drag slider to adjust font size
+personalInfo: Personal Info
+nicknameNotSet: Nickname not set
+basicInfo: Basic Info
+contactInfo: Contact Info
+editTags: Edit Tags
+quickActions: Quick Actions
+noNewFriendRequests: No new friend requests for now
+pleaseEnterVerificationMessage: Please enter verification message
+unknownRegion: Unknown region
+noCommonGroups: No common groups
+noMoreInfo: No more information
+userNotSetSignature: User has not set personal signature and other detailed information
+verificationMessage: Verification Message
+burnEnabledMessage: "After enabling: Messages will be auto-destroyed $duration after being read"
+burnDisabledMessage: "After disabling: Messages will not be auto-destroyed"
+visibleEnabledMessage: "After enabling: Mark as read when visible ratio ≥$percentage% for ≥$delayms"
+visibleDisabledMessage: "After disabling: Will not auto-mark as read based on visibility"
+visibleThresholdInfo: "Visible ratio: $percentage% | Delay: $delayms"
+noGroupAnnouncement: No group announcement
+announcementContentCannotBeEmpty: Announcement content cannot be empty
+announcementPublishSuccess: Announcement published successfully
+tips: Tips
+featureComingSoon: Feature coming soon
+understood: Understood
+noProblem: No problem
+onMyWay: On my way
+sendOfflineCommand: Force Offline
+offlineCommandSent: Offline command sent
+operationOptions: Operation Options
+copyTextContent: Copy text content
+shareWithOtherFriends: Share with other friends
+addTagsToFavorites: Add tags to favorites
+addRemarkToFavorites: Add remark to favorites
+deleteThisCollection: Delete this collection
+pullUpLoadMore: Pull up to load more
+changeSuccess: Changed successfully
+loginPasswordUpdated: Login password updated
+lengthOk: Length OK
+confirmNewPassword: Confirm New Password
+validationPassed: Validation passed
+changeFailed: Change failed
+submitted: Submitted
+viewSecurityHelp: View security help
+momentsNoData: No moments yet
+momentsDeleteConfirm: Are you sure you want to delete this moment?
+momentsDeleteCommentConfirm: Are you sure you want to delete this comment?
+momentsNotFound: Moment not found or no permission to view
+momentsContentOrMediaRequired: Content or media is required
+momentsPublishFailed: Failed to publish
+momentsAllowComment: Allow Comments
+momentsReportReason: Reason
+momentsNoComments: No comments yet
+momentsContentHint: Share something...
+momentsAddMedia: Add media
+momentsAllowUidsLabel: Visible to these UIDs (comma-separated)
+momentsCommentFailed: "Comment failed, please try again"
+momentsDeleteFailed: "Delete failed, please try again"
+momentsReportSubmitted: Report submitted
+momentsReportFailed: "Report failed, please try again"
+momentsLoadMoreComments: Load more comments
+momentsUploadFailed: "Media upload failed, please try again"
+transactionHistory: Transaction History
+paymentPasswordSetSuccess: Payment password set successfully
+paymentPasswordSetFailed: Failed to set payment password
+nextVoiceMessageNotFound: Next voice message not found
+noNextVoiceMessage: No next voice message to play
+nextVoiceMessageNoPath: Next voice message has no audio file path
+saveFailed: Save failed
+tip: Tip
+confirm: Confirm
+success: Success
+personalDisplay: Personal Display
+personalSignature: Personal Signature
+personalBackground: Personal Background
+setBackgroundImage: Set Background Image
+expression: Expression
+extendedInfo: Extended Info
+profession: Profession
+pleaseEnterProfession: Please enter profession
+functionSettings: Function Settings
+shareProfile: Share Profile
+shareWithFriends: Share profile with friends
+shareQRCode: Share QR Code
+copyLink: Copy Link
+shareTo: Share To
+shareFailed: Share failed
+exportAsJson: Export as JSON format
+exportSuccessThenCopiedToClipboard: $param format profile exported and copied to clipboard
+exportFailed: Export failed
+setRegion: Set Region
+avatarUpdateSuccess: Avatar updated successfully
+avatarUpdateFailed: Failed to update avatar
+deleteOperationAbnormal: "Delete operation failed, please try again"
+revoking: Revoking...
+editing: Editing...
+messageIdCannotBeEmpty: "Message ID is empty, cannot perform operation"
+startRevokeMessageFlow: Recalling message
+revokeMessageTracking: Processing recall
+useNewActionMechanism: Processing
+revokeMessageSendResult: Recall result
+revokeRequestSendComplete: Recall request sent
+revokeFailed: Revoke failed
+revokeMessageException: Recall error
+revokeOperationAbnormal: Recall operation failed
+startEditMessageFlow: Editing message
+editMessageTracking: Processing edit
+newContent: New content
+editMessageSendResult: Edit result
+editRequestSendComplete: Edit request sent
+editFailed: Edit failed
+editMessageException: Edit error
+editOperationAbnormal: Edit operation failed
+uploadAvatarFailed: Failed to upload avatar
+error: Error
+cannotOpenWebpage: Cannot open webpage
+groupIdCannotBeEmpty: Group ID cannot be empty
+selectImageFailedWithError: Failed to select image
+uploadAvatarFailedWithError: Failed to upload avatar
+avatarSelectedUploadPending: "Avatar selected successfully, upload feature pending"
+emailEditFeaturePending: Email edit feature under development...
+reactionAdded: Reaction added
+reactionCancelled: Reaction cancelled
+retryFailedPleaseCheckNetwork: "Retry failed, please check your network connection"
+retryAbnormal: Retry failed
+deleteFailedPleaseTryAgain: "Delete failed, please try again"
+deleteFailedPleaseCheckNetwork: "Delete failed, please check your network connection"
+voiceRecordFailedPleaseTryAgain: "Voice recording failed, please try again"
+voiceFileNotFoundPleaseTryAgain: "Voice file not found, please try again"
+voiceFileCannotReadPleaseTryAgain: "Voice file cannot be read, please try again"
+voiceFileReadFailedPleaseTryAgain: "Voice file read failed, please try again"
+voiceProcessingAbnormal: Voice processing failed
+voiceUploadFailedPleaseCheckNetwork: "Voice upload failed, please check your network connection"
+voiceSendAbnormal: Voice send failed
+voiceDuration: Voice duration
+playbackFailed: Playback failed
+revokeOperationAbnormalPleaseTryAgain: "Recall operation failed, please try again"
+collectionFailedPleaseTryAgain: "Collection failed, please try again"
+reactionSent: Reaction sent
+seconds: seconds
+messageCannotLocatedMayBeDeleted: "Message cannot be located, may have been deleted"
+settingFailedPleaseTryAgain: "Setting failed, please try again"
+partialDeleteSuccess: "Partial delete success: $success successful, $fail failed"
+collectedVideoFormatIncorrectCannotFindVideoUri: "Collected video message format is incorrect, cannot find video uri"
+recordingCancelled: Recording cancelled
+pullOfflineMessagesFailed: Failed to pull offline messages
+pullOfflineMessagesAbnormal: Failed to pull offline messages
+logoutRequestFailedPleaseCheckNetwork: "Logout request failed, please check your network connection"
+permissionOnlySupportAndroidAndIos: Permission only supports Android and iOS
+messageSendFailedPleaseCheckNetwork: "Message send failed, please check your network connection"
+chatStatusFailed: Failed
+chatStatusFailedDesc: "Failed, tap to retry"
+chatErrorInDenylist: You are on their blacklist
+chatErrorInDenylistDesc: Message cannot be sent - you have been blocked
+chatErrorNotAFriend: Not friends yet
+chatErrorNotAFriendDesc: Message cannot be sent - please add as friend first
+notificationFriendRequest: Friend Request
+notificationFriendRequestBody(requesterName): $requesterName wants to add you as a friend
+notificationGroupInvite: Group Invite
+notificationGroupInviteBody(inviterName, groupName): $inviterName invited you to join $groupName
+youRevokedMessage: You revoked a message
+otherRevokedMessage: The other party revoked a message
+networkFailureTryAgain: "Network error. Please try again!"
+networkNotAvailable: No internet connection.
+pleaseCheckNetworkConnection: Please check your network connection.
+lastSeenMinutesAgo: "@:common.timeMinutesAgo"
+lastSeenHoursAgo: "@:common.timeHoursAgo"
+lastSeenDaysAgo: "@:common.timeDaysAgo"
+fontSettings: "@:common.fontSizeSetting"
+retryingSend: Retrying send...
+quickReplyOk: OK
+quickReplyOkThanks: "OK, thanks"
+tagInspiration: Inspiration
+noDetailedInfo: This user has not set detailed personal information
+noNewRegisteredUsers: "No new registered users
+Please check back later"
+newRegisteredUsersTip: "Recently registered users are shown here, you can add them as friends"
+failed: "@:common.error"
+lazyUserNoSignature: No signature yet...
+noFavoritesYet: "No favorites yet. Start collecting interesting messages!"
+fontPreviewText: This is the body text. You can see how different font sizes look here.
+smaller: Smaller
+currentFontScale: "Current: $param1 $param2%"
+emailUpdatedTo: Email updated to $param
+groupAnnouncementExpiry(time): "Expires: $time"
+groupAlbumCreateFailed: "Create failed, please try again"
+groupAlbumDeleteTitle: Delete Album
+groupAlbumDeleteConfirm(name): Delete album「$name」?
+groupAlbumDeleted: Album deleted
+groupAlbumDeleteFailed: "Delete failed, please try again"
+groupAlbumRenameFailed: "Update failed, please try again"
+groupAlbumUploadTooltip: Upload photo
+groupAlbumDeleteTooltip: Delete album
+groupAlbumNoAlbum: No albums yet
+groupAlbumPhotoReadFailed: "Failed to read photo, please retry"
+groupAlbumPhotoUploaded: Photo uploaded
+groupAlbumPhotoUploadFailed: "Upload failed, please try again"
+groupAlbumCreateTooltip: New album
+groupAlbumPhotoBatchDeleteTitle: Bulk delete photos
+groupAlbumPhotoBatchDeleteConfirm(count): Delete $count selected photos?
+groupAlbumPhotoDeleteFailed: "Delete failed, please try again"
+groupAlbumPhotoDeletedAll(count): Deleted $count photos
+groupAlbumPhotoDeletedPartial(success, fail): "Deleted $success, $fail failed"
+groupAlbumPhotoDeleteTitle: Delete Photo
+groupAlbumPhotoDeleteConfirm: Delete this photo?
+groupAlbumPhotoDeleted: Photo deleted
+groupAlbumPhotoBatchDeleteTooltip: Bulk delete
+groupAlbumPhotoExitSelection: Exit selection
+groupAlbumPhotoOpenFailed: Cannot open photo link
+groupAlbumPhotoNotFound: Photo not found or deleted
+groupAlbumPhotoOpenExternal: Open externally
+groupAlbumPhotoCoverUpdated: Set as album cover
+groupAlbumPhotoCoverFailed: "Set cover failed, please try again"
+groupAlbumPhotoNext: Next
+groupAlbumPhotoResolution: Resolution
+groupAlbumPhotoUploader: Uploaded by
+sectionDisplay: Display
+sectionTheme: Theme
+selectLanguage: Select Language
+completionSuggestions: "Suggestions:"
+sectionGeneral: General
+sectionPrivacySecurity: "Privacy & Security"
+sectionHelpAbout: "Help & About"
+msgOnlyVisibleToParties: Message readable only by sender and recipient
+msgNotEncrypted: Message transmitted unencrypted
+durationMinutes(count): "${count}min"
+durationSeconds(count): "${count}s"
+rechargeAmountError: "Please enter an amount between ¥1 and ¥10,000"
+rechargeSuccess: Top up successful
+rechargeConfirm: Confirm Top Up
+transactionHistory2: Transaction History
+noTransactionHistory: No transactions yet
+allLoaded: — All loaded —
+transactionTypeIncome: Top Up
+transactionTypeExpense: Purchase
+sectionLoginCredentials: Login Credentials
+channelInvitations: Channel Invitations
+acceptInvitationFailed: Failed to accept invitation
+rejectInvitationFailed: Failed to reject invitation
+invitationAccepted: Invitation accepted
+invitationRejected: Invitation rejected
+invitationStatusPending: Pending
+invitationStatusAccepted: Accepted
+invitationStatusRejected: Rejected
+invitationStatusExpired: Expired
+invitationStatusCancelled: Cancelled
+invitationStatusUnknown: Unknown
+noReceivedInvitations: No invitations received
+noSentInvitations: No invitations sent
+processingDots: Processing...
+purchaseFailed: "Purchase failed, please try again"
+purchaseSuccess: Purchase successful
+noOrders: No orders yet
+orderDetailLoadFailed: Failed to load order details
+orderNoLabel(no): "Order No: $no"
+orderStatusCancelled: Cancelled
+orderStatusUnknown: Unknown
+removeReaction: Remove Reaction
+removeReactionConfirm(emoji): Remove $emoji reaction?
+fileOpenFailed: Unable to open this file
+e2eeLocalBackup: Local Backup
+e2eeLocalBackupDesc: Export encrypted backup file locally or to cloud
+e2eeDeleteKey: Delete Key
+e2eeDeleteKeyDesc: Delete locally stored key (cannot be recovered)
+e2eeCurrentKeyInfo: Current Key Info
+e2eeE2EEEnabled: End-to-end encryption enabled
+e2eeNoKeyDetected: No E2EE Key Detected
+e2eeNoKeyDesc: Please generate a key pair or restore from backup
+e2eeAboutTitle: About End-to-End Encryption
+e2eeInfoPoint1: "• Your messages are encrypted before sending, the server cannot read them"
+e2eeInfoPoint2: • Old messages may become unreadable after changing device or deleting key
+e2eeInfoPoint3: • Please back up your key regularly to prevent data loss
+e2eeExportBackup: Export Backup
+e2eeExportBackupDesc: Generate encrypted backup file
+e2eeImportBackup: Import Backup
+e2eeImportBackupDesc: Restore key from backup file
+e2eeBackupManage: Backup Manager
+e2eeBackupManageDesc: View backup history
+e2eeGenerateKeyConfirm: Generate a new E2EE key pair?
+e2eeWarnOldMessagesLost: • Old messages will be unreadable
+e2eeWarnNeedNewBackup: • A new backup file will need to be generated
+e2eeConfirmGenerate: Confirm Generate
+e2eeDeleteKeyConfirm: Delete the current key?
+e2eeWarnCannotRestore: • Cannot be recovered after deletion
+e2eeWarnAllMsgsLost: • All E2EE messages will be unreadable
+e2eeConfirmDelete: Confirm Delete
+e2eeKeyGeneratedSuccess: Key Generated Successfully
+e2eeDeviceIdInfo(id): "Device ID: $id"
+e2eeKeyIdInfo(id): "Key ID: $id"
+e2eeCreatedAtInfo(time): "Created: $time"
+e2eeImportantNote: Important Note
+e2eeWarnOldMayNotDecrypt: • Old messages may be unreadable
+e2eeSuggestBackupNow: • It is recommended to export a backup immediately
+e2eeGoBackup: Go Backup
+e2eeKeyGenerateFailed: "Key generation failed, please try again"
+e2eeKeyDeleted: Key deleted
+e2eeDeleteFailed: "Deletion failed, please try again"
+e2eeShardAvailableInfo(available, required): "Available shards: $available, need $required proxy helpers"
+e2eeNoRecoveryShards: No recovery shards available
+e2eeRecoverSuccess: Recovery Successful
+e2eeRecoverFailed: Recovery Failed
+e2eeRecoverKeyFailed: "Failed to recover key, please try again"
+e2eeLoadingShards: Loading shard information...
+e2eeNoShards: No shards available
+e2eeLoadFailed: "Load failed, please try again"
+e2eeContactingProxy(name): "Contacting: $name"
+e2eeRecoveryFailed: "Recovery failed, please try again"
+webFeatureNotification: Desktop Notifications
+webFeatureNotificationDesc: Receive new message alerts even when you're away from the page
+webQRConfirmOnPhone: Please confirm login on your phone
+webQRLoginFailed: Login failed
+webQRLoginSuccess: Login successful
+webQRExpiresIn(seconds): Expires in $seconds seconds
+webQRStatusFailed: "Login failed, please try again"
+webQRStatusSuccess: Redirecting...
+webLoginEmptyError: Please enter account and password
+webQRGenerateFailed: Failed to generate QR code
+webQRTokenInvalid: Invalid login token
+e2eeErrNoRecipientKey: "Cannot get recipient's device key, message not sent"
+e2eeDecryptFailed: Message cannot be decrypted
+e2eeDecryptFailedReasons: "This message cannot be decrypted. Possible reasons:"
+e2eeDecryptReasonOtherDevice: • You logged in on another device
+e2eeDecryptReasonKeyExpired: • Device key has expired
+e2eeDecryptReasonDataCorrupt: • App data is corrupted
+e2eeDecryptChooseSolution: "Please choose a solution:"
+e2eeDecryptActionRecreateKey: Recreate key (recommended)
+e2eeDecryptActionRelogin: Log in again
+e2eeDecryptActionRemindLater: Remind me later
+e2eeBackupExportTitle: Export E2EE Backup
+e2eeBackupPwdCantRecover: "• Backup password cannot be recovered, please remember it!"
+e2eeBackupStoreMultipleNote: "• Store backup file in multiple secure locations (email, cloud, USB)"
+e2eeBackupPwdLabel: "Backup Password *"
+e2eeBackupPwdHint: "At least 12 chars, with upper/lowercase letters, numbers and special symbols"
+e2eeBackupConfirmPwdLabel: "Confirm Password *"
+e2eeBackupConfirmPwdHint: Enter password again
+e2eeBackupNoteLabel: Note (optional)
+e2eeBackupNoteHint: e.g. Main phone backup - Jan 2026
+e2eeBackupPwdStrengthLabel: Password strength
+e2eeBackupPwdWeak: Weak - add more complexity
+e2eeBackupPwdMedium: Medium - add more length or complexity
+e2eeBackupPwdStrong: Strong - acceptable
+e2eeBackupPwdVeryStrong: Very strong - secure
+e2eeBackupGenerateBtn: Generate backup file
+e2eeBackupFileGenerated: "Backup file generated!"
+e2eeBackupShareBtn: Share via email / cloud
+e2eeBackupShareContent: This is my Imboy E2EE key backup file. Keep it safe and do not share with others.
+e2eeBackupErrPwdMismatch: Passwords do not match
+e2eeBackupErrNoKeyData: Unable to retrieve key data
+e2eeBackupErrExportFailed: "Export failed, please try again"
+e2eeBackupErrShareFailed: "Share failed, please try again"
+e2eeBackupExportSuccessTitle: Backup exported successfully
+e2eeBackupExportSuccessBody: Your E2EE key backup has been successfully generated.
+e2eeBackupImportantNoteColon: "Important:"
+e2eeBackupKeepSafe: • Keep the backup file and password safe
+e2eeBackupStoreMultipleLoc: • Store the file in multiple secure locations
+e2eeBackupPwdCantRecoverNote: "• Password cannot be recovered, please remember it"
+e2eeBackupImportTitle: Import E2EE Backup
+e2eeBackupImportGuide: Import Instructions
+e2eeBackupImportReplaceKey: • Importing will replace the current E2EE key
+e2eeBackupImportTrustedSource: • Ensure the backup file comes from a trusted source
+e2eeBackupSelectFile: Select backup file
+e2eeBackupSelectFileHint: Tap to select backup file (.enc)
+e2eeBackupInfoTitle: Backup info
+e2eeBackupVersionLabel: Version
+e2eeBackupAlgorithmLabel: Algorithm
+e2eeBackupFileSizeLabel: File size
+e2eeBackupFileValid: ✓ File format is valid
+e2eeBackupImportPwdHint: Enter the password set during backup
+e2eeBackupImportBtn: Import key
+e2eeBackupErrSelectFile: "Failed to select file, please try again"
+e2eeBackupErrValidateFailed: "File validation failed, please check file format"
+e2eeBackupErrImportFailed: "Import failed, please check your password"
+e2eeBackupImportSuccessTitle: Import successful
+e2eeBackupImportSuccessBody: "E2EE key has been restored successfully!"
+e2eeBackupImportSuccessNote: "Note: Old messages may be inaccessible — this is normal E2EE behavior"
+e2eeBackupNoRecords: No backup records
+e2eeBackupNoRecordsHint: Backup history will appear here after exporting
+e2eeBackupDeviceLabel(id): Device $id
+e2eeBackupCreatedAtLabel(time): Created at $time
+e2eeBackupDetailTitle: Backup details
+e2eeBackupDeviceIdLabel: Device ID
+e2eeBackupVersionNum: Backup version
+e2eeBackupCreatedAtRow: Created at
+e2eeBackupFileSizeRow: File size
+e2eeBackupNoteRow: Note
+e2eeBackupDeleteTitle: Delete backup record
+e2eeBackupDeleteConfirm: Are you sure you want to delete this backup record?
+e2eeBackupDeleteSuccess: Backup record deleted
+e2eeSocialShardSettings: Shard settings
+e2eeSocialShardStoredNote: Shards will be stored on proxy devices; the server stores nothing
+e2eeSocialAddProxy: Add proxy
+e2eeSocialAddProxyHint: Please add proxy contacts
+e2eeSocialCreateNeedMore(count): Please add $count proxies first
+e2eeSocialCreateSuccessTitle: Shards created successfully
+e2eeSocialTotalShardsInfo(count): Key has been split into $count shards
+e2eeSocialThresholdInfo(count): Need $count proxies to recover key
+e2eeSocialZeroTrustNote: "Zero-trust architecture: the server stores no shards"
+e2eeSocialNoShards: You have not created any recovery shards yet
+e2eeSocialNoProxyShards: No proxy shards
+e2eeSocialKeyVersionLabel: Key version
+e2eeTransferErrNoKey: Please generate a key pair first
+e2eeTransferErrInitFailed: "Initialization failed, please try again"
+e2eeTransferErrNoRecipientKey: Recipient has no available public key
+e2eeTransferErrKeyNotFound: Key not found
+e2eeTransferErrCreateFailed: "Failed to create transfer session, please try again"
+e2eeTransferCreateSessionBtn: Create transfer session
+e2eeTransferSessionCreated: Transfer session created
+e2eeTransferUidEmptyError: Please enter a valid user ID
+e2eeTransferSuccess: "Transfer successful!"
+e2eeTransferFailed: "Transfer failed, please try again"
+e2eeTransferProcessingMsg: Processing...
+e2eeTransferSuccessTitle: Transfer successful
+e2eeTransferSuccessBody: Key has been successfully transferred to this device
+e2eeTransferScanError(error): "Scan error: $error"
+e2eeTransferErrNoDeviceId: Unable to get device ID
+passwordEncryptFailed: Password encryption failed
+initConfigTimeout: "Config fetch timed out: please check network or server status"
+initConfigNetworkError(code): Network or server error (HTTP $code)
+initConfigProtocolError: Server returned an invalid protocol response
+initConfigFetchFailed: "Failed to fetch config, please check your network connection"
+attachmentGetFileFailed: "Unable to get file, please retry or choose from gallery"
+attachmentGetFileFailedAndroid9: File retrieval failed — Android 9 compatibility issue may apply
+attachmentGetImageDataFailed: "Unable to get image data, please retry"
+attachmentGetOriginalImageFailed: Unable to get original image data
+saveFailedRetry: "Save failed, please try again"
+downloadFileNotFound: "Download file not found, please retry"
+downloadHashRetrying(retry, max): "File verification failed, re-downloading ($retry/$max)"
+downloadHashFailed: "File verification failed repeatedly, please check your network and retry"
+e2eeTransferToNewDevice: Transfer to New Device
+e2eeTransferPendingSection: Pending Transfers
+e2eeTransferLoadFailed: Load Failed
+e2eeTransferLoadFailedDesc: "Unable to load pending transfers, please retry"
+e2eeTransferNoPending: No pending transfers
+e2eeTransferNoPendingDesc: "When a device sends you a key, it will appear here"
+e2eeSocialEnoughShards: You have enough shards to recover your key
+e2eeSocialMoreShards(count): $count more shards...
+e2eeProxyLoadFriendsFailed: "Failed to load friend list, please retry"
+e2eeProxyNoPublicKey: This contact has no available public key
+e2eeProxyGetKeyFailed(name): Failed to get public key for $name
+e2eeProxySelectFailed: "Failed to select proxies, please retry"
+e2eeProxyNoFriends: No friends yet
+e2eeProxyNoFriendsHint: Add friends first before setting up recovery proxies
+e2eeProxyNeedMore(count, selected): Need at least $count trusted contacts — $selected selected
+e2eeProxyConfirmCount(count): Confirm Selection ($count proxies)
+buttonBackHome: Back to Home
+featureNotEnabled: This feature is not enabled
+featureDisabledName(name): $name is not enabled and temporarily unavailable
+imageLoadFailed: Load failed
+loadFailedWithError(error): "Load failed: $error"
+webAudioNotSupported: Voice messages are not supported on the web platform
+e2eeKeyRecreationFailed(error): "Key creation failed: $error"

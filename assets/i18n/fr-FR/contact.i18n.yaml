@@ -1,0 +1,49 @@
+applyFriend: Demande d’ami
+applyFriendLogic: Logique de demande d'ami
+applyParam: Demander $param
+blocked: Bloqué
+applyChanges: Redémarrez l'application pour appliquer les modifications.
+inputNewTag: Saisir une nouvelle étiquette...
+denylist: Liste de blocage
+denylistEmpty: Liste de blocage vide
+denylistEmptyDesc: "Vous n'avez bloqué aucun utilisateur.
+Les utilisateurs bloqués ne pourront pas vous envoyer de messages."
+favoriteGroupTagsEtc: "Enregistrer les noms, noms de groupe, étiquettes, etc."
+groupRemarkView: Vue des remarques de groupe
+groupRemarkVisibility: La remarque du groupe n'est visible que par vous.
+newFriend: Nouvel ami
+recommendToFriend: Recommander à des amis
+remark: Remarque
+remarksTags: Remarques et étiquettes
+applyFilters: Appliquer les filtres
+selectAGroup: Sélectionner un groupe
+selectFriend: Sélectionner un ami
+selectFriends: Sélectionner des amis.
+selectOrEnterTag: Sélectionner ou entrer une étiquette.
+tags: Étiquettes
+tellFriend: Dire à un ami
+tagNameRequired: Le nom de l'étiquette ne peut pas être vide.
+suggestedTags: Étiquettes suggérées
+tagManagement: Gestion des étiquettes
+currentTags: Étiquettes actuelles ($param)
+pleaseEnterRemark: Veuillez entrer la remarque.
+enterRemark: Entrez la remarque.
+pleaseEnterTags: Entrez les étiquettes.
+tagLengthExceeded: La longueur de l'étiquette ne peut pas dépasser $param caractères.
+maxTagsExceeded: Au maximum $param étiquettes autorisées.
+selectedTags: Étiquettes sélectionnées ($param/$max).
+tagImportant: Important
+tagUrgent: Urgent
+tagWork: Travail
+tagLife: Vie
+tagStudy: Étude
+tagEntertainment: Loisirs
+tagTravel: Voyage
+tagFood: Cuisine
+tagHealth: Santé
+tagFamily: Famille
+tagFriends: Amis
+tagProject: Projet
+tagIdeas: Idées
+tagMemo: Mémo
+friendRequestSent: Envoyé

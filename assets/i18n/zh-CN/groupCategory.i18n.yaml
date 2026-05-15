@@ -1,0 +1,17 @@
+title: 群分组
+createCategory: 创建分组
+categoryName: 分组名称
+categoryDesc: 分组描述（可选）
+noCategory: 暂无分组
+createFirst: 创建第一个分组吧
+addGroup: 添加群聊到分组
+removeGroup: 从分组移除
+deleteCategory: 删除分组
+deleteCategoryConfirm: 确定要删除该分组吗？群聊不会被删除。
+categoryCreated: 分组创建成功
+categoryDeleted: 分组已删除
+renameCategory: 重命名分组
+categoryRenamed: 分组重命名成功
+renameFailed: 重命名失败，请重试
+deleteFailed: 删除失败，请重试
+categoryDetailTip: 该分组下的群聊可以在群组列表中通过「移入分组」进行管理

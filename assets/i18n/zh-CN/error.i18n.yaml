@@ -1,0 +1,12 @@
+restartRequired: 需要重启应用
+networkFailureGuidance: 网络失败指引
+pleaseCheckNetwork: 请检查你的网络设置。
+networkTroubleshootingStep1: 1.打开手机设置并把Wi-Fi开关保持开启状态。
+networkTroubleshootingStep2: 2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。
+networkTroubleshootingStep3: 3.如果仍无法连接网络，请检查手机接入的Wi-Fi是否已接入互联网或者咨询网络运营商。
+suggestCheckNetwork: 建议检查网络设置。
+e2eeStartRecoveryBtn(required): 开始恢复密钥（需要 $required 个代理协助）
+e2eeInsufficientShardBtn(required, current): 分片不足（需要 $required 个，当前 $current 个）
+e2eeErrTimeout: 加密超时，请检查网络连接后重试
+e2eeErrNetwork: 网络错误，加密失败，消息未发送
+liveRoomTitleRequired: 标题不能为空

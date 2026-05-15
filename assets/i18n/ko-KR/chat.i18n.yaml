@@ -1,0 +1,169 @@
+bankCard: 은행 카드
+cards: 장
+jdShopping: JD 쇼핑
+receivePayment: 송금·결제
+alreadyEntered: 이미 입력했습니다
+alreadyMember: 이미 구성원
+appSqliteFileSizeExplain: "현재 계정의 로컬 sqlite 파일 크기입니다. 선택된 채팅 기록의 사진, 비디오 및 파일을 정리하거나 선택된 채팅 기록의 모든 메시지를 비울 수 있습니다."
+attachmentProvider: 첨부 파일 제공자
+audioMessage: 음성 메시지
+awaitingReply: 답변 대기 중
+businessCard: 명함
+busyTryAgainLater: 상대방이 바쁩니다. 나중에 다시 시도해 주세요
+later: 나중에
+changeGroupChatName: 그룹 채팅 이름을 수정하면 그룹 내 다른 구성원에게 알림이 갑니다.
+chatHistory: 채팅 기록
+chatHoldDownTalk: 눌러서 말하기
+chatMessage: 채팅 메시지
+chatMomentSportDataEtc: "채팅, 모멘트, 운동 데이터 등"
+chatSettingMute: 메시지 알림 끄기
+chatSettingMuteDesc: 이 채팅의 메시지 알림 끄기
+chatSettingMuted: 알림 차단됨
+chatSettingPin: 채팅 고정
+chatSettingPinDesc: 이 채팅을 목록 상단에 고정
+chatSettingUnmuted: 알림 허용됨
+chatStatusSending: 전송 중
+chatStatusSent: 전송됨
+chatStatusDelivered: 전달됨
+chatStatusSeen: 읽음
+chatStatusSendingDesc: 메시지 전송 중...
+chatStatusSentDesc: 메시지가 전송되었습니다
+chatStatusDeliveredDesc: 메시지가 전달되었습니다
+chatStatusSeenDesc: 메시지가 읽혔습니다
+createGroupF2f: 대면 그룹 만들기
+displayProfile: 프로필 표시
+file: 파일
+fileMessage: "[파일]"
+fileSize: 파일 크기
+forgotPasswordPinCodeView: 비밀번호 찾기 PIN 코드 보기
+forward: 전달
+forwardReply: 전달 답장
+forwardTo: 전달 대상
+forwardToFriend: 친구에게 전달
+great: 매우 좋음
+groupChat: 그룹 채팅
+image: 이미지
+imageMessage: "[이미지]"
+initiateChat: 그룹 채팅 시작
+justChat: 채팅만
+location: 위치
+message: 메시지
+messageHandlingMixin: 메시지 처리 믹스인
+messageMarkTitle: 메시지 표시
+customMessage: 사용자 지정 메시지
+card: 명함
+messageType: 메시지 유형
+messageVisitCardBuilder: 메시지 명함 카드 빌더
+messageWasWithdrawn: 메시지를 회수했습니다
+messageWasWithdrawnWithTitle: $param님이 메시지를 회수했습니다
+messageWebrtcBuilder: 메시지 WebRTC 빌더
+momentStatus: 모멘트 및 상태
+offline: 오프라인
+online: 온라인
+paramAlreadyExist: $param이(가) 이미 존재합니다
+pin: 고정
+pinChat: 채팅 고정
+pinned: 고정됨
+privateReply: 개인 답장
+qrCodeBusinessCard: QR코드 명함
+quoteReply: 인용 답장
+rating: 평가
+readAgreeParam: $param을(를) 읽고 동의합니다
+recentChats: 최근 채팅
+recentForwards: 최근 전달
+remindMeLater: 나중에 알림
+repliedAt: 답장 시간
+reply: 답장
+replyTo: 답장 대상
+resendCode: 인증 코드 재전송
+revoke: 회수
+scanQrCodeBusinessCard: QR코드 명함 스캔
+sendFriendRequest: 친구 추가 요청 보내기
+sendMsgRejected: 메시지가 전송되었으나 상대방이 거부했습니다.
+sendSeparatelyTo: 각각 전송
+sendTo: 전송 대상
+send: "@:common.buttonSend"
+sender: 발신자
+sending: 전송 중...
+signatureInputHint: 서명 입력 팁
+signaturePlaceholder: 서명 플레이스홀더
+signupIntro: "인증 코드가 이메일로 전송되었습니다.
+계정을 확인하려면 인증 코드를 입력해 주세요."
+socialProfile: 소셜 프로필
+status: 상태
+storageSpaceData: 저장 공간 및 데이터
+sureOpenTheFile: 파일을 여시겠습니까?
+textMessage: 텍스트 메시지
+titleMessage: 메시지
+topChat: 채팅 고정
+unpin: 고정 취소
+unsupportedFileType: 지원되지 않는 파일 유형
+userData: 사용자 데이터
+video: 비디오
+videoMessage: "[비디오]"
+viewAttachments: 첨부 파일 보기
+voice: 음성
+voiceInput: 음성 입력
+voiceMessage: 음성 메시지
+youWithdrewAMessage: 메시지를 회수했습니다
+formatCheck: 형식 검사
+featureRequest: 기능 요청
+resendCodeWithCount: 재전송 ($count초)
+chatResend: 재전송
+chatReply: 답장
+chatOpenFile: 파일 열기
+chatOpenLink: 링크 열기
+avatarSelectPhoto: 사진 선택
+avatarTakePhoto: 사진 촬영
+avatarSelectFromAlbum: 앨범에서 선택
+profileExportProfile: 프로필 내보내기
+momentsSend: 전송
+videoCompressInProgress: 압축 작업이 이미 진행 중입니다
+videoCompressing: 비디오 압축 중...
+loginExpiredMessage: 로그인이 만료되었습니다. 다시 로그인하세요
+geometricPattern: 기하학적 패턴
+ripplePattern: 물결 패턴
+customImage: 사용자 지정 이미지
+voiceRecordResultEmpty: 음성 녹음 결과가 비어있습니다
+voiceFileInvalid: 음성 파일이 유효하지 않습니다
+burnAfterReading: 읽은 후 자동 삭제
+visibleThresholdRead: 가시성 임계값 읽기
+readThresholdDelay: 읽기 임계값 및 지연
+goodReadability: 좋은 가독성
+profileCompleteness: 프로필 완성도
+tagStatistics: 태그 통계
+alreadySent: 전송됨
+visibleRatioLabel: 가시성 비율 (0.1~1.0)
+unsupportedMessageType: 지원되지 않는 메시지 유형
+passwordMismatch: 비밀번호가 일치하지 않습니다
+pleaseTryAgainLater: 나중에 다시 시도해 주세요
+sendNewMessage: 새 메시지 전송
+markRead: 읽음으로 표시
+markUnread: 읽지 않음으로 표시
+pleaseEnterSignature: Please enter signature
+exportProfile: 프로필 내보내기
+setSignature: 서명 설정
+setAvatar: 프로필 사진 설정
+fastForward: $seconds초 빨리감기
+messageId: 메시지 ID
+chatType: 채팅 유형
+voiceFileEmptyPleaseTryAgain: 음성 파일이 비어있습니다. 다시 시도해 주세요
+sendingVoice: 음성 전송 중...
+deletingMessage: 삭제 중...
+deletingLocalMessage: 로컬 메시지 삭제 중...
+quickReplyReceived: 받았습니다
+quickReplyThanks: 감사합니다
+quickReplyWait: 잠시만요
+messageMute: "@:chat.chatSettingMute"
+quickReplyManage: 管理快捷回复
+quickReplyEmpty: 暂无快捷回复，点击右下角添加
+quickReplyDuplicate: 内容已存在
+quickReplyMaxReached: 最多 $max 条
+quickReplyHint: 输入内容...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message

@@ -4,6 +4,7 @@ output_directory: lib/i18n
 input_file_pattern: .i18n.yaml
 output_localization_file: strings.g.dart
 output_class_name: AppStrings
+namespaces: true
 enum_name: AppLocale
 
 # Fallback strategy for missing translations

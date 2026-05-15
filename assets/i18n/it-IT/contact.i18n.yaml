@@ -1,0 +1,49 @@
+applyFriend: Richiedi amicizia
+applyFriendLogic: Logica richiesta amicizia
+applyParam: Richiedi $param
+blocked: Bloccato
+applyChanges: Riavvia l’app per applicare le modifiche.
+inputNewTag: Inserisci nuovo tag...
+denylist: Lista bloccati
+denylistEmpty: Lista bloccati vuota
+denylistEmptyDesc: "Non hai ancora bloccato alcun utente
+Gli utenti bloccati non potranno inviarti messaggi"
+favoriteGroupTagsEtc: "Raccolta nomi, nomi gruppo, tag ecc."
+groupRemarkView: Vista nota gruppo
+groupRemarkVisibility: La nota della chat di gruppo è visibile solo a te
+newFriend: Nuovo amico
+recommendToFriend: Consiglialo agli amici
+remark: Nota
+remarksTags: Note e tag
+applyFilters: Applica filtri
+selectAGroup: Seleziona un gruppo
+selectFriend: Seleziona amico
+selectFriends: Seleziona amici
+selectOrEnterTag: Seleziona o inserisci tag
+tags: Tag
+tellFriend: Di agli amici
+tagNameRequired: Il nome del tag non può essere vuoto
+suggestedTags: Tag suggeriti
+tagManagement: Gestione tag
+currentTags: Tag attuali ($param)
+pleaseEnterRemark: Inserisci nota
+enterRemark: Inserisci nome nota
+pleaseEnterTags: Inserisci tag
+tagLengthExceeded: La lunghezza del tag non può superare i $param caratteri
+maxTagsExceeded: Massimo $param tag consentiti
+selectedTags: Tag selezionati ($param/$max)
+tagImportant: Importante
+tagUrgent: Urgente
+tagWork: Lavoro
+tagLife: Vita
+tagStudy: Studio
+tagEntertainment: Intrattenimento
+tagTravel: Viaggio
+tagFood: Cibo
+tagHealth: Salute
+tagFamily: Famiglia
+tagFriends: Amici
+tagProject: Progetto
+tagIdeas: Idee
+tagMemo: Memo
+friendRequestSent: Inviato

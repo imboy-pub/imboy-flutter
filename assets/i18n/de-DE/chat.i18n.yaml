@@ -1,0 +1,169 @@
+bankCard: Bankkarte
+cards: Stück
+jdShopping: JD Einkaufen
+receivePayment: "Empfangen & Zahlen"
+alreadyEntered: Sie haben bereits eingegeben
+alreadyMember: Bereits Mitglied
+appSqliteFileSizeExplain: Lokale SQLite-Größe des Kontos. Bereinigen Sie Bilder/Videos/Dateien in Chat-Verläufen oder leeren Sie alle Nachrichten.
+attachmentProvider: Anhangsanbieter
+audioMessage: Sprachnachricht
+awaitingReply: Warten auf Antwort
+businessCard: Visitenkarte
+busyTryAgainLater: "Der Gesprächspartner ist beschäftigt, bitte versuchen Sie es später erneut"
+later: Später
+changeGroupChatName: Gruppennamenänderung benachrichtigt andere Mitglieder.
+chatHistory: Chat-Verlauf
+chatHoldDownTalk: Zum Sprechen gedrückt halten
+chatMessage: Chatnachrichten
+chatMomentSportDataEtc: "Chat, Momente, Bewegungsdaten usw."
+chatSettingMute: Nachrichten stummschalten
+chatSettingMuteDesc: Benachrichtigungen für diesen Chat deaktivieren
+chatSettingMuted: Stummschaltung aktiviert
+chatSettingPin: Chat anheften
+chatSettingPinDesc: Diesen Chat oben in der Liste anheften
+chatSettingUnmuted: Stummschaltung deaktiviert
+chatStatusSending: Wird gesendet
+chatStatusSent: Gesendet
+chatStatusDelivered: Zugestellt
+chatStatusSeen: Gelesen
+chatStatusSendingDesc: Nachricht wird gesendet...
+chatStatusSentDesc: Nachricht gesendet
+chatStatusDeliveredDesc: Nachricht zugestellt
+chatStatusSeenDesc: Nachricht gelesen
+createGroupF2f: Face-to-Face Gruppe erstellen
+displayProfile: Mein Profil anzeigen
+file: Datei
+fileMessage: "[Datei]"
+fileSize: Dateigröße
+forgotPasswordPinCodeView: PIN-Code für Passwort vergessen
+forward: Weiterleiten
+forwardReply: Antwort weiterleiten
+forwardTo: Weiterleiten an
+forwardToFriend: An Freund weiterleiten
+great: Ausgezeichnet
+groupChat: Gruppenchat
+image: Bild
+imageMessage: "[Bild]"
+initiateChat: Gruppenchat starten
+justChat: Nur Chat
+location: Standort
+message: Nachricht
+messageHandlingMixin: Nachrichtenverarbeitungs-Mixin
+messageMarkTitle: Nachrichtenmarkierung
+customMessage: Benutzerdefinierte Nachricht
+card: Karte
+messageType: Nachrichtentyp
+messageVisitCardBuilder: Visitenkarten-Nachrichten-Builder
+messageWasWithdrawn: hat eine Nachricht zurückgerufen
+messageWasWithdrawnWithTitle: $param hat eine Nachricht zurückgerufen
+messageWebrtcBuilder: WebRTC-Nachrichten-Builder
+momentStatus: Momente und Status
+offline: Offline
+online: Online
+paramAlreadyExist: $param existiert bereits
+pin: Anheften
+pinChat: Chat anheften
+pinned: Angepinnt
+privateReply: Privat antworten
+qrCodeBusinessCard: QR-Code-Visitenkarte
+quoteReply: Zitatantwort
+rating: Bewertung
+readAgreeParam: Habe gelesen und zugestimmt $param
+recentChats: Letzte Chats
+recentForwards: Kürzlich weitergeleitet
+remindMeLater: Später erinnern
+repliedAt: Geantwortet am
+reply: Antworten
+replyTo: Antworten an
+resendCode: Code erneut senden
+revoke: Widerrufen
+scanQrCodeBusinessCard: QR-Code-Visitenkarte scannen
+sendFriendRequest: Freundschaftsanfrage senden
+sendMsgRejected: "Nachricht gesendet, aber vom Gesprächspartner abgelehnt."
+sendSeparatelyTo: Getrennt senden an
+sendTo: Senden an
+send: "@:common.buttonSend"
+sender: Absender
+sending: Wird gesendet...
+signatureInputHint: Signatur-Eingabehinweis
+signaturePlaceholder: Signatur-Platzhalter
+signupIntro: "Der Bestätigungscode wurde an Ihre E-Mail gesendet,
+bitte geben Sie den Bestätigungscode ein, um Ihr Konto zu bestätigen."
+socialProfile: Soziales Profil
+status: Status
+storageSpaceData: Speicherplatz und Daten
+sureOpenTheFile: Datei öffnen?
+textMessage: Textnachricht
+titleMessage: Nachrichten
+topChat: Chat anheften
+unpin: Anheftung aufheben
+unsupportedFileType: Nicht unterstützter Dateityp
+userData: Benutzerdaten
+video: Video
+videoMessage: "[Video]"
+viewAttachments: Anhänge anzeigen
+voice: Sprache
+voiceInput: Spracheingabe
+voiceMessage: Sprachnachricht
+youWithdrewAMessage: Sie haben eine Nachricht widerrufen
+formatCheck: Formatprüfung
+featureRequest: Funktionsanfrage
+resendCodeWithCount: Erneut senden ($count Sekunden)
+chatResend: Erneut senden
+chatReply: Antworten
+chatOpenFile: Datei öffnen
+chatOpenLink: Link öffnen
+avatarSelectPhoto: Foto auswählen
+avatarTakePhoto: Foto aufnehmen
+avatarSelectFromAlbum: Aus Album auswählen
+profileExportProfile: Profil exportieren
+momentsSend: Senden
+videoCompressInProgress: Komprimierungsaufgabe bereits in Bearbeitung
+videoCompressing: Video wird komprimiert...
+loginExpiredMessage: "Anmeldung abgelaufen, bitte erneut anmelden"
+geometricPattern: Geometrisches Muster
+ripplePattern: Wellenmuster
+customImage: Benutzerdefiniertes Bild
+voiceRecordResultEmpty: Sprachaufnahme-Ergebnis ist leer
+voiceFileInvalid: Sprachdatei ungültig
+burnAfterReading: Nach dem Lesen vernichten
+visibleThresholdRead: Sichtbarkeitsschwelle gelesen
+readThresholdDelay: "Leseschwelle & Verzögerung"
+goodReadability: Gute Lesbarkeit
+profileCompleteness: Profil-Vollständigkeit
+tagStatistics: Tag-Statistik
+alreadySent: Bereits gesendet
+visibleRatioLabel: Sichtbares Verhältnis (0.1~1.0)
+unsupportedMessageType: Nicht unterstützter Nachrichtentyp
+passwordMismatch: Passwörter stimmen nicht überein
+pleaseTryAgainLater: Bitte versuchen Sie es später erneut
+sendNewMessage: Neue Nachricht senden
+markRead: Als gelesen markieren
+markUnread: Als ungelesen markieren
+pleaseEnterSignature: Please enter signature
+exportProfile: Profil exportieren
+setSignature: Signatur festlegen
+setAvatar: Avatar festlegen
+fastForward: Schnell vor $seconds Sekunden
+messageId: Nachrichten-ID
+chatType: Chat-Typ
+voiceFileEmptyPleaseTryAgain: "Sprachdatei ist leer, bitte erneut versuchen"
+sendingVoice: Sprache wird gesendet...
+deletingMessage: Wird gelöscht...
+deletingLocalMessage: Lokale Nachricht wird gelöscht...
+quickReplyReceived: Erhalten
+quickReplyThanks: Danke
+quickReplyWait: Einen Moment
+messageMute: "@:chat.chatSettingMute"
+quickReplyManage: 管理快捷回复
+quickReplyEmpty: 暂无快捷回复，点击右下角添加
+quickReplyDuplicate: 内容已存在
+quickReplyMaxReached: 最多 $max 条
+quickReplyHint: 输入内容...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message

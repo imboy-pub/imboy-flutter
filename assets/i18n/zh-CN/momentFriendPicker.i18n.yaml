@@ -1,0 +1,11 @@
+title: 选择好友
+titleAllow: 指定可见
+titleDeny: 不给谁看
+confirm: 确定
+confirmWithCount: 确定($count)
+selectedCount: 已选 $count 人
+emptyFriends: 暂无好友
+tagsLabel: 按标签选
+emptyTags: 暂无标签
+tagLoadFailed: 标签加载失败
+searchHint: 搜索好友

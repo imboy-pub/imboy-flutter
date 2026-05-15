@@ -1,0 +1,101 @@
+account: Compte
+accountSecurity: Sécurité du compte
+mobileRecharge: Recharge mobile
+avatar: Photo de profil
+accountSecurityEnhance: Améliorer la sécurité du compte
+bindMobile: Associer le numéro de téléphone
+bindMobileFor: "Utilisé pour la connexion, la récupération du mot de passe et la réception de notifications importantes."
+linkEmail: Associer l'adresse e-mail
+linkEmailFor: "Utilisé pour la connexion, l'authentification et la réception des factures."
+codeSentToEmail: Code envoyé par e-mail
+codeSentToMobile: Code envoyé par SMS
+currentDevice: Appareil actuel
+deviceAvailableSpace: Espace disponible sur l'appareil
+deviceList: Liste des appareils
+deviceName: Nom de l'appareil
+deviceType: Type d'appareil
+deviceUsedSpace: Espace utilisé sur l'appareil
+email: E-mail
+existingPassword: Mot de passe actuel
+forgotPassword: Mot de passe oublié ?
+gender: Genre
+genderSaving: Enregistrement en cours...
+groupQrcode: Code QR du groupe
+hintLoginAccount: Compte/E-mail
+logOut: Se déconnecter
+areYouSureLogOut: Êtes-vous sûr de vouloir vous déconnecter ?
+login: Se connecter
+loginDeviceManagement: Gestion des appareils connectés
+loginEmail: E-mail de connexion
+logoutAccount: Supprimer le compte
+mobile: Téléphone
+mobileQuickLogin: Connexion rapide
+myAccount: Mon compte
+myQrcode: Mon code QR
+newPassword: Nouveau mot de passe
+newlyRegisteredPeople: Nouveaux inscrits
+nickname: Surnom
+nicknameChangeVisibility: "Après modification du surnom, il ne s'affichera que dans ce groupe et tous les membres du groupe pourront le voir."
+nicknameCharsRemaining: Il reste encore $param caractères.
+nicknameHint: Entrez un surnom.
+nicknameSaving: Enregistrement en cours...
+paramLogin: Connexion $param.
+password: Mot de passe
+recentlyRegisteredUser: Utilisateur récemment inscrit
+recoverCodePasswordDesc: Nous enverrons le code de récupération de mot de passe à votre adresse e-mail.
+recoverPassword: Récupérer le mot de passe
+recoverPasswordDesc: Entrez votre adresse e-mail. Nous vous enverrons un code de réinitialisation du mot de passe.
+recoverPasswordIntro: "Ne vous inquiétez pas, cela arrive souvent."
+birthday: Date de naissance
+region: Région
+retypePassword: Ressaisir le mot de passe
+scanQrCode: Scanner le code QR
+securityCenter: Centre de sécurité
+setNickname: Définir le surnom
+signature: Signature
+signup: S'inscrire
+signupFormDesc: Veuillez remplir ce formulaire pour terminer l'inscription.
+sourceQrcode: Ajouter via scan
+switchAccount: Changer de compte
+changeEmail: Modifier l'e-mail
+bindEmail: Associer l'e-mail
+currentEmail: E-mail actuel
+newEmailSameAsCurrent: Le nouvel e-mail est identique à l'actuel.
+newMobileSameAsCurrent: Le nouveau numéro de téléphone est identique à l'actuel.
+setPassword: Définir le mot de passe
+setLoginPassword: Définir le mot de passe de connexion
+enhanceAccountSecurity: Améliorer la sécurité du compte
+passwordLengthRequirement: Le mot de passe doit contenir de 4 à 32 caractères.
+passwordMinLength: Le mot de passe doit contenir au moins $min caractères.
+pleaseEnterPassword: Entrez le mot de passe.
+changeMobile: Changer de numéro de téléphone
+currentMobile: Numéro de téléphone actuel
+newMobile: Nouveau numéro de téléphone
+enterMobileHint: Entrez le numéro de téléphone
+codeSentToMobileParam: Envoyé à $param
+privacyLogoutAccount: Supprimer le compte
+wallet: Portefeuille
+changeLoginPassword: Modifier le mot de passe de connexion
+loginExpiredTitle: Notification
+otherDevice: Autre appareil
+loginPassword: Mot de passe de connexion
+loginPasswordDesc: Utilisé pour se connecter au compte IMBoy.
+oldPassword: Ancien mot de passe
+enterOldPassword: Entrez l'ancien mot de passe.
+enterNewPassword: Entrez le nouveau mot de passe.
+enterNewPasswordAgain: Entrez à nouveau le nouveau mot de passe.
+balance: Solde
+recharge: Recharger
+withdraw: Retirer
+paymentPassword: Mot de passe de paiement
+setPaymentPassword: Définir le mot de passe de paiement
+enterPaymentPassword: Entrez le mot de passe de paiement.
+myQRCode: Mon code QR
+profile: Profile
+setGender: Définir le genre
+setBirthday: Définir la date de naissance
+sentToEmail: Envoyé à $param
+nicknameRules: "• Longueur du surnom : 2-24 caractères
+• Ne peut pas contenir uniquement des espaces ou des émojis
+• Ne peut pas contenir de mots sensibles
+• Les modifications seront reflétées dans tous les chats"

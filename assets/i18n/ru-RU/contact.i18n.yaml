@@ -1,0 +1,49 @@
+applyFriend: Добавить в друзья
+applyFriendLogic: Логика добавления в друзья
+applyParam: Заявка $param
+blocked: Заблокирован
+applyChanges: Перезапустите приложение для применения изменений
+inputNewTag: Введите новый тег...
+denylist: Чёрный список
+denylistEmpty: Чёрный список пуст
+denylistEmptyDesc: "Чёрный список пуст
+Заблокированные пользователи не могут отправлять вам сообщения"
+favoriteGroupTagsEtc: "Сохранённые имена, группы, теги и т.д."
+groupRemarkView: Представление заметки группы
+groupRemarkVisibility: Примечание группы видно только вам
+newFriend: Новые друзья
+recommendToFriend: Порекомендовать другу
+remark: Примечание
+remarksTags: Примечания и теги
+applyFilters: Применить фильтры
+selectAGroup: Выберите группу
+selectFriend: Выбрать друга
+selectFriends: Выбрать друзей
+selectOrEnterTag: Выберите или введите тег
+tags: Теги
+tellFriend: Рассказать другу
+tagNameRequired: Название тега не может быть пустым
+suggestedTags: Рекомендуемые теги
+tagManagement: Управление тегами
+currentTags: Текущие теги ($param)
+pleaseEnterRemark: "Пожалуйста, введите примечание"
+enterRemark: Введите примечание
+pleaseEnterTags: "Пожалуйста, введите теги"
+tagLengthExceeded: Длина тега не может превышать $param символов
+maxTagsExceeded: Максимум $param тегов
+selectedTags: Выбрано тегов ($param/$max)
+tagImportant: Важное
+tagUrgent: Срочное
+tagWork: Работа
+tagLife: Жизнь
+tagStudy: Учёба
+tagEntertainment: Развлечения
+tagTravel: Путешествия
+tagFood: Еда
+tagHealth: Здоровье
+tagFamily: Семья
+tagFriends: Друзья
+tagProject: Проект
+tagIdeas: Идеи
+tagMemo: Заметка
+friendRequestSent: Отправлено

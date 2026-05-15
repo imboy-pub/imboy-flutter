@@ -1,0 +1,24 @@
+title: 群投票
+createVote: 创建投票
+voteTitle: 投票标题
+voteOptions: 投票选项
+addOption: 添加选项
+allowMultiple: 允许多选
+anonymous: 匿名投票
+deadline: 截止时间
+noDeadline: 无截止时间
+noVote: 暂无投票
+voteEnded: 投票已结束
+totalVotes: 共 $count 票
+voteSuccess: 投票成功
+hasVoted: 已投票
+viewResults: 查看结果
+cancelVoteSuccess: 已取消投票
+cancelVoteFailed: 取消失败，请稍后重试
+endVoteFailed: 结束失败，请稍后重试
+eachOptionPerLine: 每行一个选项
+statusInProgress: 进行中
+updateVote: 更新投票
+cancelMyVote: 取消我的投票
+voteIdMissing: 投票ID缺失，无法查看详情
+participantCount: "参与人数: $count"

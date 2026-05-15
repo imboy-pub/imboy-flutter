@@ -1,0 +1,52 @@
+applyFriend: 申请好友
+applyFriendLogic: 申请好友逻辑
+applyParam: 申请$param
+blocked: 已拉黑
+applyChanges: 请重启应用以应用更改
+inputNewTag: 输入新标签...
+denylist: 黑名单
+denylistEmpty: 黑名单为空
+denylistEmptyDesc: "你还没有拉黑任何用户
+被拉黑的用户将无法给你发送消息"
+favoriteGroupTagsEtc: 收藏、人名、群名、标签等
+groupRemarkView: 群组备注视图
+groupRemarkVisibility: 群聊的备注仅自己可见
+newFriend: 新的朋友
+recommendToFriend: 把他推荐给朋友
+remark: 备注
+remarksTags: 备注和标签
+applyFilters: 应用筛选
+selectAGroup: 选择一个群
+selectFriend: 选择好友
+selectFriends: 选择朋友
+selectOrEnterTag: 选择或输入标签
+tags: 标签
+tellFriend: 告诉朋友
+tagNameRequired: 标签名称不能为空
+suggestedTags: 建议标签
+tagManagement: 标签管理
+currentTags: 当前标签 ($param)
+pleaseEnterRemark: 请输入备注名
+enterRemark: 请输入备注名
+pleaseEnterTags: 请输入标签
+momentsVisibilityFriends: 仅好友
+tagLengthExceeded: 标签长度不能超过 $param 个字符
+maxTagsExceeded: 最多只能添加 $param 个标签
+selectedTags: 已选标签 ($param/$max)
+tagImportant: 重要
+tagUrgent: 紧急
+tagWork: 工作
+tagLife: 生活
+tagStudy: 学习
+tagEntertainment: 娱乐
+tagTravel: 旅行
+tagFood: 美食
+tagHealth: 健康
+tagFamily: 家庭
+tagFriends: 朋友
+tagProject: 项目
+tagIdeas: 想法
+tagMemo: 备忘
+friendRequestSent: 已发送
+channelMaxTagsCount: 最多可添加 8 个标签
+tagInputHint: 输入标签...

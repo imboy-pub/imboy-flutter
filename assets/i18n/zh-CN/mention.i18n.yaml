@@ -1,0 +1,11 @@
+title: "@提及"
+noMention: "暂无@提及"
+allRead: 全部已读
+markAsRead: 标记为已读
+newMention: "新的@提及"
+fromGroup: 来自群聊
+fromChat: 来自聊天
+viewContext: 查看上下文
+mentionCount: $count 条新提及
+mentionAllDenied: "仅管理员可以 @所有人"
+navInfoMissing: 消息定位信息缺失，无法跳转

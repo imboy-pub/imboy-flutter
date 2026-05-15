@@ -44,8 +44,8 @@ def stat(flat)
   }
 end
 
-def allowed_scripts_for(file)
-  case file
+def allowed_scripts_for(locale)
+  case locale
   when /\Azh-/
     Set[:han, :latin]
   when /\Aja-/
@@ -70,35 +70,45 @@ def scripts_in(str)
   scripts
 end
 
-files = Dir["*.i18n.yaml"].sort
-base_file = "zh-CN.i18n.yaml"
-base = flatten(YAML.load_file(base_file))
+def load_locale(dir)
+  merged = {}
+  Dir.glob(File.join(dir, "*.i18n.yaml")).each do |f|
+    ns = File.basename(f, ".i18n.yaml")
+    data = YAML.load_file(f)
+    if data
+      # slang namespaces: the filename is the top level key
+      # t.common.cancel means common.i18n.yaml has cancel: ...
+      # So we flatten with ns prefix
+      flatten(data, ns, merged)
+    end
+  end
+  merged
+end
+
+# Root directory of i18n
+I18N_ROOT = File.dirname(__FILE__)
+locales = Dir.children(I18N_ROOT).select { |d| File.directory?(File.join(I18N_ROOT, d)) }.sort
+base_locale = "zh-CN"
+base = load_locale(File.join(I18N_ROOT, base_locale))
 
 mode = ARGV[0] || "summary"
 top_n = (ENV["TOP"] || "12").to_i
 
 if mode == "help"
-  puts "Usage:"
+  puts "Usage (Run from assets/i18n/):"
   puts "  ruby i18n_audit.rb summary"
-  puts "  ruby i18n_audit.rb untranslated [base_file]"
+  puts "  ruby i18n_audit.rb untranslated [base_locale]"
   puts "  ruby i18n_audit.rb unexpected-scripts"
-  puts "  ruby i18n_audit.rb latin-words <file>"
-  puts "  ruby i18n_audit.rb longest <file>"
-  puts "  ruby i18n_audit.rb diff-base <file>"
-  puts "  ruby i18n_audit.rb spaces <file>"
+  puts "  ruby i18n_audit.rb longest <locale>"
+  puts "  ruby i18n_audit.rb spaces <locale>"
   puts "  ruby i18n_audit.rb aliases"
-  puts "  ruby i18n_audit.rb hant-simplified [zh-Hant.i18n.yaml]"
-  puts "  ruby i18n_audit.rb hant-suggest-convert [zh-Hant.i18n.yaml] [zh-CN.i18n.yaml]"
-  puts ""
-  puts "Env:"
-  puts "  TOP=12   limit printed keys/rows"
   exit 0
 end
 
 if mode == "summary"
-  puts "BASE=#{base_file} keys=#{base.size}"
-  files.each do |f|
-    flat = flatten(YAML.load_file(f))
+  puts "BASE=#{base_locale} keys=#{base.size}"
+  locales.each do |loc|
+    flat = load_locale(File.join(I18N_ROOT, loc))
     missing = base.keys - flat.keys
     extra = flat.keys - base.keys
 
@@ -112,28 +122,25 @@ if mode == "summary"
 
     s = stat(flat)
     puts [
-      f,
-      "keys=#{s[:total]}",
-      "missing=#{missing.size}",
-      "extra=#{extra.size}",
-      "placeholder_mismatch=#{placeholder_mismatch}",
-      "same_as_#{base_file}=#{same_as_base}",
+      loc.ljust(10),
+      "keys=#{s[:total].to_s.ljust(5)}",
+      "missing=#{missing.size.to_s.ljust(4)}",
+      "extra=#{extra.size.to_s.ljust(4)}",
+      "placeholder_mismatch=#{placeholder_mismatch.to_s.ljust(3)}",
+      "same_as_base=#{same_as_base.to_s.ljust(5)}",
       "empty=#{s[:empty_strings]}",
-      "lead_space=#{s[:leading_space]}",
-      "trail_space=#{s[:trailing_space]}",
       "han=#{s[:has_han]}",
       "latin=#{s[:has_latin]}",
       "cyrillic=#{s[:has_cyrillic]}",
-      "arabic=#{s[:has_arabic]}",
-      "ascii_ellipsis=#{s[:has_ellipsis_ascii]}"
+      "arabic=#{s[:has_arabic]}"
     ].join(" ")
   end
   exit 0
 end
 
 if mode == "longest"
-  target = ARGV[1] || base_file
-  flat = flatten(YAML.load_file(target))
+  target = ARGV[1] || base_locale
+  flat = load_locale(File.join(I18N_ROOT, target))
   rows = flat.select { |_, v| v.is_a?(String) }.map { |k, v| [k, v.size, v] }
   rows.sort_by! { |(_, len, _)| -len }
   rows.take(top_n).each do |k, len, v|
@@ -142,18 +149,9 @@ if mode == "longest"
   exit 0
 end
 
-if mode == "diff-base"
-  target = ARGV[1] || "en-US.i18n.yaml"
-  flat = flatten(YAML.load_file(target))
-  same = base.keys.select { |k| flat.key?(k) && flat[k] == base[k] }
-  puts "same_as_#{base_file} count=#{same.size}"
-  same.take(top_n).each { |k| puts k }
-  exit 0
-end
-
 if mode == "spaces"
-  target = ARGV[1] || base_file
-  flat = flatten(YAML.load_file(target))
+  target = ARGV[1] || base_locale
+  flat = load_locale(File.join(I18N_ROOT, target))
   leading = []
   trailing = []
   flat.each do |k, v|
@@ -170,14 +168,14 @@ end
 
 if mode == "untranslated"
   base_override = ARGV[1]
-  base_for_untranslated_file = base_override || base_file
-  base_for_untranslated = flatten(YAML.load_file(base_for_untranslated_file))
+  cur_base_locale = base_override || base_locale
+  cur_base = load_locale(File.join(I18N_ROOT, cur_base_locale))
 
-  files.each do |f|
-    next if f == base_for_untranslated_file
-    flat = flatten(YAML.load_file(f))
+  locales.each do |loc|
+    next if loc == cur_base_locale
+    flat = load_locale(File.join(I18N_ROOT, loc))
     keys = []
-    base_for_untranslated.each do |k, bv|
+    cur_base.each do |k, bv|
       next unless flat.key?(k)
       next unless bv.is_a?(String) && flat[k].is_a?(String)
       next if bv.start_with?("@:")
@@ -185,56 +183,16 @@ if mode == "untranslated"
       keys << k if flat[k] == bv
     end
     next if keys.empty?
-    puts "#{f} untranslated_from_#{base_for_untranslated_file} count=#{keys.size}"
+    puts "#{loc} untranslated_from_#{cur_base_locale} count=#{keys.size}"
     keys.take(top_n).each { |k| puts k }
   end
   exit 0
 end
 
-if mode == "untranslated-show"
-  target = ARGV[1] || "zh-Hant.i18n.yaml"
-  base_override = ARGV[2] || base_file
-  base_for_untranslated_file = base_override
-  base_for_untranslated = flatten(YAML.load_file(base_for_untranslated_file))
-  flat = flatten(YAML.load_file(target))
-
-  keys = []
-  base_for_untranslated.each do |k, bv|
-    next unless flat.key?(k)
-    next unless bv.is_a?(String) && flat[k].is_a?(String)
-    next if bv.start_with?("@:")
-    next unless bv.match?(/\p{Han}/)
-    keys << k if flat[k] == bv
-  end
-
-  puts "#{target} untranslated_from_#{base_for_untranslated_file} count=#{keys.size}"
-  keys.take(top_n).each do |k|
-    puts "#{k} #{flat[k].inspect}"
-  end
-  exit 0
-end
-
-if mode == "same-as"
-  left_file = ARGV[1] || base_file
-  right_file = ARGV[2] || "en-US.i18n.yaml"
-  left = flatten(YAML.load_file(left_file))
-  right = flatten(YAML.load_file(right_file))
-
-  same = left.keys.select do |k|
-    left[k].is_a?(String) && right[k].is_a?(String) && left[k] == right[k]
-  end
-
-  puts "#{left_file} same_as #{right_file} count=#{same.size}"
-  same.take(top_n).each do |k|
-    puts "#{k} #{left[k].inspect}"
-  end
-  exit 0
-end
-
 if mode == "unexpected-scripts"
-  files.each do |f|
-    flat = flatten(YAML.load_file(f))
-    allowed = allowed_scripts_for(f)
+  locales.each do |loc|
+    flat = load_locale(File.join(I18N_ROOT, loc))
+    allowed = allowed_scripts_for(loc)
     bad = []
     flat.each do |k, v|
       next unless v.is_a?(String)
@@ -243,127 +201,25 @@ if mode == "unexpected-scripts"
       bad << k unless unexpected.empty?
     end
     next if bad.empty?
-    puts "#{f} unexpected_scripts count=#{bad.size}"
+    puts "#{loc} unexpected_scripts count=#{bad.size}"
     bad.take(top_n).each { |k| puts k }
   end
   exit 0
 end
 
-if mode == "latin-words"
-  target = ARGV[1] || base_file
-  flat = flatten(YAML.load_file(target))
-  keys = flat.select { |_, v| v.is_a?(String) && !v.start_with?("@:") && v.match?(/[A-Za-z]{3,}/) }.keys
-  puts "#{target} latin_words count=#{keys.size}"
-  keys.take(top_n).each { |k| puts k }
-  exit 0
-end
-
-if mode == "hant-simplified"
-  target = ARGV[1] || "zh-Hant.i18n.yaml"
-  flat = flatten(YAML.load_file(target))
-  simplified = [
-    "这", "那", "哪", "么", "个", "为", "与", "里", "号", "发", "后", "会", "网", "线",
-    "输", "队", "强", "动", "设", "开", "关", "选", "项", "区", "东", "医", "显", "隐",
-    "标", "签", "册", "联", "误", "连", "删", "听", "说", "读", "写"
-  ].to_set
-
-  hits = []
-  flat.each do |k, v|
-    next unless v.is_a?(String)
-    next if v.start_with?("@:")
-    chars = v.each_char.to_set
-    next if (chars & simplified).empty?
-    hits << [k, v]
-  end
-
-  puts "#{target} simplified_suspects count=#{hits.size}"
-  hits.take(top_n).each { |k, v| puts "#{k}=#{v.inspect}" }
-  exit 0
-end
-
-if mode == "hant-suggest-convert"
-  target = ARGV[1] || "zh-Hant.i18n.yaml"
-  source = ARGV[2] || "zh-CN.i18n.yaml"
-  t = flatten(YAML.load_file(target))
-  s = flatten(YAML.load_file(source))
-
-  map = {
-    "暂" => "暫",
-    "该" => "該",
-    "这" => "這",
-    "那" => "那",
-    "个" => "個",
-    "么" => "麼",
-    "为" => "為",
-    "与" => "與",
-    "没" => "沒",
-    "里" => "裡",
-    "号" => "號",
-    "发" => "發",
-    "后" => "後",
-    "会" => "會",
-    "网" => "網",
-    "线" => "線",
-    "输" => "輸",
-    "设" => "設",
-    "备" => "備",
-    "开" => "開",
-    "关" => "關",
-    "选" => "選",
-    "项" => "項",
-    "动" => "動",
-    "应" => "應",
-    "请" => "請",
-    "误" => "誤",
-    "删" => "刪",
-    "连" => "連",
-    "东" => "東",
-    "显" => "顯",
-    "隐" => "隱",
-    "标" => "標",
-    "签" => "簽",
-    "册" => "冊",
-    "联" => "聯",
-    "话" => "話",
-    "电" => "電",
-    "码" => "碼",
-    "账" => "帳",
-    "户" => "戶"
-  }
-
-  hits = []
-  s.each do |k, sv|
-    next unless t.key?(k)
-    tv = t[k]
-    next unless sv.is_a?(String) && tv.is_a?(String)
-    next if sv.start_with?("@:") || tv.start_with?("@:")
-    next unless sv == tv
-    next unless sv.match?(/\p{Han}/)
-
-    converted = sv.dup
-    map.each { |from, to| converted.gsub!(from, to) }
-    next if converted == sv
-    hits << [k, sv, converted]
-  end
-
-  puts "#{target} equal_to_#{source} convertible count=#{hits.size}"
-  hits.take(top_n).each do |k, before, after|
-    puts "#{k} #{before.inspect} -> #{after.inspect}"
-  end
-  exit 0
-end
-
 if mode == "aliases"
-  files.each do |f|
-    flat = flatten(YAML.load_file(f))
+  locales.each do |loc|
+    flat = load_locale(File.join(I18N_ROOT, loc))
     alias_keys = flat.select { |_, v| v.is_a?(String) && v.start_with?("@:") }
     missing = []
     alias_keys.each do |k, v|
       ref = v.delete_prefix("@:")
+      # slang links can be absolute (ns.key) or relative (key)
+      # My split script uses absolute links @:ns.key
       missing << [k, ref] unless flat.key?(ref)
     end
     next if missing.empty?
-    puts "#{f} missing_alias_targets count=#{missing.size}"
+    puts "#{loc} missing_alias_targets count=#{missing.size}"
     missing.take(top_n).each { |k, ref| puts "#{k} -> #{ref}" }
   end
   exit 0

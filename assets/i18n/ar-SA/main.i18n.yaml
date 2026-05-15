@@ -1,0 +1,190 @@
+change: تعديل
+entertainment: أفلام وعروض
+lifePayment: دفع فواتير
+medicalHealth: صحة طبية
+meituanDelivery: توصيل Meituan
+tencentService: خدمات Tencent
+traffic: التنقّل
+totalAssets: إجمالي الأصول
+album: ألبوم
+appSize: حجم التطبيق
+arSa: العربية (السعودية)
+audio: صوت
+barcodeFound: "تم العثور على الباركود!"
+botQianFan: روبوت Qianfan
+cache: الذاكرة المؤقتة
+camera: تصوير
+changeNameView: عرض تغيير الاسم
+changeParam: تعديل $param
+chooseFromAlbum: اختيار من الألبوم
+clean: تنظيف
+codeSentToParam: تم إرسال رمز التحقق إلى $param
+codeSentToType: تم إرسال رمز التحقق إلى $param
+collected: تمت الإضافة إلى المفضلة
+completed: مكتمل
+copied: تم النسخ
+darkModel: الوضع الداكن
+deDd: الألمانية (ألمانيا)
+disable: تعطيل
+earlier: أقدم
+enGb: الإنجليزية (المملكة المتحدة)
+enUs: الإنجليزية (الولايات المتحدة)
+enable: تمكين
+example: "مثال:"
+expired: منتهية الصلاحية
+extraItem: عنصر إضافي
+faceToFaceLogic: منطق وجهاً لوجه
+favorites: المفضلة
+female: أنثى
+followSystem: اتباع النظام
+frFr: الفرنسية (فرنسا)
+from: من
+goClean: الانتقال للتنظيف
+good: رائع
+hangup: إنهاء المكالمة
+haveSet: تم التعيين
+httpParse: تحليل HTTP
+iAm: أنا
+itIt: الإيطالية (إيطاليا)
+jaJp: اليابانية (اليابان)
+keepSecret: سري
+lastActiveTime: آخر نشاط
+lastSeenHide: إخفاء الحالة عبر الإنترنت
+lastSeenNever: لم يسجل الدخول أبداً
+lastSeenWeeksAgo: منذ $param أسبوع
+lastSeenExactTime: آخر اتصال $param
+licenseAgreement: اتفاقية ترخيص البرنامج والخدمة
+liveBroadcast: بث مباشر
+liveRoomListView: عرض قائمة الغرف المباشرة
+publisherPage: صفحة البث
+subscriber: مشترك
+loggingOut: جارٍ تسجيل الخروج...
+loudspeaker: مكبر صوت
+makeYourselfInvisible: اجعل نفسك غير مرئي
+makeYourselfVisible: اجعل نفسك مرئياً
+male: ذكر
+manage: إدارة
+markImportant: مهم
+markImportantDesc: تعليم كرسالة مهمة
+markStar: إضافة إلى المفضلة
+markStarDesc: إضافة هذه الرسالة إلى المفضلة
+markTodo: مهام
+markTodoDesc: تعليم كمهمة
+multiSelect: تحديد متعدد
+multiSelectMode: وضع التحديد المتعدد
+myFavorites: مفضلاتي
+myLive: بثي المباشر
+name: الاسم
+numUnit: $param عنصر
+openInBrowser: فتح في المتصفح
+or: أو
+otherParty: الطرف الآخر
+packageSize: حجم الحزمة
+peerHasHungUp: قام الطرف الآخر بإنهاء المكالمة
+play: تشغيل
+pleaseInputParam: يرجى إدخال $param
+pleaseSelect: يرجى الاختيار
+quickFilters: تصفية سريعة
+quote: اقتباس
+recentlyUsed: استخدمت مؤخراً
+releaseEnd: اترك للإنهاء
+remainingChars: لا يزال بإمكانك إدخال $param حرف
+replied: تم الرد
+ringing: جارٍ الرنين...
+ruRu: الروسية (روسيا)
+selectedCount: تم التحديد ($count)
+selected: تم التحديد
+sent: تم الإرسال
+sentByMe: أرسلته
+sentByOthers: أرسله الآخرون
+setParam: تعيين $param
+setting: الإعدادات
+siginQ: لديك حساب بالفعل؟
+signInWith: تسجيل الدخول بـ $param
+source: المصدر
+speakingTooShort: مدة التحدث قصيرة جداً
+speed: السرعة
+star: "@:main.markStar"
+stillNeeded: لا يزال مطلوباً
+storageSpace: مساحة التخزين
+termOfServices: شروط الخدمة
+text: نص
+thisWeek: هذا الأسبوع
+timeRange: النطاق الزمني
+timeWeekdays: الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد
+titleMine: أنا
+tooBad: سيء جداً
+tryAgainQ: هل تريد المحاولة مرة أخرى؟
+type: النوع
+unanswered: لم يتم الرد
+unnamed: بدون اسم
+upToWords: بحد أقصى $param حرف
+upgrade: ترقية
+usedSpace: المساحة المستخدمة
+webView: عرض الويب
+you: أنت
+yourFeel: كيف تشعر بذلك؟
+zhCn: الصينية المبسطة
+zhHant: الصينية التقليدية
+bound: تم الربط
+correct: صحيح
+pendingInput: في انتظار الإدخال
+lengthCheck: فحص الطول
+bugReport: تقرير خطأ
+deleting: جارٍ الحذف...
+current: الحالي
+publish: نشر
+privacyPolicy: سياسة الخصوصية
+termsOfService: شروط الخدمة
+saving: "@:common.loading"
+topStories: إلقاء نظرة
+systemDefault: الافتراضي للنظام
+custom: مخصص
+previewArea: منطقة المعاينة
+simpleTexture: ملمس بسيط
+gradientBlue: تدرج أزرق
+gradientPurple: تدرج بنفسجي
+copiedToClipboard: تم النسخ إلى الحافظة
+copiedLink: تم نسخ الرابط
+destroyTime: وقت التدمير
+previewEffect: معاينة التأثير
+thisIsTitleText: هذا نص عنوان
+thisIsAuxiliaryText: هذا نص توضيحي مساعد
+toBeCompleted: يجب إكماله
+availableCount: قابل للاختيار
+mostUsed: الأكثر استخداماً
+commentPlaceholder: تعليق...
+delayMsLabel: "تأخير بالمللي ثانية (>=100)"
+processed: تمت المعالجة
+export: تصدير
+school: المدرسة
+hobbiesAndInterests: الهوايات والاهتمامات
+interests: Interests
+pleaseEnterSchool: Please enter school
+pleaseEnterInterests: Please enter interests
+manageVisibility: إدارة رؤية المعلومات الشخصية
+exportToLocal: تصدير الملف الشخصي إلى محلي
+exportAsText: Export as text format
+selectFromAlbum: اختيار من الألبوم
+volumeUp: زيادة الصوت
+volumeDown: خفض الصوت
+fastRewind: ترجيع سريع $seconds ثانية
+pleaseTryAgain: يرجى المحاولة مرة أخرى
+secret: سري
+takePhoto: التقاط صورة
+publishing: جارٍ النشر...
+deletingInProgressPleaseWait: جارٍ الحذف، يرجى الانتظار...
+testUser1: مستخدم1
+testUser2: مستخدم2
+testUser3: مستخدم3
+testUser4: مستخدم4
+testUser5: مستخدم5
+collecting: جارٍ الإضافة إلى المفضلة...
+user: مستخدم
+recommended: مُوصى به
+larger: أكبر
+currentLength: "الطول الحالي: $param1 / $param2"
+fillIn: ملء
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role

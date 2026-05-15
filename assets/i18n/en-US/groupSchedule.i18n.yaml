@@ -1,0 +1,25 @@
+title: Group Schedule
+createSchedule: Create Schedule
+scheduleTitle: Title
+selectDate: Select Date
+selectTime: Select Time
+location: Location
+reminder: Reminder
+noReminder: No reminder
+noSchedule: No schedules yet
+scheduleCreated: Schedule created
+scheduleUpdated: Schedule updated
+reminder15min: 15 minutes before
+reminder1hour: 1 hour before
+reminder1day: 1 day before
+startTime: Start Time
+endTime: End Time
+participants: Participants
+statusCancelled: Cancelled
+statusInProgress: In Progress
+cancelSuccess: Schedule cancelled
+cancelFailed: "Cancel failed, please try again"
+confirmAttend: Confirm Attendance
+declineAttend: Decline
+cancelSchedule: Cancel Schedule
+scheduleIdMissing: "Schedule ID missing, cannot view details"

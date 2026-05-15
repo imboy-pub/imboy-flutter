@@ -1,0 +1,1044 @@
+about: 关于
+aboutApp: 关于应用
+accept: 接受
+acceptFriendRequest: 通过好友验证
+addFriend: 添加朋友
+addPhoneContact: 添加手机联系人
+creditCardRepayment: 信用卡还款
+smallChange: 零钱
+addTag: 添加标签
+addToContacts: 添加到通讯录
+addToDenylist: 加入黑名单
+added: 已添加
+addedToDenylistTips: 已添加至黑名单，你将不再收到对方的消息
+agreeContinue: 同意并继续
+all: 全部
+allSenders: 所有发送者
+allTags: 全部标签
+allTime: 所有时间
+allTypes: 所有类型
+allowSearchMe: 允许搜索我
+allowedBeSearched: 最近新注册的并且允许被搜索到的朋友
+appSizeTips: 包含APP运行的必要文件，包括 APK 文件、优化的编译器输出和解压的原生库。
+applyAddFriend: 申请添加朋友
+awaitingVerification: 等待验证
+buttonAccomplish: 完成
+buttonAdd: 添加
+buttonBack: 返回
+buttonBind: 绑定
+bindMobileAndEmailTips: 绑定手机号和邮箱，让您的账户更安全
+bindNow: 立即绑定
+buttonCancel: 取消
+buttonCreate: 创建
+buttonChangePassword: 修改密码
+phoneInputHint: 请输入手机号
+buttonClose: 关闭
+buttonConfirm: 确认
+buttonContinue: 继续
+buttonCopy: 复制
+buttonDelete: 删除
+buttonDeleteAccount: 注销账户
+buttonInviteCode: 邀请码
+buttonLogin: 登录
+buttonLogout: 退出登录
+buttonNextStep: 下一步
+buttonOk: 确定
+buttonRegister: 注册
+buttonResetPassword: 重置密码
+buttonRetry: 重试
+buttonSave: 保存
+buttonSelectFromAlbum: 从相册选择
+buttonSend: 发送
+buttonSetEmpty: 置空
+buttonSubmit: 提交
+buttonTakingPictures: 拍照
+cacheTips: 缓存是使用APP过程中产生的临时数据，清理缓存不会影响你的正常使用。
+callDuration: 通话时长
+calling: 正在通话
+canNotAddYourselfFriend: 你不能添加自己为好友
+cancel: "@:common.buttonCancel"
+ok: "@:common.buttonOk"
+operationSuccessful: 操作成功
+save: "@:common.buttonSave"
+reset: 重置
+clear: 清空
+saveTag: 保存标签 ($count)
+cancelLogoutBody: 此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。
+cancelLogoutTitle: 是否终止注销流程？
+cancelled: 已取消
+chatSettingBackground: 聊天背景
+chatSettingBackgroundCustom: 已设置自定义背景
+chatSettingBackgroundDefault: 默认背景
+chatSettingBackgroundSelectorTip: 背景选择功能开发中
+chatSettingBackgroundSuccess: 背景设置成功
+chatSettingClearHistory: 清空聊天记录
+chatSettingClearHistoryConfirm: 确定要清空所有聊天记录吗？此操作不可恢复。
+chatSettingClearHistoryDesc: 删除所有消息，此操作不可恢复
+chatSettingClearedSuccess: 清空成功
+chatSettingPinnedSuccess: 置顶成功
+chatSettingUnpinnedSuccess: 取消置顶
+chatSettings: 聊天设置
+chatStatusFailed: 发送失败
+chatStatusFailedDesc: 发送失败，点击重试
+chatErrorInDenylist: 对方已将您加入黑名单
+chatErrorInDenylistDesc: 消息无法发送，对方已将您加入黑名单
+chatErrorNotAFriend: 对方不是您的好友
+chatErrorNotAFriendDesc: 消息无法发送，请先添加对方为好友
+checkForUpdates: 检查更新
+clearAll: 清除全部
+clearChatRecord: 清空聊天记录
+complaintSuccess: 投诉已提交
+complaintFailed: 投诉失败，请稍后再试
+confirmCode: 确认码
+confirmCodeError: 确认码为空
+confirmCodeSuccess: 账户已确认。
+confirmDeleteChatRecord: 确定删除聊天记录吗？
+confirmNewFriend: 确认新好友
+confirmNewFriendLogic: 确认新好友逻辑
+confirmRecoverSuccess: 密码修改成功。
+contactSetting: 联系人设置
+contactSettingTag: 联系人设置标签
+contactTagListLogic: 联系人标签列表逻辑
+contactTags: 联系人标签
+contactInfoNotSynced: 联系人信息未同步
+continueDownloading: 继续下载
+copy: 复制
+coupon: 卡券
+createGroupF2fConfirmTips: 这些朋友也将进入群聊
+createGroupF2fTips: 和身边的朋友输入同样的四个数字，进入同一个群聊
+delete: "@:common.buttonDelete"
+deleteCollectConfirmDesc: 删除后无法恢复，确定要删除这条收藏吗？
+deleteContact: 删除联系人
+deleteForEveryone: 删除所有人的消息
+deleteForMe: 删除我的消息
+deleteTagTips: 删除标签后，标签中的联系人不会被删除
+deleteThisDevice: 删除该设备
+deleteThisDeviceTips: 删除后，下次在该设备登录时需要进行安全验证。
+denylistNoteDesc: 被拉黑的用户无法给你发送消息，也无法查看你的动态。点击用户可以查看详情。
+denylistNoteTitle: 黑名单说明
+details: 详情
+deviceDetails: 设备详情
+downloaded: 已下载
+edit: 编辑
+editTag: 编辑标签
+errorAccessDenied: 对 $param 的访问被拒绝
+errorCliVersionNotFound: "@:common.error"
+errorEmptyDirectory: $param 是空的
+errorFailedConnectServer: "@:common.error"
+errorFailedToConnect: "@:common.error"
+errorFileNotFound: 在 $param 中没有找到文件
+errorFolderNotFound: 文件夹 $param 未找到
+errorHttpNotSupported: "@:common.error"
+errorInternalServer: "@:common.error"
+errorInvalid: $param 是无效的
+errorInvalidDart: "@:common.error"
+errorInvalidFileOrDirectory: "@:common.error"
+errorInvalidJson: "@:common.error"
+errorInvalidRequest: "@:common.error"
+errorLengthBetween: $param 长度必须在 $min 和 $max 之间
+errorManyRequest: 请求过于频繁
+errorNoPackageToRemove: "@:common.error"
+errorNoValidFileOrUrl: "@:common.error"
+errorNonexistentDirectory: "@:common.error"
+errorPackageNotFound: "@:common.error"
+errorPassword: 密码错误
+errorRequestForbidden: "@:common.error"
+errorRequestSyntax: "@:common.error"
+errorRequired: $param 是必须的
+errorRequiredPath: "@:common.error"
+errorRetypePassword: "@:common.error"
+errorSame: $param1 和 $param2 必须相同
+errorServerDown: "@:common.error"
+errorServerRefused: "@:common.error"
+errorSpecialCharactersInKey: "@:common.error"
+errorUnexpected: "@:common.error"
+errorUnnecessaryParameter: "@:common.error"
+errorUnnecessaryParameterPlural: "@:common.error"
+errorUpdateCli: "@:common.error"
+failedGetLatLong: "@:common.errorNetwork"
+failedGetMapTryAgain: "@:common.errorNetwork"
+failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
+feedback: 反馈建议
+feedbackBuilder: 反馈构建器
+feedbackContentRequired: 反馈内容不能为空
+feedbackDetails: 反馈建议明细
+feedbackModel: 反馈模型
+feedbackReplyModel: 反馈回复模型
+feedbackSuccessMsg: 你的反馈问题我们已经收到了，会尽快处理！
+followSystemTips: "开启后,将跟随系统打开或关闭深色模式"
+forceLogoutNotification: 您已被设备【$param】强制下线
+friendPermissions: 朋友权限
+friendsPermissionsView: 好友权限视图
+genderConflictError: 性别设置冲突，请重试
+genderNetworkError: 网络异常，请检查网络连接
+genderUpdateFailed: 性别设置失败，请重试
+genderUpdateSuccess: 性别设置成功
+groupAddLocal: 保存到通讯录
+groupAnnouncement: 群公告
+groupFileUploadSuccess: 文件上传成功
+groupFileUploadFailed: 文件上传失败，请稍后重试
+groupFileDeleteSuccess: 文件已删除
+groupFileDeleteFailed: 删除失败，请稍后重试
+groupFileClosePreview: 关闭预览
+groupFileUploadTooltip: 上传文件
+groupFileSearch: 搜索群文件
+groupFileReadFailed: 文件读取失败，请重试
+groupFileDeleteTitle: 删除群文件
+groupFileDeleteConfirm: 确定删除文件「$name」吗？
+groupFileImageLoadFailed: 图片加载失败
+groupFileOpenFailed: 无法打开文件链接
+groupFileSearchClear: 清空
+groupFileSearchAction: 搜索
+groupFileCategoryAll: 全部
+groupFileSearchEmpty: 未找到匹配文件
+groupFileAudioLoadFailed: 音频加载失败
+groupFileAudioLoading: 音频加载中...
+groupQrcodeTips: 该二维码$days天内（$date前）有效，重新进入将更新
+groupSearchTips: 群名称和群简介
+helpDocument: 帮助文档
+hintEditGroupAnnouncement: 编辑群公告
+httpResponse: HTTP响应
+incomingCall: $param呼入
+info: 信息
+infoLoggedInOnAnotherDevice: 你的账号已于$param在其他设备登录
+installNow: 立即安装
+iosAppIdUnknown: "AppStore未上架或AppID[$param]不存在"
+koKr: 韩语（韩国）
+languageSetting: 语言设置
+languageState: 语言状态
+lastActiveTips: 当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时间。
+lastSeenJustNow: 刚刚上线
+lastSeenLongTimeAgo: 很久以前上线
+lastSeenMonthsAgo: $param个月前
+leaveYourSuggestions: 请留下您宝贵的意见和建议
+loadError: 加载失败，请重试
+loadMore: 加载更多
+loading: 加载中
+locationMessage: 位置消息
+loginDeviceManagementTips: 你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。
+logoutFailed: 退出登录失败
+logoutNotice: 《注销须知》
+exportDataSuccess: 数据已导出
+manually: 手动选择
+messageCall: 发消息
+messageContent: 消息内容
+messageLocationBuilder: 消息位置构建器
+messageNotification: 消息通知
+messageRevoked: 消息已撤回
+quoteMessageNotAvailable: 引用的消息不可用
+messageRevokedBuilder: 消息撤回构建器
+microphone: 麦克风
+microphonePermissionNotObtained: 未获取到麦克风权限
+moreInfo: 更多信息
+myAddress: 我的地址
+nearbyPeopleTips: 与附近的人交换联系方式，结交新朋友
+needContinueWorkHard: 需要继续加油
+needSubmitEffect: 需要确认提交，该操作才生效
+networkErrorWithAction: $param失败，请检查网络连接
+networkException: 网络连接异常
+errorNetwork: 网络错误
+networkExceptionPlaseNeedNetworkToViewData: 网络状态异常，需要打开网络才能够查看数据
+networkFailureTips: 网络失败提示
+newVersionDetected: 检测到新版本
+newVersionDetectedWithVersion: 检测到新版本 $param
+nextStep: 下一步
+nicknameConflictError: 昵称已被使用，请选择其他昵称
+nicknameEmojiOnlyError: 昵称不能仅包含表情符号
+nicknameEmptyError: 昵称不能为空
+nicknameLengthError: 昵称长度应在2-24个字符之间
+nicknameNetworkError: 网络异常，请检查网络连接
+nicknameSensitiveWordError: 昵称包含敏感词，请重新输入
+nicknameServerError: 服务器错误，请稍后重试
+nicknameUpdateFailed: 昵称修改失败，请重试
+nicknameUpdateSuccess: 昵称修改成功
+nicknameWhitespaceError: 昵称不能仅包含空白字符
+noAvatar: 无头像
+noBarcodeFound: 未找到条形码！
+noContacts: 无联系人
+noConversationMessages: 无会话消息
+noData: 暂无数据
+noMembersInCurrentTag: 当前标签无成员
+noMoreData: 没有更多数据了
+noNewFriends: 没有新的好友
+noPermission: 没有权限
+noReply: 暂无回复
+noSiginQ: 还没有账号？
+noUpdateDescription: 无更新说明
+normalModel: 普通模式
+notAuthorizedLatLong: 您还没有授权获取经纬度
+notLoggedIn: 未登录
+notBad: 还不错
+notBound: 未绑定
+notFilled: 未填写
+notInstallAnyMapApp: 您没有安装任何地图APP哦
+notLetHimSee: 不让TA看
+notReceiveCoeQ: 没有收到验证码？
+notSeeHim: 不看TA
+notSet: 未设置
+notShow: 不显示
+notTurnedLocationService: 您还没有打开位置信息服务
+nowNewVersion: 未检测到新版本
+off: "@:common.disabled"
+offlineNotification: 下线通知
+on: "@:common.enabled"
+operationFailedAgainLater: 操作失败，请稍后重试
+optionsNo: 不
+optionsRename: 我想重命名
+optionsYes: "是的!"
+p2pCallScreenLogic: p2pCallScreenLogic
+p2pCallScreenView: p2pCallScreenView
+paramFormatError: $param格式有误
+pauseDownloading: 暂停下载
+peerNoResponse: 对方无应答...
+peopleInfoMoreLogic: 用户信息更多逻辑
+peopleInfoSameGroupView: 同群用户视图
+perMinuteOnce: 每分钟只能请求一次
+permission: 权限
+permissionAcquisitionFailed: 权限获取失败
+personalCard: 个人名片
+personalInfoDesc: 个人信息描述
+personalInfoTip: 个人信息提示
+personalInformation: 个人信息
+pinCodeFillTips: 请把方格填满
+pleaseSelectMembersForAdd: 请选择要添加的成员
+profileSettings: 资料设置
+reEdit: 重新编辑
+recoverPasswordSuccess: 验证码发送成功
+regionCancel: 取消
+regionConfirm: 确定
+regionNoResult: 暂无结果
+regionSearchHint: 按地区名称搜索
+regionSearchTips: 按地区名称或区域编码搜索
+regionSelectTitle: 选择地区
+releaseFingerCancelSending: "松开手指,取消发送"
+removeContactFromTag: 从标签中移除联系人
+removeMember: 移出成员
+atMentionYouTag: "[@你] "
+atMentionLeftMember: "@已退群成员"
+muteNotifications: 消息免打扰
+muteNotificationsHint: 开启后不会收到新消息提醒，但仍可在会话列表看到未读
+revokeExpired: 超过 2 分钟，无法撤回
+quickReplyAddTitle: 新增快捷回复
+quickReplyEditTitle: 编辑快捷回复
+removeAdmin: 取消管理员
+setAdminConfirm: 确定将此成员设为管理员吗？
+removeAdminConfirm: 确定取消此成员的管理员身份吗？
+muteMemberConfirm: 确定禁言此成员吗？
+unmuteMemberConfirm: 确定取消禁言此成员吗？
+kickMemberConfirm: 确定将此成员移出群聊吗？
+transferGroupConfirm: 确定将群主身份转让给此成员吗？转让后你将变为管理员。
+setAdminSuccess: 已设为管理员
+setAdminFailed: 设置管理员失败
+removeAdminSuccess: 已取消管理员
+removeAdminFailed: 取消管理员失败
+muteMemberSuccess: 已禁言
+muteMemberFailed: 禁言失败
+unmuteMemberSuccess: 已取消禁言
+unmuteMemberFailed: 取消禁言失败
+kickMemberSuccess: 已移出群聊
+kickMemberFailed: 移出群聊失败
+transferGroupSuccess: 群主已转让
+transferGroupFailed: 转让群主失败
+notMuted: 未禁言
+muteDuration: 禁言时长
+muteDuration1hour: 1小时
+muteDuration6hours: 6小时
+muteDuration12hours: 12小时
+muteDuration1day: 1天
+muteDuration3days: 3天
+muteDuration7days: 7天
+muteDurationPermanent: 永久
+muteDuration5min: 5分钟
+muteDuration10min: 10分钟
+muteDuration30min: 30分钟
+muteDuration30days: 30天
+muteUnitSeconds: $count 秒
+throttleWarning: 操作频率过高，请稍后再试
+throttleRetryAfter: 操作频率过高，请 $seconds 秒后再试
+mutedCannotSend: 禁言期间无法发送消息
+resendCodeSuccess: 已发送新邮件。
+resetFilters: 重置筛选
+saveQrCode: 保存二维码
+saveSuccess: 保存成功
+scanQrcodeAddFriend: 扫一扫上面的二维码图案，加我为朋友
+search: 搜索
+searchScope: 搜索范围
+searchAll: 全部消息
+searchChatContent: 查找聊天内容
+searchChatRecord: 查找聊天记录
+searchError: 搜索错误
+searchFilterAll: 全部筛选
+searchFilterImage: 图片筛选
+searchFilterText: 文本筛选
+searchFilterToday: 今日筛选
+searchFilters: 搜索筛选
+searchFriendsTips: 通过好友昵称、备注搜索好友
+searchHint: 输入关键词搜索消息
+searchHistory: 搜索历史
+searchLocation: 搜索地点
+searchMessagesHint: 搜索消息提示
+searchNoFound: "搜索结果为空 :("
+searchNoResults: 无搜索结果
+noSearchHistory: 暂无搜索历史
+searchRegion: 搜索地区
+searchResults: 搜索结果
+searchResultsCount: 第 $current 个，共 $total 个结果
+searchSuggestions: 搜索建议
+selectAll: 全选
+selectContacts: 选择联系人
+selectRegionView: 选择地区视图
+selectedItems: $param 个选定项目
+selectedRegion: 已选地区
+sendMsgNotFriendTips: 对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。
+setChatBackground: 设置当前聊天背景
+share: 分享
+signatureTips: 签名提示
+slideUpCancelSending: "手指上滑,取消发送"
+storagePermissionNotObtained: 未获取存储权限
+strongReminder: 强提醒
+submittedAt: 提交于
+sureDeleteData: 确认删除吗？删除后不可恢复。
+sureDeleteGroupChatRecord: 确定删除群的聊天记录吗？
+switchEnvironment: 切换环境
+thisMonth: 本月
+timeDaysAgo: $param天前
+timeHoursAgo: $param小时前
+timeJustNow: 刚刚
+timeMinutesAgo: $param分钟前
+timeToday: 今天
+timeYesterday: 昨天
+tipConnectDesc: 无网络
+tipConnectDescWithParen: ($param)
+tipDeleteContact: 将联系人"$param"删除，同时删除与该联系人的聊天记录
+tipDeviceSpace: 占设备 $param1‰ 存储空间($param2)
+tipDraft: 草稿
+tipEmptyChatPlaceholder: 这里还没有消息
+tipFailed: 操作失败！
+tipGreeting: 欢迎使用
+tipProvidersTitleFirst: 或用以下账号登录
+tipSuccess: 操作成功！
+tipTips: 小贴士
+titleContact: 联系人
+today: 今天
+unknown: 未知
+unknownMessage: 未知消息
+updateLog: 更新日志
+updateNow: 立即更新
+uploading: 上传中
+uploadSuccess: 上传成功
+uploadFailed: 上传失败
+userDataTips: 包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。
+userDisabledOrDeleted: 用户被禁用或已删除
+userNotExist: 用户不存在
+userOnlineStatusWidget: 用户在线状态组件
+userTagRelationView: 用户标签关系视图
+userTagSaveView: 用户标签保存视图
+verificationMessageSentByPeerIs: 对方发来的验证消息为：$param
+version: 版本
+videoCall: 视频通话
+viewAllGroupMember: 查看全部群成员
+voiceCall: 语音通话
+voiceInputNotImplemented: 语音输入功能暂无实现
+waitingDownload: 等待下载
+waitingPeerAccept: 等待对方接受邀请...
+warning: "警告:"
+webpageLoading: 网页加载中...
+whatYourFeedback: 你的反馈是什么?
+yesterday: 昨天
+yourContactInformation: 你的联系方式
+confirmRemove: 确认移出
+confirmRemoveFromDenylist: 确认将此用户移出黑名单？
+buttonRemove: 移出
+removedFromDenylist: 已移出黑名单
+newEmailAddress: 新邮箱地址
+emailAddress: 邮箱地址
+enterEmailAddress: 请输入邮箱地址
+getVerificationCode: 获取验证码
+confirmChange: 确认更换
+verificationCodeSentToEmail: 验证码将发送至该邮箱，请在有效期内完成验证
+verificationCodeSentToMobile: 验证码将发送至该手机，请在有效期内完成验证
+pleaseEnterCorrectEmailAddress: 请输入正确的邮箱地址
+pleaseEnter6DigitVerificationCode: 请输入 6 位验证码
+verificationCodeSent: 验证码已发送
+sendFailed: 发送失败
+noChangeNeeded: 无需修改
+submissionFailed: 提交失败
+checkVerificationCodeOrRetry: 请检查验证码或稍后重试
+forceOffline: 下线
+forceDeviceOffline: 让该设备下线
+forceDeviceOfflineConfirm: 将向该设备发送下线指令，确认继续？
+confirmForceOffline: 确认下线
+forceOfflineCommandSent: 已发送下线指令
+feedbackSlogan: 您的建议是我们改进的动力
+newFeedback: 新建反馈
+feedbackHistory: 反馈历史
+confirmDelete: 确认删除
+processing: "@:common.loading"
+verificationCode: 验证码
+feedbackContent: 反馈内容
+officialReply: 官方回复
+setPasswordSecurityTips: 为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。
+locationHidden: 已隐藏您的位置
+locationVisible: 已显示您的位置
+noNearbyPeople: 暂无附近的人
+clickSearchButtonToFind: 点击上方的搜索按钮查找附近的人
+operationSuccess: "@:common.success"
+operationFailed: "@:common.error"
+featureInDevelopment: 功能开发中...
+addedToDenylist: 已加入黑名单
+bindSuccess: 绑定成功
+mobileUpdatedToParam: 手机号已更新为 $param
+groupAnnouncementPublish: 发布公告
+pleaseEnterAnnouncementContent: 请输入公告内容
+selectExpirationDateOptional: 选择有效期（可选）
+groupAnnouncementDeleteConfirm: 确定要删除这条公告吗？
+groupAnnouncementDelete: 删除
+groupAnnouncementLoadFailed: 公告加载失败，请稍后重试
+groupAnnouncementPublishFailed: 公告发布失败
+groupAnnouncementPublishSuccess: 公告已发布
+groupAnnouncementDeleteFailed: 公告删除失败
+groupAnnouncementDeleteSuccess: 公告已删除
+privacyClearChatHistory: 清除聊天记录
+privacyClearChatHistoryConfirm: 确定要清除所有聊天记录吗？此操作不可恢复。
+privacyLogoutAccountConfirm: 确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。
+privacySettings: 隐私设置
+searchSettings: 搜索设置
+allowSearchByAccount: 允许通过账号搜索
+allowSearchByAccountDesc: 其他用户可以通过你的账号找到你
+allowAddByPhone: 允许通过手机号添加
+allowAddByPhoneDesc: 其他用户可以通过你的手机号添加你为好友
+allowAddByQR: 允许通过二维码添加
+allowAddByQRDesc: 其他用户可以通过扫描你的二维码添加你为好友
+statusSettings: 状态设置
+showOnlineStatus: 显示在线状态
+showOnlineStatusDesc: 好友可以看到你的在线状态
+allowNearbyVisible: 附近的人可见
+dataSettings: 数据设置
+clearChatRecords: 清除聊天记录
+clearChatRecordsDesc: 清除所有聊天记录，此操作不可恢复
+deleteAccountAction: 注销账号
+deleteAccountActionDesc: 永久删除账号和所有数据，此操作不可恢复
+chatHistoryCleared: 聊天记录已清除
+accountDeletionNotAvailable: 账号注销功能暂未开放
+chatDeleteMessage: 删除消息
+chatCopy: 复制
+chatSaveImage: 保存图片
+chatDeleteLocalOnly: 仅删除本地
+chatDownloadFile: 下载文件
+chatShareFile: 分享文件
+chatCopyLink: 复制链接
+chatShareLink: 分享链接
+chatDeleteFailed: 删除失败
+chatNetworkErrorDeleteLocal: 网络连接失败，是否仅删除本地消息？
+chatDeleteConfirm: 确定要删除这条消息吗？此操作无法撤销。
+chatDeleteOnlyLocal: 仅在你这里删除，对方仍可见
+chatDeleteAll: 从所有人的聊天中删除，无法撤销
+chatInitFailed: 聊天初始化失败
+cameraShootFailed: 拍摄失败
+avatarSave: 保存
+avatarDeleteAvatar: 删除头像
+avatarEditAvatar: 编辑头像
+backgroundUseCustomColor: 使用自定义颜色
+backgroundOnlySolidColor: 仅适用于纯色背景
+backgroundSelectColor: 选择颜色
+profileShareProfile: 分享资料
+tagClearAllConfirm: 确定要清空所有标签吗？
+tagClearAll: 确认清空
+audioPlayFailed: 播放失败
+videoFileNotFound: 输入文件不存在
+videoCompressFailed: 压缩失败，返回结果为空
+videoFurtherCompressFailed: 进一步压缩失败
+forcedOfflineByDevice: 您已被设备【$device】强制下线
+searchDescription: 小程序、公众号、文章、朋友圈、和表情等
+testDirectNavigation: 测试直接跳转
+tagNameTooLong: 标签名称不能超过14个字符
+tagNameNoComma: 标签名称不能包含逗号
+tagNameNoLeadingTrailingSpaces: 标签名称不能包含前后空格
+tagNameNoSpecialChars: 标签名称不能包含特殊字符
+commonTags: 常用标签
+loadingTagDataFailed: 加载标签数据失败
+pleaseEnterContent: 请输入内容
+comingSoon: 敬请期待
+chatBackground: 聊天背景
+useSystemDefaultBackground: 使用系统默认背景
+selectCustomBackgroundImage: 选择自定义背景图片
+currentBackground: 当前背景
+backgroundTransparency: 背景透明度
+defaultBackground: 默认背景
+solidColorBackground: 纯色背景
+selectImageFailed: 选择图片失败
+takePhotoFailed: 拍照失败
+selectVideoFailed: 选择视频失败
+recordVideoFailed: 录制视频失败
+selectFileFailed: 选择文件失败
+locationSelectNotImplemented: 位置选择功能暂未实现
+selectLocationFailed: 选择位置失败
+sendCardNotImplemented: 名片发送功能暂未实现
+sendCardFailed: 发送名片失败
+uploadResponseInvalid: 上传响应数据无效
+voiceSendSuccess: 语音发送成功
+voiceSendFailed: 语音发送失败
+featureNotImplemented: 功能暂未实现
+sendCollectionNotImplemented: 收藏发送功能暂未实现
+fileOpenNotImplemented: 文件打开功能暂未实现
+fileShareNotImplemented: 文件分享功能暂未实现
+retrySuccess: 重试成功
+deleteSuccess: 删除成功
+localDeleteSuccess: 本地删除成功
+localDeleteFailed: 本地删除失败
+revokeSuccess: 撤回成功
+editContentCannotBeEmpty: 编辑内容不能为空
+editSuccess: 编辑成功
+messageNotFound: 未找到该消息
+conversationNotFound: 未找到会话
+enabled: 已开启
+disabled: 已关闭
+configureVisibleThreshold: 配置可视阈值
+fontSizeSettingUpdated: 字体大小设置已更新
+fontSizeSetting: 字体大小设置
+fontTooSmallMayAffect: 字体偏小，可能影响阅读
+dragSliderAdjustFontSize: 拖动滑块调整字体大小
+personalInfo: 个人信息
+nicknameNotSet: 未设置昵称
+basicInfo: 基本信息
+contactInfo: 联系信息
+editTags: 编辑标签
+quickActions: 快捷操作
+noNewFriendRequests: 暂时没有新的好友申请
+pleaseEnterVerificationMessage: 请输入验证消息
+unknownRegion: 未知地区
+noCommonGroups: 暂无共同群组
+noMoreInfo: 暂无更多信息
+userNotSetSignature: 该用户还没有设置个人签名等详细信息
+verificationMessage: 验证消息
+burnEnabledMessage: 开启后：消息在被阅读后 $duration 自动销毁
+burnDisabledMessage: 关闭后：消息不会自动销毁
+visibleEnabledMessage: "开启后：可见比例≥$percentage%，持续≥$delayms"
+visibleDisabledMessage: 关闭后：不会基于可视自动已读
+visibleThresholdInfo: "可见比例: $percentage% | 延时: $delayms"
+noGroupAnnouncement: 暂无群公告
+announcementContentCannotBeEmpty: 公告内容不能为空
+announcementPublishSuccess: 公告发布成功
+tips: 提示
+featureComingSoon: 功能暂未实现
+understood: 明白了
+noProblem: 没问题
+onMyWay: 马上到
+sendOfflineCommand: 强制下线
+offlineCommandSent: 已发送下线指令
+operationOptions: 操作选项
+copyTextContent: 复制文本内容
+shareWithOtherFriends: 分享给其他好友
+addTagsToFavorites: 为收藏添加标签
+addRemarkToFavorites: 为收藏添加备注
+deleteThisCollection: 删除此收藏
+pullUpLoadMore: 上拉加载更多
+changeSuccess: 修改成功
+loginPasswordUpdated: 登录密码已更新
+lengthOk: 长度符合
+confirmNewPassword: 确认新密码
+validationPassed: 验证通过
+changeFailed: 修改失败
+submitted: 已提交
+viewSecurityHelp: 查看安全帮助
+momentsNoData: 暂无动态
+momentsDeleteConfirm: 确定删除这条动态吗？
+momentsDeleteCommentConfirm: 确定删除这条评论吗？
+momentsNotFound: 动态不存在或无权限查看
+momentsContentOrMediaRequired: 内容或媒体至少填写一项
+momentsPublishFailed: 发布失败
+momentsAllowComment: 允许评论
+momentsReportReason: 举报原因
+momentsNoComments: 暂无评论
+momentsContentHint: 写点什么...
+momentsAddMedia: 添加媒体
+momentsAllowUidsLabel: 允许可见 UID 列表（逗号分隔）
+momentsCommentFailed: 评论失败，请稍后重试
+momentsDeleteFailed: 删除失败，请稍后重试
+momentsReportSubmitted: 举报已提交
+momentsReportFailed: 举报失败，请稍后重试
+momentsLoadMoreComments: 加载更多评论
+momentsUploadFailed: 媒体上传失败，请稍后重试
+transactionHistory: 交易记录
+paymentPasswordSetSuccess: 支付密码设置成功
+paymentPasswordSetFailed: 支付密码设置失败
+nextVoiceMessageNotFound: 没有找到下一条语音消息
+noNextVoiceMessage: 没有下一条语音消息可播放
+nextVoiceMessageNoPath: 下一条语音消息没有音频文件路径
+saveFailed: 保存失败
+tip: 提示
+confirm: 确认
+success: 成功
+personalDisplay: 个人展示
+personalSignature: 个性签名
+personalBackground: 个人背景
+setBackgroundImage: 设置背景图片
+expression: 表情
+extendedInfo: 扩展信息
+profession: 职业
+pleaseEnterProfession: 请输入职业
+functionSettings: 功能设置
+shareProfile: 分享资料
+shareWithFriends: 将个人资料分享给好友
+shareQRCode: 分享二维码
+copyLink: 复制链接
+shareTo: 分享到
+shareFailed: 分享失败
+exportAsJson: 导出为 JSON 格式
+exportSuccessThenCopiedToClipboard: $param 格式资料已导出并复制到剪贴板
+exportFailed: 导出失败
+setRegion: 设置地区
+avatarUpdateSuccess: 头像更新成功
+avatarUpdateFailed: 头像更新失败
+deleteOperationAbnormal: 删除操作异常，请重试
+revoking: 正在撤回...
+editing: 正在编辑...
+messageIdCannotBeEmpty: 消息ID为空，无法操作
+startRevokeMessageFlow: 开始撤回消息流程
+revokeMessageTracking: 撤回消息追踪
+useNewActionMechanism: 使用新的action机制
+revokeMessageSendResult: 撤回消息发送结果
+revokeRequestSendComplete: 撤回请求发送完成
+revokeFailed: 撤回失败
+revokeMessageException: 撤回消息异常
+revokeOperationAbnormal: 撤回操作异常
+startEditMessageFlow: 开始编辑消息流程
+editMessageTracking: 编辑消息追踪
+newContent: 新内容
+editMessageSendResult: 编辑消息发送结果
+editRequestSendComplete: 编辑请求发送完成
+editFailed: 编辑失败
+editMessageException: 编辑消息异常
+editOperationAbnormal: 编辑操作异常
+uploadAvatarFailed: 上传头像失败
+error: 错误
+cannotOpenWebpage: 无法打开网页
+groupIdCannotBeEmpty: 群组ID不能为空
+selectImageFailedWithError: 选择图片失败
+uploadAvatarFailedWithError: 上传头像失败
+avatarSelectedUploadPending: 头像选择成功，上传功能待实现
+emailEditFeaturePending: 邮箱编辑功能开发中...
+reactionAdded: 已添加反应
+reactionCancelled: 已取消反应
+retryFailedPleaseCheckNetwork: 重试失败，请检查网络连接
+retryAbnormal: 重试异常
+deleteFailedPleaseTryAgain: 删除失败，请重试
+deleteFailedPleaseCheckNetwork: 删除失败，请检查网络连接
+voiceRecordFailedPleaseTryAgain: 语音录制失败，请重试
+voiceFileNotFoundPleaseTryAgain: 语音文件不存在，请重试
+voiceFileCannotReadPleaseTryAgain: 语音文件无法读取，请重试
+voiceFileReadFailedPleaseTryAgain: 语音文件读取失败，请重试
+voiceProcessingAbnormal: 语音处理异常
+voiceUploadFailedPleaseCheckNetwork: 语音上传失败，请检查网络连接
+voiceSendAbnormal: 语音发送异常
+voiceDuration: 语音时长
+playbackFailed: 播放失败
+revokeOperationAbnormalPleaseTryAgain: 撤回操作异常，请重试
+collectionFailedPleaseTryAgain: 收藏失败，请重试
+reactionSent: 已发送反应
+seconds: 秒
+messageCannotLocatedMayBeDeleted: 未能定位到该消息，可能已被删除
+settingFailedPleaseTryAgain: 设置失败，请重试
+partialDeleteSuccess: 部分删除成功：$success 成功，$fail 失败
+collectedVideoFormatIncorrectCannotFindVideoUri: 收藏的视频消息格式有误，找不到 video uri
+recordingCancelled: 录音已取消
+pullOfflineMessagesFailed: 拉取离线消息失败
+pullOfflineMessagesAbnormal: 拉取离线消息异常
+logoutRequestFailedPleaseCheckNetwork: 退出登录请求失败，请检查网络连接
+permissionOnlySupportAndroidAndIos: Permission 只支持 Android 和 IOS
+messageSendFailedPleaseCheckNetwork: 消息发送失败，请检查网络连接
+retryingSend: 正在重试发送...
+quickReplyOk: 好的
+quickReplyOkThanks: 好的，谢谢
+tagInspiration: 灵感
+noDetailedInfo: 该用户还没有设置个人签名等详细信息
+noNewRegisteredUsers: "当前没有新注册的用户
+请稍后再来查看"
+newRegisteredUsersTip: 这里显示最近注册的用户，你可以主动添加他们为好友
+notificationFriendRequest: 好友请求
+notificationFriendRequestBody(requesterName): $requesterName 请求添加您为好友
+notificationGroupInvite: 群邀请
+notificationGroupInviteBody(inviterName, groupName): $inviterName 邀请您加入群组 $groupName
+youRevokedMessage: 你撤回了一条消息
+otherRevokedMessage: 对方撤回了一条消息
+networkFailureTryAgain: 网络故障，请重试！
+networkNotAvailable: 当前网络不可用。
+pleaseCheckNetworkConnection: 请检查你的网络连接。
+lastSeenMinutesAgo: "@:common.timeMinutesAgo"
+lastSeenHoursAgo: "@:common.timeHoursAgo"
+lastSeenDaysAgo: "@:common.timeDaysAgo"
+fontSettings: "@:common.fontSizeSetting"
+failed: "@:common.error"
+lazyUserNoSignature: 暂无个人签名
+noFavoritesYet: 暂无收藏内容，快去收藏一些有趣的消息吧
+fontPreviewText: 这是正文内容，您可以在这里看到不同字体大小的显示效果。
+smaller: 更小
+currentFontScale: "当前：$param1 $param2%"
+emailUpdatedTo: 邮箱已更新为 $param
+groupAnnouncementExpiry(time): "有效期至: $time"
+groupAlbumCreateFailed: 创建失败，请稍后重试
+groupAlbumDeleteTitle: 删除群相册
+groupAlbumDeleteConfirm(name): 确定删除相册「$name」吗？
+groupAlbumDeleted: 相册已删除
+groupAlbumDeleteFailed: 删除失败，请稍后重试
+groupAlbumRenameFailed: 更新失败，请稍后重试
+groupAlbumUploadTooltip: 上传图片
+groupAlbumDeleteTooltip: 删除相册
+groupAlbumNoAlbum: 暂无群相册
+groupAlbumPhotoReadFailed: 图片读取失败，请重试
+groupAlbumPhotoUploaded: 图片上传成功
+groupAlbumPhotoUploadFailed: 图片上传失败，请稍后重试
+groupAlbumCreateTooltip: 新建相册
+groupAlbumPhotoBatchDeleteTitle: 批量删除图片
+groupAlbumPhotoBatchDeleteConfirm(count): 确定删除选中的 $count 张图片吗？
+groupAlbumPhotoDeleteFailed: 删除失败，请稍后重试
+groupAlbumPhotoDeletedAll(count): 已删除$count张图片
+groupAlbumPhotoDeletedPartial(success, fail): 已删除$success张，$fail张删除失败
+groupAlbumPhotoDeleteTitle: 删除图片
+groupAlbumPhotoDeleteConfirm: 确定删除这张图片吗？
+groupAlbumPhotoDeleted: 图片已删除
+groupAlbumPhotoBatchDeleteTooltip: 批量删除
+groupAlbumPhotoExitSelection: 退出选择
+groupAlbumPhotoOpenFailed: 无法打开图片链接
+groupAlbumPhotoNotFound: 图片不存在或已删除
+groupAlbumPhotoOpenExternal: 外部打开
+groupAlbumPhotoCoverUpdated: 已设为相册封面
+groupAlbumPhotoCoverFailed: 设置封面失败，请稍后重试
+groupAlbumPhotoNext: 下一张
+groupAlbumPhotoResolution: 分辨率
+groupAlbumPhotoUploader: 上传者
+sectionDisplay: 显示
+sectionTheme: 主题
+selectLanguage: 选择语言
+completionSuggestions: 完善建议：
+sectionGeneral: 通用
+sectionPrivacySecurity: 隐私与安全
+sectionHelpAbout: 帮助与关于
+msgOnlyVisibleToParties: 消息仅收发双方可读
+msgNotEncrypted: 消息未加密传输
+durationMinutes(count): "${count}分钟"
+durationSeconds(count): "${count}秒"
+rechargeAmountError: 请输入1元到10000元之间的金额
+rechargeSuccess: 充值成功
+rechargeConfirm: 确认充值
+transactionHistory2: 流水记录
+noTransactionHistory: 暂无流水记录
+allLoaded: — 已全部加载 —
+transactionTypeIncome: 充值
+transactionTypeExpense: 消费
+sectionLoginCredentials: 登录凭证
+channelInvitations: 频道邀请
+acceptInvitationFailed: 接受邀请失败
+rejectInvitationFailed: 拒绝邀请失败
+invitationAccepted: 已接受邀请
+invitationRejected: 已拒绝邀请
+invitationStatusPending: 待处理
+invitationStatusAccepted: 已接受
+invitationStatusRejected: 已拒绝
+invitationStatusExpired: 已过期
+invitationStatusCancelled: 已取消
+invitationStatusUnknown: 未知
+noReceivedInvitations: 暂无收到的邀请
+noSentInvitations: 暂无发出的邀请
+processingDots: 处理中...
+purchaseFailed: 购买失败，请稍后重试
+purchaseSuccess: 购买成功
+noOrders: 暂无订单
+orderDetailLoadFailed: 订单详情加载失败
+orderNoLabel(no): "订单号: $no"
+orderStatusCancelled: 已取消
+orderStatusUnknown: 未知
+removeReaction: 移除反应
+removeReactionConfirm(emoji): 确定要移除 $emoji 反应吗？
+fileOpenFailed: 无法打开该文件
+e2eeLocalBackup: 本地备份
+e2eeLocalBackupDesc: 导出加密备份文件到本地或云端
+e2eeDeleteKey: 删除密钥
+e2eeDeleteKeyDesc: 删除本地存储的密钥（无法恢复）
+e2eeCurrentKeyInfo: 当前密钥信息
+e2eeE2EEEnabled: 端到端加密已启用
+e2eeNoKeyDetected: 未检测到 E2EE 密钥
+e2eeNoKeyDesc: 您需要先生成密钥对或从备份中恢复
+e2eeAboutTitle: 关于端到端加密
+e2eeInfoPoint1: • 您的消息在发送前已加密，服务器无法查看内容
+e2eeInfoPoint2: • 更换设备或删除密钥后，旧消息可能无法解密
+e2eeInfoPoint3: • 请定期备份密钥以防数据丢失
+e2eeExportBackup: 导出备份
+e2eeExportBackupDesc: 生成加密备份文件
+e2eeImportBackup: 导入备份
+e2eeImportBackupDesc: 从备份文件恢复密钥
+e2eeBackupManage: 备份管理
+e2eeBackupManageDesc: 查看备份历史记录
+e2eeGenerateKeyConfirm: 确定要生成新的 E2EE 密钥对吗？
+e2eeWarnOldMessagesLost: • 旧消息将无法解密
+e2eeWarnNeedNewBackup: • 需要重新生成备份文件
+e2eeConfirmGenerate: 确认生成
+e2eeDeleteKeyConfirm: 确定要删除当前密钥吗？
+e2eeWarnCannotRestore: • 删除后无法恢复
+e2eeWarnAllMsgsLost: • 所有 E2EE 消息将无法解密
+e2eeConfirmDelete: 确认删除
+e2eeKeyGeneratedSuccess: 密钥生成成功
+e2eeDeviceIdInfo(id): "设备 ID: $id"
+e2eeKeyIdInfo(id): "密钥 ID: $id"
+e2eeCreatedAtInfo(time): "创建时间: $time"
+e2eeImportantNote: 重要提示
+e2eeWarnOldMayNotDecrypt: • 旧消息可能无法解密
+e2eeSuggestBackupNow: • 建议立即导出备份
+e2eeGoBackup: 去备份
+e2eeKeyGenerateFailed: 密钥生成失败，请重试
+e2eeKeyDeleted: 密钥已删除
+e2eeDeleteFailed: 删除失败，请重试
+e2eeShardAvailableInfo(available, required): "可用分片: $available 个，需要 $required 个代理协助"
+e2eeNoRecoveryShards: 没有可用的恢复分片
+e2eeRecoverSuccess: 恢复成功
+e2eeRecoverFailed: 恢复失败
+e2eeRecoverKeyFailed: 恢复密钥失败，请重试
+e2eeLoadingShards: 加载分片信息...
+e2eeNoShards: 没有可用的分片
+e2eeLoadFailed: 加载失败，请重试
+e2eeContactingProxy(name): "正在联系: $name"
+e2eeRecoveryFailed: 恢复失败，请重试
+webFeatureNotification: 桌面通知
+webFeatureNotificationDesc: 即使不在页面也能收到新消息提醒
+webQRConfirmOnPhone: 请在手机上确认登录
+webQRLoginFailed: 登录失败
+webQRLoginSuccess: 登录成功
+webQRExpiresIn(seconds): $seconds 秒后过期
+webQRStatusFailed: 登录失败，请重试
+webQRStatusSuccess: 正在跳转...
+webLoginEmptyError: 请输入账号和密码
+webQRGenerateFailed: 生成二维码失败
+webQRTokenInvalid: 登录令牌无效
+e2eeErrNoRecipientKey: 无法获取对方设备密钥，消息未发送
+e2eeDecryptFailed: 消息无法解密
+e2eeDecryptFailedReasons: 此消息无法解密，可能原因是：
+e2eeDecryptReasonOtherDevice: • 您在其他设备上登录
+e2eeDecryptReasonKeyExpired: • 设备密钥已过期
+e2eeDecryptReasonDataCorrupt: • 应用数据损坏
+e2eeDecryptChooseSolution: 请选择解决方案：
+e2eeDecryptActionRecreateKey: 重新创建密钥（推荐）
+e2eeDecryptActionRelogin: 重新登录
+e2eeDecryptActionRemindLater: 稍后提醒我
+e2eeBackupExportTitle: 导出 E2EE 备份
+e2eeBackupPwdCantRecover: • 备份密码无法找回，请务必牢记！
+e2eeBackupStoreMultipleNote: • 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）
+e2eeBackupPwdLabel: "备份密码 *"
+e2eeBackupPwdHint: 至少 12 位，包含大小写字母、数字和特殊符号
+e2eeBackupConfirmPwdLabel: "确认密码 *"
+e2eeBackupConfirmPwdHint: 再次输入密码
+e2eeBackupNoteLabel: 备注（可选）
+e2eeBackupNoteHint: 例如：主手机备份 - 2026年1月
+e2eeBackupPwdStrengthLabel: 密码强度
+e2eeBackupPwdWeak: 弱 - 建议增加复杂度
+e2eeBackupPwdMedium: 中等 - 建议增加长度或复杂度
+e2eeBackupPwdStrong: 强 - 可以使用
+e2eeBackupPwdVeryStrong: 非常强 - 安全
+e2eeBackupGenerateBtn: 生成备份文件
+e2eeBackupFileGenerated: 备份文件已生成！
+e2eeBackupShareBtn: 通过邮件/云盘分享
+e2eeBackupShareContent: 这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。
+e2eeBackupErrPwdMismatch: 两次输入的密码不一致
+e2eeBackupErrNoKeyData: 无法获取密钥数据
+e2eeBackupErrExportFailed: 导出失败，请重试
+e2eeBackupErrShareFailed: 分享失败，请重试
+e2eeBackupExportSuccessTitle: 备份导出成功
+e2eeBackupExportSuccessBody: 您的 E2EE 密钥备份已成功生成。
+e2eeBackupImportantNoteColon: 重要提示：
+e2eeBackupKeepSafe: • 请妥善保管备份文件和密码
+e2eeBackupStoreMultipleLoc: • 建议将文件存储到多个安全位置
+e2eeBackupPwdCantRecoverNote: • 密码无法找回，请务必牢记
+e2eeBackupImportTitle: 导入 E2EE 备份
+e2eeBackupImportGuide: 导入说明
+e2eeBackupImportReplaceKey: • 导入后，当前的 E2EE 密钥将被替换
+e2eeBackupImportTrustedSource: • 请确保备份文件来自可信任的来源
+e2eeBackupSelectFile: 选择备份文件
+e2eeBackupSelectFileHint: 点击选择备份文件 (.enc)
+e2eeBackupInfoTitle: 备份信息
+e2eeBackupVersionLabel: 版本号
+e2eeBackupAlgorithmLabel: 算法
+e2eeBackupFileSizeLabel: 文件大小
+e2eeBackupFileValid: ✓ 文件格式有效
+e2eeBackupImportPwdHint: 请输入备份时设置的密码
+e2eeBackupImportBtn: 导入密钥
+e2eeBackupErrSelectFile: 选择文件失败，请重试
+e2eeBackupErrValidateFailed: 文件验证失败，请检查文件格式
+e2eeBackupErrImportFailed: 导入失败，请检查密码是否正确
+e2eeBackupImportSuccessTitle: 导入成功
+e2eeBackupImportSuccessBody: E2EE 密钥已成功恢复！
+e2eeBackupImportSuccessNote: 注意：旧消息可能无法访问，这是 E2EE 的正常行为
+e2eeBackupNoRecords: 暂无备份记录
+e2eeBackupNoRecordsHint: 导出备份后将在此显示历史记录
+e2eeBackupDeviceLabel(id): 设备 $id
+e2eeBackupCreatedAtLabel(time): 创建于 $time
+e2eeBackupDetailTitle: 备份详情
+e2eeBackupDeviceIdLabel: 设备 ID
+e2eeBackupVersionNum: 备份版本
+e2eeBackupCreatedAtRow: 创建时间
+e2eeBackupFileSizeRow: 文件大小
+e2eeBackupNoteRow: 备注
+e2eeBackupDeleteTitle: 删除备份记录
+e2eeBackupDeleteConfirm: 确定要删除此备份记录吗？
+e2eeBackupDeleteSuccess: 备份记录已删除
+e2eeSocialShardSettings: 分片设置
+e2eeSocialShardStoredNote: 说明：分片将存储在代理设备上，服务端不保存任何分片
+e2eeSocialAddProxy: 添加代理
+e2eeSocialAddProxyHint: 请添加代理联系人
+e2eeSocialCreateNeedMore(count): 请先添加 $count 个代理
+e2eeSocialCreateSuccessTitle: 分片创建成功
+e2eeSocialTotalShardsInfo(count): 密钥已分割成 $count 个分片
+e2eeSocialThresholdInfo(count): 需要 $count 个代理协助即可恢复密钥
+e2eeSocialZeroTrustNote: 零信任架构：服务端不保存任何分片
+e2eeSocialNoShards: 您还没有创建任何恢复分片
+e2eeSocialNoProxyShards: 没有代理分片
+e2eeSocialKeyVersionLabel: 密钥版本
+e2eeTransferErrNoKey: 请先生成密钥对
+e2eeTransferErrInitFailed: 初始化失败，请重试
+e2eeTransferErrNoRecipientKey: 接收方没有可用的公钥
+e2eeTransferErrKeyNotFound: 密钥未找到
+e2eeTransferErrCreateFailed: 创建传输会话失败，请重试
+e2eeTransferCreateSessionBtn: 创建传输会话
+e2eeTransferSessionCreated: 传输会话已创建
+e2eeTransferUidEmptyError: 请输入有效的用户 ID
+e2eeTransferSuccess: 传输成功！
+e2eeTransferFailed: 传输失败，请重试
+e2eeTransferProcessingMsg: 处理中...
+e2eeTransferSuccessTitle: 传输成功
+e2eeTransferSuccessBody: 密钥已成功传输到当前设备
+e2eeTransferScanError(error): "扫描错误: $error"
+e2eeTransferErrNoDeviceId: 无法获取设备 ID
+passwordEncryptFailed: 密码加密失败
+initConfigTimeout: "配置获取超时: 请检查网络连接或服务端状态"
+initConfigNetworkError(code): 网络故障或服务故障 (HTTP $code)
+initConfigProtocolError: 服务故障协议有误
+initConfigFetchFailed: 配置获取失败，请检查网络连接
+attachmentGetFileFailed: 无法获取文件，请重试或使用相册选择
+attachmentGetFileFailedAndroid9: 文件获取失败，Android 9 可能存在兼容性问题
+attachmentGetImageDataFailed: 无法获取图片数据，请重试
+attachmentGetOriginalImageFailed: 无法获取原始图片数据
+saveFailedRetry: 保存失败，请重试
+downloadFileNotFound: 下载文件不存在，请重试
+downloadHashRetrying(retry, max): 文件校验失败，正在重新下载 ($retry/$max)
+downloadHashFailed: 文件多次校验失败，请检查网络后重试
+e2eeTransferToNewDevice: 传输到新设备
+e2eeTransferPendingSection: 待处理的传输
+e2eeTransferLoadFailed: 加载失败
+e2eeTransferLoadFailedDesc: 无法加载待处理的传输，请重试
+e2eeTransferNoPending: 暂无待处理的传输
+e2eeTransferNoPendingDesc: 当有设备向您发送密钥时，会显示在这里
+e2eeSocialEnoughShards: 您已有足够的分片可以恢复密钥
+e2eeSocialMoreShards(count): 还有 $count 个分片...
+e2eeProxyLoadFriendsFailed: 加载好友列表失败，请重试
+e2eeProxyNoPublicKey: 该好友没有可用的公钥
+e2eeProxyGetKeyFailed(name): 获取 $name 的公钥失败
+e2eeProxySelectFailed: 选择代理失败，请重试
+e2eeProxyNoFriends: 暂无好友
+e2eeProxyNoFriendsHint: 请先添加好友后再设置恢复代理
+e2eeProxyNeedMore(count, selected): 至少需要 $count 个信任的联系人，已选择 $selected 个
+e2eeProxyConfirmCount(count): 确认选择 ($count 个代理)
+buttonBackHome: 返回首页
+featureNotEnabled: 当前功能未启用
+featureDisabledName(name): $name 功能未启用，暂时无法访问
+imageLoadFailed: 加载失败
+loadFailedWithError(error): "加载失败: $error"
+webAudioNotSupported: Web 平台暂不支持语音消息播放
+e2eeKeyRecreationFailed(error): "密钥创建失败: $error"

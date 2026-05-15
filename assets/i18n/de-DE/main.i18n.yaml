@@ -1,0 +1,190 @@
+change: Ändern
+entertainment: "Filme & Shows"
+lifePayment: Rechnungszahlung
+medicalHealth: Gesundheit
+meituanDelivery: Meituan Lieferung
+tencentService: Tencent-Dienste
+traffic: Verkehr
+totalAssets: Gesamtvermögen
+album: Fotos
+appSize: App-Größe
+arSa: Arabisch (Saudi-Arabien)
+audio: Audio
+barcodeFound: "Strichcode gefunden!"
+botQianFan: QianFan Robot
+cache: Cache
+camera: Kamera
+changeNameView: Namen ändern
+changeParam: $param ändern
+chooseFromAlbum: Aus Album auswählen
+clean: Bereinigen
+codeSentToParam: Bestätigungscode an $param gesendet
+codeSentToType: Bestätigungscode an $param gesendet
+collected: Favorisiert
+completed: Abgeschlossen
+copied: Kopiert
+darkModel: Dunkler Modus
+deDd: Deutsch (Deutschland)
+disable: Deaktivieren
+earlier: Früher
+enGb: Britisches Englisch
+enUs: Amerikanisches Englisch
+enable: Aktivieren
+example: "Beispiel:"
+expired: Abgelaufen
+extraItem: Zusätzliches Element
+faceToFaceLogic: Logik für Face-to-Face
+favorites: Favoriten
+female: Weiblich
+followSystem: System folgen
+frFr: Französisch (Frankreich)
+from: Von
+goClean: Zur Bereinigung
+good: Sehr gut
+hangup: Auflegen
+haveSet: Eingestellt
+httpParse: HTTP-Parsing
+iAm: Ich bin
+itIt: Italienisch (Italien)
+jaJp: Japanisch (Japan)
+keepSecret: Geheim halten
+lastActiveTime: Letzte Aktivitätszeit
+lastSeenHide: Online-Status ausblenden
+lastSeenNever: Nie online
+lastSeenWeeksAgo: Vor $param Wochen
+lastSeenExactTime: Zuletzt online $param
+licenseAgreement: Softwarelizenz- und Dienstleistungsvereinbarung
+liveBroadcast: Live-Übertragung
+liveRoomListView: Live-Raum-Ansicht
+publisherPage: Publisher-Seite
+subscriber: Abonnent
+loggingOut: Abmelden...
+loudspeaker: Lautsprecher
+makeYourselfInvisible: Unsichtbar werden
+makeYourselfVisible: Sichtbar werden
+male: Männlich
+manage: Verwalten
+markImportant: Wichtig
+markImportantDesc: Als wichtige Nachricht markieren
+markStar: Favorit
+markStarDesc: Diese Nachricht als Favorit markieren
+markTodo: Aufgabe
+markTodoDesc: Als Aufgabe markieren
+multiSelect: Mehrfachauswahl
+multiSelectMode: Mehrfachauswahl-Modus
+myFavorites: Meine Favoriten
+myLive: Mein Live-Stream
+name: Name
+numUnit: $param Stück
+openInBrowser: Im Browser öffnen
+or: Oder
+otherParty: Gegenüber
+packageSize: Paketgröße
+peerHasHungUp: Gesprächspartner hat aufgelegt
+play: Abspielen
+pleaseInputParam: Bitte $param eingeben
+pleaseSelect: Bitte auswählen
+quickFilters: Schnellfilter
+quote: Zitat
+recentlyUsed: Kürzlich verwendet
+releaseEnd: Zum Beenden loslassen
+remainingChars: Noch $param Zeichen möglich
+replied: Geantwortet
+ringing: Klingelt...
+ruRu: Russisch (Russland)
+selectedCount: Ausgewählt ($count)
+selected: Ausgewählt
+sent: Gesendet
+sentByMe: Von mir gesendet
+sentByOthers: Von anderen gesendet
+setParam: $param einstellen
+setting: Einstellungen
+siginQ: Bereits ein Konto?
+signInWith: Mit $param anmelden
+source: Quelle
+speakingTooShort: Sprechzeit zu kurz
+speed: Geschwindigkeit
+star: "@:main.markStar"
+stillNeeded: Noch benötigt
+storageSpace: Speicherplatz
+termOfServices: Nutzungsbedingungen
+text: Text
+thisWeek: Diese Woche
+timeRange: Zeitbereich
+timeWeekdays: "Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag"
+titleMine: Ich
+tooBad: Zu schlecht
+tryAgainQ: Nochmal versuchen?
+type: Typ
+unanswered: Unbeantwortet
+unnamed: Unbenannt
+upToWords: Maximal $param Zeichen
+upgrade: Aktualisieren
+usedSpace: Verwendeter Speicherplatz
+webView: Webansicht
+you: Sie
+yourFeel: Wie fühlen Sie sich dabei?
+zhCn: Vereinfachtes Chinesisch
+zhHant: Traditionelles Chinesisch
+bound: Gebunden
+correct: Korrekt
+pendingInput: Eingabe ausstehend
+lengthCheck: Längenprüfung
+bugReport: Fehlerbericht
+deleting: Wird gelöscht...
+current: Aktuell
+publish: Veröffentlichen
+privacyPolicy: Datenschutzrichtlinie
+termsOfService: Nutzungsbedingungen
+saving: "@:common.loading"
+topStories: Top Stories
+systemDefault: Systemstandard
+custom: Benutzerdefiniert
+previewArea: Vorschaubereich
+simpleTexture: Einfache Textur
+gradientBlue: Verlauf Blau
+gradientPurple: Verlauf Lila
+copiedToClipboard: In die Zwischenablage kopiert
+copiedLink: Link kopiert
+destroyTime: Zerstörungszeit
+previewEffect: Vorschau-Effekt
+thisIsTitleText: Dies ist Titeltext
+thisIsAuxiliaryText: Dies ist Hilfstext
+toBeCompleted: Noch zu vervollständigen
+availableCount: Verfügbar
+mostUsed: Am häufigsten verwendet
+commentPlaceholder: Kommentar...
+delayMsLabel: "Verzögerung in ms (>=100)"
+processed: Verarbeitet
+export: Exportieren
+school: Schule
+hobbiesAndInterests: "Hobbys & Interessen"
+interests: Interests
+pleaseEnterSchool: Please enter school
+pleaseEnterInterests: Please enter interests
+manageVisibility: Sichtbarkeit persönlicher Informationen verwalten
+exportToLocal: Profil lokal exportieren
+exportAsText: Export as text format
+selectFromAlbum: Aus Album auswählen
+volumeUp: Lautstärke erhöhen
+volumeDown: Lautstärke verringern
+fastRewind: Schnell zurück $seconds Sekunden
+pleaseTryAgain: Bitte versuchen Sie es erneut
+secret: Geheim
+takePhoto: Foto aufnehmen
+publishing: Wird veröffentlicht...
+deletingInProgressPleaseWait: "Wird gelöscht, bitte warten..."
+testUser1: Benutzer 1
+testUser2: Benutzer 2
+testUser3: Benutzer 3
+testUser4: Benutzer 4
+testUser5: Benutzer 5
+collecting: Wird favorisiert...
+user: Benutzer
+recommended: Empfohlen
+larger: Größer
+currentLength: "Aktuelle Länge: $param1 / $param2"
+fillIn: Ausfüllen
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role

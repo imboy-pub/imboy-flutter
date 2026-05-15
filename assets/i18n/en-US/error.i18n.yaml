@@ -1,0 +1,12 @@
+restartRequired: Restart Required
+networkFailureGuidance: Network troubleshooting guide
+pleaseCheckNetwork: Please check your network settings.
+networkTroubleshootingStep1: 1. Open phone 'Settings' and keep 'Wi-Fi' switch on.
+networkTroubleshootingStep2: 2. Open phone 'Settings' - 'General' - 'Cellular Data' and keep 'Cellular Data' switch on.
+networkTroubleshootingStep3: "3. If still unable to connect to network, please check if the 'Wi-Fi' connected by phone has access to Internet or contact network operator."
+suggestCheckNetwork: Please check your network settings.
+e2eeStartRecoveryBtn(required): Start Key Recovery (need $required proxy helpers)
+e2eeInsufficientShardBtn(required, current): "Insufficient shards (need $required, have $current)"
+e2eeErrTimeout: "Encryption timed out, please check your connection and retry"
+e2eeErrNetwork: "Network error, encryption failed, message not sent"
+liveRoomTitleRequired: Title cannot be empty

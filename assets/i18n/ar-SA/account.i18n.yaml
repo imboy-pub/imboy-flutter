@@ -1,0 +1,101 @@
+account: حساب
+accountSecurity: أمان الحساب
+mobileRecharge: شحن الهاتف المحمول
+avatar: الصورة الرمزية
+accountSecurityEnhance: تحسين أمان الحساب
+bindMobile: ربط رقم الهاتف المحمول
+bindMobileFor: يستخدم لتسجيل الدخول واستعادة كلمة المرور واستلام الإشعارات المهمة
+linkEmail: ربط عنوان البريد الإلكتروني
+linkEmailFor: يستخدم لتسجيل الدخول والتحقق من الهوية واستلام الفواتير
+codeSentToEmail: تم إرسال رمز التحقق إلى البريد الإلكتروني
+codeSentToMobile: تم إرسال رمز التحقق إلى الهاتف
+currentDevice: الجهاز الحالي
+deviceAvailableSpace: المساحة المتوفرة في الجهاز
+deviceList: قائمة الأجهزة
+deviceName: اسم الجهاز
+deviceType: نوع الجهاز
+deviceUsedSpace: المساحة المستخدمة في الجهاز
+email: البريد الإلكتروني
+existingPassword: كلمة المرور الحالية
+forgotPassword: هل نسيت كلمة المرور؟
+gender: الجنس
+genderSaving: جارٍ الحفظ...
+groupQrcode: رمز QR للدردشة الجماعية
+hintLoginAccount: حساب/بريد إلكتروني
+logOut: تسجيل الخروج
+areYouSureLogOut: هل أنت متأكد من أنك تريد تسجيل الخروج؟
+login: تسجيل الدخول
+loginDeviceManagement: إدارة أجهزة تسجيل الدخول
+loginEmail: البريد الإلكتروني لتسجيل الدخول
+logoutAccount: إلغاء الحساب
+mobile: هاتف محمول
+mobileQuickLogin: تسجيل الدخول بنقرة واحدة
+myAccount: حسابي
+myQrcode: رمز QR الخاص بي
+newPassword: كلمة مرور جديدة
+newlyRegisteredPeople: أشخاص جدد مسجلون
+nickname: اللقب
+nicknameChangeVisibility: بعد تعديل اللقب، سيتم عرضه فقط في هذه المجموعة، ويمكن لجميع أعضاء المجموعة رؤيته.
+nicknameCharsRemaining: لا يزال بإمكانك إدخال $param حرف
+nicknameHint: يرجى إدخال اللقب
+nicknameSaving: جارٍ الحفظ...
+paramLogin: تسجيل الدخول $param
+password: كلمة المرور
+recentlyRegisteredUser: مستخدم مسجل حديثاً
+recoverCodePasswordDesc: سنرسل رمز استعادة كلمة المرور إلى بريدك الإلكتروني.
+recoverPassword: استعادة كلمة المرور
+recoverPasswordDesc: يرجى إدخال عنوان بريدك الإلكتروني، وسنرسل لك رمز إعادة تعيين كلمة المرور.
+recoverPasswordIntro: لا تشعر بالسوء، هذا يحدث كثيراً.
+birthday: تاريخ الميلاد
+region: المنطقة
+retypePassword: إدخال كلمة المرور مرة أخرى
+scanQrCode: مسح رمز QR
+securityCenter: مركز الأمان
+setNickname: تعيين اللقب
+signature: التوقيع الشخصي
+signup: التسجيل
+signupFormDesc: يرجى ملء هذا النموذج لإكمال التسجيل
+sourceQrcode: إضافة عبر المسح الضوئي
+switchAccount: تبديل الحساب
+changeEmail: تعديل البريد الإلكتروني
+bindEmail: ربط البريد الإلكتروني
+currentEmail: البريد الإلكتروني الحالي
+newEmailSameAsCurrent: البريد الإلكتروني الجديد مطابق للربط الحالي
+newMobileSameAsCurrent: رقم الهاتف الجديد مطابق للربط الحالي
+setPassword: تعيين كلمة المرور
+setLoginPassword: تعيين كلمة مرور تسجيل الدخول
+enhanceAccountSecurity: تحسين أمان الحساب
+passwordLengthRequirement: كلمة المرور طولها 4-32 حرفاً
+passwordMinLength: كلمة المرور تحتاج على الأقل $min حرف
+pleaseEnterPassword: يرجى إدخال كلمة المرور
+changeMobile: تغيير رقم الهاتف
+currentMobile: رقم الهاتف الحالي
+newMobile: رقم الهاتف الجديد
+enterMobileHint: يرجى إدخال رقم الهاتف
+codeSentToMobileParam: تم الإرسال إلى $param
+privacyLogoutAccount: إلغاء الحساب
+wallet: محفظة
+changeLoginPassword: تعديل كلمة مرور تسجيل الدخول
+loginExpiredTitle: تلميح
+otherDevice: أجهزة أخرى
+loginPassword: كلمة مرور تسجيل الدخول
+loginPasswordDesc: تستخدم لتسجيل الدخول إلى حساب IMBoy
+oldPassword: كلمة المرور القديمة
+enterOldPassword: يرجى إدخال كلمة المرور القديمة
+enterNewPassword: يرجى إدخال كلمة المرور الجديدة
+enterNewPasswordAgain: يرجى إدخال كلمة المرور الجديدة مرة أخرى
+balance: الرصيد
+recharge: إعادة الشحن
+withdraw: سحب
+paymentPassword: كلمة مرور الدفع
+setPaymentPassword: تعيين كلمة مرور الدفع
+enterPaymentPassword: يرجى إدخال كلمة مرور الدفع
+myQRCode: رمز QR الخاص بي
+profile: Profile
+setGender: تعيين الجنس
+setBirthday: تعيين تاريخ الميلاد
+sentToEmail: تم الإرسال إلى $param
+nicknameRules: "• طول اللقب 2-24 حرف
+• لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط
+• لا يمكن أن يحتوي على كلمات حساسة
+• بعد التعديل، سيتم عرضه في جميع الدردشات"

@@ -1,0 +1,52 @@
+applyFriend: Friend request
+applyFriendLogic: Friend request logic
+applyParam: Apply for $param
+blocked: Blocked
+applyChanges: Please restart the app to apply the changes.
+inputNewTag: Enter new tag...
+denylist: Blocklist
+denylistEmpty: Blocklist is empty
+denylistEmptyDesc: "You haven't blocked any users
+Blocked users will not be able to send you messages"
+favoriteGroupTagsEtc: "Favorite names, group names, tags, etc."
+groupRemarkView: Group note
+groupRemarkVisibility: Group chat note is only visible to yourself
+newFriend: New friends
+recommendToFriend: Recommend to friends
+remark: Remark
+remarksTags: Remarks and tags
+applyFilters: Apply filters
+selectAGroup: Select a group
+selectFriend: Select friend
+selectFriends: Select friends
+selectOrEnterTag: Select or enter tag
+tags: Tags
+tellFriend: Tell friends
+tagNameRequired: Tag name cannot be empty
+suggestedTags: Suggested Tags
+tagManagement: Tag Management
+currentTags: Current Tags ($param)
+pleaseEnterRemark: Please enter remark
+enterRemark: Enter remark name
+pleaseEnterTags: Please enter tags
+momentsVisibilityFriends: Friends Only
+tagLengthExceeded: Tag length cannot exceed $param characters
+maxTagsExceeded: Maximum $param tags allowed
+selectedTags: Selected tags ($param/$max)
+tagImportant: Important
+tagUrgent: Urgent
+tagWork: Work
+tagLife: Life
+tagStudy: Study
+tagEntertainment: Entertainment
+tagTravel: Travel
+tagFood: Food
+tagHealth: Health
+tagFamily: Family
+tagFriends: Friends
+tagProject: Project
+tagIdeas: Ideas
+tagMemo: Memo
+friendRequestSent: Sent
+channelMaxTagsCount: Maximum 8 tags allowed
+tagInputHint: Enter tag...

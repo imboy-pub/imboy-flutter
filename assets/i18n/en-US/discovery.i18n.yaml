@@ -1,0 +1,31 @@
+findNearbyPeople: Find nearby people
+moment: Moments
+nearbyPeopleExplain: "Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.
+
+Your phone number stays hidden."
+peopleNearby: Nearby people
+peopleNearbyLogic: Nearby
+scan: Scan
+scanResult: Scan result
+scannerResult: Scan result
+titleDiscover: Discover
+myChannels: My Channels
+channelSquare: Channel Square
+otherUsersCanFindMe: Other users can find me through search
+moments: Moments
+momentsReport: Report Moment
+momentsReportDesc: Additional details
+momentsComments: Comments
+momentsWriteComment: Write a comment...
+momentsVisibility: Visibility
+momentsVisibilityPublic: Public
+momentsVisibilityPartial: Partial
+momentsVisibilityExclude: Exclude
+momentsDenyUidsLabel: Hidden from these UIDs (comma-separated)
+momentsDraftRestored: Restored your last unsent draft
+momentsFeedStale: Network error — showing cached content
+discover: Discover
+shake: Shake
+openChannel: Open Channel
+paidChannelLocked: Paid Channel Content Locked
+webQRScanned: Scanned

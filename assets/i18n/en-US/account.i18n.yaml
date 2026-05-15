@@ -1,0 +1,119 @@
+account: Account
+accountSecurity: Account security
+mobileRecharge: Mobile Recharge
+avatar: Avatar
+accountSecurityEnhance: Enhance account security
+bindMobile: Bind phone number
+bindMobileFor: "For login, password recovery, and receiving important notifications"
+linkEmail: Link email
+linkEmailFor: "For login, identity verification, and receiving bills"
+codeSentToEmail: Verification code sent to email
+codeSentToMobile: Verification code sent to mobile
+currentDevice: Current device
+deviceAvailableSpace: Device available space
+deviceList: Device list
+deviceName: Device name
+deviceType: Device type
+deviceUsedSpace: Device used space
+email: Email
+existingPassword: Current password
+forgotPassword: Forgot password?
+gender: Gender
+genderSaving: Saving...
+groupQrcode: Group QR code
+hintLoginAccount: Account/Email
+logOut: Log out
+areYouSureLogOut: Are you sure you want to log out?
+login: Login
+loginDeviceManagement: Login device management
+loginEmail: Login email
+logoutAccount: Delete account
+mobile: Mobile
+mobileQuickLogin: Quick login
+myAccount: My account
+myQrcode: My QR code
+newPassword: New password
+newlyRegisteredPeople: Newly registered
+nickname: Nickname
+nicknameChangeVisibility: "After modifying nickname, it will only be displayed in this group and visible to all group members."
+nicknameCharsRemaining: $param characters remaining
+nicknameHint: Please enter nickname
+nicknameSaving: Saving...
+paramLogin: Log in with $param
+password: Password
+recentlyRegisteredUser: Recently registered user
+recoverCodePasswordDesc: We will send password recovery code to your email.
+recoverPassword: Reset password
+recoverPasswordDesc: Please enter your email to receive password reset instructions
+recoverPasswordIntro: "No worries, this happens to everyone."
+birthday: Birthday
+region: Region
+retypePassword: Re-enter password
+scanQrCode: Scan QR code
+securityCenter: Security center
+setNickname: Set nickname
+signature: Signature
+signup: Sign Up
+signupFormDesc: Please fill out this form to complete registration
+sourceQrcode: Added by scanning
+switchAccount: Switch account
+changeEmail: Change email
+bindEmail: Bind email
+currentEmail: Current email
+newEmailSameAsCurrent: New email is same as current binding
+newMobileSameAsCurrent: New mobile is same as current binding
+setPassword: Set password
+setLoginPassword: Set login password
+enhanceAccountSecurity: Enhance account security
+passwordLengthRequirement: Password length is 4-32 characters
+passwordMinLength: Password must be at least $min characters
+pleaseEnterPassword: Please enter password
+changeMobile: Change mobile number
+currentMobile: Current mobile number
+newMobile: New mobile number
+enterMobileHint: Please enter mobile number
+codeSentToMobileParam: Sent to $param
+privacyLogoutAccount: Delete account
+wallet: Wallet
+changeLoginPassword: Change login password
+loginExpiredTitle: Notice
+otherDevice: Other Device
+loginPassword: Login Password
+loginPasswordDesc: Used to login IMBoy account
+oldPassword: Old Password
+enterOldPassword: Please enter old password
+enterNewPassword: Please enter new password
+enterNewPasswordAgain: Please enter new password again
+balance: Balance
+recharge: Recharge
+withdraw: Withdraw
+paymentPassword: Payment Password
+setPaymentPassword: Set Payment Password
+enterPaymentPassword: Please enter payment password
+myQRCode: My QR Code
+profile: Profile
+setGender: Set Gender
+setBirthday: Set Birthday
+sentToEmail: Sent to $param
+nicknameRules: "• 2-24 characters
+• Not just whitespace or emojis
+• No sensitive words
+• Updates apply to all chats"
+refreshDeviceKey: Refresh Device Key
+refreshDeviceKeyHint: "If messages cannot be decrypted, click to refresh keys"
+refreshingDeviceKey: Refreshing device key...
+deviceKeyRefreshed: Device key refreshed
+rechargeTitle: Top Up
+rechargeAmountHint: "Enter amount (CNY), ¥1 to ¥10,000"
+rechargeAmountExample: e.g. 100
+e2eeDeviceTransfer: Device Transfer
+e2eeDeviceTransferDesc: Transfer key directly to a new device via QR code
+e2eeDeviceIdLabel: Device ID
+webQRLoginTitle: Scan to Login
+webQRLoginHint: Scan the QR code with ImBoy on your phone
+webSwitchToPassword: Login with account and password
+webPasswordLoginTitle: Account Login
+webAccountHint: Enter account / phone / email
+webPasswordHint: Enter password
+e2eeTransferFromOldDevice: Receive Key from Old Device
+pleaseRelogin: Please log in again

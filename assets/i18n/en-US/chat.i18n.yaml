@@ -1,0 +1,262 @@
+bankCard: Bank Card
+cards: cards
+jdShopping: JD Shopping
+receivePayment: "Receive & Pay"
+alreadyEntered: You have already entered
+alreadyMember: Already a member
+appSqliteFileSizeExplain: Local database size for your account. You can clean media in selected chats or clear all chat messages.
+attachmentProvider: Attachment provider
+audioMessage: Voice message
+awaitingReply: Awaiting reply
+businessCard: Business card
+busyTryAgainLater: User is busy. Please try again later.
+later: Later
+peerIsTyping(name): $name is typing...
+changeGroupChatName: "After changing the group chat name, other members will be notified."
+chatHistory: Chat history
+chatHoldDownTalk: Hold to speak
+chatMessage: Chat messages
+chatMomentSportDataEtc: "Chat, moments, sports data, etc."
+chatSettingMute: Mute notifications
+chatSettingMuteDesc: Turn off notifications for this chat
+chatSettingMuted: Muted
+chatSettingPin: Pin chat
+chatSettingPinDesc: Pin this chat to the top of the list
+chatSettingUnmuted: Unmuted
+createGroupF2f: Face-to-face group creation
+displayProfile: Display your profile
+file: File
+fileMessage: "[File]"
+fileSize: File size
+forgotPasswordPinCodeView: Enter verification code
+forward: Forward
+forwardReply: Forward reply
+forwardTo: Forward to
+forwardToFriend: Forward to friend
+great: Excellent
+groupFile: Group Files
+groupFileImagePreview: Image preview
+groupFileVideoPreview: Video preview
+groupFileAudioPreview: Audio preview
+groupFileMediaPause: Pause
+groupFileMediaPlay: Play
+groupFileUrlMissing: "File URL missing, cannot open"
+groupFileUrlInvalid: Invalid file URL
+groupFilePreview: File Preview
+groupFileUnnamed: Unnamed file
+groupFileCategoryEmpty: "No ${category} files"
+groupFileEmpty: No group files
+groupFileCategoryDoc: Documents
+groupFileCategoryImage: Images
+groupFileCategoryVideo: Videos
+groupFileCategoryAudio: Audio
+groupFileCategoryOther: Other
+groupChat: Group chat
+image: Image
+imageMessage: "[Image]"
+initiateChat: Start group chat
+justChat: Chat only
+location: Location
+exportMyData: Export My Data
+exportDataDesc: "Export your personal info, contacts, and chat history"
+message: Messages
+messageHandlingMixin: Message handling
+messageMarkTitle: Message mark
+customMessage: Custom message
+card: Card
+messageType: Message type
+messageVisitCardBuilder: Business card
+messageWasWithdrawn: recalled a message
+messageWasWithdrawnWithTitle: $param recalled a message
+messageWebrtcBuilder: Video call
+momentStatus: Moments and status
+offline: Offline
+online: Online
+paramAlreadyExist: $param already exists
+pin: Pin
+pinChat: Pin chat
+pinned: Pinned
+privateReply: Private reply
+qrCodeBusinessCard: QR code card
+quoteReply: Quote reply
+rating: Rating
+readAgreeParam: Have read and agree to $param
+recentChats: Recent chats
+recentForwards: Recent forwards
+remindMeLater: Remind me later
+quickReplyManage: Manage quick replies
+quickReplyEmpty: No quick replies yet — tap the button below to add one
+quickReplyDuplicate: This phrase already exists
+quickReplyMaxReached: At most $max entries
+quickReplyHint: Type your phrase...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: Muted $label
+muteUnitMinutes: $count min
+muteUnitHours: $count hr
+muteUnitDays: $count day(s)
+youAreMuted: You are muted
+youAreMutedWithTime: "You are muted, $minutes minutes remaining"
+repliedAt: Replied at
+reply: Reply
+replyTo: Reply
+resendCode: Resend verification code
+revoke: Recall
+scanQrCodeBusinessCard: Scan QR code card
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
+sendFriendRequest: Send friend request
+sendMsgRejected: Message was rejected
+sendSeparatelyTo: Send separately to
+sendTo: Send to
+send: "@:common.buttonSend"
+sender: Sender
+sending: Sending...
+signatureInputHint: Signature input hint
+signaturePlaceholder: Signature placeholder
+signupIntro: "Confirmation code has been sent to your email,
+please enter the confirmation code to confirm your account."
+socialProfile: Social profile
+status: Status
+storageSpaceData: Storage space and data
+sureOpenTheFile: Are you sure you want to open the file?
+textMessage: Text message
+titleMessage: Messages
+topChat: Pin chat
+unpin: Unpin
+unsupportedFileType: Unsupported file type
+userData: User data
+video: Video
+videoMessage: "[Video]"
+viewAttachments: View attachments
+viewLargeImage: View large image
+voice: Voice
+voiceInput: Voice input
+voiceMessage: Voice message
+youWithdrewAMessage: You recalled a message
+formatCheck: Format check
+featureRequest: Feature request
+resendCodeWithCount: Resend ($count s)
+chatResend: Resend
+chatReply: Reply
+chatOpenFile: Open file
+chatOpenLink: Open link
+avatarSelectPhoto: Select photo
+avatarTakePhoto: Take photo
+avatarSelectFromAlbum: Select from album
+profileExportProfile: Export profile
+momentsSend: Send
+videoCompressInProgress: Compression task already in progress
+videoCompressing: Compressing video...
+loginExpiredMessage: Session expired. Please log in again.
+geometricPattern: Geometric Pattern
+ripplePattern: Ripple Pattern
+customImage: Custom Image
+voiceRecordResultEmpty: Voice recording result is empty
+voiceFileInvalid: Voice file is invalid
+burnAfterReading: Burn After Reading
+visibleThresholdRead: Visible Threshold Read
+readThresholdDelay: "Read Threshold & Delay"
+goodReadability: Good readability
+profileCompleteness: Profile Completeness
+tagStatistics: Tag Statistics
+alreadySent: Already sent
+visibleRatioLabel: Visible ratio (0.1~1.0)
+unsupportedMessageType: Unsupported message type
+passwordMismatch: Passwords do not match
+pleaseTryAgainLater: Please try again later
+momentsSelectVideo: Select Video
+momentsRecordVideo: Record Video
+momentsVisibilityPrivate: Private
+momentsMediaTooManyImages: You can select at most 9 images
+momentsMediaTooManyVideos: You can select at most 1 video
+momentsMediaMixedImageAndVideo: Images and videos cannot be posted together
+momentsReplyPrefix: "Reply @"
+momentsReplySeparator: ": "
+momentsReplyingTo: "Replying to @{name}"
+sendNewMessage: Send new message
+markRead: Mark as read
+markUnread: Mark as unread
+pleaseEnterSignature: Please enter signature
+exportProfile: Export Profile
+setSignature: Set Signature
+setAvatar: Set Avatar
+fastForward: Fast Forward $seconds
+messageId: Message ID
+chatType: Chat type
+voiceFileEmptyPleaseTryAgain: "Voice file is empty, please try again"
+chatStatusSending: Sending
+chatStatusSent: Sent
+chatStatusDelivered: Delivered
+chatStatusSeen: Seen
+chatStatusSendingDesc: Message is sending...
+chatStatusSentDesc: Message sent
+chatStatusDeliveredDesc: Message delivered
+chatStatusSeenDesc: Message seen
+messageMute: "@:chat.chatSettingMute"
+sendingVoice: Sending voice...
+deletingMessage: Deleting...
+deletingLocalMessage: Deleting local message...
+quickReplyReceived: Received
+quickReplyThanks: Thanks
+quickReplyWait: Wait a moment
+groupCategoryGroupCount(count): $count groups
+groupAlbumCreateTitle: New Album
+groupAlbumCreated: Album created
+profileCompleted: "Profile complete!"
+profileProgress(percent): "${percent}% complete"
+createdAtLabel(time): "Created: $time"
+expiredAtLabel(time): "Expires: $time"
+myReceivedTab: Received
+orderStatusLabel(status): "Status: $status"
+orderCreatedAtLabel(time): "Created: $time"
+orderPaymentAtLabel(time): "Paid: $time"
+orderStatusPending: Pending Payment
+orderStatusPaid: Paid
+orderStatusRefunded: Refunded
+orderStatusExpired: Expired
+defaultFileName: File
+fileUrlInvalid: Invalid file link
+e2eeStatusAvailable: Available
+e2eeGenerateNewKey: Generate New Key
+e2eeGenerateNewKeyDesc: Generate a new E2EE key pair (old messages will be unreadable)
+e2eeActivated: Active
+e2eeCreatedAtLabel: Created At
+e2eeGeneratingKey: "Generating key, please wait..."
+e2eeNewKeyGenerated: "New E2EE key pair generated!"
+e2eeReady: Ready
+e2eeReadyWithShards(count): Ready ($count shards)
+webFeatureMultiDevice: Multi-Device Sync
+webFeatureMultiDeviceDesc: "Switch seamlessly between phone and computer, messages sync in real time"
+webFeatureE2EE: End-to-End Encryption
+webFeatureE2EEDesc: "All messages are end-to-end encrypted, ensuring privacy and security"
+webFeatureFileTransfer: File Transfer
+webFeatureFileTransferDesc: "Drag and drop to send files, supports various formats"
+webQRStatusWaiting: "Open ImBoy on your phone > Settings > Scan"
+webQRStatusScanned: Please tap "Confirm Login" on your phone
+webQRStatusVerifying: Verifying...
+webQRStatusExpired: Please click refresh to scan again
+e2eeErrInvalidFormat: "Message format error, encryption failed"
+e2eeSocialCreateTitle: Create recovery shards
+e2eeSocialCreateBtn: Create shards
+e2eeSocialCreateFailTitle: Creation failed
+e2eeSocialCreateFailBody: "Failed to create shards, please try again"
+e2eeSocialCreateFirst: Create shards to see content here
+e2eeSocialUsedAtLabel: Used at
+e2eeTransferSendTitle: Send key to new device
+e2eeTransferCreateBtn: Create
+e2eeTransferReceiveTitle: Receive key from old device
+e2eeTransferSendDesc: Transfer key to a new device via QR code
+e2eeTransferReceiveDesc: Scan old device QR code to receive key
+e2eeSocialStatus(status): "Status: $status"
+e2eeSocialCreateShardsTitle: Create Recovery Shards
+e2eeSocialCreateShardsDesc: Split key into shards stored on proxy devices (server holds nothing)
+e2eeProxyNeedAtLeast(count): Please select at least $count proxies
+e2eeRecreatingKey: Recreating key...
+e2eeKeyRecreated: Key recreated successfully
+liveRoomCreateTitle: Create Live Room
+liveRoomCreating: Creating...
+liveRoomWatch: Watch Live

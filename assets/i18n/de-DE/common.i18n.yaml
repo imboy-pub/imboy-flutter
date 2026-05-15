@@ -1,0 +1,714 @@
+about: Über
+aboutApp: Über die App
+accept: Akzeptieren
+acceptFriendRequest: Freundschaftsanfrage bestätigen
+addFriend: Freund hinzufügen
+addPhoneContact: Telefonkontakt hinzufügen
+creditCardRepayment: Kreditkartenrückzahlung
+smallChange: Kleingeld
+addTag: Tag hinzufügen
+addToContacts: Zu Kontakten hinzufügen
+addToDenylist: Zur Sperrliste hinzufügen
+added: Hinzugefügt
+addedToDenylistTips: Zur Sperrliste hinzugefügt. Sie erhalten keine Nachrichten mehr von dieser Person.
+agreeContinue: Zustimmen und fortfahren
+all: Alle
+allSenders: Alle Absender
+allTags: Alle Tags
+allTime: Gesamter Zeitraum
+allTypes: Alle Typen
+allowSearchMe: Suche nach mir erlauben
+allowedBeSearched: "Kürzlich registrierte Freunde, die gefunden werden dürfen"
+appSizeTips: "Erforderliche App-Dateien: APK, Compiler-Ausgabe, native Bibliotheken."
+applyAddFriend: Freund hinzufügen beantragen
+awaitingVerification: Warten auf Bestätigung
+buttonAccomplish: Fertig
+buttonAdd: Hinzufügen
+buttonBack: Zurück
+buttonBind: Binden
+bindMobileAndEmailTips: "Verbinden Sie Ihre Mobilfunknummer und E-Mail, um Ihr Konto sicherer zu machen"
+bindNow: Jetzt verbinden
+buttonCancel: Abbrechen
+buttonChangePassword: Passwort ändern
+buttonClose: Schließen
+buttonConfirm: Bestätigen
+buttonContinue: Fortfahren
+buttonCopy: Kopieren
+buttonDelete: Löschen
+buttonDeleteAccount: Konto löschen
+buttonInviteCode: Einladungscode
+buttonLogin: Anmelden
+buttonLogout: Abmelden
+buttonNextStep: Weiter
+buttonOk: OK
+buttonRegister: Registrieren
+buttonResetPassword: Passwort zurücksetzen
+buttonRetry: Wiederholen
+buttonSave: Speichern
+buttonSelectFromAlbum: Aus Album auswählen
+buttonSend: Senden
+buttonSetEmpty: Entleeren
+buttonSubmit: Absenden
+buttonTakingPictures: Foto aufnehmen
+cacheTips: Temporäre App-Daten. Bereinigung beeinflusst Nutzung nicht.
+callDuration: Anrufdauer
+calling: Im Gespräch
+canNotAddYourselfFriend: Sie können sich nicht selbst als Freund hinzufügen
+cancel: "@:common.buttonCancel"
+ok: "@:common.buttonOk"
+save: "@:common.buttonSave"
+reset: Zurücksetzen
+clear: Leeren
+saveTag: Tags speichern ($count)
+cancelLogoutBody: "Konto in Widerrufsfrist. Anmeldung = Löschung stornieren. Für Löschung: 15 Tage nach Antrag nicht anmelden."
+cancelLogoutTitle: Löschvorgang abbrechen?
+cancelled: Abgebrochen
+chatSettingBackground: Chat-Hintergrund
+chatSettingBackgroundCustom: Benutzerdefinierter Hintergrund festgelegt
+chatSettingBackgroundDefault: Standardhintergrund
+chatSettingBackgroundSelectorTip: Hintergrundauswahl-Funktion in Entwicklung
+chatSettingBackgroundSuccess: Hintergrund erfolgreich festgelegt
+chatSettingClearHistory: Chat-Verlauf leeren
+chatSettingClearHistoryConfirm: Möchten Sie wirklich alle Chat-Verläufe leeren? Diese Aktion kann nicht rückgängig gemacht werden.
+chatSettingClearHistoryDesc: "Alle Nachrichten löschen, diese Aktion kann nicht rückgängig gemacht werden"
+chatSettingClearedSuccess: Erfolgreich geleert
+chatSettingPinnedSuccess: Erfolgreich angepinnt
+chatSettingUnpinnedSuccess: Anheftung aufgehoben
+chatSettings: Chat-Einstellungen
+chatStatusFailed: Fehlgeschlagen
+chatStatusFailedDesc: Senden fehlgeschlagen. Zum Wiederholen tippen.
+chatErrorInDenylist: Sie stehen auf der Sperrliste
+chatErrorInDenylistDesc: Nachricht kann nicht gesendet werden - Sie wurden blockiert
+chatErrorNotAFriend: Noch keine Freunde
+chatErrorNotAFriendDesc: Nachricht kann nicht gesendet werden - fügen Sie die Person zuerst als Freund hinzu
+checkForUpdates: Auf Updates prüfen
+clearAll: Alle entfernen
+clearChatRecord: Chat-Verlauf leeren
+confirmCode: Bestätigungscode
+confirmCodeError: Bestätigungscode ist leer
+confirmCodeSuccess: Konto bestätigt.
+confirmDeleteChatRecord: Chat-Verlauf löschen?
+confirmNewFriend: Neuen Freund bestätigen
+confirmNewFriendLogic: Logik für neuen Freund bestätigen
+confirmRecoverSuccess: Passwort erfolgreich geändert.
+contactSetting: Kontakteinstellungen
+contactSettingTag: Kontakteinstellungs-Tag
+contactTagListLogic: Logik für Kontakt-Tag-Liste
+contactTags: Kontakt-Tags
+continueDownloading: Download fortsetzen
+copy: Kopieren
+coupon: Gutschein
+createGroupF2fConfirmTips: Diese Freunde treten ebenfalls den Gruppenchat bei
+createGroupF2fTips: "Geben Sie dieselben vier Ziffern wie Freunde in Ihrer Nähe ein, um denselben Gruppenchat beizutreten"
+delete: "@:common.buttonDelete"
+deleteCollectConfirmDesc: Nach dem Löschen kann nicht wiederhergestellt werden. Möchten Sie diesen Favoriten wirklich löschen?
+deleteContact: Kontakt löschen
+deleteForEveryone: Für alle löschen
+deleteForMe: Für mich löschen
+deleteTagTips: Nach dem Löschen des Tags werden die Kontakte im Tag nicht gelöscht
+deleteThisDevice: Dieses Gerät löschen
+deleteThisDeviceTips: Nach Löschen ist bei nächster Anmeldung auf diesem Gerät eine Sicherheitsüberprüfung erforderlich.
+denylistNoteDesc: "Blockierte Benutzer können Ihnen keine Nachrichten senden und Ihre Beiträge nicht sehen. Tippen Sie auf den Benutzer, um Details anzuzeigen."
+denylistNoteTitle: Erklärung zur Sperrliste
+details: Details
+deviceDetails: Gerätedetails
+downloaded: Heruntergeladen
+edit: Bearbeiten
+editTag: Tag bearbeiten
+errorAccessDenied: Zugriff auf $param verweigert
+errorCliVersionNotFound: "@:common.error"
+errorEmptyDirectory: $param ist leer
+errorFailedConnectServer: "@:common.error"
+errorFailedToConnect: "@:common.error"
+errorFileNotFound: Datei in $param nicht gefunden
+errorFolderNotFound: Ordner $param nicht gefunden
+errorHttpNotSupported: "@:common.error"
+errorInternalServer: "@:common.error"
+errorInvalid: $param ist ungültig
+errorInvalidDart: "@:common.error"
+errorInvalidFileOrDirectory: "@:common.error"
+errorInvalidJson: "@:common.error"
+errorInvalidRequest: "@:common.error"
+errorLengthBetween: Die Länge von $param muss zwischen $min und $max liegen
+errorManyRequest: "@:common.error"
+errorNoPackageToRemove: "@:common.error"
+errorNoValidFileOrUrl: "@:common.error"
+errorNonexistentDirectory: "@:common.error"
+errorPackageNotFound: "@:common.error"
+errorPassword: Falsches Passwort
+errorRequestForbidden: "@:common.error"
+errorRequestSyntax: "@:common.error"
+errorRequired: $param ist erforderlich
+errorRequiredPath: "@:common.error"
+errorRetypePassword: "@:common.error"
+errorSame: $param1 und $param2 müssen identisch sein
+errorServerDown: "@:common.error"
+errorServerRefused: "@:common.error"
+errorSpecialCharactersInKey: "@:common.error"
+errorUnexpected: "@:common.error"
+errorUnnecessaryParameter: "@:common.error"
+errorUnnecessaryParameterPlural: "@:common.error"
+errorUpdateCli: "@:common.error"
+failedGetLatLong: "@:common.errorNetwork"
+failedGetMapTryAgain: "@:common.errorNetwork"
+failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
+feedback: Feedback und Vorschläge
+feedbackBuilder: Feedback-Builder
+feedbackContentRequired: Feedback-Inhalt darf nicht leer sein
+feedbackDetails: Feedback-Details
+feedbackModel: Feedback-Modell
+feedbackReplyModel: Feedback-Antwort-Modell
+feedbackSuccessMsg: "Feedback erhalten. Wir werden es schnell bearbeiten!"
+followSystemTips: Nach Aktivierung wird der Dunkel-Modus entsprechend dem System ein- oder ausgeschaltet
+forceLogoutNotification: Sie wurden auf dem Gerät 【$param】 zwangsabgemeldet
+friendPermissions: Freunde-Berechtigungen
+friendsPermissionsView: Freunde-Berechtigungsansicht
+genderConflictError: "Geschlechtskonflikt, bitte versuchen Sie es erneut"
+genderNetworkError: "Netzwerkfehler, bitte überprüfen Sie Ihre Netzwerkverbindung"
+genderUpdateFailed: "Geschlechtseinstellung fehlgeschlagen, bitte versuchen Sie es erneut"
+genderUpdateSuccess: Geschlecht erfolgreich eingestellt
+groupAddLocal: Zu Kontakten speichern
+groupAnnouncement: Gruppenankündigung
+groupQrcodeTips: "Dieser QR-Code ist $days Tage gültig (bis $date), wird beim erneuten Betreten aktualisiert"
+groupSearchTips: Gruppenname und Gruppenbeschreibung
+helpDocument: Hilfe-Dokument
+hintEditGroupAnnouncement: Gruppenankündigung bearbeiten
+httpResponse: HTTP-Antwort
+incomingCall: $param ruft an
+info: Information
+infoLoggedInOnAnotherDevice: Ihr Konto hat sich am $param auf einem anderen Gerät angemeldet
+installNow: Jetzt installieren
+iosAppIdUnknown: "AppStore nicht gelistet oder AppID [$param] existiert nicht"
+koKr: Koreanisch (Südkorea)
+languageSetting: Spracheinstellung
+languageState: Sprachstatus
+lastActiveTips: "Bei sicherem Gerät wird die Anmeldezeit automatisch verlängert, um Freundenachrichten-Empfang/-Versand aufrechtzuerhalten. Die letzte Aktivitätszeit wird aktualisiert."
+lastSeenJustNow: Gerade online
+lastSeenLongTimeAgo: Vor langer Zeit online
+lastSeenMonthsAgo: Vor $param Monaten
+leaveYourSuggestions: Bitte hinterlassen Sie Ihre wertvollen Kommentare und Vorschläge
+loadError: "Laden fehlgeschlagen, bitte versuchen Sie es erneut"
+loadMore: Mehr laden
+loading: Wird geladen
+locationMessage: Standortnachricht
+loginDeviceManagementTips: Konto auf folgenden Geräten angemeldet. Sie können Geräte löschen. Nach Löschen ist bei nächster Anmeldung auf diesem Gerät eine Sicherheitsüberprüfung erforderlich.
+logoutNotice: Löshinweise
+manually: Manuell auswählen
+messageCall: Nachricht senden
+messageContent: Nachrichteninhalt
+messageLocationBuilder: Standortnachrichten-Builder
+messageNotification: Nachrichtenbenachrichtigung
+messageRevoked: Nachricht zurückgerufen
+quoteMessageNotAvailable: Referenzierte Nachricht nicht verfügbar
+messageRevokedBuilder: Widerrufene-Nachrichten-Builder
+microphone: Mikrofon
+microphonePermissionNotObtained: Mikrofonberechtigung nicht erteilt
+moreInfo: Mehr Infos
+myAddress: Meine Adresse
+nearbyPeopleTips: Kontaktdaten mit Personen in der Nähe austauschen und neue Freunde kennenlernen
+needContinueWorkHard: Weiter hart arbeiten
+needSubmitEffect: "Bestätigung erforderlich, damit die Aktion wirksam wird"
+networkErrorWithAction: "$param fehlgeschlagen, bitte überprüfen Sie Ihre Netzwerkverbindung"
+networkException: Netzwerkverbindungsfehler
+errorNetwork: Netzwerkfehler
+networkExceptionPlaseNeedNetworkToViewData: "Netzwerkstatus abnormal, Netzwerkverbindung erforderlich, um Daten anzuzeigen"
+networkFailureTips: Netzwerkfehler-Tipps
+newVersionDetected: Neue Version erkannt
+newVersionDetectedWithVersion: Neue Version erkannt $param
+nextStep: Nächster Schritt
+nicknameConflictError: "Spitzname bereits vergeben, bitte wählen Sie einen anderen"
+nicknameEmojiOnlyError: Spitzname darf nicht nur aus Emojis bestehen
+nicknameEmptyError: Spitzname darf nicht leer sein
+nicknameLengthError: Spitznamenlänge sollte zwischen 2-24 Zeichen liegen
+nicknameNetworkError: "Netzwerkfehler, bitte überprüfen Sie Ihre Netzwerkverbindung"
+nicknameSensitiveWordError: "Spitzname enthält sensible Wörter, bitte erneut eingeben"
+nicknameServerError: "Serverfehler, bitte versuchen Sie es später erneut"
+nicknameUpdateFailed: "Spitzname ändern fehlgeschlagen, bitte versuchen Sie es erneut"
+nicknameUpdateSuccess: Spitzname erfolgreich geändert
+nicknameWhitespaceError: Spitzname darf nicht nur aus Leerzeichen bestehen
+noAvatar: Kein Avatar
+noBarcodeFound: "Strichcode nicht gefunden!"
+noContacts: Keine Kontakte
+noConversationMessages: Keine Nachrichten
+noData: Keine Daten
+noMembersInCurrentTag: Keine Mitglieder im aktuellen Tag
+noMoreData: Keine weiteren Daten
+noNewFriends: Keine neuen Freunde
+noPermission: Keine Berechtigung
+noReply: Keine Antwort
+noSiginQ: Noch kein Konto?
+noUpdateDescription: Keine Update-Beschreibung
+normalModel: Normaler Modus
+notAuthorizedLatLong: Berechtigung für Standortabfrage noch nicht erteilt
+notBad: Nicht schlecht
+notBound: Nicht gebunden
+notFilled: Nicht ausgefüllt
+notInstallAnyMapApp: Sie haben keine Karten-App installiert
+notLetHimSee: Nicht anzeigen lassen
+notReceiveCoeQ: Keinen Bestätigungscode erhalten?
+notSeeHim: Nicht anzeigen
+notSet: Nicht eingestellt
+notShow: Nicht anzeigen
+notTurnedLocationService: Sie haben den Standortdienst noch nicht aktiviert
+nowNewVersion: Keine neue Version erkannt
+off: "@:common.disabled"
+offlineNotification: Offline-Benachrichtigung
+on: "@:common.enabled"
+operationFailedAgainLater: "Operation fehlgeschlagen, bitte versuchen Sie es später erneut"
+optionsNo: Nein
+optionsRename: Ich möchte umbenennen
+optionsYes: "Ja!"
+p2pCallScreenLogic: P2P-Anrufbildschirm-Logik
+p2pCallScreenView: P2P-Anrufbildschirm-Ansicht
+paramFormatError: $param Formatfehler
+pauseDownloading: Download pausieren
+peerNoResponse: Gesprächspartner antwortet nicht...
+peopleInfoMoreLogic: Logik für Personeninfo-Mehr
+peopleInfoSameGroupView: Ansicht für gleiche Gruppe
+perMinuteOnce: Nur einmal pro Minute anfordern
+permission: Berechtigung
+permissionAcquisitionFailed: Berechtigung konnte nicht erteilt werden
+personalCard: Persönliche Visitenkarte
+personalInfoDesc: Beschreibung der persönlichen Informationen
+personalInfoTip: Hinweis zu persönlichen Informationen
+personalInformation: Persönliche Informationen
+pinCodeFillTips: Bitte füllen Sie alle Felder aus
+pleaseSelectMembersForAdd: Bitte hinzuzufügende Mitglieder auswählen
+profileSettings: Profil-Einstellungen
+reEdit: Erneut bearbeiten
+recoverPasswordSuccess: Bestätigungscode erfolgreich gesendet
+regionCancel: Abbrechen
+regionConfirm: Bestätigen
+regionNoResult: Keine Ergebnisse
+regionSearchHint: Nach Regionsname suchen
+regionSearchTips: Nach Regionsname oder Regionscode suchen
+regionSelectTitle: Region auswählen
+releaseFingerCancelSending: "Finger nach oben wischen, um das Senden abzubrechen"
+removeContactFromTag: Kontakt aus Tag entfernen
+removeMember: Mitglied entfernen
+resendCodeSuccess: Neue E-Mail gesendet.
+resetFilters: Filter zurücksetzen
+saveQrCode: QR-Code speichern
+saveSuccess: Erfolgreich gespeichert
+scanQrcodeAddFriend: "Scannen Sie den QR-Code, um mich als Freund hinzuzufügen"
+search: Suche
+searchChatContent: Chat-Inhalt durchsuchen
+searchChatRecord: Chat-Verlauf durchsuchen
+searchError: Suchfehler
+searchFilterAll: Alle Filter
+searchFilterImage: Bild-Filter
+searchFilterText: Text-Filter
+searchFilterToday: Heute-Filter
+searchFilters: Suchfilter
+searchFriendsTips: Freunde nach Spitzname oder Bemerkung suchen
+searchHint: "Schlüsselwörter eingeben, um Nachrichten zu suchen"
+searchHistory: Suchverlauf
+searchLocation: Standort suchen
+searchMessagesHint: Nachrichtensuch-Hinweis
+searchNoFound: "Keine Suchergebnisse :("
+searchNoResults: Keine Suchergebnisse
+noSearchHistory: Kein Suchverlauf
+searchRegion: Region suchen
+searchResults: Suchergebnisse
+searchResultsCount: $current von $total Ergebnissen
+searchSuggestions: Suchvorschläge
+selectAll: Alle auswählen
+selectContacts: Kontakte auswählen
+selectRegionView: Region auswählen
+selectedItems: $param ausgewählte Elemente
+selectedRegion: Ausgewählte Region
+sendMsgNotFriendTips: Gesprächspartner hat Freundesverifizierung aktiviert. Sie sind noch nicht Freund. Senden Sie zuerst eine Freundesanfrage. Nach Bestätigung können Sie chatten.
+setChatBackground: Chat-Hintergrund festlegen
+share: Teilen
+signatureTips: Signatur-Tipps
+slideUpCancelSending: "Finger nach oben wischen, um das Senden abzubrechen"
+storagePermissionNotObtained: Speicherberechtigung nicht erteilt
+strongReminder: Starke Erinnerung
+submittedAt: Eingereicht am
+sureDeleteData: Löschen bestätigen? Nach dem Löschen kann nicht wiederhergestellt werden.
+sureDeleteGroupChatRecord: Chat-Verlauf der Gruppe löschen?
+switchEnvironment: Umgebung wechseln
+thisMonth: Dieser Monat
+timeDaysAgo: Vor $param Tagen
+timeHoursAgo: Vor $param Stunden
+timeJustNow: Gerade eben
+timeMinutesAgo: Vor $param Minuten
+timeToday: Heute
+timeYesterday: Gestern
+tipConnectDesc: Kein Netzwerk
+tipConnectDescWithParen: ($param)
+tipDeleteContact: "Kontakt \"$param\" löschen, gleichzeitig den Chat-Verlauf mit diesem Kontakt löschen"
+tipDeviceSpace: Belegt $param1‰ des Gerätespeichers($param2)
+tipDraft: Entwurf
+tipEmptyChatPlaceholder: Hier noch keine Nachrichten
+tipFailed: "Operation fehlgeschlagen!"
+tipGreeting: Willkommen
+tipProvidersTitleFirst: Oder mit folgendem Konto anmelden
+tipSuccess: "Operation erfolgreich!"
+tipTips: Tipps
+titleContact: Kontakte
+today: Heute
+unknown: Unbekannt
+unknownMessage: Unbekannte Nachricht
+updateLog: Update-Protokoll
+updateNow: Jetzt aktualisieren
+uploading: Uploading
+uploadSuccess: Upload successful
+uploadFailed: Upload failed
+userDataTips: Enthält notwendige App-Dateien sowie alle Daten wie Chatnachrichten und Kontakte.
+userDisabledOrDeleted: Benutzer deaktiviert oder gelöscht
+userNotExist: Benutzer existiert nicht
+userOnlineStatusWidget: Online-Status-Widget
+userTagRelationView: Benutzer-Tag-Relationsansicht
+userTagSaveView: Benutzer-Tag-Speichernansicht
+verificationMessageSentByPeerIs: "Die vom Gesprächspartner gesendete Bestätigungsnachricht lautet: $param"
+version: Version
+videoCall: Videoanruf
+viewAllGroupMember: Alle Gruppenmitglieder anzeigen
+voiceCall: Sprachanruf
+voiceInputNotImplemented: Spracheingabe-Funktion noch nicht implementiert
+waitingDownload: Warten auf Download
+waitingPeerAccept: Warten auf Annahme durch den Gesprächspartner...
+warning: "Warnung:"
+webpageLoading: Webseite wird geladen...
+whatYourFeedback: Was ist Ihr Feedback?
+yesterday: Gestern
+yourContactInformation: Ihre Kontaktdaten
+confirmRemove: Entfernen bestätigen
+confirmRemoveFromDenylist: Diesen Benutzer wirklich aus der Sperrliste entfernen?
+buttonRemove: Entfernen
+removedFromDenylist: Aus der Sperrliste entfernt
+newEmailAddress: Neue E-Mail-Adresse
+emailAddress: E-Mail-Adresse
+enterEmailAddress: E-Mail-Adresse eingeben
+getVerificationCode: Bestätigungscode erhalten
+confirmChange: Änderung bestätigen
+verificationCodeSentToEmail: "Bestätigungscode an diese E-Mail gesendet, bitte innerhalb Gültigkeitsdauer bestätigen"
+verificationCodeSentToMobile: "Bestätigungscode an diese Mobilfunknummer gesendet, bitte innerhalb Gültigkeitsdauer bestätigen"
+pleaseEnterCorrectEmailAddress: Bitte geben Sie die korrekte E-Mail-Adresse ein
+pleaseEnter6DigitVerificationCode: Bitte geben Sie den 6-stelligen Bestätigungscode ein
+verificationCodeSent: Bestätigungscode gesendet
+sendFailed: Senden fehlgeschlagen
+noChangeNeeded: Keine Änderung erforderlich
+submissionFailed: Übermittlung fehlgeschlagen
+checkVerificationCodeOrRetry: Bitte überprüfen Sie den Bestätigungscode oder versuchen Sie es später erneut
+forceOffline: Abmelden
+forceDeviceOffline: Gerät offline nehmen
+forceDeviceOfflineConfirm: "Offline-Befehl an dieses Gerät senden, fortfahren?"
+confirmForceOffline: Abmelden bestätigen
+forceOfflineCommandSent: Offline-Befehl gesendet
+feedbackSlogan: Ihre Vorschläge sind unser Antrieb für Verbesserungen
+newFeedback: Neues Feedback
+feedbackHistory: Feedback-Verlauf
+confirmDelete: Löschen bestätigen
+processing: "@:common.loading"
+verificationCode: Bestätigungscode
+feedbackContent: Feedback-Inhalt
+officialReply: Offizielle Antwort
+setPasswordSecurityTips: Verbessern Sie die Kontosicherheit und vermeiden Sie Anmeldeprobleme ohne Bestätigungscode. Legen Sie ein Anmeldepasswort fest.
+locationHidden: Ihr Standort ist ausgeblendet
+locationVisible: Ihr Standort wird angezeigt
+noNearbyPeople: Keine Personen in der Nähe
+clickSearchButtonToFind: "Tippen Sie oben auf Suchen, um Personen in der Nähe zu finden"
+operationSuccess: "@:common.success"
+operationFailed: "@:common.error"
+featureInDevelopment: Funktion in Entwicklung...
+addedToDenylist: Zur Sperrliste hinzugefügt
+bindSuccess: Erfolgreich gebunden
+mobileUpdatedToParam: Mobilfunknummer aktualisiert auf $param
+groupAnnouncementPublish: Ankündigung veröffentlichen
+pleaseEnterAnnouncementContent: Bitte Ankündigungsinhalt eingeben
+selectExpirationDateOptional: Ablaufdatum auswählen (optional)
+groupAnnouncementDeleteConfirm: Diese Ankündigung wirklich löschen?
+groupAnnouncementDelete: Löschen
+privacyClearChatHistory: Chat-Verlauf löschen
+privacyClearChatHistoryConfirm: Wirklich gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+privacyLogoutAccountConfirm: Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.
+privacySettings: Datenschutz-Einstellungen
+searchSettings: Sucheinstellungen
+allowSearchByAccount: Suche nach Konto erlauben
+allowSearchByAccountDesc: Andere Benutzer können Sie über Ihr Konto finden
+allowAddByPhone: Über Mobilfunknummer hinzufügen erlauben
+allowAddByPhoneDesc: Andere Benutzer können Sie über Ihre Mobilfunknummer als Freund hinzufügen
+allowAddByQR: Über QR-Code hinzufügen erlauben
+allowAddByQRDesc: Andere Benutzer können Sie durch Scannen Ihres QR-Codes als Freund hinzufügen
+statusSettings: Status-Einstellungen
+showOnlineStatus: Online-Status anzeigen
+showOnlineStatusDesc: Freunde können Ihren Online-Status sehen
+allowNearbyVisible: Für Personen in der Nähe sichtbar
+dataSettings: Daten-Einstellungen
+clearChatRecords: Chat-Verläufe löschen
+clearChatRecordsDesc: "Alle Chat-Verläufe löschen, diese Aktion kann nicht rückgängig gemacht werden"
+deleteAccountAction: Konto löschen
+deleteAccountActionDesc: "Konto und alle Daten dauerhaft löschen, diese Aktion kann nicht rückgängig gemacht werden"
+chatHistoryCleared: Chat-Verlauf gelöscht
+accountDeletionNotAvailable: Konto-Löschfunktion noch nicht verfügbar
+chatDeleteMessage: Nachricht löschen
+chatCopy: Kopieren
+chatSaveImage: Bild speichern
+chatDeleteLocalOnly: Nur lokal löschen
+chatDownloadFile: Datei herunterladen
+chatShareFile: Datei teilen
+chatCopyLink: Link kopieren
+chatShareLink: Link teilen
+chatDeleteFailed: Löschen fehlgeschlagen
+chatNetworkErrorDeleteLocal: "Netzwerkverbindung fehlgeschlagen, nur lokale Nachricht löschen?"
+chatDeleteConfirm: Diese Nachricht wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+chatDeleteOnlyLocal: "Nur für Sie löschen, für andere weiterhin sichtbar"
+chatDeleteAll: "Für alle löschen, kann nicht rückgängig gemacht werden"
+chatInitFailed: Chat-Initialisierung fehlgeschlagen
+cameraShootFailed: Aufnahme fehlgeschlagen
+avatarSave: Speichern
+avatarDeleteAvatar: Avatar löschen
+avatarEditAvatar: Avatar bearbeiten
+backgroundUseCustomColor: Benutzerdefinierte Farbe verwenden
+backgroundOnlySolidColor: Gilt nur für einfarbige Hintergründe
+backgroundSelectColor: Farbe auswählen
+profileShareProfile: Profil teilen
+tagClearAllConfirm: Wirklich alle Tags leeren?
+tagClearAll: Leeren bestätigen
+audioPlayFailed: Wiedergabe fehlgeschlagen
+videoFileNotFound: Eingabedatei nicht gefunden
+videoCompressFailed: "Komprimierung fehlgeschlagen, leeres Ergebnis zurückgegeben"
+videoFurtherCompressFailed: Weitere Komprimierung fehlgeschlagen
+forcedOfflineByDevice: "Sie wurden vom Gerät [$device] zwangsabgemeldet"
+searchDescription: "Mini-Programme, offizielle Konten, Artikel, Momente, Emojis und mehr"
+testDirectNavigation: Direkte Navigation testen
+tagNameTooLong: Tag-Name darf 14 Zeichen nicht überschreiten
+tagNameNoComma: Tag-Name darf keine Kommas enthalten
+tagNameNoLeadingTrailingSpaces: Tag-Name darf keine führenden oder nachfolgenden Leerzeichen enthalten
+tagNameNoSpecialChars: Tag-Name darf keine Sonderzeichen enthalten
+commonTags: Häufige Tags
+loadingTagDataFailed: Laden der Tag-Daten fehlgeschlagen
+pleaseEnterContent: Bitte Inhalt eingeben
+comingSoon: Demnächst verfügbar
+chatBackground: Chat-Hintergrund
+useSystemDefaultBackground: Systemstandard-Hintergrund verwenden
+selectCustomBackgroundImage: Benutzerdefiniertes Hintergrundbild auswählen
+currentBackground: Aktueller Hintergrund
+backgroundTransparency: Hintergrundtransparenz
+defaultBackground: Standardhintergrund
+solidColorBackground: Einfarbiger Hintergrund
+selectImageFailed: Bildauswahl fehlgeschlagen
+takePhotoFailed: Fotoaufnahme fehlgeschlagen
+selectVideoFailed: Videoauswahl fehlgeschlagen
+recordVideoFailed: Videoaufzeichnung fehlgeschlagen
+selectFileFailed: Dateiauswahl fehlgeschlagen
+locationSelectNotImplemented: Standortauswahl-Funktion noch nicht implementiert
+selectLocationFailed: Standortauswahl fehlgeschlagen
+sendCardNotImplemented: Kartensendefunktion noch nicht implementiert
+sendCardFailed: Karte senden fehlgeschlagen
+uploadResponseInvalid: Upload-Antwortdaten ungültig
+voiceSendSuccess: Sprachnachricht erfolgreich gesendet
+voiceSendFailed: Sprachnachricht senden fehlgeschlagen
+featureNotImplemented: Funktion noch nicht implementiert
+sendCollectionNotImplemented: Sammlungssendefunktion noch nicht implementiert
+fileOpenNotImplemented: Dateiöffnungsfunktion noch nicht implementiert
+fileShareNotImplemented: Dateiteilungsfunktion noch nicht implementiert
+retrySuccess: Wiederholung erfolgreich
+deleteSuccess: Erfolgreich gelöscht
+localDeleteSuccess: Lokales Löschen erfolgreich
+localDeleteFailed: Lokales Löschen fehlgeschlagen
+revokeSuccess: Erfolgreich widerrufen
+editContentCannotBeEmpty: Bearbeitungsinhalt darf nicht leer sein
+editSuccess: Erfolgreich bearbeitet
+messageNotFound: Nachricht nicht gefunden
+conversationNotFound: Unterhaltung nicht gefunden
+enabled: Aktiviert
+disabled: Deaktiviert
+configureVisibleThreshold: Sichtbarkeitsschwelle konfigurieren
+fontSizeSettingUpdated: Schriftgröße-Einstellung aktualisiert
+fontSizeSetting: Schriftgröße-Einstellung
+fontTooSmallMayAffect: "Schrift zu klein, kann das Lesen beeinträchtigen"
+dragSliderAdjustFontSize: "Schieberegler ziehen, um Schriftgröße anzupassen"
+personalInfo: Persönliche Informationen
+nicknameNotSet: Spitzname nicht festgelegt
+basicInfo: Grundlegende Informationen
+contactInfo: Kontaktinformationen
+editTags: Tags bearbeiten
+quickActions: Schnellaktionen
+noNewFriendRequests: Derzeit keine neuen Freundschaftsanfragen
+pleaseEnterVerificationMessage: Bitte Bestätigungsnachricht eingeben
+unknownRegion: Unbekannte Region
+noCommonGroups: Keine gemeinsamen Gruppen
+noMoreInfo: Keine weiteren Informationen
+userNotSetSignature: Dieser Benutzer hat keine persönliche Signatur und keine detaillierten Informationen festgelegt
+verificationMessage: Bestätigungsnachricht
+burnEnabledMessage: "Nach Aktivierung: Nachrichten werden $duration nach dem Lesen automatisch zerstört"
+burnDisabledMessage: "Nach Deaktivierung: Nachrichten werden nicht automatisch zerstört"
+visibleEnabledMessage: "Nach Aktivierung: Als gelesen markieren, wenn sichtbares Verhältnis ≥$percentage% für ≥$delayms ms"
+visibleDisabledMessage: "Nach Deaktivierung: Nicht automatisch als gelesen markieren basierend auf Sichtbarkeit"
+visibleThresholdInfo: "Sichtbares Verhältnis: $percentage% | Verzögerung: $delayms"
+noGroupAnnouncement: Keine Gruppenankündigung
+announcementContentCannotBeEmpty: Ankündigungsinhalt darf nicht leer sein
+announcementPublishSuccess: Ankündigung erfolgreich veröffentlicht
+tips: Tipps
+featureComingSoon: Funktion demnächst verfügbar
+understood: Verstanden
+noProblem: Kein Problem
+onMyWay: Bin unterwegs
+sendOfflineCommand: Zwangs-Abmelden
+offlineCommandSent: Offline-Befehl gesendet
+operationOptions: Optionen
+copyTextContent: Textinhalt kopieren
+shareWithOtherFriends: Mit anderen Freunden teilen
+addTagsToFavorites: Tags zu Favoriten hinzufügen
+addRemarkToFavorites: Bemerkung zu Favoriten hinzufügen
+deleteThisCollection: Diese Sammlung löschen
+pullUpLoadMore: Zum Laden mehr nach oben ziehen
+changeSuccess: Erfolgreich geändert
+loginPasswordUpdated: Anmeldepasswort aktualisiert
+lengthOk: Länge in Ordnung
+confirmNewPassword: Neues Passwort bestätigen
+validationPassed: Validierung bestanden
+changeFailed: Änderung fehlgeschlagen
+submitted: Eingereicht
+viewSecurityHelp: Sicherheitshilfe anzeigen
+transactionHistory: Transaktionshistorie
+paymentPasswordSetSuccess: Zahlungs-Passwort erfolgreich festgelegt
+paymentPasswordSetFailed: Zahlungs-Passwort festlegen fehlgeschlagen
+nextVoiceMessageNotFound: Nächste Sprachnachricht nicht gefunden
+noNextVoiceMessage: Keine nächste Sprachnachricht zum Abspielen
+nextVoiceMessageNoPath: Nächste Sprachnachricht hat keinen Audiodatei-Pfad
+saveFailed: Speichern fehlgeschlagen
+tip: Tipp
+confirm: Bestätigen
+success: Erfolg
+personalDisplay: Persönliche Anzeige
+personalSignature: Persönliche Signatur
+personalBackground: Persönlicher Hintergrund
+setBackgroundImage: Hintergrundbild festlegen
+extendedInfo: Erweiterte Informationen
+profession: Beruf
+pleaseEnterProfession: Please enter profession
+functionSettings: Funktionseinstellungen
+shareProfile: Profil teilen
+shareWithFriends: Profil mit Freunden teilen
+shareQRCode: Share QR Code
+copyLink: Copy Link
+shareTo: Share To
+shareFailed: Share failed
+exportAsJson: Export as JSON format
+exportSuccessThenCopiedToClipboard: $param format profile exported and copied to clipboard
+exportFailed: Export failed
+setRegion: Region festlegen
+avatarUpdateSuccess: Avatar erfolgreich aktualisiert
+avatarUpdateFailed: Avatar-Update fehlgeschlagen
+deleteOperationAbnormal: "Löschvorgang anomal, bitte versuchen Sie es erneut"
+revoking: Wird widerrufen...
+editing: Wird bearbeitet...
+messageIdCannotBeEmpty: "Nachrichten-ID ist leer, Vorgang kann nicht durchgeführt werden"
+startRevokeMessageFlow: Widerruf-Nachrichtenablauf starten
+revokeMessageTracking: Widerruf-Nachrichtenverfolgung
+useNewActionMechanism: Neuen Action-Mechanismus verwenden
+revokeMessageSendResult: Widerruf-Nachrichtensendergebnis
+revokeRequestSendComplete: Widerruf-Anfrage gesendet
+revokeFailed: Widerruf fehlgeschlagen
+revokeMessageException: Widerruf-Nachrichtenausnahme
+revokeOperationAbnormal: Widerrufsvorgang anomal
+startEditMessageFlow: Bearbeitungs-Nachrichtenablauf starten
+editMessageTracking: Bearbeitungs-Nachrichtenverfolgung
+newContent: Neuer Inhalt
+editMessageSendResult: Bearbeitungs-Nachrichtensendergebnis
+editRequestSendComplete: Bearbeitungsanfrage gesendet
+editFailed: Bearbeitung fehlgeschlagen
+editMessageException: Bearbeitungs-Nachrichtenausnahme
+editOperationAbnormal: Bearbeitungsvorgang anomal
+uploadAvatarFailed: Avatar-Upload fehlgeschlagen
+error: Fehler
+cannotOpenWebpage: Webseite kann nicht geöffnet werden
+groupIdCannotBeEmpty: Gruppen-ID darf nicht leer sein
+selectImageFailedWithError: Bildauswahl fehlgeschlagen
+uploadAvatarFailedWithError: Avatar-Upload fehlgeschlagen
+avatarSelectedUploadPending: "Avatar erfolgreich ausgewählt, Upload-Funktion steht noch aus"
+emailEditFeaturePending: E-Mail-Bearbeitungsfunktion in Entwicklung...
+reactionAdded: Reaktion hinzugefügt
+reactionCancelled: Reaktion abgebrochen
+retryFailedPleaseCheckNetwork: "Wiederholung fehlgeschlagen, bitte Netzwerkverbindung überprüfen"
+retryAbnormal: Wiederholungsanomalie
+deleteFailedPleaseTryAgain: "Löschen fehlgeschlagen, bitte erneut versuchen"
+deleteFailedPleaseCheckNetwork: "Löschen fehlgeschlagen, bitte Netzwerkverbindung überprüfen"
+voiceRecordFailedPleaseTryAgain: "Sprachaufnahme fehlgeschlagen, bitte erneut versuchen"
+voiceFileNotFoundPleaseTryAgain: "Sprachdatei nicht gefunden, bitte erneut versuchen"
+voiceFileCannotReadPleaseTryAgain: "Sprachdatei kann nicht gelesen werden, bitte erneut versuchen"
+voiceFileReadFailedPleaseTryAgain: "Sprachdatei-Lesen fehlgeschlagen, bitte erneut versuchen"
+voiceProcessingAbnormal: Sprachverarbeitung anomal
+voiceUploadFailedPleaseCheckNetwork: "Sprachupload fehlgeschlagen, bitte Netzwerkverbindung überprüfen"
+voiceSendAbnormal: Sprachsenden anomal
+voiceDuration: Sprachdauer
+playbackFailed: Wiedergabe fehlgeschlagen
+revokeOperationAbnormalPleaseTryAgain: "Widerrufsvorgang anomal, bitte erneut versuchen"
+collectionFailedPleaseTryAgain: "Sammlung fehlgeschlagen, bitte erneut versuchen"
+reactionSent: Reaktion gesendet
+seconds: Sekunden
+messageCannotLocatedMayBeDeleted: "Nachricht kann nicht gefunden werden, wurde möglicherweise gelöscht"
+settingFailedPleaseTryAgain: "Einstellung fehlgeschlagen, bitte erneut versuchen"
+partialDeleteSuccess: "Teilweises Löschen erfolgreich: $success erfolgreich, $fail fehlgeschlagen"
+collectedVideoFormatIncorrectCannotFindVideoUri: "Videoformat falsch, URI nicht gefunden"
+recordingCancelled: Aufnahme abgebrochen
+pullOfflineMessagesFailed: Abruf von Offline-Nachrichten fehlgeschlagen
+pullOfflineMessagesAbnormal: Abruf von Offline-Nachrichten fehlgeschlagen
+logoutRequestFailedPleaseCheckNetwork: "Abmeldeanforderung fehlgeschlagen, bitte Netzwerkverbindung überprüfen"
+permissionOnlySupportAndroidAndIos: Berechtigung unterstützt nur Android und iOS
+messageSendFailedPleaseCheckNetwork: "Nachricht senden fehlgeschlagen, bitte Netzwerkverbindung überprüfen"
+retryingSend: Wiederholung wird gesendet...
+quickReplyOk: Okay
+quickReplyOkThanks: "OK, danke"
+tagInspiration: Inspiration
+noDetailedInfo: Dieser Benutzer hat keine persönliche Signatur und keine detaillierten Informationen festgelegt
+noNewRegisteredUsers: "Derzeit keine neuen registrierten Benutzer
+Bitte kommen Sie später zurück"
+newRegisteredUsersTip: "Kürzlich registrierte Benutzer werden hier angezeigt, Sie können sie als Freunde hinzufügen"
+youRevokedMessage: Sie haben eine Nachricht widerrufen
+otherRevokedMessage: Der Gesprächspartner hat eine Nachricht widerrufen
+networkFailureTryAgain: "Netzwerkfehler, bitte versuchen Sie es erneut!"
+networkNotAvailable: Netzwerk derzeit nicht verfügbar.
+pleaseCheckNetworkConnection: Bitte überprüfen Sie Ihre Netzwerkverbindung.
+lastSeenMinutesAgo: "@:common.timeMinutesAgo"
+lastSeenHoursAgo: "@:common.timeHoursAgo"
+lastSeenDaysAgo: "@:common.timeDaysAgo"
+fontSettings: "@:common.fontSizeSetting"
+failed: "@:common.error"
+lazyUserNoSignature: Keine persönliche Signatur
+noFavoritesYet: "Noch keine Favoriten. Sammeln Sie einige interessante Nachrichten!"
+fontPreviewText: "Dies ist der Fließtext. Sie können hier sehen, wie verschiedene Schriftgrößen aussehen."
+smaller: Kleiner
+currentFontScale: "Aktuell: $param1 $param2%"
+emailUpdatedTo: E-Mail aktualisiert auf $param
+atMentionYouTag: "[@你] "
+atMentionLeftMember: "@已退群成员"
+muteNotifications: 消息免打扰
+muteNotificationsHint: 开启后不会收到新消息提醒，但仍可在会话列表看到未读
+revokeExpired: 超过 2 分钟，无法撤回
+quickReplyAddTitle: 新增快捷回复
+quickReplyEditTitle: 编辑快捷回复
+removeAdmin: Remove Admin
+setAdminConfirm: Set this member as admin?
+removeAdminConfirm: Remove admin role from this member?
+muteMemberConfirm: Mute this member?
+unmuteMemberConfirm: Unmute this member?
+kickMemberConfirm: Remove this member from the group?
+transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
+setAdminSuccess: Admin set
+setAdminFailed: Failed to set admin
+removeAdminSuccess: Admin removed
+removeAdminFailed: Failed to remove admin
+muteMemberSuccess: Member muted
+muteMemberFailed: Failed to mute member
+unmuteMemberSuccess: Member unmuted
+unmuteMemberFailed: Failed to unmute member
+kickMemberSuccess: Member removed
+kickMemberFailed: Failed to remove member
+transferGroupSuccess: Ownership transferred
+transferGroupFailed: Failed to transfer ownership
+notMuted: Not Muted
+muteDuration: Mute Duration
+muteDuration1hour: 1 Hour
+muteDuration6hours: 6 Hours
+muteDuration12hours: 12 Hours
+muteDuration1day: 1 Day
+muteDuration3days: 3 Days
+muteDuration7days: 7 Days
+muteDurationPermanent: Permanent
+searchScope: Search scope
+searchAll: All messages

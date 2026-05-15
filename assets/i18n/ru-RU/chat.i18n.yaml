@@ -1,0 +1,169 @@
+bankCard: Банковская карта
+cards: шт.
+jdShopping: Покупки на JD
+receivePayment: Приём и оплата
+alreadyEntered: Вы уже ввели это
+alreadyMember: Уже участник
+appSqliteFileSizeExplain: Локальная база данных. Можно очистить медиа или сообщения
+attachmentProvider: Поставщик вложений
+audioMessage: Голосовое сообщение
+awaitingReply: Ожидает ответа
+businessCard: Визитка
+busyTryAgainLater: "Собеседник занят, попробуйте позже"
+later: Позже
+changeGroupChatName: Участники увидят новое имя группы
+chatHistory: История чата
+chatHoldDownTalk: Нажмите и удерживайте для разговора
+chatMessage: Сообщение чата
+chatMomentSportDataEtc: "Чаты, моменты, спортивные данные и т.д."
+chatSettingMute: Без звука
+chatSettingMuteDesc: Отключить уведомления для этого чата
+chatSettingMuted: Без звука включено
+chatSettingPin: Закрепить чат
+chatSettingPinDesc: Закрепить этот чат вверху списка
+chatSettingUnmuted: Без звука отключено
+chatStatusSending: Отправка
+chatStatusSent: Отправлено
+chatStatusDelivered: Доставлено
+chatStatusSeen: Прочитано
+chatStatusSendingDesc: Сообщение отправляется...
+chatStatusSentDesc: Сообщение отправлено
+chatStatusDeliveredDesc: Сообщение доставлено
+chatStatusSeenDesc: Сообщение прочитано
+createGroupF2f: Создать группу лицом к лицу
+displayProfile: Показать ваш профиль
+file: Файл
+fileMessage: "[Файл]"
+fileSize: Размер файла
+forgotPasswordPinCodeView: PIN-код забытого пароля
+forward: Переслать
+forwardReply: Переслать ответ
+forwardTo: Переслать
+forwardToFriend: Переслать другу
+great: Превосходно
+groupChat: Групповой чат
+image: Изображение
+imageMessage: "[Изображение]"
+initiateChat: Начать групповой чат
+justChat: Только чат
+location: Местоположение
+message: Сообщение
+messageHandlingMixin: Миксин обработки сообщений
+messageMarkTitle: Пометка сообщения
+customMessage: Пользовательское сообщение
+card: Карточка
+messageType: Тип сообщения
+messageVisitCardBuilder: Конструктор визитных карточек сообщений
+messageWasWithdrawn: отозвал сообщение
+messageWasWithdrawnWithTitle: $param отозвал сообщение
+messageWebrtcBuilder: Конструктор WebRTC сообщений
+momentStatus: Моменты и статус
+offline: Не в сети
+online: В сети
+paramAlreadyExist: $param уже существует
+pin: Закрепить
+pinChat: Закрепить чат
+pinned: Закреплено
+privateReply: Личный ответ
+qrCodeBusinessCard: QR-код визитки
+quoteReply: Цитировать ответ
+rating: Рейтинг
+readAgreeParam: Прочитал и согласен с $param
+recentChats: Недавние чаты
+recentForwards: Недавние пересылки
+remindMeLater: Напомнить позже
+repliedAt: Ответлено в
+reply: Ответить
+replyTo: Ответить
+resendCode: Отправить код снова
+revoke: Отозвать
+scanQrCodeBusinessCard: Сканировать QR-код визитки
+sendFriendRequest: Отправить запрос дружбы
+sendMsgRejected: Сообщение отклонено собеседником
+sendSeparatelyTo: Отправить отдельно
+sendTo: Отправить
+send: "@:common.buttonSend"
+sender: Отправитель
+sending: Отправка...
+signatureInputHint: Подсказка ввода подписи
+signaturePlaceholder: Заполнитель подписи
+signupIntro: "Код подтверждения отправлен на эл. почту
+Введите код для завершения регистрации"
+socialProfile: Социальный профиль
+status: Статус
+storageSpaceData: Память и данные
+sureOpenTheFile: Открыть файл?
+textMessage: Текстовое сообщение
+titleMessage: Сообщения
+topChat: Закрепить чат
+unpin: Открепить
+unsupportedFileType: Неподдерживаемый тип файла
+userData: Данные пользователя
+video: Видео
+videoMessage: "[Видео]"
+viewAttachments: Просмотреть вложения
+voice: Голос
+voiceInput: Голосовой ввод
+voiceMessage: Голосовое сообщение
+youWithdrewAMessage: Вы отозвали сообщение
+formatCheck: Проверка формата
+featureRequest: Запрос функции
+resendCodeWithCount: Отправить снова ($count сек)
+chatResend: Отправить снова
+chatReply: Ответить
+chatOpenFile: Открыть файл
+chatOpenLink: Открыть ссылку
+avatarSelectPhoto: Выбрать фото
+avatarTakePhoto: Сделать фото
+avatarSelectFromAlbum: Выбрать из альбома
+profileExportProfile: Экспортировать профиль
+momentsSend: Отправить
+videoCompressInProgress: Задача сжатия уже выполняется
+videoCompressing: Сжатие видео...
+loginExpiredMessage: "Срок входа истёк, войдите снова"
+geometricPattern: Геометрический узор
+ripplePattern: Узор рябь
+customImage: Пользовательское изображение
+voiceRecordResultEmpty: Запись пуста
+voiceFileInvalid: Голосовой файл недействителен
+burnAfterReading: Удалить после прочтения
+visibleThresholdRead: Порог видимости прочитан
+readThresholdDelay: Порог чтения и задержка
+goodReadability: Хорошая читаемость
+profileCompleteness: Полнота профиля
+tagStatistics: Статистика тегов
+alreadySent: Уже отправлено
+visibleRatioLabel: Коэффициент видимости (0.1~1.0)
+unsupportedMessageType: Неподдерживаемый тип сообщения
+passwordMismatch: Пароли не совпадают
+pleaseTryAgainLater: "Пожалуйста, попробуйте позже"
+sendNewMessage: Отправить новое сообщение
+markRead: Пометить как прочитанное
+markUnread: Пометить как непрочитанное
+pleaseEnterSignature: Please enter signature
+exportProfile: Экспортировать профиль
+setSignature: Установить подпись
+setAvatar: Установить аватар
+fastForward: Быстрая перемотка вперёд $seconds сек
+messageId: ID сообщения
+chatType: Тип чата
+voiceFileEmptyPleaseTryAgain: Файл пуст. Попробуйте снова
+sendingVoice: Отправка голоса...
+deletingMessage: Удаление...
+deletingLocalMessage: Удаление локального сообщения...
+quickReplyReceived: Получено
+quickReplyThanks: Спасибо
+quickReplyWait: Минутку
+messageMute: "@:chat.chatSettingMute"
+quickReplyManage: 管理快捷回复
+quickReplyEmpty: 暂无快捷回复，点击右下角添加
+quickReplyDuplicate: 内容已存在
+quickReplyMaxReached: 最多 $max 条
+quickReplyHint: 输入内容...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message

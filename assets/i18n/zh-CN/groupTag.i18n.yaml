@@ -1,0 +1,9 @@
+title: 群标签
+addTag: 添加标签
+tagName: 标签名称
+tagColor: 标签颜色
+noTag: 暂无标签
+tagAdded: 标签添加成功
+tagRemoved: 标签已移除
+removeTitle: 移除标签
+removeConfirm: 确定要移除这个标签吗？

@@ -1,0 +1,101 @@
+account: 계정
+accountSecurity: 계정 보안
+mobileRecharge: 모바일 충전
+avatar: 프로필 사진
+accountSecurityEnhance: 계정 보안 강화
+bindMobile: 휴대폰 번호 연결
+bindMobileFor: "로그인, 비밀번호 찾기 및 중요 알림 수신에 사용"
+linkEmail: 이메일 연결
+linkEmailFor: "로그인, 신원 확인 및 청구서 수신에 사용"
+codeSentToEmail: 인증 코드가 이메일로 전송되었습니다
+codeSentToMobile: 인증 코드가 휴대폰으로 전송되었습니다
+currentDevice: 현재 기기
+deviceAvailableSpace: 기기 사용 가능 공간
+deviceList: 기기 목록
+deviceName: 기기 이름
+deviceType: 기기 유형
+deviceUsedSpace: 기기 사용 공간
+email: 이메일
+existingPassword: 기존 비밀번호
+forgotPassword: 비밀번호를 잊으셨나요?
+gender: 성별
+genderSaving: 저장 중...
+groupQrcode: 그룹 QR코드
+hintLoginAccount: 계정/이메일
+logOut: 로그아웃
+areYouSureLogOut: 로그아웃 하시겠습니까?
+login: 로그인
+loginDeviceManagement: 로그인 기기 관리
+loginEmail: 로그인 이메일
+logoutAccount: 계정 탈퇴
+mobile: 휴대폰
+mobileQuickLogin: 원클릭 로그인
+myAccount: 내 계정
+myQrcode: 내 QR코드
+newPassword: 새 비밀번호
+newlyRegisteredPeople: 새로 등록한 사람
+nickname: 닉네임
+nicknameChangeVisibility: 닉네임 수정 후 이 그룹 내에서만 표시되며 그룹 구성원 모두 볼 수 있습니다.
+nicknameCharsRemaining: $param자 더 입력할 수 있습니다
+nicknameHint: 닉네임을 입력해 주세요
+nicknameSaving: 저장 중...
+paramLogin: $param 로그인
+password: 비밀번호
+recentlyRegisteredUser: 최근 등록 사용자
+recoverCodePasswordDesc: 비밀번호 복구 코드를 이메일로 보내드립니다.
+recoverPassword: 비밀번호 찾기
+recoverPasswordDesc: 이메일 주소를 입력해 주시면 비밀번호 재설정 코드를 보내드립니다.
+recoverPasswordIntro: 나쁘게 생각하지 마세요. 흔한 일입니다.
+birthday: 생일
+region: 지역
+retypePassword: 비밀번호 재입력
+scanQrCode: QR코드 스캔
+securityCenter: 보안 센터
+setNickname: 닉네임 설정
+signature: 개인 서명
+signup: 회원가입
+signupFormDesc: 가입을 위해 이 양식을 작성해 주세요
+sourceQrcode: 스캔하여 추가
+switchAccount: 계정 전환
+changeEmail: 이메일 변경
+bindEmail: 이메일 연결
+currentEmail: 현재 이메일
+newEmailSameAsCurrent: 새 이메일이 현재 이메일과 같습니다
+newMobileSameAsCurrent: 새 휴대폰 번호가 현재 번호와 같습니다
+setPassword: 비밀번호 설정
+setLoginPassword: 로그인 비밀번호 설정
+enhanceAccountSecurity: 계정 보안 향상
+passwordLengthRequirement: 비밀번호 길이는 4-32자입니다
+passwordMinLength: 비밀번호는 최소 $min자 이상이어야 합니다
+pleaseEnterPassword: 비밀번호를 입력해 주세요
+changeMobile: 휴대폰 번호 변경
+currentMobile: 현재 휴대폰 번호
+newMobile: 새 휴대폰 번호
+enterMobileHint: 휴대폰 번호를 입력해 주세요
+codeSentToMobileParam: $param으로 전송됨
+privacyLogoutAccount: 계정 탈퇴
+wallet: 지갑
+changeLoginPassword: 로그인 비밀번호 변경
+loginExpiredTitle: 알림
+otherDevice: 다른 기기
+loginPassword: 로그인 비밀번호
+loginPasswordDesc: IMBoy 계정 로그인에 사용
+oldPassword: 기존 비밀번호
+enterOldPassword: 기존 비밀번호를 입력해 주세요
+enterNewPassword: 새 비밀번호를 입력해 주세요
+enterNewPasswordAgain: 새 비밀번호를 다시 입력해 주세요
+balance: 잔액
+recharge: 충전
+withdraw: 인출
+paymentPassword: 결제 비밀번호
+setPaymentPassword: 결제 비밀번호 설정
+enterPaymentPassword: 결제 비밀번호를 입력해 주세요
+myQRCode: 내 QR코드
+profile: Profile
+setGender: 성별 설정
+setBirthday: 생일 설정
+sentToEmail: $param으로 전송됨
+nicknameRules: "• 닉네임 길이: 2-24자
+• 공백이나 이모지만 포함할 수 없습니다
+• 민감 단어를 포함할 수 없습니다
+• 변경 사항은 모든 채팅에 반영됩니다"

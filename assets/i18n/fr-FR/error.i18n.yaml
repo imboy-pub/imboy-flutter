@@ -1,0 +1,7 @@
+restartRequired: Redémarrage requis
+networkFailureGuidance: Guide de dépannage réseau
+pleaseCheckNetwork: Vérifiez vos paramètres réseau.
+networkTroubleshootingStep1: 1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.
+networkTroubleshootingStep2: 2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.
+networkTroubleshootingStep3: "3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l'opérateur réseau."
+suggestCheckNetwork: Il est suggéré de vérifier les paramètres réseau.

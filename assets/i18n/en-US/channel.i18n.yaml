@@ -1,0 +1,127 @@
+title: Channels
+loading: Loading...
+subscribed: Subscribed
+managed: Managed
+discover: Discover
+search: Search
+create: Create Channel
+searchHint: Search channel name or ID
+searchTip: Enter keywords to search channels
+noResults: No channels found
+noRecommendedChannels: "No recommended channels
+Check back later"
+noSubscribedChannels: "No subscribed channels yet
+Discover more channels"
+noManagedChannels: "No managed channels yet
+Create a channel to start"
+noMessages: No messages yet
+subscribers: subscribers
+pinned: Pinned
+view: View
+subscribe: Subscribe
+subscribeSuccess: Subscribed successfully
+subscribeFailed: Failed to subscribe
+unsubscribe: Unsubscribe
+unsubscribeConfirm: Unsubscribe
+unsubscribeConfirmDesc: Are you sure you want to unsubscribe? You won't receive messages from this channel.
+share: Share
+shareNotImplemented: Share feature coming soon
+nameLabel: Channel Name
+nameHint: Enter channel name
+nameRequired: Channel name is required
+nameTooLong: Channel name cannot exceed 50 characters
+descriptionLabel: Description
+descriptionHint: Describe your channel (optional)
+customIdLabel: Custom ID (optional)
+customIdHint: "e.g., my_channel"
+customIdHelper: Set to make your channel searchable by ID
+customIdInvalid: "Only letters, numbers, and underscores allowed"
+customIdLength: Must be 4-30 characters
+typeLabel: Channel Type
+typePublic: Public
+typePrivate: Private
+typePublicDesc: Anyone can find and subscribe to your channel
+typePrivateDesc: Only accessible via invitation link
+createTips: "After creating, you can publish messages to all subscribers. Only admins can publish messages."
+today: Today
+yesterday: Yesterday
+daysAgo: days ago
+messages: Messages
+views: Views
+reactions: Reactions
+selectReaction: Select Reaction
+react: React
+admin: Admin
+settings: Settings
+editChannel: Edit Channel
+editChannelDesc: "Update channel name, description, etc."
+editChannelNotImplemented: Edit channel coming soon
+manageAdmins: Manage Admins
+manageAdminsDesc: Add or remove channel admins
+manageAdminsNotImplemented: Manage admins coming soon
+manageSubscribers: Manage Subscribers
+manageSubscribersDesc: View and manage channel subscribers
+manageSubscribersNotImplemented: Manage subscribers coming soon
+deleteChannel: Delete Channel
+deleteChannelDesc: This action cannot be undone
+deleteChannelConfirm: Are you sure you want to delete this channel? This cannot be undone.
+deleteChannelNotImplemented: Delete channel coming soon
+channelDeleted: Channel deleted
+deleteChannelFailed: Failed to delete channel
+writeMessage: Write a message...
+publishFailed: Failed to publish
+pinMessage: Pin Message
+unpinMessage: Unpin Message
+pinMessageNotImplemented: Pin feature coming soon
+unpinMessageNotImplemented: Unpin feature coming soon
+messagePinned: Message pinned
+messageUnpinned: Message unpinned
+deleteMessage: Delete Message
+deleteMessageConfirm: Are you sure you want to delete this message?
+messageDeleted: Message deleted
+addAdmin: Add Admin
+addAdminSuccess: Admin added successfully
+addAdminFailed: Failed to add admin
+removeAdmin: Remove Admin
+removeAdminConfirm: Are you sure you want to remove this admin?
+removeAdminSuccess: Admin removed
+removeAdminFailed: Failed to remove admin
+changeRole: Change Role
+updateRoleSuccess: Role updated successfully
+updateRoleFailed: Failed to update role
+userId: User ID
+userIdHint: Enter user ID
+selectFromContacts: Select from contacts
+searchContactsHint: Search by name or account
+noContactsToAdd: All friends are already admins
+selectRole: Select role
+noAdmins: No admins yet
+roleCreator: Creator
+roleAdmin: Admin
+roleAdminDesc: Can manage channel
+roleEditor: Editor
+roleEditorDesc: Can publish messages
+roleUnknown: Unknown
+searchSubscribers: Search Subscribers
+subscriberSearchHint: Search by nickname or ID
+noSearchResults: No matching subscribers found
+noSubscribers: No subscribers yet
+removeSubscriber: Remove Subscriber
+removeSubscriberConfirm: Are you sure you want to remove this subscriber?
+removeSubscriberSuccess: Subscriber removed
+removeSubscriberFailed: Failed to remove subscriber
+subscribedAt: Subscribed at
+viewProfile: View Profile
+inviteFromContacts: Invite Friends
+inviteSearchHint: Search by nickname or account
+noContactsToInvite: All friends are already invited or subscribed
+inviteSuccess: Invitation sent
+inviteFailed: Failed to send invitation
+updateSuccess: Channel updated successfully
+updateFailed: Failed to update channel
+typeCannotChange: Cannot be changed after creation
+stats: Statistics
+shareToChat: Send to Friend
+qrcode: Channel QR Code
+qrcodeTips: QR code valid for $days days (until $date)
+defaultName: Unnamed Channel

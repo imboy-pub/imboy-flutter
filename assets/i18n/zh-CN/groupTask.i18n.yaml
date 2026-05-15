@@ -1,0 +1,23 @@
+title: 群作业
+createTask: 创建任务
+taskTitle: 任务标题
+taskDescription: 任务描述
+assignTo: 指派给
+deadline: 截止时间
+noDeadline: 无截止时间
+noTask: 暂无任务
+all: 全部
+pending: 待完成
+completed: 已完成
+taskCreated: 任务创建成功
+taskSubmitted: 任务已提交
+taskCompleted: 任务已完成
+overdue: 已过期
+daysLeft: $days 天后截止
+hoursLeft: $hours 小时后截止
+dueSoon: 即将截止
+submitFailed: 提交失败，请稍后重试
+taskId: 任务ID
+pendingReview: 待审核
+taskIdMissing: 任务ID缺失，无法查看详情
+taskIdMissingSubmit: 任务ID缺失，无法提交

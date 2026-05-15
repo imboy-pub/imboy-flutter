@@ -1,0 +1,714 @@
+about: О приложении
+aboutApp: О приложении
+accept: Принять
+acceptFriendRequest: Подтвердить запрос дружбы
+addFriend: Добавить друга
+addPhoneContact: Добавить контакт
+creditCardRepayment: Погашение кредитной карты
+smallChange: Баланс
+addTag: Добавить тег
+addToContacts: Добавить в контакты
+addToDenylist: Добавить в чёрный список
+added: Добавлено
+addedToDenylistTips: Добавлено в чёрный список. Вы не будете получать сообщения
+agreeContinue: Согласен и продолжить
+all: Все
+allSenders: Все отправители
+allTags: Все теги
+allTime: Всё время
+allTypes: Все типы
+allowSearchMe: Разрешить поиск меня
+allowedBeSearched: "Недавно зарегистрированные друзья, разрешившие поиск"
+appSizeTips: "Включает APK, библиотеки и файлы приложения"
+applyAddFriend: Запрос на добавление друга
+awaitingVerification: Ожидает проверки
+buttonAccomplish: Завершить
+buttonAdd: Добавить
+buttonBack: Назад
+buttonBind: Привязать
+bindMobileAndEmailTips: Привяжите телефон и эл. почту для безопасности
+bindNow: Привязать сейчас
+buttonCancel: Отмена
+buttonChangePassword: Изменить пароль
+buttonClose: Закрыть
+buttonConfirm: Подтвердить
+buttonContinue: Продолжить
+buttonCopy: Копировать
+buttonDelete: Удалить
+buttonDeleteAccount: Удалить аккаунт
+buttonInviteCode: Код приглашения
+buttonLogin: Войти
+buttonLogout: Выйти
+buttonNextStep: Далее
+buttonOk: ОК
+buttonRegister: Регистрация
+buttonResetPassword: Сбросить пароль
+buttonRetry: Повторить
+buttonSave: Сохранить
+buttonSelectFromAlbum: Выбрать из альбома
+buttonSend: Отправить
+buttonSetEmpty: Очистить
+buttonSubmit: Отправить
+buttonTakingPictures: Сфотографировать
+cacheTips: Временные данные приложения. Очистка безопасна
+callDuration: Длительность звонка
+calling: Вызов
+canNotAddYourselfFriend: Вы не можете добавить себя в друзья
+cancel: "@:common.buttonCancel"
+ok: "@:common.buttonOk"
+save: "@:common.buttonSave"
+reset: Сбросить
+clear: Очистить
+saveTag: Сохранить теги ($count)
+cancelLogoutBody: "Этот аккаунт находится в периоде отмены удаления. Если вы успешно войдёте, процесс удаления будет считаться прекращённым. Чтобы продолжить удаление, не входите в IMBoy в течение 15 дней после подачи заявки."
+cancelLogoutTitle: Прекратить процесс удаления аккаунта?
+cancelled: Отменено
+chatSettingBackground: Фон чата
+chatSettingBackgroundCustom: Установлен пользовательский фон
+chatSettingBackgroundDefault: Фон по умолчанию
+chatSettingBackgroundSelectorTip: Функция выбора фона в разработке
+chatSettingBackgroundSuccess: Фон успешно установлен
+chatSettingClearHistory: Очистить историю чата
+chatSettingClearHistoryConfirm: Удалить всю историю чата? Это действие нельзя отменить
+chatSettingClearHistoryDesc: "Удалить все сообщения, это действие нельзя отменить"
+chatSettingClearedSuccess: Очищено успешно
+chatSettingPinnedSuccess: Успешно закреплено
+chatSettingUnpinnedSuccess: Откреплено
+chatSettings: Настройки чата
+chatStatusFailed: Не удалось
+chatStatusFailedDesc: "Не удалось отправить, нажмите для повтора"
+chatErrorInDenylist: Вы в черном списке
+chatErrorInDenylistDesc: Сообщение не может быть отправлено - вы заблокированы
+chatErrorNotAFriend: Еще не друзья
+chatErrorNotAFriendDesc: Сообщение не может быть отправлено - сначала добавьте в друзья
+checkForUpdates: Проверить обновления
+clearAll: Очистить всё
+clearChatRecord: Очистить историю чата
+confirmCode: Код подтверждения
+confirmCodeError: Код подтверждения пуст
+confirmCodeSuccess: Аккаунт подтверждён.
+confirmDeleteChatRecord: Удалить историю чата?
+confirmNewFriend: Подтвердить нового друга
+confirmNewFriendLogic: Логика подтверждения нового друга
+confirmRecoverSuccess: Пароль успешно изменён.
+contactSetting: Настройки контактов
+contactSettingTag: Тег настроек контактов
+contactTagListLogic: Логика списка тегов контактов
+contactTags: Теги контактов
+continueDownloading: Продолжить загрузку
+copy: Копировать
+coupon: Купон
+createGroupF2fConfirmTips: Эти друзья также вступят в групповой чат
+createGroupF2fTips: Введите одинаковые 4 цифры с друзьями для входа в группу
+delete: "@:common.buttonDelete"
+deleteCollectConfirmDesc: Удалить коллекцию? Восстановление невозможно
+deleteContact: Удалить контакт
+deleteForEveryone: Удалить для всех
+deleteForMe: Удалить у меня
+deleteTagTips: После удаления тега контакты в теге не будут удалены
+deleteThisDevice: Удалить это устройство
+deleteThisDeviceTips: При следующем входе потребуется проверка безопасности
+denylistNoteDesc: Заблокированные пользователи не могут отправлять вам сообщения или просматривать вашу ленту
+denylistNoteTitle: Описание чёрного списка
+details: Детали
+deviceDetails: Детали устройства
+downloaded: Загружено
+edit: Редактировать
+editTag: Редактировать тег
+errorAccessDenied: Доступ к $param запрещён
+errorCliVersionNotFound: "@:common.error"
+errorEmptyDirectory: $param пуст
+errorFailedConnectServer: "@:common.error"
+errorFailedToConnect: "@:common.error"
+errorFileNotFound: Файл не найден в $param
+errorFolderNotFound: Папка $param не найдена
+errorHttpNotSupported: "@:common.error"
+errorInternalServer: "@:common.error"
+errorInvalid: $param недействителен
+errorInvalidDart: "@:common.error"
+errorInvalidFileOrDirectory: "@:common.error"
+errorInvalidJson: "@:common.error"
+errorInvalidRequest: "@:common.error"
+errorLengthBetween: Длина $param должна быть между $min и $max
+errorManyRequest: "@:common.error"
+errorNoPackageToRemove: "@:common.error"
+errorNoValidFileOrUrl: "@:common.error"
+errorNonexistentDirectory: "@:common.error"
+errorPackageNotFound: "@:common.error"
+errorPassword: Неверный пароль
+errorRequestForbidden: "@:common.error"
+errorRequestSyntax: "@:common.error"
+errorRequired: $param обязателен
+errorRequiredPath: "@:common.error"
+errorRetypePassword: "@:common.error"
+errorSame: $param1 и $param2 должны совпадать
+errorServerDown: "@:common.error"
+errorServerRefused: "@:common.error"
+errorSpecialCharactersInKey: "@:common.error"
+errorUnexpected: "@:common.error"
+errorUnnecessaryParameter: "@:common.error"
+errorUnnecessaryParameterPlural: "@:common.error"
+errorUpdateCli: "@:common.error"
+failedGetLatLong: "@:common.errorNetwork"
+failedGetMapTryAgain: "@:common.errorNetwork"
+failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
+feedback: Обратная связь
+feedbackBuilder: Конструктор обратной связи
+feedbackContentRequired: Содержание обратной связи не может быть пустым
+feedbackDetails: Детали обратной связи
+feedbackModel: Модель обратной связи
+feedbackReplyModel: Модель ответа на обратную связь
+feedbackSuccessMsg: "Обратная связь получена. Мы обработаем её!"
+followSystemTips: Тёмная тема следует системным настройкам
+forceLogoutNotification: "Вас принудительно вывели из аккаунта на устройстве [$param]"
+friendPermissions: Разрешения друзей
+friendsPermissionsView: Представление разрешений друзей
+genderConflictError: "Конфликт настроек пола, попробуйте снова"
+genderNetworkError: "Сетевая ошибка, проверьте подключение к сети"
+genderUpdateFailed: "Не удалось установить пол, попробуйте снова"
+genderUpdateSuccess: Пол успешно установлен
+groupAddLocal: Сохранить в контакты
+groupAnnouncement: Объявление группы
+groupQrcodeTips: Действителен $days дней (до $date). Обновится при повторном входе
+groupSearchTips: Название группы и описание группы
+helpDocument: Справка
+hintEditGroupAnnouncement: Редактировать объявление группы
+httpResponse: HTTP-ответ
+incomingCall: Входящий вызов от $param
+info: Информация
+infoLoggedInOnAnotherDevice: Вход выполнен на устройстве $param
+installNow: Установить сейчас
+iosAppIdUnknown: "Приложение не в AppStore или AppID [$param] не существует"
+koKr: Корейский (Корея)
+languageSetting: Настройки языка
+languageState: Статус языка
+lastActiveTips: Время последней активности обновляется при входе
+lastSeenJustNow: Только что в сети
+lastSeenLongTimeAgo: В сети давно
+lastSeenMonthsAgo: $param месяцев назад
+leaveYourSuggestions: Оставьте ваши предложения и комментарии
+loadError: "Не удалось загрузить, попробуйте снова"
+loadMore: Загрузить ещё
+loading: Загрузка
+locationMessage: Сообщение о местоположении
+loginDeviceManagementTips: Управляйте устройствами. После удаления потребуется проверка безопасности
+logoutNotice: «Важная информация об удалении аккаунта»
+manually: Вручную
+messageCall: Отправить сообщение
+messageContent: Содержание сообщения
+messageLocationBuilder: Конструктор сообщений о местоположении
+messageNotification: Уведомление о сообщении
+messageRevoked: Сообщение отозвано
+quoteMessageNotAvailable: Цитируемое сообщение недоступно
+messageRevokedBuilder: Конструктор отозванных сообщений
+microphone: Микрофон
+microphonePermissionNotObtained: Не получено разрешение на микрофон
+moreInfo: Больше информации
+myAddress: Мой адрес
+nearbyPeopleTips: Находите новых друзей рядом
+needContinueWorkHard: Нужно продолжать стараться
+needSubmitEffect: Необходимо подтвердить отправку для вступления в силу
+networkErrorWithAction: "$param не удалось, проверьте сетевое подключение"
+networkException: Сетевая ошибка
+errorNetwork: Ошибка сети
+networkExceptionPlaseNeedNetworkToViewData: Нет сети. Включите интернет для просмотра данных
+networkFailureTips: Советы при сетевых ошибках
+newVersionDetected: Обнаружена новая версия
+newVersionDetectedWithVersion: Обнаружена новая версия $param
+nextStep: Далее
+nicknameConflictError: "Никнейм уже занят, выберите другой"
+nicknameEmojiOnlyError: Никнейм не может содержать только эмодзи
+nicknameEmptyError: Никнейм не может быть пустым
+nicknameLengthError: Длина никнейма должна быть от 2 до 24 символов
+nicknameNetworkError: "Сетевая ошибка, проверьте сетевое подключение"
+nicknameSensitiveWordError: "Никнейм содержит чувствительные слова, введите заново"
+nicknameServerError: "Ошибка сервера, попробуйте позже"
+nicknameUpdateFailed: "Не удалось изменить никнейм, попробуйте снова"
+nicknameUpdateSuccess: Никнейм успешно изменён
+nicknameWhitespaceError: Никнейм не может содержать только пробелы
+noAvatar: Нет аватара
+noBarcodeFound: "Штрих-код не найден!"
+noContacts: Нет контактов
+noConversationMessages: Нет сообщений в беседе
+noData: Нет данных
+noMembersInCurrentTag: В этом теге нет участников
+noMoreData: Нет больше данных
+noNewFriends: Нет новых друзей
+noPermission: Нет разрешения
+noReply: Нет ответов
+noSiginQ: Нет аккаунта?
+noUpdateDescription: Нет описания обновления
+normalModel: Обычный режим
+notAuthorizedLatLong: Вы ещё не авторизовали получение геолокации
+notBad: Неплохо
+notBound: Не привязано
+notFilled: Не заполнено
+notInstallAnyMapApp: У вас не установлено картографическое приложение
+notLetHimSee: Не показывать ему/ей
+notReceiveCoeQ: Не получили код подтверждения?
+notSeeHim: Не смотреть его/её
+notSet: Не установлено
+notShow: Не показывать
+notTurnedLocationService: Вы ещё не включили службу геолокации
+nowNewVersion: Новых версий не обнаружено
+off: "@:common.disabled"
+offlineNotification: Уведомление о выходе из сети
+on: "@:common.enabled"
+operationFailedAgainLater: "Операция не удалась, попробуйте позже"
+optionsNo: Нет
+optionsRename: Хочу переименовать
+optionsYes: "Да!"
+p2pCallScreenLogic: p2pCallScreenLogic
+p2pCallScreenView: p2pCallScreenView
+paramFormatError: Неверный формат $param
+pauseDownloading: Пауза загрузки
+peerNoResponse: Собеседник не отвечает...
+peopleInfoMoreLogic: Логика дополнительной информации о людях
+peopleInfoSameGroupView: Представление общей группы
+perMinuteOnce: Только один запрос в минуту
+permission: Разрешение
+permissionAcquisitionFailed: Не удалось получить разрешение
+personalCard: Личная карточка
+personalInfoDesc: Описание личной информации
+personalInfoTip: Совет по личной информации
+personalInformation: Личная информация
+pinCodeFillTips: Заполните все квадраты
+pleaseSelectMembersForAdd: Выберите участников для добавления
+profileSettings: Настройки профиля
+reEdit: Редактировать снова
+recoverPasswordSuccess: Код подтверждения успешно отправлен
+regionCancel: Отмена
+regionConfirm: Подтвердить
+regionNoResult: Нет результатов
+regionSearchHint: Поиск по названию региона
+regionSearchTips: Поиск по названию региона или коду региона
+regionSelectTitle: Выберите регион
+releaseFingerCancelSending: "Отпустите палец, чтобы отменить отправку"
+removeContactFromTag: Удалить контакт из тега
+removeMember: Удалить участника
+resendCodeSuccess: Новое письмо отправлено.
+resetFilters: Сбросить фильтры
+saveQrCode: Сохранить QR-код
+saveSuccess: Успешно сохранено
+scanQrcodeAddFriend: "Отсканируйте QR-код выше, чтобы добавить меня в друзья"
+search: Поиск
+searchChatContent: Найти содержание чата
+searchChatRecord: Найти историю чата
+searchError: Ошибка поиска
+searchFilterAll: Все фильтры
+searchFilterImage: Фильтр изображений
+searchFilterText: Фильтр текста
+searchFilterToday: Сегодняшний фильтр
+searchFilters: Фильтры поиска
+searchFriendsTips: Поиск друзей по никнейму и примечанию
+searchHint: Введите ключевые слова для поиска сообщений
+searchHistory: История поиска
+searchLocation: Найти местоположение
+searchMessagesHint: Подсказка поиска сообщений
+searchNoFound: "Результаты поиска пусты :("
+searchNoResults: Нет результатов поиска
+noSearchHistory: Нет истории поиска
+searchRegion: Поиск региона
+searchResults: Результаты поиска
+searchResultsCount: Результат $current из $total
+searchSuggestions: Предложения поиска
+selectAll: Выбрать всё
+selectContacts: Выбрать контакты
+selectRegionView: Представление выбора региона
+selectedItems: $param выбранных элементов
+selectedRegion: Выбранный регион
+sendMsgNotFriendTips: Собеседник требует подтверждения. Отправьте запрос дружбы
+setChatBackground: Установить фон чата
+share: Поделиться
+signatureTips: Совет по подписи
+slideUpCancelSending: "Проведите пальцем вверх, чтобы отменить отправку"
+storagePermissionNotObtained: Не получено разрешение на хранение
+strongReminder: Сильное напоминание
+submittedAt: "Отправлено:"
+sureDeleteData: Удалить? Восстановление невозможно
+sureDeleteGroupChatRecord: Удалить историю чата группы?
+switchEnvironment: Переключить среду
+thisMonth: В этом месяце
+timeDaysAgo: $param дней назад
+timeHoursAgo: $param часов назад
+timeJustNow: Только что
+timeMinutesAgo: $param минут назад
+timeToday: Сегодня
+timeYesterday: Вчера
+tipConnectDesc: Нет сети
+tipConnectDescWithParen: ($param)
+tipDeleteContact: Удалить контакт "$param" и удалить историю чата с этим контактом
+tipDeviceSpace: Занимает $param1‰ памяти устройства ($param2)
+tipDraft: Черновик
+tipEmptyChatPlaceholder: Здесь пока нет сообщений
+tipFailed: "Операция не удалась!"
+tipGreeting: Добро пожаловать
+tipProvidersTitleFirst: Или войти с помощью следующего аккаунта
+tipSuccess: "Операция успешна!"
+tipTips: Советы
+titleContact: Контакты
+today: Сегодня
+unknown: Неизвестно
+unknownMessage: Неизвестное сообщение
+updateLog: Журнал обновлений
+updateNow: Обновить сейчас
+uploading: Uploading
+uploadSuccess: Upload successful
+uploadFailed: Upload failed
+userDataTips: "Включает сообщения, контакты и данные приложения"
+userDisabledOrDeleted: Пользователь отключён или удалён
+userNotExist: Пользователь не существует
+userOnlineStatusWidget: Виджет статуса пользователя онлайн
+userTagRelationView: Представление отношений тегов пользователей
+userTagSaveView: Представление сохранения тегов пользователей
+verificationMessageSentByPeerIs: "Сообщение подтверждения от собеседника: $param"
+version: Версия
+videoCall: Видеозвонок
+viewAllGroupMember: Просмотреть всех участников группы
+voiceCall: Голосовой звонок
+voiceInputNotImplemented: Функция голосового ввода не реализована
+waitingDownload: Ожидание загрузки
+waitingPeerAccept: Ожидание принятия приглашения собеседником...
+warning: "Предупреждение:"
+webpageLoading: Загрузка веб-страницы...
+whatYourFeedback: Что вы думаете?
+yesterday: Вчера
+yourContactInformation: Ваша контактная информация
+confirmRemove: Подтвердить удаление
+confirmRemoveFromDenylist: Удалить этого пользователя из чёрного списка?
+buttonRemove: Удалить
+removedFromDenylist: Удалено из чёрного списка
+newEmailAddress: Новый адрес эл. почты
+emailAddress: Адрес эл. почты
+enterEmailAddress: Введите адрес эл. почты
+getVerificationCode: Получить код подтверждения
+confirmChange: Подтвердить изменение
+verificationCodeSentToEmail: Код подтверждения будет отправлен на эл. почту
+verificationCodeSentToMobile: Код подтверждения будет отправлен на телефон
+pleaseEnterCorrectEmailAddress: Введите корректный адрес эл. почты
+pleaseEnter6DigitVerificationCode: Введите 6-значный код
+verificationCodeSent: Код подтверждения отправлен
+sendFailed: Не удалось отправить
+noChangeNeeded: Изменения не требуются
+submissionFailed: Не удалось отправить
+checkVerificationCodeOrRetry: Проверьте код подтверждения или попробуйте позже
+forceOffline: Выйти из сети
+forceDeviceOffline: Вывести это устройство из сети
+forceDeviceOfflineConfirm: "Будет отправлена команда выхода из сети на это устройство, продолжить?"
+confirmForceOffline: Подтвердить выход из сети
+forceOfflineCommandSent: Команда выхода из сети отправлена
+feedbackSlogan: Ваши предложения - наш стимул к улучшению
+newFeedback: Новое предложение
+feedbackHistory: История предложений
+confirmDelete: Подтвердить удаление
+processing: "@:common.loading"
+verificationCode: Код подтверждения
+feedbackContent: Содержание предложения
+officialReply: Официальный ответ
+setPasswordSecurityTips: Установите пароль для входа и безопасности
+locationHidden: Ваше местоположение скрыто
+locationVisible: Ваше местоположение отображается
+noNearbyPeople: Нет людей рядом
+clickSearchButtonToFind: "Нажмите кнопку поиска выше, чтобы найти людей рядом"
+operationSuccess: "@:common.success"
+operationFailed: "@:common.error"
+featureInDevelopment: Функция в разработке...
+addedToDenylist: Добавлено в чёрный список
+bindSuccess: Успешно привязано
+mobileUpdatedToParam: Мобильный обновлён на $param
+groupAnnouncementPublish: Опубликовать объявление
+pleaseEnterAnnouncementContent: "Пожалуйста, введите содержание объявления"
+selectExpirationDateOptional: Выберите срок действия (необязательно)
+groupAnnouncementDeleteConfirm: Удалить это объявление?
+groupAnnouncementDelete: Удалить
+privacyClearChatHistory: Очистить историю чата
+privacyClearChatHistoryConfirm: "Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить."
+privacyLogoutAccountConfirm: Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.
+privacySettings: Настройки конфиденциальности
+searchSettings: Настройки поиска
+allowSearchByAccount: Разрешить поиск по аккаунту
+allowSearchByAccountDesc: Другие пользователи могут найти вас через ваш аккаунт
+allowAddByPhone: Разрешить добавление по мобильному
+allowAddByPhoneDesc: Другие пользователи могут добавить вас в друзья по вашему номеру мобильного телефона
+allowAddByQR: Разрешить добавление по QR-коду
+allowAddByQRDesc: "Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код"
+statusSettings: Настройки статуса
+showOnlineStatus: Показать онлайн-статус
+showOnlineStatusDesc: Друзья могут видеть ваш онлайн-статус
+allowNearbyVisible: Видимый для находящихся рядом
+dataSettings: Настройки данных
+clearChatRecords: Очистить записи чата
+clearChatRecordsDesc: "Очистить все записи чата, это действие нельзя отменить"
+deleteAccountAction: Удалить аккаунт
+deleteAccountActionDesc: Окончательно удалить аккаунт и все данные. Это действие нельзя отменить.
+chatHistoryCleared: История чата очищена
+accountDeletionNotAvailable: Функция удаления аккаунта пока недоступна
+chatDeleteMessage: Удалить сообщение
+chatCopy: Копировать
+chatSaveImage: Сохранить изображение
+chatDeleteLocalOnly: Только локально
+chatDownloadFile: Скачать файл
+chatShareFile: Поделиться файлом
+chatCopyLink: Копировать ссылку
+chatShareLink: Поделиться ссылкой
+chatDeleteFailed: Не удалось удалить
+chatNetworkErrorDeleteLocal: Не удалось подключиться к сети. Удалить только локальное сообщение?
+chatDeleteConfirm: "Вы уверены, что хотите удалить это сообщение? Это действие нельзя отменить."
+chatDeleteOnlyLocal: "Удалить только у вас, всё ещё видно другим"
+chatDeleteAll: "Удалить для всех, нельзя отменить"
+chatInitFailed: Не удалось инициализировать чат
+cameraShootFailed: Не удалось сделать снимок
+avatarSave: Сохранить
+avatarDeleteAvatar: Удалить аватар
+avatarEditAvatar: Редактировать аватар
+backgroundUseCustomColor: Использовать пользовательский цвет
+backgroundOnlySolidColor: Применимо только к сплошным фонам
+backgroundSelectColor: Выбрать цвет
+profileShareProfile: Поделиться профилем
+tagClearAllConfirm: "Вы уверены, что хотите очистить все теги?"
+tagClearAll: Подтвердить очистку
+audioPlayFailed: Не удалось воспроизвести
+videoFileNotFound: Входной файл не найден
+videoCompressFailed: "Сжатие не удалось, возвращён пустой результат"
+videoFurtherCompressFailed: Дальнейшее сжатие не удалось
+forcedOfflineByDevice: "Вы были принудительно выведены из сети устройством [$device]"
+searchDescription: "Мини-программы, официальные аккаунты, статьи, моменты, эмодзи и т.д."
+testDirectNavigation: Тест прямой навигации
+tagNameTooLong: Название тега не может превышать 14 символов
+tagNameNoComma: Название тега не может содержать запятые
+tagNameNoLeadingTrailingSpaces: Название тега не может содержать начальные или конечные пробелы
+tagNameNoSpecialChars: Название тега не может содержать специальные символы
+commonTags: Общие теги
+loadingTagDataFailed: Не удалось загрузить данные тегов
+pleaseEnterContent: "Пожалуйста, введите содержание"
+comingSoon: Скоро будет доступно
+chatBackground: Фон чата
+useSystemDefaultBackground: Использовать системный фон по умолчанию
+selectCustomBackgroundImage: Выбрать пользовательское изображение фона
+currentBackground: Текущий фон
+backgroundTransparency: Прозрачность фона
+defaultBackground: Фон по умолчанию
+solidColorBackground: Сплошной фон
+selectImageFailed: Не удалось выбрать изображение
+takePhotoFailed: Не удалось сделать фото
+selectVideoFailed: Не удалось выбрать видео
+recordVideoFailed: Не удалось записать видео
+selectFileFailed: Не удалось выбрать файл
+locationSelectNotImplemented: Функция выбора местоположения не реализована
+selectLocationFailed: Не удалось выбрать местоположение
+sendCardNotImplemented: Функция отправки визитки не реализована
+sendCardFailed: Не удалось отправить визитку
+uploadResponseInvalid: Неверный ответ загрузки
+voiceSendSuccess: Голосовое отправлено
+voiceSendFailed: Не удалось отправить голосовое
+featureNotImplemented: Функция не реализована
+sendCollectionNotImplemented: Функция отправки коллекции не реализована
+fileOpenNotImplemented: Функция открытия файла не реализована
+fileShareNotImplemented: Функция обмена файлом не реализована
+retrySuccess: Повтор успешен
+deleteSuccess: Успешно удалено
+localDeleteSuccess: Локальное удаление успешно
+localDeleteFailed: Локальное удаление не удалось
+revokeSuccess: Успешно отозвано
+editContentCannotBeEmpty: Содержание редактирования не может быть пустым
+editSuccess: Успешно отредактировано
+messageNotFound: Сообщение не найдено
+conversationNotFound: Беседа не найдена
+enabled: Включено
+disabled: Отключено
+configureVisibleThreshold: Настроить порог видимости
+fontSizeSettingUpdated: Настройка размера шрифта обновлена
+fontSizeSetting: Настройка размера шрифта
+fontTooSmallMayAffect: "Шрифт слишком маленький, может повлиять на чтение"
+dragSliderAdjustFontSize: Перетащите ползунок для изменения размера шрифта
+personalInfo: Личная информация
+nicknameNotSet: Никнейм не установлен
+basicInfo: Основная информация
+contactInfo: Контактная информация
+editTags: Редактировать теги
+quickActions: Быстрые действия
+noNewFriendRequests: Нет новых запросов дружбы
+pleaseEnterVerificationMessage: "Пожалуйста, введите сообщение подтверждения"
+unknownRegion: Неизвестный регион
+noCommonGroups: Нет общих групп
+noMoreInfo: Нет больше информации
+userNotSetSignature: Пользователь не установил личную подпись и другую подробную информацию
+verificationMessage: Сообщение подтверждения
+burnEnabledMessage: "После включения: Сообщения будут автоматически удалены через $duration после прочтения"
+burnDisabledMessage: "После отключения: Сообщения не будут автоматически удалены"
+visibleEnabledMessage: "После включения: Помечать как прочитанное, когда видимость ≥$percentage% в течение ≥$delayms"
+visibleDisabledMessage: "После отключения: Не будет автоматически помечено как прочитанное на основе видимости"
+visibleThresholdInfo: "Коэффициент видимости: $percentage% | Задержка: $delayms"
+noGroupAnnouncement: Нет объявления группы
+announcementContentCannotBeEmpty: Содержание объявления не может быть пустым
+announcementPublishSuccess: Объявление успешно опубликовано
+tips: Советы
+featureComingSoon: Функция скоро будет доступна
+understood: Понятно
+noProblem: Без проблем
+onMyWay: Уже в пути
+sendOfflineCommand: Принудительно вывести из сети
+offlineCommandSent: Команда выхода из сети отправлена
+operationOptions: Операции
+copyTextContent: Копировать текстовое содержание
+shareWithOtherFriends: Поделиться с другими друзьями
+addTagsToFavorites: Добавить теги в избранное
+addRemarkToFavorites: Добавить примечание в избранное
+deleteThisCollection: Удалить эту коллекцию
+pullUpLoadMore: Потяните вверх для загрузки большего количества
+changeSuccess: Успешно изменено
+loginPasswordUpdated: Пароль для входа обновлён
+lengthOk: Длина в порядке
+confirmNewPassword: Подтвердите новый пароль
+validationPassed: Проверка пройдена
+changeFailed: Не удалось изменить
+submitted: Отправлено
+viewSecurityHelp: Посмотреть справку по безопасности
+transactionHistory: История транзакций
+paymentPasswordSetSuccess: Платёжный пароль успешно установлен
+paymentPasswordSetFailed: Не удалось установить платёжный пароль
+nextVoiceMessageNotFound: Следующее голосовое сообщение не найдено
+noNextVoiceMessage: Нет следующего голосового сообщения для воспроизведения
+nextVoiceMessageNoPath: У следующего голосового сообщения нет пути к аудиофайлу
+saveFailed: Не удалось сохранить
+tip: Совет
+confirm: Подтвердить
+success: Успешно
+personalDisplay: Личное отображение
+personalSignature: Личная подпись
+personalBackground: Личный фон
+setBackgroundImage: Установить изображение фона
+extendedInfo: Дополнительная информация
+profession: Профессия
+pleaseEnterProfession: Please enter profession
+functionSettings: Функциональные настройки
+shareProfile: Поделиться профилем
+shareWithFriends: Поделиться профилем с друзьями
+shareQRCode: Share QR Code
+copyLink: Copy Link
+shareTo: Share To
+shareFailed: Share failed
+exportAsJson: Export as JSON format
+exportSuccessThenCopiedToClipboard: $param format profile exported and copied to clipboard
+exportFailed: Export failed
+setRegion: Установить регион
+avatarUpdateSuccess: Аватар успешно обновлён
+avatarUpdateFailed: Не удалось обновить аватар
+deleteOperationAbnormal: "Неверная операция удаления, попробуйте снова"
+revoking: Отзыв...
+editing: Редактирование...
+messageIdCannotBeEmpty: "ID сообщения пуст, невозможно выполнить операцию"
+startRevokeMessageFlow: Начало отзыва сообщения
+revokeMessageTracking: Отслеживание отзыва сообщения
+useNewActionMechanism: Использовать новый механизм действий
+revokeMessageSendResult: Результат отправки отзыва сообщения
+revokeRequestSendComplete: Запрос на отзыв отправлен
+revokeFailed: Не удалось отозвать
+revokeMessageException: Исключение при отзыве сообщения
+revokeOperationAbnormal: Неверная операция отзыва
+startEditMessageFlow: Начало редактирования сообщения
+editMessageTracking: Отслеживание редактирования сообщения
+newContent: Новое содержание
+editMessageSendResult: Результат отправки редактирования сообщения
+editRequestSendComplete: Запрос на редактирование отправлен
+editFailed: Не удалось отредактировать
+editMessageException: Исключение при редактировании сообщения
+editOperationAbnormal: Неверная операция редактирования
+uploadAvatarFailed: Не удалось загрузить аватар
+error: Ошибка
+cannotOpenWebpage: Не удаётся открыть веб-страницу
+groupIdCannotBeEmpty: ID группы не может быть пустым
+selectImageFailedWithError: Не удалось выбрать изображение
+uploadAvatarFailedWithError: Не удалось загрузить аватар
+avatarSelectedUploadPending: "Аватар успешно выбран, функция загрузки в ожидании"
+emailEditFeaturePending: Функция редактирования эл. почты в разработке...
+reactionAdded: Реакция добавлена
+reactionCancelled: Реакция отменена
+retryFailedPleaseCheckNetwork: Ошибка повтора. Проверьте сеть
+retryAbnormal: Неверная попытка повтора
+deleteFailedPleaseTryAgain: Ошибка удаления. Попробуйте снова
+deleteFailedPleaseCheckNetwork: Ошибка удаления. Проверьте сеть
+voiceRecordFailedPleaseTryAgain: Ошибка записи. Попробуйте снова
+voiceFileNotFoundPleaseTryAgain: Файл не найден. Попробуйте снова
+voiceFileCannotReadPleaseTryAgain: Ошибка чтения. Попробуйте снова
+voiceFileReadFailedPleaseTryAgain: Не удалось прочитать. Попробуйте снова
+voiceProcessingAbnormal: Неверная обработка голоса
+voiceUploadFailedPleaseCheckNetwork: Ошибка загрузки. Проверьте сеть
+voiceSendAbnormal: Неверная отправка голоса
+voiceDuration: Длительность голосового сообщения
+playbackFailed: Воспроизведение не удалось
+revokeOperationAbnormalPleaseTryAgain: "Неверная операция отзыва, попробуйте снова"
+collectionFailedPleaseTryAgain: Ошибка добавления. Попробуйте снова
+reactionSent: Реакция отправлена
+seconds: секунды
+messageCannotLocatedMayBeDeleted: "Не удаётся найти сообщение, возможно, оно было удалено"
+settingFailedPleaseTryAgain: "Не удалось выполнить настройку, попробуйте снова"
+partialDeleteSuccess: "Частичное удаление успешно: $success успешно, $fail не удалось"
+collectedVideoFormatIncorrectCannotFindVideoUri: Неверный формат видео
+recordingCancelled: Запись отменена
+pullOfflineMessagesFailed: Ошибка загрузки сообщений
+pullOfflineMessagesAbnormal: Неверное получение офлайн-сообщений
+logoutRequestFailedPleaseCheckNetwork: Ошибка выхода. Проверьте сеть
+permissionOnlySupportAndroidAndIos: Поддерживается только на Android и iOS
+messageSendFailedPleaseCheckNetwork: Ошибка отправки. Проверьте сеть
+retryingSend: Повтор отправки...
+quickReplyOk: ОК
+quickReplyOkThanks: "ОК, спасибо"
+tagInspiration: Вдохновение
+noDetailedInfo: Этот пользователь не установил подробную личную информацию
+noNewRegisteredUsers: "Нет новых зарегистрированных пользователей
+Пожалуйста, попробуйте позже"
+newRegisteredUsersTip: "Здесь отображаются недавно зарегистрированные пользователи, вы можете добавить их в друзья"
+youRevokedMessage: Вы отозвали сообщение
+otherRevokedMessage: Собеседник отозвал сообщение
+networkFailureTryAgain: "Сетевая ошибка, попробуйте снова!"
+networkNotAvailable: Сеть в данный момент недоступна.
+pleaseCheckNetworkConnection: "Пожалуйста, проверьте ваше сетевое подключение."
+lastSeenMinutesAgo: "@:common.timeMinutesAgo"
+lastSeenHoursAgo: "@:common.timeHoursAgo"
+lastSeenDaysAgo: "@:common.timeDaysAgo"
+fontSettings: "@:common.fontSizeSetting"
+failed: "@:common.error"
+lazyUserNoSignature: Пользователь не указал подпись
+noFavoritesYet: "Нет избранного. Добавьте интересные сообщения!"
+fontPreviewText: Просмотр размера шрифта
+smaller: Меньше
+currentFontScale: "Текущий: $param1 $param2%"
+emailUpdatedTo: Эл. почта обновлена на $param
+atMentionYouTag: "[@你] "
+atMentionLeftMember: "@已退群成员"
+muteNotifications: 消息免打扰
+muteNotificationsHint: 开启后不会收到新消息提醒，但仍可在会话列表看到未读
+revokeExpired: 超过 2 分钟，无法撤回
+quickReplyAddTitle: 新增快捷回复
+quickReplyEditTitle: 编辑快捷回复
+removeAdmin: Remove Admin
+setAdminConfirm: Set this member as admin?
+removeAdminConfirm: Remove admin role from this member?
+muteMemberConfirm: Mute this member?
+unmuteMemberConfirm: Unmute this member?
+kickMemberConfirm: Remove this member from the group?
+transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
+setAdminSuccess: Admin set
+setAdminFailed: Failed to set admin
+removeAdminSuccess: Admin removed
+removeAdminFailed: Failed to remove admin
+muteMemberSuccess: Member muted
+muteMemberFailed: Failed to mute member
+unmuteMemberSuccess: Member unmuted
+unmuteMemberFailed: Failed to unmute member
+kickMemberSuccess: Member removed
+kickMemberFailed: Failed to remove member
+transferGroupSuccess: Ownership transferred
+transferGroupFailed: Failed to transfer ownership
+notMuted: Not Muted
+muteDuration: Mute Duration
+muteDuration1hour: 1 Hour
+muteDuration6hours: 6 Hours
+muteDuration12hours: 12 Hours
+muteDuration1day: 1 Day
+muteDuration3days: 3 Days
+muteDuration7days: 7 Days
+muteDurationPermanent: Permanent
+searchScope: Search scope
+searchAll: All messages

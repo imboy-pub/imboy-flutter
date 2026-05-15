@@ -1,0 +1,11 @@
+title: Select Friends
+titleAllow: Visible to...
+titleDeny: Hidden from...
+confirm: OK
+confirmWithCount: OK ($count)
+selectedCount: $count selected
+emptyFriends: No friends
+tagsLabel: By tag
+emptyTags: No tags
+tagLoadFailed: Failed to load tag
+searchHint: Search friends

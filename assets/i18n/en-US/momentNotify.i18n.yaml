@@ -1,0 +1,13 @@
+title: Notifications
+emptyTitle: No new notifications
+emptyHint: Likes and comments on your moments will appear here
+actionLike: liked your moment
+actionComment: commented on your moment
+markAllRead: Mark all read
+clearAll: Clear all
+clearConfirmTitle: Clear all notifications?
+clearConfirmMessage: This action cannot be undone
+confirm: OK
+cancel: Cancel
+delete: Delete
+loadFailed: "Load failed, please retry"

@@ -1,0 +1,7 @@
+restartRequired: إعادة تشغيل مطلوبة
+networkFailureGuidance: إرشادات فشل الشبكة
+pleaseCheckNetwork: يرجى التحقق من إعدادات الشبكة الخاصة بك.
+networkTroubleshootingStep1: 1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.
+networkTroubleshootingStep2: 2. افتح إعدادات الهاتف - عام - بيانات الهاتف المحمول، وقم بإبقاء مفتاح بيانات الهاتف المحمول قيد التشغيل.
+networkTroubleshootingStep3: 3. إذا كنت لا تزال غير قادر على الاتصال بالشبكة، يرجى التحقق مما إذا كان Wi-Fi المتصل بالهاتف متصلاً بالإنترنت أو استشارة مشغل الشبكة.
+suggestCheckNetwork: يُقترح التحقق من إعدادات الشبكة.

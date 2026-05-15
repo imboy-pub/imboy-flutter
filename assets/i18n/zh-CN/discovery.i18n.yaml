@@ -1,0 +1,31 @@
+findNearbyPeople: 找附近的人
+moment: 朋友圈
+nearbyPeopleExplain: "附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。
+
+你的电话号码将会被隐藏。"
+peopleNearby: 附近的人
+peopleNearbyLogic: 附近的人逻辑
+scan: 扫一扫
+scanResult: 扫描结果
+scannerResult: 扫描结果
+titleDiscover: 发现
+myChannels: 我的频道
+channelSquare: 频道广场
+otherUsersCanFindMe: 其他用户可以通过搜索找到我
+moments: 朋友圈
+momentsReport: 举报动态
+momentsReportDesc: 补充说明
+momentsComments: 评论
+momentsWriteComment: 写评论...
+momentsVisibility: 可见性
+momentsVisibilityPublic: 公开
+momentsVisibilityPartial: 部分可见
+momentsVisibilityExclude: 不给谁看
+momentsDenyUidsLabel: 不给谁看 UID 列表（逗号分隔）
+momentsDraftRestored: 已恢复上次未发送的草稿
+momentsFeedStale: 网络异常，显示的是缓存内容
+discover: 发现
+shake: 摇一摇
+openChannel: 打开频道
+paidChannelLocked: 付费频道内容已锁定
+webQRScanned: 已扫描
