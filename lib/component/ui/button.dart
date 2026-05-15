@@ -137,7 +137,7 @@ ButtonStyle lightGreenButtonStyle(
       Set<WidgetState> states,
     ) {
       if (states.contains(WidgetState.disabled)) {
-        return Colors.white.withValues(alpha: 0.7);
+        return Colors.white.withValues(alpha: 0.6);
       }
       return Colors.white;
     }),

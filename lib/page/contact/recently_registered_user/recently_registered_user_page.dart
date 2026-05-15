@@ -1,255 +1,144 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
-
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'recently_registered_user_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
+/// 最近注册用户页面 - 像素级对齐 iOS 17 Premium 风格
 class RecentlyRegisteredUserPage extends ConsumerStatefulWidget {
   const RecentlyRegisteredUserPage({super.key});
 
   @override
-  ConsumerState<RecentlyRegisteredUserPage> createState() =>
-      _RecentlyRegisteredUserPageState();
+  ConsumerState<RecentlyRegisteredUserPage> createState() => _RecentlyRegisteredUserPageState();
 }
 
-class _RecentlyRegisteredUserPageState
-    extends ConsumerState<RecentlyRegisteredUserPage> {
+class _RecentlyRegisteredUserPageState extends ConsumerState<RecentlyRegisteredUserPage> {
   @override
   void initState() {
     super.initState();
-    // 初始化数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(recentlyRegisteredUserApi.notifier).initData();
     });
   }
 
-  /// 构建用户卡片
-  Widget _buildUserCard(BuildContext context, PeopleModel model) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: AppRadius.borderRadiusRegular,
-        // DESIGN.md §5.2 + §8.3：Cell 用边框区分而非投影
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: AppRadius.borderRadiusRegular,
-        child: CellPressable(
-          onTap: () {
-            context.push(
-              '/people_info/${model.id}',
-              extra: {'scene': 'recently_user'},
-            );
-          },
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(recentlyRegisteredUserApi);
+    final brightness = Theme.of(context).brightness;
+
+    return IosPageTemplate(
+      title: t.account.newlyRegisteredPeople,
+      useLargeTitle: false,
+      slivers: [
+        // 说明卡片 Section
+        SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                // 头像
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                    // DESIGN.md §9.1 头像不带阴影
-                  ),
-                  child: ClipRRect(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                    child: SizedBox(
-                      width: 52,
-                      height: 52,
-                      child: Avatar(imgUri: model.avatar),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-
-                // 用户信息
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 用户名和注册时间
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              model.nickname.isEmpty
-                                  ? model.account
-                                  : model.nickname,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (model.createdAt > 0) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer
-                                    .withValues(alpha: 0.3),
-                                borderRadius: AppRadius.borderRadiusMedium,
-                              ),
-                              child: Text(
-                                DateTimeHelper.lastTimeFmt(
-                                  model.createdAt,
-                                  pattern: 'MM-dd',
-                                ),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-
-                      // 地区信息
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              model.region.isEmpty
-                                  ? t.common.unknownRegion
-                                  : model.region,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 箭头图标
-                Icon(
-                  Icons.chevron_right,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                  size: 20,
-                ),
-              ],
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: _buildTipsCard(context, brightness == Brightness.dark),
           ),
         ),
+
+        // 用户列表 Section
+        if (state.isLoading)
+          const SliverFillRemaining(child: Center(child: CupertinoActivityIndicator()))
+        else if (state.peopleList.isEmpty)
+          SliverFillRemaining(child: _buildEmptyState(context))
+        else
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 40),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final model = state.peopleList[index];
+                  return Column(
+                    children: [
+                      _buildUserItem(context, model, brightness),
+                      if (index < state.peopleList.length - 1)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 84),
+                          child: Divider(height: 0.33, color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3)),
+                        ),
+                    ],
+                  );
+                },
+                childCount: state.peopleList.length,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTipsCard(BuildContext context, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(CupertinoIcons.info, color: AppColors.getIosBlue(Theme.of(context).brightness), size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              t.common.newRegisteredUsersTip,
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                height: 1.4,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(recentlyRegisteredUserApi);
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.account.newlyRegisteredPeople,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-      ),
-      body: SlidableAutoCloseBehavior(
-        child: Column(
-          children: [
-            // 顶部说明卡片
+  Widget _buildUserItem(BuildContext context, PeopleModel model, Brightness brightness) {
+    return ImBoyListTile(
+      onTap: () => context.push('/people_info/${model.id}', extra: {'scene': 'recently_user'}),
+      leading: Avatar(imgUri: model.avatar, width: 56, height: 56),
+      title: Text(model.nickname.isEmpty ? model.account : model.nickname),
+      subtitle: Text(model.region.isEmpty ? t.common.unknownRegion : model.region),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (model.createdAt > 0)
             Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: 0.1),
-                borderRadius: AppRadius.borderRadiusMedium,
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.2),
-                  width: 0.5,
-                ),
+                color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      t.common.newRegisteredUsersTip,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'MM-dd'),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(brightness)),
               ),
             ),
-
-            // 用户列表
-            Expanded(
-              child: state.peopleList.isEmpty
-                  ? NoDataView(
-                      text: t.common.noNewFriendRequests,
-                      description: t.common.noNewRegisteredUsers,
-                      icon: Icons.people_outline,
-                      iconBgSize: 120,
-                      iconSize: 60,
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      itemCount: state.peopleList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        PeopleModel model = state.peopleList[index];
-                        return _buildUserCard(context, model);
-                      },
-                    ),
-            ),
-          ],
-        ),
+          const SizedBox(width: 8),
+          const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+        ],
       ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return NoDataView(
+      text: t.common.noNewFriendRequests,
+      description: t.common.noNewRegisteredUsers,
+      icon: CupertinoIcons.person_2,
     );
   }
 }

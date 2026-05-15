@@ -13,12 +13,14 @@ class RecentlyRegisteredUserState {
   final int size;
   final List<PeopleModel> peopleList;
   final String kwd;
+  final bool isLoading;
 
   const RecentlyRegisteredUserState({
     this.page = 1,
     this.size = 50,
     this.peopleList = const [],
     this.kwd = '',
+    this.isLoading = false,
   });
 
   RecentlyRegisteredUserState copyWith({
@@ -26,12 +28,14 @@ class RecentlyRegisteredUserState {
     int? size,
     List<PeopleModel>? peopleList,
     String? kwd,
+    bool? isLoading,
   }) {
     return RecentlyRegisteredUserState(
       page: page ?? this.page,
       size: size ?? this.size,
       peopleList: peopleList ?? this.peopleList,
       kwd: kwd ?? this.kwd,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }

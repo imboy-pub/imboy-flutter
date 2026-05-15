@@ -222,7 +222,11 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       ),
       child: Text(
         t.common.accept,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }

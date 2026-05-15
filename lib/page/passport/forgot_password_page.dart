@@ -154,6 +154,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -229,6 +230,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

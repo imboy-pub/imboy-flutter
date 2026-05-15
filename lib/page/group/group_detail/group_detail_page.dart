@@ -462,9 +462,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 padding: EdgeInsets.zero,
                 child: Text(
                   t.common.viewAllGroupMember,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.getIosBlue(Theme.of(context).brightness),
                   ),
                 ),
                 onPressed: () => context.push(

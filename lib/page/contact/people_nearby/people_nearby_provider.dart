@@ -13,6 +13,7 @@ import 'package:imboy/i18n/strings.g.dart';
 class PeopleNearbyState {
   final List<PeopleModel> peopleList;
   final bool peopleNearbyVisible;
+  final bool isLoading;
   final String longitude; // 经度
   final String latitude; // 维度
   final int page;
@@ -22,6 +23,7 @@ class PeopleNearbyState {
   const PeopleNearbyState({
     this.peopleList = const [],
     this.peopleNearbyVisible = false,
+    this.isLoading = false,
     this.longitude = "",
     this.latitude = "",
     this.page = 1,
@@ -32,6 +34,7 @@ class PeopleNearbyState {
   PeopleNearbyState copyWith({
     List<PeopleModel>? peopleList,
     bool? peopleNearbyVisible,
+    bool? isLoading,
     String? longitude,
     String? latitude,
     int? page,
@@ -41,6 +44,7 @@ class PeopleNearbyState {
     return PeopleNearbyState(
       peopleList: peopleList ?? this.peopleList,
       peopleNearbyVisible: peopleNearbyVisible ?? this.peopleNearbyVisible,
+      isLoading: isLoading ?? this.isLoading,
       longitude: longitude ?? this.longitude,
       latitude: latitude ?? this.latitude,
       page: page ?? this.page,
