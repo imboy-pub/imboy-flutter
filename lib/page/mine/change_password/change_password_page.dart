@@ -1,12 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/change_password/change_password_provider.dart';
 
-/// 修改密码页面
+/// 修改密码页面 - 像素级对齐 iOS 设置风
 class ChangePasswordPage extends ConsumerWidget {
   const ChangePasswordPage({super.key});
 
@@ -15,391 +15,160 @@ class ChangePasswordPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
-    final colorScheme = Theme.of(context).colorScheme;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(changeLoginPasswordProvider);
 
-    return Scaffold(
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.account.changeLoginPassword,
-      ),
-      backgroundColor: AppColors.getSurfaceGrouped(
-        Theme.of(context).brightness,
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusMedium,
-              ),
-              child: ListTile(
+    return IosPageTemplate(
+      title: t.account.changeLoginPassword,
+      useLargeTitle: false,
+      bottomWidget: _buildSaveButton(context, ref, state, t),
+      child: Column(
+        children: [
+          // 状态说明 Section
+          ImBoySettingsSection(
+            children: [
+              ImBoySettingsTile(
+                title: Text(t.account.loginPassword),
+                subtitle: Text(t.account.loginPasswordDesc),
                 leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? colorScheme.primary.withValues(alpha: 0.1)
-                        : AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusSmall,
-                  ),
-                  child: Icon(
-                    Icons.lock_outline,
-                    color: isDark ? colorScheme.primary : AppColors.primary,
-                    size: 20,
-                  ),
-                ),
-                title: Text(
-                  t.account.loginPassword,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  t.account.loginPasswordDesc,
-                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(color: AppColors.getIosBlue(Theme.of(context).brightness), borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(CupertinoIcons.lock, color: Colors.white, size: 18),
                 ),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? colorScheme.primary.withValues(alpha: 0.12)
-                        : AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppRadius.circle),
-                  ),
-                  child: Text(
-                    t.common.enabled,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? colorScheme.primary : AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                  child: Text(t.common.enabled, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(Theme.of(context).brightness))),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
+            ],
+          ),
+
+          // 表单 Section
+          ImBoySettingsSection(
+            header: Text(t.account.changeLoginPassword.toUpperCase()),
+            footer: Text(t.account.passwordMinLength(min: minPasswordLength.toString())),
+            children: [
+              _buildPasswordField(
+                context: context,
+                label: t.account.oldPassword,
+                hint: t.account.enterOldPassword,
+                obscure: state.existingObscure,
+                onToggle: () => ref.read(changeLoginPasswordProvider.notifier).toggleExistingObscure(),
+                onChanged: (v) => ref.read(changeLoginPasswordProvider.notifier).updateExistingPassword(v),
               ),
+              _buildPasswordField(
+                context: context,
+                label: t.account.newPassword,
+                hint: t.account.enterNewPassword,
+                obscure: state.newObscure,
+                onToggle: () => ref.read(changeLoginPasswordProvider.notifier).toggleNewObscure(),
+                onChanged: (v) => ref.read(changeLoginPasswordProvider.notifier).updateNewPassword(v),
+              ),
+              _buildPasswordField(
+                context: context,
+                label: t.common.confirmNewPassword,
+                hint: t.account.enterNewPasswordAgain,
+                obscure: state.confirmObscure,
+                onToggle: () => ref.read(changeLoginPasswordProvider.notifier).toggleConfirmObscure(),
+                onChanged: (v) => ref.read(changeLoginPasswordProvider.notifier).updateConfirmPassword(v),
+              ),
+            ],
+          ),
+
+          // 校验提示 Section
+          if (state.existingLength > 0 || state.newLength > 0 || state.confirmLength > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    t.account.changeLoginPassword,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    t.account.passwordMinLength(
-                      min: minPasswordLength.toString(),
-                    ),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _PasswordField(
-                    label: t.account.oldPassword,
-                    hintText: t.account.enterOldPassword,
-                    obscure: state.existingObscure,
-                    onToggleObscure: () {
-                      ref
-                          .read(changeLoginPasswordProvider.notifier)
-                          .toggleExistingObscure();
-                    },
-                    onChanged: (value) {
-                      ref
-                          .read(changeLoginPasswordProvider.notifier)
-                          .updateExistingPassword(value);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _FieldStatusRow(
-                    length: state.existingLength,
-                    minLength: minPasswordLength,
-                    ok: state.existingLengthOk,
-                    okText: t.common.lengthOk,
-                    errorText: t.account.passwordMinLength(
-                      min: minPasswordLength.toString(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _PasswordField(
-                    label: t.account.newPassword,
-                    hintText: t.account.enterNewPassword,
-                    obscure: state.newObscure,
-                    onToggleObscure: () {
-                      ref
-                          .read(changeLoginPasswordProvider.notifier)
-                          .toggleNewObscure();
-                    },
-                    onChanged: (value) {
-                      ref
-                          .read(changeLoginPasswordProvider.notifier)
-                          .updateNewPassword(value);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _FieldStatusRow(
-                    length: state.newLength,
-                    minLength: minPasswordLength,
-                    ok: state.newLengthOk,
-                    okText: t.common.lengthOk,
-                    errorText: t.account.passwordMinLength(
-                      min: minPasswordLength.toString(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _PasswordField(
-                    label: t.common.confirmNewPassword,
-                    hintText: t.account.enterNewPasswordAgain,
-                    obscure: state.confirmObscure,
-                    onToggleObscure: () {
-                      ref
-                          .read(changeLoginPasswordProvider.notifier)
-                          .toggleConfirmObscure();
-                    },
-                    onChanged: (value) {
-                      ref
-                          .read(changeLoginPasswordProvider.notifier)
-                          .updateConfirmPassword(value);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _FieldStatusRow(
-                    length: state.confirmLength,
-                    minLength: minPasswordLength,
-                    ok: state.confirmLengthOk && state.passwordMatchOk,
-                    okText: t.common.validationPassed,
-                    errorText: !state.confirmLengthOk
-                        ? t.account.passwordMinLength(
-                            min: minPasswordLength.toString(),
-                          )
-                        : (state.passwordMatchOk
-                              ? ''
-                              : t.chat.passwordMismatch),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: state.canSubmit
-                          ? () {
-                              ref
-                                  .read(changeLoginPasswordProvider.notifier)
-                                  .submit();
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.borderRadiusXLarge,
-                        ),
-                        disabledBackgroundColor: AppColors.primary.withValues(
-                          alpha: 0.3,
-                        ),
-                        disabledForegroundColor: Colors.white.withValues(
-                          alpha: 0.7,
-                        ),
-                      ),
-                      child: state.isLoading
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Text(t.common.loading),
-                              ],
-                            )
-                          : Text(
-                              t.common.buttonSave,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
-                  SizedBox(height: bottomPadding == 0 ? 12 : bottomPadding),
+                  _ValidationRow(label: t.account.oldPassword, ok: state.existingLengthOk, text: state.existingLengthOk ? t.common.lengthOk : t.main.pendingInput),
+                  _ValidationRow(label: t.account.newPassword, ok: state.newLengthOk, text: state.newLengthOk ? t.common.lengthOk : t.main.pendingInput),
+                  _ValidationRow(label: t.common.confirmNewPassword, ok: state.confirmLengthOk && state.passwordMatchOk, text: !state.confirmLengthOk ? t.main.pendingInput : (state.passwordMatchOk ? t.common.validationPassed : t.chat.passwordMismatch)),
                 ],
               ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required BuildContext context,
+    required String label,
+    required String hint,
+    required bool obscure,
+    required VoidCallback onToggle,
+    required ValueChanged<String> onChanged,
+  }) {
+    return CupertinoListTile.notched(
+      title: Text(label, style: const TextStyle(fontSize: 17)),
+      trailing: Expanded(
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoTextField(
+                placeholder: hint,
+                obscureText: obscure,
+                onChanged: onChanged,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: null,
+                textAlign: TextAlign.right,
+              ),
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: onToggle,
+              child: Icon(obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash, size: 20, color: AppColors.iosGray),
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class _PasswordField extends StatefulWidget {
-  const _PasswordField({
-    required this.label,
-    required this.hintText,
-    required this.obscure,
-    required this.onToggleObscure,
-    required this.onChanged,
-  });
-
-  final String label;
-  final String hintText;
-  final bool obscure;
-  final VoidCallback onToggleObscure;
-  final ValueChanged<String> onChanged;
-
-  @override
-  State<_PasswordField> createState() => _PasswordFieldState();
-}
-
-class _PasswordFieldState extends State<_PasswordField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    _controller.addListener(() {
-      widget.onChanged(_controller.text);
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return TextField(
-      controller: _controller,
-      obscureText: widget.obscure,
-      enableSuggestions: false,
-      autocorrect: false,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: widget.hintText,
-        filled: true,
-        fillColor: isDark
-            ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
-            : const Color(0xFFF9F9F9),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: AppRadius.borderRadiusMedium,
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadius.borderRadiusMedium,
-          borderSide: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.05),
-            width: 1,
+  Widget _buildSaveButton(BuildContext context, WidgetRef ref, dynamic state, Translations t) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadius.borderRadiusMedium,
-          borderSide: BorderSide(
-            color: isDark ? cs.primary : AppColors.primary,
-            width: 1.5,
-          ),
-        ),
-        suffixIcon: IconButton(
-          onPressed: widget.onToggleObscure,
-          icon: Icon(
-            widget.obscure
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.5)
-                : Colors.black.withValues(alpha: 0.4),
-          ),
+          onPressed: state.canSubmit ? () => ref.read(changeLoginPasswordProvider.notifier).submit() : null,
+          child: state.isLoading
+              ? const CupertinoActivityIndicator(color: Colors.white)
+              : Text(t.common.buttonSave, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
         ),
       ),
     );
   }
 }
 
-class _FieldStatusRow extends StatelessWidget {
-  const _FieldStatusRow({
-    required this.length,
-    required this.minLength,
-    required this.ok,
-    required this.okText,
-    required this.errorText,
-  });
-
-  final int length;
-  final int minLength;
+class _ValidationRow extends StatelessWidget {
+  const _ValidationRow({required this.label, required this.ok, required this.text});
+  final String label;
   final bool ok;
-  final String okText;
-  final String errorText;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final successColor = isDark ? cs.primary : AppColors.primary;
-    final errorColor = cs.error;
-
-    final color = ok ? successColor : errorColor;
-    final icon = ok ? Icons.check_circle_rounded : Icons.info_outline_rounded;
-    final statusText = ok ? okText : errorText;
-
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            t.main.currentLength(
-              param1: length.toString(),
-              param2: minLength.toString(),
-            ),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-        if (length > 0) ...[
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            statusText,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+    final color = ok ? AppColors.iosGreen : AppColors.iosRed;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.iosGray))),
+          Icon(ok ? CupertinoIcons.check_mark_circled : CupertinoIcons.info_circle, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(text, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500)),
         ],
-      ],
+      ),
     );
   }
 }

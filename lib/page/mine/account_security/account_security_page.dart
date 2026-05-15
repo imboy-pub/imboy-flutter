@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/api/user_api.dart';
 
@@ -48,101 +46,38 @@ class AccountSecurityNotifier extends _$AccountSecurityNotifier {
   }
 }
 
+/// 账号安全页面 - 像素级对齐 iOS 设置风 (Inset Grouped)
 class AccountSecurityPage extends ConsumerWidget {
   const AccountSecurityPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.t;
-    final brightness = Theme.of(context).brightness;
-    final cardColor = Theme.of(context).cardColor;
-
-    return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.account.accountSecurity,
-      ),
-      body: ListView(
+    return IosPageTemplate(
+      title: t.account.accountSecurity,
+      child: ImBoySettingsSection(
+        header: Text(t.common.sectionLoginCredentials.toUpperCase()),
         children: [
-          _buildSectionHeader(context, t.common.sectionLoginCredentials),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: AppRadius.borderRadiusCell,
-            ),
-            child: Column(
-              children: [
-                _buildTile(
-                  context,
-                  title: t.account.bindEmail,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute<dynamic>(
-                        builder: (_) => const BindEmailPage(),
-                      ),
-                    );
-                  },
+          ImBoySettingsTile(
+            title: Text(t.account.bindEmail),
+            onTap: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute<dynamic>(
+                  builder: (_) => const BindEmailPage(),
                 ),
-                _buildDivider(),
-                _buildTile(
-                  context,
-                  title: t.account.bindMobile,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute<dynamic>(
-                        builder: (_) => const BindMobilePage(),
-                      ),
-                    );
-                  },
+              );
+            },
+          ),
+          ImBoySettingsTile(
+            title: Text(t.account.bindMobile),
+            onTap: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute<dynamic>(
+                  builder: (_) => const BindMobilePage(),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String text) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 20, 32, 6),
-      child: Text(
-        text.toUpperCase(),
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.08,
-          color: AppColors.iosGray,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTile(
-    BuildContext context, {
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      title: Text(title),
-      trailing: const Icon(
-        CupertinoIcons.chevron_right,
-        size: 14,
-        color: AppColors.iosGray,
-      ),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildDivider() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16),
-      child: Divider(
-        height: 0.33,
-        thickness: 0.33,
-        color: AppColors.iosSeparator.withValues(alpha: 0.6),
       ),
     );
   }

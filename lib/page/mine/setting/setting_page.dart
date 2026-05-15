@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -10,10 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
-import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/markdown.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
@@ -24,10 +21,8 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
 
 /// 允许搜索状态的 Provider - 使用 Provider 从存储中读取值
 final allowSearchProvider = Provider<bool>((ref) {
@@ -43,7 +38,7 @@ final allowSearchProvider = Provider<bool>((ref) {
   return true;
 });
 
-/// 设置页面 - 使用 Riverpod + 优化后的主题系统
+/// 设置页面 - 像素级对齐 iOS 设置风 (Inset Grouped)
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
 
@@ -61,17 +56,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final themeState = ref.watch(themeProvider);
     final themeMode = ref.watch(themeModeProvider);
 
-    // 跟随系统
     if (themeMode == ThemeMode.system) {
       return t.main.followSystem;
     }
-
-    // 深色模式
     if (themeState.isDarkMode) {
       return t.common.enabled;
     }
-
-    // 浅色模式
     return t.common.disabled;
   }
 
@@ -81,13 +71,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     await storage.setString('env', env);
     await storage.setBool('changedEnv', true);
     await UserRepoLocal.to.quitLogin();
-    // 重启应用
     _restartApp();
   }
 
   /// 重启应用
   void _restartApp() {
-    if (kDebugMode) iPrint("packageName $packageName");
     if (Platform.isAndroid) {
       SystemNavigator.pop();
     } else if (Platform.isIOS) {
@@ -100,9 +88,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             actions: <Widget>[
               CupertinoDialogAction(
                 isDefaultAction: true,
-                onPressed: () {
-                  exit(0);
-                },
+                onPressed: () => exit(0),
                 child: Text(t.common.buttonConfirm),
               ),
             ],
@@ -112,15 +98,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     }
   }
 
-  /// 规范化环境值，将所有 local 变体映射到 'local'
   String _normalizeEnvValue(String env) {
-    if (env.isEmpty) {
-      return 'dev'; // 默认值
-    }
-    // 将 local_home 和 local_office 都映射为 local
-    if (env == 'local_home' || env == 'local_office') {
-      return 'local';
-    }
+    if (env.isEmpty) return 'dev';
+    if (env == 'local_home' || env == 'local_office') return 'local';
     return env;
   }
 
@@ -129,530 +109,292 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final allowSearch = ref.watch(allowSearchProvider);
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
-
-    // iOS 原生感：分组列表页背景（详见 DESIGN.md 第 8.3 节 Inset Grouped List）
     final brightness = Theme.of(context).brightness;
-    return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.main.setting,
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader(context, t.common.sectionGeneral),
-            Container(
-              // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusCell,
+
+    return IosPageTemplate(
+      title: t.main.setting,
+      slivers: [
+        // 常规设置 Section
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            header: Text(t.common.sectionGeneral.toUpperCase()),
+            children: [
+              ImBoySettingsTile(
+                title: Text(t.account.accountSecurity),
+                leading: _buildIcon(Icons.security, AppColors.iosOrange),
+                onTap: () => context.push('/account_security'),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  // 账户安全
-                  _buildSettingItem(
-                    context,
-                    title: t.account.accountSecurity,
-                    leadingIcon: Icons.security,
-                    leadingIconColor: AppColors.warning,
-                    onTap: () {
-                      context.push('/account_security');
-                    },
-                  ),
-
-                  _buildDivider(context),
-
-                  // 语言设置
-                  _buildSettingItem(
-                    context,
-                    title: t.common.languageSetting,
-                    leadingIcon: Icons.language,
-                    leadingIconColor: AppColors.info,
-                    onTap: () {
-                      context.push('/language');
-                    },
-                  ),
-
-                  _buildDivider(context),
-
-                  // 深色模式
-                  _buildSettingItem(
-                    context,
-                    title: t.main.darkModel,
-                    value: themeTypeTips(ref),
-                    leadingIcon: Icons.dark_mode,
-                    leadingIconColor: AppColors.textSecondary,
-                    onTap: () {
-                      context.push('/dark_model');
-                    },
-                  ),
-
-                  _buildDivider(context),
-
-                  // 字体大小
-                  _buildSettingItem(
-                    context,
-                    title: t.common.fontSettings,
-                    value: themeState.fontSizeOption.displayName,
-                    leadingIcon: Icons.text_fields,
-                    leadingIconColor: AppColors.success,
-                    onTap: () {
-                      context.push('/font_size');
-                    },
-                  ),
-                ],
+              ImBoySettingsTile(
+                title: Text(t.common.languageSetting),
+                leading: _buildIcon(Icons.language, AppColors.iosBlue),
+                onTap: () => context.push('/language'),
               ),
-            ),
-
-            _buildSectionHeader(context, t.common.sectionPrivacySecurity),
-            Container(
-              // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusCell,
+              ImBoySettingsTile(
+                title: Text(t.main.darkModel),
+                leading: _buildIcon(Icons.dark_mode, AppColors.iosGray),
+                trailing: _buildValueTrailing(themeTypeTips(ref)),
+                onTap: () => context.push('/dark_model'),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  // 允许搜索我
-                  _buildSwitchItem(
-                    context,
-                    title: t.common.allowSearchMe,
-                    subtitle: t.discovery.otherUsersCanFindMe,
-                    value: allowSearch,
-                    leadingIcon: Icons.search,
-                    leadingIconColor: AppColors.info,
-                    onChanged: _isUpdatingAllowSearch
-                        ? null
-                        : (v) async {
-                            if (kDebugMode) iPrint("allowSearch v $v;");
-
-                            // 防抖：设置更新状态
-                            setState(() => _isUpdatingAllowSearch = true);
-
-                            try {
-                              // 使用 userApiProvider 调用 API
-                              final userApi = ref.read(userApiProvider);
-                              bool res = await userApi.allowSearch(v ? 1 : 2);
-                              if (kDebugMode) iPrint("allowSearch res $res;");
-
-                              if (res) {
-                                // 修复：先保存当前 setting，创建新对象后再保存
-                                final currentSetting = userRepo.setting;
-                                final newSetting = UserSettingModel(
-                                  allowSearch: v,
-                                  peopleNearbyVisible:
-                                      currentSetting.peopleNearbyVisible,
-                                  chatState: currentSetting.chatState,
-                                  fontSize: currentSetting.fontSize,
-                                  enableVisibilityRead:
-                                      currentSetting.enableVisibilityRead,
-                                  visibilityReadFraction:
-                                      currentSetting.visibilityReadFraction,
-                                  visibilityReadDelayMs:
-                                      currentSetting.visibilityReadDelayMs,
-                                  showOnlineStatus:
-                                      currentSetting.showOnlineStatus,
-                                  allowAddByPhone:
-                                      currentSetting.allowAddByPhone,
-                                  allowAddByQR: currentSetting.allowAddByQR,
-                                );
-                                await userRepo.changeSetting(newSetting);
-                                // allowSearchProvider 会自动从存储中读取最新值
-                                // 触发 userRepoProvider 失效以刷新 UI
-                                ref.invalidate(userRepoProvider);
-                              } else {
-                                // API 调用失败，显示错误提示
-                                if (context.mounted) {
-                                  EasyLoading.showError(t.common.tipFailed);
-                                }
-                              }
-                            } finally {
-                              // 恢复更新状态
-                              if (mounted) {
-                                setState(() => _isUpdatingAllowSearch = false);
-                              }
-                            }
-                          },
-                  ),
-
-                  // 刷新设备密钥
-                  _buildSettingItem(
-                    context,
-                    title: t.account.refreshDeviceKey,
-                    subtitle: t.account.refreshDeviceKeyHint,
-                    leadingIcon: Icons.refresh,
-                    leadingIconColor: AppColors.info,
-                    onTap: _isRefreshingKeys
-                        ? null
-                        : () async {
-                            // 防抖：设置刷新状态
-                            setState(() => _isRefreshingKeys = true);
-
-                            try {
-                              EasyLoading.showToast(
-                                t.account.refreshingDeviceKey,
-                              );
-                              // 清除E2EE缓存
-                              E2EEService.clearCache();
-                              await Future<dynamic>.delayed(
-                                const Duration(milliseconds: 500),
-                              );
-
-                              // 重新预加载当前用户的设备密钥
-                              final currentUid = UserRepoLocal.to.currentUid;
-                              if (currentUid.isNotEmpty) {
-                                await E2EEService.getUserDevicePublicKeys(
-                                  currentUid,
-                                );
-                              }
-
-                              EasyLoading.showSuccess(
-                                t.account.deviceKeyRefreshed,
-                              );
-                              if (kDebugMode) iPrint('E2EE: 设备密钥已手动刷新');
-                            } on Exception catch (e) {
-                              EasyLoading.showError(t.common.tipFailed);
-                              if (kDebugMode) {
-                                iPrint('E2EE: 刷新设备密钥失败: ${e.runtimeType}');
-                              }
-                            } finally {
-                              // 恢复刷新状态
-                              if (mounted) {
-                                setState(() => _isRefreshingKeys = false);
-                              }
-                            }
-                          },
-                  ),
-
-                  _buildDivider(context),
-
-                  // E2EE 密钥恢复
-                  _buildSettingItem(
-                    context,
-                    title: t.group.e2eeKeyManagement,
-                    subtitle: t.group.e2eeKeyManagementSubtitle,
-                    leadingIcon: Icons.vpn_key,
-                    leadingIconColor: Colors.green,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute<dynamic>(
-                          builder: (_) => const E2EEKeyRecoveryPage(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  // 开发者测试（仅调试模式）
-                  if (kDebugMode)
-                    _buildSettingItem(
-                      context,
-                      title: 'E2EE 开发测试',
-                      subtitle: '快速验证 E2EE 功能',
-                      leadingIcon: Icons.science,
-                      leadingIconColor: Colors.purple,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute<dynamic>(
-                            builder: (_) => const E2EEDevTestPage(),
-                          ),
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ),
-
-            _buildSectionHeader(context, t.common.sectionHelpAbout),
-            Container(
-              // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusCell,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  // 更新日志
-                  _buildSettingItem(
-                    context,
-                    title: t.common.updateLog,
-                    leadingIcon: Icons.update,
-                    leadingIconColor: AppColors.success,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute<dynamic>(
-                          builder: (_) => MarkdownPage(
-                            title: t.common.updateLog,
-                            url:
-                                "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  _buildDivider(context),
-
-                  // 帮助文档
-                  _buildSettingItem(
-                    context,
-                    title: t.common.helpDocument,
-                    leadingIcon: Icons.help_outline,
-                    leadingIconColor: AppColors.info,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute<dynamic>(
-                          builder: (_) => MarkdownPage(
-                            title: t.common.helpDocument,
-                            url:
-                                "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md",
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  _buildDivider(context),
-
-                  // 隐私政策
-                  _buildSettingItem(
-                    context,
-                    title: t.main.privacyPolicy,
-                    leadingIcon: Icons.privacy_tip_outlined,
-                    leadingIconColor: AppColors.warning,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute<dynamic>(
-                          builder: (_) => MarkdownPage(
-                            title: t.main.privacyPolicy,
-                            url:
-                                "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md",
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  _buildDivider(context),
-
-                  // 关于应用
-                  _buildSettingItem(
-                    context,
-                    title: t.common.aboutApp,
-                    value: "${t.common.version} $appVsn",
-                    leadingIcon: Icons.info_outline,
-                    leadingIconColor: AppColors.primary,
-                    trailing: AppUpgradeService.to.hasUpdate
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // iOS 原生未读红点（iosRed）
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: AppColors.iosRed,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                CupertinoIcons.chevron_right,
-                                color: AppColors.iosGray,
-                                size: 14,
-                              ),
-                            ],
-                          )
-                        : null,
-                    onTap: () {
-                      _showAboutDialog();
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            // 开发环境切换 - 仅在非生产环境显示
-            if (currentEnv != 'pro') ...[
-              const SizedBox(height: 8),
-              Container(
-                // iOS 原生感：开发环境 Cell 容器（无阴影）
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: AppRadius.borderRadiusCell,
-                ),
-                child: _buildSettingItem(
-                  context,
-                  title: t.common.switchEnvironment,
-                  leadingIcon: Icons.developer_mode,
-                  leadingIconColor: AppColors.lightError,
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.lightError.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.borderRadiusLarge,
-                      border: Border.all(
-                        color: AppColors.lightError.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _normalizeEnvValue(currentEnv),
-                        isDense: true,
-                        style: ref
-                            .read(themeProvider.notifier)
-                            .getTextStyle(
-                              FontSizeType.small,
-                              color: AppColors.lightError,
-                              fontWeight: FontWeight.w600,
-                            ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'local',
-                            child: Text('Local'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'dev',
-                            child: Text('Development'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'pro',
-                            child: Text('Production'),
-                          ),
-                        ],
-                        onChanged: (String? value) {
-                          if (strNoEmpty(value)) {
-                            currentEnv = value!;
-                            switchEnvironment(currentEnv);
-                          }
-                        },
-                        icon: Icon(
-                          Icons.arrow_drop_down,
-                          color: AppColors.lightError,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              ImBoySettingsTile(
+                title: Text(t.common.fontSettings),
+                leading: _buildIcon(Icons.text_fields, AppColors.iosGreen),
+                trailing: _buildValueTrailing(themeState.fontSizeOption.displayName),
+                onTap: () => context.push('/font_size'),
               ),
             ],
-
-            const SizedBox(height: 16),
-
-            // iOS 原生感：退出登录作为独立 Cell，文字居中 iosRed（详见 DESIGN.md 硬规则 13.2）
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).cardColor,
-                    foregroundColor: AppColors.iosRed,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusCell,
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () async {
-                    // iOS 原生感：Cupertino 风格确认对话框（详见 DESIGN.md 第 8.7 节）
-                    final confirmed = await showCupertinoDialog<bool>(
-                      context: context,
-                      builder: (context) => CupertinoAlertDialog(
-                        title: Text(t.account.logOut),
-                        content: Text(t.account.areYouSureLogOut),
-                        actions: [
-                          CupertinoDialogAction(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(t.common.buttonCancel),
-                          ),
-                          CupertinoDialogAction(
-                            isDestructiveAction: true, // iOS 原生红色破坏性按钮
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text(t.common.buttonConfirm),
-                          ),
-                        ],
-                      ),
-                    );
-
-                    if (confirmed == true && context.mounted) {
-                      await UserRepoLocal.to.quitLogin();
-                      if (context.mounted) {
-                        context.go('/welcome');
-                      }
-                    }
-                  },
-                  child: Text(
-                    t.account.logOut,
-                    style: ref
-                        .read(themeProvider.notifier)
-                        .getTextStyle(
-                          FontSizeType.medium,
-                          color: AppColors.iosRed,
-                          fontWeight: FontWeight.w400,
-                        ),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // iOS 原生感：注销账号独立 Cell，破坏性操作（详见 DESIGN.md 13.2）
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).cardColor,
-                    foregroundColor: AppColors.iosRed,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusCell,
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    context.push('/logout_account');
-                  },
-                  child: Text(
-                    t.account.logoutAccount,
-                    style: ref
-                        .read(themeProvider.notifier)
-                        .getTextStyle(
-                          FontSizeType.medium,
-                          color: AppColors.iosRed,
-                          fontWeight: FontWeight.w400,
-                        ),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-          ],
+          ),
         ),
+
+        // 隐私与安全 Section
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            header: Text(t.common.sectionPrivacySecurity.toUpperCase()),
+            children: [
+              ImBoySettingsTile(
+                title: Text(t.common.allowSearchMe),
+                subtitle: Text(t.discovery.otherUsersCanFindMe),
+                leading: _buildIcon(Icons.search, AppColors.iosBlue),
+                trailing: CupertinoSwitch(
+                  value: allowSearch,
+                  activeTrackColor: AppColors.getIosBlue(brightness),
+                  onChanged: _isUpdatingAllowSearch ? null : (v) => _handleAllowSearchChange(v, userRepo),
+                ),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.account.refreshDeviceKey),
+                subtitle: Text(t.account.refreshDeviceKeyHint),
+                leading: _buildIcon(Icons.refresh, AppColors.iosBlue),
+                onTap: _isRefreshingKeys ? null : _handleRefreshDeviceKey,
+              ),
+              ImBoySettingsTile(
+                title: Text(t.group.e2eeKeyManagement),
+                subtitle: Text(t.group.e2eeKeyManagementSubtitle),
+                leading: _buildIcon(Icons.vpn_key, AppColors.iosGreen),
+                onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => const E2EEKeyRecoveryPage())),
+              ),
+            ],
+          ),
+        ),
+
+        // 帮助与关于 Section
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            header: Text(t.common.sectionHelpAbout.toUpperCase()),
+            children: [
+              ImBoySettingsTile(
+                title: Text(t.common.updateLog),
+                leading: _buildIcon(Icons.update, AppColors.iosGreen),
+                onTap: () => _openMarkdown(t.common.updateLog, "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md"),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.common.helpDocument),
+                leading: _buildIcon(Icons.help_outline, AppColors.iosBlue),
+                onTap: () => _openMarkdown(t.common.helpDocument, "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md"),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.main.privacyPolicy),
+                leading: _buildIcon(Icons.privacy_tip_outlined, AppColors.iosOrange),
+                onTap: () => _openMarkdown(t.main.privacyPolicy, "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md"),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.common.aboutApp),
+                leading: _buildIcon(Icons.info_outline, AppColors.primary),
+                trailing: _buildAboutTrailing(),
+                onTap: _showAboutDialog,
+              ),
+            ],
+          ),
+        ),
+
+        // 开发环境 Section
+        if (currentEnv != 'pro')
+          SliverToBoxAdapter(
+            child: ImBoySettingsSection(
+              header: const Text('DEVELOPER'),
+              children: [
+                ImBoySettingsTile(
+                  title: Text(t.common.switchEnvironment),
+                  leading: _buildIcon(Icons.developer_mode, AppColors.iosRed),
+                  trailing: _buildEnvDropdown(),
+                ),
+              ],
+            ),
+          ),
+
+        // 退出登录 Section
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            children: [
+              ImBoySettingsTile(
+                title: Center(child: Text(t.account.logOut)),
+                destructive: true,
+                trailing: const SizedBox.shrink(),
+                onTap: _handleLogout,
+              ),
+            ],
+          ),
+        ),
+
+        // 注销账号 Section
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            children: [
+              ImBoySettingsTile(
+                title: Center(child: Text(t.account.logoutAccount)),
+                destructive: true,
+                trailing: const SizedBox.shrink(),
+                onTap: () => context.push('/logout_account'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIcon(IconData icon, Color color) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Icon(icon, color: Colors.white, size: 20),
+    );
+  }
+
+  Widget _buildValueTrailing(String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 15,
+            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          ),
+        ),
+        const SizedBox(width: 8),
+        const CupertinoListTileChevron(),
+      ],
+    );
+  }
+
+  Widget _buildAboutTrailing() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasUpdate = AppUpgradeService.to.hasUpdate;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          "${t.common.version} $appVsn",
+          style: TextStyle(
+            fontSize: 15,
+            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          ),
+        ),
+        if (hasUpdate) ...[
+          const SizedBox(width: 8),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(color: AppColors.iosRed, shape: BoxShape.circle),
+          ),
+        ],
+        const SizedBox(width: 8),
+        const CupertinoListTileChevron(),
+      ],
+    );
+  }
+
+  Widget _buildEnvDropdown() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        value: _normalizeEnvValue(currentEnv),
+        isDense: true,
+        style: const TextStyle(fontSize: 14, color: AppColors.iosRed, fontWeight: FontWeight.w600),
+        items: const [
+          DropdownMenuItem(value: 'local', child: Text('Local')),
+          DropdownMenuItem(value: 'dev', child: Text('Development')),
+          DropdownMenuItem(value: 'pro', child: Text('Production')),
+        ],
+        onChanged: (value) {
+          if (strNoEmpty(value)) {
+            currentEnv = value!;
+            switchEnvironment(currentEnv);
+          }
+        },
       ),
     );
+  }
+
+  void _openMarkdown(String title, String url) {
+    Navigator.push(context, CupertinoPageRoute(builder: (_) => MarkdownPage(title: title, url: url)));
+  }
+
+  Future<void> _handleAllowSearchChange(bool v, UserRepoLocal userRepo) async {
+    setState(() => _isUpdatingAllowSearch = true);
+    try {
+      final userApi = ref.read(userApiProvider);
+      bool res = await userApi.allowSearch(v ? 1 : 2);
+      if (res) {
+        final currentSetting = userRepo.setting;
+        final newSetting = UserSettingModel(
+          allowSearch: v,
+          peopleNearbyVisible: currentSetting.peopleNearbyVisible,
+          chatState: currentSetting.chatState,
+          fontSize: currentSetting.fontSize,
+          enableVisibilityRead: currentSetting.enableVisibilityRead,
+          visibilityReadFraction: currentSetting.visibilityReadFraction,
+          visibilityReadDelayMs: currentSetting.visibilityReadDelayMs,
+          showOnlineStatus: currentSetting.showOnlineStatus,
+          allowAddByPhone: currentSetting.allowAddByPhone,
+          allowAddByQR: currentSetting.allowAddByQR,
+        );
+        await userRepo.changeSetting(newSetting);
+        ref.invalidate(userRepoProvider);
+      } else {
+        EasyLoading.showError(t.common.tipFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _isUpdatingAllowSearch = false);
+    }
+  }
+
+  Future<void> _handleRefreshDeviceKey() async {
+    setState(() => _isRefreshingKeys = true);
+    try {
+      EasyLoading.showToast(t.account.refreshingDeviceKey);
+      E2EEService.clearCache();
+      await Future.delayed(const Duration(milliseconds: 500));
+      final currentUid = UserRepoLocal.to.currentUid;
+      if (currentUid.isNotEmpty) await E2EEService.getUserDevicePublicKeys(currentUid);
+      EasyLoading.showSuccess(t.account.deviceKeyRefreshed);
+    } catch (e) {
+      EasyLoading.showError(t.common.tipFailed);
+    } finally {
+      if (mounted) setState(() => _isRefreshingKeys = false);
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(t.account.logOut),
+        content: Text(t.account.areYouSureLogOut),
+        actions: [
+          CupertinoDialogAction(onPressed: () => Navigator.pop(context, false), child: Text(t.common.buttonCancel)),
+          CupertinoDialogAction(isDestructiveAction: true, onPressed: () => Navigator.pop(context, true), child: Text(t.common.buttonConfirm)),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      await UserRepoLocal.to.quitLogin();
+      if (context.mounted) context.go('/welcome');
+    }
   }
 
   void _showAboutDialog() {
@@ -666,12 +408,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             EasyLoading.show();
             try {
               final info = await AppUpgradeService.to.manualCheck();
-              if (!mounted) return;
-              if (info == null || !info.hasUpdate) {
-                EasyLoading.showInfo(t.common.nowNewVersion);
-              }
-              // manualCheck 内部已处理弹窗逻辑（force/recommend/silent）
-            } on Exception {
+              if (info == null || !info.hasUpdate) EasyLoading.showInfo(t.common.nowNewVersion);
+            } catch (e) {
               EasyLoading.showError(t.common.errorNetwork);
             } finally {
               EasyLoading.dismiss();
@@ -683,169 +421,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     Navigator.push(
       context,
-      CupertinoPageRoute<dynamic>(
+      CupertinoPageRoute(
         builder: (_) => MarkdownPage(
           title: "${t.common.about} $appName",
           rightDMActions: rightDMActions,
           url: "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
         ),
-      ),
-    );
-  }
-
-  /// iOS 原生 Section Header：Footnote 13pt 灰色，分组容器上方
-  /// 详见 DESIGN.md 第 8.3 节 Inset Grouped List
-  Widget _buildSectionHeader(BuildContext context, String text) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 20, 32, 6),
-      child: Text(
-        text.toUpperCase(),
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.08,
-          color: AppColors.iosGray,
-        ),
-      ),
-    );
-  }
-
-  /// iOS 原生分隔线：仅在图标文字之后（左 inset 56pt），使用 iosSeparator
-  Widget _buildDivider(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    return Padding(
-      padding: const EdgeInsets.only(left: 56),
-      child: HorizontalLine(
-        height: 0.33,
-        color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.6),
-      ),
-    );
-  }
-
-  /// 构建设置项 - 优化后的主题样式
-  Widget _buildSettingItem(
-    BuildContext context, {
-    required String title,
-    String? subtitle,
-    String? value,
-    IconData? leadingIcon,
-    Color? leadingIconColor,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    return CellPressable(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Row(
-          children: [
-            // 前导图标
-            if (leadingIcon != null) ...[
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: (leadingIconColor ?? AppColors.primary).withValues(
-                    alpha: 0.1,
-                  ),
-                  borderRadius: AppRadius.borderRadiusCell,
-                ),
-                child: Icon(
-                  leadingIcon,
-                  color: leadingIconColor ?? AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 14),
-            ],
-
-            // 主要内容
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: ref
-                        .read(themeProvider.notifier)
-                        .getTextStyle(
-                          FontSizeType.normal,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: ref
-                          .read(themeProvider.notifier)
-                          .getTextStyle(
-                            FontSizeType.small,
-                            color: AppColors.textSecondary,
-                          ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // 值显示
-            if (value != null) ...[
-              const SizedBox(width: 8),
-              Text(
-                value,
-                // 统一走 ref.read(themeProvider.notifier)，与上方 title/subtitle 一致
-                // （不再混用 ThemeManager.instance 单例 + Riverpod ref，便于测试隔离）
-                style: ref
-                    .read(themeProvider.notifier)
-                    .getTextStyle(
-                      FontSizeType.normal,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ],
-
-            // 尾部组件
-            if (trailing != null) ...[
-              const SizedBox(width: 8),
-              trailing,
-            ] else if (onTap != null) ...[
-              const SizedBox(width: 8),
-              // iOS 原生 Cell 右侧 chevron
-              Icon(
-                CupertinoIcons.chevron_right,
-                color: AppColors.iosGray,
-                size: 14,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 构建开关设置项
-  Widget _buildSwitchItem(
-    BuildContext context, {
-    required String title,
-    String? subtitle,
-    required bool value,
-    required ValueChanged<bool>? onChanged,
-    IconData? leadingIcon,
-    Color? leadingIconColor,
-  }) {
-    return _buildSettingItem(
-      context,
-      title: title,
-      subtitle: subtitle,
-      leadingIcon: leadingIcon,
-      leadingIconColor: leadingIconColor,
-      // iOS 原生感：不缩放 Switch，使用系统蓝（详见 DESIGN.md 第 2.1 双蓝策略）
-      trailing: CupertinoSwitch(
-        value: value,
-        onChanged: onChanged,
-        activeTrackColor: AppColors.getIosBlue(Theme.of(context).brightness),
       ),
     );
   }

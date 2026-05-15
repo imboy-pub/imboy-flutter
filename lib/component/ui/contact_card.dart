@@ -1,131 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
-// ignore: must_be_immutable
+/// 联系人名片组件 - iOS 17 Premium 风格
 class ContactCard extends StatelessWidget {
   final String? id;
-  String? nickname;
+  final String? nickname;
   final String? avatar;
   final String? account;
-  int gender;
+  final int gender;
   final String region;
   final String? remark;
   final String? heroTag;
-
-  final bool? isBorder;
-  final double? lineWidth;
   final EdgeInsets? padding;
 
-  ContactCard({
+  const ContactCard({
     super.key,
     required this.id,
     this.nickname,
-    required this.avatar, // 头像
+    required this.avatar,
     required this.account,
     required this.gender,
-    this.region = '', //
+    this.region = '',
     this.remark = '',
     this.heroTag,
-    this.isBorder = false,
-    this.lineWidth,
     this.padding,
-  }) : assert(id != null);
+  });
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = ThemeManager.instance.getTextStyle(
-      FontSizeType.small,
-      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-    );
+    final theme = Theme.of(context);
 
-    String title = parseModelString(remark);
-    if (strEmpty(title)) {
-      title = nickname!;
-      nickname = '';
+    String displayTitle = parseModelString(remark);
+    String? subNickname = nickname;
+    if (strEmpty(displayTitle)) {
+      displayTitle = nickname ?? '';
+      subNickname = '';
     }
-    List<Widget> items = <Widget>[
-      Row(
-        children: [
-          Expanded(
-            child: Text(title, maxLines: 6, overflow: TextOverflow.ellipsis),
-          ),
-          const SizedBox(width: 3.33),
-          genderIcon(gender),
-        ],
-      ),
-    ];
-    if (strNoEmpty(nickname)) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 3.0),
-          child: Text("${t.account.nickname}：$nickname", style: labelStyle),
-        ),
-      );
-    }
-    if (strNoEmpty(account)) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 3.0),
-          child: Text("${t.account.account}：$account", style: labelStyle),
-        ),
-      );
-    }
-    final normalizedRegion = parseModelString(region);
-    if (strNoEmpty(normalizedRegion)) {
-      items.add(
-        Text("${t.account.region}：$normalizedRegion", style: labelStyle),
-      );
-    }
+
     return Container(
-      decoration: BoxDecoration(
-        // color: Colors.white,
-        border: isBorder!
-            ? Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: lineWidth ?? 1.0,
-                ),
-              )
-            : null,
-      ),
-      width: MediaQuery.of(context).size.width, // 使用 MediaQuery 替代 Get.width
-      padding:
-          padding ??
-          const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
+      padding: padding ?? const EdgeInsets.all(20.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 头像
           GestureDetector(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Avatar(
-                imgUri: avatar!,
-                width: 55,
-                height: 55,
-                heroTag: heroTag,
-              ),
-            ),
             onTap: () {
-              if (isNetWorkImg(avatar!)) {
+              if (isNetWorkImg(avatar ?? '')) {
                 zoomInPhotoView(context, avatar!);
               } else {
-                // 使用 ScaffoldMessenger 替代 Get.snackbar
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(t.common.noAvatar)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.common.noAvatar)));
               }
             },
+            child: Avatar(
+              imgUri: avatar ?? '',
+              width: 72,
+              height: 72,
+              heroTag: heroTag,
+            ),
           ),
-          const SizedBox(width: 20.0),
+          const SizedBox(width: 18),
+          // 信息
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: items,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        displayTitle,
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    genderIcon(gender),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                if (strNoEmpty(subNickname))
+                  Text("${t.account.nickname}: $subNickname", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                Text("ID: $account", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                if (strNoEmpty(region))
+                  Text("${t.account.region}: $region", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
+              ],
             ),
           ),
         ],

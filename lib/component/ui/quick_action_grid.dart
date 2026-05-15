@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// 极简高效宫格项
@@ -50,19 +49,25 @@ class QuickActionGrid extends StatelessWidget {
     Brightness brightness,
   ) {
     return Expanded(
-      child: CellPressable(
+      child: GestureDetector(
         onTap: item.onTap,
+        behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 图标
-              DefaultTextStyle(
-                style: TextStyle(color: item.color ?? AppColors.primary),
+              // 图标 - 使用带背景的圆形/圆角矩形
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: (item.color ?? AppColors.primary).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
                 child: IconTheme(
                   data: IconThemeData(
-                    size: 28,
+                    size: 26,
                     color: item.color ?? AppColors.primary,
                   ),
                   child: item.icon,
@@ -73,7 +78,7 @@ class QuickActionGrid extends StatelessWidget {
               Text(
                 item.label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: AppColors.getTextColor(brightness),
                   letterSpacing: -0.2,

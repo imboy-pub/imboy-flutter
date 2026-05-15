@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:badges/badges.dart' as badges;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +19,6 @@ import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 
 import 'bottom_navigation_provider.dart';
 
@@ -154,21 +154,21 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     final navigationItems = [
       _NavigationItemData(
-        icon: Icons.chat_bubble_outline,
-        activeIcon: Icons.chat_bubble,
+        icon: CupertinoIcons.chat_bubble,
+        activeIcon: CupertinoIcons.chat_bubble_fill,
         label: t.chat.titleMessage,
         remindCount: ref.watch(conversationProvider).chatMsgRemindCounter,
       ),
       _NavigationItemData(
-        icon: Icons.people_alt_outlined,
-        activeIcon: Icons.people_alt,
+        icon: CupertinoIcons.person_2,
+        activeIcon: CupertinoIcons.person_2_fill,
         label: t.common.titleContact,
         remindCount: ref.watch(newFriendRemindProvider).length,
       ),
       if (_isTabEnabled('channel_tab'))
         _NavigationItemData(
-          icon: Icons.campaign_outlined,
-          activeIcon: Icons.campaign,
+          icon: CupertinoIcons.antenna_radiowaves_left_right,
+          activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
           label: t.channel.title,
           remindCount: channelEnabled
               ? (ref
@@ -179,8 +179,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
               : 0,
         ),
       _NavigationItemData(
-        icon: Icons.person_outline,
-        activeIcon: Icons.person,
+        icon: CupertinoIcons.person_circle,
+        activeIcon: CupertinoIcons.person_circle_fill,
         label: t.main.titleMine,
         isStatusItem: true,
       ),
@@ -279,55 +279,59 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     double labelFontSize,
     WebSocketConnectionState socketStatus,
   ) {
+    Widget icon = Icon(
+      isSelected ? item.activeIcon : item.icon,
+      size: 26,
+      color: isSelected ? AppColors.primary : AppColors.iosGray,
+    );
+
     if (item.isStatusItem) {
       return badges.Badge(
         showBadge: true,
-        position: badges.BadgePosition.topStart(top: 2, start: 22),
+        position: badges.BadgePosition.topEnd(top: 0, end: 0),
         badgeStyle: badges.BadgeStyle(
           badgeColor: socketStatus == WebSocketConnectionState.connected
-              ? AppColors.success
-              : AppColors.messageFailed,
-          borderRadius: AppRadius.borderRadiusSmall,
+              ? AppColors.iosGreen
+              : AppColors.iosRed,
+          padding: const EdgeInsets.all(4),
+          elevation: 0,
           borderSide: BorderSide(
             color: isSelected
                 ? (Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.darkSurfaceContainer
+                      ? AppColors.darkSurfaceGrouped
                       : Colors.white)
-                : Theme.of(context).colorScheme.surface,
-            width: 2,
+                : (Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkSurface
+                      : Colors.white),
+            width: 1.5,
           ),
         ),
-        child: Icon(
-          isSelected ? item.activeIcon : item.icon,
-          size: 26,
-          color: isSelected ? AppColors.primary : null,
-        ),
+        child: icon,
       );
     }
 
-    return badges.Badge(
-      showBadge: item.remindCount > 0,
-      position: badges.BadgePosition.topStart(top: -8, start: 20),
-      badgeContent: Text(
-        item.remindCount > 99 ? '99+' : item.remindCount.toString(),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: labelFontSize * 0.85,
-          fontFamily: 'PingFang SC',
-          fontWeight: FontWeight.w600,
+    if (item.remindCount > 0) {
+      return badges.Badge(
+        badgeContent: Text(
+          item.remindCount > 99 ? '99+' : '${item.remindCount}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            fontFeatures: [FontFeature.tabularFigures()],
+          ),
         ),
-      ),
-      badgeStyle: badges.BadgeStyle(
-        badgeColor: AppColors.messageFailed,
-        borderRadius: AppRadius.borderRadiusMedium,
-        elevation: 2,
-      ),
-      child: Icon(
-        isSelected ? item.activeIcon : item.icon,
-        size: 26,
-        color: isSelected ? AppColors.primary : null,
-      ),
-    );
+        position: badges.BadgePosition.topEnd(top: -4, end: -4),
+        badgeStyle: const badges.BadgeStyle(
+          badgeColor: AppColors.iosRed,
+          padding: EdgeInsets.all(4),
+          elevation: 0,
+        ),
+        child: icon,
+      );
+    }
+
+    return icon;
   }
 }
 

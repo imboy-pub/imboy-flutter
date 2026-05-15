@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 
 import 'avatar_group.dart';
 
@@ -119,18 +118,18 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double w = width ?? 50;
+    final double h = height ?? 50;
+    // iOS 风格约 22-25% 的圆角
+    final double radius = w * 0.25;
+
     Widget avatarContent = Container(
-      width: width ?? 50,
-      height: height ?? 50,
+      width: w,
+      height: h,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
-        borderRadius: AppRadius.borderRadiusTiny,
-        border: Border.all(
-          width: 0.5,
-          style: BorderStyle.solid,
-          color: Colors.grey.withValues(alpha: 0.5),
-        ),
-        color: Colors.grey.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(radius),
+        color: Colors.grey.withValues(alpha: 0.1),
         image: dynamicAvatar(imgUri),
       ),
     );
@@ -141,11 +140,12 @@ class Avatar extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(radius),
       child: Wrap(
         verticalDirection: VerticalDirection.down,
         children: [
           avatarContent,
-          if (title != null) SizedBox(width: width ?? 50, child: title!),
+          if (title != null) SizedBox(width: w, child: title!),
         ],
       ),
     );

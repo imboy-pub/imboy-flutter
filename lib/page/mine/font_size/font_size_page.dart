@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -67,26 +67,18 @@ class FontSizeNotifier extends _$FontSizeNotifier {
     final option = options[index];
 
     try {
-      // 使用 themeProvider 更新字体大小
       await ref.read(themeProvider.notifier).updateFontSizeOption(option);
-
-      // 更新全局变量（兼容旧代码）
       currentFontSize.value = option.value;
-
-      // 更新状态
       state = state.copyWith(
         currentOption: option,
         previewOption: option,
         sliderValue: index.toDouble(),
       );
-
-      return;
     } on Exception {
       rethrow;
     }
   }
 
-  /// 获取预览文本样式
   TextStyle getPreviewTextStyle(
     BuildContext context,
     FontSizeType type, {
@@ -99,13 +91,13 @@ class FontSizeNotifier extends _$FontSizeNotifier {
     );
   }
 
-  /// 检查预览字体是否可访问
   bool get isPreviewAccessible {
     final themeNotifier = ref.read(themeProvider.notifier);
     return themeNotifier.isCurrentFontSizeAccessible;
   }
 }
 
+/// 字体大小设置页面 - 像素级对齐 iOS 设置风
 class FontSizePage extends ConsumerWidget {
   const FontSizePage({super.key});
 
@@ -115,200 +107,150 @@ class FontSizePage extends ConsumerWidget {
     final t = context.t;
     final state = ref.watch(fontSizeProvider);
     final notifier = ref.read(fontSizeProvider.notifier);
-    final brightness = Theme.of(context).brightness;
     final cardColor = Theme.of(context).cardColor;
-    final iosBlue = AppColors.getIosBlue(brightness);
     final options = FontSizeOption.values;
 
-    return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(
-        title: t.common.fontSizeSetting,
-        automaticallyImplyLeading: true,
-      ),
-      body: Column(
-        children: [
-          // 预览区域
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+    return IosPageTemplate(
+      title: t.common.fontSizeSetting,
+      useLargeTitle: false,
+      bottomWidget: _buildBottomControl(context, ref, state, options, cs, t),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t.main.previewEffect.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: AppColors.iosGray,
+                letterSpacing: -0.08,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: AppRadius.borderRadiusCell,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.main.previewEffect,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: cs.primary,
-                      fontFamily: 'PingFang SC',
+                    t.main.thisIsTitleText,
+                    style: notifier
+                        .getPreviewTextStyle(context, FontSizeType.large)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    t.common.fontPreviewText,
+                    style: notifier.getPreviewTextStyle(
+                      context,
+                      FontSizeType.normal,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: AppRadius.borderRadiusCell,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t.main.thisIsTitleText,
-                          style: notifier
-                              .getPreviewTextStyle(context, FontSizeType.large)
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          t.common.fontPreviewText,
-                          style: notifier.getPreviewTextStyle(
-                            context,
-                            FontSizeType.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          t.main.thisIsAuxiliaryText,
-                          style: notifier.getPreviewTextStyle(
-                            context,
-                            FontSizeType.small,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPreviewFooter(context, ref),
-                      ],
+                  const SizedBox(height: 8),
+                  Text(
+                    t.main.thisIsAuxiliaryText,
+                    style: notifier.getPreviewTextStyle(
+                      context,
+                      FontSizeType.small,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // 可读性提示
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        notifier.isPreviewAccessible
-                            ? t.chat.goodReadability
-                            : t.common.fontTooSmallMayAffect,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: notifier.isPreviewAccessible
-                              ? cs.primary
-                              : cs.error,
-                          fontFamily: 'PingFang SC',
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 12),
+                  _buildPreviewFooter(context, ref, state, cs, t),
                 ],
               ),
             ),
-          ),
-
-          // 底部控制区
-          Container(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-              border: Border(
-                top: BorderSide(
-                  color: AppColors.iosSeparator.withValues(alpha: 0.6),
-                  width: 0.33,
-                ),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  t.common.dragSliderAdjustFontSize,
+                  notifier.isPreviewAccessible
+                      ? t.chat.goodReadability
+                      : t.common.fontTooSmallMayAffect,
                   style: TextStyle(
                     fontSize: 12,
-                    color: cs.onSurface.withValues(alpha: 0.7),
-                    fontFamily: 'PingFang SC',
+                    color: notifier.isPreviewAccessible ? AppColors.iosBlue : AppColors.iosRed,
                   ),
                 ),
-                const SizedBox(height: 20),
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: iosBlue,
-                    inactiveTrackColor: AppColors.iosGray4.withValues(
-                      alpha: 0.6,
-                    ),
-                    thumbColor: Colors.white,
-                    overlayColor: iosBlue.withValues(alpha: 0.2),
-                    trackHeight: 4.0,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 12.0,
-                    ),
-                    overlayShape: const RoundSliderOverlayShape(
-                      overlayRadius: 24.0,
-                    ),
-                    tickMarkShape: const RoundSliderTickMarkShape(
-                      tickMarkRadius: 4.0,
-                    ),
-                    activeTickMarkColor: Colors.white,
-                    inactiveTickMarkColor: cs.outline.withValues(alpha: 0.4),
-                  ),
-                  child: Slider(
-                    min: 0,
-                    max: (options.length - 1).toDouble(),
-                    divisions: options.length - 1,
-                    value: state.sliderValue,
-                    label:
-                        '${state.previewOption.displayName} ${(state.previewOption.scale * 100).toInt()}%',
-                    onChanged: (value) {
-                      // 更新预览
-                      ref.read(fontSizeProvider.notifier).updatePreview(value);
-                    },
-                    onChangeEnd: (value) async {
-                      // 应用更改
-                      try {
-                        await ref
-                            .read(fontSizeProvider.notifier)
-                            .applyFontSize(value);
-                        if (context.mounted) {
-                          EasyLoading.showSuccess(
-                            t.common.fontSizeSettingUpdated,
-                          );
-                        }
-                      } on Exception {
-                        if (context.mounted) {
-                          EasyLoading.showError(
-                            t.common.settingFailedPleaseTryAgain,
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        t.common.smaller,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: cs.onSurface.withValues(alpha: 0.6),
-                          fontFamily: 'PingFang SC',
-                        ),
-                      ),
-                      Text(
-                        t.main.larger,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: cs.onSurface.withValues(alpha: 0.6),
-                          fontFamily: 'PingFang SC',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomControl(
+    BuildContext context,
+    WidgetRef ref,
+    FontSizeState state,
+    List<FontSizeOption> options,
+    ColorScheme cs,
+    Translations t,
+  ) {
+    final iosBlue = AppColors.getIosBlue(Theme.of(context).brightness);
+    final cardColor = Theme.of(context).cardColor;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
+      decoration: BoxDecoration(
+        color: cardColor,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.getIosSeparator(Theme.of(context).brightness),
+            width: 0.33,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t.common.dragSliderAdjustFontSize,
+            style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
+          ),
+          const SizedBox(height: 16),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: iosBlue,
+              inactiveTrackColor: AppColors.iosGray5.withValues(alpha: 0.6),
+              thumbColor: Colors.white,
+              trackHeight: 4.0,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14.0, elevation: 3),
+              tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 3.5),
+              activeTickMarkColor: Colors.white,
+              inactiveTickMarkColor: AppColors.iosGray4,
+            ),
+            child: Slider(
+              min: 0,
+              max: (options.length - 1).toDouble(),
+              divisions: options.length - 1,
+              value: state.sliderValue,
+              onChanged: (value) => ref.read(fontSizeProvider.notifier).updatePreview(value),
+              onChangeEnd: (value) async {
+                try {
+                  await ref.read(fontSizeProvider.notifier).applyFontSize(value);
+                  EasyLoading.showSuccess(t.common.fontSizeSettingUpdated);
+                } catch (e) {
+                  EasyLoading.showError(t.common.settingFailedPleaseTryAgain);
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(t.common.smaller, style: const TextStyle(fontSize: 13, color: AppColors.iosGray)),
+                Text(t.main.larger, style: const TextStyle(fontSize: 17, color: AppColors.iosGray)),
               ],
             ),
           ),
@@ -317,12 +259,7 @@ class FontSizePage extends ConsumerWidget {
     );
   }
 
-  /// 构建预览页脚（模拟微信风格）
-  Widget _buildPreviewFooter(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final t = context.t;
-    final state = ref.watch(fontSizeProvider);
-
+  Widget _buildPreviewFooter(BuildContext context, WidgetRef ref, FontSizeState state, ColorScheme cs, Translations t) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -331,25 +268,20 @@ class FontSizePage extends ConsumerWidget {
             param1: state.previewOption.displayName,
             param2: ((state.previewOption.scale * 100).toInt()).toString(),
           ),
-          style: TextStyle(
-            fontSize: 12,
-            color: cs.onSurface.withValues(alpha: 0.6),
-            fontFamily: 'PingFang SC',
-          ),
+          style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: cs.primaryContainer.withValues(alpha: 0.2),
+            color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             t.main.recommended,
             style: TextStyle(
               fontSize: 12,
-              color: cs.primary,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'PingFang SC',
+              color: AppColors.getIosBlue(Theme.of(context).brightness),
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

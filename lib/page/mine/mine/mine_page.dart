@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/flat_list_tile.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -17,7 +17,6 @@ part 'mine_page.g.dart';
 
 class MineState {
   const MineState();
-
   MineState copyWith() => const MineState();
 }
 
@@ -27,7 +26,7 @@ class MineNotifier extends _$MineNotifier {
   MineState build() => const MineState();
 }
 
-/// 我的页面 - 极简高效重构版本 (Minimalist & Flat)
+/// 我的页面 - 像素级对齐 iOS 17 高保真重构
 class MinePage extends ConsumerStatefulWidget {
   const MinePage({super.key});
 
@@ -42,210 +41,159 @@ class _MinePageState extends ConsumerState<MinePage> {
     final user = userRepo.currentUser;
     final brightness = Theme.of(context).brightness;
 
-    return Scaffold(
-      backgroundColor: AppColors.getBackgroundColor(brightness),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // 顶部标题 - 极简标题
-          SliverSafeArea(
-            bottom: false,
-            sliver: SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: Text(
-                  t.main.titleMine,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.getTextColor(brightness),
-                    letterSpacing: -0.5,
-                  ),
+    return IosPageTemplate(
+      title: t.main.titleMine,
+      slivers: [
+        // 顶部名片 - 采用 iOS 17 系统级质感
+        SliverToBoxAdapter(
+          child: _buildSystemHeader(context, user, brightness),
+        ),
+
+        // 核心功能宫格
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 4),
+            child: _buildQuickActions(context),
+          ),
+        ),
+
+        // 功能组
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            children: [
+              ImBoySettingsTile(
+                title: Text(t.main.favorites),
+                leading: _buildIcon(CupertinoIcons.star_fill, const Color(0xFFFFCC00)),
+                onTap: () => context.push('/favorites'),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.main.storageSpace),
+                leading: _buildIcon(CupertinoIcons.circle_grid_hex_fill, const Color(0xFF5AC8FA)),
+                onTap: () => context.push('/storage_space'),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.account.loginDeviceManagement),
+                leading: _buildIcon(CupertinoIcons.device_phone_portrait, const Color(0xFF5856D6)),
+                onTap: () => context.push('/devices'),
+              ),
+            ],
+          ),
+        ),
+
+        // 设置组
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            margin: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+            children: [
+              ImBoySettingsTile(
+                title: Text(t.main.setting),
+                leading: _buildIcon(CupertinoIcons.settings, const Color(0xFF8E8E93)),
+                onTap: () => context.push('/mine/setting'),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.common.feedback),
+                leading: _buildIcon(CupertinoIcons.hand_thumbsup_fill, const Color(0xFF34C759)),
+                onTap: () => context.push('/feedback'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 标准 iOS 17 设置图标 (7.2pt 园角)
+  Widget _buildIcon(IconData icon, Color color) {
+    return Container(
+      width: 29, height: 29,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(7.2),
+      ),
+      child: Icon(icon, color: Colors.white, size: 19),
+    );
+  }
+
+  /// 系统级 Header
+  Widget _buildSystemHeader(BuildContext context, UserModel? user, Brightness brightness) {
+    final hasAvatar = user != null && strNoEmpty(user.avatar);
+    final nickname = user?.nickname ?? t.common.unknown;
+    final isDark = brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: GestureDetector(
+        onTap: () => context.push('/personal_info/profile'),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            children: [
+              // 头像
+              Container(
+                width: 68, height: 68,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  image: hasAvatar ? DecorationImage(image: cachedImageProvider(user.avatar), fit: BoxFit.cover) : null,
+                ),
+                child: !hasAvatar ? Center(child: Text(nickname.substring(0, 1).toUpperCase(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primary))) : null,
+              ),
+              const SizedBox(width: 16),
+              // 信息
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(nickname, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.6)),
+                    const SizedBox(height: 4),
+                    Text('ID: ${user?.account ?? '-'}', style: TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                  ],
                 ),
               ),
-            ),
+              // 动作
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => context.push('/qrcode/user'),
+                child: const Icon(CupertinoIcons.qrcode, size: 22, color: AppColors.iosGray),
+              ),
+              const SizedBox(width: 4),
+              const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+            ],
           ),
-
-          // 个人名片 - 无边框极简风格
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
-              child: _buildProfileCard(context, user, brightness),
-            ),
-          ),
-
-          // 高频宫格区 - 快速直达
-          SliverToBoxAdapter(child: _buildQuickActions(context)),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-          // 低频管理列表 - 极简扁平化
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: 40),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildListItem(
-                  context,
-                  title: t.main.favorites,
-                  icon: Icons.favorite_outline,
-                  iconColor: AppColors.iosRed,
-                  onTap: () => context.push('/favorites'),
-                  brightness: brightness,
-                ),
-                _buildListItem(
-                  context,
-                  title: t.main.storageSpace,
-                  icon: Icons.sd_storage_outlined,
-                  iconColor: AppColors.primary,
-                  onTap: () => context.push('/storage_space'),
-                  brightness: brightness,
-                ),
-                _buildListItem(
-                  context,
-                  title: t.account.loginDeviceManagement,
-                  icon: Icons.devices_outlined,
-                  iconColor: AppColors.iosTeal,
-                  onTap: () => context.push('/devices'),
-                  brightness: brightness,
-                ),
-                const SizedBox(height: 12),
-                _buildListItem(
-                  context,
-                  title: t.main.setting,
-                  icon: Icons.settings_outlined,
-                  iconColor: AppColors.iosGray,
-                  onTap: () => context.push('/mine/setting'),
-                  brightness: brightness,
-                ),
-                _buildListItem(
-                  context,
-                  title: t.common.feedback,
-                  icon: Icons.feedback_outlined,
-                  iconColor: const Color(0xFF5C6BC0),
-                  onTap: () => context.push('/feedback'),
-                  brightness: brightness,
-                ),
-              ]),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  /// 极简个人名片
-  Widget _buildProfileCard(
-    BuildContext context,
-    UserModel? user,
-    Brightness brightness,
-  ) {
-    final hasAvatar = user != null && strNoEmpty(user.avatar);
-    final nickname = user?.nickname;
-    final initial = (nickname != null && nickname.isNotEmpty)
-        ? nickname.substring(0, 1).toUpperCase()
-        : '?';
-    final sign = user?.sign;
-    final hasSign = sign != null && strNoEmpty(sign);
-
-    return FlatListTile(
-      onTap: () => context.push('/personal_info/profile'),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      leading: CircleAvatar(
-        radius: 36,
-        backgroundColor: AppColors.primaryLight,
-        backgroundImage: hasAvatar ? cachedImageProvider(user.avatar) : null,
-        child: !hasAvatar
-            ? Text(
-                initial,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
-              )
-            : null,
-      ),
-      title: Text(
-        nickname ?? t.common.unknown,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 4),
-          Text('ID: ${user?.account ?? '-'}'),
-          if (hasSign) ...[
-            const SizedBox(height: 2),
-            Text(sign, maxLines: 1, overflow: TextOverflow.ellipsis),
-          ],
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            onPressed: () => context.push('/qrcode/user'),
-            icon: const Icon(Icons.qr_code_2, size: 24),
-            color: AppColors.iosGray,
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(8),
-          ),
-          const Icon(
-            CupertinoIcons.chevron_right,
-            color: AppColors.iosGray,
-            size: 16,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 构建高频快捷操作宫格
   Widget _buildQuickActions(BuildContext context) {
     final List<QuickActionItem> items = [
       QuickActionItem(
-        icon: const Icon(Icons.account_balance_wallet_outlined),
+        icon: const Icon(CupertinoIcons.creditcard_fill),
         label: t.account.wallet,
         onTap: () => context.push('/wallet'),
-        color: AppColors.iosOrange,
+        color: const Color(0xFFFF9500),
       ),
       if (AppFeatureRegistry.isEnabled('channel'))
         QuickActionItem(
-          icon: const Icon(Icons.campaign_outlined),
+          icon: const Icon(CupertinoIcons.dot_radiowaves_left_right),
           label: t.discovery.myChannels,
           onTap: () => context.push('/channel'),
           color: AppColors.primary,
         ),
-      // 占位功能，如果没有频道则补齐或留空
       QuickActionItem(
-        icon: const Icon(Icons.auto_awesome_outlined),
-        label: t.main.favorites, // 示例，可根据需要调整
+        icon: const Icon(CupertinoIcons.bookmark_fill),
+        label: t.main.favorites,
         onTap: () => context.push('/favorites'),
-        color: AppColors.iosRed,
+        color: const Color(0xFFFF3B30),
       ),
     ];
 
     return QuickActionGrid(items: items);
-  }
-
-  /// 构建极简列表项
-  Widget _buildListItem(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    required Color iconColor,
-    required VoidCallback onTap,
-    required Brightness brightness,
-  }) {
-    return FlatListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: iconColor, size: 24),
-      title: Text(title),
-      trailing: const Icon(
-        CupertinoIcons.chevron_right,
-        color: AppColors.iosGray,
-        size: 14,
-      ),
-    );
   }
 }
