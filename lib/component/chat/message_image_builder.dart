@@ -50,7 +50,8 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
   void _initImageInfo() {
     // 从 metadata 中获取图片信息
     final metadata = widget.message.metadata ?? {};
-    _imageUrl = metadata['source'] as String? ?? metadata['uri'] as String? ?? '';
+    _imageUrl =
+        metadata['source'] as String? ?? metadata['uri'] as String? ?? '';
 
     // 确保 width 和 height 是 double 类型
     final width = metadata['width'];
@@ -133,7 +134,10 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
           children: [
             const Icon(Icons.broken_image, size: 32),
             const SizedBox(height: 8),
-            Text(t.imageLoadFailed, style: const TextStyle(fontSize: 12)),
+            Text(
+              t.common.imageLoadFailed,
+              style: const TextStyle(fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -189,7 +193,8 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
 
             // 单图消息
             if (effectiveMsgType == MessageType.image) {
-              final uri = (metadata['source'] ?? metadata['uri'] ?? '') as String;
+              final uri =
+                  (metadata['source'] ?? metadata['uri'] ?? '') as String;
               if (uri.isNotEmpty) {
                 imageUrls.add(uri);
               }

@@ -167,7 +167,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                       Center(
                         child: TextButton(
                           child: Text(
-                            t.changeParam(param: t.tags),
+                            t.main.changeParam(param: t.contact.tags),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.normal,
@@ -203,11 +203,11 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                   20,
                                   0,
                                 ),
-                                content: Text(t.deleteTagTips),
+                                content: Text(t.common.deleteTagTips),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
-                                    child: Text(t.buttonCancel),
+                                    child: Text(t.common.buttonCancel),
                                   ),
                                   TextButton(
                                     onPressed: () async {
@@ -231,20 +231,24 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                             );
                                         Navigator.pop(context, true);
                                         if (mounted) Navigator.pop(context);
-                                        EasyLoading.showSuccess(t.tipSuccess);
+                                        EasyLoading.showSuccess(
+                                          t.common.tipSuccess,
+                                        );
                                       } else {
                                         Navigator.pop(context, false);
-                                        EasyLoading.showError(t.tipFailed);
+                                        EasyLoading.showError(
+                                          t.common.tipFailed,
+                                        );
                                       }
                                     },
-                                    child: Text(t.buttonConfirm),
+                                    child: Text(t.common.buttonConfirm),
                                   ),
                                 ],
                               ),
                             );
                           },
                           child: Text(
-                            t.buttonDelete,
+                            t.common.buttonDelete,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.red,
@@ -258,7 +262,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         child: TextButton(
                           onPressed: () => Navigator.of(context).pop(),
                           child: Text(
-                            t.buttonCancel,
+                            t.common.buttonCancel,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.normal,
@@ -329,8 +333,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                           ),
                         ],
                   controller: _searchController,
-                  searchLabel: t.search,
-                  hintText: t.search,
+                  searchLabel: t.common.search,
+                  hintText: t.common.search,
                   onChanged: (query) {
                     setState(() {
                       _kwd = query;
@@ -480,7 +484,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                       true,
                                                     );
                                                     EasyLoading.showSuccess(
-                                                      t.tipSuccess,
+                                                      t.common.tipSuccess,
                                                     );
                                                   } else {
                                                     Navigator.pop(
@@ -488,12 +492,12 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                       false,
                                                     );
                                                     EasyLoading.showError(
-                                                      t.tipFailed,
+                                                      t.common.tipFailed,
                                                     );
                                                   }
                                                 },
                                                 child: Text(
-                                                  t.removeContactFromTag,
+                                                  t.common.removeContactFromTag,
                                                   textAlign: TextAlign.center,
                                                   style: const TextStyle(
                                                     color: Colors.red,
@@ -510,7 +514,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                 onPressed: () =>
                                                     Navigator.pop(context),
                                                 child: Text(
-                                                  t.buttonCancel,
+                                                  t.common.buttonCancel,
                                                   textAlign: TextAlign.center,
                                                   style: const TextStyle(
                                                     fontSize: 16.0,
@@ -525,7 +529,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                       ),
                                     );
                                   },
-                                  label: t.buttonDelete,
+                                  label: t.common.buttonDelete,
                                   spacing: 1,
                                 ),
                               ],
@@ -588,7 +592,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (widget.tag.refererTime == 0)
-                    NoDataView(text: t.noMembersInCurrentTag),
+                    NoDataView(text: t.common.noMembersInCurrentTag),
                   ElevatedButton(
                     onPressed: () async {
                       addContact(context);
@@ -604,7 +608,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
-                        t.buttonAdd,
+                        t.common.buttonAdd,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onPrimary,
                           fontSize: 16.0,
@@ -755,7 +759,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.selectFriends,
+        title: t.contact.selectFriends,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
@@ -770,7 +774,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             padding: const EdgeInsets.all(8.0),
             child: RoundedElevatedButton(
               text:
-                  t.buttonAdd +
+                  t.common.buttonAdd +
                   (selectedContact.isEmpty
                       ? ""
                       : " (${selectedContact.length})    "),
@@ -801,9 +805,9 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                   ref
                       .read(contactTagListProvider.notifier)
                       .updateTag(updatedTag);
-                  EasyLoading.showSuccess(t.tipSuccess);
+                  EasyLoading.showSuccess(t.common.tipSuccess);
                 } else {
-                  EasyLoading.showError(t.tipFailed);
+                  EasyLoading.showError(t.common.tipFailed);
                 }
               },
             ),

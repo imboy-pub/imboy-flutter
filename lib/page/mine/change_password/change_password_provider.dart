@@ -160,7 +160,7 @@ class ChangeLoginPassword extends _$ChangeLoginPassword {
         existingPwd: state.existingPassword,
       );
       if (ok) {
-        EasyLoading.showSuccess(t.changeSuccess);
+        EasyLoading.showSuccess(t.common.changeSuccess);
         // 清空表单
         state = ChangeLoginPasswordState();
       }

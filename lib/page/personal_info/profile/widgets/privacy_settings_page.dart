@@ -19,7 +19,7 @@ class PrivacySettingsPage extends ConsumerWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.privacySettings,
+        title: t.common.privacySettings,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -29,12 +29,12 @@ class PrivacySettingsPage extends ConsumerWidget {
             // 搜索设置分组
             _buildSettingGroup(
               context,
-              title: t.searchSettings,
+              title: t.common.searchSettings,
               children: [
                 _buildSwitchItem(
                   context: context,
-                  title: t.allowSearchByAccount,
-                  subtitle: t.allowSearchByAccountDesc,
+                  title: t.common.allowSearchByAccount,
+                  subtitle: t.common.allowSearchByAccountDesc,
                   value: profileState.allowSearch,
                   onChanged: (value) {
                     profileNotifier.updateUserInfo('allow_search', value);
@@ -43,8 +43,8 @@ class PrivacySettingsPage extends ConsumerWidget {
 
                 _buildSwitchItem(
                   context: context,
-                  title: t.allowAddByPhone,
-                  subtitle: t.allowAddByPhoneDesc,
+                  title: t.common.allowAddByPhone,
+                  subtitle: t.common.allowAddByPhoneDesc,
                   value: profileState.allowAddByPhone,
                   onChanged: (value) {
                     profileNotifier.updateUserInfo('allow_add_by_phone', value);
@@ -53,8 +53,8 @@ class PrivacySettingsPage extends ConsumerWidget {
 
                 _buildSwitchItem(
                   context: context,
-                  title: t.allowAddByQR,
-                  subtitle: t.allowAddByQRDesc,
+                  title: t.common.allowAddByQR,
+                  subtitle: t.common.allowAddByQRDesc,
                   value: profileState.allowAddByQR,
                   onChanged: (value) {
                     profileNotifier.updateUserInfo('allow_add_by_qr', value);
@@ -66,12 +66,12 @@ class PrivacySettingsPage extends ConsumerWidget {
             // 状态设置分组
             _buildSettingGroup(
               context,
-              title: t.statusSettings,
+              title: t.common.statusSettings,
               children: [
                 _buildSwitchItem(
                   context: context,
-                  title: t.showOnlineStatus,
-                  subtitle: t.showOnlineStatusDesc,
+                  title: t.common.showOnlineStatus,
+                  subtitle: t.common.showOnlineStatusDesc,
                   value: profileState.showOnlineStatus,
                   onChanged: (value) {
                     profileNotifier.updateUserInfo('show_online_status', value);
@@ -80,8 +80,8 @@ class PrivacySettingsPage extends ConsumerWidget {
 
                 _buildSwitchItem(
                   context: context,
-                  title: t.allowNearbyVisible,
-                  subtitle: t.nearbyPeopleExplain,
+                  title: t.common.allowNearbyVisible,
+                  subtitle: t.discovery.nearbyPeopleExplain,
                   value: profileState.allowNearbyVisible,
                   onChanged: (value) {
                     profileNotifier.updateUserInfo(
@@ -96,12 +96,12 @@ class PrivacySettingsPage extends ConsumerWidget {
             // 数据设置分组
             _buildSettingGroup(
               context,
-              title: t.dataSettings,
+              title: t.common.dataSettings,
               children: [
                 _buildActionItem(
                   context: context,
-                  title: t.clearChatRecords,
-                  subtitle: t.clearChatRecordsDesc,
+                  title: t.common.clearChatRecords,
+                  subtitle: t.common.clearChatRecordsDesc,
                   icon: Icons.delete_sweep,
                   iconColor: Colors.orange,
                   onTap: () => _showClearChatDialog(context),
@@ -109,8 +109,8 @@ class PrivacySettingsPage extends ConsumerWidget {
 
                 _buildActionItem(
                   context: context,
-                  title: t.deleteAccountAction,
-                  subtitle: t.deleteAccountActionDesc,
+                  title: t.common.deleteAccountAction,
+                  subtitle: t.common.deleteAccountActionDesc,
                   icon: Icons.warning,
                   iconColor: Colors.red,
                   onTap: () => _showDeleteAccountDialog(context),
@@ -308,23 +308,23 @@ class PrivacySettingsPage extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.privacyClearChatHistory),
-        content: Text(t.privacyClearChatHistoryConfirm),
+        title: Text(t.common.privacyClearChatHistory),
+        content: Text(t.common.privacyClearChatHistoryConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               // 这里添加清除聊天记录的逻辑
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(t.chatHistoryCleared)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(t.common.chatHistoryCleared)),
+              );
             },
             child: Text(
-              t.buttonConfirm,
+              t.common.buttonConfirm,
               style: const TextStyle(color: Colors.red),
             ),
           ),
@@ -338,12 +338,12 @@ class PrivacySettingsPage extends ConsumerWidget {
     showDialog<void>(
       context: parentContext,
       builder: (dialogContext) => AlertDialog(
-        title: Text(t.privacyLogoutAccount),
-        content: Text(t.privacyLogoutAccountConfirm),
+        title: Text(t.account.privacyLogoutAccount),
+        content: Text(t.common.privacyLogoutAccountConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () {
@@ -351,7 +351,7 @@ class PrivacySettingsPage extends ConsumerWidget {
               parentContext.push('/logout_account');
             },
             child: Text(
-              t.buttonConfirm,
+              t.common.buttonConfirm,
               style: const TextStyle(color: Colors.red),
             ),
           ),

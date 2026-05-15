@@ -55,7 +55,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: hasBound ? t.changeMobile : t.bindMobile,
+        title: hasBound ? t.account.changeMobile : t.account.bindMobile,
       ),
       body: SafeArea(
         child: ListView(
@@ -85,11 +85,11 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   ),
                 ),
                 title: Text(
-                  t.currentMobile,
+                  t.account.currentMobile,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  hasBound ? hiddenPhone(currentMobile) : t.notBound,
+                  hasBound ? hiddenPhone(currentMobile) : t.common.notBound,
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
@@ -104,7 +104,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     borderRadius: BorderRadius.circular(AppRadius.circle),
                   ),
                   child: Text(
-                    hasBound ? t.bound : t.notBound,
+                    hasBound ? t.main.bound : t.common.notBound,
                     style: TextStyle(
                       fontSize: 12,
                       color: hasBound ? AppColors.primary : Colors.grey[600],
@@ -124,7 +124,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 8),
                   child: Text(
-                    hasBound ? t.newMobile : t.mobile,
+                    hasBound ? t.account.newMobile : t.account.mobile,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -148,7 +148,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                             .read(bindMobileProvider.notifier)
                             .updateMobile(fullNumber);
                       },
-                      hintText: t.enterMobileHint,
+                      hintText: t.account.enterMobileHint,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: AppColors.lightSurfaceContainer,
@@ -168,8 +168,10 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
 
                 const SizedBox(height: 8),
                 _StatusRow(
-                  label: t.formatCheck,
-                  value: asyncState.mobileOk ? t.correct : t.pendingInput,
+                  label: t.chat.formatCheck,
+                  value: asyncState.mobileOk
+                      ? t.main.correct
+                      : t.main.pendingInput,
                   ok: asyncState.mobileOk,
                 ),
 
@@ -182,7 +184,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 4, bottom: 8),
                       child: Text(
-                        t.verificationCode,
+                        t.common.verificationCode,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -217,7 +219,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        t.codeSentToMobileParam(
+                                        t.account.codeSentToMobileParam(
                                           param: hiddenPhone(asyncState.mobile),
                                         ),
                                       ),
@@ -261,10 +263,10 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                                   const SizedBox(width: 6),
                                   Text(
                                     asyncState.seconds > 0
-                                        ? t.resendCodeWithCount(
+                                        ? t.chat.resendCodeWithCount(
                                             count: '${asyncState.seconds}',
                                           )
-                                        : t.getVerificationCode,
+                                        : t.common.getVerificationCode,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
@@ -308,7 +310,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
 
                 const SizedBox(height: 8),
                 _StatusRow(
-                  label: t.lengthCheck,
+                  label: t.main.lengthCheck,
                   value: '${asyncState.codeLength} / 6',
                   ok: asyncState.codeOk,
                 ),
@@ -337,7 +339,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    t.mobileUpdatedToParam(
+                                    t.common.mobileUpdatedToParam(
                                       param: hiddenPhone(asyncState.mobile),
                                     ),
                                   ),
@@ -370,7 +372,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                             ),
                           )
                         : Text(
-                            hasBound ? t.confirmChange : t.bindNow,
+                            hasBound
+                                ? t.common.confirmChange
+                                : t.common.bindNow,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -381,7 +385,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    t.verificationCodeSentToMobile,
+                    t.common.verificationCodeSentToMobile,
                     style: TextStyle(color: Colors.grey[500], fontSize: 13),
                   ),
                 ),

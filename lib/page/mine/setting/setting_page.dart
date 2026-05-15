@@ -63,16 +63,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     // 跟随系统
     if (themeMode == ThemeMode.system) {
-      return t.followSystem;
+      return t.main.followSystem;
     }
 
     // 深色模式
     if (themeState.isDarkMode) {
-      return t.enabled;
+      return t.common.enabled;
     }
 
     // 浅色模式
-    return t.disabled;
+    return t.common.disabled;
   }
 
   /// 切换环境
@@ -95,15 +95,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(
-            title: Text(t.restartRequired),
-            content: Text(t.applyChanges),
+            title: Text(t.error.restartRequired),
+            content: Text(t.contact.applyChanges),
             actions: <Widget>[
               CupertinoDialogAction(
                 isDefaultAction: true,
                 onPressed: () {
                   exit(0);
                 },
-                child: Text(t.buttonConfirm),
+                child: Text(t.common.buttonConfirm),
               ),
             ],
           );
@@ -134,13 +134,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final brightness = Theme.of(context).brightness;
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.setting),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.main.setting,
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader(context, t.sectionGeneral),
+            _buildSectionHeader(context, t.common.sectionGeneral),
             Container(
               // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -154,7 +157,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 账户安全
                   _buildSettingItem(
                     context,
-                    title: t.accountSecurity,
+                    title: t.account.accountSecurity,
                     leadingIcon: Icons.security,
                     leadingIconColor: AppColors.warning,
                     onTap: () {
@@ -167,7 +170,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 语言设置
                   _buildSettingItem(
                     context,
-                    title: t.languageSetting,
+                    title: t.common.languageSetting,
                     leadingIcon: Icons.language,
                     leadingIconColor: AppColors.info,
                     onTap: () {
@@ -180,7 +183,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 深色模式
                   _buildSettingItem(
                     context,
-                    title: t.darkModel,
+                    title: t.main.darkModel,
                     value: themeTypeTips(ref),
                     leadingIcon: Icons.dark_mode,
                     leadingIconColor: AppColors.textSecondary,
@@ -194,7 +197,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 字体大小
                   _buildSettingItem(
                     context,
-                    title: t.fontSettings,
+                    title: t.common.fontSettings,
                     value: themeState.fontSizeOption.displayName,
                     leadingIcon: Icons.text_fields,
                     leadingIconColor: AppColors.success,
@@ -206,7 +209,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
 
-            _buildSectionHeader(context, t.sectionPrivacySecurity),
+            _buildSectionHeader(context, t.common.sectionPrivacySecurity),
             Container(
               // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -220,8 +223,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 允许搜索我
                   _buildSwitchItem(
                     context,
-                    title: t.allowSearchMe,
-                    subtitle: t.otherUsersCanFindMe,
+                    title: t.common.allowSearchMe,
+                    subtitle: t.discovery.otherUsersCanFindMe,
                     value: allowSearch,
                     leadingIcon: Icons.search,
                     leadingIconColor: AppColors.info,
@@ -267,7 +270,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               } else {
                                 // API 调用失败，显示错误提示
                                 if (context.mounted) {
-                                  EasyLoading.showError(t.tipFailed);
+                                  EasyLoading.showError(t.common.tipFailed);
                                 }
                               }
                             } finally {
@@ -282,8 +285,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 刷新设备密钥
                   _buildSettingItem(
                     context,
-                    title: t.refreshDeviceKey,
-                    subtitle: t.refreshDeviceKeyHint,
+                    title: t.account.refreshDeviceKey,
+                    subtitle: t.account.refreshDeviceKeyHint,
                     leadingIcon: Icons.refresh,
                     leadingIconColor: AppColors.info,
                     onTap: _isRefreshingKeys
@@ -293,7 +296,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             setState(() => _isRefreshingKeys = true);
 
                             try {
-                              EasyLoading.showToast(t.refreshingDeviceKey);
+                              EasyLoading.showToast(
+                                t.account.refreshingDeviceKey,
+                              );
                               // 清除E2EE缓存
                               E2EEService.clearCache();
                               await Future<dynamic>.delayed(
@@ -308,10 +313,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 );
                               }
 
-                              EasyLoading.showSuccess(t.deviceKeyRefreshed);
+                              EasyLoading.showSuccess(
+                                t.account.deviceKeyRefreshed,
+                              );
                               if (kDebugMode) iPrint('E2EE: 设备密钥已手动刷新');
                             } on Exception catch (e) {
-                              EasyLoading.showError(t.tipFailed);
+                              EasyLoading.showError(t.common.tipFailed);
                               if (kDebugMode) {
                                 iPrint('E2EE: 刷新设备密钥失败: ${e.runtimeType}');
                               }
@@ -329,8 +336,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // E2EE 密钥恢复
                   _buildSettingItem(
                     context,
-                    title: t.e2eeKeyManagement,
-                    subtitle: t.e2eeKeyManagementSubtitle,
+                    title: t.group.e2eeKeyManagement,
+                    subtitle: t.group.e2eeKeyManagementSubtitle,
                     leadingIcon: Icons.vpn_key,
                     leadingIconColor: Colors.green,
                     onTap: () {
@@ -364,7 +371,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
 
-            _buildSectionHeader(context, t.sectionHelpAbout),
+            _buildSectionHeader(context, t.common.sectionHelpAbout),
             Container(
               // iOS 原生感：Inset Grouped Cell 容器（无阴影、仅圆角）
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -378,7 +385,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 更新日志
                   _buildSettingItem(
                     context,
-                    title: t.updateLog,
+                    title: t.common.updateLog,
                     leadingIcon: Icons.update,
                     leadingIconColor: AppColors.success,
                     onTap: () {
@@ -386,7 +393,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         context,
                         CupertinoPageRoute<dynamic>(
                           builder: (_) => MarkdownPage(
-                            title: t.updateLog,
+                            title: t.common.updateLog,
                             url:
                                 "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                           ),
@@ -400,7 +407,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 帮助文档
                   _buildSettingItem(
                     context,
-                    title: t.helpDocument,
+                    title: t.common.helpDocument,
                     leadingIcon: Icons.help_outline,
                     leadingIconColor: AppColors.info,
                     onTap: () {
@@ -408,7 +415,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         context,
                         CupertinoPageRoute<dynamic>(
                           builder: (_) => MarkdownPage(
-                            title: t.helpDocument,
+                            title: t.common.helpDocument,
                             url:
                                 "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md",
                           ),
@@ -422,7 +429,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 隐私政策
                   _buildSettingItem(
                     context,
-                    title: t.privacyPolicy,
+                    title: t.main.privacyPolicy,
                     leadingIcon: Icons.privacy_tip_outlined,
                     leadingIconColor: AppColors.warning,
                     onTap: () {
@@ -430,7 +437,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         context,
                         CupertinoPageRoute<dynamic>(
                           builder: (_) => MarkdownPage(
-                            title: t.privacyPolicy,
+                            title: t.main.privacyPolicy,
                             url:
                                 "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md",
                           ),
@@ -444,8 +451,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   // 关于应用
                   _buildSettingItem(
                     context,
-                    title: t.aboutApp,
-                    value: "${t.version} $appVsn",
+                    title: t.common.aboutApp,
+                    value: "${t.common.version} $appVsn",
                     leadingIcon: Icons.info_outline,
                     leadingIconColor: AppColors.primary,
                     trailing: AppUpgradeService.to.hasUpdate
@@ -490,7 +497,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 ),
                 child: _buildSettingItem(
                   context,
-                  title: t.switchEnvironment,
+                  title: t.common.switchEnvironment,
                   leadingIcon: Icons.developer_mode,
                   leadingIconColor: AppColors.lightError,
                   trailing: Container(
@@ -570,17 +577,17 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     final confirmed = await showCupertinoDialog<bool>(
                       context: context,
                       builder: (context) => CupertinoAlertDialog(
-                        title: Text(t.logOut),
-                        content: Text(t.areYouSureLogOut),
+                        title: Text(t.account.logOut),
+                        content: Text(t.account.areYouSureLogOut),
                         actions: [
                           CupertinoDialogAction(
                             onPressed: () => Navigator.pop(context, false),
-                            child: Text(t.buttonCancel),
+                            child: Text(t.common.buttonCancel),
                           ),
                           CupertinoDialogAction(
                             isDestructiveAction: true, // iOS 原生红色破坏性按钮
                             onPressed: () => Navigator.pop(context, true),
-                            child: Text(t.buttonConfirm),
+                            child: Text(t.common.buttonConfirm),
                           ),
                         ],
                       ),
@@ -594,7 +601,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     }
                   },
                   child: Text(
-                    t.logOut,
+                    t.account.logOut,
                     style: ref
                         .read(themeProvider.notifier)
                         .getTextStyle(
@@ -628,7 +635,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     context.push('/logout_account');
                   },
                   child: Text(
-                    t.logoutAccount,
+                    t.account.logoutAccount,
                     style: ref
                         .read(themeProvider.notifier)
                         .getTextStyle(
@@ -653,7 +660,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       Padding(
         padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10),
         child: RoundedElevatedButton(
-          text: t.checkForUpdates,
+          text: t.common.checkForUpdates,
           highlighted: true,
           onPressed: () async {
             EasyLoading.show();
@@ -661,11 +668,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               final info = await AppUpgradeService.to.manualCheck();
               if (!mounted) return;
               if (info == null || !info.hasUpdate) {
-                EasyLoading.showInfo(t.nowNewVersion);
+                EasyLoading.showInfo(t.common.nowNewVersion);
               }
               // manualCheck 内部已处理弹窗逻辑（force/recommend/silent）
             } on Exception {
-              EasyLoading.showError(t.errorNetwork);
+              EasyLoading.showError(t.common.errorNetwork);
             } finally {
               EasyLoading.dismiss();
             }
@@ -678,7 +685,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       context,
       CupertinoPageRoute<dynamic>(
         builder: (_) => MarkdownPage(
-          title: "${t.about} $appName",
+          title: "${t.common.about} $appName",
           rightDMActions: rightDMActions,
           url: "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
         ),

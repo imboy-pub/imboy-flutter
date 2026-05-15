@@ -70,7 +70,7 @@ class _PeopleInfoSameGroupPageState
       backgroundColor: isDark ? null : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.mutualGroupsWithHer,
+        title: t.group.mutualGroupsWithHer,
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -81,7 +81,7 @@ class _PeopleInfoSameGroupPageState
                 padding: const EdgeInsets.only(top: 10),
                 child: SlidableAutoCloseBehavior(
                   child: widget.groupList.isEmpty
-                      ? NoDataView(text: t.noData)
+                      ? NoDataView(text: t.common.noData)
                       : ListView.builder(
                           shrinkWrap: true,
                           itemCount: widget.groupList.length,
@@ -141,7 +141,7 @@ class _PeopleInfoSameGroupPageState
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 8),
-            child: Text(t.numUnit(param: '${widget.groupList.length}')),
+            child: Text(t.main.numUnit(param: '${widget.groupList.length}')),
           ),
         ],
       ),

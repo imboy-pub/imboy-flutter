@@ -33,11 +33,11 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
 
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.createGroupF2f,
+        title: t.chat.createGroupF2f,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       backgroundColor: isDark
@@ -62,7 +62,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                         children: [
                           Expanded(
                             child: Text(
-                              t.createGroupF2fTips,
+                              t.common.createGroupF2fTips,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: isDark
                                     ? Colors.white.withValues(alpha: 0.9)

@@ -65,7 +65,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(t.networkException)));
+        ).showSnackBar(SnackBar(content: Text(t.common.networkException)));
       }
       return;
     }
@@ -155,7 +155,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 // 主体头像（点击查看大图）
                 Semantics(
                   button: true,
-                  label: t.avatar,
+                  label: t.account.avatar,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => _openAvatarPreview(context),
@@ -185,7 +185,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   bottom: 0,
                   child: Semantics(
                     button: true,
-                    label: t.buttonTakingPictures,
+                    label: t.common.buttonTakingPictures,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => _showAvatarBottomSheet(context),
@@ -288,7 +288,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             if (value is String)
               Expanded(
                 child: Text(
-                  value.isEmpty ? t.notSet : value,
+                  value.isEmpty ? t.common.notSet : value,
                   textAlign: TextAlign.right,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -419,7 +419,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               if (hasAvatar) ...[
                 _buildBottomSheetOption(
                   context: sheetContext,
-                  title: t.viewLargeImage,
+                  title: t.chat.viewLargeImage,
                   onTap: () {
                     // 关闭 sheet 后再 push preview，避免页面动画叠加
                     Navigator.of(sheetContext).pop();
@@ -430,19 +430,19 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               ],
               _buildBottomSheetOption(
                 context: sheetContext,
-                title: t.buttonTakingPictures,
+                title: t.common.buttonTakingPictures,
                 onTap: () => getImageFromSource(ImageSource.camera),
               ),
               separator,
               _buildBottomSheetOption(
                 context: sheetContext,
-                title: t.chooseFromAlbum,
+                title: t.main.chooseFromAlbum,
                 onTap: () => getImageFromSource(ImageSource.gallery),
               ),
               separator,
               _buildBottomSheetOption(
                 context: sheetContext,
-                title: t.buttonCancel,
+                title: t.common.buttonCancel,
                 onTap: () => Navigator.of(sheetContext).pop(),
                 isCancel: true,
               ),
@@ -496,7 +496,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
       // Cell 用 surface（亮 white）/ darkSurfaceGroupedTertiary（暗 #2C2C2E）—— 通过背景对比制造层级
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
-        title: t.personalInformation,
+        title: t.common.personalInformation,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
@@ -506,12 +506,14 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             _buildInfoGroup(context, [
               _buildInfoItem(
                 context: context,
-                title: t.nickname,
+                title: t.account.nickname,
                 value: UserRepoLocal.to.current.nickname,
                 onTap: () async {
                   final result = await Navigator.push(
                     context,
-                    CupertinoPageRoute<dynamic>(builder: (_) => const SetNicknamePage()),
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => const SetNicknamePage(),
+                    ),
                   );
 
                   if (result == true && context.mounted) {
@@ -521,7 +523,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               ),
               _buildInfoItem(
                 context: context,
-                title: t.account,
+                title: t.account.account,
                 value: UserRepoLocal.to.current.account,
                 showArrow: false,
                 isEditable: false,
@@ -529,7 +531,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               if (UserRepoLocal.to.current.email.isNotEmpty)
                 _buildInfoItem(
                   context: context,
-                  title: t.loginEmail,
+                  title: t.account.loginEmail,
                   value: UserRepoLocal.to.current.email,
                   showArrow: false,
                   isEditable: false,
@@ -538,7 +540,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             _buildInfoGroup(context, [
               _buildInfoItem(
                 context: context,
-                title: t.myQrcode,
+                title: t.account.myQrcode,
                 // 用 iosBlue 着色二维码图标，与可点击语义对齐（DESIGN.md §2.1 系统蓝）
                 value: Icon(
                   CupertinoIcons.qrcode,
@@ -549,20 +551,24 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => UserQrCodePage(),
+                    ),
                   );
                 },
               ),
               _buildInfoItem(
                 context: context,
-                title: t.moreInfo,
+                title: t.common.moreInfo,
                 value: ' ',
                 showArrow: true,
                 onTap: () {
                   // 导航到更多信息页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute<dynamic>(builder: (_) => const MorePage()),
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => const MorePage(),
+                    ),
                   );
                 },
               ),

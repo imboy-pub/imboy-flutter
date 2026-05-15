@@ -104,7 +104,7 @@ class ContactNotifier extends _$ContactNotifier {
     topItems.add(
       ContactModel(
         peerId: kPeerIdMomentFeed,
-        nickname: t.moments,
+        nickname: t.discovery.moments,
         nameIndex: '↑',
         bgColor: Colors.deepOrange,
         iconData: const Center(
@@ -117,7 +117,7 @@ class ContactNotifier extends _$ContactNotifier {
       topItems.add(
         ContactModel(
           peerId: kPeerIdPeopleNearby,
-          nickname: t.findNearbyPeople,
+          nickname: t.discovery.findNearbyPeople,
           nameIndex: '↑',
           bgColor: AppColors.iosOrange,
           iconData: const Center(
@@ -130,21 +130,21 @@ class ContactNotifier extends _$ContactNotifier {
     topItems.addAll([
       ContactModel(
         peerId: kPeerIdNewFriend,
-        nickname: t.newFriend,
+        nickname: t.contact.newFriend,
         nameIndex: '↑',
         bgColor: AppColors.iosOrange,
         iconData: const Center(child: Icon(Icons.person_add, size: 24)),
       ),
       ContactModel(
         peerId: kPeerIdGroup,
-        nickname: t.groupChat,
+        nickname: t.chat.groupChat,
         nameIndex: '↑',
         bgColor: AppColors.iosGreen,
         iconData: const Icon(Icons.people, size: 24, color: Colors.white),
       ),
       ContactModel(
         peerId: kPeerIdTag,
-        nickname: t.tags,
+        nickname: t.contact.tags,
         nameIndex: '↑',
         bgColor: AppColors.iosBlue,
         iconData: const Icon(Icons.local_offer, size: 24, color: Colors.white),

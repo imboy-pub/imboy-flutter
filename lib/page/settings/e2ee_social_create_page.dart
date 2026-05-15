@@ -23,7 +23,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(t.e2eeSocialCreateTitle)),
+      appBar: AppBar(title: Text(t.chat.e2eeSocialCreateTitle)),
       body: ListView(
         children: [
           _buildSettingsCard(),
@@ -45,12 +45,12 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t.e2eeSocialShardSettings,
+              t.common.e2eeSocialShardSettings,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              t.e2eeSocialTotalShards,
+              t.main.e2eeSocialTotalShards,
               _totalShards,
               3,
               5,
@@ -58,7 +58,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             ),
             const SizedBox(height: 16),
             _buildSlider(
-              t.e2eeSocialThreshold,
+              t.main.e2eeSocialThreshold,
               _threshold,
               2,
               _totalShards - 1,
@@ -66,12 +66,12 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t.e2eeSocialShardStoredNote,
+              t.common.e2eeSocialShardStoredNote,
               style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeSocialThresholdHint(count: _threshold),
+              t.main.e2eeSocialThresholdHint(count: _threshold),
               style: const TextStyle(
                 fontSize: 13,
                 color: CupertinoColors.activeBlue,
@@ -132,7 +132,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  t.e2eeSocialSelectProxy,
+                  t.main.e2eeSocialSelectProxy,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -140,13 +140,13 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                 ),
                 TextButton(
                   onPressed: _showProxyPicker,
-                  child: Text(t.e2eeSocialAddProxy),
+                  child: Text(t.common.e2eeSocialAddProxy),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeSocialProxyNeeded(count: _totalShards),
+              t.main.e2eeSocialProxyNeeded(count: _totalShards),
               style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 16),
@@ -154,7 +154,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: Text(t.e2eeSocialAddProxyHint),
+                  child: Text(t.common.e2eeSocialAddProxyHint),
                 ),
               )
             else
@@ -171,7 +171,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
   Widget _buildProxyItem(int index, Map<String, dynamic> proxy) {
     final nickname =
-        proxy['nickname'] as Object? ?? t.e2eeSocialProxyDefaultName(uid: proxy['uid'] as Object);
+        proxy['nickname'] as Object? ??
+        t.main.e2eeSocialProxyDefaultName(uid: proxy['uid'] as Object);
     final uid = proxy['uid'];
 
     return Card(
@@ -214,8 +215,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               ? const CupertinoActivityIndicator()
               : Text(
                   _selectedProxies.length < _totalShards
-                      ? t.e2eeSocialCreateNeedMore(count: _totalShards)
-                      : t.e2eeSocialCreateBtn,
+                      ? t.common.e2eeSocialCreateNeedMore(count: _totalShards)
+                      : t.chat.e2eeSocialCreateBtn,
                 ),
         ),
       ),
@@ -280,25 +281,25 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: Text(t.e2eeSocialCreateSuccessTitle),
+              title: Text(t.common.e2eeSocialCreateSuccessTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.e2eeSocialTotalShardsInfo(
+                    t.common.e2eeSocialTotalShardsInfo(
                       count: result['total_shards'] as int,
                     ),
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    t.e2eeSocialShardSentViaWs,
+                    t.main.e2eeSocialShardSentViaWs,
                     style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    t.e2eeSocialThresholdInfo(
+                    t.common.e2eeSocialThresholdInfo(
                       count: result['threshold'] as int,
                     ),
                     style: const TextStyle(
@@ -308,7 +309,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    t.e2eeSocialSentCount(
+                    t.main.e2eeSocialSentCount(
                       sent: sentCount,
                       total: shards.length,
                     ),
@@ -316,14 +317,14 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    t.e2eeSocialZeroTrustNote,
+                    t.common.e2eeSocialZeroTrustNote,
                     style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                 ],
               ),
               actions: [
                 CupertinoDialogAction(
-                  child: Text(t.buttonOk),
+                  child: Text(t.common.buttonOk),
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pop(context);
@@ -341,11 +342,11 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: Text(t.e2eeSocialCreateFailTitle),
-              content: Text(t.e2eeSocialCreateFailBody),
+              title: Text(t.chat.e2eeSocialCreateFailTitle),
+              content: Text(t.chat.e2eeSocialCreateFailBody),
               actions: [
                 CupertinoDialogAction(
-                  child: Text(t.buttonOk),
+                  child: Text(t.common.buttonOk),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

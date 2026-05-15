@@ -62,7 +62,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.feedback,
+        title: t.common.feedback,
         rightDMActions: [
           Container(
             margin: const EdgeInsets.only(right: 8),
@@ -77,7 +77,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                           UserFeedback feedback,
                         ) async {
                           if (feedback.text.isEmpty) {
-                            EasyLoading.showError(t.feedbackContentRequired);
+                            EasyLoading.showError(
+                              t.common.feedbackContentRequired,
+                            );
                             return;
                           }
 
@@ -113,10 +115,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                 };
                                 bool res = await p.add(data);
                                 if (res) {
-                                  EasyLoading.showSuccess(t.feedbackSuccessMsg);
+                                  EasyLoading.showSuccess(
+                                    t.common.feedbackSuccessMsg,
+                                  );
                                   _initData(); // 刷新列表
                                 } else {
-                                  EasyLoading.showError(t.tipFailed);
+                                  EasyLoading.showError(t.common.tipFailed);
                                 }
                               },
                               (Error error) {
@@ -187,7 +191,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.feedback,
+                          t.common.feedback,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -196,7 +200,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          t.feedbackSlogan,
+                          t.common.feedbackSlogan,
                           style: TextStyle(
                             fontSize: 14,
                             color: colorScheme.onSurface.withAlpha(179),
@@ -217,7 +221,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                               ) async {
                                 if (feedback.text.isEmpty) {
                                   EasyLoading.showError(
-                                    t.feedbackContentRequired,
+                                    t.common.feedbackContentRequired,
                                   );
                                   return;
                                 }
@@ -264,11 +268,13 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                       bool res = await p.add(data);
                                       if (res) {
                                         EasyLoading.showSuccess(
-                                          t.feedbackSuccessMsg,
+                                          t.common.feedbackSuccessMsg,
                                         );
                                         _initData();
                                       } else {
-                                        EasyLoading.showError(t.tipFailed);
+                                        EasyLoading.showError(
+                                          t.common.tipFailed,
+                                        );
                                       }
                                     },
                                     (Error error) {
@@ -300,7 +306,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                           borderRadius: AppRadius.borderRadiusSmall,
                         ),
                         child: Text(
-                          t.newFeedback,
+                          t.common.newFeedback,
                           style: TextStyle(
                             color: colorScheme.onPrimary,
                             fontSize: 14,
@@ -331,7 +337,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       Icon(Icons.history, color: colorScheme.primary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        t.feedbackHistory,
+                        t.common.feedbackHistory,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -350,7 +356,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     child: state.itemList.isEmpty
                         ? SizedBox(
                             height: 200,
-                            child: NoDataView(text: t.noData),
+                            child: NoDataView(text: t.common.noData),
                           )
                         : ListView.separated(
                             shrinkWrap: true,
@@ -383,7 +389,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                                           index,
                                         );
                                       },
-                                      label: t.buttonDelete,
+                                      label: t.common.buttonDelete,
                                       spacing: 1,
                                     ),
                                   ],
@@ -500,7 +506,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${t.submittedAt} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
+                    '${t.common.submittedAt} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
                     style: TextStyle(
                       fontSize: 13,
                       color: colorScheme.onSurface.withAlpha(179),
@@ -541,12 +547,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.confirmDelete),
-        content: Text(t.sureDeleteData),
+        title: Text(t.common.confirmDelete),
+        content: Text(t.common.sureDeleteData),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -561,12 +567,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 );
                 newList.removeWhere((e) => e.feedbackId == model.feedbackId);
                 ref.read(feedbackPageProvider.notifier).setItemList(newList);
-                EasyLoading.showSuccess(t.tipSuccess);
+                EasyLoading.showSuccess(t.common.tipSuccess);
               } else {
-                EasyLoading.showError(t.tipFailed);
+                EasyLoading.showError(t.common.tipFailed);
               }
             },
-            child: Text(t.buttonDelete),
+            child: Text(t.common.buttonDelete),
           ),
         ],
       ),

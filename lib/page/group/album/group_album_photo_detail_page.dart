@@ -91,23 +91,23 @@ class _GroupAlbumPhotoDetailPageState
     if (photo == null) return;
     final url = _resolvePhotoUrl(photo);
     if (url.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoUrlMissing)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.group.groupAlbumPhotoUrlMissing)),
+      );
       return;
     }
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoUrlInvalid)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.group.groupAlbumPhotoUrlInvalid)),
+      );
       return;
     }
     if (!await canLaunchUrl(uri)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoOpenFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.common.groupAlbumPhotoOpenFailed)),
+      );
       return;
     }
     await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -118,16 +118,16 @@ class _GroupAlbumPhotoDetailPageState
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupAlbumPhotoDeleteTitle),
-        content: Text(t.groupAlbumPhotoDeleteConfirm),
+        title: Text(t.common.groupAlbumPhotoDeleteTitle),
+        content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -141,7 +141,9 @@ class _GroupAlbumPhotoDetailPageState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            ok ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed,
+            ok
+                ? t.common.groupAlbumPhotoDeleted
+                : t.common.groupAlbumPhotoDeleteFailed,
           ),
         ),
       );
@@ -167,7 +169,9 @@ class _GroupAlbumPhotoDetailPageState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            ok ? t.groupAlbumPhotoCoverUpdated : t.groupAlbumPhotoCoverFailed,
+            ok
+                ? t.common.groupAlbumPhotoCoverUpdated
+                : t.common.groupAlbumPhotoCoverFailed,
           ),
         ),
       );
@@ -181,7 +185,7 @@ class _GroupAlbumPhotoDetailPageState
   @override
   Widget build(BuildContext context) {
     final title = widget.albumName.isEmpty
-        ? t.groupAlbumPhotoDetailTitle
+        ? t.group.groupAlbumPhotoDetailTitle
         : widget.albumName;
     final counter = _photoIds.isNotEmpty
         ? ' ${_currentIndex + 1}/${_photoIds.length}'
@@ -192,12 +196,12 @@ class _GroupAlbumPhotoDetailPageState
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
-            tooltip: t.groupAlbumPhotoPrev,
+            tooltip: t.group.groupAlbumPhotoPrev,
             icon: const Icon(Icons.chevron_left),
             onPressed: _canGoPrev ? _goPrev : null,
           ),
           IconButton(
-            tooltip: t.groupAlbumPhotoNext,
+            tooltip: t.common.groupAlbumPhotoNext,
             icon: const Icon(Icons.chevron_right),
             onPressed: _canGoNext ? _goNext : null,
           ),
@@ -214,7 +218,10 @@ class _GroupAlbumPhotoDetailPageState
 
     final photo = _photo;
     if (photo == null) {
-      return NoDataView(text: t.groupAlbumPhotoNotFound, onTop: _loadDetail);
+      return NoDataView(
+        text: t.common.groupAlbumPhotoNotFound,
+        onTop: _loadDetail,
+      );
     }
 
     final name =
@@ -275,7 +282,7 @@ class _GroupAlbumPhotoDetailPageState
               child: OutlinedButton.icon(
                 onPressed: _openExternal,
                 icon: const Icon(Icons.open_in_new),
-                label: Text(t.groupAlbumPhotoOpenExternal),
+                label: Text(t.common.groupAlbumPhotoOpenExternal),
               ),
             ),
             const SizedBox(height: 8),
@@ -290,7 +297,7 @@ class _GroupAlbumPhotoDetailPageState
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.photo_size_select_large_outlined),
-                label: Text(t.groupAlbumPhotoSetCover),
+                label: Text(t.group.groupAlbumPhotoSetCover),
               ),
             ),
             const SizedBox(height: 8),
@@ -299,22 +306,25 @@ class _GroupAlbumPhotoDetailPageState
               child: FilledButton.icon(
                 onPressed: _isDeleting ? null : _deletePhoto,
                 icon: const Icon(Icons.delete_outline),
-                label: Text(t.groupAlbumPhotoDeleteTitle),
+                label: Text(t.common.groupAlbumPhotoDeleteTitle),
               ),
             ),
           ],
         ),
         const SizedBox(height: 20),
         _buildInfoTile(
-          t.groupAlbumPhotoResolution,
+          t.common.groupAlbumPhotoResolution,
           width > 0 && height > 0 ? '$width × $height' : '-',
         ),
-        _buildInfoTile(t.fileSize, _formatBytes(size)),
-        _buildInfoTile(t.groupAlbumPhotoUploader, uploaderId),
-        _buildInfoTile(t.groupAlbumPhotoLikeCount, likeCount.toString()),
-        _buildInfoTile(t.groupAlbumPhotoCommentCount, commentCount.toString()),
-        _buildInfoTile(t.groupAlbumPhotoMyLike, isLiked ? '✓' : '-'),
-        _buildInfoTile(t.groupAlbumPhotoIdLabel, _currentPhotoId),
+        _buildInfoTile(t.chat.fileSize, _formatBytes(size)),
+        _buildInfoTile(t.common.groupAlbumPhotoUploader, uploaderId),
+        _buildInfoTile(t.group.groupAlbumPhotoLikeCount, likeCount.toString()),
+        _buildInfoTile(
+          t.group.groupAlbumPhotoCommentCount,
+          commentCount.toString(),
+        ),
+        _buildInfoTile(t.group.groupAlbumPhotoMyLike, isLiked ? '✓' : '-'),
+        _buildInfoTile(t.group.groupAlbumPhotoIdLabel, _currentPhotoId),
       ],
     );
   }

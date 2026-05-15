@@ -21,16 +21,19 @@ class SetGenderPage extends ConsumerWidget {
 
     // 性别选项列表
     final genderOptions = [
-      {'id': '1', 'title': t.male, 'icon': Icons.male},
-      {'id': '2', 'title': t.female, 'icon': Icons.female},
-      {'id': '3', 'title': t.keepSecret, 'icon': Icons.help_outline},
+      {'id': '1', 'title': t.main.male, 'icon': Icons.male},
+      {'id': '2', 'title': t.main.female, 'icon': Icons.female},
+      {'id': '3', 'title': t.main.keepSecret, 'icon': Icons.help_outline},
     ];
 
     return Scaffold(
       backgroundColor: isDark
           ? colorScheme.surface
           : AppColors.lightPageBackground,
-      appBar: GlassAppBar(title: t.gender, automaticallyImplyLeading: true),
+      appBar: GlassAppBar(
+        title: t.account.gender,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.symmetric(

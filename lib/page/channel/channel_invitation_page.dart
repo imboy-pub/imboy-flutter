@@ -107,7 +107,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            accept ? t.acceptInvitationFailed : t.rejectInvitationFailed,
+            accept
+                ? t.common.acceptInvitationFailed
+                : t.common.rejectInvitationFailed,
           ),
         ),
       );
@@ -116,7 +118,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(accept ? t.invitationAccepted : t.invitationRejected),
+        content: Text(
+          accept ? t.common.invitationAccepted : t.common.invitationRejected,
+        ),
       ),
     );
     await _loadInvitations(showLoading: false);
@@ -125,17 +129,17 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
   String _statusText(int status) {
     switch (status) {
       case 0:
-        return t.invitationStatusPending;
+        return t.common.invitationStatusPending;
       case 1:
-        return t.invitationStatusAccepted;
+        return t.common.invitationStatusAccepted;
       case 2:
-        return t.invitationStatusRejected;
+        return t.common.invitationStatusRejected;
       case 3:
-        return t.invitationStatusExpired;
+        return t.common.invitationStatusExpired;
       case 4:
-        return t.invitationStatusCancelled;
+        return t.common.invitationStatusCancelled;
       default:
-        return t.invitationStatusUnknown;
+        return t.common.invitationStatusUnknown;
     }
   }
 
@@ -161,7 +165,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     if (invitations.isEmpty) {
       return NoDataView(
         icon: Icons.mark_email_unread_outlined,
-        text: isMyInvitations ? t.noReceivedInvitations : t.noSentInvitations,
+        text: isMyInvitations
+            ? t.common.noReceivedInvitations
+            : t.common.noSentInvitations,
       );
     }
 
@@ -204,17 +210,21 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
               children: [
                 Text(
                   isMyInvitations
-                      ? t.inviterLabel(uid: peerUid.isEmpty ? "-" : peerUid)
-                      : t.inviteeLabel(uid: peerUid.isEmpty ? "-" : peerUid),
+                      ? t.main.inviterLabel(
+                          uid: peerUid.isEmpty ? "-" : peerUid,
+                        )
+                      : t.main.inviteeLabel(
+                          uid: peerUid.isEmpty ? "-" : peerUid,
+                        ),
                 ),
                 Text(
-                  t.createdAtLabel(
+                  t.chat.createdAtLabel(
                     time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt),
                   ),
                 ),
                 if (expiresAt != null)
                   Text(
-                    t.expiredAtLabel(
+                    t.chat.expiredAtLabel(
                       time: DateFormat("yyyy-MM-dd HH:mm").format(expiresAt),
                     ),
                   ),
@@ -236,7 +246,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                   IconButton(
                     onPressed: () => context.push('/channel/$channelId'),
                     icon: const Icon(Icons.open_in_new, size: 18),
-                    tooltip: t.openChannel,
+                    tooltip: t.discovery.openChannel,
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 22),
@@ -267,14 +277,14 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     final t = context.t;
     if (_isLoading) {
       return Scaffold(
-        appBar: GlassAppBar(title: t.channelInvitations),
+        appBar: GlassAppBar(title: t.common.channelInvitations),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        appBar: GlassAppBar(title: t.channelInvitations),
+        appBar: GlassAppBar(title: t.common.channelInvitations),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -283,7 +293,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: _loadInvitations,
-                child: Text(t.buttonRetry),
+                child: Text(t.common.buttonRetry),
               ),
             ],
           ),
@@ -294,7 +304,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.channelInvitations,
+        title: t.common.channelInvitations,
         rightDMActions: [
           IconButton(
             onPressed: () => _loadInvitations(showLoading: false),
@@ -310,8 +320,8 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
             child: TabBar(
               controller: _tabController,
               tabs: [
-                Tab(text: t.myReceivedTab),
-                Tab(text: t.mySentTab),
+                Tab(text: t.chat.myReceivedTab),
+                Tab(text: t.main.mySentTab),
               ],
             ),
           ),
@@ -395,10 +405,12 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    t.inviterLabel(uid: inviterUid.isEmpty ? "-" : inviterUid),
+                    t.main.inviterLabel(
+                      uid: inviterUid.isEmpty ? "-" : inviterUid,
+                    ),
                   ),
                   Text(
-                    t.createdAtLabel(
+                    t.chat.createdAtLabel(
                       time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt),
                     ),
                   ),
@@ -415,7 +427,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                                     accept: false,
                                   ),
                             child: Text(
-                              isProcessing ? t.processingDots : t.reject,
+                              isProcessing
+                                  ? t.common.processingDots
+                                  : t.main.reject,
                             ),
                           ),
                         ),
@@ -429,7 +443,9 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                                     accept: true,
                                   ),
                             child: Text(
-                              isProcessing ? t.processingDots : t.accept,
+                              isProcessing
+                                  ? t.common.processingDots
+                                  : t.common.accept,
                             ),
                           ),
                         ),
@@ -441,7 +457,7 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
                     TextButton.icon(
                       onPressed: () => context.push('/channel/$channelId'),
                       icon: const Icon(Icons.open_in_new),
-                      label: Text(t.openChannel),
+                      label: Text(t.discovery.openChannel),
                     ),
                   ],
                 ],

@@ -155,9 +155,9 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
   Widget buildVideo(BuildContext context) {
     return MergeSemantics(
       child: Semantics(
-        label: t.play,
+        label: t.main.play,
         image: true,
-        onTapHint: t.play,
+        onTapHint: t.main.play,
         sortKey: const OrdinalSortKey(1),
         child: Stack(
           children: [
@@ -196,7 +196,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
               future: UserRepoLocal.to.accessToken,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text(t.loadError));
+                  return Center(child: Text(t.common.loadError));
                 }
                 Map<String, String> headers = <String, String>{
                   'User-Agent': 'imboy/1.0.0',
@@ -237,7 +237,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
                   children: [
                     const CircularProgressIndicator(),
                     const SizedBox(height: 8),
-                    Text("${t.loading}..."),
+                    Text("${t.common.loading}..."),
                   ],
                 ),
               ),

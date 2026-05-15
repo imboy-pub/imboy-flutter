@@ -72,7 +72,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.chat_bubble_outline,
-          title: t.initiateChat,
+          title: t.chat.initiateChat,
           onTap: () {
             Navigator.of(context).pop();
             context.push('/launch_chat');
@@ -82,7 +82,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.person_add_alt_1,
-          title: t.addFriend,
+          title: t.common.addFriend,
           onTap: () {
             Navigator.of(context).pop();
             context.push('/contact/add_friend');
@@ -92,7 +92,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.person,
-          title: t.newlyRegisteredPeople,
+          title: t.account.newlyRegisteredPeople,
           onTap: () {
             Navigator.of(context).pop();
             context.push('/contact/recently_registered_user');
@@ -102,7 +102,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.qr_code_2,
-          title: t.myQrcode,
+          title: t.account.myQrcode,
           onTap: () {
             Navigator.of(context).pop();
             context.push('/qrcode');
@@ -112,11 +112,13 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.qr_code_scanner_outlined,
-          title: t.scanQrCode,
+          title: t.account.scanQrCode,
           onTap: () {
             Navigator.of(context).pop();
             Navigator.of(context).push(
-              CupertinoPageRoute<dynamic>(builder: (context) => const ScannerPage()),
+              CupertinoPageRoute<dynamic>(
+                builder: (context) => const ScannerPage(),
+              ),
             );
           },
         ),

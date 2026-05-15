@@ -116,11 +116,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               break;
             case WebRTCCallState.callStateNew:
               if (mounted) {
-                notifier.updateStateTips(t.waitingPeerAccept);
+                notifier.updateStateTips(t.common.waitingPeerAccept);
               }
               notifier.startAnswerTimer(() {
                 if (mounted) {
-                  notifier.updateStateTips(t.peerNoResponse);
+                  notifier.updateStateTips(t.common.peerNoResponse);
                 }
                 Future<dynamic>.delayed(
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
@@ -133,14 +133,14 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               break;
             case WebRTCCallState.callStateRinging:
               if (widget.caller && mounted) {
-                notifier.updateStateTips(t.ringing);
+                notifier.updateStateTips(t.main.ringing);
               }
               break;
             case WebRTCCallState.callStateBye:
               if (mounted) {
                 final state = ref.read(p2pCallScreenProvider);
                 notifier.stopCallTimer();
-                notifier.updateStateTips(t.peerHasHungUp);
+                notifier.updateStateTips(t.main.peerHasHungUp);
                 Future<dynamic>.delayed(
                   const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
                   () {
@@ -160,7 +160,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               break;
             case WebRTCCallState.callStateBusy:
               if (mounted) {
-                notifier.updateStateTips(t.busyTryAgainLater);
+                notifier.updateStateTips(t.chat.busyTryAgainLater);
               }
               Future<dynamic>.delayed(
                 const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
@@ -300,7 +300,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
             children: [
               FloatingActionButton(
                 heroTag: 'microphone',
-                tooltip: t.microphone,
+                tooltip: t.common.microphone,
                 onPressed: () {
                   final res = notifier.turnMicrophone();
                   if (res != null && mounted) {
@@ -315,7 +315,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               if (media == 'audio')
                 FloatingActionButton(
                   heroTag: 'hangup',
-                  tooltip: t.hangup,
+                  tooltip: t.main.hangup,
                   onPressed: () {
                     _hangUp(
                       callState: state.connected
@@ -329,7 +329,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                 ),
               FloatingActionButton(
                 heroTag: 'loudspeaker',
-                tooltip: t.loudspeaker,
+                tooltip: t.main.loudspeaker,
                 onPressed: () {
                   final newSpeakerOn = !state.speakerOn;
                   notifier.switchSpeaker(newSpeakerOn);
@@ -356,7 +356,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
               padding: const EdgeInsets.only(left: 72, top: 20),
               child: FloatingActionButton(
                 heroTag: "hangup",
-                tooltip: t.hangup,
+                tooltip: t.main.hangup,
                 onPressed: () {
                   _hangUp(
                     callState: state.connected
@@ -425,7 +425,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                         state.callDuration,
                         style: TextStyle(color: callingColor),
                       ),
-                      Text(t.calling, style: TextStyle(color: callingColor)),
+                      Text(
+                        t.common.calling,
+                        style: TextStyle(color: callingColor),
+                      ),
                     ],
                   );
                 },

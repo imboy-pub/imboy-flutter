@@ -49,11 +49,11 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -118,7 +118,9 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       leading: const Icon(Icons.folder),
       title: Text(category['name'] as String? ?? ''),
       subtitle: Text(
-        t.groupCategoryGroupCount(count: category['group_count'] as Object? ?? 0),
+        t.chat.groupCategoryGroupCount(
+          count: category['group_count'] as Object? ?? 0,
+        ),
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {

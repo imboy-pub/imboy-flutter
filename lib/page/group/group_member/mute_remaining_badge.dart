@@ -47,7 +47,7 @@ class MuteRemainingBadge extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
-        t.mutedFor(label: label),
+        t.chat.mutedFor(label: label),
         style: TextStyle(
           color: color,
           fontSize: 10,

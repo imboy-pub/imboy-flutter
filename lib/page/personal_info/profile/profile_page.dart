@@ -147,7 +147,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: FlexibleSpaceBar(
             title: Text(
-              t.personalInfo,
+              t.common.personalInfo,
               style: TextStyle(
                 color: isDark ? Colors.white : Colors.black87,
                 fontSize: 18,
@@ -216,7 +216,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 children: [
                   Icon(Icons.share, size: 20),
                   SizedBox(width: 12),
-                  Text(t.profileShareProfile),
+                  Text(t.common.profileShareProfile),
                 ],
               ),
             ),
@@ -226,7 +226,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 children: [
                   Icon(Icons.download, size: 20),
                   SizedBox(width: 12),
-                  Text(t.profileExportProfile),
+                  Text(t.chat.profileExportProfile),
                 ],
               ),
             ),
@@ -308,7 +308,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 // 昵称
                 Text(
                   profileState.nickname.isEmpty
-                      ? t.nicknameNotSet
+                      ? t.common.nicknameNotSet
                       : profileState.nickname,
                   style: TextStyle(
                     fontSize: 20,
@@ -337,7 +337,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     onPressed: () => _editAvatar(context, profileNotifier),
                     icon: const Icon(Icons.camera_alt, size: 16),
                     label: Text(
-                      t.avatarEditAvatar,
+                      t.common.avatarEditAvatar,
                       style: const TextStyle(fontSize: 12),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -364,15 +364,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   ) {
     return _buildInfoGroup(
       context,
-      title: t.basicInfo,
+      title: t.common.basicInfo,
       children: [
         _buildInfoItem(
           context: context,
           icon: Icons.person_outline,
           iconColor: AppColors.iosBlue,
-          title: t.nickname,
+          title: t.account.nickname,
           value: profileState.nickname.isEmpty
-              ? t.notSet
+              ? t.common.notSet
               : profileState.nickname,
           onTap: () => _editNickname(context),
         ),
@@ -381,7 +381,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.wc_outlined,
           iconColor: AppColors.iosOrange,
-          title: t.gender,
+          title: t.account.gender,
           value: profileNotifier.getGenderText(profileState.gender),
           onTap: () => _editGender(context),
         ),
@@ -390,9 +390,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.cake_outlined,
           iconColor: AppColors.iosRed,
-          title: t.birthday,
+          title: t.account.birthday,
           value: profileState.birthday.isEmpty
-              ? t.notSet
+              ? t.common.notSet
               : profileState.birthday,
           onTap: () => _editBirthday(context),
         ),
@@ -401,7 +401,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.location_on_outlined,
           iconColor: AppColors.iosGreen,
-          title: t.region,
+          title: t.account.region,
           value: profileNotifier.formatRegion(profileState.region),
           onTap: () => _editRegion(context),
         ),
@@ -416,14 +416,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   ) {
     return _buildInfoGroup(
       context,
-      title: t.contactInfo,
+      title: t.common.contactInfo,
       children: [
         _buildInfoItem(
           context: context,
           icon: Icons.email_outlined,
           iconColor: AppColors.iosBlue,
-          title: t.email,
-          value: profileState.email.isEmpty ? t.notSet : profileState.email,
+          title: t.account.email,
+          value: profileState.email.isEmpty
+              ? t.common.notSet
+              : profileState.email,
           showArrow: false,
         ),
 
@@ -431,8 +433,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.phone_outlined,
           iconColor: AppColors.iosGreen,
-          title: t.mobile,
-          value: profileState.mobile.isEmpty ? t.notSet : profileState.mobile,
+          title: t.account.mobile,
+          value: profileState.mobile.isEmpty
+              ? t.common.notSet
+              : profileState.mobile,
           showArrow: false,
         ),
       ],
@@ -447,15 +451,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   ) {
     return _buildInfoGroup(
       context,
-      title: t.personalDisplay,
+      title: t.common.personalDisplay,
       children: [
         _buildInfoItem(
           context: context,
           icon: Icons.edit_outlined,
           iconColor: AppColors.iosOrange,
-          title: t.personalSignature,
+          title: t.common.personalSignature,
           value: profileState.signature.isEmpty
-              ? t.notSet
+              ? t.common.notSet
               : profileState.signature,
           onTap: () => _editSignature(context),
           maxLines: 2,
@@ -465,8 +469,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.wallpaper_outlined,
           iconColor: const Color(0xFF5856D6),
-          title: t.personalBackground,
-          value: t.setBackgroundImage,
+          title: t.common.personalBackground,
+          value: t.common.setBackgroundImage,
           onTap: () => _editBackground(context),
         ),
       ],
@@ -481,15 +485,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   ) {
     return _buildInfoGroup(
       context,
-      title: t.extendedInfo,
+      title: t.common.extendedInfo,
       children: [
         _buildInfoItem(
           context: context,
           icon: Icons.work_outline,
           iconColor: AppColors.iosBlue,
-          title: t.profession,
+          title: t.common.profession,
           value: profileState.profession.isEmpty
-              ? t.notSet
+              ? t.common.notSet
               : profileState.profession,
           onTap: () => _editProfession(context),
         ),
@@ -498,8 +502,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.school_outlined,
           iconColor: AppColors.iosGreen,
-          title: t.school,
-          value: profileState.school.isEmpty ? t.notSet : profileState.school,
+          title: t.main.school,
+          value: profileState.school.isEmpty
+              ? t.common.notSet
+              : profileState.school,
           onTap: () => _editSchool(context),
         ),
 
@@ -507,9 +513,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.favorite_outline,
           iconColor: AppColors.iosRed,
-          title: t.hobbiesAndInterests,
+          title: t.main.hobbiesAndInterests,
           value: profileState.interests.isEmpty
-              ? t.notSet
+              ? t.common.notSet
               : profileState.interests,
           onTap: () => _editInterests(context),
         ),
@@ -523,13 +529,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
     return _buildInfoGroup(
       context,
-      title: t.functionSettings,
+      title: t.common.functionSettings,
       children: [
         _buildInfoItem(
           context: context,
           icon: Icons.qr_code_2,
           iconColor: AppColors.iosBlue,
-          title: t.myQRCode,
+          title: t.account.myQRCode,
           value: '',
           onTap: () => _showQRCode(context),
           trailing: Icon(
@@ -542,7 +548,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           context: context,
           icon: Icons.privacy_tip_outlined,
           iconColor: AppColors.iosOrange,
-          title: t.privacySettings,
+          title: t.common.privacySettings,
           value: '',
           onTap: () => context.push('/personal_info/privacy_settings'),
         ),
@@ -732,7 +738,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               // 拍照选项
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: Text(t.takePhoto),
+                title: Text(t.main.takePhoto),
                 onTap: () async {
                   Navigator.pop(context);
                   final file = await profileNotifier.pickImage(
@@ -747,7 +753,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               // 相册选项
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: Text(t.selectFromAlbum),
+                title: Text(t.main.selectFromAlbum),
                 onTap: () async {
                   Navigator.pop(context);
                   final file = await profileNotifier.pickImage(
@@ -762,7 +768,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               // 取消选项
               ListTile(
                 leading: const Icon(Icons.close),
-                title: Text(t.buttonCancel),
+                title: Text(t.common.buttonCancel),
                 onTap: () => Navigator.pop(context),
               ),
 
@@ -846,10 +852,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text(t.cancel),
+                      child: Text(t.common.cancel),
                     ),
                     Text(
-                      t.birthday,
+                      t.account.birthday,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     TextButton(
@@ -871,7 +877,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           UserRepoLocal.to.changeInfo(payload);
                         }
                       },
-                      child: Text(t.confirm),
+                      child: Text(t.common.confirm),
                     ),
                   ],
                 ),
@@ -908,20 +914,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(t.signature),
+          title: Text(t.account.signature),
           content: TextField(
             controller: controller,
             maxLength: 100,
             maxLines: 3,
             decoration: InputDecoration(
-              hintText: t.pleaseEnterSignature,
+              hintText: t.chat.pleaseEnterSignature,
               border: const OutlineInputBorder(),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(t.cancel),
+              child: Text(t.common.cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -938,7 +944,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   UserRepoLocal.to.changeInfo(payload);
                 }
               },
-              child: Text(t.confirm),
+              child: Text(t.common.confirm),
             ),
           ],
         );
@@ -958,7 +964,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: Text(t.chooseFromAlbum),
+                title: Text(t.main.chooseFromAlbum),
                 onTap: () async {
                   Navigator.pop(context);
                   final XFile? image = await picker.pickImage(
@@ -974,7 +980,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: Text(t.takePhoto),
+                title: Text(t.main.takePhoto),
                 onTap: () async {
                   Navigator.pop(context);
                   final XFile? image = await picker.pickImage(
@@ -990,7 +996,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               ),
               ListTile(
                 leading: Icon(Icons.close, color: Colors.grey),
-                title: Text(t.cancel),
+                title: Text(t.common.cancel),
                 onTap: () => Navigator.pop(context),
               ),
             ],
@@ -1003,7 +1009,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   /// 上传并设置背景图片
   Future<void> _uploadAndSetBackground(String imagePath) async {
     try {
-      EasyLoading.show(status: t.uploading);
+      EasyLoading.show(status: t.common.uploading);
 
       // 调用上传 API
       final success = await ref
@@ -1013,14 +1019,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       EasyLoading.dismiss();
 
       if (success && mounted) {
-        EasyLoading.showSuccess(t.uploadSuccess);
+        EasyLoading.showSuccess(t.common.uploadSuccess);
       } else if (mounted) {
-        EasyLoading.showError(t.uploadFailed);
+        EasyLoading.showError(t.common.uploadFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
       if (mounted) {
-        EasyLoading.showError(t.uploadFailed);
+        EasyLoading.showError(t.common.uploadFailed);
       }
     }
   }
@@ -1028,33 +1034,33 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   void _editProfession(BuildContext context) {
     _showTextEditDialog(
       context: context,
-      title: t.profession,
+      title: t.common.profession,
       currentValue: UserRepoLocal.to.current.profession,
       field: 'profession',
       maxLength: 50,
-      hintText: t.pleaseEnterProfession,
+      hintText: t.common.pleaseEnterProfession,
     );
   }
 
   void _editSchool(BuildContext context) {
     _showTextEditDialog(
       context: context,
-      title: t.school,
+      title: t.main.school,
       currentValue: UserRepoLocal.to.current.school,
       field: 'school',
       maxLength: 50,
-      hintText: t.pleaseEnterSchool,
+      hintText: t.main.pleaseEnterSchool,
     );
   }
 
   void _editInterests(BuildContext context) {
     _showTextEditDialog(
       context: context,
-      title: t.interests,
+      title: t.main.interests,
       currentValue: UserRepoLocal.to.current.interests,
       field: 'interests',
       maxLength: 100,
-      hintText: t.pleaseEnterInterests,
+      hintText: t.main.pleaseEnterInterests,
       maxLines: 2,
     );
   }
@@ -1088,7 +1094,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(t.cancel),
+              child: Text(t.common.cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -1105,7 +1111,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   UserRepoLocal.to.changeInfo(payload);
                 }
               },
-              child: Text(t.confirm),
+              child: Text(t.common.confirm),
             ),
           ],
         );
@@ -1132,29 +1138,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             children: [
               ListTile(
                 leading: const Icon(Icons.qr_code),
-                title: Text(t.shareQRCode),
+                title: Text(t.common.shareQRCode),
                 onTap: () {
                   Navigator.pop(context);
                   // 导航到二维码页面
                   Navigator.push(
                     context,
-                    CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => UserQrCodePage(),
+                    ),
                   );
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.link),
-                title: Text(t.copyLink),
+                title: Text(t.common.copyLink),
                 onTap: () {
                   Navigator.pop(context);
                   // 复制个人资料链接到剪贴板
                   // 这里可以生成一个分享链接
-                  EasyLoading.showSuccess(t.copiedToClipboard);
+                  EasyLoading.showSuccess(t.main.copiedToClipboard);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.share),
-                title: Text(t.shareTo),
+                title: Text(t.common.shareTo),
                 onTap: () async {
                   Navigator.pop(context);
                   // 使用系统分享功能
@@ -1162,20 +1170,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     await SharePlus.instance.share(
                       ShareParams(
                         text:
-                            '${t.nickname}: ${user.nickname}\n'
-                            '${t.signature}: ${user.sign}\n'
-                            '${t.region}: ${user.region}',
-                        subject: t.profile,
+                            '${t.account.nickname}: ${user.nickname}\n'
+                            '${t.account.signature}: ${user.sign}\n'
+                            '${t.account.region}: ${user.region}',
+                        subject: t.account.profile,
                       ),
                     );
                   } catch (e) {
-                    EasyLoading.showError(t.shareFailed);
+                    EasyLoading.showError(t.common.shareFailed);
                   }
                 },
               ),
               ListTile(
                 leading: Icon(Icons.close, color: Colors.grey),
-                title: Text(t.cancel),
+                title: Text(t.common.cancel),
                 onTap: () => Navigator.pop(context),
               ),
             ],
@@ -1198,14 +1206,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  t.exportProfile,
+                  t.chat.exportProfile,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.text_snippet),
                 title: const Text('JSON'),
-                subtitle: Text(t.exportAsJson),
+                subtitle: Text(t.common.exportAsJson),
                 onTap: () async {
                   Navigator.pop(context);
                   // 导出为 JSON 格式
@@ -1216,23 +1224,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
               ListTile(
                 leading: const Icon(Icons.note),
                 title: const Text('TXT'),
-                subtitle: Text(t.exportAsText),
+                subtitle: Text(t.main.exportAsText),
                 onTap: () async {
                   Navigator.pop(context);
                   // 导出为文本格式
                   final textStr =
                       '''
-${t.profile}
+${t.account.profile}
 ====================
-${t.nickname}: ${user.nickname}
-${t.account}: ${user.account}
-${t.gender}: ${user.gender == 1 ? t.male : (user.gender == 2 ? t.female : t.secret)}
-${t.region}: ${user.region}
-${t.signature}: ${user.sign}
-${t.birthday}: ${user.birthday}
-${t.profession}: ${user.profession}
-${t.school}: ${user.school}
-${t.interests}: ${user.interests}
+${t.account.nickname}: ${user.nickname}
+${t.account.account}: ${user.account}
+${t.account.gender}: ${user.gender == 1 ? t.main.male : (user.gender == 2 ? t.main.female : t.main.secret)}
+${t.account.region}: ${user.region}
+${t.account.signature}: ${user.sign}
+${t.account.birthday}: ${user.birthday}
+${t.common.profession}: ${user.profession}
+${t.main.school}: ${user.school}
+${t.main.interests}: ${user.interests}
 ====================
 ''';
                   await _exportToClipboard(context, textStr, 'TXT');
@@ -1240,7 +1248,7 @@ ${t.interests}: ${user.interests}
               ),
               ListTile(
                 leading: Icon(Icons.close, color: Colors.grey),
-                title: Text(t.cancel),
+                title: Text(t.common.cancel),
                 onTap: () => Navigator.pop(context),
               ),
             ],
@@ -1260,12 +1268,12 @@ ${t.interests}: ${user.interests}
       await Clipboard.setData(ClipboardData(text: content));
       if (mounted) {
         EasyLoading.showSuccess(
-          t.exportSuccessThenCopiedToClipboard(param: format),
+          t.common.exportSuccessThenCopiedToClipboard(param: format),
         );
       }
     } catch (e) {
       if (mounted) {
-        EasyLoading.showError(t.exportFailed);
+        EasyLoading.showError(t.common.exportFailed);
       }
     }
   }

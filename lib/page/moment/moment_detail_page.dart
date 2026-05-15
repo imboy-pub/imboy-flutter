@@ -166,15 +166,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final t = context.t;
     final confirmed = await showMomentConfirmDialog(
       context,
-      title: t.delete,
-      message: t.momentsDeleteConfirm,
+      title: t.common.delete,
+      message: t.common.momentsDeleteConfirm,
       isDestructive: true,
     );
     if (!confirmed || !mounted) return;
     final ok = await _api.deletePost(momentId);
     if (!mounted) return;
     if (!ok) {
-      EasyLoading.showError(context.t.momentsDeleteFailed);
+      EasyLoading.showError(context.t.common.momentsDeleteFailed);
       return;
     }
 
@@ -225,7 +225,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       setState(() {
         _sendingComment = false;
       });
-      EasyLoading.showError(context.t.momentsCommentFailed);
+      EasyLoading.showError(context.t.common.momentsCommentFailed);
       return;
     }
     _commentController.clear();
@@ -248,15 +248,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final t = context.t;
     final confirmed = await showMomentConfirmDialog(
       context,
-      title: t.delete,
-      message: t.momentsDeleteCommentConfirm,
+      title: t.common.delete,
+      message: t.common.momentsDeleteCommentConfirm,
       isDestructive: true,
     );
     if (!confirmed || !mounted) return;
     final ok = await _api.deleteComment(widget.momentId, commentId);
     if (!mounted) return;
     if (!ok) {
-      EasyLoading.showError(context.t.momentsDeleteFailed);
+      EasyLoading.showError(context.t.common.momentsDeleteFailed);
       return;
     }
     setState(() {
@@ -275,20 +275,20 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: Text(context.t.momentsReport),
+          title: Text(context.t.discovery.momentsReport),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: reasonController,
                 decoration: InputDecoration(
-                  labelText: context.t.momentsReportReason,
+                  labelText: context.t.common.momentsReportReason,
                 ),
               ),
               TextField(
                 controller: descController,
                 decoration: InputDecoration(
-                  labelText: context.t.momentsReportDesc,
+                  labelText: context.t.discovery.momentsReportDesc,
                 ),
               ),
             ],
@@ -296,11 +296,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(context.t.buttonCancel),
+              child: Text(context.t.common.buttonCancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(context.t.confirm),
+              child: Text(context.t.common.confirm),
             ),
           ],
         );
@@ -319,9 +319,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       );
       if (!mounted) return;
       if (ok) {
-        EasyLoading.showSuccess(context.t.momentsReportSubmitted);
+        EasyLoading.showSuccess(context.t.common.momentsReportSubmitted);
       } else {
-        EasyLoading.showError(context.t.momentsReportFailed);
+        EasyLoading.showError(context.t.common.momentsReportFailed);
       }
     }
   }
@@ -334,7 +334,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     }
 
     if (post == null) {
-      return Scaffold(body: Center(child: Text(context.t.momentsNotFound)));
+      return Scaffold(
+        body: Center(child: Text(context.t.common.momentsNotFound)),
+      );
     }
 
     final currentUid = currentUidOrEmpty();
@@ -362,19 +364,19 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.moments),
+        title: Text(context.t.discovery.moments),
         actions: [
           if (canDeletePost)
             IconButton(
               onPressed: _deleteMoment,
               icon: const Icon(Icons.delete_outline),
-              tooltip: context.t.delete,
+              tooltip: context.t.common.delete,
             )
           else
             IconButton(
               onPressed: _reportMoment,
               icon: const Icon(Icons.flag_outlined),
-              tooltip: context.t.momentsReport,
+              tooltip: context.t.discovery.momentsReport,
             ),
         ],
       ),
@@ -495,14 +497,16 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   ),
                   const Divider(height: 24),
                   Text(
-                    context.t.momentsComments,
+                    context.t.discovery.momentsComments,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   if (_comments.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 18),
-                      child: Center(child: Text(context.t.momentsNoComments)),
+                      child: Center(
+                        child: Text(context.t.common.momentsNoComments),
+                      ),
                     )
                   else
                     ..._comments.map((comment) {
@@ -537,8 +541,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       final subtitleText = composeReplyDisplay(
                         content: commentContent,
                         replyToName: replyToName == '?' ? '' : replyToName,
-                        prefix: context.t.momentsReplyPrefix,
-                        separator: context.t.momentsReplySeparator,
+                        prefix: context.t.chat.momentsReplyPrefix,
+                        separator: context.t.chat.momentsReplySeparator,
                       );
                       final canRemoveComment = canDeleteComment(
                         comment,
@@ -589,7 +593,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                               )
                             : TextButton(
                                 onPressed: _loadMoreComments,
-                                child: Text(context.t.momentsLoadMoreComments),
+                                child: Text(
+                                  context.t.common.momentsLoadMoreComments,
+                                ),
                               ),
                       ),
                     ),
@@ -616,7 +622,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       children: [
                         Expanded(
                           child: Text(
-                            context.t.momentsReplyingTo.replaceAll(
+                            context.t.chat.momentsReplyingTo.replaceAll(
                               '{name}',
                               _replyToName,
                             ),
@@ -641,7 +647,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                         child: TextField(
                           controller: _commentController,
                           decoration: InputDecoration(
-                            hintText: context.t.momentsWriteComment,
+                            hintText: context.t.discovery.momentsWriteComment,
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
@@ -658,7 +664,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : Text(context.t.momentsSend),
+                            : Text(context.t.chat.momentsSend),
                       ),
                     ],
                   ),

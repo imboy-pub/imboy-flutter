@@ -40,7 +40,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                t.profileCompleteness,
+                t.chat.profileCompleteness,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -112,7 +112,9 @@ class ProfileCompletionWidget extends ConsumerWidget {
 
                     // 百分比文本
                     Text(
-                      t.profileProgress(percent: profileState.completeness),
+                      t.chat.profileProgress(
+                        percent: profileState.completeness,
+                      ),
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.white70 : Colors.black54,
@@ -157,7 +159,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
                       Icon(Icons.check_circle, color: Colors.green, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        t.profileCompleted,
+                        t.chat.profileCompleted,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.green[700],
@@ -173,7 +175,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.completionSuggestions,
+                    t.common.completionSuggestions,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

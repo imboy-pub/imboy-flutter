@@ -52,7 +52,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: hasBound ? t.changeEmail : t.bindEmail,
+        title: hasBound ? t.account.changeEmail : t.account.bindEmail,
       ),
       body: SafeArea(
         child: ListView(
@@ -82,11 +82,11 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   ),
                 ),
                 title: Text(
-                  t.currentEmail,
+                  t.account.currentEmail,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  hasBound ? _maskEmail(currentEmail) : t.notBound,
+                  hasBound ? _maskEmail(currentEmail) : t.common.notBound,
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
@@ -101,7 +101,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     borderRadius: BorderRadius.circular(AppRadius.circle),
                   ),
                   child: Text(
-                    hasBound ? t.bound : t.notBound,
+                    hasBound ? t.main.bound : t.common.notBound,
                     style: TextStyle(
                       fontSize: 12,
                       color: hasBound ? AppColors.primary : Colors.grey[600],
@@ -121,7 +121,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 8),
                   child: Text(
-                    hasBound ? t.newEmailAddress : t.emailAddress,
+                    hasBound ? t.common.newEmailAddress : t.common.emailAddress,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -144,7 +144,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     enableSuggestions: false,
                     style: const TextStyle(fontSize: 16),
                     decoration: InputDecoration(
-                      hintText: t.enterEmailAddress,
+                      hintText: t.common.enterEmailAddress,
                       hintStyle: TextStyle(color: Colors.grey[400]),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
@@ -166,8 +166,10 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                 const SizedBox(height: 8),
 
                 _StatusRow(
-                  label: t.formatCheck,
-                  value: asyncState.emailOk ? t.correct : t.pendingInput,
+                  label: t.chat.formatCheck,
+                  value: asyncState.emailOk
+                      ? t.main.correct
+                      : t.main.pendingInput,
                   ok: asyncState.emailOk,
                 ),
 
@@ -180,7 +182,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 4, bottom: 8),
                       child: Text(
-                        t.verificationCode,
+                        t.common.verificationCode,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -215,7 +217,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        t.sentToEmail(
+                                        t.account.sentToEmail(
                                           param: _maskEmail(asyncState.email),
                                         ),
                                       ),
@@ -259,8 +261,8 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                                   const SizedBox(width: 6),
                                   Text(
                                     asyncState.seconds > 0
-                                        ? '${t.resendCode} (${asyncState.seconds}s)'
-                                        : t.getVerificationCode,
+                                        ? '${t.chat.resendCode} (${asyncState.seconds}s)'
+                                        : t.common.getVerificationCode,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
@@ -304,7 +306,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
 
                 const SizedBox(height: 8),
                 _StatusRow(
-                  label: t.lengthCheck,
+                  label: t.main.lengthCheck,
                   value: '${asyncState.codeLength} / 6',
                   ok: asyncState.codeOk,
                 ),
@@ -333,7 +335,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    t.emailUpdatedTo(
+                                    t.common.emailUpdatedTo(
                                       param: _maskEmail(asyncState.email),
                                     ),
                                   ),
@@ -366,7 +368,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                             ),
                           )
                         : Text(
-                            hasBound ? t.confirmChange : t.bindNow,
+                            hasBound
+                                ? t.common.confirmChange
+                                : t.common.bindNow,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -378,7 +382,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    t.verificationCodeSentToEmail,
+                    t.common.verificationCodeSentToEmail,
                     style: TextStyle(color: Colors.grey[500], fontSize: 13),
                   ),
                 ),

@@ -69,7 +69,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        EasyLoading.showError(t.loadError);
+        EasyLoading.showError(t.common.loadError);
       }
     }
   }
@@ -99,22 +99,22 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             _member!.muteUntilMs = muteUntilMs;
             _anyChange = true;
           });
-          EasyLoading.showSuccess(t.muteMemberSuccess);
+          EasyLoading.showSuccess(t.common.muteMemberSuccess);
         case MuteValidationError():
-          EasyLoading.showError(t.muteMemberFailed);
+          EasyLoading.showError(t.common.muteMemberFailed);
         case MuteApiFailure():
-          EasyLoading.showError(t.muteMemberFailed);
+          EasyLoading.showError(t.common.muteMemberFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      if (mounted) EasyLoading.showError(t.muteMemberFailed);
+      if (mounted) EasyLoading.showError(t.common.muteMemberFailed);
     }
   }
 
   Future<void> _onUnmuteTap() async {
     final confirmed = await _showConfirmDialog(
-      title: t.unmuteMember,
-      content: t.unmuteMemberConfirm,
+      title: t.chat.unmuteMember,
+      content: t.common.unmuteMemberConfirm,
     );
     if (confirmed != true || !mounted) return;
 
@@ -133,15 +133,15 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             _member!.muteUntilMs = null;
             _anyChange = true;
           });
-          EasyLoading.showSuccess(t.unmuteMemberSuccess);
+          EasyLoading.showSuccess(t.common.unmuteMemberSuccess);
         case UnmuteValidationError():
-          EasyLoading.showError(t.unmuteMemberFailed);
+          EasyLoading.showError(t.common.unmuteMemberFailed);
         case UnmuteApiFailure():
-          EasyLoading.showError(t.unmuteMemberFailed);
+          EasyLoading.showError(t.common.unmuteMemberFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      if (mounted) EasyLoading.showError(t.unmuteMemberFailed);
+      if (mounted) EasyLoading.showError(t.common.unmuteMemberFailed);
     }
   }
 
@@ -161,7 +161,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  t.muteDuration,
+                  t.common.muteDuration,
                   style: ThemeManager.instance.getTextStyle(
                     FontSizeType.large,
                     fontWeight: FontWeight.w600,
@@ -195,12 +195,12 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
-              t.confirm,
+              t.common.confirm,
               style: const TextStyle(color: AppColors.iosRed),
             ),
           ),
@@ -213,13 +213,13 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
 
   String _labelForKey(String key) {
     return switch (key) {
-      'muteDuration5min' => t.muteDuration5min,
-      'muteDuration10min' => t.muteDuration10min,
-      'muteDuration30min' => t.muteDuration30min,
-      'muteDuration1hour' => t.muteDuration1hour,
-      'muteDuration1day' => t.muteDuration1day,
-      'muteDuration7days' => t.muteDuration7days,
-      'muteDuration30days' => t.muteDuration30days,
+      'muteDuration5min' => t.common.muteDuration5min,
+      'muteDuration10min' => t.common.muteDuration10min,
+      'muteDuration30min' => t.common.muteDuration30min,
+      'muteDuration1hour' => t.common.muteDuration1hour,
+      'muteDuration1day' => t.common.muteDuration1day,
+      'muteDuration7days' => t.common.muteDuration7days,
+      'muteDuration30days' => t.common.muteDuration30days,
       _ => key,
     };
   }
@@ -241,7 +241,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(t.memberDetail),
+          title: Text(t.main.memberDetail),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
             onPressed: () => context.pop(_anyChange),
@@ -257,7 +257,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
   Widget _buildBody(ColorScheme colorScheme) {
     final member = _member;
     if (member == null) {
-      return Center(child: Text(t.noData));
+      return Center(child: Text(t.common.noData));
     }
 
     final currentUid = UserRepoLocal.to.currentUid;
@@ -280,8 +280,8 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
 
           // ── 禁言状态 ──
           _buildInfoRow(
-            label: t.muted,
-            value: isMuted ? t.muted : t.notMuted,
+            label: t.chat.muted,
+            value: isMuted ? t.chat.muted : t.common.notMuted,
             trailing: MuteRemainingBadge(
               muteUntilMs: member.muteUntilMs,
               nowMs: DateTime.now().millisecondsSinceEpoch,
@@ -294,13 +294,13 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           if (canMute) ...[
             if (isMuted)
               _buildActionButton(
-                label: t.unmuteMember,
+                label: t.chat.unmuteMember,
                 color: colorScheme.primary,
                 onTap: _onUnmuteTap,
               )
             else
               _buildActionButton(
-                label: t.muteMember,
+                label: t.chat.muteMember,
                 color: AppColors.iosRed,
                 onTap: _onMuteTap,
               ),

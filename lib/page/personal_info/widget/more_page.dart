@@ -29,7 +29,10 @@ class _MorePageState extends ConsumerState<MorePage> {
       backgroundColor: isDark
           ? colorScheme.surface
           : AppColors.lightPageBackground,
-      appBar: GlassAppBar(title: t.moreInfo, automaticallyImplyLeading: true),
+      appBar: GlassAppBar(
+        title: t.common.moreInfo,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -44,7 +47,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 context: context,
                 icon: Icons.person_outline,
                 iconColor: AppColors.iosBlue,
-                title: t.gender,
+                title: t.account.gender,
                 trailing: Text(
                   UserRepoLocal.to.current.genderTitle,
                   style: TextStyle(
@@ -60,7 +63,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 context: context,
                 icon: Icons.location_on_outlined,
                 iconColor: AppColors.iosGreen,
-                title: t.region,
+                title: t.account.region,
                 trailing: Text(
                   _formatRegion(UserRepoLocal.to.current.region),
                   style: TextStyle(
@@ -76,11 +79,11 @@ class _MorePageState extends ConsumerState<MorePage> {
                 context: context,
                 icon: Icons.edit_outlined,
                 iconColor: AppColors.iosOrange,
-                title: t.signature,
+                title: t.account.signature,
                 trailing: Expanded(
                   child: Text(
                     UserRepoLocal.to.current.sign.isEmpty
-                        ? t.notFilled
+                        ? t.common.notFilled
                         : UserRepoLocal.to.current.sign,
                     textAlign: TextAlign.right,
                     maxLines: 1,
@@ -194,7 +197,7 @@ class _MorePageState extends ConsumerState<MorePage> {
   }
 
   String _formatRegion(String region) {
-    if (region.isEmpty) return t.notFilled;
+    if (region.isEmpty) return t.common.notFilled;
     if (region.length > 10) {
       return '${region.substring(0, 9)}...';
     }
@@ -214,7 +217,7 @@ class _MorePageState extends ConsumerState<MorePage> {
       context,
       CupertinoPageRoute<dynamic>(
         builder: (_) => SetRegionPage(
-          title: t.region,
+          title: t.account.region,
           currentValue: UserRepoLocal.to.current.region,
           onSave: (val) async {
             final success = await ref
@@ -239,7 +242,7 @@ class _MorePageState extends ConsumerState<MorePage> {
       context,
       CupertinoPageRoute<dynamic>(
         builder: (_) => UpdatePage(
-          title: t.signature,
+          title: t.account.signature,
           value: UserRepoLocal.to.current.sign,
           field: 'input',
           maxLength: 200,

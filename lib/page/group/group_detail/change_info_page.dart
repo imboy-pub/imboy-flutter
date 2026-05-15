@@ -150,7 +150,9 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                       decoration: InputDecoration(
                         counterText: '',
                         border: InputBorder.none,
-                        hintText: widget.group.title.isEmpty ? t.unnamed : '',
+                        hintText: widget.group.title.isEmpty
+                            ? t.main.unnamed
+                            : '',
                         hintStyle: TextStyle(
                           color: colorScheme.outline.withValues(alpha: 0.5),
                         ),
@@ -180,7 +182,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
             ),
             const SizedBox(height: 40),
             RoundedElevatedButton(
-              text: t.buttonAccomplish,
+              text: t.common.buttonAccomplish,
               highlighted: state.valueChanged,
               onPressed: () async {
                 // 提前保存 context 引用
@@ -189,7 +191,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                     .read(changeInfoProvider.notifier)
                     .saveGroupInfo(widget.group.groupId.toString());
                 if (g != null && mounted) {
-                  EasyLoading.showSuccess(t.tipSuccess);
+                  EasyLoading.showSuccess(t.common.tipSuccess);
                   navigator.pop(g);
                 }
               },

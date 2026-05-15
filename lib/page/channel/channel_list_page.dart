@@ -84,7 +84,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               onPressed: () {
                 context.push('/channel/invitations');
               },
-              tooltip: t.channelInvitations,
+              tooltip: t.common.channelInvitations,
               color: AppColors.getTextColor(brightness),
             ),
           if (AppFeatureRegistry.isEnabled('channel_discover'))
@@ -168,7 +168,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                   notifier.loadManagedChannels();
                 }
               },
-              child: Text(context.t.buttonRetry),
+              child: Text(context.t.common.buttonRetry),
             ),
           ],
         ),

@@ -125,9 +125,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     unselectedLabelColor: _unselectedLabel,
                     indicatorColor: AppColors.primary,
                     tabs: [
-                      Tab(text: t.account),
-                      Tab(text: t.mobile),
-                      Tab(text: t.email),
+                      Tab(text: t.account.account),
+                      Tab(text: t.account.mobile),
+                      Tab(text: t.account.email),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -154,7 +154,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       TextButton(
                         onPressed: () => context.push(AppRoutes.forgotPassword),
                         child: Text(
-                          t.forgotPassword,
+                          t.account.forgotPassword,
                           style: TextStyle(
                             color: _isDark
                                 ? AppColors.darkTextSecondary
@@ -165,7 +165,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       TextButton(
                         onPressed: () => context.push(AppRoutes.signUp),
                         child: Text(
-                          t.signup,
+                          t.account.signup,
                           style: TextStyle(color: AppColors.primary),
                         ),
                       ),
@@ -191,7 +191,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
       children: [
         LoginHistoryInput(
           controller: _accountController,
-          hintText: t.hintLoginAccount,
+          hintText: t.account.hintLoginAccount,
           prefixIcon: Icons.person,
           historyList: state.accountHistory,
           onSelect: (val) => _accountController.text = val,
@@ -207,7 +207,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 : AppColors.lightTextPrimary,
           ),
           decoration: InputDecoration(
-            hintText: t.pleaseInputParam(param: t.password),
+            hintText: t.main.pleaseInputParam(param: t.account.password),
             hintStyle: TextStyle(color: _hintColor),
             prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
             suffixIcon: IconButton(
@@ -233,7 +233,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 20),
         DebounceButton(
-          text: t.login,
+          text: t.account.login,
           width: double.infinity,
           height: 50,
           style: ElevatedButton.styleFrom(
@@ -249,7 +249,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
             if (account.isEmpty || pwd.isEmpty) {
               notifier.setError(
-                t.errorEmptyDirectory(param: "${t.account}/${t.password}"),
+                t.common.errorEmptyDirectory(
+                  param: "${t.account.account}/${t.account.password}",
+                ),
               );
               return;
             }
@@ -295,7 +297,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 '',
               );
             },
-            hintText: t.pleaseInputParam(param: t.mobile),
+            hintText: t.main.pleaseInputParam(param: t.account.mobile),
           ),
         ),
         const SizedBox(height: 15),
@@ -310,7 +312,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       : AppColors.lightTextPrimary,
                 ),
                 decoration: InputDecoration(
-                  hintText: t.pleaseInputParam(param: t.confirmCode),
+                  hintText: t.main.pleaseInputParam(
+                    param: t.common.confirmCode,
+                  ),
                   hintStyle: TextStyle(color: _hintColor),
                   prefixIcon: const Icon(
                     Icons.security,
@@ -337,14 +341,16 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 if (_fullMobile.isNotEmpty) {
                   notifier.sendCode('mobile', _fullMobile, 'login');
                 } else {
-                  notifier.snackBar(t.errorEmptyDirectory(param: t.mobile));
+                  notifier.snackBar(
+                    t.common.errorEmptyDirectory(param: t.account.mobile),
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
               ),
               child: Text(
-                t.getVerificationCode,
+                t.common.getVerificationCode,
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -352,7 +358,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 20),
         DebounceButton(
-          text: t.login,
+          text: t.account.login,
           width: double.infinity,
           height: 50,
           style: ElevatedButton.styleFrom(
@@ -435,7 +441,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 if (_emailController.text.isNotEmpty) {
                   notifier.sendCode('email', _emailController.text, 'login');
                 } else {
-                  notifier.snackBar(t.errorEmptyDirectory(param: t.email));
+                  notifier.snackBar(
+                    t.common.errorEmptyDirectory(param: t.account.email),
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -450,7 +458,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 20),
         DebounceButton(
-          text: t.login,
+          text: t.account.login,
           width: double.infinity,
           height: 50,
           style: ElevatedButton.styleFrom(

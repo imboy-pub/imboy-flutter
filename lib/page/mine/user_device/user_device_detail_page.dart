@@ -59,7 +59,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.deviceDetails,
+        title: t.common.deviceDetails,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -165,7 +165,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                widget.model.online ? t.online : t.offline,
+                widget.model.online ? t.chat.online : t.chat.offline,
                 style: TextStyle(
                   color: widget.model.online
                       ? AppColors.onlineIndicator
@@ -195,7 +195,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           _buildDetailItem(
             context,
             icon: Icons.edit_outlined,
-            title: t.deviceName,
+            title: t.account.deviceName,
             value: _deviceName,
             onTap: () => _editDeviceName(context),
             showArrow: true,
@@ -207,7 +207,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           _buildDetailItem(
             context,
             icon: Icons.devices_outlined,
-            title: t.deviceType,
+            title: t.account.deviceType,
             value: widget.model.showType,
           ),
 
@@ -217,7 +217,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           _buildDetailItem(
             context,
             icon: Icons.access_time_outlined,
-            title: t.lastActiveTime,
+            title: t.main.lastActiveTime,
             value: _formatLastActiveTime(),
           ),
         ],
@@ -323,7 +323,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              t.lastActiveTips,
+              t.common.lastActiveTips,
               style: TextStyle(
                 color: isDark
                     ? Theme.of(
@@ -346,7 +346,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       child: ElevatedButton.icon(
         onPressed: () => _showDeleteDialog(context),
         icon: const Icon(Icons.delete_outline),
-        label: Text(t.deleteThisDevice),
+        label: Text(t.common.deleteThisDevice),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.lightError.withValues(alpha: 0.1),
           foregroundColor: AppColors.lightError,
@@ -376,17 +376,17 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                     await showCupertinoDialog<bool>(
                       context: context,
                       builder: (ctx) => CupertinoAlertDialog(
-                        title: Text(t.forceDeviceOffline),
-                        content: Text(t.forceDeviceOfflineConfirm),
+                        title: Text(t.common.forceDeviceOffline),
+                        content: Text(t.common.forceDeviceOfflineConfirm),
                         actions: [
                           CupertinoDialogAction(
                             onPressed: () => Navigator.of(ctx).pop(false),
-                            child: Text(t.buttonCancel),
+                            child: Text(t.common.buttonCancel),
                           ),
                           CupertinoDialogAction(
                             isDestructiveAction: true,
                             onPressed: () => Navigator.of(ctx).pop(true),
-                            child: Text(t.confirmForceOffline),
+                            child: Text(t.common.confirmForceOffline),
                           ),
                         ],
                       ),
@@ -398,7 +398,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               }
             : null,
         icon: const Icon(Icons.power_settings_new),
-        label: Text(t.forceDeviceOffline),
+        label: Text(t.common.forceDeviceOffline),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.warning.withValues(alpha: 0.1),
           foregroundColor: AppColors.warning,
@@ -418,20 +418,20 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
 
   /// 下发"强制下线"S2C 指令
   Future<void> _forceOffline() async {
-    EasyLoading.show(status: t.loading);
+    EasyLoading.show(status: t.common.loading);
     try {
       final ok = await ref
           .read(userDeviceProvider.notifier)
           .forceOffline(widget.model.deviceId);
       EasyLoading.dismiss();
       if (ok) {
-        EasyLoading.showSuccess(t.forceOfflineCommandSent);
+        EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
       } else {
-        EasyLoading.showError(t.tipFailed);
+        EasyLoading.showError(t.common.tipFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError(t.tipFailed);
+      EasyLoading.showError(t.common.tipFailed);
     }
   }
 
@@ -459,7 +459,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   /// 格式化最后活跃时间
   String _formatLastActiveTime() {
     if (widget.model.lastActiveAt <= 0) {
-      return t.unknown;
+      return t.common.unknown;
     }
     final dt = DateTime.fromMillisecondsSinceEpoch(widget.model.lastActiveAt);
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dt);
@@ -471,11 +471,11 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       context,
       CupertinoPageRoute<dynamic>(
         builder: (context) => ChangeNamePage(
-          title: t.setParam(param: t.deviceName),
+          title: t.main.setParam(param: t.account.deviceName),
           value: widget.model.deviceName,
           field: 'input',
           callback: (newName) async {
-            EasyLoading.show(status: t.loading);
+            EasyLoading.show(status: t.common.loading);
             try {
               final result = await ref
                   .read(userDeviceProvider.notifier)
@@ -491,12 +491,12 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               } else {
                 // 显示具体错误消息
                 final errorMsg = result['errorMsg'] as String?;
-                EasyLoading.showError(errorMsg ?? t.tipFailed);
+                EasyLoading.showError(errorMsg ?? t.common.tipFailed);
                 return false;
               }
             } catch (e) {
               EasyLoading.dismiss();
-              EasyLoading.showError(t.tipFailed);
+              EasyLoading.showError(t.common.tipFailed);
               return false;
             }
           },
@@ -510,17 +510,17 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.deleteThisDevice),
-        content: Text(t.deleteThisDeviceTips),
+        title: Text(t.common.deleteThisDevice),
+        content: Text(t.common.deleteThisDeviceTips),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () => _deleteDevice(ctx),
-            child: Text(t.buttonDelete),
+            child: Text(t.common.buttonDelete),
           ),
         ],
       ),
@@ -531,7 +531,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   Future<void> _deleteDevice(BuildContext context) async {
     Navigator.of(context).pop(); // 关闭对话框
 
-    EasyLoading.show(status: t.loading);
+    EasyLoading.show(status: t.common.loading);
     try {
       bool res = await ref
           .read(userDeviceProvider.notifier)
@@ -539,14 +539,14 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       EasyLoading.dismiss();
 
       if (res && mounted) {
-        EasyLoading.showSuccess(t.tipSuccess);
+        EasyLoading.showSuccess(t.common.tipSuccess);
         Navigator.of(context).pop(); // 返回设备列表页
       } else {
-        EasyLoading.showError(t.tipFailed);
+        EasyLoading.showError(t.common.tipFailed);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError(t.tipFailed);
+      EasyLoading.showError(t.common.tipFailed);
     }
   }
 }

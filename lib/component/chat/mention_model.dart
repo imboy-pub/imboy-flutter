@@ -85,15 +85,15 @@ class MentionCandidate {
 ///
 /// Group 角色值: 1=成员, 2=嘉宾, 3=管理员, 4=群主
 
-/// 获取角色显示文本（i18n：复用 t.groupOwner / t.groupAdmin / t.groupGuest）
+/// 获取角色显示文本（i18n：复用 t.group.groupOwner / t.group.groupAdmin / t.group.groupGuest）
 String groupRoleLabel(int role) {
   switch (role) {
     case 4:
-      return t.groupOwner;
+      return t.group.groupOwner;
     case 3:
-      return t.groupAdmin;
+      return t.group.groupAdmin;
     case 2:
-      return t.groupGuest;
+      return t.group.groupGuest;
     default:
       return '';
   }

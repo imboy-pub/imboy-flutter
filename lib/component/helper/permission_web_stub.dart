@@ -45,7 +45,7 @@ Future<bool> requestLocationPermission() async {
 
     if (!isEnabled) {
       // 权限已授予，但位置服务未开启
-      EasyLoading.showInfo(t.notTurnedLocationService);
+      EasyLoading.showInfo(t.common.notTurnedLocationService);
       // 引导用户开启位置服务
       // openAppSettings(); // 可选：打开设置页面
       return false;
@@ -71,18 +71,18 @@ Future<bool> requestLocationPermission() async {
       }
 
       if (!isEnabled) {
-        EasyLoading.showInfo(t.notTurnedLocationService);
+        EasyLoading.showInfo(t.common.notTurnedLocationService);
         return false;
       }
       return true;
     } else if (status == PermissionStatus.permanentlyDenied) {
       // 用户永久拒绝，提示去设置
-      EasyLoading.showInfo(t.noPermission);
+      EasyLoading.showInfo(t.common.noPermission);
       // openAppSettings(); // 可选：引导用户打开设置
       return false;
     } else {
       // 用户拒绝
-      EasyLoading.showInfo(t.noPermission);
+      EasyLoading.showInfo(t.common.noPermission);
       return false;
     }
   }
@@ -100,7 +100,7 @@ Future<bool> requestPhotoPermission() async {
     if (status.isGranted) {
       return true;
     } else {
-      EasyLoading.showInfo(t.noPermission);
+      EasyLoading.showInfo(t.common.noPermission);
       return false;
     }
   }
@@ -110,14 +110,14 @@ Future<bool> requestPhotoPermission() async {
       return true;
     } else {
       // 权限被拒绝，提示用户
-      EasyLoading.showInfo(t.noPermission);
+      EasyLoading.showInfo(t.common.noPermission);
       return false;
     }
   } on Exception catch (e) {
     if (kDebugMode) {
       debugPrint("requestPhotoPermission error: ${e.runtimeType}");
     }
-    EasyLoading.showInfo(t.permissionAcquisitionFailed);
+    EasyLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;
   }
 }
@@ -137,7 +137,7 @@ Future<bool> requestCameraPermission() async {
       if (status == PermissionStatus.granted) {
         return true;
       } else {
-        EasyLoading.showInfo(t.noPermission);
+        EasyLoading.showInfo(t.common.noPermission);
         return false;
       }
     }
@@ -145,7 +145,7 @@ Future<bool> requestCameraPermission() async {
     if (kDebugMode) {
       debugPrint("requestCameraPermission error: ${e.runtimeType}");
     }
-    EasyLoading.showInfo(t.permissionAcquisitionFailed);
+    EasyLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;
   }
 }

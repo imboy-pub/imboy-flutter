@@ -1161,9 +1161,12 @@ class MessageRepo {
       // status = 30 (peer_revoked) 或 31 (my_revoked)
       // 保留原始 msg_type，让会话列表知道原始内容类型
       if (status == IMBoyMessageStatus.peerRevoked) {
-        return (msgType: msgType, subtitle: '[${t.otherRevokedMessage}]');
+        return (
+          msgType: msgType,
+          subtitle: '[${t.common.otherRevokedMessage}]',
+        );
       } else {
-        return (msgType: msgType, subtitle: '[${t.youRevokedMessage}]');
+        return (msgType: msgType, subtitle: '[${t.common.youRevokedMessage}]');
       }
     }
 

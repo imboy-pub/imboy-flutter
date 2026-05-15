@@ -19,7 +19,10 @@ class ScannerResultPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.scanResult),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.discovery.scanResult,
+      ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: SizedBox(
@@ -33,7 +36,7 @@ class ScannerResultPage extends StatelessWidget {
                 const Space(width: 40),
                 FloatingActionButton(
                   heroTag: "back",
-                  tooltip: t.buttonBack,
+                  tooltip: t.common.buttonBack,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -42,18 +45,18 @@ class ScannerResultPage extends StatelessWidget {
                 // copy
                 FloatingActionButton(
                   heroTag: 'copy',
-                  tooltip: t.buttonCopy,
+                  tooltip: t.common.buttonCopy,
                   onPressed: () {
                     // 已复制
                     Clipboard.setData(ClipboardData(text: scanResult));
-                    EasyLoading.showToast(t.copied);
+                    EasyLoading.showToast(t.main.copied);
                   },
                   child: const Icon(Icons.copy_all),
                 ),
                 // open in browser
                 FloatingActionButton(
                   heroTag: "open_in_browser",
-                  tooltip: t.openInBrowser,
+                  tooltip: t.main.openInBrowser,
                   backgroundColor: isUrl(scanResult) ? null : Colors.grey,
                   onPressed: () {
                     if (isUrl(scanResult)) {
@@ -66,7 +69,7 @@ class ScannerResultPage extends StatelessWidget {
                             errorCallback: (String url) {
                               _showResult(
                                 context,
-                                "${t.cannotOpenWebpage}: $url",
+                                "${t.common.cannotOpenWebpage}: $url",
                               );
                             },
                           ),

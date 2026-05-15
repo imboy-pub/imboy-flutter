@@ -146,9 +146,9 @@ class ChatAttachmentHandler {
     } catch (e) {
       debugPrint("Camera picker error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${t.cameraShootFailed}: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t.common.cameraShootFailed}: $e')),
+        );
       }
     }
   }
@@ -496,9 +496,9 @@ class ChatAttachmentHandler {
     );
     final res = await onMessageCreated(message);
     if (res && context.mounted) {
-      EasyLoading.showSuccess(t.tipSuccess);
+      EasyLoading.showSuccess(t.common.tipSuccess);
     } else if (context.mounted) {
-      EasyLoading.showError(t.tipFailed);
+      EasyLoading.showError(t.common.tipFailed);
     }
   }
 }

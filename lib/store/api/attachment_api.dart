@@ -78,7 +78,10 @@ class AttachmentApi {
           onSendProgress: (int sent, int total) {
             // debugPrint('> on upload $sent / $total');
             if (process) {
-              EasyLoading.showProgress(sent / total, status: t.uploading);
+              EasyLoading.showProgress(
+                sent / total,
+                status: t.common.uploading,
+              );
               if (sent == total) {
                 Future<dynamic>.delayed(const Duration(milliseconds: 2000), () {
                   EasyLoading.dismiss();
@@ -92,8 +95,12 @@ class AttachmentApi {
           debugPrint(
             "> on upload completed with status ${response.statusCode}",
           );
-          Map<String, dynamic> resp = json.decode(response.data as String) as Map<String, dynamic>;
-          callback(resp, AssetsService.viewUrl(resp['data']['url'] as String).toString());
+          Map<String, dynamic> resp =
+              json.decode(response.data as String) as Map<String, dynamic>;
+          callback(
+            resp,
+            AssetsService.viewUrl(resp['data']['url'] as String).toString(),
+          );
         })
         .catchError((Object e) {
           debugPrint("> on upload error ${e.toString()}");
@@ -171,12 +178,12 @@ class AttachmentApi {
         }
       } catch (e) {
         debugPrint("❌ 替代方法失败: $e");
-        errorCallback(Exception(t.attachmentGetFileFailed));
+        errorCallback(Exception(t.common.attachmentGetFileFailed));
         return;
       }
 
       if (file == null) {
-        errorCallback(Exception(t.attachmentGetFileFailedAndroid9));
+        errorCallback(Exception(t.common.attachmentGetFileFailedAndroid9));
         return;
       }
     }
@@ -230,7 +237,8 @@ class AttachmentApi {
       Map<String, dynamic> preData = {'md5': videoMd5};
       await preUpload(prefix, preData)
           .then((response) async {
-            Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+            Map<String, dynamic> responseData =
+                json.decode(response.data as String) as Map<String, dynamic>;
             String status = responseData['status'] as String? ?? '';
             if (status == 'ok') {
               videoUri = AssetsService.viewUrl(
@@ -304,7 +312,9 @@ class AttachmentApi {
           Map<String, dynamic> preData = {'md5': sha1.convert(originData)};
           await preUpload(prefix, preData)
               .then((response) async {
-                Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+                Map<String, dynamic> responseData =
+                    json.decode(response.data as String)
+                        as Map<String, dynamic>;
                 String status = responseData['status'] as String? ?? '';
                 if (status == 'ok') {
                   callback(
@@ -325,7 +335,7 @@ class AttachmentApi {
                 errorCallback(e);
               });
         } else {
-          errorCallback(Exception(t.attachmentGetImageDataFailed));
+          errorCallback(Exception(t.common.attachmentGetImageDataFailed));
         }
         return;
       }
@@ -333,12 +343,15 @@ class AttachmentApi {
       Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
       await preUpload(prefix, preData)
           .then((response) async {
-            Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+            Map<String, dynamic> responseData =
+                json.decode(response.data as String) as Map<String, dynamic>;
             String status = responseData['status'] as String? ?? '';
             if (status == 'ok') {
               callback(
                 responseData,
-                AssetsService.viewUrl(responseData['data']['url'] as String).toString(),
+                AssetsService.viewUrl(
+                  responseData['data']['url'] as String,
+                ).toString(),
               );
             } else {
               Map<String, dynamic> data = {
@@ -359,19 +372,22 @@ class AttachmentApi {
       // Android 9 兼容性：处理 originBytes 为 null 的情况
       if (thumbData == null || thumbData.isEmpty) {
         debugPrint("❌ uploadVideo: originBytes 返回空数据");
-        errorCallback(Exception(t.attachmentGetOriginalImageFailed));
+        errorCallback(Exception(t.common.attachmentGetOriginalImageFailed));
         return;
       }
 
       Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
       await preUpload(prefix, preData)
           .then((response) async {
-            Map<String, dynamic> responseData = json.decode(response.data as String) as Map<String, dynamic>;
+            Map<String, dynamic> responseData =
+                json.decode(response.data as String) as Map<String, dynamic>;
             String status = responseData['status'] as String? ?? '';
             if (status == 'ok') {
               callback(
                 responseData,
-                AssetsService.viewUrl(responseData['data']['url'] as String).toString(),
+                AssetsService.viewUrl(
+                  responseData['data']['url'] as String,
+                ).toString(),
               );
             } else {
               Map<String, dynamic> data = {
@@ -401,7 +417,7 @@ class AttachmentApi {
     } else if (file is File) {
       path = file.path;
     } else {
-      throw Exception(t.unsupportedFileType);
+      throw Exception(t.chat.unsupportedFileType);
     }
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);

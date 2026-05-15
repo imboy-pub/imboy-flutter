@@ -127,7 +127,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
         // 创建当前设备的模型
         final currentDevice = UserDeviceModel(
           deviceId: currentDid,
-          deviceName: t.currentDevice,
+          deviceName: t.account.currentDevice,
           deviceType: deviceType,
           lastActiveAt: DateTimeHelper.millisecond(),
           online: true,
@@ -189,7 +189,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      return {'success': false, 'errorMsg': t.tipConnectDesc};
+      return {'success': false, 'errorMsg': t.common.tipConnectDesc};
     }
 
     final apiResp = await api.UserDeviceApi().changeNameWithResponse(
@@ -200,7 +200,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     if (!apiResp.ok) {
       return {
         'success': false,
-        'errorMsg': apiResp.msg.isNotEmpty ? apiResp.msg : t.tipFailed,
+        'errorMsg': apiResp.msg.isNotEmpty ? apiResp.msg : t.common.tipFailed,
       };
     }
 
@@ -241,7 +241,9 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
         final devices = result['devices'] as List<dynamic>? ?? [];
         state = state.copyWith(
           activeSessions: List<Map<String, dynamic>>.from(
-            devices.map((d) => Map<String, dynamic>.from(d as Map<dynamic, dynamic>)),
+            devices.map(
+              (d) => Map<String, dynamic>.from(d as Map<dynamic, dynamic>),
+            ),
           ),
           isLoadingSessions: false,
         );
@@ -404,7 +406,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       "msg_type": "device_force_offline",
       "payload": {
         "by_did": deviceId,
-        "by_name": name.isEmpty ? t.otherDevice : name,
+        "by_name": name.isEmpty ? t.account.otherDevice : name,
       },
     };
 

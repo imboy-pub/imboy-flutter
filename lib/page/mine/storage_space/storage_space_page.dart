@@ -38,7 +38,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.storageSpace,
+        title: t.main.storageSpace,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -143,15 +143,16 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             children: [
               _buildLegendItem(
                 AppColors.primary,
-                '$appName${t.usedSpace}${formatBytes(state.appAllBytes, num: 1000)}',
+                '$appName${t.main.usedSpace}${formatBytes(state.appAllBytes, num: 1000)}',
               ),
               _buildLegendItem(
                 Colors.amber,
-                t.deviceUsedSpace + formatBytes(state.usedDiskSpace, num: 1000),
+                t.account.deviceUsedSpace +
+                    formatBytes(state.usedDiskSpace, num: 1000),
               ),
               _buildLegendItem(
                 Colors.grey,
-                t.deviceAvailableSpace +
+                t.account.deviceAvailableSpace +
                     formatBytes(state.freeDiskSpace, num: 1000),
               ),
             ],
@@ -198,7 +199,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            appName + t.usedSpace,
+            appName + t.main.usedSpace,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -214,7 +215,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           ),
           const SizedBox(height: 4),
           Text(
-            t.tipDeviceSpace(
+            t.common.tipDeviceSpace(
               param1: state.totalDiskSpace > 0
                   ? ((state.appAllBytes / state.totalDiskSpace) * 1000)
                         .toStringAsFixed(3)
@@ -239,9 +240,9 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
       children: [
         _buildStorageCard(
           context,
-          title: appName + t.cache,
+          title: appName + t.main.cache,
           value: state.cacheBytes,
-          description: t.cacheTips,
+          description: t.common.cacheTips,
           icon: Icons.cached_rounded,
           iconColor: AppColors.warning,
           action: Container(
@@ -257,9 +258,9 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                       .read(storageSpaceProvider.notifier)
                       .clearAllCache();
                   if (res) {
-                    EasyLoading.showSuccess(t.tipSuccess);
+                    EasyLoading.showSuccess(t.common.tipSuccess);
                   } else {
-                    EasyLoading.showError(t.tipFailed);
+                    EasyLoading.showError(t.common.tipFailed);
                   }
                 },
                 borderRadius: AppRadius.borderRadiusLarge,
@@ -269,7 +270,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                     vertical: 8,
                   ),
                   child: Text(
-                    t.clean,
+                    t.main.clean,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -284,18 +285,18 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         const SizedBox(height: 12),
         _buildStorageCard(
           context,
-          title: t.userData,
+          title: t.chat.userData,
           value: state.dataBytes,
-          description: t.userDataTips,
+          description: t.common.userDataTips,
           icon: Icons.folder_rounded,
           iconColor: AppColors.info,
         ),
         const SizedBox(height: 12),
         _buildStorageCard(
           context,
-          title: t.appSize,
+          title: t.main.appSize,
           value: state.appBytes,
-          description: t.appSizeTips,
+          description: t.common.appSizeTips,
           icon: Icons.apps_rounded,
           iconColor: AppColors.success,
         ),

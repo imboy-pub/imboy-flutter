@@ -412,7 +412,7 @@ class AppInitializer {
               onTimeout: () {
                 if (kDebugMode) debugPrint('❌ initConfig: 请求超时 (10秒)');
                 return IMBoyHttpResponse.failure(
-                  errMsg: t.initConfigTimeout,
+                  errMsg: t.common.initConfigTimeout,
                   errCode: 408,
                 );
               },
@@ -444,7 +444,7 @@ class AppInitializer {
           debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
         }
         final error = {
-          "error": t.initConfigNetworkError(code: resp1.code.toString()),
+          "error": t.common.initConfigNetworkError(code: resp1.code.toString()),
         };
         _initConfigCompleter!.complete(error);
         return error;
@@ -455,7 +455,7 @@ class AppInitializer {
 
       if (encrypted.isEmpty) {
         if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
-        final error = {"error": t.initConfigProtocolError};
+        final error = {"error": t.common.initConfigProtocolError};
         _initConfigCompleter!.complete(error);
         return error;
       }
@@ -468,13 +468,15 @@ class AppInitializer {
           '🔐 [INIT] signKey value: $key, iv: ${Env().solidifiedKeyIv}',
         );
       }
-      Map<String, dynamic> payload = jsonDecode(
-        EncrypterService.aesDecrypt(
-          encrypted,
-          EncrypterService.md5(key),
-          Env().solidifiedKeyIv,
-        ),
-      ) as Map<String, dynamic>;
+      Map<String, dynamic> payload =
+          jsonDecode(
+                EncrypterService.aesDecrypt(
+                  encrypted,
+                  EncrypterService.md5(key),
+                  Env().solidifiedKeyIv,
+                ),
+              )
+              as Map<String, dynamic>;
       if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');
 
       if (payload.containsKey('error')) {
@@ -506,8 +508,14 @@ class AppInitializer {
         }
       }
 
-      await StorageService.to.setString(Keys.uploadUrl, payload['upload_url'] as String);
-      await StorageService.to.setString(Keys.uploadKey, payload['upload_key'] as String);
+      await StorageService.to.setString(
+        Keys.uploadUrl,
+        payload['upload_url'] as String,
+      );
+      await StorageService.to.setString(
+        Keys.uploadKey,
+        payload['upload_key'] as String,
+      );
       await StorageService.to.setString(
         Keys.uploadScene,
         payload['upload_scene'] as String,
@@ -527,7 +535,7 @@ class AppInitializer {
         debugPrint('❌ initConfig: 请求异常 ${e.runtimeType}');
         debugPrint('❌ initConfig: 堆栈追踪: $stack');
       }
-      final error = {"error": t.initConfigFetchFailed};
+      final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
       if (!_initConfigCompleter!.isCompleted) {
         _initConfigCompleter!.complete(error);

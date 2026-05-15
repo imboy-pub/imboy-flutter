@@ -56,11 +56,11 @@ IMBoyHttpResponse handleResponse(
       final retrySeconds = int.tryParse(retryAfter ?? '');
       if (retrySeconds != null && retrySeconds > 0) {
         EasyLoading.showError(
-          t.throttleRetryAfter(seconds: '$retrySeconds'),
+          t.common.throttleRetryAfter(seconds: '$retrySeconds'),
           duration: Duration(seconds: retrySeconds.clamp(2, 10)),
         );
       } else {
-        EasyLoading.showError(t.throttleWarning);
+        EasyLoading.showError(t.common.throttleWarning);
       }
     }
     // 接口调用失败
@@ -95,25 +95,25 @@ bool _isRequestSuccess(int? statusCode) {
 String _getErrorMessageForStatusCode(int? statusCode) {
   switch (statusCode) {
     case ErrorCode.BAD_REQUEST:
-      return t.errorRequestSyntax;
+      return t.common.errorRequestSyntax;
     case ErrorCode.UNAUTHORIZED:
-      return t.noPermission;
+      return t.common.noPermission;
     case ErrorCode.FORBIDDEN:
-      return t.errorServerRefused;
+      return t.common.errorServerRefused;
     case ErrorCode.NOT_FOUND:
-      return t.errorFailedConnectServer;
+      return t.common.errorFailedConnectServer;
     case ErrorCode.METHOD_NOT_ALLOWED:
-      return t.errorRequestForbidden;
+      return t.common.errorRequestForbidden;
     case ErrorCode.TOO_MANY_REQUESTS:
-      return t.errorManyRequest;
+      return t.common.errorManyRequest;
     case ErrorCode.INTERNAL_SERVER_ERROR:
-      return t.errorInternalServer;
+      return t.common.errorInternalServer;
     case ErrorCode.BAD_GATEWAY:
-      return t.errorInvalidRequest;
+      return t.common.errorInvalidRequest;
     case ErrorCode.SERVICE_UNAVAILABLE:
-      return t.errorServerDown;
+      return t.common.errorServerDown;
     default:
-      return 'HTTP $statusCode ${t.errorUnexpected}';
+      return 'HTTP $statusCode ${t.common.errorUnexpected}';
   }
 }
 
@@ -133,61 +133,61 @@ HttpException _parseException(Exception error) {
             case ErrorCode.BAD_REQUEST:
               // 请求语法错误
               return BadRequestException(
-                message: t.errorRequestSyntax,
+                message: t.common.errorRequestSyntax,
                 code: errCode,
               );
             case ErrorCode.UNAUTHORIZED:
               // 没有权限
               return UnauthorisedException(
-                message: t.noPermission,
+                message: t.common.noPermission,
                 code: errCode,
               );
             case ErrorCode.FORBIDDEN:
               // 服务器拒绝执行
               return BadRequestException(
-                message: t.errorServerRefused,
+                message: t.common.errorServerRefused,
                 code: errCode,
               );
             case ErrorCode.NOT_FOUND:
               // 无法连接服务器
               return BadRequestException(
-                message: t.errorFailedConnectServer,
+                message: t.common.errorFailedConnectServer,
                 code: errCode,
               );
             case ErrorCode.METHOD_NOT_ALLOWED:
               // 请求方法被禁止
               return BadRequestException(
-                message: t.errorRequestForbidden,
+                message: t.common.errorRequestForbidden,
                 code: errCode,
               );
             case ErrorCode.TOO_MANY_REQUESTS:
               return BadRequestException(
-                message: t.errorManyRequest,
+                message: t.common.errorManyRequest,
                 code: errCode,
               );
 
             case ErrorCode.INTERNAL_SERVER_ERROR:
               // 服务器内部错误
               return BadServiceException(
-                message: t.errorInternalServer,
+                message: t.common.errorInternalServer,
                 code: errCode,
               );
             case ErrorCode.BAD_GATEWAY:
               // 无效的请求
               return BadServiceException(
-                message: t.errorInvalidRequest,
+                message: t.common.errorInvalidRequest,
                 code: errCode,
               );
             case ErrorCode.SERVICE_UNAVAILABLE:
               // 服务器挂了
               return BadServiceException(
-                message: t.errorServerDown,
+                message: t.common.errorServerDown,
                 code: errCode,
               );
             case 505:
               // 不支持HTTP协议请求
               return UnauthorisedException(
-                message: t.errorHttpNotSupported,
+                message: t.common.errorHttpNotSupported,
                 code: errCode,
               );
             default:

@@ -53,11 +53,11 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -139,11 +139,11 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text(t.cancel),
+                  child: Text(t.common.cancel),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text(t.confirm),
+                  child: Text(t.common.confirm),
                 ),
               ],
             ),

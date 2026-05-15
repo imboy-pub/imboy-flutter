@@ -115,11 +115,13 @@ class _TagInputState extends State<TagInput> {
   void _addTag(String tag) {
     if (tag.isEmpty || _currentTags.contains(tag)) return;
     if (tag.length > widget.maxTagLength) {
-      _showError(t.tagLengthExceeded(param: widget.maxTagLength.toString()));
+      _showError(
+        t.contact.tagLengthExceeded(param: widget.maxTagLength.toString()),
+      );
       return;
     }
     if (_currentTags.length >= widget.maxTags) {
-      _showError(t.maxTagsExceeded(param: widget.maxTags.toString()));
+      _showError(t.contact.maxTagsExceeded(param: widget.maxTags.toString()));
       return;
     }
 
@@ -178,7 +180,7 @@ class _TagInputState extends State<TagInput> {
               Icon(Icons.local_offer, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
-                t.selectedTags(
+                t.contact.selectedTags(
                   param: _currentTags.length.toString(),
                   max: widget.maxTags.toString(),
                 ),
@@ -294,7 +296,7 @@ class _TagInputState extends State<TagInput> {
         controller: _controller,
         focusNode: _focusNode,
         decoration: InputDecoration(
-          hintText: widget.hintText ?? t.tagInputHint,
+          hintText: widget.hintText ?? t.contact.tagInputHint,
           hintStyle: TextStyle(
             color: Theme.of(
               context,
@@ -349,7 +351,7 @@ class _TagInputState extends State<TagInput> {
                 Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  t.suggestedTags,
+                  t.contact.suggestedTags,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurface,

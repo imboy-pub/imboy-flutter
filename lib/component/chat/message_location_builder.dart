@@ -93,7 +93,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                 builder: (context) => Container(
                   color: Theme.of(context).colorScheme.surface,
                   child: availableMaps.isEmpty
-                      ? Center(child: Text(t.notInstallAnyMapApp))
+                      ? Center(child: Text(t.common.notInstallAnyMapApp))
                       : SingleChildScrollView(
                           child: Wrap(
                             children: availableMaps.map<Widget>((map) {

@@ -218,7 +218,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           },
         ),
         title:
-            "${state.title.isEmpty ? t.chatMessage : state.title} (${state.memberCount})",
+            "${state.title.isEmpty ? t.chat.chatMessage : state.title} (${state.memberCount})",
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -247,7 +247,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.groupMembers,
+                    t.group.groupMembers,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.medium,
                       fontWeight: FontWeight.w600,
@@ -316,7 +316,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         label: Text(
-                          t.viewAllGroupMember,
+                          t.common.viewAllGroupMember,
                           style: TextStyle(
                             fontSize: 14,
                             color: Theme.of(context).colorScheme.primary,
@@ -361,8 +361,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   // 群名称
                   _buildModernListTile(
                     context: context,
-                    title: t.groupName,
-                    value: state.title.isEmpty ? t.unnamed : state.title,
+                    title: t.group.groupName,
+                    value: state.title.isEmpty ? t.main.unnamed : state.title,
                     icon: Icons.group_outlined,
                     onTap: () async {
                       GroupModel? group = await service.find(widget.groupId);
@@ -373,8 +373,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           CupertinoPageRoute<dynamic>(
                             builder: (_) => ChangeInfoPage(
                               group: group,
-                              title: t.groupName,
-                              subtitle: t.pleaseEnterContent,
+                              title: t.group.groupName,
+                              subtitle: t.common.pleaseEnterContent,
                             ),
                           ),
                         );
@@ -392,7 +392,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   // 群二维码
                   _buildModernListTile(
                     context: context,
-                    title: t.groupQrcode,
+                    title: t.account.groupQrcode,
                     icon: Icons.qr_code_2_outlined,
                     onTap: () async {
                       GroupModel? group = await service.find(widget.groupId);
@@ -418,7 +418,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   // 群公告
                   _buildModernListTile(
                     context: context,
-                    title: t.groupAnnouncement,
+                    title: t.common.groupAnnouncement,
                     icon: Icons.announcement_outlined,
                     onTap: () {
                       context.push(
@@ -437,7 +437,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   _buildModernListTile(
                     context: context,
-                    title: t.groupFile,
+                    title: t.chat.groupFile,
                     icon: Icons.insert_drive_file_outlined,
                     onTap: () {
                       context.push('/group/${widget.groupId}/file');
@@ -453,7 +453,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   _buildModernListTile(
                     context: context,
-                    title: t.groupAlbum,
+                    title: t.group.groupAlbum,
                     icon: Icons.photo_album_outlined,
                     onTap: () {
                       context.push('/group/${widget.groupId}/album');
@@ -482,7 +482,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: t.searchChatContent,
+                title: t.common.searchChatContent,
                 icon: Icons.search_outlined,
                 onTap: () {
                   context.push(
@@ -524,7 +524,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 children: [
                   _buildModernListTile(
                     context: context,
-                    title: t.groupAlias,
+                    title: t.group.groupAlias,
                     value: strEmpty(state.myGroupAlias)
                         ? UserRepoLocal.to.current.nickname
                         : state.myGroupAlias,
@@ -559,7 +559,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   _buildModernListTile(
                     context: context,
-                    title: t.remark,
+                    title: t.contact.remark,
                     value: strEmpty(state.groupRemark)
                         ? state.group?.title ?? ''
                         : state.groupRemark,
@@ -593,7 +593,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   // slice-7 (C6 UI) — 群消息免打扰开关
                   GroupNoticeDisabledTile(
-                    label: t.muteNotifications,
+                    label: t.common.muteNotifications,
                     value: _noticeDisabled,
                     onChanged: _gidInt <= 0
                         ? null
@@ -611,7 +611,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                             } catch (_) {
                               if (mounted) {
                                 setState(() => _noticeDisabled = prev);
-                                EasyLoading.showError(t.tipFailed);
+                                EasyLoading.showError(t.common.tipFailed);
                               }
                             }
                           },
@@ -646,16 +646,16 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   // 清空聊天记录
                   _buildModernListTile(
                     context: context,
-                    title: t.clearChatRecord,
+                    title: t.common.clearChatRecord,
                     icon: Icons.delete_sweep_outlined,
                     onTap: () {
-                      String tips = t.confirmDeleteChatRecord;
+                      String tips = t.common.confirmDeleteChatRecord;
                       EasyDialog.showWarning<void>(
                         context: context,
-                        title: t.warning,
+                        title: t.common.warning,
                         content: Text(tips),
-                        confirmText: t.buttonConfirm,
-                        cancelText: t.buttonCancel,
+                        confirmText: t.common.buttonConfirm,
+                        cancelText: t.common.buttonCancel,
                         onConfirm: () async {
                           int cid = await service.cleanMessageByPeerId(
                             'C2G',
@@ -669,9 +669,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                             await ref
                                 .read(conversationProvider.notifier)
                                 .conversationsList();
-                            EasyLoading.showSuccess(t.tipSuccess);
+                            EasyLoading.showSuccess(t.common.tipSuccess);
                           } else {
-                            EasyLoading.showError(t.tipFailed);
+                            EasyLoading.showError(t.common.tipFailed);
                           }
                         },
                       );
@@ -703,7 +703,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: t.complaint,
+                title: t.complaint.complaint,
                 icon: Icons.flag_outlined,
                 onTap: () => _showComplaintDialog(context),
               ),
@@ -736,14 +736,14 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     String tips =
-                        "${isGroupOwner(state.role) ? t.sureToDissolveGroup : t.sureToLeaveGroup}\n${t.sureDeleteGroupChatRecord}";
+                        "${isGroupOwner(state.role) ? t.group.sureToDissolveGroup : t.group.sureToLeaveGroup}\n${t.common.sureDeleteGroupChatRecord}";
 
                     EasyDialog.showWarning<void>(
                       context: context,
-                      title: t.tipTips,
+                      title: t.common.tipTips,
                       content: Text(tips),
-                      confirmText: t.buttonConfirm,
-                      cancelText: t.buttonCancel,
+                      confirmText: t.common.buttonConfirm,
+                      cancelText: t.common.buttonCancel,
                       onConfirm: () async {
                         var nav = Navigator.of(context);
                         bool res = false;
@@ -753,7 +753,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           res = await service.leave(widget.groupId);
                         }
                         if (res) {
-                          EasyLoading.showSuccess(t.tipSuccess);
+                          EasyLoading.showSuccess(t.common.tipSuccess);
                           nav.pop();
                           nav.pop();
                         }
@@ -769,7 +769,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     ),
                   ),
                   child: Text(
-                    isGroupOwner(state.role) ? t.groupDissolve : t.groupLeave,
+                    isGroupOwner(state.role)
+                        ? t.group.groupDissolve
+                        : t.group.groupLeave,
                     style: TextStyle(
                       color: AppColors.getIosRed(Theme.of(context).brightness),
                       fontWeight: FontWeight.w600,
@@ -864,13 +866,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(t.complaint),
+          title: Text(t.complaint.complaint),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                t.pleaseSelect,
+                t.main.pleaseSelect,
                 style: TextStyle(
                   fontSize: 14,
                   color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -911,7 +913,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(t.buttonCancel),
+              child: Text(t.common.buttonCancel),
             ),
             TextButton(
               onPressed: selectedReason == null
@@ -925,12 +927,12 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         reason: selectedReason!,
                       );
                       if (success) {
-                        EasyLoading.showSuccess(t.complaintSuccess);
+                        EasyLoading.showSuccess(t.common.complaintSuccess);
                       } else {
-                        EasyLoading.showError(t.complaintFailed);
+                        EasyLoading.showError(t.common.complaintFailed);
                       }
                     },
-              child: Text(t.buttonConfirm),
+              child: Text(t.common.buttonConfirm),
             ),
           ],
         ),

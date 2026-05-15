@@ -218,7 +218,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       if (kDebugMode) debugPrint('Search error: ${e.runtimeType}');
       if (!mounted) return;
       setState(() {
-        _state = _state.copyWith(isLoading: false, error: t.searchError);
+        _state = _state.copyWith(isLoading: false, error: t.common.searchError);
       });
     }
   }
@@ -307,7 +307,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             title: group.title,
             subtitle: group.introduction.isNotEmpty
                 ? group.introduction
-                : '${group.memberCount} ${t.groupMembers}',
+                : '${group.memberCount} ${t.group.groupMembers}',
             avatar: group.avatar,
             highlightText: query,
           ),
@@ -444,7 +444,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 fontSize: 15,
               ),
               decoration: InputDecoration(
-                hintText: t.search,
+                hintText: t.common.search,
                 hintStyle: TextStyle(
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
@@ -493,7 +493,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           const CircularProgressIndicator(color: AppColors.chatWebBrand),
           const SizedBox(height: 16),
           Text(
-            t.search,
+            t.common.search,
             style: TextStyle(
               color: isDark
                   ? AppColors.chatWebSecondaryDark
@@ -522,7 +522,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t.searchChatContent,
+              t.common.searchChatContent,
               style: TextStyle(
                 color: isDark
                     ? AppColors.chatWebSecondaryDark
@@ -545,7 +545,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                t.searchHistory,
+                t.common.searchHistory,
                 style: TextStyle(
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
@@ -557,7 +557,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               TextButton(
                 onPressed: _clearSearchHistory,
                 child: Text(
-                  t.clear,
+                  t.common.clear,
                   style: const TextStyle(
                     color: AppColors.chatWebBrand,
                     fontSize: 14,
@@ -652,7 +652,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              '${t.search}: "${_state.query}"',
+              '${t.common.search}: "${_state.query}"',
               style: TextStyle(
                 color: isDark
                     ? AppColors.chatWebSecondaryDark

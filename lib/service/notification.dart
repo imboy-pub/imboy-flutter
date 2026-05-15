@@ -239,8 +239,10 @@ class NotificationService {
 
     await show(
       id: requesterId.hashCode,
-      title: t.notificationFriendRequest,
-      body: t.notificationFriendRequestBody(requesterName: requesterName),
+      title: t.common.notificationFriendRequest,
+      body: t.common.notificationFriendRequestBody(
+        requesterName: requesterName,
+      ),
       payload: payload,
     );
   }
@@ -264,8 +266,8 @@ class NotificationService {
 
     await show(
       id: groupId.hashCode,
-      title: t.notificationGroupInvite,
-      body: t.notificationGroupInviteBody(
+      title: t.common.notificationGroupInvite,
+      body: t.common.notificationGroupInviteBody(
         inviterName: inviterName,
         groupName: groupName,
       ),

@@ -133,7 +133,9 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           ),
         );
       } else if (result == '' && type == 'group') {
-        await GroupMemberRepo().save(payload['group_member'] as Map<String, dynamic>);
+        await GroupMemberRepo().save(
+          payload['group_member'] as Map<String, dynamic>,
+        );
         if (!mounted) return;
         Navigator.push(
           context,
@@ -149,10 +151,10 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           ),
         );
       } else if (result == 'user_not_exist') {
-        await _showResult(t.userNotExist);
+        await _showResult(t.common.userNotExist);
       } else if (result == 'user_is_disabled_or_deleted') {
         // 用户被禁用或已删除
-        await _showResult(t.userDisabledOrDeleted);
+        await _showResult(t.common.userDisabledOrDeleted);
       }
     } else {
       if (!mounted) return;
@@ -280,7 +282,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           height: 20,
                           child: FittedBox(
                             child: Text(
-                              t.scanQrCode,
+                              t.account.scanQrCode,
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
@@ -335,7 +337,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           if (res == null) {
                             state.showSnackBar(
                               SnackBar(
-                                content: Text(t.noBarcodeFound),
+                                content: Text(t.common.noBarcodeFound),
                                 backgroundColor: AppColors.getIosRed(
                                   Theme.of(context).brightness,
                                 ),
@@ -344,7 +346,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           } else {
                             state.showSnackBar(
                               SnackBar(
-                                content: Text(t.barcodeFound),
+                                content: Text(t.main.barcodeFound),
                                 backgroundColor: AppColors.getIosGreen(
                                   Theme.of(context).brightness,
                                 ),

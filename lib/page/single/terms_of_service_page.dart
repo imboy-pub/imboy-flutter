@@ -15,14 +15,14 @@ class TermsOfServicePage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: GlassAppBar(title: t.termsOfService),
+      appBar: GlassAppBar(title: t.main.termsOfService),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t.termsOfService,
+              t.main.termsOfService,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

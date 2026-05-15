@@ -75,7 +75,7 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
     } on Exception {
       state = state.copyWith(
         isLoading: false,
-        error: t.operationFailedAgainLater,
+        error: t.common.operationFailedAgainLater,
       );
       return null;
     }
@@ -93,7 +93,7 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
     } on Exception {
       state = state.copyWith(
         isLoading: false,
-        error: t.operationFailedAgainLater,
+        error: t.common.operationFailedAgainLater,
       );
       return false;
     }
@@ -115,7 +115,7 @@ class LogoutAccountPage extends ConsumerWidget {
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.logoutAccount,
+        title: t.account.logoutAccount,
       ),
       body: SafeArea(
         child: Padding(
@@ -132,16 +132,16 @@ class LogoutAccountPage extends ConsumerWidget {
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   leading: Icon(Icons.download, color: AppColors.primary),
-                  title: Text(t.exportMyData),
+                  title: Text(t.chat.exportMyData),
                   subtitle: Text(
-                    t.exportDataDesc,
+                    t.chat.exportDataDesc,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: state.isLoading
                       ? null
                       : () async {
-                          EasyLoading.show(status: t.loading);
+                          EasyLoading.show(status: t.common.loading);
                           final filePath = await ref
                               .read(logoutAccountProvider.notifier)
                               .exportUserData();
@@ -150,11 +150,11 @@ class LogoutAccountPage extends ConsumerWidget {
                           final result = await SharePlus.instance.share(
                             ShareParams(
                               files: [XFile(filePath)],
-                              text: t.exportMyData,
+                              text: t.chat.exportMyData,
                             ),
                           );
                           if (result.status == ShareResultStatus.success) {
-                            EasyLoading.showSuccess(t.exportDataSuccess);
+                            EasyLoading.showSuccess(t.common.exportDataSuccess);
                           }
                         },
                 ),
@@ -162,7 +162,9 @@ class LogoutAccountPage extends ConsumerWidget {
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: agreed,
-                title: Text(t.readAgreeParam(param: t.logoutAccount)),
+                title: Text(
+                  t.chat.readAgreeParam(param: t.account.logoutAccount),
+                ),
                 onChanged: state.isLoading
                     ? null
                     : (_) {
@@ -192,7 +194,9 @@ class LogoutAccountPage extends ConsumerWidget {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(t.operationFailedAgainLater),
+                                content: Text(
+                                  t.common.operationFailedAgainLater,
+                                ),
                               ),
                             );
                           }
@@ -219,7 +223,7 @@ class LogoutAccountPage extends ConsumerWidget {
                           ),
                         )
                       : Text(
-                          t.logoutAccount,
+                          t.account.logoutAccount,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

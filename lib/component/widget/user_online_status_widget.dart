@@ -128,7 +128,7 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
         if (status.lastSeenAt != null && !status.isOnline) ...[
           const SizedBox(height: 4),
           Text(
-            t.lastSeenExactTime(
+            t.main.lastSeenExactTime(
               param: UserOnlineTimeHelper.formatExactTime(status.lastSeenAt!),
             ),
             style: Theme.of(

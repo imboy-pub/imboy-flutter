@@ -37,11 +37,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeBackupExportTitle),
+        title: Text(t.common.e2eeBackupExportTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       body: ListView(
@@ -80,7 +80,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 const Icon(Icons.warning_amber_rounded, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  t.e2eeImportantNote,
+                  t.common.e2eeImportantNote,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange.shade900,
@@ -90,12 +90,12 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeBackupPwdCantRecover,
+              t.common.e2eeBackupPwdCantRecover,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
             const SizedBox(height: 4),
             Text(
-              t.e2eeBackupStoreMultipleNote,
+              t.common.e2eeBackupStoreMultipleNote,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
           ],
@@ -109,8 +109,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: t.e2eeBackupPwdLabel,
-        hintText: t.e2eeBackupPwdHint,
+        labelText: t.common.e2eeBackupPwdLabel,
+        hintText: t.common.e2eeBackupPwdHint,
         prefixIcon: const Icon(Icons.lock_outline),
         border: const OutlineInputBorder(),
       ),
@@ -123,8 +123,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       controller: _confirmPasswordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: t.e2eeBackupConfirmPwdLabel,
-        hintText: t.e2eeBackupConfirmPwdHint,
+        labelText: t.common.e2eeBackupConfirmPwdLabel,
+        hintText: t.common.e2eeBackupConfirmPwdHint,
         prefixIcon: const Icon(Icons.lock),
         border: const OutlineInputBorder(),
       ),
@@ -135,8 +135,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     return TextField(
       controller: _notesController,
       decoration: InputDecoration(
-        labelText: t.e2eeBackupNoteLabel,
-        hintText: t.e2eeBackupNoteHint,
+        labelText: t.common.e2eeBackupNoteLabel,
+        hintText: t.common.e2eeBackupNoteHint,
         prefixIcon: const Icon(Icons.note),
         border: const OutlineInputBorder(),
       ),
@@ -152,7 +152,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t.e2eeBackupPwdStrengthLabel,
+          t.common.e2eeBackupPwdStrengthLabel,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -179,10 +179,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   }
 
   String _getStrengthLabel(double strength) {
-    if (strength < 0.3) return t.e2eeBackupPwdWeak;
-    if (strength < 0.6) return t.e2eeBackupPwdMedium;
-    if (strength < 0.8) return t.e2eeBackupPwdStrong;
-    return t.e2eeBackupPwdVeryStrong;
+    if (strength < 0.3) return t.common.e2eeBackupPwdWeak;
+    if (strength < 0.6) return t.common.e2eeBackupPwdMedium;
+    if (strength < 0.8) return t.common.e2eeBackupPwdStrong;
+    return t.common.e2eeBackupPwdVeryStrong;
   }
 
   Widget _buildExportButton() {
@@ -203,7 +203,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : Text(t.e2eeBackupGenerateBtn),
+          : Text(t.common.e2eeBackupGenerateBtn),
     );
   }
 
@@ -221,7 +221,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    t.e2eeBackupFileGenerated,
+                    t.common.e2eeBackupFileGenerated,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green.shade900,
@@ -239,7 +239,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             OutlinedButton.icon(
               onPressed: _handleShare,
               icon: const Icon(Icons.share),
-              label: Text(t.e2eeBackupShareBtn),
+              label: Text(t.common.e2eeBackupShareBtn),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
               ),
@@ -255,7 +255,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (password != confirmPassword) {
-      _showError(t.e2eeBackupErrPwdMismatch);
+      _showError(t.common.e2eeBackupErrPwdMismatch);
       return;
     }
 
@@ -268,7 +268,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       final keyId = await StorageSecureService.to.getKeyId();
 
       if (privateKey == null || publicKey == null) {
-        _showError(t.e2eeBackupErrNoKeyData);
+        _showError(t.common.e2eeBackupErrNoKeyData);
         return;
       }
 
@@ -289,7 +289,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       _showSuccessDialog();
     } on Exception {
       setState(() => _isExporting = false);
-      _showError(t.e2eeBackupErrExportFailed);
+      _showError(t.common.e2eeBackupErrExportFailed);
     }
   }
 
@@ -299,10 +299,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     try {
       await E2EELocalBackupService.shareBackup(
         _generatedFilePath!,
-        shareText: t.e2eeBackupShareContent,
+        shareText: t.common.e2eeBackupShareContent,
       );
     } on Exception {
-      _showError(t.e2eeBackupErrShareFailed);
+      _showError(t.common.e2eeBackupErrShareFailed);
     }
   }
 
@@ -311,26 +311,26 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(t.e2eeBackupExportSuccessTitle),
+        title: Text(t.common.e2eeBackupExportSuccessTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.e2eeBackupExportSuccessBody),
+            Text(t.common.e2eeBackupExportSuccessBody),
             const SizedBox(height: 12),
             Text(
-              t.e2eeBackupImportantNoteColon,
+              t.common.e2eeBackupImportantNoteColon,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(t.e2eeBackupKeepSafe),
-            Text(t.e2eeBackupStoreMultipleLoc),
-            Text(t.e2eeBackupPwdCantRecoverNote),
+            Text(t.common.e2eeBackupKeepSafe),
+            Text(t.common.e2eeBackupStoreMultipleLoc),
+            Text(t.common.e2eeBackupPwdCantRecoverNote),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.gotIt),
+            child: Text(t.main.gotIt),
           ),
         ],
       ),

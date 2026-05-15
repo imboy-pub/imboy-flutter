@@ -163,7 +163,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.groupFileReadFailed)));
+      ).showSnackBar(SnackBar(content: Text(t.common.groupFileReadFailed)));
       return;
     }
 
@@ -180,7 +180,9 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success ? t.groupFileUploadSuccess : t.groupFileUploadFailed,
+            success
+                ? t.common.groupFileUploadSuccess
+                : t.common.groupFileUploadFailed,
           ),
         ),
       );
@@ -202,16 +204,16 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupFileDeleteTitle),
-        content: Text(t.groupFileDeleteConfirm(name: fileName)),
+        title: Text(t.common.groupFileDeleteTitle),
+        content: Text(t.common.groupFileDeleteConfirm(name: fileName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -223,7 +225,9 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? t.groupFileDeleteSuccess : t.groupFileDeleteFailed,
+          success
+              ? t.common.groupFileDeleteSuccess
+              : t.common.groupFileDeleteFailed,
         ),
       ),
     );
@@ -290,9 +294,9 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         return true;
       }
       if (!mounted) return false;
-      await Navigator.of(
-        context,
-      ).push(MaterialPageRoute<dynamic>(builder: (_) => WebViewPage(url, title)));
+      await Navigator.of(context).push(
+        MaterialPageRoute<dynamic>(builder: (_) => WebViewPage(url, title)),
+      );
       return true;
     } catch (_) {
       return false;
@@ -310,10 +314,10 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
             children: [
               ListTile(
                 title: Text(
-                  fileName.isEmpty ? t.groupFileImagePreview : fileName,
+                  fileName.isEmpty ? t.chat.groupFileImagePreview : fileName,
                 ),
                 trailing: IconButton(
-                  tooltip: t.groupFileClosePreview,
+                  tooltip: t.common.groupFileClosePreview,
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
                 ),
@@ -332,7 +336,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                         children: [
                           const Icon(Icons.broken_image_outlined, size: 36),
                           const SizedBox(height: 8),
-                          Text(ctx.t.groupFileImageLoadFailed),
+                          Text(ctx.t.common.groupFileImageLoadFailed),
                         ],
                       ),
                     ),
@@ -365,8 +369,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return false;
       final title = fileName.isEmpty
           ? (type == _MediaPreviewType.video
-                ? t.groupFileVideoPreview
-                : t.groupFileAudioPreview)
+                ? t.chat.groupFileVideoPreview
+                : t.chat.groupFileAudioPreview)
           : fileName;
 
       if (type == _MediaPreviewType.video) {
@@ -406,7 +410,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.groupFileUrlMissing)));
+      ).showSnackBar(SnackBar(content: Text(t.chat.groupFileUrlMissing)));
       return;
     }
 
@@ -415,7 +419,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.groupFileUrlInvalid)));
+      ).showSnackBar(SnackBar(content: Text(t.chat.groupFileUrlInvalid)));
       return;
     }
 
@@ -436,7 +440,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         if (!openedExternal && mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(t.groupFileOpenFailed)));
+          ).showSnackBar(SnackBar(content: Text(t.common.groupFileOpenFailed)));
         }
       }
       return;
@@ -446,14 +450,14 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       final title = _resolveFileName(file);
       final opened = await _openWebPreview(
         url,
-        title.isEmpty ? t.groupFilePreview : title,
+        title.isEmpty ? t.chat.groupFilePreview : title,
       );
       if (!opened) {
         final openedExternal = await _openExternal(uri);
         if (!openedExternal && mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(t.groupFileOpenFailed)));
+          ).showSnackBar(SnackBar(content: Text(t.common.groupFileOpenFailed)));
         }
       }
       return;
@@ -463,7 +467,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.groupFileOpenFailed)));
+      ).showSnackBar(SnackBar(content: Text(t.common.groupFileOpenFailed)));
     }
   }
 
@@ -471,12 +475,12 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.groupFile,
+        title: t.chat.groupFile,
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
             icon: const Icon(Icons.upload_file_outlined),
-            tooltip: t.groupFileUploadTooltip,
+            tooltip: t.common.groupFileUploadTooltip,
             onPressed: _isUploading ? null : _pickAndUploadFile,
           ),
         ],
@@ -508,19 +512,19 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => _applySearch(),
         decoration: InputDecoration(
-          hintText: t.groupFileSearch,
+          hintText: t.common.groupFileSearch,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_searchController.text.isNotEmpty || _keyword.isNotEmpty)
                 IconButton(
-                  tooltip: t.groupFileSearchClear,
+                  tooltip: t.common.groupFileSearchClear,
                   icon: const Icon(Icons.clear),
                   onPressed: _clearSearch,
                 ),
               IconButton(
-                tooltip: t.groupFileSearchAction,
+                tooltip: t.common.groupFileSearchAction,
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: _applySearch,
               ),
@@ -540,7 +544,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Widget _buildCategoryFilters() {
     final chips = <Widget>[
-      _buildCategoryChip('', t.groupFileCategoryAll),
+      _buildCategoryChip('', t.common.groupFileCategoryAll),
       ..._categoryStats.map((item) {
         final category = (item['category'] ?? '').toString();
         if (category.isEmpty) return const SizedBox.shrink();
@@ -600,7 +604,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Widget _buildFileItem(Map<String, dynamic> file) {
     final name =
-        (file['file_name'] ?? file['name'])?.toString() ?? t.groupFileUnnamed;
+        (file['file_name'] ?? file['name'])?.toString() ??
+        t.chat.groupFileUnnamed;
     final category = file['file_category']?.toString() ?? '';
     final size = _formatBytes(_toInt(file['file_size']));
     final createdAt = file['created_at']?.toString() ?? '';
@@ -630,28 +635,28 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   String _emptyText() {
     if (_keyword.isNotEmpty) {
-      return t.groupFileSearchEmpty;
+      return t.common.groupFileSearchEmpty;
     }
     if (_selectedCategory.isNotEmpty) {
-      return t.groupFileCategoryEmpty(
+      return t.chat.groupFileCategoryEmpty(
         category: _categoryLabel(_selectedCategory),
       );
     }
-    return t.groupFileEmpty;
+    return t.chat.groupFileEmpty;
   }
 
   String _categoryLabel(String category) {
     switch (category.toLowerCase()) {
       case 'document':
-        return t.groupFileCategoryDoc;
+        return t.chat.groupFileCategoryDoc;
       case 'image':
-        return t.groupFileCategoryImage;
+        return t.chat.groupFileCategoryImage;
       case 'video':
-        return t.groupFileCategoryVideo;
+        return t.chat.groupFileCategoryVideo;
       case 'audio':
-        return t.groupFileCategoryAudio;
+        return t.chat.groupFileCategoryAudio;
       case 'other':
-        return t.groupFileCategoryOther;
+        return t.chat.groupFileCategoryOther;
       default:
         return category;
     }
@@ -738,7 +743,7 @@ class _GroupFileAudioPreviewPageState
       if (!mounted) return;
       setState(() {
         _isPreparing = false;
-        _errorText = t.groupFileAudioLoadFailed;
+        _errorText = t.common.groupFileAudioLoadFailed;
       });
     }
   }
@@ -776,7 +781,7 @@ class _GroupFileAudioPreviewPageState
               if (_isPreparing) ...[
                 const CircularProgressIndicator(),
                 const SizedBox(height: 12),
-                Text(t.groupFileAudioLoading),
+                Text(t.common.groupFileAudioLoading),
               ] else if (_errorText != null) ...[
                 Text(_errorText!),
               ] else ...[
@@ -794,7 +799,9 @@ class _GroupFileAudioPreviewPageState
                   onPressed: _togglePlay,
                   icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
                   label: Text(
-                    _isPlaying ? t.groupFileMediaPause : t.groupFileMediaPlay,
+                    _isPlaying
+                        ? t.chat.groupFileMediaPause
+                        : t.chat.groupFileMediaPlay,
                   ),
                 ),
               ],

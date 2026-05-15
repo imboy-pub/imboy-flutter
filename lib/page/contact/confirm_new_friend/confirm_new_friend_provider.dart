@@ -100,7 +100,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
       "payload": json.encode(payload),
     };
 
-    EasyLoading.show(status: t.sending);
+    EasyLoading.show(status: t.chat.sending);
 
     try {
       IMBoyHttpResponse resp = await HttpClient.client.post(
@@ -110,7 +110,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
       );
 
       if (resp.ok) {
-        EasyLoading.showSuccess(t.sent);
+        EasyLoading.showSuccess(t.main.sent);
 
         // 修正好友申请状态
         await _receivedConfirmFriend({"from": to, "to": from});
@@ -127,11 +127,11 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
 
         return true;
       } else {
-        EasyLoading.showError(t.networkFailureTryAgain);
+        EasyLoading.showError(t.common.networkFailureTryAgain);
         return false;
       }
     } catch (e) {
-      EasyLoading.showError(t.networkFailureTryAgain);
+      EasyLoading.showError(t.common.networkFailureTryAgain);
       return false;
     }
   }

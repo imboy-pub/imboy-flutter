@@ -117,21 +117,21 @@ class WebRTCMessageBuilder extends StatelessWidget {
     }
     String title = '';
     if (state == 0) {
-      title = t.cancelled;
+      title = t.common.cancelled;
     } else if (state == 1) {
       // 已连接
     } else if (state == 2) {
-      title = t.unanswered; // 发送者收到未应答
+      title = t.main.unanswered; // 发送者收到未应答
     } else if (state == 3) {
-      title = t.peerHasHungUp;
+      title = t.main.peerHasHungUp;
     } else if (state == 4) {
-      title = t.cancelled;
+      title = t.common.cancelled;
     } else if (state == 5) {
-      title = t.unanswered; // 接收人未应答
+      title = t.main.unanswered; // 接收人未应答
     }
 
     if (title.isEmpty && callCuration.isNotEmpty) {
-      title = "${t.callDuration} $callCuration";
+      title = "${t.common.callDuration} $callCuration";
     }
     if (title.isEmpty) {
       return const SizedBox.shrink();

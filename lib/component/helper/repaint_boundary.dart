@@ -54,7 +54,7 @@ class RepaintBoundaryHelper {
       return {"isSuccess": true, "filePath": asset.id};
     } on Exception catch (e) {
       if (kDebugMode) debugPrint("savePhoto error: ${e.runtimeType}");
-      return {"isSuccess": false, "errorMessage": t.saveFailedRetry};
+      return {"isSuccess": false, "errorMessage": t.common.saveFailedRetry};
     }
   }
 }

@@ -57,31 +57,31 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           final confirmed = await showCupertinoDialog<bool>(
             context: context,
             builder: (ctx) => CupertinoAlertDialog(
-              title: Text(t.confirmRemove),
-              content: Text(t.confirmRemoveFromDenylist),
+              title: Text(t.common.confirmRemove),
+              content: Text(t.common.confirmRemoveFromDenylist),
               actions: [
                 CupertinoDialogAction(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: Text(t.buttonCancel),
+                  child: Text(t.common.buttonCancel),
                 ),
                 CupertinoDialogAction(
                   isDestructiveAction: true,
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: Text(t.buttonRemove),
+                  child: Text(t.common.buttonRemove),
                 ),
               ],
             ),
           );
           if (confirmed == true) {
-            EasyLoading.show(status: t.loading);
+            EasyLoading.show(status: t.common.loading);
             final res = await ref
                 .read(denylistProvider.notifier)
                 .removeDenylist(model.deniedUid.toString());
             EasyLoading.dismiss();
             if (res) {
-              EasyLoading.showSuccess(t.removedFromDenylist);
+              EasyLoading.showSuccess(t.common.removedFromDenylist);
             } else {
-              EasyLoading.showError(t.tipFailed);
+              EasyLoading.showError(t.common.tipFailed);
             }
           }
         },
@@ -151,7 +151,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  t.blocked,
+                                  t.contact.blocked,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
@@ -215,7 +215,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t.denylistNoteTitle,
+                  t.common.denylistNoteTitle,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -224,7 +224,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  t.denylistNoteDesc,
+                  t.common.denylistNoteDesc,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -246,7 +246,10 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
     final brightness = Theme.of(context).brightness;
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.denylist),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.contact.denylist,
+      ),
       body: Column(
         children: [
           // 警告提示卡片
@@ -256,8 +259,8 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           Expanded(
             child: denylistState.items.isEmpty
                 ? NoDataView(
-                    text: t.denylistEmpty,
-                    description: t.denylistEmptyDesc,
+                    text: t.contact.denylistEmpty,
+                    description: t.contact.denylistEmptyDesc,
                     icon: Icons.block_outlined,
                     iconBgSize: 120,
                     iconSize: 60,
@@ -291,7 +294,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                t.buttonRemove,
+                                t.common.buttonRemove,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -301,16 +304,18 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                           ),
                         ),
                         confirmDismiss: (direction) async {
-                          EasyLoading.show(status: t.loading);
+                          EasyLoading.show(status: t.common.loading);
                           bool res = await ref
                               .read(denylistProvider.notifier)
                               .removeDenylist(model.deniedUid.toString());
                           EasyLoading.dismiss();
                           if (res) {
-                            EasyLoading.showSuccess(t.removedFromDenylist);
+                            EasyLoading.showSuccess(
+                              t.common.removedFromDenylist,
+                            );
                             return true; // 允许滑动删除
                           } else {
-                            EasyLoading.showError(t.tipFailed);
+                            EasyLoading.showError(t.common.tipFailed);
                             return false; // 阻止删除
                           }
                         },

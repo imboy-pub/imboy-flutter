@@ -121,7 +121,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
           fontSize: 14,
         ),
         decoration: InputDecoration(
-          hintText: t.search,
+          hintText: t.common.search,
           hintStyle: TextStyle(
             color: isDark
                 ? AppColors.chatWebSecondaryDark
@@ -209,7 +209,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t.searchChatRecord,
+              t.common.searchChatRecord,
               style: TextStyle(
                 color: isDark
                     ? AppColors.chatWebSecondaryDark
@@ -222,7 +222,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
       );
     }
 
-    return NoDataView(text: t.searchChatRecord);
+    return NoDataView(text: t.common.searchChatRecord);
   }
 
   /// 构建会话列表

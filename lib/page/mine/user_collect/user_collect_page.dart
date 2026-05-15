@@ -343,12 +343,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     // 检查是否有正在删除的项
     final hasRemoving = ids.any((id) => currentState.removingIds.contains(id));
     if (hasRemoving) {
-      EasyLoading.showInfo(t.deletingInProgressPleaseWait);
+      EasyLoading.showInfo(t.main.deletingInProgressPleaseWait);
       return;
     }
 
     try {
-      EasyLoading.show(status: t.loading);
+      EasyLoading.show(status: t.common.loading);
       int successCount = 0;
       int failCount = 0;
 
@@ -376,13 +376,16 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
       EasyLoading.dismiss();
       if (failCount == 0) {
-        EasyLoading.showSuccess(t.deleteSuccess);
+        EasyLoading.showSuccess(t.common.deleteSuccess);
       } else if (successCount > 0) {
         EasyLoading.showInfo(
-          t.partialDeleteSuccess(success: '$successCount', fail: '$failCount'),
+          t.common.partialDeleteSuccess(
+            success: '$successCount',
+            fail: '$failCount',
+          ),
         );
       } else {
-        EasyLoading.showError(t.saveFailed);
+        EasyLoading.showError(t.common.saveFailed);
       }
 
       // 更新状态
@@ -390,7 +393,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       _exitMultiSelect();
     } on Exception {
       EasyLoading.dismiss();
-      EasyLoading.showError(t.tipFailed);
+      EasyLoading.showError(t.common.tipFailed);
     }
   }
 
@@ -405,12 +408,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(t.editTag),
+        title: Text(t.common.editTag),
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
           child: CupertinoTextField(
             controller: tc,
-            placeholder: t.favoriteGroupTagsEtc,
+            placeholder: t.contact.favoriteGroupTagsEtc,
             minLines: 1,
             maxLines: 3,
           ),
@@ -418,19 +421,19 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             onPressed: () async {
               final input = tc.text.trim();
               if (input.isEmpty) {
-                EasyLoading.showInfo(t.pleaseEnterTags);
+                EasyLoading.showInfo(t.contact.pleaseEnterTags);
                 return;
               }
               Navigator.pop(context);
 
               try {
-                EasyLoading.show(status: t.loading);
+                EasyLoading.show(status: t.common.loading);
                 final Set<String> ids = {..._selectedIds};
                 final updatedItems = <UserCollectModel>[];
 
@@ -440,7 +443,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     continue;
                   }
 
-                  String newTag = obj.tag.isEmpty == true ? input : '${obj.tag},$input';
+                  String newTag = obj.tag.isEmpty == true
+                      ? input
+                      : '${obj.tag},$input';
                   // 清理重复标签
                   final parts = newTag
                       .split(',')
@@ -470,15 +475,15 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 );
 
                 EasyLoading.dismiss();
-                EasyLoading.showSuccess(t.tipSuccess);
+                EasyLoading.showSuccess(t.common.tipSuccess);
                 _exitMultiSelect();
               } on Exception {
                 EasyLoading.dismiss();
-                EasyLoading.showError(t.tipFailed);
+                EasyLoading.showError(t.common.tipFailed);
               }
             },
             isDefaultAction: true,
-            child: Text(t.buttonConfirm),
+            child: Text(t.common.buttonConfirm),
           ),
         ],
       ),
@@ -498,7 +503,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              t.loadError,
+              t.common.loadError,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
@@ -507,7 +512,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               _isInitialized = false;
               _initData();
             },
-            child: Text(t.buttonRetry),
+            child: Text(t.common.buttonRetry),
           ),
         ],
       ),
@@ -599,7 +604,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            t.pinned,
+                            t.chat.pinned,
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -714,7 +719,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               icon: isPinned
                   ? Icons.vertical_align_bottom
                   : Icons.vertical_align_top,
-              label: isPinned ? t.unpin : t.pin,
+              label: isPinned ? t.chat.unpin : t.chat.pin,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 bottomLeft: Radius.circular(12),
@@ -739,7 +744,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         peerId: obj.kindId.toString(),
                         peerTag: obj.tag,
                         scene: 'collect',
-                        title: t.editTag,
+                        title: t.common.editTag,
                       ),
                     ),
                   );
@@ -773,7 +778,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               },
               icon: Icons.local_offer_outlined,
               foregroundColor: Colors.white,
-              label: t.tags,
+              label: t.contact.tags,
             ),
             // 删除按钮
             SlidableAction(
@@ -783,7 +788,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               },
               icon: Icons.delete_outline,
               foregroundColor: Colors.white,
-              label: t.buttonDelete,
+              label: t.common.buttonDelete,
               borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(12),
                 bottomRight: Radius.circular(12),
@@ -801,7 +806,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(t.sendTo),
+        title: Text(t.chat.sendTo),
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Column(
@@ -828,7 +833,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                model.info['payload']?['text'] as String? ?? t.messageContent,
+                model.info['payload']?['text'] as String? ??
+                    t.common.messageContent,
                 style: TextStyle(
                   color: CupertinoColors.label.resolveFrom(context),
                 ),
@@ -841,7 +847,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             isDefaultAction: true,
@@ -849,7 +855,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               Navigator.pop(context);
               Navigator.of(context).pop(model);
             },
-            child: Text(t.buttonSend),
+            child: Text(t.common.buttonSend),
           ),
         ],
       ),
@@ -906,7 +912,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               const SizedBox(height: 16),
               // 标题
               Text(
-                t.sureDeleteData,
+                t.common.sureDeleteData,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -916,7 +922,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               const SizedBox(height: 8),
               // 描述
               Text(
-                t.deleteCollectConfirmDesc,
+                t.common.deleteCollectConfirmDesc,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(
@@ -949,7 +955,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                           ),
                         ),
                         child: Text(
-                          t.buttonCancel,
+                          t.common.buttonCancel,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
@@ -988,10 +994,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                     );
                                     if (context.mounted) {
                                       Navigator.pop(context);
-                                      EasyLoading.showSuccess(t.tipSuccess);
+                                      EasyLoading.showSuccess(
+                                        t.common.tipSuccess,
+                                      );
                                     }
                                   } else {
-                                    EasyLoading.showError(t.tipFailed);
+                                    EasyLoading.showError(t.common.tipFailed);
                                   }
                                 } on Exception catch (e) {
                                   if (kDebugMode) {
@@ -999,7 +1007,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                       'Delete error: ${e.runtimeType}',
                                     );
                                   }
-                                  EasyLoading.showError(t.tipFailed);
+                                  EasyLoading.showError(t.common.tipFailed);
                                 }
                               },
                         style: TextButton.styleFrom(
@@ -1019,7 +1027,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                                 ),
                               )
                             : Text(
-                                t.buttonDelete,
+                                t.common.buttonDelete,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -1063,11 +1071,13 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           globalPosition.dy,
         ),
         items: [
-          PopupMenuItem(value: 'uncollect', child: Text(t.buttonDelete)),
+          PopupMenuItem(value: 'uncollect', child: Text(t.common.buttonDelete)),
           PopupMenuItem(
             value: 'pin_toggle',
             child: Text(
-              _pinnedIds.contains(obj.kindId.toString()) ? t.unpin : t.pin,
+              _pinnedIds.contains(obj.kindId.toString())
+                  ? t.chat.unpin
+                  : t.chat.pin,
             ),
           ),
         ],
@@ -1091,12 +1101,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(t.sureDeleteData),
-        content: Text(t.deleteCollectConfirmDesc),
+        title: Text(t.common.sureDeleteData),
+        content: Text(t.common.deleteCollectConfirmDesc),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -1114,18 +1124,18 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   notifier.updateState(
                     currentState.copyWith(items: updatedItems),
                   );
-                  EasyLoading.showSuccess(t.tipSuccess);
+                  EasyLoading.showSuccess(t.common.tipSuccess);
                 } else {
-                  EasyLoading.showError(t.tipFailed);
+                  EasyLoading.showError(t.common.tipFailed);
                 }
               } on Exception catch (e) {
                 if (kDebugMode) {
                   debugPrint('confirmRemove error: ${e.runtimeType}');
                 }
-                EasyLoading.showError(t.tipFailed);
+                EasyLoading.showError(t.common.tipFailed);
               }
             },
-            child: Text(t.buttonDelete),
+            child: Text(t.common.buttonDelete),
           ),
         ],
       ),
@@ -1138,7 +1148,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       // 检查网络状态
       var connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        String msg = t.tipConnectDesc;
+        String msg = t.common.tipConnectDesc;
         EasyLoading.showInfo(' $msg        ');
         return;
       }
@@ -1261,7 +1271,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       child: Row(
         children: [
           Text(
-            '${t.selected}: ${_selectedIds.length}',
+            '${t.main.selected}: ${_selectedIds.length}',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w600,
@@ -1269,7 +1279,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           ),
           const Spacer(),
           IconButton(
-            tooltip: t.selectAll,
+            tooltip: t.common.selectAll,
             onPressed: _selectAllCurrent,
             icon: Icon(
               Icons.select_all,
@@ -1277,17 +1287,17 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             ),
           ),
           IconButton(
-            tooltip: t.tags,
+            tooltip: t.contact.tags,
             onPressed: _batchTag,
             icon: const Icon(Icons.local_offer_outlined, color: Colors.orange),
           ),
           IconButton(
-            tooltip: t.buttonDelete,
+            tooltip: t.common.buttonDelete,
             onPressed: _batchDelete,
             icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
           ),
           IconButton(
-            tooltip: t.buttonCancel,
+            tooltip: t.common.buttonCancel,
             onPressed: _clearSelect,
             icon: Icon(
               Icons.close,
@@ -1305,15 +1315,15 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
     // 被收藏的资源种类映射
     Map<String, String> kindMap = {
-      currentState.recentUse: t.recentlyUsed,
-      '1': t.text,
-      '2': t.image,
-      '7': t.personalCard,
-      '4': t.video,
-      '5': t.file,
-      '6': t.locationMessage,
-      '3': t.voice,
-      'all': t.all,
+      currentState.recentUse: t.main.recentlyUsed,
+      '1': t.main.text,
+      '2': t.chat.image,
+      '7': t.common.personalCard,
+      '4': t.chat.video,
+      '5': t.chat.file,
+      '6': t.common.locationMessage,
+      '3': t.chat.voice,
+      'all': t.common.all,
     };
 
     return Container(
@@ -1364,7 +1374,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        t.type,
+                        t.main.type,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
@@ -1465,7 +1475,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            t.tags,
+                            t.contact.tags,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.w600,
@@ -1513,7 +1523,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 child: const Icon(Icons.close),
               )
             : null,
-        titleWidget: Text(widget.isSelect ? t.favorites : t.myFavorites),
+        titleWidget: Text(
+          widget.isSelect ? t.main.favorites : t.main.myFavorites,
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
@@ -1547,9 +1559,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     ),
                   ),
                   controller: _searchController,
-                  searchLabel: t.search,
-                  hintText: t.search,
-                  queryTips: t.favoriteGroupTagsEtc,
+                  searchLabel: t.common.search,
+                  hintText: t.common.search,
+                  queryTips: t.contact.favoriteGroupTagsEtc,
                   onChanged: (query) {
                     // 防抖搜索
                     if (_searchTimer != null) {
@@ -1613,7 +1625,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                t.noData,
+                                t.common.noData,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.6),
@@ -1622,7 +1634,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                t.noFavoritesYet,
+                                t.common.noFavoritesYet,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.4),
@@ -1639,7 +1651,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                           itemCount: currentState.items.length,
                           itemBuilder: (BuildContext context, int index) {
                             final obj = currentState.items[index];
-                            return _buildCollectItem(context, obj as UserCollectModel, index);
+                            return _buildCollectItem(
+                              context,
+                              obj as UserCollectModel,
+                              index,
+                            );
                           },
                         ),
                 ),

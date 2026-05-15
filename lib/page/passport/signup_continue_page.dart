@@ -127,7 +127,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text(
-                t.unknown,
+                t.common.unknown,
                 style: TextStyle(fontSize: 18, color: textPrimary),
               ),
               const SizedBox(height: 16),
@@ -136,7 +136,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                   if (!context.mounted) return;
                   context.go('/sign_up');
                 },
-                child: Text(t.buttonBack),
+                child: Text(t.common.buttonBack),
               ),
             ],
           ),
@@ -176,8 +176,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                           child: RichText(
                             text: TextSpan(
                               text: _accountType == 'email'
-                                  ? t.codeSentToEmail
-                                  : t.codeSentToMobile,
+                                  ? t.account.codeSentToEmail
+                                  : t.account.codeSentToMobile,
                               children: [
                                 TextSpan(
                                   text: _account,
@@ -237,7 +237,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Text(
-                            hasError ? t.pinCodeFillTips : '',
+                            hasError ? t.common.pinCodeFillTips : '',
                             style: TextStyle(
                               color: errorColor,
                               fontSize: 12,
@@ -249,7 +249,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                           children: [
                             Expanded(
                               child: Text(
-                                t.notReceiveCoeQ,
+                                t.common.notReceiveCoeQ,
                                 style: TextStyle(
                                   color: textSecondary,
                                   fontSize: 15,
@@ -269,7 +269,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                     _showSnackBar(
                                       context,
                                       Text(
-                                        t.codeSentToParam(param: _account),
+                                        t.main.codeSentToParam(param: _account),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -280,12 +280,14 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                   } else {
                                     if (res == 'param_already_exist') {
                                       final label = _accountType == 'email'
-                                          ? t.email
-                                          : t.mobile;
+                                          ? t.account.email
+                                          : t.account.mobile;
                                       _showSnackBar(
                                         context,
                                         Text(
-                                          t.paramAlreadyExist(param: label),
+                                          t.chat.paramAlreadyExist(
+                                            param: label,
+                                          ),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
@@ -307,7 +309,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                   }
                                 },
                                 child: Text(
-                                  t.resendCode,
+                                  t.chat.resendCode,
                                   style: const TextStyle(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.bold,
@@ -334,7 +336,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                               _showSnackBar(
                                 context,
                                 Text(
-                                  t.tipSuccess,
+                                  t.common.tipSuccess,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -370,7 +372,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(
-                              t.signup,
+                              t.account.signup,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 20,
@@ -390,7 +392,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          t.tryAgainQ,
+                          t.main.tryAgainQ,
                           style: TextStyle(
                             color: textSecondary,
                             letterSpacing: 0.5,
@@ -402,7 +404,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                             context.go('/sign_in');
                           },
                           child: Text(
-                            t.login,
+                            t.account.login,
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,

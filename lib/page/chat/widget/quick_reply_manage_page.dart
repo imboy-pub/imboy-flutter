@@ -84,14 +84,16 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   Future<void> _handleAdd() async {
     if (_replies.length >= QuickReplyService.maxEntries) {
       EasyLoading.showToast(
-        t.quickReplyMaxReached(max: QuickReplyService.maxEntries.toString()),
+        t.chat.quickReplyMaxReached(
+          max: QuickReplyService.maxEntries.toString(),
+        ),
       );
       return;
     }
-    final text = await _promptText(title: t.quickReplyAddTitle);
+    final text = await _promptText(title: t.common.quickReplyAddTitle);
     if (text == null || text.trim().isEmpty) return;
     if (_replies.contains(text.trim())) {
-      EasyLoading.showToast(t.quickReplyDuplicate);
+      EasyLoading.showToast(t.chat.quickReplyDuplicate);
       return;
     }
     await _service.add(_uid, text);
@@ -101,14 +103,14 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   Future<void> _handleEdit(int index) async {
     final original = _replies[index];
     final text = await _promptText(
-      title: t.quickReplyEditTitle,
+      title: t.common.quickReplyEditTitle,
       initial: original,
     );
     if (text == null) return;
     final trimmed = text.trim();
     if (trimmed.isEmpty || trimmed == original) return;
     if (_replies.any((r) => r == trimmed && r != original)) {
-      EasyLoading.showToast(t.quickReplyDuplicate);
+      EasyLoading.showToast(t.chat.quickReplyDuplicate);
       return;
     }
     await _service.updateAt(_uid, index, trimmed);
@@ -140,16 +142,16 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
           controller: controller,
           autofocus: true,
           maxLength: QuickReplyService.maxTextLength,
-          decoration: InputDecoration(hintText: t.quickReplyHint),
+          decoration: InputDecoration(hintText: t.chat.quickReplyHint),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(controller.text),
-            child: Text(t.buttonConfirm),
+            child: Text(t.common.buttonConfirm),
           ),
         ],
       ),
@@ -161,12 +163,12 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(t.quickReplyManage)),
+      appBar: AppBar(title: Text(t.chat.quickReplyManage)),
       floatingActionButton: _uid.isEmpty
           ? null
           : FloatingActionButton(
               onPressed: _handleAdd,
-              tooltip: t.buttonAdd,
+              tooltip: t.common.buttonAdd,
               child: const Icon(Icons.add),
             ),
       body: _loading
@@ -176,7 +178,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  t.quickReplyEmpty,
+                  t.chat.quickReplyEmpty,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -216,7 +218,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_outlined, size: 20),
-                          tooltip: t.edit,
+                          tooltip: t.common.edit,
                           onPressed: () => _handleEdit(index),
                         ),
                         // S2-c: 拖拽手柄，仅在此图标上长按/拖动才触发 reorder

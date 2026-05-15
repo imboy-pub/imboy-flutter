@@ -60,9 +60,17 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       final statistics = await ref
           .read(userTagRelationProvider.notifier)
           .getTagStatistics(widget.scene, ensureTags: _originalTags);
-      _suggestedTags = List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>);
-      _tagUsageCount = Map<String, int>.from((statistics['usage_count'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
-      _tagIdByName = Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
+      _suggestedTags = List<String>.from(
+        (statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>,
+      );
+      _tagUsageCount = Map<String, int>.from(
+        (statistics['usage_count'] ?? const <dynamic, dynamic>{})
+            as Map<dynamic, dynamic>,
+      );
+      _tagIdByName = Map<String, int>.from(
+        (statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{})
+            as Map<dynamic, dynamic>,
+      );
 
       // 确保当前标签包含在建议列表中
       for (String tag in _currentTags) {
@@ -79,7 +87,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       setState(() {
         _isLoading = false;
       });
-      EasyLoading.showError(t.loadingTagDataFailed);
+      EasyLoading.showError(t.common.loadingTagDataFailed);
     }
   }
 
@@ -107,7 +115,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         _isSaving = true;
       });
 
-      EasyLoading.show(status: t.loading);
+      EasyLoading.show(status: t.common.loading);
 
       final success = await ref
           .read(userTagRelationProvider.notifier)
@@ -122,19 +130,19 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       EasyLoading.dismiss();
 
       if (success) {
-        EasyLoading.showSuccess(t.saveSuccess);
+        EasyLoading.showSuccess(t.common.saveSuccess);
         // 触觉反馈
         HapticFeedback.lightImpact();
         if (mounted) {
           Navigator.of(context).pop(normalizeTagNames(_currentTags).join(','));
         }
       } else {
-        EasyLoading.showError(t.saveFailed);
+        EasyLoading.showError(t.common.saveFailed);
       }
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('_saveTags error: ${e.runtimeType}');
       EasyLoading.dismiss();
-      EasyLoading.showError(t.saveFailed);
+      EasyLoading.showError(t.common.saveFailed);
     } finally {
       setState(() {
         _isSaving = false;
@@ -155,12 +163,12 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.tagClearAll),
-        content: Text(t.tagClearAllConfirm),
+        title: Text(t.common.tagClearAll),
+        content: Text(t.common.tagClearAllConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () {
@@ -171,7 +179,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               HapticFeedback.lightImpact();
             },
             child: Text(
-              t.buttonOk,
+              t.common.buttonOk,
               style: const TextStyle(color: Colors.redAccent),
             ),
           ),
@@ -248,7 +256,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: Text(widget.title ?? t.editTags),
+        titleWidget: Text(widget.title ?? t.common.editTags),
         backgroundColor: isDark
             ? Theme.of(context).colorScheme.surface
             : Colors.white,
@@ -268,7 +276,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                       ),
                     )
                   : Text(
-                      t.buttonSave,
+                      t.common.buttonSave,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
@@ -316,7 +324,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                       suggestedTags: _suggestedTags,
                       tagUsageCount: _tagUsageCount,
                       onTagsChanged: _onTagsChanged,
-                      hintText: t.inputNewTag,
+                      hintText: t.contact.inputNewTag,
                       maxTagLength: 14,
                       maxTags: 20,
                     ),
@@ -373,11 +381,13 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                Text(t.loading),
+                                Text(t.common.loading),
                               ],
                             )
                           : Text(
-                              t.saveTag(count: _currentTags.length.toString()),
+                              t.common.saveTag(
+                                count: _currentTags.length.toString(),
+                              ),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -450,7 +460,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               ),
               const SizedBox(width: 12),
               Text(
-                t.tagStatistics,
+                t.chat.tagStatistics,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -464,14 +474,14 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
             children: [
               Expanded(
                 child: _buildStatItem(
-                  t.selectedCount(count: selectedCount),
+                  t.main.selectedCount(count: selectedCount),
                   '$selectedCount',
                   Icons.check_circle,
                 ),
               ),
               Expanded(
                 child: _buildStatItem(
-                  t.availableCount,
+                  t.main.availableCount,
                   '$totalTags',
                   Icons.label_outline,
                 ),
@@ -479,7 +489,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               if (mostUsedTag.isNotEmpty)
                 Expanded(
                   child: _buildStatItem(
-                    t.mostUsed,
+                    t.main.mostUsed,
                     mostUsedTag,
                     Icons.star_outline,
                   ),
@@ -514,7 +524,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       child: Row(
         children: [
           Text(
-            t.quickActions,
+            t.common.quickActions,
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: Theme.of(context).colorScheme.onSurface,
@@ -522,13 +532,13 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           ),
           const Spacer(),
           _buildQuickActionButton(
-            t.reset,
+            t.common.reset,
             Icons.refresh,
             _hasChanges() ? _resetTags : null,
           ),
           const SizedBox(width: 8),
           _buildQuickActionButton(
-            t.clear,
+            t.common.clear,
             Icons.clear_all,
             _currentTags.isNotEmpty ? _clearAllTags : null,
           ),

@@ -47,11 +47,11 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -88,7 +88,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(
@@ -97,7 +97,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
               ),
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -174,7 +174,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
           IconButton(
             icon: const Icon(Icons.more_horiz),
             onPressed: _showMoreMenu,
-            tooltip: t.moreInfo,
+            tooltip: t.common.moreInfo,
           ),
         ],
       ),

@@ -73,7 +73,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       // 注：media 不做自动恢复 —— 仅保留 URL 无法还原 type/cover，
       // 强行填充会让发布时校验误判。让用户重选即可。
     });
-    EasyLoading.showInfo(context.t.momentsDraftRestored);
+    EasyLoading.showInfo(context.t.discovery.momentsDraftRestored);
   }
 
   Future<void> _saveFailedDraft(String content) async {
@@ -150,7 +150,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       }
     });
     if (url == null || url.isEmpty) {
-      EasyLoading.showError(context.t.momentsUploadFailed);
+      EasyLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
 
@@ -195,7 +195,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       }
     });
     if (url == null || url.isEmpty) {
-      EasyLoading.showError(context.t.momentsUploadFailed);
+      EasyLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
 
@@ -210,7 +210,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     if (_isSubmitting || _isUploading) return;
     final content = _contentController.text.trim();
     if (content.isEmpty && _media.isEmpty) {
-      EasyLoading.showInfo(context.t.momentsContentOrMediaRequired);
+      EasyLoading.showInfo(context.t.common.momentsContentOrMediaRequired);
       return;
     }
 
@@ -221,10 +221,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     if (!validation.ok) {
       final t = context.t;
       final msg = switch (validation.error) {
-        momentMediaErrorTooManyImages => t.momentsMediaTooManyImages,
-        momentMediaErrorTooManyVideos => t.momentsMediaTooManyVideos,
-        momentMediaErrorMixed => t.momentsMediaMixedImageAndVideo,
-        _ => t.momentsPublishFailed,
+        momentMediaErrorTooManyImages => t.chat.momentsMediaTooManyImages,
+        momentMediaErrorTooManyVideos => t.chat.momentsMediaTooManyVideos,
+        momentMediaErrorMixed => t.chat.momentsMediaMixedImageAndVideo,
+        _ => t.common.momentsPublishFailed,
       };
       EasyLoading.showInfo(msg);
       return;
@@ -254,7 +254,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       // 发布失败 —— 持久化草稿避免用户白打字
       await _saveFailedDraft(content);
       if (!mounted) return;
-      EasyLoading.showError(context.t.momentsPublishFailed);
+      EasyLoading.showError(context.t.common.momentsPublishFailed);
       return;
     }
 
@@ -331,7 +331,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
-                title: Text(context.t.selectFromAlbum),
+                title: Text(context.t.main.selectFromAlbum),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _pickImage(ImageSource.gallery);
@@ -339,7 +339,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt_outlined),
-                title: Text(context.t.takePhoto),
+                title: Text(context.t.main.takePhoto),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _pickImage(ImageSource.camera);
@@ -347,7 +347,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.video_library_outlined),
-                title: Text(context.t.momentsSelectVideo),
+                title: Text(context.t.chat.momentsSelectVideo),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _pickVideo(ImageSource.gallery);
@@ -355,7 +355,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.videocam_outlined),
-                title: Text(context.t.momentsRecordVideo),
+                title: Text(context.t.chat.momentsRecordVideo),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _pickVideo(ImageSource.camera);
@@ -373,7 +373,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     final t = context.t;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.momentsSend),
+        title: Text(t.chat.momentsSend),
         actions: [
           TextButton(
             onPressed: _isSubmitting || _isUploading ? null : _submit,
@@ -383,7 +383,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(t.confirm),
+                : Text(t.common.confirm),
           ),
         ],
       ),
@@ -395,7 +395,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             maxLines: 6,
             maxLength: 5000,
             decoration: InputDecoration(
-              hintText: t.momentsContentHint,
+              hintText: t.common.momentsContentHint,
               border: const OutlineInputBorder(),
             ),
           ),
@@ -409,7 +409,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                     : _showPicker,
                 icon: const Icon(Icons.add_photo_alternate_outlined),
                 label: Text(
-                  '${t.momentsAddMedia} (${_media.length}/$momentMaxImageCount)',
+                  '${t.common.momentsAddMedia} (${_media.length}/$momentMaxImageCount)',
                 ),
               ),
               if (_isUploading) ...[
@@ -475,29 +475,29 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             key: ValueKey<int>(_visibility),
             initialValue: _visibility,
             decoration: InputDecoration(
-              labelText: context.t.momentsVisibility,
+              labelText: context.t.discovery.momentsVisibility,
               border: const OutlineInputBorder(),
             ),
             items: [
               DropdownMenuItem(
                 value: momentVisibilityPublic,
-                child: Text(context.t.momentsVisibilityPublic),
+                child: Text(context.t.discovery.momentsVisibilityPublic),
               ),
               DropdownMenuItem(
                 value: momentVisibilityFriends,
-                child: Text(context.t.momentsVisibilityFriends),
+                child: Text(context.t.contact.momentsVisibilityFriends),
               ),
               DropdownMenuItem(
                 value: momentVisibilityPrivate,
-                child: Text(context.t.momentsVisibilityPrivate),
+                child: Text(context.t.chat.momentsVisibilityPrivate),
               ),
               DropdownMenuItem(
                 value: momentVisibilityAllowList,
-                child: Text(context.t.momentsVisibilityPartial),
+                child: Text(context.t.discovery.momentsVisibilityPartial),
               ),
               DropdownMenuItem(
                 value: momentVisibilityDenyList,
-                child: Text(context.t.momentsVisibilityExclude),
+                child: Text(context.t.discovery.momentsVisibilityExclude),
               ),
             ],
             onChanged: (value) {
@@ -511,7 +511,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             const SizedBox(height: 12),
             _buildUidPickerField(
               controller: _allowUidsController,
-              labelText: t.momentsAllowUidsLabel,
+              labelText: t.common.momentsAllowUidsLabel,
               placeholder: t.momentFriendPicker.titleAllow,
               pickerTitle: t.momentFriendPicker.titleAllow,
             ),
@@ -520,7 +520,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             const SizedBox(height: 12),
             _buildUidPickerField(
               controller: _denyUidsController,
-              labelText: t.momentsDenyUidsLabel,
+              labelText: t.discovery.momentsDenyUidsLabel,
               placeholder: t.momentFriendPicker.titleDeny,
               pickerTitle: t.momentFriendPicker.titleDeny,
             ),
@@ -533,7 +533,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 _allowComment = value;
               });
             },
-            title: Text(context.t.momentsAllowComment),
+            title: Text(context.t.common.momentsAllowComment),
             contentPadding: EdgeInsets.zero,
           ),
         ],

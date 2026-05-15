@@ -89,14 +89,14 @@ String muteRemainingLabel({required int? muteUntilMs, required int nowMs}) {
   if (remainingMs <= 0) return '';
 
   final seconds = remainingMs ~/ 1000;
-  if (seconds < 60) return t.muteUnitSeconds(count: seconds);
+  if (seconds < 60) return t.common.muteUnitSeconds(count: seconds);
 
   final minutes = seconds ~/ 60;
-  if (minutes < 60) return t.muteUnitMinutes(count: minutes);
+  if (minutes < 60) return t.chat.muteUnitMinutes(count: minutes);
 
   final hours = minutes ~/ 60;
-  if (hours < 24) return t.muteUnitHours(count: hours);
+  if (hours < 24) return t.chat.muteUnitHours(count: hours);
 
   final days = hours ~/ 24;
-  return t.muteUnitDays(count: days);
+  return t.chat.muteUnitDays(count: days);
 }

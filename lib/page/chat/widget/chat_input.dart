@@ -230,14 +230,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// S2: 默认快捷回复（i18n；首次使用时填充到存储）
   List<String> get _defaultQuickReplies => [
-    t.quickReplyOk,
-    t.quickReplyReceived,
-    t.quickReplyThanks,
-    t.understood,
-    t.quickReplyWait,
-    t.noProblem,
-    t.onMyWay,
-    t.quickReplyOkThanks,
+    t.common.quickReplyOk,
+    t.chat.quickReplyReceived,
+    t.chat.quickReplyThanks,
+    t.common.understood,
+    t.chat.quickReplyWait,
+    t.common.noProblem,
+    t.common.onMyWay,
+    t.common.quickReplyOkThanks,
   ];
 
   /// S2: 从 StorageService 加载当前用户的快捷回复列表到 _quickReplies。
@@ -470,7 +470,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       child: IconButton(
-                        tooltip: t.quickReplyManage,
+                        tooltip: t.chat.quickReplyManage,
                         icon: Icon(Icons.tune, color: _themeColor('primary')),
                         onPressed: _openQuickReplyManage,
                       ),
@@ -1152,7 +1152,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      widget.muteMessage ?? t.mutedCannotSend,
+                      widget.muteMessage ?? t.common.mutedCannotSend,
                       style: TextStyle(
                         color: _themeColor('error').withValues(alpha: 0.8),
                         fontSize: _themeFontSize(FontSizeType.small),

@@ -55,11 +55,11 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeSocialTitle),
+        title: Text(t.main.e2eeSocialTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       body: _isLoading
@@ -105,8 +105,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                     children: [
                       Text(
                         _canRecover
-                            ? t.e2eeSocialCanRecover
-                            : t.e2eeSocialSetupProxy,
+                            ? t.main.e2eeSocialCanRecover
+                            : t.main.e2eeSocialSetupProxy,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -116,8 +116,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                       const SizedBox(height: 4),
                       Text(
                         _canRecover
-                            ? t.e2eeSocialEnoughShards
-                            : t.e2eeSocialChooseProxy,
+                            ? t.common.e2eeSocialEnoughShards
+                            : t.main.e2eeSocialChooseProxy,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.purple.shade700,
@@ -147,7 +147,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 const Icon(Icons.folder_open, color: Colors.purple, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  t.e2eeSocialExistingShards,
+                  t.main.e2eeSocialExistingShards,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -161,7 +161,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  t.e2eeSocialMoreShards(count: _shards.length - 3),
+                  t.common.e2eeSocialMoreShards(count: _shards.length - 3),
                   style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ),
@@ -203,11 +203,11 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t.e2eeProxyUser(uid: proxyUid as Object),
+                  t.main.e2eeProxyUser(uid: proxyUid as Object),
                   style: const TextStyle(fontSize: 13),
                 ),
                 Text(
-                  t.e2eeSocialStatus(status: status as Object),
+                  t.chat.e2eeSocialStatus(status: status as Object),
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'active' ? Colors.green : Colors.grey,
@@ -226,13 +226,15 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
       children: [
         _buildActionCard(
           icon: Icons.create,
-          title: t.e2eeSocialCreateShardsTitle,
-          description: t.e2eeSocialCreateShardsDesc,
+          title: t.chat.e2eeSocialCreateShardsTitle,
+          description: t.chat.e2eeSocialCreateShardsDesc,
           color: Colors.blue,
           onTap: () {
             Navigator.push(
               context,
-              CupertinoPageRoute<dynamic>(builder: (_) => const E2EESocialCreatePage()),
+              CupertinoPageRoute<dynamic>(
+                builder: (_) => const E2EESocialCreatePage(),
+              ),
             );
           },
         ),
@@ -240,8 +242,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
         if (_canRecover)
           _buildActionCard(
             icon: Icons.restore,
-            title: t.e2eeSocialRecoverKeyTitle,
-            description: t.e2eeSocialRecoverKeyDesc,
+            title: t.main.e2eeSocialRecoverKeyTitle,
+            description: t.main.e2eeSocialRecoverKeyDesc,
             color: Colors.green,
             onTap: () {
               Navigator.push(
@@ -255,13 +257,15 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
         const SizedBox(height: 12),
         _buildActionCard(
           icon: Icons.manage_accounts,
-          title: t.e2eeSocialManageShardsTitle,
-          description: t.e2eeSocialManageShardsDesc,
+          title: t.main.e2eeSocialManageShardsTitle,
+          description: t.main.e2eeSocialManageShardsDesc,
           color: Colors.orange,
           onTap: () {
             Navigator.push(
               context,
-              CupertinoPageRoute<dynamic>(builder: (_) => const E2EESocialManagePage()),
+              CupertinoPageRoute<dynamic>(
+                builder: (_) => const E2EESocialManagePage(),
+              ),
             );
           },
         ),

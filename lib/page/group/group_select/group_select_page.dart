@@ -51,13 +51,13 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
           ? Theme.of(context).colorScheme.surface
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
-        title: t.selectGroup,
+        title: t.group.selectGroup,
         automaticallyImplyLeading: true,
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.items.isEmpty
-          ? NoDataView(text: t.noData)
+          ? NoDataView(text: t.common.noData)
           : ListView.builder(
               shrinkWrap: true,
               itemCount: state.items.length,

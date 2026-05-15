@@ -41,7 +41,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     ref.listen<GroupAnnouncementState>(provider, (prev, next) {
       final msg = next.errorMessage;
       if (msg != null && msg.isNotEmpty && prev?.errorMessage != msg) {
-        EasyLoading.showToast(t.groupAnnouncementLoadFailed);
+        EasyLoading.showToast(t.common.groupAnnouncementLoadFailed);
         ref.read(provider.notifier).clearError();
       }
     });
@@ -53,7 +53,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.groupAnnouncement,
+        title: t.common.groupAnnouncement,
         rightDMActions: [
           // 仅 admin / owner / vice_owner 可发布公告
           if (canManageAnnouncement(state.currentUserRole))
@@ -223,7 +223,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      t.groupAnnouncementExpiry(
+                      t.common.groupAnnouncementExpiry(
                         time: notifier.formatTime(announcement.expiredAt!),
                       ),
                       style: TextStyle(
@@ -246,7 +246,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
   // 空视图
   Widget _buildEmptyView(BuildContext context) {
     return NoDataView(
-      text: t.noGroupAnnouncement,
+      text: t.common.noGroupAnnouncement,
       icon: Icons.announcement_outlined,
     );
   }
@@ -263,7 +263,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(t.groupAnnouncementPublish),
+          title: Text(t.common.groupAnnouncementPublish),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -271,7 +271,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 controller: contentController,
                 maxLines: 5,
                 decoration: InputDecoration(
-                  hintText: t.pleaseEnterAnnouncementContent,
+                  hintText: t.common.pleaseEnterAnnouncementContent,
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -304,7 +304,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                           Text(
                             expiredDate != null
                                 ? '${expiredDate.year}-${expiredDate.month.toString().padLeft(2, '0')}-${expiredDate.day.toString().padLeft(2, '0')}'
-                                : t.selectExpirationDateOptional,
+                                : t.common.selectExpirationDateOptional,
                           ),
                         ],
                       ),
@@ -317,7 +317,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
           actions: [
             TextButton(
               onPressed: () => context.pop(),
-              child: Text(t.buttonCancel),
+              child: Text(t.common.buttonCancel),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -328,14 +328,18 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                         expiredDateNotifier.value?.millisecondsSinceEpoch,
                   );
                   if (success) {
-                    EasyLoading.showToast(t.groupAnnouncementPublishSuccess);
+                    EasyLoading.showToast(
+                      t.common.groupAnnouncementPublishSuccess,
+                    );
                     if (context.mounted) context.pop();
                   } else {
-                    EasyLoading.showToast(t.groupAnnouncementPublishFailed);
+                    EasyLoading.showToast(
+                      t.common.groupAnnouncementPublishFailed,
+                    );
                   }
                 }
               },
-              child: Text(t.publish),
+              child: Text(t.main.publish),
             ),
           ],
         ),
@@ -352,12 +356,12 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.confirmDelete),
-        content: Text(t.groupAnnouncementDeleteConfirm),
+        title: Text(t.common.confirmDelete),
+        content: Text(t.common.groupAnnouncementDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -365,10 +369,10 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 announcement.id,
               );
               if (success) {
-                EasyLoading.showToast(t.groupAnnouncementDeleteSuccess);
+                EasyLoading.showToast(t.common.groupAnnouncementDeleteSuccess);
                 if (context.mounted) context.pop();
               } else {
-                EasyLoading.showToast(t.groupAnnouncementDeleteFailed);
+                EasyLoading.showToast(t.common.groupAnnouncementDeleteFailed);
               }
             },
             style: ElevatedButton.styleFrom(
@@ -377,7 +381,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
               ),
               foregroundColor: Colors.white,
             ),
-            child: Text(t.groupAnnouncementDelete),
+            child: Text(t.common.groupAnnouncementDelete),
           ),
         ],
       ),

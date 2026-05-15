@@ -198,7 +198,7 @@ class UserApi extends HttpClient {
       return true;
     } catch (e) {
       iPrint("> on UserApi/applyLogout error: $e");
-      EasyLoading.showError(t.logoutRequestFailedPleaseCheckNetwork);
+      EasyLoading.showError(t.common.logoutRequestFailedPleaseCheckNetwork);
       return false;
     }
   }
@@ -225,7 +225,7 @@ class UserApi extends HttpClient {
       return resp.payload as Map<String, dynamic>?;
     } catch (e) {
       iPrint("> on UserApi/exportUserData error: $e");
-      EasyLoading.showError(t.operationFailedAgainLater);
+      EasyLoading.showError(t.common.operationFailedAgainLater);
       return null;
     }
   }

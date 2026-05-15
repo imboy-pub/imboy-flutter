@@ -68,8 +68,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   double start = 0.0;
   double offset = 0.0;
   bool isUp = false;
-  String textShow = t.chatHoldDownTalk;
-  String toastShow = t.slideUpCancelSending;
+  String textShow = t.chat.chatHoldDownTalk;
+  String toastShow = t.common.slideUpCancelSending;
 
   final List<double> waveform = [];
   String recordingMimeType = 'audio/aac';
@@ -107,16 +107,20 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       try {
         var status = await Permission.microphone.request();
         if (status != PermissionStatus.granted) {
-          EasyLoading.showError(t.microphonePermissionNotObtained);
-          throw RecordingPermissionException(t.microphonePermissionNotObtained);
+          EasyLoading.showError(t.common.microphonePermissionNotObtained);
+          throw RecordingPermissionException(
+            t.common.microphonePermissionNotObtained,
+          );
         }
 
         //判断如果还没拥有读写权限就申请获取权限
         if (await Permission.storage.request().isDenied) {
           await Permission.storage.request();
           if ((await Permission.storage.status) != PermissionStatus.granted) {
-            EasyLoading.showError(t.storagePermissionNotObtained);
-            throw RecordingPermissionException(t.storagePermissionNotObtained);
+            EasyLoading.showError(t.common.storagePermissionNotObtained);
+            throw RecordingPermissionException(
+              t.common.storagePermissionNotObtained,
+            );
           }
         }
       } on Exception catch (e) {
@@ -183,7 +187,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
   void showVoiceView(BuildContext ctx) {
     setState(() {
-      textShow = t.releaseEnd;
+      textShow = t.main.releaseEnd;
     });
 
     if (recordingDuration.inMilliseconds > _countTotal.inMilliseconds) {
@@ -213,12 +217,12 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     }
 
     if (recordingDuration.inMilliseconds < 1000) {
-      EasyLoading.showToast(t.speakingTooShort);
+      EasyLoading.showToast(t.main.speakingTooShort);
       isUp = true;
     }
 
     setState(() {
-      textShow = t.chatHoldDownTalk;
+      textShow = t.chat.chatHoldDownTalk;
     });
 
     if (overlayEntry != null) {
@@ -256,11 +260,11 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     setState(() {
       isUp = start - offset > 120 ? true : false;
       if (isUp) {
-        textShow = t.releaseFingerCancelSending;
+        textShow = t.common.releaseFingerCancelSending;
         toastShow = textShow;
       } else {
-        textShow = t.releaseEnd;
-        toastShow = t.slideUpCancelSending;
+        textShow = t.main.releaseEnd;
+        toastShow = t.common.slideUpCancelSending;
       }
       // 更新悬浮层状态
       if (overlayEntry != null) {
@@ -383,17 +387,17 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     ).then((_) {
       // 直接清理录音状态，不需要 context
       setState(() {
-        textShow = t.chatHoldDownTalk;
+        textShow = t.chat.chatHoldDownTalk;
       });
       if (recordingDuration.inMilliseconds < 1000) {
-        EasyLoading.showToast(t.speakingTooShort);
+        EasyLoading.showToast(t.main.speakingTooShort);
       }
       recordingDuration = const Duration();
       waveform.clear();
     });
 
     // 显示提示
-    EasyLoading.showToast(t.recordingCancelled);
+    EasyLoading.showToast(t.common.recordingCancelled);
   }
 
   /// 当切换到其他输入模式时调用

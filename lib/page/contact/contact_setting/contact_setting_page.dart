@@ -274,7 +274,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
 
                 // 标题
                 Text(
-                  t.deleteContact,
+                  t.common.deleteContact,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -288,7 +288,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Text(
-                    t.tipDeleteContact(param: displayRemark),
+                    t.common.tipDeleteContact(param: displayRemark),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -312,13 +312,13 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                         child: ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).pop(); // 先关闭底部弹窗
-                            EasyLoading.show(status: t.deleting);
+                            EasyLoading.show(status: t.main.deleting);
                             bool res = await ref
                                 .read(contactSettingProvider.notifier)
                                 .deleteContact(widget.peerId);
                             EasyLoading.dismiss();
                             if (res) {
-                              EasyLoading.showSuccess(t.tipSuccess);
+                              EasyLoading.showSuccess(t.common.tipSuccess);
                               if (mounted) {
                                 Navigator.of(context).pushAndRemoveUntil(
                                   CupertinoPageRoute<dynamic>(
@@ -329,7 +329,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                                 );
                               }
                             } else {
-                              EasyLoading.showError(t.error);
+                              EasyLoading.showError(t.common.error);
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -342,7 +342,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                             ),
                           ),
                           child: Text(
-                            t.deleteContact,
+                            t.common.deleteContact,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -365,7 +365,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                             ),
                           ),
                           child: Text(
-                            t.buttonCancel,
+                            t.common.buttonCancel,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -395,7 +395,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
     return Scaffold(
       appBar: GlassAppBar(
         titleWidget: Text(
-          t.profileSettings,
+          t.common.profileSettings,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -416,7 +416,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             // 设置备注和标签
             _buildSettingCard(
               context: context,
-              title: t.setParam(param: t.remarksTags),
+              title: t.main.setParam(param: t.contact.remarksTags),
               icon: Icons.edit_outlined,
               onTap: () {
                 Navigator.push(
@@ -448,11 +448,11 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             // 推荐给朋友
             _buildSettingCard(
               context: context,
-              title: t.recommendToFriend,
+              title: t.contact.recommendToFriend,
               icon: Icons.share_outlined,
               onTap: () async {
                 // 推荐给朋友的逻辑
-                EasyLoading.showInfo(t.featureInDevelopment);
+                EasyLoading.showInfo(t.common.featureInDevelopment);
               },
             ),
 
@@ -461,7 +461,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             // 加入黑名单开关
             _buildSwitchCard(
               context: context,
-              title: t.addToDenylist,
+              title: t.common.addToDenylist,
               icon: Icons.block_outlined,
               iconColor: state.isInDenylist
                   ? AppColors.getIosRed(theme.brightness)
@@ -469,7 +469,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               value: state.isInDenylist,
               // 切换开关：true 加入黑名单；false 移出黑名单
               onChanged: (val) async {
-                EasyLoading.show(status: t.loading);
+                EasyLoading.show(status: t.common.loading);
                 final denylistRepo = UserDenylistRepo();
                 bool res;
                 if (val) {
@@ -504,10 +504,12 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                         peerData: {},
                       );
                   EasyLoading.showSuccess(
-                    val ? t.addedToDenylist : t.removedFromDenylist,
+                    val
+                        ? t.common.addedToDenylist
+                        : t.common.removedFromDenylist,
                   );
                 } else {
-                  EasyLoading.showError(t.error);
+                  EasyLoading.showError(t.common.error);
                 }
               },
             ),
@@ -517,7 +519,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             // 删除联系人按钮
             _buildDangerButton(
               context: context,
-              title: t.deleteContact,
+              title: t.common.deleteContact,
               icon: Icons.person_remove_outlined,
               onTap: () => _showDeleteConfirmation(context),
             ),

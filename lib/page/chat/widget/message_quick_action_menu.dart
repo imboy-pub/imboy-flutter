@@ -37,7 +37,7 @@ class MessageQuickActionMenu {
             children: [
               ListTile(
                 leading: Icon(Icons.refresh, color: AppColors.iosOrange),
-                title: Text(t.chatResend),
+                title: Text(t.chat.chatResend),
                 onTap: () {
                   Navigator.pop(context);
                   onRetry();
@@ -45,7 +45,7 @@ class MessageQuickActionMenu {
               ),
               ListTile(
                 leading: Icon(Icons.delete_outline, color: AppColors.iosRed),
-                title: Text(t.chatDeleteMessage),
+                title: Text(t.common.chatDeleteMessage),
                 onTap: () {
                   Navigator.pop(context);
                   onDelete();
@@ -114,7 +114,7 @@ class MessageQuickActionMenu {
                 if (message is TextMessage)
                   ListTile(
                     leading: const Icon(Icons.copy_rounded),
-                    title: Text(t.buttonCopy),
+                    title: Text(t.common.buttonCopy),
                     onTap: () {
                       Navigator.pop(context);
                       onCopy();
@@ -124,7 +124,7 @@ class MessageQuickActionMenu {
                 // 转发
                 ListTile(
                   leading: const Icon(Icons.forward_rounded),
-                  title: Text(t.forward),
+                  title: Text(t.chat.forward),
                   onTap: () {
                     Navigator.pop(context);
                     onForward();
@@ -134,7 +134,7 @@ class MessageQuickActionMenu {
                 // 收藏
                 ListTile(
                   leading: const Icon(Icons.favorite_border_rounded),
-                  title: Text(t.favorites),
+                  title: Text(t.main.favorites),
                   onTap: () {
                     Navigator.pop(context);
                     onCollect();
@@ -144,7 +144,7 @@ class MessageQuickActionMenu {
                 // 回复
                 ListTile(
                   leading: const Icon(Icons.reply_rounded),
-                  title: Text(t.reply),
+                  title: Text(t.chat.reply),
                   onTap: () {
                     Navigator.pop(context);
                     onReply();
@@ -157,7 +157,7 @@ class MessageQuickActionMenu {
                     message is VideoMessage)
                   ListTile(
                     leading: const Icon(Icons.save_alt_rounded),
-                    title: Text(t.chatSaveImage), // 这里可能需要通用的 save 文本
+                    title: Text(t.common.chatSaveImage), // 这里可能需要通用的 save 文本
                     onTap: () async {
                       Navigator.pop(context);
                       await onSaveFile(
@@ -178,7 +178,7 @@ class MessageQuickActionMenu {
                       Icons.undo_rounded,
                       color: AppColors.iosOrange,
                     ),
-                    title: Text(t.revoke),
+                    title: Text(t.chat.revoke),
                     onTap: () {
                       Navigator.pop(context);
                       onRevoke();
@@ -191,7 +191,7 @@ class MessageQuickActionMenu {
                     Icons.delete_outline_rounded,
                     color: AppColors.iosRed,
                   ),
-                  title: Text(t.buttonDelete),
+                  title: Text(t.common.buttonDelete),
                   onTap: () {
                     Navigator.pop(context);
                     onDelete();

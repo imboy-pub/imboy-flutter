@@ -73,7 +73,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.setNickname,
+        title: t.account.setNickname,
         rightDMActions: [
           Container(
             height: AppSpacing.regular * 4,
@@ -118,7 +118,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                           ),
                         )
                       : Text(
-                          t.buttonSave,
+                          t.common.buttonSave,
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             fontWeight: FontWeight.w600,
@@ -162,7 +162,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.nickname,
+                    t.account.nickname,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.getTextColor(
@@ -173,8 +173,8 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   ),
                   SizedBox(height: AppSpacing.regular * 0.8),
                   Semantics(
-                    label: '${t.nickname} - ${t.nicknameHint}',
-                    hint: t.nicknameHint,
+                    label: '${t.account.nickname} - ${t.account.nicknameHint}',
+                    hint: t.account.nicknameHint,
                     textField: true,
                     child: TextField(
                       controller: controller,
@@ -191,7 +191,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                         ),
                       ),
                       decoration: InputDecoration(
-                        hintText: t.nicknameHint,
+                        hintText: t.account.nicknameHint,
                         hintStyle: ThemeManager.instance.getTextStyle(
                           FontSizeType.medium,
                           color: AppColors.getTextColor(
@@ -243,7 +243,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                           if (error.isEmpty) return const SizedBox.shrink();
 
                           return Semantics(
-                            label: '${t.warning}: $error',
+                            label: '${t.common.warning}: $error',
                             liveRegion: true,
                             child: Text(
                               error,
@@ -260,12 +260,12 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
 
                       // 剩余字符数
                       Semantics(
-                        label: t.nicknameCharsRemaining(
+                        label: t.account.nicknameCharsRemaining(
                           param: state.remainingChars.toString(),
                         ),
                         liveRegion: true,
                         child: Text(
-                          t.nicknameCharsRemaining(
+                          t.account.nicknameCharsRemaining(
                             param: state.remainingChars.toString(),
                           ),
                           style: ThemeManager.instance.getTextStyle(
@@ -300,7 +300,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.tipTips,
+                          t.common.tipTips,
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             fontWeight: FontWeight.w600,
@@ -312,7 +312,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                         ),
                         SizedBox(height: AppSpacing.regular * 0.5),
                         Text(
-                          t.nicknameRules,
+                          t.account.nicknameRules,
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             color: AppColors.getTextColor(

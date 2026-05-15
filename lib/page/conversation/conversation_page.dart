@@ -66,7 +66,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       if (connectivityResult.contains(ConnectivityResult.none)) {
         ref
             .read(conversationProvider.notifier)
-            .setConnectDesc(t.tipConnectDescWithParen(param: t.tipConnectDesc));
+            .setConnectDesc(
+              t.common.tipConnectDescWithParen(param: t.common.tipConnectDesc),
+            );
       }
       setState(() {});
     });
@@ -89,7 +91,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       notifier.setConnectDesc(
-        t.tipConnectDescWithParen(param: t.tipConnectDesc),
+        t.common.tipConnectDescWithParen(param: t.common.tipConnectDesc),
       );
     } else {
       notifier.setConnectDesc('');
@@ -103,7 +105,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
       if (r.contains(ConnectivityResult.none)) {
         notifier.setConnectDesc(
-          t.tipConnectDescWithParen(param: t.tipConnectDesc),
+          t.common.tipConnectDescWithParen(param: t.common.tipConnectDesc),
         );
       } else {
         notifier.setConnectDesc('');
@@ -204,7 +206,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         scrolledUnderElevation: 0,
         leading: const SizedBox.shrink(),
         title: Text(
-          '${t.titleMessage}${state.connectDesc}',
+          '${t.chat.titleMessage}${state.connectDesc}',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -238,7 +240,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                 child: state.isLoading
                     ? const ShimmerList()
                     : state.conversations.isEmpty
-                    ? NoDataView(text: t.noConversationMessages)
+                    ? NoDataView(text: t.common.noConversationMessages)
                     : ListView.builder(
                         itemExtent: 80.0,
                         itemCount: state.conversations.length,
@@ -316,8 +318,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                           : 1;
                                       return Text(
                                         currentNum > 0
-                                            ? t.markRead
-                                            : t.markUnread,
+                                            ? t.chat.markRead
+                                            : t.chat.markUnread,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           color: Colors.white,
@@ -344,10 +346,14 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                     ScaffoldMessenger.maybeOf(
                                       context,
                                     )?.showSnackBar(
-                                      SnackBar(content: Text(t.tipFailed)),
+                                      SnackBar(
+                                        content: Text(t.common.tipFailed),
+                                      ),
                                     );
                                   },
-                                  label: model.isPinned ? t.unpin : t.pin,
+                                  label: model.isPinned
+                                      ? t.chat.unpin
+                                      : t.chat.pin,
                                   spacing: 1,
                                 ),
                                 SlidableAction(
@@ -364,10 +370,12 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                     ScaffoldMessenger.maybeOf(
                                       context,
                                     )?.showSnackBar(
-                                      SnackBar(content: Text(t.tipFailed)),
+                                      SnackBar(
+                                        content: Text(t.common.tipFailed),
+                                      ),
                                     );
                                   },
-                                  label: t.buttonDelete,
+                                  label: t.common.buttonDelete,
                                   spacing: 1,
                                 ),
                               ],

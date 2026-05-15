@@ -155,7 +155,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         List<GroupMemberModel> newMembers = [];
 
         for (var item in list) {
-          GroupMemberModel member = await repo.save(item as Map<String, dynamic>);
+          GroupMemberModel member = await repo.save(
+            item as Map<String, dynamic>,
+          );
           newMembers.add(member);
         }
 
@@ -174,7 +176,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         setState(() {});
       }
     } catch (e) {
-      EasyLoading.showError(t.loadError);
+      EasyLoading.showError(t.common.loadError);
     } finally {
       setState(() {
         _isLoading = false;
@@ -198,11 +200,11 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
     switch (role) {
       case 4:
-        label = t.groupOwner;
+        label = t.group.groupOwner;
         color = AppColors.iosOrange;
         break;
       case 3:
-        label = t.groupAdmin;
+        label = t.group.groupAdmin;
         color = AppColors.getIosBlue(Theme.of(context).brightness);
         break;
       default:
@@ -314,12 +316,12 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: '${t.groupMembers} (${_memberList.length})',
+        title: '${t.group.groupMembers} (${_memberList.length})',
       ),
       body: _isLoading && _memberList.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : _memberList.isEmpty
-          ? NoDataView(text: t.noData)
+          ? NoDataView(text: t.common.noData)
           : EasyRefresh(
               controller: _refreshController,
               onRefresh: () async {

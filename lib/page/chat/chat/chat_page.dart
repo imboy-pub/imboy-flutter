@@ -343,7 +343,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${t.chatInitFailed}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${t.chat.chatInitFailed}: $e')));
       }
     }
   }
@@ -699,7 +699,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // remainingSeconds 由后端计算；转分钟（向上取整）
       final minutes = (event.remainingSeconds / 60).ceil();
       if (minutes > 0) {
-        _muteMessage = t.youAreMutedWithTime(minutes: '$minutes');
+        _muteMessage = t.chat.chat.youAreMutedWithTime(minutes: '$minutes');
         final remaining =
             event.muteUntilMs - DateTime.now().millisecondsSinceEpoch;
         if (remaining > 0) {
@@ -708,7 +708,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           });
         }
       } else {
-        _muteMessage = t.youAreMuted;
+        _muteMessage = t.chat.youAreMuted;
       }
     });
   }
@@ -726,7 +726,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       _isMuted = true;
       final minutes = event.remainingMinutes;
       if (minutes > 0) {
-        _muteMessage = t.youAreMutedWithTime(minutes: '$minutes');
+        _muteMessage = t.chat.chat.youAreMutedWithTime(minutes: '$minutes');
         // 设置定时器在禁言到期时自动解除
         final remaining =
             event.muteUntilMs - DateTime.now().millisecondsSinceEpoch;
@@ -734,7 +734,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           if (mounted) _clearMuteState();
         });
       } else {
-        _muteMessage = t.youAreMuted;
+        _muteMessage = t.chat.youAreMuted;
       }
     });
   }
@@ -986,7 +986,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       debugPrint('开始重试消息: $messageId');
 
       // 显示加载状态
-      EasyLoading.show(status: t.retryingSend);
+      EasyLoading.show(status: t.common.retryingSend);
 
       final success = await ref
           .read(chatProvider.notifier)
@@ -995,13 +995,13 @@ class ChatPageState extends ConsumerState<ChatPage>
       EasyLoading.dismiss();
 
       if (success) {
-        EasyLoading.showSuccess(t.retrySuccess);
+        EasyLoading.showSuccess(t.common.retrySuccess);
       } else {
-        EasyLoading.showError(t.retryFailedPleaseCheckNetwork);
+        EasyLoading.showError(t.common.retryFailedPleaseCheckNetwork);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('${t.retryAbnormal}: $e');
+      EasyLoading.showError('${t.common.retryAbnormal}: $e');
       debugPrint('消息重试异常: $e');
     }
   }
@@ -1115,7 +1115,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       } catch (e, s) {
         debugPrint('发送收藏消息失败: $e\n堆栈: $s');
         if (mounted) {
-          EasyLoading.showError(t.operationFailedAgainLater);
+          EasyLoading.showError(t.common.operationFailedAgainLater);
         }
       }
     }
@@ -1300,7 +1300,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     switch (decision) {
       case SendDenyMuted():
-        EasyLoading.showInfo(t.mutedCannotSend);
+        EasyLoading.showInfo(t.chat.mutedCannotSend);
         return false;
       case SendDenyDebounced():
         iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
@@ -1316,7 +1316,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         _editingMessageId = null;
         return result;
       case SendAsNewText():
-        iPrint(t.sendNewMessage);
+        iPrint(t.chat.sendNewMessage);
         final result = await _sendTextMessage(text);
         if (result) {
           _lastSendTime = DateTime.now();
@@ -1449,7 +1449,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           final quoteText = (message.metadata?['quote_text'] ?? '') as String;
           if (quoteText.isNotEmpty) {
             Clipboard.setData(ClipboardData(text: quoteText));
-            EasyLoading.showToast(t.copied);
+            EasyLoading.showToast(t.common.copied);
           }
         }
       },
@@ -1759,7 +1759,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           if (!chatState.hasMoreMessage &&
               (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
                   true)) {
-            return EmptyChatList(text: t.noData);
+            return EmptyChatList(text: t.common.noData);
           }
           return const SizedBox.shrink();
         },
@@ -2290,20 +2290,20 @@ class ChatPageState extends ConsumerState<ChatPage>
           children: [
             Icon(Icons.lock_outline, color: AppColors.iosOrange),
             const SizedBox(width: 12),
-            Text(t.e2eeDecryptFailed),
+            Text(t.chat.e2eeDecryptFailed),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.e2eeDecryptFailedReasons),
+            Text(t.chat.chat.e2eeDecryptFailedReasons),
             const SizedBox(height: 8),
-            Text(t.e2eeDecryptReasonOtherDevice),
-            Text(t.e2eeDecryptReasonKeyExpired),
-            Text(t.e2eeDecryptReasonDataCorrupt),
+            Text(t.chat.e2eeDecryptReasonOtherDevice),
+            Text(t.chat.e2eeDecryptReasonKeyExpired),
+            Text(t.chat.e2eeDecryptReasonDataCorrupt),
             const SizedBox(height: 16),
-            Text(t.e2eeDecryptChooseSolution),
+            Text(t.chat.e2eeDecryptChooseSolution),
           ],
         ),
         actions: [
@@ -2312,18 +2312,18 @@ class ChatPageState extends ConsumerState<ChatPage>
               Navigator.of(context).pop();
               _refreshE2EEKeys();
             },
-            child: Text(t.e2eeDecryptActionRecreateKey),
+            child: Text(t.chat.e2eeDecryptActionRecreateKey),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _relogin();
             },
-            child: Text(t.e2eeDecryptActionRelogin),
+            child: Text(t.chat.e2eeDecryptActionRelogin),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.e2eeDecryptActionRemindLater),
+            child: Text(t.chat.e2eeDecryptActionRemindLater),
           ),
         ],
       ),
@@ -2333,7 +2333,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   /// 重新创建E2EE密钥
   Future<void> _refreshE2EEKeys() async {
     try {
-      EasyLoading.showToast(t.e2eeRecreatingKey);
+      EasyLoading.showToast(t.chat.e2eeRecreatingKey);
 
       // 1. 清除E2EE缓存
       E2EEService.clearCache();
@@ -2350,17 +2350,19 @@ class ChatPageState extends ConsumerState<ChatPage>
         await E2EEService.getUserDevicePublicKeys(currentUid);
       }
 
-      EasyLoading.showSuccess(t.e2eeKeyRecreated);
+      EasyLoading.showSuccess(t.chat.e2eeKeyRecreated);
       iPrint('E2EE: 密钥已重新创建');
     } catch (e) {
-      EasyLoading.showError(t.e2eeKeyRecreationFailed(error: e.toString()));
+      EasyLoading.showError(
+        t.chat.e2eeKeyRecreationFailed(error: e.toString()),
+      );
       iPrint('E2EE: 密钥创建失败: $e');
     }
   }
 
   /// 重新登录
   void _relogin() {
-    EasyLoading.showToast(t.pleaseRelogin);
+    EasyLoading.showToast(t.account.pleaseRelogin);
     // 跳转到首页（由路由守卫处理未登录重定向）
     context.go('/');
   }

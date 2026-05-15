@@ -48,21 +48,21 @@ class UserOnlineTimeHelper {
     if (hideOnlineStatus) {
       return UserOnlineStatus(
         status: LastSeenStatus.hidden,
-        statusText: t.lastSeenHide,
+        statusText: t.main.lastSeenHide,
       );
     }
 
     if (isOnline) {
       return UserOnlineStatus(
         status: LastSeenStatus.online,
-        statusText: t.online,
+        statusText: t.chat.online,
       );
     }
 
     if (lastSeenTimestamp == null || lastSeenTimestamp == 0) {
       return UserOnlineStatus(
         status: LastSeenStatus.longTimeAgo,
-        statusText: t.lastSeenNever,
+        statusText: t.main.lastSeenNever,
       );
     }
 
@@ -76,7 +76,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.justNow,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenJustNow,
+        statusText: t.common.lastSeenJustNow,
       );
     }
 
@@ -84,7 +84,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMinutes,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenMinutesAgo(
+        statusText: t.common.lastSeenMinutesAgo(
           param: difference.inMinutes.toString(),
         ),
         timeValue: difference.inMinutes,
@@ -95,7 +95,9 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinHours,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenHoursAgo(param: difference.inHours.toString()),
+        statusText: t.common.lastSeenHoursAgo(
+          param: difference.inHours.toString(),
+        ),
         timeValue: difference.inHours,
       );
     }
@@ -104,7 +106,9 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinDays,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenDaysAgo(param: difference.inDays.toString()),
+        statusText: t.common.lastSeenDaysAgo(
+          param: difference.inDays.toString(),
+        ),
         timeValue: difference.inDays,
       );
     }
@@ -114,7 +118,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinWeeks,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenWeeksAgo(param: weeks.toString()),
+        statusText: t.main.lastSeenWeeksAgo(param: weeks.toString()),
         timeValue: weeks,
       );
     }
@@ -124,7 +128,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMonths,
         lastSeenAt: lastSeen,
-        statusText: t.lastSeenMonthsAgo(param: months.toString()),
+        statusText: t.common.lastSeenMonthsAgo(param: months.toString()),
         timeValue: months,
       );
     }
@@ -132,7 +136,7 @@ class UserOnlineTimeHelper {
     return UserOnlineStatus(
       status: LastSeenStatus.longTimeAgo,
       lastSeenAt: lastSeen,
-      statusText: t.lastSeenLongTimeAgo,
+      statusText: t.common.lastSeenLongTimeAgo,
     );
   }
 
@@ -145,7 +149,7 @@ class UserOnlineTimeHelper {
     if (difference.inDays == 0) {
       return DateFormat('HH:mm').format(dateTime);
     } else if (difference.inDays == 1) {
-      return '${t.yesterday} ${DateFormat('HH:mm').format(dateTime)}';
+      return '${t.common.yesterday} ${DateFormat('HH:mm').format(dateTime)}';
     } else if (difference.inDays < 7) {
       return DateFormat('EEEE HH:mm').format(dateTime);
     } else {

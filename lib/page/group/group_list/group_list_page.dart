@@ -152,7 +152,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
           ? colorScheme.surface
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
-        titleWidget: Text("${t.groupChat}(${state.groupList.length})"),
+        titleWidget: Text("${t.chat.groupChat}(${state.groupList.length})"),
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
@@ -186,11 +186,13 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
               ),
               child: searchBar(
                 context,
-                searchLabel: t.search,
-                hintText: t.search,
-                queryTips: t.groupSearchTips,
-                doSearch: ((query) =>
-                    GroupRepo().searchByAttr(attr: state.attr, kwd: query as String)),
+                searchLabel: t.common.search,
+                hintText: t.common.search,
+                queryTips: t.common.groupSearchTips,
+                doSearch: ((query) => GroupRepo().searchByAttr(
+                  attr: state.attr,
+                  kwd: query as String,
+                )),
                 onTapForItem: (model) {
                   if (model is GroupModel) {
                     context.push(
@@ -237,7 +239,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
               child: state.isLoading
                   ? const ShimmerList()
                   : state.groupList.isEmpty
-                  ? NoDataView(text: t.noData)
+                  ? NoDataView(text: t.common.noData)
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,

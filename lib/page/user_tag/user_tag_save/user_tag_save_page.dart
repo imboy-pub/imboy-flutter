@@ -63,7 +63,9 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
           },
           child: const Icon(Icons.close),
         ),
-        title: widget.tag == null ? t.addTag : t.changeParam(param: t.tags),
+        title: widget.tag == null
+            ? t.common.addTag
+            : t.main.changeParam(param: t.contact.tags),
       ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -126,7 +128,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RoundedElevatedButton(
-                  text: t.buttonAccomplish,
+                  text: t.common.buttonAccomplish,
                   highlighted: _valueChanged && !_isSaving,
                   onPressed: _isSaving
                       ? null
@@ -198,10 +200,10 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                                   // 详情页面未打开，忽略
                                 }
 
-                                EasyLoading.showSuccess(t.tipSuccess);
+                                EasyLoading.showSuccess(t.common.tipSuccess);
                                 Navigator.of(context).pop();
                               } else {
-                                EasyLoading.showError(t.tipFailed);
+                                EasyLoading.showError(t.common.tipFailed);
                               }
                             }
                           } finally {

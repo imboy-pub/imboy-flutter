@@ -47,7 +47,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.loginDeviceManagement,
+        title: t.account.loginDeviceManagement,
       ),
       body: Column(
         children: [
@@ -84,7 +84,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              t.loginDeviceManagementTips,
+              t.common.loginDeviceManagementTips,
               style: TextStyle(
                 color: isDark
                     ? Theme.of(
@@ -106,7 +106,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
   /// 构建空状态
   Widget _buildEmptyState(BuildContext context) {
     return NoDataView(
-      text: t.noData,
+      text: t.common.noData,
       icon: Icons.devices_outlined,
       iconBgSize: 80,
       iconSize: 40,
@@ -169,7 +169,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.4),
                   icon: Icons.power_settings_new,
-                  label: t.forceOffline,
+                  label: t.common.forceOffline,
                   borderRadius: AppRadius.borderRadiusMedium,
                 ),
                 SlidableAction(
@@ -177,7 +177,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                   backgroundColor: AppColors.lightError,
                   foregroundColor: Colors.white,
                   icon: Icons.delete_outline,
-                  label: t.buttonDelete,
+                  label: t.common.buttonDelete,
                   borderRadius: AppRadius.borderRadiusMedium,
                 ),
               ],
@@ -270,7 +270,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                                   borderRadius: AppRadius.borderRadiusSmall,
                                 ),
                                 child: Text(
-                                  t.currentDevice,
+                                  t.account.currentDevice,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.primary,
@@ -298,7 +298,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              model.online ? t.online : t.offline,
+                              model.online ? t.chat.online : t.chat.offline,
                               style: TextStyle(
                                 color: model.online
                                     ? AppColors.onlineIndicator
@@ -374,12 +374,12 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(t.buttonDelete),
-        content: Text(t.deleteThisDeviceTips),
+        title: Text(t.common.buttonDelete),
+        content: Text(t.common.deleteThisDeviceTips),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -387,7 +387,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
               Navigator.of(context).pop();
               await _deleteDevice(model);
             },
-            child: Text(t.buttonDelete),
+            child: Text(t.common.buttonDelete),
           ),
         ],
       ),
@@ -396,7 +396,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 删除设备
   Future<void> _deleteDevice(UserDeviceModel model) async {
-    EasyLoading.show(status: t.loading);
+    EasyLoading.show(status: t.common.loading);
     try {
       bool res = await ref
           .read(userDeviceProvider.notifier)
@@ -404,13 +404,13 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
       EasyLoading.dismiss();
 
       if (res) {
-        EasyLoading.showSuccess(t.tipSuccess);
+        EasyLoading.showSuccess(t.common.tipSuccess);
       } else {
-        EasyLoading.showError(t.tipFailed);
+        EasyLoading.showError(t.common.tipFailed);
       }
     } on Exception {
       EasyLoading.dismiss();
-      EasyLoading.showError(t.tipFailed);
+      EasyLoading.showError(t.common.tipFailed);
     }
   }
 
@@ -419,12 +419,12 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(t.forceDeviceOffline),
-        content: Text(t.forceDeviceOfflineConfirm),
+        title: Text(t.common.forceDeviceOffline),
+        content: Text(t.common.forceDeviceOfflineConfirm),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -432,7 +432,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
               Navigator.of(context).pop();
               await _forceOffline(model);
             },
-            child: Text(t.confirmForceOffline),
+            child: Text(t.common.confirmForceOffline),
           ),
         ],
       ),
@@ -441,20 +441,20 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   /// 调用后端接口下发"强制下线"S2C 指令
   Future<void> _forceOffline(UserDeviceModel model) async {
-    EasyLoading.show(status: t.loading);
+    EasyLoading.show(status: t.common.loading);
     try {
       final ok = await ref
           .read(userDeviceProvider.notifier)
           .forceOffline(model.deviceId);
       EasyLoading.dismiss();
       if (ok) {
-        EasyLoading.showSuccess(t.forceOfflineCommandSent);
+        EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
       } else {
-        EasyLoading.showError(t.tipFailed);
+        EasyLoading.showError(t.common.tipFailed);
       }
     } on Exception {
       EasyLoading.dismiss();
-      EasyLoading.showError(t.tipFailed);
+      EasyLoading.showError(t.common.tipFailed);
     }
   }
 }

@@ -109,9 +109,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
 
   String _formatBurnAfterMs(int ms) {
     if (ms < 1000) return '${ms}ms';
-    if (ms % 60000 == 0) return t.durationMinutes(count: ms ~/ 60000);
-    if (ms % 1000 == 0) return t.durationSeconds(count: ms ~/ 1000);
-    return t.durationSeconds(count: (ms / 1000).toStringAsFixed(1));
+    if (ms % 60000 == 0) return t.common.durationMinutes(count: ms ~/ 60000);
+    if (ms % 1000 == 0) return t.common.durationSeconds(count: ms ~/ 1000);
+    return t.common.durationSeconds(count: (ms / 1000).toStringAsFixed(1));
   }
 
   Future<void> _selectBurnDuration() async {
@@ -146,7 +146,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.of(ctx).pop(),
-                          child: Text(t.buttonCancel),
+                          child: Text(t.common.buttonCancel),
                         ),
                         const Spacer(),
                         TextButton(
@@ -154,9 +154,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                             Navigator.of(ctx).pop();
                             setState(() => _burnAfterMs = options[tempIndex]);
                             await _persistBurnSetting();
-                            EasyLoading.showToast(t.tipSuccess);
+                            EasyLoading.showToast(t.common.tipSuccess);
                           },
-                          child: Text(t.buttonConfirm),
+                          child: Text(t.common.buttonConfirm),
                         ),
                       ],
                     ),
@@ -348,42 +348,44 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         subtitle: mode == EncryptionMode.complianceE2ee
-            ? t.msgProtectedByComplianceKey
+            ? t.main.msgProtectedByComplianceKey
             : mode == EncryptionMode.strictE2ee
-            ? t.msgOnlyVisibleToParties
-            : t.msgNotEncrypted,
+            ? t.common.msgOnlyVisibleToParties
+            : t.common.msgNotEncrypted,
         isFirst: true,
       ),
       // C7-α-2: 本地消息免打扰开关
       _buildSwitchTile(
-        t.muteNotifications,
+        t.common.muteNotifications,
         _muteEnabled,
         (v) async {
           setState(() => _muteEnabled = v);
           await _persistMuteSetting(v);
-          EasyLoading.showToast(v ? t.enabled : t.disabled);
+          EasyLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
         icon: Icons.notifications_off_outlined,
         iconColor: Theme.of(context).colorScheme.primary,
-        subtitle: t.muteNotificationsHint,
+        subtitle: t.common.muteNotificationsHint,
       ),
       _buildSwitchTile(
-        t.burnAfterReading,
+        t.chat.burnAfterReading,
         _burnEnabled,
         (v) async {
           setState(() => _burnEnabled = v);
           await _persistBurnSetting();
-          EasyLoading.showToast(v ? t.enabled : t.disabled);
+          EasyLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
         icon: Icons.local_fire_department_outlined,
         iconColor: AppColors.getIosRed(Theme.of(context).brightness),
         subtitle: _burnEnabled
-            ? t.burnEnabledMessage(duration: _formatBurnAfterMs(_burnAfterMs))
-            : t.burnDisabledMessage,
+            ? t.common.burnEnabledMessage(
+                duration: _formatBurnAfterMs(_burnAfterMs),
+              )
+            : t.common.burnDisabledMessage,
       ),
       if (_burnEnabled)
         _buildSettingTile(
-          title: t.destroyTime,
+          title: t.main.destroyTime,
           icon: Icons.timer_outlined,
           subtitle: _formatBurnAfterMs(_burnAfterMs),
           onTap: _selectBurnDuration,
@@ -398,7 +400,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           ),
         ),
       _buildSettingTile(
-        title: t.searchChatRecord,
+        title: t.common.searchChatRecord,
         icon: Icons.search,
         isFirst: true,
         onTap: () {
@@ -418,12 +420,12 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         },
       ),
       _buildSettingTile(
-        title: t.clearChatRecord,
+        title: t.common.clearChatRecord,
         icon: Icons.delete_sweep_outlined,
         isDestructive: true,
         isFirst: true,
         onTap: () {
-          String tips = t.confirmDeleteChatRecord;
+          String tips = t.common.confirmDeleteChatRecord;
           showDialog<void>(
             context: context,
             barrierDismissible: true,
@@ -433,7 +435,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                 borderRadius: AppRadius.borderRadiusRegular,
               ),
               title: Text(
-                t.warning,
+                t.common.warning,
                 style: TextStyle(
                   color: AppColors.getIosRed(
                     Theme.of(dialogContext).brightness,
@@ -459,7 +461,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                       borderRadius: AppRadius.borderRadiusSmall,
                     ),
                   ),
-                  child: Text(t.buttonCancel),
+                  child: Text(t.common.buttonCancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -471,9 +473,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                     );
                     if (cid > 0) {
                       backDoRefresh = true;
-                      EasyLoading.showSuccess(t.tipSuccess);
+                      EasyLoading.showSuccess(t.common.tipSuccess);
                     } else {
-                      EasyLoading.showError(t.tipFailed);
+                      EasyLoading.showError(t.common.tipFailed);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -488,7 +490,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                       borderRadius: AppRadius.borderRadiusSmall,
                     ),
                   ),
-                  child: Text(t.buttonConfirm),
+                  child: Text(t.common.buttonConfirm),
                 ),
               ],
             ),
@@ -516,7 +518,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           },
         ),
         titleWidget: Text(
-          t.chatSettings,
+          t.common.chatSettings,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,

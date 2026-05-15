@@ -52,12 +52,12 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupAlbumCreateTitle),
+        title: Text(t.chat.groupAlbumCreateTitle),
         content: TextField(
           controller: controller,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: t.groupAlbumNameHint,
+            hintText: t.group.groupAlbumNameHint,
             border: OutlineInputBorder(),
             isDense: true,
           ),
@@ -65,11 +65,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -89,7 +89,9 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final success = created != null;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? t.groupAlbumCreated : t.groupAlbumCreateFailed),
+        content: Text(
+          success ? t.chat.groupAlbumCreated : t.common.groupAlbumCreateFailed,
+        ),
       ),
     );
     if (success) {
@@ -106,16 +108,16 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupAlbumDeleteTitle),
-        content: Text(t.groupAlbumDeleteConfirm(name: albumName)),
+        title: Text(t.common.groupAlbumDeleteTitle),
+        content: Text(t.common.groupAlbumDeleteConfirm(name: albumName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -126,7 +128,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? t.groupAlbumDeleted : t.groupAlbumDeleteFailed),
+        content: Text(
+          success
+              ? t.common.groupAlbumDeleted
+              : t.common.groupAlbumDeleteFailed,
+        ),
       ),
     );
     if (success) {
@@ -143,12 +149,12 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupAlbumRenameTitle),
+        title: Text(t.group.groupAlbumRenameTitle),
         content: TextField(
           controller: controller,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: t.groupAlbumNameHint,
+            hintText: t.group.groupAlbumNameHint,
             border: OutlineInputBorder(),
             isDense: true,
           ),
@@ -156,11 +162,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -177,7 +183,9 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? t.groupAlbumRenamed : t.groupAlbumRenameFailed),
+        content: Text(
+          success ? t.group.groupAlbumRenamed : t.common.groupAlbumRenameFailed,
+        ),
       ),
     );
     if (success) {
@@ -208,9 +216,9 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final photoBytes = file.bytes;
     if (photoName.isEmpty || photoBytes == null || photoBytes.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoReadFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.common.groupAlbumPhotoReadFailed)),
+      );
       return;
     }
 
@@ -227,7 +235,9 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success ? t.groupAlbumPhotoUploaded : t.groupAlbumPhotoUploadFailed,
+            success
+                ? t.common.groupAlbumPhotoUploaded
+                : t.common.groupAlbumPhotoUploadFailed,
           ),
         ),
       );
@@ -245,13 +255,13 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.groupAlbum,
+        title: t.group.groupAlbum,
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _createAlbum,
-            tooltip: t.groupAlbumCreateTooltip,
+            tooltip: t.common.groupAlbumCreateTooltip,
           ),
         ],
       ),
@@ -269,7 +279,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         if (_isUploadingPhoto) const LinearProgressIndicator(minHeight: 2),
         Expanded(
           child: _albums.isEmpty
-              ? NoDataView(text: t.groupAlbumNoAlbum, onTop: _loadAlbums)
+              ? NoDataView(text: t.common.groupAlbumNoAlbum, onTop: _loadAlbums)
               : RefreshIndicator(
                   onRefresh: _loadAlbums,
                   child: ListView.builder(
@@ -288,7 +298,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   Widget _buildAlbumItem(Map<String, dynamic> album) {
     final name =
         (album['album_name'] ?? album['name'])?.toString() ??
-        t.groupAlbumUnnamed;
+        t.group.groupAlbumUnnamed;
     final photoCount = _toInt(album['photo_count']);
     final createdAt = album['created_at']?.toString() ?? '';
     final albumId = _resolveAlbumId(album);
@@ -311,7 +321,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         },
         subtitle: Text(
           [
-            t.groupAlbumPhotoCount(count: photoCount),
+            t.group.groupAlbumPhotoCount(count: photoCount),
             if (createdAt.isNotEmpty) createdAt,
           ].join(' · '),
           maxLines: 2,
@@ -324,19 +334,19 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
-                tooltip: t.groupAlbumRenameTitle,
+                tooltip: t.group.groupAlbumRenameTitle,
                 onPressed: _isUploadingPhoto ? null : () => _renameAlbum(album),
               ),
               IconButton(
                 icon: const Icon(Icons.add_photo_alternate_outlined),
-                tooltip: t.groupAlbumUploadTooltip,
+                tooltip: t.common.groupAlbumUploadTooltip,
                 onPressed: _isUploadingPhoto
                     ? null
                     : () => _pickAndUploadPhoto(album),
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline),
-                tooltip: t.groupAlbumDeleteTooltip,
+                tooltip: t.common.groupAlbumDeleteTooltip,
                 onPressed: _isUploadingPhoto ? null : () => _deleteAlbum(album),
               ),
             ],

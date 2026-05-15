@@ -125,7 +125,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
       for (var json in (payload['list'] as List)) {
         json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
-        final UserCollectModel model = UserCollectModel.fromJson(json as Map<String, dynamic>);
+        final UserCollectModel model = UserCollectModel.fromJson(
+          json as Map<String, dynamic>,
+        );
         await repo.save(json);
         result.add(model);
       }
@@ -200,7 +202,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         children: [
           Expanded(
             child: Text(
-              obj.info['text'] as String? ?? (obj.info['payload']['text'] as String? ?? ''),
+              obj.info['text'] as String? ??
+                  (obj.info['payload']['text'] as String? ?? ''),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -301,7 +304,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 if (snapshot.hasError) {
                   return Center(
                     child: Text(
-                      t.loadFailedWithError(error: snapshot.error.toString()),
+                      t.common.loadFailedWithError(
+                        error: snapshot.error.toString(),
+                      ),
                     ),
                   );
                 }
@@ -342,7 +347,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         obj.info['payload']['thumb']['uri'] as String? ?? '';
                     if (uri.isEmpty) {
                       EasyLoading.showError(
-                        t.collectedVideoFormatIncorrectCannotFindVideoUri,
+                        t
+                            .common
+                            .collectedVideoFormatIncorrectCannotFindVideoUri,
                       );
                     } else {
                       Navigator.push(
@@ -373,7 +380,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             child: Row(
               children: [
                 Text(
-                  formatBytes(obj.info['payload']['video']['size'] as int? ?? 0),
+                  formatBytes(
+                    obj.info['payload']['video']['size'] as int? ?? 0,
+                  ),
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -461,7 +470,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        "${t.fileSize}: ${formatBytes(obj.info['payload']['size'] as int? ?? 0)}",
+                        "${t.chat.fileSize}: ${formatBytes(obj.info['payload']['size'] as int? ?? 0)}",
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -648,7 +657,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          t.personalCard,
+                          t.common.personalCard,
                           style: TextStyle(color: AppColors.primary),
                         ),
                       ],
@@ -1098,7 +1107,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     }
 
     // 显示加载状态
-    EasyLoading.show(status: t.collecting);
+    EasyLoading.show(status: t.main.collecting);
 
     bool res = await UserCollectApi().add(kind, msg.id, source, info);
 
@@ -1263,7 +1272,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             return 7;
           default:
             // 检查payload中的msg_type
-            String msgType = message.metadata?['payload']?['msg_type'] as String? ?? '';
+            String msgType =
+                message.metadata?['payload']?['msg_type'] as String? ?? '';
             switch (msgType) {
               case 'text':
                 return 1;

@@ -45,10 +45,14 @@ class SetPassword extends _$SetPassword {
   /// 密码格式验证
   String? passwordValidator(String? val) {
     if (strEmpty(val)) {
-      return t.errorEmptyDirectory(param: t.password);
+      return t.common.errorEmptyDirectory(param: t.account.password);
     }
     if (val!.length < 4 || val.length > 32) {
-      return t.errorLengthBetween(param: t.password, min: '4', max: '32');
+      return t.common.errorLengthBetween(
+        param: t.account.password,
+        min: '4',
+        max: '32',
+      );
     }
     return null;
   }
@@ -81,11 +85,13 @@ class SetPassword extends _$SetPassword {
       return false;
     }
     if (strEmpty(state.newPwd)) {
-      EasyLoading.showError(t.errorRequired(param: t.newPassword));
+      EasyLoading.showError(
+        t.common.errorRequired(param: t.account.newPassword),
+      );
       return false;
     }
     if (state.retypePwd != state.newPwd) {
-      EasyLoading.showError(t.errorRetypePassword);
+      EasyLoading.showError(t.common.errorRetypePassword);
       return false;
     }
 

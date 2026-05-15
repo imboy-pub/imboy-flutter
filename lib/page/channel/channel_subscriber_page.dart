@@ -119,12 +119,12 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -181,11 +181,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, null),
-            child: Text(context.t.cancel),
+            child: Text(context.t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: Text(context.t.search),
+            child: Text(context.t.common.search),
           ),
         ],
       ),
@@ -264,7 +264,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: _showSearchDialog,
-            tooltip: t.search,
+            tooltip: t.common.search,
           ),
           if (_searchKeyword != null)
             IconButton(
@@ -273,7 +273,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
                 setState(() => _searchKeyword = null);
                 _loadSubscribers(refresh: true);
               },
-              tooltip: t.clear,
+              tooltip: t.common.clear,
             ),
         ],
       ),
@@ -304,7 +304,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _loadSubscribers(refresh: true),
-              child: Text(t.buttonRetry),
+              child: Text(t.common.buttonRetry),
             ),
           ],
         ),

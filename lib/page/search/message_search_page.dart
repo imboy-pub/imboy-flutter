@@ -176,7 +176,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 controller: _searchController,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: t.searchHint,
+                  hintText: t.common.searchHint,
                   hintStyle: TextStyle(
                     fontSize: FontSizeType.normal.size,
                     color: AppColors.textSecondary.withValues(alpha: 0.7),
@@ -235,7 +235,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              t.buttonCancel,
+              t.common.buttonCancel,
               style: TextStyle(
                 fontSize: FontSizeType.normal.size,
                 color: AppColors.primary,
@@ -271,7 +271,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             // 消息类型过滤
             _buildFilterChip(
               context: context,
-              label: t.all,
+              label: t.common.all,
               isSelected: state.selectedType == 'all',
               onTap: () =>
                   ref.read(messageSearchProvider.notifier).setTypeFilter('all'),
@@ -279,7 +279,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context: context,
-              label: t.privateChat,
+              label: t.chat.privateChat,
               isSelected: state.selectedType == 'C2C',
               onTap: () =>
                   ref.read(messageSearchProvider.notifier).setTypeFilter('C2C'),
@@ -287,7 +287,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context: context,
-              label: t.groupChat,
+              label: t.chat.groupChat,
               isSelected: state.selectedType == 'C2G',
               onTap: () =>
                   ref.read(messageSearchProvider.notifier).setTypeFilter('C2G'),
@@ -296,7 +296,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             // 时间范围过滤
             _buildFilterChip(
               context: context,
-              label: t.allTime,
+              label: t.common.allTime,
               isSelected: state.selectedTimeRange == 'all',
               onTap: () => ref
                   .read(messageSearchProvider.notifier)
@@ -305,7 +305,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context: context,
-              label: t.today,
+              label: t.common.today,
               isSelected: state.selectedTimeRange == 'today',
               onTap: () => ref
                   .read(messageSearchProvider.notifier)
@@ -314,7 +314,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context: context,
-              label: t.thisWeek,
+              label: t.main.thisWeek,
               isSelected: state.selectedTimeRange == 'week',
               onTap: () => ref
                   .read(messageSearchProvider.notifier)
@@ -380,7 +380,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '${t.searchScope}: ${widget.conversationTitle}',
+              '${t.common.searchScope}: ${widget.conversationTitle}',
               style: TextStyle(
                 fontSize: FontSizeType.small.size,
                 color: AppColors.textSecondary,
@@ -397,7 +397,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               }
             },
             child: Text(
-              t.searchAll,
+              t.common.searchAll,
               style: TextStyle(
                 fontSize: FontSizeType.small.size,
                 color: AppColors.primary,
@@ -454,7 +454,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t.noSearchHistory,
+              t.common.noSearchHistory,
               style: TextStyle(
                 fontSize: FontSizeType.normal.size,
                 color: AppColors.textSecondary,
@@ -475,7 +475,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                t.searchHistory,
+                t.common.searchHistory,
                 style: TextStyle(
                   fontSize: FontSizeType.large.size,
                   fontWeight: FontWeight.w600,
@@ -487,7 +487,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   ref.read(messageSearchProvider.notifier).clearHistory();
                 },
                 child: Text(
-                  t.clearAll,
+                  t.common.clearAll,
                   style: TextStyle(
                     fontSize: FontSizeType.normal.size,
                     color: AppColors.primary,
@@ -549,7 +549,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     Translations t,
   ) {
     return NoDataView(
-      text: t.searchNoResults,
+      text: t.common.searchNoResults,
       description: '"${state.currentQuery}"',
       icon: Icons.search_off,
       iconSize: 64,
@@ -572,7 +572,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           child: Row(
             children: [
               Text(
-                '${state.totalResults} ${t.searchResults}',
+                '${state.totalResults} ${t.common.searchResults}',
                 style: TextStyle(
                   fontSize: FontSizeType.small.size,
                   color: AppColors.textSecondary,
@@ -590,7 +590,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    t.resetFilters,
+                    t.common.resetFilters,
                     style: TextStyle(
                       fontSize: FontSizeType.small.size,
                       color: AppColors.primary,
@@ -621,7 +621,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                                   .read(messageSearchProvider.notifier)
                                   .loadMore();
                             },
-                            child: Text(t.loadMore),
+                            child: Text(t.common.loadMore),
                           ),
                   ),
                 );
@@ -695,7 +695,9 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                       borderRadius: AppRadius.borderRadiusTiny,
                     ),
                     child: Text(
-                      result.type == 'C2G' ? t.groupChat : t.privateChat,
+                      result.type == 'C2G'
+                          ? t.chat.groupChat
+                          : t.chat.privateChat,
                       style: TextStyle(
                         fontSize: FontSizeType.tiny.size,
                         color: result.type == 'C2G'

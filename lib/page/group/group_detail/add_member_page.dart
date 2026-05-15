@@ -177,7 +177,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                     if (isMember) ...[
                       const SizedBox(height: 2),
                       Text(
-                        t.alreadyMember,
+                        t.chat.alreadyMember,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.outline,
@@ -199,7 +199,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                     borderRadius: AppRadius.borderRadiusMedium,
                   ),
                   child: Text(
-                    t.selected,
+                    t.main.selected,
                     style: TextStyle(
                       fontSize: 10,
                       color: Theme.of(context).colorScheme.onPrimary,
@@ -228,7 +228,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: t.selectContacts,
+        title: t.common.selectContacts,
         rightDMActions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -237,7 +237,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               child: ElevatedButton(
                 onPressed: state.selects.isNotEmpty
                     ? () async {
-                        EasyLoading.show(status: t.loading);
+                        EasyLoading.show(status: t.common.loading);
                         int memberCount = state.selects.length;
                         iPrint("selects $memberCount");
                         bool res = await ref
@@ -269,7 +269,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   elevation: state.selects.isNotEmpty ? 2 : 0,
                 ),
                 child: Text(
-                  '${t.buttonAccomplish}${state.selectsTips}',
+                  '${t.common.buttonAccomplish}${state.selectsTips}',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -308,7 +308,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        t.selectedCount(count: '${state.selects.length}'),
+                        t.main.selectedCount(count: '${state.selects.length}'),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -336,7 +336,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                 child: Builder(
                   builder: (context) {
                     return state.contactItems.isEmpty
-                        ? NoDataView(text: t.noData)
+                        ? NoDataView(text: t.common.noData)
                         : AzListView(
                             data: state.contactItems,
                             itemCount: state.contactItems.length,

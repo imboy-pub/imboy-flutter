@@ -195,7 +195,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(t.operationFailedAgainLater),
+                              content: Text(t.common.operationFailedAgainLater),
                             ),
                           );
                           ref
@@ -210,7 +210,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    t.buttonAccomplish,
+                    t.common.buttonAccomplish,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       fontWeight: FontWeight.w600,
@@ -257,7 +257,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.selectedRegion,
+                    t.common.selectedRegion,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.getTextColor(
@@ -269,7 +269,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                   SizedBox(height: AppSpacing.regular * 0.8),
                   Text(
                     state.selectedRegion.isEmpty
-                        ? t.pleaseSelect
+                        ? t.main.pleaseSelect
                         : state.selectedRegion,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.medium,
@@ -286,8 +286,9 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Semantics(
-                label: '${t.searchRegion} - ${t.regionSearchHint}',
-                hint: t.regionSearchHint,
+                label:
+                    '${t.common.searchRegion} - ${t.common.regionSearchHint}',
+                hint: t.common.regionSearchHint,
                 textField: true,
                 child: TextField(
                   controller: _searchC,
@@ -297,7 +298,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
                     isDense: true,
-                  ).copyWith(hintText: t.regionSearchHint),
+                  ).copyWith(hintText: t.common.regionSearchHint),
                   onSubmitted: (_) => _onTopQueryChanged(),
                 ),
               ),
@@ -345,13 +346,13 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
 
                     return Semantics(
                       label: hasChildren
-                          ? '$title - ${children.length} ${t.region}'
+                          ? '$title - ${children.length} ${t.account.region}'
                           : title,
                       hint: hasChildren
-                          ? '${t.buttonContinue}${t.searchRegion}'
+                          ? '${t.common.buttonContinue}${t.common.searchRegion}'
                           : isSelected
-                          ? '${t.selected}${t.region}'
-                          : '${t.buttonConfirm}${t.region}',
+                          ? '${t.main.selected}${t.account.region}'
+                          : '${t.common.buttonConfirm}${t.account.region}',
                       button: true,
                       selected: isSelected,
                       focusable: true,
@@ -431,14 +432,14 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                                       isSecondary: true,
                                     ),
                                     size: 20,
-                                    semanticLabel: t.buttonContinue,
+                                    semanticLabel: t.common.buttonContinue,
                                   )
                                 else if (isSelected)
                                   Icon(
                                     Icons.check,
                                     color: AppColors.primary,
                                     size: 20,
-                                    semanticLabel: t.selected,
+                                    semanticLabel: t.main.selected,
                                   ),
                               ],
                             ),

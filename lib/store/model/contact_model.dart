@@ -18,19 +18,19 @@ String getSourceTr(String? source) {
   // 通过群聊添加
   switch (source.toLowerCase()) {
     case 'visitcard':
-      sourceTr = t.personalCard;
+      sourceTr = t.common.personalCard;
       break;
     case 'qrcode':
-      sourceTr = t.sourceQrcode;
+      sourceTr = t.account.sourceQrcode;
       break;
     case 'people_nearby':
-      sourceTr = t.peopleNearby;
+      sourceTr = t.discovery.peopleNearby;
       break;
     case 'recently_user':
-      sourceTr = t.newlyRegisteredPeople;
+      sourceTr = t.account.newlyRegisteredPeople;
       break;
     case 'user_search':
-      sourceTr = t.search;
+      sourceTr = t.common.search;
       break;
     default:
       sourceTr = source.toString();

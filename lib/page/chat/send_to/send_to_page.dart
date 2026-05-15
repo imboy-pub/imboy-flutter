@@ -47,7 +47,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
     return Scaffold(
       appBar: GlassAppBar(
         titleWidget: Text(
-          t.forwardTo,
+          t.chat.forwardTo,
           style: TextStyle(
             color: colorScheme.primary,
             fontSize: textTheme.titleMedium?.fontSize ?? 16,
@@ -62,7 +62,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           TextButton(
             onPressed: _send,
             child: Text(
-              t.buttonSend,
+              t.common.buttonSend,
               style: TextStyle(
                 color: colorScheme.primary,
                 fontSize: textTheme.bodyMedium?.fontSize ?? 14,
@@ -81,7 +81,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: t.search,
+                  hintText: t.common.search,
                   hintStyle: TextStyle(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: textTheme.bodyMedium?.fontSize ?? 14,
@@ -118,7 +118,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                   if (searchResults.isEmpty) {
                     return Center(
                       child: Text(
-                        t.noContacts,
+                        t.common.noContacts,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                           fontSize: textTheme.bodyMedium?.fontSize ?? 14,

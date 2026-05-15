@@ -80,16 +80,16 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
         // 更新进度条
         if (info.status == DownloadStatus.STATUS_PAUSED) {
           // STATUS_PAUSED 下载已暂停
-          positiveBtn = t.continueDownloading;
+          positiveBtn = t.common.continueDownloading;
           positiveCallback = upgradeWithId;
         } else if (info.status == DownloadStatus.STATUS_PENDING) {
           //  STATUS_PENDING等待下载
-          positiveBtn = t.waitingDownload;
+          positiveBtn = t.common.waitingDownload;
           positiveCallback = pause;
           progress = 0;
         } else if (info.status == DownloadStatus.STATUS_RUNNING) {
           // STATUS_RUNNING下载中
-          positiveBtn = t.pauseDownloading;
+          positiveBtn = t.common.pauseDownloading;
           positiveCallback = pause;
           progress = (info.percent ?? 0) / 100;
           maxLength = info.maxLength!;
@@ -105,10 +105,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
           );
           // 有 fileHash 时先校验，无则直接安装
           if (widget.fileHash.isNotEmpty && info.path != null) {
-            positiveBtn = t.installNow;
+            positiveBtn = t.common.installNow;
             positiveCallback = () => _verifyAndInstall(info.path!);
           } else {
-            positiveBtn = t.installNow;
+            positiveBtn = t.common.installNow;
             positiveCallback = install;
           }
         } else if (info.status == DownloadStatus.STATUS_FAILED) {
@@ -118,7 +118,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
             targetVsn: widget.version,
             extra: {'reason': 'download_failed'},
           );
-          positiveBtn = t.continueDownloading;
+          positiveBtn = t.common.continueDownloading;
           positiveCallback = upgradeWithId;
         }
         // STATUS_CANCEL下载取消
@@ -148,10 +148,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   void initGeneral() {
     _upgradeCard?.updateProgress(
       // 使用字符串替换的方式传递版本号参数
-      title: t.newVersionDetectedWithVersion(param: widget.version),
+      title: t.common.newVersionDetectedWithVersion(param: widget.version),
       message: widget.message,
-      positiveBtn: t.updateNow,
-      negativeBtn: t.remindMeLater,
+      positiveBtn: t.common.updateNow,
+      negativeBtn: t.chat.remindMeLater,
       hasLinearProgress: true,
       progress: 0,
     );
@@ -164,7 +164,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
       return true;
     }
     if (!(Platform.isAndroid || Platform.isIOS)) {
-      EasyLoading.show(status: t.permissionOnlySupportAndroidAndIos);
+      EasyLoading.show(status: t.common.permissionOnlySupportAndroidAndIos);
       return false;
     }
     PermissionStatus status;
@@ -226,7 +226,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
         upgradeFromAppStore();
       }
     } else {
-      EasyLoading.showError(t.permissionAcquisitionFailed);
+      EasyLoading.showError(t.common.permissionAcquisitionFailed);
     }
   }
 
@@ -269,7 +269,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   Future<void> upgradeFromAppStore() async {
     bool? isSuccess = await RUpgrade.upgradeFromAppStore(Env().iosAppId);
     if (isSuccess == false) {
-      EasyLoading.showError(t.iosAppIdUnknown(param: Env().iosAppId));
+      EasyLoading.showError(t.common.iosAppIdUnknown(param: Env().iosAppId));
       return;
     }
     closeCallback();
@@ -300,7 +300,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
     try {
       final file = File(filePath);
       if (!await file.exists()) {
-        EasyLoading.showError(t.downloadFileNotFound);
+        EasyLoading.showError(t.common.downloadFileNotFound);
         _retryDownload();
         return;
       }
@@ -354,11 +354,14 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
     _hashRetryCount++;
     if (_hashRetryCount <= _maxHashRetry) {
       EasyLoading.showError(
-        t.downloadHashRetrying(retry: _hashRetryCount, max: _maxHashRetry),
+        t.common.downloadHashRetrying(
+          retry: _hashRetryCount,
+          max: _maxHashRetry,
+        ),
       );
       upgradeApk(widget.downLoadUrl);
     } else {
-      EasyLoading.showError(t.downloadHashFailed);
+      EasyLoading.showError(t.common.downloadHashFailed);
       _hashRetryCount = 0;
     }
   }
@@ -404,10 +407,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
           : _upgradeCard!;
     }
     _upgradeCard = UpgradeCard(
-      title: t.newVersionDetected + widget.version,
+      title: t.common.newVersionDetected + widget.version,
       message: widget.message,
-      positiveBtn: t.updateNow,
-      negativeBtn: widget.isForce ? '' : t.remindMeLater,
+      positiveBtn: t.common.updateNow,
+      negativeBtn: widget.isForce ? '' : t.chat.remindMeLater,
       positiveCallback: () => _updateApplication(),
       negativeCallback: () => closeCallback(),
     );
@@ -587,7 +590,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                   child: SelectableText.rich(
                     TextSpan(
                       text: widget.message.isEmpty
-                          ? t.noUpdateDescription
+                          ? t.common.noUpdateDescription
                           : widget.message,
                     ),
                     textAlign: widget.message.isEmpty
@@ -607,21 +610,21 @@ class UpgradeCardState extends State<UpgradeCard> {
                         Row(
                           children: [
                             Text(
-                              "${t.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB",
+                              "${t.main.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB",
                             ),
                             const Spacer(),
                             Text(
-                              "${t.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}${t.seconds}",
+                              "${t.main.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}${t.common.seconds}",
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             Text(
-                              "${t.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB",
+                              "${t.common.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB",
                             ),
                             const Spacer(),
-                            Text(t.speed + widget.speed!),
+                            Text(t.main.speed + widget.speed!),
                           ],
                         ),
                       ],

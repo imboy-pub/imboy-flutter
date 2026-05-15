@@ -57,12 +57,12 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
           children: [
             Expanded(
               child: Text(
-                t.setParam(param: t.region),
+                t.main.setParam(param: t.account.region),
                 textAlign: TextAlign.center,
               ),
             ),
             RoundedElevatedButton(
-              text: t.buttonAccomplish,
+              text: t.common.buttonAccomplish,
               highlighted: provider.valueChanged,
               onPressed: () async {
                 var nav = Navigator.of(context);
@@ -86,7 +86,9 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
             width: MediaQuery.of(context).size.width,
             height: 40.0,
             child: Text(
-              provider.selectedVal.isEmpty ? t.all : provider.selectedVal,
+              provider.selectedVal.isEmpty
+                  ? t.common.all
+                  : provider.selectedVal,
               style: const TextStyle(fontSize: 12),
             ),
           ),

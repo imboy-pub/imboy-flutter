@@ -238,7 +238,9 @@ class MessageOfflineService {
           _markPullFailure();
           iPrint('拉取离线消息失败: ${resp.msg}');
           _logPullMetrics('failed_code', extra: {'resp_code': resp.code});
-          EasyLoading.showError('${t.pullOfflineMessagesFailed}: ${resp.msg}');
+          EasyLoading.showError(
+            '${t.common.pullOfflineMessagesFailed}: ${resp.msg}',
+          );
           return false;
         }
 
@@ -315,7 +317,7 @@ class MessageOfflineService {
       _markPullFailure();
       iPrint('拉取离线消息异常: $e');
       _logPullMetrics('failed_exception');
-      EasyLoading.showError('${t.pullOfflineMessagesAbnormal}: $e');
+      EasyLoading.showError('${t.common.pullOfflineMessagesAbnormal}: $e');
       return false;
     }
   }

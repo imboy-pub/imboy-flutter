@@ -66,7 +66,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
   Future<void> _acceptTransfer(String sessionId) async {
     try {
       setState(() {
-        _statusMessage = t.e2eeTransferReceiving;
+        _statusMessage = t.main.e2eeTransferReceiving;
         _isSuccess = false;
         _isFailed = false;
       });
@@ -76,7 +76,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
         await E2EEKeyService.generateKeyPair();
         final newDeviceId = await StorageSecureService.to.getDeviceId();
         if (newDeviceId == null || newDeviceId.isEmpty) {
-          throw Exception(t.e2eeTransferErrNoDeviceId);
+          throw Exception(t.common.e2eeTransferErrNoDeviceId);
         }
       }
 
@@ -89,7 +89,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
 
       if (mounted) {
         setState(() {
-          _statusMessage = t.e2eeTransferSuccess;
+          _statusMessage = t.common.e2eeTransferSuccess;
           _isSuccess = true;
           _isFailed = false;
         });
@@ -98,11 +98,11 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: Text(t.e2eeTransferSuccessTitle),
-              content: Text(t.e2eeTransferSuccessBody),
+              title: Text(t.common.e2eeTransferSuccessTitle),
+              content: Text(t.common.e2eeTransferSuccessBody),
               actions: [
                 CupertinoDialogAction(
-                  child: Text(t.buttonOk),
+                  child: Text(t.common.buttonOk),
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pop(context);
@@ -116,7 +116,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
     } on Exception {
       if (mounted) {
         setState(() {
-          _statusMessage = t.e2eeTransferFailed;
+          _statusMessage = t.common.e2eeTransferFailed;
           _isSuccess = false;
           _isFailed = true;
           _isProcessing = false;
@@ -129,11 +129,11 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeTransferReceiveTitle),
+        title: Text(t.chat.e2eeTransferReceiveTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       body: _buildBody(),
@@ -150,7 +150,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
       onDetect: _onDetect,
       errorBuilder: (context, error) {
         return Center(
-          child: Text(t.e2eeTransferScanError(error: error.toString())),
+          child: Text(t.common.e2eeTransferScanError(error: error.toString())),
         );
       },
     );
@@ -175,14 +175,14 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
               ),
             const SizedBox(height: 24),
             Text(
-              _statusMessage ?? t.e2eeTransferProcessingMsg,
+              _statusMessage ?? t.common.e2eeTransferProcessingMsg,
               style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
             if (_isFailed) ...[
               const SizedBox(height: 24),
               CupertinoButton.filled(
-                child: Text(t.buttonRetry),
+                child: Text(t.common.buttonRetry),
                 onPressed: () {
                   setState(() {
                     _statusMessage = null;

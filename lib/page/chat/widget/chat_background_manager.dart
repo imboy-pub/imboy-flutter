@@ -67,14 +67,14 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
 
   /// 背景名称映射
   static Map<String, String> get backgroundNames => {
-    'default': t.defaultBackground,
-    'pattern_1': t.geometricPattern,
-    'pattern_2': t.simpleTexture,
-    'pattern_3': t.ripplePattern,
-    'gradient_1': t.gradientBlue,
-    'gradient_2': t.gradientPurple,
-    'solid_color': t.solidColorBackground,
-    'custom_image': t.customImage,
+    'default': t.common.defaultBackground,
+    'pattern_1': t.chat.geometricPattern,
+    'pattern_2': t.main.simpleTexture,
+    'pattern_3': t.chat.ripplePattern,
+    'gradient_1': t.main.gradientBlue,
+    'gradient_2': t.main.gradientPurple,
+    'solid_color': t.common.solidColorBackground,
+    'custom_image': t.chat.customImage,
   };
 
   /// 加载设置
@@ -289,7 +289,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.chatSettingBackground,
+        title: t.common.chatSettingBackground,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -337,7 +337,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           decoration: manager.getCurrentBackgroundDecoration(),
           child: Center(
             child: Text(
-              t.chatSettingBackground,
+              t.common.chatSettingBackground,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
@@ -360,7 +360,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t.backgroundSelectColor,
+          t.common.backgroundSelectColor,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
@@ -494,7 +494,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t.backgroundTransparency,
+          t.common.backgroundTransparency,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
@@ -520,13 +520,13 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t.backgroundUseCustomColor,
+          t.common.backgroundUseCustomColor,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         SwitchListTile(
-          title: Text(t.backgroundUseCustomColor),
-          subtitle: Text(t.backgroundOnlySolidColor),
+          title: Text(t.common.backgroundUseCustomColor),
+          subtitle: Text(t.common.backgroundOnlySolidColor),
           value: state.useCustomColor,
           onChanged: (value) => manager.setUseCustomColor(value),
         ),
@@ -544,7 +544,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
               ),
               child: Center(
                 child: Text(
-                  t.backgroundSelectColor,
+                  t.common.backgroundSelectColor,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -563,7 +563,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.backgroundSelectColor),
+        title: Text(t.common.backgroundSelectColor),
         content: SizedBox(
           width: 300,
           height: 200,
@@ -597,7 +597,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
         ],
       ),

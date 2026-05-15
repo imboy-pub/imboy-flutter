@@ -269,7 +269,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         text: TextSpan(
           children: [
             TextSpan(
-              text: t.atMentionYouTag,
+              text: t.common.atMentionYouTag,
               style: contentStyle.copyWith(
                 color: AppColors.unreadBadgeBackground,
                 fontWeight: FontWeight.w600,

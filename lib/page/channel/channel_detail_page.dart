@@ -153,7 +153,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         IconButton(
           icon: const Icon(Icons.campaign_outlined),
           onPressed: _focusPublishInput,
-          tooltip: context.t.publish,
+          tooltip: context.t.main.publish,
         ),
       // 管理员显示设置按钮
       if (isManaged)
@@ -192,7 +192,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           value: 'publish',
           child: ListTile(
             leading: const Icon(Icons.campaign_outlined),
-            title: Text(t.publish),
+            title: Text(t.main.publish),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -245,7 +245,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           value: 'invitation_center',
           child: ListTile(
             leading: const Icon(Icons.mark_email_unread_outlined),
-            title: Text(t.channelInvitations),
+            title: Text(t.common.channelInvitations),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -267,7 +267,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           value: 'my_orders',
           child: ListTile(
             leading: const Icon(Icons.receipt_long_outlined),
-            title: Text(t.myOrders),
+            title: Text(t.main.myOrders),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -481,9 +481,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         );
         if (!mounted) return;
         if (uploadedUri == null || uploadedUri.isEmpty) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.t.common.uploadFailed)),
+          );
           continue;
         }
 
@@ -693,7 +693,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -714,7 +714,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -739,7 +739,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 final reloadId = _resolveChannelId(channel);
                 ref.read(channelDetailProvider.notifier).loadChannel(reloadId);
               },
-              child: Text(context.t.buttonRetry),
+              child: Text(context.t.common.buttonRetry),
             ),
           ],
         ),
@@ -840,7 +840,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      t.paidChannelLocked,
+                      t.discovery.paidChannelLocked,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -850,7 +850,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text(t.purchaseUnlockHint, style: const TextStyle(fontSize: 14)),
+              Text(
+                t.main.purchaseUnlockHint,
+                style: const TextStyle(fontSize: 14),
+              ),
               const SizedBox(height: 14),
               Row(
                 children: [
@@ -867,7 +870,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                             )
                           : const Icon(Icons.shopping_cart_checkout_outlined),
                       label: Text(
-                        _isPaying ? t.payingDots : t.purchaseAndUnlock,
+                        _isPaying
+                            ? t.main.payingDots
+                            : t.main.purchaseAndUnlock,
                       ),
                     ),
                   ),
@@ -875,7 +880,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   OutlinedButton.icon(
                     onPressed: () => _showMyOrdersSheet(channel.id.toString()),
                     icon: const Icon(Icons.receipt_long_outlined),
-                    label: Text(t.myOrders),
+                    label: Text(t.main.myOrders),
                   ),
                 ],
               ),
@@ -901,13 +906,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       if (order == null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(t.purchaseFailed)));
+        ).showSnackBar(SnackBar(content: Text(t.common.purchaseFailed)));
         return;
       }
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.purchaseSuccess)));
+      ).showSnackBar(SnackBar(content: Text(t.common.purchaseSuccess)));
 
       await ref.read(channelListProvider.notifier).loadSubscribedChannels();
       await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
@@ -940,7 +945,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             children: [
               const SizedBox(height: 12),
               Text(
-                t.myOrders,
+                t.main.myOrders,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -949,7 +954,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               const SizedBox(height: 8),
               Expanded(
                 child: orders.isEmpty
-                    ? Center(child: Text(t.noOrders))
+                    ? Center(child: Text(t.common.noOrders))
                     : ListView.separated(
                         itemCount: orders.length,
                         separatorBuilder: (_, _) => const Divider(height: 1),
@@ -987,38 +992,40 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (order == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.orderDetailLoadFailed)));
+      ).showSnackBar(SnackBar(content: Text(t.common.orderDetailLoadFailed)));
       return;
     }
 
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.orderDetail),
+        title: Text(t.main.orderDetail),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.orderNoLabel(no: order.orderNo)),
-            const SizedBox(height: 6),
-            Text(t.orderStatusLabel(status: _orderStatusLabel(order.status))),
+            Text(t.common.orderNoLabel(no: order.orderNo)),
             const SizedBox(height: 6),
             Text(
-              t.orderAmountLabel(
+              t.chat.orderStatusLabel(status: _orderStatusLabel(order.status)),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              t.main.orderAmountLabel(
                 currency: order.currency,
                 amount: order.amount.toStringAsFixed(2),
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              t.orderCreatedAtLabel(
+              t.chat.orderCreatedAtLabel(
                 time: DateFormat('yyyy-MM-dd HH:mm:ss').format(order.createdAt),
               ),
             ),
             if (order.paymentAt != null) ...[
               const SizedBox(height: 6),
               Text(
-                t.orderPaymentAtLabel(
+                t.chat.orderPaymentAtLabel(
                   time: DateFormat(
                     'yyyy-MM-dd HH:mm:ss',
                   ).format(order.paymentAt!),
@@ -1030,7 +1037,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(context.t.confirm),
+            child: Text(context.t.common.confirm),
           ),
         ],
       ),
@@ -1040,17 +1047,17 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   String _orderStatusLabel(int status) {
     switch (status) {
       case ChannelOrderStatus.pending:
-        return t.orderStatusPending;
+        return t.chat.orderStatusPending;
       case ChannelOrderStatus.paid:
-        return t.orderStatusPaid;
+        return t.chat.orderStatusPaid;
       case ChannelOrderStatus.refunded:
-        return t.orderStatusRefunded;
+        return t.chat.orderStatusRefunded;
       case ChannelOrderStatus.cancelled:
-        return t.orderStatusCancelled;
+        return t.common.orderStatusCancelled;
       case ChannelOrderStatus.expired:
-        return t.orderStatusExpired;
+        return t.chat.orderStatusExpired;
       default:
-        return t.orderStatusUnknown;
+        return t.common.orderStatusUnknown;
     }
   }
 
@@ -1181,7 +1188,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(t.cancel),
+                child: Text(t.common.cancel),
               ),
               TextButton(
                 onPressed: () async {
@@ -1193,7 +1200,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                     context.pop();
                   }
                 },
-                child: Text(t.confirm),
+                child: Text(t.common.confirm),
               ),
             ],
           ),
@@ -1286,14 +1293,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: shareLink));
                 Navigator.pop(context);
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(t.copiedToClipboard)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t.main.copiedToClipboard)),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.qr_code),
-              title: Text(t.myQrcode),
+              title: Text(t.account.myQrcode),
               onTap: () {
                 Navigator.pop(context);
                 context.push(
@@ -1745,7 +1752,7 @@ class _ChannelMessageItem extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -1763,7 +1770,7 @@ class _ChannelMessageItem extends StatelessWidget {
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -1802,12 +1809,12 @@ class _ChannelMessageItem extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.removeReaction),
-        content: Text(t.removeReactionConfirm(emoji: emoji)),
+        title: Text(t.common.removeReaction),
+        content: Text(t.common.removeReactionConfirm(emoji: emoji)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(context.t.cancel),
+            child: Text(context.t.common.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -1815,7 +1822,7 @@ class _ChannelMessageItem extends StatelessWidget {
               await _removeReaction(context, reactionType);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(context.t.confirm),
+            child: Text(context.t.common.confirm),
           ),
         ],
       ),
@@ -1923,7 +1930,7 @@ class _ChannelMessageItem extends StatelessWidget {
 
   Widget _buildFileContent(BuildContext context, Color textColor) {
     final payload = message.payload;
-    final name = payload?['name'] as String? ?? t.defaultFileName;
+    final name = payload?['name'] as String? ?? t.chat.defaultFileName;
     final size = payload?['size'] as int? ?? 0;
     final uri = payload?['uri']?.toString();
 
@@ -1980,14 +1987,14 @@ class _ChannelMessageItem extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.fileUrlInvalid)));
+      ).showSnackBar(SnackBar(content: Text(t.chat.fileUrlInvalid)));
       return;
     }
     if (!await canLaunchUrl(parsed)) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.fileOpenFailed)));
+      ).showSnackBar(SnackBar(content: Text(t.common.fileOpenFailed)));
       return;
     }
     await launchUrl(parsed, mode: LaunchMode.externalApplication);

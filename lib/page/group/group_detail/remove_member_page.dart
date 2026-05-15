@@ -144,7 +144,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
-        title: t.removeMember,
+        title: t.common.removeMember,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: TextButton(
@@ -152,20 +152,20 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
               context.pop();
             },
             child: Text(
-              t.buttonCancel,
+              t.common.buttonCancel,
               style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
           ),
         ),
         rightDMActions: <Widget>[
           RoundedElevatedButton(
-            text: '${t.buttonAccomplish}${state.selectsTips}',
+            text: '${t.common.buttonAccomplish}${state.selectsTips}',
             highlighted: state.selects.isNotEmpty,
             onPressed: () async {
               if (state.selects.isEmpty) {
                 return;
               }
-              EasyLoading.show(status: t.loading);
+              EasyLoading.show(status: t.common.loading);
               int memberCount = state.selects.length;
               iPrint("selects $memberCount");
               bool res = await ref
@@ -175,7 +175,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
               if (res && mounted) {
                 context.pop(state.selects);
               } else {
-                EasyLoading.showError(t.tipFailed);
+                EasyLoading.showError(t.common.tipFailed);
               }
             },
           ),
@@ -199,7 +199,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                         children: [
                           Expanded(
                             child: state.groupMemberList.isEmpty
-                                ? NoDataView(text: t.noData)
+                                ? NoDataView(text: t.common.noData)
                                 : ListView.builder(
                                     shrinkWrap: true,
                                     itemCount: state.groupMemberList.length,

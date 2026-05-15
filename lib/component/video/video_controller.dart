@@ -169,26 +169,26 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
     switch (_gestureType) {
       case 'forward':
         icon = Icons.fast_forward_rounded;
-        text = t.fastForward(
+        text = t.chat.fastForward(
           seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
         );
         color = Colors.blueAccent;
         break;
       case 'backward':
         icon = Icons.fast_rewind_rounded;
-        text = t.fastRewind(
+        text = t.main.fastRewind(
           seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
         );
         color = Colors.blueAccent;
         break;
       case 'volume_up':
         icon = Icons.volume_up_rounded;
-        text = t.volumeUp;
+        text = t.main.volumeUp;
         color = Colors.greenAccent;
         break;
       case 'volume_down':
         icon = Icons.volume_down_rounded;
-        text = t.volumeDown;
+        text = t.main.volumeDown;
         color = Colors.orangeAccent;
         break;
       default:

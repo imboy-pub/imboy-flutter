@@ -87,7 +87,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       );
 
       if (response == null) {
-        notifier.setError(t.searchError);
+        notifier.setError(t.common.searchError);
         return;
       }
 
@@ -125,7 +125,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
         };
       });
     } on Exception catch (e) {
-      notifier.setError(t.searchError);
+      notifier.setError(t.common.searchError);
       if (kDebugMode) debugPrint('Search error: ${e.runtimeType}');
     } finally {
       notifier.setLoading(false);
@@ -309,7 +309,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                     controller: _searchC,
                     autofocus: true,
                     decoration: InputDecoration(
-                      hintText: t.searchMessagesHint,
+                      hintText: t.common.searchMessagesHint,
                       hintStyle: TextStyle(
                         fontSize: FontSizeType.normal.size,
                         color: AppColors.textSecondary.withValues(alpha: 0.7),
@@ -411,7 +411,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  t.buttonCancel,
+                  t.common.buttonCancel,
                   style: TextStyle(
                     fontSize: FontSizeType.normal.size,
                     color: AppColors.primary,
@@ -458,7 +458,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           Row(
             children: [
               Text(
-                t.quickFilters,
+                t.main.quickFilters,
                 style: TextStyle(
                   fontSize: FontSizeType.small.size,
                   color: AppColors.textSecondary,
@@ -473,7 +473,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                     performSearch(query: state.currentQuery);
                   },
                   child: Text(
-                    t.resetFilters,
+                    t.common.resetFilters,
                     style: TextStyle(
                       fontSize: FontSizeType.small.size,
                       color: AppColors.primary,
@@ -489,7 +489,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
               children: [
                 _buildQuickFilterChip(
                   context,
-                  t.allTypes,
+                  t.common.allTypes,
                   state.selectedMessageType == 'all',
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
@@ -500,7 +500,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 const SizedBox(width: 8),
                 _buildQuickFilterChip(
                   context,
-                  t.textMessage,
+                  t.chat.textMessage,
                   state.selectedMessageType == MessageType.text,
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
@@ -511,7 +511,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 const SizedBox(width: 8),
                 _buildQuickFilterChip(
                   context,
-                  t.imageMessage,
+                  t.chat.imageMessage,
                   state.selectedMessageType == MessageType.image,
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
@@ -522,7 +522,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 const SizedBox(width: 8),
                 _buildQuickFilterChip(
                   context,
-                  t.today,
+                  t.common.today,
                   state.selectedTimeRange == 'today',
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
@@ -533,7 +533,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 const SizedBox(width: 8),
                 _buildQuickFilterChip(
                   context,
-                  t.thisWeek,
+                  t.main.thisWeek,
                   state.selectedTimeRange == 'week',
                   () {
                     ref.read(searchProvider.notifier).resetFilters();
@@ -631,7 +631,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  t.searchHistory,
+                  t.common.searchHistory,
                   style: TextStyle(
                     fontSize: FontSizeType.large.size,
                     color: colorScheme.onSurface,
@@ -644,7 +644,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                       ref.read(searchProvider.notifier).clearHistory();
                     },
                     child: Text(
-                      t.clearAll,
+                      t.common.clearAll,
                       style: TextStyle(
                         fontSize: FontSizeType.normal.size,
                         color: AppColors.primary,
@@ -671,7 +671,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      t.noSearchHistory,
+                      t.common.noSearchHistory,
                       style: TextStyle(
                         fontSize: FontSizeType.normal.size,
                         color: AppColors.textSecondary,
@@ -777,7 +777,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  t.searchSuggestions,
+                  t.common.searchSuggestions,
                   style: TextStyle(
                     fontSize: FontSizeType.small.size,
                     color: AppColors.primary,
@@ -914,7 +914,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            t.searchNoResults,
+            t.common.searchNoResults,
             style: TextStyle(
               fontSize: FontSizeType.large.size,
               color: AppColors.textSecondary,
@@ -970,7 +970,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       child: Row(
         children: [
           Text(
-            '${state.totalResults} ${t.searchResults}',
+            '${state.totalResults} ${t.common.searchResults}',
             style: TextStyle(
               fontSize: FontSizeType.small.size,
               color: AppColors.textSecondary,
@@ -1053,7 +1053,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  t.searchFilters,
+                  t.common.searchFilters,
                   style: TextStyle(
                     fontSize: FontSizeType.large.size,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -1067,7 +1067,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                     Navigator.pop(context);
                   },
                   child: Text(
-                    t.resetFilters,
+                    t.common.resetFilters,
                     style: TextStyle(
                       fontSize: FontSizeType.normal.size,
                       color: AppColors.primary,
@@ -1095,7 +1095,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
                   ),
                 ),
                 child: Text(
-                  t.applyFilters,
+                  t.contact.applyFilters,
                   style: TextStyle(
                     fontSize: FontSizeType.normal.size,
                     color: Colors.white,

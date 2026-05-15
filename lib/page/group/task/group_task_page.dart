@@ -81,7 +81,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             key: const Key('create_task_confirm'),
@@ -91,7 +91,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                 Navigator.pop(context, true);
               }
             },
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),

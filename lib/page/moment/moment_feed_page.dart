@@ -194,8 +194,8 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     final t = context.t;
     final confirmed = await showMomentConfirmDialog(
       context,
-      title: t.delete,
-      message: t.momentsDeleteConfirm,
+      title: t.common.delete,
+      message: t.common.momentsDeleteConfirm,
       isDestructive: true,
     );
     if (!confirmed || !mounted) return;
@@ -220,7 +220,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       setState(() {
         _items = oldItems;
       });
-      EasyLoading.showError(context.t.momentsDeleteFailed);
+      EasyLoading.showError(context.t.common.momentsDeleteFailed);
       return;
     }
     AppEventBus.fire(
@@ -252,13 +252,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     final t = context.t;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.moments),
+        title: Text(t.discovery.moments),
         actions: [
           const _MomentNotifyEntry(),
           IconButton(
             onPressed: _openCreate,
             icon: const Icon(Icons.add_a_photo_outlined),
-            tooltip: t.momentsSend,
+            tooltip: t.chat.momentsSend,
           ),
         ],
       ),
@@ -286,7 +286,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              Center(child: Text(t.momentsNoData)),
+                              Center(child: Text(t.common.momentsNoData)),
                             ],
                           )
                         : ListView.separated(
@@ -368,11 +368,11 @@ class MomentStaleBanner extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              t.momentsFeedStale,
+              t.discovery.momentsFeedStale,
               style: const TextStyle(fontSize: 13),
             ),
           ),
-          TextButton(onPressed: onRetry, child: Text(t.buttonRetry)),
+          TextButton(onPressed: onRetry, child: Text(t.common.buttonRetry)),
         ],
       ),
     );
@@ -447,7 +447,7 @@ class _MomentCard extends StatelessWidget {
                   IconButton(
                     onPressed: onDeleteTap,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: context.t.delete,
+                    tooltip: context.t.common.delete,
                   ),
               ],
             ),

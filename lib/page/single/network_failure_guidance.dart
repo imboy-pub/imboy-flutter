@@ -12,7 +12,7 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.networkException,
+        title: t.common.networkException,
       ),
       body: Card(
         color: Theme.of(context).colorScheme.surface,
@@ -21,7 +21,7 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
           children: [
             ListTile(
               title: Text(
-                t.suggestCheckNetwork,
+                t.common.error.suggestCheckNetwork,
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 17.0,
@@ -40,9 +40,9 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
                           horizontal: 16,
                         ), // left: 16, right: 16
                         child: Text(
-                          '${t.networkTroubleshootingStep1}\n\n'
-                          '${t.networkTroubleshootingStep2}\n\n'
-                          '${t.networkTroubleshootingStep3}',
+                          '${t.common.error.networkTroubleshootingStep1}\n\n'
+                          '${t.common.error.networkTroubleshootingStep2}\n\n'
+                          '${t.common.error.networkTroubleshootingStep3}',
                         ),
                       ),
                     ),

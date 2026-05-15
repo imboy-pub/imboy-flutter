@@ -65,7 +65,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    t.buttonCancel,
+                    t.common.buttonCancel,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       //color: Colors.white,
@@ -84,7 +84,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
-                      t.buttonAccomplish,
+                      t.common.buttonAccomplish,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         //color: Colors.white,
@@ -123,7 +123,9 @@ class _CropImageRouteState extends State<CropImageRoute> {
           scale: widget.imageScale,
         );
         upload(croppedFile);
-        Future<dynamic>.delayed(const Duration(milliseconds: 200)).then((value) {
+        Future<dynamic>.delayed(const Duration(milliseconds: 200)).then((
+          value,
+        ) {
           sample.delete();
           croppedFile.delete();
         });

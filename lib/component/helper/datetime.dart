@@ -29,16 +29,16 @@ class DateTimeHelper {
     final diffMs = nowMs - timestampMs;
 
     if (diffMs < 60 * 1000) {
-      return t.timeJustNow;
+      return t.common.timeJustNow;
     } else if (diffMs < 3600 * 1000) {
       final minutes = (diffMs / (60 * 1000)).floor();
-      return t.timeMinutesAgo(param: minutes.toString());
+      return t.common.timeMinutesAgo(param: minutes.toString());
     } else if (diffMs < 24 * 3600 * 1000) {
       final hours = (diffMs / (3600 * 1000)).floor();
-      return t.timeHoursAgo(param: hours.toString());
+      return t.common.timeHoursAgo(param: hours.toString());
     } else {
       final days = (diffMs / (24 * 3600 * 1000)).floor();
-      return t.timeDaysAgo(param: days.toString());
+      return t.common.timeDaysAgo(param: days.toString());
     }
   }
 

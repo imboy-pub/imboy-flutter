@@ -65,7 +65,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
           children: [
             Expanded(child: Text(widget.title, textAlign: TextAlign.center)),
             RoundedElevatedButton(
-              text: t.buttonAccomplish,
+              text: t.common.buttonAccomplish,
               highlighted: valueChanged,
               onPressed: () async {
                 if (widget.field == "input") {

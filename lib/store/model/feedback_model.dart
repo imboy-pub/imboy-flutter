@@ -44,15 +44,15 @@ class IMBoyFeedback {
   /// 获取评级描述
   String get ratingDesc {
     if (double.parse(rating) == 5.0) {
-      return t.great;
+      return t.chat.great;
     } else if (double.parse(rating) >= 4.0) {
-      return t.good;
+      return t.main.good;
     } else if (double.parse(rating) >= 3.0) {
-      return t.notBad;
+      return t.common.notBad;
     } else if (double.parse(rating) >= 2.0) {
-      return t.needContinueWorkHard;
+      return t.common.needContinueWorkHard;
     } else {
-      return t.tooBad;
+      return t.main.tooBad;
     }
   }
 }
@@ -145,11 +145,11 @@ class FeedbackModel {
   String get statusDesc {
     // 1 启用 (待回复）  2 已回复  3 已完结
     if (status == 1) {
-      return t.awaitingReply;
+      return t.chat.awaitingReply;
     } else if (status == 2) {
-      return t.replied;
+      return t.main.replied;
     } else if (status == 3) {
-      return t.completed;
+      return t.main.completed;
     } else {
       return '';
     }

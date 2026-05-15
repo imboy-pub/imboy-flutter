@@ -48,12 +48,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.e2eeKeyRecoveryTitle,
-        titleWidget: Text(t.e2eeKeyRecoveryTitle),
+        title: t.main.e2eeKeyRecoveryTitle,
+        titleWidget: Text(t.main.e2eeKeyRecoveryTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
         rightDMActions: [
           IconButton(onPressed: _loadKeyInfo, icon: const Icon(Icons.refresh)),
@@ -80,7 +80,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
-                      t.e2eeRecoveryMethods,
+                      t.main.e2eeRecoveryMethods,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -92,12 +92,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 方法 A: 设备间传输（已实现）
                   _buildRecoveryMethodCard(
                     context,
-                    title: t.e2eeDeviceTransfer,
-                    description: t.e2eeDeviceTransferDesc,
+                    title: t.account.e2eeDeviceTransfer,
+                    description: t.account.e2eeDeviceTransferDesc,
                     securityLevel: 3,
                     icon: Icons.devices,
                     iconColor: Colors.blue,
-                    status: t.e2eeStatusAvailable,
+                    status: t.chat.e2eeStatusAvailable,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -113,12 +113,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 方法 B: 社交恢复（已实现）
                   _buildRecoveryMethodCard(
                     context,
-                    title: t.e2eeSocialRecovery,
-                    description: t.e2eeSocialRecoveryDesc,
+                    title: t.main.e2eeSocialRecovery,
+                    description: t.main.e2eeSocialRecoveryDesc,
                     securityLevel: 2,
                     icon: Icons.people,
                     iconColor: Colors.purple,
-                    status: t.e2eeStatusAvailable,
+                    status: t.chat.e2eeStatusAvailable,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -134,12 +134,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 方法 C: 本地备份（已实现）
                   _buildRecoveryMethodCard(
                     context,
-                    title: t.e2eeLocalBackup,
-                    description: t.e2eeLocalBackupDesc,
+                    title: t.common.e2eeLocalBackup,
+                    description: t.common.e2eeLocalBackupDesc,
                     securityLevel: 4,
                     icon: Icons.backup,
                     iconColor: Colors.green,
-                    status: t.e2eeStatusAvailable,
+                    status: t.chat.e2eeStatusAvailable,
                     onTap: () => _showLocalBackupOptions(context),
                   ),
 
@@ -149,7 +149,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
-                      t.e2eeDangerousOps,
+                      t.main.e2eeDangerousOps,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -161,8 +161,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 生成新密钥
                   _buildDangerActionCard(
                     context,
-                    title: t.e2eeGenerateNewKey,
-                    description: t.e2eeGenerateNewKeyDesc,
+                    title: t.chat.e2eeGenerateNewKey,
+                    description: t.chat.e2eeGenerateNewKeyDesc,
                     icon: Icons.refresh,
                     iconColor: Colors.orange,
                     onTap: () => _showGenerateNewKeyDialog(context),
@@ -173,8 +173,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   // 删除密钥
                   _buildDangerActionCard(
                     context,
-                    title: t.e2eeDeleteKey,
-                    description: t.e2eeDeleteKeyDesc,
+                    title: t.common.e2eeDeleteKey,
+                    description: t.common.e2eeDeleteKeyDesc,
                     icon: Icons.delete_forever,
                     iconColor: Colors.red,
                     onTap: () => _showDeleteKeyDialog(context),
@@ -214,7 +214,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        t.e2eeCurrentKeyInfo,
+                        t.common.e2eeCurrentKeyInfo,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -223,7 +223,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        t.e2eeE2EEEnabled,
+                        t.common.e2eeE2EEEnabled,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.blue.shade700,
@@ -242,7 +242,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     borderRadius: AppRadius.borderRadiusMedium,
                   ),
                   child: Text(
-                    t.e2eeActivated,
+                    t.chat.e2eeActivated,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -254,13 +254,16 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             const SizedBox(height: 16),
             _buildInfoRow(
-              t.e2eeDeviceIdLabel,
-              _keyInfo['device_id'] as String? ?? t.unknown,
+              t.account.e2eeDeviceIdLabel,
+              _keyInfo['device_id'] as String? ?? t.common.unknown,
             ),
-            _buildInfoRow(t.e2eeKeyIdLabel, _keyInfo['key_id'] as String? ?? t.unknown),
             _buildInfoRow(
-              t.e2eeCreatedAtLabel,
-              _keyInfo['created_at'] as String? ?? t.unknown,
+              t.main.e2eeKeyIdLabel,
+              _keyInfo['key_id'] as String? ?? t.common.unknown,
+            ),
+            _buildInfoRow(
+              t.chat.e2eeCreatedAtLabel,
+              _keyInfo['created_at'] as String? ?? t.common.unknown,
             ),
           ],
         ),
@@ -292,7 +295,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t.e2eeNoKeyDetected,
+              t.common.e2eeNoKeyDetected,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -301,7 +304,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeNoKeyDesc,
+              t.common.e2eeNoKeyDesc,
               style: const TextStyle(fontSize: 14),
               textAlign: TextAlign.center,
             ),
@@ -309,7 +312,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ElevatedButton.icon(
               onPressed: () => _showGenerateNewKeyDialog(context),
               icon: const Icon(Icons.add),
-              label: Text(t.e2eeGenerateNewKey),
+              label: Text(t.chat.e2eeGenerateNewKey),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
@@ -368,7 +371,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  t.e2eeAboutTitle,
+                  t.common.e2eeAboutTitle,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -377,11 +380,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(t.e2eeInfoPoint1, style: const TextStyle(fontSize: 13)),
+            Text(t.common.e2eeInfoPoint1, style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 4),
-            Text(t.e2eeInfoPoint2, style: const TextStyle(fontSize: 13)),
+            Text(t.common.e2eeInfoPoint2, style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 4),
-            Text(t.e2eeInfoPoint3, style: const TextStyle(fontSize: 13)),
+            Text(t.common.e2eeInfoPoint3, style: const TextStyle(fontSize: 13)),
           ],
         ),
       ),
@@ -454,7 +457,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: status == t.e2eeStatusAvailable
+                              color: status == t.chat.e2eeStatusAvailable
                                   ? Colors.green.shade100
                                   : Colors.grey.shade200,
                               borderRadius: AppRadius.borderRadiusSmall,
@@ -463,7 +466,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                               status,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: status == t.e2eeStatusAvailable
+                                color: status == t.chat.e2eeStatusAvailable
                                     ? Colors.green.shade700
                                     : Colors.grey.shade600,
                               ),
@@ -590,8 +593,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.upload_file),
-              title: Text(t.e2eeExportBackup),
-              subtitle: Text(t.e2eeExportBackupDesc),
+              title: Text(t.common.e2eeExportBackup),
+              subtitle: Text(t.common.e2eeExportBackupDesc),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -604,8 +607,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             ListTile(
               leading: const Icon(Icons.download),
-              title: Text(t.e2eeImportBackup),
-              subtitle: Text(t.e2eeImportBackupDesc),
+              title: Text(t.common.e2eeImportBackup),
+              subtitle: Text(t.common.e2eeImportBackupDesc),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -618,8 +621,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ),
             ListTile(
               leading: const Icon(Icons.folder),
-              title: Text(t.e2eeBackupManage),
-              subtitle: Text(t.e2eeBackupManageDesc),
+              title: Text(t.common.e2eeBackupManage),
+              subtitle: Text(t.common.e2eeBackupManageDesc),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -642,29 +645,29 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.e2eeGenerateNewKey),
+        title: Text(t.chat.e2eeGenerateNewKey),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.e2eeGenerateKeyConfirm),
+            Text(t.common.e2eeGenerateKeyConfirm),
             const SizedBox(height: 12),
             Text(
-              t.warning,
+              t.common.warning,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
               ),
             ),
-            Text(t.e2eeWarnOldMessagesLost),
-            Text(t.e2eeWarnNeedNewBackup),
-            Text(t.e2eeWarnIrreversible),
+            Text(t.common.e2eeWarnOldMessagesLost),
+            Text(t.common.e2eeWarnNeedNewBackup),
+            Text(t.main.e2eeWarnIrreversible),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () {
@@ -672,7 +675,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               _generateNewKey();
             },
             child: Text(
-              t.e2eeConfirmGenerate,
+              t.common.e2eeConfirmGenerate,
               style: const TextStyle(color: Colors.orange),
             ),
           ),
@@ -686,29 +689,29 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.e2eeDeleteKey),
+        title: Text(t.common.e2eeDeleteKey),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.e2eeDeleteKeyConfirm),
+            Text(t.common.e2eeDeleteKeyConfirm),
             const SizedBox(height: 12),
             Text(
-              t.warning,
+              t.common.warning,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
               ),
             ),
-            Text(t.e2eeWarnCannotRestore),
-            Text(t.e2eeWarnAllMsgsLost),
-            Text(t.e2eeWarnNeedRestoreOrNew),
+            Text(t.common.e2eeWarnCannotRestore),
+            Text(t.common.e2eeWarnAllMsgsLost),
+            Text(t.main.e2eeWarnNeedRestoreOrNew),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () {
@@ -716,7 +719,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               _deleteKeys();
             },
             child: Text(
-              t.e2eeConfirmDelete,
+              t.common.e2eeConfirmDelete,
               style: const TextStyle(color: Colors.red),
             ),
           ),
@@ -740,9 +743,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
         setState(() {
           _keyInfo = {
-            'device_id': deviceId ?? t.unknown,
-            'key_id': keyId ?? t.unknown,
-            'created_at': createdAt ?? t.unknown,
+            'device_id': deviceId ?? t.common.unknown,
+            'key_id': keyId ?? t.common.unknown,
+            'created_at': createdAt ?? t.common.unknown,
           };
           _isLoading = false;
         });
@@ -775,7 +778,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             const SizedBox(width: 16),
-            Text(t.e2eeGeneratingKey),
+            Text(t.chat.e2eeGeneratingKey),
           ],
         ),
       ),
@@ -796,25 +799,27 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         showDialog<void>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(t.e2eeKeyGeneratedSuccess),
+            title: Text(t.common.e2eeKeyGeneratedSuccess),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.e2eeNewKeyGenerated),
+                Text(t.chat.e2eeNewKeyGenerated),
                 const SizedBox(height: 12),
                 Text(
-                  t.e2eeDeviceIdInfo(
+                  t.common.e2eeDeviceIdInfo(
                     id: _maskId(keyInfo['device_id']?.toString() ?? ''),
                   ),
                 ),
                 Text(
-                  t.e2eeKeyIdInfo(
+                  t.common.e2eeKeyIdInfo(
                     id: _maskId(keyInfo['key_id']?.toString() ?? ''),
                   ),
                 ),
                 Text(
-                  t.e2eeCreatedAtInfo(time: keyInfo['created_at'].toString()),
+                  t.common.e2eeCreatedAtInfo(
+                    time: keyInfo['created_at'].toString(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -835,7 +840,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            t.e2eeImportantNote,
+                            t.common.e2eeImportantNote,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.orange,
@@ -844,9 +849,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(t.e2eeWarnOldMayNotDecrypt),
-                      Text(t.e2eeSuggestBackupNow),
-                      Text(t.e2eeWarnIrreversible),
+                      Text(t.common.e2eeWarnOldMayNotDecrypt),
+                      Text(t.common.e2eeSuggestBackupNow),
+                      Text(t.main.e2eeWarnIrreversible),
                     ],
                   ),
                 ),
@@ -864,11 +869,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     ),
                   );
                 },
-                child: Text(t.e2eeGoBackup),
+                child: Text(t.common.e2eeGoBackup),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(t.gotIt),
+                child: Text(t.main.gotIt),
               ),
             ],
           ),
@@ -881,7 +886,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(t.e2eeKeyGenerateFailed),
+            content: Text(t.common.e2eeKeyGenerateFailed),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -907,7 +912,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t.e2eeKeyDeleted),
+          content: Text(t.common.e2eeKeyDeleted),
           backgroundColor: Colors.green,
         ),
       );
@@ -915,7 +920,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t.e2eeDeleteFailed),
+          content: Text(t.common.e2eeDeleteFailed),
           backgroundColor: Colors.red,
         ),
       );

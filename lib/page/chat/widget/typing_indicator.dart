@@ -109,7 +109,7 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
           ),
           const SizedBox(width: 8),
           Text(
-            t.peerIsTyping(name: widget.peerTitle),
+            t.chat.peerIsTyping(name: widget.peerTitle),
             style: TextStyle(
               color: themeNotifier.getThemeColor('textSecondary'),
               fontSize: 12,

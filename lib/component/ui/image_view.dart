@@ -73,7 +73,7 @@ class ImageView extends StatelessWidget {
           borderRadius: AppRadius.borderRadiusTiny,
           color: Colors.black26.withValues(alpha: 0.1),
         ),
-        child: Text(t.noData),
+        child: Text(t.common.noData),
       );
     }
     if (isRadius) {

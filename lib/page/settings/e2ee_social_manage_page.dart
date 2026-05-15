@@ -65,11 +65,11 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeSocialManageTitle),
+        title: Text(t.main.e2eeSocialManageTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       body: _isLoading
@@ -86,14 +86,14 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                           horizontal: 20,
                           vertical: 8,
                         ),
-                        child: Text(t.e2eeSocialMyShards),
+                        child: Text(t.main.e2eeSocialMyShards),
                       ),
                       1: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 8,
                         ),
-                        child: Text(t.e2eeSocialProxyShards),
+                        child: Text(t.main.e2eeSocialProxyShards),
                       ),
                     },
                     onValueChanged: (value) {
@@ -118,7 +118,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
 
   Widget _buildUserShardsView() {
     if (_userShards.isEmpty) {
-      return _buildEmptyView(t.e2eeSocialNoShards);
+      return _buildEmptyView(t.common.e2eeSocialNoShards);
     }
 
     return ListView.builder(
@@ -133,7 +133,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
 
   Widget _buildProxyShardsView() {
     if (_proxyShards.isEmpty) {
-      return _buildEmptyView(t.e2eeSocialNoProxyShards);
+      return _buildEmptyView(t.common.e2eeSocialNoProxyShards);
     }
 
     return ListView.builder(
@@ -149,7 +149,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
   Widget _buildEmptyView(String message) {
     return NoDataView(
       text: message,
-      description: t.e2eeSocialCreateFirst,
+      description: t.chat.e2eeSocialCreateFirst,
       icon: Icons.folder_open,
       iconSize: 64,
     );
@@ -192,7 +192,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    t.e2eeSocialShardOf(
+                    t.main.e2eeSocialShardOf(
                       idx: shardIndex as int,
                       total: totalShards as int,
                     ),
@@ -215,8 +215,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                   ),
                   child: Text(
                     status == 'active'
-                        ? t.e2eeSocialShardActive
-                        : t.e2eeSocialShardUsed,
+                        ? t.main.e2eeSocialShardActive
+                        : t.main.e2eeSocialShardUsed,
                     style: TextStyle(
                       fontSize: 11,
                       color: status == 'active'
@@ -229,15 +229,18 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(t.e2eeSocialProxyUserLabel, proxyUid.toString()),
+            _buildInfoRow(t.main.e2eeSocialProxyUserLabel, proxyUid.toString()),
             _buildInfoRow(
-              t.e2eeSocialRecoveryThresholdLabel,
+              t.main.e2eeSocialRecoveryThresholdLabel,
               '$threshold / $totalShards',
             ),
-            _buildInfoRow(t.e2eeBackupCreatedAtRow, _formatDateTime(createdAt)),
+            _buildInfoRow(
+              t.common.e2eeBackupCreatedAtRow,
+              _formatDateTime(createdAt),
+            ),
             if (shard.containsKey('used_at'))
               _buildInfoRow(
-                t.e2eeSocialUsedAtLabel,
+                t.chat.e2eeSocialUsedAtLabel,
                 _formatDateTime(shard['used_at']),
               ),
           ],
@@ -266,7 +269,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    t.e2eeSocialUserShard(uid: uid.toString()),
+                    t.main.e2eeSocialUserShard(uid: uid.toString()),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -276,9 +279,15 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(t.e2eeSocialShardIndexLabel, '$shardIndex'),
-            _buildInfoRow(t.e2eeSocialKeyVersionLabel, keyVersion.toString()),
-            _buildInfoRow(t.e2eeBackupCreatedAtRow, _formatDateTime(createdAt)),
+            _buildInfoRow(t.main.e2eeSocialShardIndexLabel, '$shardIndex'),
+            _buildInfoRow(
+              t.common.e2eeSocialKeyVersionLabel,
+              keyVersion.toString(),
+            ),
+            _buildInfoRow(
+              t.common.e2eeBackupCreatedAtRow,
+              _formatDateTime(createdAt),
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -290,8 +299,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 const SizedBox(width: 4),
                 Text(
                   status == 'active'
-                      ? t.e2eeSocialShardValid
-                      : t.e2eeSocialShardUsed,
+                      ? t.main.e2eeSocialShardValid
+                      : t.main.e2eeSocialShardUsed,
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'active' ? Colors.green : Colors.grey,

@@ -87,7 +87,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    t.verificationMessage,
+                    t.common.verificationMessage,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -163,7 +163,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    t.setParam(param: t.remark),
+                    t.main.setParam(param: t.contact.remark),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -179,7 +179,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
               controller: _remarkController,
               maxLength: 80,
               decoration: InputDecoration(
-                hintText: t.enterRemark,
+                hintText: t.contact.enterRemark,
                 hintStyle: TextStyle(
                   color: Theme.of(
                     context,
@@ -311,7 +311,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
-        title: t.acceptFriendRequest,
+        title: t.common.acceptFriendRequest,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
@@ -328,9 +328,9 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
             // 标签设置
             _buildSettingCard(
               context: context,
-              title: t.tags,
+              title: t.contact.tags,
               subtitle: providerState.peerTag.isEmpty
-                  ? t.addTag
+                  ? t.common.addTag
                   : providerState.peerTag,
               icon: Icons.local_offer_outlined,
               onTap: () async {
@@ -373,7 +373,8 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
-                Map<String, dynamic> p2 = json.decode(widget.payload) as Map<String, dynamic>;
+                Map<String, dynamic> p2 =
+                    json.decode(widget.payload) as Map<String, dynamic>;
                 p2['to'] = {
                   "remark": _remarkController.text,
                   "account": UserRepoLocal.to.current.account,
@@ -406,7 +407,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                 ),
               ),
               child: Text(
-                t.buttonAccomplish,
+                t.common.buttonAccomplish,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

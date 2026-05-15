@@ -134,7 +134,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     // 检查坐标是否有效（包括 "0.0", "0.0000000" 等无效坐标）
     if (!_isValidCoordinate(state.longitude, state.latitude)) {
       EasyLoading.showInfo(
-        "${t.failedGetLatLong}\n${t.notTurnedLocationService}\n${t.or} ${t.notAuthorizedLatLong}",
+        "${t.common.failedGetLatLong}\n${t.common.notTurnedLocationService}\n${t.main.or} ${t.common.notAuthorizedLatLong}",
       );
       return;
     }
@@ -176,7 +176,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     // 检查坐标是否有效
     if (!_isValidCoordinate(state.longitude, state.latitude)) {
       EasyLoading.showInfo(
-        "${t.failedGetLatLong}\n${t.notTurnedLocationService}\n${t.or} ${t.notAuthorizedLatLong}",
+        "${t.common.failedGetLatLong}\n${t.common.notTurnedLocationService}\n${t.main.or} ${t.common.notAuthorizedLatLong}",
       );
       return false;
     }

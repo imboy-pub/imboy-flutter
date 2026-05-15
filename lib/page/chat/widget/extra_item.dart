@@ -38,7 +38,9 @@ class ExtraItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onPressed ?? () => EasyLoading.showToast(t.featureComingSoon),
+        onTap:
+            onPressed ??
+            () => EasyLoading.showToast(t.common.featureComingSoon),
         borderRadius: AppRadius.borderRadiusRegular,
         child: Container(
           width: width ?? 64,
@@ -152,12 +154,12 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       // 第一页
       _buildItemsGrid([
         ExtraItem(
-          title: t.album,
+          title: t.main.album,
           image: const Icon(Icons.photo_library_outlined, size: iconSize),
           onPressed: widget.handleImageSelection,
         ),
         ExtraItem(
-          title: t.camera,
+          title: t.main.camera,
           image: const Icon(Icons.camera_alt_outlined, size: iconSize),
           onPressed: () {
             if (widget.handlePickerSelection != null) {
@@ -166,7 +168,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           },
         ),
         ExtraItem(
-          title: t.location,
+          title: t.groupSchedule.location,
           image: const Icon(Icons.location_on_outlined, size: iconSize),
           onPressed: () async {
             if (!context.mounted) return;
@@ -187,7 +189,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
               if (result != null && context.mounted) {
                 if (result["image"] == null) {
-                  EasyLoading.showError(t.failedGetMapTryAgain);
+                  EasyLoading.showError(t.common.failedGetMapTryAgain);
                   FocusScope.of(context).requestFocus(FocusNode());
                   return;
                 }
@@ -207,13 +209,13 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           },
         ),
         ExtraItem(
-          title: t.personalCard,
+          title: t.common.personalCard,
           image: const Icon(Icons.person_outline, size: iconSize),
           onPressed: widget.handleVisitCardSelection,
         ),
         if (widget.type != 'C2G')
           ExtraItem(
-            title: t.voiceCall,
+            title: t.common.voiceCall,
             image: const Icon(Icons.phone_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -230,7 +232,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           ),
         if (widget.type != 'C2G')
           ExtraItem(
-            title: t.videoCall,
+            title: t.common.videoCall,
             image: const Icon(Icons.videocam_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -246,7 +248,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             },
           ),
         ExtraItem(
-          title: t.favorites,
+          title: t.main.favorites,
           image: const Icon(
             Icons.collections_bookmark_outlined,
             size: iconSize,
@@ -254,12 +256,12 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           onPressed: widget.handleCollectSelection,
         ),
         ExtraItem(
-          title: t.file,
+          title: t.chat.file,
           image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
           onPressed: widget.handleFileSelection,
         ),
         ExtraItem(
-          title: t.expression,
+          title: t.common.expression,
           image: const Icon(Icons.face_outlined, size: iconSize),
           onPressed: widget.handleStickerSelection,
         ),

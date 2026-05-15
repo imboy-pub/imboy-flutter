@@ -94,10 +94,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   // 回调函数
   void Function(RTCSignalingState state)? onSignalingStateChange;
-  void Function(WebRTCSession? session, WebRTCCallState state)? onCallStateChange;
+  void Function(WebRTCSession? session, WebRTCCallState state)?
+  onCallStateChange;
   void Function(MediaStream stream)? onLocalStream;
   void Function(WebRTCSession session, MediaStream stream)? onAddRemoteStream;
-  void Function(WebRTCSession session, MediaStream stream)? onRemoveRemoteStream;
+  void Function(WebRTCSession session, MediaStream stream)?
+  onRemoveRemoteStream;
   void Function(
     WebRTCSession session,
     RTCDataChannel dc,
@@ -187,7 +189,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           s2.remoteCandidates.clear();
         }
 
-        final sd2 = RTCSessionDescription(sd['sdp'] as String, sd['type'] as String);
+        final sd2 = RTCSessionDescription(
+          sd['sdp'] as String,
+          sd['type'] as String,
+        );
         await s2.pc!.setRemoteDescription(sd2);
         await _createAnswer(s2, msg.msgId, media);
         break;
@@ -679,7 +684,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       iPrint('> rtc ICE restart max attempts reached, connection failed');
       // 超过重试次数，通知连接失败
       onCallStateChange?.call(currentSession!, WebRTCCallState.callStateBye);
-      updateStateTips(t.errorNetwork);
+      updateStateTips(t.common.errorNetwork);
     }
   }
 
@@ -821,7 +826,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     Map<String, dynamic> turnCredential = await userApi.turnCredential();
     // 不在日志中输出 TURN 凭证（含 username/credential）
     if (turnCredential.isEmpty && from == 'openCallScreen') {
-      EasyLoading.showError(t.failedRequestPleaseCheckNetwork);
+      EasyLoading.showError(t.common.failedRequestPleaseCheckNetwork);
       return null;
     } else if (turnCredential.isEmpty) {
       return null;

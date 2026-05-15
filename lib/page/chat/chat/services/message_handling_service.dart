@@ -111,20 +111,20 @@ class MessageHandlingService {
       _msgLogger.d('开始重试消息: $messageId');
 
       // 显示加载状态
-      EasyLoading.show(status: t.retryingSend);
+      EasyLoading.show(status: t.common.retryingSend);
 
       final success = await retryFn(messageId, chatType);
 
       EasyLoading.dismiss();
 
       if (success) {
-        EasyLoading.showSuccess(t.retrySuccess);
+        EasyLoading.showSuccess(t.common.retrySuccess);
       } else {
-        EasyLoading.showError(t.retryFailedPleaseCheckNetwork);
+        EasyLoading.showError(t.common.retryFailedPleaseCheckNetwork);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('${t.retryAbnormal}: $e');
+      EasyLoading.showError('${t.common.retryAbnormal}: $e');
       _msgLogger.e('消息重试异常: $e');
     }
   }
@@ -144,7 +144,7 @@ class MessageHandlingService {
       'deleteMessageForMe - 开始删除消息(仅自己): ${msg.id}, 聊天类型: ${conversation.type}',
     );
     try {
-      EasyLoading.show(status: t.deletingMessage);
+      EasyLoading.show(status: t.chat.deletingMessage);
 
       // 群聊通知由调用方 MessageActionHandler.deleteMessageForMe 处理
       // （判断 c2g 类型后调用 _sendDeleteForMeMessage），此方法只负责本地删除
@@ -155,14 +155,14 @@ class MessageHandlingService {
 
       if (res) {
         iPrint('deleteMessageForMe - 删除完成: ${msg.id}');
-        EasyLoading.showSuccess(t.deleteSuccess);
+        EasyLoading.showSuccess(t.common.deleteSuccess);
       } else {
         iPrint('deleteMessageForMe - 删除失败: ${msg.id}');
-        EasyLoading.showError(t.deleteFailedPleaseTryAgain);
+        EasyLoading.showError(t.common.deleteFailedPleaseTryAgain);
       }
     } catch (e, stack) {
       iPrint('deleteMessageForMe - 删除消息异常: $e\n$stack');
-      EasyLoading.showError(t.deleteOperationAbnormal);
+      EasyLoading.showError(t.common.deleteOperationAbnormal);
     } finally {
       EasyLoading.dismiss();
     }
@@ -204,7 +204,7 @@ class MessageHandlingService {
     required Future<bool> Function(Map<String, dynamic>) sendFn,
   }) async {
     try {
-      EasyLoading.show(status: t.deletingMessage);
+      EasyLoading.show(status: t.chat.deletingMessage);
 
       // 发送删除通知
       final msg2 = {
@@ -232,21 +232,23 @@ class MessageHandlingService {
 
         if (res) {
           iPrint('deleteMessageForEveryone - 删除完成: ${msg.id}');
-          EasyLoading.showSuccess(t.deleteSuccess);
+          EasyLoading.showSuccess(t.common.deleteSuccess);
         } else {
-          EasyLoading.showError(t.localDeleteFailed + t.pleaseTryAgainLater);
+          EasyLoading.showError(
+            t.common.localDeleteFailed + t.chat.pleaseTryAgainLater,
+          );
         }
       } else {
         // 即使发送失败，也询问用户是否仅删除本地消息
         if (context.mounted) {
           _showDeleteLocalOnlyDialog(context, conversation, msg, deleteFn);
         } else {
-          EasyLoading.showError(t.deleteFailedPleaseCheckNetwork);
+          EasyLoading.showError(t.common.deleteFailedPleaseCheckNetwork);
         }
       }
     } catch (e, stack) {
       iPrint('删除消息异常: $e\n$stack');
-      EasyLoading.showError(t.deleteOperationAbnormal);
+      EasyLoading.showError(t.common.deleteOperationAbnormal);
     } finally {
       EasyLoading.dismiss();
     }
@@ -263,17 +265,17 @@ class MessageHandlingService {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(t.chatDeleteFailed),
-          content: Text(t.chatNetworkErrorDeleteLocal),
+          title: Text(t.common.chatDeleteFailed),
+          content: Text(t.common.chatNetworkErrorDeleteLocal),
           actions: <Widget>[
             TextButton(
-              child: Text(t.buttonCancel),
+              child: Text(t.common.buttonCancel),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text(t.chatDeleteLocalOnly),
+              child: Text(t.common.chatDeleteLocalOnly),
               onPressed: () async {
                 Navigator.of(context).pop();
                 await _deleteLocalMessageOnly(
@@ -298,7 +300,7 @@ class MessageHandlingService {
     Future<bool> Function(ConversationModel, Message) deleteFn,
   ) async {
     try {
-      EasyLoading.show(status: t.deletingLocalMessage);
+      EasyLoading.show(status: t.chat.deletingLocalMessage);
 
       // 从本地删除消息
       bool res = await deleteFn(conversation, msg);
@@ -306,13 +308,13 @@ class MessageHandlingService {
 
       if (res) {
         iPrint('_deleteLocalMessageOnly - 删除完成: ${msg.id}');
-        EasyLoading.showSuccess(t.localDeleteSuccess);
+        EasyLoading.showSuccess(t.common.localDeleteSuccess);
       } else {
-        EasyLoading.showError(t.localDeleteFailed);
+        EasyLoading.showError(t.common.localDeleteFailed);
       }
     } catch (e, stack) {
       iPrint('仅删除本地消息异常: $e\n$stack');
-      EasyLoading.showError(t.deleteOperationAbnormal);
+      EasyLoading.showError(t.common.deleteOperationAbnormal);
     } finally {
       EasyLoading.dismiss();
     }
@@ -323,7 +325,7 @@ class MessageHandlingService {
   /// 复制消息文本
   void copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
-    EasyLoading.showToast(t.copied);
+    EasyLoading.showToast(t.main.copied);
   }
 
   /// 保存消息内容
@@ -333,7 +335,10 @@ class MessageHandlingService {
     required Future<void> Function(String, String) saveFileFn,
   }) async {
     if (msg is CustomMessage) {
-      await saveFileFn(msg.metadata!['md5'] as String, msg.metadata!['uri'] as String);
+      await saveFileFn(
+        msg.metadata!['md5'] as String,
+        msg.metadata!['uri'] as String,
+      );
     } else if (msg is ImageMessage) {
       await saveFileFn(msg.text ?? Xid().toString(), msg.source);
     } else if (msg is FileMessage) {
@@ -352,49 +357,53 @@ class MessageHandlingService {
 
     _msgLogger.d("collectMessage: 收藏结果: $res");
 
-    EasyLoading.showToast(res ? t.collected : t.operationFailedAgainLater);
+    EasyLoading.showToast(
+      res ? t.main.collected : t.common.operationFailedAgainLater,
+    );
   }
 
   /// 撤回消息（使用新的action机制）
   Future<void> revokeMessage(String chatType, Message msg) async {
     try {
-      iPrint('${t.startRevokeMessageFlow} (新action机制)');
-      EasyLoading.show(status: t.revoking);
+      iPrint('${t.common.startRevokeMessageFlow} (新action机制)');
+      EasyLoading.show(status: t.common.revoking);
 
       // 参数验证
       if (msg.id.isEmpty) {
-        throw Exception(t.messageIdCannotBeEmpty);
+        throw Exception(t.common.messageIdCannotBeEmpty);
       }
 
-      iPrint('🔍 ${t.revokeMessageTracking}: ${t.useNewActionMechanism}');
-      iPrint('🔍 ${t.messageId}: ${msg.id}');
-      iPrint('🔍 ${t.chatType}: $chatType');
+      iPrint(
+        '🔍 ${t.common.revokeMessageTracking}: ${t.common.useNewActionMechanism}',
+      );
+      iPrint('🔍 ${t.chat.messageId}: ${msg.id}');
+      iPrint('🔍 ${t.chat.chatType}: $chatType');
 
       // 通过 messaging module 公共边界发送撤回请求。
       bool result = await MessagingFacade.instance.sendRevokeMessage(
         msg.id,
         chatType,
       );
-      iPrint('🔍 ${t.revokeMessageSendResult}: $result');
+      iPrint('🔍 ${t.common.revokeMessageSendResult}: $result');
 
       if (result) {
         EasyLoading.dismiss();
-        iPrint('=== ${t.revokeRequestSendComplete} ===');
+        iPrint('=== ${t.common.revokeRequestSendComplete} ===');
 
         // 确保UI更新完成后再显示成功提示
         await Future<dynamic>.delayed(const Duration(milliseconds: 300));
-        EasyLoading.showSuccess(t.revokeSuccess);
+        EasyLoading.showSuccess(t.common.revokeSuccess);
       } else {
         EasyLoading.dismiss();
         EasyLoading.showError(
-          '${t.revokeFailed}, ${t.pleaseCheckNetworkConnection}',
+          '${t.common.revokeFailed}, ${t.common.pleaseCheckNetworkConnection}',
         );
       }
     } catch (e, stack) {
-      iPrint('${t.revokeMessageException}: $e\n$stack');
+      iPrint('${t.common.revokeMessageException}: $e\n$stack');
       EasyLoading.dismiss();
       EasyLoading.showError(
-        '${t.revokeOperationAbnormal}, ${t.pleaseTryAgain}',
+        '${t.common.revokeOperationAbnormal}, ${t.main.pleaseTryAgain}',
       );
     }
   }
@@ -406,22 +415,24 @@ class MessageHandlingService {
     String newContent,
   ) async {
     try {
-      iPrint('${t.startEditMessageFlow} (新action机制)');
-      EasyLoading.show(status: t.editing);
+      iPrint('${t.common.startEditMessageFlow} (新action机制)');
+      EasyLoading.show(status: t.common.editing);
 
       // 参数验证
       if (msg.id.isEmpty) {
-        throw Exception(t.messageIdCannotBeEmpty);
+        throw Exception(t.common.messageIdCannotBeEmpty);
       }
 
       if (newContent.trim().isEmpty) {
-        throw Exception(t.editContentCannotBeEmpty);
+        throw Exception(t.common.editContentCannotBeEmpty);
       }
 
-      iPrint('🔍 ${t.editMessageTracking}: ${t.useNewActionMechanism}');
-      iPrint('🔍 ${t.messageId}: ${msg.id}');
-      iPrint('🔍 ${t.chatType}: $chatType');
-      iPrint('🔍 ${t.newContent}: $newContent');
+      iPrint(
+        '🔍 ${t.common.editMessageTracking}: ${t.common.useNewActionMechanism}',
+      );
+      iPrint('🔍 ${t.chat.messageId}: ${msg.id}');
+      iPrint('🔍 ${t.chat.chatType}: $chatType');
+      iPrint('🔍 ${t.common.newContent}: $newContent');
 
       // 通过 messaging module 公共边界发送编辑请求。
       bool result = await MessagingFacade.instance.sendEditMessage(
@@ -429,25 +440,27 @@ class MessageHandlingService {
         chatType,
         newContent.trim(),
       );
-      iPrint('🔍 ${t.editMessageSendResult}: $result');
+      iPrint('🔍 ${t.common.editMessageSendResult}: $result');
 
       if (result) {
         EasyLoading.dismiss();
-        iPrint('=== ${t.editRequestSendComplete} ===');
+        iPrint('=== ${t.common.editRequestSendComplete} ===');
 
         // 确保UI更新完成后再显示成功提示
         await Future<dynamic>.delayed(const Duration(milliseconds: 300));
-        EasyLoading.showSuccess(t.editSuccess);
+        EasyLoading.showSuccess(t.common.editSuccess);
       } else {
         EasyLoading.dismiss();
         EasyLoading.showError(
-          '${t.editFailed}, ${t.pleaseCheckNetworkConnection}',
+          '${t.common.editFailed}, ${t.common.pleaseCheckNetworkConnection}',
         );
       }
     } catch (e, stack) {
-      iPrint('${t.editMessageException}: $e\n$stack');
+      iPrint('${t.common.editMessageException}: $e\n$stack');
       EasyLoading.dismiss();
-      EasyLoading.showError('${t.editOperationAbnormal}, ${t.pleaseTryAgain}');
+      EasyLoading.showError(
+        '${t.common.editOperationAbnormal}, ${t.main.pleaseTryAgain}',
+      );
     }
   }
 

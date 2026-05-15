@@ -140,7 +140,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                 TextField(
                   controller: _serverController,
                   decoration: InputDecoration(
-                    labelText: t.liveRoomWhipLabel,
+                    labelText: t.main.liveRoomWhipLabel,
                     hintText: 'http://your-server/whip/publish/live/stream1',
                     border: const OutlineInputBorder(),
                     isDense: true,

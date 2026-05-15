@@ -187,7 +187,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        t.mutualGroupsWithHer,
+                        t.group.mutualGroupsWithHer,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -197,8 +197,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       const SizedBox(height: 4),
                       Text(
                         state.groupCount > 0
-                            ? t.numUnit(param: '${state.groupCount}')
-                            : t.noCommonGroups,
+                            ? t.main.numUnit(param: '${state.groupCount}')
+                            : t.common.noCommonGroups,
                         style: TextStyle(
                           fontSize: 14,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -256,8 +256,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
   /// 构建空状态提示
   Widget _buildEmptyState(BuildContext context) {
     return NoDataView(
-      text: t.noMoreInfo,
-      description: t.noDetailedInfo,
+      text: t.common.noMoreInfo,
+      description: t.common.noDetailedInfo,
       icon: Icons.info_outline,
       iconBgSize: 80,
       iconSize: 40,
@@ -275,7 +275,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.socialProfile,
+        title: t.chat.socialProfile,
       ),
       body: Consumer(
         builder: (context, ref, _) {
@@ -298,7 +298,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 if (hasSignature)
                   _buildInfoCard(
                     context: context,
-                    title: t.signature,
+                    title: t.account.signature,
                     content: state.sign,
                     icon: Icons.format_quote_outlined,
                     maxLines: 8,
@@ -308,7 +308,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 if (hasSource)
                   _buildInfoCard(
                     context: context,
-                    title: t.source,
+                    title: t.main.source,
                     content: '${state.sourcePrefix} ${state.source}',
                     icon: Icons.source_outlined,
                     maxLines: 3,

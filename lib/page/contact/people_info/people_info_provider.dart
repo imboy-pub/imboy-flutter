@@ -129,7 +129,7 @@ class PeopleInfoNotifier extends _$PeopleInfoNotifier {
       case 'group_member':
         return null;
       case 'user_search':
-        return t.search;
+        return t.common.search;
       case '':
         return 'qrcode';
       default:

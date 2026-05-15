@@ -156,13 +156,13 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       _NavigationItemData(
         icon: Icons.chat_bubble_outline,
         activeIcon: Icons.chat_bubble,
-        label: t.titleMessage,
+        label: t.chat.titleMessage,
         remindCount: ref.watch(conversationProvider).chatMsgRemindCounter,
       ),
       _NavigationItemData(
         icon: Icons.people_alt_outlined,
         activeIcon: Icons.people_alt,
-        label: t.titleContact,
+        label: t.common.titleContact,
         remindCount: ref.watch(newFriendRemindProvider).length,
       ),
       if (_isTabEnabled('channel_tab'))
@@ -181,7 +181,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       _NavigationItemData(
         icon: Icons.person_outline,
         activeIcon: Icons.person,
-        label: t.titleMine,
+        label: t.main.titleMine,
         isStatusItem: true,
       ),
     ];

@@ -82,7 +82,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                     UserTagSavePage(tag: obj, scene: 'friend'),
               );
             },
-            label: t.changeParam(param: t.name),
+            label: t.main.changeParam(param: t.main.name),
             spacing: 1,
           ),
           SlidableAction(
@@ -110,7 +110,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Text(
-                            t.deleteTagTips,
+                            t.common.deleteTagTips,
                             textAlign: TextAlign.center,
                             style: context.textStyle(
                               FontSizeType.normal,
@@ -133,13 +133,13 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                                 );
                             if (res) {
                               Navigator.of(context).pop();
-                              EasyLoading.showSuccess(t.tipSuccess);
+                              EasyLoading.showSuccess(t.common.tipSuccess);
                             } else {
-                              EasyLoading.showError(t.tipFailed);
+                              EasyLoading.showError(t.common.tipFailed);
                             }
                           },
                           child: Text(
-                            t.buttonDelete,
+                            t.common.buttonDelete,
                             textAlign: TextAlign.center,
                             style: context.textStyle(
                               FontSizeType.normal,
@@ -154,7 +154,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                         child: TextButton(
                           onPressed: () => Navigator.of(context).pop(),
                           child: Text(
-                            t.buttonCancel,
+                            t.common.buttonCancel,
                             textAlign: TextAlign.center,
                             style: context.textStyle(
                               FontSizeType.normal,
@@ -168,7 +168,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                 ),
               );
             },
-            label: t.buttonDelete,
+            label: t.common.buttonDelete,
             spacing: 1,
           ),
         ],
@@ -227,7 +227,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.contactTags,
+        title: t.common.contactTags,
         rightDMActions: <Widget>[
           InkWell(
             child: const SizedBox(
@@ -283,8 +283,8 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                         ),
                       ],
                 controller: _searchController,
-                searchLabel: t.search,
-                hintText: t.search,
+                searchLabel: t.common.search,
+                hintText: t.common.search,
                 onChanged: (query) async {
                   setState(() {
                     _kwd = query;
@@ -301,7 +301,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: SlidableAutoCloseBehavior(
                   child: listState.items.isEmpty
-                      ? NoDataView(text: t.noData)
+                      ? NoDataView(text: t.common.noData)
                       : ListView.builder(
                           controller: _controller,
                           physics: const AlwaysScrollableScrollPhysics(),

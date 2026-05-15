@@ -98,7 +98,7 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
   @override
   Widget build(BuildContext context) {
     final defaultDecoration = InputDecoration(
-      hintText: widget.hintText ?? t.phoneInputHint,
+      hintText: widget.hintText ?? t.common.phoneInputHint,
       border: OutlineInputBorder(
         borderRadius: AppRadius.borderRadiusSmall,
         borderSide: BorderSide(color: Colors.grey.shade300),

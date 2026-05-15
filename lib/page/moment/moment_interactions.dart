@@ -48,17 +48,17 @@ int parseMomentVisibility(Map<String, dynamic> moment) {
 String momentVisibilityLabel(int code, Translations t) {
   switch (code) {
     case momentVisibilityPublic:
-      return t.momentsVisibilityPublic;
+      return t.discovery.momentsVisibilityPublic;
     case momentVisibilityFriends:
-      return t.momentsVisibilityFriends;
+      return t.contact.momentsVisibilityFriends;
     case momentVisibilityPrivate:
-      return t.momentsVisibilityPrivate;
+      return t.chat.momentsVisibilityPrivate;
     case momentVisibilityAllowList:
-      return t.momentsVisibilityPartial;
+      return t.discovery.momentsVisibilityPartial;
     case momentVisibilityDenyList:
-      return t.momentsVisibilityExclude;
+      return t.discovery.momentsVisibilityExclude;
     default:
-      return t.momentsVisibilityFriends;
+      return t.contact.momentsVisibilityFriends;
   }
 }
 

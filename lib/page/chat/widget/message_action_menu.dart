@@ -190,7 +190,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               _buildActionButton(
                 context: context,
                 icon: Icons.reply,
-                label: t.quote,
+                label: t.main.quote,
                 onTap: () {
                   HapticFeedback.lightImpact();
                   widget.onReply();
@@ -200,7 +200,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               _buildActionButton(
                 context: context,
                 icon: Icons.copy,
-                label: t.buttonCopy,
+                label: t.common.buttonCopy,
                 onTap: () {
                   HapticFeedback.lightImpact();
                   widget.onCopy();
@@ -210,7 +210,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               _buildActionButton(
                 context: context,
                 icon: Icons.moving,
-                label: t.forward,
+                label: t.chat.forward,
                 onTap: () {
                   HapticFeedback.lightImpact();
                   widget.onForward();
@@ -221,7 +221,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 _buildActionButton(
                   context: context,
                   icon: Icons.collections_bookmark,
-                  label: t.favorites,
+                  label: t.main.favorites,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     widget.onCollect!();
@@ -241,7 +241,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 _buildActionButton(
                   context: context,
                   icon: Icons.save_alt,
-                  label: t.buttonSave,
+                  label: t.common.buttonSave,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     widget.onSave!();
@@ -256,7 +256,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   _buildActionButton(
                     context: context,
                     icon: Icons.refresh,
-                    label: t.buttonRetry,
+                    label: t.common.buttonRetry,
                     onTap: () {
                       HapticFeedback.lightImpact();
                       widget.onRetry!();
@@ -268,7 +268,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   _buildActionButton(
                     context: context,
                     icon: Icons.edit,
-                    label: t.edit,
+                    label: t.common.edit,
                     onTap: () {
                       HapticFeedback.lightImpact();
                       widget.onEdit();
@@ -280,7 +280,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   _buildActionButton(
                     context: context,
                     icon: Icons.layers_clear_rounded,
-                    label: t.revoke,
+                    label: t.chat.revoke,
                     onTap: () {
                       HapticFeedback.lightImpact();
                       widget.onRevoke!();
@@ -291,7 +291,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 _buildActionButton(
                   context: context,
                   icon: Icons.delete,
-                  label: t.buttonDelete,
+                  label: t.common.buttonDelete,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     _showDeleteConfirmation(context);
@@ -303,7 +303,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 _buildActionButton(
                   context: context,
                   icon: Icons.delete,
-                  label: t.deleteForMe,
+                  label: t.common.deleteForMe,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     widget.onDelete();
@@ -390,14 +390,14 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(t.buttonDelete),
+            title: Text(t.common.buttonDelete),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: const Icon(Icons.person),
-                  title: Text(t.deleteForMe),
-                  subtitle: Text(t.chatDeleteOnlyLocal),
+                  title: Text(t.common.deleteForMe),
+                  subtitle: Text(t.common.chatDeleteOnlyLocal),
                   onTap: () {
                     Navigator.of(context).pop();
                     widget.onDelete();
@@ -407,8 +407,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 const Divider(),
                 ListTile(
                   leading: Icon(Icons.group, color: AppColors.iosRed),
-                  title: Text(t.deleteForEveryone),
-                  subtitle: Text(t.chatDeleteAll),
+                  title: Text(t.common.deleteForEveryone),
+                  subtitle: Text(t.common.chatDeleteAll),
                   onTap: () {
                     Navigator.of(context).pop();
                     // 删除所有人的消息
@@ -427,7 +427,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text(t.buttonCancel),
+                child: Text(t.common.buttonCancel),
               ),
             ],
           );
@@ -439,14 +439,14 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(t.buttonDelete),
-            content: Text(t.chatDeleteConfirm),
+            title: Text(t.common.buttonDelete),
+            content: Text(t.common.chatDeleteConfirm),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text(t.buttonCancel),
+                child: Text(t.common.buttonCancel),
               ),
               TextButton(
                 onPressed: () {
@@ -459,7 +459,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     Theme.of(context).brightness,
                   ),
                 ),
-                child: Text(t.buttonDelete),
+                child: Text(t.common.buttonDelete),
               ),
             ],
           );

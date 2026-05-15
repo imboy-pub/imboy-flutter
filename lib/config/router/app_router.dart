@@ -73,7 +73,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             final t = context.t;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(t.loginExpiredMessage),
+                content: Text(t.chat.loginExpiredMessage),
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -1070,7 +1070,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               return CupertinoPage(
                 key: state.pageKey,
                 child: SetRegionPage(
-                  title: title.isNotEmpty ? title : t.setRegion,
+                  title: title.isNotEmpty ? title : t.common.setRegion,
                   currentValue: currentValue,
                   onSave: (val) async => true,
                 ),
@@ -1409,7 +1409,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => context.go(AppRoutes.initial),
-              child: Text(t.buttonBackHome),
+              child: Text(t.common.buttonBackHome),
             ),
           ],
         ),

@@ -94,9 +94,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     } on Exception {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.e2eeProxyLoadFriendsFailed)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.common.e2eeProxyLoadFriendsFailed)),
+        );
       }
     }
   }
@@ -115,7 +115,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     if (_selectedUids.length < widget.requiredCount) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t.e2eeProxyMinCount(count: widget.requiredCount)),
+          content: Text(t.main.e2eeProxyMinCount(count: widget.requiredCount)),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -159,7 +159,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           }
 
           if (publicKey.isEmpty) {
-            throw Exception(t.e2eeProxyNoPublicKey);
+            throw Exception(t.common.e2eeProxyNoPublicKey);
           }
 
           selectedContacts.add({
@@ -174,7 +174,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(t.e2eeProxyGetKeyFailed(name: contact.title)),
+              content: Text(
+                t.common.e2eeProxyGetKeyFailed(name: contact.title),
+              ),
             ),
           );
           return;
@@ -193,7 +195,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(t.e2eeProxySelectFailed)));
+        ).showSnackBar(SnackBar(content: Text(t.common.e2eeProxySelectFailed)));
       }
     }
   }
@@ -205,18 +207,18 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeProxySelectTitle),
+        title: Text(t.main.e2eeProxySelectTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                t.e2eeProxySelectedCount(
+                t.main.e2eeProxySelectedCount(
                   selected: selectedCount,
                   total: widget.requiredCount,
                 ),
@@ -262,8 +264,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
   Widget _buildEmptyView() {
     return NoDataView(
-      text: t.e2eeProxyNoFriends,
-      description: t.e2eeProxyNoFriendsHint,
+      text: t.common.e2eeProxyNoFriends,
+      description: t.common.e2eeProxyNoFriendsHint,
       icon: Icons.people_outline,
       iconSize: 64,
     );
@@ -299,7 +301,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  canConfirm ? t.e2eeProxyReachedMin : t.e2eeProxySelectTitle,
+                  canConfirm
+                      ? t.main.e2eeProxyReachedMin
+                      : t.main.e2eeProxySelectTitle,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -308,7 +312,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  t.e2eeProxyNeedMore(
+                  t.common.e2eeProxyNeedMore(
                     count: widget.requiredCount,
                     selected: selectedCount,
                   ),
@@ -442,8 +446,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
             ),
             child: Text(
               canConfirm
-                  ? t.e2eeProxyConfirmCount(count: selectedCount)
-                  : t.e2eeProxyNeedAtLeast(count: widget.requiredCount),
+                  ? t.common.e2eeProxyConfirmCount(count: selectedCount)
+                  : t.chat.e2eeProxyNeedAtLeast(count: widget.requiredCount),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),

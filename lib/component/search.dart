@@ -30,7 +30,7 @@ Widget searchBar(
             size: 20,
           ),
       trailing: trailing,
-      hintText: hintText ?? t.search,
+      hintText: hintText ?? t.common.search,
       elevation: WidgetStateProperty.all(0),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusSmall),
@@ -128,7 +128,7 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      tooltip: t.buttonBack,
+      tooltip: t.common.buttonBack,
       icon: Icon(
         Icons.arrow_back_ios,
         size: 20,
@@ -186,7 +186,7 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
         if (items.isEmpty) {
           return Center(
             child: Text(
-              t.searchNoFound,
+              t.common.searchNoFound,
               style: ThemeManager.instance
                   .getTextStyle(FontSizeType.medium, context: context)
                   .copyWith(

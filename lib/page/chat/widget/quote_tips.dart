@@ -71,7 +71,7 @@ class QuoteTipsWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "[${t.file}] (${formatBytes(fileMsg.size!.truncate())})",
+                  "[${t.chat.file}] (${formatBytes(fileMsg.size!.truncate())})",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
@@ -107,7 +107,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${t.voiceMessage}]",
+            "[${t.chat.voiceMessage}]",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ],
@@ -129,7 +129,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            t.messageRevoked,
+            t.common.messageRevoked,
             style: TextStyle(
               color: Theme.of(context).colorScheme.tertiary,
               fontStyle: FontStyle.italic,
@@ -149,7 +149,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${t.quote}] $txt",
+              "[${t.main.quote}] $txt",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -158,7 +158,8 @@ class QuoteTipsWidget extends StatelessWidget {
         ],
       );
     } else if (msgType == MessageType.voice) {
-      double durationMS = (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
+      double durationMS =
+          (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
       body = Row(
         children: [
           Icon(
@@ -168,7 +169,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${t.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
+            "[${t.chat.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ],
@@ -184,7 +185,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${t.location}] ${message?.metadata?['title'] ?? ''}",
+              "[${t.groupSchedule.location}] ${message?.metadata?['title'] ?? ''}",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -202,12 +203,15 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${t.video}] ",
+            "[${t.chat.video}] ",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
           const SizedBox(width: 4),
           if (message?.metadata?['thumb']?['uri'] != null)
-            ImageView(uri: message?.metadata?['thumb']['uri'] as String, height: 40)
+            ImageView(
+              uri: message?.metadata?['thumb']['uri'] as String,
+              height: 40,
+            )
           else
             Container(
               width: 40,
@@ -237,7 +241,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${t.businessCard}] ${message?.metadata?['title'] ?? ''}",
+              "[${t.chat.businessCard}] ${message?.metadata?['title'] ?? ''}",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

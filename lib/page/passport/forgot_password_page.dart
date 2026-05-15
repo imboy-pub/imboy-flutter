@@ -74,7 +74,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                     const SizedBox(height: 40),
 
                     Text(
-                      t.recoverPassword,
+                      t.account.recoverPassword,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -92,8 +92,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                       unselectedLabelColor: _unselectedLabel,
                       indicatorColor: AppColors.primary,
                       tabs: [
-                        Tab(text: t.email),
-                        Tab(text: t.mobile),
+                        Tab(text: t.account.email),
+                        Tab(text: t.account.mobile),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -135,7 +135,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           ),
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
-            hintText: t.pleaseInputParam(param: t.email),
+            hintText: t.main.pleaseInputParam(param: t.account.email),
             prefixIcon: const Icon(Icons.email, color: AppColors.primary),
             filled: true,
             fillColor: _inputFill,
@@ -161,7 +161,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             onPressed: () async {
               final email = _emailController.text;
               if (email.isEmpty) {
-                notifier.snackBar(t.errorEmptyDirectory(param: t.email));
+                notifier.snackBar(
+                  t.common.errorEmptyDirectory(param: t.account.email),
+                );
                 return;
               }
               final error = await notifier.sendCode(
@@ -186,7 +188,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
               }
             },
             child: Text(
-              t.nextStep,
+              t.common.nextStep,
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
@@ -217,7 +219,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                 '',
               );
             },
-            hintText: t.pleaseInputParam(param: t.mobile),
+            hintText: t.main.pleaseInputParam(param: t.account.mobile),
           ),
         ),
         const SizedBox(height: 20),
@@ -233,7 +235,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             ),
             onPressed: () async {
               if (_fullMobile.isEmpty) {
-                notifier.snackBar(t.errorEmptyDirectory(param: t.mobile));
+                notifier.snackBar(
+                  t.common.errorEmptyDirectory(param: t.account.mobile),
+                );
                 return;
               }
               final error = await notifier.sendCode(
@@ -258,7 +262,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
               }
             },
             child: Text(
-              t.nextStep,
+              t.common.nextStep,
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),

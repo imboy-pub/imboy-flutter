@@ -157,7 +157,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
         ],
       ),
@@ -216,12 +216,12 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -318,7 +318,10 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           children: [
             Text(_error!),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: _loadAdmins, child: Text(t.buttonRetry)),
+            ElevatedButton(
+              onPressed: _loadAdmins,
+              child: Text(t.common.buttonRetry),
+            ),
           ],
         ),
       );
@@ -502,7 +505,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
         ],
       ),
@@ -579,7 +582,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                     child: Text(
                       _candidates.isEmpty
                           ? t.channel.noContactsToAdd
-                          : t.noContacts,
+                          : t.common.noContacts,
                       style: TextStyle(color: Colors.grey[500]),
                     ),
                   )

@@ -93,8 +93,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     unselectedLabelColor: _unselectedLabel,
                     indicatorColor: AppColors.primary,
                     tabs: [
-                      Tab(text: t.email),
-                      Tab(text: t.mobile),
+                      Tab(text: t.account.email),
+                      Tab(text: t.account.mobile),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -119,7 +119,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        t.siginQ,
+                        t.main.siginQ,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -132,7 +132,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
                       InkWell(
                         onTap: () => context.go(AppRoutes.signIn),
                         child: Text(
-                          t.login,
+                          t.account.login,
                           style: const TextStyle(
                             color: AppColors.primary,
                             fontSize: 13,
@@ -169,7 +169,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
           keyboardType: TextInputType.name,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
-            hintText: t.nicknameHint,
+            hintText: t.account.nicknameHint,
             prefixIcon: const Icon(
               Icons.person_outline,
               color: AppColors.primary,
@@ -237,7 +237,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
         ),
         const SizedBox(height: 20),
         DebounceButton(
-          text: t.nextStep,
+          text: t.common.nextStep,
           width: double.infinity,
           height: 50,
           style: ElevatedButton.styleFrom(
@@ -252,12 +252,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
             final email = _emailController.text.trim();
             final pwd = _passwordController.text;
             if (nickname.isEmpty) {
-              notifier.snackBar(t.nicknameEmptyError);
+              notifier.snackBar(t.common.nicknameEmptyError);
               return;
             }
             if (email.isEmpty || pwd.isEmpty) {
               notifier.snackBar(
-                t.errorEmptyDirectory(param: "${t.email}/${t.password}"),
+                t.common.errorEmptyDirectory(
+                  param: "${t.account.email}/${t.account.password}",
+                ),
               );
               return;
             }
@@ -294,7 +296,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
           keyboardType: TextInputType.name,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
-            hintText: t.nicknameHint,
+            hintText: t.account.nicknameHint,
             prefixIcon: const Icon(
               Icons.person_outline,
               color: AppColors.primary,
@@ -361,7 +363,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
         ),
         const SizedBox(height: 20),
         DebounceButton(
-          text: t.nextStep,
+          text: t.common.nextStep,
           width: double.infinity,
           height: 50,
           style: ElevatedButton.styleFrom(
@@ -374,12 +376,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
           onPressed: () async {
             final nickname = _nicknameController.text.trim();
             if (nickname.isEmpty) {
-              notifier.snackBar(t.nicknameEmptyError);
+              notifier.snackBar(t.common.nicknameEmptyError);
               return;
             }
             if (_fullMobile.isEmpty || _passwordController.text.isEmpty) {
               notifier.snackBar(
-                t.errorEmptyDirectory(param: "${t.mobile}/${t.password}"),
+                t.common.errorEmptyDirectory(
+                  param: "${t.account.mobile}/${t.account.password}",
+                ),
               );
               return;
             }

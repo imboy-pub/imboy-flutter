@@ -49,12 +49,12 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.rechargeTitle),
+        title: Text(t.account.rechargeTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.rechargeAmountHint),
+            Text(t.account.rechargeAmountHint),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
@@ -66,7 +66,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               ],
               decoration: InputDecoration(
                 prefixText: '¥ ',
-                hintText: t.rechargeAmountExample,
+                hintText: t.account.rechargeAmountExample,
                 border: const OutlineInputBorder(),
               ),
               autofocus: true,
@@ -76,14 +76,14 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
               final input = controller.text.trim();
               final yuan = double.tryParse(input);
               if (yuan == null || yuan < 1 || yuan > 10000) {
-                EasyLoading.showError(t.rechargeAmountError);
+                EasyLoading.showError(t.common.rechargeAmountError);
                 return;
               }
               final amountFen = (yuan * 100).round();
@@ -92,10 +92,10 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   .read(walletProvider.notifier)
                   .topup(amountFen);
               if (ok) {
-                EasyLoading.showSuccess(t.rechargeSuccess);
+                EasyLoading.showSuccess(t.common.rechargeSuccess);
               }
             },
-            child: Text(t.rechargeConfirm),
+            child: Text(t.common.rechargeConfirm),
           ),
         ],
       ),
@@ -118,20 +118,20 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           ? const Color(0xFF111111)
           : AppColors.lightSurfaceContainer,
       appBar: AppBar(
-        title: Text(t.wallet),
+        title: Text(t.account.wallet),
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            tooltip: t.rechargeTitle,
+            tooltip: t.account.rechargeTitle,
             onPressed: () => _showTopupDialog(context),
           ),
           IconButton(
             icon: const Icon(Icons.more_horiz),
             onPressed: () {
-              EasyLoading.showToast(t.comingSoon);
+              EasyLoading.showToast(t.common.comingSoon);
             },
           ),
         ],
@@ -179,7 +179,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                           ),
                     const SizedBox(height: 8),
                     Text(
-                      t.totalAssets,
+                      t.main.totalAssets,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.8),
@@ -199,30 +199,30 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                     _buildTopActionItem(
                       context,
                       icon: Icons.qr_code_scanner,
-                      label: t.receivePayment,
+                      label: t.chat.receivePayment,
                       color: primaryColor,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildTopActionItem(
                       context,
                       icon: Icons.account_balance,
-                      label: t.smallChange,
+                      label: t.common.smallChange,
                       color: Colors.orange,
                       // 零钱和余额共用同一数据
                       subtitle: walletState.isLoading ? '...' : balanceText,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildTopActionItem(
                       context,
                       icon: Icons.credit_card,
-                      label: t.bankCard,
+                      label: t.chat.bankCard,
                       color: Colors.blue,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                   ],
@@ -240,7 +240,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 child: Row(
                   children: [
                     Text(
-                      t.tencentService,
+                      t.main.tencentService,
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.white54 : Colors.grey[600],
@@ -265,82 +265,82 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                     _buildGridServiceItem(
                       context,
                       icon: Icons.credit_score,
-                      label: t.creditCardRepayment,
+                      label: t.common.creditCardRepayment,
                       color: Colors.green,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.mobile_friendly,
-                      label: t.mobileRecharge,
+                      label: t.account.mobileRecharge,
                       color: Colors.green,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.savings,
-                      label: t.financialManagement,
+                      label: t.group.financialManagement,
                       color: Colors.orange,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.bolt,
-                      label: t.lifePayment,
+                      label: t.main.lifePayment,
                       color: Colors.green,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.local_hospital,
-                      label: t.medicalHealth,
+                      label: t.main.medicalHealth,
                       color: Colors.blue,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.directions_car,
-                      label: t.traffic,
+                      label: t.main.traffic,
                       color: Colors.green,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.shopping_bag,
-                      label: t.jdShopping,
+                      label: t.chat.jdShopping,
                       color: Colors.red,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.local_mall,
-                      label: t.meituanDelivery,
+                      label: t.main.meituanDelivery,
                       color: Colors.orange,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                     _buildGridServiceItem(
                       context,
                       icon: Icons.movie,
-                      label: t.entertainment,
+                      label: t.main.entertainment,
                       color: Colors.red,
                       onTap: () {
-                        EasyLoading.showToast(t.comingSoon);
+                        EasyLoading.showToast(t.common.comingSoon);
                       },
                     ),
                   ],
@@ -380,7 +380,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                t.transactionHistory2,
+                t.common.transactionHistory2,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.white54 : Colors.grey[600],
@@ -396,7 +396,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Text(
-                      t.noTransactionHistory,
+                      t.common.noTransactionHistory,
                       style: TextStyle(
                         color: isDark ? Colors.white38 : Colors.grey,
                         fontSize: 14,
@@ -414,7 +414,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          t.allLoaded,
+                          t.common.allLoaded,
                           style: TextStyle(
                             color: isDark ? Colors.white38 : Colors.grey,
                             fontSize: 12,
@@ -433,8 +433,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     final amountText = tx.isIncome ? '+¥$amountYuan' : '-¥$amountYuan';
     final amountColor = tx.isIncome ? Colors.green : Colors.red;
     final typeLabel = tx.isIncome
-        ? t.transactionTypeIncome
-        : t.transactionTypeExpense;
+        ? t.common.transactionTypeIncome
+        : t.common.transactionTypeExpense;
 
     return Container(
       decoration: BoxDecoration(

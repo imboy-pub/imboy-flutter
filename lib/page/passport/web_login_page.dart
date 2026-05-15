@@ -169,7 +169,7 @@ class QRLogin extends _$QRLogin {
         case QrCreateFailure():
           state = QRLoginState(
             status: QRLoginStatus.failed,
-            errorMessage: t.webQRGenerateFailed,
+            errorMessage: t.common.webQRGenerateFailed,
           );
       }
     } catch (e) {
@@ -228,7 +228,7 @@ class QRLogin extends _$QRLogin {
             // confirmed 但 token 为空（后端契约保证不会发生，但客户端防御）。
             state = state.copyWith(
               status: QRLoginStatus.failed,
-              errorMessage: t.webQRTokenInvalid,
+              errorMessage: t.common.webQRTokenInvalid,
             );
             timer.cancel();
         }
@@ -260,7 +260,7 @@ class QRLogin extends _$QRLogin {
       case RejectInvalidToken():
         state = state.copyWith(
           status: QRLoginStatus.failed,
-          errorMessage: t.webQRTokenInvalid,
+          errorMessage: t.common.webQRTokenInvalid,
         );
         return;
       case ProceedWithToken(:final token):
@@ -327,7 +327,7 @@ class QRLogin extends _$QRLogin {
           case ProtocolViolation():
             state = state.copyWith(
               status: QRLoginStatus.failed,
-              errorMessage: t.webQRTokenInvalid,
+              errorMessage: t.common.webQRTokenInvalid,
             );
             _stopSseSession();
         }
@@ -472,26 +472,26 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             // 功能说明
             _buildFeatureItem(
               Icons.devices,
-              t.webFeatureMultiDevice,
-              t.webFeatureMultiDeviceDesc,
+              t.chat.webFeatureMultiDevice,
+              t.chat.webFeatureMultiDeviceDesc,
             ),
             const SizedBox(height: 32),
             _buildFeatureItem(
               Icons.lock_outline,
-              t.webFeatureE2EE,
-              t.webFeatureE2EEDesc,
+              t.chat.webFeatureE2EE,
+              t.chat.webFeatureE2EEDesc,
             ),
             const SizedBox(height: 32),
             _buildFeatureItem(
               Icons.notifications_outlined,
-              t.webFeatureNotification,
-              t.webFeatureNotificationDesc,
+              t.common.webFeatureNotification,
+              t.common.webFeatureNotificationDesc,
             ),
             const SizedBox(height: 32),
             _buildFeatureItem(
               Icons.attach_file,
-              t.webFeatureFileTransfer,
-              t.webFeatureFileTransferDesc,
+              t.chat.webFeatureFileTransfer,
+              t.chat.webFeatureFileTransferDesc,
             ),
           ],
         ),
@@ -573,7 +573,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   setState(() => _showPasswordLogin = true);
                 },
                 child: Text(
-                  t.webSwitchToPassword,
+                  t.account.webSwitchToPassword,
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 14,
@@ -591,7 +591,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   ref.read(qRLoginProvider.notifier).generateQRCode();
                 },
                 child: Text(
-                  t.webSwitchToQR,
+                  t.main.webSwitchToQR,
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 14,
@@ -610,7 +610,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     return Column(
       children: [
         Text(
-          t.webQRLoginTitle,
+          t.account.webQRLoginTitle,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -619,7 +619,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          t.webQRLoginHint,
+          t.account.webQRLoginHint,
           style: const TextStyle(
             fontSize: 14,
             color: AppColors.darkTextSecondary,
@@ -647,7 +647,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           ElevatedButton.icon(
             onPressed: () => ref.read(qRLoginProvider.notifier).refresh(),
             icon: const Icon(Icons.refresh),
-            label: Text(t.webQRRefresh),
+            label: Text(t.main.webQRRefresh),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -660,7 +660,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         if (qrState.status == QRLoginStatus.waiting ||
             qrState.status == QRLoginStatus.scanned)
           Text(
-            t.webQRExpiresIn(seconds: qrState.remainingSeconds),
+            t.common.webQRExpiresIn(seconds: qrState.remainingSeconds),
             style: const TextStyle(
               fontSize: 12,
               color: AppColors.darkTextDisabled,
@@ -702,7 +702,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  t.webQRScanned,
+                  t.discovery.webQRScanned,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -710,7 +710,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   ),
                 ),
                 Text(
-                  t.webQRConfirmOnPhone,
+                  t.common.webQRConfirmOnPhone,
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ],
@@ -726,7 +726,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               const CircularProgressIndicator(color: AppColors.primary),
               const SizedBox(height: 16),
               Text(
-                t.webQRLoggingIn,
+                t.main.webQRLoggingIn,
                 style: const TextStyle(fontSize: 16, color: AppColors.primary),
               ),
             ],
@@ -743,7 +743,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 Icon(Icons.qr_code_scanner, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 8),
                 Text(
-                  t.webQRExpired,
+                  t.main.webQRExpired,
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
               ],
@@ -761,7 +761,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 8),
                 Text(
-                  qrState.errorMessage ?? t.webQRLoginFailed,
+                  qrState.errorMessage ?? t.common.webQRLoginFailed,
                   style: TextStyle(fontSize: 14, color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
@@ -782,7 +782,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                t.webQRLoginSuccess,
+                t.common.webQRLoginSuccess,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -801,22 +801,22 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
 
     switch (qrState.status) {
       case QRLoginStatus.waiting:
-        text = t.webQRStatusWaiting;
+        text = t.chat.webQRStatusWaiting;
         icon = Icons.qr_code_scanner;
       case QRLoginStatus.scanned:
-        text = t.webQRStatusScanned;
+        text = t.chat.webQRStatusScanned;
         icon = Icons.smartphone;
       case QRLoginStatus.confirming:
-        text = t.webQRStatusVerifying;
+        text = t.chat.webQRStatusVerifying;
         icon = Icons.hourglass_empty;
       case QRLoginStatus.expired:
-        text = t.webQRStatusExpired;
+        text = t.chat.webQRStatusExpired;
         icon = Icons.refresh;
       case QRLoginStatus.failed:
-        text = qrState.errorMessage ?? t.webQRStatusFailed;
+        text = qrState.errorMessage ?? t.common.webQRStatusFailed;
         icon = Icons.error_outline;
       case QRLoginStatus.success:
-        text = t.webQRStatusSuccess;
+        text = t.common.webQRStatusSuccess;
         icon = Icons.check_circle;
     }
 
@@ -845,7 +845,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     return Column(
       children: [
         Text(
-          t.webPasswordLoginTitle,
+          t.account.webPasswordLoginTitle,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -858,7 +858,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           controller: _accountController,
           style: TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: t.webAccountHint,
+            hintText: t.account.webAccountHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
             prefixIcon: Icon(Icons.person, color: AppColors.darkTextDisabled),
             filled: true,
@@ -876,7 +876,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           obscureText: passportState.loginPwdObscure,
           style: TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: t.webPasswordHint,
+            hintText: t.account.webPasswordHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
             prefixIcon: const Icon(
               Icons.lock,
@@ -905,7 +905,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           width: double.infinity,
           height: 48,
           child: DebounceButton(
-            text: t.login,
+            text: t.account.login,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
@@ -922,7 +922,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               final pwd = _passwordController.text;
 
               if (account.isEmpty || pwd.isEmpty) {
-                passportNotifier.setError(t.webLoginEmptyError);
+                passportNotifier.setError(t.common.webLoginEmptyError);
                 return;
               }
 
@@ -950,7 +950,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         TextButton(
           onPressed: () => context.push(AppRoutes.forgotPassword),
           child: Text(
-            t.forgotPassword,
+            t.account.forgotPassword,
             style: const TextStyle(color: AppColors.primary, fontSize: 14),
           ),
         ),

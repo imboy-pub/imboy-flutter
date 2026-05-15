@@ -120,7 +120,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           ? colorScheme.surface
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
-        title: t.selectContacts,
+        title: t.common.selectContacts,
         leadingWidth: 72,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -129,7 +129,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               Navigator.of(context).pop();
             },
             child: Text(
-              t.buttonCancel,
+              t.common.buttonCancel,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -143,7 +143,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: RoundedElevatedButton(
-              text: '${t.buttonAccomplish}${state.selectsTips}',
+              text: '${t.common.buttonAccomplish}${state.selectsTips}',
               highlighted: state.selects.isNotEmpty && !_isCreatingGroup,
               onPressed: _isCreatingGroup
                   ? null
@@ -152,7 +152,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                       setState(() => _isCreatingGroup = true);
 
                       try {
-                        EasyLoading.show(status: t.loading);
+                        EasyLoading.show(status: t.common.loading);
                         int memberCount = state.selects.length;
                         iPrint("state.selects $memberCount");
                         GroupModel? m = await ref
@@ -176,11 +176,11 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                           }
                         } else {
                           EasyLoading.dismiss();
-                          EasyLoading.showError(t.tipFailed);
+                          EasyLoading.showError(t.common.tipFailed);
                         }
                       } catch (e) {
                         EasyLoading.dismiss();
-                        EasyLoading.showError(t.tipFailed);
+                        EasyLoading.showError(t.common.tipFailed);
                         iPrint("groupAdd error: ${e.runtimeType}");
                       } finally {
                         // 恢复创建状态
@@ -221,7 +221,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     title: Text(
-                      t.selectAGroup,
+                      t.contact.selectAGroup,
                       style: TextStyle(
                         fontSize: 16,
                         color: colorScheme.onSurface,
@@ -247,7 +247,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     title: Text(
-                      t.createGroupF2f,
+                      t.chat.createGroupF2f,
                       style: TextStyle(
                         fontSize: 16,
                         color: colorScheme.onSurface,
@@ -275,7 +275,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                 child: Builder(
                   builder: (context) {
                     return state.items.isEmpty
-                        ? NoDataView(text: t.noData)
+                        ? NoDataView(text: t.common.noData)
                         : AzListView(
                             data: state.items,
                             itemCount: state.items.length,

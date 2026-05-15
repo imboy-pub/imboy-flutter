@@ -58,7 +58,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.feedbackDetails,
+        title: t.common.feedbackDetails,
       ),
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
@@ -103,9 +103,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           children: [
                             Text(
                               widget.model.type == 'bug_report'
-                                  ? t.bugReport
+                                  ? t.main.bugReport
                                   : widget.model.type == 'feature_request'
-                                  ? t.featureRequest
+                                  ? t.chat.featureRequest
                                   : widget.model.type,
                               style: TextStyle(
                                 fontSize: 18,
@@ -115,7 +115,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${t.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
+                              '${t.common.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: colorScheme.onSurface.withAlpha(179),
@@ -188,7 +188,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    t.viewAttachments,
+                                    t.chat.viewAttachments,
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
@@ -226,7 +226,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         Icon(Icons.star, color: Colors.amber, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          t.rating,
+                          t.chat.rating,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -287,7 +287,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        t.feedbackContent,
+                        t.common.feedbackContent,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -335,7 +335,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       Icon(Icons.reply, color: colorScheme.secondary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        t.officialReply,
+                        t.common.officialReply,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -354,7 +354,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                     child: state.pageReplyList.isEmpty
                         ? SizedBox(
                             height: 120,
-                            child: NoDataView(text: t.noReply),
+                            child: NoDataView(text: t.common.noReply),
                           )
                         : ListView.separated(
                             shrinkWrap: true,
@@ -410,7 +410,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                '${t.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
+                '${t.chat.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -466,11 +466,11 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
   /// 获取状态颜色
   Color _getStatusColor(BuildContext context, String status) {
     final colorScheme = Theme.of(context).colorScheme;
-    if (status == t.processed) {
+    if (status == t.main.processed) {
       return Colors.green;
-    } else if (status == t.loading) {
+    } else if (status == t.common.loading) {
       return Colors.orange;
-    } else if (status == t.submitted) {
+    } else if (status == t.common.submitted) {
       return colorScheme.primary;
     }
     return colorScheme.onSurface;

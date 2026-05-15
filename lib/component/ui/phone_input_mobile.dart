@@ -36,7 +36,7 @@ class MobilePhoneInputWidget extends StatelessWidget {
       inputDecoration:
           decoration ??
           InputDecoration(
-            hintText: hintText ?? t.phoneInputHint,
+            hintText: hintText ?? t.common.phoneInputHint,
             border: OutlineInputBorder(
               borderRadius: AppRadius.borderRadiusSmall,
               borderSide: BorderSide(color: Colors.grey.shade300),

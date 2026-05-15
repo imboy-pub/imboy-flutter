@@ -30,7 +30,10 @@ class AddFriendPage extends ConsumerWidget {
       backgroundColor: isDark
           ? colorScheme.surface
           : AppColors.lightPageBackground,
-      appBar: GlassAppBar(title: t.addFriend, automaticallyImplyLeading: true),
+      appBar: GlassAppBar(
+        title: t.common.addFriend,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         child: Column(
@@ -59,7 +62,7 @@ class AddFriendPage extends ConsumerWidget {
                               onTap: () => controller.openView(),
                               onChanged: (_) => controller.openView(),
                               leading: const Icon(Icons.search),
-                              hintText: t.hintLoginAccount,
+                              hintText: t.account.hintLoginAccount,
                               elevation: const WidgetStatePropertyAll<double>(
                                 0,
                               ),
@@ -89,7 +92,7 @@ class AddFriendPage extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "${t.myAccount}：",
+                          "${t.account.myAccount}：",
                           style: TextStyle(
                             color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
@@ -142,8 +145,8 @@ class AddFriendPage extends ConsumerWidget {
                     context,
                     icon: Icons.explore_rounded,
                     iconColor: Colors.lightBlue,
-                    title: t.peopleNearby,
-                    subtitle: t.nearbyPeopleTips,
+                    title: t.discovery.peopleNearby,
+                    subtitle: t.common.nearbyPeopleTips,
                     onTap: () {
                       Navigator.of(context).push(
                         CupertinoPageRoute<dynamic>(
@@ -157,8 +160,8 @@ class AddFriendPage extends ConsumerWidget {
                     context,
                     icon: Icons.group,
                     iconColor: Colors.purple,
-                    title: t.createGroupF2f,
-                    subtitle: t.enterSameGroup,
+                    title: t.chat.createGroupF2f,
+                    subtitle: t.group.enterSameGroup,
                     onTap: () {
                       Navigator.of(context).push(
                         CupertinoPageRoute<dynamic>(
@@ -172,8 +175,8 @@ class AddFriendPage extends ConsumerWidget {
                     context,
                     icon: Icons.qr_code_scanner_outlined,
                     iconColor: AppColors.iosBlue,
-                    title: t.scanQrCode,
-                    subtitle: t.scanQrCodeBusinessCard,
+                    title: t.account.scanQrCode,
+                    subtitle: t.chat.scanQrCodeBusinessCard,
                     onTap: () {
                       Navigator.of(context).push(
                         CupertinoPageRoute<dynamic>(
@@ -187,8 +190,8 @@ class AddFriendPage extends ConsumerWidget {
                     context,
                     icon: Icons.person,
                     iconColor: Colors.lightGreen,
-                    title: t.newlyRegisteredPeople,
-                    subtitle: t.allowedBeSearched,
+                    title: t.account.newlyRegisteredPeople,
+                    subtitle: t.common.allowedBeSearched,
                     onTap: () {
                       Navigator.of(context).push(
                         CupertinoPageRoute<dynamic>(
@@ -303,7 +306,10 @@ class AddFriendPage extends ConsumerWidget {
               ? Colors.black87
               : Colors.white,
           child: Center(
-            child: Text(t.userNotExist, style: const TextStyle(fontSize: 18)),
+            child: Text(
+              t.common.userNotExist,
+              style: const TextStyle(fontSize: 18),
+            ),
           ),
         ),
       ];
@@ -350,8 +356,8 @@ class AddFriendPage extends ConsumerWidget {
                   width: 80,
                   alignment: Alignment.centerRight,
                   child: ((model.isFriend ?? false) as bool)
-                      ? Text(t.added)
-                      : Text(t.buttonAdd),
+                      ? Text(t.common.added)
+                      : Text(t.common.buttonAdd),
                 ),
           onTap: () {
             if (isSelf) {

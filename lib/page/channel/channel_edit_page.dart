@@ -182,7 +182,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
     }
   }
 
@@ -225,7 +225,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     if (!success) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
     }
   }
 
@@ -238,17 +238,17 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: Text(context.t.takePhoto),
+              title: Text(context.t.main.takePhoto),
               onTap: () => _pickAvatar(ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: Text(context.t.selectFromAlbum),
+              title: Text(context.t.main.selectFromAlbum),
               onTap: () => _pickAvatar(ImageSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.close),
-              title: Text(context.t.buttonCancel),
+              title: Text(context.t.common.buttonCancel),
               onTap: () => Navigator.of(ctx).pop(),
             ),
           ],
@@ -267,7 +267,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     if (_tags.length >= _maxTags) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.channelMaxTagsCount)));
+      ).showSnackBar(SnackBar(content: Text(t.contact.channelMaxTagsCount)));
       return;
     }
     setState(() => _tags.add(tag));
@@ -302,7 +302,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(t.save),
+                : Text(t.common.save),
           ),
         ],
       ),
@@ -312,7 +312,10 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           padding: const EdgeInsets.all(16),
           children: [
             // 频道名称
-            Text(t.avatar, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              t.account.avatar,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Center(
               child: InkWell(

@@ -92,7 +92,9 @@ class ConversationModel {
   String get content {
     // iPrint("ConversationModel_content msgType $msgType;  ${payload.toString()}");
     // 处理系统提示信息
-    String sysPrompt = _parseSysPrompt((payload?['sys_prompt'] ?? '') as String);
+    String sysPrompt = _parseSysPrompt(
+      (payload?['sys_prompt'] ?? '') as String,
+    );
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
@@ -102,10 +104,10 @@ class ConversationModel {
       // 草稿显示：使用占位符格式，避免字符串拼接
       // 翻译键需要支持参数，例如：[{draft}]_color_red_{content}
       // 这里暂时保持原格式，因为涉及特殊的颜色标记语法
-      return "[${t.tipDraft}]_color_red_$draft";
+      return "[${t.common.tipDraft}]_color_red_$draft";
     }
 
-    String str = t.unknownMessage;
+    String str = t.common.unknownMessage;
 
     // 方案 D: 优先检查 lastMsgStatus 字段（撤回状态 30-39）
     if (lastMsgStatus != null) {
@@ -120,10 +122,10 @@ class ConversationModel {
           suffix = '...';
         }
         String displayName = '"$title$suffix"';
-        return t.messageWasWithdrawnWithTitle(param: displayName);
+        return t.chat.messageWasWithdrawnWithTitle(param: displayName);
       } else if (lastMsgStatus == IMBoyMessageStatus.myRevoked) {
         // 自己撤回 (status=31)
-        return t.youWithdrewAMessage;
+        return t.chat.youWithdrewAMessage;
       }
     }
     // 不在日志中输出 title/subtitle（含用户隐私数据）
@@ -134,22 +136,22 @@ class ConversationModel {
     } else if (msgType == MessageType.quote) {
       return subtitle;
     } else if (msgType == MessageType.image) {
-      str = t.image;
+      str = t.chat.image;
     } else if (msgType == MessageType.file) {
-      str = t.file;
+      str = t.chat.file;
     } else if (msgType == MessageType.voice) {
-      str = t.voiceMessage;
+      str = t.chat.voiceMessage;
     } else if (msgType == MessageType.video) {
-      str = t.video;
+      str = t.chat.video;
     } else if (msgType == MessageType.webrtcAudio) {
-      str = t.voiceCall;
+      str = t.common.voiceCall;
     } else if (msgType == MessageType.webrtcVideo) {
-      str = t.videoCall;
+      str = t.common.videoCall;
     } else if (msgType == MessageType.visitCard) {
-      str = t.personalCard;
+      str = t.common.personalCard;
       return "[$str]$subtitle";
     } else if (msgType == MessageType.location) {
-      str = t.location;
+      str = t.groupSchedule.location;
       return "[$str]$subtitle";
     } else if (msgType == MessageType.custom) {
       str = subtitle;
@@ -199,7 +201,9 @@ class ConversationModel {
       type: parseModelString(json[ConversationRepo.type]),
       msgType: parseModelString(msgTypeRaw),
       isShow: parseModelInt(json[ConversationRepo.isShow], defaultValue: 1),
-      payload: payload != null ? Map<String, dynamic>.from(payload as Map<dynamic, dynamic>) : null,
+      payload: payload != null
+          ? Map<String, dynamic>.from(payload as Map<dynamic, dynamic>)
+          : null,
     );
   }
 
@@ -282,9 +286,9 @@ class ConversationModel {
   /// 解析系统提示信息（静态方法，避免依赖 Get.find）
   static String _parseSysPrompt(String sysPrompt) {
     if (sysPrompt == 'in_denylist') {
-      return t.sendMsgRejected;
+      return t.chat.sendMsgRejected;
     } else if (sysPrompt == 'not_a_friend') {
-      return t.sendMsgNotFriendTips;
+      return t.common.sendMsgNotFriendTips;
     }
     return sysPrompt;
   }

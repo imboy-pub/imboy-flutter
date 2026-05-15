@@ -94,10 +94,20 @@ class MessageS2CService {
           await _handlePullOfflineMsg(data, payloadMap);
           break;
         case 'c2c_revoke':
-          await _handleC2CRevoke(data, payloadMap, from as String, to as String);
+          await _handleC2CRevoke(
+            data,
+            payloadMap,
+            from as String,
+            to as String,
+          );
           break;
         case 'c2c_del_everyone':
-          await _handleC2CDelEveryone(data, payloadMap, from as String, to as String);
+          await _handleC2CDelEveryone(
+            data,
+            payloadMap,
+            from as String,
+            to as String,
+          );
           break;
         case 'c2g_del_everyone':
           await _handleC2GDelEveryone(data, payloadMap);
@@ -592,12 +602,14 @@ class MessageS2CService {
           context: context,
           barrierDismissible: true,
           builder: (ctx) => AlertDialog(
-            title: Text(t.offlineNotification),
-            content: Text(t.forcedOfflineByDevice(device: byName as Object)),
+            title: Text(t.common.offlineNotification),
+            content: Text(
+              t.common.forcedOfflineByDevice(device: byName as Object),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(t.buttonOk),
+                child: Text(t.common.buttonOk),
               ),
             ],
           ),
@@ -614,7 +626,7 @@ class MessageS2CService {
       debugPrint('[MessageS2C] WS event fire failed: $e');
     }
 
-    EasyLoading.showSuccess(t.confirmRecoverSuccess);
+    EasyLoading.showSuccess(t.common.confirmRecoverSuccess);
     await UserRepoLocal.to.quitLogin();
 
     // 使用延迟确保 quitLogin 完全执行完毕
@@ -709,8 +721,10 @@ class MessageS2CService {
     Map<String, dynamic> payload,
   ) => _handleUserStatusChange(data, payload, 'offline');
 
-  static Future<void> _handleUserHide(Map<String, dynamic> data, Map<String, dynamic> payload) =>
-      _handleUserStatusChange(data, payload, 'hide');
+  static Future<void> _handleUserHide(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) => _handleUserStatusChange(data, payload, 'hide');
 
   /// 处理 E2EE 设备密钥变更通知
   ///
@@ -766,11 +780,14 @@ class MessageS2CService {
     final minutes = event.remainingMinutes;
     if (minutes > 0) {
       EasyLoading.showInfo(
-        t.youAreMutedWithTime(minutes: '$minutes'),
+        t.chat.youAreMutedWithTime(minutes: '$minutes'),
         duration: const Duration(seconds: 3),
       );
     } else {
-      EasyLoading.showInfo(t.youAreMuted, duration: const Duration(seconds: 3));
+      EasyLoading.showInfo(
+        t.chat.youAreMuted,
+        duration: const Duration(seconds: 3),
+      );
     }
   }
 

@@ -61,11 +61,11 @@ class AccountSecurityPage extends ConsumerWidget {
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.accountSecurity,
+        title: t.account.accountSecurity,
       ),
       body: ListView(
         children: [
-          _buildSectionHeader(context, t.sectionLoginCredentials),
+          _buildSectionHeader(context, t.common.sectionLoginCredentials),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
@@ -76,17 +76,19 @@ class AccountSecurityPage extends ConsumerWidget {
               children: [
                 _buildTile(
                   context,
-                  title: t.bindEmail,
+                  title: t.account.bindEmail,
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute<dynamic>(builder: (_) => const BindEmailPage()),
+                      CupertinoPageRoute<dynamic>(
+                        builder: (_) => const BindEmailPage(),
+                      ),
                     );
                   },
                 ),
                 _buildDivider(),
                 _buildTile(
                   context,
-                  title: t.bindMobile,
+                  title: t.account.bindMobile,
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute<dynamic>(

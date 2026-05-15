@@ -100,8 +100,10 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                         Navigator.push(
                           context,
                           CupertinoPageRoute<dynamic>(
-                            builder: (context) =>
-                                PeopleInfoPage(id: uid as String, scene: 'visitCard'),
+                            builder: (context) => PeopleInfoPage(
+                              id: uid as String,
+                              scene: 'visitCard',
+                            ),
                           ),
                         );
                       },
@@ -110,14 +112,17 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 4, right: 4),
-                            child: Avatar(imgUri: msg.metadata?['avatar'] as String),
+                            child: Avatar(
+                              imgUri: msg.metadata?['avatar'] as String,
+                            ),
                           ),
                           Expanded(
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 (msg.metadata?['title'] ??
-                                    (msg.metadata?['account'] ?? '')) as String,
+                                        (msg.metadata?['account'] ?? ''))
+                                    as String,
                                 textAlign: TextAlign.left,
                                 // style: TextStyle(
                                 //   color:
@@ -138,7 +143,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                   Expanded(
                     flex: 1,
                     child: Text(
-                      t.personalCard,
+                      t.common.personalCard,
                       // style: TextStyle(
                       //   fontSize: 12,
                       //   color: userIsAuthor ? Colors.black87 : textColor,

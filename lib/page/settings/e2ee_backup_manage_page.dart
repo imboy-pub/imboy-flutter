@@ -34,7 +34,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeBackupManage),
+        title: Text(t.common.e2eeBackupManage),
         actions: [
           IconButton(
             onPressed: _loadBackupHistory,
@@ -57,12 +57,12 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             Icon(Icons.backup_outlined, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: 16),
             Text(
-              t.e2eeBackupNoRecords,
+              t.common.e2eeBackupNoRecords,
               style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeBackupNoRecordsHint,
+              t.common.e2eeBackupNoRecordsHint,
               style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
             ),
           ],
@@ -81,8 +81,8 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
   }
 
   Widget _buildBackupCard(Map<String, dynamic> backup) {
-    final deviceId = backup['device_id'] ?? t.unknown;
-    final createdAt = backup['created_at'] ?? t.unknown;
+    final deviceId = backup['device_id'] ?? t.common.unknown;
+    final createdAt = backup['created_at'] ?? t.common.unknown;
     final backupVersion = backup['backup_version'] ?? 0;
 
     return Card(
@@ -98,8 +98,10 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             ),
           ),
         ),
-        title: Text(t.e2eeBackupDeviceLabel(id: deviceId.toString())),
-        subtitle: Text(t.e2eeBackupCreatedAtLabel(time: createdAt.toString())),
+        title: Text(t.common.e2eeBackupDeviceLabel(id: deviceId.toString())),
+        subtitle: Text(
+          t.common.e2eeBackupCreatedAtLabel(time: createdAt.toString()),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
           onPressed: () => _showDeleteDialog(backup),
@@ -133,25 +135,31 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.e2eeBackupDetailTitle),
+        title: Text(t.common.e2eeBackupDetailTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDetailRow(t.e2eeBackupDeviceIdLabel, backup['device_id']),
               _buildDetailRow(
-                t.e2eeBackupVersionNum,
+                t.common.e2eeBackupDeviceIdLabel,
+                backup['device_id'],
+              ),
+              _buildDetailRow(
+                t.common.e2eeBackupVersionNum,
                 '#${backup['backup_version']}',
               ),
-              _buildDetailRow(t.e2eeBackupCreatedAtRow, backup['created_at']),
               _buildDetailRow(
-                t.e2eeBackupFileSizeRow,
+                t.common.e2eeBackupCreatedAtRow,
+                backup['created_at'],
+              ),
+              _buildDetailRow(
+                t.common.e2eeBackupFileSizeRow,
                 '${backup['file_size']} bytes',
               ),
               _buildDetailRow(
-                t.e2eeBackupNoteRow,
-                backup['user_notes'] ?? t.unknown,
+                t.common.e2eeBackupNoteRow,
+                backup['user_notes'] ?? t.common.unknown,
               ),
             ],
           ),
@@ -159,7 +167,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonClose),
+            child: Text(t.common.buttonClose),
           ),
         ],
       ),
@@ -170,12 +178,12 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.e2eeBackupDeleteTitle),
-        content: Text(t.e2eeBackupDeleteConfirm),
+        title: Text(t.common.e2eeBackupDeleteTitle),
+        content: Text(t.common.e2eeBackupDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () {
@@ -183,7 +191,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
               _deleteBackup(backup['id'] as int);
             },
             child: Text(
-              t.buttonDelete,
+              t.common.buttonDelete,
               style: const TextStyle(color: Colors.red),
             ),
           ),
@@ -222,14 +230,14 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t.e2eeBackupDeleteSuccess),
+          content: Text(t.common.e2eeBackupDeleteSuccess),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t.e2eeDeleteFailed),
+          content: Text(t.common.e2eeDeleteFailed),
           backgroundColor: Colors.red,
         ),
       );

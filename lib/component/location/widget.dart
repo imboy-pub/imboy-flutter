@@ -228,7 +228,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                           ),
                         ),
                         child: Text(
-                          t.buttonSend,
+                          t.common.buttonSend,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
@@ -342,7 +342,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                         ),
                                         border: InputBorder.none,
                                         // 搜索地点
-                                        hintText: t.searchLocation,
+                                        hintText: t.common.searchLocation,
                                       ),
                                     ),
                                   ),
@@ -366,7 +366,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.surface,
-                                    child: Center(child: Text(t.buttonCancel)),
+                                    child: Center(
+                                      child: Text(t.common.buttonCancel),
+                                    ),
                                   ),
                                 ),
                               ),

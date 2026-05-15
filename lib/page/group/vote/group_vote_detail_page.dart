@@ -114,7 +114,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
         content: Text(
           success
               ? context.t.groupVote.voteSuccess
-              : context.t.operationFailedAgainLater,
+              : context.t.common.operationFailedAgainLater,
         ),
       ),
     );
@@ -293,7 +293,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                     : Text(
                         _hasVoted
                             ? context.t.groupVote.updateVote
-                            : context.t.confirm,
+                            : context.t.common.confirm,
                       ),
               ),
             ),

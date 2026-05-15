@@ -606,7 +606,7 @@ class MessageService with EventSubscriptionManager {
       final tempConv = ConversationModel(
         peerId: parseModelInt(peerId),
         avatar: '', // 稍后异步更新
-        title: chatType == 'C2G' ? t.groupChat : t.user, // 稍后异步更新
+        title: chatType == 'C2G' ? t.chat.groupChat : t.main.user, // 稍后异步更新
         subtitle: subtitle,
         type: chatType,
         msgType: messageType,

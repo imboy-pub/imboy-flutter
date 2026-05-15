@@ -42,7 +42,11 @@ class CustomMessageBuilder extends StatelessWidget {
   final String type; // C2C C2G
   final CustomMessage message;
   final MessageTypeRegistry? registry;
-  final void Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+  final void Function(
+    String audioPath,
+    CustomMessage msg,
+    Duration totalDuration,
+  )?
   onPlayPause;
   // 播放状态参数（用于语音消息）
   final bool isPlaying;
@@ -187,7 +191,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
     case 'quote':
       final txt = msg.metadata?['quote_text'] ?? '';
       content = Text(
-        "[${t.quote}] $txt",
+        "[${t.main.quote}] $txt",
         style: textStyle,
         maxLines: 4,
         overflow: TextOverflow.ellipsis,
@@ -215,7 +219,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
                 Icon(Icons.insert_drive_file, size: 16, color: txtColor),
                 const SizedBox(width: 8),
                 Text(
-                  "[${t.file}] $sizeStr",
+                  "[${t.chat.file}] $sizeStr",
                   style: TextStyle(color: txtColor, fontSize: 12.0),
                 ),
               ],
@@ -275,15 +279,15 @@ void confirmOpenFile(BuildContext context, String uri) {
     builder: (context) => AlertDialog(
       content: SizedBox(
         height: 40,
-        child: Center(child: Text(t.sureOpenTheFile)),
+        child: Center(child: Text(t.chat.sureOpenTheFile)),
       ),
       actions: [
         TextButton(
-          child: Text(t.buttonCancel),
+          child: Text(t.common.buttonCancel),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(t.buttonConfirm),
+          child: Text(t.common.buttonConfirm),
           onPressed: () async {
             Navigator.of(context).pop();
             final tmpF = await IMBoyCacheManager().getSingleFile(

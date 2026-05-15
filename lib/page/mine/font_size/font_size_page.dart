@@ -123,7 +123,7 @@ class FontSizePage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
-        title: t.fontSizeSetting,
+        title: t.common.fontSizeSetting,
         automaticallyImplyLeading: true,
       ),
       body: Column(
@@ -136,7 +136,7 @@ class FontSizePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.previewEffect,
+                    t.main.previewEffect,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -155,14 +155,14 @@ class FontSizePage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.thisIsTitleText,
+                          t.main.thisIsTitleText,
                           style: notifier
                               .getPreviewTextStyle(context, FontSizeType.large)
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          t.fontPreviewText,
+                          t.common.fontPreviewText,
                           style: notifier.getPreviewTextStyle(
                             context,
                             FontSizeType.normal,
@@ -170,7 +170,7 @@ class FontSizePage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          t.thisIsAuxiliaryText,
+                          t.main.thisIsAuxiliaryText,
                           style: notifier.getPreviewTextStyle(
                             context,
                             FontSizeType.small,
@@ -188,8 +188,8 @@ class FontSizePage extends ConsumerWidget {
                     children: [
                       Text(
                         notifier.isPreviewAccessible
-                            ? t.goodReadability
-                            : t.fontTooSmallMayAffect,
+                            ? t.chat.goodReadability
+                            : t.common.fontTooSmallMayAffect,
                         style: TextStyle(
                           fontSize: 12,
                           color: notifier.isPreviewAccessible
@@ -224,7 +224,7 @@ class FontSizePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t.dragSliderAdjustFontSize,
+                  t.common.dragSliderAdjustFontSize,
                   style: TextStyle(
                     fontSize: 12,
                     color: cs.onSurface.withValues(alpha: 0.7),
@@ -271,11 +271,15 @@ class FontSizePage extends ConsumerWidget {
                             .read(fontSizeProvider.notifier)
                             .applyFontSize(value);
                         if (context.mounted) {
-                          EasyLoading.showSuccess(t.fontSizeSettingUpdated);
+                          EasyLoading.showSuccess(
+                            t.common.fontSizeSettingUpdated,
+                          );
                         }
                       } on Exception {
                         if (context.mounted) {
-                          EasyLoading.showError(t.settingFailedPleaseTryAgain);
+                          EasyLoading.showError(
+                            t.common.settingFailedPleaseTryAgain,
+                          );
                         }
                       }
                     },
@@ -287,7 +291,7 @@ class FontSizePage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        t.smaller,
+                        t.common.smaller,
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurface.withValues(alpha: 0.6),
@@ -295,7 +299,7 @@ class FontSizePage extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        t.larger,
+                        t.main.larger,
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurface.withValues(alpha: 0.6),
@@ -323,7 +327,7 @@ class FontSizePage extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          t.currentFontScale(
+          t.common.currentFontScale(
             param1: state.previewOption.displayName,
             param2: ((state.previewOption.scale * 100).toInt()).toString(),
           ),
@@ -340,7 +344,7 @@ class FontSizePage extends ConsumerWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            t.recommended,
+            t.main.recommended,
             style: TextStyle(
               fontSize: 12,
               color: cs.primary,

@@ -135,61 +135,61 @@ class LanguageNotifier extends _$LanguageNotifier {
         id: "zh_CN",
         languageCode: "zh",
         regionCode: "CN",
-        title: t.zhCn,
+        title: t.main.zhCn,
       ),
       LanguageModel(
         id: "zh_TW",
         languageCode: "zh",
         regionCode: "TW",
-        title: t.zhHant,
+        title: t.main.zhHant,
       ),
       LanguageModel(
         id: "ru_RU",
         languageCode: "ru",
         regionCode: "RU",
-        title: t.ruRu,
+        title: t.main.ruRu,
       ),
       LanguageModel(
         id: "en_US",
         languageCode: "en",
         regionCode: "US",
-        title: t.enUs,
+        title: t.main.enUs,
       ),
       LanguageModel(
         id: "fr_FR",
         languageCode: "fr",
         regionCode: "FR",
-        title: t.frFr,
+        title: t.main.frFr,
       ),
       LanguageModel(
         id: "de_DE",
         languageCode: "de",
         regionCode: "DE",
-        title: t.deDd,
+        title: t.main.deDd,
       ),
       LanguageModel(
         id: "ja_JP",
         languageCode: "ja",
         regionCode: "JP",
-        title: t.jaJp,
+        title: t.main.jaJp,
       ),
       LanguageModel(
         id: "ko_KR",
         languageCode: "ko",
         regionCode: "KR",
-        title: t.koKr,
+        title: t.common.koKr,
       ),
       LanguageModel(
         id: "ar_SA",
         languageCode: "ar",
         regionCode: "SA",
-        title: t.arSa,
+        title: t.main.arSa,
       ),
       LanguageModel(
         id: "it_IT",
         languageCode: "it",
         regionCode: "IT",
-        title: t.itIt,
+        title: t.main.itIt,
       ),
     ];
   }
@@ -249,7 +249,7 @@ class LanguagePage extends ConsumerWidget {
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.languageSetting,
+        title: t.common.languageSetting,
       ),
       body: SafeArea(
         child: Column(
@@ -257,7 +257,7 @@ class LanguagePage extends ConsumerWidget {
             Expanded(
               child: ListView(
                 children: [
-                  _buildSectionHeader(context, t.selectLanguage),
+                  _buildSectionHeader(context, t.common.selectLanguage),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -325,7 +325,7 @@ class LanguagePage extends ConsumerWidget {
                           }
                         }
                       : null,
-                  child: Text(t.buttonSave),
+                  child: Text(t.common.buttonSave),
                 ),
               ),
             ),

@@ -101,7 +101,7 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
       "created_at": createdAt,
     };
 
-    EasyLoading.show(status: t.sending);
+    EasyLoading.show(status: t.chat.sending);
 
     try {
       IMBoyHttpResponse resp = await HttpClient.client.post(
@@ -124,14 +124,14 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
         };
 
         (NewFriendRepo()).save(saveData);
-        EasyLoading.showSuccess(t.sent);
+        EasyLoading.showSuccess(t.main.sent);
         return true;
       } else {
-        EasyLoading.showError(t.networkFailureTryAgain);
+        EasyLoading.showError(t.common.networkFailureTryAgain);
         return false;
       }
     } catch (e) {
-      EasyLoading.showError(t.networkFailureTryAgain);
+      EasyLoading.showError(t.common.networkFailureTryAgain);
       return false;
     }
   }

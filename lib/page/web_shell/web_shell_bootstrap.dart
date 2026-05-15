@@ -4,8 +4,8 @@
 /// 是 Phase 1.1.i 路由集成时的目标 widget。
 ///
 /// 设计要点：
-/// - **复用现有 i18n key**：`t.titleMessage` / `t.titleContact` / `t.channel.title`
-///   / `t.titleMine` 全部是 BottomNavigationPage 已用的 key；welcomeTitle 用
+/// - **复用现有 i18n key**：`t.chat.titleMessage` / `t.common.titleContact` / `t.channel.title`
+///   / `t.main.titleMine` 全部是 BottomNavigationPage 已用的 key；welcomeTitle 用
 ///   运行时全局 `appName`（packageInfo），无需新增 yaml entry，避免与并行
 ///   i18n 工作撞车
 /// - **业务 page 直接复用**：4 个 Tab 中栏内容用现有 [ConversationPage] / [ContactPage]
@@ -61,10 +61,10 @@ class WebShellBootstrap extends ConsumerWidget {
 
     return WebShellPage(
       // i18n labels — 复用 BottomNavigationPage 已用 key（零新增）
-      tabMessageLabel: t.titleMessage,
-      tabContactLabel: t.titleContact,
+      tabMessageLabel: t.chat.titleMessage,
+      tabContactLabel: t.common.titleContact,
       tabChannelLabel: t.channel.title,
-      tabMineLabel: t.titleMine,
+      tabMineLabel: t.main.titleMine,
       welcomeTitle: appName.isEmpty ? 'ImBoy' : appName,
       // welcomeSubtitle 暂不传：避免新增 i18n key（Phase 4 桌面增强时再补）
 
@@ -85,7 +85,7 @@ class WebShellBootstrap extends ConsumerWidget {
         key: ValueKey('${sel.chatType}:${sel.peerId}'),
         selection: sel,
         currentUserId: UserRepoLocal.to.currentUid,
-        closeTooltip: t.cancel,
+        closeTooltip: t.common.cancel,
         onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         // Phase 2.1.c: 真实可输入 + 可发送的简化 Web 输入区
         // 仅文本，不含 ExtraItems / 录音 / 相机（留待后续切片按需扩展）
@@ -98,8 +98,8 @@ class WebShellBootstrap extends ConsumerWidget {
       contactBuilder: (sel) => _WebContactInfoPanel(
         key: ValueKey('contact:${sel.uid}'),
         selection: sel,
-        sendButtonLabel: t.sendMessage,
-        closeTooltip: t.cancel,
+        sendButtonLabel: t.chat.sendMessage,
+        closeTooltip: t.common.cancel,
         onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         onSendMessage: () {
           // 派发 ChatSelection → chatBuilder 渲染 _WebChatPanel
@@ -111,8 +111,10 @@ class WebShellBootstrap extends ConsumerWidget {
       channelBuilder: (sel) => _PlaceholderPanel('Channel: ${sel.channelId}'),
       // Phase 3.2-min: 最小可用 Mine 面板（用户简介 + 登出）
       // 真实 Mine 子页面（设置 / 个人信息 / 收藏 等）留待 Phase 3.2.b 渐进接入
-      mineBuilder: (sel) =>
-          _WebMineMinPanel(section: sel.section, logoutLabel: t.buttonLogout),
+      mineBuilder: (sel) => _WebMineMinPanel(
+        section: sel.section,
+        logoutLabel: t.common.buttonLogout,
+      ),
 
       // mobile fallback — < 900px 时无缝复用移动端入口
       mobileFallback: const BottomNavigationPage(),
@@ -277,14 +279,14 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                 ListTile(
                   key: const ValueKey('web-msg-action-copy'),
                   leading: const Icon(Icons.copy),
-                  title: Text(t.buttonCopy),
+                  title: Text(t.common.buttonCopy),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await Clipboard.setData(ClipboardData(text: copyable));
                     if (!mounted) return;
                     ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
                       SnackBar(
-                        content: Text(t.copied),
+                        content: Text(t.main.copied),
                         duration: const Duration(seconds: 1),
                       ),
                     );
@@ -294,7 +296,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                 ListTile(
                   key: const ValueKey('web-msg-action-recall'),
                   leading: const Icon(Icons.replay),
-                  title: Text(t.revoke),
+                  title: Text(t.chat.revoke),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
                     _revokeMessage(message);
@@ -303,7 +305,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
               ListTile(
                 key: const ValueKey('web-msg-action-cancel'),
                 leading: const Icon(Icons.close),
-                title: Text(t.cancel),
+                title: Text(t.common.cancel),
                 onTap: () => Navigator.of(sheetCtx).pop(),
               ),
             ],
@@ -328,7 +330,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
         SnackBar(
-          content: Text(ok ? t.revokeSuccess : t.revokeFailed),
+          content: Text(ok ? t.common.revokeSuccess : t.common.revokeFailed),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -336,7 +338,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
         SnackBar(
-          content: Text('${t.revokeFailed}: $e'),
+          content: Text('${t.common.revokeFailed}: $e'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -600,7 +602,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             Text(widget.selection.uid, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
-              t.contactInfoNotSynced,
+              t.common.contactInfoNotSynced,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -732,7 +734,7 @@ class _WebMineMinPanel extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            uid.isEmpty ? t.notLoggedIn : 'UID: $uid',
+            uid.isEmpty ? t.common.notLoggedIn : 'UID: $uid',
             style: theme.textTheme.titleMedium,
           ),
           if (section != null) ...[
@@ -759,7 +761,7 @@ class _WebMineMinPanel extends ConsumerWidget {
                     } else {
                       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
                         SnackBar(
-                          content: Text(t.logoutFailed),
+                          content: Text(t.common.logoutFailed),
                           duration: const Duration(seconds: 2),
                         ),
                       );

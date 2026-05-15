@@ -6,10 +6,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// Describes why a route was blocked.
-enum RouteBlockReason {
-  featureFlag,
-  appEntry,
-}
+enum RouteBlockReason { featureFlag, appEntry }
 
 class RouteFeatureGuard {
   static String? featureForPath(String path) {
@@ -68,23 +65,20 @@ class RouteFeatureGuard {
 
   /// Human-readable name for a feature key or app entry.
   static String _displayName(String key) => switch (key) {
-        FeatureKeys.moment || 'moment' => t.moment,
-        FeatureKeys.channel || 'channel' => t.channel.title,
-        FeatureKeys.channelDiscover => t.channel.discover,
-        FeatureKeys.channelInvitation => t.channelInvitations,
-        FeatureKeys.location || 'location' => t.findNearbyPeople,
-        FeatureKeys.groupVote => t.groupVote.title,
-        FeatureKeys.groupSchedule => t.groupSchedule.title,
-        FeatureKeys.groupTask => t.groupTask.title,
-        _ => '',
-      };
+    FeatureKeys.moment || 'moment' => t.discovery.moment,
+    FeatureKeys.channel || 'channel' => t.channel.title,
+    FeatureKeys.channelDiscover => t.channel.discover,
+    FeatureKeys.channelInvitation => t.common.channelInvitations,
+    FeatureKeys.location || 'location' => t.discovery.findNearbyPeople,
+    FeatureKeys.groupVote => t.groupVote.title,
+    FeatureKeys.groupSchedule => t.groupSchedule.title,
+    FeatureKeys.groupTask => t.groupTask.title,
+    _ => '',
+  };
 
   /// Combined check: manifest app_entries first, then feature flags.
   static ({String redirect, RouteBlockReason reason, String name})?
-      checkBlocked({
-    required bool isLoggedIn,
-    required String currentPath,
-  }) {
+  checkBlocked({required bool isLoggedIn, required String currentPath}) {
     if (!isLoggedIn) return null;
 
     // Check manifest app_entries first (plugin-level gate)
@@ -135,13 +129,10 @@ class RouteFeatureGuard {
     Future<dynamic>.delayed(const Duration(milliseconds: 300), () {
       if (!context.mounted) return;
       final message = detail == null || detail.name.isEmpty
-          ? t.featureNotEnabled
-          : t.featureDisabledName(name: detail.name);
+          ? t.common.featureNotEnabled
+          : t.common.featureDisabledName(name: detail.name);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: const Duration(seconds: 2),
-        ),
+        SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
       );
     });
   }

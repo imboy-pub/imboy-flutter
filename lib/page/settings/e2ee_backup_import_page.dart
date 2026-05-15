@@ -53,11 +53,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeBackupImportTitle),
+        title: Text(t.common.e2eeBackupImportTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       body: ListView(
@@ -92,7 +92,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 const Icon(Icons.info_outline, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  t.e2eeBackupImportGuide,
+                  t.common.e2eeBackupImportGuide,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange.shade900,
@@ -102,12 +102,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeBackupImportReplaceKey,
+              t.common.e2eeBackupImportReplaceKey,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
             const SizedBox(height: 4),
             Text(
-              t.e2eeBackupImportTrustedSource,
+              t.common.e2eeBackupImportTrustedSource,
               style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
             ),
           ],
@@ -124,7 +124,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t.e2eeBackupSelectFile,
+              t.common.e2eeBackupSelectFile,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -150,7 +150,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                     Text(
                       _selectedFile != null
                           ? (_selectedFile!.path.split('/').last)
-                          : t.e2eeBackupSelectFileHint,
+                          : t.common.e2eeBackupSelectFileHint,
                       style: TextStyle(
                         color: _selectedFile != null
                             ? Colors.green
@@ -184,7 +184,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    t.e2eeBackupInfoTitle,
+                    t.common.e2eeBackupInfoTitle,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.blue.shade900,
@@ -196,20 +196,20 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             const SizedBox(height: 12),
             _buildInfoRow(
-              t.e2eeBackupVersionLabel,
+              t.common.e2eeBackupVersionLabel,
               _backupInfo!['version'].toString(),
             ),
             _buildInfoRow(
-              t.e2eeBackupAlgorithmLabel,
+              t.common.e2eeBackupAlgorithmLabel,
               _backupInfo!['algorithm'].toString(),
             ),
             _buildInfoRow(
-              t.e2eeBackupFileSizeLabel,
+              t.common.e2eeBackupFileSizeLabel,
               '${_backupInfo!['file_size']} bytes',
             ),
             const SizedBox(height: 8),
             Text(
-              t.e2eeBackupFileValid,
+              t.common.e2eeBackupFileValid,
               style: const TextStyle(fontSize: 12, color: Colors.green),
             ),
           ],
@@ -242,8 +242,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: t.e2eeBackupPwdLabel,
-        hintText: t.e2eeBackupImportPwdHint,
+        labelText: t.common.e2eeBackupPwdLabel,
+        hintText: t.common.e2eeBackupImportPwdHint,
         prefixIcon: const Icon(Icons.lock),
         border: const OutlineInputBorder(),
         suffixIcon: _isImporting
@@ -276,7 +276,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : Text(t.e2eeBackupImportBtn),
+          : Text(t.common.e2eeBackupImportBtn),
     );
   }
 
@@ -298,7 +298,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         await _verifyFile();
       }
     } on Exception {
-      _showError(t.e2eeBackupErrSelectFile);
+      _showError(t.common.e2eeBackupErrSelectFile);
     }
   }
 
@@ -314,7 +314,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       setState(() {
         _backupInfo = null;
       });
-      _showError(t.e2eeBackupErrValidateFailed);
+      _showError(t.common.e2eeBackupErrValidateFailed);
     }
   }
 
@@ -329,8 +329,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         password: password,
       );
 
-      await StorageSecureService.to.savePrivateKey(result['private_key'] as String);
-      await StorageSecureService.to.savePublicKey(result['public_key'] as String);
+      await StorageSecureService.to.savePrivateKey(
+        result['private_key'] as String,
+      );
+      await StorageSecureService.to.savePublicKey(
+        result['public_key'] as String,
+      );
       await StorageSecureService.to.setDeviceId(result['device_id'] as String);
       await StorageSecureService.to.setKeyId(result['key_id'] as String);
 
@@ -339,7 +343,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       _showSuccessDialog(result);
     } on Exception {
       setState(() => _isImporting = false);
-      _showError(t.e2eeBackupErrImportFailed);
+      _showError(t.common.e2eeBackupErrImportFailed);
     }
   }
 
@@ -348,21 +352,21 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(t.e2eeBackupImportSuccessTitle),
+        title: Text(t.common.e2eeBackupImportSuccessTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.e2eeBackupImportSuccessBody),
+            Text(t.common.e2eeBackupImportSuccessBody),
             const SizedBox(height: 12),
             Text(
               'Device ID: ${_maskId(result['device_id']?.toString() ?? '')}',
             ),
             Text('Key ID: ${_maskId(result['key_id']?.toString() ?? '')}'),
-            Text('${t.e2eeBackupCreatedAtRow}: ${result['created_at']}'),
+            Text('${t.common.e2eeBackupCreatedAtRow}: ${result['created_at']}'),
             const SizedBox(height: 12),
             Text(
-              t.e2eeBackupImportSuccessNote,
+              t.common.e2eeBackupImportSuccessNote,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
@@ -373,7 +377,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            child: Text(t.buttonAccomplish),
+            child: Text(t.common.buttonAccomplish),
           ),
         ],
       ),

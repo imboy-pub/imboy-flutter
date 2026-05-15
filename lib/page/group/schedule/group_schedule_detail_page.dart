@@ -79,8 +79,8 @@ class _GroupScheduleDetailPageState
       SnackBar(
         content: Text(
           success
-              ? context.t.operationSuccessful
-              : context.t.operationFailedAgainLater,
+              ? context.t.common.operationSuccessful
+              : context.t.common.operationFailedAgainLater,
         ),
       ),
     );
@@ -195,7 +195,7 @@ class _GroupScheduleDetailPageState
           if (participants.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              context.t.groupMembers,
+              context.t.group.groupMembers,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),

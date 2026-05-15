@@ -40,7 +40,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
   @override
   void initState() {
     super.initState();
-    _msgController.text = "${t.iAm} ${UserRepoLocal.to.current.nickname}";
+    _msgController.text = "${t.main.iAm} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = widget.remark;
   }
 
@@ -250,7 +250,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
       backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
         titleWidget: Text(
-          t.applyAddFriend,
+          t.common.applyAddFriend,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -270,8 +270,8 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             // 验证消息输入
             _buildInputCard(
               context: context,
-              title: t.sendFriendRequest,
-              hint: t.pleaseEnterVerificationMessage,
+              title: t.chat.sendFriendRequest,
+              hint: t.common.pleaseEnterVerificationMessage,
               controller: _msgController,
               icon: Icons.message_outlined,
               minLines: 3,
@@ -281,8 +281,8 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             // 备注设置
             _buildInputCard(
               context: context,
-              title: t.setParam(param: t.remark),
-              hint: t.pleaseEnterRemark,
+              title: t.main.setParam(param: t.contact.remark),
+              hint: t.contact.pleaseEnterRemark,
               controller: _remarkController,
               icon: Icons.edit_outlined,
               maxLength: 80,
@@ -290,9 +290,9 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             // 标签设置
             _buildSettingCard(
               context: context,
-              title: t.tags,
+              title: t.contact.tags,
               subtitle: providerState.peerTag.isEmpty
-                  ? t.addTag
+                  ? t.common.addTag
                   : providerState.peerTag,
               icon: Icons.local_offer_outlined,
               onTap: () async {
@@ -401,7 +401,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                       ),
                     )
                   : Text(
-                      t.buttonSend,
+                      t.common.buttonSend,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

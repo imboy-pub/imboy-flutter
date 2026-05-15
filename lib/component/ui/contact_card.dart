@@ -63,7 +63,7 @@ class ContactCard extends StatelessWidget {
       items.add(
         Padding(
           padding: const EdgeInsets.only(top: 3.0),
-          child: Text("${t.nickname}：$nickname", style: labelStyle),
+          child: Text("${t.account.nickname}：$nickname", style: labelStyle),
         ),
       );
     }
@@ -71,13 +71,15 @@ class ContactCard extends StatelessWidget {
       items.add(
         Padding(
           padding: const EdgeInsets.only(top: 3.0),
-          child: Text("${t.account}：$account", style: labelStyle),
+          child: Text("${t.account.account}：$account", style: labelStyle),
         ),
       );
     }
     final normalizedRegion = parseModelString(region);
     if (strNoEmpty(normalizedRegion)) {
-      items.add(Text("${t.region}：$normalizedRegion", style: labelStyle));
+      items.add(
+        Text("${t.account.region}：$normalizedRegion", style: labelStyle),
+      );
     }
     return Container(
       decoration: BoxDecoration(
@@ -115,7 +117,7 @@ class ContactCard extends StatelessWidget {
                 // 使用 ScaffoldMessenger 替代 Get.snackbar
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text(t.noAvatar)));
+                ).showSnackBar(SnackBar(content: Text(t.common.noAvatar)));
               }
             },
           ),

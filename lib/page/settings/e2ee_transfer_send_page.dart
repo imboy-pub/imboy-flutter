@@ -38,7 +38,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       final hasKey = await E2EEKeyService.hasKey();
       if (!hasKey) {
         setState(() {
-          _errorMessage = t.e2eeTransferErrNoKey;
+          _errorMessage = t.common.e2eeTransferErrNoKey;
           _isLoading = false;
         });
         return;
@@ -49,7 +49,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       });
     } on Exception {
       setState(() {
-        _errorMessage = t.e2eeTransferErrInitFailed;
+        _errorMessage = t.common.e2eeTransferErrInitFailed;
         _isLoading = false;
       });
     }
@@ -67,7 +67,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
       if (didToPem.isEmpty) {
         setState(() {
-          _errorMessage = t.e2eeTransferErrNoRecipientKey;
+          _errorMessage = t.common.e2eeTransferErrNoRecipientKey;
           _isLoading = false;
         });
         return;
@@ -83,7 +83,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
       if (privateKey == null || publicKey == null) {
         setState(() {
-          _errorMessage = t.e2eeTransferErrKeyNotFound;
+          _errorMessage = t.common.e2eeTransferErrKeyNotFound;
           _isLoading = false;
         });
         return;
@@ -112,7 +112,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       });
     } on Exception {
       setState(() {
-        _errorMessage = t.e2eeTransferErrCreateFailed;
+        _errorMessage = t.common.e2eeTransferErrCreateFailed;
         _isLoading = false;
       });
     }
@@ -122,11 +122,11 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.e2eeTransferSendTitle),
+        title: Text(t.chat.e2eeTransferSendTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.buttonBack,
+          tooltip: t.common.buttonBack,
         ),
       ),
       body: _buildBody(),
@@ -150,7 +150,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               Text(_errorMessage!, textAlign: TextAlign.center),
               const SizedBox(height: 24),
               CupertinoButton.filled(
-                child: Text(t.buttonRetry),
+                child: Text(t.common.buttonRetry),
                 onPressed: () {
                   _showToUidDialog();
                 },
@@ -165,7 +165,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       return Center(
         child: CupertinoButton.filled(
           onPressed: _showToUidDialog,
-          child: Text(t.e2eeTransferCreateSessionBtn),
+          child: Text(t.common.e2eeTransferCreateSessionBtn),
         ),
       );
     }
@@ -187,12 +187,12 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            t.e2eeTransferQRHint,
+            t.main.e2eeTransferQRHint,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
-            t.e2eeTransferQRExpiry(time: _expiresAt ?? ''),
+            t.main.e2eeTransferQRExpiry(time: _expiresAt ?? ''),
             style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 32),
@@ -217,12 +217,12 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            t.e2eeTransferSessionCreated,
+            t.common.e2eeTransferSessionCreated,
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 32),
           CupertinoButton.filled(
-            child: Text(t.e2eeTransferRefreshQR),
+            child: Text(t.main.e2eeTransferRefreshQR),
             onPressed: () {
               setState(() {
                 _sessionId = null;
@@ -241,24 +241,24 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       context: context,
       builder: (ctx) {
         return CupertinoAlertDialog(
-          title: Text(t.e2eeTransferEnterUidTitle),
+          title: Text(t.main.e2eeTransferEnterUidTitle),
           content: Padding(
             padding: const EdgeInsets.only(top: 12),
             child: CupertinoTextField(
               controller: controller,
-              placeholder: t.e2eeTransferUidPlaceholder,
+              placeholder: t.main.e2eeTransferUidPlaceholder,
             ),
           ),
           actions: [
             CupertinoDialogAction(
-              child: Text(t.cancel),
+              child: Text(t.common.cancel),
               onPressed: () {
                 Navigator.pop(ctx);
               },
             ),
             CupertinoDialogAction(
               isDefaultAction: true,
-              child: Text(t.e2eeTransferCreateBtn),
+              child: Text(t.chat.e2eeTransferCreateBtn),
               onPressed: () {
                 final toUid = controller.text.trim();
                 if (toUid.isEmpty) {
@@ -266,10 +266,10 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
                     context: context,
                     builder: (c) {
                       return CupertinoAlertDialog(
-                        content: Text(t.e2eeTransferUidEmptyError),
+                        content: Text(t.common.e2eeTransferUidEmptyError),
                         actions: [
                           CupertinoDialogAction(
-                            child: Text(t.confirm),
+                            child: Text(t.common.confirm),
                             onPressed: () => Navigator.pop(c),
                           ),
                         ],

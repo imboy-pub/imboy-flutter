@@ -169,18 +169,18 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupAlbumPhotoBatchDeleteTitle),
+        title: Text(t.common.groupAlbumPhotoBatchDeleteTitle),
         content: Text(
-          t.groupAlbumPhotoBatchDeleteConfirm(count: selectedCount),
+          t.common.groupAlbumPhotoBatchDeleteConfirm(count: selectedCount),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -200,16 +200,16 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
     setState(() => _isBatchDeleting = false);
     if (successCount == 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoDeleteFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.common.groupAlbumPhotoDeleteFailed)),
+      );
       return;
     }
 
     final failCount = selectedCount - successCount;
     final message = failCount == 0
-        ? t.groupAlbumPhotoDeletedAll(count: successCount)
-        : t.groupAlbumPhotoDeletedPartial(
+        ? t.common.groupAlbumPhotoDeletedAll(count: successCount)
+        : t.common.groupAlbumPhotoDeletedPartial(
             success: successCount,
             fail: failCount,
           );
@@ -227,16 +227,16 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.groupAlbumPhotoDeleteTitle),
-        content: Text(t.groupAlbumPhotoDeleteConfirm),
+        title: Text(t.common.groupAlbumPhotoDeleteTitle),
+        content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -248,7 +248,9 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? t.groupAlbumPhotoDeleted : t.groupAlbumPhotoDeleteFailed,
+          success
+              ? t.common.groupAlbumPhotoDeleted
+              : t.common.groupAlbumPhotoDeleteFailed,
         ),
       ),
     );
@@ -266,7 +268,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     if (photoId.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.groupAlbumPhotoIdMissing)));
+      ).showSnackBar(SnackBar(content: Text(t.group.groupAlbumPhotoIdMissing)));
       return;
     }
 
@@ -290,13 +292,13 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
   @override
   Widget build(BuildContext context) {
     final title = widget.albumName.isEmpty
-        ? t.groupAlbumPhotoListTitle
+        ? t.group.groupAlbumPhotoListTitle
         : widget.albumName;
     final actionWidgets = _isSelectionMode
         ? <Widget>[
             IconButton(
               key: const Key('group_album_photo_select_all'),
-              tooltip: t.selectAll,
+              tooltip: t.common.selectAll,
               onPressed: _isBatchDeleting ? null : _toggleSelectAll,
               icon: Icon(
                 _selectedPhotoIds.length == _photos.length && _photos.isNotEmpty
@@ -306,7 +308,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
             ),
             IconButton(
               key: const Key('group_album_photo_batch_delete'),
-              tooltip: t.groupAlbumPhotoBatchDeleteTooltip,
+              tooltip: t.common.groupAlbumPhotoBatchDeleteTooltip,
               onPressed: _selectedPhotoIds.isEmpty || _isBatchDeleting
                   ? null
                   : _deleteSelectedPhotos,
@@ -324,12 +326,14 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     return Scaffold(
       appBar: GlassAppBar(
         title: _isSelectionMode
-            ? t.groupAlbumPhotoSelectedCount(count: _selectedPhotoIds.length)
+            ? t.group.groupAlbumPhotoSelectedCount(
+                count: _selectedPhotoIds.length,
+              )
             : '$title${_total > 0 ? ' ($_total)' : ''}',
         automaticallyImplyLeading: !_isSelectionMode,
         leading: _isSelectionMode
             ? IconButton(
-                tooltip: t.groupAlbumPhotoExitSelection,
+                tooltip: t.common.groupAlbumPhotoExitSelection,
                 onPressed: _isBatchDeleting ? null : _exitSelectionMode,
                 icon: const Icon(Icons.close),
               )
@@ -347,7 +351,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
     if (_photos.isEmpty) {
       return NoDataView(
-        text: t.groupAlbumPhotoEmpty,
+        text: t.group.groupAlbumPhotoEmpty,
         onTop: () => _loadPhotos(refresh: true),
       );
     }

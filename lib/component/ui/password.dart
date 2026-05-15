@@ -21,7 +21,7 @@ import 'package:imboy/theme/default/font_types.dart';
 /// ```dart
 /// PasswordTextField(
 ///   obscureText: state.passwordObscure.value,
-///   hintText: t.password,
+///   hintText: t.account.password,
 ///   onTap: () => state.passwordObscure.toggle(),
 ///   onChanged: (val) => state.password.value = val,
 /// )

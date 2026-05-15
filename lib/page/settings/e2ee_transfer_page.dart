@@ -12,15 +12,15 @@ class E2EETransferPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(t.e2eeTransferPageTitle)),
+      appBar: AppBar(title: Text(t.main.e2eeTransferPageTitle)),
       body: ListView(
         children: [
-          _buildSectionHeader(t.e2eeTransferToNewDevice),
+          _buildSectionHeader(t.common.e2eeTransferToNewDevice),
           _buildTransferCard(
             context,
             icon: Icons.qr_code_scanner,
-            title: t.e2eeTransferSendTitle,
-            description: t.e2eeTransferSendDesc,
+            title: t.chat.e2eeTransferSendTitle,
+            description: t.chat.e2eeTransferSendDesc,
             onTap: () {
               Navigator.push(
                 context,
@@ -33,8 +33,8 @@ class E2EETransferPage extends StatelessWidget {
           _buildTransferCard(
             context,
             icon: Icons.qr_code_2,
-            title: t.e2eeTransferFromOldDevice,
-            description: t.e2eeTransferReceiveDesc,
+            title: t.account.e2eeTransferFromOldDevice,
+            description: t.chat.e2eeTransferReceiveDesc,
             onTap: () {
               Navigator.push(
                 context,
@@ -45,7 +45,7 @@ class E2EETransferPage extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader(t.e2eeTransferPendingSection),
+          _buildSectionHeader(t.common.e2eeTransferPendingSection),
           _buildPendingTransfersCard(context),
         ],
       ),
@@ -100,8 +100,8 @@ class E2EETransferPage extends StatelessWidget {
 
           if (snapshot.hasError) {
             return ListTile(
-              title: Text(t.e2eeTransferLoadFailed),
-              subtitle: Text(t.e2eeTransferLoadFailedDesc),
+              title: Text(t.common.e2eeTransferLoadFailed),
+              subtitle: Text(t.common.e2eeTransferLoadFailedDesc),
             );
           }
 
@@ -109,18 +109,18 @@ class E2EETransferPage extends StatelessWidget {
 
           if (transfers.isEmpty) {
             return ListTile(
-              title: Text(t.e2eeTransferNoPending),
-              subtitle: Text(t.e2eeTransferNoPendingDesc),
+              title: Text(t.common.e2eeTransferNoPending),
+              subtitle: Text(t.common.e2eeTransferNoPendingDesc),
             );
           }
 
           return Column(
             children: transfers.map((transfer) {
               return ListTile(
-                title: Text(t.e2eeTransferPendingItem),
-                subtitle: Text(t.e2eeTransferPendingItemDesc),
+                title: Text(t.main.e2eeTransferPendingItem),
+                subtitle: Text(t.main.e2eeTransferPendingItemDesc),
                 trailing: CupertinoButton(
-                  child: Text(t.e2eeTransferView),
+                  child: Text(t.main.e2eeTransferView),
                   onPressed: () {
                     // 跳转到接收页面
                     Navigator.push(

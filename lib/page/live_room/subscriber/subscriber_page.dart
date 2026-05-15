@@ -124,7 +124,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                 TextField(
                   controller: _serverController,
                   decoration: InputDecoration(
-                    labelText: t.liveRoomWhepLabel,
+                    labelText: t.main.liveRoomWhepLabel,
                     hintText:
                         'https://your-server/whep/subscribe/room_id/stream_id',
                     border: const OutlineInputBorder(),

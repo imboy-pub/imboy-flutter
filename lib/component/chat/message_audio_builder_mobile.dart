@@ -25,7 +25,11 @@ class AudioMessageBuilder extends StatefulWidget {
   final bool isPaused;
   final int currentPositionMs;
   final int currentDurationMs;
-  final void Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+  final void Function(
+    String audioPath,
+    CustomMessage msg,
+    Duration totalDuration,
+  )?
   onPlayPause;
 
   const AudioMessageBuilder({
@@ -250,7 +254,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
 
         // 获取时长
         Duration duration;
-        final metadataDuration = Duration(milliseconds: (durationMs as int?) ?? 0);
+        final metadataDuration = Duration(
+          milliseconds: (durationMs as int?) ?? 0,
+        );
 
         if (metadataDuration.inMilliseconds > 0) {
           duration = metadataDuration;
@@ -643,7 +649,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           final t = context.t;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(t.audioPlayFailed),
+              content: Text(t.common.audioPlayFailed),
               backgroundColor: AppColors.getIosRed(
                 Theme.of(context).brightness,
               ),

@@ -284,11 +284,11 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(t.confirm),
+            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -308,7 +308,9 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(success ? t.tipSuccess : t.tipFailed)),
+        SnackBar(
+          content: Text(success ? t.common.tipSuccess : t.common.tipFailed),
+        ),
       );
     }
 

@@ -53,7 +53,9 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showToast(t.networkExceptionPlaseNeedNetworkToViewData);
+      EasyLoading.showToast(
+        t.common.networkExceptionPlaseNeedNetworkToViewData,
+      );
     }
     if (list.isNotEmpty) {
       return list;
@@ -66,7 +68,9 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
       return [];
     }
     for (var json in (payload['list'] as List)) {
-      FeedbackModel model = FeedbackModel.fromJson(json as Map<String, dynamic>);
+      FeedbackModel model = FeedbackModel.fromJson(
+        json as Map<String, dynamic>,
+      );
       list.add(model);
     }
     return list;
@@ -81,7 +85,7 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     } on Exception {
       state = state.copyWith(
         isLoading: false,
-        error: t.operationFailedAgainLater,
+        error: t.common.operationFailedAgainLater,
       );
     }
   }
@@ -109,7 +113,9 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showToast(t.networkExceptionPlaseNeedNetworkToViewData);
+      EasyLoading.showToast(
+        t.common.networkExceptionPlaseNeedNetworkToViewData,
+      );
     }
     if (list.isNotEmpty) {
       return list;
@@ -123,7 +129,9 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
       return [];
     }
     for (var json in (payload['list'] as List)) {
-      FeedbackReplyModel model = FeedbackReplyModel.fromJson(json as Map<String, dynamic>);
+      FeedbackReplyModel model = FeedbackReplyModel.fromJson(
+        json as Map<String, dynamic>,
+      );
       list.add(model);
     }
     return list;
@@ -142,7 +150,7 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     } on Exception {
       state = state.copyWith(
         isLoading: false,
-        error: t.operationFailedAgainLater,
+        error: t.common.operationFailedAgainLater,
       );
     }
   }

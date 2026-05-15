@@ -34,12 +34,12 @@ Future<bool> showMomentConfirmDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(cancelLabel ?? t.buttonCancel),
+            child: Text(cancelLabel ?? t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
-              confirmLabel ?? t.confirm,
+              confirmLabel ?? t.common.confirm,
               style: TextStyle(
                 color: isDestructive
                     ? AppColors.iosRed

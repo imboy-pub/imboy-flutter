@@ -25,7 +25,7 @@ class MentionTextReducer {
   static const String _allMentionName = '所有人';
 
   /// 降级替换标签（i18n runtime，随 locale 变化）。
-  static String get _removedLabel => t.atMentionLeftMember;
+  static String get _removedLabel => t.common.atMentionLeftMember;
 
   /// 匹配 `@<displayName>`：
   /// - group(1)：`@` 前的合法前缀字符（行首捕获为空）

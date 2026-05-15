@@ -105,7 +105,9 @@ class MessageActionHandler {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            res ? '${t.reactionAdded} $emoji' : '${t.reactionCancelled} $emoji',
+            res
+                ? '${t.common.reactionAdded} $emoji'
+                : '${t.common.reactionCancelled} $emoji',
           ),
           duration: const Duration(seconds: 1),
           behavior: SnackBarBehavior.floating,
@@ -202,7 +204,7 @@ class MessageActionHandler {
   /// 复制消息文本
   void copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
-    EasyLoading.showToast(t.copied);
+    EasyLoading.showToast(t.main.copied);
   }
 
   /// 保存消息内容
@@ -210,7 +212,10 @@ class MessageActionHandler {
     if (msg is CustomMessage) {
       await ref
           .read(chatProvider.notifier)
-          .saveFile(msg.metadata!['md5'] as String, msg.metadata!['uri'] as String);
+          .saveFile(
+            msg.metadata!['md5'] as String,
+            msg.metadata!['uri'] as String,
+          );
     } else if (msg is ImageMessage) {
       await ref
           .read(chatProvider.notifier)
@@ -225,7 +230,9 @@ class MessageActionHandler {
     String tb = MessageRepo.getTableName(_chatType);
     final collectNotifier = UserCollectNotifier();
     bool res = await collectNotifier.add(tb: tb, msg: msg);
-    EasyLoading.showToast(res ? t.collected : t.operationFailedAgainLater);
+    EasyLoading.showToast(
+      res ? t.main.collected : t.common.operationFailedAgainLater,
+    );
   }
 
   /// 撤回消息
@@ -236,13 +243,13 @@ class MessageActionHandler {
       createdAtMs: createdAtMs,
       nowMs: DateTime.now().millisecondsSinceEpoch,
     )) {
-      EasyLoading.showError(t.revokeExpired);
+      EasyLoading.showError(t.common.revokeExpired);
       return;
     }
 
     try {
       // 显示加载状态
-      EasyLoading.show(status: t.revoking);
+      EasyLoading.show(status: t.common.revoking);
 
       iPrint('🔍 撤回消息: msgId=${msg.id}, type=$_chatType');
 
@@ -256,16 +263,16 @@ class MessageActionHandler {
       EasyLoading.dismiss();
 
       if (result) {
-        EasyLoading.showSuccess(t.revokeSuccess);
+        EasyLoading.showSuccess(t.common.revokeSuccess);
         iPrint('🔍 撤回请求发送完成，等待服务端确认');
       } else {
         EasyLoading.showError(
-          '${t.revokeFailed}, ${t.pleaseCheckNetworkConnection}',
+          '${t.common.revokeFailed}, ${t.common.pleaseCheckNetworkConnection}',
         );
       }
     } catch (e, stack) {
       EasyLoading.dismiss();
-      EasyLoading.showError(t.operationFailedAgainLater);
+      EasyLoading.showError(t.common.operationFailedAgainLater);
       debugPrint('撤回消息异常: $e\n$stack');
     }
   }

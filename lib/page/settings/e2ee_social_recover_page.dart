@@ -27,7 +27,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   @override
   void initState() {
     super.initState();
-    _statusMessage = t.e2eePreparing;
+    _statusMessage = t.main.e2eePreparing;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadShards();
@@ -38,7 +38,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   Future<void> _loadShards() async {
     setState(() {
       _isLoading = true;
-      _statusMessage = t.e2eeLoadingShards;
+      _statusMessage = t.common.e2eeLoadingShards;
     });
 
     try {
@@ -52,20 +52,22 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         setState(() {
           _shards = localShards;
           _isLoading = false;
-          _statusMessage = localShards.isEmpty ? t.e2eeNoShards : t.e2eeReady;
+          _statusMessage = localShards.isEmpty
+              ? t.common.e2eeNoShards
+              : t.chat.e2eeReady;
         });
       } else {
         setState(() {
           _shards = shards;
           _isLoading = false;
-          _statusMessage = t.e2eeReady;
+          _statusMessage = t.chat.e2eeReady;
         });
       }
     } on Exception {
       setState(() {
         _isLoading = false;
         _shards = [];
-        _statusMessage = t.e2eeLoadFailed;
+        _statusMessage = t.common.e2eeLoadFailed;
       });
     }
   }
@@ -80,8 +82,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         _shards = shards;
         _isLoading = false;
         _statusMessage = shards.isEmpty
-            ? t.e2eeNoShards
-            : t.e2eeReadyWithShards(count: shards.length);
+            ? t.common.e2eeNoShards
+            : t.chat.e2eeReadyWithShards(count: shards.length);
       });
 
       return shards;
@@ -89,7 +91,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       setState(() {
         _isLoading = false;
         _shards = [];
-        _statusMessage = t.e2eeLoadFailed;
+        _statusMessage = t.common.e2eeLoadFailed;
       });
       return [];
     }
@@ -104,7 +106,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
     final canRecover = totalShards >= threshold;
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.e2eeRecoverKeyTitle)),
+      appBar: AppBar(title: Text(t.main.e2eeRecoverKeyTitle)),
       body: _isLoading
           ? const Center(child: CupertinoActivityIndicator())
           : Column(
@@ -152,8 +154,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                     children: [
                       Text(
                         canRecover
-                            ? t.e2eeCanRecoverKey
-                            : t.e2eeInsufficientShards,
+                            ? t.main.e2eeCanRecoverKey
+                            : t.main.e2eeInsufficientShards,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -162,7 +164,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        t.e2eeShardAvailableInfo(
+                        t.common.e2eeShardAvailableInfo(
                           available: totalShards,
                           required: threshold,
                         ),
@@ -175,7 +177,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        t.e2eeSocialZeroTrustHint1,
+                        t.main.e2eeSocialZeroTrustHint1,
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey.shade600,
@@ -222,7 +224,9 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                         if (_currentProxyName != null) ...[
                           const SizedBox(height: 4),
                           Text(
-                            t.e2eeContactingProxy(name: _currentProxyName!),
+                            t.common.e2eeContactingProxy(
+                              name: _currentProxyName!,
+                            ),
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade600,
@@ -242,7 +246,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                t.e2eeRecoveryProgressLabel(
+                t.main.e2eeRecoveryProgressLabel(
                   collected: _collectedCount,
                   total: threshold,
                 ),
@@ -269,7 +273,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   }
 
   Widget _buildShardCard(Map<String, dynamic> shard) {
-    final proxyUid = shard['proxy_uid']?.toString() ?? t.unknown;
+    final proxyUid = shard['proxy_uid']?.toString() ?? t.common.unknown;
     final shardIndex = shard['shard_index'] ?? 0;
     final totalShards = shard['total_shards'] ?? 3;
     final status = shard['status']?.toString() ?? 'unknown';
@@ -307,8 +311,13 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             ),
           ),
         ),
-        title: Text(t.e2eeProxyUser(uid: proxyUid)),
-        subtitle: Text(t.e2eeShardLabel(index: shardIndex as Object, total: totalShards as Object)),
+        title: Text(t.main.e2eeProxyUser(uid: proxyUid)),
+        subtitle: Text(
+          t.main.e2eeShardLabel(
+            index: shardIndex as Object,
+            total: totalShards as Object,
+          ),
+        ),
         trailing: Icon(statusIcon, color: statusColor, size: 20),
       ),
     );
@@ -317,12 +326,12 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   Widget _buildEmptyView() {
     return Expanded(
       child: NoDataView(
-        text: t.e2eeNoRecoveryShards,
-        description: t.e2eeSocialZeroTrustHint2,
+        text: t.common.e2eeNoRecoveryShards,
+        description: t.main.e2eeSocialZeroTrustHint2,
         icon: Icons.info_outline,
         iconSize: 64,
         onTop: _loadShards,
-        retryLabel: t.e2eeReloadShards,
+        retryLabel: t.main.e2eeReloadShards,
       ),
     );
   }
@@ -349,13 +358,13 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                   children: [
                     const CupertinoActivityIndicator(radius: 10),
                     const SizedBox(width: 8),
-                    Text(t.e2eeRecovering),
+                    Text(t.main.e2eeRecovering),
                   ],
                 )
               : Text(
                   canRecover
-                      ? t.e2eeStartRecoveryBtn(required: threshold)
-                      : t.e2eeInsufficientShardBtn(
+                      ? t.error.e2eeStartRecoveryBtn(required: threshold)
+                      : t.error.e2eeInsufficientShardBtn(
                           required: threshold,
                           current: _shards.length,
                         ),
@@ -384,12 +393,12 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               if (collected < total) {
                 final shard = _shards[collected];
                 _currentProxyName = shard['proxy_uid']?.toString() ?? '';
-                _statusMessage = t.e2eeCollectingShards(
+                _statusMessage = t.main.e2eeCollectingShards(
                   collected: collected,
                   total: threshold,
                 );
               } else {
-                _statusMessage = t.e2eeShardsCollected;
+                _statusMessage = t.main.e2eeShardsCollected;
               }
             });
           }
@@ -404,27 +413,27 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             context: context,
             builder: (context) {
               return CupertinoAlertDialog(
-                title: Text(t.e2eeRecoverSuccess),
+                title: Text(t.common.e2eeRecoverSuccess),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.e2eeKeyRestored),
+                    Text(t.main.e2eeKeyRestored),
                     const SizedBox(height: 8),
                     Text(
-                      t.e2eeUsedShards(count: _collectedCount),
+                      t.main.e2eeUsedShards(count: _collectedCount),
                       style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      t.e2eeSocialZeroTrustHint3,
+                      t.main.e2eeSocialZeroTrustHint3,
                       style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
                   ],
                 ),
                 actions: [
                   CupertinoDialogAction(
-                    child: Text(t.buttonOk),
+                    child: Text(t.common.buttonOk),
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.pop(context);
@@ -439,15 +448,15 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             context: context,
             builder: (context) {
               return CupertinoAlertDialog(
-                title: Text(t.e2eeRecoverFailed),
+                title: Text(t.common.e2eeRecoverFailed),
                 content: Text(_statusMessage),
                 actions: [
                   CupertinoDialogAction(
-                    child: Text(t.buttonRetry),
+                    child: Text(t.common.buttonRetry),
                     onPressed: () => Navigator.pop(context),
                   ),
                   CupertinoDialogAction(
-                    child: Text(t.buttonCancel),
+                    child: Text(t.common.buttonCancel),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -460,22 +469,22 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       if (mounted) {
         setState(() {
           _isRecovering = false;
-          _statusMessage = t.e2eeRecoveryFailed;
+          _statusMessage = t.common.e2eeRecoveryFailed;
         });
 
         showCupertinoDialog<void>(
           context: context,
           builder: (context) {
             return CupertinoAlertDialog(
-              title: Text(t.e2eeRecoverFailed),
-              content: Text(t.e2eeRecoverKeyFailed),
+              title: Text(t.common.e2eeRecoverFailed),
+              content: Text(t.common.e2eeRecoverKeyFailed),
               actions: [
                 CupertinoDialogAction(
-                  child: Text(t.buttonRetry),
+                  child: Text(t.common.buttonRetry),
                   onPressed: () => Navigator.pop(context),
                 ),
                 CupertinoDialogAction(
-                  child: Text(t.buttonCancel),
+                  child: Text(t.common.buttonCancel),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

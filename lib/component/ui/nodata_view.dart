@@ -22,7 +22,7 @@ class NoDataView extends StatelessWidget {
   /// 带 borderRadius 的矩形，形状由传入的 BorderRadiusGeometry 决定（对齐 user_device 等矩形空态）。
   final BorderRadiusGeometry? iconBgBorderRadius;
 
-  /// 重试按钮文案。null = t.buttonRetry（向后兼容默认）；非 null 时覆盖默认"重试"文本
+  /// 重试按钮文案。null = t.common.buttonRetry（向后兼容默认）；非 null 时覆盖默认"重试"文本
   /// （对齐 e2ee_social_recover 等需要自定义"重新加载分片"等语义的场景）。
   final String? retryLabel;
 
@@ -117,7 +117,7 @@ class NoDataView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    retryLabel ?? t.buttonRetry,
+                    retryLabel ?? t.common.buttonRetry,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.primary, // 使用主题主色

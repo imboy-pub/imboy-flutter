@@ -59,12 +59,12 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.liveRoomCreateTitle),
+        title: Text(t.chat.liveRoomCreateTitle),
         content: TextField(
           controller: titleController,
           decoration: InputDecoration(
-            labelText: t.liveRoomTitleLabel,
-            hintText: t.liveRoomTitleHint,
+            labelText: t.main.liveRoomTitleLabel,
+            hintText: t.main.liveRoomTitleHint,
           ),
           autofocus: true,
           maxLength: 100,
@@ -72,11 +72,11 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(t.buttonCreate),
+            child: Text(t.common.buttonCreate),
           ),
         ],
       ),
@@ -85,11 +85,11 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     if (confirmed != true || !mounted) return;
     final title = titleController.text.trim();
     if (title.isEmpty) {
-      EasyLoading.showToast(t.liveRoomTitleRequired);
+      EasyLoading.showToast(t.common.error.liveRoomTitleRequired);
       return;
     }
 
-    EasyLoading.show(status: t.liveRoomCreating);
+    EasyLoading.show(status: t.chat.liveRoomCreating);
     final room = await _api.create(title: title);
     EasyLoading.dismiss();
 
@@ -110,7 +110,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.myLive,
+        title: t.main.myLive,
         rightDMActions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -123,7 +123,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         child: state.isLoading && state.items.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : state.items.isEmpty
-            ? NoDataView(text: t.noData)
+            ? NoDataView(text: t.common.noData)
             : ListView.separated(
                 controller: _scrollController,
                 itemCount: state.items.length + (state.hasMore ? 1 : 0),
@@ -193,7 +193,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
           if (room.isLive)
             IconButton(
               icon: const Icon(Icons.play_circle_outline),
-              tooltip: t.liveRoomWatch,
+              tooltip: t.chat.liveRoomWatch,
               onPressed: () =>
                   context.push('/live_room/subscriber', extra: room),
             ),

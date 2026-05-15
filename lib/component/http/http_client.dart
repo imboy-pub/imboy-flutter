@@ -291,7 +291,7 @@ class HttpClient {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(t.loginExpiredMessage),
+              content: Text(t.chat.loginExpiredMessage),
               duration: const Duration(seconds: 2),
               backgroundColor: Colors.orange,
             ),
@@ -369,7 +369,10 @@ class HttpClient {
     void Function(IMBoyHttpResponse)? onResponse,
   }) async {
     if (!_isNetworkAvailable) {
-      return handleException(uri, NetworkException(message: t.tipConnectDesc));
+      return handleException(
+        uri,
+        NetworkException(message: t.common.tipConnectDesc),
+      );
     }
     try {
       await _setDefaultConfig(uri);
@@ -495,7 +498,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     if (!_isNetworkAvailable) {
-      throw NetworkException(message: t.tipConnectDesc);
+      throw NetworkException(message: t.common.tipConnectDesc);
     }
     await _setDefaultConfig(urlPath);
     return _dio.download(

@@ -63,7 +63,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      String msg = t.tipConnectDesc;
+      String msg = t.common.tipConnectDesc;
       EasyLoading.showInfo(' $msg        ');
       return;
     }
@@ -310,7 +310,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         scrolledUnderElevation: 0,
         leading: const SizedBox.shrink(),
         title: Text(
-          t.titleContact,
+          t.common.titleContact,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -323,7 +323,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               context.pushNamed('user_tag_list');
             },
             icon: const Icon(Icons.label_outline, size: 24),
-            tooltip: t.tags,
+            tooltip: t.contact.tags,
             color: AppColors.getTextColor(brightness),
           ),
           IconButton(
@@ -331,7 +331,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               context.push('/contact/add_friend');
             },
             icon: const Icon(Icons.person_add_alt_outlined, size: 24),
-            tooltip: t.addFriend,
+            tooltip: t.common.addFriend,
             color: AppColors.getTextColor(brightness),
           ),
           const SizedBox(width: 8),
@@ -417,7 +417,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           if (!state.isLoading && state.contactList.isEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: NoDataView(text: t.noContacts),
+              child: NoDataView(text: t.common.noContacts),
             ),
         ],
       ),

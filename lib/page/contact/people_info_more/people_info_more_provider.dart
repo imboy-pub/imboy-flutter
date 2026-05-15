@@ -60,7 +60,7 @@ class PeopleInfoMoreNotifier extends _$PeopleInfoMoreNotifier {
     state = state.copyWith(
       sign: model.sign,
       source: model.sourceTr,
-      sourcePrefix: model.isFrom == 1 ? '' : t.otherParty,
+      sourcePrefix: model.isFrom == 1 ? '' : t.main.otherParty,
     );
 
     // 获取共同群组

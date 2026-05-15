@@ -57,7 +57,7 @@ class RecentlyRegisteredUserNotifier
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      String msg = t.tipConnectDesc;
+      String msg = t.common.tipConnectDesc;
       EasyLoading.showError(' $msg        ');
       return [];
     }

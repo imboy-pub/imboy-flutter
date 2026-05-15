@@ -53,7 +53,8 @@ class UserTagRelationPage extends ConsumerStatefulWidget {
 }
 
 class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
-  final TextfieldTagsController<dynamic> _tagController = TextfieldTagsController<dynamic>();
+  final TextfieldTagsController<dynamic> _tagController =
+      TextfieldTagsController<dynamic>();
   List<String> _originalTags = [];
   Map<String, int> _tagIdByName = {};
   bool _loaded = false;
@@ -80,8 +81,13 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
     final statistics = await ref
         .read(userTagRelationProvider.notifier)
         .getTagStatistics(widget.scene, ensureTags: tagItems);
-    final res = List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>);
-    _tagIdByName = Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
+    final res = List<String>.from(
+      (statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>,
+    );
+    _tagIdByName = Map<String, int>.from(
+      (statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{})
+          as Map<dynamic, dynamic>,
+    );
     // 当前 tag合并到 recentTagItems
     for (var item in tagItems) {
       if (!res.contains(item)) {
@@ -104,7 +110,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
         _valueChanged = diff;
       });
       if (diff) {
-        _tagController.setError = t.needSubmitEffect;
+        _tagController.setError = t.common.needSubmitEffect;
       }
     });
   }
@@ -129,12 +135,12 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
         );
         if ((tag.length as int) > 14) {
           // 最最最最最最最最最最最最最最1
-          return t.upToWords(param: '14');
+          return t.main.upToWords(param: '14');
         }
         if (_tagController.getTags != null &&
             _tagController.getTags!.contains(tag)) {
           // return 'you already entered that';
-          return t.alreadyEntered;
+          return t.chat.alreadyEntered;
         }
         return null;
       },
@@ -170,7 +176,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                   ),
                   hintText: inputFieldValues.tags.isNotEmpty
                       ? ''
-                      : t.selectOrEnterTag,
+                      : t.contact.selectOrEnterTag,
                   hintStyle: TextStyle(
                     color: colorScheme.outline.withValues(alpha: 0.5),
                   ),
@@ -246,7 +252,7 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
           ? colorScheme.surface
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
-        title: widget.title ?? t.addTag,
+        title: widget.title ?? t.common.addTag,
         automaticallyImplyLeading: true,
       ),
       body: SizedBox(
@@ -254,9 +260,9 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
         child: !_loaded
             ? const SizedBox.shrink()
             : FilterListWidget<String>(
-                resetButtonText: t.buttonSetEmpty,
-                applyButtonText: t.buttonConfirm,
-                selectedItemsText: t.selectedItems(param: '').trim(),
+                resetButtonText: t.common.buttonSetEmpty,
+                applyButtonText: t.common.buttonConfirm,
+                selectedItemsText: t.common.selectedItems(param: '').trim(),
                 header: _buildHeader(context),
                 enableOnlySingleSelection: false,
                 listData: relationState.recentTagItems,

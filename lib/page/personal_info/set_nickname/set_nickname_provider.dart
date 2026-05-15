@@ -120,30 +120,30 @@ class SetNicknameNotifier extends _$SetNicknameNotifier {
 
     // 1. 长度校验
     if (trimmed.isEmpty) {
-      return t.nicknameEmptyError;
+      return t.common.nicknameEmptyError;
     }
 
     if (trimmed.length < 2) {
-      return t.nicknameLengthError;
+      return t.common.nicknameLengthError;
     }
 
     if (nickname.length > 24) {
-      return t.nicknameLengthError;
+      return t.common.nicknameLengthError;
     }
 
     // 2. 空白字符校验
     if (trimmed != nickname || trimmed.isEmpty) {
-      return t.nicknameWhitespaceError;
+      return t.common.nicknameWhitespaceError;
     }
 
     // 3. 仅表情符号校验
     if (_isOnlyEmojis(trimmed)) {
-      return t.nicknameEmojiOnlyError;
+      return t.common.nicknameEmojiOnlyError;
     }
 
     // 4. 敏感词校验
     if (_containsSensitiveWords(trimmed)) {
-      return t.nicknameSensitiveWordError;
+      return t.common.nicknameSensitiveWordError;
     }
 
     return '';

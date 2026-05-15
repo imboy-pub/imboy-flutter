@@ -202,13 +202,13 @@ class ProfileNotifier extends _$ProfileNotifier {
     String completenessLevel;
     Color completenessColor;
     if (completeness >= 80) {
-      completenessLevel = t.good; // 使用 "很棒" / "Great"
+      completenessLevel = t.main.good; // 使用 "很棒" / "Great"
       completenessColor = Colors.green;
     } else if (completeness >= 60) {
-      completenessLevel = t.good; // 使用 "很棒" / "Great"
+      completenessLevel = t.main.good; // 使用 "很棒" / "Great"
       completenessColor = Colors.orange;
     } else {
-      completenessLevel = t.toBeCompleted;
+      completenessLevel = t.main.toBeCompleted;
       completenessColor = Colors.red;
     }
 
@@ -477,19 +477,19 @@ class ProfileNotifier extends _$ProfileNotifier {
   String getGenderText(int gender) {
     switch (gender) {
       case 1:
-        return t.male;
+        return t.main.male;
       case 2:
-        return t.female;
+        return t.main.female;
       case 3:
-        return t.secret;
+        return t.main.secret;
       default:
-        return t.notSet;
+        return t.common.notSet;
     }
   }
 
   /// 格式化地区显示
   String formatRegion(String region) {
-    if (region.isEmpty) return t.notSet;
+    if (region.isEmpty) return t.common.notSet;
 
     List<String> parts = region.split(' ');
     if (parts.length >= 2) {
@@ -502,12 +502,12 @@ class ProfileNotifier extends _$ProfileNotifier {
   List<String> getCompletionSuggestions() {
     List<String> suggestions = [];
 
-    if (state.avatar.isEmpty) suggestions.add(t.setAvatar);
-    if (state.nickname.isEmpty) suggestions.add(t.setNickname);
-    if (state.gender == 0) suggestions.add(t.setGender);
-    if (state.region.isEmpty) suggestions.add(t.setRegion);
-    if (state.signature.isEmpty) suggestions.add(t.setSignature);
-    if (state.birthday.isEmpty) suggestions.add(t.setBirthday);
+    if (state.avatar.isEmpty) suggestions.add(t.chat.setAvatar);
+    if (state.nickname.isEmpty) suggestions.add(t.account.setNickname);
+    if (state.gender == 0) suggestions.add(t.account.setGender);
+    if (state.region.isEmpty) suggestions.add(t.common.setRegion);
+    if (state.signature.isEmpty) suggestions.add(t.chat.setSignature);
+    if (state.birthday.isEmpty) suggestions.add(t.account.setBirthday);
 
     return suggestions;
   }

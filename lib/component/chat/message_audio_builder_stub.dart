@@ -20,7 +20,11 @@ class AudioMessageBuilder extends StatefulWidget {
   final bool isPaused;
   final int currentPositionMs;
   final int currentDurationMs;
-  final void Function(String audioPath, CustomMessage msg, Duration totalDuration)?
+  final void Function(
+    String audioPath,
+    CustomMessage msg,
+    Duration totalDuration,
+  )?
   onPlayPause;
 
   const AudioMessageBuilder({
@@ -58,7 +62,10 @@ class _AudioMessageBuilderStubState extends State<AudioMessageBuilder> {
           children: [
             const Icon(Icons.audiotrack, size: 24),
             const SizedBox(width: 12),
-            Text(t.webAudioNotSupported, style: const TextStyle(fontSize: 14)),
+            Text(
+              t.common.webAudioNotSupported,
+              style: const TextStyle(fontSize: 14),
+            ),
           ],
         ),
       ),

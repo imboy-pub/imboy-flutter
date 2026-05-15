@@ -185,7 +185,7 @@ class ContactRepo {
       return ContactModel.fromMap({
         ContactRepo.peerId: uid,
         ContactRepo.account: '',
-        ContactRepo.nickname: t.botQianFan,
+        ContactRepo.nickname: t.main.botQianFan,
         ContactRepo.sign: '',
         ContactRepo.avatar: '',
       });

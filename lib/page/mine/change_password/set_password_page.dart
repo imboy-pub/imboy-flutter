@@ -28,7 +28,7 @@ class SetPasswordPage extends ConsumerWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.setPassword,
+        title: t.account.setPassword,
       ),
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
@@ -71,7 +71,7 @@ class SetPasswordPage extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              t.setLoginPassword,
+                              t.account.setLoginPassword,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -80,7 +80,7 @@ class SetPasswordPage extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              t.enhanceAccountSecurity,
+                              t.account.enhanceAccountSecurity,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: colorScheme.onSurface.withAlpha(179),
@@ -102,7 +102,7 @@ class SetPasswordPage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.setPasswordSecurityTips,
+                          t.common.setPasswordSecurityTips,
                           style: TextStyle(
                             fontSize: 14,
                             color: colorScheme.onSurface.withAlpha(204),
@@ -111,7 +111,7 @@ class SetPasswordPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          t.passwordLengthRequirement,
+                          t.account.passwordLengthRequirement,
                           style: TextStyle(
                             fontSize: 13,
                             color: colorScheme.primary,
@@ -159,7 +159,7 @@ class SetPasswordPage extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              t.newPassword,
+                              t.account.newPassword,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -171,7 +171,7 @@ class SetPasswordPage extends ConsumerWidget {
                         const SizedBox(height: 12),
                         PasswordTextField(
                           obscureText: state.newPwdObscure,
-                          hintText: t.pleaseEnterPassword,
+                          hintText: t.account.pleaseEnterPassword,
                           onTap: () {
                             ref
                                 .read(setPasswordProvider.notifier)
@@ -213,7 +213,7 @@ class SetPasswordPage extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              t.retypePassword,
+                              t.account.retypePassword,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -225,7 +225,7 @@ class SetPasswordPage extends ConsumerWidget {
                         const SizedBox(height: 12),
                         PasswordTextField(
                           obscureText: state.retypePwdObscure,
-                          hintText: t.retypePassword,
+                          hintText: t.account.retypePassword,
                           onTap: () {
                             ref
                                 .read(setPasswordProvider.notifier)
@@ -255,13 +255,13 @@ class SetPasswordPage extends ConsumerWidget {
               ),
               width: double.infinity,
               child: RoundedElevatedButton(
-                text: t.buttonConfirm,
+                text: t.common.buttonConfirm,
                 onPressed: () async {
                   bool res = await ref
                       .read(setPasswordProvider.notifier)
                       .setPassword();
                   if (res && context.mounted) {
-                    EasyLoading.showSuccess(t.confirmRecoverSuccess);
+                    EasyLoading.showSuccess(t.common.confirmRecoverSuccess);
                     final user = UserRepoLocal.to.current;
                     final needGuide =
                         (user.email.isEmpty || user.mobile.isEmpty);

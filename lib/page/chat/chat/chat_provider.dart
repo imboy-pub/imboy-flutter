@@ -370,7 +370,8 @@ class ChatNotifier extends _$ChatNotifier {
       } else {
         _chatService?.insertAllMessages(newItems, index: 0);
         state = state.copyWith(
-          nextAutoId: newItems.first.metadata?['auto_id'] as int? ?? state.nextAutoId,
+          nextAutoId:
+              newItems.first.metadata?['auto_id'] as int? ?? state.nextAutoId,
         );
         iPrint('loadMoreMessages: 已插入消息到 ChatService');
       }
@@ -692,7 +693,10 @@ class ChatNotifier extends _$ChatNotifier {
     }
 
     final clientSendTs = DateTimeHelper.millisecond();
-    Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(obj.payload as Map<dynamic, dynamic>);    payloadWithTs['client_send_ts'] = clientSendTs;
+    Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(
+      obj.payload as Map<dynamic, dynamic>,
+    );
+    payloadWithTs['client_send_ts'] = clientSendTs;
 
     // v2.0: 优先使用 MessageModel 的顶层字段
     String msgType = obj.msgType ?? '';
@@ -829,7 +833,8 @@ class ChatNotifier extends _$ChatNotifier {
     final originalPayload = msg['payload'];
 
     // v2.0: 设置顶层字段（如果未设置）
-    if (!msg.containsKey('msg_type') && originalPayload is Map<String, dynamic>) {
+    if (!msg.containsKey('msg_type') &&
+        originalPayload is Map<String, dynamic>) {
       msg['msg_type'] = originalPayload['msg_type']?.toString() ?? '';
     }
     if (!msg.containsKey('action')) {
@@ -960,23 +965,23 @@ class ChatNotifier extends _$ChatNotifier {
     if (errorStr.contains('no_recipient_keys') ||
         errorStr.contains('设备密钥') ||
         errorStr.contains('device.*key')) {
-      return t.e2eeErrNoRecipientKey;
+      return t.common.e2eeErrNoRecipientKey;
     }
 
     if (errorStr.contains('timeout') || errorStr.contains('超时')) {
-      return t.e2eeErrTimeout;
+      return t.error.e2eeErrTimeout;
     }
 
     if (errorStr.contains('network') || errorStr.contains('网络')) {
-      return t.e2eeErrNetwork;
+      return t.error.e2eeErrNetwork;
     }
 
     if (errorStr.contains('invalid') || errorStr.contains('格式')) {
-      return t.e2eeErrInvalidFormat;
+      return t.chat.e2eeErrInvalidFormat;
     }
 
     // 默认错误消息（不暴露技术细节）
-    return t.e2eeErrDefault;
+    return t.main.e2eeErrDefault;
   }
 
   // ===== 消息操作 =====
@@ -1314,7 +1319,7 @@ class ChatNotifier extends _$ChatNotifier {
     );
 
     if (path != null) {
-      EasyLoading.showToast(t.saveSuccess);
+      EasyLoading.showToast(t.common.saveSuccess);
     }
   }
 
@@ -1322,7 +1327,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   /// 获取群组标题
   Future<String> groupTitle(String gid, String prefix, int num) async {
-    String prefix2 = strNoEmpty(prefix) ? prefix : t.groupChat;
+    String prefix2 = strNoEmpty(prefix) ? prefix : t.chat.groupChat;
     if (num > 0) {
       return "$prefix2($num)";
     } else {
@@ -1374,7 +1379,9 @@ class ChatNotifier extends _$ChatNotifier {
       if (msg == null) return null;
       final currentUid = UserRepoLocal.to.currentUid;
 
-      final newPayload = Map<String, dynamic>.from(msg.payload as Map<dynamic, dynamic>);
+      final newPayload = Map<String, dynamic>.from(
+        msg.payload as Map<dynamic, dynamic>,
+      );
       final reactionsRaw = newPayload['reactions'];
       final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
@@ -1493,7 +1500,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (canCopy) {
       items.add(
         popupmenu.MenuItem(
-          title: t.buttonCopy,
+          title: t.common.buttonCopy,
           userInfo: {"id": "copy", "msg": message},
           textAlign: TextAlign.center,
           image: const Icon(Icons.copy, size: 16, color: Color(0xffc5c5c5)),
@@ -1513,7 +1520,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (canSave) {
       items.add(
         popupmenu.MenuItem(
-          title: t.buttonSave,
+          title: t.common.buttonSave,
           userInfo: {"id": "save", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1526,7 +1533,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (canCollect) {
       items.add(
         popupmenu.MenuItem(
-          title: t.favorites,
+          title: t.main.favorites,
           userInfo: {"id": "collect", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1551,7 +1558,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (!isRevoked) {
       items.add(
         popupmenu.MenuItem(
-          title: t.forward,
+          title: t.chat.forward,
           userInfo: {"id": "transpond", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(fontSize: 10.0, color: Color(0xffc5c5c5)),
@@ -1560,7 +1567,7 @@ class ChatNotifier extends _$ChatNotifier {
       );
       items.add(
         popupmenu.MenuItem(
-          title: t.quote,
+          title: t.main.quote,
           userInfo: {"id": "quote", "msg": message},
           textAlign: TextAlign.center,
           image: const Icon(
@@ -1575,7 +1582,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (message.authorId == UserRepoLocal.to.currentUid && !isRevoked) {
       items.add(
         popupmenu.MenuItem(
-          title: t.revoke,
+          title: t.chat.revoke,
           userInfo: {"id": "revoke", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1590,7 +1597,7 @@ class ChatNotifier extends _$ChatNotifier {
 
     items.add(
       popupmenu.MenuItem(
-        title: t.buttonDelete,
+        title: t.common.buttonDelete,
         userInfo: {"id": "delete", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -1609,9 +1616,9 @@ class ChatNotifier extends _$ChatNotifier {
 
   String parseSysPrompt(String sysPrompt) {
     if (sysPrompt == 'in_denylist') {
-      sysPrompt = t.sendMsgRejected;
+      sysPrompt = t.chat.sendMsgRejected;
     } else if (sysPrompt == 'not_a_friend') {
-      sysPrompt = t.sendMsgNotFriendTips;
+      sysPrompt = t.common.sendMsgNotFriendTips;
     }
     return sysPrompt;
   }
@@ -1902,7 +1909,8 @@ class ChatNotifier extends _$ChatNotifier {
       if (newItems.isNotEmpty) {
         _chatService?.insertAllMessages(newItems);
         state = state.copyWith(
-          prevAutoId: newItems.last.metadata?['auto_id'] as int? ?? state.prevAutoId,
+          prevAutoId:
+              newItems.last.metadata?['auto_id'] as int? ?? state.prevAutoId,
         );
       }
 
@@ -2334,7 +2342,9 @@ class ChatNotifier extends _$ChatNotifier {
       final repo = MessageRepo(tableName: tb);
       final m = await repo.find(messageId);
       if (m == null) return;
-      final payload = Map<String, dynamic>.from(m.payload as Map<dynamic, dynamic>);
+      final payload = Map<String, dynamic>.from(
+        m.payload as Map<dynamic, dynamic>,
+      );
       if (!_isBurnPayload(payload)) return;
 
       final burnAfter = _burnAfterMsFromPayload(payload);
@@ -2390,7 +2400,9 @@ class ChatNotifier extends _$ChatNotifier {
         return;
       }
 
-      final payload = Map<String, dynamic>.from(m.payload as Map<dynamic, dynamic>);
+      final payload = Map<String, dynamic>.from(
+        m.payload as Map<dynamic, dynamic>,
+      );
       if (!_isBurnPayload(payload)) {
         await removeMessage(conversation, await m.toTypeMessage());
         return;

@@ -105,7 +105,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     final hasLocation = await getLocation();
     if (!hasLocation) {
       final error =
-          "${t.failedGetLatLong}，${t.notTurnedLocationService}，${t.or} ${t.notAuthorizedLatLong}";
+          "${t.common.failedGetLatLong}，${t.common.notTurnedLocationService}，${t.main.or} ${t.common.notAuthorizedLatLong}";
       return {'error': error};
     }
 
@@ -133,7 +133,9 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
             id: itemMap['user_id'] as int,
             account: itemMap['account'] as String? ?? '',
             avatar: itemMap['avatar'] as String? ?? '',
-            nickname: itemMap['alias'] as String? ?? (itemMap['nickname'] as String? ?? ''),
+            nickname:
+                itemMap['alias'] as String? ??
+                (itemMap['nickname'] as String? ?? ''),
           ),
         );
       }
@@ -168,12 +170,17 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
             id: itemMap['user_id'] as int,
             account: itemMap['account'] as String? ?? '',
             avatar: itemMap['avatar'] as String? ?? '',
-            nickname: itemMap['alias'] as String? ?? (itemMap['nickname'] as String? ?? ''),
+            nickname:
+                itemMap['alias'] as String? ??
+                (itemMap['nickname'] as String? ?? ''),
           ),
         );
       }
     }
 
-    return {'group': payload['group'] ?? <String, dynamic>{}, 'memberList': memberList2};
+    return {
+      'group': payload['group'] ?? <String, dynamic>{},
+      'memberList': memberList2,
+    };
   }
 }

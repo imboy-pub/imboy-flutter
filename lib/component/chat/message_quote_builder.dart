@@ -31,7 +31,8 @@ class QuoteMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool userIsAuthor = user.id == message.authorId;
-    Map<String, dynamic> quoteMsgMap = message.metadata?['quote_msg'] as Map<String, dynamic>? ?? {};
+    Map<String, dynamic> quoteMsgMap =
+        message.metadata?['quote_msg'] as Map<String, dynamic>? ?? {};
 
     // 如果引用消息数据为空，显示错误提示
     if (quoteMsgMap.isEmpty) {
@@ -125,7 +126,8 @@ class QuoteMessageBuilder extends StatelessWidget {
                                 flex: 2,
                                 child: Text(
                                   (message.metadata?['quote_msg_author_name'] ??
-                                      '') as String,
+                                          '')
+                                      as String,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -184,7 +186,8 @@ class QuoteMessageBuilder extends StatelessWidget {
                               confirmOpenFile(context, uri);
                             } else if (quoteMsg is CustomMessage) {
                               String txt =
-                                  quoteMsg.metadata?['quote_text'] as String? ?? '';
+                                  quoteMsg.metadata?['quote_text'] as String? ??
+                                  '';
                               if (txt.isNotEmpty) {
                                 showTextMessage(txt);
                               }
@@ -270,7 +273,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        t.quoteMessageNotAvailable,
+                        t.common.quoteMessageNotAvailable,
                         style: TextStyle(
                           color: errorColor,
                           fontSize: 12,
@@ -315,7 +318,7 @@ class QuoteMessageBuilder extends StatelessWidget {
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              (quoteMsg.text != null) ? quoteMsg.text! : t.image,
+              (quoteMsg.text != null) ? quoteMsg.text! : t.chat.image,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -341,7 +344,7 @@ class QuoteMessageBuilder extends StatelessWidget {
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              quoteMsg.name.isNotEmpty ? quoteMsg.name : t.file,
+              quoteMsg.name.isNotEmpty ? quoteMsg.name : t.chat.file,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -361,27 +364,31 @@ class QuoteMessageBuilder extends StatelessWidget {
 
       switch (msgType) {
         case 'voice':
-          displayText = t.voiceMessage;
+          displayText = t.chat.voiceMessage;
           iconData = Icons.mic;
           break;
         case 'video':
-          displayText = t.videoMessage;
+          displayText = t.chat.videoMessage;
           iconData = Icons.videocam;
           break;
         case 'location':
-          displayText = quoteMsg.metadata?['title'] as String? ?? t.locationMessage;
+          displayText =
+              quoteMsg.metadata?['title'] as String? ??
+              t.common.locationMessage;
           iconData = Icons.location_on;
           break;
         case 'visitCard':
-          displayText = quoteMsg.metadata?['title'] as String? ?? t.card;
+          displayText = quoteMsg.metadata?['title'] as String? ?? t.chat.card;
           iconData = Icons.person;
           break;
         case 'revoked':
-          displayText = t.messageRevoked;
+          displayText = t.common.messageRevoked;
           iconData = Icons.block;
           break;
         default:
-          displayText = quoteMsg.metadata?['quote_text'] as String? ?? t.customMessage;
+          displayText =
+              quoteMsg.metadata?['quote_text'] as String? ??
+              t.chat.customMessage;
           iconData = Icons.insert_drive_file;
       }
 
@@ -412,7 +419,7 @@ class QuoteMessageBuilder extends StatelessWidget {
       );
     } else {
       return Text(
-        t.unsupportedMessageType,
+        t.chat.unsupportedMessageType,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           fontSize: 13,

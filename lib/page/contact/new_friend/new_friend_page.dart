@@ -78,9 +78,9 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         padding: const EdgeInsets.all(4.0),
         child: searchBar(
           context,
-          hintText: t.hintLoginAccount,
-          queryTips: t.hintLoginAccount,
-          searchLabel: t.hintLoginAccount,
+          hintText: t.account.hintLoginAccount,
+          queryTips: t.account.hintLoginAccount,
+          searchLabel: t.account.hintLoginAccount,
           doSearch: ((query) async {
             return notifier.userSearch(kwd: query as String?);
           }),
@@ -114,7 +114,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
               ? Colors.black87
               : Colors.white,
           child: Center(
-            child: Text(t.userNotExist, style: const TextStyle(fontSize: 18)),
+            child: Text(
+              t.common.userNotExist,
+              style: const TextStyle(fontSize: 18),
+            ),
           ),
         ),
       ];
@@ -145,12 +148,12 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                   width: 80,
                   alignment: Alignment.centerRight,
                   child: (model.isFriend ?? false)
-                      ? Text(t.added)
-                      : Text(t.buttonAdd),
+                      ? Text(t.common.added)
+                      : Text(t.common.buttonAdd),
                 ),
           onTap: () {
             if (isSelf) {
-              // EasyLoading.showInfo(t.canNotAddYourselfFriend);
+              // EasyLoading.showInfo(t.common.canNotAddYourselfFriend);
               return;
             }
             context.push(
@@ -229,7 +232,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                 );
               },
               icon: Icons.delete_outline,
-              label: t.buttonDelete,
+              label: t.common.buttonDelete,
             ),
           ],
         ),
@@ -296,7 +299,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      t.friendRequestSent,
+                                      t.contact.friendRequestSent,
                                       style: TextStyle(
                                         fontSize: FontSizeType.small.size,
                                         color: Theme.of(
@@ -362,7 +365,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           borderRadius: AppRadius.borderRadiusLarge,
         ),
         child: Text(
-          t.awaitingVerification,
+          t.common.awaitingVerification,
           style: TextStyle(
             fontSize: FontSizeType.small.size,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -398,7 +401,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             ),
           ),
           child: Text(
-            t.accept,
+            t.common.accept,
             style: TextStyle(
               fontSize: FontSizeType.normal.size,
               fontWeight: FontWeight.w600,
@@ -426,7 +429,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             ),
             const SizedBox(width: 4),
             Text(
-              t.added,
+              t.common.added,
               style: TextStyle(
                 fontSize: FontSizeType.small.size,
                 color: Theme.of(context).colorScheme.primary,
@@ -456,7 +459,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             ),
             const SizedBox(width: 4),
             Text(
-              t.expired,
+              t.main.expired,
               style: TextStyle(
                 fontSize: FontSizeType.small.size,
                 color: AppColors.getIosRed(Theme.of(context).brightness),
@@ -474,8 +477,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
   /// 构建空状态
   Widget _buildEmptyState(BuildContext context) {
     return NoDataView(
-      text: t.noNewFriends,
-      description: t.noNewFriendRequests,
+      text: t.common.noNewFriends,
+      description: t.common.noNewFriendRequests,
       icon: Icons.person_add_outlined,
       iconBgSize: 80,
       iconSize: 40,
@@ -490,7 +493,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.newFriend,
+        title: t.contact.newFriend,
         backgroundColor: Theme.of(context).colorScheme.surface,
         rightDMActions: [
           Container(
@@ -534,7 +537,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                       padding: const EdgeInsets.only(bottom: 16.0),
                       itemCount: state.items.length,
                       itemBuilder: (BuildContext context, int index) {
-                        NewFriendModel model = state.items[index] as NewFriendModel;
+                        NewFriendModel model =
+                            state.items[index] as NewFriendModel;
                         return _buildFriendRequestItem(context, model, index);
                       },
                     ),

@@ -54,7 +54,7 @@ class _MinePageState extends ConsumerState<MinePage> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: Text(
-                  t.titleMine,
+                  t.main.titleMine,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
@@ -86,7 +86,7 @@ class _MinePageState extends ConsumerState<MinePage> {
               delegate: SliverChildListDelegate([
                 _buildListItem(
                   context,
-                  title: t.favorites,
+                  title: t.main.favorites,
                   icon: Icons.favorite_outline,
                   iconColor: AppColors.iosRed,
                   onTap: () => context.push('/favorites'),
@@ -94,7 +94,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ),
                 _buildListItem(
                   context,
-                  title: t.storageSpace,
+                  title: t.main.storageSpace,
                   icon: Icons.sd_storage_outlined,
                   iconColor: AppColors.primary,
                   onTap: () => context.push('/storage_space'),
@@ -102,7 +102,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ),
                 _buildListItem(
                   context,
-                  title: t.loginDeviceManagement,
+                  title: t.account.loginDeviceManagement,
                   icon: Icons.devices_outlined,
                   iconColor: AppColors.iosTeal,
                   onTap: () => context.push('/devices'),
@@ -111,7 +111,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 const SizedBox(height: 12),
                 _buildListItem(
                   context,
-                  title: t.setting,
+                  title: t.main.setting,
                   icon: Icons.settings_outlined,
                   iconColor: AppColors.iosGray,
                   onTap: () => context.push('/mine/setting'),
@@ -119,7 +119,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ),
                 _buildListItem(
                   context,
-                  title: t.feedback,
+                  title: t.common.feedback,
                   icon: Icons.feedback_outlined,
                   iconColor: const Color(0xFF5C6BC0),
                   onTap: () => context.push('/feedback'),
@@ -166,7 +166,7 @@ class _MinePageState extends ConsumerState<MinePage> {
             : null,
       ),
       title: Text(
-        nickname ?? t.unknown,
+        nickname ?? t.common.unknown,
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
       ),
       subtitle: Column(
@@ -205,21 +205,21 @@ class _MinePageState extends ConsumerState<MinePage> {
     final List<QuickActionItem> items = [
       QuickActionItem(
         icon: const Icon(Icons.account_balance_wallet_outlined),
-        label: t.wallet,
+        label: t.account.wallet,
         onTap: () => context.push('/wallet'),
         color: AppColors.iosOrange,
       ),
       if (AppFeatureRegistry.isEnabled('channel'))
         QuickActionItem(
           icon: const Icon(Icons.campaign_outlined),
-          label: t.myChannels,
+          label: t.discovery.myChannels,
           onTap: () => context.push('/channel'),
           color: AppColors.primary,
         ),
       // 占位功能，如果没有频道则补齐或留空
       QuickActionItem(
         icon: const Icon(Icons.auto_awesome_outlined),
-        label: t.favorites, // 示例，可根据需要调整
+        label: t.main.favorites, // 示例，可根据需要调整
         onTap: () => context.push('/favorites'),
         color: AppColors.iosRed,
       ),

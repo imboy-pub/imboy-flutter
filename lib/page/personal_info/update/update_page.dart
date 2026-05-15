@@ -106,7 +106,7 @@ class UpdatePage extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      t.buttonAccomplish,
+                      t.common.buttonAccomplish,
                       style: ThemeManager.instance.getTextStyle(
                         FontSizeType.small,
                         fontWeight: FontWeight.w600,
@@ -322,7 +322,7 @@ class UpdatePage extends ConsumerWidget {
           RadioListTile<String>(
             value: '1',
             title: Text(
-              t.male,
+              t.main.male,
               style: TextStyle(
                 fontSize: state.value == '1' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -343,7 +343,7 @@ class UpdatePage extends ConsumerWidget {
           RadioListTile<String>(
             value: '2',
             title: Text(
-              t.female,
+              t.main.female,
               style: TextStyle(
                 fontSize: state.value == '2' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -364,7 +364,7 @@ class UpdatePage extends ConsumerWidget {
           RadioListTile<String>(
             value: '3',
             title: Text(
-              t.keepSecret,
+              t.main.keepSecret,
               style: TextStyle(
                 fontSize: state.value == '3' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onSurface,

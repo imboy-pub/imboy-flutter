@@ -62,7 +62,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                 borderRadius: AppRadius.borderRadiusMedium,
               ),
               child: Text(
-                t.reEdit,
+                t.common.reEdit,
                 style: TextStyle(
                   height: 1.5,
                   color: Theme.of(context).colorScheme.primary,
@@ -92,7 +92,7 @@ class RevokedMessageBuilder extends StatelessWidget {
           }
         } else {
           // 自己撤回的消息
-          nickname = t.you;
+          nickname = t.main.you;
         }
 
         return Container(
@@ -110,9 +110,9 @@ class RevokedMessageBuilder extends StatelessWidget {
                       : const EdgeInsets.only(left: 50),
                   child: Text(
                     // 使用字符串替换传递撤回者信息
-                    nickname == t.you
-                        ? t.messageWasWithdrawn
-                        : t.messageWasWithdrawnWithTitle(param: nickname),
+                    nickname == t.main.you
+                        ? t.chat.messageWasWithdrawn
+                        : t.chat.messageWasWithdrawnWithTitle(param: nickname),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 13,
@@ -136,7 +136,8 @@ class RevokedMessageBuilder extends StatelessWidget {
   Future<Map<String, dynamic>?> _fetchConversationAndContact() async {
     try {
       // 从消息元数据中获取会话UK3
-      String conversationUk3 = message.metadata?['conversation_uk3'] as String? ?? '';
+      String conversationUk3 =
+          message.metadata?['conversation_uk3'] as String? ?? '';
       // 根据会话UK3解析出类型和peerId
       final parts = conversationUk3.split('_');
       if (parts.length >= 3) {

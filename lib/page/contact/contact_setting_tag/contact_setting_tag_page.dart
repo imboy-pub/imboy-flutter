@@ -79,7 +79,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
           ? colorScheme.surface
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
-        title: t.setParam(param: t.remarksTags),
+        title: t.main.setParam(param: t.contact.remarksTags),
         automaticallyImplyLeading: true,
         rightDMActions: [
           TextButton(
@@ -93,7 +93,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                         trimmedText,
                       );
                       if (res) {
-                        EasyLoading.showSuccess(t.tipSuccess);
+                        EasyLoading.showSuccess(t.common.tipSuccess);
                         widget.onRemarkChanged?.call(trimmedText);
                         if (mounted) {
                           Navigator.of(context).pop(trimmedText);
@@ -103,7 +103,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                   }
                 : null, // 如果 valueChanged 为 false，则禁用按钮
             child: Text(
-              t.buttonAccomplish,
+              t.common.buttonAccomplish,
               style: TextStyle(
                 color: notifier.valueChanged
                     ? AppColors.primary
@@ -126,7 +126,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             ),
             child: TextFormField(
               decoration: InputDecoration(
-                labelText: t.remark,
+                labelText: t.contact.remark,
                 border: InputBorder.none,
                 labelStyle: TextStyle(color: colorScheme.primary),
               ),
@@ -151,7 +151,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             ),
             child: ListTile(
               title: Text(
-                t.tags,
+                t.contact.tags,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -191,7 +191,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                 children: [
                   if (_currentTag.isEmpty)
                     Text(
-                      t.addTag,
+                      t.common.addTag,
                       style: TextStyle(
                         fontSize: 14,
                         color: colorScheme.outline,

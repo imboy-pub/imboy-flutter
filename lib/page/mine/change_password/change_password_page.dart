@@ -23,7 +23,7 @@ class ChangePasswordPage extends ConsumerWidget {
     return Scaffold(
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.changeLoginPassword,
+        title: t.account.changeLoginPassword,
       ),
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
@@ -53,11 +53,11 @@ class ChangePasswordPage extends ConsumerWidget {
                   ),
                 ),
                 title: Text(
-                  t.loginPassword,
+                  t.account.loginPassword,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  t.loginPasswordDesc,
+                  t.account.loginPasswordDesc,
                   style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
                 trailing: Container(
@@ -72,7 +72,7 @@ class ChangePasswordPage extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(AppRadius.circle),
                   ),
                   child: Text(
-                    t.enabled,
+                    t.common.enabled,
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark ? colorScheme.primary : AppColors.primary,
@@ -93,22 +93,24 @@ class ChangePasswordPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.changeLoginPassword,
+                    t.account.changeLoginPassword,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    t.passwordMinLength(min: minPasswordLength.toString()),
+                    t.account.passwordMinLength(
+                      min: minPasswordLength.toString(),
+                    ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 20),
                   _PasswordField(
-                    label: t.oldPassword,
-                    hintText: t.enterOldPassword,
+                    label: t.account.oldPassword,
+                    hintText: t.account.enterOldPassword,
                     obscure: state.existingObscure,
                     onToggleObscure: () {
                       ref
@@ -126,15 +128,15 @@ class ChangePasswordPage extends ConsumerWidget {
                     length: state.existingLength,
                     minLength: minPasswordLength,
                     ok: state.existingLengthOk,
-                    okText: t.lengthOk,
-                    errorText: t.passwordMinLength(
+                    okText: t.common.lengthOk,
+                    errorText: t.account.passwordMinLength(
                       min: minPasswordLength.toString(),
                     ),
                   ),
                   const SizedBox(height: 16),
                   _PasswordField(
-                    label: t.newPassword,
-                    hintText: t.enterNewPassword,
+                    label: t.account.newPassword,
+                    hintText: t.account.enterNewPassword,
                     obscure: state.newObscure,
                     onToggleObscure: () {
                       ref
@@ -152,15 +154,15 @@ class ChangePasswordPage extends ConsumerWidget {
                     length: state.newLength,
                     minLength: minPasswordLength,
                     ok: state.newLengthOk,
-                    okText: t.lengthOk,
-                    errorText: t.passwordMinLength(
+                    okText: t.common.lengthOk,
+                    errorText: t.account.passwordMinLength(
                       min: minPasswordLength.toString(),
                     ),
                   ),
                   const SizedBox(height: 16),
                   _PasswordField(
-                    label: t.confirmNewPassword,
-                    hintText: t.enterNewPasswordAgain,
+                    label: t.common.confirmNewPassword,
+                    hintText: t.account.enterNewPasswordAgain,
                     obscure: state.confirmObscure,
                     onToggleObscure: () {
                       ref
@@ -178,10 +180,14 @@ class ChangePasswordPage extends ConsumerWidget {
                     length: state.confirmLength,
                     minLength: minPasswordLength,
                     ok: state.confirmLengthOk && state.passwordMatchOk,
-                    okText: t.validationPassed,
+                    okText: t.common.validationPassed,
                     errorText: !state.confirmLengthOk
-                        ? t.passwordMinLength(min: minPasswordLength.toString())
-                        : (state.passwordMatchOk ? '' : t.passwordMismatch),
+                        ? t.account.passwordMinLength(
+                            min: minPasswordLength.toString(),
+                          )
+                        : (state.passwordMatchOk
+                              ? ''
+                              : t.chat.passwordMismatch),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -224,11 +230,11 @@ class ChangePasswordPage extends ConsumerWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                Text(t.loading),
+                                Text(t.common.loading),
                               ],
                             )
                           : Text(
-                              t.buttonSave,
+                              t.common.buttonSave,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -373,7 +379,7 @@ class _FieldStatusRow extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            t.currentLength(
+            t.main.currentLength(
               param1: length.toString(),
               param2: minLength.toString(),
             ),

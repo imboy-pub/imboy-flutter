@@ -15,14 +15,14 @@ class PrivacyPolicyPage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: GlassAppBar(title: t.privacyPolicy),
+      appBar: GlassAppBar(title: t.main.privacyPolicy),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t.privacyPolicy,
+              t.main.privacyPolicy,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

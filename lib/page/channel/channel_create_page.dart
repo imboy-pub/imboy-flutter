@@ -90,7 +90,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
     }
   }
 
@@ -134,7 +134,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     if (!success) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.t.uploadFailed)));
+      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
     }
   }
 
@@ -147,17 +147,17 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: Text(context.t.takePhoto),
+              title: Text(context.t.main.takePhoto),
               onTap: () => _pickAvatar(ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: Text(context.t.selectFromAlbum),
+              title: Text(context.t.main.selectFromAlbum),
               onTap: () => _pickAvatar(ImageSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.close),
-              title: Text(context.t.buttonCancel),
+              title: Text(context.t.common.buttonCancel),
               onTap: () => Navigator.of(ctx).pop(),
             ),
           ],
@@ -176,7 +176,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     if (_tags.length >= _maxTags) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(t.channelMaxTagsCount)));
+      ).showSnackBar(SnackBar(content: Text(t.contact.channelMaxTagsCount)));
       return;
     }
     setState(() => _tags.add(tag));
@@ -207,7 +207,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(t.confirm),
+                : Text(t.common.confirm),
           ),
         ],
       ),
@@ -216,7 +216,10 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text(t.avatar, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              t.account.avatar,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Center(
               child: InkWell(

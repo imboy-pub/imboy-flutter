@@ -143,7 +143,7 @@ class _RecentlyRegisteredUserPageState
                           Expanded(
                             child: Text(
                               model.region.isEmpty
-                                  ? t.unknownRegion
+                                  ? t.common.unknownRegion
                                   : model.region,
                               style: TextStyle(
                                 fontSize: 14,
@@ -185,7 +185,7 @@ class _RecentlyRegisteredUserPageState
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.newlyRegisteredPeople,
+        title: t.account.newlyRegisteredPeople,
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       body: SlidableAutoCloseBehavior(
@@ -217,7 +217,7 @@ class _RecentlyRegisteredUserPageState
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      t.newRegisteredUsersTip,
+                      t.common.newRegisteredUsersTip,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -232,8 +232,8 @@ class _RecentlyRegisteredUserPageState
             Expanded(
               child: state.peopleList.isEmpty
                   ? NoDataView(
-                      text: t.noNewFriendRequests,
-                      description: t.noNewRegisteredUsers,
+                      text: t.common.noNewFriendRequests,
+                      description: t.common.noNewRegisteredUsers,
                       icon: Icons.people_outline,
                       iconBgSize: 120,
                       iconSize: 60,

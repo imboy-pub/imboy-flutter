@@ -624,7 +624,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                 Navigator.of(context).pop();
               }
             },
-            child: Text(t.buttonAccomplish),
+            child: Text(t.common.buttonAccomplish),
           ),
         ],
       ),
@@ -637,7 +637,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
               focusNode: _searchF,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: t.regionSearchHint,
+                hintText: t.common.regionSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 isDense: true,

@@ -263,7 +263,7 @@ class PassportNotifier extends _$PassportNotifier {
               child: Icon(Icons.keyboard_arrow_left, color: c),
             ),
             Text(
-              t.buttonBack,
+              t.common.buttonBack,
               style: TextStyle(
                 fontSize: 12,
                 color: c,
@@ -279,14 +279,14 @@ class PassportNotifier extends _$PassportNotifier {
   /// 账号验证
   String? userValidator(String accountType, String value) {
     if (value.isEmpty) {
-      return t.errorEmptyDirectory(param: t.hintLoginAccount);
+      return t.common.errorEmptyDirectory(param: t.account.hintLoginAccount);
     }
     if (accountType == 'mobile' && !isPhone(value)) {
-      return t.errorInvalid(param: t.mobile);
+      return t.common.errorInvalid(param: t.account.mobile);
     } else if (accountType == 'email' && !isEmail(value)) {
-      return t.errorInvalid(param: t.email);
+      return t.common.errorInvalid(param: t.account.email);
     } else if (accountType == 'account' && value.length < 5) {
-      return t.errorInvalid(param: t.account);
+      return t.common.errorInvalid(param: t.account.account);
     }
     return null;
   }
@@ -294,10 +294,14 @@ class PassportNotifier extends _$PassportNotifier {
   /// 密码格式验证
   String? passwordValidator(String? val) {
     if (strEmpty(val)) {
-      return t.errorEmptyDirectory(param: t.password);
+      return t.common.errorEmptyDirectory(param: t.account.password);
     }
     if (val!.length < 4 || val.length > 32) {
-      return t.errorLengthBetween(param: t.password, min: '4', max: '32');
+      return t.common.errorLengthBetween(
+        param: t.account.password,
+        min: '4',
+        max: '32',
+      );
     }
     return null;
   }
@@ -338,7 +342,7 @@ class PassportNotifier extends _$PassportNotifier {
       return null;
     } else if (status == 2) {
       _showCancelLogoutDialog();
-      return t.cancelLogoutTitle;
+      return t.common.cancelLogoutTitle;
     } else {
       return state.error;
     }
@@ -351,11 +355,11 @@ class PassportNotifier extends _$PassportNotifier {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.cancelLogoutTitle),
+        title: Text(t.common.cancelLogoutTitle),
         content: SizedBox(
           height: 108,
           child: Text(
-            t.cancelLogoutBody,
+            t.common.cancelLogoutBody,
             maxLines: 6,
             overflow: TextOverflow.ellipsis,
           ),
@@ -363,7 +367,7 @@ class PassportNotifier extends _$PassportNotifier {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(t.buttonCancel),
+            child: Text(t.common.buttonCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -377,7 +381,7 @@ class PassportNotifier extends _$PassportNotifier {
                 ),
               );
             },
-            child: Text(t.login),
+            child: Text(t.account.login),
           ),
         ],
       ),
@@ -424,7 +428,7 @@ class PassportNotifier extends _$PassportNotifier {
         debugPrint('_encryptPassword error: $e\n$stackTrace');
       }
       return <String, dynamic>{
-        "error": "${t.passwordEncryptFailed}: $e",
+        "error": "${t.common.passwordEncryptFailed}: $e",
         "password": null,
         "rsa_encrypt": "0",
       };
@@ -439,7 +443,9 @@ class PassportNotifier extends _$PassportNotifier {
     try {
       Map<String, dynamic> data = await _encryptPassword(password);
       if (strNoEmpty(data['error'] as String?)) {
-        safeUpdateState((state) => state.copyWith(error: data['error'] as String?));
+        safeUpdateState(
+          (state) => state.copyWith(error: data['error'] as String?),
+        );
         return 0;
       }
 
@@ -474,7 +480,10 @@ class PassportNotifier extends _$PassportNotifier {
       } else {
         int status = (resp2.payload['status'] ?? 1) as int;
         if (status == 1 || status == 2) {
-          await UserRepoLocal.to.loginAfter(account, resp2.payload as Map<String, dynamic>);
+          await UserRepoLocal.to.loginAfter(
+            account,
+            resp2.payload as Map<String, dynamic>,
+          );
 
           // 上报 E2EE 公钥到服务器
           await _reportE2EEPublicKey();
@@ -538,7 +547,10 @@ class PassportNotifier extends _$PassportNotifier {
       } else {
         int status = (resp2.payload['status'] ?? 1) as int;
         if (status == 1 || status == 2) {
-          await UserRepoLocal.to.loginAfter(account, resp2.payload as Map<String, dynamic>);
+          await UserRepoLocal.to.loginAfter(
+            account,
+            resp2.payload as Map<String, dynamic>,
+          );
 
           // 步骤 5.5: 上报 E2EE 公钥到服务器
           await _reportE2EEPublicKey();
@@ -622,7 +634,7 @@ class PassportNotifier extends _$PassportNotifier {
     if (resp2.ok) {
       return null;
     } else {
-      state = state.copyWith(error: resp2.error?.message ?? t.unknown);
+      state = state.copyWith(error: resp2.error?.message ?? t.common.unknown);
       return state.error;
     }
   }
@@ -657,7 +669,7 @@ class PassportNotifier extends _$PassportNotifier {
     required String rePwd,
   }) async {
     if (strEmpty(newPwd)) {
-      return t.errorRequired(param: t.newPassword);
+      return t.common.errorRequired(param: t.account.newPassword);
     }
 
     String? error = passwordValidator(newPwd);
@@ -665,7 +677,7 @@ class PassportNotifier extends _$PassportNotifier {
       return error;
     }
     if (rePwd != newPwd) {
-      return t.errorRetypePassword;
+      return t.common.errorRetypePassword;
     }
     try {
       Map<String, dynamic> result = await _encryptPassword(newPwd);
@@ -815,7 +827,10 @@ class PassportNotifier extends _$PassportNotifier {
         await StorageService.to.setString(Keys.lastLoginAccount, account);
       }
       if (status == 1 || status == 2) {
-        await UserRepoLocal.to.loginAfter(account, resp2.payload as Map<String, dynamic>);
+        await UserRepoLocal.to.loginAfter(
+          account,
+          resp2.payload as Map<String, dynamic>,
+        );
         await Future<dynamic>.delayed(const Duration(milliseconds: 100));
         WebSocketService.to.openSocket(from: 'quickLogin');
         unawaited(
@@ -840,13 +855,17 @@ class PassportNotifier extends _$PassportNotifier {
           if (needGuide) {
             Navigator.pushAndRemoveUntil(
               context,
-              CupertinoPageRoute<dynamic>(builder: (_) => const ManageAccountPage()),
+              CupertinoPageRoute<dynamic>(
+                builder: (_) => const ManageAccountPage(),
+              ),
               (route) => false,
             );
           } else {
             Navigator.pushAndRemoveUntil(
               context,
-              CupertinoPageRoute<dynamic>(builder: (_) => const BottomNavigationPage()),
+              CupertinoPageRoute<dynamic>(
+                builder: (_) => const BottomNavigationPage(),
+              ),
               (route) => false,
             );
           }
@@ -862,7 +881,7 @@ class PassportNotifier extends _$PassportNotifier {
       List<ConnectivityResult> r,
     ) {
       if (r.contains(ConnectivityResult.none)) {
-        setConnectDesc(t.tipConnectDesc);
+        setConnectDesc(t.common.tipConnectDesc);
       } else {
         setConnectDesc('');
       }
@@ -925,7 +944,7 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.logBtnHeight = 50;
     uiConfig.logBtnOffsetY = isiOS ? 20 : 280;
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
-    uiConfig.logBtnText = t.mobileQuickLogin;
+    uiConfig.logBtnText = t.account.mobileQuickLogin;
     uiConfig.logBtnTextColor = isiOS
         ? Colors.black.toARGB32()
         : Colors.white.toARGB32();
@@ -944,7 +963,7 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.privacyOffsetX = 10;
     uiConfig.privacyOffsetY = 10;
     uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
-    uiConfig.clauseName = t.licenseAgreement;
+    uiConfig.clauseName = t.main.licenseAgreement;
     uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
     uiConfig.clauseBaseColor = Colors.black87.toARGB32();
 
@@ -952,7 +971,7 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
       JVPrivacy(
-        t.licenseAgreement.replaceAll('《', '').replaceAll('》', ''),
+        t.main.licenseAgreement.replaceAll('《', '').replaceAll('》', ''),
         licenseAgreementUrl(ext: 'html'),
         beforeName: "==",
         afterName: "++",

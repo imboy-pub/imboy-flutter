@@ -44,7 +44,7 @@ class UserQrCodePage extends ConsumerWidget {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.myQrcode,
+        title: t.account.myQrcode,
         backgroundColor: AppColors.getBackgroundColor(
           Theme.of(context).brightness,
         ),
@@ -189,7 +189,7 @@ class UserQrCodePage extends ConsumerWidget {
 
                           // 提示文字
                           Text(
-                            t.scanQrcodeAddFriend,
+                            t.common.scanQrcodeAddFriend,
                             style: ThemeManager.instance.getTextStyle(
                               FontSizeType.normal,
                               color: AppColors.lightTextSecondary,
@@ -212,7 +212,7 @@ class UserQrCodePage extends ConsumerWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: t.saveQrCode,
+                    text: t.common.saveQrCode,
                     onPressed: () => _saveQrCode(context, globalKey, filename),
                   ),
                 ),
@@ -223,7 +223,7 @@ class UserQrCodePage extends ConsumerWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.share,
-                    text: t.share,
+                    text: t.common.share,
                     onPressed: () => _shareQrCode(context, globalKey),
                   ),
                 ),
@@ -357,7 +357,7 @@ class UserQrCodePage extends ConsumerWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.share,
-                text: t.share,
+                text: t.common.share,
                 onTap: () {
                   Navigator.pop(context);
                   _shareQrCode(context, globalKey);
@@ -368,7 +368,7 @@ class UserQrCodePage extends ConsumerWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: t.saveQrCode,
+                text: t.common.saveQrCode,
                 onTap: () {
                   Navigator.pop(context);
                   _saveQrCode(context, globalKey, filename);
@@ -379,7 +379,7 @@ class UserQrCodePage extends ConsumerWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: t.scanQrCode,
+                text: t.account.scanQrCode,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -403,7 +403,7 @@ class UserQrCodePage extends ConsumerWidget {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: t.buttonCancel,
+                text: t.common.buttonCancel,
                 onTap: () => Navigator.pop(context),
                 isCancel: true,
               ),
@@ -478,7 +478,7 @@ class UserQrCodePage extends ConsumerWidget {
         final result = await SharePlus.instance.share(
           ShareParams(
             files: [XFile.fromData(res, mimeType: 'png')],
-            text: t.scanQrcodeAddFriend,
+            text: t.common.scanQrcodeAddFriend,
           ),
         );
         if (result.status == ShareResultStatus.success) {
@@ -501,11 +501,12 @@ class UserQrCodePage extends ConsumerWidget {
         filename,
       );
       if (kDebugMode) iPrint("savePhoto isSuccess: ${res?['isSuccess']}");
-      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false) == true
+      bool isSuccess =
+          res != null && res is Map && (res['isSuccess'] ?? false) == true
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess(t.saveSuccess);
+        EasyLoading.showSuccess(t.common.saveSuccess);
       }
     });
   }
@@ -572,7 +573,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.groupQrcode,
+        title: t.account.groupQrcode,
         backgroundColor: AppColors.getBackgroundColor(
           Theme.of(context).brightness,
         ),
@@ -628,7 +629,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                         horizontal: AppSpacing.regular * 2,
                       ),
                       child: Text(
-                        "${t.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}",
+                        "${t.chat.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}",
                         style: ThemeManager.instance.getTextStyle(
                           FontSizeType.large,
                           fontWeight: FontWeight.w600,
@@ -667,7 +668,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                     Padding(
                       padding: EdgeInsets.all(AppSpacing.regular * 2),
                       child: Text(
-                        t.groupQrcodeTips(
+                        t.common.groupQrcodeTips(
                           days: dayNum.toString(),
                           date: DateFormat('y-MM-dd').format(
                             DateTime.fromMillisecondsSinceEpoch(expiredAt),
@@ -694,7 +695,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: t.saveQrCode,
+                    text: t.common.saveQrCode,
                     onPressed: () => _saveGroupQrCode(context),
                   ),
                 ),
@@ -705,7 +706,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.share,
-                    text: t.share,
+                    text: t.common.share,
                     onPressed: () => _shareGroupQrCode(context),
                   ),
                 ),
@@ -835,7 +836,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.share,
-                text: t.share,
+                text: t.common.share,
                 onTap: () {
                   Navigator.pop(context);
                   _shareGroupQrCode(context);
@@ -846,7 +847,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: t.saveQrCode,
+                text: t.common.saveQrCode,
                 onTap: () {
                   Navigator.pop(context);
                   _saveGroupQrCode(context);
@@ -857,7 +858,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: t.scanQrCode,
+                text: t.account.scanQrCode,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -881,7 +882,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: t.buttonCancel,
+                text: t.common.buttonCancel,
                 onTap: () => Navigator.pop(context),
                 isCancel: true,
               ),
@@ -954,7 +955,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
       final res = await RepaintBoundaryHelper().image(context, globalKey);
       if (res != null) {
         final t = context.t;
-        final txt = t.groupQrcodeTips(
+        final txt = t.common.groupQrcodeTips(
           days: dayNum.toString(),
           date: DateTimeHelper.lastTimeFmt(
             DateTimeHelper.millisecond() + dayNum * 86400 * 1000,
@@ -984,11 +985,12 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
         filename,
       );
       if (kDebugMode) iPrint("savePhoto group isSuccess: ${res?['isSuccess']}");
-      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false) == true
+      bool isSuccess =
+          res != null && res is Map && (res['isSuccess'] ?? false) == true
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess(context.t.saveSuccess);
+        EasyLoading.showSuccess(context.t.common.saveSuccess);
       }
     });
   }
@@ -1174,7 +1176,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: t.saveQrCode,
+                    text: t.common.saveQrCode,
                     onPressed: () => _saveChannelQrCode(context, channelId),
                   ),
                 ),
@@ -1185,7 +1187,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.share,
-                    text: t.share,
+                    text: t.common.share,
                     onPressed: () => _shareChannelQrCode(context),
                   ),
                 ),
@@ -1315,7 +1317,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.share,
-                text: context.t.share,
+                text: context.t.common.share,
                 onTap: () {
                   Navigator.pop(context);
                   _shareChannelQrCode(context);
@@ -1326,7 +1328,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: context.t.saveQrCode,
+                text: context.t.common.saveQrCode,
                 onTap: () {
                   Navigator.pop(context);
                   final channelId = widget.channelData['id'] as String? ?? '';
@@ -1338,7 +1340,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: context.t.scanQrCode,
+                text: context.t.account.scanQrCode,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -1362,7 +1364,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: context.t.buttonCancel,
+                text: context.t.common.buttonCancel,
                 onTap: () => Navigator.pop(context),
                 isCancel: true,
               ),
@@ -1472,11 +1474,12 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
       if (kDebugMode) {
         iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
       }
-      bool isSuccess = res != null && res is Map && (res['isSuccess'] ?? false) == true
+      bool isSuccess =
+          res != null && res is Map && (res['isSuccess'] ?? false) == true
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess(context.t.saveSuccess);
+        EasyLoading.showSuccess(context.t.common.saveSuccess);
       }
     });
   }

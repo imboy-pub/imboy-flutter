@@ -113,8 +113,8 @@ class _PinCodeVerificationPageState
                             child: RichText(
                               text: TextSpan(
                                 text: widget.accountType == 'email'
-                                    ? t.codeSentToEmail
-                                    : t.codeSentToMobile,
+                                    ? t.account.codeSentToEmail
+                                    : t.account.codeSentToMobile,
                                 children: [
                                   TextSpan(
                                     text: widget.account,
@@ -176,7 +176,7 @@ class _PinCodeVerificationPageState
                               horizontal: 20.0,
                             ),
                             child: Text(
-                              hasError ? t.pinCodeFillTips : '',
+                              hasError ? t.common.pinCodeFillTips : '',
                               style: TextStyle(
                                 color: errorColor,
                                 fontSize: 12,
@@ -189,7 +189,7 @@ class _PinCodeVerificationPageState
                             children: [
                               Expanded(
                                 child: Text(
-                                  t.notReceiveCoeQ,
+                                  t.common.notReceiveCoeQ,
                                   style: TextStyle(
                                     color: textSecondary,
                                     fontSize: 15,
@@ -207,7 +207,7 @@ class _PinCodeVerificationPageState
                                     if (res == null) {
                                       notifier.snackBar(
                                         Text(
-                                          t.codeSentToParam(
+                                          t.main.codeSentToParam(
                                             param: widget.account,
                                           ),
                                           style: const TextStyle(
@@ -233,7 +233,7 @@ class _PinCodeVerificationPageState
                                     }
                                   },
                                   child: Text(
-                                    t.resendCode,
+                                    t.chat.resendCode,
                                     style: const TextStyle(
                                       color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
@@ -257,7 +257,7 @@ class _PinCodeVerificationPageState
                                   builder: (context, setLocalState) {
                                     return PasswordTextField(
                                       obscureText: state.newPwdObscure,
-                                      hintText: t.newPassword,
+                                      hintText: t.account.newPassword,
                                       style: TextStyle(color: textPrimary),
                                       hintStyle: TextStyle(
                                         color: textSecondary,
@@ -285,7 +285,7 @@ class _PinCodeVerificationPageState
                                   builder: (context, setLocalState) {
                                     return PasswordTextField(
                                       obscureText: state.retypePwdObscure,
-                                      hintText: t.retypePassword,
+                                      hintText: t.account.retypePassword,
                                       style: TextStyle(color: textPrimary),
                                       hintStyle: TextStyle(
                                         color: textSecondary,
@@ -332,7 +332,7 @@ class _PinCodeVerificationPageState
                                   );
                                   if (res == null) {
                                     EasyLoading.showSuccess(
-                                      t.confirmRecoverSuccess,
+                                      t.common.confirmRecoverSuccess,
                                     );
                                     if (!context.mounted) return;
                                     context.go('/sign_in');
@@ -360,7 +360,7 @@ class _PinCodeVerificationPageState
                                   ),
                                 ),
                                 child: Text(
-                                  t.setParam(param: t.password),
+                                  t.main.setParam(param: t.account.password),
                                   style: const TextStyle(
                                     fontSize: 16.0,
                                     fontWeight: FontWeight.bold,
@@ -380,7 +380,7 @@ class _PinCodeVerificationPageState
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            t.tryAgainQ,
+                            t.main.tryAgainQ,
                             style: TextStyle(
                               color: textSecondary,
                               letterSpacing: 0.5,
@@ -392,7 +392,7 @@ class _PinCodeVerificationPageState
                               context.go('/sign_in');
                             },
                             child: Text(
-                              t.login,
+                              t.account.login,
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,

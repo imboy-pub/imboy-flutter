@@ -28,7 +28,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             Icon(Icons.shield_outlined, color: AppColors.primary, size: 80),
             const SizedBox(height: 20),
             Text(
-              t.accountSecurityEnhance,
+              t.account.accountSecurityEnhance,
               style: const TextStyle(
                 color: AppColors.lightTextPrimary,
                 fontSize: 24,
@@ -39,7 +39,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                t.bindMobileAndEmailTips,
+                t.common.bindMobileAndEmailTips,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.lightTextSecondary,
@@ -60,24 +60,28 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 children: [
                   _buildPage(
                     icon: Icons.phone_iphone,
-                    title: t.bindMobile,
-                    subtitle: t.bindMobileFor,
+                    title: t.account.bindMobile,
+                    subtitle: t.account.bindMobileFor,
                     onTap: () async {
                       // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
                       context.go('/bottom_navigation?index=2');
-                      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
+                      await Future<dynamic>.delayed(
+                        const Duration(milliseconds: 100),
+                      );
                       if (!mounted) return;
                       context.push('/account_security');
                     },
                   ),
                   _buildPage(
                     icon: Icons.alternate_email,
-                    title: t.linkEmail,
-                    subtitle: t.linkEmailFor,
+                    title: t.account.linkEmail,
+                    subtitle: t.account.linkEmailFor,
                     onTap: () async {
                       // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
                       context.go('/bottom_navigation?index=2');
-                      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
+                      await Future<dynamic>.delayed(
+                        const Duration(milliseconds: 100),
+                      );
                       if (!mounted) return;
                       context.push('/account_security');
                     },
@@ -107,7 +111,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 ),
                 child: Center(
                   child: Text(
-                    t.buttonAccomplish,
+                    t.common.buttonAccomplish,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -122,7 +126,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 context.go('/bottom_navigation');
               },
               child: Text(
-                t.later,
+                t.chat.later,
                 style: const TextStyle(
                   color: AppColors.lightTextSecondary,
                   fontSize: 16,
@@ -199,7 +203,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
-                t.bindNow,
+                t.common.bindNow,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

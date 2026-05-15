@@ -103,7 +103,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
           // 标题 - 居中显示
           Text(
-            t.findNearbyPeople,
+            t.discovery.findNearbyPeople,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -117,7 +117,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
           // 描述文字 - 居中显示
           Text(
-            t.nearbyPeopleTips,
+            t.common.nearbyPeopleTips,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -144,7 +144,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
             _showVisibilityDialog(context, notifier);
           } else {
             notifier.makeMyselfUnVisible();
-            EasyLoading.showSuccess(t.locationHidden);
+            EasyLoading.showSuccess(t.common.locationHidden);
           }
         },
         child: Padding(
@@ -193,8 +193,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                     final state = ref.watch(peopleNearbyProvider);
                     return Text(
                       !state.peopleNearbyVisible
-                          ? t.makeYourselfVisible
-                          : t.makeYourselfInvisible,
+                          ? t.main.makeYourselfVisible
+                          : t.main.makeYourselfInvisible,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -409,8 +409,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   /// 构建空状态
   Widget _buildEmptyState(BuildContext context) {
     return NoDataView(
-      text: t.noNearbyPeople,
-      description: t.clickSearchButtonToFind,
+      text: t.common.noNearbyPeople,
+      description: t.common.clickSearchButtonToFind,
       icon: Icons.location_searching,
       iconBgSize: 80,
       iconSize: 40,
@@ -458,7 +458,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
               // 标题
               Text(
-                t.displayProfile,
+                t.chat.displayProfile,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -470,7 +470,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
               // 内容
               Text(
-                t.nearbyPeopleExplain,
+                t.discovery.nearbyPeopleExplain,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -495,7 +495,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                         ),
                       ),
                       child: Text(
-                        t.buttonCancel,
+                        t.common.buttonCancel,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -509,7 +509,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                       onPressed: () {
                         notifier.makeMyselfVisible();
                         context.pop();
-                        EasyLoading.showSuccess(t.locationVisible);
+                        EasyLoading.showSuccess(t.common.locationVisible);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
@@ -521,7 +521,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                         ),
                       ),
                       child: Text(
-                        t.buttonConfirm,
+                        t.common.buttonConfirm,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -543,7 +543,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.peopleNearby,
+        title: t.discovery.peopleNearby,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,

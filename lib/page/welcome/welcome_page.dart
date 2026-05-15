@@ -18,16 +18,16 @@ final List<AppLocale> _supportedLocales = AppLocale.values;
 /// 语言显示名称映射 - 使用翻译键
 Map<AppLocale, String> localeNames(BuildContext context) {
   return {
-    AppLocale.zhCn: context.t.zhCn,
-    AppLocale.zhHant: context.t.zhHant,
-    AppLocale.enUs: context.t.enUs,
-    AppLocale.jaJp: context.t.jaJp,
-    AppLocale.koKr: context.t.koKr,
-    AppLocale.deDe: context.t.deDd,
-    AppLocale.frFr: context.t.frFr,
-    AppLocale.itIt: context.t.itIt,
-    AppLocale.ruRu: context.t.ruRu,
-    AppLocale.arSa: context.t.arSa,
+    AppLocale.zhCn: context.t.main.zhCn,
+    AppLocale.zhHant: context.t.main.zhHant,
+    AppLocale.enUs: context.t.main.enUs,
+    AppLocale.jaJp: context.t.main.jaJp,
+    AppLocale.koKr: context.t.common.koKr,
+    AppLocale.deDe: context.t.main.deDd,
+    AppLocale.frFr: context.t.main.frFr,
+    AppLocale.itIt: context.t.main.itIt,
+    AppLocale.ruRu: context.t.main.ruRu,
+    AppLocale.arSa: context.t.main.arSa,
   };
 }
 

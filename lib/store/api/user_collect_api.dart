@@ -65,7 +65,9 @@ class UserCollectApi extends HttpClient {
     // 如果请求失败，显示详细错误信息
     if (!resp.ok) {
       debugPrint("> on UserCollectApi add error: ${resp.error?.message}");
-      EasyLoading.showError(resp.msg.isNotEmpty ? resp.msg : t.tipFailed);
+      EasyLoading.showError(
+        resp.msg.isNotEmpty ? resp.msg : t.common.tipFailed,
+      );
     }
     EasyLoading.dismiss();
     return resp.ok ? true : false;

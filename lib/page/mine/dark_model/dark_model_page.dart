@@ -132,10 +132,13 @@ class DarkModelPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(automaticallyImplyLeading: true, title: t.darkModel),
+      appBar: GlassAppBar(
+        automaticallyImplyLeading: true,
+        title: t.main.darkModel,
+      ),
       body: ListView(
         children: [
-          _buildSectionHeader(context, t.sectionDisplay),
+          _buildSectionHeader(context, t.common.sectionDisplay),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
@@ -144,8 +147,8 @@ class DarkModelPage extends ConsumerWidget {
             ),
             child: SwitchListTile(
               value: state.switchValue,
-              title: Text(t.followSystem),
-              subtitle: Text(t.followSystemTips),
+              title: Text(t.main.followSystem),
+              subtitle: Text(t.common.followSystemTips),
               activeThumbColor: Colors.white,
               activeTrackColor: AppColors.getIosBlue(brightness),
               onChanged: (val) {
@@ -154,7 +157,7 @@ class DarkModelPage extends ConsumerWidget {
             ),
           ),
           if (!state.switchValue) ...[
-            _buildSectionHeader(context, t.sectionTheme),
+            _buildSectionHeader(context, t.common.sectionTheme),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
@@ -165,7 +168,7 @@ class DarkModelPage extends ConsumerWidget {
                 children: [
                   _buildThemeOption(
                     context,
-                    title: t.systemDefault,
+                    title: t.main.systemDefault,
                     selected: state.selectIndex == 2,
                     onTap: () =>
                         ref.read(darkModelProvider.notifier).tapDarkItem(2),
@@ -174,7 +177,7 @@ class DarkModelPage extends ConsumerWidget {
                   _buildDivider(),
                   _buildThemeOption(
                     context,
-                    title: t.darkModel,
+                    title: t.main.darkModel,
                     selected: state.selectIndex == 3,
                     onTap: () =>
                         ref.read(darkModelProvider.notifier).tapDarkItem(3),

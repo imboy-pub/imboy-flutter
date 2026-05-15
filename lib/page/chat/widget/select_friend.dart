@@ -138,7 +138,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.sendTo),
+        title: Text(t.chat.sendTo),
         backgroundColor: isDarkMode
             ? const Color.fromRGBO(80, 80, 80, 1)
             : const Color.fromRGBO(240, 240, 240, 1),
@@ -192,8 +192,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                 child: Text(
                   // visitCard
                   peerIsReceiver
-                      ? "[${t.personalCard}]${peer['nickname']}"
-                      : "[${t.personalCard}]${model.nickname}",
+                      ? "[${t.common.personalCard}]${peer['nickname']}"
+                      : "[${t.common.personalCard}]${model.nickname}",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
@@ -208,7 +208,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               Navigator.of(context).pop();
             },
             child: Text(
-              t.buttonCancel,
+              t.common.buttonCancel,
               textAlign: TextAlign.center,
               style: TextStyle(color: buttonTextColor),
             ),
@@ -220,7 +220,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               nav.pop(model);
             },
             child: Text(
-              t.buttonSend,
+              t.common.buttonSend,
               textAlign: TextAlign.center,
               style: TextStyle(color: buttonTextColor),
             ),
@@ -280,7 +280,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.selectFriends,
+        title: t.contact.selectFriends,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
@@ -298,10 +298,10 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         //     ),
         //     onTap: () {
         //       if (!listNoEmpty(selects)) {
-        //         Get.snackbar('', t.pleaseSelectMembersForAdd);
+        //         Get.snackbar('', t.common.pleaseSelectMembersForAdd);
         //       }
         //     },
-        //     text: t.buttonConfirm,
+        //     text: t.common.buttonConfirm,
         //   ),
         // ],
       ),
@@ -313,7 +313,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               // 检查网络状态
               var connectivityResult = await Connectivity().checkConnectivity();
               if (connectivityResult.contains(ConnectivityResult.none)) {
-                String msg = t.tipConnectDesc;
+                String msg = t.common.tipConnectDesc;
                 EasyLoading.showInfo(' $msg');
                 return;
               }

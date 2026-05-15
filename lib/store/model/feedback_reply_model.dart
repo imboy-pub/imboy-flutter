@@ -56,11 +56,11 @@ class FeedbackReplyModel {
   String get statusDesc {
     // 状态: -1 删除  0 禁用  1 启用
     if (status == 1) {
-      return t.enable;
+      return t.main.enable;
     } else if (status == 0) {
-      return t.disable;
+      return t.main.disable;
     } else if (status == -1) {
-      return t.buttonDelete;
+      return t.common.buttonDelete;
     } else {
       return '';
     }

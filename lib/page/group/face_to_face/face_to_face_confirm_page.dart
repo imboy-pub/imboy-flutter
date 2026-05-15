@@ -189,7 +189,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
             _buildNumberWidget(context, widget.code),
             const SizedBox(height: 8),
             Text(
-              t.createGroupF2fConfirmTips,
+              t.common.createGroupF2fConfirmTips,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.85),
@@ -224,7 +224,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                         setState(() => _isJoiningGroup = true);
 
                         try {
-                          EasyLoading.show(status: t.loading);
+                          EasyLoading.show(status: t.common.loading);
                           final notifier = ref.read(
                             faceToFaceProvider.notifier,
                           );
@@ -232,7 +232,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                               .faceToFaceSave(widget.gid, widget.code);
                           List<PeopleModel> memberList =
                               res['memberList'] as List<PeopleModel>? ?? [];
-                          Map<String, dynamic> group = res['group'] as Map<String, dynamic>;
+                          Map<String, dynamic> group =
+                              res['group'] as Map<String, dynamic>;
                           await GroupRepo().save('', group);
 
                           if (context.mounted) {
@@ -251,7 +252,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                           }
                         } catch (e) {
                           iPrint("faceToFaceSave error: ${e.runtimeType}");
-                          EasyLoading.showError(t.tipFailed);
+                          EasyLoading.showError(t.common.tipFailed);
                         } finally {
                           EasyLoading.dismiss();
                           // 恢复加入状态
@@ -261,7 +262,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                         }
                       },
                 child: Text(
-                  t.enterTheGroup,
+                  t.group.enterTheGroup,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onPrimary,
                   ),

@@ -147,8 +147,10 @@ Future<void> incomingCallScreen(
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Text(
-                      t.incomingCall(
-                        param: option['media'] == 'video' ? t.video : t.audio,
+                      t.common.incomingCall(
+                        param: option['media'] == 'video'
+                            ? t.chat.video
+                            : t.main.audio,
                       ),
                       style: TextStyle(
                         color: ThemeManager.instance.getThemeColor(

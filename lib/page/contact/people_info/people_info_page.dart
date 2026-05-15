@@ -166,7 +166,9 @@ class PeopleInfoPage extends ConsumerWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        state.tag.isEmpty ? t.remarksTags : t.tags,
+                        state.tag.isEmpty
+                            ? t.contact.remarksTags
+                            : t.contact.tags,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -231,7 +233,7 @@ class PeopleInfoPage extends ConsumerWidget {
           ),
         ),
         child: Text(
-          t.addToContacts,
+          t.common.addToContacts,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
@@ -265,7 +267,7 @@ class PeopleInfoPage extends ConsumerWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              t.addedToDenylistTips,
+              t.common.addedToDenylistTips,
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -415,7 +417,7 @@ class PeopleInfoPage extends ConsumerWidget {
                 if (state.isFriend == 1 || scene == 'denylist')
                   _buildActionCard(
                     context: context,
-                    title: t.moreInfo,
+                    title: t.common.moreInfo,
                     icon: Icons.info_outline,
                     isDark: isDark,
                     onTap: () => Navigator.push(
@@ -434,7 +436,7 @@ class PeopleInfoPage extends ConsumerWidget {
                   if (!isSelf)
                     _buildActionCard(
                       context: context,
-                      title: t.messageCall,
+                      title: t.common.messageCall,
                       icon: Icons.message_outlined,
                       isDark: isDark,
                       onTap: () {
@@ -464,7 +466,7 @@ class PeopleInfoPage extends ConsumerWidget {
                   if (state.isFriend == 1 && !isSelf)
                     _buildActionCard(
                       context: context,
-                      title: t.voiceCall,
+                      title: t.common.voiceCall,
                       icon: Icons.call_outlined,
                       isDark: isDark,
                       onTap: () {
@@ -485,7 +487,7 @@ class PeopleInfoPage extends ConsumerWidget {
                   if (state.isFriend == 1 && !isSelf)
                     _buildActionCard(
                       context: context,
-                      title: t.videoCall,
+                      title: t.common.videoCall,
                       icon: Icons.videocam_outlined,
                       isDark: isDark,
                       onTap: () {

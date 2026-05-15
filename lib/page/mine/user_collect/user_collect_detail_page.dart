@@ -67,7 +67,7 @@ class UserCollectDetailPage extends ConsumerWidget {
 
             // 标题
             Text(
-              t.operationOptions,
+              t.common.operationOptions,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -81,14 +81,15 @@ class UserCollectDetailPage extends ConsumerWidget {
               _buildActionButton(
                 context: context,
                 icon: Icons.copy,
-                title: t.buttonCopy,
-                subtitle: t.copyTextContent,
+                title: t.common.buttonCopy,
+                subtitle: t.common.copyTextContent,
                 onTap: () async {
                   Navigator.pop(context);
-                  final String txt = obj.info['payload']['text'] as String? ?? '';
+                  final String txt =
+                      obj.info['payload']['text'] as String? ?? '';
                   if (txt.isNotEmpty) {
                     Clipboard.setData(ClipboardData(text: txt));
-                    EasyLoading.showToast(t.copied);
+                    EasyLoading.showToast(t.main.copied);
                   }
                 },
                 iconColor: Theme.of(context).colorScheme.primary,
@@ -98,8 +99,8 @@ class UserCollectDetailPage extends ConsumerWidget {
             _buildActionButton(
               context: context,
               icon: Icons.share,
-              title: t.forwardToFriend,
-              subtitle: t.shareWithOtherFriends,
+              title: t.chat.forwardToFriend,
+              subtitle: t.common.shareWithOtherFriends,
               onTap: () async {
                 Navigator.pop(context);
 
@@ -187,7 +188,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   });
                 } catch (e, s) {
                   debugPrint('转发收藏消息失败: $e\n堆栈: $s');
-                  EasyLoading.showError(t.operationFailedAgainLater);
+                  EasyLoading.showError(t.common.operationFailedAgainLater);
                 }
               },
               iconColor: Theme.of(context).colorScheme.secondary,
@@ -197,8 +198,8 @@ class UserCollectDetailPage extends ConsumerWidget {
             _buildActionButton(
               context: context,
               icon: Icons.local_offer,
-              title: t.editTag,
-              subtitle: t.addTagsToFavorites,
+              title: t.common.editTag,
+              subtitle: t.common.addTagsToFavorites,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -208,7 +209,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       peerId: obj.kindId.toString(),
                       peerTag: obj.tag,
                       scene: 'collect',
-                      title: t.editTag,
+                      title: t.common.editTag,
                     ),
                   ),
                 ).then((value) {
@@ -238,15 +239,15 @@ class UserCollectDetailPage extends ConsumerWidget {
             _buildActionButton(
               context: context,
               icon: Icons.edit_note,
-              title: t.setParam(param: t.remark),
-              subtitle: t.addRemarkToFavorites,
+              title: t.main.setParam(param: t.contact.remark),
+              subtitle: t.common.addRemarkToFavorites,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   CupertinoPageRoute<dynamic>(
                     builder: (context) => UpdatePage(
-                      title: t.setParam(param: t.remark),
+                      title: t.main.setParam(param: t.contact.remark),
                       value: obj.remark,
                       field: 'text',
                       maxLength: 100,
@@ -269,8 +270,8 @@ class UserCollectDetailPage extends ConsumerWidget {
             _buildActionButton(
               context: context,
               icon: Icons.delete_outline,
-              title: t.buttonDelete,
-              subtitle: t.deleteThisCollection,
+              title: t.common.buttonDelete,
+              subtitle: t.common.deleteThisCollection,
               onTap: () async {
                 Navigator.pop(context);
                 // 调用 Provider 的 remove 方法
@@ -306,7 +307,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  t.buttonCancel,
+                  t.common.buttonCancel,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -397,7 +398,7 @@ class UserCollectDetailPage extends ConsumerWidget {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: t.details,
+        title: t.common.details,
         rightDMActions: [
           Container(
             width: 48,
@@ -448,7 +449,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "${t.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
+                      "${t.main.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(
@@ -500,7 +501,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          "${t.remark}:",
+                          "${t.contact.remark}:",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
