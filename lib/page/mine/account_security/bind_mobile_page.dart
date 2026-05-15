@@ -106,65 +106,67 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
             ),
             children: [
               CupertinoListTile.notched(
-                title: const SizedBox(
-                  width: 80,
-                  child: Text(
-                    '手机号', // 使用标准简短标签
-                    style: TextStyle(fontSize: 17),
-                  ),
-                ),
-                additionalInfo: Expanded(
-                  child: PhoneInputWidget(
-                    initialValue: '',
-                    onInputChanged: (String full) => ref
-                        .read(bindMobileProvider.notifier)
-                        .updateMobile(full),
-                    hintText: t.account.enterMobileHint,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 0,
-                        vertical: 12,
+                title: Row(
+                  children: [
+                    const SizedBox(
+                      width: 80,
+                      child: Text(
+                        '手机号',
+                        style: TextStyle(fontSize: 17),
                       ),
                     ),
-                  ),
-                ),
-              ),
-              CupertinoListTile.notched(
-                title: const SizedBox(
-                  width: 80,
-                  child: Text(
-                    '验证码',
-                    style: TextStyle(fontSize: 17),
-                  ),
-                ),
-                additionalInfo: Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: CupertinoTextField(
-                          controller: ref
-                              .read(bindMobileProvider.notifier)
-                              .codeCtl,
-                          placeholder: '000000',
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
-                          padding: const EdgeInsets.symmetric(
+                    Expanded(
+                      child: PhoneInputWidget(
+                        initialValue: '',
+                        onInputChanged: (String full) => ref
+                            .read(bindMobileProvider.notifier)
+                            .updateMobile(full),
+                        hintText: t.account.enterMobileHint,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
                             horizontal: 0,
                             vertical: 12,
                           ),
-                          decoration: null,
-                          style: const TextStyle(fontSize: 17),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      _buildCodeButton(context, ref, asyncState),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ),
+              CupertinoListTile.notched(
+                title: Row(
+                  children: [
+                    const SizedBox(
+                      width: 80,
+                      child: Text(
+                        '验证码',
+                        style: TextStyle(fontSize: 17),
+                      ),
+                    ),
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: ref
+                            .read(bindMobileProvider.notifier)
+                            .codeCtl,
+                        placeholder: '000000',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(6),
+                        ],
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 12,
+                        ),
+                        decoration: null,
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildCodeButton(context, ref, asyncState),
+                  ],
                 ),
               ),
             ],

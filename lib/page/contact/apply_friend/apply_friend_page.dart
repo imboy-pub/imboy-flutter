@@ -85,16 +85,23 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             header: Text(t.main.setParam(param: t.contact.remark).toUpperCase()),
             children: [
               CupertinoListTile.notched(
-                title: const SizedBox(width: 80, child: Text('备注', style: TextStyle(fontSize: 17))),
-                additionalInfo: Expanded(
-                  child: CupertinoTextField(
-                    controller: _remarkC,
-                    placeholder: t.contact.pleaseEnterRemark,
-                    maxLength: 80,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: null,
-                    style: const TextStyle(fontSize: 17),
-                  ),
+                title: Row(
+                  children: [
+                    const SizedBox(
+                      width: 80,
+                      child: Text('备注', style: TextStyle(fontSize: 17)),
+                    ),
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: _remarkC,
+                        placeholder: t.contact.pleaseEnterRemark,
+                        maxLength: 80,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: null,
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

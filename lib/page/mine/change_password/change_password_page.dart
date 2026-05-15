@@ -160,34 +160,32 @@ class ChangePasswordPage extends ConsumerWidget {
     required ValueChanged<String> onChanged,
   }) {
     return CupertinoListTile.notched(
-      title: Text(label, style: const TextStyle(fontSize: 17)),
-      trailing: Expanded(
-        child: Row(
-          children: [
-            Expanded(
-              child: CupertinoTextField(
-                placeholder: hint,
-                obscureText: obscure,
-                onChanged: onChanged,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: null,
-                textAlign: TextAlign.right,
-              ),
+      title: Row(
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(label, style: const TextStyle(fontSize: 17)),
+          ),
+          Expanded(
+            child: CupertinoTextField(
+              placeholder: hint,
+              obscureText: obscure,
+              onChanged: onChanged,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: null,
+              style: const TextStyle(fontSize: 17),
             ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: onToggle,
-              child: Icon(
-                obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
-                size: 20,
-                color: AppColors.iosGray,
-              ),
+          ),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: onToggle,
+            child: Icon(
+              obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+              size: 20,
+              color: AppColors.iosGray,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

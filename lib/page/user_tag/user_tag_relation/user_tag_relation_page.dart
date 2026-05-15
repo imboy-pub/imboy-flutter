@@ -1,20 +1,18 @@
 import 'dart:async';
 
 import 'package:filter_list/filter_list.dart';
-
 // ignore: implementation_imports
 import 'package:filter_list/src/state/filter_state.dart';
-
 // ignore: implementation_imports
 import 'package:filter_list/src/state/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/list.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/tag.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:lpinyin/lpinyin.dart'; // 引入 lpinyin
-
+import 'package:lpinyin/lpinyin.dart';
 // ignore: implementation_imports
 import 'package:textfield_tags/textfield_tags.dart';
 
@@ -22,13 +20,11 @@ import 'user_tag_relation_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
-/// 用户标签关联页面
+/// 用户标签关联页面 - 像素级对齐 iOS 17 Premium 风格
 class UserTagRelationPage extends ConsumerStatefulWidget {
-  final String peerId; // 用户ID
-
+  final String peerId;
   final String? title;
   final String scene;
-
   final String peerTag;
   final Color tagBackgroundColor;
   final Color tagSelectedBackgroundColor;
@@ -48,13 +44,11 @@ class UserTagRelationPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<UserTagRelationPage> createState() =>
-      _UserTagRelationPageState();
+  ConsumerState<UserTagRelationPage> createState() => _UserTagRelationPageState();
 }
 
 class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
-  final TextfieldTagsController<dynamic> _tagController =
-      TextfieldTagsController<dynamic>();
+  final TextfieldTagsController<dynamic> _tagController = TextfieldTagsController<dynamic>();
   List<String> _originalTags = [];
   Map<String, int> _tagIdByName = {};
   bool _loaded = false;
@@ -73,52 +67,29 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
   }
 
   Future<void> _initData() async {
-    // 设置当前标签
     final tagItems = normalizeTagNames(widget.peerTag.split(','));
     _originalTags = List<String>.from(tagItems);
     ref.read(userTagRelationProvider.notifier).setTagItems(tagItems);
 
-    final statistics = await ref
-        .read(userTagRelationProvider.notifier)
-        .getTagStatistics(widget.scene, ensureTags: tagItems);
-    final res = List<String>.from(
-      (statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>,
-    );
-    _tagIdByName = Map<String, int>.from(
-      (statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{})
-          as Map<dynamic, dynamic>,
-    );
-    // 当前 tag合并到 recentTagItems
-    for (var item in tagItems) {
-      if (!res.contains(item)) {
-        // 排重
-        res.add(item);
-      }
-    }
+    final statistics = await ref.read(userTagRelationProvider.notifier).getTagStatistics(widget.scene, ensureTags: tagItems);
+    final res = List<String>.from((statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>);
+    _tagIdByName = Map<String, int>.from((statistics['tag_id_by_name'] ?? const <dynamic, dynamic>{}) as Map<dynamic, dynamic>);
+    
+    for (var item in tagItems) { if (!res.contains(item)) res.add(item); }
     ref.read(userTagRelationProvider.notifier).setRecentTagItems(res);
 
-    setState(() {
-      _loaded = true;
-    });
+    setState(() { _loaded = true; });
 
     _tagController.addListener(() {
       bool diff = listDiff(tagItems, _tagController.getTags);
-      ref
-          .read(userTagRelationProvider.notifier)
-          .setTagItems(_tagController.getTags! as List<String>);
-      setState(() {
-        _valueChanged = diff;
-      });
-      if (diff) {
-        _tagController.setError = t.common.needSubmitEffect;
-      }
+      ref.read(userTagRelationProvider.notifier).setTagItems(_tagController.getTags! as List<String>);
+      setState(() { _valueChanged = diff; });
     });
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildTagInput(BuildContext context) {
     final relationState = ref.watch(userTagRelationProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return TextFieldTags(
       textfieldTagsController: _tagController,
@@ -126,287 +97,108 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
       textSeparators: const [' ', ','],
       letterCase: LetterCase.normal,
       validator: (dynamic tag) {
-        bool diff = listDiff(relationState.tagItems, _tagController.getTags);
-        setState(() {
-          _valueChanged = diff;
-        });
-        debugPrint(
-          "tag_add_view_validator diff $diff, $tag, len:${tag.length}",
-        );
-        if ((tag.length as int) > 14) {
-          // 最最最最最最最最最最最最最最1
-          return t.main.upToWords(param: '14');
-        }
-        if (_tagController.getTags != null &&
-            _tagController.getTags!.contains(tag)) {
-          // return 'you already entered that';
-          return t.chat.alreadyEntered;
-        }
+        if ((tag.length as int) > 14) return t.main.upToWords(param: '14');
+        if (_tagController.getTags != null && _tagController.getTags!.contains(tag)) return t.chat.alreadyEntered;
         return null;
       },
-      inputFieldBuilder:
-          (BuildContext context, InputFieldValues<dynamic> inputFieldValues) {
-            return Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 10.0,
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 4.0,
-              ),
-              decoration: BoxDecoration(
-                color: isDark ? colorScheme.surface : Colors.white,
-                borderRadius: AppRadius.borderRadiusMedium,
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.2),
+      inputFieldBuilder: (BuildContext context, InputFieldValues<dynamic> inputFieldValues) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: TextField(
+            controller: inputFieldValues.textEditingController,
+            focusNode: inputFieldValues.focusNode,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: inputFieldValues.tags.isNotEmpty ? '' : t.contact.selectOrEnterTag,
+              hintStyle: const TextStyle(color: AppColors.iosGray, fontSize: 16),
+              errorText: inputFieldValues.error,
+              prefixIcon: inputFieldValues.tags.isEmpty ? null : Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Wrap(
+                  spacing: 4, runSpacing: 4,
+                  children: inputFieldValues.tags.map((dynamic tag) => TagItem(tag: tag as String, onTagDelete: (String tag) { inputFieldValues.onTagRemoved(tag); StateProvider.of<FilterState<String>>(context, rebuildOnChange: true).removeSelectedItem(tag); }, backgroundColor: isDark ? Colors.white10 : widget.tagBackgroundColor, tagSelectedColor: widget.tagSelectedColor, selectedBackgroundColor: widget.tagSelectedBackgroundColor)).toList(),
                 ),
               ),
-              child: TextField(
-                controller: inputFieldValues.textEditingController,
-                focusNode: inputFieldValues.focusNode,
-                style: TextStyle(color: colorScheme.onSurface),
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  helperStyle: TextStyle(
-                    color: widget.tagSelectedBackgroundColor,
-                  ),
-                  hintText: inputFieldValues.tags.isNotEmpty
-                      ? ''
-                      : t.contact.selectOrEnterTag,
-                  hintStyle: TextStyle(
-                    color: colorScheme.outline.withValues(alpha: 0.5),
-                  ),
-                  errorText: inputFieldValues.error,
-                  prefixIconConstraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 1.0,
-                  ),
-                  prefixIcon: inputFieldValues.tags.isEmpty
-                      ? null
-                      : SingleChildScrollView(
-                          controller: inputFieldValues.tagScrollController,
-                          scrollDirection: Axis.vertical,
-                          child: Wrap(
-                            // runSpacing: 7.0,
-                            children: (inputFieldValues.tags.map((dynamic tag) {
-                              return TagItem(
-                                tag: tag as String,
-                                onTagDelete: (String tag) {
-                                  inputFieldValues.onTagRemoved(tag);
-                                  final state2 =
-                                      StateProvider.of<FilterState<String>>(
-                                        context,
-                                        rebuildOnChange: true,
-                                      );
-                                  state2.removeSelectedItem(tag);
-                                },
-                                backgroundColor: isDark
-                                    ? colorScheme.surfaceContainerHighest
-                                    : widget.tagBackgroundColor,
-                                tagSelectedColor: widget.tagSelectedColor,
-                                selectedBackgroundColor:
-                                    widget.tagSelectedBackgroundColor,
-                              );
-                            }).toList()),
-                          ),
-                        ),
-                ),
-                onChanged: (String tag) {
-                  debugPrint("input_onChanged $tag");
-                },
-                onSubmitted: (String tag) {
-                  if (tag.isEmpty) {
-                    return;
-                  }
-                  debugPrint("input_onSubmitted $tag");
-                  if (tag.length > 14) {
-                    return;
-                  }
-                  final state2 = StateProvider.of<FilterState<String>>(context);
-                  state2.addSelectedItem(tag);
-                  if (state2.items != null &&
-                      state2.items!.contains(tag) == false) {
-                    List<String>? items = state2.items;
-                    items?.add(tag);
-                    state2.items = items;
-                  }
-                  _tagController.addTag(tag);
-                },
-              ),
-            );
-          },
+            ),
+            onSubmitted: (String tag) {
+              if (tag.isEmpty || tag.length > 14) return;
+              StateProvider.of<FilterState<String>>(context).addSelectedItem(tag);
+              final s2 = StateProvider.of<FilterState<String>>(context);
+              if (s2.items != null && !s2.items!.contains(tag)) { s2.items = List.from(s2.items!)..add(tag); }
+              _tagController.addTag(tag);
+            },
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final relationState = ref.watch(userTagRelationProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colorScheme = Theme.of(context).colorScheme;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark
-          ? colorScheme.surface
-          : AppColors.lightPageBackground,
-      appBar: GlassAppBar(
-        title: widget.title ?? t.common.addTag,
-        automaticallyImplyLeading: true,
-      ),
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height - 40,
-        child: !_loaded
-            ? const SizedBox.shrink()
-            : FilterListWidget<String>(
-                resetButtonText: t.common.buttonSetEmpty,
-                applyButtonText: t.common.buttonConfirm,
-                selectedItemsText: t.common.selectedItems(param: '').trim(),
-                header: _buildHeader(context),
-                enableOnlySingleSelection: false,
-                listData: relationState.recentTagItems,
-                selectedListData: relationState.tagItems,
-                controlButtons: const [ControlButtonType.Reset],
-                themeData: FilterListThemeData(
-                  context,
-                  backgroundColor: isDark
-                      ? colorScheme.surface
-                      : AppColors.lightPageBackground,
-                  choiceChipTheme: ChoiceChipThemeData(
-                    backgroundColor: isDark ? Colors.black12 : Colors.white,
-                    selectedBackgroundColor: isDark
-                        ? AppColors.primary.withValues(alpha: 0.2)
-                        : widget.tagSelectedBackgroundColor,
-                    textStyle: TextStyle(
-                      color: isDark ? Colors.white70 : Colors.black87,
-                    ),
-                    selectedTextStyle: TextStyle(
-                      color: isDark
-                          ? AppColors.primary
-                          : widget.tagSelectedColor,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusLarge,
-                      side: BorderSide(
-                        color: isDark
-                            ? Colors.white10
-                            : Colors.grey.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  controlButtonBarTheme: ControlButtonBarThemeData.raw(
-                    controlButtonTheme: ControlButtonThemeData(
-                      borderRadius: 8,
-                      primaryButtonTextStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      primaryButtonBackgroundColor: AppColors.primary,
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      backgroundColor: Colors.grey.withValues(alpha: 0.6),
-                    ),
-                    buttonSpacing: 16,
-                    controlContainerDecoration: BoxDecoration(
-                      color: isDark ? colorScheme.surface : Colors.white,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, -4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
-                    ),
-                  ),
-                  headerTheme: HeaderThemeData(
-                    backgroundColor: isDark
-                        ? colorScheme.surface
-                        : AppColors.lightPageBackground,
-                  ),
-                ),
-                onApplyButtonClick: (list) async {
-                  final tagItems = normalizeTagNames(list ?? []);
-                  ref
-                      .read(userTagRelationProvider.notifier)
-                      .setTagItems(tagItems);
-                  // 更新 tagController
-                  List<String> tags =
-                      _tagController.getTags?.cast<String>() ?? [];
-                  if (tags.isNotEmpty) {
-                    for (var tag in tags) {
-                      _tagController.onTagRemoved(tag);
-                    }
-                  }
-                  for (var tag in tagItems) {
-                    _tagController.addTag(tag);
-                  }
-                  setState(() {
-                    _valueChanged = buildTagSyncPlan(
-                      originalTags: _originalTags,
-                      nextTags: tagItems,
-                    ).hasChanges;
-                  });
-                  if (_valueChanged) {
-                    bool res = await ref
-                        .read(userTagRelationProvider.notifier)
-                        .syncFinalState(
-                          scene: widget.scene,
-                          objectId: widget.peerId,
-                          originalTags: _originalTags,
-                          nextTags: tagItems,
-                          tagIdByName: _tagIdByName,
-                        );
-                    if (res) {
-                      Navigator.of(context).pop(tagItems.join(','));
-                    }
-                  }
-                },
-                choiceChipLabel: (item) {
-                  return item;
-                },
-                validateSelectedItem: (list, val) {
-                  ///  identify if item is selected or not
-                  return list!.contains(val);
-                },
-                // 支持拼音搜索
-                onItemSearch: (item, query) {
-                  if (query.isEmpty) {
-                    return true;
-                  }
-                  final lowerQuery = query.toLowerCase();
-                  // 1. 匹配原始文本
-                  if (item.toLowerCase().contains(lowerQuery)) {
-                    return true;
-                  }
-                  // 2. 匹配拼音全拼
-                  String pinyin = PinyinHelper.getPinyinE(
-                    item,
-                    separator: '',
-                    format: PinyinFormat.WITHOUT_TONE,
-                  ).toLowerCase();
-                  if (pinyin.contains(lowerQuery)) {
-                    return true;
-                  }
-                  // 3. 匹配拼音首字母
-                  String shortPinyin = PinyinHelper.getShortPinyin(
-                    item,
-                  ).toLowerCase();
-                  if (shortPinyin.contains(lowerQuery)) {
-                    return true;
-                  }
-                  return false;
-                },
-              ),
+    return IosPageTemplate(
+      title: widget.title ?? t.common.addTag,
+      useLargeTitle: false,
+      child: !_loaded ? const SizedBox.shrink() : SizedBox(
+        height: MediaQuery.of(context).size.height - 120,
+        child: FilterListWidget<String>(
+          resetButtonText: t.common.buttonSetEmpty,
+          applyButtonText: t.common.buttonConfirm,
+          selectedItemsText: t.common.selectedItems(param: '').trim(),
+          header: _buildTagInput(context),
+          enableOnlySingleSelection: false,
+          listData: relationState.recentTagItems,
+          selectedListData: relationState.tagItems,
+          controlButtons: const [ControlButtonType.Reset],
+          themeData: FilterListThemeData(
+            context,
+            backgroundColor: Colors.transparent,
+            choiceChipTheme: ChoiceChipThemeData(
+              backgroundColor: isDark ? Colors.white10 : Colors.white,
+              selectedBackgroundColor: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
+              textStyle: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+              selectedTextStyle: TextStyle(color: AppColors.getIosBlue(brightness), fontWeight: FontWeight.w600),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: isDark ? Colors.white10 : Colors.grey.withValues(alpha: 0.1))),
+            ),
+            controlButtonBarTheme: ControlButtonBarThemeData.raw(
+              controlButtonTheme: ControlButtonThemeData(borderRadius: 12, primaryButtonTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600), primaryButtonBackgroundColor: AppColors.primary, textStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600), backgroundColor: AppColors.iosGray),
+              buttonSpacing: 16,
+              controlContainerDecoration: BoxDecoration(color: isDark ? AppColors.darkSurface : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))]),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            ),
+            headerTheme: HeaderThemeData(backgroundColor: Colors.transparent),
+          ),
+          onApplyButtonClick: (list) async {
+            final tagItems = normalizeTagNames(list ?? []);
+            ref.read(userTagRelationProvider.notifier).setTagItems(tagItems);
+            List<String> tags = _tagController.getTags?.cast<String>() ?? [];
+            for (var t in tags) _tagController.onTagRemoved(t);
+            for (var t in tagItems) _tagController.addTag(t);
+            if (buildTagSyncPlan(originalTags: _originalTags, nextTags: tagItems).hasChanges) {
+              if (await ref.read(userTagRelationProvider.notifier).syncFinalState(scene: widget.scene, objectId: widget.peerId, originalTags: _originalTags, nextTags: tagItems, tagIdByName: _tagIdByName)) {
+                Navigator.of(context).pop(tagItems.join(','));
+              }
+            }
+          },
+          choiceChipLabel: (item) => item,
+          validateSelectedItem: (list, val) => list!.contains(val),
+          onItemSearch: (item, query) {
+            if (query.isEmpty) return true;
+            final q = query.toLowerCase();
+            if (item.toLowerCase().contains(q)) return true;
+            if (PinyinHelper.getPinyinE(item, separator: '', format: PinyinFormat.WITHOUT_TONE).toLowerCase().contains(q)) return true;
+            if (PinyinHelper.getShortPinyin(item).toLowerCase().contains(q)) return true;
+            return false;
+          },
+        ),
       ),
     );
   }

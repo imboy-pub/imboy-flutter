@@ -53,43 +53,41 @@ class GlassBottomNavigationBar extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onTap(index),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 图标
-                        SizedBox(
-                          height: 28,
-                          child: item.iconBuilder != null
-                              ? item.iconBuilder!(isSelected)
-                              : Icon(
-                                  isSelected
-                                      ? (item.activeIcon ?? item.icon)
-                                      : item.icon,
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.iosGray,
-                                  size: 26,
-                                ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 图标
+                      SizedBox(
+                        height: 28,
+                        child: item.iconBuilder != null
+                            ? item.iconBuilder!(isSelected)
+                            : Icon(
+                                isSelected
+                                    ? (item.activeIcon ?? item.icon)
+                                    : item.icon,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.iosGray,
+                                size: 26,
+                              ),
+                      ),
+                      const SizedBox(height: 1),
+                      // 标签
+                      Text(
+                        item.label,
+                        style: TextStyle(
+                          fontSize: 10,
+                          height: 1.2,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color:
+                              isSelected ? AppColors.primary : AppColors.iosGray,
+                          letterSpacing: -0.2,
                         ),
-                        const SizedBox(height: 2),
-                        // 标签
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: isSelected
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: isSelected
-                                ? AppColors.primary
-                                : AppColors.iosGray,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                      ],
-                    ),
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                      ),
+                    ],
                   ),
                 ),
               );

@@ -105,61 +105,64 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             ),
             children: [
               CupertinoListTile.notched(
-                title: const SizedBox(
-                  width: 80,
-                  child: Text(
-                    '邮箱',
-                    style: TextStyle(fontSize: 17),
-                  ),
-                ),
-                additionalInfo: Expanded(
-                  child: CupertinoTextField(
-                    controller: ref.read(bindEmailProvider.notifier).emailCtl,
-                    placeholder: t.common.enterEmailAddress,
-                    keyboardType: TextInputType.emailAddress,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                      vertical: 12,
+                title: Row(
+                  children: [
+                    const SizedBox(
+                      width: 80,
+                      child: Text(
+                        '邮箱',
+                        style: TextStyle(fontSize: 17),
+                      ),
                     ),
-                    decoration: null,
-                    style: const TextStyle(fontSize: 17),
-                  ),
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller:
+                            ref.read(bindEmailProvider.notifier).emailCtl,
+                        placeholder: t.common.enterEmailAddress,
+                        keyboardType: TextInputType.emailAddress,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 12,
+                        ),
+                        decoration: null,
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               CupertinoListTile.notched(
-                title: const SizedBox(
-                  width: 80,
-                  child: Text(
-                    '验证码',
-                    style: TextStyle(fontSize: 17),
-                  ),
-                ),
-                additionalInfo: Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: CupertinoTextField(
-                          controller: ref
-                              .read(bindEmailProvider.notifier)
-                              .codeCtl,
-                          placeholder: '000000',
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 0,
-                            vertical: 12,
-                          ),
-                          decoration: null,
-                          style: const TextStyle(fontSize: 17),
-                        ),
+                title: Row(
+                  children: [
+                    const SizedBox(
+                      width: 80,
+                      child: Text(
+                        '验证码',
+                        style: TextStyle(fontSize: 17),
                       ),
-                      const SizedBox(width: 8),
-                      _buildCodeButton(context, ref, asyncState),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: ref
+                            .read(bindEmailProvider.notifier)
+                            .codeCtl,
+                        placeholder: '000000',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(6),
+                        ],
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 12,
+                        ),
+                        decoration: null,
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildCodeButton(context, ref, asyncState),
+                  ],
                 ),
               ),
             ],
