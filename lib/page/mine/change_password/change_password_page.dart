@@ -30,14 +30,37 @@ class ChangePasswordPage extends ConsumerWidget {
                 title: Text(t.account.loginPassword),
                 subtitle: Text(t.account.loginPasswordDesc),
                 leading: Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(color: AppColors.getIosBlue(Theme.of(context).brightness), borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(CupertinoIcons.lock, color: Colors.white, size: 18),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.getIosBlue(Theme.of(context).brightness),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.lock,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-                  child: Text(t.common.enabled, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(Theme.of(context).brightness))),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.getIosBlue(
+                      Theme.of(context).brightness,
+                    ).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    t.common.enabled,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.getIosBlue(Theme.of(context).brightness),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -46,44 +69,80 @@ class ChangePasswordPage extends ConsumerWidget {
           // 表单 Section
           ImBoySettingsSection(
             header: Text(t.account.changeLoginPassword.toUpperCase()),
-            footer: Text(t.account.passwordMinLength(min: minPasswordLength.toString())),
+            footer: Text(
+              t.account.passwordMinLength(min: minPasswordLength.toString()),
+            ),
             children: [
               _buildPasswordField(
                 context: context,
                 label: t.account.oldPassword,
                 hint: t.account.enterOldPassword,
                 obscure: state.existingObscure,
-                onToggle: () => ref.read(changeLoginPasswordProvider.notifier).toggleExistingObscure(),
-                onChanged: (v) => ref.read(changeLoginPasswordProvider.notifier).updateExistingPassword(v),
+                onToggle: () => ref
+                    .read(changeLoginPasswordProvider.notifier)
+                    .toggleExistingObscure(),
+                onChanged: (v) => ref
+                    .read(changeLoginPasswordProvider.notifier)
+                    .updateExistingPassword(v),
               ),
               _buildPasswordField(
                 context: context,
                 label: t.account.newPassword,
                 hint: t.account.enterNewPassword,
                 obscure: state.newObscure,
-                onToggle: () => ref.read(changeLoginPasswordProvider.notifier).toggleNewObscure(),
-                onChanged: (v) => ref.read(changeLoginPasswordProvider.notifier).updateNewPassword(v),
+                onToggle: () => ref
+                    .read(changeLoginPasswordProvider.notifier)
+                    .toggleNewObscure(),
+                onChanged: (v) => ref
+                    .read(changeLoginPasswordProvider.notifier)
+                    .updateNewPassword(v),
               ),
               _buildPasswordField(
                 context: context,
                 label: t.common.confirmNewPassword,
                 hint: t.account.enterNewPasswordAgain,
                 obscure: state.confirmObscure,
-                onToggle: () => ref.read(changeLoginPasswordProvider.notifier).toggleConfirmObscure(),
-                onChanged: (v) => ref.read(changeLoginPasswordProvider.notifier).updateConfirmPassword(v),
+                onToggle: () => ref
+                    .read(changeLoginPasswordProvider.notifier)
+                    .toggleConfirmObscure(),
+                onChanged: (v) => ref
+                    .read(changeLoginPasswordProvider.notifier)
+                    .updateConfirmPassword(v),
               ),
             ],
           ),
 
           // 校验提示 Section
-          if (state.existingLength > 0 || state.newLength > 0 || state.confirmLength > 0)
+          if (state.existingLength > 0 ||
+              state.newLength > 0 ||
+              state.confirmLength > 0)
             Padding(
               padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
               child: Column(
                 children: [
-                  _ValidationRow(label: t.account.oldPassword, ok: state.existingLengthOk, text: state.existingLengthOk ? t.common.lengthOk : t.main.pendingInput),
-                  _ValidationRow(label: t.account.newPassword, ok: state.newLengthOk, text: state.newLengthOk ? t.common.lengthOk : t.main.pendingInput),
-                  _ValidationRow(label: t.common.confirmNewPassword, ok: state.confirmLengthOk && state.passwordMatchOk, text: !state.confirmLengthOk ? t.main.pendingInput : (state.passwordMatchOk ? t.common.validationPassed : t.chat.passwordMismatch)),
+                  _ValidationRow(
+                    label: t.account.oldPassword,
+                    ok: state.existingLengthOk,
+                    text: state.existingLengthOk
+                        ? t.common.lengthOk
+                        : t.main.pendingInput,
+                  ),
+                  _ValidationRow(
+                    label: t.account.newPassword,
+                    ok: state.newLengthOk,
+                    text: state.newLengthOk
+                        ? t.common.lengthOk
+                        : t.main.pendingInput,
+                  ),
+                  _ValidationRow(
+                    label: t.common.confirmNewPassword,
+                    ok: state.confirmLengthOk && state.passwordMatchOk,
+                    text: !state.confirmLengthOk
+                        ? t.main.pendingInput
+                        : (state.passwordMatchOk
+                              ? t.common.validationPassed
+                              : t.chat.passwordMismatch),
+                  ),
                 ],
               ),
             ),
@@ -110,7 +169,10 @@ class ChangePasswordPage extends ConsumerWidget {
                 placeholder: hint,
                 obscureText: obscure,
                 onChanged: onChanged,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: null,
                 textAlign: TextAlign.right,
               ),
@@ -118,7 +180,11 @@ class ChangePasswordPage extends ConsumerWidget {
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: onToggle,
-              child: Icon(obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash, size: 20, color: AppColors.iosGray),
+              child: Icon(
+                obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                size: 20,
+                color: AppColors.iosGray,
+              ),
             ),
           ],
         ),
@@ -126,9 +192,19 @@ class ChangePasswordPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSaveButton(BuildContext context, WidgetRef ref, dynamic state, Translations t) {
+  Widget _buildSaveButton(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic state,
+    Translations t,
+  ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       child: SizedBox(
         width: double.infinity,
         height: 50,
@@ -138,12 +214,22 @@ class ChangePasswordPage extends ConsumerWidget {
             foregroundColor: Colors.white,
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
-          onPressed: state.canSubmit ? () => ref.read(changeLoginPasswordProvider.notifier).submit() : null,
+          onPressed: state.canSubmit
+              ? () => ref.read(changeLoginPasswordProvider.notifier).submit()
+              : null,
           child: state.isLoading
               ? const CupertinoActivityIndicator(color: Colors.white)
-              : Text(t.common.buttonSave, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+              : Text(
+                  t.common.buttonSave,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );
@@ -151,7 +237,11 @@ class ChangePasswordPage extends ConsumerWidget {
 }
 
 class _ValidationRow extends StatelessWidget {
-  const _ValidationRow({required this.label, required this.ok, required this.text});
+  const _ValidationRow({
+    required this.label,
+    required this.ok,
+    required this.text,
+  });
   final String label;
   final bool ok;
   final String text;
@@ -163,10 +253,26 @@ class _ValidationRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.iosGray))),
-          Icon(ok ? CupertinoIcons.check_mark_circled : CupertinoIcons.info_circle, size: 14, color: color),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+            ),
+          ),
+          Icon(
+            ok ? CupertinoIcons.check_mark_circled : CupertinoIcons.info_circle,
+            size: 14,
+            color: color,
+          ),
           const SizedBox(width: 4),
-          Text(text, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500)),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

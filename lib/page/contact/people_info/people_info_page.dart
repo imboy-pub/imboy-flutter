@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -44,13 +42,32 @@ class PeopleInfoPage extends ConsumerWidget {
     return IosPageTemplate(
       title: '',
       useLargeTitle: false,
-      actions: isSelf || isBot ? null : [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.ellipsis, size: 22),
-          onPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => ContactSettingPage(peerId: id, peerAvatar: '', peerAccount: '', peerNickname: '', peerGender: 0, peerTitle: '', peerSign: '', peerRegion: '', peerSource: '', peerRemark: '', peerTag: ''))),
-        )
-      ],
+      actions: isSelf || isBot
+          ? null
+          : [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(CupertinoIcons.ellipsis, size: 22),
+                onPressed: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (_) => ContactSettingPage(
+                      peerId: id,
+                      peerAvatar: '',
+                      peerAccount: '',
+                      peerNickname: '',
+                      peerGender: 0,
+                      peerTitle: '',
+                      peerSign: '',
+                      peerRegion: '',
+                      peerSource: '',
+                      peerRemark: '',
+                      peerTag: '',
+                    ),
+                  ),
+                ),
+              ),
+            ],
       slivers: [
         // 用户名片 Section
         SliverToBoxAdapter(
@@ -58,7 +75,9 @@ class PeopleInfoPage extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+                color: isDark
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: ContactCard(
@@ -100,9 +119,21 @@ class PeopleInfoPage extends ConsumerWidget {
             child: ImBoySettingsSection(
               children: [
                 ImBoySettingsTile(
-                  title: Text(state.tag.isEmpty ? t.contact.remarksTags : t.contact.tags),
-                  subtitle: state.tag.isNotEmpty ? Text(state.tag.endsWith(',') ? state.tag.substring(0, state.tag.length - 1) : state.tag) : null,
-                  leading: const Icon(CupertinoIcons.tag_fill, color: AppColors.iosBlue, size: 20),
+                  title: Text(
+                    state.tag.isEmpty ? t.contact.remarksTags : t.contact.tags,
+                  ),
+                  subtitle: state.tag.isNotEmpty
+                      ? Text(
+                          state.tag.endsWith(',')
+                              ? state.tag.substring(0, state.tag.length - 1)
+                              : state.tag,
+                        )
+                      : null,
+                  leading: const Icon(
+                    CupertinoIcons.tag_fill,
+                    color: AppColors.iosBlue,
+                    size: 20,
+                  ),
                   onTap: () => _editTags(context, ref, state),
                 ),
               ],
@@ -116,8 +147,17 @@ class PeopleInfoPage extends ConsumerWidget {
               children: [
                 ImBoySettingsTile(
                   title: Text(t.common.moreInfo),
-                  leading: const Icon(CupertinoIcons.info_circle, color: AppColors.iosGray, size: 20),
-                  onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => PeopleInfoMorePage(id: id))),
+                  leading: const Icon(
+                    CupertinoIcons.info_circle,
+                    color: AppColors.iosGray,
+                    size: 20,
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (_) => PeopleInfoMorePage(id: id),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -132,18 +172,30 @@ class PeopleInfoPage extends ConsumerWidget {
                 if (!isSelf)
                   ImBoySettingsTile(
                     title: Text(t.common.messageCall),
-                    leading: const Icon(CupertinoIcons.chat_bubble_fill, color: AppColors.iosBlue, size: 20),
+                    leading: const Icon(
+                      CupertinoIcons.chat_bubble_fill,
+                      color: AppColors.iosBlue,
+                      size: 20,
+                    ),
                     onTap: () => _goToChat(context, state),
                   ),
                 if (state.isFriend == 1 && !isSelf) ...[
                   ImBoySettingsTile(
                     title: Text(t.common.voiceCall),
-                    leading: const Icon(CupertinoIcons.phone_fill, color: AppColors.iosGreen, size: 20),
+                    leading: const Icon(
+                      CupertinoIcons.phone_fill,
+                      color: AppColors.iosGreen,
+                      size: 20,
+                    ),
                     onTap: () => _startCall(context, state, 'audio'),
                   ),
                   ImBoySettingsTile(
                     title: Text(t.common.videoCall),
-                    leading: const Icon(CupertinoIcons.videocam_fill, color: AppColors.iosGreen, size: 20),
+                    leading: const Icon(
+                      CupertinoIcons.videocam_fill,
+                      color: AppColors.iosGreen,
+                      size: 20,
+                    ),
                     onTap: () => _startCall(context, state, 'video'),
                   ),
                 ],
@@ -157,14 +209,33 @@ class PeopleInfoPage extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
               child: SizedBox(
-                width: double.infinity, height: 50,
+                width: double.infinity,
+                height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary, foregroundColor: Colors.white,
-                    elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  onPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => ApplyFriendPage(id, state.nickname, state.avatar, state.region, source: state.source))),
+                  onPressed: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (_) => ApplyFriendPage(
+                        id,
+                        state.nickname,
+                        state.avatar,
+                        state.region,
+                        source: state.source,
+                      ),
+                    ),
+                  ),
                   child: Text(t.common.addToContacts),
                 ),
               ),
@@ -173,24 +244,66 @@ class PeopleInfoPage extends ConsumerWidget {
 
         // 黑名单警告
         if (scene == 'denylist')
-          SliverToBoxAdapter(
-            child: _buildWarningTip(context, brightness),
-          ),
+          SliverToBoxAdapter(child: _buildWarningTip(context, brightness)),
       ],
     );
   }
 
   void _editTags(BuildContext context, WidgetRef ref, PeopleInfoState state) {
-    Navigator.push(context, CupertinoPageRoute(builder: (_) => ContactSettingTagPage(peerId: id, peerAvatar: state.avatar, peerAccount: state.account, peerNickname: state.nickname, peerGender: state.gender, peerTitle: state.title, peerSign: state.sign, peerRegion: state.region, peerSource: state.source, peerRemark: state.remark, peerTag: state.tag, onRemarkChanged: (r) => ref.read(peopleInfoProvider.notifier).updateRemark(r)))).then((v) { if (v != null && v is String && v.isNotEmpty) ref.read(peopleInfoProvider.notifier).updateRemark(v); });
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (_) => ContactSettingTagPage(
+          peerId: id,
+          peerAvatar: state.avatar,
+          peerAccount: state.account,
+          peerNickname: state.nickname,
+          peerGender: state.gender,
+          peerTitle: state.title,
+          peerSign: state.sign,
+          peerRegion: state.region,
+          peerSource: state.source,
+          peerRemark: state.remark,
+          peerTag: state.tag,
+          onRemarkChanged: (r) =>
+              ref.read(peopleInfoProvider.notifier).updateRemark(r),
+        ),
+      ),
+    ).then((v) {
+      if (v != null && v is String && v.isNotEmpty)
+        ref.read(peopleInfoProvider.notifier).updateRemark(v);
+    });
   }
 
   void _goToChat(BuildContext context, PeopleInfoState state) {
-    String title = state.remark.isNotEmpty ? state.remark : (state.nickname.isNotEmpty ? state.nickname : state.account);
-    Navigator.push(context, CupertinoPageRoute(builder: (_) => ChatPage(peerId: id, peerTitle: title, peerAvatar: state.avatar, peerSign: state.sign, type: 'C2C')));
+    String title = state.remark.isNotEmpty
+        ? state.remark
+        : (state.nickname.isNotEmpty ? state.nickname : state.account);
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (_) => ChatPage(
+          peerId: id,
+          peerTitle: title,
+          peerAvatar: state.avatar,
+          peerSign: state.sign,
+          type: 'C2C',
+        ),
+      ),
+    );
   }
 
   void _startCall(BuildContext context, PeopleInfoState state, String mode) {
-    openCallScreen(context, ContactModel.fromMap({"id": id, "nickname": state.nickname, "avatar": state.avatar, "sign": state.sign}), mode == 'audio' ? {'media': 'audio'} : {});
+    openCallScreen(
+      context,
+      ContactModel.fromMap({
+        "id": id,
+        "nickname": state.nickname,
+        "avatar": state.avatar,
+        "sign": state.sign,
+      }),
+      mode == 'audio' ? {'media': 'audio'} : {},
+    );
   }
 
   Widget _buildWarningTip(BuildContext context, Brightness brightness) {
@@ -198,8 +311,32 @@ class PeopleInfoPage extends ConsumerWidget {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppColors.getIosRed(brightness).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.getIosRed(brightness).withValues(alpha: 0.2))),
-        child: Row(children: [Icon(CupertinoIcons.exclamationmark_triangle_fill, color: AppColors.getIosRed(brightness), size: 24), const SizedBox(width: 12), Expanded(child: Text(t.common.addedToDenylistTips, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)))]),
+        decoration: BoxDecoration(
+          color: AppColors.getIosRed(brightness).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.getIosRed(brightness).withValues(alpha: 0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.exclamationmark_triangle_fill,
+              color: AppColors.getIosRed(brightness),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                t.common.addedToDenylistTips,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

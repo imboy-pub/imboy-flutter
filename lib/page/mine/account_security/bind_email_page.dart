@@ -21,8 +21,12 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
   void initState() {
     super.initState();
     final notifier = ref.read(bindEmailProvider.notifier);
-    notifier.emailCtl.addListener(() => notifier.updateEmail(notifier.emailCtl.text.trim()));
-    notifier.codeCtl.addListener(() => notifier.updateCode(notifier.codeCtl.text.trim()));
+    notifier.emailCtl.addListener(
+      () => notifier.updateEmail(notifier.emailCtl.text.trim()),
+    );
+    notifier.codeCtl.addListener(
+      () => notifier.updateCode(notifier.codeCtl.text.trim()),
+    );
   }
 
   @override
@@ -49,16 +53,45 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.account.currentEmail),
-                subtitle: Text(hasBound ? _maskEmail(currentEmail) : t.common.notBound),
+                subtitle: Text(
+                  hasBound ? _maskEmail(currentEmail) : t.common.notBound,
+                ),
                 leading: Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(color: AppColors.getIosBlue(brightness), borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(CupertinoIcons.mail, color: Colors.white, size: 18),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.getIosBlue(brightness),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.mail,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: (hasBound ? AppColors.getIosBlue(brightness) : AppColors.iosGray).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-                  child: Text(hasBound ? t.main.bound : t.common.notBound, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: hasBound ? AppColors.getIosBlue(brightness) : AppColors.iosGray)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        (hasBound
+                                ? AppColors.getIosBlue(brightness)
+                                : AppColors.iosGray)
+                            .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    hasBound ? t.main.bound : t.common.notBound,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: hasBound
+                          ? AppColors.getIosBlue(brightness)
+                          : AppColors.iosGray,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -66,33 +99,53 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
 
           // 输入表单 Section
           ImBoySettingsSection(
-            header: Text((hasBound ? t.common.newEmailAddress : t.common.emailAddress).toUpperCase()),
+            header: Text(
+              (hasBound ? t.common.newEmailAddress : t.common.emailAddress)
+                  .toUpperCase(),
+            ),
             children: [
               CupertinoListTile.notched(
-                title: Text(t.common.emailAddress, style: const TextStyle(fontSize: 17)),
+                title: Text(
+                  t.common.emailAddress,
+                  style: const TextStyle(fontSize: 17),
+                ),
                 trailing: Expanded(
                   child: CupertinoTextField(
                     controller: ref.read(bindEmailProvider.notifier).emailCtl,
                     placeholder: t.common.enterEmailAddress,
                     keyboardType: TextInputType.emailAddress,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: null,
                     textAlign: TextAlign.right,
                   ),
                 ),
               ),
               CupertinoListTile.notched(
-                title: Text(t.common.verificationCode, style: const TextStyle(fontSize: 17)),
+                title: Text(
+                  t.common.verificationCode,
+                  style: const TextStyle(fontSize: 17),
+                ),
                 trailing: Expanded(
                   child: Row(
                     children: [
                       Expanded(
                         child: CupertinoTextField(
-                          controller: ref.read(bindEmailProvider.notifier).codeCtl,
+                          controller: ref
+                              .read(bindEmailProvider.notifier)
+                              .codeCtl,
                           placeholder: '000000',
                           keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(6),
+                          ],
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           decoration: null,
                           textAlign: TextAlign.right,
                         ),
@@ -111,15 +164,29 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
             child: Column(
               children: [
-                _ValidationRow(label: t.chat.formatCheck, ok: asyncState.emailOk, text: asyncState.emailOk ? t.main.correct : t.main.pendingInput),
-                _ValidationRow(label: t.main.lengthCheck, ok: asyncState.codeOk, text: '${asyncState.codeLength} / 6'),
+                _ValidationRow(
+                  label: t.chat.formatCheck,
+                  ok: asyncState.emailOk,
+                  text: asyncState.emailOk
+                      ? t.main.correct
+                      : t.main.pendingInput,
+                ),
+                _ValidationRow(
+                  label: t.main.lengthCheck,
+                  ok: asyncState.codeOk,
+                  text: '${asyncState.codeLength} / 6',
+                ),
               ],
             ),
           ),
 
           Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Text(t.common.verificationCodeSentToEmail, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.iosGray, fontSize: 13)),
+            child: Text(
+              t.common.verificationCodeSentToEmail,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.iosGray, fontSize: 13),
+            ),
           ),
         ],
       ),
@@ -134,32 +201,76 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
       color: AppColors.getIosBlue(Theme.of(context).brightness),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),
-      onPressed: canSend ? () async {
-        final error = await ref.read(bindEmailProvider.notifier).sendCode();
-        if (error != null && mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error), backgroundColor: AppColors.iosRed));
-      } : null,
-      child: state.isSendingCode 
+      onPressed: canSend
+          ? () async {
+              final error = await ref
+                  .read(bindEmailProvider.notifier)
+                  .sendCode();
+              if (error != null && mounted)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(error),
+                    backgroundColor: AppColors.iosRed,
+                  ),
+                );
+            }
+          : null,
+      child: state.isSendingCode
           ? const CupertinoActivityIndicator(radius: 8, color: Colors.white)
-          : Text(state.seconds > 0 ? '${state.seconds}s' : t.common.getVerificationCode, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          : Text(
+              state.seconds > 0
+                  ? '${state.seconds}s'
+                  : t.common.getVerificationCode,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context, WidgetRef ref, dynamic state, bool hasBound, Translations t) {
+  Widget _buildSubmitButton(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic state,
+    bool hasBound,
+    Translations t,
+  ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       child: SizedBox(
-        width: double.infinity, height: 50,
+        width: double.infinity,
+        height: 50,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary, foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
-            elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
-          onPressed: state.canSubmit ? () async {
-            final error = await ref.read(bindEmailProvider.notifier).submit();
-            if (error == null && context.mounted) Navigator.of(context).pop();
-          } : null,
-          child: state.isSubmitting ? const CupertinoActivityIndicator(color: Colors.white) : Text(hasBound ? t.common.confirmChange : t.common.bindNow, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+          onPressed: state.canSubmit
+              ? () async {
+                  final error = await ref
+                      .read(bindEmailProvider.notifier)
+                      .submit();
+                  if (error == null && context.mounted)
+                    Navigator.of(context).pop();
+                }
+              : null,
+          child: state.isSubmitting
+              ? const CupertinoActivityIndicator(color: Colors.white)
+              : Text(
+                  hasBound ? t.common.confirmChange : t.common.bindNow,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );
@@ -167,7 +278,11 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
 }
 
 class _ValidationRow extends StatelessWidget {
-  const _ValidationRow({required this.label, required this.ok, required this.text});
+  const _ValidationRow({
+    required this.label,
+    required this.ok,
+    required this.text,
+  });
   final String label;
   final bool ok;
   final String text;
@@ -179,8 +294,17 @@ class _ValidationRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.iosGray))),
-          Icon(ok ? CupertinoIcons.check_mark_circled : CupertinoIcons.circle, size: 14, color: color),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+            ),
+          ),
+          Icon(
+            ok ? CupertinoIcons.check_mark_circled : CupertinoIcons.circle,
+            size: 14,
+            color: color,
+          ),
           const SizedBox(width: 4),
           Text(text, style: TextStyle(fontSize: 12, color: color)),
         ],

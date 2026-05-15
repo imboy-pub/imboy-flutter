@@ -64,9 +64,14 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   @override
   void initState() {
     super.initState();
-    _noticeDisabled = readNoticeDisabled(_gidInt, readBool: StorageService.to.getBool);
+    _noticeDisabled = readNoticeDisabled(
+      _gidInt,
+      readBool: StorageService.to.getBool,
+    );
     unawaited(initData());
-    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) => mounted ? setState(() {}) : null);
+    _localeSubscription = LocaleSettings.getLocaleStream().listen(
+      (_) => mounted ? setState(() {}) : null,
+    );
   }
 
   @override
@@ -85,9 +90,16 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     notifier.setTitle(widget.title);
     notifier.setMemberCount(widget.memberCount);
 
-    List<PeopleModel> memberList = await service.listGroupMember(gid: widget.groupId, sync: false, limit: 18);
+    List<PeopleModel> memberList = await service.listGroupMember(
+      gid: widget.groupId,
+      sync: false,
+      limit: 18,
+    );
     memberList.add(PeopleModel(id: -1, account: 'add'));
-    int role = await service.role(gid: widget.groupId, userId: UserRepoLocal.to.currentUid);
+    int role = await service.role(
+      gid: widget.groupId,
+      userId: UserRepoLocal.to.currentUid,
+    );
     bool isAdmin = isGroupAdmin(role);
     notifier.setRoleInfo(role, isAdmin);
     if (isAdmin) memberList.add(PeopleModel(id: -2, account: 'remove'));
@@ -101,7 +113,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         notifier.setMemberCount(g.memberCount);
         notifier.setTitle(g.title);
         if (connected && widget.memberCount != g.memberCount) {
-          memberList = await service.listGroupMember(gid: widget.groupId, sync: true, limit: 1000);
+          memberList = await service.listGroupMember(
+            gid: widget.groupId,
+            sync: true,
+            limit: 1000,
+          );
           if (memberList.length > 18) memberList = memberList.sublist(0, 18);
           notifier.setMemberList(memberList);
         }
@@ -110,10 +126,24 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     });
 
     ssMsgExt ??= AppEventBus.on<ChatExtendEvent>().listen((obj) async {
-      if (obj.type == 'join_group' && obj.payload['groupId'] == widget.groupId && (obj.payload['isFirst'] ?? false)) {
-        await _lock.synchronized(() async { notifier.addMember(obj.payload['people'] as PeopleModel); backDoRefresh = true; if (mounted) setState(() {}); });
-      } else if (obj.type == 'leave_group' && obj.payload['groupId'] == widget.groupId) {
-        await _lock.synchronized(() async { final uid = obj.payload['userId']; notifier.removeMember(uid is int ? uid : int.tryParse(uid?.toString() ?? '0') ?? 0); backDoRefresh = true; if (mounted) setState(() {}); });
+      if (obj.type == 'join_group' &&
+          obj.payload['groupId'] == widget.groupId &&
+          (obj.payload['isFirst'] ?? false)) {
+        await _lock.synchronized(() async {
+          notifier.addMember(obj.payload['people'] as PeopleModel);
+          backDoRefresh = true;
+          if (mounted) setState(() {});
+        });
+      } else if (obj.type == 'leave_group' &&
+          obj.payload['groupId'] == widget.groupId) {
+        await _lock.synchronized(() async {
+          final uid = obj.payload['userId'];
+          notifier.removeMember(
+            uid is int ? uid : int.tryParse(uid?.toString() ?? '0') ?? 0,
+          );
+          backDoRefresh = true;
+          if (mounted) setState(() {});
+        });
       }
     });
   }
@@ -122,7 +152,6 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(groupDetailProvider);
     final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
 
     return IosPageTemplate(
       title: state.title.isEmpty ? t.chat.chatMessage : state.title,
@@ -137,23 +166,51 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.group.groupName),
-                trailing: Text(state.title.isEmpty ? t.main.unnamed : state.title, style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+                trailing: Text(
+                  state.title.isEmpty ? t.main.unnamed : state.title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.iosGray,
+                  ),
+                ),
                 onTap: () async {
-                  GroupModel? group = await GroupDetailService().find(widget.groupId);
-                  if (group != null && mounted) Navigator.push(context, CupertinoPageRoute(builder: (_) => ChangeInfoPage(group: group, title: t.group.groupName, subtitle: t.common.pleaseEnterContent)));
+                  GroupModel? group = await GroupDetailService().find(
+                    widget.groupId,
+                  );
+                  if (group != null && mounted)
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => ChangeInfoPage(
+                          group: group,
+                          title: t.group.groupName,
+                          subtitle: t.common.pleaseEnterContent,
+                        ),
+                      ),
+                    );
                 },
               ),
               ImBoySettingsTile(
                 title: Text(t.account.groupQrcode),
-                leading: const Icon(CupertinoIcons.qrcode, color: AppColors.iosGray, size: 20),
+                leading: const Icon(
+                  CupertinoIcons.qrcode,
+                  color: AppColors.iosGray,
+                  size: 20,
+                ),
                 onTap: () async {
-                  GroupModel? group = await GroupDetailService().find(widget.groupId);
-                  if (group != null && mounted) context.push('/qrcode/group', extra: {'group': group});
+                  GroupModel? group = await GroupDetailService().find(
+                    widget.groupId,
+                  );
+                  if (group != null && mounted)
+                    context.push('/qrcode/group', extra: {'group': group});
                 },
               ),
               ImBoySettingsTile(
                 title: Text(t.common.groupAnnouncement),
-                onTap: () => context.push('/group/announcement', extra: {'groupId': widget.groupId}),
+                onTap: () => context.push(
+                  '/group/announcement',
+                  extra: {'groupId': widget.groupId},
+                ),
               ),
               ImBoySettingsTile(
                 title: Text(t.chat.groupFile),
@@ -171,8 +228,22 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.common.searchChatContent),
-                leading: const Icon(CupertinoIcons.search, color: AppColors.iosBlue, size: 20),
-                onTap: () => context.push('/search_chat', extra: {'type': 'C2G', 'peerId': widget.groupId, 'peerTitle': widget.title, 'peerAvatar': widget.options?['peerAvatar'], 'peerSign': widget.options?['peerSign'], 'conversationUk3': widget.options?['conversationUk3']}),
+                leading: const Icon(
+                  CupertinoIcons.search,
+                  color: AppColors.iosBlue,
+                  size: 20,
+                ),
+                onTap: () => context.push(
+                  '/search_chat',
+                  extra: {
+                    'type': 'C2G',
+                    'peerId': widget.groupId,
+                    'peerTitle': widget.title,
+                    'peerAvatar': widget.options?['peerAvatar'],
+                    'peerSign': widget.options?['peerSign'],
+                    'conversationUk3': widget.options?['conversationUk3'],
+                  },
+                ),
               ),
             ],
           ),
@@ -182,28 +253,87 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.group.groupAlias),
-                trailing: Text(strEmpty(state.myGroupAlias) ? UserRepoLocal.to.current.nickname : state.myGroupAlias!, style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+                trailing: Text(
+                  strEmpty(state.myGroupAlias)
+                      ? UserRepoLocal.to.current.nickname
+                      : state.myGroupAlias!,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.iosGray,
+                  ),
+                ),
                 onTap: () async {
-                  final result = await context.push<String>('/group/remark', extra: {'groupInfoType': GroupInfoType.cardName, 'text': state.myGroupAlias ?? '', 'groupId': widget.groupId});
-                  if (result != null) { await GroupDetailService().updateMyGroupAlias(widget.groupId, result); ref.read(groupDetailProvider.notifier).setMyGroupAlias(result); }
+                  final result = await context.push<String>(
+                    '/group/remark',
+                    extra: {
+                      'groupInfoType': GroupInfoType.cardName,
+                      'text': state.myGroupAlias ?? '',
+                      'groupId': widget.groupId,
+                    },
+                  );
+                  if (result != null) {
+                    await GroupDetailService().updateMyGroupAlias(
+                      widget.groupId,
+                      result,
+                    );
+                    ref
+                        .read(groupDetailProvider.notifier)
+                        .setMyGroupAlias(result);
+                  }
                 },
               ),
               ImBoySettingsTile(
                 title: Text(t.contact.remark),
-                trailing: Text(strEmpty(state.groupRemark) ? state.group?.title ?? '' : state.groupRemark!, style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+                trailing: Text(
+                  strEmpty(state.groupRemark)
+                      ? state.group?.title ?? ''
+                      : state.groupRemark!,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.iosGray,
+                  ),
+                ),
                 onTap: () async {
-                  final result = await context.push<String>('/group/remark', extra: {'groupInfoType': GroupInfoType.remark, 'text': state.groupRemark ?? '', 'groupId': widget.groupId});
-                  if (result != null && await GroupApi().updateRemark(gid: widget.groupId, remark: result)) ref.read(groupDetailProvider.notifier).setGroupRemark(result);
+                  final result = await context.push<String>(
+                    '/group/remark',
+                    extra: {
+                      'groupInfoType': GroupInfoType.remark,
+                      'text': state.groupRemark ?? '',
+                      'groupId': widget.groupId,
+                    },
+                  );
+                  if (result != null &&
+                      await GroupApi().updateRemark(
+                        gid: widget.groupId,
+                        remark: result,
+                      ))
+                    ref
+                        .read(groupDetailProvider.notifier)
+                        .setGroupRemark(result);
                 },
               ),
               GroupNoticeDisabledTile(
                 label: t.common.muteNotifications,
                 value: _noticeDisabled,
-                onChanged: _gidInt <= 0 ? null : (v) async {
-                  final prev = _noticeDisabled; setState(() => _noticeDisabled = v);
-                  try { await setNoticeDisabled(_gidInt, v, writeBool: (k, val) async => StorageService.to.setBool(k, val)); }
-                  catch (_) { if (mounted) { setState(() => _noticeDisabled = prev); EasyLoading.showError(t.common.tipFailed); } }
-                },
+                onChanged: _gidInt <= 0
+                    ? null
+                    : (v) async {
+                        final prev = _noticeDisabled;
+                        setState(() => _noticeDisabled = v);
+                        try {
+                          await setNoticeDisabled(
+                            _gidInt,
+                            v,
+                            writeBool: (k, val) async =>
+                                StorageService.to.setBool(k, val),
+                          );
+                        } catch (_) {
+                          if (mounted) {
+                            setState(() => _noticeDisabled = prev);
+                            EasyLoading.showError(t.common.tipFailed);
+                          }
+                        }
+                      },
               ),
             ],
           ),
@@ -237,13 +367,30 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.getIosRed(brightness).withValues(alpha: 0.1),
+                  backgroundColor: AppColors.getIosRed(
+                    brightness,
+                  ).withValues(alpha: 0.1),
                   foregroundColor: AppColors.getIosRed(brightness),
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: AppColors.getIosRed(brightness).withValues(alpha: 0.2))),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: AppColors.getIosRed(
+                        brightness,
+                      ).withValues(alpha: 0.2),
+                    ),
+                  ),
                 ),
                 onPressed: () => _confirmExitGroup(state),
-                child: Text(isGroupOwner(state.role) ? t.group.groupDissolve : t.group.groupLeave, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                child: Text(
+                  isGroupOwner(state.role)
+                      ? t.group.groupDissolve
+                      : t.group.groupLeave,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ),
@@ -267,25 +414,65 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(t.group.groupMembers, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-              Text('${state.memberCount}', style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+              Text(
+                t.group.groupMembers,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                '${state.memberCount}',
+                style: const TextStyle(fontSize: 15, color: AppColors.iosGray),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           AvatarList(
             memberList: state.memberList,
-            width: 52, height: 52,
+            width: 52,
+            height: 52,
             column: (MediaQuery.of(context).size.width - 72) ~/ 64,
-            onTapAvatar: (p) => context.push('/people_info/${p.id}', extra: {'scene': 'group_member'}),
-            onTapAdd: () => context.push('/group/add_member', extra: {'groupId': widget.groupId}),
+            onTapAvatar: (p) => context.push(
+              '/people_info/${p.id}',
+              extra: {'scene': 'group_member'},
+            ),
+            onTapAdd: () => context.push(
+              '/group/add_member',
+              extra: {'groupId': widget.groupId},
+            ),
             onTapRemove: () async {
-              final res = await context.push<List<GroupMemberModel>>('/group/remove_member', extra: {'groupId': widget.groupId});
-              if (res != null) { for (var gm in res) ref.read(groupDetailProvider.notifier).removeMember(gm.userId); backDoRefresh = true; }
+              final res = await context.push<List<GroupMemberModel>>(
+                '/group/remove_member',
+                extra: {'groupId': widget.groupId},
+              );
+              if (res != null) {
+                for (var gm in res)
+                  ref
+                      .read(groupDetailProvider.notifier)
+                      .removeMember(gm.userId);
+                backDoRefresh = true;
+              }
             },
           ),
           if (state.memberCount > 20) ...[
             const SizedBox(height: 12),
-            Center(child: CupertinoButton(padding: EdgeInsets.zero, child: Text(t.common.viewAllGroupMember, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)), onPressed: () => context.push('/group/member', extra: {'groupId': widget.groupId}))),
+            Center(
+              child: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Text(
+                  t.common.viewAllGroupMember,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onPressed: () => context.push(
+                  '/group/member',
+                  extra: {'groupId': widget.groupId},
+                ),
+              ),
+            ),
           ],
         ],
       ),
@@ -293,22 +480,113 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   void _confirmClearChat() {
-    showCupertinoDialog(context: context, builder: (ctx) => CupertinoAlertDialog(title: Text(t.common.warning), content: Text(t.common.confirmDeleteChatRecord), actions: [CupertinoDialogAction(child: Text(t.common.buttonCancel), onPressed: () => Navigator.pop(ctx)), CupertinoDialogAction(isDestructiveAction: true, child: Text(t.common.buttonConfirm), onPressed: () async { Navigator.pop(ctx); int cid = await GroupDetailService().cleanMessageByPeerId('C2G', widget.groupId); if (cid > 0) { backDoRefresh = true; await ref.read(conversationProvider.notifier).hideConversation(cid); await ref.read(conversationProvider.notifier).conversationsList(); EasyLoading.showSuccess(t.common.tipSuccess); } else EasyLoading.showError(t.common.tipFailed); })]));
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.common.warning),
+        content: Text(t.common.confirmDeleteChatRecord),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(t.common.buttonCancel),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: Text(t.common.buttonConfirm),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              int cid = await GroupDetailService().cleanMessageByPeerId(
+                'C2G',
+                widget.groupId,
+              );
+              if (cid > 0) {
+                backDoRefresh = true;
+                await ref
+                    .read(conversationProvider.notifier)
+                    .hideConversation(cid);
+                await ref
+                    .read(conversationProvider.notifier)
+                    .conversationsList();
+                EasyLoading.showSuccess(t.common.tipSuccess);
+              } else
+                EasyLoading.showError(t.common.tipFailed);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmExitGroup(dynamic state) {
-    String tips = "${isGroupOwner(state.role) ? t.group.sureToDissolveGroup : t.group.sureToLeaveGroup}\n${t.common.sureDeleteGroupChatRecord}";
-    showCupertinoDialog(context: context, builder: (ctx) => CupertinoAlertDialog(title: Text(t.common.tipTips), content: Text(tips), actions: [CupertinoDialogAction(child: Text(t.common.buttonCancel), onPressed: () => Navigator.pop(ctx)), CupertinoDialogAction(isDestructiveAction: true, child: Text(t.common.buttonConfirm), onPressed: () async { var nav = Navigator.of(context); bool res = isGroupOwner(state.role) ? await GroupDetailService().dissolve(widget.groupId) : await GroupDetailService().leave(widget.groupId); if (res) { EasyLoading.showSuccess(t.common.tipSuccess); nav.pop(); nav.pop(); } })]));
+    String tips =
+        "${isGroupOwner(state.role) ? t.group.sureToDissolveGroup : t.group.sureToLeaveGroup}\n${t.common.sureDeleteGroupChatRecord}";
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.common.tipTips),
+        content: Text(tips),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(t.common.buttonCancel),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: Text(t.common.buttonConfirm),
+            onPressed: () async {
+              var nav = Navigator.of(context);
+              bool res = isGroupOwner(state.role)
+                  ? await GroupDetailService().dissolve(widget.groupId)
+                  : await GroupDetailService().leave(widget.groupId);
+              if (res) {
+                EasyLoading.showSuccess(t.common.tipSuccess);
+                nav.pop();
+                nav.pop();
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _showComplaintDialog(BuildContext context) {
-    String? reason;
-    showCupertinoModalPopup(context: context, builder: (ctx) => CupertinoActionSheet(title: Text(t.complaint.complaint), actions: [
-      _action(ctx, 'spam', t.complaintReason.spam), _action(ctx, 'harassment', t.complaintReason.harassment), _action(ctx, 'inappropriate', t.complaintReason.inappropriate), _action(ctx, 'other', t.complaintReason.other),
-    ], cancelButton: CupertinoActionSheetAction(child: Text(t.common.buttonCancel), onPressed: () => Navigator.pop(ctx))));
+    showCupertinoModalPopup(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: Text(t.complaint.complaint),
+        actions: [
+          _action(ctx, 'spam', t.complaintReason.spam),
+          _action(ctx, 'harassment', t.complaintReason.harassment),
+          _action(ctx, 'inappropriate', t.complaintReason.inappropriate),
+          _action(ctx, 'other', t.complaintReason.other),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text(t.common.buttonCancel),
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ),
+    );
   }
 
-  CupertinoActionSheetAction _action(BuildContext ctx, String val, String label) {
-    return CupertinoActionSheetAction(onPressed: () async { Navigator.pop(ctx); if (await ReportApi().create(targetType: 'group', targetId: widget.groupId, reason: val)) EasyLoading.showSuccess(t.common.complaintSuccess); else EasyLoading.showError(t.common.complaintFailed); }, child: Text(label));
+  CupertinoActionSheetAction _action(
+    BuildContext ctx,
+    String val,
+    String label,
+  ) {
+    return CupertinoActionSheetAction(
+      onPressed: () async {
+        Navigator.pop(ctx);
+        if (await ReportApi().create(
+          targetType: 'group',
+          targetId: widget.groupId,
+          reason: val,
+        ))
+          EasyLoading.showSuccess(t.common.complaintSuccess);
+        else
+          EasyLoading.showError(t.common.complaintFailed);
+      },
+      child: Text(label),
+    );
   }
 }

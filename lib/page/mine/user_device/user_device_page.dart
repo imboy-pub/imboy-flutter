@@ -52,7 +52,9 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
         // 设备列表 Section
         if (deviceState.isLoading)
-          const SliverFillRemaining(child: Center(child: CupertinoActivityIndicator()))
+          const SliverFillRemaining(
+            child: Center(child: CupertinoActivityIndicator()),
+          )
         else if (deviceState.deviceList.isEmpty)
           SliverFillRemaining(child: _buildEmptyState(context))
         else
@@ -60,7 +62,12 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             child: ImBoySettingsSection(
               header: Text(t.account.loginDeviceManagement.toUpperCase()),
               children: deviceState.deviceList.asMap().entries.map((entry) {
-                return _buildDeviceItem(context, entry.value, deviceState.currentDeviceId, brightness);
+                return _buildDeviceItem(
+                  context,
+                  entry.value,
+                  deviceState.currentDeviceId,
+                  brightness,
+                );
               }).toList(),
             ),
           ),
@@ -72,19 +79,27 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1),
+        color: AppColors.getIosBlue(
+          Theme.of(context).brightness,
+        ).withValues(alpha: 0.1),
         borderRadius: AppRadius.borderRadiusCell,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(CupertinoIcons.info, color: AppColors.getIosBlue(Theme.of(context).brightness), size: 18),
+          Icon(
+            CupertinoIcons.info,
+            color: AppColors.getIosBlue(Theme.of(context).brightness),
+            size: 18,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               t.common.loginDeviceManagementTips,
               style: TextStyle(
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
                 height: 1.4,
                 fontSize: 13,
               ),
@@ -100,49 +115,101 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(CupertinoIcons.device_phone_portrait, size: 60, color: AppColors.iosGray.withValues(alpha: 0.3)),
+          Icon(
+            CupertinoIcons.device_phone_portrait,
+            size: 60,
+            color: AppColors.iosGray.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
-          Text(t.common.noData, style: const TextStyle(color: AppColors.iosGray, fontSize: 15)),
+          Text(
+            t.common.noData,
+            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDeviceItem(BuildContext context, UserDeviceModel model, String currentDid, Brightness brightness) {
+  Widget _buildDeviceItem(
+    BuildContext context,
+    UserDeviceModel model,
+    String currentDid,
+    Brightness brightness,
+  ) {
     final isCurrentDevice = currentDid == model.deviceId;
 
     final itemTile = ImBoySettingsTile(
-      onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (context) => UserDeviceDetailPage(model: model))),
+      onTap: () => Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) => UserDeviceDetailPage(model: model),
+        ),
+      ),
       leading: Container(
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: isCurrentDevice ? AppColors.getIosBlue(brightness) : AppColors.iosGray,
+          color: isCurrentDevice
+              ? AppColors.getIosBlue(brightness)
+              : AppColors.iosGray,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(_getDeviceIcon(model.deviceType), size: 20, color: Colors.white),
+        child: Icon(
+          _getDeviceIcon(model.deviceType),
+          size: 20,
+          color: Colors.white,
+        ),
       ),
       title: Row(
         children: [
-          Expanded(child: Text(model.deviceName, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          Expanded(
+            child: Text(
+              model.deviceName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           if (isCurrentDevice) ...[
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-              child: Text(t.account.currentDevice, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(brightness))),
+              decoration: BoxDecoration(
+                color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                t.account.currentDevice,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.getIosBlue(brightness),
+                ),
+              ),
             ),
           ],
         ],
       ),
       subtitle: Row(
         children: [
-          Container(width: 6, height: 6, decoration: BoxDecoration(color: model.online ? AppColors.iosGreen : AppColors.iosGray, shape: BoxShape.circle)),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: model.online ? AppColors.iosGreen : AppColors.iosGray,
+              shape: BoxShape.circle,
+            ),
+          ),
           const SizedBox(width: 6),
-          Text(model.online ? t.chat.online : t.chat.offline, style: const TextStyle(fontSize: 12, color: AppColors.iosGray)),
+          Text(
+            model.online ? t.chat.online : t.chat.offline,
+            style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+          ),
           if (model.lastActiveAt > 0) ...[
             const SizedBox(width: 8),
-            Text(DateTimeHelper.lastTimeFmt(model.lastActiveAt), style: const TextStyle(fontSize: 12, color: AppColors.iosGray)),
+            Text(
+              DateTimeHelper.lastTimeFmt(model.lastActiveAt),
+              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+            ),
           ],
         ],
       ),
@@ -157,7 +224,9 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
-            onPressed: model.online ? (_) => _showForceOfflineDialog(context, model) : null,
+            onPressed: model.online
+                ? (_) => _showForceOfflineDialog(context, model)
+                : null,
             backgroundColor: AppColors.iosOrange,
             foregroundColor: Colors.white,
             icon: CupertinoIcons.power,
@@ -178,13 +247,21 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   IconData _getDeviceIcon(String deviceType) {
     switch (deviceType.toLowerCase()) {
-      case 'ios': case 'iphone': return Icons.phone_iphone;
-      case 'android': return Icons.phone_android;
-      case 'macos': return Icons.laptop_mac;
-      case 'windows': return Icons.laptop_windows;
-      case 'web': return Icons.web;
-      case 'desktop': return Icons.desktop_mac;
-      default: return Icons.devices;
+      case 'ios':
+      case 'iphone':
+        return Icons.phone_iphone;
+      case 'android':
+        return Icons.phone_android;
+      case 'macos':
+        return Icons.laptop_mac;
+      case 'windows':
+        return Icons.laptop_windows;
+      case 'web':
+        return Icons.web;
+      case 'desktop':
+        return Icons.desktop_mac;
+      default:
+        return Icons.devices;
     }
   }
 
@@ -195,8 +272,18 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
         title: Text(t.common.buttonDelete),
         content: Text(t.common.deleteThisDeviceTips),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(context), child: Text(t.common.buttonCancel)),
-          CupertinoDialogAction(isDestructiveAction: true, onPressed: () async { Navigator.pop(context); await _deleteDevice(model); }, child: Text(t.common.buttonDelete)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteDevice(model);
+            },
+            child: Text(t.common.buttonDelete),
+          ),
         ],
       ),
     );
@@ -205,9 +292,16 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
   Future<void> _deleteDevice(UserDeviceModel model) async {
     EasyLoading.show(status: t.common.loading);
     try {
-      if (await ref.read(userDeviceProvider.notifier).deleteDevice(model.deviceId)) EasyLoading.showSuccess(t.common.tipSuccess);
-      else EasyLoading.showError(t.common.tipFailed);
-    } catch (_) { EasyLoading.dismiss(); EasyLoading.showError(t.common.tipFailed); }
+      if (await ref
+          .read(userDeviceProvider.notifier)
+          .deleteDevice(model.deviceId))
+        EasyLoading.showSuccess(t.common.tipSuccess);
+      else
+        EasyLoading.showError(t.common.tipFailed);
+    } catch (_) {
+      EasyLoading.dismiss();
+      EasyLoading.showError(t.common.tipFailed);
+    }
   }
 
   void _showForceOfflineDialog(BuildContext context, UserDeviceModel model) {
@@ -217,8 +311,18 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
         title: Text(t.common.forceDeviceOffline),
         content: Text(t.common.forceDeviceOfflineConfirm),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(context), child: Text(t.common.buttonCancel)),
-          CupertinoDialogAction(isDestructiveAction: true, onPressed: () async { Navigator.pop(context); await _forceOffline(model); }, child: Text(t.common.confirmForceOffline)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () async {
+              Navigator.pop(context);
+              await _forceOffline(model);
+            },
+            child: Text(t.common.confirmForceOffline),
+          ),
         ],
       ),
     );
@@ -227,8 +331,15 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
   Future<void> _forceOffline(UserDeviceModel model) async {
     EasyLoading.show(status: t.common.loading);
     try {
-      if (await ref.read(userDeviceProvider.notifier).forceOffline(model.deviceId)) EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
-      else EasyLoading.showError(t.common.tipFailed);
-    } catch (_) { EasyLoading.dismiss(); EasyLoading.showError(t.common.tipFailed); }
+      if (await ref
+          .read(userDeviceProvider.notifier)
+          .forceOffline(model.deviceId))
+        EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
+      else
+        EasyLoading.showError(t.common.tipFailed);
+    } catch (_) {
+      EasyLoading.dismiss();
+      EasyLoading.showError(t.common.tipFailed);
+    }
   }
 }

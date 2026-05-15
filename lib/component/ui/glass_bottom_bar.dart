@@ -25,8 +25,13 @@ class GlassBottomNavigationBar extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // 背景色：亮色纯白，暗色 darkSurfaceGrouped，透明度 0.8
-    final backgroundColor = (isDark ? AppColors.darkSurfaceGrouped : Colors.white).withValues(alpha: 0.8);
-    final separatorColor = AppColors.getIosSeparator(theme.brightness).withValues(alpha: 0.5);
+    final backgroundColor =
+        (isDark ? AppColors.darkSurfaceGrouped : Colors.white).withValues(
+          alpha: 0.8,
+        );
+    final separatorColor = AppColors.getIosSeparator(
+      theme.brightness,
+    ).withValues(alpha: 0.5);
 
     return ClipRect(
       child: BackdropFilter(
@@ -59,8 +64,12 @@ class GlassBottomNavigationBar extends StatelessWidget {
                           child: item.iconBuilder != null
                               ? item.iconBuilder!(isSelected)
                               : Icon(
-                                  isSelected ? (item.activeIcon ?? item.icon) : item.icon,
-                                  color: isSelected ? AppColors.primary : AppColors.iosGray,
+                                  isSelected
+                                      ? (item.activeIcon ?? item.icon)
+                                      : item.icon,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.iosGray,
                                   size: 26,
                                 ),
                         ),
@@ -70,8 +79,12 @@ class GlassBottomNavigationBar extends StatelessWidget {
                           item.label,
                           style: TextStyle(
                             fontSize: 10,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? AppColors.primary : AppColors.iosGray,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.iosGray,
                             letterSpacing: -0.2,
                           ),
                         ),

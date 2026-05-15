@@ -1,170 +1,57 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'set_gender_provider.dart';
 
-/// 设置性别页面
+/// 设置性别页面 - 像素级对齐 iOS 17 高效表单
 class SetGenderPage extends ConsumerWidget {
   const SetGenderPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final state = ref.watch(setGenderProvider);
+    final brightness = Theme.of(context).brightness;
 
     // 性别选项列表
     final genderOptions = [
-      {'id': '1', 'title': t.main.male, 'icon': Icons.male},
-      {'id': '2', 'title': t.main.female, 'icon': Icons.female},
-      {'id': '3', 'title': t.main.keepSecret, 'icon': Icons.help_outline},
+      {'id': '1', 'title': t.main.male, 'icon': CupertinoIcons.person},
+      {'id': '2', 'title': t.main.female, 'icon': CupertinoIcons.person_fill},
+      {'id': '3', 'title': t.main.keepSecret, 'icon': CupertinoIcons.question_circle},
     ];
 
-    return Scaffold(
-      backgroundColor: isDark
-          ? colorScheme.surface
-          : AppColors.lightPageBackground,
-      appBar: GlassAppBar(
-        title: t.account.gender,
-        automaticallyImplyLeading: true,
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular * 2,
-          vertical: AppSpacing.regular * 2,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
-            borderRadius: AppRadius.borderRadiusRegular,
-            boxShadow: [
-              BoxShadow(
-                color: isDark
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+    return IosPageTemplate(
+      title: t.account.gender,
+      useLargeTitle: false,
+      child: ImBoySettingsSection(
+        header: Text(t.account.gender.toUpperCase()),
+        children: genderOptions.map((option) {
+          final isSelected = state.selectedGender == option['id'];
+          final isPending = state.pendingGender == option['id'] && state.isSaving;
+
+          return ImBoySettingsTile(
+            title: Text(option['title'] as String),
+            leading: Container(
+              width: 32, height: 32,
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.getIosBlue(brightness) : AppColors.iosGray,
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
-          ),
-          padding: EdgeInsets.all(AppSpacing.regular),
-          child: Column(
-            children: genderOptions
-                .map((option) => _buildGenderItem(context, ref, option))
-                .toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 构建性别选项
-  Widget _buildGenderItem(
-    BuildContext context,
-    WidgetRef ref,
-    Map<String, dynamic> option,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final state = ref.watch(setGenderProvider);
-
-    final isSelected = state.selectedGender == option['id'];
-    final isPending = state.pendingGender == option['id'] && state.isSaving;
-
-    return Container(
-      margin: EdgeInsets.only(bottom: AppSpacing.regular),
-      child: Material(
-        color: isSelected
-            ? colorScheme.primaryContainer.withValues(alpha: 0.2)
-            : (isDark
-                  ? colorScheme.surfaceContainerHigh
-                  : colorScheme.surfaceContainerLowest),
-        borderRadius: AppRadius.borderRadiusMedium,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusMedium,
-          onTap: state.isSaving
-              ? null
-              : () async {
-                  final success = await ref
-                      .read(setGenderProvider.notifier)
-                      .selectGender(option['id'] as String, ref);
-                  if (success && context.mounted) {
-                    Navigator.of(context).pop(true);
-                  }
-                },
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular * 1.6,
-              vertical: AppSpacing.regular * 1.4,
+              child: Icon(option['icon'] as IconData, color: Colors.white, size: 18),
             ),
-            child: Row(
-              children: [
-                // 性别图标
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? colorScheme.primary.withValues(alpha: 0.1)
-                        : colorScheme.surfaceContainerHigh,
-                    borderRadius: AppRadius.borderRadiusLarge,
-                  ),
-                  child: Icon(
-                    option['icon'] as IconData?,
-                    color: isSelected
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withValues(alpha: 0.6),
-                    size: 20,
-                  ),
-                ),
-
-                SizedBox(width: AppSpacing.regular * 1.2),
-
-                // 性别文本
-                Expanded(
-                  child: Text(
-                    option['title'] as String,
-                    style: ThemeManager.instance.getTextStyle(
-                      FontSizeType.medium,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: isSelected
-                          ? colorScheme.primary
-                          : colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-
-                // 选中状态指示器 或 正在保存的 loading
-                if (isPending)
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        colorScheme.primary,
-                      ),
-                    ),
-                  )
-                else if (isSelected)
-                  Icon(
-                    Icons.check_circle,
-                    color: colorScheme.primary,
-                    size: 20,
-                  ),
-              ],
-            ),
-          ),
-        ),
+            trailing: isPending
+                ? const CupertinoActivityIndicator(radius: 8)
+                : (isSelected ? Icon(CupertinoIcons.check_mark, color: AppColors.getIosBlue(brightness), size: 18) : const SizedBox.shrink()),
+            onTap: state.isSaving ? null : () async {
+              final success = await ref.read(setGenderProvider.notifier).selectGender(option['id'] as String, ref);
+              if (success && context.mounted) Navigator.of(context).pop(true);
+            },
+          );
+        }).toList(),
       ),
     );
   }

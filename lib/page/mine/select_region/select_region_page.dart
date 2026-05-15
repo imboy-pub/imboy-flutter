@@ -52,7 +52,17 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
               for (var i = 0; i < steps; i++) nav.pop();
             }
           },
-          child: Text(t.common.buttonAccomplish, style: TextStyle(fontWeight: provider.valueChanged ? FontWeight.w600 : FontWeight.w400, color: provider.valueChanged ? AppColors.getIosBlue(brightness) : AppColors.iosGray)),
+          child: Text(
+            t.common.buttonAccomplish,
+            style: TextStyle(
+              fontWeight: provider.valueChanged
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+              color: provider.valueChanged
+                  ? AppColors.getIosBlue(brightness)
+                  : AppColors.iosGray,
+            ),
+          ),
         ),
       ],
       child: Column(
@@ -61,19 +71,31 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(28, 12, 16, 4),
             child: Text(
-              provider.selectedVal.isEmpty ? t.common.all : provider.selectedVal,
+              provider.selectedVal.isEmpty
+                  ? t.common.all
+                  : provider.selectedVal,
               style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
             ),
           ),
           ImBoySettingsSection(
-            children: widget.children.map((model) => _buildListItem(context, widget.parent, model, brightness)).toList(),
+            children: widget.children
+                .map(
+                  (model) =>
+                      _buildListItem(context, widget.parent, model, brightness),
+                )
+                .toList(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildListItem(BuildContext context, String parent, dynamic model, Brightness brightness) {
+  Widget _buildListItem(
+    BuildContext context,
+    String parent,
+    dynamic model,
+    Brightness brightness,
+  ) {
     final notifier = ref.read(selectRegionProvider.notifier);
     final provider = ref.watch(selectRegionProvider);
     String title = notifier.getRegionTitle(model).trim();
@@ -82,24 +104,46 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
     final isSelected = notifier.isRegionSelected(title);
 
     return ImBoySettingsTile(
-      title: Text(title, style: TextStyle(fontSize: 17, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        ),
+      ),
       trailing: haveChildren
           ? const CupertinoListTileChevron()
           : (isSelected && provider.regionSelected[title] != null
-              ? (provider.regionSelected[title]!['trailing'] as Widget? ?? Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.getIosBlue(brightness)))
-              : const SizedBox.shrink()),
+                ? (provider.regionSelected[title]!['trailing'] as Widget? ??
+                      Icon(
+                        CupertinoIcons.check_mark,
+                        size: 18,
+                        color: AppColors.getIosBlue(brightness),
+                      ))
+                : const SizedBox.shrink()),
       onTap: () {
         List<String> items = parent.split(' ')..add(title);
         final selectedVal = items.toSet().toList().join(' ');
         notifier.updateSelectedVal(selectedVal);
         if (haveChildren) {
-          Navigator.push(context, CupertinoPageRoute(builder: (_) => SelectRegionPage(parent: selectedVal, children: children, callback: widget.callback, outCallback: widget.outCallback)));
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (_) => SelectRegionPage(
+                parent: selectedVal,
+                children: children,
+                callback: widget.callback,
+                outCallback: widget.outCallback,
+              ),
+            ),
+          );
         } else {
           if (parent != selectedVal) {
             widget.callback(parent, title);
             notifier.regionSelectedTitle(title);
             notifier.valueOnChange(true);
-          } else notifier.valueOnChange(false);
+          } else
+            notifier.valueOnChange(false);
         }
       },
     );

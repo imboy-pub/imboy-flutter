@@ -343,7 +343,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${t.chat.chatInitFailed}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${t.common.chatInitFailed}: $e')));
       }
     }
   }
@@ -699,7 +699,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // remainingSeconds 由后端计算；转分钟（向上取整）
       final minutes = (event.remainingSeconds / 60).ceil();
       if (minutes > 0) {
-        _muteMessage = t.chat.chat.youAreMutedWithTime(minutes: '$minutes');
+        _muteMessage = t.chat.youAreMutedWithTime(minutes: '$minutes');
         final remaining =
             event.muteUntilMs - DateTime.now().millisecondsSinceEpoch;
         if (remaining > 0) {
@@ -726,7 +726,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       _isMuted = true;
       final minutes = event.remainingMinutes;
       if (minutes > 0) {
-        _muteMessage = t.chat.chat.youAreMutedWithTime(minutes: '$minutes');
+        _muteMessage = t.chat.youAreMutedWithTime(minutes: '$minutes');
         // 设置定时器在禁言到期时自动解除
         final remaining =
             event.muteUntilMs - DateTime.now().millisecondsSinceEpoch;
@@ -1300,7 +1300,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     switch (decision) {
       case SendDenyMuted():
-        EasyLoading.showInfo(t.chat.mutedCannotSend);
+        EasyLoading.showInfo(t.common.mutedCannotSend);
         return false;
       case SendDenyDebounced():
         iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
@@ -1449,7 +1449,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           final quoteText = (message.metadata?['quote_text'] ?? '') as String;
           if (quoteText.isNotEmpty) {
             Clipboard.setData(ClipboardData(text: quoteText));
-            EasyLoading.showToast(t.common.copied);
+            EasyLoading.showToast(t.main.copied);
           }
         }
       },
@@ -2290,20 +2290,20 @@ class ChatPageState extends ConsumerState<ChatPage>
           children: [
             Icon(Icons.lock_outline, color: AppColors.iosOrange),
             const SizedBox(width: 12),
-            Text(t.chat.e2eeDecryptFailed),
+            Text(t.common.e2eeDecryptFailed),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.chat.chat.e2eeDecryptFailedReasons),
+            Text(t.common.e2eeDecryptFailedReasons),
             const SizedBox(height: 8),
-            Text(t.chat.e2eeDecryptReasonOtherDevice),
-            Text(t.chat.e2eeDecryptReasonKeyExpired),
-            Text(t.chat.e2eeDecryptReasonDataCorrupt),
+            Text(t.common.e2eeDecryptReasonOtherDevice),
+            Text(t.common.e2eeDecryptReasonKeyExpired),
+            Text(t.common.e2eeDecryptReasonDataCorrupt),
             const SizedBox(height: 16),
-            Text(t.chat.e2eeDecryptChooseSolution),
+            Text(t.common.e2eeDecryptChooseSolution),
           ],
         ),
         actions: [
@@ -2312,18 +2312,18 @@ class ChatPageState extends ConsumerState<ChatPage>
               Navigator.of(context).pop();
               _refreshE2EEKeys();
             },
-            child: Text(t.chat.e2eeDecryptActionRecreateKey),
+            child: Text(t.common.e2eeDecryptActionRecreateKey),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _relogin();
             },
-            child: Text(t.chat.e2eeDecryptActionRelogin),
+            child: Text(t.common.e2eeDecryptActionRelogin),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.chat.e2eeDecryptActionRemindLater),
+            child: Text(t.common.e2eeDecryptActionRemindLater),
           ),
         ],
       ),
@@ -2354,7 +2354,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       iPrint('E2EE: 密钥已重新创建');
     } catch (e) {
       EasyLoading.showError(
-        t.chat.e2eeKeyRecreationFailed(error: e.toString()),
+        t.common.e2eeKeyRecreationFailed(error: e.toString()),
       );
       iPrint('E2EE: 密钥创建失败: $e');
     }

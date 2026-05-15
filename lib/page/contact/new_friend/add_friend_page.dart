@@ -31,10 +31,52 @@ class AddFriendPage extends ConsumerWidget {
           // 功能列表 Section
           ImBoySettingsSection(
             children: [
-              _buildFeatureTile(context, icon: CupertinoIcons.location_fill, color: const Color(0xFF007AFF), title: t.discovery.peopleNearby, subtitle: t.common.nearbyPeopleTips, onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => const PeopleNearbyPage()))),
-              _buildFeatureTile(context, icon: CupertinoIcons.group_solid, color: const Color(0xFF34C759), title: t.chat.createGroupF2f, subtitle: t.group.enterSameGroup, onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => FaceToFacePage()))),
-              _buildFeatureTile(context, icon: CupertinoIcons.qrcode_viewfinder, color: const Color(0xFF5856D6), title: t.account.scanQrCode, subtitle: t.chat.scanQrCodeBusinessCard, onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => const ScannerPage()))),
-              _buildFeatureTile(context, icon: CupertinoIcons.person_fill, color: const Color(0xFFFF9500), title: t.account.newlyRegisteredPeople, subtitle: t.common.allowedBeSearched, onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => RecentlyRegisteredUserPage()))),
+              _buildFeatureTile(
+                context,
+                icon: CupertinoIcons.location_fill,
+                color: const Color(0xFF007AFF),
+                title: t.discovery.peopleNearby,
+                subtitle: t.common.nearbyPeopleTips,
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (_) => const PeopleNearbyPage()),
+                ),
+              ),
+              _buildFeatureTile(
+                context,
+                icon: CupertinoIcons.group_solid,
+                color: const Color(0xFF34C759),
+                title: t.chat.createGroupF2f,
+                subtitle: t.group.enterSameGroup,
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (_) => FaceToFacePage()),
+                ),
+              ),
+              _buildFeatureTile(
+                context,
+                icon: CupertinoIcons.qrcode_viewfinder,
+                color: const Color(0xFF5856D6),
+                title: t.account.scanQrCode,
+                subtitle: t.chat.scanQrCodeBusinessCard,
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (_) => const ScannerPage()),
+                ),
+              ),
+              _buildFeatureTile(
+                context,
+                icon: CupertinoIcons.person_fill,
+                color: const Color(0xFFFF9500),
+                title: t.account.newlyRegisteredPeople,
+                subtitle: t.common.allowedBeSearched,
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (_) => RecentlyRegisteredUserPage(),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -42,7 +84,11 @@ class AddFriendPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSearchSection(BuildContext context, WidgetRef ref, Brightness brightness) {
+  Widget _buildSearchSection(
+    BuildContext context,
+    WidgetRef ref,
+    Brightness brightness,
+  ) {
     final isDark = brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -57,7 +103,9 @@ class AddFriendPage extends ConsumerWidget {
             CupertinoSearchTextField(
               placeholder: t.account.hintLoginAccount,
               onSubmitted: (v) async {
-                final results = await ref.read(newFriendProvider.notifier).userSearch(kwd: v);
+                final results = await ref
+                    .read(newFriendProvider.notifier)
+                    .userSearch(kwd: v);
                 if (context.mounted && results.isNotEmpty) {
                   // 处理搜索结果跳转或显示逻辑
                 }
@@ -67,12 +115,31 @@ class AddFriendPage extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("${t.account.myAccount}：", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
-                Text(UserRepoLocal.to.current.account, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  "${t.account.myAccount}：",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+                Text(
+                  UserRepoLocal.to.current.account,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(width: 12),
                 GestureDetector(
-                  onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => UserQrCodePage())),
-                  child: const Icon(CupertinoIcons.qrcode, color: AppColors.primary, size: 20),
+                  onTap: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.qrcode,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -82,12 +149,23 @@ class AddFriendPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeatureTile(BuildContext context, {required IconData icon, required Color color, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _buildFeatureTile(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return ImBoySettingsTile(
       onTap: onTap,
       leading: Container(
-        width: 32, height: 32,
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Icon(icon, color: Colors.white, size: 18),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),

@@ -138,7 +138,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ImBoySettingsTile(
                 title: Text(t.common.fontSettings),
                 leading: _buildIcon(Icons.text_fields, AppColors.iosGreen),
-                trailing: _buildValueTrailing(themeState.fontSizeOption.displayName),
+                trailing: _buildValueTrailing(
+                  themeState.fontSizeOption.displayName,
+                ),
                 onTap: () => context.push('/font_size'),
               ),
             ],
@@ -157,7 +159,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 trailing: CupertinoSwitch(
                   value: allowSearch,
                   activeTrackColor: AppColors.getIosBlue(brightness),
-                  onChanged: _isUpdatingAllowSearch ? null : (v) => _handleAllowSearchChange(v, userRepo),
+                  onChanged: _isUpdatingAllowSearch
+                      ? null
+                      : (v) => _handleAllowSearchChange(v, userRepo),
                 ),
               ),
               ImBoySettingsTile(
@@ -170,7 +174,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 title: Text(t.group.e2eeKeyManagement),
                 subtitle: Text(t.group.e2eeKeyManagementSubtitle),
                 leading: _buildIcon(Icons.vpn_key, AppColors.iosGreen),
-                onTap: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => const E2EEKeyRecoveryPage())),
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (_) => const E2EEKeyRecoveryPage(),
+                  ),
+                ),
               ),
             ],
           ),
@@ -184,17 +193,29 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ImBoySettingsTile(
                 title: Text(t.common.updateLog),
                 leading: _buildIcon(Icons.update, AppColors.iosGreen),
-                onTap: () => _openMarkdown(t.common.updateLog, "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md"),
+                onTap: () => _openMarkdown(
+                  t.common.updateLog,
+                  "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
+                ),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.helpDocument),
                 leading: _buildIcon(Icons.help_outline, AppColors.iosBlue),
-                onTap: () => _openMarkdown(t.common.helpDocument, "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md"),
+                onTap: () => _openMarkdown(
+                  t.common.helpDocument,
+                  "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md",
+                ),
               ),
               ImBoySettingsTile(
                 title: Text(t.main.privacyPolicy),
-                leading: _buildIcon(Icons.privacy_tip_outlined, AppColors.iosOrange),
-                onTap: () => _openMarkdown(t.main.privacyPolicy, "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md"),
+                leading: _buildIcon(
+                  Icons.privacy_tip_outlined,
+                  AppColors.iosOrange,
+                ),
+                onTap: () => _openMarkdown(
+                  t.main.privacyPolicy,
+                  "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md",
+                ),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.aboutApp),
@@ -265,7 +286,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   }
 
   Widget _buildValueTrailing(String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -273,7 +293,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           value,
           style: TextStyle(
             fontSize: 15,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+            color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
           ),
         ),
         const SizedBox(width: 8),
@@ -292,7 +312,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           "${t.common.version} $appVsn",
           style: TextStyle(
             fontSize: 15,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
           ),
         ),
         if (hasUpdate) ...[
@@ -300,7 +322,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(color: AppColors.iosRed, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: AppColors.iosRed,
+              shape: BoxShape.circle,
+            ),
           ),
         ],
         const SizedBox(width: 8),
@@ -314,7 +339,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       child: DropdownButton<String>(
         value: _normalizeEnvValue(currentEnv),
         isDense: true,
-        style: const TextStyle(fontSize: 14, color: AppColors.iosRed, fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          fontSize: 14,
+          color: AppColors.iosRed,
+          fontWeight: FontWeight.w600,
+        ),
         items: const [
           DropdownMenuItem(value: 'local', child: Text('Local')),
           DropdownMenuItem(value: 'dev', child: Text('Development')),
@@ -331,7 +360,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   }
 
   void _openMarkdown(String title, String url) {
-    Navigator.push(context, CupertinoPageRoute(builder: (_) => MarkdownPage(title: title, url: url)));
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (_) => MarkdownPage(title: title, url: url),
+      ),
+    );
   }
 
   Future<void> _handleAllowSearchChange(bool v, UserRepoLocal userRepo) async {
@@ -370,7 +404,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       E2EEService.clearCache();
       await Future.delayed(const Duration(milliseconds: 500));
       final currentUid = UserRepoLocal.to.currentUid;
-      if (currentUid.isNotEmpty) await E2EEService.getUserDevicePublicKeys(currentUid);
+      if (currentUid.isNotEmpty)
+        await E2EEService.getUserDevicePublicKeys(currentUid);
       EasyLoading.showSuccess(t.account.deviceKeyRefreshed);
     } catch (e) {
       EasyLoading.showError(t.common.tipFailed);
@@ -386,8 +421,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         title: Text(t.account.logOut),
         content: Text(t.account.areYouSureLogOut),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(context, false), child: Text(t.common.buttonCancel)),
-          CupertinoDialogAction(isDestructiveAction: true, onPressed: () => Navigator.pop(context, true), child: Text(t.common.buttonConfirm)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(t.common.buttonConfirm),
+          ),
         ],
       ),
     );
@@ -408,7 +450,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             EasyLoading.show();
             try {
               final info = await AppUpgradeService.to.manualCheck();
-              if (info == null || !info.hasUpdate) EasyLoading.showInfo(t.common.nowNewVersion);
+              if (info == null || !info.hasUpdate)
+                EasyLoading.showInfo(t.common.nowNewVersion);
             } catch (e) {
               EasyLoading.showError(t.common.errorNetwork);
             } finally {

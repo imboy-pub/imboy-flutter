@@ -102,7 +102,9 @@ class DarkModelPage extends ConsumerWidget {
                 trailing: CupertinoSwitch(
                   value: state.switchValue,
                   activeTrackColor: AppColors.getIosBlue(brightness),
-                  onChanged: (val) => ref.read(darkModelProvider.notifier).configSwitchOnChanged(val),
+                  onChanged: (val) => ref
+                      .read(darkModelProvider.notifier)
+                      .configSwitchOnChanged(val),
                 ),
               ),
             ],
@@ -114,16 +116,26 @@ class DarkModelPage extends ConsumerWidget {
                 ImBoySettingsTile(
                   title: Text(t.main.systemDefault),
                   trailing: state.selectIndex == 2
-                      ? Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.getIosBlue(brightness))
+                      ? Icon(
+                          CupertinoIcons.check_mark,
+                          size: 18,
+                          color: AppColors.getIosBlue(brightness),
+                        )
                       : const SizedBox.shrink(),
-                  onTap: () => ref.read(darkModelProvider.notifier).tapDarkItem(2),
+                  onTap: () =>
+                      ref.read(darkModelProvider.notifier).tapDarkItem(2),
                 ),
                 ImBoySettingsTile(
                   title: Text(t.main.darkModel),
                   trailing: state.selectIndex == 3
-                      ? Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.getIosBlue(brightness))
+                      ? Icon(
+                          CupertinoIcons.check_mark,
+                          size: 18,
+                          color: AppColors.getIosBlue(brightness),
+                        )
                       : const SizedBox.shrink(),
-                  onTap: () => ref.read(darkModelProvider.notifier).tapDarkItem(3),
+                  onTap: () =>
+                      ref.read(darkModelProvider.notifier).tapDarkItem(3),
                 ),
               ],
             ),

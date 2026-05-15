@@ -21,7 +21,7 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
           children: [
             ListTile(
               title: Text(
-                t.common.error.suggestCheckNetwork,
+                t.error.suggestCheckNetwork,
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 17.0,
@@ -40,9 +40,9 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
                           horizontal: 16,
                         ), // left: 16, right: 16
                         child: Text(
-                          '${t.common.error.networkTroubleshootingStep1}\n\n'
-                          '${t.common.error.networkTroubleshootingStep2}\n\n'
-                          '${t.common.error.networkTroubleshootingStep3}',
+                          '${t.error.networkTroubleshootingStep1}\n\n'
+                          '${t.error.networkTroubleshootingStep2}\n\n'
+                          '${t.error.networkTroubleshootingStep3}',
                         ),
                       ),
                     ),

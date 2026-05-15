@@ -52,7 +52,11 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     );
   }
 
-  Widget _buildStorageOverview(BuildContext context, StorageSpaceState state, Translations t) {
+  Widget _buildStorageOverview(
+    BuildContext context,
+    StorageSpaceState state,
+    Translations t,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -71,8 +75,12 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               final appBytes = state.appAllBytes;
 
               final usedRatio = totalSpace > 0 ? usedSpace / totalSpace : 0.0;
-              final appRatio = usedSpace > 0 ? (appBytes / usedSpace).clamp(0.01, 1.0) : 0.01;
-              double freeWidth = totalSpace > 0 ? (totalWidth * (freeSpace / totalSpace)).clamp(0, totalWidth) : 0.0;
+              final appRatio = usedSpace > 0
+                  ? (appBytes / usedSpace).clamp(0.01, 1.0)
+                  : 0.01;
+              double freeWidth = totalSpace > 0
+                  ? (totalWidth * (freeSpace / totalSpace)).clamp(0, totalWidth)
+                  : 0.0;
 
               return ClipRRect(
                 borderRadius: BorderRadius.circular(6),
@@ -86,8 +94,12 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                         width: totalWidth * usedRatio,
                         child: LinearProgressIndicator(
                           value: appRatio,
-                          backgroundColor: AppColors.iosOrange.withValues(alpha: 0.5),
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                          backgroundColor: AppColors.iosOrange.withValues(
+                            alpha: 0.5,
+                          ),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.primary,
+                          ),
                         ),
                       ),
                       Positioned(
@@ -98,7 +110,9 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                           child: LinearProgressIndicator(
                             value: 1,
                             backgroundColor: AppColors.iosGray5,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.iosGray5),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.iosGray5,
+                            ),
                           ),
                         ),
                       ),
@@ -113,9 +127,18 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             spacing: 16,
             runSpacing: 10,
             children: [
-              _buildLegendItem(AppColors.primary, '$appName: ${formatBytes(state.appAllBytes, num: 1000)}'),
-              _buildLegendItem(AppColors.iosOrange, '${t.account.deviceUsedSpace}: ${formatBytes(state.usedDiskSpace, num: 1000)}'),
-              _buildLegendItem(AppColors.iosGray, '${t.account.deviceAvailableSpace}: ${formatBytes(state.freeDiskSpace, num: 1000)}'),
+              _buildLegendItem(
+                AppColors.primary,
+                '$appName: ${formatBytes(state.appAllBytes, num: 1000)}',
+              ),
+              _buildLegendItem(
+                AppColors.iosOrange,
+                '${t.account.deviceUsedSpace}: ${formatBytes(state.usedDiskSpace, num: 1000)}',
+              ),
+              _buildLegendItem(
+                AppColors.iosGray,
+                '${t.account.deviceAvailableSpace}: ${formatBytes(state.freeDiskSpace, num: 1000)}',
+              ),
             ],
           ),
         ],
@@ -130,15 +153,25 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
         const SizedBox(width: 6),
-        Text(text, style: const TextStyle(fontSize: 12, color: AppColors.iosGray)),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+        ),
       ],
     );
   }
 
-  Widget _buildAppUsageSection(BuildContext context, StorageSpaceState state, Translations t) {
+  Widget _buildAppUsageSection(
+    BuildContext context,
+    StorageSpaceState state,
+    Translations t,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -156,12 +189,19 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           const SizedBox(height: 8),
           Text(
             formatBytes(state.appAllBytes, num: 1000),
-            style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: const TextStyle(
+              fontSize: 34,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             t.common.tipDeviceSpace(
-              param1: state.totalDiskSpace > 0 ? ((state.appAllBytes / state.totalDiskSpace) * 1000).toStringAsFixed(3) : '0',
+              param1: state.totalDiskSpace > 0
+                  ? ((state.appAllBytes / state.totalDiskSpace) * 1000)
+                        .toStringAsFixed(3)
+                  : '0',
               param2: formatBytes(state.totalDiskSpace, num: 1000),
             ),
             style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
@@ -171,7 +211,11 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     );
   }
 
-  Widget _buildStorageDetailCards(BuildContext context, StorageSpaceState state, Translations t) {
+  Widget _buildStorageDetailCards(
+    BuildContext context,
+    StorageSpaceState state,
+    Translations t,
+  ) {
     return Column(
       children: [
         _buildStorageCard(
@@ -186,10 +230,15 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             color: AppColors.getIosBlue(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(20),
             onPressed: () async {
-              bool res = await ref.read(storageSpaceProvider.notifier).clearAllCache();
+              bool res = await ref
+                  .read(storageSpaceProvider.notifier)
+                  .clearAllCache();
               if (res) EasyLoading.showSuccess(t.common.tipSuccess);
             },
-            child: Text(t.main.clean, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            child: Text(
+              t.main.clean,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -237,18 +286,35 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               Container(
                 width: 32,
                 height: 32,
-                decoration: BoxDecoration(color: iconColor, borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: iconColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Icon(icon, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
               if (action != null) action,
             ],
           ),
           const SizedBox(height: 16),
-          Text(formatBytes(value, num: 1000), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+          Text(
+            formatBytes(value, num: 1000),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 6),
-          Text(description, style: const TextStyle(fontSize: 13, color: AppColors.iosGray)),
+          Text(
+            description,
+            style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
+          ),
         ],
       ),
     );

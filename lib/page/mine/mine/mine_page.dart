@@ -64,17 +64,26 @@ class _MinePageState extends ConsumerState<MinePage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.favorites),
-                leading: _buildIcon(CupertinoIcons.star_fill, const Color(0xFFFFCC00)),
+                leading: _buildIcon(
+                  CupertinoIcons.star_fill,
+                  const Color(0xFFFFCC00),
+                ),
                 onTap: () => context.push('/favorites'),
               ),
               ImBoySettingsTile(
                 title: Text(t.main.storageSpace),
-                leading: _buildIcon(CupertinoIcons.circle_grid_hex_fill, const Color(0xFF5AC8FA)),
+                leading: _buildIcon(
+                  CupertinoIcons.circle_grid_hex_fill,
+                  const Color(0xFF5AC8FA),
+                ),
                 onTap: () => context.push('/storage_space'),
               ),
               ImBoySettingsTile(
                 title: Text(t.account.loginDeviceManagement),
-                leading: _buildIcon(CupertinoIcons.device_phone_portrait, const Color(0xFF5856D6)),
+                leading: _buildIcon(
+                  CupertinoIcons.device_phone_portrait,
+                  const Color(0xFF5856D6),
+                ),
                 onTap: () => context.push('/devices'),
               ),
             ],
@@ -88,12 +97,18 @@ class _MinePageState extends ConsumerState<MinePage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.setting),
-                leading: _buildIcon(CupertinoIcons.settings, const Color(0xFF8E8E93)),
+                leading: _buildIcon(
+                  CupertinoIcons.settings,
+                  const Color(0xFF8E8E93),
+                ),
                 onTap: () => context.push('/mine/setting'),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.feedback),
-                leading: _buildIcon(CupertinoIcons.hand_thumbsup_fill, const Color(0xFF34C759)),
+                leading: _buildIcon(
+                  CupertinoIcons.hand_thumbsup_fill,
+                  const Color(0xFF34C759),
+                ),
                 onTap: () => context.push('/feedback'),
               ),
             ],
@@ -106,7 +121,8 @@ class _MinePageState extends ConsumerState<MinePage> {
   /// 标准 iOS 17 设置图标 (7.2pt 园角)
   Widget _buildIcon(IconData icon, Color color) {
     return Container(
-      width: 29, height: 29,
+      width: 29,
+      height: 29,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(7.2),
@@ -116,7 +132,11 @@ class _MinePageState extends ConsumerState<MinePage> {
   }
 
   /// 系统级 Header
-  Widget _buildSystemHeader(BuildContext context, UserModel? user, Brightness brightness) {
+  Widget _buildSystemHeader(
+    BuildContext context,
+    UserModel? user,
+    Brightness brightness,
+  ) {
     final hasAvatar = user != null && strNoEmpty(user.avatar);
     final nickname = user?.nickname ?? t.common.unknown;
     final isDark = brightness == Brightness.dark;
@@ -136,13 +156,30 @@ class _MinePageState extends ConsumerState<MinePage> {
             children: [
               // 头像
               Container(
-                width: 68, height: 68,
+                width: 68,
+                height: 68,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
                   color: AppColors.primary.withValues(alpha: 0.1),
-                  image: hasAvatar ? DecorationImage(image: cachedImageProvider(user.avatar), fit: BoxFit.cover) : null,
+                  image: hasAvatar
+                      ? DecorationImage(
+                          image: cachedImageProvider(user.avatar),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-                child: !hasAvatar ? Center(child: Text(nickname.substring(0, 1).toUpperCase(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primary))) : null,
+                child: !hasAvatar
+                    ? Center(
+                        child: Text(
+                          nickname.substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(width: 16),
               // 信息
@@ -150,9 +187,19 @@ class _MinePageState extends ConsumerState<MinePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nickname, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.6)),
+                    Text(
+                      nickname,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.6,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('ID: ${user?.account ?? '-'}', style: TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                    Text(
+                      'ID: ${user?.account ?? '-'}',
+                      style: TextStyle(fontSize: 14, color: AppColors.iosGray),
+                    ),
                   ],
                 ),
               ),
@@ -160,10 +207,18 @@ class _MinePageState extends ConsumerState<MinePage> {
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => context.push('/qrcode/user'),
-                child: const Icon(CupertinoIcons.qrcode, size: 22, color: AppColors.iosGray),
+                child: const Icon(
+                  CupertinoIcons.qrcode,
+                  size: 22,
+                  color: AppColors.iosGray,
+                ),
               ),
               const SizedBox(width: 4),
-              const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+              const Icon(
+                CupertinoIcons.chevron_right,
+                size: 14,
+                color: AppColors.iosGray3,
+              ),
             ],
           ),
         ),

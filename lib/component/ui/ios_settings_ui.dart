@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// iOS 风格页面模板
-/// 支持标准/大标题导航栏、毛玻璃效果、统一背景色
+/// 采用紧凑型设计，确保标题与动作按钮在同一行，最大化屏幕利用率
 class IosPageTemplate extends StatelessWidget {
   const IosPageTemplate({
     super.key,
@@ -11,7 +11,7 @@ class IosPageTemplate extends StatelessWidget {
     this.child,
     this.slivers,
     this.actions,
-    this.useLargeTitle = true,
+    this.useLargeTitle = false, // 默认改为紧凑模式
     this.backgroundColor,
     this.bottomWidget,
   });
@@ -29,59 +29,65 @@ class IosPageTemplate extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // 背景色：亮色用 iosGray6 (#F2F2F7)，暗色用 darkSurfaceGrouped (#1C1C1E)
+    // 强制背景色逻辑：亮色 F2F2F7，暗色 1C1C1E
     final bgColor = backgroundColor ??
         (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurfaceGrouped);
 
-    final List<Widget> allSlivers = [
-      CupertinoSliverNavigationBar(
-        largeTitle: Text(
-          title,
-          style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            letterSpacing: -1.2,
-            fontWeight: FontWeight.bold,
-          ),
+    final navBarColor = (isDark ? AppColors.darkSurfaceGrouped : Colors.white).withValues(alpha: 0.8);
+    
+    final navBar = CupertinoNavigationBar(
+      middle: Text(
+        title,
+        style: TextStyle(
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          fontWeight: FontWeight.w600,
+          fontSize: 17,
+          letterSpacing: -0.4,
         ),
-        middle: !useLargeTitle
-            ? Text(
-                title,
-                style: TextStyle(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17,
-                ),
-              )
-            : null,
-        backgroundColor: (isDark ? AppColors.darkSurfaceGrouped : Colors.white).withValues(alpha: 0.8),
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.getIosSeparator(theme.brightness).withValues(alpha: 0.4),
-            width: 0.33,
-          ),
-        ),
-        trailing: actions != null ? Row(mainAxisSize: MainAxisSize.min, children: actions!) : null,
-        stretch: true,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
-    ];
+      backgroundColor: navBarColor,
+      border: Border(
+        bottom: BorderSide(
+          color: AppColors.getIosSeparator(theme.brightness).withValues(alpha: 0.4),
+          width: 0.33,
+        ),
+      ),
+      trailing: actions != null 
+          ? Row(
+              mainAxisSize: MainAxisSize.min, 
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: actions!,
+            ) 
+          : null,
+    );
 
-    if (slivers != null) {
-      allSlivers.addAll(slivers!);
-    } else if (child != null) {
-      allSlivers.add(SliverToBoxAdapter(child: child!));
-    }
-
-    if (bottomWidget == null) {
-      allSlivers.add(const SliverToBoxAdapter(child: SizedBox(height: 60)));
-    }
-
+    // 核心重构：即便有 slivers，我们也使用固定高度的 appBar，确保 title 和返回键永远在同一行
     return Scaffold(
       backgroundColor: bgColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: allSlivers,
-      ),
+      appBar: navBar,
+      body: _buildBody(context, bgColor),
       bottomNavigationBar: bottomWidget,
+    );
+  }
+
+  Widget _buildBody(BuildContext context, Color bgColor) {
+    if (slivers != null) {
+      return CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: slivers!,
+      );
+    }
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      child: Column(
+        children: [
+          if (child != null) child!,
+          // 如果没有 bottomWidget，给底部留点呼吸空间
+          if (bottomWidget == null) const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 }
@@ -109,21 +115,31 @@ class ImBoySettingsSection extends StatelessWidget {
     final headerStyle = TextStyle(
       fontSize: 13,
       fontWeight: FontWeight.w400,
-      color: isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.5) : AppColors.lightTextSecondary.withValues(alpha: 0.5),
+      color: isDark
+          ? AppColors.darkTextSecondary.withValues(alpha: 0.5)
+          : AppColors.lightTextSecondary.withValues(alpha: 0.5),
       letterSpacing: -0.05,
     );
 
     return CupertinoListSection.insetGrouped(
-      header: header is Text 
+      header: header is Text
           ? Padding(
               padding: const EdgeInsets.only(left: 4, bottom: 6),
-              child: Text((header as Text).data!, style: headerStyle.merge((header as Text).style)),
+              child: Text(
+                (header as Text).data!,
+                style: headerStyle.merge((header as Text).style),
+              ),
             )
           : header,
       footer: footer is Text
           ? Padding(
               padding: const EdgeInsets.only(left: 4, top: 6),
-              child: Text((footer as Text).data!, style: headerStyle.copyWith(fontSize: 12).merge((footer as Text).style)),
+              child: Text(
+                (footer as Text).data!,
+                style: headerStyle
+                    .copyWith(fontSize: 12)
+                    .merge((footer as Text).style),
+              ),
             )
           : footer,
       margin: margin ?? const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -168,30 +184,31 @@ class ImBoySettingsTile extends StatelessWidget {
       color: destructive 
           ? AppColors.getIosRed(theme.brightness)
           : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+      letterSpacing: -0.4,
     );
 
     final subtitleStyle = TextStyle(
       fontSize: 15,
-      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+      color: isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.6) : AppColors.lightTextSecondary.withValues(alpha: 0.6),
     );
 
     return CupertinoListTile.notched(
       title: title is Text 
-          ? Text((title as Text).data!, style: titleStyle.merge((title as Text).style))
+          ? Text((title as Text).data!, style: titleStyle.merge((title as Text).style), maxLines: 1, overflow: TextOverflow.ellipsis)
           : title,
       subtitle: subtitle is Text
-          ? Text((subtitle as Text).data!, style: subtitleStyle.merge((subtitle as Text).style))
+          ? Text((subtitle as Text).data!, style: subtitleStyle.merge((subtitle as Text).style), maxLines: 2, overflow: TextOverflow.ellipsis)
           : subtitle,
       leading: leading,
       trailing: trailing ?? (onTap != null ? const CupertinoListTileChevron() : null),
       onTap: onTap,
       backgroundColor: backgroundColor ?? (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
   }
 }
 
-/// iOS 风格普通列表项 (用于消息列表、联系人列表)
+/// iOS 风格普通列表项
 class ImBoyListTile extends StatelessWidget {
   const ImBoyListTile({
     super.key,
@@ -233,7 +250,7 @@ class ImBoyListTile extends StatelessWidget {
           children: [
             if (leading != null) ...[
               leading!,
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
             ],
             Expanded(
               child: Column(
@@ -243,21 +260,26 @@ class ImBoyListTile extends StatelessWidget {
                   DefaultTextStyle(
                     style: TextStyle(
                       fontSize: 17,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       letterSpacing: -0.4,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     child: title,
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     DefaultTextStyle(
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.7) : AppColors.lightTextSecondary.withValues(alpha: 0.7),
                         letterSpacing: -0.2,
+                        height: 1.2,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       child: subtitle!,
                     ),
                   ],

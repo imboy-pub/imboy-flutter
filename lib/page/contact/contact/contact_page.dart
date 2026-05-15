@@ -53,15 +53,27 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       return;
     }
     switch (model.peerId) {
-      case kPeerIdMomentFeed: context.push('/moment/feed'); return;
-      case kPeerIdPeopleNearby: context.push('/contact/people_nearby'); return;
-      case kPeerIdNewFriend: context.push('/contact/new_friend'); return;
-      case kPeerIdGroup: context.push('/group/list'); return;
-      case kPeerIdTag: context.push('/contact/tags'); return;
+      case kPeerIdMomentFeed:
+        context.push('/moment/feed');
+        return;
+      case kPeerIdPeopleNearby:
+        context.push('/contact/people_nearby');
+        return;
+      case kPeerIdNewFriend:
+        context.push('/contact/new_friend');
+        return;
+      case kPeerIdGroup:
+        context.push('/group/list');
+        return;
+      case kPeerIdTag:
+        context.push('/contact/tags');
+        return;
     }
     final useSplitView = MediaQuery.sizeOf(context).width > 800;
     if (useSplitView) {
-      ref.read(webShellProvider.notifier).selectItem(ContactSelection(uid: model.peerId.toString()));
+      ref
+          .read(webShellProvider.notifier)
+          .selectItem(ContactSelection(uid: model.peerId.toString()));
       return;
     }
     context.push('/contact/people/${model.peerId}?scene=contact_page');
@@ -70,16 +82,33 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   void _handleContactLongPress(ContactModel model) {
     if (model.iconData == null) {
       final useSplitView = MediaQuery.sizeOf(context).width > 800;
-      final action = resolveConversationTap(useSplitView: useSplitView, peerId: model.peerId.toString(), type: 'C2C', title: model.title, avatar: model.avatar, sign: model.sign);
+      final action = resolveConversationTap(
+        useSplitView: useSplitView,
+        peerId: model.peerId.toString(),
+        type: 'C2C',
+        title: model.title,
+        avatar: model.avatar,
+        sign: model.sign,
+      );
       if (action is WebSelectChat) {
-        ref.read(webShellProvider.notifier).selectItem(ChatSelection(peerId: action.peerId, chatType: action.chatType));
+        ref
+            .read(webShellProvider.notifier)
+            .selectItem(
+              ChatSelection(peerId: action.peerId, chatType: action.chatType),
+            );
       } else if (action is MobilePushChat) {
-        context.push('/chat/${action.peerId}?type=${action.chatType}&title=${action.title}&avatar=${action.avatar}&sign=${action.sign}');
+        context.push(
+          '/chat/${action.peerId}?type=${action.chatType}&title=${action.title}&avatar=${action.avatar}&sign=${action.sign}',
+        );
       }
     }
   }
 
-  Widget _buildChatItem(BuildContext context, ContactModel model, {Color? defHeaderBgColor}) {
+  Widget _buildChatItem(
+    BuildContext context,
+    ContactModel model, {
+    Color? defHeaderBgColor,
+  }) {
     final isSpecial = model.iconData != null;
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
@@ -92,44 +121,75 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         clipBehavior: Clip.none,
         children: [
           if (!isSpecial)
-            Avatar(imgUri: model.avatar, width: 44, height: 44, heroTag: 'avatar_${model.peerId}')
+            Avatar(
+              imgUri: model.avatar,
+              width: 44,
+              height: 44,
+              heroTag: 'avatar_${model.peerId}',
+            )
           else
             Container(
-              width: 44, height: 44,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: model.bgColor ?? defHeaderBgColor ?? AppColors.primary.withValues(alpha: 0.1),
+                color:
+                    model.bgColor ??
+                    defHeaderBgColor ??
+                    AppColors.primary.withValues(alpha: 0.1),
               ),
               child: IconTheme(
-                data: IconThemeData(color: isDark ? Colors.white : (model.bgColor != null ? Colors.white : AppColors.primary), size: 24),
+                data: IconThemeData(
+                  color: isDark
+                      ? Colors.white
+                      : (model.bgColor != null
+                            ? Colors.white
+                            : AppColors.primary),
+                  size: 24,
+                ),
                 child: model.iconData!,
               ),
             ),
           if (!isSpecial)
             Positioned(
-              bottom: -1, right: -1,
+              bottom: -1,
+              right: -1,
               child: Container(
-                width: 12, height: 12,
+                width: 12,
+                height: 12,
                 decoration: BoxDecoration(
                   color: _getOnlineStatusColor(context, model),
                   shape: BoxShape.circle,
-                  border: Border.all(color: isDark ? AppColors.darkSurface : Colors.white, width: 2),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkSurface : Colors.white,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
         ],
       ),
-      title: Text(model.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500)),
+      title: Text(
+        model.title,
+        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+      ),
       subtitle: (!isSpecial && model.lastSeenAt != null)
           ? UserOnlineStatusWidget(
               isOnline: model.status == 'online',
               lastSeenTimestamp: model.lastSeenAt,
               hideOnlineStatus: false,
-              textStyle: const TextStyle(fontSize: 13, color: AppColors.iosGray),
+              textStyle: const TextStyle(
+                fontSize: 13,
+                color: AppColors.iosGray,
+              ),
               indicatorSize: 0,
             )
           : null,
-      trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+      trailing: const Icon(
+        CupertinoIcons.chevron_right,
+        size: 14,
+        color: AppColors.iosGray3,
+      ),
     );
   }
 
@@ -152,8 +212,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       alignment: Alignment.centerLeft,
-      color: isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurfaceGrouped,
-      child: Text(tag, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.iosGray)),
+      color: isDark
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
+      child: Text(
+        tag,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.iosGray,
+        ),
+      ),
     );
   }
 
@@ -165,8 +234,16 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     return IosPageTemplate(
       title: t.common.titleContact,
       actions: [
-        CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.tag, size: 22), onPressed: () => context.pushNamed('user_tag_list')),
-        CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.person_add, size: 22), onPressed: () => context.push('/contact/add_friend')),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.tag, size: 22),
+          onPressed: () => context.pushNamed('user_tag_list'),
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.person_add, size: 22),
+          onPressed: () => context.push('/contact/add_friend'),
+        ),
         const SizedBox(width: 8),
       ],
       slivers: [
@@ -181,7 +258,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         if (state.isLoading)
           const SliverFillRemaining(child: ShimmerList())
         else if (state.contactList.isEmpty)
-          SliverFillRemaining(hasScrollBody: false, child: NoDataView(text: t.common.noContacts))
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(text: t.common.noContacts),
+          )
         else
           SliverFillRemaining(
             child: AzListView(
@@ -192,10 +272,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                 return Column(
                   children: [
                     _buildChatItem(context, model),
-                    if (index < state.contactList.length - 1 && state.contactList[index].getSuspensionTag() == state.contactList[index + 1].getSuspensionTag())
+                    if (index < state.contactList.length - 1 &&
+                        state.contactList[index].getSuspensionTag() ==
+                            state.contactList[index + 1].getSuspensionTag())
                       Padding(
                         padding: const EdgeInsets.only(left: 72),
-                        child: Divider(height: 0.5, color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.5)),
+                        child: Divider(
+                          height: 0.5,
+                          color: AppColors.getIosSeparator(
+                            brightness,
+                          ).withValues(alpha: 0.5),
+                        ),
                       ),
                   ],
                 );
@@ -208,9 +295,21 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               indexBarData: ['↑', ...state.indexBarData],
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
-                indexHintDecoration: BoxDecoration(color: AppColors.getIosBlue(brightness).withValues(alpha: 0.9), shape: BoxShape.circle),
-                indexHintTextStyle: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.w600),
-                downItemDecoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.primary),
+                indexHintDecoration: BoxDecoration(
+                  color: AppColors.getIosBlue(
+                    brightness,
+                  ).withValues(alpha: 0.9),
+                  shape: BoxShape.circle,
+                ),
+                indexHintTextStyle: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+                downItemDecoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                ),
                 indexHintOffset: const Offset(-20, 0),
               ),
             ),

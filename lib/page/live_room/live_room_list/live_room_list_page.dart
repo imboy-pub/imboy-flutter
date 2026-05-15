@@ -85,7 +85,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     if (confirmed != true || !mounted) return;
     final title = titleController.text.trim();
     if (title.isEmpty) {
-      EasyLoading.showToast(t.common.error.liveRoomTitleRequired);
+      EasyLoading.showToast(t.error.liveRoomTitleRequired);
       return;
     }
 

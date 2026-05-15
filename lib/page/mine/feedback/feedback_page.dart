@@ -41,7 +41,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   Future<void> _initData() async {
     if (_isInitialized) return;
     _isInitialized = true;
-    final list = await ref.read(feedbackPageProvider.notifier).page(page: page, size: size);
+    final list = await ref
+        .read(feedbackPageProvider.notifier)
+        .page(page: page, size: size);
     ref.read(feedbackPageProvider.notifier).setItemList(list);
     page = page + 1;
   }
@@ -57,21 +59,32 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
       try {
         img.Image image = img.decodeImage(feedback.screenshot)!;
         final result = img.encodeJpg(image, quality: 70);
-        await AttachmentApi.uploadBytes("feedback", result, (Map<String, dynamic> resp, String uri) async {
-          FeedbackApi p = FeedbackApi();
-          Map<String, dynamic> data = {
-            'rating': feedback.extra?['rating'] ?? '',
-            'type': (feedback.extra?['feedback_type'] ?? '').toString().split('.').last.replaceAll('_', ' '),
-            'contact_detail': feedback.extra?['contact_detail'] ?? '',
-            'description': feedback.text,
-            'screenshot': [uri],
-          };
-          if (await p.add(data)) {
-            EasyLoading.showSuccess(t.common.feedbackSuccessMsg);
-            _isInitialized = false;
-            _initData();
-          } else EasyLoading.showError(t.common.tipFailed);
-        }, (_) {}, process: false);
+        await AttachmentApi.uploadBytes(
+          "feedback",
+          result,
+          (Map<String, dynamic> resp, String uri) async {
+            FeedbackApi p = FeedbackApi();
+            Map<String, dynamic> data = {
+              'rating': feedback.extra?['rating'] ?? '',
+              'type': (feedback.extra?['feedback_type'] ?? '')
+                  .toString()
+                  .split('.')
+                  .last
+                  .replaceAll('_', ' '),
+              'contact_detail': feedback.extra?['contact_detail'] ?? '',
+              'description': feedback.text,
+              'screenshot': [uri],
+            };
+            if (await p.add(data)) {
+              EasyLoading.showSuccess(t.common.feedbackSuccessMsg);
+              _isInitialized = false;
+              _initData();
+            } else
+              EasyLoading.showError(t.common.tipFailed);
+          },
+          (_) {},
+          process: false,
+        );
       } finally {
         if (mounted) setState(() => _isSubmittingFeedback = false);
       }
@@ -91,7 +104,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           padding: EdgeInsets.zero,
           onPressed: _showFeedbackEditor,
           child: const Icon(CupertinoIcons.add, size: 22),
-        )
+        ),
       ],
       slivers: [
         // 说明 Section
@@ -106,15 +119,31 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               ),
               child: Row(
                 children: [
-                  Icon(CupertinoIcons.heart_circle, color: AppColors.getIosBlue(brightness), size: 32),
+                  Icon(
+                    CupertinoIcons.heart_circle,
+                    color: AppColors.getIosBlue(brightness),
+                    size: 32,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(t.common.feedback, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                        Text(
+                          t.common.feedback,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 2),
-                        Text(t.common.feedbackSlogan, style: const TextStyle(fontSize: 13, color: AppColors.iosGray)),
+                        Text(
+                          t.common.feedbackSlogan,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.iosGray,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -123,7 +152,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     color: AppColors.getIosBlue(brightness),
                     borderRadius: BorderRadius.circular(20),
                     onPressed: _showFeedbackEditor,
-                    child: Text(t.common.newFeedback, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      t.common.newFeedback,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.lightSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -140,10 +176,15 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     const Padding(
                       padding: EdgeInsets.all(32),
                       child: Center(child: Text('No history')),
-                    )
+                    ),
                   ]
                 : state.itemList.asMap().entries.map((entry) {
-                    return _buildSlidableItem(context, entry.value, entry.key, brightness);
+                    return _buildSlidableItem(
+                      context,
+                      entry.value,
+                      entry.key,
+                      brightness,
+                    );
                   }).toList(),
           ),
         ),
@@ -151,7 +192,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     );
   }
 
-  Widget _buildSlidableItem(BuildContext context, FeedbackModel model, int index, Brightness brightness) {
+  Widget _buildSlidableItem(
+    BuildContext context,
+    FeedbackModel model,
+    int index,
+    Brightness brightness,
+  ) {
     return Slidable(
       key: ValueKey(model.feedbackId),
       endActionPane: ActionPane(
@@ -168,15 +214,39 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
         ],
       ),
       child: ImBoySettingsTile(
-        onTap: () => context.push('/feedback/detail/${model.feedbackId}', extra: {'model': model}),
-        title: Text(model.body, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16)),
+        onTap: () => context.push(
+          '/feedback/detail/${model.feedbackId}',
+          extra: {'model': model},
+        ),
+        title: Text(
+          model.body,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 16),
+        ),
         subtitle: Row(
           children: [
-            Text(DateTimeHelper.lastTimeFmt(model.createdAt), style: const TextStyle(fontSize: 12, color: AppColors.iosGray)),
+            Text(
+              DateTimeHelper.lastTimeFmt(model.createdAt),
+              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+            ),
             const SizedBox(width: 8),
-            Container(width: 4, height: 4, decoration: const BoxDecoration(color: AppColors.iosGray, shape: BoxShape.circle)),
+            Container(
+              width: 4,
+              height: 4,
+              decoration: const BoxDecoration(
+                color: AppColors.iosGray,
+                shape: BoxShape.circle,
+              ),
+            ),
             const SizedBox(width: 8),
-            Text(model.statusDesc, style: TextStyle(fontSize: 12, color: _getStatusColor(model.statusDesc))),
+            Text(
+              model.statusDesc,
+              style: TextStyle(
+                fontSize: 12,
+                color: _getStatusColor(model.statusDesc),
+              ),
+            ),
           ],
         ),
         trailing: Row(
@@ -184,8 +254,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: AppColors.iosGray.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-              child: Text(model.type, style: const TextStyle(fontSize: 10, color: AppColors.iosGray)),
+              decoration: BoxDecoration(
+                color: AppColors.iosGray.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                model.type,
+                style: const TextStyle(fontSize: 10, color: AppColors.iosGray),
+              ),
             ),
             const SizedBox(width: 8),
             const CupertinoListTileChevron(),
@@ -197,9 +273,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case '已处理': return AppColors.iosGreen;
-      case '处理中': return AppColors.iosOrange;
-      default: return AppColors.iosBlue;
+      case '已处理':
+        return AppColors.iosGreen;
+      case '处理中':
+        return AppColors.iosOrange;
+      default:
+        return AppColors.iosBlue;
     }
   }
 
@@ -210,16 +289,24 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
         title: Text(t.common.confirmDelete),
         content: Text(t.common.sureDeleteData),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(ctx), child: Text(t.common.buttonCancel)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.common.buttonCancel),
+          ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () async {
               Navigator.pop(ctx);
-              if (await ref.read(feedbackPageProvider.notifier).remove(model.feedbackId)) {
-                final newList = List<FeedbackModel>.from(ref.read(feedbackPageProvider).itemList)..removeWhere((e) => e.feedbackId == model.feedbackId);
+              if (await ref
+                  .read(feedbackPageProvider.notifier)
+                  .remove(model.feedbackId)) {
+                final newList = List<FeedbackModel>.from(
+                  ref.read(feedbackPageProvider).itemList,
+                )..removeWhere((e) => e.feedbackId == model.feedbackId);
                 ref.read(feedbackPageProvider.notifier).setItemList(newList);
                 EasyLoading.showSuccess(t.common.tipSuccess);
-              } else EasyLoading.showError(t.common.tipFailed);
+              } else
+                EasyLoading.showError(t.common.tipFailed);
             },
             child: Text(t.common.buttonDelete),
           ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -5,604 +6,98 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 
-const _kFontFamilyFallback = [
-  'PingFang SC',
-  'Heiti SC',
-  'Microsoft YaHei',
-  'sans-serif',
-];
-
-/// 组件主题管理器
-/// 统一管理所有组件主题，支持动态字体缩放和 Material 3 设计规范
+/// 组件主题管理器 - 增强版 (Systematic UI Repair)
 class ComponentThemeManager {
   ComponentThemeManager._();
 
   // ==================== AppBar 主题 ====================
-
-  /// 获取 AppBar 主题
-  static AppBarTheme getAppBarTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    // 使用固定字体大小，避免循环依赖
-    final scaledTitleSize = fontSizeOption != null
-        ? FontSizeType.large.size * fontSizeOption.scale
-        : FontSizeType.large.size;
-
+  static AppBarTheme getAppBarTheme({required bool isDark}) {
     return AppBarTheme(
-      backgroundColor: isDark
-          ? AppColors.darkAppBarBackground
-          : AppColors.lightAppBarBackground,
-      foregroundColor: isDark
-          ? AppColors.darkTextPrimary
-          : AppColors.lightTextPrimary,
+      backgroundColor: (isDark ? AppColors.darkSurface : Colors.white).withValues(alpha: 0.8),
+      foregroundColor: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
       elevation: 0,
       scrolledUnderElevation: 0,
-      shadowColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      iconTheme: IconThemeData(
-        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        size: 24,
-      ),
-      actionsIconTheme: IconThemeData(
-        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        size: 24,
-      ),
+      centerTitle: true,
       titleTextStyle: TextStyle(
-        fontSize: scaledTitleSize,
+        fontSize: 17,
         fontWeight: FontWeight.w600,
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        fontFamilyFallback: _kFontFamilyFallback,
+        letterSpacing: -0.4,
       ),
-      centerTitle: true,
-      toolbarHeight: AppSizes.appBarHeight,
     );
   }
 
   // ==================== Button 主题 ====================
-
-  /// 获取 ElevatedButton 主题
-  static ElevatedButtonThemeData getElevatedButtonTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    final scaledFontSize = fontSizeOption != null
-        ? FontSizeType.medium.size * fontSizeOption.scale
-        : FontSizeType.medium.size;
-
+  static ElevatedButtonThemeData getElevatedButtonTheme({required bool isDark}) {
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: isDark
-            ? AppColors.darkTextDisabled
-            : AppColors.lightTextDisabled,
-        disabledForegroundColor: Colors.white,
+        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
+        disabledForegroundColor: Colors.white.withValues(alpha: 0.7),
         elevation: 0,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusSmall,
-        ),
-        padding: AppSpacing.buttonPadding,
-        minimumSize: Size(AppSizes.buttonMinWidth, AppSizes.buttonHeightLarge),
-        textStyle: TextStyle(
-          fontSize: scaledFontSize,
-          fontWeight: FontWeight.w500,
-          fontFamilyFallback: _kFontFamilyFallback,
-        ),
+        minimumSize: const Size(88, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  /// 获取 TextButton 主题
-  static TextButtonThemeData getTextButtonTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    final scaledFontSize = fontSizeOption != null
-        ? FontSizeType.normal.size * fontSizeOption.scale
-        : FontSizeType.normal.size;
-
+  static TextButtonThemeData getTextButtonTheme({required bool isDark}) {
     return TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
-        disabledForegroundColor: isDark
-            ? AppColors.darkTextDisabled
-            : AppColors.lightTextDisabled,
-        padding: AppSpacing.buttonSmallPadding,
-        minimumSize: Size(AppSizes.buttonMinWidth, AppSizes.buttonHeightSmall),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusSmall,
-        ),
-        textStyle: TextStyle(
-          fontSize: scaledFontSize,
-          fontWeight: FontWeight.w500,
-          fontFamilyFallback: _kFontFamilyFallback,
-        ),
-      ),
-    );
-  }
-
-  /// 获取 OutlinedButton 主题
-  static OutlinedButtonThemeData getOutlinedButtonTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    final scaledFontSize = fontSizeOption != null
-        ? FontSizeType.medium.size * fontSizeOption.scale
-        : FontSizeType.medium.size;
-
-    return OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
-        disabledForegroundColor: isDark
-            ? AppColors.darkTextDisabled
-            : AppColors.lightTextDisabled,
-        side: BorderSide(
-          color: isDark ? AppColors.primaryLight : AppColors.primary,
-          width: 1,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.borderRadiusSmall,
-        ),
-        padding: AppSpacing.buttonPadding,
-        minimumSize: Size(AppSizes.buttonMinWidth, AppSizes.buttonHeightLarge),
-        textStyle: TextStyle(
-          fontSize: scaledFontSize,
-          fontWeight: FontWeight.w500,
-          fontFamilyFallback: _kFontFamilyFallback,
-        ),
-      ),
-    );
-  }
-
-  /// 获取 FloatingActionButton 主题
-  static FloatingActionButtonThemeData getFloatingActionButtonTheme({
-    required bool isDark,
-  }) {
-    return FloatingActionButtonThemeData(
-      backgroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
-      foregroundColor: Colors.white,
-      elevation: 6,
-      focusElevation: 8,
-      hoverElevation: 8,
-      highlightElevation: 12,
-      shape: const CircleBorder(),
-    );
-  }
-
-  // ==================== Card 主题 ====================
-
-  /// 获取 Card 主题
-  static CardThemeData getCardTheme({required bool isDark}) {
-    return CardThemeData(
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      surfaceTintColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      shadowColor: (isDark ? AppColors.darkBorder : AppColors.lightBorder)
-          .withValues(alpha: 0.2),
-      elevation: 0,
-      margin: AppSpacing.cardMarginSmall,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.borderRadiusMedium,
-        side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1,
-        ),
+        foregroundColor: AppColors.getIosBlue(isDark ? Brightness.dark : Brightness.light),
+        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
     );
   }
 
   // ==================== Input 主题 ====================
-
-  /// 获取 InputDecoration 主题
-  static InputDecorationTheme getInputDecorationTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    final scaledHintSize = fontSizeOption != null
-        ? FontSizeType.medium.size * fontSizeOption.scale
-        : FontSizeType.medium.size;
-    final scaledLabelSize = fontSizeOption != null
-        ? FontSizeType.medium.size * fontSizeOption.scale
-        : FontSizeType.medium.size;
-    final scaledFloatingLabelSize = fontSizeOption != null
-        ? FontSizeType.normal.size * fontSizeOption.scale
-        : FontSizeType.normal.size;
-    final scaledErrorSize = fontSizeOption != null
-        ? FontSizeType.small.size * fontSizeOption.scale
-        : FontSizeType.small.size;
-    final scaledHelperSize = fontSizeOption != null
-        ? FontSizeType.small.size * fontSizeOption.scale
-        : FontSizeType.small.size;
+  static InputDecorationTheme getInputDecorationTheme({required bool isDark}) {
+    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final hintColor = isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.4) : AppColors.lightTextSecondary.withValues(alpha: 0.4);
 
     return InputDecorationTheme(
       filled: true,
-      fillColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      contentPadding: AppSpacing.inputPadding,
-
-      // 默认边框
-      border: OutlineInputBorder(
-        borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1,
-        ),
-      ),
-
-      // 启用状态边框
-      enabledBorder: OutlineInputBorder(
-        borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1,
-        ),
-      ),
-
-      // 聚焦状态边框
-      focusedBorder: OutlineInputBorder(
-        borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(
-          color: isDark ? AppColors.primaryLight : AppColors.primary,
-          width: 2,
-        ),
-      ),
-
-      // 错误状态边框
-      errorBorder: OutlineInputBorder(
-        borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(
-          color: isDark ? AppColors.darkError : AppColors.lightError,
-          width: 1,
-        ),
-      ),
-
-      // 聚焦错误状态边框
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(
-          color: isDark ? AppColors.darkError : AppColors.lightError,
-          width: 2,
-        ),
-      ),
-
-      // 禁用状态边框
-      disabledBorder: OutlineInputBorder(
-        borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(
-          color: isDark
-              ? AppColors.darkTextDisabled
-              : AppColors.lightTextDisabled,
-          width: 1,
-        ),
-      ),
-
-      // 文本样式
-      hintStyle: TextStyle(
-        color: isDark
-            ? AppColors.darkTextDisabled
-            : AppColors.lightTextDisabled,
-        fontSize: scaledHintSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      labelStyle: TextStyle(
-        color: isDark
-            ? AppColors.darkTextSecondary
-            : AppColors.lightTextSecondary,
-        fontSize: scaledLabelSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      floatingLabelStyle: TextStyle(
-        color: isDark ? AppColors.primaryLight : AppColors.primary,
-        fontSize: scaledFloatingLabelSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      errorStyle: TextStyle(
-        color: isDark ? AppColors.darkError : AppColors.lightError,
-        fontSize: scaledErrorSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      helperStyle: TextStyle(
-        color: isDark
-            ? AppColors.darkTextSecondary
-            : AppColors.lightTextSecondary,
-        fontSize: scaledHelperSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
+      fillColor: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      hintStyle: TextStyle(color: hintColor, fontSize: 16),
+      labelStyle: TextStyle(color: textColor, fontSize: 16),
     );
   }
 
   // ==================== ListTile 主题 ====================
-
-  /// 获取 ListTile 主题
-  static ListTileThemeData getListTileTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    final scaledTitleSize = fontSizeOption != null
-        ? FontSizeType.medium.size * fontSizeOption.scale
-        : FontSizeType.medium.size;
-    final scaledSubtitleSize = fontSizeOption != null
-        ? FontSizeType.normal.size * fontSizeOption.scale
-        : FontSizeType.normal.size;
-
+  static ListTileThemeData getListTileTheme({required bool isDark}) {
     return ListTileThemeData(
-      tileColor: Colors.transparent,
-      selectedTileColor: (isDark ? AppColors.primaryLight : AppColors.primary)
-          .withValues(alpha: 0.1),
-      iconColor: isDark
-          ? AppColors.darkTextSecondary
-          : AppColors.lightTextSecondary,
-      textColor: isDark
-          ? AppColors.darkTextPrimary
-          : AppColors.lightTextPrimary,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       titleTextStyle: TextStyle(
-        fontSize: scaledTitleSize,
-        fontWeight: FontWeight.w500,
+        fontSize: 17,
+        fontWeight: FontWeight.w400,
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        fontFamilyFallback: _kFontFamilyFallback,
       ),
       subtitleTextStyle: TextStyle(
-        fontSize: scaledSubtitleSize,
-        fontWeight: FontWeight.w400,
-        color: isDark
-            ? AppColors.darkTextSecondary
-            : AppColors.lightTextSecondary,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      leadingAndTrailingTextStyle: TextStyle(
-        fontSize: scaledSubtitleSize,
-        fontWeight: FontWeight.w400,
-        color: isDark
-            ? AppColors.darkTextSecondary
-            : AppColors.lightTextSecondary,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      dense: false,
-      horizontalTitleGap: AppSpacing.regular,
-      minVerticalPadding: AppSpacing.small,
-      contentPadding: AppSpacing.listItemPadding,
-    );
-  }
-
-  // ==================== Chip 主题 ====================
-
-  /// 获取 Chip 主题
-  static ChipThemeData getChipTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    final scaledLabelSize = fontSizeOption != null
-        ? FontSizeType.normal.size * fontSizeOption.scale
-        : FontSizeType.normal.size;
-
-    return ChipThemeData(
-      backgroundColor: isDark
-          ? AppColors.darkCardBackground
-          : AppColors.lightCardBackground,
-      selectedColor: isDark ? AppColors.primaryLight : AppColors.primary,
-      disabledColor:
-          (isDark ? AppColors.darkTextDisabled : AppColors.lightTextDisabled)
-              .withValues(alpha: 0.3),
-      deleteIconColor: isDark
-          ? AppColors.darkTextSecondary
-          : AppColors.lightTextSecondary,
-      labelStyle: TextStyle(
-        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        fontSize: scaledLabelSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      secondaryLabelStyle: TextStyle(
-        color: Colors.white,
-        fontSize: scaledLabelSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-      ),
-      brightness: isDark ? Brightness.dark : Brightness.light,
-      elevation: 0,
-      pressElevation: 2,
-      padding: AppSpacing.chipPadding,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.borderRadiusRegular,
-        side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1,
-        ),
+        fontSize: 15,
+        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
       ),
     );
   }
 
-  // ==================== BottomNavigationBar 主题 ====================
-
-  /// 获取 BottomNavigationBar 主题
-  static BottomNavigationBarThemeData getBottomNavigationBarTheme({
-    required bool isDark,
-    BuildContext? context,
-    FontSizeOption? fontSizeOption,
-  }) {
-    // 使用固定字体大小，避免循环依赖
-    final scaledLabelSize = fontSizeOption != null
-        ? FontSizeType.small.size * fontSizeOption.scale
-        : FontSizeType.small.size;
-
-    return BottomNavigationBarThemeData(
-      backgroundColor: isDark
-          ? AppColors.darkAppBarBackground
-          : AppColors.lightSurfaceContainerLow, // 微信风格底部导航栏背景略亮于AppBar
-      selectedItemColor: isDark ? AppColors.primaryLight : AppColors.primary,
-      unselectedItemColor: isDark
-          ? AppColors.darkTextDisabled
-          : AppColors.lightTextSecondary, // 使用次要文本颜色
-      selectedLabelStyle: TextStyle(
-        color: isDark ? AppColors.primaryLight : AppColors.primary,
-        fontSize: scaledLabelSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-        fontWeight: FontWeight.w500,
-      ),
-      unselectedLabelStyle: TextStyle(
-        color: isDark
-            ? AppColors.darkTextDisabled
-            : AppColors.lightTextSecondary,
-        fontSize: scaledLabelSize,
-        fontFamilyFallback: _kFontFamilyFallback,
-        fontWeight: FontWeight.w500,
-      ),
-      type: BottomNavigationBarType.fixed,
-      elevation: 0, // 移除阴影
-      showSelectedLabels: true,
-      showUnselectedLabels: true,
-    );
-  }
-
-  // ==================== Divider 主题 ====================
-
-  /// 获取 Divider 主题
-  static DividerThemeData getDividerTheme({required bool isDark}) {
-    return DividerThemeData(
-      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-      thickness: 1,
-      space: AppSpacing.regular,
-    );
-  }
-
-  // ==================== ProgressIndicator 主题 ====================
-
-  /// 获取 ProgressIndicator 主题
-  static ProgressIndicatorThemeData getProgressIndicatorTheme({
-    required bool isDark,
-  }) {
-    return ProgressIndicatorThemeData(
-      color: isDark ? AppColors.primaryLight : AppColors.primary,
-      linearTrackColor: (isDark ? AppColors.darkBorder : AppColors.lightBorder)
-          .withValues(alpha: 0.3),
-      circularTrackColor:
-          (isDark ? AppColors.darkBorder : AppColors.lightBorder).withValues(
-            alpha: 0.3,
-          ),
-    );
-  }
-
-  // ==================== 便捷方法 ====================
-
-  /// 获取所有组件主题的集合
+  // 其他组件按需添加...
   static Map<String, dynamic> getAllComponentThemes({
     required bool isDark,
     BuildContext? context,
     FontSizeOption? fontSizeOption,
   }) {
     return {
-      'appBarTheme': getAppBarTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'elevatedButtonTheme': getElevatedButtonTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'textButtonTheme': getTextButtonTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'outlinedButtonTheme': getOutlinedButtonTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'floatingActionButtonTheme': getFloatingActionButtonTheme(isDark: isDark),
-      'cardTheme': getCardTheme(isDark: isDark),
-      'inputDecorationTheme': getInputDecorationTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'listTileTheme': getListTileTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'chipTheme': getChipTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'bottomNavigationBarTheme': getBottomNavigationBarTheme(
-        isDark: isDark,
-        context: context,
-        fontSizeOption: fontSizeOption,
-      ),
-      'dividerTheme': getDividerTheme(isDark: isDark),
-      'progressIndicatorTheme': getProgressIndicatorTheme(isDark: isDark),
+      'appBarTheme': getAppBarTheme(isDark: isDark),
+      'elevatedButtonTheme': getElevatedButtonTheme(isDark: isDark),
+      'textButtonTheme': getTextButtonTheme(isDark: isDark),
+      'inputDecorationTheme': getInputDecorationTheme(isDark: isDark),
+      'listTileTheme': getListTileTheme(isDark: isDark),
     };
   }
-}
-
-/// 组件主题扩展方法
-extension ComponentThemeExtension on BuildContext {
-  /// 快速获取 AppBar 主题
-  AppBarTheme get dynamicAppBarTheme => ComponentThemeManager.getAppBarTheme(
-    isDark: Theme.of(this).brightness == Brightness.dark,
-    context: this,
-  );
-
-  /// 快速获取 ElevatedButton 主题
-  ElevatedButtonThemeData get dynamicElevatedButtonTheme =>
-      ComponentThemeManager.getElevatedButtonTheme(
-        isDark: Theme.of(this).brightness == Brightness.dark,
-        context: this,
-      );
-
-  /// 快速获取 TextButton 主题
-  TextButtonThemeData get dynamicTextButtonTheme =>
-      ComponentThemeManager.getTextButtonTheme(
-        isDark: Theme.of(this).brightness == Brightness.dark,
-        context: this,
-      );
-
-  /// 快速获取 OutlinedButton 主题
-  OutlinedButtonThemeData get dynamicOutlinedButtonTheme =>
-      ComponentThemeManager.getOutlinedButtonTheme(
-        isDark: Theme.of(this).brightness == Brightness.dark,
-        context: this,
-      );
-
-  /// 快速获取 Card 主题
-  CardThemeData get dynamicCardTheme => ComponentThemeManager.getCardTheme(
-    isDark: Theme.of(this).brightness == Brightness.dark,
-  );
-
-  /// 快速获取 InputDecoration 主题
-  InputDecorationTheme get dynamicInputDecorationTheme =>
-      ComponentThemeManager.getInputDecorationTheme(
-        isDark: Theme.of(this).brightness == Brightness.dark,
-        context: this,
-      );
-
-  /// 快速获取 ListTile 主题
-  ListTileThemeData get dynamicListTileTheme =>
-      ComponentThemeManager.getListTileTheme(
-        isDark: Theme.of(this).brightness == Brightness.dark,
-        context: this,
-      );
-
-  /// 快速获取 Chip 主题
-  ChipThemeData get dynamicChipTheme => ComponentThemeManager.getChipTheme(
-    isDark: Theme.of(this).brightness == Brightness.dark,
-    context: this,
-  );
-
-  /// 快速获取 BottomNavigationBar 主题
-  BottomNavigationBarThemeData get dynamicBottomNavigationBarTheme =>
-      ComponentThemeManager.getBottomNavigationBarTheme(
-        isDark: Theme.of(this).brightness == Brightness.dark,
-        context: this,
-      );
 }

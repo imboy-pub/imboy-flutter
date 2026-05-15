@@ -79,9 +79,19 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     String? kind = widget.isSelect ? currentState.recentUse : currentState.kind;
 
     try {
-      final list = await notifier.page(page: 1, size: currentState.size, kind: kind);
+      final list = await notifier.page(
+        page: 1,
+        size: currentState.size,
+        kind: kind,
+      );
       if (mounted) {
-        notifier.updateState(currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1, hasMore: list.length >= currentState.size));
+        notifier.updateState(
+          currentState.copyWith(
+            items: list,
+            page: list.isNotEmpty ? 2 : 1,
+            hasMore: list.length >= currentState.size,
+          ),
+        );
       }
       final tagItems = await notifier.tagItems(context);
       if (mounted) {
@@ -98,15 +108,28 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       if (!controller.hasClients) return;
       final currentState = ref.read(userCollectProvider);
       if (currentState.isLoading || !currentState.hasMore) return;
-      if (controller.position.pixels >= controller.position.maxScrollExtent - 100) {
+      if (controller.position.pixels >=
+          controller.position.maxScrollExtent - 100) {
         try {
           final notifier = ref.read(userCollectProvider.notifier);
-          final list = await notifier.page(page: currentState.page, size: currentState.size, kind: currentState.kind);
+          final list = await notifier.page(
+            page: currentState.page,
+            size: currentState.size,
+            kind: currentState.kind,
+          );
           if (list.isNotEmpty && mounted) {
             final existingIds = currentState.items.map((e) => e.kindId).toSet();
-            final filtered = list.where((e) => !existingIds.contains(e.kindId)).toList();
+            final filtered = list
+                .where((e) => !existingIds.contains(e.kindId))
+                .toList();
             if (filtered.isNotEmpty) {
-              notifier.updateState(currentState.copyWith(items: [...currentState.items, ...filtered], page: currentState.page + 1, hasMore: list.length >= currentState.size));
+              notifier.updateState(
+                currentState.copyWith(
+                  items: [...currentState.items, ...filtered],
+                  page: currentState.page + 1,
+                  hasMore: list.length >= currentState.size,
+                ),
+              );
             } else {
               notifier.updateState(currentState.copyWith(hasMore: false));
             }
@@ -122,7 +145,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final list = prefs.getStringList(_kPinnedPrefsKey) ?? <String>[];
-      if (mounted) setState(() => _pinnedIds..clear()..addAll(list));
+      if (mounted)
+        setState(
+          () => _pinnedIds
+            ..clear()
+            ..addAll(list),
+        );
     } catch (_) {}
   }
 
@@ -135,7 +163,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
   Widget buildItemTag(String tagStr, BuildContext context) {
     List<Widget> items = [];
-    List<String> tagList = tagStr.split(',').where((o) => o.trim().isNotEmpty).toList();
+    List<String> tagList = tagStr
+        .split(',')
+        .where((o) => o.trim().isNotEmpty)
+        .toList();
     for (String tag in tagList) {
       items.add(
         Padding(
@@ -145,16 +176,34 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1),
+                color: AppColors.getIosBlue(
+                  Theme.of(context).brightness,
+                ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.2), width: 0.5),
+                border: Border.all(
+                  color: AppColors.getIosBlue(
+                    Theme.of(context).brightness,
+                  ).withValues(alpha: 0.2),
+                  width: 0.5,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.local_offer, size: 10, color: AppColors.getIosBlue(Theme.of(context).brightness)),
+                  Icon(
+                    Icons.local_offer,
+                    size: 10,
+                    color: AppColors.getIosBlue(Theme.of(context).brightness),
+                  ),
                   const SizedBox(width: 4),
-                  Text(tag, style: TextStyle(color: AppColors.getIosBlue(Theme.of(context).brightness), fontSize: 11, fontWeight: FontWeight.w500)),
+                  Text(
+                    tag,
+                    style: TextStyle(
+                      color: AppColors.getIosBlue(Theme.of(context).brightness),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -168,8 +217,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   void _togglePin(UserCollectModel obj) {
     setState(() {
       final id = obj.kindId.toString();
-      if (_pinnedIds.contains(id)) _pinnedIds.remove(id);
-      else _pinnedIds.add(id);
+      if (_pinnedIds.contains(id))
+        _pinnedIds.remove(id);
+      else
+        _pinnedIds.add(id);
     });
     _savePinnedIds();
   }
@@ -177,7 +228,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   void _enterMultiSelect(UserCollectModel obj) {
     setState(() {
       _multiSelect = true;
-      _selectedIds..clear()..add(obj.kindId.toString());
+      _selectedIds
+        ..clear()
+        ..add(obj.kindId.toString());
     });
   }
 
@@ -226,16 +279,34 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         final obj = currentState.items[i];
         if (ids.contains(obj.kindId.toString())) {
           try {
-            if (await notifier.remove(obj)) successCount++;
-            else { updatedItems.add(obj); failCount++; }
-          } catch (_) { updatedItems.add(obj); failCount++; }
-        } else updatedItems.add(obj);
+            if (await notifier.remove(obj))
+              successCount++;
+            else {
+              updatedItems.add(obj);
+              failCount++;
+            }
+          } catch (_) {
+            updatedItems.add(obj);
+            failCount++;
+          }
+        } else
+          updatedItems.add(obj);
       }
       EasyLoading.dismiss();
-      if (failCount == 0) EasyLoading.showSuccess(t.common.deleteSuccess);
-      else if (successCount > 0) EasyLoading.showInfo(t.common.partialDeleteSuccess(success: '$successCount', fail: '$failCount'));
-      else EasyLoading.showError(t.common.saveFailed);
-      notifier.updateState(currentState.copyWith(items: updatedItems.reversed.toList()));
+      if (failCount == 0)
+        EasyLoading.showSuccess(t.common.deleteSuccess);
+      else if (successCount > 0)
+        EasyLoading.showInfo(
+          t.common.partialDeleteSuccess(
+            success: '$successCount',
+            fail: '$failCount',
+          ),
+        );
+      else
+        EasyLoading.showError(t.common.saveFailed);
+      notifier.updateState(
+        currentState.copyWith(items: updatedItems.reversed.toList()),
+      );
       _exitMultiSelect();
     } catch (_) {
       EasyLoading.dismiss();
@@ -255,30 +326,66 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         title: Text(t.common.editTag),
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
-          child: CupertinoTextField(controller: tc, placeholder: t.contact.favoriteGroupTagsEtc, minLines: 1, maxLines: 3),
+          child: CupertinoTextField(
+            controller: tc,
+            placeholder: t.contact.favoriteGroupTagsEtc,
+            minLines: 1,
+            maxLines: 3,
+          ),
         ),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(context), child: Text(t.common.buttonCancel)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.buttonCancel),
+          ),
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () async {
               final input = tc.text.trim();
-              if (input.isEmpty) { EasyLoading.showInfo(t.contact.pleaseEnterTags); return; }
+              if (input.isEmpty) {
+                EasyLoading.showInfo(t.contact.pleaseEnterTags);
+                return;
+              }
               Navigator.pop(context);
               try {
                 EasyLoading.show(status: t.common.loading);
                 final updatedItems = <UserCollectModel>[];
                 for (final obj in currentState.items) {
-                  if (!_selectedIds.contains(obj.kindId.toString())) { updatedItems.add(obj); continue; }
+                  if (!_selectedIds.contains(obj.kindId.toString())) {
+                    updatedItems.add(obj);
+                    continue;
+                  }
                   String newTag = obj.tag.isEmpty ? input : '${obj.tag},$input';
-                  final parts = newTag.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList();
-                  updatedItems.add(UserCollectModel(userId: obj.userId, kind: obj.kind, kindId: obj.kindId, source: obj.source, remark: obj.remark, tag: parts.join(','), updatedAt: obj.updatedAt, createdAt: obj.createdAt, info: obj.info));
+                  final parts = newTag
+                      .split(',')
+                      .map((e) => e.trim())
+                      .where((e) => e.isNotEmpty)
+                      .toSet()
+                      .toList();
+                  updatedItems.add(
+                    UserCollectModel(
+                      userId: obj.userId,
+                      kind: obj.kind,
+                      kindId: obj.kindId,
+                      source: obj.source,
+                      remark: obj.remark,
+                      tag: parts.join(','),
+                      updatedAt: obj.updatedAt,
+                      createdAt: obj.createdAt,
+                      info: obj.info,
+                    ),
+                  );
                 }
-                notifier.updateState(currentState.copyWith(items: updatedItems));
+                notifier.updateState(
+                  currentState.copyWith(items: updatedItems),
+                );
                 EasyLoading.dismiss();
                 EasyLoading.showSuccess(t.common.tipSuccess);
                 _exitMultiSelect();
-              } catch (_) { EasyLoading.dismiss(); EasyLoading.showError(t.common.tipFailed); }
+              } catch (_) {
+                EasyLoading.dismiss();
+                EasyLoading.showError(t.common.tipFailed);
+              }
             },
             child: Text(t.common.buttonConfirm),
           ),
@@ -291,19 +398,32 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
-      color: AppColors.getIosRed(Theme.of(context).brightness).withValues(alpha: 0.1),
+      color: AppColors.getIosRed(
+        Theme.of(context).brightness,
+      ).withValues(alpha: 0.1),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: AppColors.iosRed),
           const SizedBox(width: 8),
           Expanded(child: Text(t.common.loadError)),
-          CupertinoButton(padding: EdgeInsets.zero, child: Text(t.common.buttonRetry), onPressed: () { _isInitialized = false; _initData(); }),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Text(t.common.buttonRetry),
+            onPressed: () {
+              _isInitialized = false;
+              _initData();
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCollectItem(BuildContext context, UserCollectModel obj, int index) {
+  Widget _buildCollectItem(
+    BuildContext context,
+    UserCollectModel obj,
+    int index,
+  ) {
     final notifier = ref.read(userCollectProvider.notifier);
     final currentState = ref.read(userCollectProvider);
     final bool isPinned = _pinnedIds.contains(obj.kindId.toString());
@@ -320,10 +440,20 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           borderRadius: AppRadius.borderRadiusCell,
           onLongPress: () => _enterMultiSelect(obj),
           onTap: () async {
-            if (_multiSelect) { _toggleSelect(obj); return; }
-            if (widget.isSelect) _sendToDialog(obj);
+            if (_multiSelect) {
+              _toggleSelect(obj);
+              return;
+            }
+            if (widget.isSelect)
+              _sendToDialog(obj);
             else {
-              Navigator.push(context, CupertinoPageRoute(builder: (context) => UserCollectDetailPage(obj: obj, pageIndex: index)));
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) =>
+                      UserCollectDetailPage(obj: obj, pageIndex: index),
+                ),
+              );
             }
           },
           child: Padding(
@@ -335,9 +465,24 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.push_pin, size: 12, color: AppColors.getIosBlue(Theme.of(context).brightness)),
+                      Icon(
+                        Icons.push_pin,
+                        size: 12,
+                        color: AppColors.getIosBlue(
+                          Theme.of(context).brightness,
+                        ),
+                      ),
                       const SizedBox(width: 4),
-                      Text(t.chat.pinned, style: TextStyle(color: AppColors.getIosBlue(Theme.of(context).brightness), fontSize: 11, fontWeight: FontWeight.w600)),
+                      Text(
+                        t.chat.pinned,
+                        style: TextStyle(
+                          color: AppColors.getIosBlue(
+                            Theme.of(context).brightness,
+                          ),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -347,16 +492,33 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Flexible(child: Text(obj.source, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: AppColors.iosGray))),
+                    Flexible(
+                      child: Text(
+                        obj.source,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.iosGray,
+                        ),
+                      ),
+                    ),
                     Text(
-                      currentState.kind == currentState.recentUse && obj.updatedAt > 0
+                      currentState.kind == currentState.recentUse &&
+                              obj.updatedAt > 0
                           ? DateTimeHelper.lastTimeFmt(obj.updatedAt)
                           : DateTimeHelper.lastTimeFmt(obj.createdAt),
-                      style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.iosGray,
+                      ),
                     ),
                   ],
                 ),
-                if (obj.tag.isNotEmpty) ...[const SizedBox(height: 8), buildItemTag(obj.tag, context)],
+                if (obj.tag.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  buildItemTag(obj.tag, context),
+                ],
               ],
             ),
           ),
@@ -370,10 +532,17 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         key: ValueKey('${obj.kindId}_$index'),
         child: Row(
           children: [
-            if (_multiSelect) Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: CupertinoCheckbox(value: isSelected, onChanged: (_) => _toggleSelect(obj), activeColor: AppColors.getIosBlue(Theme.of(context).brightness)),
-            ),
+            if (_multiSelect)
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: CupertinoCheckbox(
+                  value: isSelected,
+                  onChanged: (_) => _toggleSelect(obj),
+                  activeColor: AppColors.getIosBlue(
+                    Theme.of(context).brightness,
+                  ),
+                ),
+              ),
             Expanded(child: card),
           ],
         ),
@@ -383,11 +552,17 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           children: [
             SlidableAction(
               onPressed: (_) => _togglePin(obj),
-              backgroundColor: AppColors.getIosBlue(Theme.of(context).brightness),
+              backgroundColor: AppColors.getIosBlue(
+                Theme.of(context).brightness,
+              ),
               foregroundColor: Colors.white,
-              icon: isPinned ? Icons.vertical_align_bottom : Icons.vertical_align_top,
+              icon: isPinned
+                  ? Icons.vertical_align_bottom
+                  : Icons.vertical_align_top,
               label: isPinned ? t.chat.unpin : t.chat.pin,
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(10),
+              ),
             ),
           ],
         ),
@@ -398,24 +573,51 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             SlidableAction(
               backgroundColor: AppColors.iosGray,
               onPressed: (_) async {
-                final result = await Navigator.push(context, CupertinoPageRoute(builder: (context) => TagRelationPage(peerId: obj.kindId.toString(), peerTag: obj.tag, scene: 'collect', title: t.common.editTag)));
+                final result = await Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => TagRelationPage(
+                      peerId: obj.kindId.toString(),
+                      peerTag: obj.tag,
+                      scene: 'collect',
+                      title: t.common.editTag,
+                    ),
+                  ),
+                );
                 if (result != null && result is String && mounted) {
                   final updatedItems = currentState.items.map((item) {
-                    if (item.kindId == obj.kindId) return UserCollectModel(userId: item.userId, kind: item.kind, kindId: item.kindId, source: item.source, remark: item.remark, tag: result.toString(), updatedAt: item.updatedAt, createdAt: item.createdAt, info: item.info);
+                    if (item.kindId == obj.kindId)
+                      return UserCollectModel(
+                        userId: item.userId,
+                        kind: item.kind,
+                        kindId: item.kindId,
+                        source: item.source,
+                        remark: item.remark,
+                        tag: result.toString(),
+                        updatedAt: item.updatedAt,
+                        createdAt: item.createdAt,
+                        info: item.info,
+                      );
                     return item;
                   }).toList();
-                  notifier.updateState(currentState.copyWith(items: updatedItems));
+                  notifier.updateState(
+                    currentState.copyWith(items: updatedItems),
+                  );
                 }
               },
               icon: Icons.local_offer,
               label: t.contact.tags,
             ),
             SlidableAction(
-              backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
+              backgroundColor: AppColors.getIosRed(
+                Theme.of(context).brightness,
+              ),
               onPressed: (_) => _confirmRemove(obj, index),
               icon: Icons.delete,
               label: t.common.buttonDelete,
-              borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(10),
+              ),
             ),
           ],
         ),
@@ -437,17 +639,38 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 children: [
                   Avatar(imgUri: widget.peer['avatar'] ?? ''),
                   const SizedBox(width: 10),
-                  Expanded(child: Text(widget.peer['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  Expanded(
+                    child: Text(
+                      widget.peer['title'] ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
-              Text(model.info['payload']?['text'] as String? ?? t.common.messageContent, maxLines: 3, overflow: TextOverflow.ellipsis),
+              Text(
+                model.info['payload']?['text'] as String? ??
+                    t.common.messageContent,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(context), child: Text(t.common.buttonCancel)),
-          CupertinoDialogAction(isDefaultAction: true, onPressed: () { Navigator.pop(context); Navigator.of(context).pop(model); }, child: Text(t.common.buttonSend)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.of(context).pop(model);
+            },
+            child: Text(t.common.buttonSend),
+          ),
         ],
       ),
     );
@@ -460,17 +683,28 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         title: Text(t.common.sureDeleteData),
         content: Text(t.common.deleteCollectConfirmDesc),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(context), child: Text(t.common.buttonCancel)),
-          CupertinoDialogAction(isDestructiveAction: true, onPressed: () async {
-            Navigator.pop(context);
-            final notifier = ref.read(userCollectProvider.notifier);
-            final currentState = ref.read(userCollectProvider);
-            if (await notifier.remove(obj)) {
-              final updatedItems = [...currentState.items]..removeWhere((e) => e.kindId == obj.kindId);
-              notifier.updateState(currentState.copyWith(items: updatedItems));
-              EasyLoading.showSuccess(t.common.tipSuccess);
-            } else EasyLoading.showError(t.common.tipFailed);
-          }, child: Text(t.common.buttonDelete)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () async {
+              Navigator.pop(context);
+              final notifier = ref.read(userCollectProvider.notifier);
+              final currentState = ref.read(userCollectProvider);
+              if (await notifier.remove(obj)) {
+                final updatedItems = [...currentState.items]
+                  ..removeWhere((e) => e.kindId == obj.kindId);
+                notifier.updateState(
+                  currentState.copyWith(items: updatedItems),
+                );
+                EasyLoading.showSuccess(t.common.tipSuccess);
+              } else
+                EasyLoading.showError(t.common.tipFailed);
+            },
+            child: Text(t.common.buttonDelete),
+          ),
         ],
       ),
     );
@@ -479,32 +713,73 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   Future<void> _search(String query) async {
     final notifier = ref.read(userCollectProvider.notifier);
     final currentState = ref.read(userCollectProvider);
-    final list = await notifier.page(page: 1, size: currentState.size, kind: currentState.kind, kwd: query);
-    if (mounted) notifier.updateState(currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1));
+    final list = await notifier.page(
+      page: 1,
+      size: currentState.size,
+      kind: currentState.kind,
+      kwd: query,
+    );
+    if (mounted)
+      notifier.updateState(
+        currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
+      );
   }
 
   Future<void> _resetSearch() async {
     final notifier = ref.read(userCollectProvider.notifier);
     final currentState = ref.read(userCollectProvider);
-    final list = await notifier.page(page: 1, size: currentState.size, kind: currentState.kind, onRefresh: true);
+    final list = await notifier.page(
+      page: 1,
+      size: currentState.size,
+      kind: currentState.kind,
+      onRefresh: true,
+    );
     if (mounted) {
-      notifier.updateState(currentState.copyWith(items: list, page: 2, kwd: ''));
+      notifier.updateState(
+        currentState.copyWith(items: list, page: 2, kwd: ''),
+      );
       _searchController.clear();
     }
   }
 
-  Future<void> _searchByTag(BuildContext context, String tag, String kindTips) async {
+  Future<void> _searchByTag(
+    BuildContext context,
+    String tag,
+    String kindTips,
+  ) async {
     final notifier = ref.read(userCollectProvider.notifier);
     final currentState = ref.read(userCollectProvider);
-    final list = await notifier.page(page: 1, size: currentState.size, tag: tag);
-    if (mounted) notifier.updateState(currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1));
+    final list = await notifier.page(
+      page: 1,
+      size: currentState.size,
+      tag: tag,
+    );
+    if (mounted)
+      notifier.updateState(
+        currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
+      );
   }
 
-  Future<void> _searchByKind(BuildContext context, String kind, String kindTips) async {
+  Future<void> _searchByKind(
+    BuildContext context,
+    String kind,
+    String kindTips,
+  ) async {
     final notifier = ref.read(userCollectProvider.notifier);
     final currentState = ref.read(userCollectProvider);
-    final list = await notifier.page(page: 1, size: currentState.size, kind: kind);
-    if (mounted) notifier.updateState(currentState.copyWith(items: list, kind: kind, page: list.isNotEmpty ? 2 : 1));
+    final list = await notifier.page(
+      page: 1,
+      size: currentState.size,
+      kind: kind,
+    );
+    if (mounted)
+      notifier.updateState(
+        currentState.copyWith(
+          items: list,
+          kind: kind,
+          page: list.isNotEmpty ? 2 : 1,
+        ),
+      );
   }
 
   @override
@@ -515,10 +790,19 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     return IosPageTemplate(
       title: widget.isSelect ? t.main.favorites : t.main.myFavorites,
       useLargeTitle: !widget.isSelect,
-      actions: widget.isSelect ? [CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.xmark, size: 20), onPressed: () => Navigator.pop(context))] : null,
+      actions: widget.isSelect
+          ? [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(CupertinoIcons.xmark, size: 20),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ]
+          : null,
       slivers: [
-        if (_loadError) SliverToBoxAdapter(child: _buildLoadErrorPanel(context)),
-        
+        if (_loadError)
+          SliverToBoxAdapter(child: _buildLoadErrorPanel(context)),
+
         // 搜索栏
         SliverToBoxAdapter(
           child: Padding(
@@ -530,7 +814,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               onSuffixTap: _resetSearch,
               onChanged: (v) {
                 _searchTimer?.cancel();
-                _searchTimer = Timer(const Duration(milliseconds: 500), () => _search(v));
+                _searchTimer = Timer(
+                  const Duration(milliseconds: 500),
+                  () => _search(v),
+                );
               },
             ),
           ),
@@ -540,16 +827,24 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         SliverToBoxAdapter(child: _buildKindList(context)),
 
         // 多选工具
-        if (_multiSelect) SliverToBoxAdapter(child: _buildMultiSelectBar(context)),
+        if (_multiSelect)
+          SliverToBoxAdapter(child: _buildMultiSelectBar(context)),
 
         // 列表
         SliverPadding(
           padding: const EdgeInsets.only(top: 8, bottom: 20),
           sliver: currentState.items.isEmpty
-              ? SliverFillRemaining(hasScrollBody: false, child: _buildEmptyState(context))
+              ? SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _buildEmptyState(context),
+                )
               : SliverList(
                   delegate: SliverChildBuilderDescription(
-                    (context, index) => _buildCollectItem(context, currentState.items[index], index),
+                    (context, index) => _buildCollectItem(
+                      context,
+                      currentState.items[index],
+                      index,
+                    ),
                     childCount: currentState.items.length,
                   ),
                 ),
@@ -563,9 +858,16 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(CupertinoIcons.bookmark, size: 60, color: AppColors.iosGray.withValues(alpha: 0.3)),
+          Icon(
+            CupertinoIcons.bookmark,
+            size: 60,
+            color: AppColors.iosGray.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
-          Text(t.common.noFavoritesYet, style: const TextStyle(color: AppColors.iosGray, fontSize: 15)),
+          Text(
+            t.common.noFavoritesYet,
+            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+          ),
         ],
       ),
     );
@@ -575,15 +877,40 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Row(
         children: [
-          Text('${t.main.selected}: ${_selectedIds.length}', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            '${t.main.selected}: ${_selectedIds.length}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           const Spacer(),
-          CupertinoButton(padding: const EdgeInsets.symmetric(horizontal: 8), child: const Icon(CupertinoIcons.square_list), onPressed: _selectAllCurrent),
-          CupertinoButton(padding: const EdgeInsets.symmetric(horizontal: 8), child: const Icon(CupertinoIcons.tag), onPressed: _batchTag),
-          CupertinoButton(padding: const EdgeInsets.symmetric(horizontal: 8), child: Icon(CupertinoIcons.delete, color: AppColors.getIosRed(Theme.of(context).brightness)), onPressed: _batchDelete),
-          CupertinoButton(padding: const EdgeInsets.symmetric(horizontal: 8), child: const Icon(CupertinoIcons.xmark_circle), onPressed: _exitMultiSelect),
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: const Icon(CupertinoIcons.square_list),
+            onPressed: _selectAllCurrent,
+          ),
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: const Icon(CupertinoIcons.tag),
+            onPressed: _batchTag,
+          ),
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Icon(
+              CupertinoIcons.delete,
+              color: AppColors.getIosRed(Theme.of(context).brightness),
+            ),
+            onPressed: _batchDelete,
+          ),
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: const Icon(CupertinoIcons.xmark_circle),
+            onPressed: _exitMultiSelect,
+          ),
         ],
       ),
     );
@@ -593,9 +920,14 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     final currentState = ref.read(userCollectProvider);
     Map<String, String> kindMap = {
       currentState.recentUse: t.main.recentlyUsed,
-      '1': t.main.text, '2': t.chat.image, '7': t.common.personalCard,
-      '4': t.chat.video, '5': t.chat.file, '6': t.common.locationMessage,
-      '3': t.chat.voice, 'all': t.common.all,
+      '1': t.main.text,
+      '2': t.chat.image,
+      '7': t.common.personalCard,
+      '4': t.chat.video,
+      '5': t.chat.file,
+      '6': t.common.locationMessage,
+      '3': t.chat.voice,
+      'all': t.common.all,
     };
 
     return ImBoySettingsSection(
@@ -606,16 +938,27 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           child: ExpansionTile(
             title: Row(
               children: [
-                Icon(CupertinoIcons.slider_horizontal_3, size: 18, color: AppColors.getIosBlue(Theme.of(context).brightness)),
+                Icon(
+                  CupertinoIcons.slider_horizontal_3,
+                  size: 18,
+                  color: AppColors.getIosBlue(Theme.of(context).brightness),
+                ),
                 const SizedBox(width: 12),
-                Text(t.main.type, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                Text(
+                  t.main.type,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Wrap(
-                  spacing: 8, runSpacing: 8,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: kindMap.entries.map((e) {
                     final isSelected = currentState.kind == e.key;
                     return ChoiceChip(
@@ -624,8 +967,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       onSelected: (v) {
                         if (v) _searchByKind(context, e.key, e.value);
                       },
-                      selectedColor: AppColors.getIosBlue(Theme.of(context).brightness),
-                      labelStyle: TextStyle(color: isSelected ? Colors.white : null),
+                      selectedColor: AppColors.getIosBlue(
+                        Theme.of(context).brightness,
+                      ),
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : null,
+                      ),
                     );
                   }).toList(),
                 ),
@@ -634,7 +981,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 const Divider(indent: 16, endIndent: 16, height: 1),
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Wrap(spacing: 6, runSpacing: 6, children: currentState.tagItems),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: currentState.tagItems,
+                  ),
                 ),
               ],
             ],

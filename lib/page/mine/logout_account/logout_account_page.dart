@@ -48,7 +48,9 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
   }
 
   void changeValue(String val) {
-    state = state.copyWith(selectedValue: val == 'read_and_agree' ? '' : 'read_and_agree');
+    state = state.copyWith(
+      selectedValue: val == 'read_and_agree' ? '' : 'read_and_agree',
+    );
   }
 
   Future<String?> exportUserData() async {
@@ -68,7 +70,10 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       state = state.copyWith(isLoading: false);
       return file.path;
     } on Exception {
-      state = state.copyWith(isLoading: false, error: t.common.operationFailedAgainLater);
+      state = state.copyWith(
+        isLoading: false,
+        error: t.common.operationFailedAgainLater,
+      );
       return null;
     }
   }
@@ -81,7 +86,10 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       state = state.copyWith(isLoading: false);
       return result;
     } on Exception {
-      state = state.copyWith(isLoading: false, error: t.common.operationFailedAgainLater);
+      state = state.copyWith(
+        isLoading: false,
+        error: t.common.operationFailedAgainLater,
+      );
       return false;
     }
   }
@@ -101,7 +109,14 @@ class LogoutAccountPage extends ConsumerWidget {
     return IosPageTemplate(
       title: t.account.logoutAccount,
       useLargeTitle: false,
-      bottomWidget: _buildDeleteButton(context, ref, state, agreed, t, brightness),
+      bottomWidget: _buildDeleteButton(
+        context,
+        ref,
+        state,
+        agreed,
+        t,
+        brightness,
+      ),
       child: Column(
         children: [
           // 导出数据 Section
@@ -112,17 +127,34 @@ class LogoutAccountPage extends ConsumerWidget {
                 title: Text(t.chat.exportMyData),
                 subtitle: Text(t.chat.exportDataDesc),
                 leading: Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(color: AppColors.getIosBlue(brightness), borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(CupertinoIcons.cloud_download, color: Colors.white, size: 18),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.getIosBlue(brightness),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.cloud_download,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
-                onTap: state.isLoading ? null : () async {
-                  EasyLoading.show(status: t.common.loading);
-                  final filePath = await ref.read(logoutAccountProvider.notifier).exportUserData();
-                  EasyLoading.dismiss();
-                  if (filePath == null) return;
-                  await SharePlus.instance.share(ShareParams(files: [XFile(filePath)], text: t.chat.exportMyData));
-                },
+                onTap: state.isLoading
+                    ? null
+                    : () async {
+                        EasyLoading.show(status: t.common.loading);
+                        final filePath = await ref
+                            .read(logoutAccountProvider.notifier)
+                            .exportUserData();
+                        EasyLoading.dismiss();
+                        if (filePath == null) return;
+                        await SharePlus.instance.share(
+                          ShareParams(
+                            files: [XFile(filePath)],
+                            text: t.chat.exportMyData,
+                          ),
+                        );
+                      },
               ),
             ],
           ),
@@ -132,14 +164,22 @@ class LogoutAccountPage extends ConsumerWidget {
             header: Text(t.common.confirm.toUpperCase()),
             children: [
               ImBoySettingsTile(
-                title: Text(t.chat.readAgreeParam(param: t.account.logoutAccount)),
+                title: Text(
+                  t.chat.readAgreeParam(param: t.account.logoutAccount),
+                ),
                 leading: CupertinoCheckbox(
                   value: agreed,
                   activeColor: AppColors.getIosBlue(brightness),
-                  onChanged: state.isLoading ? null : (_) => ref.read(logoutAccountProvider.notifier).changeValue(state.selectedValue),
+                  onChanged: state.isLoading
+                      ? null
+                      : (_) => ref
+                            .read(logoutAccountProvider.notifier)
+                            .changeValue(state.selectedValue),
                 ),
                 trailing: const SizedBox.shrink(),
-                onTap: () => ref.read(logoutAccountProvider.notifier).changeValue(state.selectedValue),
+                onTap: () => ref
+                    .read(logoutAccountProvider.notifier)
+                    .changeValue(state.selectedValue),
               ),
             ],
           ),
@@ -147,16 +187,31 @@ class LogoutAccountPage extends ConsumerWidget {
           if (state.error != null && state.error!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(state.error!, style: const TextStyle(color: AppColors.iosRed, fontSize: 13)),
+              child: Text(
+                state.error!,
+                style: const TextStyle(color: AppColors.iosRed, fontSize: 13),
+              ),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildDeleteButton(BuildContext context, WidgetRef ref, LogoutAccountState state, bool agreed, Translations t, Brightness brightness) {
+  Widget _buildDeleteButton(
+    BuildContext context,
+    WidgetRef ref,
+    LogoutAccountState state,
+    bool agreed,
+    Translations t,
+    Brightness brightness,
+  ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       child: SizedBox(
         width: double.infinity,
         height: 50,
@@ -164,17 +219,31 @@ class LogoutAccountPage extends ConsumerWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.getIosRed(brightness),
             foregroundColor: Colors.white,
-            disabledBackgroundColor: AppColors.getIosRed(brightness).withValues(alpha: 0.3),
+            disabledBackgroundColor: AppColors.getIosRed(
+              brightness,
+            ).withValues(alpha: 0.3),
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
-          onPressed: agreed && !state.isLoading ? () async {
-            final ok = await ref.read(logoutAccountProvider.notifier).applyLogout();
-            if (ok && context.mounted) Navigator.of(context).maybePop();
-          } : null,
+          onPressed: agreed && !state.isLoading
+              ? () async {
+                  final ok = await ref
+                      .read(logoutAccountProvider.notifier)
+                      .applyLogout();
+                  if (ok && context.mounted) Navigator.of(context).maybePop();
+                }
+              : null,
           child: state.isLoading
               ? const CupertinoActivityIndicator(color: Colors.white)
-              : Text(t.account.logoutAccount, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+              : Text(
+                  t.account.logoutAccount,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );

@@ -63,17 +63,36 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
               },
               susItemBuilder: (context, index) {
                 final model = denylistState.items[index];
-                if (model.getSuspensionTag() == '↑') return const SizedBox.shrink();
+                if (model.getSuspensionTag() == '↑')
+                  return const SizedBox.shrink();
                 return Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 6, left: 8),
-                  child: Text(model.getSuspensionTag(), style: const TextStyle(fontSize: 13, color: AppColors.iosGray)),
+                  child: Text(
+                    model.getSuspensionTag(),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
                 );
               },
               indexBarData: ['↑', ...denylistState.currIndexBarData],
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
-                downItemDecoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.primary),
-                indexHintDecoration: BoxDecoration(color: AppColors.getSurfaceColor(brightness), shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8)]),
+                downItemDecoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                ),
+                indexHintDecoration: BoxDecoration(
+                  color: AppColors.getSurfaceColor(brightness),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -88,20 +107,40 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
       decoration: BoxDecoration(
         color: AppColors.getIosRed(brightness).withValues(alpha: 0.05),
         borderRadius: AppRadius.borderRadiusCell,
-        border: Border.all(color: AppColors.getIosRed(brightness).withValues(alpha: 0.2), width: 0.5),
+        border: Border.all(
+          color: AppColors.getIosRed(brightness).withValues(alpha: 0.2),
+          width: 0.5,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(CupertinoIcons.exclamationmark_triangle, color: AppColors.getIosRed(brightness), size: 20),
+          Icon(
+            CupertinoIcons.exclamationmark_triangle,
+            color: AppColors.getIosRed(brightness),
+            size: 20,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.common.denylistNoteTitle, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(
+                  t.common.denylistNoteTitle,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(t.common.denylistNoteDesc, style: const TextStyle(fontSize: 13, color: AppColors.iosGray, height: 1.4)),
+                Text(
+                  t.common.denylistNoteDesc,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.iosGray,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
@@ -115,18 +154,37 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(CupertinoIcons.slash_circle, size: 60, color: AppColors.iosGray.withValues(alpha: 0.3)),
+          Icon(
+            CupertinoIcons.slash_circle,
+            size: 60,
+            color: AppColors.iosGray.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
-          Text(t.contact.denylistEmpty, style: const TextStyle(color: AppColors.iosGray, fontSize: 15)),
+          Text(
+            t.contact.denylistEmpty,
+            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDenylistItem(BuildContext context, DenylistModel model, Brightness brightness) {
+  Widget _buildDenylistItem(
+    BuildContext context,
+    DenylistModel model,
+    Brightness brightness,
+  ) {
     final item = ImBoySettingsTile(
       onTap: () {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => PeopleInfoPage(id: model.deniedUid.toString(), scene: 'denylist'))).then((_) {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => PeopleInfoPage(
+              id: model.deniedUid.toString(),
+              scene: 'denylist',
+            ),
+          ),
+        ).then((_) {
           ref.read(denylistProvider.notifier).loadData(page: 1, size: 1000);
         });
       },
@@ -137,12 +195,27 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         clipBehavior: Clip.antiAlias,
         child: Avatar(imgUri: model.avatar),
       ),
-      title: Text(model.nickname.isEmpty ? model.account : model.nickname, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(
+        model.nickname.isEmpty ? model.account : model.nickname,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       subtitle: Row(
         children: [
-          Icon(CupertinoIcons.slash_circle, size: 10, color: AppColors.getIosRed(brightness)),
+          Icon(
+            CupertinoIcons.slash_circle,
+            size: 10,
+            color: AppColors.getIosRed(brightness),
+          ),
           const SizedBox(width: 4),
-          Text(t.contact.blocked, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.getIosRed(brightness))),
+          Text(
+            t.contact.blocked,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: AppColors.getIosRed(brightness),
+            ),
+          ),
         ],
       ),
     );
@@ -160,16 +233,26 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           children: [
             const Icon(CupertinoIcons.minus_circle, color: Colors.white),
             const SizedBox(width: 8),
-            Text(t.common.buttonRemove, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            Text(
+              t.common.buttonRemove,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
       confirmDismiss: (dir) async {
         EasyLoading.show(status: t.common.loading);
-        bool res = await ref.read(denylistProvider.notifier).removeDenylist(model.deniedUid.toString());
+        bool res = await ref
+            .read(denylistProvider.notifier)
+            .removeDenylist(model.deniedUid.toString());
         EasyLoading.dismiss();
-        if (res) EasyLoading.showSuccess(t.common.removedFromDenylist);
-        else EasyLoading.showError(t.common.tipFailed);
+        if (res)
+          EasyLoading.showSuccess(t.common.removedFromDenylist);
+        else
+          EasyLoading.showError(t.common.tipFailed);
         return res;
       },
       child: item,

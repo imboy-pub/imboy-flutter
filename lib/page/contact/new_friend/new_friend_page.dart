@@ -34,8 +34,12 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
   @override
   void initState() {
     super.initState();
-    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) => mounted ? setState(() {}) : null);
-    WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(newFriendProvider.notifier).initData());
+    _localeSubscription = LocaleSettings.getLocaleStream().listen(
+      (_) => mounted ? setState(() {}) : null,
+    );
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ref.read(newFriendProvider.notifier).initData(),
+    );
   }
 
   @override
@@ -56,7 +60,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.person_add, size: 22),
-          onPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => const AddFriendPage())),
+          onPressed: () => Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (_) => const AddFriendPage()),
+          ),
         ),
       ],
       slivers: [
@@ -66,7 +73,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: CupertinoSearchTextField(
               placeholder: t.account.hintLoginAccount,
-              onSubmitted: (v) => ref.read(newFriendProvider.notifier).userSearch(kwd: v),
+              onSubmitted: (v) =>
+                  ref.read(newFriendProvider.notifier).userSearch(kwd: v),
             ),
           ),
         ),
@@ -80,20 +88,27 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 20),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final model = state.items[index] as NewFriendModel;
-                  return _buildFriendRequestItem(context, model, index, brightness);
-                },
-                childCount: state.items.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final model = state.items[index] as NewFriendModel;
+                return _buildFriendRequestItem(
+                  context,
+                  model,
+                  index,
+                  brightness,
+                );
+              }, childCount: state.items.length),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildFriendRequestItem(BuildContext context, NewFriendModel model, int index, Brightness brightness) {
+  Widget _buildFriendRequestItem(
+    BuildContext context,
+    NewFriendModel model,
+    int index,
+    Brightness brightness,
+  ) {
     bool fromSelf = model.from.toString() == UserRepoLocal.to.currentUid;
 
     return Slidable(
@@ -103,7 +118,9 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
-            onPressed: (_) => ref.read(newFriendProvider.notifier).delete(model.from.toString(), model.to.toString()),
+            onPressed: (_) => ref
+                .read(newFriendProvider.notifier)
+                .delete(model.from.toString(), model.to.toString()),
             backgroundColor: AppColors.getIosRed(brightness),
             foregroundColor: Colors.white,
             icon: CupertinoIcons.delete_solid,
@@ -112,12 +129,25 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         ],
       ),
       child: ImBoyListTile(
-        onTap: () => context.push('/people_info/${UserRepoLocal.to.currentUid == model.to.toString() ? model.from : model.to}', extra: {'scene': model.source}),
+        onTap: () => context.push(
+          '/people_info/${UserRepoLocal.to.currentUid == model.to.toString() ? model.from : model.to}',
+          extra: {'scene': model.source},
+        ),
         leading: Avatar(imgUri: model.avatar ?? '', width: 56, height: 56),
         title: Row(
           children: [
-            Expanded(child: Text(model.nickname, maxLines: 1, overflow: TextOverflow.ellipsis)),
-            if (fromSelf) _buildTag(t.contact.friendRequestSent, AppColors.getIosBlue(brightness)),
+            Expanded(
+              child: Text(
+                model.nickname,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (fromSelf)
+              _buildTag(
+                t.contact.friendRequestSent,
+                AppColors.getIosBlue(brightness),
+              ),
           ],
         ),
         subtitle: Text(model.msg, maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -131,32 +161,77 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       margin: const EdgeInsets.only(left: 8),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-      child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 
-  Widget _buildStatusAction(BuildContext context, NewFriendModel model, bool fromSelf, Brightness brightness) {
+  Widget _buildStatusAction(
+    BuildContext context,
+    NewFriendModel model,
+    bool fromSelf,
+    Brightness brightness,
+  ) {
     if (model.status == NewFriendStatus.added.index) {
-      return Text(t.common.added, style: const TextStyle(fontSize: 14, color: AppColors.iosGray));
+      return Text(
+        t.common.added,
+        style: const TextStyle(fontSize: 14, color: AppColors.iosGray),
+      );
     }
     if (model.status == NewFriendStatus.expired.index) {
-      return Text(t.main.expired, style: TextStyle(fontSize: 14, color: AppColors.getIosRed(brightness).withValues(alpha: 0.5)));
+      return Text(
+        t.main.expired,
+        style: TextStyle(
+          fontSize: 14,
+          color: AppColors.getIosRed(brightness).withValues(alpha: 0.5),
+        ),
+      );
     }
     if (fromSelf) {
-      return Text(t.common.awaitingVerification, style: const TextStyle(fontSize: 14, color: AppColors.iosGray));
+      return Text(
+        t.common.awaitingVerification,
+        style: const TextStyle(fontSize: 14, color: AppColors.iosGray),
+      );
     }
 
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       color: AppColors.getIosBlue(brightness),
       borderRadius: BorderRadius.circular(18),
-      onPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (_) => ConfirmNewFriendPage(to: model.to.toString(), from: model.from.toString(), msg: model.msg, nickname: model.nickname, payload: model.payload))),
-      child: Text(t.common.accept, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+      onPressed: () => Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (_) => ConfirmNewFriendPage(
+            to: model.to.toString(),
+            from: model.from.toString(),
+            msg: model.msg,
+            nickname: model.nickname,
+            payload: model.payload,
+          ),
+        ),
+      ),
+      child: Text(
+        t.common.accept,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return NoDataView(text: t.common.noNewFriends, description: t.common.noNewFriendRequests, icon: Icons.person_add_outlined);
+    return NoDataView(
+      text: t.common.noNewFriends,
+      description: t.common.noNewFriendRequests,
+      icon: Icons.person_add_outlined,
+    );
   }
 }

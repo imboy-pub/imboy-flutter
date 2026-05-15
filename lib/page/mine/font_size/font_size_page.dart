@@ -175,7 +175,9 @@ class FontSizePage extends ConsumerWidget {
                       : t.common.fontTooSmallMayAffect,
                   style: TextStyle(
                     fontSize: 12,
-                    color: notifier.isPreviewAccessible ? AppColors.iosBlue : AppColors.iosRed,
+                    color: notifier.isPreviewAccessible
+                        ? AppColors.iosBlue
+                        : AppColors.iosRed,
                   ),
                 ),
               ],
@@ -198,7 +200,12 @@ class FontSizePage extends ConsumerWidget {
     final cardColor = Theme.of(context).cardColor;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        24,
+        24,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
       decoration: BoxDecoration(
         color: cardColor,
         border: Border(
@@ -223,8 +230,13 @@ class FontSizePage extends ConsumerWidget {
               inactiveTrackColor: AppColors.iosGray5.withValues(alpha: 0.6),
               thumbColor: Colors.white,
               trackHeight: 4.0,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14.0, elevation: 3),
-              tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 3.5),
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 14.0,
+                elevation: 3,
+              ),
+              tickMarkShape: const RoundSliderTickMarkShape(
+                tickMarkRadius: 3.5,
+              ),
               activeTickMarkColor: Colors.white,
               inactiveTickMarkColor: AppColors.iosGray4,
             ),
@@ -233,10 +245,13 @@ class FontSizePage extends ConsumerWidget {
               max: (options.length - 1).toDouble(),
               divisions: options.length - 1,
               value: state.sliderValue,
-              onChanged: (value) => ref.read(fontSizeProvider.notifier).updatePreview(value),
+              onChanged: (value) =>
+                  ref.read(fontSizeProvider.notifier).updatePreview(value),
               onChangeEnd: (value) async {
                 try {
-                  await ref.read(fontSizeProvider.notifier).applyFontSize(value);
+                  await ref
+                      .read(fontSizeProvider.notifier)
+                      .applyFontSize(value);
                   EasyLoading.showSuccess(t.common.fontSizeSettingUpdated);
                 } catch (e) {
                   EasyLoading.showError(t.common.settingFailedPleaseTryAgain);
@@ -249,8 +264,20 @@ class FontSizePage extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(t.common.smaller, style: const TextStyle(fontSize: 13, color: AppColors.iosGray)),
-                Text(t.main.larger, style: const TextStyle(fontSize: 17, color: AppColors.iosGray)),
+                Text(
+                  t.common.smaller,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+                Text(
+                  t.main.larger,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    color: AppColors.iosGray,
+                  ),
+                ),
               ],
             ),
           ),
@@ -259,7 +286,13 @@ class FontSizePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPreviewFooter(BuildContext context, WidgetRef ref, FontSizeState state, ColorScheme cs, Translations t) {
+  Widget _buildPreviewFooter(
+    BuildContext context,
+    WidgetRef ref,
+    FontSizeState state,
+    ColorScheme cs,
+    Translations t,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -273,7 +306,9 @@ class FontSizePage extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1),
+            color: AppColors.getIosBlue(
+              Theme.of(context).brightness,
+            ).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(

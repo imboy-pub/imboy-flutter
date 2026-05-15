@@ -33,8 +33,6 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     String displayTitle = parseModelString(remark);
     String? subNickname = nickname;
     if (strEmpty(displayTitle)) {
@@ -53,7 +51,9 @@ class ContactCard extends StatelessWidget {
               if (isNetWorkImg(avatar ?? '')) {
                 zoomInPhotoView(context, avatar!);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.common.noAvatar)));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(t.common.noAvatar)));
               }
             },
             child: Avatar(
@@ -75,7 +75,11 @@ class ContactCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         displayTitle,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -86,10 +90,28 @@ class ContactCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 if (strNoEmpty(subNickname))
-                  Text("${t.account.nickname}: $subNickname", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
-                Text("ID: $account", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                  Text(
+                    "${t.account.nickname}: $subNickname",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
+                Text(
+                  "ID: $account",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.iosGray,
+                  ),
+                ),
                 if (strNoEmpty(region))
-                  Text("${t.account.region}: $region", style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                  Text(
+                    "${t.account.region}: $region",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
               ],
             ),
           ),

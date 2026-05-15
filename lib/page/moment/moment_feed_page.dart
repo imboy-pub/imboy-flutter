@@ -16,14 +16,12 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:octo_image/octo_image.dart';
 
 import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
 import 'moment_notify/moment_notify_provider.dart';
 import 'moment_utils.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -72,7 +70,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
-    if (!shouldTriggerFeedLoadMore(pixels: position.pixels, maxExtent: position.maxScrollExtent, isLoadingMore: _isLoadingMore, hasMore: _hasMore)) return;
+    if (!shouldTriggerFeedLoadMore(
+      pixels: position.pixels,
+      maxExtent: position.maxScrollExtent,
+      isLoadingMore: _isLoadingMore,
+      hasMore: _hasMore,
+    ))
+      return;
     _loadMore();
   }
 
@@ -92,13 +96,18 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       remoteEnriched = await enrichItemsWithAuthor(page.list);
       nextCursor = page.nextCursor;
       hasMore = page.hasMore;
-    } on Exception { remoteEnriched = null; }
+    } on Exception {
+      remoteEnriched = null;
+    }
     if (!mounted) return;
     final snapshot = pickFeedSnapshot(remote: remoteEnriched, cached: _items);
     setState(() {
       _items = snapshot.items;
       _isStale = snapshot.isStale;
-      if (!snapshot.isStale) { _cursor = nextCursor; _hasMore = hasMore ?? _hasMore; }
+      if (!snapshot.isStale) {
+        _cursor = nextCursor;
+        _hasMore = hasMore ?? _hasMore;
+      }
       _isLoading = false;
     });
   }
@@ -110,8 +119,15 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       final page = await _api.getFeedPage(cursor: _cursor, limit: 20);
       if (!mounted) return;
       final enriched = await enrichItemsWithAuthor(page.list);
-      setState(() { _items = [..._items, ...enriched]; _cursor = page.nextCursor; _hasMore = page.hasMore; _isLoadingMore = false; });
-    } catch (_) { if (mounted) setState(() => _isLoadingMore = false); }
+      setState(() {
+        _items = [..._items, ...enriched];
+        _cursor = page.nextCursor;
+        _hasMore = page.hasMore;
+        _isLoadingMore = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingMore = false);
+    }
   }
 
   Future<void> _toggleLike(Map<String, dynamic> moment) async {
@@ -119,77 +135,185 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     if (momentId.isEmpty) return;
     final liked = parseModelBool(moment['liked']);
     final oldItems = _items;
-    setState(() { _items = _items.map((item) => parseModelString(item['id']) == momentId ? applyOptimisticLikeToggle(item) : item).toList(); });
+    setState(() {
+      _items = _items
+          .map(
+            (item) => parseModelString(item['id']) == momentId
+                ? applyOptimisticLikeToggle(item)
+                : item,
+          )
+          .toList();
+    });
     try {
-      final ok = liked ? await _api.unlikePost(momentId) : await _api.likePost(momentId);
+      final ok = liked
+          ? await _api.unlikePost(momentId)
+          : await _api.likePost(momentId);
       if (!ok && mounted) setState(() => _items = oldItems);
-    } catch (_) { if (mounted) setState(() => _items = oldItems); }
+    } catch (_) {
+      if (mounted) setState(() => _items = oldItems);
+    }
   }
 
   Future<void> _deleteMoment(Map<String, dynamic> moment) async {
     final momentId = parseModelString(moment['id']);
     if (momentId.isEmpty) return;
-    final confirmed = await showMomentConfirmDialog(context, title: t.common.delete, message: t.common.momentsDeleteConfirm, isDestructive: true);
+    final confirmed = await showMomentConfirmDialog(
+      context,
+      title: t.common.delete,
+      message: t.common.momentsDeleteConfirm,
+      isDestructive: true,
+    );
     if (!confirmed || !mounted) return;
     final oldItems = _items;
-    setState(() { _items = removeMomentById(_items, momentId); });
+    setState(() {
+      _items = removeMomentById(_items, momentId);
+    });
     try {
       if (await _api.deletePost(momentId)) {
-        AppEventBus.fire(MomentTimelineChangedEvent(action: 'moment_deleted', momentId: momentId, payload: const {}));
-      } else if (mounted) { setState(() => _items = oldItems); EasyLoading.showError(t.common.momentsDeleteFailed); }
-    } catch (_) { if (mounted) setState(() => _items = oldItems); }
+        AppEventBus.fire(
+          MomentTimelineChangedEvent(
+            action: 'moment_deleted',
+            momentId: momentId,
+            payload: const {},
+          ),
+        );
+      } else if (mounted) {
+        setState(() => _items = oldItems);
+        EasyLoading.showError(t.common.momentsDeleteFailed);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _items = oldItems);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return IosPageTemplate(
       title: t.discovery.moments,
       actions: [
         const _MomentNotifyEntry(),
-        CupertinoButton(padding: EdgeInsets.zero, onPressed: () => context.push(AppRoutes.momentCreate), child: const Icon(CupertinoIcons.camera, size: 22)),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => context.push(AppRoutes.momentCreate),
+          child: const Icon(CupertinoIcons.camera, size: 22),
+        ),
       ],
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: _refresh),
-        if (_isStale) SliverToBoxAdapter(child: MomentStaleBanner(isStale: _isStale, onRetry: _refresh)),
-        if (_isLoading) const SliverFillRemaining(child: ShimmerList(itemHeight: 140))
-        else if (_items.isEmpty) SliverFillRemaining(child: _buildEmptyState())
-        else SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index >= _items.length) return const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Center(child: CupertinoActivityIndicator()));
+        if (_isStale)
+          SliverToBoxAdapter(
+            child: MomentStaleBanner(isStale: _isStale, onRetry: _refresh),
+          ),
+        if (_isLoading)
+          const SliverFillRemaining(child: ShimmerList(itemHeight: 140))
+        else if (_items.isEmpty)
+          SliverFillRemaining(child: _buildEmptyState())
+        else
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (index >= _items.length)
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: CupertinoActivityIndicator()),
+                );
               final item = _items[index];
               final currentUid = currentUidOrEmpty();
               final canDelete = canDeleteMoment(item, currentUid);
               return Column(
                 children: [
-                  _MomentCard(item: item, canDelete: canDelete, onTap: () => context.push('${AppRoutes.momentRoot}/${parseModelString(item['id'])}'), onLikeTap: () => _toggleLike(item), onDeleteTap: canDelete ? () => _deleteMoment(item) : null),
-                  Divider(height: 0.5, indent: 16, endIndent: 16, color: AppColors.getIosSeparator(theme.brightness).withValues(alpha: 0.3)),
+                  _MomentCard(
+                    item: item,
+                    canDelete: canDelete,
+                    onTap: () => context.push(
+                      '${AppRoutes.momentRoot}/${parseModelString(item['id'])}',
+                    ),
+                    onLikeTap: () => _toggleLike(item),
+                    onDeleteTap: canDelete ? () => _deleteMoment(item) : null,
+                  ),
+                  Divider(
+                    height: 0.5,
+                    indent: 16,
+                    endIndent: 16,
+                    color: AppColors.getIosSeparator(
+                      theme.brightness,
+                    ).withValues(alpha: 0.3),
+                  ),
                 ],
               );
-            },
-            childCount: _items.length + (_isLoadingMore ? 1 : 0),
+            }, childCount: _items.length + (_isLoadingMore ? 1 : 0)),
           ),
-        ),
       ],
     );
   }
 
   Widget _buildEmptyState() {
-    return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(CupertinoIcons.photo_on_rectangle, size: 60, color: AppColors.iosGray.withValues(alpha: 0.3)), const SizedBox(height: 16), Text(t.common.momentsNoData, style: const TextStyle(color: AppColors.iosGray, fontSize: 15))]));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            CupertinoIcons.photo_on_rectangle,
+            size: 60,
+            color: AppColors.iosGray.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            t.common.momentsNoData,
+            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class MomentStaleBanner extends StatelessWidget {
   final bool isStale;
   final VoidCallback onRetry;
-  const MomentStaleBanner({super.key, required this.isStale, required this.onRetry});
+  const MomentStaleBanner({
+    super.key,
+    required this.isStale,
+    required this.onRetry,
+  });
   @override
   Widget build(BuildContext context) {
     if (!isStale) return const SizedBox.shrink();
-    return Container(width: double.infinity, color: AppColors.iosOrange.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), child: Row(children: [Icon(CupertinoIcons.exclamationmark_circle, size: 18, color: AppColors.iosOrange), const SizedBox(width: 10), Expanded(child: Text(t.discovery.momentsFeedStale, style: const TextStyle(fontSize: 13, color: AppColors.iosOrange, fontWeight: FontWeight.w500))), CupertinoButton(padding: EdgeInsets.zero, minSize: 0, onPressed: onRetry, child: Text(t.common.buttonRetry, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)))]));
+    return Container(
+      width: double.infinity,
+      color: AppColors.iosOrange.withValues(alpha: 0.1),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Icon(
+            CupertinoIcons.exclamationmark_circle,
+            size: 18,
+            color: AppColors.iosOrange,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              t.discovery.momentsFeedStale,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.iosOrange,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            minSize: 0,
+            onPressed: onRetry,
+            child: Text(
+              t.common.buttonRetry,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -199,13 +323,25 @@ class _MomentCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
-  const _MomentCard({required this.item, required this.canDelete, required this.onTap, required this.onLikeTap, this.onDeleteTap});
+  const _MomentCard({
+    required this.item,
+    required this.canDelete,
+    required this.onTap,
+    required this.onLikeTap,
+    this.onDeleteTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final displayName = resolveMomentDisplayName(remark: parseModelString(item['author_remark']), nickname: parseModelString(item['author_nickname']), uid: parseModelString(item['author_uid']));
+    final displayName = resolveMomentDisplayName(
+      remark: parseModelString(item['author_remark']),
+      nickname: parseModelString(item['author_nickname']),
+      uid: parseModelString(item['author_uid']),
+    );
     final authorAvatar = parseModelString(item['author_avatar']);
-    final stats = item['stats'] is Map ? Map<String, dynamic>.from(item['stats'] as Map) : const <String, dynamic>{};
+    final stats = item['stats'] is Map
+        ? Map<String, dynamic>.from(item['stats'] as Map)
+        : const <String, dynamic>{};
     final media = normalizeMedia(item['media']);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -226,21 +362,69 @@ class _MomentCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(displayName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: isDark ? AppColors.darkTextPrimary : const Color(0xFF576B95))),
-                      if (canDelete && onDeleteTap != null) IconButton(onPressed: onDeleteTap, icon: const Icon(CupertinoIcons.delete, size: 16, color: AppColors.iosGray), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
+                      Text(
+                        displayName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : const Color(0xFF576B95),
+                        ),
+                      ),
+                      if (canDelete && onDeleteTap != null)
+                        IconButton(
+                          onPressed: onDeleteTap,
+                          icon: const Icon(
+                            CupertinoIcons.delete,
+                            size: 16,
+                            color: AppColors.iosGray,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
                     ],
                   ),
-                  if (parseModelString(item['content']).isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text(parseModelString(item['content']), style: const TextStyle(fontSize: 15, height: 1.4))),
-                  if (media.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 10), child: _MomentMediaPreview(media: media)),
+                  if (parseModelString(item['content']).isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        parseModelString(item['content']),
+                        style: const TextStyle(fontSize: 15, height: 1.4),
+                      ),
+                    ),
+                  if (media.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: _MomentMediaPreview(media: media),
+                    ),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: Row(
                       children: [
-                        Text(parseModelString(item['created_at']), style: const TextStyle(fontSize: 12, color: AppColors.iosGray)),
+                        Text(
+                          parseModelString(item['created_at']),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.iosGray,
+                          ),
+                        ),
                         const Spacer(),
-                        _buildInteractionButton(CupertinoIcons.heart, parseModelInt(stats['like_count']), parseModelBool(item['liked']) ? AppColors.iosRed : AppColors.iosGray, onLikeTap),
+                        _buildInteractionButton(
+                          CupertinoIcons.heart,
+                          parseModelInt(stats['like_count']),
+                          parseModelBool(item['liked'])
+                              ? AppColors.iosRed
+                              : AppColors.iosGray,
+                          onLikeTap,
+                        ),
                         const SizedBox(width: 20),
-                        _buildInteractionButton(CupertinoIcons.chat_bubble, parseModelInt(stats['comment_count']), AppColors.iosGray, onTap),
+                        _buildInteractionButton(
+                          CupertinoIcons.chat_bubble,
+                          parseModelInt(stats['comment_count']),
+                          AppColors.iosGray,
+                          onTap,
+                        ),
                       ],
                     ),
                   ),
@@ -253,10 +437,31 @@ class _MomentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInteractionButton(IconData icon, int count, Color color, VoidCallback onTap) {
+  Widget _buildInteractionButton(
+    IconData icon,
+    int count,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
-      child: Row(children: [Icon(icon, size: 18, color: color), if (count > 0) Padding(padding: const EdgeInsets.only(left: 4), child: Text(formatMomentCountLabel(count), style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500)))]),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          if (count > 0)
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                formatMomentCountLabel(count),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -266,8 +471,20 @@ class _MomentMediaPreview extends StatelessWidget {
   const _MomentMediaPreview({required this.media});
   @override
   Widget build(BuildContext context) {
-    if (media.length == 1) return _MomentMediaCell(item: media.first, size: 200);
-    return Wrap(spacing: 6, runSpacing: 6, children: media.map((item) => _MomentMediaCell(item: item, size: (MediaQuery.of(context).size.width - 100) / 3)).toList());
+    if (media.length == 1)
+      return _MomentMediaCell(item: media.first, size: 200);
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: media
+          .map(
+            (item) => _MomentMediaCell(
+              item: item,
+              size: (MediaQuery.of(context).size.width - 100) / 3,
+            ),
+          )
+          .toList(),
+    );
   }
 }
 
@@ -283,23 +500,86 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
   VideoPlayerController? _videoController;
   bool _isPlaying = false;
   @override
-  void dispose() { _videoController?.dispose(); super.dispose(); }
-  void _initVideoController(String url) { if (_videoController != null) return; _videoController = VideoPlayerController.networkUrl(AssetsService.viewUrl(url))..initialize().then((_) { if (mounted) setState(() {}); })..setLooping(true)..setVolume(0); }
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
+  }
+
+  void _initVideoController(String url) {
+    if (_videoController != null) return;
+    _videoController =
+        VideoPlayerController.networkUrl(AssetsService.viewUrl(url))
+          ..initialize().then((_) {
+            if (mounted) setState(() {});
+          })
+          ..setLooping(true)
+          ..setVolume(0);
+  }
 
   @override
   Widget build(BuildContext context) {
     final type = parseModelString(widget.item['type']);
     final previewUrl = pickMediaPreviewUrl(widget.item);
     if (type != 'video') {
-      return Container(width: widget.size, height: widget.size, decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: AppColors.iosGray.withValues(alpha: 0.1)), clipBehavior: Clip.antiAlias, child: OctoImage(image: cachedImageProvider(previewUrl), fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image)));
+      return Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: AppColors.iosGray.withValues(alpha: 0.1),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: OctoImage(
+          image: cachedImageProvider(previewUrl),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+        ),
+      );
     }
     return VisibilityDetector(
       key: Key('video_${widget.item['url']}'),
       onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.8) { _initVideoController(parseModelString(widget.item['url'])); _videoController?.play(); setState(() => _isPlaying = true); }
-        else if (info.visibleFraction < 0.2) { _videoController?.pause(); _videoController?.dispose(); _videoController = null; setState(() => _isPlaying = false); }
+        if (info.visibleFraction > 0.8) {
+          _initVideoController(parseModelString(widget.item['url']));
+          _videoController?.play();
+          setState(() => _isPlaying = true);
+        } else if (info.visibleFraction < 0.2) {
+          _videoController?.pause();
+          _videoController?.dispose();
+          _videoController = null;
+          setState(() => _isPlaying = false);
+        }
       },
-      child: Container(width: widget.size, height: widget.size, decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.black), clipBehavior: Clip.antiAlias, child: Stack(alignment: Alignment.center, children: [if (_videoController?.value.isInitialized ?? false) AspectRatio(aspectRatio: _videoController!.value.aspectRatio, child: VideoPlayer(_videoController!)) else OctoImage(image: cachedImageProvider(previewUrl), fit: BoxFit.cover), if (!_isPlaying) const Icon(CupertinoIcons.play_circle_fill, color: Colors.white, size: 30)])),
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.black,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (_videoController?.value.isInitialized ?? false)
+              AspectRatio(
+                aspectRatio: _videoController!.value.aspectRatio,
+                child: VideoPlayer(_videoController!),
+              )
+            else
+              OctoImage(
+                image: cachedImageProvider(previewUrl),
+                fit: BoxFit.cover,
+              ),
+            if (!_isPlaying)
+              const Icon(
+                CupertinoIcons.play_circle_fill,
+                color: Colors.white,
+                size: 30,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -312,7 +592,32 @@ class _MomentNotifyEntry extends ConsumerWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () => context.push('/moment_notify'),
-      child: Stack(clipBehavior: Clip.none, children: [const Icon(CupertinoIcons.bell, size: 22), if (unread > 0) Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2), decoration: BoxDecoration(color: AppColors.iosRed, borderRadius: BorderRadius.circular(10)), child: Text(unread > 99 ? '99+' : '$unread', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))))]),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Icon(CupertinoIcons.bell, size: 22),
+          if (unread > 0)
+            Positioned(
+              right: -4,
+              top: -4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.iosRed,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  unread > 99 ? '99+' : '$unread',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

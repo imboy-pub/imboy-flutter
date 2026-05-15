@@ -85,17 +85,24 @@ class LanguageState {
 class LanguageNotifier extends _$LanguageNotifier {
   @override
   LanguageState build() {
-    final savedLocaleName = StorageService.to.getString(Keys.currentLanguageCode);
+    final savedLocaleName = StorageService.to.getString(
+      Keys.currentLanguageCode,
+    );
     AppLocale currentLocale = AppLocale.zhCn;
     if (savedLocaleName.isNotEmpty) {
       try {
-        currentLocale = AppLocale.values.firstWhere((locale) => locale.name == savedLocaleName, orElse: () => AppLocale.zhCn);
+        currentLocale = AppLocale.values.firstWhere(
+          (locale) => locale.name == savedLocaleName,
+          orElse: () => AppLocale.zhCn,
+        );
       } catch (_) {}
     }
 
     String? selectedLocaleId;
     try {
-      selectedLocaleId = localeIdMap.entries.firstWhere((entry) => entry.value == currentLocale).key;
+      selectedLocaleId = localeIdMap.entries
+          .firstWhere((entry) => entry.value == currentLocale)
+          .key;
     } catch (_) {}
 
     return LanguageState(
@@ -108,16 +115,66 @@ class LanguageNotifier extends _$LanguageNotifier {
 
   List<LanguageModel> _buildLanguageList() {
     return [
-      LanguageModel(id: "zh_CN", languageCode: "zh", regionCode: "CN", title: t.main.zhCn),
-      LanguageModel(id: "zh_TW", languageCode: "zh", regionCode: "TW", title: t.main.zhHant),
-      LanguageModel(id: "ru_RU", languageCode: "ru", regionCode: "RU", title: t.main.ruRu),
-      LanguageModel(id: "en_US", languageCode: "en", regionCode: "US", title: t.main.enUs),
-      LanguageModel(id: "fr_FR", languageCode: "fr", regionCode: "FR", title: t.main.frFr),
-      LanguageModel(id: "de_DE", languageCode: "de", regionCode: "DE", title: t.main.deDd),
-      LanguageModel(id: "ja_JP", languageCode: "ja", regionCode: "JP", title: t.main.jaJp),
-      LanguageModel(id: "ko_KR", languageCode: "ko", regionCode: "KR", title: t.common.koKr),
-      LanguageModel(id: "ar_SA", languageCode: "ar", regionCode: "SA", title: t.main.arSa),
-      LanguageModel(id: "it_IT", languageCode: "it", regionCode: "IT", title: t.main.itIt),
+      LanguageModel(
+        id: "zh_CN",
+        languageCode: "zh",
+        regionCode: "CN",
+        title: t.main.zhCn,
+      ),
+      LanguageModel(
+        id: "zh_TW",
+        languageCode: "zh",
+        regionCode: "TW",
+        title: t.main.zhHant,
+      ),
+      LanguageModel(
+        id: "ru_RU",
+        languageCode: "ru",
+        regionCode: "RU",
+        title: t.main.ruRu,
+      ),
+      LanguageModel(
+        id: "en_US",
+        languageCode: "en",
+        regionCode: "US",
+        title: t.main.enUs,
+      ),
+      LanguageModel(
+        id: "fr_FR",
+        languageCode: "fr",
+        regionCode: "FR",
+        title: t.main.frFr,
+      ),
+      LanguageModel(
+        id: "de_DE",
+        languageCode: "de",
+        regionCode: "DE",
+        title: t.main.deDd,
+      ),
+      LanguageModel(
+        id: "ja_JP",
+        languageCode: "ja",
+        regionCode: "JP",
+        title: t.main.jaJp,
+      ),
+      LanguageModel(
+        id: "ko_KR",
+        languageCode: "ko",
+        regionCode: "KR",
+        title: t.common.koKr,
+      ),
+      LanguageModel(
+        id: "ar_SA",
+        languageCode: "ar",
+        regionCode: "SA",
+        title: t.main.arSa,
+      ),
+      LanguageModel(
+        id: "it_IT",
+        languageCode: "it",
+        regionCode: "IT",
+        title: t.main.itIt,
+      ),
     ];
   }
 
@@ -126,13 +183,21 @@ class LanguageNotifier extends _$LanguageNotifier {
     if (locale == null) return;
     await StorageService.to.setString(Keys.currentLanguageCode, locale.name);
     await LocaleSettings.setLocale(locale);
-    state = state.copyWith(currentLocale: locale, selectedLocale: locale, valueChanged: false);
+    state = state.copyWith(
+      currentLocale: locale,
+      selectedLocale: locale,
+      valueChanged: false,
+    );
   }
 
   void updateSelectedLanguage(String langId) {
     final locale = localeIdMap[langId];
     if (locale == null) return;
-    state = state.copyWith(selectedLocale: locale, selectedLocaleId: langId, valueChanged: locale != state.currentLocale);
+    state = state.copyWith(
+      selectedLocale: locale,
+      selectedLocaleId: langId,
+      valueChanged: locale != state.currentLocale,
+    );
   }
 }
 
@@ -157,19 +222,35 @@ class LanguagePage extends ConsumerWidget {
             ImBoySettingsTile(
               title: Text(item.title),
               trailing: state.selectedLocale == localeIdMap[item.id]
-                  ? Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.getIosBlue(brightness))
+                  ? Icon(
+                      CupertinoIcons.check_mark,
+                      size: 18,
+                      color: AppColors.getIosBlue(brightness),
+                    )
                   : const SizedBox.shrink(),
-              onTap: () => ref.read(languageProvider.notifier).updateSelectedLanguage(item.id),
+              onTap: () => ref
+                  .read(languageProvider.notifier)
+                  .updateSelectedLanguage(item.id),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildSaveButton(BuildContext context, WidgetRef ref, LanguageState state, Translations t) {
+  Widget _buildSaveButton(
+    BuildContext context,
+    WidgetRef ref,
+    LanguageState state,
+    Translations t,
+  ) {
     final canSave = state.valueChanged && state.selectedLocaleId != null;
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
@@ -183,12 +264,19 @@ class LanguagePage extends ConsumerWidget {
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
             disabledForegroundColor: Colors.white.withValues(alpha: 0.7),
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           onPressed: canSave
               ? () async {
-                  await ref.read(languageProvider.notifier).changeLanguage(state.selectedLocaleId!);
+                  await ref
+                      .read(languageProvider.notifier)
+                      .changeLanguage(state.selectedLocaleId!);
                   if (context.mounted) Navigator.of(context).maybePop();
                 }
               : null,

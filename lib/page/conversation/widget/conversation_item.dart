@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/group_collab/public.dart';
@@ -11,7 +10,6 @@ import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 /// 会话列表项组件 - iOS 17 Premium 风格
 class ConversationItem extends ConsumerStatefulWidget {
@@ -51,7 +49,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
 
     // 背景色处理：置顶会话使用淡灰背景
     final Color bgColor = currentModel.isPinned
-        ? (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurfaceGrouped.withValues(alpha: 0.5))
+        ? (isDark
+              ? AppColors.darkSurfaceGrouped
+              : AppColors.lightSurfaceGrouped.withValues(alpha: 0.5))
         : (isDark ? AppColors.darkSurface : Colors.white);
 
     return GestureDetector(
@@ -61,7 +61,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
       onTapCancel: () => setState(() => _isPressed = false),
       behavior: HitTestBehavior.opaque,
       child: Container(
-        color: _isPressed ? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)) : bgColor,
+        color: _isPressed
+            ? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05))
+            : bgColor,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -124,16 +126,23 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                   // 消息预览
                   Row(
                     children: [
-                      if (currentModel.lastMsgStatus == IMBoyMessageStatus.sending)
+                      if (currentModel.lastMsgStatus ==
+                          IMBoyMessageStatus.sending)
                         const Padding(
                           padding: EdgeInsets.only(right: 4),
                           child: CupertinoActivityIndicator(radius: 6),
                         ),
-                      Expanded(child: _buildContent(currentModel, theme, isDark)),
+                      Expanded(
+                        child: _buildContent(currentModel, theme, isDark),
+                      ),
                       if (currentModel.isMuted > 0)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
-                          child: Icon(CupertinoIcons.bell_slash_fill, size: 12, color: AppColors.iosGray3),
+                          child: Icon(
+                            CupertinoIcons.bell_slash_fill,
+                            size: 12,
+                            color: AppColors.iosGray3,
+                          ),
                         ),
                     ],
                   ),
@@ -146,10 +155,16 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     );
   }
 
-  Widget _buildTitle(ConversationModel currentModel, ThemeData theme, bool isDark) {
-    String displayTitle = currentModel.title.trim().isNotEmpty 
-        ? currentModel.title 
-        : (currentModel.computeTitle.trim().isNotEmpty ? currentModel.computeTitle : currentModel.peerId.toString());
+  Widget _buildTitle(
+    ConversationModel currentModel,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    String displayTitle = currentModel.title.trim().isNotEmpty
+        ? currentModel.title
+        : (currentModel.computeTitle.trim().isNotEmpty
+              ? currentModel.computeTitle
+              : currentModel.peerId.toString());
 
     return Text(
       displayTitle,
@@ -164,9 +179,13 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     );
   }
 
-  Widget _buildTime(ConversationModel currentModel, ThemeData theme, bool isDark) {
+  Widget _buildTime(
+    ConversationModel currentModel,
+    ThemeData theme,
+    bool isDark,
+  ) {
     if (currentModel.lastTime <= 0) return const SizedBox.shrink();
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -180,12 +199,20 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
           ),
         ),
         const SizedBox(width: 4),
-        const Icon(CupertinoIcons.chevron_right, size: 12, color: AppColors.iosGray3),
+        const Icon(
+          CupertinoIcons.chevron_right,
+          size: 12,
+          color: AppColors.iosGray3,
+        ),
       ],
     );
   }
 
-  Widget _buildContent(ConversationModel currentModel, ThemeData theme, bool isDark) {
+  Widget _buildContent(
+    ConversationModel currentModel,
+    ThemeData theme,
+    bool isDark,
+  ) {
     String content = currentModel.content;
     TextStyle contentStyle = TextStyle(
       fontSize: 15,
@@ -201,8 +228,17 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         overflow: TextOverflow.ellipsis,
         text: TextSpan(
           children: [
-            TextSpan(text: "${parts[0]} ", style: contentStyle.copyWith(color: AppColors.iosRed, fontWeight: FontWeight.w500)),
-            TextSpan(text: parts.length > 1 ? parts[1] : '', style: contentStyle),
+            TextSpan(
+              text: "${parts[0]} ",
+              style: contentStyle.copyWith(
+                color: AppColors.iosRed,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            TextSpan(
+              text: parts.length > 1 ? parts[1] : '',
+              style: contentStyle,
+            ),
           ],
         ),
       );
@@ -214,7 +250,13 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         overflow: TextOverflow.ellipsis,
         text: TextSpan(
           children: [
-            TextSpan(text: t.common.atMentionYouTag, style: contentStyle.copyWith(color: AppColors.iosRed, fontWeight: FontWeight.w600)),
+            TextSpan(
+              text: t.common.atMentionYouTag,
+              style: contentStyle.copyWith(
+                color: AppColors.iosRed,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             TextSpan(text: content, style: contentStyle),
           ],
         ),
