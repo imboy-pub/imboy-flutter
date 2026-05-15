@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -86,14 +85,15 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             header: Text(t.main.setParam(param: t.contact.remark).toUpperCase()),
             children: [
               CupertinoListTile.notched(
-                title: Expanded(
+                title: const SizedBox(width: 80, child: Text('备注', style: TextStyle(fontSize: 17))),
+                additionalInfo: Expanded(
                   child: CupertinoTextField(
                     controller: _remarkC,
                     placeholder: t.contact.pleaseEnterRemark,
                     maxLength: 80,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: null,
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 17),
                   ),
                 ),
               ),

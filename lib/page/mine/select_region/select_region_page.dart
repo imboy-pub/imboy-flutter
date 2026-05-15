@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/mine/select_region/select_region_provider.dart';
 
-/// 选择地区页面 - 像素级对齐 iOS 设置风
+/// 选择地区页面 - 像素级对齐 iOS 17 Premium 风格
 class SelectRegionPage extends ConsumerStatefulWidget {
   final String parent;
   final List<dynamic> children;
@@ -26,11 +27,42 @@ class SelectRegionPage extends ConsumerStatefulWidget {
 }
 
 class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
+  final TextEditingController _searchC = TextEditingController();
+  List<dynamic> _displayList = [];
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
+    _displayList = widget.children;
+    _searchC.addListener(_onSearchChanged);
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) ref.read(selectRegionProvider.notifier).valueOnChange(false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchC.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      final kw = _searchC.text.trim().toLowerCase();
+      final notifier = ref.read(selectRegionProvider.notifier);
+      setState(() {
+        if (kw.isEmpty) _displayList = widget.children;
+        else {
+          _displayList = widget.children.where((item) {
+            final t = notifier.getRegionTitle(item).toLowerCase();
+            return t.contains(kw);
+          }).toList();
+        }
+      });
     });
   }
 
@@ -45,57 +77,47 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () async {
+          onPressed: provider.valueChanged ? () async {
             var nav = Navigator.of(context);
             if (await widget.outCallback(provider.selectedVal)) {
               int steps = provider.selectedVal.split(" ").length;
               for (var i = 0; i < steps; i++) nav.pop();
             }
-          },
-          child: Text(
-            t.common.buttonAccomplish,
-            style: TextStyle(
-              fontWeight: provider.valueChanged
-                  ? FontWeight.w600
-                  : FontWeight.w400,
-              color: provider.valueChanged
-                  ? AppColors.getIosBlue(brightness)
-                  : AppColors.iosGray,
+          } : null,
+          child: Text(t.common.buttonAccomplish, style: TextStyle(fontWeight: provider.valueChanged ? FontWeight.w600 : FontWeight.w400, color: provider.valueChanged ? AppColors.getIosBlue(brightness) : AppColors.iosGray)),
+        ),
+      ],
+      slivers: [
+        // 搜索框
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: CupertinoSearchTextField(controller: _searchC, placeholder: t.common.search),
+          ),
+        ),
+
+        // 路径回显 Section
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(28, 4, 16, 4),
+            child: Text(
+              provider.selectedVal.isEmpty ? t.common.all : provider.selectedVal,
+              style: const TextStyle(fontSize: 13, color: AppColors.iosGray, fontWeight: FontWeight.w500),
             ),
           ),
         ),
+
+        // 列表 Section
+        SliverToBoxAdapter(
+          child: ImBoySettingsSection(
+            children: _displayList.map((model) => _buildListItem(context, widget.parent, model, brightness)).toList(),
+          ),
+        ),
       ],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 12, 16, 4),
-            child: Text(
-              provider.selectedVal.isEmpty
-                  ? t.common.all
-                  : provider.selectedVal,
-              style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
-            ),
-          ),
-          ImBoySettingsSection(
-            children: widget.children
-                .map(
-                  (model) =>
-                      _buildListItem(context, widget.parent, model, brightness),
-                )
-                .toList(),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildListItem(
-    BuildContext context,
-    String parent,
-    dynamic model,
-    Brightness brightness,
-  ) {
+  Widget _buildListItem(BuildContext context, String parent, dynamic model, Brightness brightness) {
     final notifier = ref.read(selectRegionProvider.notifier);
     final provider = ref.watch(selectRegionProvider);
     String title = notifier.getRegionTitle(model).trim();
@@ -104,46 +126,22 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
     final isSelected = notifier.isRegionSelected(title);
 
     return ImBoySettingsTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-        ),
-      ),
+      title: Text(title, style: TextStyle(fontSize: 17, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400)),
       trailing: haveChildren
           ? const CupertinoListTileChevron()
-          : (isSelected && provider.regionSelected[title] != null
-                ? (provider.regionSelected[title]!['trailing'] as Widget? ??
-                      Icon(
-                        CupertinoIcons.check_mark,
-                        size: 18,
-                        color: AppColors.getIosBlue(brightness),
-                      ))
-                : const SizedBox.shrink()),
+          : (isSelected ? Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.getIosBlue(brightness)) : const SizedBox.shrink()),
       onTap: () {
         List<String> items = parent.split(' ')..add(title);
-        final selectedVal = items.toSet().toList().join(' ');
+        final selectedVal = items.toSet().toList().join(' ').trim();
         notifier.updateSelectedVal(selectedVal);
         if (haveChildren) {
-          Navigator.push(
-            context,
-            CupertinoPageRoute(
-              builder: (_) => SelectRegionPage(
-                parent: selectedVal,
-                children: children,
-                callback: widget.callback,
-                outCallback: widget.outCallback,
-              ),
-            ),
-          );
+          Navigator.push(context, CupertinoPageRoute(builder: (_) => SelectRegionPage(parent: selectedVal, children: children, callback: widget.callback, outCallback: widget.outCallback)));
         } else {
           if (parent != selectedVal) {
             widget.callback(parent, title);
             notifier.regionSelectedTitle(title);
             notifier.valueOnChange(true);
-          } else
-            notifier.valueOnChange(false);
+          } else notifier.valueOnChange(false);
         }
       },
     );

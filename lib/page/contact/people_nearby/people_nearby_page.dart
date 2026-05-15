@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -33,7 +32,6 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(peopleNearbyProvider.notifier).init();
-      _rotateCompass();
     });
   }
 
@@ -54,6 +52,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
     final state = ref.watch(peopleNearbyProvider);
     final notifier = ref.read(peopleNearbyProvider.notifier);
     final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
 
     return IosPageTemplate(
       title: t.discovery.peopleNearby,
@@ -66,14 +65,15 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
         ),
       ],
       slivers: [
-        // 搜索区域 Section
+        // 搜索区域 Section - 增强视觉重感
         SliverToBoxAdapter(
-          child: _buildSearchHeader(context, brightness),
+          child: _buildSearchHeader(context, isDark, brightness),
         ),
 
         // 可见性开关 Section
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
+            header: Text(t.common.sectionPrivacySecurity.toUpperCase()),
             children: [
               ImBoySettingsTile(
                 title: Text(state.peopleNearbyVisible ? t.main.makeYourselfInvisible : t.main.makeYourselfVisible),
@@ -138,8 +138,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
     );
   }
 
-  Widget _buildSearchHeader(BuildContext context, Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
+  Widget _buildSearchHeader(BuildContext context, bool isDark, Brightness brightness) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
@@ -147,15 +146,18 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04), blurRadius: 10, offset: const Offset(0, 4))
+          ],
         ),
         child: Column(
           children: [
             AnimatedBuilder(
               animation: _animationController,
-              builder: (context, child) => Transform.rotate(angle: _animationController.value * 3.14159, child: Icon(CupertinoIcons.compass, color: AppColors.primary, size: 80)),
+              builder: (context, child) => Transform.rotate(angle: _animationController.value * 6.28318, child: Icon(CupertinoIcons.compass, color: AppColors.primary, size: 80)),
             ),
             const SizedBox(height: 16),
-            Text(t.discovery.findNearbyPeople, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(t.discovery.findNearbyPeople, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
             const SizedBox(height: 8),
             Text(t.common.nearbyPeopleTips, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: AppColors.iosGray, height: 1.4)),
           ],
@@ -173,9 +175,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
       title: Text(model.nickname),
       subtitle: Row(
         children: [
-          Icon(CupertinoIcons.location_fill, size: 12, color: AppColors.primary.withValues(alpha: 0.7)),
+          Icon(CupertinoIcons.location_fill, size: 12, color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7)),
           const SizedBox(width: 4),
-          Text(distance, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.primary.withValues(alpha: 0.7))),
+          Text(distance, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7))),
         ],
       ),
       trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
