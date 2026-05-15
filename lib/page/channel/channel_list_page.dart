@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/flat_list_tile.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -61,14 +61,23 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   Widget build(BuildContext context) {
     final t = context.t;
     final state = ref.watch(channelListProvider);
+    final brightness = Theme.of(context).brightness;
 
     return Scaffold(
-      appBar: GlassAppBar(
-        title: t.channel.title,
-        automaticallyImplyLeading: true,
-
-        rightDMActions: [
-          // 朋友圈已升级为独立"广场"Tab，此处快捷入口移除
+      backgroundColor: AppColors.getBackgroundColor(brightness),
+      appBar: AppBar(
+        backgroundColor: AppColors.getBackgroundColor(brightness),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          t.channel.title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.getTextColor(brightness),
+          ),
+        ),
+        actions: [
           if (AppFeatureRegistry.isEnabled('channel_invitation'))
             IconButton(
               icon: const Icon(Icons.mark_email_unread_outlined),
@@ -76,6 +85,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                 context.push('/channel/invitations');
               },
               tooltip: t.channelInvitations,
+              color: AppColors.getTextColor(brightness),
             ),
           if (AppFeatureRegistry.isEnabled('channel_discover'))
             IconButton(
@@ -84,6 +94,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                 context.push('/channel/discover');
               },
               tooltip: t.channel.search,
+              color: AppColors.getTextColor(brightness),
             ),
           IconButton(
             icon: const Icon(Icons.add),
@@ -91,14 +102,16 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               context.push('/channel/create');
             },
             tooltip: t.channel.create,
+            color: AppColors.getTextColor(brightness),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
         children: [
-          // TabBar 嵌入到 body 中
-          Material(
-            color: Theme.of(context).scaffoldBackgroundColor,
+          // TabBar 极简风格
+          Container(
+            color: AppColors.getBackgroundColor(brightness),
             child: TabBar(
               controller: _tabController,
               tabs: [
@@ -106,8 +119,13 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                 Tab(text: t.channel.managed),
               ],
               labelColor: AppColors.primary,
-              unselectedLabelColor: Colors.grey,
+              unselectedLabelColor: AppColors.getTextColor(
+                brightness,
+                isSecondary: true,
+              ),
               indicatorColor: AppColors.primary,
+              indicatorSize: TabBarIndicatorSize.label,
+              dividerColor: Colors.transparent,
             ),
           ),
           // TabBarView
@@ -257,16 +275,21 @@ class _ChannelListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
+    final brightness = Theme.of(context).brightness;
 
-    return ListTile(
+    return FlatListTile(
+      onTap: () {
+        context.push('/channel/${_detailRouteId(channel)}');
+      },
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       leading: CircleAvatar(
         radius: 24,
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+        backgroundColor: AppColors.primaryAlpha10,
         backgroundImage: channel.avatar != null && channel.avatar!.isNotEmpty
             ? cachedImageProvider(channel.avatar!, w: 96)
             : null,
         child: channel.avatar == null || channel.avatar!.isEmpty
-            ? const Icon(Icons.campaign, size: 24)
+            ? const Icon(Icons.campaign, size: 24, color: AppColors.primary)
             : null,
       ),
       title: Row(
@@ -274,7 +297,11 @@ class _ChannelListItem extends StatelessWidget {
           Expanded(
             child: Text(
               channel.name,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.getTextColor(brightness),
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -286,56 +313,59 @@ class _ChannelListItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _getRoleColor(channel.userRole).withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusTiny,
-                border: Border.all(
-                  color: _getRoleColor(channel.userRole).withValues(alpha: 0.3),
-                  width: 0.5,
-                ),
               ),
               child: Text(
                 _getRoleLabel(channel.userRole, t),
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: _getRoleColor(channel.userRole),
                 ),
               ),
             ),
           ],
           if (channel.isVerified)
-            Container(
-              margin: const EdgeInsets.only(left: 4),
-              child: const Icon(
-                Icons.verified,
-                size: 16,
-                color: AppColors.primary,
-              ),
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Icon(Icons.verified, size: 16, color: AppColors.primary),
             ),
         ],
       ),
       subtitle: Row(
         children: [
-          Icon(Icons.people_outline, size: 14, color: Colors.grey[600]),
+          Icon(
+            Icons.people_outline,
+            size: 14,
+            color: AppColors.getTextColor(brightness, isSecondary: true),
+          ),
           const SizedBox(width: 4),
           Text(
             '${channel.subscriberCount} ${t.channel.subscribers}',
-            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+            style: TextStyle(
+              color: AppColors.getTextColor(brightness, isSecondary: true),
+              fontSize: 12,
+            ),
           ),
           if (channel.tags != null && channel.tags!.isNotEmpty) ...[
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 channel.tags!.take(2).join(' · '),
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                style: TextStyle(
+                  color: AppColors.getTextColor(brightness, isSecondary: true),
+                  fontSize: 12,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ],
       ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
-        context.push('/channel/${_detailRouteId(channel)}');
-      },
+      trailing: const Icon(
+        Icons.chevron_right,
+        size: 16,
+        color: AppColors.iosGray,
+      ),
     );
   }
 }

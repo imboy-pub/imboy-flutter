@@ -10,7 +10,6 @@ import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 /// 会话列表项组件 - Riverpod 版本
@@ -64,132 +63,97 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     return AnimatedScale(
       scale: _isPressed ? 0.98 : 1.0,
       duration: const Duration(milliseconds: 100),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: AppRadius.borderRadiusRegular,
-          boxShadow: [
-            BoxShadow(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.2)
-                  : Colors.black.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+      child: Material(
+        color: currentModel.isPinned
+            ? (isDark
+                  ? AppColors.darkSurfaceVariant
+                  : AppColors.lightSurfaceVariant)
+            : Colors.transparent,
+        child: InkWell(
+          onTap: widget.onTap,
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
             ),
-          ],
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
-                : Colors.transparent,
-            width: 0.5,
-          ),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: AppRadius.borderRadiusRegular,
-          child: InkWell(
-            borderRadius: AppRadius.borderRadiusRegular,
-            onTap: widget.onTap,
-            onTapDown: (_) => setState(() => _isPressed = true),
-            onTapUp: (_) => setState(() => _isPressed = false),
-            onTapCancel: () => setState(() => _isPressed = false),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Avatar Area
-                  badges.Badge(
-                    position: badges.BadgePosition.topEnd(top: -2, end: -2),
-                    showBadge: (remindCounter > 0),
-                    badgeContent: Text(
-                      "$remindCounter",
-                      // DESIGN.md §3.4：数字优先等宽（未读徽章数字需对齐）
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: FontSizeType.tiny.size,
-                        fontWeight: FontWeight.bold,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Avatar Area
+                badges.Badge(
+                  position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                  showBadge: (remindCounter > 0),
+                  badgeContent: Text(
+                    "$remindCounter",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: FontSizeType.tiny.size,
+                      fontWeight: FontWeight.bold,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
-                    badgeStyle: badges.BadgeStyle(
-                      badgeColor: AppColors.messageFailed,
-                      padding: const EdgeInsets.all(5),
-                    ),
-                    child: GestureDetector(
-                      onTap: widget.onTapAvatar,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.scaffoldBackgroundColor,
-                            width: 2,
+                  ),
+                  badgeStyle: badges.BadgeStyle(
+                    badgeColor: AppColors.iosRed,
+                    padding: const EdgeInsets.all(5),
+                  ),
+                  child: GestureDetector(
+                    onTap: widget.onTapAvatar,
+                    child: widget.model.type == 'C2G'
+                        ? SmartGroupAvatar(
+                            avatar: widget.model.avatar,
+                            groupId: widget.model.peerId.toString(),
+                            onTap: widget.onTapAvatar,
+                            size: 52,
+                            avatarLoader: GroupListService().computeAvatar,
+                            heroTag: 'avatar_${widget.model.peerId}',
+                          )
+                        : Avatar(
+                            imgUri: widget.model.avatar,
+                            width: 52,
+                            height: 52,
+                            heroTag: 'avatar_${widget.model.peerId}',
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 5,
-                            ),
+                  ),
+                ),
+
+                const SizedBox(width: 14),
+
+                // Content Area
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Top Row: Title + Time
+                      Flexible(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(child: _buildTitle(currentModel, theme)),
+                            const SizedBox(width: 4),
+                            _buildTime(currentModel, theme),
                           ],
                         ),
-                        child: widget.model.type == 'C2G'
-                            ? SmartGroupAvatar(
-                                avatar: widget.model.avatar,
-                                groupId: widget.model.peerId.toString(),
-                                onTap: widget.onTapAvatar,
-                                size: 52,
-                                avatarLoader: GroupListService().computeAvatar,
-                                heroTag: 'avatar_${widget.model.peerId}',
-                              )
-                            : Avatar(
-                                imgUri: widget.model.avatar,
-                                width: 52,
-                                height: 52,
-                                heroTag: 'avatar_${widget.model.peerId}',
-                              ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(width: 14),
+                      const SizedBox(height: 6),
 
-                  // Content Area
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Top Row: Title + Time
-                        Flexible(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(child: _buildTitle(currentModel, theme)),
-                              const SizedBox(width: 4),
-                              _buildTime(currentModel, theme),
-                            ],
-                          ),
+                      // Bottom Row: Message Preview
+                      Flexible(
+                        child: Row(
+                          children: [
+                            Column(children: icon),
+                            Expanded(child: _buildContent(currentModel, theme)),
+                          ],
                         ),
-
-                        const SizedBox(height: 6),
-
-                        // Bottom Row: Message Preview
-                        Flexible(
-                          child: Row(
-                            children: [
-                              Column(children: icon),
-                              Expanded(
-                                child: _buildContent(currentModel, theme),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

@@ -91,39 +91,31 @@ class AppColors {
 
   // ============ Material 3 亮色主题颜色系统 ============
   /// 亮色主题 - 主要文本颜色 - Material 3 On Surface
-  static const Color lightTextPrimary = Color(0xFF1D1B20);
+  static const Color lightTextPrimary = Color(0xFF111827);
 
   /// 亮色主题 - 次要文本颜色 - Material 3 On Surface Variant
-  static const Color lightTextSecondary = Color(0xFF49454F);
+  static const Color lightTextSecondary = Color(0xFF6B7280);
 
   /// 亮色主题 - 禁用文本颜色
-  static const Color lightTextDisabled = Color(0xFF999999);
+  static const Color lightTextDisabled = Color(0xFFD1D5DB);
 
   /// 亮色主题 - 表面颜色 - Material 3 Surface
-  static const Color lightSurface = Colors.white;
+  static const Color lightSurface = Color(0xFFFFFFFF);
 
   /// 亮色主题 - 背景颜色 - Material 3 Background
-  ///
-  /// 建议：新代码使用 [lightSurface]（Background 与 Surface 在当前实现中相同）。
-  static const Color lightBackground = Colors.white;
+  static const Color lightBackground = Color(0xFFFFFFFF);
 
   /// 亮色主题 - 表面变体 - Material 3 Surface Variant
-  static const Color lightSurfaceVariant = Color(0xFFE7E0EC);
+  static const Color lightSurfaceVariant = Color(0xFFF9FAFB);
 
-  /// 亮色主题 - 表面容器 - Material 3 Surface Container (微信风格浅灰)
-  static const Color lightSurfaceContainer = Color(0xFFEDEDED);
+  /// 亮色主题 - 表面容器 - Material 3 Surface Container (极简风格浅灰)
+  static const Color lightSurfaceContainer = Color(0xFFF3F4F6);
 
   /// 亮色主题 - 表面容器低 - Material 3 Surface Container Low
-  /// 比 [lightSurfaceContainer] 更亮的 Surface 色阶，用于微信风格底部导航栏背景
-  /// （比 AppBar 略亮，营造分层感）
-  static const Color lightSurfaceContainerLow = Color(0xFFF7F7F7);
+  static const Color lightSurfaceContainerLow = Color(0xFFF9FAFB);
 
-  /// 亮色主题 - 页面级 Scaffold 背景（iOS Settings 风格）
-  /// 介于 [lightSurfaceContainerLow] (#F7F7F7) 与 [lightSurfaceContainer] (#EDEDED) 之间，
-  /// 用于个人信息 / 群详情 / 联系人详情等设置页 Scaffold backgroundColor，
-  /// 暗色模式下对应 [Theme.colorScheme.surface]。
-  /// 与 [lightSurfaceGrouped] (#F2F2F7, iOS HIG 标准) 并存，本 Token 略浅、更接近 macOS 风格。
-  static const Color lightPageBackground = Color(0xFFF5F5F5);
+  /// 亮色主题 - 页面级 Scaffold 背景（极简风格）
+  static const Color lightPageBackground = Color(0xFFFFFFFF);
 
   /// 亮色主题 - 表面容器最高 - Material 3 Surface Container Highest
   static const Color lightSurfaceContainerHighest = Color(0xFFE6E0E9);
@@ -153,30 +145,28 @@ class AppColors {
 
   // ============ Material 3 暗色主题颜色系统 ============
   /// 暗色主题 - 主要文本颜色 - Material 3 On Surface
-  static const Color darkTextPrimary = Color(0xFFF0F0F0);
+  static const Color darkTextPrimary = Color(0xFFF3F4F6);
 
   /// 暗色主题 - 次要文本颜色 - Material 3 On Surface Variant
-  static const Color darkTextSecondary = Color(0xFFD0D0D0);
+  static const Color darkTextSecondary = Color(0xFF9CA3AF);
 
   /// 暗色主题 - 禁用文本颜色
-  static const Color darkTextDisabled = Color(0xFF808080);
+  static const Color darkTextDisabled = Color(0xFF4B5563);
 
   /// 暗色主题 - 表面颜色 - Material 3 Surface
-  static const Color darkSurface = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF000000);
 
   /// 暗色主题 - 背景颜色 - Material 3 Background
-  ///
-  /// 建议：新代码使用 [darkSurface]（Background 与 Surface 在当前实现中相同）。
-  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkBackground = Color(0xFF000000);
 
   /// 暗色主题 - 表面变体 - Material 3 Surface Variant
-  static const Color darkSurfaceVariant = Color(0xFF2C2C2C);
+  static const Color darkSurfaceVariant = Color(0xFF111827);
 
   /// 暗色主题 - 表面容器 - Material 3 Surface Container
-  static const Color darkSurfaceContainer = Color(0xFF1E1E1E);
+  static const Color darkSurfaceContainer = Color(0xFF111827);
 
   /// 暗色主题 - 表面容器最高 - Material 3 Surface Container Highest
-  static const Color darkSurfaceContainerHighest = Color(0xFF2A2A2A);
+  static const Color darkSurfaceContainerHighest = Color(0xFF1F2937);
 
   /// 暗色主题 - 卡片背景
   ///

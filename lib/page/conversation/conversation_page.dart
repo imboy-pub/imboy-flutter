@@ -8,7 +8,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
@@ -194,12 +193,27 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     final t = context.t;
 
     return Scaffold(
-      appBar: GlassAppBar(
+      backgroundColor: AppColors.getBackgroundColor(
+        Theme.of(context).brightness,
+      ),
+      appBar: AppBar(
+        backgroundColor: AppColors.getBackgroundColor(
+          Theme.of(context).brightness,
+        ),
+        elevation: 0,
+        scrolledUnderElevation: 0,
         leading: const SizedBox.shrink(),
-        title: '${t.titleMessage}${state.connectDesc}',
-        rightDMActions: <Widget>[
+        title: Text(
+          '${t.titleMessage}${state.connectDesc}',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.getTextColor(Theme.of(context).brightness),
+          ),
+        ),
+        actions: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(right: 4.0),
+            padding: const EdgeInsets.only(right: 8.0),
             child: const RightButton(),
           ),
         ],
@@ -226,7 +240,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                     : state.conversations.isEmpty
                     ? NoDataView(text: t.noConversationMessages)
                     : ListView.builder(
-                        itemExtent: 88.0,
+                        itemExtent: 80.0,
                         itemCount: state.conversations.length,
                         itemBuilder: (BuildContext context, int index) {
                           if (index >= state.conversations.length) {

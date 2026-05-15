@@ -8,8 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/flat_list_tile.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/widget/user_online_status_widget.dart';
@@ -20,7 +19,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 import 'contact_provider.dart';
 
@@ -85,6 +83,24 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       model.onPressed!();
       return;
     }
+    // 处理功能入口点击
+    switch (model.peerId) {
+      case kPeerIdMomentFeed:
+        context.push('/moment/feed');
+        return;
+      case kPeerIdPeopleNearby:
+        context.push('/contact/people_nearby');
+        return;
+      case kPeerIdNewFriend:
+        context.push('/contact/new_friend');
+        return;
+      case kPeerIdGroup:
+        context.push('/group/list');
+        return;
+      case kPeerIdTag:
+        context.push('/contact/tags');
+        return;
+    }
     final useSplitView = MediaQuery.sizeOf(context).width > 800;
     if (useSplitView) {
       ref
@@ -134,111 +150,78 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     final avatar = model.avatar.isNotEmpty ? dynamicAvatar(model.avatar) : null;
     final isSpecialContact = model.iconData != null;
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final brightness = theme.brightness;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: AppRadius.borderRadiusMedium,
-        // DESIGN.md §5.2 + §8.3：联系人卡片用边框区分而非阴影；
-        // 移除原 boxShadow（违反 InsetGrouped 范式）—— 暗色用细边框，亮色透明
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.transparent,
-          width: 0.5,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 头像部分
-            Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 2),
-                  child: model.iconData == null
-                      ? Avatar(
-                          imgUri: model.avatar,
-                          width: 48,
-                          height: 48,
-                          heroTag: 'avatar_${model.peerId}',
-                        )
-                      : Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            borderRadius: AppRadius.borderRadiusMedium,
-                            color: model.bgColor ?? defHeaderBgColor,
-                            image: avatar,
-                          ),
-                          child: model.iconData,
-                        ),
-                ),
-                // 在线状态指示器（仅对真实联系人显示）
-                if (!isSpecialContact)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: _getOnlineStatusColor(context, model),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: theme.cardColor, width: 2),
-                      ),
+    return FlatListTile(
+      onTap: () => _handleContactTap(model),
+      onLongPress: () => _handleContactLongPress(model),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      leading: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 2),
+            child: model.iconData == null
+                ? Avatar(
+                    imgUri: model.avatar,
+                    width: 48,
+                    height: 48,
+                    heroTag: 'avatar_${model.peerId}',
+                  )
+                : Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: AppRadius.borderRadiusMedium,
+                      color:
+                          model.bgColor ??
+                          defHeaderBgColor ??
+                          AppColors.primaryAlpha10,
+                      image: avatar,
                     ),
+                    child: model.iconData,
                   ),
-              ],
-            ),
-            // 信息部分
-            Expanded(
+          ),
+          // 在线状态指示器（仅对真实联系人显示）
+          if (!isSpecialContact)
+            Positioned(
+              bottom: 0,
+              right: 0,
               child: Container(
-                margin: const EdgeInsets.only(left: 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // 姓名
-                    Text(
-                      model.title,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    // 在线状态（仅对真实联系人显示）
-                    if (!isSpecialContact && model.lastSeenAt != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: UserOnlineStatusWidget(
-                          isOnline: model.status == 'online',
-                          lastSeenTimestamp: model.lastSeenAt,
-                          hideOnlineStatus: false,
-                          textStyle: TextStyle(
-                            fontSize: FontSizeType.small.size,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
-                          indicatorSize: 0,
-                        ),
-                      ),
-                  ],
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: _getOnlineStatusColor(context, model),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.getBackgroundColor(brightness),
+                    width: 2,
+                  ),
                 ),
               ),
             ),
-          ],
+        ],
+      ),
+      title: Text(
+        model.title,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          color: AppColors.getTextColor(brightness),
         ),
       ),
+      subtitle: (!isSpecialContact && model.lastSeenAt != null)
+          ? UserOnlineStatusWidget(
+              isOnline: model.status == 'online',
+              lastSeenTimestamp: model.lastSeenAt,
+              hideOnlineStatus: false,
+              textStyle: TextStyle(
+                fontSize: 13,
+                color: AppColors.getTextColor(brightness, isSecondary: true),
+              ),
+              indicatorSize: 0,
+            )
+          : null,
     );
   }
 
@@ -306,32 +289,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   // 构建功能入口项（附近的人、新朋友等）
   Widget _buildFeatureItem(BuildContext context, ContactModel model) {
-    return CellPressable(
-      onTap: () {
-        // 处理功能入口点击
-        switch (model.peerId) {
-          case kPeerIdMomentFeed:
-            context.push('/moment/feed');
-            break;
-          case kPeerIdPeopleNearby:
-            context.push('/contact/people_nearby');
-            break;
-          case kPeerIdNewFriend:
-            context.push('/contact/new_friend');
-            break;
-          case kPeerIdGroup:
-            context.push('/group/list');
-            break;
-          case kPeerIdTag:
-            context.push('/contact/tags');
-            break;
-        }
-      },
-      child: _buildChatItem(
-        context,
-        model,
-        defHeaderBgColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      ),
+    return _buildChatItem(
+      context,
+      model,
+      defHeaderBgColor: AppColors.primaryAlpha10,
     );
   }
 
@@ -339,28 +300,41 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   Widget build(BuildContext context) {
     final t = context.t;
     final state = ref.watch(contactProvider);
+    final brightness = Theme.of(context).brightness;
 
     return Scaffold(
-      appBar: GlassAppBar(
+      backgroundColor: AppColors.getBackgroundColor(brightness),
+      appBar: AppBar(
+        backgroundColor: AppColors.getBackgroundColor(brightness),
+        elevation: 0,
+        scrolledUnderElevation: 0,
         leading: const SizedBox.shrink(),
-        titleWidget: Text(t.titleContact),
-        rightDMActions: [
+        title: Text(
+          t.titleContact,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.getTextColor(brightness),
+          ),
+        ),
+        actions: [
           IconButton(
             onPressed: () {
               context.pushNamed('user_tag_list');
             },
-            icon: const Icon(Icons.label_outline),
+            icon: const Icon(Icons.label_outline, size: 24),
             tooltip: t.tags,
-            splashRadius: 24,
+            color: AppColors.getTextColor(brightness),
           ),
           IconButton(
             onPressed: () {
               context.push('/contact/add_friend');
             },
-            icon: const Icon(Icons.person_add_alt_outlined),
+            icon: const Icon(Icons.person_add_alt_outlined, size: 24),
             tooltip: t.addFriend,
-            splashRadius: 24,
+            color: AppColors.getTextColor(brightness),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Stack(
@@ -369,8 +343,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               ? const ShimmerList(padding: EdgeInsets.only(top: 10))
               : RefreshIndicator(
                   onRefresh: _onRefresh,
-                  color: Theme.of(context).colorScheme.primary,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.getBackgroundColor(brightness),
                   strokeWidth: 2.5,
                   child: Column(
                     children: [
@@ -387,16 +361,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                               return _buildFeatureItem(context, model);
                             }
 
-                            return CellPressable(
-                              onTap: () => _handleContactTap(model),
-                              onLongPress: () => _handleContactLongPress(model),
-                              child: _buildChatItem(
-                                context,
-                                model,
-                                defHeaderBgColor: Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                              ),
+                            return _buildChatItem(
+                              context,
+                              model,
+                              defHeaderBgColor: AppColors.primaryAlpha10,
                             );
                           },
                           physics: const AlwaysScrollableScrollPhysics(),
@@ -416,46 +384,24 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                           indexBarOptions: IndexBarOptions(
                             needRebuild: true,
                             ignoreDragCancel: true,
-                            downTextStyle: TextStyle(
-                              fontSize: FontSizeType.small.size,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                            downTextStyle: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
-                            downItemDecoration: BoxDecoration(
+                            downItemDecoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.primary,
-                              // DESIGN.md §5.2 例外：indexBar 按下高亮 → 投影
-                              // alpha 0.3 → 0.08（对齐推荐值）
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.08),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                              color: AppColors.primary,
                             ),
                             indexHintWidth: 64,
                             indexHintHeight: 64,
                             indexHintDecoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.9),
+                              color: AppColors.primary.withValues(alpha: 0.9),
                               borderRadius: AppRadius.borderRadiusSmall,
-                              // DESIGN.md §5.2 例外：字母索引 hint 浮窗（Tooltip 类）
-                              // alpha 0.1 → 0.08 对齐推荐值
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
                             ),
-                            indexHintTextStyle: TextStyle(
-                              fontSize: FontSizeType.largeTitle.size,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                            indexHintTextStyle: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
                             indexHintAlignment: Alignment.centerRight,

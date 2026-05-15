@@ -5,13 +5,12 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
-import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/component/ui/flat_list_tile.dart';
+import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mine_page.g.dart';
@@ -28,7 +27,7 @@ class MineNotifier extends _$MineNotifier {
   MineState build() => const MineState();
 }
 
-/// 我的页面 - iOS InsetGrouped 风格（DESIGN.md §8.3）
+/// 我的页面 - 极简高效重构版本 (Minimalist & Flat)
 class MinePage extends ConsumerStatefulWidget {
   const MinePage({super.key});
 
@@ -44,123 +43,88 @@ class _MinePageState extends ConsumerState<MinePage> {
     final brightness = Theme.of(context).brightness;
 
     return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(brightness),
+      backgroundColor: AppColors.getBackgroundColor(brightness),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 系统状态栏 + 页面标题占位
+          // 顶部标题 - 极简标题
           SliverSafeArea(
             bottom: false,
             sliver: SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: Text(
                   t.titleMine,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    letterSpacing: 0.36,
+                    color: AppColors.getTextColor(brightness),
+                    letterSpacing: -0.5,
                   ),
                 ),
               ),
             ),
           ),
 
-          // 用户资料卡片（iOS Settings 风格 profile cell）
+          // 个人名片 - 无边框极简风格
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: _buildProfileCard(context, user),
+              padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
+              child: _buildProfileCard(context, user, brightness),
             ),
           ),
 
-          // 功能菜单
+          // 高频宫格区 - 快速直达
+          SliverToBoxAdapter(child: _buildQuickActions(context)),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+          // 低频管理列表 - 极简扁平化
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+            padding: const EdgeInsets.only(bottom: 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // 钱包
-                const SizedBox(height: 28),
-                _buildSection(context, [
-                  _buildItem(
-                    context,
-                    title: t.wallet,
-                    icon: Icons.account_balance_wallet_outlined,
-                    iconColor: AppColors.iosOrange,
-                    onTap: () => context.push('/wallet'),
-                  ),
-                ]),
-
-                // 频道（feature flag 控制）
-                if (AppFeatureRegistry.isEnabled('channel')) ...[
-                  const SizedBox(height: 28),
-                  _buildSection(context, [
-                    _buildItem(
-                      context,
-                      title: t.myChannels,
-                      icon: Icons.campaign_outlined,
-                      iconColor: AppColors.primary,
-                      onTap: () => context.push('/channel'),
-                    ),
-                    _buildDivider(context),
-                    _buildItem(
-                      context,
-                      title: t.channelSquare,
-                      icon: Icons.explore_outlined,
-                      iconColor: AppColors.iosTeal,
-                      onTap: () => context.push('/channel/discover'),
-                    ),
-                  ]),
-                ],
-
-                // 常用功能
-                const SizedBox(height: 28),
-                _buildSection(context, [
-                  _buildItem(
-                    context,
-                    title: t.favorites,
-                    icon: Icons.favorite_outline,
-                    iconColor: AppColors.iosRed,
-                    onTap: () => context.push('/favorites'),
-                  ),
-                  _buildDivider(context),
-                  _buildItem(
-                    context,
-                    title: t.storageSpace,
-                    icon: Icons.sd_storage_outlined,
-                    iconColor: AppColors.primary,
-                    onTap: () => context.push('/storage_space'),
-                  ),
-                  _buildDivider(context),
-                  _buildItem(
-                    context,
-                    title: t.loginDeviceManagement,
-                    icon: Icons.devices_outlined,
-                    iconColor: AppColors.iosTeal,
-                    onTap: () => context.push('/devices'),
-                  ),
-                ]),
-
-                // 设置与反馈
-                const SizedBox(height: 28),
-                _buildSection(context, [
-                  _buildItem(
-                    context,
-                    title: t.setting,
-                    icon: Icons.settings_outlined,
-                    iconColor: AppColors.iosGray,
-                    onTap: () => context.push('/mine/setting'),
-                  ),
-                  _buildDivider(context),
-                  _buildItem(
-                    context,
-                    title: t.feedback,
-                    icon: Icons.feedback_outlined,
-                    iconColor: const Color(0xFF5C6BC0),
-                    onTap: () => context.push('/feedback'),
-                  ),
-                ]),
+                _buildListItem(
+                  context,
+                  title: t.favorites,
+                  icon: Icons.favorite_outline,
+                  iconColor: AppColors.iosRed,
+                  onTap: () => context.push('/favorites'),
+                  brightness: brightness,
+                ),
+                _buildListItem(
+                  context,
+                  title: t.storageSpace,
+                  icon: Icons.sd_storage_outlined,
+                  iconColor: AppColors.primary,
+                  onTap: () => context.push('/storage_space'),
+                  brightness: brightness,
+                ),
+                _buildListItem(
+                  context,
+                  title: t.loginDeviceManagement,
+                  icon: Icons.devices_outlined,
+                  iconColor: AppColors.iosTeal,
+                  onTap: () => context.push('/devices'),
+                  brightness: brightness,
+                ),
+                const SizedBox(height: 12),
+                _buildListItem(
+                  context,
+                  title: t.setting,
+                  icon: Icons.settings_outlined,
+                  iconColor: AppColors.iosGray,
+                  onTap: () => context.push('/mine/setting'),
+                  brightness: brightness,
+                ),
+                _buildListItem(
+                  context,
+                  title: t.feedback,
+                  icon: Icons.feedback_outlined,
+                  iconColor: const Color(0xFF5C6BC0),
+                  onTap: () => context.push('/feedback'),
+                  brightness: brightness,
+                ),
               ]),
             ),
           ),
@@ -169,12 +133,12 @@ class _MinePageState extends ConsumerState<MinePage> {
     );
   }
 
-  /// iOS Settings 风格 profile cell
-  ///
-  /// [user] 当用户未登录或本地数据缺失时为 null，本方法走 fallback 显示
-  /// （`?` 占位首字母 + `t.unknown` 名 + `'-'` ID）。
-  Widget _buildProfileCard(BuildContext context, UserModel? user) {
-    final theme = Theme.of(context);
+  /// 极简个人名片
+  Widget _buildProfileCard(
+    BuildContext context,
+    UserModel? user,
+    Brightness brightness,
+  ) {
     final hasAvatar = user != null && strNoEmpty(user.avatar);
     final nickname = user?.nickname;
     final initial = (nickname != null && nickname.isNotEmpty)
@@ -183,178 +147,104 @@ class _MinePageState extends ConsumerState<MinePage> {
     final sign = user?.sign;
     final hasSign = sign != null && strNoEmpty(sign);
 
-    return ClipRRect(
-      borderRadius: AppRadius.borderRadiusCell,
-      child: ColoredBox(
-        color: theme.cardColor,
-        child: CellPressable(
-          onTap: () => context.push('/personal_info/profile'),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                // 头像
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.primaryLight,
-                  backgroundImage: hasAvatar
-                      ? cachedImageProvider(user.avatar)
-                      : null,
-                  child: !hasAvatar
-                      ? Text(
-                          initial,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          ),
-                        )
-                      : null,
+    return FlatListTile(
+      onTap: () => context.push('/personal_info/profile'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      leading: CircleAvatar(
+        radius: 36,
+        backgroundColor: AppColors.primaryLight,
+        backgroundImage: hasAvatar ? cachedImageProvider(user.avatar) : null,
+        child: !hasAvatar
+            ? Text(
+                initial,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
                 ),
-                const SizedBox(width: 14),
-
-                // 名称 + ID + 签名
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        nickname ?? t.unknown,
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface,
-                          letterSpacing: -0.41,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        'ImBoy ID: ${user?.account ?? '-'}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.iosGray,
-                          letterSpacing: -0.08,
-                        ),
-                      ),
-                      if (hasSign) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          sign,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.iosGray,
-                            letterSpacing: -0.08,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                // QR 码按钮
-                IconButton(
-                  onPressed: () => context.push('/qrcode/user'),
-                  icon: Icon(
-                    Icons.qr_code_2,
-                    color: AppColors.iosGray,
-                    size: 22,
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(),
-                ),
-                const SizedBox(width: 2),
-
-                // chevron
-                Icon(
-                  CupertinoIcons.chevron_right,
-                  color: AppColors.iosGray,
-                  size: 14,
-                ),
-              ],
-            ),
+              )
+            : null,
+      ),
+      title: Text(
+        nickname ?? t.unknown,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 4),
+          Text('ID: ${user?.account ?? '-'}'),
+          if (hasSign) ...[
+            const SizedBox(height: 2),
+            Text(sign, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ],
+        ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () => context.push('/qrcode/user'),
+            icon: const Icon(Icons.qr_code_2, size: 24),
+            color: AppColors.iosGray,
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.all(8),
           ),
+          const Icon(
+            CupertinoIcons.chevron_right,
+            color: AppColors.iosGray,
+            size: 16,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 构建高频快捷操作宫格
+  Widget _buildQuickActions(BuildContext context) {
+    final List<QuickActionItem> items = [
+      QuickActionItem(
+        icon: const Icon(Icons.account_balance_wallet_outlined),
+        label: t.wallet,
+        onTap: () => context.push('/wallet'),
+        color: AppColors.iosOrange,
+      ),
+      if (AppFeatureRegistry.isEnabled('channel'))
+        QuickActionItem(
+          icon: const Icon(Icons.campaign_outlined),
+          label: t.myChannels,
+          onTap: () => context.push('/channel'),
+          color: AppColors.primary,
         ),
+      // 占位功能，如果没有频道则补齐或留空
+      QuickActionItem(
+        icon: const Icon(Icons.auto_awesome_outlined),
+        label: t.favorites, // 示例，可根据需要调整
+        onTap: () => context.push('/favorites'),
+        color: AppColors.iosRed,
       ),
-    );
+    ];
+
+    return QuickActionGrid(items: items);
   }
 
-  /// iOS InsetGrouped 分组容器
-  Widget _buildSection(BuildContext context, List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: AppRadius.borderRadiusCell,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(children: children),
-    );
-  }
-
-  /// 菜单项（与 SettingPage._buildSettingItem 对齐）
-  Widget _buildItem(
+  /// 构建极简列表项
+  Widget _buildListItem(
     BuildContext context, {
     required String title,
     required IconData icon,
     required Color iconColor,
-    VoidCallback? onTap,
+    required VoidCallback onTap,
+    required Brightness brightness,
   }) {
-    final theme = Theme.of(context);
-    return CellPressable(
+    return FlatListTile(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        child: Row(
-          children: [
-            // 图标容器（圆角方形，10% 背景）
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: AppRadius.borderRadiusCell,
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: iconColor, size: 20),
-            ),
-            const SizedBox(width: 14),
-
-            // 标题
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.onSurface,
-                  letterSpacing: -0.32,
-                ),
-              ),
-            ),
-
-            // chevron
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: AppColors.iosGray,
-              size: 14,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// iOS 原生内嵌分隔线（左 inset 56pt = 38 icon + 14 gap + 16 padding）
-  Widget _buildDivider(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    return Padding(
-      padding: const EdgeInsets.only(left: 68),
-      child: HorizontalLine(
-        height: 0.33,
-        color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.6),
+      leading: Icon(icon, color: iconColor, size: 24),
+      title: Text(title),
+      trailing: const Icon(
+        CupertinoIcons.chevron_right,
+        color: AppColors.iosGray,
+        size: 14,
       ),
     );
   }
