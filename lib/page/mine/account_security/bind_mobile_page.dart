@@ -106,11 +106,14 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
             ),
             children: [
               CupertinoListTile.notched(
-                title: Text(
-                  t.account.mobile,
-                  style: const TextStyle(fontSize: 17),
+                title: const SizedBox(
+                  width: 80,
+                  child: Text(
+                    '手机号', // 使用标准简短标签
+                    style: TextStyle(fontSize: 17),
+                  ),
                 ),
-                trailing: Expanded(
+                additionalInfo: Expanded(
                   child: PhoneInputWidget(
                     initialValue: '',
                     onInputChanged: (String full) => ref
@@ -119,20 +122,24 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     hintText: t.account.enterMobileHint,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
+                      isDense: true,
                       contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                        horizontal: 0,
+                        vertical: 12,
                       ),
                     ),
                   ),
                 ),
               ),
               CupertinoListTile.notched(
-                title: Text(
-                  t.common.verificationCode,
-                  style: const TextStyle(fontSize: 17),
+                title: const SizedBox(
+                  width: 80,
+                  child: Text(
+                    '验证码',
+                    style: TextStyle(fontSize: 17),
+                  ),
                 ),
-                trailing: Expanded(
+                additionalInfo: Expanded(
                   child: Row(
                     children: [
                       Expanded(
@@ -147,11 +154,11 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                             LengthLimitingTextInputFormatter(6),
                           ],
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                            horizontal: 0,
+                            vertical: 12,
                           ),
                           decoration: null,
-                          textAlign: TextAlign.right,
+                          style: const TextStyle(fontSize: 17),
                         ),
                       ),
                       const SizedBox(width: 8),

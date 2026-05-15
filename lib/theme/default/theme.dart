@@ -61,6 +61,15 @@ class AppTheme {
       inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(isDark: false),
       listTileTheme: ComponentThemeManager.getListTileTheme(isDark: false),
       dividerTheme: DividerThemeData(color: AppColors.iosSeparator, thickness: 0.33, space: 1),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 
@@ -87,6 +96,15 @@ class AppTheme {
       inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(isDark: true),
       listTileTheme: ComponentThemeManager.getListTileTheme(isDark: true),
       dividerTheme: DividerThemeData(color: AppColors.iosSeparatorDark, thickness: 0.33, space: 1),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 }

@@ -105,30 +105,36 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             ),
             children: [
               CupertinoListTile.notched(
-                title: Text(
-                  t.common.emailAddress,
-                  style: const TextStyle(fontSize: 17),
+                title: const SizedBox(
+                  width: 80,
+                  child: Text(
+                    '邮箱',
+                    style: TextStyle(fontSize: 17),
+                  ),
                 ),
-                trailing: Expanded(
+                additionalInfo: Expanded(
                   child: CupertinoTextField(
                     controller: ref.read(bindEmailProvider.notifier).emailCtl,
                     placeholder: t.common.enterEmailAddress,
                     keyboardType: TextInputType.emailAddress,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                      horizontal: 0,
+                      vertical: 12,
                     ),
                     decoration: null,
-                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 17),
                   ),
                 ),
               ),
               CupertinoListTile.notched(
-                title: Text(
-                  t.common.verificationCode,
-                  style: const TextStyle(fontSize: 17),
+                title: const SizedBox(
+                  width: 80,
+                  child: Text(
+                    '验证码',
+                    style: TextStyle(fontSize: 17),
+                  ),
                 ),
-                trailing: Expanded(
+                additionalInfo: Expanded(
                   child: Row(
                     children: [
                       Expanded(
@@ -143,11 +149,11 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                             LengthLimitingTextInputFormatter(6),
                           ],
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                            horizontal: 0,
+                            vertical: 12,
                           ),
                           decoration: null,
-                          textAlign: TextAlign.right,
+                          style: const TextStyle(fontSize: 17),
                         ),
                       ),
                       const SizedBox(width: 8),
