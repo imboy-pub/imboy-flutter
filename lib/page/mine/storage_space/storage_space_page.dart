@@ -237,7 +237,11 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             },
             child: Text(
               t.main.clean,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
