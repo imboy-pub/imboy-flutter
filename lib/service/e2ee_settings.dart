@@ -15,15 +15,18 @@ class E2EESettings {
 
   /// E2EE 功能是否启用
   ///
-  /// 默认返回 false（**默认关闭** E2EE）。
+  /// 永远返回 false（**强制关闭** E2EE）。
   /// 原因：开发环境多次 build/重装客户端会导致本地 Keychain 里的 RSA 私钥与
   /// 服务端 user_device 表中的公钥 / 对端缓存的公钥不匹配，加密消息对端无法
   /// 解密、只看到 `🔒 [加密消息无法解密]`。当后端 policy 为 plaintext /
-  /// optional 时，关闭 E2EE 让消息走明文路径，保证对端能正确显示文本。
-  /// 用户可以在设置里手动开启。后端 policy 若强制加密
-  /// （EncryptionModeService.requiresEncryption），仍会按策略加密。
+  /// optional 时，强制关闭本地 E2EE 让消息走明文路径，保证对端能正确显示文本。
+  /// 后端 policy 若强制加密 (EncryptionModeService.requiresEncryption)，
+  /// 仍会按策略走 e2ee 路径（policy 优先于本地开关）。
   static bool isEnabled() {
-    return StorageService.to.getBool(_keyEnabled) ?? false;
+    // 旧版本会读取 storage 中 _keyEnabled，但 storage 持久化的 true 值会让
+    // 已安装客户端在策略 = optional 时仍走加密路径并失败。统一返回 false，
+    // 让 e2ee 完全由后端 policy 控制，避免客户端 storage 漂移。
+    return false;
   }
 
   /// 设置E2EE功能开关
