@@ -213,9 +213,12 @@ class ChatNotifier extends _$ChatNotifier {
       'initChatService: 聊天服务初始化完成，当前消息数: ${_chatService?.messages.length ?? 0}',
     );
 
-    // Phase 2.1.e: 同步 messages 到 ChatState（让 WebShellBootstrap 等外部
-    // 消费方能 ref.watch(chatProvider).messages 响应式拿到列表）
-    syncMessagesToState();
+    // 注意：旧实现在此处调用 syncMessagesToState() 把 _chatService.messages 拷贝到
+    // ChatState.messages，但当 ChatPage 在 initState 的 _firstBuild 阶段调用本方法时，
+    // 修改 provider state 会触发 Riverpod 抛出
+    // "Tried to modify a provider while the widget tree was building"。
+    // 同步 messages 已移到显式调用点（loadMoreMessages 完成等），这里只懒创建
+    // chatService 不动 state，确保 ChatPage initState 同步调用安全。
   }
 
   /// Phase 2.1.e — 把 _chatService.messages 同步到 ChatState.messages
