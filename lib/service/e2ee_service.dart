@@ -271,6 +271,13 @@ class E2EEService {
     // 1. 解析 ciphertext（格式：base64(nonce).base64(ciphertext)）
     final parts = ciphertext.split('.');
     if (parts.length != 2) {
+      // DEBUG: 打印实际收到的 ciphertext，以便定位投递路径上 payload 被破坏的位置。
+      // ignore: avoid_print
+      print(
+        '[E2EE_DEBUG] ciphertext_len=${ciphertext.length} '
+        'first40=${ciphertext.substring(0, ciphertext.length < 40 ? ciphertext.length : 40)} '
+        'parts_count=${parts.length}',
+      );
       throw Exception(
         'Invalid ciphertext format: expected "base64(nonce).base64(ciphertext)"',
       );
@@ -359,7 +366,9 @@ class E2EEService {
     final e2ee = payload['e2ee'];
     if (e2ee == null || e2ee == '') return payload;
 
-    final e2eeData = e2ee is Map<String, dynamic> ? e2ee.cast<String, dynamic>() : null;
+    final e2eeData = e2ee is Map<String, dynamic>
+        ? e2ee.cast<String, dynamic>()
+        : null;
     if (e2eeData is! Map<String, dynamic>) {
       return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
     }

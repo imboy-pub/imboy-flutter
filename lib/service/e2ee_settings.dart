@@ -13,12 +13,17 @@ class E2EESettings {
   static const String _keyEnabled = 'e2ee_enabled';
   static const String _keyNotifyOnFailed = 'e2ee_notify_on_failed';
 
-  /// E2EE功能是否启用
+  /// E2EE 功能是否启用
   ///
-  /// 默认返回 true（默认启用E2EE）
-  /// 用户可以在设置中关闭
+  /// 默认返回 false（**默认关闭** E2EE）。
+  /// 原因：开发环境多次 build/重装客户端会导致本地 Keychain 里的 RSA 私钥与
+  /// 服务端 user_device 表中的公钥 / 对端缓存的公钥不匹配，加密消息对端无法
+  /// 解密、只看到 `🔒 [加密消息无法解密]`。当后端 policy 为 plaintext /
+  /// optional 时，关闭 E2EE 让消息走明文路径，保证对端能正确显示文本。
+  /// 用户可以在设置里手动开启。后端 policy 若强制加密
+  /// （EncryptionModeService.requiresEncryption），仍会按策略加密。
   static bool isEnabled() {
-    return StorageService.to.getBool(_keyEnabled) ?? true;
+    return StorageService.to.getBool(_keyEnabled) ?? false;
   }
 
   /// 设置E2EE功能开关
