@@ -3,10 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar, Avatar;
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
@@ -17,13 +15,14 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
+/// 个人二维码页面 - 极致 iOS 17 Premium 风格重构
 class UserQrCodePage extends ConsumerWidget {
   UserQrCodePage({super.key});
 
@@ -31,492 +30,153 @@ class UserQrCodePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // API_BASE_URL=https://dev.imboy.pub
-    String qrcodeData =
-        "${Env().apiBaseUrl}/user/qrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
-
-    int gender = UserRepoLocal.to.current.gender;
+    final user = UserRepoLocal.to.current;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    String qrcodeData = "${Env().apiBaseUrl}/user/qrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
     String filename = "${UserRepoLocal.to.currentUid}_qrcode";
 
-    return Scaffold(
-      backgroundColor: AppColors.getBackgroundColor(
-        Theme.of(context).brightness,
-      ),
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.account.myQrcode,
-        backgroundColor: AppColors.getBackgroundColor(
-          Theme.of(context).brightness,
+    return IosPageTemplate(
+      title: t.account.myQrcode,
+      useLargeTitle: false,
+      actions: [
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+          onPressed: () => _showBottomSheet(context, globalKey, filename),
         ),
-        rightDMActions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.more_horiz,
-              color: AppColors.getTextColor(Theme.of(context).brightness),
-              size: 24,
-            ),
-            onPressed: () => _showBottomSheet(context, globalKey, filename),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular * 2,
-          vertical: AppSpacing.regular * 3,
-        ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           children: [
             // 二维码卡片
             RepaintBoundary(
               key: globalKey,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
+              child: _buildQrCard(
+                context,
+                isDark,
+                header: Row(
                   children: [
-                    // 用户信息区域
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.regular * 2),
-                      child: Row(
-                        children: [
-                          // 头像
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: BoxDecoration(
-                              borderRadius: AppRadius.borderRadiusMedium,
-                              image: dynamicAvatar(
-                                UserRepoLocal.to.current.avatar,
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(width: AppSpacing.regular * 1.6),
-
-                          // 用户信息
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  UserRepoLocal.to.current.nickname,
-                                  style: ThemeManager.instance.getTextStyle(
-                                    FontSizeType.large,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.lightTextPrimary,
-                                  ),
-                                ),
-
-                                SizedBox(height: AppSpacing.regular * 0.4),
-
-                                if (UserRepoLocal.to.current.region.isNotEmpty)
-                                  Text(
-                                    UserRepoLocal.to.current.region,
-                                    style: ThemeManager.instance.getTextStyle(
-                                      FontSizeType.normal,
-                                      color: AppColors.lightTextSecondary,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-
-                          // 性别图标
-                          if (gender > 0) genderIcon(gender),
-                        ],
-                      ),
-                    ),
-
-                    // 分割线
-                    Container(
-                      height: 1,
-                      margin: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.regular * 2,
-                      ),
-                      color: AppColors.lightDivider.withValues(alpha: 0.3),
-                    ),
-
-                    // 二维码区域
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.regular * 3),
+                    Avatar(imgUri: user.avatar, width: 60, height: 60),
+                    const SizedBox(width: 16),
+                    Expanded(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 二维码
-                          Container(
-                            padding: EdgeInsets.all(AppSpacing.regular),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: AppRadius.borderRadiusSmall,
-                            ),
-                            child: QrImageView(
-                              data: qrcodeData,
-                              version: QrVersions.auto,
-                              errorCorrectionLevel: QrErrorCorrectLevel.H,
-                              size: 240,
-                              gapless: true,
-                              eyeStyle: const QrEyeStyle(
-                                eyeShape: QrEyeShape.square,
-                                color: Colors.black,
-                              ),
-                              dataModuleStyle: const QrDataModuleStyle(
-                                dataModuleShape: QrDataModuleShape.square,
-                                color: Colors.black,
-                              ),
-                              // 使用简单的 AssetImage 避免缓存问题
-                              embeddedImage:
-                                  MediaQuery.of(context).size.height < 640
-                                  ? null
-                                  : const AssetImage(
-                                      'assets/images/imboy_logo0.png',
-                                    ),
-                              embeddedImageStyle: const QrEmbeddedImageStyle(
-                                size: Size.square(48),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(height: AppSpacing.regular * 2),
-
-                          // 提示文字
-                          Text(
-                            t.common.scanQrcodeAddFriend,
-                            style: ThemeManager.instance.getTextStyle(
-                              FontSizeType.normal,
-                              color: AppColors.lightTextSecondary,
-                            ),
-                          ),
+                          Text(user.nickname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: -0.5, color: Colors.black)),
+                          if (user.region.isNotEmpty) Text(user.region, style: const TextStyle(fontSize: 13, color: AppColors.iosGray)),
                         ],
                       ),
                     ),
+                    if (user.gender > 0) genderIcon(user.gender),
                   ],
                 ),
+                qrcodeData: qrcodeData,
+                footerText: t.common.scanQrcodeAddFriend,
               ),
             ),
 
-            SizedBox(height: AppSpacing.regular * 4),
+            const SizedBox(height: 48),
 
-            // 操作按钮区域
-            Row(
-              children: [
-                Expanded(
-                  child: _buildActionButton(
-                    context: context,
-                    icon: Icons.save_alt,
-                    text: t.common.saveQrCode,
-                    onPressed: () => _saveQrCode(context, globalKey, filename),
-                  ),
-                ),
-
-                SizedBox(width: AppSpacing.regular * 2),
-
-                Expanded(
-                  child: _buildActionButton(
-                    context: context,
-                    icon: Icons.share,
-                    text: t.common.share,
-                    onPressed: () => _shareQrCode(context, globalKey),
-                  ),
-                ),
-              ],
-            ),
+            // 快速操作
+            _buildActionButtons(context, globalKey, filename),
           ],
         ),
       ),
     );
   }
 
-  /// 构建操作按钮
-  Widget _buildActionButton({
-    required BuildContext context,
-    required IconData icon,
-    required String text,
-    required VoidCallback onPressed,
-  }) {
+  Widget _buildQrCard(BuildContext context, bool isDark, {required Widget header, required String qrcodeData, required String footerText}) {
     return Container(
-      height: 52,
+      width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.08),
-            AppColors.primary.withValues(alpha: 0.12),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: AppRadius.borderRadiusRegular,
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
+      ),
+      child: Column(
+        children: [
+          Padding(padding: const EdgeInsets.all(24), child: header),
+          Container(height: 0.33, margin: const EdgeInsets.symmetric(horizontal: 24), color: Colors.black12),
+          Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              children: [
+                QrImageView(
+                  data: qrcodeData, version: QrVersions.auto, errorCorrectionLevel: QrErrorCorrectLevel.H, size: 220, gapless: true,
+                  eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+                  dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+                  embeddedImage: const AssetImage('assets/images/imboy_logo0.png'),
+                  embeddedImageStyle: const QrEmbeddedImageStyle(size: Size.square(40)),
+                ),
+                const SizedBox(height: 24),
+                Text(footerText, style: const TextStyle(fontSize: 14, color: AppColors.iosGray, fontWeight: FontWeight.w500)),
+              ],
+            ),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusRegular,
-          splashColor: AppColors.primary.withValues(alpha: 0.1),
-          highlightColor: AppColors.primary.withValues(alpha: 0.05),
-          onTap: onPressed,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 1.2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusSmall,
-                  ),
-                  child: Icon(icon, color: AppColors.primary, size: 18),
-                ),
-                SizedBox(width: AppSpacing.regular),
-                Flexible(
-                  child: Text(
-                    text,
-                    style: ThemeManager.instance.getTextStyle(
-                      FontSizeType.medium,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
-  /// 显示底部弹窗
-  void _showBottomSheet(
-    BuildContext context,
-    GlobalKey globalKey,
-    String filename,
-  ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget _buildActionButtons(BuildContext context, GlobalKey key, String filename) {
+    return Row(
+      children: [
+        Expanded(child: _buildPremiumBtn(context, CupertinoIcons.arrow_down_doc, t.common.saveQrCode, () => _saveQrCode(context, key, filename))),
+        const SizedBox(width: 16),
+        Expanded(child: _buildPremiumBtn(context, CupertinoIcons.share, t.common.share, () => _shareQrCode(context, key))),
+      ],
+    );
+  }
 
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkCardBackground
-              : AppColors.lightCardBackground,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
+  Widget _buildPremiumBtn(BuildContext context, IconData icon, String text, VoidCallback onTap) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: onTap,
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(text, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.primary)),
           ],
         ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 顶部指示器
-              Container(
-                width: 36,
-                height: 4,
-                margin: EdgeInsets.only(
-                  top: AppSpacing.regular * 1.2,
-                  bottom: AppSpacing.regular * 2,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.getDividerColor(
-                    Theme.of(context).brightness,
-                  ),
-                  borderRadius: AppRadius.borderRadiusTiny,
-                ),
-              ),
-
-              // 分享选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.share,
-                text: t.common.share,
-                onTap: () {
-                  Navigator.pop(context);
-                  _shareQrCode(context, globalKey);
-                },
-              ),
-
-              // 保存选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.save_alt,
-                text: t.common.saveQrCode,
-                onTap: () {
-                  Navigator.pop(context);
-                  _saveQrCode(context, globalKey, filename);
-                },
-              ),
-
-              // 扫一扫选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.qr_code_scanner,
-                text: t.account.scanQrCode,
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (context) => const ScannerPage(),
-                    ),
-                  );
-                },
-              ),
-
-              // 分割线
-              Container(
-                height: 8,
-                color: AppColors.getDividerColor(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.3),
-                margin: EdgeInsets.symmetric(vertical: AppSpacing.regular),
-              ),
-
-              // 取消选项
-              _buildBottomSheetItem(
-                context: context,
-                text: t.common.buttonCancel,
-                onTap: () => Navigator.pop(context),
-                isCancel: true,
-              ),
-
-              SizedBox(height: AppSpacing.regular),
-            ],
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
-
-  /// 构建底部弹窗选项
-  Widget _buildBottomSheetItem({
-    required BuildContext context,
-    IconData? icon,
-    required String text,
-    required VoidCallback onTap,
-    bool isCancel = false,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.regular * 2,
-            vertical: AppSpacing.regular * 1.6,
-          ),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  color: isCancel
-                      ? AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        )
-                      : AppColors.getTextColor(Theme.of(context).brightness),
-                  size: 22,
-                ),
-                SizedBox(width: AppSpacing.regular * 1.2),
-              ],
-              Text(
-                text,
-                style: ThemeManager.instance.getTextStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w400,
-                  color: isCancel
-                      ? AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        )
-                      : AppColors.getTextColor(Theme.of(context).brightness),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
 
-  /// 分享二维码
-  Future<void> _shareQrCode(BuildContext context, GlobalKey globalKey) async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final res = await RepaintBoundaryHelper().image(context, globalKey);
-      if (res != null) {
-        final result = await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile.fromData(res, mimeType: 'png')],
-            text: t.common.scanQrcodeAddFriend,
-          ),
-        );
-        if (result.status == ShareResultStatus.success) {
-          // 分享成功
-        }
-      }
-    });
+  void _showBottomSheet(BuildContext context, GlobalKey key, String filename) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _shareQrCode(context, key); }, child: Text(t.common.share)),
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _saveQrCode(context, key, filename); }, child: Text(t.common.saveQrCode)),
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); Navigator.push(context, CupertinoPageRoute(builder: (_) => const ScannerPage())); }, child: Text(t.account.scanQrCode)),
+        ],
+        cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(ctx), isDefaultAction: true, child: Text(t.common.buttonCancel)),
+      ),
+    );
   }
 
-  /// 保存二维码
-  Future<void> _saveQrCode(
-    BuildContext context,
-    GlobalKey globalKey,
-    String filename,
-  ) async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final res = await RepaintBoundaryHelper().savePhoto(
-        context,
-        globalKey,
-        filename,
-      );
-      if (kDebugMode) iPrint("savePhoto isSuccess: ${res?['isSuccess']}");
-      bool isSuccess =
-          res != null && res is Map && (res['isSuccess'] ?? false) == true
-          ? true
-          : false;
-      if (isSuccess) {
-        EasyLoading.showSuccess(t.common.saveSuccess);
-      }
-    });
+  Future<void> _shareQrCode(BuildContext context, GlobalKey key) async {
+    final res = await RepaintBoundaryHelper().image(context, key);
+    if (res != null) await SharePlus.instance.share(ShareParams(files: [XFile.fromData(res, mimeType: 'png')], text: t.common.scanQrcodeAddFriend));
+  }
+
+  Future<void> _saveQrCode(BuildContext context, GlobalKey key, String filename) async {
+    final res = await RepaintBoundaryHelper().savePhoto(context, key, filename);
+    if (res != null && (res['isSuccess'] ?? false)) EasyLoading.showSuccess(t.common.saveSuccess);
   }
 }
 
 class GroupQrCodePage extends ConsumerStatefulWidget {
   final GroupModel group;
-
   const GroupQrCodePage({super.key, required this.group});
-
   @override
   ConsumerState<GroupQrCodePage> createState() => _GroupQrCodePageState();
 }
@@ -525,483 +185,123 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   final GlobalKey globalKey = GlobalKey();
   final int dayNum = 7;
 
-  /// 加载群成员头像列表
-  ///
-  /// 用于 SmartGroupAvatar 显示群组头像
-  /// 返回最多 9 个群成员的头像 URL
   Future<List<String>> _loadGroupMemberAvatars(String groupId) async {
-    try {
-      final repo = GroupMemberRepo();
-      final members = await repo.page(
-        where: '${GroupMemberRepo.groupId} = ?',
-        whereArgs: [groupId],
-        limit: 9,
-      );
-
-      return members.map((m) => m.avatar).where((a) => a.isNotEmpty).toList();
-    } on Exception catch (e) {
-      if (kDebugMode) iPrint('加载群成员头像失败: ${e.runtimeType}');
-      return [];
-    }
+    final members = await GroupMemberRepo().page(where: '${GroupMemberRepo.groupId} = ?', whereArgs: [groupId], limit: 9);
+    return members.map((m) => m.avatar).where((a) => a.isNotEmpty).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-
-    // 计算二维码数据和过期时间
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
     int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
-    String key = Env().solidifiedKey;
-    String tk = EncrypterService.md5("${expiredAt}_$key");
-    Map<String, dynamic> query = {
-      'id': widget.group.groupId,
-      'exp': expiredAt,
-      'tk': tk,
-    };
-    String queryStr = query.entries
-        .map(
-          (entry) =>
-              '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}',
-        )
-        .join('&');
-    String qrcodeData =
-        "${Env().apiBaseUrl}/group/qrcode?$queryStr&$qrcodeDataSuffix";
+    String qrcodeData = "${Env().apiBaseUrl}/group/qrcode?id=${widget.group.groupId}&exp=$expiredAt&tk=${EncrypterService.md5("${expiredAt}_${Env().solidifiedKey}")}&$qrcodeDataSuffix";
 
-    return Scaffold(
-      backgroundColor: AppColors.getBackgroundColor(
-        Theme.of(context).brightness,
-      ),
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.account.groupQrcode,
-        backgroundColor: AppColors.getBackgroundColor(
-          Theme.of(context).brightness,
-        ),
-        rightDMActions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.more_horiz,
-              color: AppColors.getTextColor(Theme.of(context).brightness),
-              size: 24,
-            ),
-            onPressed: () => _showGroupBottomSheet(context),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular * 2,
-          vertical: AppSpacing.regular * 2,
-        ),
+    return IosPageTemplate(
+      title: t.account.groupQrcode,
+      useLargeTitle: false,
+      actions: [
+        CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.ellipsis_circle, size: 22), onPressed: () => _showGroupBottomSheet(context)),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           children: [
             RepaintBoundary(
               key: globalKey,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
+              child: _buildQrCard(
+                isDark,
+                header: Column(
                   children: [
-                    SizedBox(height: AppSpacing.regular * 2),
-
-                    // 群头像
-                    SmartGroupAvatar(
-                      avatar: widget.group.avatar,
-                      groupId: widget.group.groupId.toString(),
-                      avatarLoader: _loadGroupMemberAvatars,
-                    ),
-
-                    SizedBox(height: AppSpacing.regular * 1.2),
-
-                    // 群名称
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.regular * 2,
-                      ),
-                      child: Text(
-                        "${t.chat.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}",
-                        style: ThemeManager.instance.getTextStyle(
-                          FontSizeType.large,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.lightTextPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-
-                    SizedBox(height: AppSpacing.regular * 2),
-
-                    // 二维码
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.regular),
-                      child: QrImageView(
-                        data: qrcodeData,
-                        version: QrVersions.auto,
-                        errorCorrectionLevel: QrErrorCorrectLevel.H,
-                        size: 240,
-                        gapless: true,
-                        eyeStyle: const QrEyeStyle(
-                          eyeShape: QrEyeShape.square,
-                          color: Colors.black,
-                        ),
-                        dataModuleStyle: const QrDataModuleStyle(
-                          dataModuleShape: QrDataModuleShape.square,
-                          color: Colors.black,
-                        ),
-                        embeddedImage: MediaQuery.of(context).size.height < 640
-                            ? null
-                            : const AssetImage('assets/images/imboy_logo0.png'),
-                      ),
-                    ),
-
-                    // 有效期提示
-                    Padding(
-                      padding: EdgeInsets.all(AppSpacing.regular * 2),
-                      child: Text(
-                        t.common.groupQrcodeTips(
-                          days: dayNum.toString(),
-                          date: DateFormat('y-MM-dd').format(
-                            DateTime.fromMillisecondsSinceEpoch(expiredAt),
-                          ),
-                        ),
-                        style: ThemeManager.instance.getTextStyle(
-                          FontSizeType.small,
-                          color: AppColors.lightTextSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                    SmartGroupAvatar(avatar: widget.group.avatar, groupId: widget.group.groupId.toString(), avatarLoader: _loadGroupMemberAvatars, size: 64),
+                    const SizedBox(height: 16),
+                    Text("${t.chat.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}", textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
                   ],
                 ),
+                qrcodeData: qrcodeData,
+                footerText: t.common.groupQrcodeTips(days: dayNum.toString(), date: DateFormat('y-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(expiredAt))),
               ),
             ),
-
-            SizedBox(height: AppSpacing.regular * 3),
-
-            // 操作按钮
-            Row(
-              children: [
-                Expanded(
-                  child: _buildActionButton(
-                    context: context,
-                    icon: Icons.save_alt,
-                    text: t.common.saveQrCode,
-                    onPressed: () => _saveGroupQrCode(context),
-                  ),
-                ),
-
-                SizedBox(width: AppSpacing.regular * 2),
-
-                Expanded(
-                  child: _buildActionButton(
-                    context: context,
-                    icon: Icons.share,
-                    text: t.common.share,
-                    onPressed: () => _shareGroupQrCode(context),
-                  ),
-                ),
-              ],
-            ),
+            const SizedBox(height: 48),
+            _buildActionButtons(context),
           ],
         ),
       ),
     );
   }
 
-  /// 构建操作按钮
-  Widget _buildActionButton({
-    required BuildContext context,
-    required IconData icon,
-    required String text,
-    required VoidCallback onPressed,
-  }) {
+  Widget _buildQrCard(bool isDark, {required Widget header, required String qrcodeData, required String footerText}) {
     return Container(
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.08),
-            AppColors.primary.withValues(alpha: 0.12),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: AppRadius.borderRadiusRegular,
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+      width: double.infinity,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))]),
+      child: Column(
+        children: [
+          Padding(padding: const EdgeInsets.all(24), child: header),
+          Container(height: 0.33, margin: const EdgeInsets.symmetric(horizontal: 24), color: Colors.black12),
+          Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              children: [
+                QrImageView(
+                  data: qrcodeData, version: QrVersions.auto, errorCorrectionLevel: QrErrorCorrectLevel.H, size: 220, gapless: true,
+                  eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+                  dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+                  embeddedImage: const AssetImage('assets/images/imboy_logo0.png'),
+                  embeddedImageStyle: const QrEmbeddedImageStyle(size: Size.square(40)),
+                ),
+                const SizedBox(height: 24),
+                Text(footerText, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: AppColors.iosGray, fontWeight: FontWeight.w500)),
+              ],
+            ),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusRegular,
-          splashColor: AppColors.primary.withValues(alpha: 0.1),
-          highlightColor: AppColors.primary.withValues(alpha: 0.05),
-          onTap: onPressed,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 1.2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusSmall,
-                  ),
-                  child: Icon(icon, color: AppColors.primary, size: 18),
-                ),
-                SizedBox(width: AppSpacing.regular),
-                Flexible(
-                  child: Text(
-                    text,
-                    style: ThemeManager.instance.getTextStyle(
-                      FontSizeType.medium,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
-  /// 显示群组底部弹窗
+  Widget _buildActionButtons(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: _buildPremiumBtn(context, CupertinoIcons.arrow_down_doc, t.common.saveQrCode, () => _saveGroupQrCode(context))),
+        const SizedBox(width: 16),
+        Expanded(child: _buildPremiumBtn(context, CupertinoIcons.share, t.common.share, () => _shareGroupQrCode(context))),
+      ],
+    );
+  }
+
+  Widget _buildPremiumBtn(BuildContext context, IconData icon, String text, VoidCallback onTap) {
+    return CupertinoButton(padding: EdgeInsets.zero, onPressed: onTap, child: Container(height: 52, decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 20, color: AppColors.primary), const SizedBox(width: 8), Text(text, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.primary))])));
+  }
+
   void _showGroupBottomSheet(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkCardBackground
-              : AppColors.lightCardBackground,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 顶部指示器
-              Container(
-                width: 36,
-                height: 4,
-                margin: EdgeInsets.only(
-                  top: AppSpacing.regular * 1.2,
-                  bottom: AppSpacing.regular * 2,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.getDividerColor(
-                    Theme.of(context).brightness,
-                  ),
-                  borderRadius: AppRadius.borderRadiusTiny,
-                ),
-              ),
-
-              // 分享选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.share,
-                text: t.common.share,
-                onTap: () {
-                  Navigator.pop(context);
-                  _shareGroupQrCode(context);
-                },
-              ),
-
-              // 保存选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.save_alt,
-                text: t.common.saveQrCode,
-                onTap: () {
-                  Navigator.pop(context);
-                  _saveGroupQrCode(context);
-                },
-              ),
-
-              // 扫一扫选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.qr_code_scanner,
-                text: t.account.scanQrCode,
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (context) => const ScannerPage(),
-                    ),
-                  );
-                },
-              ),
-
-              // 分割线
-              Container(
-                height: 8,
-                color: AppColors.getDividerColor(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.3),
-                margin: EdgeInsets.symmetric(vertical: AppSpacing.regular),
-              ),
-
-              // 取消选项
-              _buildBottomSheetItem(
-                context: context,
-                text: t.common.buttonCancel,
-                onTap: () => Navigator.pop(context),
-                isCancel: true,
-              ),
-
-              SizedBox(height: AppSpacing.regular),
-            ],
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
-
-  /// 构建底部弹窗选项
-  Widget _buildBottomSheetItem({
-    required BuildContext context,
-    IconData? icon,
-    required String text,
-    required VoidCallback onTap,
-    bool isCancel = false,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.regular * 2,
-            vertical: AppSpacing.regular * 1.6,
-          ),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  color: isCancel
-                      ? AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        )
-                      : AppColors.getTextColor(Theme.of(context).brightness),
-                  size: 22,
-                ),
-                SizedBox(width: AppSpacing.regular * 1.2),
-              ],
-              Text(
-                text,
-                style: ThemeManager.instance.getTextStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w400,
-                  color: isCancel
-                      ? AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        )
-                      : AppColors.getTextColor(Theme.of(context).brightness),
-                ),
-              ),
-            ],
-          ),
-        ),
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _shareGroupQrCode(context); }, child: Text(t.common.share)),
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _saveGroupQrCode(context); }, child: Text(t.common.saveQrCode)),
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); Navigator.push(context, CupertinoPageRoute(builder: (_) => const ScannerPage())); }, child: Text(t.account.scanQrCode)),
+        ],
+        cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(ctx), isDefaultAction: true, child: Text(t.common.buttonCancel)),
       ),
     );
   }
 
-  /// 分享群二维码
   Future<void> _shareGroupQrCode(BuildContext context) async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final res = await RepaintBoundaryHelper().image(context, globalKey);
-      if (res != null) {
-        final t = context.t;
-        final txt = t.common.groupQrcodeTips(
-          days: dayNum.toString(),
-          date: DateTimeHelper.lastTimeFmt(
-            DateTimeHelper.millisecond() + dayNum * 86400 * 1000,
-            pattern: 'y-MM-dd',
-          ),
-        );
-        final result = await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile.fromData(res, mimeType: 'png')],
-            text: txt,
-          ),
-        );
-        if (result.status == ShareResultStatus.success) {
-          // 分享成功
-        }
-      }
-    });
+    final res = await RepaintBoundaryHelper().image(context, globalKey);
+    if (res != null) await SharePlus.instance.share(ShareParams(files: [XFile.fromData(res, mimeType: 'png')], text: t.common.scanQrcodeAddFriend));
   }
 
-  /// 保存群二维码
   Future<void> _saveGroupQrCode(BuildContext context) async {
-    String filename = "${widget.group.groupId}_qrcode.png";
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final res = await RepaintBoundaryHelper().savePhoto(
-        context,
-        globalKey,
-        filename,
-      );
-      if (kDebugMode) iPrint("savePhoto group isSuccess: ${res?['isSuccess']}");
-      bool isSuccess =
-          res != null && res is Map && (res['isSuccess'] ?? false) == true
-          ? true
-          : false;
-      if (isSuccess) {
-        EasyLoading.showSuccess(context.t.common.saveSuccess);
-      }
-    });
+    final res = await RepaintBoundaryHelper().savePhoto(context, globalKey, "${widget.group.groupId}_qrcode.png");
+    if (res != null && (res['isSuccess'] ?? false)) EasyLoading.showSuccess(t.common.saveSuccess);
   }
 }
 
-/// 频道二维码页面
+/// 频道二维码页面 - 像素级对齐 iOS 17 Premium 风格
 class ChannelQrCodePage extends ConsumerStatefulWidget {
   final Map<String, dynamic> channelData;
-
   const ChannelQrCodePage({super.key, required this.channelData});
-
   @override
   ConsumerState<ChannelQrCodePage> createState() => _ChannelQrCodePageState();
 }
@@ -1012,475 +312,111 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-
-    // 从 channelData 获取频道信息
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
     final channelId = widget.channelData['id'] as String? ?? '';
     final channelName = widget.channelData['name'] as String? ?? '';
     final channelAvatar = widget.channelData['avatar'] as String?;
-
-    // 计算二维码数据和过期时间
     int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
-    String key = Env().solidifiedKey;
-    String tk = EncrypterService.md5("${expiredAt}_$key");
-    Map<String, dynamic> query = {'id': channelId, 'exp': expiredAt, 'tk': tk};
-    String queryStr = query.entries
-        .map(
-          (entry) =>
-              '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}',
-        )
-        .join('&');
-    String qrcodeData =
-        "${Env().apiBaseUrl}/channel/qrcode?$queryStr&$qrcodeDataSuffix";
+    String qrcodeData = "${Env().apiBaseUrl}/channel/qrcode?id=$channelId&exp=$expiredAt&tk=${EncrypterService.md5("${expiredAt}_${Env().solidifiedKey}")}&$qrcodeDataSuffix";
 
-    return Scaffold(
-      backgroundColor: AppColors.getBackgroundColor(
-        Theme.of(context).brightness,
-      ),
-      appBar: GlassAppBar(
-        automaticallyImplyLeading: true,
-        title: t.channel.qrcode,
-        backgroundColor: AppColors.getBackgroundColor(
-          Theme.of(context).brightness,
-        ),
-        rightDMActions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.more_horiz,
-              color: AppColors.getTextColor(Theme.of(context).brightness),
-              size: 24,
-            ),
-            onPressed: () => _showChannelBottomSheet(context),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular * 2,
-          vertical: AppSpacing.regular * 2,
-        ),
+    return IosPageTemplate(
+      title: t.channel.qrcode,
+      useLargeTitle: false,
+      actions: [
+        CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.ellipsis_circle, size: 22), onPressed: () => _showChannelBottomSheet(context)),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           children: [
             RepaintBoundary(
               key: globalKey,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
+              child: _buildQrCard(
+                isDark,
+                header: Column(
                   children: [
-                    SizedBox(height: AppSpacing.regular * 2),
-
-                    // 频道头像
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: AppRadius.borderRadiusMedium,
-                        image: channelAvatar != null && channelAvatar.isNotEmpty
-                            ? dynamicAvatar(channelAvatar)
-                            : null,
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                      ),
-                      child: channelAvatar == null || channelAvatar.isEmpty
-                          ? Icon(
-                              Icons.campaign,
-                              size: 32,
-                              color: AppColors.primary,
-                            )
-                          : null,
-                    ),
-
-                    SizedBox(height: AppSpacing.regular * 1.2),
-
-                    // 频道名称
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.regular * 2,
-                      ),
-                      child: Text(
-                        channelName.isNotEmpty
-                            ? channelName
-                            : t.channel.defaultName,
-                        style: ThemeManager.instance.getTextStyle(
-                          FontSizeType.large,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.lightTextPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-
-                    SizedBox(height: AppSpacing.regular * 2),
-
-                    // 二维码
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.regular),
-                      child: QrImageView(
-                        data: qrcodeData,
-                        version: QrVersions.auto,
-                        errorCorrectionLevel: QrErrorCorrectLevel.H,
-                        size: 240,
-                        gapless: true,
-                        eyeStyle: const QrEyeStyle(
-                          eyeShape: QrEyeShape.square,
-                          color: Colors.black,
-                        ),
-                        dataModuleStyle: const QrDataModuleStyle(
-                          dataModuleShape: QrDataModuleShape.square,
-                          color: Colors.black,
-                        ),
-                        embeddedImage: MediaQuery.of(context).size.height < 640
-                            ? null
-                            : const AssetImage('assets/images/imboy_logo0.png'),
-                      ),
-                    ),
-
-                    // 有效期提示
-                    Padding(
-                      padding: EdgeInsets.all(AppSpacing.regular * 2),
-                      child: Text(
-                        t.channel.qrcodeTips(
-                          days: dayNum.toString(),
-                          date: DateFormat('y-MM-dd').format(
-                            DateTime.fromMillisecondsSinceEpoch(expiredAt),
-                          ),
-                        ),
-                        style: ThemeManager.instance.getTextStyle(
-                          FontSizeType.small,
-                          color: AppColors.lightTextSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                    Container(width: 64, height: 64, decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), image: channelAvatar != null && channelAvatar.isNotEmpty ? dynamicAvatar(channelAvatar) : null, color: AppColors.primary.withValues(alpha: 0.1)), child: channelAvatar == null || channelAvatar.isEmpty ? const Icon(CupertinoIcons.antenna_radiowaves_left_right, size: 32, color: AppColors.primary) : null),
+                    const SizedBox(height: 16),
+                    Text(channelName.isNotEmpty ? channelName : t.channel.defaultName, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
                   ],
                 ),
+                qrcodeData: qrcodeData,
+                footerText: t.channel.qrcodeTips(days: dayNum.toString(), date: DateFormat('y-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(expiredAt))),
               ),
             ),
-
-            SizedBox(height: AppSpacing.regular * 3),
-
-            // 操作按钮
-            Row(
-              children: [
-                Expanded(
-                  child: _buildActionButton(
-                    context: context,
-                    icon: Icons.save_alt,
-                    text: t.common.saveQrCode,
-                    onPressed: () => _saveChannelQrCode(context, channelId),
-                  ),
-                ),
-
-                SizedBox(width: AppSpacing.regular * 2),
-
-                Expanded(
-                  child: _buildActionButton(
-                    context: context,
-                    icon: Icons.share,
-                    text: t.common.share,
-                    onPressed: () => _shareChannelQrCode(context),
-                  ),
-                ),
-              ],
-            ),
+            const SizedBox(height: 48),
+            _buildActionButtons(context, channelId),
           ],
         ),
       ),
     );
   }
 
-  /// 构建操作按钮
-  Widget _buildActionButton({
-    required BuildContext context,
-    required IconData icon,
-    required String text,
-    required VoidCallback onPressed,
-  }) {
+  Widget _buildQrCard(bool isDark, {required Widget header, required String qrcodeData, required String footerText}) {
     return Container(
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.08),
-            AppColors.primary.withValues(alpha: 0.12),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: AppRadius.borderRadiusRegular,
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+      width: double.infinity,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))]),
+      child: Column(
+        children: [
+          Padding(padding: const EdgeInsets.all(24), child: header),
+          Container(height: 0.33, margin: const EdgeInsets.symmetric(horizontal: 24), color: Colors.black12),
+          Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              children: [
+                QrImageView(
+                  data: qrcodeData, version: QrVersions.auto, errorCorrectionLevel: QrErrorCorrectLevel.H, size: 220, gapless: true,
+                  eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+                  dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+                  embeddedImage: const AssetImage('assets/images/imboy_logo0.png'),
+                  embeddedImageStyle: const QrEmbeddedImageStyle(size: Size.square(40)),
+                ),
+                const SizedBox(height: 24),
+                Text(footerText, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: AppColors.iosGray, fontWeight: FontWeight.w500)),
+              ],
+            ),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusRegular,
-          splashColor: AppColors.primary.withValues(alpha: 0.1),
-          highlightColor: AppColors.primary.withValues(alpha: 0.05),
-          onTap: onPressed,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.regular * 1.2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusSmall,
-                  ),
-                  child: Icon(icon, color: AppColors.primary, size: 18),
-                ),
-                SizedBox(width: AppSpacing.regular),
-                Flexible(
-                  child: Text(
-                    text,
-                    style: ThemeManager.instance.getTextStyle(
-                      FontSizeType.medium,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
-  /// 显示频道底部弹窗
+  Widget _buildActionButtons(BuildContext context, String channelId) {
+    return Row(
+      children: [
+        Expanded(child: _buildPremiumBtn(context, CupertinoIcons.arrow_down_doc, t.common.saveQrCode, () => _saveChannelQrCode(context, channelId))),
+        const SizedBox(width: 16),
+        Expanded(child: _buildPremiumBtn(context, CupertinoIcons.share, t.common.share, () => _shareChannelQrCode(context))),
+      ],
+    );
+  }
+
+  Widget _buildPremiumBtn(BuildContext context, IconData icon, String text, VoidCallback onTap) {
+    return CupertinoButton(padding: EdgeInsets.zero, onPressed: onTap, child: Container(height: 52, decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 20, color: AppColors.primary), const SizedBox(width: 8), Text(text, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.primary))])));
+  }
+
   void _showChannelBottomSheet(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkCardBackground
-              : AppColors.lightCardBackground,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 顶部指示器
-              Container(
-                width: 36,
-                height: 4,
-                margin: EdgeInsets.only(
-                  top: AppSpacing.regular * 1.2,
-                  bottom: AppSpacing.regular * 2,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.getDividerColor(
-                    Theme.of(context).brightness,
-                  ),
-                  borderRadius: AppRadius.borderRadiusTiny,
-                ),
-              ),
-
-              // 分享选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.share,
-                text: context.t.common.share,
-                onTap: () {
-                  Navigator.pop(context);
-                  _shareChannelQrCode(context);
-                },
-              ),
-
-              // 保存选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.save_alt,
-                text: context.t.common.saveQrCode,
-                onTap: () {
-                  Navigator.pop(context);
-                  final channelId = widget.channelData['id'] as String? ?? '';
-                  _saveChannelQrCode(context, channelId);
-                },
-              ),
-
-              // 扫一扫选项
-              _buildBottomSheetItem(
-                context: context,
-                icon: Icons.qr_code_scanner,
-                text: context.t.account.scanQrCode,
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (context) => const ScannerPage(),
-                    ),
-                  );
-                },
-              ),
-
-              // 分割线
-              Container(
-                height: 8,
-                color: AppColors.getDividerColor(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.3),
-                margin: EdgeInsets.symmetric(vertical: AppSpacing.regular),
-              ),
-
-              // 取消选项
-              _buildBottomSheetItem(
-                context: context,
-                text: context.t.common.buttonCancel,
-                onTap: () => Navigator.pop(context),
-                isCancel: true,
-              ),
-
-              SizedBox(height: AppSpacing.regular),
-            ],
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
-
-  /// 构建底部弹窗选项
-  Widget _buildBottomSheetItem({
-    required BuildContext context,
-    IconData? icon,
-    required String text,
-    required VoidCallback onTap,
-    bool isCancel = false,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.regular * 2,
-            vertical: AppSpacing.regular * 1.6,
-          ),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  color: isCancel
-                      ? AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        )
-                      : AppColors.getTextColor(Theme.of(context).brightness),
-                  size: 22,
-                ),
-                SizedBox(width: AppSpacing.regular * 1.2),
-              ],
-              Text(
-                text,
-                style: ThemeManager.instance.getTextStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w400,
-                  color: isCancel
-                      ? AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        )
-                      : AppColors.getTextColor(Theme.of(context).brightness),
-                ),
-              ),
-            ],
-          ),
-        ),
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _shareChannelQrCode(context); }, child: Text(t.common.share)),
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _saveChannelQrCode(context, widget.channelData['id'] as String? ?? ''); }, child: Text(t.common.saveQrCode)),
+          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); Navigator.push(context, CupertinoPageRoute(builder: (_) => const ScannerPage())); }, child: Text(t.account.scanQrCode)),
+        ],
+        cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(ctx), isDefaultAction: true, child: Text(t.common.buttonCancel)),
       ),
     );
   }
 
-  /// 分享频道二维码
   Future<void> _shareChannelQrCode(BuildContext context) async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final res = await RepaintBoundaryHelper().image(context, globalKey);
-      if (res != null) {
-        final t = context.t;
-        final channelName =
-            widget.channelData['name'] as String? ?? t.channel.defaultName;
-        final txt = t.channel.qrcodeTips(
-          days: dayNum.toString(),
-          date: DateTimeHelper.lastTimeFmt(
-            DateTimeHelper.millisecond() + dayNum * 86400 * 1000,
-            pattern: 'y-MM-dd',
-          ),
-        );
-        final result = await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile.fromData(res, mimeType: 'png')],
-            text: '$channelName - $txt',
-          ),
-        );
-        if (result.status == ShareResultStatus.success) {
-          // 分享成功
-        }
-      }
-    });
+    final res = await RepaintBoundaryHelper().image(context, globalKey);
+    if (res != null) await SharePlus.instance.share(ShareParams(files: [XFile.fromData(res, mimeType: 'png')], text: t.common.scanQrcodeAddFriend));
   }
 
-  /// 保存频道二维码
-  Future<void> _saveChannelQrCode(
-    BuildContext context,
-    String channelId,
-  ) async {
-    String filename = "${channelId}_qrcode.png";
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final res = await RepaintBoundaryHelper().savePhoto(
-        context,
-        globalKey,
-        filename,
-      );
-      if (kDebugMode) {
-        iPrint("savePhoto channel isSuccess: ${res?['isSuccess']}");
-      }
-      bool isSuccess =
-          res != null && res is Map && (res['isSuccess'] ?? false) == true
-          ? true
-          : false;
-      if (isSuccess) {
-        EasyLoading.showSuccess(context.t.common.saveSuccess);
-      }
-    });
+  Future<void> _saveChannelQrCode(BuildContext context, String channelId) async {
+    final res = await RepaintBoundaryHelper().savePhoto(context, globalKey, "${channelId}_qrcode.png");
+    if (res != null && (res['isSuccess'] ?? false)) EasyLoading.showSuccess(t.common.saveSuccess);
   }
 }

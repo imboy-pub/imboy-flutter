@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -384,13 +385,13 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: AppRadius.borderRadiusLarge,
+        borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
         // DESIGN.md §9.1：聊天气泡（含语音气泡）不带阴影
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: AppRadius.borderRadiusLarge,
+          borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
           onTap: () => _handlePlayPause(audioPath, msg, duration),
           child: Padding(
             padding: MessageSpacing.bubblePaddingSymmetric,
@@ -477,8 +478,8 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
             ),
             child: Icon(
               isPlayingUI
-                  ? (isPausedUI ? Icons.play_arrow : Icons.pause)
-                  : Icons.play_arrow,
+                  ? (isPausedUI ? CupertinoIcons.play_fill : CupertinoIcons.pause_fill)
+                  : CupertinoIcons.play_fill,
               color: iconColor,
               size: 20,
             ),

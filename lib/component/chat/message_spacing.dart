@@ -224,19 +224,7 @@ class MessageSpacing {
 
   /// 根据是否为发送者返回对应的气泡圆角
   static BorderRadius getBubbleBorderRadius(bool isSentByMe) {
-    return isSentByMe
-        ? const BorderRadius.only(
-            topLeft: Radius.circular(bubbleBorderRadius),
-            topRight: Radius.circular(bubbleDirectionRadius),
-            bottomLeft: Radius.circular(bubbleBorderRadius),
-            bottomRight: Radius.circular(bubbleBorderRadius),
-          )
-        : const BorderRadius.only(
-            topLeft: Radius.circular(bubbleDirectionRadius),
-            topRight: Radius.circular(bubbleBorderRadius),
-            bottomLeft: Radius.circular(bubbleBorderRadius),
-            bottomRight: Radius.circular(bubbleBorderRadius),
-          );
+    return BorderRadius.circular(bubbleBorderRadius);
   }
 
   /// 根据是否为发送者返回对应的阴影效果

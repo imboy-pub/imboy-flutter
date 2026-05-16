@@ -1,13 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-
-// ignore: depend_on_referenced_packages
 import 'package:imboy/component/helper/func.dart' show formatBytes;
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class QuoteTipsWidget extends StatelessWidget {
   const QuoteTipsWidget({
@@ -18,14 +17,12 @@ class QuoteTipsWidget extends StatelessWidget {
   });
 
   final String title;
-
   final Message? message;
-
   final void Function()? close;
 
   Widget animatedBuilder(bool visible, Widget child) {
     return AnimatedOpacity(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 300),
       opacity: visible ? 1.0 : 0.0,
       child: child,
     );
@@ -40,100 +37,58 @@ class QuoteTipsWidget extends StatelessWidget {
     if (message is TextMessage) {
       body = Text(
         (message as TextMessage).text,
-        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-        maxLines: 8,
+        style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
     } else if (message is ImageMessage) {
       body = Row(
         children: [
-          Icon(
-            Icons.image,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.photo, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
-          ImageView(uri: (message as ImageMessage).source, height: 40),
+          ImageView(uri: (message as ImageMessage).source, height: 32),
         ],
       );
     } else if (message is FileMessage) {
       FileMessage fileMsg = message as FileMessage;
-      body = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body = Row(
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.attach_file,
-                size: 16,
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  "[${t.chat.file}] (${formatBytes(fileMsg.size!.truncate())})",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const SizedBox(width: 24), // 与图标对齐
-              Expanded(
-                child: Text(
-                  fileMsg.name,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          Icon(CupertinoIcons.doc, size: 16, color: AppColors.iosGray),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              fileMsg.name,
+              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       );
     } else if (message is AudioMessage) {
       body = Row(
         children: [
-          Icon(
-            Icons.mic,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.mic, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Text(
             "[${t.chat.voiceMessage}]",
-            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            style: TextStyle(color: AppColors.iosGray, fontSize: 14),
           ),
         ],
       );
     }
 
-    // WebSocket API v2.0: 读取 msg_type 和 status
     String msgType = message?.metadata?['msg_type'] as String? ?? '';
     final status = message?.metadata?['status'] as int?;
 
-    // 优先检查 status 字段（撤回状态 30-39）
     if (IMBoyMessageStatus.isRevokedStatus(status)) {
       body = Row(
         children: [
-          Icon(
-            Icons.block,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.slash_circle, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Text(
             t.common.messageRevoked,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.tertiary,
-              fontStyle: FontStyle.italic,
-            ),
+            style: TextStyle(color: AppColors.iosGray, fontStyle: FontStyle.italic, fontSize: 14),
           ),
         ],
       );
@@ -141,53 +96,40 @@ class QuoteTipsWidget extends StatelessWidget {
       String txt = message?.metadata?['quote_text'] as String? ?? '';
       body = Row(
         children: [
-          Icon(
-            Icons.format_quote,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.quote_bubble, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               "[${t.main.quote}] $txt",
-              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-              maxLines: 3,
+              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       );
     } else if (msgType == MessageType.voice) {
-      double durationMS =
-          (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
+      double durationMS = (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
       body = Row(
         children: [
-          Icon(
-            Icons.mic,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.mic, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Text(
             "[${t.chat.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
-            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            style: TextStyle(color: AppColors.iosGray, fontSize: 14),
           ),
         ],
       );
     } else if (msgType == MessageType.location) {
       body = Row(
         children: [
-          Icon(
-            Icons.location_on,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.location, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               "[${t.groupSchedule.location}] ${message?.metadata?['title'] ?? ''}",
-              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-              maxLines: 2,
+              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -196,106 +138,69 @@ class QuoteTipsWidget extends StatelessWidget {
     } else if (msgType == MessageType.video) {
       body = Row(
         children: [
-          Icon(
-            Icons.videocam,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.videocam, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Text(
-            "[${t.chat.video}] ",
-            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            "[${t.chat.video}]",
+            style: TextStyle(color: AppColors.iosGray, fontSize: 14),
           ),
-          const SizedBox(width: 4),
-          if (message?.metadata?['thumb']?['uri'] != null)
-            ImageView(
-              uri: message?.metadata?['thumb']['uri'] as String,
-              height: 40,
-            )
-          else
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.tertiary.withValues(alpha: 0.2),
-                borderRadius: AppRadius.borderRadiusTiny,
-              ),
-              child: Icon(
-                Icons.play_arrow,
-                color: Theme.of(context).colorScheme.tertiary,
-                size: 20,
-              ),
-            ),
         ],
       );
     } else if (msgType == MessageType.visitCard) {
       body = Row(
         children: [
-          Icon(
-            Icons.person,
-            size: 16,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+          Icon(CupertinoIcons.person_crop_circle, size: 16, color: AppColors.iosGray),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               "[${t.chat.businessCard}] ${message?.metadata?['title'] ?? ''}",
-              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-              maxLines: 2,
+              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       );
     }
+
     if (body == null) {
       return animatedBuilder(false, const SizedBox.shrink());
     }
+
     return animatedBuilder(
       true,
-      Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20, right: 8),
-            child: const SizedBox(
-              height: 64,
-              width: 4,
-              child: VerticalDivider(
-                thickness: 2, // 分割线的厚度
-                // color: AppColors.ItemOnColor,
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurface : Colors.white,
+          border: Border(top: BorderSide(color: AppColors.getIosSeparator(Theme.of(context).brightness).withValues(alpha: 0.2), width: 0.5)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 3, height: 32,
+              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(Theme.of(context).brightness))),
+                  const SizedBox(height: 2),
+                  body!,
+                ],
               ),
             ),
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          // color: AppColors.primaryText,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(children: [Expanded(child: body)]),
-              ],
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              minSize: 32,
+              onPressed: close,
+              child: Icon(CupertinoIcons.xmark_circle_fill, size: 20, color: AppColors.iosGray),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: InkWell(
-              onTap: close,
-              child: const Icon(Icons.close_rounded, size: 24),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

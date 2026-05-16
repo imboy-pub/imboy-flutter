@@ -238,7 +238,7 @@ class ImageMessageTypePlugin implements MessageTypePlugin {
   bool get isEnabled => true;
 
   @override
-  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+  MessagePluginSurface get surface => MessagePluginSurface.standalone;
 
   @override
   String get type => MessageType.image;

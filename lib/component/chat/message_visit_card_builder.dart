@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -64,94 +65,87 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
         // 使用与语音消息相同的背景色
-        Color bgColor;
+        Color bgColor, textColor, subTextColor;
         if (userIsAuthor) {
-          // 发送方：使用发送消息背景色
           bgColor = isDark
               ? AppColors.darkSentMessageBackground
               : AppColors.lightSentMessageBackground;
+          textColor = Colors.white;
+          subTextColor = Colors.white70;
         } else {
-          // 接收方：使用与语音消息相同的背景色
           bgColor = isDark
-              ? AppColors
-                    .darkSurfaceVariant // 暗色模式：深灰色
-              : Colors.black12; // 亮色模式：浅灰色
+              ? AppColors.darkReceivedMessageBackground
+              : AppColors.lightSurfaceContainer;
+          textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+          subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
         }
 
         return Container(
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: AppRadius.borderRadiusLarge,
+            borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
           ),
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.618,
-            height: 105,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: InkWell(
-                      onTap: () {
-                        final uid = msg.metadata?['uid'];
-                        if (uid == null || uid.toString().isEmpty) return;
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute<dynamic>(
-                            builder: (context) => PeopleInfoPage(
-                              id: uid as String,
-                              scene: 'visitCard',
-                            ),
-                          ),
-                        );
-                      },
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4, right: 4),
-                            child: Avatar(
-                              imgUri: msg.metadata?['avatar'] as String,
-                            ),
-                          ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                (msg.metadata?['title'] ??
-                                        (msg.metadata?['account'] ?? ''))
-                                    as String,
-                                textAlign: TextAlign.left,
-                                // style: TextStyle(
-                                //   color:
-                                //       userIsAuthor ? Colors.black87 : textColor,
-                                //   fontWeight: FontWeight.w500,
-                                //   fontSize: 14.0,
-                                // ),
-                                maxLines: 4,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                        ],
+          child: Container(
+            width: 240,
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () {
+                    final uid = msg.metadata?['uid'];
+                    if (uid == null || uid.toString().isEmpty) return;
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute<dynamic>(
+                        builder: (context) => PeopleInfoPage(
+                          id: uid as String,
+                          scene: 'visitCard',
+                        ),
                       ),
-                    ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Avatar(
+                        imgUri: (msg.metadata?['avatar'] ?? '') as String,
+                        width: 48,
+                        height: 48,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          (msg.metadata?['title'] ??
+                                  (msg.metadata?['account'] ?? ''))
+                              as String,
+                          style: TextStyle(
+                            color: textColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  const Divider(),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      t.common.personalCard,
-                      // style: TextStyle(
-                      //   fontSize: 12,
-                      //   color: userIsAuthor ? Colors.black87 : textColor,
-                      // ),
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Divider(
+                    height: 1,
+                    color: subTextColor.withValues(alpha: 0.2),
                   ),
-                ],
-              ),
+                ),
+                Text(
+                  t.common.personalCard,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: subTextColor,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           ),
         );

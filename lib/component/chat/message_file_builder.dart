@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 文件消息构建器
 class MessageFileBuilder extends StatelessWidget {
@@ -26,6 +28,14 @@ class MessageFileBuilder extends StatelessWidget {
     final String uri = metadata['uri'] as String? ?? '';
     final bool isSentByMe = message.authorId == user.id;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isSentByMe
+        ? Colors.white
+        : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
+    final subTextColor = isSentByMe
+        ? Colors.white.withValues(alpha: 0.7)
+        : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
+
     return GestureDetector(
       onTap: () {
         if (uri.isNotEmpty) {
@@ -34,7 +44,7 @@ class MessageFileBuilder extends StatelessWidget {
       },
       child: Container(
         width: 240,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         child: Row(
           children: [
             Expanded(
@@ -45,20 +55,19 @@ class MessageFileBuilder extends StatelessWidget {
                   Text(
                     filename,
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: isSentByMe ? Colors.white : Colors.black87,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     formatBytes(size),
                     style: TextStyle(
                       fontSize: 12,
-                      color: (isSentByMe ? Colors.white : Colors.black54)
-                          .withValues(alpha: 0.8),
+                      color: subTextColor,
                     ),
                   ),
                 ],
@@ -66,17 +75,21 @@ class MessageFileBuilder extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Container(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: (isSentByMe ? Colors.white : Colors.blue).withValues(
-                  alpha: 0.2,
-                ),
-                borderRadius: BorderRadius.circular(8),
+                color: isSentByMe
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : AppColors.getIosBlue(Theme.of(context).brightness)
+                        .withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.insert_drive_file,
-                color: isSentByMe ? Colors.white : Colors.blue,
+                CupertinoIcons.doc_fill,
+                color: isSentByMe
+                    ? Colors.white
+                    : AppColors.getIosBlue(Theme.of(context).brightness),
+                size: 24,
               ),
             ),
           ],

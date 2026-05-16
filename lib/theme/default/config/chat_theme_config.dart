@@ -138,11 +138,11 @@ class ChatThemeConfig {
     );
     final textColor = isEyeCareMode
         ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.dark)
-        : const Color(0xFFE6E0E9);
+        : Colors.white;
 
     return ChatTheme(
       colors: ChatColors(
-        // DESIGN.md 双蓝策略：暗色发送气泡用品牌蓝变体（非 Material 3 绿色）
+        // DESIGN.md 双蓝策略：暗色发送气泡用品牌蓝变体
         primary: AppColors.darkSentMessageBackground,
         onPrimary: AppColors.sentMessageText,
 
@@ -168,7 +168,7 @@ class ChatThemeConfig {
     );
   }
 
-  /// 构建聊天字体配置 - Material 3字体排版系统
+  /// 构建聊天字体配置 - iOS HIG 对齐
   static ChatTypography _buildChatTypography({
     bool isDark = false,
     bool isOLEDMode = false,
@@ -178,91 +178,83 @@ class ChatThemeConfig {
   }) {
     // 根据模式动态调整文本颜色
     final textColor = isDark
-        ? (isEyeCareMode
-              ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.dark)
-              : const Color(0xFFE6E0E9)) // Material 3 On Surface Dark
-        : (isEyeCareMode
-              ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.light)
-              : const Color(0xFF1C1B1F)); // Material 3 On Surface Light
+        ? AppColors.darkTextPrimary
+        : AppColors.lightTextPrimary;
     final secondaryTextColor = isDark
-        ? const Color(0xFFCAC4D0) // Material 3 On Surface Variant Dark
-        : const Color(0xFF49454F); // Material 3 On Surface Variant Light
+        ? AppColors.darkTextSecondary
+        : AppColors.lightTextSecondary;
 
     // 应用安全的字体缩放
     final safeScale = FontScaleCalculator.getSafeScale(fontScale);
 
     return ChatTypography(
-      // Material 3 Body Large - 消息内容
+      // iOS Body (17pt) - 消息内容
       bodyLarge: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          16, // Material 3 Body Large 标准大小
+          17, 
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w400,
         color: textColor,
-        height: 1.5, // Material 3推荐行高
-        letterSpacing: 0.5, // Material 3字母间距
+        height: 1.3,
+        letterSpacing: -0.4,
       ),
-      // Material 3 Body Medium - 辅助文本
+      // iOS Callout (16pt) - 辅助文本
       bodyMedium: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          14, // Material 3 Body Medium 标准大小
+          16,
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w400,
         color: textColor,
-        height: 1.43, // Material 3推荐行高
-        letterSpacing: 0.25, // Material 3字母间距
+        height: 1.3,
+        letterSpacing: -0.3,
       ),
-      // Material 3 Body Small - 小号文本
+      // iOS Footnote (13pt) - 小号文本
       bodySmall: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          12, // Material 3 Body Small 标准大小
+          13,
           safeScale,
           context: context,
         ),
         fontWeight: FontWeight.w400,
         color: secondaryTextColor,
-        height: 1.33, // Material 3推荐行高
-        letterSpacing: 0.4, // Material 3字母间距
+        height: 1.2,
       ),
-      // Material 3 Title Small - 用户名
+      // iOS Subheadline (15pt) - 用户名
       labelLarge: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          14, // Material 3 Title Small 标准大小
+          15,
           safeScale,
           context: context,
         ),
-        fontWeight: FontWeight.w500, // Material 3推荐字重
+        fontWeight: FontWeight.w500,
         color: textColor,
-        height: 1.43, // Material 3推荐行高
-        letterSpacing: 0.1, // Material 3字母间距
+        height: 1.2,
       ),
-      // Material 3 Label Medium - 中等标签
+      // iOS Caption 1 (12pt) - 中等标签
       labelMedium: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          12, // Material 3 Label Medium 标准大小
+          12,
           safeScale,
           context: context,
         ),
-        fontWeight: FontWeight.w500, // Material 3推荐字重
+        fontWeight: FontWeight.w500,
         color: textColor,
-        height: 1.33, // Material 3推荐行高
-        letterSpacing: 0.5, // Material 3字母间距
+        height: 1.2,
       ),
-      // Material 3 Label Small - 时间戳
+      // iOS Caption 2 (11pt) - 时间戳
       labelSmall: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          11, // Material 3 Label Small 标准大小
+          11,
           safeScale,
           context: context,
         ),
-        fontWeight: FontWeight.w500, // Material 3推荐字重
+        fontWeight: FontWeight.w400,
         color: secondaryTextColor,
-        height: 1.45, // Material 3推荐行高
-        letterSpacing: 0.5, // Material 3字母间距
+        height: 1.1,
       ),
     );
   }

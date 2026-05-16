@@ -9,6 +9,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart' show UserRepoLocal;
 
@@ -54,19 +55,18 @@ class RevokedMessageBuilder extends StatelessWidget {
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: 0.5),
-                borderRadius: AppRadius.borderRadiusMedium,
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 t.common.reEdit,
-                style: TextStyle(
-                  height: 1.5,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w500,
+                style: const TextStyle(
+                  height: 1.2,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -113,8 +113,8 @@ class RevokedMessageBuilder extends StatelessWidget {
                     nickname == t.main.you
                         ? t.chat.messageWasWithdrawn
                         : t.chat.messageWasWithdrawnWithTitle(param: nickname),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    style: const TextStyle(
+                      color: AppColors.iosGray,
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
                     ),

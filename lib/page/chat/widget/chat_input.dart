@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:imboy/component/ui/image_button.dart' show ImageButton;
@@ -20,6 +21,7 @@ import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 生产环境的 [QuickReplyStore] 适配器：桥接项目已有的 [StorageService]。
 ///
@@ -968,9 +970,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return ValueListenableBuilder<InputType>(
       valueListenable: _inputType,
       builder: (context, inputType, _) {
-        return ImageButton(
-          width: 48,
-          height: 48,
+        return CupertinoButton(
+          padding: EdgeInsets.zero,
+          minSize: 44,
           onPressed: () {
             if (inputType == InputType.voice) {
               updateState(InputType.text);
@@ -978,9 +980,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               updateState(InputType.voice);
             }
           },
-          image: inputType != InputType.voice
-              ? Icon(Icons.keyboard_voice_outlined, size: 28)
-              : Icon(Icons.keyboard_alt_outlined, size: 28),
+          child: Icon(
+            inputType != InputType.voice
+                ? CupertinoIcons.mic
+                : CupertinoIcons.keyboard,
+            size: 28,
+            color: AppColors.iosGray,
+          ),
         );
       },
     );
@@ -991,12 +997,16 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return ValueListenableBuilder<InputType>(
       valueListenable: _inputType,
       builder: (context, inputType, _) {
-        return ImageButton(
-          width: 48,
-          height: 48,
-          image: inputType != InputType.emoji
-              ? Icon(Icons.emoji_emotions_outlined, size: 28)
-              : Icon(Icons.keyboard_alt_outlined, size: 28),
+        return CupertinoButton(
+          padding: EdgeInsets.zero,
+          minSize: 44,
+          child: Icon(
+            inputType != InputType.emoji
+                ? CupertinoIcons.smiley
+                : CupertinoIcons.keyboard,
+            size: 28,
+            color: AppColors.iosGray,
+          ),
           onPressed: () {
             updateState(
               inputType != InputType.emoji ? InputType.emoji : InputType.text,
@@ -1019,11 +1029,15 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           },
           child: sendButtonVisible
               ? const SizedBox.shrink(key: ValueKey('empty_extra'))
-              : ImageButton(
-                  width: 48,
-                  height: 48,
+              : CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minSize: 44,
                   key: const ValueKey('extra_button'),
-                  image: Icon(Icons.add_circle_outline, size: 28),
+                  child: Icon(
+                    CupertinoIcons.plus_circle,
+                    size: 28,
+                    color: AppColors.iosGray,
+                  ),
                   onPressed: () {
                     updateState(
                       _inputType.value != InputType.extra
@@ -1037,8 +1051,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
-  /// 构建发送按钮（带动画效果）
+  /// 构建发送按钮（带动画效果，iOS 17 风格）
   Widget _buildSendButton() {
+    final brightness = Theme.of(context).brightness;
     return ValueListenableBuilder<bool>(
       valueListenable: _sendButtonVisible,
       builder: (context, sendButtonVisible, _) {
@@ -1048,11 +1063,21 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             return ScaleTransition(scale: animation, child: child);
           },
           child: sendButtonVisible
-              ? IconButton(
-                  key: const ValueKey('send_button'),
-                  icon: Icon(Icons.send, color: _themeColor('primary')),
-                  onPressed: _handleSendPressed,
-                  padding: const EdgeInsets.only(left: 0),
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 6),
+                  child: CupertinoButton(
+                    key: const ValueKey('send_button'),
+                    padding: EdgeInsets.zero,
+                    minSize: 32,
+                    borderRadius: BorderRadius.circular(16),
+                    color: AppColors.getIosBlue(brightness),
+                    onPressed: _handleSendPressed,
+                    child: const Icon(
+                      CupertinoIcons.arrow_up,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
                 )
               : const SizedBox.shrink(key: ValueKey('empty_button')),
         );
@@ -1065,58 +1090,28 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     // 每次构建时都设置键盘监听器，确保能及时响应键盘变化
     _setupKeyboardListener();
 
-    // 计算底部面板高度，实现丝滑切换
-    // 使用 View.of(context) 获取全局的 viewInsets，避免被 Scaffold(resizeToAvoidBottomInset: true) 消费掉
-    // 从而导致在键盘弹出时获取到的 bottomInset 为 0，引发面板高度计算错误（出现空白）
     final view = View.of(context);
     final bottomInset = view.viewInsets.bottom / view.devicePixelRatio;
-
-    // iPhone 底部安全区域处理
-    // 即使在键盘未弹出时，iPhone X+ 机型也有底部安全区域（通常34px）
-    // 这会导致输入框和键盘之间出现空隙，因为 bottomInset 包含了这个安全区域
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    // 修正后的 bottomInset：减去安全区域高度，但不能小于0
-    // 当键盘弹出时，viewInsets.bottom 包含键盘高度 + 安全区域（某些情况下）或仅键盘高度
-    // 我们主要关注的是键盘带来的"额外"高度
-    if (Platform.isIOS && bottomInset > 0) {
-      // 在 iOS 上，键盘弹出时的 viewInsets.bottom 通常已经处理了安全区域
-      // 但在某些机型（如 iPhone 16E）上可能存在差异
-      // 这里的逻辑是：如果 bottomInset 很小（接近安全区域高度），则认为是键盘未弹出或仅是安全区域干扰
-    }
-
-    // 更新记录的键盘高度 (只要看起来像键盘的高度就更新，适应不同输入法高度变化)
-    // 增加判断：只有显著大于底部安全区域的高度才被视为键盘高度
     if (bottomInset > (bottomPadding + 50)) {
       _keyboardHeight = bottomInset;
     }
 
-    final targetPanelHeight = _keyboardHeight > 0
-        ? _keyboardHeight
-        : _softKeyHeight;
+    final targetPanelHeight =
+        _keyboardHeight > 0 ? _keyboardHeight : _softKeyHeight;
     double panelHeight = 0;
 
     if (_inputType.value == InputType.emoji ||
         _inputType.value == InputType.extra) {
-      // 业界标杆的高度锁定策略：
-      // 直接将 panelHeight 设置为目标高度，由于 Scaffold 禁用了自适应，
-      // 键盘会像幕布一样在面板上方滑落，露出下方的固定面板，彻底消灭高度跳跃引发的闪烁
       panelHeight = targetPanelHeight;
     } else if (_inputType.value == InputType.text) {
-      // 文本模式：
-      // 由于 resizeToAvoidBottomInset: false，我们需要手动增加面板高度以避让键盘
       if (_isTransitioningToTextFromPanel) {
-        // 从面板切换到键盘：保持高度为两者的最大值，实现无缝过渡
-        // 键盘弹起过程中，bottomInset 从 0 增加到 targetPanelHeight
-        // 取最大值可以确保在键盘完全弹起前，面板区域不会塌陷
         panelHeight = max(targetPanelHeight, bottomInset);
-
-        // 当键盘高度接近完全展开时，结束过渡状态
         if (bottomInset >= targetPanelHeight * 0.9) {
           _isTransitioningToTextFromPanel = false;
         }
       } else {
-        // 正常文本输入模式，跟随键盘高度
         panelHeight = bottomInset;
       }
     } else {
@@ -1127,6 +1122,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     if (widget.isMuted) {
       return Container(
         color: widget.backgroundColor ?? _themeColor('surface'),
+        padding: EdgeInsets.only(bottom: bottomPadding),
         child: Column(
           children: [
             Container(
@@ -1145,7 +1141,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.volume_off_rounded,
+                    CupertinoIcons.volume_off,
                     size: 18,
                     color: _themeColor('error').withValues(alpha: 0.7),
                   ),
@@ -1168,8 +1164,12 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       );
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final composerBgColor =
+        isDark ? AppColors.darkSurface : AppColors.lightSurfaceGrouped;
+
     return Container(
-      color: widget.backgroundColor ?? _themeColor('surface'),
+      color: composerBgColor,
       child: Column(
         children: [
           // 引用消息提示条
@@ -1177,14 +1177,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
           // 主输入区域
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outline.withValues(alpha: 0.1),
-                  width: 0.5,
+                  color: AppColors.getIosSeparator(
+                    Theme.of(context).brightness,
+                  ).withValues(alpha: 0.3),
+                  width: 0.33,
                 ),
               ),
             ),
@@ -1198,27 +1198,31 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 Expanded(
                   child: Container(
                     constraints: BoxConstraints(
-                      // iOS 最小触达区域 44pt（DESIGN.md 第 2 章）
-                      minHeight: 44,
-                      maxHeight: (widget.maxLines ?? 6) * 24.0 + 24,
+                      minHeight: 40,
+                      maxHeight: (widget.maxLines ?? 6) * 24.0 + 16,
                     ),
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color: _themeColor('surface').withValues(alpha: 0.1),
-                      borderRadius: AppRadius.borderRadiusLarge,
-                      border: Border.all(color: Colors.transparent, width: 1.5),
+                      color:
+                          isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.getIosSeparator(
+                          Theme.of(context).brightness,
+                        ).withValues(alpha: 0.2),
+                        width: 0.5,
+                      ),
                     ),
                     child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [_buildInputButton()],
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: _buildInputButton(),
                         ),
                         // @提及列表
                         Positioned(
-                          bottom: -180, // 将列表移到输入框外部，避免占用内部空间
+                          bottom: 50,
                           left: 0,
                           right: 0,
                           child: _buildMentionList(),
@@ -1244,7 +1248,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             ),
           ),
 
-          // 底部面板（表情选择器或扩展功能）
+          // 底部面板
           _buildBottomContainer(
             child: _buildBottomItems(),
             height: panelHeight,
@@ -1252,6 +1256,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
           // 快捷回复面板
           _buildQuickRepliesPanel(),
+          
+          // 安全区填充
+          if (panelHeight == 0) SizedBox(height: bottomPadding),
         ],
       ),
     );
