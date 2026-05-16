@@ -254,9 +254,14 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     try {
       msgIds.clear();
-      // ChatPage 进入 build 阶段后再触发会话初始化，避免 Riverpod 抛出
-      // "Tried to modify a provider while the widget tree was building" 错误，
-      // 同时 ScaffoldMessenger.of(context) 也只能在 initState 之后才能访问。
+      // 关键：在 first build 之前同步创建 chatService，让 Chat widget 通过
+      // ref.read 拿到真正的 controller，而不是 fallback 的临时实例。
+      // initChatService 仅赋值 notifier 内部字段，最终的 syncMessagesToState
+      // 在消息为空时不改变 state，所以不会触发 Riverpod build-phase 异常。
+      ref.read(chatProvider.notifier).initChatService(_chatType);
+      // 会话加载、消息拉取、event listener、活动会话事件等带 context/UI 依赖的副作用
+      // 仍延迟到首帧之后执行，避免 ScaffoldMessenger.of(context) 和 Provider
+      // 写入在 widget tree build 期间被拒绝。
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _initChat();
