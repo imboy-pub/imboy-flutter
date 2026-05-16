@@ -286,23 +286,28 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     );
 
     if (item.isStatusItem) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      // 三态指示：绿=已连接，橙=重连/连接中，红=已断开
+      // 暗色模式下使用 *Dark 变体保持 iOS HIG 推荐的对比度
+      final Color badgeColor = switch (socketStatus) {
+        WebSocketConnectionState.connected =>
+          isDark ? AppColors.iosGreenDark : AppColors.iosGreen,
+        WebSocketConnectionState.connecting =>
+          isDark ? AppColors.iosOrangeDark : AppColors.iosOrange,
+        WebSocketConnectionState.disconnected =>
+          isDark ? AppColors.iosRedDark : AppColors.iosRed,
+      };
       return badges.Badge(
         showBadge: true,
         position: badges.BadgePosition.topEnd(top: 0, end: 0),
         badgeStyle: badges.BadgeStyle(
-          badgeColor: socketStatus == WebSocketConnectionState.connected
-              ? AppColors.iosGreen
-              : AppColors.iosRed,
+          badgeColor: badgeColor,
           padding: const EdgeInsets.all(4),
           elevation: 0,
           borderSide: BorderSide(
             color: isSelected
-                ? (Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.darkSurfaceGrouped
-                      : Colors.white)
-                : (Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.darkSurface
-                      : Colors.white),
+                ? (isDark ? AppColors.darkSurfaceGrouped : Colors.white)
+                : (isDark ? AppColors.darkSurface : Colors.white),
             width: 1.5,
           ),
         ),

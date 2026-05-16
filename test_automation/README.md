@@ -86,3 +86,8 @@ bash test_automation/scripts/run_yaml_mapped_suite.sh --resume --run-id yaml_man
 
 不满足前置时，执行器会将该 case 标记为 `FAILED_SKIPPED` 并继续后续 case。
 另外，部分集成测试已实现“前置缺失主动 skip”策略（测试进程返回 0），以避免环境故障阻断整条回归链路。
+
+## test user
+android_test_001@imboy.pub (TSID 90600962240284672)
+
+117@imboy.pub (TSID 88300811150690304) admin888
