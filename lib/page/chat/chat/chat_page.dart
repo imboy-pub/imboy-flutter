@@ -254,17 +254,15 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     try {
       msgIds.clear();
-      _initChat();
-      _initData();
-
-      // 初始化网络状态监听器（在 build 方法之外）
-      _chatNotifier.initConnectivityListener();
-
-      // 延迟发送活动会话事件，避免在 widget 树构建期间修改 provider
+      // ChatPage 进入 build 阶段后再触发会话初始化，避免 Riverpod 抛出
+      // "Tried to modify a provider while the widget tree was building" 错误，
+      // 同时 ScaffoldMessenger.of(context) 也只能在 initState 之后才能访问。
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _notifyChatActive(true);
-        }
+        if (!mounted) return;
+        _initChat();
+        _initData();
+        _chatNotifier.initConnectivityListener();
+        _notifyChatActive(true);
       });
 
       // 启动内存清理定时器
@@ -341,9 +339,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       debugPrint('_initChat error: $e\n$stack');
       // 显示错误提示
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${t.common.chatInitFailed}: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t.common.chatInitFailed}: $e')),
+        );
       }
     }
   }
