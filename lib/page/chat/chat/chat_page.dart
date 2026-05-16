@@ -1685,12 +1685,23 @@ class ChatPageState extends ConsumerState<ChatPage>
     final themeNotifier = ref.read(themeProvider.notifier);
 
     // 使用 flutter_chat_ui 的 Chat widget
+    // 注意：flutter_chat_ui 内部通过 `Provider.value(value: widget.chatController)` 把
+    // controller 注入子 widget，chat_animated_list 在 initState 时 `context.read` 一次性
+    // 拿到 controller 并订阅 operationsStream。Provider.value 在引用变化时不会让
+    // 已建立的订阅刷新。所以：
+    //   1. chatService 必须在 ChatPage initState 中同步初始化（已在 initState 处理）；
+    //   2. 这里直接使用真实 chatService，不再 fallback 到新建 SqliteChatController，
+    //      否则 chat_animated_list 会订阅 fallback 实例的 stream，真实 chatService
+    //      插入的消息永远不会进入 UI。
+    final activeController = ref.read(chatProvider.notifier).chatService;
+    assert(
+      activeController != null,
+      'ChatService must be initialized synchronously in initState',
+    );
     return flutter_chat_ui.Chat(
       currentUserId: currentUser.id,
       backgroundColor: Colors.transparent,
-      chatController:
-          ref.read(chatProvider.notifier).chatService ??
-          SqliteChatController(ref.container),
+      chatController: activeController!,
       onMessageSend: _handleSendPressed,
       onMessageLongPress: _onMessageLongPress,
       onMessageTap: _onMessageTap,
