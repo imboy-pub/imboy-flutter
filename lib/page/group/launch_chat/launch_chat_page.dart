@@ -162,15 +162,17 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                           EasyLoading.dismiss();
                           ref.read(launchChatProvider.notifier).resetData();
                           if (context.mounted) {
+                            // 路由 /chat/:peerId 从 path param 读 peerId；
+                            // extra key 必须是 title/avatar/sign（见 app_router.dart:207-232）。
+                            // 原先 '/chat' + peerTitle/peerAvatar 命名都不被识别 → 404。
                             context.push(
-                              '/chat',
+                              '/chat/${m.groupId}',
                               extra: {
-                                'peerId': m.groupId,
                                 'type': 'C2G',
-                                'peerTitle': m.title,
-                                'peerAvatar': m.avatar,
-                                'peerSign': '',
-                                'memberCount': memberCount + 1,
+                                'title': m.title,
+                                'avatar': m.avatar,
+                                'sign': '',
+                                'options': {'memberCount': memberCount + 1},
                               },
                             );
                           }

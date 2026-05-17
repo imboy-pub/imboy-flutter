@@ -18,7 +18,9 @@ import 'group_list_provider.dart';
 import 'group_list_service.dart';
 
 /// 群组列表服务 Provider
-final groupListServiceProvider = Provider<GroupListService>((ref) => GroupListService());
+final groupListServiceProvider = Provider<GroupListService>(
+  (ref) => GroupListService(),
+);
 
 /// 群聊列表页面 - 像素级对齐 iOS 17 Premium 风格
 class GroupListPage extends ConsumerStatefulWidget {
@@ -34,7 +36,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
   @override
   void initState() {
     super.initState();
-    _localeSubscription = LocaleSettings.getLocaleStream().listen((_) => mounted ? setState(() {}) : null);
+    _localeSubscription = LocaleSettings.getLocaleStream().listen(
+      (_) => mounted ? setState(() {}) : null,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) => initData());
   }
 
@@ -52,23 +56,46 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
 
     notifier.setLoading(true);
     try {
-      List<GroupModel> list = await service.page(page: 1, size: state.size, onRefresh: onRefresh, attr: currentAttr);
+      List<GroupModel> list = await service.page(
+        page: 1,
+        size: state.size,
+        onRefresh: onRefresh,
+        attr: currentAttr,
+      );
       if (list.isEmpty && currentAttr != 'all') {
-        final fallback = await service.page(page: 1, size: state.size, onRefresh: true, attr: 'all');
-        if (fallback.isNotEmpty) { currentAttr = 'all'; notifier.setAttr('all'); list = fallback; }
+        final fallback = await service.page(
+          page: 1,
+          size: state.size,
+          onRefresh: true,
+          attr: 'all',
+        );
+        if (fallback.isNotEmpty) {
+          currentAttr = 'all';
+          notifier.setAttr('all');
+          list = fallback;
+        }
       }
-      for (var m in list) { if (m.title.isEmpty) m.computeTitle = await service.computeTitle(m.groupId.toString()); }
+      for (var m in list) {
+        if (m.title.isEmpty)
+          m.computeTitle = await service.computeTitle(m.groupId.toString());
+      }
       notifier.setGroupList(list);
       notifier.setPage(2);
-    } finally { notifier.setLoading(false); }
+    } finally {
+      notifier.setLoading(false);
+    }
   }
 
   String _attrLabel(String attr) {
     switch (attr) {
-      case 'all': return t.groupList.attrAll;
-      case 'owner': return t.groupList.attrOwner;
-      case 'manager': return t.groupList.attrManager;
-      default: return t.groupList.attrJoin;
+      case 'all':
+        return t.groupList.attrAll;
+      case 'owner':
+        return t.groupList.attrOwner;
+      case 'manager':
+        return t.groupList.attrManager;
+      default:
+        return t.groupList.attrJoin;
     }
   }
 
@@ -84,14 +111,18 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     final brightness = Theme.of(context).brightness;
 
     return IosPageTemplate(
-      title: '${t.chat.groupChat}${state.groupList.isNotEmpty ? " (${state.groupList.length})" : ""}',
+      title:
+          '${t.chat.groupChat}${state.groupList.isNotEmpty ? " (${state.groupList.length})" : ""}',
       useLargeTitle: false,
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () async {
             notifier.setLoading(true);
-            await AppInitializer.triggerGroupMembershipSelfHeal(force: true, source: 'group_list_refresh');
+            await AppInitializer.triggerGroupMembershipSelfHeal(
+              force: true,
+              source: 'group_list_refresh',
+            );
             await initData(onRefresh: true);
           },
           child: const Icon(CupertinoIcons.refresh, size: 22),
@@ -124,12 +155,23 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
                     selected: selected,
-                    label: Text(_attrLabel(attr), style: TextStyle(fontSize: 13, fontWeight: selected ? FontWeight.w600 : FontWeight.normal, color: selected ? Colors.white : null)),
+                    label: Text(
+                      _attrLabel(attr),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: selected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                        color: selected ? Colors.white : null,
+                      ),
+                    ),
                     selectedColor: AppColors.getIosBlue(brightness),
                     onSelected: (_) => _switchAttr(attr),
                     showCheckmark: false,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
                   ),
                 );
               }).toList(),
@@ -146,33 +188,53 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
           SliverPadding(
             padding: const EdgeInsets.only(top: 8, bottom: 40),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final model = state.groupList[index];
-                  return Column(
-                    children: [
-                      ImBoyListTile(
-                        onTap: () => context.push('/chat', extra: {'peerId': model.groupId, 'peerTitle': model.title, 'peerAvatar': model.avatar, 'type': 'C2G', 'options': {'memberCount': model.memberCount}}),
-                        leading: SmartGroupAvatar(
-                          avatar: model.avatar,
-                          groupId: model.groupId.toString(),
-                          size: 48,
-                          avatarLoader: (gid) => ref.read(groupListServiceProvider).computeAvatar(gid),
-                        ),
-                        title: Text(model.title.isEmpty ? model.computeTitle : model.title),
-                        subtitle: Text('${model.memberCount} ${t.group.groupMembers}'),
-                        trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final model = state.groupList[index];
+                return Column(
+                  children: [
+                    ImBoyListTile(
+                      onTap: () => context.push(
+                        '/chat/${model.groupId}',
+                        extra: {
+                          'title': model.title,
+                          'avatar': model.avatar,
+                          'type': 'C2G',
+                          'options': {'memberCount': model.memberCount},
+                        },
                       ),
-                      if (index < state.groupList.length - 1)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 76),
-                          child: Divider(height: 0.33, color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3)),
+                      leading: SmartGroupAvatar(
+                        avatar: model.avatar,
+                        groupId: model.groupId.toString(),
+                        size: 48,
+                        avatarLoader: (gid) => ref
+                            .read(groupListServiceProvider)
+                            .computeAvatar(gid),
+                      ),
+                      title: Text(
+                        model.title.isEmpty ? model.computeTitle : model.title,
+                      ),
+                      subtitle: Text(
+                        '${model.memberCount} ${t.group.groupMembers}',
+                      ),
+                      trailing: const Icon(
+                        CupertinoIcons.chevron_right,
+                        size: 14,
+                        color: AppColors.iosGray3,
+                      ),
+                    ),
+                    if (index < state.groupList.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 76),
+                        child: Divider(
+                          height: 0.33,
+                          color: AppColors.getIosSeparator(
+                            brightness,
+                          ).withValues(alpha: 0.3),
                         ),
-                    ],
-                  );
-                },
-                childCount: state.groupList.length,
-              ),
+                      ),
+                  ],
+                );
+              }, childCount: state.groupList.length),
             ),
           ),
       ],
