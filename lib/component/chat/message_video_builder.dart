@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/single/video_viewer.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:octo_image/octo_image.dart';
@@ -24,7 +24,8 @@ class MessageVideoBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String videoUrl = metadata['uri'] as String? ?? metadata['url'] as String? ?? '';
+    final String videoUrl =
+        metadata['uri'] as String? ?? metadata['url'] as String? ?? '';
     final thumb = metadata['thumb'];
     final String thumbUrl = (thumb is Map)
         ? (thumb['uri'] as String? ?? '')
@@ -50,11 +51,9 @@ class MessageVideoBuilder extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (videoUrl.isNotEmpty) {
-          Navigator.of(context).push(
-            MaterialPageRoute<dynamic>(
-              builder: (context) =>
-                  VideoViewerPage(url: videoUrl, thumb: thumbUrl),
-            ),
+          // 统一走 GoRouter /video_viewer（对齐 channel_detail_page.dart:1893 的写法）
+          context.push(
+            '/video_viewer?url=${Uri.encodeComponent(videoUrl)}&thumb=${Uri.encodeComponent(thumbUrl)}',
           );
         }
       },

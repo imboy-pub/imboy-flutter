@@ -2179,15 +2179,15 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 使用 go_router 路由跳转
     if (_chatType == MessageFlowType.c2g) {
       // 群组聊天 - 跳转到群组详情页
+      // 注意：注册路由是 `/group/detail/:groupId`（顺序不能颠倒为 /group/{id}/detail）
       context
           .push<GroupDetailPage>(
-            '/group/${widget.peerId}/detail',
+            '/group/detail/${widget.peerId}',
             extra: {
               'groupId': widget.peerId,
               'memberCount': chatState.memberCount,
               'title': widget.peerTitle,
               'options': options,
-              'callBack': (v) {},
             },
           )
           .then((value) => _handleChatSettingsResult(value));

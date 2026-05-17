@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 
 import 'package:imboy/store/model/message_model.dart';
@@ -76,14 +74,20 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
           bgColor = isDark
               ? AppColors.darkReceivedMessageBackground
               : AppColors.lightSurfaceContainer;
-          textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-          subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+          textColor = isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.lightTextPrimary;
+          subTextColor = isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary;
         }
 
         return Container(
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
+            borderRadius: BorderRadius.circular(
+              MessageSpacing.bubbleBorderRadius,
+            ),
           ),
           child: Container(
             width: 240,
@@ -95,14 +99,9 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                   onTap: () {
                     final uid = msg.metadata?['uid'];
                     if (uid == null || uid.toString().isEmpty) return;
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute<dynamic>(
-                        builder: (context) => PeopleInfoPage(
-                          id: uid as String,
-                          scene: 'visitCard',
-                        ),
-                      ),
+                    // 统一走 GoRouter，对齐 /people_info/:id 路由（pathParameters 解析 id）
+                    context.push(
+                      '/people_info/${uid as String}?scene=visitCard',
                     );
                   },
                   child: Row(
