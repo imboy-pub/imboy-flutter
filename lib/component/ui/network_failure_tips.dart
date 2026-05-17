@@ -19,7 +19,7 @@ class NetworkFailureTips extends StatelessWidget {
         splashColor: const Color.fromRGBO(247, 226, 230, 1),
         onPressed: () {
           // 使用 go_router 替代 Get.to()
-          context.push('/network-failure-guidance');
+          context.push('/network_failure_guidance');
         },
         child: Row(
           // 直接使用 Flutter 的 Row

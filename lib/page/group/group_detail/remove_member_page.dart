@@ -115,12 +115,10 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                             ),
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             onPressed: () {
+                              // 路由 /people_info/:id 通过 pathParameters 解析 id，
+                              // scene 走 queryParameters；extra 在该路由 builder 中不会被读取。
                               context.push(
-                                '/people_info',
-                                extra: {
-                                  'id': model.userId,
-                                  'scene': 'group_member',
-                                },
+                                '/people_info/${model.userId}?scene=group_member',
                               );
                             },
                           ),

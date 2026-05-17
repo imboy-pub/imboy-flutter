@@ -850,7 +850,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       case SearchItemType.contact:
         context.push('/people_info/${item.id}');
       case SearchItemType.group:
-        context.push('/group/chat/${item.id}');
+        // 群聊点击进入会话，统一走 /chat/:peerId?type=C2G
+        context.push('/chat/${item.id}?type=C2G');
     }
   }
 }

@@ -43,8 +43,9 @@ class AppRoutes {
   /// 群组公告
   static const groupAnnouncement = '/group/announcement';
 
-  /// 聊天设置
-  static const chatSetting = '/chat/setting';
+  // 注意：聊天设置真实路由是 `/chat_setting/:peerId`，需要 path param，
+  // 不适合定义无参常量；调用点请直接拼接 `/chat_setting/${peerId}`
+  // 参考：app_router.dart 路径 `/chat_setting/:peerId`
 
   // ==================== Single 页面 ====================
   /// Markdown 查看器
