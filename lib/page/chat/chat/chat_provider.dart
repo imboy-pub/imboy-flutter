@@ -466,8 +466,7 @@ class ChatNotifier extends _$ChatNotifier {
       }
 
       if (conversation.id > 0) {
-        await repo.updateById(conversation.id, {
-          ConversationRepo.title: title,
+        final updates = <String, dynamic>{
           ConversationRepo.subtitle: subtitle,
           ConversationRepo.msgType: msgType,
           ConversationRepo.lastMsgId: message.id,
@@ -475,7 +474,11 @@ class ChatNotifier extends _$ChatNotifier {
           ConversationRepo.lastMsgStatus: sendToServer ? 10 : 11,
           ConversationRepo.unreadNum: conversation.unreadNum,
           ConversationRepo.isShow: 1,
-        });
+        };
+        if (title.isNotEmpty) {
+          updates[ConversationRepo.title] = title;
+        }
+        await repo.updateById(conversation.id, updates);
         iPrint('📤 [ChatProvider.addMessage] 更新会话完成: ${conversation.uk3}');
       }
 

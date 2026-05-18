@@ -248,12 +248,16 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
 
   /// 处理会话点击
   void _onConversationTap(ConversationModel conversation) {
-    // 根据会话类型跳转（统一走 /chat/:peerId，type 透传给 chat_page 处理 C2C/C2G/C2S 等）
+    final encodedTitle = Uri.encodeComponent(conversation.title);
+    final encodedAvatar = Uri.encodeComponent(conversation.avatar);
     if (conversation.type == 'C2C') {
-      context.push('/chat/${conversation.peerId}');
+      context.push(
+        '/chat/${conversation.peerId}?title=$encodedTitle&avatar=$encodedAvatar',
+      );
     } else {
-      // C2G / C2S / 其它 → 把 type 带上，由 ChatPage 内部按枚举分支
-      context.push('/chat/${conversation.peerId}?type=${conversation.type}');
+      context.push(
+        '/chat/${conversation.peerId}?type=${conversation.type}&title=$encodedTitle&avatar=$encodedAvatar',
+      );
     }
   }
 }
