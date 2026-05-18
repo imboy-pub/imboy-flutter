@@ -42,7 +42,7 @@ final class PeopleInfoNotifierProvider
 }
 
 String _$peopleInfoNotifierHash() =>
-    r'90f0d0c745ca96d7ba81550ecafb165b8e67e4be';
+    r'7c03241f63e1873bf92da3cfe3dfaf146e612965';
 
 abstract class _$PeopleInfoNotifier extends $Notifier<PeopleInfoState> {
   PeopleInfoState build();

@@ -47,7 +47,7 @@ final class PassportNotifierProvider
   }
 }
 
-String _$passportNotifierHash() => r'c53c34d40664f8457b683a6134bba0e38d45659c';
+String _$passportNotifierHash() => r'2f401daf97fbf61f6746a6e19260b821f9199f71';
 
 /// Passport 模块 Riverpod Notifier
 /// 管理 Passport 模块的状态和业务逻辑

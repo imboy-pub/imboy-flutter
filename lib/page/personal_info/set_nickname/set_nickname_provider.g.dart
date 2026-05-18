@@ -45,7 +45,7 @@ final class SetNicknameNotifierProvider
 }
 
 String _$setNicknameNotifierHash() =>
-    r'45919280ccfa1dd4cb180f6be0c19c186b4ea61c';
+    r'0f9be1eac372c48811338c64ead12633012d95d3';
 
 /// 设置昵称 Provider
 

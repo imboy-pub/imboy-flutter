@@ -116,7 +116,7 @@ final class ThemeNotifierProvider
   }
 }
 
-String _$themeNotifierHash() => r'076788c2a3ae85d5d460eef73488b53b5d080c2b';
+String _$themeNotifierHash() => r'ed4c8983a70883aeb39a87402537d88dcb7b01d5';
 
 /// 主题管理器 Provider
 ///

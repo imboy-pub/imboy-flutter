@@ -104,7 +104,7 @@ final class ChannelDetailNotifierProvider
 }
 
 String _$channelDetailNotifierHash() =>
-    r'2b3c9b07409fd746ae0fff1a902f2ffc335cab91';
+    r'36822cbbb7fa2dda8f4282730910e39fc8814dc4';
 
 /// 频道详情 Notifier
 

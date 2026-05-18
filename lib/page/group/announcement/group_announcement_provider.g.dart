@@ -64,7 +64,7 @@ final class GroupAnnouncementNotifierProvider
 }
 
 String _$groupAnnouncementNotifierHash() =>
-    r'221eb9a7ae01d29dbeef682697f4c27bdffeb201';
+    r'c06ba424b67f27448e9d27f6e3caccda0d78a6e5';
 
 /// 群组公告 Notifier
 

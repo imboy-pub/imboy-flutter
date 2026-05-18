@@ -41,7 +41,7 @@ final class BindEmailNotifierProvider
   }
 }
 
-String _$bindEmailNotifierHash() => r'9ac4e78cab79b52753076a5d2a02b7cc7aa9488a';
+String _$bindEmailNotifierHash() => r'67b48030e933fb80dd97c5cbd625a99e42455ba7';
 
 abstract class _$BindEmailNotifier extends $Notifier<BindEmailState> {
   BindEmailState build();

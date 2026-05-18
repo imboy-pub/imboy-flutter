@@ -44,7 +44,7 @@ final class SetPasswordProvider
   }
 }
 
-String _$setPasswordHash() => r'9bb356667e81bcc17b0397dfcb6e2305e13d0b49';
+String _$setPasswordHash() => r'fa1a63821d58f3e40a27041c4a998e280ef102d2';
 
 /// 设置密码页面状态管理
 

@@ -45,7 +45,7 @@ final class ChangeLoginPasswordProvider
 }
 
 String _$changeLoginPasswordHash() =>
-    r'91857423c390a3be5474a9e409b9d8f19c8c3519';
+    r'471f532b8682c76ea128118da4dd105fbc2f4ddc';
 
 /// 修改登录密码页面状态管理
 

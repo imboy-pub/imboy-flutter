@@ -8,14 +8,16 @@ import 'const.dart';
 import 'env_pro.dart';
 import 'env_dev.dart';
 import 'env_field.dart';
+import 'env_local.dart';
 import 'env_local_home.dart';
 import 'env_local_office.dart';
 
 /// 环境映射配置
-/// 可用环境: pro, dev, local_home, local_office
+/// 可用环境: pro, dev, local, local_home, local_office
 final envMap = {
   'pro': EnvPro(),
   'dev': EnvDev(),
+  'local': EnvLocal(),
   'local_home': EnvLocalHome(),
   'local_office': EnvLocalOffice(),
 };

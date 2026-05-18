@@ -42,7 +42,7 @@ final class BindMobileNotifierProvider
 }
 
 String _$bindMobileNotifierHash() =>
-    r'0bfb868b5b3b7e87f16bf55a187fce35dbce9b86';
+    r'5f83a543f7ed71152344cbd92bd644b7c0dbfe09';
 
 abstract class _$BindMobileNotifier extends $Notifier<BindMobileState> {
   BindMobileState build();

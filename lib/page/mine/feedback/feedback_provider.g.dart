@@ -42,7 +42,7 @@ final class FeedbackPageNotifierProvider
 }
 
 String _$feedbackPageNotifierHash() =>
-    r'3e07b43506c59cd40b2b1cd81699493fb733a648';
+    r'd146675a4f95f43be571103d179c7038111d0200';
 
 abstract class _$FeedbackPageNotifier extends $Notifier<FeedbackPageState> {
   FeedbackPageState build();
