@@ -770,7 +770,8 @@ class AppInitializer {
             );
             unawaited(triggerGroupMembershipSelfHeal(source: 'app_resume'));
           } else {
-            logger.i('App恢复，WebSocket未连接，跳过重连（会自动重连）');
+            logger.i('App恢复，WebSocket未连接(${wsService.status})，主动重连...');
+            wsService.openSocket(from: 'AppResume');
           }
         } else {
           logger.i('WebSocket服务未注册，跳过连接检查');

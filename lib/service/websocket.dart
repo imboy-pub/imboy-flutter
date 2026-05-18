@@ -67,7 +67,7 @@ class WebSocketService {
   bool _initialized = false;
 
   // 配置参数
-  static const _pingInterval = Duration(seconds: 120);
+  static const _pingInterval = Duration(seconds: 60);
   bool _connecting = false;
 
   /// 当前 WebSocket framing 模式（由子协议协商决定）
