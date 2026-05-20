@@ -94,11 +94,15 @@ flutter run --target lib/main.dart --dart-define=APP_ENV=local_office
 flutter run --target lib/main.dart --dart-define=APP_ENV=local_home
 flutter run --target lib/main.dart --dart-define=APP_ENV=dev
 flutter run --target lib/main.dart --dart-define=APP_ENV=pro
+
+
 ```
 
 
 
 3. **安装依赖**
+
+
 ```bash
 flutter pub get
 
@@ -111,6 +115,18 @@ dart run build_runner build --delete-conflicting-outputs
 ```bash
 # 仓库内已包含 plugin 目录
 # 如果本地插件依赖异常，可进入对应目录自行检查或更新
+```
+
+envied 项目使用 envied + build_runner。运行：
+
+```bash
+flutter pub run build_runner build
+```
+
+如果只想重新生成 env 相关文件（跳过其他），可以加 --delete-conflicting-outputs：
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+
 ```
 
 如需重新生成启动图：

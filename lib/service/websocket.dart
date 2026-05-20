@@ -5,6 +5,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart'
     show kIsWeb, kDebugMode, visibleForTesting;
+import 'package:flutter/widgets.dart'
+    show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
@@ -36,7 +38,7 @@ enum FramingMode { none, v2 }
 /// v2 子协议名称（最高优先级）
 const String kSubProtocolV2 = 'imboy.v2';
 
-class WebSocketService {
+class WebSocketService with WidgetsBindingObserver {
   // 单例模式
   static WebSocketService? _instance;
   static WebSocketService get to => _instance ??= WebSocketService._internal();
@@ -110,6 +112,9 @@ class WebSocketService {
     if (_initialized) return;
     _initialized = true;
 
+    // 注册 App 生命周期观察者（检测前后台切换）
+    WidgetsBinding.instance.addObserver(this);
+
     // 订阅消息发送请求事件（解耦：MessageService 通过事件请求发送消息）
     _eventBusSubs.add(
       AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(
@@ -163,12 +168,65 @@ class WebSocketService {
 
   /// 释放资源
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     for (final sub in _eventBusSubs) {
       sub.cancel();
     }
     _eventBusSubs.clear();
     _initialized = false;
     _cleanupResources();
+  }
+
+  /// App 生命周期回调：检测前后台切换
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _onAppResumed();
+        break;
+      case AppLifecycleState.paused:
+        // App 进入后台：OS 会挂起定时器，无需主动断开
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        break;
+    }
+  }
+
+  /// App 回到前台时的处理
+  void _onAppResumed() {
+    if (!_initialized || !UserRepoLocal.to.isLoggedIn) return;
+
+    if (_status == SocketStatus.disconnected) {
+      iPrint(
+        '> ws: App resumed — WebSocket disconnected, reconnecting immediately',
+      );
+      _backoff.reset();
+      _cancelReconnectTimer();
+      unawaited(openSocket(from: 'app_resumed'));
+    } else if (_status == SocketStatus.connected) {
+      // 连接可能已死但未检测到，发送探测包验证
+      _probeConnection();
+    }
+  }
+
+  /// 发送探测包验证连接是否仍然存活
+  void _probeConnection() {
+    if (_channel == null) return;
+    try {
+      if (_framing == FramingMode.v2) {
+        _sendV2Heartbeat();
+      }
+      // v1 模式：无法主动发探测包；pingInterval 超时后 onDone/onError 会
+      // 自动触发 _onClose/_onError 进而重连，此处无需额外操作。
+    } catch (e) {
+      iPrint('> ws: probe failed, connection likely dead: $e');
+      _cancelStream();
+      _updateStatus(SocketStatus.disconnected);
+      _backoff.reset();
+      unawaited(openSocket(from: 'app_resumed_probe'));
+    }
   }
 
   /// 统一状态更新方法
@@ -851,12 +909,12 @@ class WebSocketService {
   Future<void> closeSocket({bool permanent = false}) async {
     iPrint('> ws: 手动关闭连接');
     _updateStatus(SocketStatus.disconnected);
-    // 【修复】确保在关闭时清理所有资源
     _cancelStream();
     _cancelReconnectTimer();
-    // 清理待确认消息
     _pendingMessages.clear();
     if (permanent) {
+      WidgetsBinding.instance.removeObserver(this);
+      _initialized = false;
       _instance = null;
     }
   }

@@ -1001,9 +1001,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/qrcode/group',
         name: 'qrcode_group',
         pageBuilder: (context, state) {
-          // 从 state.extra 获取 GroupModel
-          final extra = state.extra;
-          if (extra == null) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final group = extra?['group'] as GroupModel?;
+          if (group == null) {
             return CupertinoPage(
               key: state.pageKey,
               child: Scaffold(
@@ -1013,7 +1013,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return CupertinoPage(
             key: state.pageKey,
-            child: GroupQrCodePage(group: extra as GroupModel),
+            child: GroupQrCodePage(group: group),
           );
         },
       ),
