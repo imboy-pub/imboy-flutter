@@ -203,12 +203,8 @@ class PersistentMessageQueue {
 
   bool get isEmpty => _totalSize == 0;
 
-  /// 清空消息队列
+  /// 清空消息队列（不影响定期清理 Timer 的生命周期）
   void clear() {
-    // 【新增 M1】同时停止定期清理
-    _stopPeriodicCleanup();
-    _startPeriodicCleanup(); // 重新启动清理
-
     for (final queue in _priorityQueues.values) {
       queue.clear();
     }
@@ -217,7 +213,7 @@ class PersistentMessageQueue {
     iPrint('🧹 [QUEUE] 清空队列');
   }
 
-  /// 【新增 M1】释放资源
+  /// 释放资源（先停 Timer 再清数据，避免 dispose 后 Timer 重启）
   void dispose() {
     _stopPeriodicCleanup();
     clear();

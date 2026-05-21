@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart'
@@ -27,6 +26,7 @@ import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/service/websocket_message_queue.dart';
+import 'package:imboy/service/exponential_backoff.dart';
 import 'package:imboy/config/init.dart' show navigateToSignIn;
 
 enum SocketStatus { connecting, connected, disconnected }
@@ -157,13 +157,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     iPrint('> ws: 收到重连请求，source=${event.source}');
     if (event.force || _shouldReconnect()) {
       // 延迟重连以避免频繁重连
-      Future<dynamic>.delayed(const Duration(milliseconds: 300), () {
-        if (_shouldReconnect()) {
-          openSocket(from: event.source);
-        }
-      }).catchError((Object e) {
-        iPrint('> ws: 重连请求处理失败: $e');
-      });
+      unawaited(
+        Future<void>.delayed(const Duration(milliseconds: 300), () {
+          if (_shouldReconnect()) {
+            unawaited(openSocket(from: event.source));
+          }
+        }).catchError((Object e) {
+          iPrint('> ws: 重连请求处理失败: $e');
+        }),
+      );
     }
   }
 
@@ -411,7 +413,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 处理连接失败后的操作
-  void _handleConnectionFailure(dynamic error) {
+  void _handleConnectionFailure(Object error) {
     _updateStatus(SocketStatus.disconnected);
     _scheduleReconnection();
   }
@@ -613,7 +615,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 处理接收到的消息（优化版：非阻塞立即分发）
   /// Process received messages (optimized: non-blocking immediate dispatch)
-  Future<void> _onMessage(dynamic message) async {
+  void _onMessage(dynamic message) {
     // v2 路径：binary 数据走 frame 解码
     if (_framing == FramingMode.v2 && message is List<int>) {
       final bytes = message is Uint8List
@@ -782,10 +784,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           _channel!.sink.add(payload);
           sentCount++;
           if (sentCount >= maxBatch) {
-            await Future<dynamic>.delayed(Duration(milliseconds: 300));
+            await Future<void>.delayed(const Duration(milliseconds: 300));
             sentCount = 0;
           } else {
-            await Future<dynamic>.delayed(minDelay);
+            await Future<void>.delayed(minDelay);
           }
         } catch (e, s) {
           iPrint('> ws: flushMessageQueue failed: $e\n$s');
@@ -839,14 +841,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   void _onClose() {
     if (_status == SocketStatus.disconnected) return;
-    int closeCode = _channel?.closeCode ?? 0;
-    String closeReason = _channel?.closeReason ?? '';
+    final int closeCode = _channel?.closeCode ?? 0;
+    final String closeReason = _channel?.closeReason ?? '';
     iPrint('> ws_onClose: 连接丢失 $closeCode: $closeReason;');
 
     _updateStatus(SocketStatus.disconnected);
 
     switch (closeCode) {
       case 4006:
+        _cancelStream(); // 先清理资源，再执行登出跳转
         UserRepoLocal.to.quitLogin();
         navigateToSignIn(source: 'websocket_relogin');
         break;
@@ -1195,102 +1198,4 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       iPrint('> ws: 已清理所有待确认消息');
     }
   }
-}
-
-/// 可配置的指数退避工具类，支持多种 jitter 算法与详细参数控制。
-class ExponentialBackoff {
-  /// 初始延迟
-  final Duration baseDelay;
-
-  /// 最大延迟
-  final Duration maxDelay;
-
-  /// 最大重试次数
-  final int maxRetries;
-
-  /// 抖动因子（0.0 ~ 1.0），0为无抖动，1为最大抖动
-  final double jitterFactor;
-
-  /// 抖动算法类型
-  final JitterType jitterType;
-
-  /// 当前已重试次数
-  int attempts = 0;
-
-  ExponentialBackoff({
-    this.baseDelay = const Duration(seconds: 1),
-    this.maxDelay = const Duration(minutes: 2),
-    this.maxRetries = 20,
-    this.jitterFactor = 0.3,
-    this.jitterType = JitterType.full,
-  });
-
-  /// 获取下一次重试的延迟
-  Duration nextDelay() {
-    attempts = (attempts + 1).clamp(0, maxRetries);
-    final int expMs = baseDelay.inMilliseconds * (1 << (attempts - 1));
-    final int cappedMs = expMs.clamp(
-      baseDelay.inMilliseconds,
-      maxDelay.inMilliseconds,
-    );
-    Duration rawDelay = Duration(milliseconds: cappedMs);
-
-    switch (jitterType) {
-      case JitterType.none:
-        return rawDelay;
-      case JitterType.full:
-        return _fullJitter(rawDelay);
-      case JitterType.equal:
-        return _equalJitter(rawDelay);
-      case JitterType.deviation:
-        return _deviationJitter(rawDelay);
-    }
-  }
-
-  /// 重置重试计数器（连接成功后调用）
-  void reset() {
-    if (attempts > 0) {
-      AppLogger.debug('重连计数器已重置（之前尝试了 $attempts 次）');
-    }
-    attempts = 0;
-  }
-
-  /// 完全随机 jitter：[0, delay * jitterFactor]
-  Duration _fullJitter(Duration base) {
-    int maxMs = (base.inMilliseconds * jitterFactor).toInt();
-    if (maxMs <= 0) return base;
-    return Duration(milliseconds: Random().nextInt(maxMs + 1));
-  }
-
-  /// 抖动范围为 [delay * (1-jitter), delay]
-  Duration _equalJitter(Duration base) {
-    int range = (base.inMilliseconds * jitterFactor).toInt();
-    int minMs = base.inMilliseconds - range;
-    int delayMs = minMs + Random().nextInt(range + 1);
-    return Duration(milliseconds: delayMs);
-  }
-
-  /// ±jitterFactor * delay
-  Duration _deviationJitter(Duration base) {
-    int deviation = (base.inMilliseconds * jitterFactor).toInt();
-    int jitterValue = deviation > 0
-        ? Random().nextInt(deviation * 2 + 1) - deviation
-        : 0;
-    return Duration(milliseconds: base.inMilliseconds + jitterValue);
-  }
-}
-
-/// 抖动类型枚举
-enum JitterType {
-  /// 不做抖动
-  none,
-
-  /// 完全抖动（full jitter，Google/Netflix 推荐）
-  full,
-
-  /// 区间抖动（equal jitter，AWS 推荐）
-  equal,
-
-  /// 偏差抖动（±jitterFactor * delay）
-  deviation,
 }

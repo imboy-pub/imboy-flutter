@@ -39,7 +39,7 @@ class NetworkMonitorService {
 
   void _initializeNetworkMonitoring() {
     // 初始化网络状态
-    _checkCurrentNetworkStatus();
+    unawaited(_checkCurrentNetworkStatus());
 
     // 监听网络变化
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
@@ -101,24 +101,26 @@ class NetworkMonitorService {
     iPrint('检测到网络变化，准备重连WebSocket: $oldType -> $newType');
 
     // 延迟一小段时间确保网络稳定
-    Future<dynamic>.delayed(const Duration(milliseconds: 500), () {
-      // 检查用户是否已登录
-      if (!UserRepoLocal.to.isLoggedIn) {
-        iPrint('用户未登录，取消WebSocket重连');
-        return;
-      }
+    unawaited(
+      Future<void>.delayed(const Duration(milliseconds: 500), () {
+        // 检查用户是否已登录
+        if (!UserRepoLocal.to.isLoggedIn) {
+          iPrint('用户未登录，取消WebSocket重连');
+          return;
+        }
 
-      // 【解耦】通过事件总线发布 WebSocket 重连请求，而不是直接调用 WebSocketService
-      // Decoupling: publish WebSocket reconnect request via event bus instead of directly calling WebSocketService
-      try {
-        AppEventBus.fire(
-          WebSocketReconnectRequestEvent(source: 'network-type-change'),
-        );
-        iPrint('因网络类型变化触发WebSocket重连请求');
-      } catch (e) {
-        iPrint('发布WebSocket重连请求失败: $e');
-      }
-    });
+        // 【解耦】通过事件总线发布 WebSocket 重连请求，而不是直接调用 WebSocketService
+        // Decoupling: publish WebSocket reconnect request via event bus instead of directly calling WebSocketService
+        try {
+          AppEventBus.fire(
+            WebSocketReconnectRequestEvent(source: 'network-type-change'),
+          );
+          iPrint('因网络类型变化触发WebSocket重连请求');
+        } catch (e) {
+          iPrint('发布WebSocket重连请求失败: $e');
+        }
+      }),
+    );
   }
 
   void _notifyNetworkTypeChange(NetworkType oldType, NetworkType newType) {

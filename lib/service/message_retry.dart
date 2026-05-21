@@ -58,7 +58,7 @@ class MessageRetry with EventSubscriptionManager {
         if (event.isConnected) {
           // 网络恢复时重试失败的消息
           // Retry failed messages when network recovers
-          retryFailedMessages();
+          unawaited(retryFailedMessages());
         }
       }),
     );
@@ -67,7 +67,7 @@ class MessageRetry with EventSubscriptionManager {
     // Subscribe to retry messages request event (decoupling: receive retry requests via event bus)
     subscribeTo(
       AppEventBus.on<RetryMessagesRequestedEvent>().listen((event) {
-        retryFailedMessages();
+        unawaited(retryFailedMessages());
         iPrint(
           '🔄 [RETRY_QUEUE] 触发消息重试: source=${event.source}, reason=${event.reason}',
         );
@@ -75,7 +75,7 @@ class MessageRetry with EventSubscriptionManager {
     );
 
     // 【新增】应用启动时扫描失败消息并添加到重试队列
-    _scanAndRetryFailedMessages();
+    unawaited(_scanAndRetryFailedMessages());
 
     // 【新增】订阅从重试队列移除请求事件（解耦：通过事件总线接收移除请求）
     // Subscribe to remove from retry queue request event (decoupling: receive removal requests via event bus)
