@@ -310,7 +310,7 @@ class MessageOfflineService {
         },
       );
       return true;
-    } catch (e) {
+    } on Object catch (e) {
       _failedTotal++;
       _lastResult = 'failed_exception';
       _lastPullFinishedAt = DateTime.now();
@@ -418,7 +418,7 @@ class MessageOfflineService {
         await _sendOfflineAck(type, msgIds);
       }
       iPrint('$type 离线消息处理完成');
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('处理 $type 离线消息失败: $e');
       rethrow;
     }
@@ -434,7 +434,7 @@ class MessageOfflineService {
       if (resp.code != 0) {
         iPrint('发送离线消息确认失败: ${resp.msg}');
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('发送离线消息确认异常: $e $s');
     }
   }

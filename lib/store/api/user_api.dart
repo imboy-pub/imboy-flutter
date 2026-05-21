@@ -52,7 +52,7 @@ class UserApi extends HttpClient {
     bool checkNewToken = true,
   }) async {
     if (strEmpty(refreshToken)) {
-      UserRepoLocal.to.quitLogin();
+      await UserRepoLocal.to.quitLogin();
       navigateToSignIn(source: 'user_api_relogin');
       return "";
     }
@@ -70,7 +70,7 @@ class UserApi extends HttpClient {
     }
     String newToken = resp.payload?['token'] as String? ?? '';
     if (checkNewToken && strEmpty(newToken)) {
-      UserRepoLocal.to.quitLogin();
+      await UserRepoLocal.to.quitLogin();
       navigateToSignIn(source: 'user_api_relogin');
       return "";
     }
@@ -196,7 +196,7 @@ class UserApi extends HttpClient {
         return false;
       }
       return true;
-    } catch (e) {
+    } on Object catch (e) {
       iPrint("> on UserApi/applyLogout error: $e");
       EasyLoading.showError(t.common.logoutRequestFailedPleaseCheckNetwork);
       return false;
@@ -223,7 +223,7 @@ class UserApi extends HttpClient {
         return null;
       }
       return resp.payload as Map<String, dynamic>?;
-    } catch (e) {
+    } on Object catch (e) {
       iPrint("> on UserApi/exportUserData error: $e");
       EasyLoading.showError(t.common.operationFailedAgainLater);
       return null;

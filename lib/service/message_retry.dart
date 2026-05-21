@@ -116,7 +116,7 @@ class MessageRetry with EventSubscriptionManager {
         _retryTimer = null;
         return;
       }
-      retryFailedMessages();
+      unawaited(retryFailedMessages());
     });
   }
 
@@ -185,7 +185,7 @@ class MessageRetry with EventSubscriptionManager {
               }
             }
           }
-        } catch (e) {
+        } on Object catch (e) {
           iPrint('⚠️ [RETRY_SCAN] 扫描表 $table 失败: $e');
         }
       }
@@ -199,7 +199,7 @@ class MessageRetry with EventSubscriptionManager {
         iPrint('🚀 [RETRY_SCAN] 网络已连接，立即重试失败消息...');
         await retryFailedMessages();
       }
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [RETRY_SCAN] 扫描失败消息出错: $e');
     }
   }
@@ -388,7 +388,7 @@ class MessageRetry with EventSubscriptionManager {
         final updatedMessage = await updatedMsg.toTypeMessage();
         AppEventBus.fireData([updatedMessage], 'List<Message>');
       }
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('重试消息错误: ${info.messageId}, $e');
       // 异常也计入一次尝试，避免异常场景无穷重试
       info.retryCount++;
@@ -470,7 +470,7 @@ class MessageRetry with EventSubscriptionManager {
       }
 
       return true;
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('手动重试消息错误: $messageId, $e');
       return false;
     }
@@ -519,7 +519,7 @@ class MessageRetry with EventSubscriptionManager {
         AppEventBus.fireData([updatedMessage], 'List<Message>');
       }
       iPrint('❌ [RETRY] 达到最大重试次数，标记消息失败: ${info.messageId}');
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('⚠️ [RETRY] 标记消息失败时出错: ${info.messageId}, $e');
     }
   }

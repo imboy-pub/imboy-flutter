@@ -262,7 +262,7 @@ class MessageS2CService {
         // 直接发送 ACK 确认
         AckManager.to.sendAckDirect('S2C', msgId as String);
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint("switchS2C error: $e, $s");
     }
   }
@@ -548,7 +548,7 @@ class MessageS2CService {
           // go_router 会自动清除路由栈
           context.go(AppRoutes.signIn);
         }
-      } catch (e) {
+      } on Object catch (e) {
         iPrint("switchS2C error: $e");
         // 如果导航失败，尝试使用其他方式
         rethrow;
@@ -615,14 +615,14 @@ class MessageS2CService {
           ),
         );
       }
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[MessageS2C] account recovery failed: $e');
     }
 
     // 统一执行退登与清理
     try {
       AppEventBus.fire(WebSocketForceCloseEvent(permanent: true));
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[MessageS2C] WS event fire failed: $e');
     }
 
@@ -832,7 +832,7 @@ class MessageS2CService {
             await GroupMemberRepo().update(gid.toString(), userId, {
               GroupMemberColumns.muteUntil: muteUntilMs,
             });
-          } catch (e) {
+          } on Object catch (e) {
             // 当前用户未加入该群 / Repo 异常 → 吞异常，不阻塞 toast
             iPrint('[S2C] group_member_mute Repo update failed: $e');
           }
@@ -871,7 +871,7 @@ class MessageS2CService {
             await GroupMemberRepo().update(gid.toString(), userId, {
               GroupMemberColumns.muteUntil: null,
             });
-          } catch (e) {
+          } on Object catch (e) {
             iPrint('[S2C] group_member_unmute Repo update failed: $e');
           }
         }
@@ -1057,7 +1057,7 @@ class MessageS2CService {
             );
           }
           // rowId == 0：被唯一索引拦截（重复 S2C），静默忽略
-        } catch (error, stack) {
+        } on Object catch (error, stack) {
           // Repo 异常不能阻断其他 S2C 处理（例如 moment_notify 表在老版本
           // 用户上尚未迁移到）
           iPrint('[S2C] moment_notify insert failed: $error\n$stack');
@@ -1085,7 +1085,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelMessage(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_message 处理失败: $e');
     }
   }
@@ -1103,7 +1103,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelSubscribed(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_subscribed 处理失败: $e');
     }
   }
@@ -1121,7 +1121,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelUnsubscribed(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_unsubscribed 处理失败: $e');
     }
   }
@@ -1138,7 +1138,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelUpdated(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_updated 处理失败: $e');
     }
   }
@@ -1154,7 +1154,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelMessageDeleted(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_message_deleted 处理失败: $e');
     }
   }
@@ -1170,7 +1170,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelMessageRevoked(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_message_revoked 处理失败: $e');
     }
   }
@@ -1188,7 +1188,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelDeleted(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_deleted 处理失败: $e');
     }
   }
@@ -1201,7 +1201,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelInvitationCreated(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_invitation_created 处理失败: $e');
     }
   }
@@ -1214,7 +1214,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelInvitationAccepted(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_invitation_accepted 处理失败: $e');
     }
   }
@@ -1227,7 +1227,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelOrderPaid(payload);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_order_paid 处理失败: $e');
     }
   }
@@ -1257,7 +1257,7 @@ class MessageS2CService {
           unreadCount: unreadCount,
         ),
       );
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[S2C] channel_unread_count 处理失败: $e');
     }
   }

@@ -24,35 +24,36 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class MessageRepo {
   // v2.0 表名常量（与服务端保持一致）
-  static String c2cTable = 'msg_c2c';
-  static String c2gTable = 'msg_c2g';
-  static String c2sTable = 'msg_c2s';
-  static String s2cTable = 'msg_s2c';
+  static const String c2cTable = 'msg_c2c';
+  static const String c2gTable = 'msg_c2g';
+  static const String c2sTable = 'msg_c2s';
+  static const String s2cTable = 'msg_s2c';
 
-  static String autoId = 'auto_id';
-  static String id = 'id'; // message_id
+  static const String autoId = 'auto_id';
+  static const String id = 'id'; // message_id
 
   // C2C C2G C2C_REVOKE_ACK C2G_REVOKE_ACK
-  static String type = 'type';
-  static String from = 'from_id';
-  static String to = 'to_id';
-  static String payload = 'payload';
-  static String createdAt = 'created_at';
+  static const String type = 'type';
+  static const String from = 'from_id';
+  static const String to = 'to_id';
+  static const String payload = 'payload';
+  static const String createdAt = 'created_at';
 
   // varchar(80)
-  static String conversationUk3 = 'conversation_uk3';
-  static String status = 'status';
+  static const String conversationUk3 = 'conversation_uk3';
+  static const String status = 'status';
 
   // from id is author bool true | false
-  static String isAuthor = 'is_author';
-  static String topicId = 'topic_id';
+  static const String isAuthor = 'is_author';
+  static const String topicId = 'topic_id';
 
   // v2.0 新增字段（从 payload 中提取到顶层）
-  static String msgType = 'msg_type'; // 消息类型：text, image, voice, video, file 等
-  static String action = 'action'; // S2C 消息指令
-  static String e2ee = 'e2ee'; // 端到端加密信息（JSON 字符串）
+  static const String msgType =
+      'msg_type'; // 消息类型：text, image, voice, video, file 等
+  static const String action = 'action'; // S2C 消息指令
+  static const String e2ee = 'e2ee'; // 端到端加密信息（JSON 字符串）
 
-  static final List<String> defaultColumns = [
+  static final List<String> defaultColumns = List.unmodifiable([
     autoId,
     id,
     type,
@@ -67,7 +68,7 @@ class MessageRepo {
     msgType, // v2.0 新增
     action, // v2.0 新增
     e2ee, // v2.0 新增
-  ];
+  ]);
 
   // 当前活动的会话 UK3（用于离线消息同步时判断是否需要触发消息事件）
   static String? _currentActiveConversationUk3;
@@ -460,7 +461,7 @@ class MessageRepo {
         messages.add(MessageModel.fromJson(map));
       }
       return messages;
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint(
         "MessageRepo pageForConversation error: $e, where: $where, args: $args",
       );
@@ -506,7 +507,7 @@ class MessageRepo {
         messages.add(MessageModel.fromJson(maps[i]));
       }
       return messages;
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint(
         "MessageRepo pageNewerForConversation error: $e, where: $where, args: $args",
       );
@@ -597,7 +598,7 @@ class MessageRepo {
         messages.add(MessageModel.fromJson(maps[i]));
       }
       return messages;
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint("MessageRepo page error: $e");
       return [];
     }
@@ -634,7 +635,7 @@ class MessageRepo {
       ''');
 
       debugPrint("Search indexes created for $tableName");
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint("Error creating search indexes: $e");
     }
   }
@@ -834,7 +835,7 @@ class MessageRepo {
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
               }
-            } catch (e) {
+            } on Object catch (e) {
               debugPrint('[MessageRepo] JSON payload parsing failed: $e');
             }
           }
@@ -965,12 +966,12 @@ class MessageRepo {
           try {
             // 调用回调函数处理 S2C 消息
             await onS2CMessage(msgData);
-          } catch (e) {
+          } on Object catch (e) {
             func_helper.iPrint("处理 S2C 消息失败: ${msgData['id']}, 错误: $e");
           }
         }
       }
-    } catch (e) {
+    } on Object catch (e) {
       func_helper.iPrint("批量插入离线消息失败: $e");
       return null;
     }
@@ -985,7 +986,7 @@ class MessageRepo {
     if (asInt != null) return asInt;
     try {
       return DateTimeHelper.rfc3339ToMillisecond(s);
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('[MessageRepo] JSON payload parsing failed: $e');
       return 0;
     }
@@ -1037,7 +1038,7 @@ class MessageRepo {
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
-      } catch (e) {
+      } on Object catch (e) {
         debugPrint('[MessageRepo] offline sync failed: $e');
       }
 
@@ -1129,7 +1130,7 @@ class MessageRepo {
             await msg.toMessageModel().toTypeMessage(),
             'Message',
           );
-        } catch (e) {
+        } on Object catch (e) {
           debugPrint('[MessageRepo] dedup failed: $e');
         }
       }
@@ -1312,7 +1313,7 @@ class MessageRepo {
       }
 
       return allMessages;
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint("MessageRepo getMessages error: $e");
       return [];
     }
@@ -1363,7 +1364,7 @@ class MessageRepo {
       }
 
       return messages;
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint("_getMessagesFromTable error: $e, table: $table");
       return [];
     }
@@ -1399,7 +1400,7 @@ class MessageRepo {
       }
 
       return total;
-    } catch (e) {
+    } on Object catch (e) {
       debugPrint('MessageRepo.countMessagesWithUser error: $e');
       return 0;
     }

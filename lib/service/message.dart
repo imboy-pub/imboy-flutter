@@ -202,7 +202,7 @@ class MessageService with EventSubscriptionManager {
   /// 内部初始化方法
   void _init() {
     // 延迟初始化网络监控，避免在服务注册阶段访问其他服务
-    Future.microtask(() => initNetworkMonitoring());
+    unawaited(Future.microtask(initNetworkMonitoring));
 
     // 定期清理过期的内容哈希缓存
     _cleanupTimer = Timer.periodic(
@@ -271,7 +271,7 @@ class MessageService with EventSubscriptionManager {
           AppEventBus.fireData([typeMessage], 'List<Message>');
         }
       }
-    } catch (e) {
+    } on Object catch (e) {
       iPrint(
         '❌ [STATUS_UPDATE] 更新消息状态失败: messageId=${event.messageId}, status=${event.newStatus}, error=$e',
       );
@@ -446,7 +446,7 @@ class MessageService with EventSubscriptionManager {
           } else {
             e2ee = e2ee.cast<String, dynamic>();
           }
-        } catch (e) {
+        } on Object catch (e) {
           iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
         }
       } else if (e2eeRaw is Map<String, dynamic>) {
@@ -500,7 +500,7 @@ class MessageService with EventSubscriptionManager {
           if (decoded is Map<String, dynamic>) {
             payload = parseModelJsonMap(decoded);
           }
-        } catch (e) {
+        } on Object catch (e) {
           iPrint('❌ [Payload] 无法解析 payload 字符串: msgId=$msgId, error=$e');
         }
       }
@@ -924,7 +924,7 @@ class MessageService with EventSubscriptionManager {
       }
 
       iPrint('✅ 消息后台处理完成: $msgId, peer: ${peerInfo['title']}');
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       iPrint('❌ 消息后台处理失败: $msgId, 错误: $e');
       iPrint('堆栈: $stack');
 
@@ -994,7 +994,7 @@ class MessageService with EventSubscriptionManager {
     String msgId,
     String chatType,
     ConversationModel tempConv,
-    dynamic error,
+    Object error,
   ) {
     try {
       iPrint('🔧 开始清理失败的消息: $msgId');
@@ -1023,7 +1023,7 @@ class MessageService with EventSubscriptionManager {
       });
 
       iPrint('✅ 失败消息清理完成: $msgId');
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ 清理失败消息时出错: $e');
     }
   }
@@ -1144,7 +1144,7 @@ class MessageService with EventSubscriptionManager {
             );
           }
         }
-      } catch (e) {
+      } on Object catch (e) {
         iPrint('❌ [SERVER_ACK] 频道消息ACK处理异常: $e');
       }
       return;
@@ -1189,7 +1189,7 @@ class MessageService with EventSubscriptionManager {
     try {
       // 使用 Riverpod Provider 访问活跃会话状态
       return _activeConversationNotifier.isConversationActive(conv.uk3);
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [ACTIVE_CONVERSATION] 检查失败: $e');
       return false; // 失败时返回 false，保守增加未读数
     }
@@ -1229,7 +1229,7 @@ class MessageService with EventSubscriptionManager {
         '🔔 [Notification] 消息通知已触发: '
         'sender=$senderName, uk3=$conversationUk3',
       );
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [Notification] 显示消息通知失败: $e');
     }
   }
@@ -1353,12 +1353,11 @@ class MessageService with EventSubscriptionManager {
 
   /// 检查消息是否可以撤回
   /// Check if message can be revoked.
-  Future<bool> canRevokeMessage(MessageModel msg) =>
-      actions.canRevokeMessage(msg);
+  bool canRevokeMessage(MessageModel msg) => actions.canRevokeMessage(msg);
 
   /// 检查消息是否可以编辑
   /// Check if message can be edited.
-  Future<bool> canEditMessage(MessageModel msg) => actions.canEditMessage(msg);
+  bool canEditMessage(MessageModel msg) => actions.canEditMessage(msg);
 
   /// 处理 E2EE 消息解密（v2.0 格式）
   ///
@@ -1417,7 +1416,7 @@ class MessageService with EventSubscriptionManager {
           if (decoded is Map<String, dynamic>) {
             e2ee = decoded.cast<String, dynamic>();
           }
-        } catch (e) {
+        } on Object catch (e) {
           iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
         }
       } else if (e2eeRaw is Map<String, dynamic>) {
@@ -1488,7 +1487,7 @@ class MessageService with EventSubscriptionManager {
         '✅ [E2EE] v2.0 解密成功: msgId=$msgId, msgType=${payload['msg_type']}',
       );
       return payload;
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=$e');
 
       // 检查是否是密钥不匹配错误

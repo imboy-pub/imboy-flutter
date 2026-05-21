@@ -237,7 +237,7 @@ class ConversationRepo {
       // if(e['t'])
       try {
         item2.add(ConversationModel.fromJson(e));
-      } catch (e, s) {
+      } on Object catch (e, s) {
         iPrint("ConversationRepo/list err $e; $s");
       }
     }
@@ -370,6 +370,32 @@ class ConversationRepo {
     return null;
   }
 
+  /// 查询某会话下所有消息的 ID（在事务内调用）
+  Future<List<String>> _queryMessageIds(
+    Transaction txn,
+    String tableName,
+    String uk3,
+  ) async {
+    final result = await txn.rawQuery(
+      'SELECT id FROM $tableName WHERE ${MessageRepo.conversationUk3} = ?',
+      [uk3],
+    );
+    return result.map((row) => row['id'].toString()).toList();
+  }
+
+  /// 从重试队列中清除指定消息列表
+  void _cleanupRetryQueue(List<String> msgIds, String uk3) {
+    if (msgIds.isEmpty) return;
+    for (final msgId in msgIds) {
+      try {
+        MessageRetry.instance.removeFromRetryQueue(msgId);
+      } on Object catch (e) {
+        debugPrint('清理重试队列失败: $msgId, error: $e');
+      }
+    }
+    iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=$uk3');
+  }
+
   // 根据ID删除信息
   Future<int> delete(String type, String peerId) async {
     return await _db.delete(
@@ -396,53 +422,31 @@ class ConversationRepo {
     return await _db.transaction((txn) async {
       final tableName = MessageRepo.getTableName(model.type);
 
-      // 1. 先统计要删除的消息数量（用于清理重试队列）
-      final result = await txn.rawQuery(
-        'SELECT id FROM $tableName WHERE ${MessageRepo.conversationUk3} = ?',
-        [model.uk3],
-      );
+      // v16: id 列从 TEXT 迁移到 INTEGER，toString() 兼容两种返回
+      final msgIds = await _queryMessageIds(txn, tableName, model.uk3);
+      _cleanupRetryQueue(msgIds, model.uk3);
 
-      // v16: id 列从 TEXT 迁移到 INTEGER，此处用 toString() 兼容 int/String 两种返回
-      final msgIds = result.map((row) => row['id'].toString()).toList();
-
-      // 2. 清理重试队列中的消息
-      if (msgIds.isNotEmpty) {
-        for (final msgId in msgIds) {
-          try {
-            MessageRetry.instance.removeFromRetryQueue(msgId);
-          } catch (e) {
-            debugPrint('清理重试队列失败: $msgId, error: $e');
-          }
-        }
-        iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=${model.uk3}');
-      }
-
-      // 3. 删除消息
       final deletedCount = await txn.delete(
         tableName,
         where: '${MessageRepo.conversationUk3} = ?',
         whereArgs: [model.uk3],
       );
 
-      // 4. 更新会话表（清空所有 last msg 相关信息）
+      // 清空 last_msg 相关字段（避免会话飘到顶部）
       await txn.update(
         ConversationRepo.tableName,
         {
-          ConversationRepo.lastTime: 0, // 清空最后消息时间（避免会话飘到顶部）
+          ConversationRepo.lastTime: 0,
           ConversationRepo.lastMsgId: '',
           ConversationRepo.lastMsgStatus: 0,
-          ConversationRepo.subtitle: '', // 清空副标题（最后消息预览）
-          ConversationRepo.msgType: '', // 清空消息类型
+          ConversationRepo.subtitle: '',
+          ConversationRepo.msgType: '',
         },
         where: '${ConversationRepo.id} = ?',
         whereArgs: [model.id],
       );
+      iPrint('清空聊天记录: conversationUk3=${model.uk3}, 删除消息数=$deletedCount');
 
-      iPrint(
-        '清空聊天记录: 已更新会话 last_msg, conversationUk3=${model.uk3}, 删除消息数=$deletedCount',
-      );
-
-      // 5. 在同一事务中重新查询更新后的会话数据
       final maps = await txn.query(
         ConversationRepo.tableName,
         columns: [
@@ -466,11 +470,7 @@ class ConversationRepo {
         where: '${ConversationRepo.id} = ?',
         whereArgs: [model.id],
       );
-
-      if (maps.isNotEmpty) {
-        return ConversationModel.fromJson(maps.first);
-      }
-      return null;
+      return maps.isNotEmpty ? ConversationModel.fromJson(maps.first) : null;
     });
   }
 
@@ -490,44 +490,22 @@ class ConversationRepo {
     return await _db.transaction((txn) async {
       final tableName = MessageRepo.getTableName(model.type);
 
-      // 1. 查询该会话的所有消息ID（用于清理重试队列）
-      final result = await txn.rawQuery(
-        'SELECT id FROM $tableName WHERE ${MessageRepo.conversationUk3} = ?',
-        [model.uk3],
-      );
+      // v16: id 列从 TEXT 迁移到 INTEGER，toString() 兼容两种返回
+      final msgIds = await _queryMessageIds(txn, tableName, model.uk3);
+      _cleanupRetryQueue(msgIds, model.uk3);
 
-      // v16: id 列从 TEXT 迁移到 INTEGER，此处用 toString() 兼容 int/String 两种返回
-      final msgIds = result.map((row) => row['id'].toString()).toList();
-
-      // 2. 清理重试队列中的消息
-      if (msgIds.isNotEmpty) {
-        for (final msgId in msgIds) {
-          try {
-            MessageRetry.instance.removeFromRetryQueue(msgId);
-          } catch (e) {
-            debugPrint('清理重试队列失败: $msgId, error: $e');
-          }
-        }
-        iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=${model.uk3}');
-      }
-
-      // 3. 删除消息
       final deletedCount = await txn.delete(
         tableName,
         where: '${MessageRepo.conversationUk3} = ?',
         whereArgs: [model.uk3],
       );
 
-      // 4. 删除会话记录
       await txn.delete(
         ConversationRepo.tableName,
         where: '${ConversationRepo.id} = ?',
         whereArgs: [model.id],
       );
-
-      iPrint(
-        '删除会话: 已删除会话及其消息, conversationUk3=${model.uk3}, 删除消息数=$deletedCount',
-      );
+      iPrint('删除会话: conversationUk3=${model.uk3}, 删除消息数=$deletedCount');
 
       return deletedCount;
     });

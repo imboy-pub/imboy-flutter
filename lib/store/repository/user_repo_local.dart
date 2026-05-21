@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
@@ -32,14 +34,16 @@ class UserRepoLocal {
   //
   UserSettingModel get setting {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
-    return UserSettingModel.fromJson(u['setting'] as Map<String, dynamic>? ?? {});
+    return UserSettingModel.fromJson(
+      u['setting'] as Map<String, dynamic>? ?? {},
+    );
   }
 
   // 令牌 token
   Future<String> get accessToken async {
     try {
       return await SecureTokenStorageService.getToken();
-    } catch (e, s) {
+    } on Object catch (e, s) {
       debugPrint("accessToken on Exception: $e; $s");
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
@@ -50,7 +54,7 @@ class UserRepoLocal {
   Future<String> get refreshToken async {
     try {
       return await SecureTokenStorageService.getRefreshToken();
-    } catch (e, s) {
+    } on Object catch (e, s) {
       debugPrint("refreshToken on Exception: $e; $s");
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
@@ -193,12 +197,12 @@ class UserRepoLocal {
     List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
     if (li == null) {
       li = [account];
-      StorageService.to.setList(Keys.loginHistory, li);
+      unawaited(StorageService.to.setList(Keys.loginHistory, li));
     } else {
       // 移除已存在的账号（如果有），然后插入到最前面
       li.remove(account);
       li.insert(0, account);
-      StorageService.to.setList(Keys.loginHistory, li);
+      unawaited(StorageService.to.setList(Keys.loginHistory, li));
     }
 
     await StorageService.to.setString(
@@ -207,7 +211,9 @@ class UserRepoLocal {
     );
 
     await SecureTokenStorageService.saveToken(payload['token'] as String);
-    await SecureTokenStorageService.saveRefreshToken(payload['refreshtoken'] as String);
+    await SecureTokenStorageService.saveRefreshToken(
+      payload['refreshtoken'] as String,
+    );
 
     payload.remove('token');
     payload.remove('refreshtoken');
@@ -247,7 +253,6 @@ class UserRepoLocal {
       await StorageService.to.remove(Keys.currentUid);
       await StorageService.to.remove(Keys.wsUrl);
       await StorageService.to.remove(Keys.uploadUrl);
-      await StorageService.to.remove(Keys.uploadUrl);
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
 
@@ -256,7 +261,7 @@ class UserRepoLocal {
       try {
         E2EEService.clearCache();
         iPrint("> quitLogin: E2EE cache cleared");
-      } catch (e, s) {
+      } on Object catch (e, s) {
         debugPrint("quitLogin error clearing E2EE cache: $e; $s");
       }
 
@@ -264,7 +269,7 @@ class UserRepoLocal {
       try {
         await SecureTokenStorageService.clear();
         iPrint("> quitLogin: Secure tokens cleared successfully");
-      } catch (e, s) {
+      } on Object catch (e, s) {
         debugPrint("quitLogin error clearing tokens: $e; $s");
         // FlutterKeychain 不支持 macos
       }
@@ -275,7 +280,7 @@ class UserRepoLocal {
       SqliteService.to.close();
       iPrint("> quitLogin: Logout process completed successfully");
       return true;
-    } catch (e, s) {
+    } on Object catch (e, s) {
       debugPrint("quitLogin error: $e; $s");
       return false;
     }

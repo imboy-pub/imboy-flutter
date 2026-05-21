@@ -102,7 +102,7 @@ class MessageActions {
         default:
           iPrint('⚠️ [handleActionMessage] 未知的action类型: $action');
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint(
         '❌ [handleActionMessage] 处理action消息异常: action=$action, error=$e\nstacktrace=$s',
       );
@@ -154,7 +154,7 @@ class MessageActions {
 
       // 直接发送 ACK 确认
       AckManager.to.sendAckDirect(msgType, msgId);
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [_handleReadAction] 处理已读消息失败: error=$e\nstacktrace=$s');
     }
   }
@@ -218,7 +218,7 @@ class MessageActions {
 
       // 发送 ACK 确认
       AckManager.to.sendAckDirect(msgType, msgId);
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [_handleReadAckAction] 处理已读确认失败: error=$e\nstacktrace=$s');
     }
   }
@@ -288,7 +288,7 @@ class MessageActions {
 
       // 直接发送 ACK 确认
       AckManager.to.sendAckDirect(msgType, msgId);
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [_handleReactionAction] 处理消息表情失败: error=$e\nstacktrace=$s');
     }
   }
@@ -624,7 +624,7 @@ class MessageActions {
       } else {
         iPrint('❌ 重新获取更新后的消息失败');
       }
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ 处理对方编辑消息异常: $e');
     }
   }
@@ -692,7 +692,7 @@ class MessageActions {
       } else {
         iPrint('编辑的消息不是会话的最后一条消息，无需更新会话');
       }
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('更新会话编辑状态异常: $e');
     }
   }
@@ -720,7 +720,7 @@ class MessageActions {
 
       // 更新会话
       await _updateConversationAfterRevoke(msg);
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ 处理对方撤回消息异常: $e; $s');
     }
   }
@@ -782,7 +782,7 @@ class MessageActions {
       } else {
         iPrint('撤回的消息不是会话的最后一条消息，无需更新会话');
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('更新会话撤回状态异常: $e; $s');
     }
   }
@@ -800,7 +800,7 @@ class MessageActions {
       }
 
       // 检查是否可以撤回
-      if (!await canRevokeMessage(msg)) {
+      if (!canRevokeMessage(msg)) {
         iPrint('❌ 消息不符合撤回条件: messageId=$messageId');
         return false;
       }
@@ -850,7 +850,7 @@ class MessageActions {
       );
 
       return true; // 返回 true 表示已提交发送请求
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ 发送撤回消息异常: $e; $s');
       return false;
     }
@@ -873,7 +873,7 @@ class MessageActions {
       }
 
       // 检查是否可以编辑
-      if (!await canEditMessage(msg)) {
+      if (!canEditMessage(msg)) {
         iPrint('❌ 消息不符合编辑条件: messageId=$messageId');
         return false;
       }
@@ -908,7 +908,7 @@ class MessageActions {
       );
 
       return true; // 返回 true 表示已提交发送请求
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint("❌ 发送编辑消息异常: $e; $s");
       return false;
     }
@@ -916,7 +916,7 @@ class MessageActions {
 
   /// 检查消息是否可以撤回
   /// Check if message can be revoked.
-  Future<bool> canRevokeMessage(MessageModel msg) async {
+  bool canRevokeMessage(MessageModel msg) {
     try {
       // 只能撤回自己的消息
       final currentUid = UserRepoLocal.to.currentUid;
@@ -962,7 +962,7 @@ class MessageActions {
       }
 
       return true;
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint("❌ 检查撤回条件异常: $e; $s");
       return false;
     }
@@ -970,7 +970,7 @@ class MessageActions {
 
   /// 检查消息是否可以编辑
   /// Check if message can be edited.
-  Future<bool> canEditMessage(MessageModel msg) async {
+  bool canEditMessage(MessageModel msg) {
     try {
       // 只能编辑自己的消息
       final currentUid = UserRepoLocal.to.currentUid;
@@ -1014,7 +1014,7 @@ class MessageActions {
       }
 
       return true;
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint("❌ 检查编辑条件异常: $e; $s");
       return false;
     }
@@ -1065,7 +1065,7 @@ class MessageActions {
         );
         // iPrint('✅ [INPUT] 触发输入状态事件: from=$fromId, status=$status');
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [_handleInputAction] 处理输入状态异常: $e; $s');
     }
   }
@@ -1115,7 +1115,7 @@ class MessageActions {
           messageId: inputMessage['id'].toString(),
         ),
       );
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [sendInputStatus] 发送异常: $e; $s');
     }
   }
@@ -1194,7 +1194,7 @@ class MessageActions {
       } else {
         iPrint('❌ 重新获取更新后的消息失败');
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [convertMessageToRevoked] 处理异常: $e; $s');
     }
   }
@@ -1234,7 +1234,7 @@ class MessageActions {
           payload: {'conversation': conversation, 'msg': msg},
         ),
       );
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [handleC2CDeleteMessage] 处理异常: $e; $s');
     }
   }
@@ -1270,7 +1270,7 @@ class MessageActions {
           payload: {'conversation': conversation, 'msg': msg},
         ),
       );
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [handleC2GDeleteMessage] 处理异常: $e; $s');
     }
   }
@@ -1298,7 +1298,7 @@ class MessageActions {
           AppErrorEvent(message: '非好友关系，无法发送消息', errorType: 'not_a_friend'),
         );
         iPrint('✅ [NOT_A_FRIEND] 已发送错误提示事件');
-      } catch (e) {
+      } on Object catch (e) {
         debugPrint('⚠️ [NOT_A_FRIEND] 发送事件失败: $e');
       }
 
@@ -1316,7 +1316,7 @@ class MessageActions {
             ),
           );
           iPrint('✅ [NOT_A_FRIEND] 消息状态已更新为 error: msgId=$msgId');
-        } catch (e) {
+        } on Object catch (e) {
           debugPrint('⚠️ [NOT_A_FRIEND] 更新消息状态失败: $e');
         }
 
@@ -1330,11 +1330,11 @@ class MessageActions {
             ),
           );
           iPrint('🗑️ [NOT_A_FRIEND] 消息已从重试队列移除: msgId=$msgId');
-        } catch (e) {
+        } on Object catch (e) {
           debugPrint('⚠️ [NOT_A_FRIEND] 从重试队列移除失败: $e');
         }
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [handleNotAFriendError] 处理异常: error=$e\nstacktrace=$s');
     }
   }
@@ -1370,7 +1370,7 @@ class MessageActions {
           ),
         );
         iPrint('✅ [DENYLIST] 已发送错误提示事件');
-      } catch (e) {
+      } on Object catch (e) {
         debugPrint('⚠️ [DENYLIST] 发送事件失败: $e');
       }
 
@@ -1388,7 +1388,7 @@ class MessageActions {
             ),
           );
           iPrint('✅ [DENYLIST] 消息状态已更新为 error: msgId=$msgId');
-        } catch (e) {
+        } on Object catch (e) {
           debugPrint('⚠️ [DENYLIST] 更新消息状态失败: $e');
         }
 
@@ -1402,11 +1402,11 @@ class MessageActions {
             ),
           );
           iPrint('🗑️ [DENYLIST] 消息已从重试队列移除: msgId=$msgId');
-        } catch (e) {
+        } on Object catch (e) {
           debugPrint('⚠️ [DENYLIST] 从重试队列移除失败: $e');
         }
       }
-    } catch (e, s) {
+    } on Object catch (e, s) {
       iPrint('❌ [handleDenylistError] 处理异常: error=$e\nstacktrace=$s');
     }
   }

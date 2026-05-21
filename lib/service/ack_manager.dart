@@ -56,8 +56,9 @@ class AckManager {
     // 这解决了连接建立初期状态同步延迟的问题
     try {
       return WebSocketService.to.status == SocketStatus.connected;
-    } catch (e) {
+    } on Object catch (e) {
       // 如果 WebSocketService 不可用（例如测试环境），返回缓存状态
+      iPrint('⚠️ [ACK_MANAGER] WebSocketService 不可用: $e');
       return _isWebSocketConnected;
     }
   }
@@ -129,6 +130,7 @@ class AckManager {
     _pendingAcks.clear();
     _resetRuntimeStats();
     _isInitialized = false;
+    _instance = null;
   }
 
   /// 【新增】取消所有活动的 Timer
@@ -369,7 +371,7 @@ class AckManager {
         ),
       );
       iPrint('⚡ [WS_ACK] 直接发送ACK成功: msgId=$msgId, type=$type');
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [WS_ACK] ACK发送失败: msgId=$msgId, type=$type, error=$e');
     }
   }
@@ -405,7 +407,7 @@ class AckManager {
       iPrint(
         '✅ [ACK_MANAGER] ACK发送成功: msgId=$msgId, retryCount=${ack.retryCount}',
       );
-    } catch (e) {
+    } on Object catch (e) {
       iPrint('❌ [ACK_MANAGER] ACK发送异常: msgId=$msgId, error=$e');
       // 不立即重试，等待定时器触发
     }
