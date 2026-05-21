@@ -82,7 +82,7 @@ import 'dart:async';
 /// - 自动跟踪所有订阅
 /// - 批量订阅支持
 /// - 统一取消接口
-/// - 线程安全
+/// - 单 isolate 内重入安全
 mixin EventSubscriptionManager {
   /// 所有订阅的集合
   final List<StreamSubscription<dynamic>> _subscriptions = [];
@@ -145,15 +145,13 @@ mixin EventSubscriptionManager {
   /// }
   /// ```
   void cancelAllSubscriptions() {
-    for (final subscription in _subscriptions) {
-      // 忽略已取消的订阅
-      try {
-        subscription.cancel();
-      } catch (e) {
-        // 订阅可能已经取消，忽略错误
-      }
-    }
+    // 先 snapshot 再 clear：防止 cancel 期间递归调用或新增订阅导致重入修改。
+    // 注意：clear() 不阻止已排队回调被投递，回调内部需自行加 guard。
+    final subs = [..._subscriptions];
     _subscriptions.clear();
+    for (final sub in subs) {
+      unawaited(sub.cancel());
+    }
   }
 
   /// 获取订阅数量

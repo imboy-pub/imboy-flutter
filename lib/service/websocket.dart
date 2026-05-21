@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/widgets.dart'
     show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
@@ -38,7 +39,7 @@ enum FramingMode { none, v2 }
 /// v2 子协议名称（最高优先级）
 const String kSubProtocolV2 = 'imboy.v2';
 
-class WebSocketService with WidgetsBindingObserver {
+class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   // 单例模式
   static WebSocketService? _instance;
   static WebSocketService get to => _instance ??= WebSocketService._internal();
@@ -61,10 +62,10 @@ class WebSocketService with WidgetsBindingObserver {
   bool _isFlushing = false;
 
   // 订阅管理
+  // 不走 EventSubscriptionManager —— 需在 _cancelStream() 中与 _channel.sink.close() 同步执行
   StreamSubscription<dynamic>? _wsSub;
   Timer? _reconnectTimer;
   Timer? _v2HeartbeatTimer;
-  final List<StreamSubscription<dynamic>> _eventBusSubs = [];
   final Set<Timer> _confirmationTimers = {};
   bool _initialized = false;
 
@@ -116,19 +117,19 @@ class WebSocketService with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     // 订阅消息发送请求事件（解耦：MessageService 通过事件请求发送消息）
-    _eventBusSubs.add(
+    subscribeTo(
       AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(
         _handleMessageSendRequest,
       ),
     );
 
     // 订阅强制关闭事件（解耦：MessageS2C 通过事件强制关闭连接）
-    _eventBusSubs.add(
+    subscribeTo(
       AppEventBus.on<WebSocketForceCloseEvent>().listen(_handleForceClose),
     );
 
     // 订阅重连请求事件（解耦：NetworkMonitor 通过事件请求重连）
-    _eventBusSubs.add(
+    subscribeTo(
       AppEventBus.on<WebSocketReconnectRequestEvent>().listen(
         _handleReconnectRequest,
       ),
@@ -168,13 +169,19 @@ class WebSocketService with WidgetsBindingObserver {
 
   /// 释放资源
   void dispose() {
+    _cleanupResources(); // 先取消 _wsSub 并置空 _channel，使后续流回调成 no-op
+    _teardown(); // 再解注册 observer 和 EventBus，清空回调表，重置 _initialized
+  }
+
+  /// 永久销毁：必须先调 _cleanupResources() 取消 _wsSub 并关闭 _channel，
+  /// 再调此方法；否则 _wsSub 仍活跃，连接关闭事件（_onClose/_onError）会触发
+  /// _scheduleReconnection()，在已析构的实例上调度重连。
+  /// （removeObserver 是同步操作，移除即生效，无延迟窗口。）
+  void _teardown() {
     WidgetsBinding.instance.removeObserver(this);
-    for (final sub in _eventBusSubs) {
-      sub.cancel();
-    }
-    _eventBusSubs.clear();
+    cancelAllSubscriptions();
+    _statusCallbacks.clear();
     _initialized = false;
-    _cleanupResources();
   }
 
   /// App 生命周期回调：检测前后台切换
@@ -190,6 +197,7 @@ class WebSocketService with WidgetsBindingObserver {
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
+        // 过渡态/不可见态，无需处理
         break;
     }
   }
@@ -199,9 +207,7 @@ class WebSocketService with WidgetsBindingObserver {
     if (!_initialized || !UserRepoLocal.to.isLoggedIn) return;
 
     if (_status == SocketStatus.disconnected) {
-      iPrint(
-        '> ws: App resumed — WebSocket disconnected, reconnecting immediately',
-      );
+      iPrint('> ws: App 回到前台 — 连接已断开，立即重连');
       _backoff.reset();
       _cancelReconnectTimer();
       unawaited(openSocket(from: 'app_resumed'));
@@ -375,7 +381,7 @@ class WebSocketService with WidgetsBindingObserver {
       _cancelReconnectTimer();
       await _flushMessageQueue();
 
-      _wsSub?.cancel();
+      await _wsSub?.cancel();
       final start = DateTime.now();
 
       _wsSub = _channel?.stream.listen(
@@ -391,10 +397,6 @@ class WebSocketService with WidgetsBindingObserver {
         cancelOnError: true,
       );
       AppLogger.info('WebSocket 连接成功: ${Env.effectiveWsUrl}');
-
-      // 连接成功后重置重连计数器
-      _backoff.reset();
-      _cancelReconnectTimer();
     } catch (e, s) {
       AppLogger.error('WebSocket 连接失败: ${Env.effectiveWsUrl}', e, s);
       _handleConnectionFailure(e);
@@ -751,10 +753,11 @@ class WebSocketService with WidgetsBindingObserver {
     }
   }
 
-  /// 清理所有资源
   void _cleanupResources() {
-    _cancelStream();
+    _cancelStream(); // null _channel → _flushMessageQueue 循环 break → finally 自行重置 _isFlushing
     _cancelReconnectTimer();
+    // 不在此重置 _isFlushing：若旧 flush 仍挂起，finally 会在其 await 恢复后自行置 false；
+    // 在此提前重置会与新 flush 设置的 true 发生竞态，导致互斥锁失效。
   }
 
   /// 发送积压消息（优化版：加边界、异常、速率限制、并发防护）
@@ -904,17 +907,15 @@ class WebSocketService with WidgetsBindingObserver {
   }
 
   /// 手动关闭连接
-
-  /// 手动关闭连接
+  ///
+  /// [permanent]=false（默认）：临时断开，保留 observer 和 EventBus 订阅，允许重连。
+  /// [permanent]=true：永久销毁实例，单例置空，重连请求将创建新实例。
   Future<void> closeSocket({bool permanent = false}) async {
     iPrint('> ws: 手动关闭连接');
     _updateStatus(SocketStatus.disconnected);
-    _cancelStream();
-    _cancelReconnectTimer();
-    _pendingMessages.clear();
+    _cleanupResources();
     if (permanent) {
-      WidgetsBinding.instance.removeObserver(this);
-      _initialized = false;
+      _teardown();
       _instance = null;
     }
   }
@@ -1064,7 +1065,6 @@ class WebSocketService with WidgetsBindingObserver {
       final msgType = _getMessageTypeInfo(message);
       final size = message.length;
       iPrint('> ws: 消息已发送 ($id) [$msgType] [$size bytes]');
-      // iPrint('> ws: 消息已发送 ($id) [$msgType] [$size bytes] $message');
     }
   }
 
@@ -1081,7 +1081,6 @@ class WebSocketService with WidgetsBindingObserver {
       final encStatus = hasE2ee ? 'E2EE' : 'PLAIN';
       return '$type/$msgType/$encStatus';
     } catch (e) {
-      // debugPrint("_getMessageTypeInfo $e ");
       return 'UNKNOWN';
     }
   }
@@ -1130,17 +1129,19 @@ class WebSocketService with WidgetsBindingObserver {
   }
 
   void _cancelStream() {
-    _wsSub?.cancel();
+    if (_wsSub != null) unawaited(_wsSub!.cancel());
+    _wsSub = null;
     _channel?.sink.close();
     _channel = null;
     _v2HeartbeatTimer?.cancel();
     _v2HeartbeatTimer = null;
     _framing = FramingMode.none;
-    // 清理所有消息确认 Timer
+    // 清理所有消息确认 Timer 及待确认消息 ID（两者生命周期绑定同一连接）
     for (final t in _confirmationTimers) {
       t.cancel();
     }
     _confirmationTimers.clear();
+    _pendingMessages.clear();
   }
 
   void _cancelReconnectTimer() {
