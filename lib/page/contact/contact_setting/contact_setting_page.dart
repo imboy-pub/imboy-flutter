@@ -73,12 +73,36 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ImBoySettingsTile(
                 title: Text(t.main.setParam(param: t.contact.remarksTags)),
                 leading: _buildIcon(Icons.edit_outlined, AppColors.iosBlue),
-                onTap: () => Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => ContactSettingTagPage(peerId: widget.peerId, peerAvatar: widget.peerAvatar, peerAccount: widget.peerAccount, peerNickname: widget.peerNickname, peerGender: widget.peerGender, peerTitle: widget.peerTitle, peerSign: widget.peerSign, peerRegion: widget.peerRegion, peerSource: widget.peerSource, peerRemark: widget.peerRemark, peerTag: widget.peerTag, onRemarkChanged: (r) => ref.read(contactSettingProvider.notifier).updateRemark(r)))),
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute<dynamic>(
+                    builder: (_) => ContactSettingTagPage(
+                      peerId: widget.peerId,
+                      peerAvatar: widget.peerAvatar,
+                      peerAccount: widget.peerAccount,
+                      peerNickname: widget.peerNickname,
+                      peerGender: widget.peerGender,
+                      peerTitle: widget.peerTitle,
+                      peerSign: widget.peerSign,
+                      peerRegion: widget.peerRegion,
+                      peerSource: widget.peerSource,
+                      peerRemark: widget.peerRemark,
+                      peerTag: widget.peerTag,
+                      onRemarkChanged: (r) => ref
+                          .read(contactSettingProvider.notifier)
+                          .updateRemark(r),
+                    ),
+                  ),
+                ),
               ),
               ImBoySettingsTile(
                 title: Text(t.contact.recommendToFriend),
-                leading: _buildIcon(Icons.share_outlined, const Color(0xFF5856D6)),
-                onTap: () => EasyLoading.showInfo(t.common.featureInDevelopment),
+                leading: _buildIcon(
+                  Icons.share_outlined,
+                  const Color(0xFF5856D6),
+                ),
+                onTap: () =>
+                    EasyLoading.showInfo(t.common.featureInDevelopment),
               ),
             ],
           ),
@@ -89,7 +113,12 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.common.addToDenylist),
-                leading: _buildIcon(Icons.block_outlined, state.isInDenylist ? AppColors.getIosRed(brightness) : AppColors.iosGray),
+                leading: _buildIcon(
+                  Icons.block_outlined,
+                  state.isInDenylist
+                      ? AppColors.getIosRed(brightness)
+                      : AppColors.iosGray,
+                ),
                 trailing: CupertinoSwitch(
                   value: state.isInDenylist,
                   activeTrackColor: AppColors.getIosRed(brightness),
@@ -110,7 +139,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),
@@ -119,8 +148,12 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
 
   Widget _buildIcon(IconData icon, Color color) {
     return Container(
-      width: 32, height: 32,
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Icon(icon, color: color, size: 20),
     );
   }
@@ -130,35 +163,68 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
     final denylistRepo = UserDenylistRepo();
     bool res;
     if (val) {
-      final model = DenylistModel(deniedUid: parseModelInt(widget.peerId), nickname: widget.peerNickname, account: widget.peerAccount, remark: widget.peerRemark, sign: widget.peerSign, source: widget.peerSource, avatar: widget.peerAvatar, region: widget.peerRegion, gender: widget.peerGender, createdAt: DateTimeHelper.millisecond());
-      await denylistRepo.insert(model); res = true;
+      final model = DenylistModel(
+        deniedUid: parseModelInt(widget.peerId),
+        nickname: widget.peerNickname,
+        account: widget.peerAccount,
+        remark: widget.peerRemark,
+        sign: widget.peerSign,
+        source: widget.peerSource,
+        avatar: widget.peerAvatar,
+        region: widget.peerRegion,
+        gender: widget.peerGender,
+        createdAt: DateTimeHelper.millisecond(),
+      );
+      await denylistRepo.insert(model);
+      res = true;
     } else {
-      final count = await denylistRepo.delete(widget.peerId); res = count > 0;
+      final count = await denylistRepo.delete(widget.peerId);
+      res = count > 0;
     }
     EasyLoading.dismiss();
     if (res) {
-      await ref.read(contactSettingProvider.notifier).toggleDenylist(peerId: widget.peerId, addToDenylist: val, peerData: {});
-      EasyLoading.showSuccess(val ? t.common.addedToDenylist : t.common.removedFromDenylist);
-    } else EasyLoading.showError(t.common.error);
+      await ref
+          .read(contactSettingProvider.notifier)
+          .toggleDenylist(
+            peerId: widget.peerId,
+            addToDenylist: val,
+            peerData: {},
+          );
+      EasyLoading.showSuccess(
+        val ? t.common.addedToDenylist : t.common.removedFromDenylist,
+      );
+    } else {
+      EasyLoading.showError(t.common.error);
+    }
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    final displayRemark = widget.peerRemark.isEmpty ? widget.peerNickname : widget.peerRemark;
+    final displayRemark = widget.peerRemark.isEmpty
+        ? widget.peerNickname
+        : widget.peerRemark;
     showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.common.deleteContact),
         content: Text(t.common.tipDeleteContact(param: displayRemark)),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(ctx), child: Text(t.common.buttonCancel)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.common.buttonCancel),
+          ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () async {
-              Navigator.pop(ctx); EasyLoading.show(status: t.main.deleting);
-              if (await ref.read(contactSettingProvider.notifier).deleteContact(widget.peerId)) {
+              Navigator.pop(ctx);
+              EasyLoading.show(status: t.main.deleting);
+              if (await ref
+                  .read(contactSettingProvider.notifier)
+                  .deleteContact(widget.peerId)) {
                 EasyLoading.showSuccess(t.common.tipSuccess);
                 if (mounted) context.go('/bottom_navigation');
-              } else EasyLoading.showError(t.common.error);
+              } else {
+                EasyLoading.showError(t.common.error);
+              }
             },
             child: Text(t.common.buttonConfirm),
           ),

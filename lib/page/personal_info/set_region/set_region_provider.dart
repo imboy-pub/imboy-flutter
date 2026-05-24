@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -79,7 +78,10 @@ class SetRegionNotifier extends _$SetRegionNotifier {
     state = state.copyWith(selectedRegion: currentValue, hasChanged: false);
 
     if (state.selectedRegion.isNotEmpty) {
-      final path = state.selectedRegion.split(' ').where((e) => e.trim().isNotEmpty).toList();
+      final path = state.selectedRegion
+          .split(' ')
+          .where((e) => e.trim().isNotEmpty)
+          .toList();
       state = state.copyWith(regionPath: path);
     } else {
       state = state.copyWith(regionPath: []);
@@ -112,7 +114,7 @@ class SetRegionNotifier extends _$SetRegionNotifier {
       state = state.copyWith(regionList: _fullRegionList);
       return;
     }
-    
+
     final out = <dynamic>[];
     for (final item in _fullRegionList) {
       if (item is String) {
@@ -125,7 +127,12 @@ class SetRegionNotifier extends _$SetRegionNotifier {
         }
         // 简单深度搜索
         final children = (item['children'] ?? <dynamic>[]) as List<dynamic>;
-        if (children.any((c) => (c is String ? c : (c['title'] ?? '')).toString().toLowerCase().contains(kw))) {
+        if (children.any(
+          (c) => (c is String ? c : (c['title'] ?? ''))
+              .toString()
+              .toLowerCase()
+              .contains(kw),
+        )) {
           out.add(item);
         }
       }
@@ -147,7 +154,10 @@ class SetRegionNotifier extends _$SetRegionNotifier {
   /// 回滚到初始选择值
   void revertToInitial() {
     state = state.copyWith(selectedRegion: _initialValue, hasChanged: false);
-    final initialPath = _initialValue.split(' ').where((e) => e.trim().isNotEmpty).toList();
+    final initialPath = _initialValue
+        .split(' ')
+        .where((e) => e.trim().isNotEmpty)
+        .toList();
     state = state.copyWith(regionPath: initialPath);
     RegionCache.saveSelectedRegion(_initialValue);
     RegionCache.saveRegionPath(initialPath);

@@ -30,16 +30,20 @@ class IosPageTemplate extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // 强制背景色逻辑：亮色 F2F2F7，暗色 1C1C1E
-    final bgColor = backgroundColor ??
+    final bgColor =
+        backgroundColor ??
         (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurfaceGrouped);
 
-    final navBarColor = (isDark ? AppColors.darkSurfaceGrouped : Colors.white).withValues(alpha: 0.8);
-    
+    final navBarColor = (isDark ? AppColors.darkSurfaceGrouped : Colors.white)
+        .withValues(alpha: 0.8);
+
     final navBar = CupertinoNavigationBar(
       middle: Text(
         title,
         style: TextStyle(
-          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          color: isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.lightTextPrimary,
           fontWeight: FontWeight.w600,
           fontSize: 17,
           letterSpacing: -0.4,
@@ -50,16 +54,18 @@ class IosPageTemplate extends StatelessWidget {
       backgroundColor: navBarColor,
       border: Border(
         bottom: BorderSide(
-          color: AppColors.getIosSeparator(theme.brightness).withValues(alpha: 0.4),
+          color: AppColors.getIosSeparator(
+            theme.brightness,
+          ).withValues(alpha: 0.4),
           width: 0.33,
         ),
       ),
-      trailing: actions != null 
+      trailing: actions != null
           ? Row(
-              mainAxisSize: MainAxisSize.min, 
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
               children: actions!,
-            ) 
+            )
           : null,
     );
 
@@ -75,15 +81,19 @@ class IosPageTemplate extends StatelessWidget {
   Widget _buildBody(BuildContext context, Color bgColor) {
     if (slivers != null) {
       return CustomScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: slivers!,
       );
     }
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
       child: Column(
         children: [
-          if (child != null) child!,
+          ?child,
           // 如果没有 bottomWidget，给底部留点呼吸空间
           if (bottomWidget == null) const SizedBox(height: 40),
         ],
@@ -181,7 +191,7 @@ class ImBoySettingsTile extends StatelessWidget {
     final titleStyle = TextStyle(
       fontSize: 17,
       fontWeight: FontWeight.w400,
-      color: destructive 
+      color: destructive
           ? AppColors.getIosRed(theme.brightness)
           : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
       letterSpacing: -0.4,
@@ -189,21 +199,37 @@ class ImBoySettingsTile extends StatelessWidget {
 
     final subtitleStyle = TextStyle(
       fontSize: 15,
-      color: isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.6) : AppColors.lightTextSecondary.withValues(alpha: 0.6),
+      color: isDark
+          ? AppColors.darkTextSecondary.withValues(alpha: 0.6)
+          : AppColors.lightTextSecondary.withValues(alpha: 0.6),
     );
 
     return CupertinoListTile.notched(
-      title: title is Text 
-          ? Text((title as Text).data!, style: titleStyle.merge((title as Text).style), maxLines: 1, overflow: TextOverflow.ellipsis)
+      title: title is Text
+          ? Text(
+              (title as Text).data!,
+              style: titleStyle.merge((title as Text).style),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
           : title,
       subtitle: subtitle is Text
-          ? Text((subtitle as Text).data!, style: subtitleStyle.merge((subtitle as Text).style), maxLines: 2, overflow: TextOverflow.ellipsis)
+          ? Text(
+              (subtitle as Text).data!,
+              style: subtitleStyle.merge((subtitle as Text).style),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            )
           : subtitle,
       leading: leading,
-      trailing: trailing ?? (onTap != null ? const CupertinoListTileChevron() : null),
+      trailing:
+          trailing ?? (onTap != null ? const CupertinoListTileChevron() : null),
       onTap: onTap,
-      backgroundColor: backgroundColor ?? (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      backgroundColor:
+          backgroundColor ??
+          (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
   }
 }
@@ -244,14 +270,13 @@ class ImBoyListTile extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: height,
-        color: backgroundColor ?? (isDark ? AppColors.darkSurface : Colors.white),
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        color:
+            backgroundColor ?? (isDark ? AppColors.darkSurface : Colors.white),
+        padding:
+            padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            if (leading != null) ...[
-              leading!,
-              const SizedBox(width: 14),
-            ],
+            if (leading != null) ...[leading!, const SizedBox(width: 14)],
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -261,7 +286,9 @@ class ImBoyListTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
                       letterSpacing: -0.4,
                     ),
                     maxLines: 1,
@@ -274,7 +301,11 @@ class ImBoyListTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.7) : AppColors.lightTextSecondary.withValues(alpha: 0.7),
+                        color: isDark
+                            ? AppColors.darkTextSecondary.withValues(alpha: 0.7)
+                            : AppColors.lightTextSecondary.withValues(
+                                alpha: 0.7,
+                              ),
                         letterSpacing: -0.2,
                         height: 1.2,
                       ),
@@ -286,10 +317,7 @@ class ImBoyListTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (trailing != null) ...[
-              const SizedBox(width: 8),
-              trailing!,
-            ],
+            if (trailing != null) ...[const SizedBox(width: 8), trailing!],
           ],
         ),
       ),

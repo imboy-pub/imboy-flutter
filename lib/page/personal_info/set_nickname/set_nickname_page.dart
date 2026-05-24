@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -37,13 +36,26 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
           padding: EdgeInsets.zero,
           onPressed: state.canSave && !state.isSaving
               ? () async {
-                  final success = await ref.read(setNicknameProvider.notifier).saveNickname(ref);
-                  if (success && context.mounted) Navigator.of(context).pop(true);
+                  final success = await ref
+                      .read(setNicknameProvider.notifier)
+                      .saveNickname(ref);
+                  if (success && context.mounted)
+                    Navigator.of(context).pop(true);
                 }
               : null,
           child: state.isSaving
               ? const CupertinoActivityIndicator(radius: 10)
-              : Text(t.common.buttonSave, style: TextStyle(fontWeight: state.canSave ? FontWeight.w600 : FontWeight.w400, color: state.canSave ? AppColors.getIosBlue(brightness) : AppColors.iosGray)),
+              : Text(
+                  t.common.buttonSave,
+                  style: TextStyle(
+                    fontWeight: state.canSave
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    color: state.canSave
+                        ? AppColors.getIosBlue(brightness)
+                        : AppColors.iosGray,
+                  ),
+                ),
         ),
       ],
       child: Column(
@@ -61,15 +73,25 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                     maxLength: 24,
                     autofocus: true,
                     placeholder: t.account.nicknameHint,
-                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 0,
+                      vertical: 12,
+                    ),
                     decoration: null,
                     style: const TextStyle(fontSize: 17),
-                    onChanged: (v) => ref.read(setNicknameProvider.notifier).onNicknameChanged(v, ref),
+                    onChanged: (v) => ref
+                        .read(setNicknameProvider.notifier)
+                        .onNicknameChanged(v, ref),
                   ),
                 ),
                 trailing: Text(
                   state.remainingChars.toString(),
-                  style: TextStyle(fontSize: 14, color: state.remainingChars < 0 ? AppColors.iosRed : AppColors.iosGray),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: state.remainingChars < 0
+                        ? AppColors.iosRed
+                        : AppColors.iosGray,
+                  ),
                 ),
               ),
             ],
@@ -81,9 +103,21 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
               padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
               child: Row(
                 children: [
-                  const Icon(CupertinoIcons.info_circle, size: 14, color: AppColors.iosRed),
+                  const Icon(
+                    CupertinoIcons.info_circle,
+                    size: 14,
+                    color: AppColors.iosRed,
+                  ),
                   const SizedBox(width: 6),
-                  Expanded(child: Text(state.validationError, style: const TextStyle(color: AppColors.iosRed, fontSize: 13))),
+                  Expanded(
+                    child: Text(
+                      state.validationError,
+                      style: const TextStyle(
+                        color: AppColors.iosRed,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

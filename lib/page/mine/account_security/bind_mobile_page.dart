@@ -110,10 +110,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   children: [
                     const SizedBox(
                       width: 80,
-                      child: Text(
-                        '手机号',
-                        style: TextStyle(fontSize: 17),
-                      ),
+                      child: Text('手机号', style: TextStyle(fontSize: 17)),
                     ),
                     Expanded(
                       child: PhoneInputWidget(
@@ -140,10 +137,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   children: [
                     const SizedBox(
                       width: 80,
-                      child: Text(
-                        '验证码',
-                        style: TextStyle(fontSize: 17),
-                      ),
+                      child: Text('验证码', style: TextStyle(fontSize: 17)),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -206,10 +200,13 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
     );
   }
 
-  Widget _buildCodeButton(BuildContext context, WidgetRef ref, dynamic state) {
+  Widget _buildCodeButton(
+    BuildContext context,
+    WidgetRef ref,
+    BindMobileState state,
+  ) {
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-      minSize: 32,
       color: AppColors.getIosBlue(Theme.of(context).brightness),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),
@@ -218,15 +215,17 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               final error = await ref
                   .read(bindMobileProvider.notifier)
                   .sendCode();
-              if (error != null && mounted)
+              if (error != null && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(error),
                     backgroundColor: AppColors.iosRed,
                   ),
                 );
+              }
             }
           : null,
+      minimumSize: Size(32, 32),
       child: state.isSendingCode
           ? const CupertinoActivityIndicator(radius: 8, color: Colors.white)
           : Text(
@@ -241,7 +240,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
   Widget _buildSubmitButton(
     BuildContext context,
     WidgetRef ref,
-    dynamic state,
+    BindMobileState state,
     bool hasBound,
     Translations t,
   ) {
@@ -270,8 +269,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   final error = await ref
                       .read(bindMobileProvider.notifier)
                       .submit();
-                  if (error == null && context.mounted)
+                  if (error == null && context.mounted) {
                     Navigator.of(context).pop();
+                  }
                 }
               : null,
           child: state.isSubmitting

@@ -193,7 +193,7 @@ class ChangePasswordPage extends ConsumerWidget {
   Widget _buildSaveButton(
     BuildContext context,
     WidgetRef ref,
-    dynamic state,
+    ChangeLoginPasswordState state,
     Translations t,
   ) {
     return Container(

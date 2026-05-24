@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,8 +78,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               EasyLoading.showSuccess(t.common.feedbackSuccessMsg);
               _isInitialized = false;
               _initData();
-            } else
+            } else {
               EasyLoading.showError(t.common.tipFailed);
+            }
           },
           (_) {},
           process: false,
@@ -305,8 +305,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 )..removeWhere((e) => e.feedbackId == model.feedbackId);
                 ref.read(feedbackPageProvider.notifier).setItemList(newList);
                 EasyLoading.showSuccess(t.common.tipSuccess);
-              } else
+              } else {
                 EasyLoading.showError(t.common.tipFailed);
+              }
             },
             child: Text(t.common.buttonDelete),
           ),

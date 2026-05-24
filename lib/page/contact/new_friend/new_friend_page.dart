@@ -62,7 +62,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           child: const Icon(CupertinoIcons.person_add, size: 22),
           onPressed: () => Navigator.push(
             context,
-            CupertinoPageRoute(builder: (_) => const AddFriendPage()),
+            CupertinoPageRoute<void>(builder: (_) => const AddFriendPage()),
           ),
         ),
       ],
@@ -210,7 +210,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       borderRadius: BorderRadius.circular(18),
       onPressed: () => Navigator.push(
         context,
-        CupertinoPageRoute(
+        CupertinoPageRoute<void>(
           builder: (_) => ConfirmNewFriendPage(
             to: model.to.toString(),
             from: model.from.toString(),

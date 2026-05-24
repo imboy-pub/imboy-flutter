@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -240,7 +239,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+                  CupertinoPageRoute<void>(builder: (_) => UserQrCodePage()),
                 ),
               ),
               ImBoySettingsTile(
@@ -263,10 +262,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return PopupMenuButton<String>(
       icon: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
       onSelected: (value) {
-        if (value == 'share')
+        if (value == 'share') {
           _shareProfile();
-        else if (value == 'export')
+        } else if (value == 'export') {
           _exportProfile();
+        }
       },
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -581,10 +581,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Future<void> _uploadAndSetBackground(String path) async {
     EasyLoading.show(status: t.common.uploading);
-    if (await ref.read(profileProvider.notifier).uploadBackground(path))
+    if (await ref.read(profileProvider.notifier).uploadBackground(path)) {
       EasyLoading.showSuccess(t.common.uploadSuccess);
-    else
+    } else {
       EasyLoading.showError(t.common.uploadFailed);
+    }
     EasyLoading.dismiss();
   }
 

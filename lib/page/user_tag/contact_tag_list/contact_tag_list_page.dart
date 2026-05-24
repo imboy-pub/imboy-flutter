@@ -72,7 +72,8 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
             child: CupertinoSearchTextField(
               controller: _searchController,
               placeholder: t.common.search,
-              onChanged: (v) => ref.read(contactTagListProvider.notifier).doSearch(v),
+              onChanged: (v) =>
+                  ref.read(contactTagListProvider.notifier).doSearch(v),
             ),
           ),
         ),
@@ -84,20 +85,22 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 40),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final obj = listState.items[index];
-                  return _buildTagItem(context, index, obj, brightness);
-                },
-                childCount: listState.items.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final obj = listState.items[index];
+                return _buildTagItem(context, index, obj, brightness);
+              }, childCount: listState.items.length),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildTagItem(BuildContext context, int index, UserTagModel obj, Brightness brightness) {
+  Widget _buildTagItem(
+    BuildContext context,
+    int index,
+    UserTagModel obj,
+    Brightness brightness,
+  ) {
     return Slidable(
       key: ValueKey(obj.tagId),
       endActionPane: ActionPane(
@@ -123,15 +126,31 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
       child: Column(
         children: [
           ImBoyListTile(
-            onTap: () => Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (context) => ContactTagDetailPage(tag: obj))),
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute<dynamic>(
+                builder: (context) => ContactTagDetailPage(tag: obj),
+              ),
+            ),
             title: Text('${obj.name} (${obj.refererTime})'),
-            subtitle: Text(obj.subtitle.isEmpty ? t.common.noData : obj.subtitle),
-            trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+            subtitle: Text(
+              obj.subtitle.isEmpty ? t.common.noData : obj.subtitle,
+            ),
+            trailing: const Icon(
+              CupertinoIcons.chevron_right,
+              size: 14,
+              color: AppColors.iosGray3,
+            ),
           ),
           if (index < ref.read(contactTagListProvider).items.length - 1)
             Padding(
               padding: const EdgeInsets.only(left: 16),
-              child: Divider(height: 0.33, color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3)),
+              child: Divider(
+                height: 0.33,
+                color: AppColors.getIosSeparator(
+                  brightness,
+                ).withValues(alpha: 0.3),
+              ),
             ),
         ],
       ),
@@ -163,14 +182,25 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
         title: Text(t.common.confirmDelete),
         content: Text(t.common.deleteTagTips),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(ctx), child: Text(t.common.buttonCancel)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.common.buttonCancel),
+          ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () async {
               Navigator.pop(ctx);
-              if (await ref.read(contactTagListProvider.notifier).deleteTag(tagId: obj.tagId, tagName: obj.name, scene: 'friend')) {
+              if (await ref
+                  .read(contactTagListProvider.notifier)
+                  .deleteTag(
+                    tagId: obj.tagId,
+                    tagName: obj.name,
+                    scene: 'friend',
+                  )) {
                 EasyLoading.showSuccess(t.common.tipSuccess);
-              } else EasyLoading.showError(t.common.tipFailed);
+              } else {
+                EasyLoading.showError(t.common.tipFailed);
+              }
             },
             child: Text(t.common.buttonDelete),
           ),

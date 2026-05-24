@@ -306,7 +306,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                   ),
                 ),
               ),
-              if (action != null) action,
+              ?action,
             ],
           ),
           const SizedBox(height: 16),

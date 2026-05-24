@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,10 +17,12 @@ class RecentlyRegisteredUserPage extends ConsumerStatefulWidget {
   const RecentlyRegisteredUserPage({super.key});
 
   @override
-  ConsumerState<RecentlyRegisteredUserPage> createState() => _RecentlyRegisteredUserPageState();
+  ConsumerState<RecentlyRegisteredUserPage> createState() =>
+      _RecentlyRegisteredUserPageState();
 }
 
-class _RecentlyRegisteredUserPageState extends ConsumerState<RecentlyRegisteredUserPage> {
+class _RecentlyRegisteredUserPageState
+    extends ConsumerState<RecentlyRegisteredUserPage> {
   @override
   void initState() {
     super.initState();
@@ -50,29 +50,33 @@ class _RecentlyRegisteredUserPageState extends ConsumerState<RecentlyRegisteredU
 
         // 用户列表 Section
         if (state.isLoading)
-          const SliverFillRemaining(child: Center(child: CupertinoActivityIndicator()))
+          const SliverFillRemaining(
+            child: Center(child: CupertinoActivityIndicator()),
+          )
         else if (state.peopleList.isEmpty)
           SliverFillRemaining(child: _buildEmptyState(context))
         else
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 40),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final model = state.peopleList[index];
-                  return Column(
-                    children: [
-                      _buildUserItem(context, model, brightness),
-                      if (index < state.peopleList.length - 1)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 84),
-                          child: Divider(height: 0.33, color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3)),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final model = state.peopleList[index];
+                return Column(
+                  children: [
+                    _buildUserItem(context, model, brightness),
+                    if (index < state.peopleList.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 84),
+                        child: Divider(
+                          height: 0.33,
+                          color: AppColors.getIosSeparator(
+                            brightness,
+                          ).withValues(alpha: 0.3),
                         ),
-                    ],
-                  );
-                },
-                childCount: state.peopleList.length,
-              ),
+                      ),
+                  ],
+                );
+              }, childCount: state.peopleList.length),
             ),
           ),
       ],
@@ -83,19 +87,27 @@ class _RecentlyRegisteredUserPageState extends ConsumerState<RecentlyRegisteredU
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: AppColors.getIosBlue(Theme.of(context).brightness).withValues(alpha: 0.1),
+        color: AppColors.getIosBlue(
+          Theme.of(context).brightness,
+        ).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(CupertinoIcons.info, color: AppColors.getIosBlue(Theme.of(context).brightness), size: 20),
+          Icon(
+            CupertinoIcons.info,
+            color: AppColors.getIosBlue(Theme.of(context).brightness),
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               t.common.newRegisteredUsersTip,
               style: TextStyle(
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
                 height: 1.4,
                 fontSize: 13,
               ),
@@ -106,12 +118,21 @@ class _RecentlyRegisteredUserPageState extends ConsumerState<RecentlyRegisteredU
     );
   }
 
-  Widget _buildUserItem(BuildContext context, PeopleModel model, Brightness brightness) {
+  Widget _buildUserItem(
+    BuildContext context,
+    PeopleModel model,
+    Brightness brightness,
+  ) {
     return ImBoyListTile(
-      onTap: () => context.push('/people_info/${model.id}', extra: {'scene': 'recently_user'}),
+      onTap: () => context.push(
+        '/people_info/${model.id}',
+        extra: {'scene': 'recently_user'},
+      ),
       leading: Avatar(imgUri: model.avatar, width: 56, height: 56),
       title: Text(model.nickname.isEmpty ? model.account : model.nickname),
-      subtitle: Text(model.region.isEmpty ? t.common.unknownRegion : model.region),
+      subtitle: Text(
+        model.region.isEmpty ? t.common.unknownRegion : model.region,
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -124,11 +145,19 @@ class _RecentlyRegisteredUserPageState extends ConsumerState<RecentlyRegisteredU
               ),
               child: Text(
                 DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'MM-dd'),
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(brightness)),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.getIosBlue(brightness),
+                ),
               ),
             ),
           const SizedBox(width: 8),
-          const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+          const Icon(
+            CupertinoIcons.chevron_right,
+            size: 14,
+            color: AppColors.iosGray3,
+          ),
         ],
       ),
     );

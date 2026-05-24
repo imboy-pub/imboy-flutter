@@ -9,7 +9,6 @@ import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 
 /// 面对面建群页面 - 极致 iOS 17 Premium 风格
 class FaceToFacePage extends ConsumerStatefulWidget {
@@ -43,7 +42,14 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               notifier.updateErrorInfo(res['error'] as String? ?? '');
               String gid = res['gid'] as String? ?? '';
               if (gid.isNotEmpty && context.mounted) {
-                context.push('/group/face_to_face_confirm', extra: {'code': value, 'gid': gid, 'memberList': res['memberList'] ?? <dynamic>[]});
+                context.push(
+                  '/group/face_to_face_confirm',
+                  extra: {
+                    'code': value,
+                    'gid': gid,
+                    'memberList': res['memberList'] ?? <dynamic>[],
+                  },
+                );
               }
               Timer(const Duration(seconds: 3), () {
                 notifier.clearInput();
@@ -60,17 +66,28 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+                color: isDark
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
                 children: [
-                  Icon(CupertinoIcons.group_solid, color: AppColors.getIosBlue(brightness), size: 32),
+                  Icon(
+                    CupertinoIcons.group_solid,
+                    color: AppColors.getIosBlue(brightness),
+                    size: 32,
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       t.common.createGroupF2fTips,
-                      style: const TextStyle(fontSize: 14, height: 1.4, color: AppColors.iosGray, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        color: AppColors.iosGray,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -91,7 +108,11 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 state.errorInfo,
-                style: const TextStyle(color: AppColors.iosRed, fontSize: 14, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  color: AppColors.iosRed,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -100,7 +121,12 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
     );
   }
 
-  Widget _buildNumberBoxes(BuildContext context, FaceToFaceState state, bool isDark, Brightness brightness) {
+  Widget _buildNumberBoxes(
+    BuildContext context,
+    FaceToFaceState state,
+    bool isDark,
+    Brightness brightness,
+  ) {
     final length = state.resultData.length;
     final double screenW = MediaQuery.sizeOf(context).width;
     final double boxSize = screenW <= 360 ? 56 : 64;
@@ -116,21 +142,47 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
           height: boxSize,
           margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: hasValue 
-                ? (isDark ? AppColors.primary.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.1))
-                : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03)),
+            color: hasValue
+                ? (isDark
+                      ? AppColors.primary.withValues(alpha: 0.2)
+                      : AppColors.primary.withValues(alpha: 0.1))
+                : (isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.03)),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isActive 
-                  ? AppColors.getIosBlue(brightness) 
-                  : (hasValue ? AppColors.getIosBlue(brightness).withValues(alpha: 0.3) : Colors.transparent),
+              color: isActive
+                  ? AppColors.getIosBlue(brightness)
+                  : (hasValue
+                        ? AppColors.getIosBlue(
+                            brightness,
+                          ).withValues(alpha: 0.3)
+                        : Colors.transparent),
               width: 2,
             ),
           ),
           alignment: Alignment.center,
           child: hasValue
-              ? Text(state.resultData[index], style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: -1))
-              : Container(width: 8, height: 8, decoration: BoxDecoration(color: isActive ? AppColors.getIosBlue(brightness).withValues(alpha: 0.5) : AppColors.iosGray.withValues(alpha: 0.2), shape: BoxShape.circle)),
+              ? Text(
+                  state.resultData[index],
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -1,
+                  ),
+                )
+              : Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? AppColors.getIosBlue(
+                            brightness,
+                          ).withValues(alpha: 0.5)
+                        : AppColors.iosGray.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                ),
         );
       }),
     );

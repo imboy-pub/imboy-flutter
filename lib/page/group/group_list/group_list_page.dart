@@ -10,7 +10,6 @@ import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -76,8 +75,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         }
       }
       for (var m in list) {
-        if (m.title.isEmpty)
+        if (m.title.isEmpty) {
           m.computeTitle = await service.computeTitle(m.groupId.toString());
+        }
       }
       notifier.setGroupList(list);
       notifier.setPage(2);

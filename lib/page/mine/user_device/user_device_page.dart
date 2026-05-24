@@ -141,7 +141,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     final itemTile = ImBoySettingsTile(
       onTap: () => Navigator.push(
         context,
-        CupertinoPageRoute(
+        CupertinoPageRoute<void>(
           builder: (context) => UserDeviceDetailPage(model: model),
         ),
       ),
@@ -294,10 +294,11 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     try {
       if (await ref
           .read(userDeviceProvider.notifier)
-          .deleteDevice(model.deviceId))
+          .deleteDevice(model.deviceId)) {
         EasyLoading.showSuccess(t.common.tipSuccess);
-      else
+      } else {
         EasyLoading.showError(t.common.tipFailed);
+      }
     } catch (_) {
       EasyLoading.dismiss();
       EasyLoading.showError(t.common.tipFailed);
@@ -333,10 +334,11 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     try {
       if (await ref
           .read(userDeviceProvider.notifier)
-          .forceOffline(model.deviceId))
+          .forceOffline(model.deviceId)) {
         EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
-      else
+      } else {
         EasyLoading.showError(t.common.tipFailed);
+      }
     } catch (_) {
       EasyLoading.dismiss();
       EasyLoading.showError(t.common.tipFailed);

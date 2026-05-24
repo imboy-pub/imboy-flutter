@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,14 +20,18 @@ class PeopleNearbyPage extends ConsumerStatefulWidget {
   ConsumerState<PeopleNearbyPage> createState() => _PeopleNearbyPageState();
 }
 
-class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with SingleTickerProviderStateMixin {
+class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   bool _isRotating = false;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(peopleNearbyProvider.notifier).init();
     });
@@ -43,8 +45,11 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
 
   void _rotateCompass() {
     setState(() => _isRotating = !_isRotating);
-    if (_isRotating) _animationController.forward(from: 0);
-    else _animationController.reverse(from: 1);
+    if (_isRotating) {
+      _animationController.forward(from: 0);
+    } else {
+      _animationController.reverse(from: 1);
+    }
   }
 
   @override
@@ -60,7 +65,10 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () { _rotateCompass(); notifier.peopleNearby(); },
+          onPressed: () {
+            _rotateCompass();
+            notifier.peopleNearby();
+          },
           child: const Icon(CupertinoIcons.refresh, size: 22),
         ),
       ],
@@ -76,31 +84,61 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
             header: Text(t.common.sectionPrivacySecurity.toUpperCase()),
             children: [
               ImBoySettingsTile(
-                title: Text(state.peopleNearbyVisible ? t.main.makeYourselfInvisible : t.main.makeYourselfVisible),
+                title: Text(
+                  state.peopleNearbyVisible
+                      ? t.main.makeYourselfInvisible
+                      : t.main.makeYourselfVisible,
+                ),
                 leading: Container(
-                  width: 32, height: 32,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: state.peopleNearbyVisible ? AppColors.getIosRed(brightness) : AppColors.getIosBlue(brightness),
+                    color: state.peopleNearbyVisible
+                        ? AppColors.getIosRed(brightness)
+                        : AppColors.getIosBlue(brightness),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(state.peopleNearbyVisible ? CupertinoIcons.location_slash_fill : CupertinoIcons.location_fill, color: Colors.white, size: 18),
+                  child: Icon(
+                    state.peopleNearbyVisible
+                        ? CupertinoIcons.location_slash_fill
+                        : CupertinoIcons.location_fill,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (state.peopleList.isNotEmpty)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(color: AppColors.iosGray.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                        child: Text('${state.peopleList.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.iosGray)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.iosGray.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${state.peopleList.length}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.iosGray,
+                          ),
+                        ),
                       ),
                     const SizedBox(width: 8),
                     const CupertinoListTileChevron(),
                   ],
                 ),
                 onTap: () {
-                  if (!state.peopleNearbyVisible) _showVisibilityDialog(context, notifier);
-                  else { notifier.makeMyselfUnVisible(); EasyLoading.showSuccess(t.common.locationHidden); }
+                  if (!state.peopleNearbyVisible) {
+                    _showVisibilityDialog(context, notifier);
+                  } else {
+                    notifier.makeMyselfUnVisible();
+                    EasyLoading.showSuccess(t.common.locationHidden);
+                  }
                 },
               ),
             ],
@@ -109,36 +147,44 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
 
         // 列表 Section
         if (state.isLoading)
-          const SliverFillRemaining(child: Center(child: CupertinoActivityIndicator()))
+          const SliverFillRemaining(
+            child: Center(child: CupertinoActivityIndicator()),
+          )
         else if (state.peopleList.isEmpty)
           SliverFillRemaining(child: _buildEmptyState(context))
         else
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 40),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final model = state.peopleList[index];
-                  return Column(
-                    children: [
-                      _buildPersonItem(context, model, brightness),
-                      if (index < state.peopleList.length - 1)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 84),
-                          child: Divider(height: 0.33, color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3)),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final model = state.peopleList[index];
+                return Column(
+                  children: [
+                    _buildPersonItem(context, model, brightness),
+                    if (index < state.peopleList.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 84),
+                        child: Divider(
+                          height: 0.33,
+                          color: AppColors.getIosSeparator(
+                            brightness,
+                          ).withValues(alpha: 0.3),
                         ),
-                    ],
-                  );
-                },
-                childCount: state.peopleList.length,
-              ),
+                      ),
+                  ],
+                );
+              }, childCount: state.peopleList.length),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildSearchHeader(BuildContext context, bool isDark, Brightness brightness) {
+  Widget _buildSearchHeader(
+    BuildContext context,
+    bool isDark,
+    Brightness brightness,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
@@ -147,56 +193,124 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage> with Single
           color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04), blurRadius: 10, offset: const Offset(0, 4))
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
           children: [
             AnimatedBuilder(
               animation: _animationController,
-              builder: (context, child) => Transform.rotate(angle: _animationController.value * 6.28318, child: Icon(CupertinoIcons.compass, color: AppColors.primary, size: 80)),
+              builder: (context, child) => Transform.rotate(
+                angle: _animationController.value * 6.28318,
+                child: Icon(
+                  CupertinoIcons.compass,
+                  color: AppColors.primary,
+                  size: 80,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
-            Text(t.discovery.findNearbyPeople, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
+            Text(
+              t.discovery.findNearbyPeople,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(t.common.nearbyPeopleTips, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: AppColors.iosGray, height: 1.4)),
+            Text(
+              t.common.nearbyPeopleTips,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.iosGray,
+                height: 1.4,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPersonItem(BuildContext context, PeopleModel model, Brightness brightness) {
-    String distance = model.distanceUnit == 'm' && model.distance > 1000 ? "${(model.distance / 1000).toStringAsFixed(1)} km" : '${model.distance.toStringAsFixed(0)} ${model.distanceUnit}';
+  Widget _buildPersonItem(
+    BuildContext context,
+    PeopleModel model,
+    Brightness brightness,
+  ) {
+    String distance = model.distanceUnit == 'm' && model.distance > 1000
+        ? "${(model.distance / 1000).toStringAsFixed(1)} km"
+        : '${model.distance.toStringAsFixed(0)} ${model.distanceUnit}';
 
     return ImBoyListTile(
-      onTap: () => context.push('/people_info/${model.id}', extra: {'scene': 'people_nearby'}),
+      onTap: () => context.push(
+        '/people_info/${model.id}',
+        extra: {'scene': 'people_nearby'},
+      ),
       leading: Avatar(imgUri: model.avatar, width: 56, height: 56),
       title: Text(model.nickname),
       subtitle: Row(
         children: [
-          Icon(CupertinoIcons.location_fill, size: 12, color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7)),
+          Icon(
+            CupertinoIcons.location_fill,
+            size: 12,
+            color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7),
+          ),
           const SizedBox(width: 4),
-          Text(distance, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7))),
+          Text(
+            distance,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7),
+            ),
+          ),
         ],
       ),
-      trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+      trailing: const Icon(
+        CupertinoIcons.chevron_right,
+        size: 14,
+        color: AppColors.iosGray3,
+      ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return NoDataView(text: t.common.noNearbyPeople, description: t.common.clickSearchButtonToFind, icon: CupertinoIcons.location_circle);
+    return NoDataView(
+      text: t.common.noNearbyPeople,
+      description: t.common.clickSearchButtonToFind,
+      icon: CupertinoIcons.location_circle,
+    );
   }
 
-  void _showVisibilityDialog(BuildContext context, PeopleNearbyNotifier notifier) {
+  void _showVisibilityDialog(
+    BuildContext context,
+    PeopleNearbyNotifier notifier,
+  ) {
     showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.chat.displayProfile),
         content: Text(t.discovery.nearbyPeopleExplain),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(ctx), child: Text(t.common.buttonCancel)),
-          CupertinoDialogAction(isDefaultAction: true, onPressed: () { notifier.makeMyselfVisible(); Navigator.pop(ctx); EasyLoading.showSuccess(t.common.locationVisible); }, child: Text(t.common.buttonConfirm)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              notifier.makeMyselfVisible();
+              Navigator.pop(ctx);
+              EasyLoading.showSuccess(t.common.locationVisible);
+            },
+            child: Text(t.common.buttonConfirm),
+          ),
         ],
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:azlistview/azlistview.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -63,8 +62,9 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
               },
               susItemBuilder: (context, index) {
                 final model = denylistState.items[index];
-                if (model.getSuspensionTag() == '↑')
+                if (model.getSuspensionTag() == '↑') {
                   return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 6, left: 8),
                   child: Text(
@@ -178,7 +178,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
       onTap: () {
         Navigator.push(
           context,
-          CupertinoPageRoute(
+          CupertinoPageRoute<void>(
             builder: (context) => PeopleInfoPage(
               id: model.deniedUid.toString(),
               scene: 'denylist',
@@ -249,10 +249,11 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
             .read(denylistProvider.notifier)
             .removeDenylist(model.deniedUid.toString());
         EasyLoading.dismiss();
-        if (res)
+        if (res) {
           EasyLoading.showSuccess(t.common.removedFromDenylist);
-        else
+        } else {
           EasyLoading.showError(t.common.tipFailed);
+        }
         return res;
       },
       child: item,

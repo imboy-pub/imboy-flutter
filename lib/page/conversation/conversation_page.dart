@@ -140,8 +140,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
               parts[0],
               parts.sublist(1).join('_'),
             );
-            if (updatedConv != null && updatedConv.id > 0)
+            if (updatedConv != null && updatedConv.id > 0) {
               await notifier.replace(updatedConv);
+            }
           }
         }
       }

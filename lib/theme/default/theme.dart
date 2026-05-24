@@ -5,31 +5,46 @@ import './config/text_theme.dart';
 import './font_types.dart';
 
 import 'app_colors.dart';
-import '../dynamic_color_manager.dart';
 
 /// 应用主题配置类 - 增强版 (Systematic UI Repair)
 class AppTheme {
   AppTheme._();
 
-  static ThemeData getLightTheme({double fontScale = 1.0, BuildContext? context}) {
+  static ThemeData getLightTheme({
+    double fontScale = 1.0,
+    BuildContext? context,
+  }) {
     return _buildTheme(isDark: false, fontScale: fontScale, context: context);
   }
 
-  static ThemeData getDarkTheme({double fontScale = 1.0, BuildContext? context}) {
+  static ThemeData getDarkTheme({
+    double fontScale = 1.0,
+    BuildContext? context,
+  }) {
     return _buildTheme(isDark: true, fontScale: fontScale, context: context);
   }
 
   /// 兼容旧代码的方法
-  static ThemeData getLightThemeFromOption(FontSizeOption option, {BuildContext? context}) {
+  static ThemeData getLightThemeFromOption(
+    FontSizeOption option, {
+    BuildContext? context,
+  }) {
     return getLightTheme(fontScale: option.scale, context: context);
   }
 
   /// 兼容旧代码的方法
-  static ThemeData getDarkThemeFromOption(FontSizeOption option, {BuildContext? context}) {
+  static ThemeData getDarkThemeFromOption(
+    FontSizeOption option, {
+    BuildContext? context,
+  }) {
     return getDarkTheme(fontScale: option.scale, context: context);
   }
 
-  static ThemeData _buildTheme({required bool isDark, double fontScale = 1.0, BuildContext? context}) {
+  static ThemeData _buildTheme({
+    required bool isDark,
+    double fontScale = 1.0,
+    BuildContext? context,
+  }) {
     final baseTheme = isDark ? _baseDarkTheme : _baseLightTheme;
     final textTheme = isDark
         ? TextThemeConfig.getDarkTheme(fontScale: fontScale, context: context)
@@ -56,11 +71,19 @@ class AppTheme {
         surfaceContainerHighest: AppColors.lightSurfaceGrouped,
       ),
       appBarTheme: ComponentThemeManager.getAppBarTheme(isDark: false),
-      elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(isDark: false),
+      elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
+        isDark: false,
+      ),
       textButtonTheme: ComponentThemeManager.getTextButtonTheme(isDark: false),
-      inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(isDark: false),
+      inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(
+        isDark: false,
+      ),
       listTileTheme: ComponentThemeManager.getListTileTheme(isDark: false),
-      dividerTheme: DividerThemeData(color: AppColors.iosSeparator, thickness: 0.33, space: 1),
+      dividerTheme: DividerThemeData(
+        color: AppColors.iosSeparator,
+        thickness: 0.33,
+        space: 1,
+      ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: CupertinoPageTransitionsBuilder(),
@@ -91,11 +114,19 @@ class AppTheme {
         surfaceContainerHighest: AppColors.darkSurfaceGrouped,
       ),
       appBarTheme: ComponentThemeManager.getAppBarTheme(isDark: true),
-      elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(isDark: true),
+      elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
+        isDark: true,
+      ),
       textButtonTheme: ComponentThemeManager.getTextButtonTheme(isDark: true),
-      inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(isDark: true),
+      inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(
+        isDark: true,
+      ),
       listTileTheme: ComponentThemeManager.getListTileTheme(isDark: true),
-      dividerTheme: DividerThemeData(color: AppColors.iosSeparatorDark, thickness: 0.33, space: 1),
+      dividerTheme: DividerThemeData(
+        color: AppColors.iosSeparatorDark,
+        thickness: 0.33,
+        space: 1,
+      ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: CupertinoPageTransitionsBuilder(),

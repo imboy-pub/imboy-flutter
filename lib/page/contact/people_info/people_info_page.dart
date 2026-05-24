@@ -50,7 +50,7 @@ class PeopleInfoPage extends ConsumerWidget {
                 child: const Icon(CupertinoIcons.ellipsis, size: 22),
                 onPressed: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<void>(
                     builder: (_) => ContactSettingPage(
                       peerId: id,
                       peerAvatar: '',
@@ -154,7 +154,7 @@ class PeopleInfoPage extends ConsumerWidget {
                   ),
                   onTap: () => Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<void>(
                       builder: (_) => PeopleInfoMorePage(id: id),
                     ),
                   ),
@@ -226,7 +226,7 @@ class PeopleInfoPage extends ConsumerWidget {
                   ),
                   onPressed: () => Navigator.push(
                     context,
-                    CupertinoPageRoute(
+                    CupertinoPageRoute<void>(
                       builder: (_) => ApplyFriendPage(
                         id,
                         state.nickname,
@@ -252,7 +252,7 @@ class PeopleInfoPage extends ConsumerWidget {
   void _editTags(BuildContext context, WidgetRef ref, PeopleInfoState state) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<String?>(
         builder: (_) => ContactSettingTagPage(
           peerId: id,
           peerAvatar: state.avatar,
@@ -270,8 +270,9 @@ class PeopleInfoPage extends ConsumerWidget {
         ),
       ),
     ).then((v) {
-      if (v != null && v is String && v.isNotEmpty)
+      if (v != null && v.isNotEmpty) {
         ref.read(peopleInfoProvider.notifier).updateRemark(v);
+      }
     });
   }
 
@@ -281,7 +282,7 @@ class PeopleInfoPage extends ConsumerWidget {
         : (state.nickname.isNotEmpty ? state.nickname : state.account);
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<void>(
         builder: (_) => ChatPage(
           peerId: id,
           peerTitle: title,

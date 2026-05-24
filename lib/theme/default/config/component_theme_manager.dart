@@ -1,10 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/app_sizes.dart';
 
 /// 组件主题管理器 - 增强版 (Systematic UI Repair)
 class ComponentThemeManager {
@@ -13,8 +9,11 @@ class ComponentThemeManager {
   // ==================== AppBar 主题 ====================
   static AppBarTheme getAppBarTheme({required bool isDark}) {
     return AppBarTheme(
-      backgroundColor: (isDark ? AppColors.darkSurface : Colors.white).withValues(alpha: 0.8),
-      foregroundColor: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+      backgroundColor: (isDark ? AppColors.darkSurface : Colors.white)
+          .withValues(alpha: 0.8),
+      foregroundColor: isDark
+          ? AppColors.darkTextPrimary
+          : AppColors.lightTextPrimary,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
@@ -28,7 +27,9 @@ class ComponentThemeManager {
   }
 
   // ==================== Button 主题 ====================
-  static ElevatedButtonThemeData getElevatedButtonTheme({required bool isDark}) {
+  static ElevatedButtonThemeData getElevatedButtonTheme({
+    required bool isDark,
+  }) {
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
@@ -46,7 +47,9 @@ class ComponentThemeManager {
   static TextButtonThemeData getTextButtonTheme({required bool isDark}) {
     return TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.getIosBlue(isDark ? Brightness.dark : Brightness.light),
+        foregroundColor: AppColors.getIosBlue(
+          isDark ? Brightness.dark : Brightness.light,
+        ),
         textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -55,16 +58,31 @@ class ComponentThemeManager {
 
   // ==================== Input 主题 ====================
   static InputDecorationTheme getInputDecorationTheme({required bool isDark}) {
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final hintColor = isDark ? AppColors.darkTextSecondary.withValues(alpha: 0.4) : AppColors.lightTextSecondary.withValues(alpha: 0.4);
+    final textColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.lightTextPrimary;
+    final hintColor = isDark
+        ? AppColors.darkTextSecondary.withValues(alpha: 0.4)
+        : AppColors.lightTextSecondary.withValues(alpha: 0.4);
 
     return InputDecorationTheme(
       filled: true,
-      fillColor: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
+      fillColor: isDark
+          ? const Color(0xFF2C2C2E)
+          : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
       hintStyle: TextStyle(color: hintColor, fontSize: 16),
       labelStyle: TextStyle(color: textColor, fontSize: 16),
     );
@@ -81,7 +99,9 @@ class ComponentThemeManager {
       ),
       subtitleTextStyle: TextStyle(
         fontSize: 15,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+        color: isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.lightTextSecondary,
       ),
     );
   }

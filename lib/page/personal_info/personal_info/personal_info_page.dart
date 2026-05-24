@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +16,6 @@ import 'package:imboy/i18n/strings.g.dart';
 
 import '../set_nickname/set_nickname_page.dart';
 import '../widget/more_page.dart';
-import 'avatar_fallback_rules.dart';
 import 'personal_info_provider.dart';
 
 /// 个人信息页面 - 像素级对齐 iOS 17 Premium 风格
@@ -54,20 +52,43 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.account.nickname),
-                trailing: Text(nickname.isEmpty ? t.common.notSet : nickname, style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+                trailing: Text(
+                  nickname.isEmpty ? t.common.notSet : nickname,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.iosGray,
+                  ),
+                ),
                 onTap: () async {
-                  final result = await Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => const SetNicknamePage()));
+                  final result = await Navigator.push(
+                    context,
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => const SetNicknamePage(),
+                    ),
+                  );
                   if (result == true && mounted) setState(() {});
                 },
               ),
               ImBoySettingsTile(
                 title: Text(t.account.account),
-                trailing: Text(account, style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+                trailing: Text(
+                  account,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.iosGray,
+                  ),
+                ),
               ),
               if (UserRepoLocal.to.current.email.isNotEmpty)
                 ImBoySettingsTile(
                   title: Text(t.account.loginEmail),
-                  trailing: Text(UserRepoLocal.to.current.email, style: const TextStyle(fontSize: 15, color: AppColors.iosGray)),
+                  trailing: Text(
+                    UserRepoLocal.to.current.email,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -78,30 +99,49 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.account.myQrcode),
-                leading: const Icon(CupertinoIcons.qrcode, color: AppColors.iosGray, size: 20),
-                onTap: () => Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage())),
+                leading: const Icon(
+                  CupertinoIcons.qrcode,
+                  color: AppColors.iosGray,
+                  size: 20,
+                ),
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
+                ),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.moreInfo),
-                onTap: () => Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => const MorePage())),
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute<dynamic>(builder: (_) => const MorePage()),
+                ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildHeroAvatar(BuildContext context, bool isDark, String nickname, String account, Brightness brightness) {
-    final scaffoldBg = isDark ? AppColors.darkSurface : AppColors.lightSurfaceGrouped;
+  Widget _buildHeroAvatar(
+    BuildContext context,
+    bool isDark,
+    String nickname,
+    String account,
+    Brightness brightness,
+  ) {
+    final scaffoldBg = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurfaceGrouped;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         children: [
           SizedBox(
-            width: 100, height: 100,
+            width: 100,
+            height: 100,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
@@ -111,24 +151,51 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   child: Hero(
                     tag: _avatarHeroTag,
                     child: Container(
-                      width: 96, height: 96,
+                      width: 96,
+                      height: 96,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.primary.withValues(alpha: 0.1),
-                        image: DecorationImage(image: cachedImageProvider(currentUserAvatar, w: 192), fit: BoxFit.cover),
+                        image: DecorationImage(
+                          image: cachedImageProvider(currentUserAvatar, w: 192),
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                      child: currentUserAvatar.isEmpty ? Center(child: Text(nickname.isNotEmpty ? nickname.substring(0, 1).toUpperCase() : '?', style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppColors.primary))) : null,
+                      child: currentUserAvatar.isEmpty
+                          ? Center(
+                              child: Text(
+                                nickname.isNotEmpty
+                                    ? nickname.substring(0, 1).toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                 ),
                 Positioned(
-                  right: -4, bottom: -4,
+                  right: -4,
+                  bottom: -4,
                   child: GestureDetector(
                     onTap: () => _showAvatarBottomSheet(context),
                     child: Container(
-                      width: 32, height: 32,
-                      decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle, border: Border.all(color: scaffoldBg, width: 2)),
-                      child: const Icon(CupertinoIcons.camera_fill, size: 14, color: Colors.white),
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: scaffoldBg, width: 2),
+                      ),
+                      child: const Icon(
+                        CupertinoIcons.camera_fill,
+                        size: 14,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -136,9 +203,23 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             ),
           ),
           const SizedBox(height: 12),
-          Text(nickname, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.5)),
+          Text(
+            nickname,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.5,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text('ID: $account', style: const TextStyle(fontSize: 14, color: AppColors.iosGray, fontFeatures: [FontFeature.tabularFigures()])),
+          Text(
+            'ID: $account',
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.iosGray,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
+          ),
         ],
       ),
     );
@@ -146,7 +227,19 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
 
   Future<void> _openAvatarPreview(BuildContext context) async {
     if (currentUserAvatar.isEmpty) return;
-    await Navigator.of(context).push(PageRouteBuilder<void>(opaque: false, barrierColor: Colors.black, pageBuilder: (_, animation, __) => FadeTransition(opacity: animation, child: _AvatarPreviewPage(url: currentUserAvatar, heroTag: _avatarHeroTag))));
+    await Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        opaque: false,
+        barrierColor: Colors.black,
+        pageBuilder: (_, animation, _) => FadeTransition(
+          opacity: animation,
+          child: _AvatarPreviewPage(
+            url: currentUserAvatar,
+            heroTag: _avatarHeroTag,
+          ),
+        ),
+      ),
+    );
   }
 
   void _showAvatarBottomSheet(BuildContext context) {
@@ -154,11 +247,34 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
       context: context,
       builder: (ctx) => CupertinoActionSheet(
         actions: [
-          if (currentUserAvatar.isNotEmpty) CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _openAvatarPreview(context); }, child: Text(t.chat.viewLargeImage)),
-          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _getImage(ImageSource.camera); }, child: Text(t.common.buttonTakingPictures)),
-          CupertinoActionSheetAction(onPressed: () { Navigator.pop(ctx); _getImage(ImageSource.gallery); }, child: Text(t.main.chooseFromAlbum)),
+          if (currentUserAvatar.isNotEmpty)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _openAvatarPreview(context);
+              },
+              child: Text(t.chat.viewLargeImage),
+            ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _getImage(ImageSource.camera);
+            },
+            child: Text(t.common.buttonTakingPictures),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _getImage(ImageSource.gallery);
+            },
+            child: Text(t.main.chooseFromAlbum),
+          ),
         ],
-        cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.pop(ctx), isDefaultAction: true, child: Text(t.common.buttonCancel)),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          isDefaultAction: true,
+          child: Text(t.common.buttonCancel),
+        ),
       ),
     );
   }
@@ -169,10 +285,27 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
   }
 
   Future<void> _cropImage(XFile x) async {
-    String? url = await Navigator.push(context, CupertinoPageRoute<String>(builder: (_) => CropImageRoute(File(x.path), "avatar", filename: UserRepoLocal.to.current.uid)));
+    String? url = await Navigator.push(
+      context,
+      CupertinoPageRoute<String>(
+        builder: (_) => CropImageRoute(
+          File(x.path),
+          "avatar",
+          filename: UserRepoLocal.to.current.uid,
+        ),
+      ),
+    );
     if (strNoEmpty(url)) {
-      if (await ref.read(personalInfoProvider.notifier).changeInfo({"field": "avatar", "value": url})) {
-        setState(() { currentUserAvatar = url!; Map<String, dynamic> payload = UserRepoLocal.to.current.toMap(); payload["avatar"] = url; UserRepoLocal.to.changeInfo(payload); });
+      if (await ref.read(personalInfoProvider.notifier).changeInfo({
+        "field": "avatar",
+        "value": url,
+      })) {
+        setState(() {
+          currentUserAvatar = url!;
+          Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
+          payload["avatar"] = url;
+          UserRepoLocal.to.changeInfo(payload);
+        });
       }
     }
   }
@@ -186,8 +319,28 @@ class _AvatarPreviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, leading: IconButton(icon: const Icon(CupertinoIcons.xmark, color: Colors.white, size: 22), onPressed: () => Navigator.of(context).pop())),
-      body: GestureDetector(onTap: () => Navigator.of(context).pop(), child: Center(child: Hero(tag: heroTag, child: InteractiveViewer(child: Image(image: cachedImageProvider(url, w: 0), fit: BoxFit.contain))))),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(CupertinoIcons.xmark, color: Colors.white, size: 22),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Center(
+          child: Hero(
+            tag: heroTag,
+            child: InteractiveViewer(
+              child: Image(
+                image: cachedImageProvider(url, w: 0),
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

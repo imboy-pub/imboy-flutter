@@ -39,7 +39,9 @@ class AddFriendPage extends ConsumerWidget {
                 subtitle: t.common.nearbyPeopleTips,
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (_) => const PeopleNearbyPage()),
+                  CupertinoPageRoute<void>(
+                    builder: (_) => const PeopleNearbyPage(),
+                  ),
                 ),
               ),
               _buildFeatureTile(
@@ -50,7 +52,7 @@ class AddFriendPage extends ConsumerWidget {
                 subtitle: t.group.enterSameGroup,
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (_) => FaceToFacePage()),
+                  CupertinoPageRoute<void>(builder: (_) => FaceToFacePage()),
                 ),
               ),
               _buildFeatureTile(
@@ -61,7 +63,7 @@ class AddFriendPage extends ConsumerWidget {
                 subtitle: t.chat.scanQrCodeBusinessCard,
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (_) => const ScannerPage()),
+                  CupertinoPageRoute<void>(builder: (_) => const ScannerPage()),
                 ),
               ),
               _buildFeatureTile(
@@ -72,7 +74,7 @@ class AddFriendPage extends ConsumerWidget {
                 subtitle: t.common.allowedBeSearched,
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<void>(
                     builder: (_) => RecentlyRegisteredUserPage(),
                   ),
                 ),
@@ -133,7 +135,7 @@ class AddFriendPage extends ConsumerWidget {
                 GestureDetector(
                   onTap: () => Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (_) => UserQrCodePage()),
+                    CupertinoPageRoute<void>(builder: (_) => UserQrCodePage()),
                   ),
                   child: const Icon(
                     CupertinoIcons.qrcode,

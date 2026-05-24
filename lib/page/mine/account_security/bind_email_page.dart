@@ -109,15 +109,13 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   children: [
                     const SizedBox(
                       width: 80,
-                      child: Text(
-                        '邮箱',
-                        style: TextStyle(fontSize: 17),
-                      ),
+                      child: Text('邮箱', style: TextStyle(fontSize: 17)),
                     ),
                     Expanded(
                       child: CupertinoTextField(
-                        controller:
-                            ref.read(bindEmailProvider.notifier).emailCtl,
+                        controller: ref
+                            .read(bindEmailProvider.notifier)
+                            .emailCtl,
                         placeholder: t.common.enterEmailAddress,
                         keyboardType: TextInputType.emailAddress,
                         padding: const EdgeInsets.symmetric(
@@ -136,10 +134,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   children: [
                     const SizedBox(
                       width: 80,
-                      child: Text(
-                        '验证码',
-                        style: TextStyle(fontSize: 17),
-                      ),
+                      child: Text('验证码', style: TextStyle(fontSize: 17)),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -202,11 +197,14 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     );
   }
 
-  Widget _buildCodeButton(BuildContext context, WidgetRef ref, dynamic state) {
+  Widget _buildCodeButton(
+    BuildContext context,
+    WidgetRef ref,
+    BindEmailState state,
+  ) {
     final bool canSend = state.canSendCode;
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-      minSize: 32,
       color: AppColors.getIosBlue(Theme.of(context).brightness),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),
@@ -215,15 +213,17 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               final error = await ref
                   .read(bindEmailProvider.notifier)
                   .sendCode();
-              if (error != null && mounted)
+              if (error != null && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(error),
                     backgroundColor: AppColors.iosRed,
                   ),
                 );
+              }
             }
           : null,
+      minimumSize: Size(32, 32),
       child: state.isSendingCode
           ? const CupertinoActivityIndicator(radius: 8, color: Colors.white)
           : Text(
@@ -238,7 +238,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
   Widget _buildSubmitButton(
     BuildContext context,
     WidgetRef ref,
-    dynamic state,
+    BindEmailState state,
     bool hasBound,
     Translations t,
   ) {
@@ -267,8 +267,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   final error = await ref
                       .read(bindEmailProvider.notifier)
                       .submit();
-                  if (error == null && context.mounted)
+                  if (error == null && context.mounted) {
                     Navigator.of(context).pop();
+                  }
                 }
               : null,
           child: state.isSubmitting

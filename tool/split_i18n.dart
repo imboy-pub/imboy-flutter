@@ -28,11 +28,11 @@ void main() async {
       if (forcedNamespaces.contains(keyStr) || (value is Map && !keyToNamespace.containsKey(keyStr))) {
         ns = keyStr;
       } else {
-        bool matched = false;
-        if (keyToNamespace.containsKey(keyStr)) { ns = keyToNamespace[keyStr]!; matched = true; }
-        else {
+        if (keyToNamespace.containsKey(keyStr)) {
+          ns = keyToNamespace[keyStr]!;
+        } else {
           for (final entry in keyToNamespace.entries) {
-            if (keyStr.toLowerCase().contains(entry.key.toLowerCase())) { ns = entry.value; matched = true; break; }
+            if (keyStr.toLowerCase().contains(entry.key.toLowerCase())) { ns = entry.value; break; }
           }
         }
       }

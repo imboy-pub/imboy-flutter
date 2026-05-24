@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/page/wallet/wallet_provider.dart' show WalletState, WalletTransaction, walletProvider;
+import 'package:imboy/page/wallet/wallet_provider.dart'
+    show WalletState, WalletTransaction, walletProvider;
 
 /// 钱包页面 - 极致 iOS 17 Premium 风格重构
 class WalletPage extends ConsumerStatefulWidget {
@@ -37,7 +37,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 100) {
       ref.read(walletProvider.notifier).loadMoreTransactions();
     }
   }
@@ -52,13 +53,26 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           padding: const EdgeInsets.only(top: 12),
           child: Column(
             children: [
-              Text(t.account.rechargeAmountHint, style: const TextStyle(fontSize: 13)),
+              Text(
+                t.account.rechargeAmountHint,
+                style: const TextStyle(fontSize: 13),
+              ),
               const SizedBox(height: 12),
               CupertinoTextField(
                 controller: controller,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Text('¥', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                prefix: const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Text(
+                    '¥',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                ),
                 placeholder: t.account.rechargeAmountExample,
                 autofocus: true,
               ),
@@ -66,16 +80,23 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           ),
         ),
         actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.of(ctx).pop(), child: Text(t.common.cancel)),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.common.cancel),
+          ),
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () async {
               final input = controller.text.trim();
               final yuan = double.tryParse(input);
-              if (yuan == null || yuan < 1 || yuan > 10000) { EasyLoading.showError(t.common.rechargeAmountError); return; }
+              if (yuan == null || yuan < 1 || yuan > 10000) {
+                EasyLoading.showError(t.common.rechargeAmountError);
+                return;
+              }
               final amountFen = (yuan * 100).round();
               Navigator.of(ctx).pop();
-              if (await ref.read(walletProvider.notifier).topup(amountFen)) EasyLoading.showSuccess(t.common.rechargeSuccess);
+              if (await ref.read(walletProvider.notifier).topup(amountFen))
+                EasyLoading.showSuccess(t.common.rechargeSuccess);
             },
             child: Text(t.common.rechargeConfirm),
           ),
@@ -96,24 +117,44 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       title: t.account.wallet,
       useLargeTitle: false,
       actions: [
-        CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.add_circled, size: 22), onPressed: () => _showTopupDialog(context)),
-        CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.ellipsis_circle, size: 22), onPressed: () => EasyLoading.showToast(t.common.comingSoon)),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.add_circled, size: 22),
+          onPressed: () => _showTopupDialog(context),
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+          onPressed: () => EasyLoading.showToast(t.common.comingSoon),
+        ),
       ],
-      backgroundColor: isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurfaceGrouped,
+      backgroundColor: isDark
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       child: Column(
         children: [
           // 余额卡片 - 采用 Premium 悬浮质感
-          _buildBalanceCard(context, walletState, balanceText, isDark, brightness),
+          _buildBalanceCard(
+            context,
+            walletState,
+            balanceText,
+            isDark,
+            brightness,
+          ),
 
           // 核心功能区
-          _buildActionGrid(context, walletState, balanceText, isDark, brightness),
+          _buildActionGrid(
+            context,
+            walletState,
+            balanceText,
+            isDark,
+            brightness,
+          ),
 
           // 服务推荐 Section
           ImBoySettingsSection(
             header: Text(t.main.tencentService.toUpperCase()),
-            children: [
-              _buildServiceGrid(context, isDark, brightness),
-            ],
+            children: [_buildServiceGrid(context, isDark, brightness)],
           ),
 
           // 交易流水 Section
@@ -125,7 +166,13 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     );
   }
 
-  Widget _buildBalanceCard(BuildContext context, WalletState state, String balance, bool isDark, Brightness b) {
+  Widget _buildBalanceCard(
+    BuildContext context,
+    WalletState state,
+    String balance,
+    bool isDark,
+    Brightness b,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
@@ -133,53 +180,127 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isDark ? [const Color(0xFF1E3A8A), const Color(0xFF1E1B4B)] : [AppColors.primary, const Color(0xFF1E40AF)],
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
+            colors: isDark
+                ? [const Color(0xFF1E3A8A), const Color(0xFF1E1B4B)]
+                : [AppColors.primary, const Color(0xFF1E40AF)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 8))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           children: [
-            const Icon(CupertinoIcons.money_yen_circle_fill, size: 48, color: Colors.white70),
+            const Icon(
+              CupertinoIcons.money_yen_circle_fill,
+              size: 48,
+              color: Colors.white70,
+            ),
             const SizedBox(height: 16),
-            Text(t.main.totalAssets, style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w500)),
+            Text(
+              t.main.totalAssets,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 8),
             state.isLoading
                 ? const CupertinoActivityIndicator(color: Colors.white)
-                : Text(balance, style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -1)),
+                : Text(
+                    balance,
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: -1,
+                    ),
+                  ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActionGrid(BuildContext context, WalletState state, String balance, bool isDark, Brightness b) {
+  Widget _buildActionGrid(
+    BuildContext context,
+    WalletState state,
+    String balance,
+    bool isDark,
+    Brightness b,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          _buildActionItem(context, CupertinoIcons.qrcode_viewfinder, t.chat.receivePayment, const Color(0xFF5856D6), isDark),
+          _buildActionItem(
+            context,
+            CupertinoIcons.qrcode_viewfinder,
+            t.chat.receivePayment,
+            const Color(0xFF5856D6),
+            isDark,
+          ),
           const SizedBox(width: 12),
-          _buildActionItem(context, CupertinoIcons.money_yen, t.common.smallChange, const Color(0xFFFF9500), isDark, subtitle: state.isLoading ? '...' : balance),
+          _buildActionItem(
+            context,
+            CupertinoIcons.money_yen,
+            t.common.smallChange,
+            const Color(0xFFFF9500),
+            isDark,
+            subtitle: state.isLoading ? '...' : balance,
+          ),
           const SizedBox(width: 12),
-          _buildActionItem(context, CupertinoIcons.creditcard, t.chat.bankCard, const Color(0xFF007AFF), isDark),
+          _buildActionItem(
+            context,
+            CupertinoIcons.creditcard,
+            t.chat.bankCard,
+            const Color(0xFF007AFF),
+            isDark,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActionItem(BuildContext context, IconData icon, String label, Color color, bool isDark, {String? subtitle}) {
+  Widget _buildActionItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+    bool isDark, {
+    String? subtitle,
+  }) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
           children: [
             Icon(icon, size: 28, color: color),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-            if (subtitle != null) Text(subtitle, style: TextStyle(fontSize: 11, color: AppColors.iosGray, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            if (subtitle != null)
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.iosGray,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
           ],
         ),
       ),
@@ -188,12 +309,36 @@ class _WalletPageState extends ConsumerState<WalletPage> {
 
   Widget _buildServiceGrid(BuildContext context, bool isDark, Brightness b) {
     final services = [
-      {'icon': CupertinoIcons.creditcard_fill, 'label': t.common.creditCardRepayment, 'color': const Color(0xFF34C759)},
-      {'icon': CupertinoIcons.phone_fill, 'label': t.account.mobileRecharge, 'color': const Color(0xFF5AC8FA)},
-      {'icon': CupertinoIcons.briefcase_fill, 'label': t.group.financialManagement, 'color': const Color(0xFFFF9500)},
-      {'icon': CupertinoIcons.bolt_fill, 'label': t.main.lifePayment, 'color': const Color(0xFFFFCC00)},
-      {'icon': CupertinoIcons.heart_fill, 'label': t.main.medicalHealth, 'color': const Color(0xFFFF2D55)},
-      {'icon': CupertinoIcons.car_fill, 'label': t.main.traffic, 'color': const Color(0xFF007AFF)},
+      {
+        'icon': CupertinoIcons.creditcard_fill,
+        'label': t.common.creditCardRepayment,
+        'color': const Color(0xFF34C759),
+      },
+      {
+        'icon': CupertinoIcons.phone_fill,
+        'label': t.account.mobileRecharge,
+        'color': const Color(0xFF5AC8FA),
+      },
+      {
+        'icon': CupertinoIcons.briefcase_fill,
+        'label': t.group.financialManagement,
+        'color': const Color(0xFFFF9500),
+      },
+      {
+        'icon': CupertinoIcons.bolt_fill,
+        'label': t.main.lifePayment,
+        'color': const Color(0xFFFFCC00),
+      },
+      {
+        'icon': CupertinoIcons.heart_fill,
+        'label': t.main.medicalHealth,
+        'color': const Color(0xFFFF2D55),
+      },
+      {
+        'icon': CupertinoIcons.car_fill,
+        'label': t.main.traffic,
+        'color': const Color(0xFF007AFF),
+      },
     ];
 
     return Container(
@@ -201,7 +346,10 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.1),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 1.1,
+        ),
         itemCount: services.length,
         itemBuilder: (context, i) {
           final s = services[i];
@@ -211,9 +359,22 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(s['icon'] as IconData, size: 26, color: s['color'] as Color),
+                Icon(
+                  s['icon'] as IconData,
+                  size: 26,
+                  color: s['color'] as Color,
+                ),
                 const SizedBox(height: 8),
-                Text(s['label'] as String, style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary, fontWeight: FontWeight.w500)),
+                Text(
+                  s['label'] as String,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           );
@@ -222,35 +383,89 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     );
   }
 
-  Widget _buildTransactionSection(BuildContext context, WalletState state, bool isDark, Brightness b) {
+  Widget _buildTransactionSection(
+    BuildContext context,
+    WalletState state,
+    bool isDark,
+    Brightness b,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(padding: const EdgeInsets.fromLTRB(28, 24, 16, 8), child: Text(t.common.transactionHistory2.toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.iosGray))),
-        if (state.transactions.isEmpty && !state.isTxLoading)
-          Padding(padding: const EdgeInsets.all(40), child: Center(child: Text(t.common.noTransactionHistory, style: const TextStyle(color: AppColors.iosGray))))
-        else ImBoySettingsSection(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          children: state.transactions.map((tx) => _buildTransactionTile(tx, isDark, b)).toList(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(28, 24, 16, 8),
+          child: Text(
+            t.common.transactionHistory2.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.iosGray,
+            ),
+          ),
         ),
+        if (state.transactions.isEmpty && !state.isTxLoading)
+          Padding(
+            padding: const EdgeInsets.all(40),
+            child: Center(
+              child: Text(
+                t.common.noTransactionHistory,
+                style: const TextStyle(color: AppColors.iosGray),
+              ),
+            ),
+          )
+        else
+          ImBoySettingsSection(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            children: state.transactions
+                .map((tx) => _buildTransactionTile(tx, isDark, b))
+                .toList(),
+          ),
       ],
     );
   }
 
-  Widget _buildTransactionTile(WalletTransaction tx, bool isDark, Brightness b) {
+  Widget _buildTransactionTile(
+    WalletTransaction tx,
+    bool isDark,
+    Brightness b,
+  ) {
     final amountYuan = (tx.amount.abs() / 100.0).toStringAsFixed(2);
     final amountText = tx.isIncome ? '+¥$amountYuan' : '-¥$amountYuan';
-    final amountColor = tx.isIncome ? AppColors.getIosGreen(b) : AppColors.getIosRed(b);
+    final amountColor = tx.isIncome
+        ? AppColors.getIosGreen(b)
+        : AppColors.getIosRed(b);
 
     return ImBoyListTile(
       leading: Container(
-        width: 40, height: 40,
-        decoration: BoxDecoration(color: amountColor.withValues(alpha: 0.1), shape: BoxShape.circle),
-        child: Icon(tx.isIncome ? CupertinoIcons.arrow_down : CupertinoIcons.arrow_up, color: amountColor, size: 18),
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: amountColor.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          tx.isIncome ? CupertinoIcons.arrow_down : CupertinoIcons.arrow_up,
+          color: amountColor,
+          size: 18,
+        ),
       ),
-      title: Text(tx.remark.isNotEmpty ? tx.remark : (tx.isIncome ? t.common.transactionTypeIncome : t.common.transactionTypeExpense)),
+      title: Text(
+        tx.remark.isNotEmpty
+            ? tx.remark
+            : (tx.isIncome
+                  ? t.common.transactionTypeIncome
+                  : t.common.transactionTypeExpense),
+      ),
       subtitle: Text(tx.createdAt),
-      trailing: Text(amountText, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: amountColor, letterSpacing: -0.5)),
+      trailing: Text(
+        amountText,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: amountColor,
+          letterSpacing: -0.5,
+        ),
+      ),
       backgroundColor: Colors.transparent,
     );
   }

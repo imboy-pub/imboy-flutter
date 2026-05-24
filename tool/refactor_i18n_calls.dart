@@ -37,9 +37,7 @@ void main() async {
   final safePattern = RegExp(r'\b(context\.t|AppStrings\.of\(context\))\.(\w+)\b');
   
   // Matches t.key only if not followed by '(' (to avoid method calls on unrelated objects like Timer)
-  final tPattern = RegExp(r'(?<![\w\.])t\.(\w+)(?!\s*\()');
-  // BUT we must allow t.key(...) if it's a parameterized translation.
-  // We'll check the keyMap. If the key exists AND was originally parameterized, we SHOULD match it.
+  // t.key(...) for parameterized translations is handled separately via keyMap lookup.
   
   int updatedCount = 0;
   for (final file in dartFiles) {
@@ -76,7 +74,7 @@ void main() async {
     }
 
     if (content != original) {
-      for (final ns in Set.from(keyMap.values)) {
+      for (final ns in Set<String>.from(keyMap.values)) {
          content = content.replaceAll('t.$ns.$ns.', 't.$ns.');
          content = content.replaceAll('context.t.$ns.$ns.', 'context.t.$ns.');
          content = content.replaceAll('AppStrings.of(context).$ns.$ns.', 'AppStrings.of(context).$ns.');

@@ -128,7 +128,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     ssMsgExt ??= AppEventBus.on<ChatExtendEvent>().listen((obj) async {
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.groupId &&
-          (obj.payload['isFirst'] ?? false)) {
+          ((obj.payload['isFirst'] as bool?) ?? false)) {
         await _lock.synchronized(() async {
           notifier.addMember(obj.payload['people'] as PeopleModel);
           backDoRefresh = true;
@@ -177,10 +177,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   GroupModel? group = await GroupDetailService().find(
                     widget.groupId,
                   );
-                  if (group != null && mounted)
+                  if (group != null && mounted) {
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(
+                      CupertinoPageRoute<void>(
                         builder: (_) => ChangeInfoPage(
                           group: group,
                           title: t.group.groupName,
@@ -188,6 +188,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         ),
                       ),
                     );
+                  }
                 },
               ),
               ImBoySettingsTile(
@@ -201,8 +202,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   GroupModel? group = await GroupDetailService().find(
                     widget.groupId,
                   );
-                  if (group != null && mounted)
+                  if (group != null && mounted) {
                     context.push('/qrcode/group', extra: {'group': group});
+                  }
                 },
               ),
               ImBoySettingsTile(
@@ -306,10 +308,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       await GroupApi().updateRemark(
                         gid: widget.groupId,
                         remark: result,
-                      ))
+                      )) {
                     ref
                         .read(groupDetailProvider.notifier)
                         .setGroupRemark(result);
+                  }
                 },
               ),
               GroupNoticeDisabledTile(
@@ -399,7 +402,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     );
   }
 
-  Widget _buildMemberSection(dynamic state) {
+  Widget _buildMemberSection(GroupDetailState state) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -447,10 +450,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 extra: {'groupId': widget.groupId},
               );
               if (res != null) {
-                for (var gm in res)
+                for (var gm in res) {
                   ref
                       .read(groupDetailProvider.notifier)
                       .removeMember(gm.userId);
+                }
                 backDoRefresh = true;
               }
             },
@@ -481,7 +485,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   void _confirmClearChat() {
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.common.warning),
@@ -509,8 +513,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     .read(conversationProvider.notifier)
                     .conversationsList();
                 EasyLoading.showSuccess(t.common.tipSuccess);
-              } else
+              } else {
                 EasyLoading.showError(t.common.tipFailed);
+              }
             },
           ),
         ],
@@ -518,10 +523,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     );
   }
 
-  void _confirmExitGroup(dynamic state) {
+  void _confirmExitGroup(GroupDetailState state) {
     String tips =
         "${isGroupOwner(state.role) ? t.group.sureToDissolveGroup : t.group.sureToLeaveGroup}\n${t.common.sureDeleteGroupChatRecord}";
-    showCupertinoDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.common.tipTips),
@@ -552,7 +557,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   void _showComplaintDialog(BuildContext context) {
-    showCupertinoModalPopup(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => CupertinoActionSheet(
         title: Text(t.complaint.complaint),
@@ -582,10 +587,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           targetType: 'group',
           targetId: widget.groupId,
           reason: val,
-        ))
+        )) {
           EasyLoading.showSuccess(t.common.complaintSuccess);
-        else
+        } else {
           EasyLoading.showError(t.common.complaintFailed);
+        }
       },
       child: Text(label),
     );

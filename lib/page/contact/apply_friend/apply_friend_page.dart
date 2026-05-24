@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,7 +51,6 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
   @override
   Widget build(BuildContext context) {
     final providerState = ref.watch(applyFriendProvider);
-    final brightness = Theme.of(context).brightness;
 
     return IosPageTemplate(
       title: t.common.applyAddFriend,
@@ -70,7 +67,9 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                   child: CupertinoTextField(
                     controller: _msgC,
                     placeholder: t.common.pleaseEnterVerificationMessage,
-                    minLines: 3, maxLines: 5, maxLength: 100,
+                    minLines: 3,
+                    maxLines: 5,
+                    maxLength: 100,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: null,
                     style: const TextStyle(fontSize: 16),
@@ -82,7 +81,9 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
 
           // 备注 Section
           ImBoySettingsSection(
-            header: Text(t.main.setParam(param: t.contact.remark).toUpperCase()),
+            header: Text(
+              t.main.setParam(param: t.contact.remark).toUpperCase(),
+            ),
             children: [
               CupertinoListTile.notched(
                 title: Row(
@@ -113,10 +114,24 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.contact.tags),
-                subtitle: Text(providerState.peerTag.isEmpty ? t.common.addTag : providerState.peerTag),
+                subtitle: Text(
+                  providerState.peerTag.isEmpty
+                      ? t.common.addTag
+                      : providerState.peerTag,
+                ),
                 onTap: () async {
-                  final result = await Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => UserTagRelationPage(peerId: widget.uid, peerTag: providerState.peerTag, scene: 'friend')));
-                  if (result != null && result is String) ref.read(applyFriendProvider.notifier).updateTag(result);
+                  final result = await Navigator.push(
+                    context,
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => UserTagRelationPage(
+                        peerId: widget.uid,
+                        peerTag: providerState.peerTag,
+                        scene: 'friend',
+                      ),
+                    ),
+                  );
+                  if (result != null && result is String)
+                    ref.read(applyFriendProvider.notifier).updateTag(result);
                 },
               ),
             ],
@@ -126,37 +141,79 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context, dynamic providerState) {
+  Widget _buildSubmitButton(
+    BuildContext context,
+    ApplyFriendState providerState,
+  ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       child: SizedBox(
-        width: double.infinity, height: 50,
+        width: double.infinity,
+        height: 50,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary, foregroundColor: Colors.white,
-            elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
-          onPressed: _isSubmitting ? null : () async {
-            setState(() => _isSubmitting = true);
-            try {
-              final nav = Navigator.of(context);
-              Map<String, dynamic> payload = {
-                "from": {
-                  "source": widget.source, "msg": _msgC.text, "remark": _remarkC.text,
-                  "account": UserRepoLocal.to.current.account, "nickname": UserRepoLocal.to.current.nickname,
-                  "avatar": UserRepoLocal.to.current.avatar, "sign": UserRepoLocal.to.current.sign,
-                  "gender": UserRepoLocal.to.current.gender, "region": UserRepoLocal.to.current.region,
-                  "role": providerState.role, "donotlookhim": providerState.donotlookhim, "donotlethimlook": providerState.donotlethimlook,
-                  "tag": providerState.peerTag.isEmpty ? '' : "${providerState.peerTag},",
+          onPressed: _isSubmitting
+              ? null
+              : () async {
+                  setState(() => _isSubmitting = true);
+                  try {
+                    final nav = Navigator.of(context);
+                    Map<String, dynamic> payload = {
+                      "from": {
+                        "source": widget.source,
+                        "msg": _msgC.text,
+                        "remark": _remarkC.text,
+                        "account": UserRepoLocal.to.current.account,
+                        "nickname": UserRepoLocal.to.current.nickname,
+                        "avatar": UserRepoLocal.to.current.avatar,
+                        "sign": UserRepoLocal.to.current.sign,
+                        "gender": UserRepoLocal.to.current.gender,
+                        "region": UserRepoLocal.to.current.region,
+                        "role": providerState.role,
+                        "donotlookhim": providerState.donotlookhim,
+                        "donotlethimlook": providerState.donotlethimlook,
+                        "tag": providerState.peerTag.isEmpty
+                            ? ''
+                            : "${providerState.peerTag},",
+                      },
+                      "to": <String, dynamic>{},
+                    };
+                    if (await ref
+                        .read(applyFriendProvider.notifier)
+                        .apply(
+                          to: widget.uid,
+                          peerNickname: widget.remark,
+                          peerAvatar: widget.avatar,
+                          payload: payload,
+                        )) {
+                      nav.pop();
+                      nav.pop();
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isSubmitting = false);
+                  }
                 },
-                "to": <String, dynamic>{},
-              };
-              if (await ref.read(applyFriendProvider.notifier).apply(to: widget.uid, peerNickname: widget.remark, peerAvatar: widget.avatar, payload: payload)) {
-                nav.pop(); nav.pop();
-              }
-            } finally { if (mounted) setState(() => _isSubmitting = false); }
-          },
-          child: _isSubmitting ? const CupertinoActivityIndicator(color: Colors.white) : Text(t.common.buttonSend, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+          child: _isSubmitting
+              ? const CupertinoActivityIndicator(color: Colors.white)
+              : Text(
+                  t.common.buttonSend,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );

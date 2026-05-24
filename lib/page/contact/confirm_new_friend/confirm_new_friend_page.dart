@@ -28,7 +28,8 @@ class ConfirmNewFriendPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ConfirmNewFriendPage> createState() => _ConfirmNewFriendPageState();
+  ConsumerState<ConfirmNewFriendPage> createState() =>
+      _ConfirmNewFriendPageState();
 }
 
 class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
@@ -49,8 +50,6 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
   @override
   Widget build(BuildContext context) {
     final providerState = ref.watch(confirmNewFriendProvider);
-    final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
 
     return IosPageTemplate(
       title: t.common.acceptFriendRequest,
@@ -67,7 +66,12 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                 padding: const EdgeInsets.all(16),
                 child: Text(
                   '"${widget.msg}"',
-                  style: const TextStyle(fontSize: 16, height: 1.4, fontStyle: FontStyle.italic, color: AppColors.iosGray),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.4,
+                    fontStyle: FontStyle.italic,
+                    color: AppColors.iosGray,
+                  ),
                 ),
               ),
             ],
@@ -75,12 +79,17 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
 
           // 备注 Section
           ImBoySettingsSection(
-            header: Text(t.main.setParam(param: t.contact.remark).toUpperCase()),
+            header: Text(
+              t.main.setParam(param: t.contact.remark).toUpperCase(),
+            ),
             children: [
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(width: 80, child: Text('备注', style: TextStyle(fontSize: 17))),
+                    const SizedBox(
+                      width: 80,
+                      child: Text('备注', style: TextStyle(fontSize: 17)),
+                    ),
                     Expanded(
                       child: CupertinoTextField(
                         controller: _remarkC,
@@ -103,11 +112,31 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.contact.tags),
-                subtitle: Text(providerState.peerTag.isEmpty ? t.common.addTag : providerState.peerTag),
-                leading: const Icon(CupertinoIcons.tag_fill, color: AppColors.iosBlue, size: 20),
+                subtitle: Text(
+                  providerState.peerTag.isEmpty
+                      ? t.common.addTag
+                      : providerState.peerTag,
+                ),
+                leading: const Icon(
+                  CupertinoIcons.tag_fill,
+                  color: AppColors.iosBlue,
+                  size: 20,
+                ),
                 onTap: () async {
-                  final result = await Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => UserTagRelationPage(peerId: widget.from, peerTag: providerState.peerTag, scene: 'friend')));
-                  if (result != null && result is String) ref.read(confirmNewFriendProvider.notifier).updateTag(result);
+                  final result = await Navigator.push(
+                    context,
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => UserTagRelationPage(
+                        peerId: widget.from,
+                        peerTag: providerState.peerTag,
+                        scene: 'friend',
+                      ),
+                    ),
+                  );
+                  if (result != null && result is String)
+                    ref
+                        .read(confirmNewFriendProvider.notifier)
+                        .updateTag(result);
                 },
               ),
             ],
@@ -117,29 +146,57 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
     );
   }
 
-  Widget _buildBottomButton(BuildContext context, dynamic providerState) {
+  Widget _buildBottomButton(
+    BuildContext context,
+    ConfirmNewFriendState providerState,
+  ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       child: SizedBox(
-        width: double.infinity, height: 50,
+        width: double.infinity,
+        height: 50,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary, foregroundColor: Colors.white,
-            elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
           onPressed: () async {
-            Map<String, dynamic> p2 = json.decode(widget.payload) as Map<String, dynamic>;
+            Map<String, dynamic> p2 =
+                json.decode(widget.payload) as Map<String, dynamic>;
             p2['to'] = {
-              "remark": _remarkC.text, "account": UserRepoLocal.to.current.account, "nickname": UserRepoLocal.to.current.nickname,
-              "avatar": UserRepoLocal.to.current.avatar, "sign": UserRepoLocal.to.current.sign, "gender": UserRepoLocal.to.current.gender,
-              "role": providerState.role, "donotlookhim": providerState.donotlookhim, "donotlethimlook": providerState.donotlethimlook,
-              "tag": providerState.peerTag.isEmpty ? '' : "${providerState.peerTag},",
+              "remark": _remarkC.text,
+              "account": UserRepoLocal.to.current.account,
+              "nickname": UserRepoLocal.to.current.nickname,
+              "avatar": UserRepoLocal.to.current.avatar,
+              "sign": UserRepoLocal.to.current.sign,
+              "gender": UserRepoLocal.to.current.gender,
+              "role": providerState.role,
+              "donotlookhim": providerState.donotlookhim,
+              "donotlethimlook": providerState.donotlethimlook,
+              "tag": providerState.peerTag.isEmpty
+                  ? ''
+                  : "${providerState.peerTag},",
             };
-            if (await ref.read(confirmNewFriendProvider.notifier).confirm(from: widget.from, to: widget.to, payload: p2) && context.mounted) {
+            if (await ref
+                    .read(confirmNewFriendProvider.notifier)
+                    .confirm(from: widget.from, to: widget.to, payload: p2) &&
+                context.mounted) {
               Navigator.of(context).pop();
             }
           },
-          child: Text(t.common.buttonAccomplish, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+          child: Text(
+            t.common.buttonAccomplish,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
     );

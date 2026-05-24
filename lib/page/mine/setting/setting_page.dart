@@ -176,7 +176,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 leading: _buildIcon(Icons.vpn_key, AppColors.iosGreen),
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute<void>(
                     builder: (_) => const E2EEKeyRecoveryPage(),
                   ),
                 ),
@@ -293,7 +293,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           value,
           style: TextStyle(
             fontSize: 15,
-            color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
           ),
         ),
         const SizedBox(width: 8),
@@ -362,7 +364,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   void _openMarkdown(String title, String url) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<void>(
         builder: (_) => MarkdownPage(title: title, url: url),
       ),
     );
@@ -402,10 +404,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     try {
       EasyLoading.showToast(t.account.refreshingDeviceKey);
       E2EEService.clearCache();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
       final currentUid = UserRepoLocal.to.currentUid;
-      if (currentUid.isNotEmpty)
+      if (currentUid.isNotEmpty) {
         await E2EEService.getUserDevicePublicKeys(currentUid);
+      }
       EasyLoading.showSuccess(t.account.deviceKeyRefreshed);
     } catch (e) {
       EasyLoading.showError(t.common.tipFailed);
@@ -450,8 +453,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             EasyLoading.show();
             try {
               final info = await AppUpgradeService.to.manualCheck();
-              if (info == null || !info.hasUpdate)
+              if (info == null || !info.hasUpdate) {
                 EasyLoading.showInfo(t.common.nowNewVersion);
+              }
             } catch (e) {
               EasyLoading.showError(t.common.errorNetwork);
             } finally {
@@ -464,7 +468,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      CupertinoPageRoute<void>(
         builder: (_) => MarkdownPage(
           title: "${t.common.about} $appName",
           rightDMActions: rightDMActions,

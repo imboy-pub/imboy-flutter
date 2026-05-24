@@ -8,7 +8,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/service/websocket.dart'
+import 'package:imboy/service/exponential_backoff.dart'
     show ExponentialBackoff, JitterType;
 
 void main() {

@@ -75,8 +75,9 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       maxExtent: position.maxScrollExtent,
       isLoadingMore: _isLoadingMore,
       hasMore: _hasMore,
-    ))
+    )) {
       return;
+    }
     _loadMore();
   }
 
@@ -213,11 +214,12 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         else
           SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
-              if (index >= _items.length)
+              if (index >= _items.length) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Center(child: CupertinoActivityIndicator()),
                 );
+              }
               final item = _items[index];
               final currentUid = currentUidOrEmpty();
               final canDelete = canDeleteMoment(item, currentUid);
@@ -304,8 +306,8 @@ class MomentStaleBanner extends StatelessWidget {
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
-            minSize: 0,
             onPressed: onRetry,
+            minimumSize: Size(0, 0),
             child: Text(
               t.common.buttonRetry,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -471,8 +473,9 @@ class _MomentMediaPreview extends StatelessWidget {
   const _MomentMediaPreview({required this.media});
   @override
   Widget build(BuildContext context) {
-    if (media.length == 1)
+    if (media.length == 1) {
       return _MomentMediaCell(item: media.first, size: 200);
+    }
     return Wrap(
       spacing: 6,
       runSpacing: 6,
@@ -532,7 +535,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
         child: OctoImage(
           image: cachedImageProvider(previewUrl),
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+          errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
         ),
       );
     }
