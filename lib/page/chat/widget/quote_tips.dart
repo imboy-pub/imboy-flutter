@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/component/helper/func.dart' show formatBytes;
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -88,7 +87,11 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             t.common.messageRevoked,
-            style: TextStyle(color: AppColors.iosGray, fontStyle: FontStyle.italic, fontSize: 14),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontStyle: FontStyle.italic,
+              fontSize: 14,
+            ),
           ),
         ],
       );
@@ -109,7 +112,8 @@ class QuoteTipsWidget extends StatelessWidget {
         ],
       );
     } else if (msgType == MessageType.voice) {
-      double durationMS = (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
+      double durationMS =
+          (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
       body = Row(
         children: [
           Icon(CupertinoIcons.mic, size: 16, color: AppColors.iosGray),
@@ -149,7 +153,11 @@ class QuoteTipsWidget extends StatelessWidget {
     } else if (msgType == MessageType.visitCard) {
       body = Row(
         children: [
-          Icon(CupertinoIcons.person_crop_circle, size: 16, color: AppColors.iosGray),
+          Icon(
+            CupertinoIcons.person_crop_circle,
+            size: 16,
+            color: AppColors.iosGray,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -172,14 +180,27 @@ class QuoteTipsWidget extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurface : Colors.white,
-          border: Border(top: BorderSide(color: AppColors.getIosSeparator(Theme.of(context).brightness).withValues(alpha: 0.2), width: 0.5)),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.darkSurface
+              : Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: AppColors.getIosSeparator(
+                Theme.of(context).brightness,
+              ).withValues(alpha: 0.2),
+              width: 0.5,
+            ),
+          ),
         ),
         child: Row(
           children: [
             Container(
-              width: 3, height: 32,
-              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(2)),
+              width: 3,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -187,17 +208,28 @@ class QuoteTipsWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.getIosBlue(Theme.of(context).brightness))),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.getIosBlue(Theme.of(context).brightness),
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  body!,
+                  body,
                 ],
               ),
             ),
             CupertinoButton(
               padding: EdgeInsets.zero,
-              minSize: 32,
               onPressed: close,
-              child: Icon(CupertinoIcons.xmark_circle_fill, size: 20, color: AppColors.iosGray),
+              minimumSize: Size(32, 32),
+              child: Icon(
+                CupertinoIcons.xmark_circle_fill,
+                size: 20,
+                color: AppColors.iosGray,
+              ),
             ),
           ],
         ),

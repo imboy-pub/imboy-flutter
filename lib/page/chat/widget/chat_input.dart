@@ -8,7 +8,6 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
-import 'package:imboy/component/ui/image_button.dart' show ImageButton;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/chat/mention_list_widget.dart';
@@ -972,7 +971,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       builder: (context, inputType, _) {
         return CupertinoButton(
           padding: EdgeInsets.zero,
-          minSize: 44,
           onPressed: () {
             if (inputType == InputType.voice) {
               updateState(InputType.text);
@@ -980,6 +978,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               updateState(InputType.voice);
             }
           },
+          minimumSize: Size(44, 44),
           child: Icon(
             inputType != InputType.voice
                 ? CupertinoIcons.mic
@@ -999,7 +998,12 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       builder: (context, inputType, _) {
         return CupertinoButton(
           padding: EdgeInsets.zero,
-          minSize: 44,
+          onPressed: () {
+            updateState(
+              inputType != InputType.emoji ? InputType.emoji : InputType.text,
+            );
+          },
+          minimumSize: Size(44, 44),
           child: Icon(
             inputType != InputType.emoji
                 ? CupertinoIcons.smiley
@@ -1007,11 +1011,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             size: 28,
             color: AppColors.iosGray,
           ),
-          onPressed: () {
-            updateState(
-              inputType != InputType.emoji ? InputType.emoji : InputType.text,
-            );
-          },
         );
       },
     );
@@ -1031,13 +1030,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               ? const SizedBox.shrink(key: ValueKey('empty_extra'))
               : CupertinoButton(
                   padding: EdgeInsets.zero,
-                  minSize: 44,
                   key: const ValueKey('extra_button'),
-                  child: Icon(
-                    CupertinoIcons.plus_circle,
-                    size: 28,
-                    color: AppColors.iosGray,
-                  ),
                   onPressed: () {
                     updateState(
                       _inputType.value != InputType.extra
@@ -1045,6 +1038,12 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                           : InputType.text,
                     );
                   },
+                  minimumSize: Size(44, 44),
+                  child: Icon(
+                    CupertinoIcons.plus_circle,
+                    size: 28,
+                    color: AppColors.iosGray,
+                  ),
                 ),
         );
       },
@@ -1068,10 +1067,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   child: CupertinoButton(
                     key: const ValueKey('send_button'),
                     padding: EdgeInsets.zero,
-                    minSize: 32,
                     borderRadius: BorderRadius.circular(16),
                     color: AppColors.getIosBlue(brightness),
                     onPressed: _handleSendPressed,
+                    minimumSize: Size(32, 32),
                     child: const Icon(
                       CupertinoIcons.arrow_up,
                       color: Colors.white,
@@ -1098,8 +1097,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       _keyboardHeight = bottomInset;
     }
 
-    final targetPanelHeight =
-        _keyboardHeight > 0 ? _keyboardHeight : _softKeyHeight;
+    final targetPanelHeight = _keyboardHeight > 0
+        ? _keyboardHeight
+        : _softKeyHeight;
     double panelHeight = 0;
 
     if (_inputType.value == InputType.emoji ||
@@ -1165,8 +1165,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final composerBgColor =
-        isDark ? AppColors.darkSurface : AppColors.lightSurfaceGrouped;
+    final composerBgColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.lightSurfaceGrouped;
 
     return Container(
       color: composerBgColor,
@@ -1203,8 +1204,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     ),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color:
-                          isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: AppColors.getIosSeparator(
@@ -1256,7 +1258,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
           // 快捷回复面板
           _buildQuickRepliesPanel(),
-          
+
           // 安全区填充
           if (panelHeight == 0) SizedBox(height: bottomPadding),
         ],
