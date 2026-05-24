@@ -135,9 +135,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
       // 翻页时去重（防止重复项）
       if (page > 1 && state.items.isNotEmpty) {
-        final existing = state.items
-            .map((e) => (e as UserCollectModel).kindId)
-            .toSet();
+        final existing = state.items.map((e) => e.kindId).toSet();
         final filtered = result
             .where((r) => !existing.contains(r.kindId))
             .toList();
@@ -867,7 +865,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     );
   }
 
-  Future<List<dynamic>> doSearch(dynamic query) async {
+  Future<List<UserCollectModel>> doSearch(String query) async {
     if (kDebugMode) debugPrint("user_collect_s_doSearch executing");
 
     state.page = 1;

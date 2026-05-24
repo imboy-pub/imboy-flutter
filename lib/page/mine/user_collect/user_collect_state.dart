@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:imboy/store/model/user_collect_model.dart';
 
 /// UserCollect 页面状态
 /// 包含分页、搜索、加载状态等字段
@@ -7,7 +8,7 @@ class UserCollectState {
   bool kindActive = false;
 
   /// 列表数据
-  List<dynamic> items = [];
+  List<UserCollectModel> items = [];
 
   /// 标签列表 Widget（用于筛选）
   List<Widget> tagItems = [];
@@ -52,7 +53,7 @@ class UserCollectState {
   /// 创建状态副本
   UserCollectState copyWith({
     bool? kindActive,
-    List<dynamic>? items,
+    List<UserCollectModel>? items,
     List<Widget>? tagItems,
     int? page,
     int? size,
