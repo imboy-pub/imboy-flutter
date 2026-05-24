@@ -70,6 +70,14 @@ class MessageRepo {
     e2ee, // v2.0 新增
   ]);
 
+  // 共享 ProviderContainer — 必须通过 setProviderContainer 注入，否则 UI 状态不同步
+  static ProviderContainer _providerContainer = ProviderContainer();
+
+  /// 注入应用级 ProviderContainer（由 MessageService.setProviderContainer 级联调用）
+  static void setProviderContainer(ProviderContainer container) {
+    _providerContainer = container;
+  }
+
   // 当前活动的会话 UK3（用于离线消息同步时判断是否需要触发消息事件）
   static String? _currentActiveConversationUk3;
 
@@ -999,9 +1007,9 @@ class MessageRepo {
     final contactRepo = ContactRepo();
     final groupRepo = GroupRepo();
 
-    // 使用 ProviderContainer 访问 Riverpod Provider
-    final container = ProviderContainer();
-    final conversationNotifier = container.read(conversationProvider.notifier);
+    final conversationNotifier = _providerContainer.read(
+      conversationProvider.notifier,
+    );
 
     // 获取当前会话 ID - 使用静态字段跟踪当前活动会话
     // 注意：如果没有打开的聊天页面，currentConversationUk3 将为空

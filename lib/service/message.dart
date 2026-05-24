@@ -155,8 +155,11 @@ class MessageService with EventSubscriptionManager {
 
   /// 注入应用级 ProviderContainer（在 run.dart 中调用）
   /// 确保 MessageService 与 UI 共享同一个 Riverpod 状态
+  /// 同时级联注入依赖服务，避免各自创建孤立容器
   static void setProviderContainer(ProviderContainer container) {
     _providerContainer = container;
+    MessageS2CService.setProviderContainer(container);
+    MessageRepo.setProviderContainer(container);
   }
 
   // 获取会话逻辑的 Riverpod Provider

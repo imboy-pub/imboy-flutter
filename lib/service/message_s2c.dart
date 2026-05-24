@@ -48,7 +48,13 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - 使用 switch 语句处理不同的 action
 /// - 提取各个 action 处理逻辑为独立方法
 class MessageS2CService {
-  static final _providerContainer = ProviderContainer();
+  // 必须通过 setProviderContainer 注入应用级容器，否则状态更新不会反映到 UI
+  static ProviderContainer _providerContainer = ProviderContainer();
+
+  /// 注入应用级 ProviderContainer（由 MessageService.setProviderContainer 级联调用）
+  static void setProviderContainer(ProviderContainer container) {
+    _providerContainer = container;
+  }
 
   /// 处理 S2C 消息（WebSocket API v2.0 格式）
   ///

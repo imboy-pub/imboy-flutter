@@ -55,10 +55,9 @@ class MessageServiceAdapter {
     String newContent,
   ) => _service.sendEditMessage(messageId, messageType, newContent);
 
-  Future<bool> canRevokeMessage(MessageModel msg) =>
-      _service.canRevokeMessage(msg);
+  bool canRevokeMessage(MessageModel msg) => _service.canRevokeMessage(msg);
 
-  Future<bool> canEditMessage(MessageModel msg) => _service.canEditMessage(msg);
+  bool canEditMessage(MessageModel msg) => _service.canEditMessage(msg);
 
   Future<void> sendInputStatus({
     required String conversationUk3,

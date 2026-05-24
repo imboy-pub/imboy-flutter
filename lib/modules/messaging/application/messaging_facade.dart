@@ -53,10 +53,9 @@ class MessagingFacade {
     String newContent,
   ) => _adapter.sendEditMessage(messageId, messageType, newContent);
 
-  Future<bool> canRevokeMessage(MessageModel msg) =>
-      _adapter.canRevokeMessage(msg);
+  bool canRevokeMessage(MessageModel msg) => _adapter.canRevokeMessage(msg);
 
-  Future<bool> canEditMessage(MessageModel msg) => _adapter.canEditMessage(msg);
+  bool canEditMessage(MessageModel msg) => _adapter.canEditMessage(msg);
 
   Future<void> sendInputStatus({
     required String conversationUk3,
